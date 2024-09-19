@@ -284,16 +284,17 @@ export namespace DatabaseStructure {
     }
 
     export interface UtilsData {
-        PERMS?: UtilsPermsData
-        USER_PERMS?: UtilsPermsUserData
+        PERMS?: UtilsPermsData;
+        USER_PERMS?: UtilsPermsUserData;
+        unban_members?: string[]
     }
 
     export interface UtilsPermsData {
-        [key: string]: 1 | 2 | 3 | 4
+        [key: string]: 0 | 1 | 2 | 3 | 4
     }
 
     export interface UtilsPermsUserData {
-        [key: string]: 1 | 2 | 3 | 4
+        [key: string]: 0 | 1 | 2 | 3 | 4
     }
     export interface DbGuildUserObject {
         [userId: string]: {

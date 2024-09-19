@@ -164,6 +164,19 @@ export const command: Command = {
                 "fr": "Supprimer la possibilité de parler de tous les utilisateurs de ce channel"
             },
 
+            options: [
+                {
+                    name: "role",
+
+                    description: "The role",
+                    description_localizations: {
+                        "fr": "le rôle"
+                    },
+
+                    required: false,
+                    type: ApplicationCommandOptionType.Role
+                }
+            ],
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
@@ -173,6 +186,20 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Supprimer la possibilité de parler de tous les utilisateurs sur tous les channel"
             },
+
+            options: [
+                {
+                    name: "role",
+
+                    description: "The role",
+                    description_localizations: {
+                        "fr": "le rôle"
+                    },
+
+                    required: false,
+                    type: ApplicationCommandOptionType.Role
+                }
+            ],
 
             type: ApplicationCommandOptionType.Subcommand
         },
@@ -252,6 +279,20 @@ export const command: Command = {
                 "fr": "Donner la possibilité de parler de tous les utilisateurs dans ce texte"
             },
 
+            options: [
+                {
+                    name: "role",
+
+                    description: "The role",
+                    description_localizations: {
+                        "fr": "le rôle"
+                    },
+
+                    required: false,
+                    type: ApplicationCommandOptionType.Role
+                }
+            ],
+
             type: ApplicationCommandOptionType.Subcommand
         },
         {
@@ -281,12 +322,13 @@ export const command: Command = {
     thinking: true,
     category: 'moderation',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: SubCommandArgumentValue, execTimestamp?: number, options?: string[]) => {
-        let fetchedCommand;
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: SubCommandArgumentValue, execTimestamp?: number, options?: string[]) => {
+        let fetchedCommand: string;
         let sub: SubCommandArgumentValue | undefined;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             fetchedCommand = interaction.options.getSubcommand();
+            sub = { name: command.name, command: command.options?.find(x => fetchedCommand === x.name) }
         } else {
             if (!options?.[0]) {
                 await client.method.interactionSend(interaction, { embeds: [await client.method.createAwesomeEmbed(lang, command, client, interaction)] });

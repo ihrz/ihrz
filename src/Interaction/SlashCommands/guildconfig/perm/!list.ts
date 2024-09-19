@@ -1,0 +1,139 @@
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2024 iHorizon
+*/
+
+import {
+    Client,
+    PermissionsBitField,
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+} from 'discord.js';
+import { LanguageData } from '../../../../../types/languageData';
+import { DatabaseStructure } from '../../../../../types/database_structure';
+import { SubCommandArgumentValue } from '../../../../core/functions/method';
+
+export default {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData, command: SubCommandArgumentValue) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, data, permCheck.neededPerm || 0);
+
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
+            await client.method.interactionSend(interaction, { content: data.setup_not_admin });
+            return;
+        };
+
+        let all_members: DatabaseStructure.UtilsPermsUserData = await client.db.get(`${interaction.guildId}.UTILS.USER_PERMS`) || {};
+
+        let allUsers: { group: number, userId: string }[] = [];
+
+        Object.entries(all_members).forEach(([userId, perm]) => {
+            allUsers.push({ userId, group: perm });
+        });
+
+        let itemsPerPage = 10;
+        let currentPage = 0;
+        let totalPages = Math.max(1, Math.ceil(allUsers.length / itemsPerPage));
+
+        const generateEmbed = (page: number) => {
+            let embed = new EmbedBuilder()
+                .setTitle(data.perm_list_embed_title)
+                .setColor("#475387");
+
+            let startIndex = page * itemsPerPage;
+            let endIndex = Math.min(startIndex + itemsPerPage, allUsers.length);
+
+            let groupedUsers: { [key: number]: string[] } = {};
+
+            for (let i = startIndex; i < endIndex; i++) {
+                let { group, userId } = allUsers[i];
+                let user = client.users.cache.get(userId)?.toString() || data.perm_list_unknown_user.replace("${userId}", userId);
+
+                if (!groupedUsers[group]) {
+                    groupedUsers[group] = [];
+                }
+                groupedUsers[group].push(user);
+            }
+
+            Object.entries(groupedUsers).forEach(([group, users]) => {
+                embed.addFields({
+                    name: `Perm ${group}`,
+                    value: users.join("\n") || data.perm_list_no_user
+                });
+            });
+
+            embed.setFooter({
+                text: data.prevnames_embed_footer_text.replace("${currentPage + 1}", String(page + 1))
+                    .replace("${pages.length}", String(totalPages))
+            });
+            return embed;
+        };
+
+
+        const generateButtons = (page: number) => {
+            return new ActionRowBuilder<ButtonBuilder>()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('previous')
+                        .setLabel('<<')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(page === 0),
+                    new ButtonBuilder()
+                        .setCustomId('next')
+                        .setLabel('>>')
+                        .setStyle(ButtonStyle.Secondary)
+                        .setDisabled(page === totalPages - 1)
+                );
+        };
+
+        let message = await client.method.interactionSend(interaction, {
+            embeds: [generateEmbed(currentPage)],
+            components: [generateButtons(currentPage)],
+            fetchReply: true,
+        });
+
+        const collector = message.createMessageComponentCollector({
+            time: 60_000,
+        });
+
+        collector.on('collect', async i => {
+            if (i.customId === 'previous') {
+                currentPage--;
+            } else if (i.customId === 'next') {
+                currentPage++;
+            }
+
+            await i.update({
+                embeds: [generateEmbed(currentPage)],
+                components: [generateButtons(currentPage)]
+            });
+        });
+
+        collector.on('end', async () => {
+            await message.edit({
+                components: []
+            });
+        });
+    },
+};

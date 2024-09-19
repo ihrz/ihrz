@@ -43,6 +43,11 @@ var_length: "Longueur"
 var_good: "Bon"
 var_size: "Taille"
 var_level: "Niveau"
+var_add: "Ajouter"
+var_remove: "Supprimer"
+var_edit: "Modifier"
+var_confirm: "Confirmer"
+var_succes: "Succès"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -143,10 +148,10 @@ disablexp_command_work_disable: "T'as réussi à éteindre ce foutu message de n
 disablexp_logs_embed_title_enable: "Logs d'activation XP"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> a rallumé XP, bien joué !"
 disablexp_command_work_enable: "T'as réussi à allumer le message de niveau (XP)."
-disablexp_command_work_disable_entierly: "T'as bien désactivé le bordel des niveaux ! (Fini les messages et les users gagnent plus de niveaux)"
+disablexp_command_work_disable_entierly: "T'as bien désactivé le bordel des niveaux ! (Fini les messages et les membres ne gagnent plus de niveaux)"
 
 # /setxpchannels
-setxpchannels_not_admin: ":x: | C'est réservé aux admins, mec !"
+setxpchannels_not_admin: ":x: | C'est réservé aux admins, mec ! Si tu veux faire ça faut passer sous le bureau du fonda"
 setxpchannels_logs_embed_title_disable: "Logs SetXpChannels"
 setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> a désactivé les canaux d'XP personnalisés. Tout redevient comme avant..."
 setxpchannels_already_disabled_disable: "Les canaux d'XP personnalisés sont déjà foutus, mec !"
@@ -474,13 +479,13 @@ weekly_embed_description: "**Récompense Hebdomadaire**"
 weekly_embed_fields: "Collecté"
 
 # /work
-work_cooldown_error: "<@${interaction.user.id}>, **Attendez ${time} minutes avant de voler à nouveau un utilisateur !**"
+work_cooldown_error: "<@${interaction.user.id}>, **Attendez ${time} minutes avant de arabe à nouveau un utilisateur !**"
 work_embed_author: "${interaction.user.username}, ça a payé !"
 work_embed_description: "${interaction.user.username}, tu as travaillé et gagné ${amount}$ c'est bien bon esclave de la société!"
 
 # /withdraw
 withdraw_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Vous ne pouvez pas retirer une somme supérieure à celle que vous avez dans votre banque ! mais frère fait gaffe aussi"
-withdraw_embed_title: "Retrait de votre banque"
+withdraw_embed_title: "Retrait de votre banque à découvert"
 withdraw_embed_desc: "${interaction.user}, vous avez retiré ${toWithdraw}${client.iHorizon_Emojis.icon.Coin} de votre `banque`"
 withdraw_embed_fields1_name: "Banque"
 
@@ -491,7 +496,7 @@ deposit_embed_desc: "${interaction.user}, vous avez déposé ${toDeposit}${clien
 deposit_embed_fields1_name: "Banque"
 
 # /leaderboard
-economy_leaderboard_embed_title: "Classement économique de `${interaction.guild.name}`"
+economy_leaderboard_embed_title: "Classement d'économie de `${interaction.guild.name}`"
 economy_leaderboard_embed_fields_value: "<@${userId}> - Banque : `${userData.bank || 0}`${client.iHorizon_Emojis.icon.Coin} | Solde : `${userData.money || 0}`${client.iHorizon_Emojis.icon.Coin}"
 
 # /economy disable
@@ -508,7 +513,7 @@ economy_disable_logs_embed_title: "Logs Économiques dla Hess"
 # /setprofilage, /setprofildescriptions, /profil
 
 # /setprofilage
-setprofilage_command_work: "**Ton âge de profil a été mis à jour avec succès. J'éspère te voir dans mes dm :smirk:**"
+setprofilage_command_work: "**Ton âge de profil a été mis à jour avec succès. J'éspère te voir dans mes dm si t'es mineur :smirk:**"
 
 # /setprofildescriptions
 setprofildescriptions_command_work: "**Ta description de profil a été mise à jour avec succès.**"
@@ -532,7 +537,7 @@ profil_embed_fields_gender: "👤 ・ __C'que t'a entre les jambes__"
 
 # /serverinfo
 serverinfo_verlvl_NONE: "Aucun"
-serverinfo_verlvl_LOW: "Faible"
+serverinfo_verlvl_LOW: "Faible comme le vietnam"
 serverinfo_verlvl_MEDIUM: "Moyen"
 serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻"
 serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ "
@@ -563,7 +568,7 @@ setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} Ouais , la y
 setrankroles_command_work_with_nicknames: "Maintenant, lorsque vous me mentionnez `@iHorizon`, j'ajouterai les rôles suivants : <@&${argsid}> **Seulement si l'utilisateur a** `${nicknames}` dans son nom d'utilisateur ou nom global"
 
 # /snipe
-snipe_no_previous_message_deleted: "Le message précédent n'a pas été supprimé dans ce canal !"
+snipe_no_previous_message_deleted: "Le message précédent n'a pas été supprimé dans ce canal. Tu veux donc récup un message supp qui existe même pas ? sale tocard và"
 
 # /userinfo
 userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} Patiente mgl sois pas trop impatiant..."
@@ -581,34 +586,34 @@ renew_dont_have_permission: ":x: **Impossible** Ta pas la perm gros shlag !"
 renew_not_administrator: ":x: **Faut etre le boss pour faire ca , revient quand taura perm admin !**"
 
 # /prevnames
-prevnames_embed_title: "Liste de tous les pseudos de ${user.username}"
+prevnames_embed_title: "Liste de tous les pseudos de ${user.username} (c'un rdm alors?)"
 prevnames_undetected: "Aucune donnée trouvée !"
-prevnames_not_admin: "Il te faut la perm admin encore une fois, essaie /nayaweb c une super commande bg."
+prevnames_not_admin: "Il te faut la perm admin encore une fois, essaie /kisakay c une super commande bg."
 prevnames_data_erased: "Vos ancien pseudo ont entièrement été supprimer sur votre demande p'tit con!"
 prevnames_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **Tu n'est pas le propriétaire du serveur grosse merde !**"
 blockbot_logs_enable_title: "Journal BlockBot"
-blockbot_logs_enable_description: "${interaction.user} (Le propriétaire du serveur) a __activé__ `BlockBot`. Maintenant, le bot ne peut **pas** être ajouté à ce serveur !"
-blockbot_command_work_on_enable: "**Tu as activé `BlockPub`**\nMaintenant, le bot ne peut **pas** être ajouté à ce serveur !"
-blockbot_command_work_on_disable: "**Tu as désactivé `BlockPub`**\nMaintenant, le bot peut être ajouté à ce serveur !"
+blockbot_logs_enable_description: "${interaction.user} (Le propriétaire du serveur) a __activé__ `BlockBot`. Maintenant, les bot ne peuvent **plus** être ajouté à ce serveur !"
+blockbot_command_work_on_enable: "**Tu as activé `BlockPub`**\nMaintenant, les bot ne peuvent **plus** être ajouté à ce serveur !"
+blockbot_command_work_on_disable: "**Tu as désactivé `BlockPub`**\nMaintenant, les bot peuvent être ajouté de nouveau sur ce serveur !"
 blockbot_logs_disable_commmand_work: "Journal BlockBot"
-blockbot_logs_disable_description: "${interaction.user} (Le propriétaire du serveur) a __désactivé__ `BlockBot`. Maintenant, le bot peut être ajouté à ce serveur !"
+blockbot_logs_disable_description: "${interaction.user} (Le propriétaire du serveur) a __désactivé__ `BlockBot`. Maintenant, les bot peuvent être ajouté à ce serveur !"
 
 # /banner
 banner_guild_embed: "**Tient c'est la bannière du serv !**"
-banner_user_embed: "**Tient la banniere ${user?.username} pourquoi tu fais ça enfaite , tu veut lui voler sa banniere ?!**"
+banner_user_embed: "**Tient la banniere ${user?.username} pourquoi tu fais ça enfaite , tu veut lui voler sa banniere ?! mskn**"
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon à effectué la commande massiverole.\n\n**${a}** Utilisateur(s) ont __reçue__ le rôle ${role}\n**${s}** Utilisateur(s) __avait déjà__ le role ${role}\niHorizon __n'a pas réussi__ à ajoutez le rôle à **${e}** Utilisateur(s)."
 massiverole_sub_command_work: "${interaction.user}, iHorizon à effectué la commande massiverole.\n\n**${a}** Utilisateur(s) ont __perdu__ le rôle ${role}\n**${s}** Utilisateur(s) __avait déjà plus__ le role ${role}\niHorizon __n'a pas réussi__ à retirer le rôle à **${e}** Utilisateur(s)."
-massiverole_too_much_member: "Ya trop dmembre c mort jfais pas ça!"
+massiverole_too_much_member: "Ya trop dmembre c mort jfais pas ça! eh ouais gars faut rationné les requête à l'api discord!. tu crois c'est toi qui payent les serveur dédiers ? bha nan enft. donc tu prend tes click et tes clack et tu te casse. sérieux frr"
 
 # /nickrole
 nickrole_add_command_work: "${interaction.user}, iHorizon à effectué la commande nickrole.\n\n**${a}** Utilisateur(s) ont __reçue__ le rôle ${role}\n**${s}** Utilisateur(s) __n'avait pas__ le pseudo ${part_of_nickname}\niHorizon __n'a pas réussi__ à ajoutez le rôle à **${e}** Utilisateur(s)."
 nickrole_sub_command_work: "${interaction.user}, iHorizon à effectué la commande nickrole.\n\n**${a}** Utilisateur(s) ont __perdu__ le rôle ${role}\n**${s}** Utilisateur(s) __n'avait déjà plus__ le pseudo ${part_of_nickname}\niHorizon __n'a pas réussi__ à retirer le rôle à **${e}** Utilisateur(s)."
-nickrole_too_much_member: "Ya trop dmembre c mort jfais pas ça!"
+nickrole_too_much_member: "Ya trop dmembre c mort jfais pas ça! eh ouais gars faut rationné les requête à l'api discord!. tu crois c'est toi qui payent les serveur dédiers ? bha nan enft. donc tu prend tes click et tes clack et tu te casse. sérieux frr"
 
 # /emoji
 emoji_send_new_emoji: "__Nouvel emoji créé__ avec le nom **${emoji.name}** ! (${emoji})"
@@ -636,7 +641,7 @@ vc_embed_short_desc: "## États des Vocaux\n`${voiceStates?.size}` membre(s) son
 
 # /massmove
 massmove_results: "${interaction.user}, iHorizon a déplacé des membres entre les canaux vocaux.\n\n**${movedCount}** membre(s) ont été déplacé(s) avec succès de ${fromChannel} à ${toChannel}.\n**${errorCount}** membre(s) n'ont pas pu être déplacé(s) (voir les logs du serveur pour plus de détails)."
-massmove_too_much_member: "Trop de membres, je ne peux pas le faire en raison d'une éventuelle limitation de débit !"
+massmove_too_much_member: "Trop de membres, je ne peux pas le faire en raison d'une éventuelle limitation ! eh ouais gars faut rationné les requête à l'api discord!. tu crois c'est toi qui payent les serveur dédiers ? bha nan enft. donc tu prend tes click et tes clack et tu te casse. sérieux frr"
 
 # /all-admins
 all_admins_nobody_admins: "Il n'y a aucun administrateur dans ce serveur !"
@@ -794,7 +799,7 @@ setjoinmessage_var_avatar_size: "Taille de l'Avatar: "
 
 # /setjoinroles
 setjoinroles_var_none: "Aucun"
-setjoinroles_var_perm_admin: "Administrateur"
+setjoinroles_var_perm_admin: "Administrateur en surpoid"
 setjoinroles_var_perm_manage_guild: "Gérer le serveur"
 setjoinroles_var_perm_manage_role: "Gérer les rôles"
 setjoinroles_var_perm_use_mention: "Utiliser @everyone @here et pinguer des rôles"
@@ -924,6 +929,23 @@ guildconfig_config_save_user_msg: "Voici la sauvegarde des configurations de `${
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "Il y a eu une erreur lors du téléchargement du fichier."
 guildconfig_config_restore_msg: "Les données ont été enregistrées dans ma base de données."
+
+# /perm add
+perm_add_args_error: "Vous n'avez pas spécifié les commandes à modifier ou la permission à définir."
+
+# /perm list
+perm_list_embed_title: "Permissions de tous les utilisateurs :"
+perm_list_unknown_user: "Utilisateur inconnu (ID : ${userId})"
+perm_list_no_user: "Utilisateur non trouvé"
+var_command: "Commande"
+var_subcommand: "Sous-commande"
+var_subcommand_group: "Groupe de sous-commandes"
+var_unreachable_command: "Commande non trouvée"
+perm_list_no_command_set: "Il n'y a pas de commande avec des permissions spécifiques définies dans ce serveur !"
+
+# /perm set
+perm_set_deleted: "${user.toString()} a eu sa permission **supprimée** !"
+perm_set_ok: "${user.toString()} a vu sa permission changée en **`${perm}`**"
 
 
 # Member Count commands
@@ -1056,7 +1078,7 @@ gw_getdata_embed_fields_winners: "Gagnant(s)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (utilisez `/gw list-entries giveaway-id:${giveawayId}` pour plus d'informations)"
 gw_getdata_yes: "`Oui`"
 gw_getdata_no: "`Non`"
-gw_doesnt_exit: "Les cadeaux sont inaccessibles ou n'existent pas."
+gw_doesnt_exit: "Les cadeaux sont inaccessibles ou n'existent pas. rohhh nike sa mère voilà"
 
 
 # Moderation commands

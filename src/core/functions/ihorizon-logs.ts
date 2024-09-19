@@ -22,7 +22,7 @@
 import { BaseGuildTextChannel, ChatInputCommandInteraction, EmbedBuilder, GuildMember, Message } from "discord.js";
 
 export async function send(
-    interaction: ChatInputCommandInteraction | Message,
+    interaction: ChatInputCommandInteraction<"cached"> | Message,
     embed: {
         title: string;
         description: string;

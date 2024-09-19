@@ -43,6 +43,11 @@ var_length: "Longueur"
 var_good: "Bon"
 var_size: "Taille"
 var_level: "Niveau"
+var_add: "Ajouter"
+var_remove: "Supprimer"
+var_edit: "Modifier"
+var_confirm: "Confirmer"
+var_succes: "Succès"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -924,6 +929,23 @@ guildconfig_config_save_user_msg: "Voici la sauvegarde des configurations de `${
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "Il y a eu une erreur lors du téléchargement du fichier."
 guildconfig_config_restore_msg: "Les données ont été enregistrées dans ma base de données."
+
+# /perm add
+perm_add_args_error: "Vous n'avez pas spécifié les commandes à modifier ou la permission à définir."
+
+# /perm list
+perm_list_embed_title: "Permissions de tous les utilisateurs :"
+perm_list_unknown_user: "Utilisateur inconnu (ID : ${userId})"
+perm_list_no_user: "Utilisateur non trouvé"
+var_command: "Commande"
+var_subcommand: "Sous-commande"
+var_subcommand_group: "Groupe de sous-commandes"
+var_unreachable_command: "Commande non trouvée"
+perm_list_no_command_set: "Il n'y a pas de commande avec des permissions spécifiques définies dans ce serveur !"
+
+# /perm set
+perm_set_deleted: "${user.toString()} a eu sa permission **supprimée** !"
+perm_set_ok: "${user.toString()} a vu sa permission changée en **`${perm}`**"
 
 
 # Member Count commands

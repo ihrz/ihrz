@@ -57,9 +57,7 @@ export const event: BotEvent = {
 
             try {
                 let lang = await client.func.getLanguageData(message.guildId) as LanguageData;
-
-                await result.c?.run(client, message, lang, result.c, Date.now(), result.a);
-
+                await result.c?.run(client, message, lang, { name: result.c?.name, command: result.c }, Date.now(), result.a);
             } catch (err) {
                 let block = `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${result.c?.name}\nError: ${err}\`\`\`\n`
                 let channel = client.channels.cache.get(client.config.core.reportChannelID);

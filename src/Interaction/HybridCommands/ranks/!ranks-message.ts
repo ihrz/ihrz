@@ -28,18 +28,23 @@ import {
     Client,
     ComponentType,
     EmbedBuilder,
+    Message,
     PermissionsBitField,
     TextInputStyle
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
+import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction, data: LanguageData) => {
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
+        let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
+        if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, data, permCheck.neededPerm || 0);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
+        if (!interaction.member.permissions?.has(PermissionsBitField.Flags.Administrator)) {
             await client.method.interactionSend(interaction, { content: data.ranksSetMessage_not_admin, ephemeral: true });
             return;
         }
@@ -58,7 +63,7 @@ export default {
                     name: data.ranksSetMessage_help_embed_fields_custom_name,
                     value: xpMessage ? `\`\`\`${xpMessage}\`\`\`\n${client.method.generateCustomMessagePreview(xpMessage,
                         {
-                            user: interaction.user,
+                            user: interaction.member.user,
                             guild: interaction.guild!,
                             guildLocal: guildLocal,
                             ranks: {
@@ -71,7 +76,7 @@ export default {
                     name: data.ranksSetMessage_help_embed_fields_default_name_empy,
                     value: `\`\`\`${data.event_xp_level_earn}\`\`\`\n${client.method.generateCustomMessagePreview(data.event_xp_level_earn,
                         {
-                            user: interaction.user,
+                            user: interaction.member.user,
                             guild: interaction.guild!,
                             guildLocal: guildLocal,
                             ranks: {
@@ -105,7 +110,7 @@ export default {
         });
 
         collector.on('collect', async (buttonInteraction) => {
-            if (buttonInteraction.user.id !== interaction.user.id) {
+            if (buttonInteraction.user.id !== interaction.member?.user.id) {
                 await buttonInteraction.reply({ content: data.help_not_for_you, ephemeral: true });
                 return;
             };
@@ -137,7 +142,7 @@ export default {
                             name: data.ranksSetMessage_help_embed_fields_custom_name,
                             value: response ? `\`\`\`${response}\`\`\`\n${client.method.generateCustomMessagePreview(response,
                                 {
-                                    user: interaction.user,
+                                    user: interaction.member.user,
                                     guild: interaction.guild!,
                                     guildLocal: guildLocal,
                                     ranks: {
@@ -159,7 +164,7 @@ export default {
                     await client.method.iHorizonLogs.send(interaction, {
                         title: data.ranksSetMessage_logs_embed_title_on_enable,
                         description: data.ranksSetMessage_logs_embed_description_on_enable
-                            .replace("${interaction.user.id}", interaction.user.id)
+                            .replace("${interaction.user.id}", interaction.member.user.id)
                     });
                 } catch (e) {
                     logger.err(e as any);
@@ -185,7 +190,7 @@ export default {
                 await client.method.iHorizonLogs.send(interaction, {
                     title: data.ranksSetMessage_logs_embed_title_on_disable,
                     description: data.ranksSetMessage_logs_embed_description_on_disable
-                        .replace("${interaction.user.id}", interaction.user.id)
+                        .replace("${interaction.user.id}", interaction.member.user.id)
                 });
             }
         });
