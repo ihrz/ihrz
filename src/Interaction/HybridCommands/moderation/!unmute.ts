@@ -55,7 +55,7 @@ export default {
 
         if (!tomute) return;
 
-        if (!permissions) {
+        if (!permissions && permCheck.neededPerm === 0) {
             await client.method.interactionSend(interaction, {
                 content: data.unmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });

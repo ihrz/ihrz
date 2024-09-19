@@ -51,7 +51,7 @@ export default {
             return;
         };
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.editReply({
                 content: data.sethereticket_not_admin.replace(":x:", client.iHorizon_Emojis.icon.No_Logo)
             });

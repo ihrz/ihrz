@@ -39,7 +39,7 @@ export default {
 
         let id = interaction.options.getString("id");
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.editReply({ content: data.suggest_delete_not_delete });
             return;
         };

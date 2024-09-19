@@ -110,7 +110,7 @@ export const command: Command = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.reply({ content: lang.punishpub_not_admin });
             return;
         };

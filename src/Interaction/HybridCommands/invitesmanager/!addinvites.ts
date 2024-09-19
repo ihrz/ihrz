@@ -59,7 +59,7 @@ export default {
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
-        if (!permissions) {
+        if (!permissions && permCheck.neededPerm === 0) {
             await client.method.interactionSend(interaction, { embeds: [a] });
             return;
         };

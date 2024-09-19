@@ -45,7 +45,7 @@ export default {
         };
         let channel = interaction.options.getChannel('channel') as GuildChannel;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.editReply({ content: data.disableticket_not_admin });
             return;
         };

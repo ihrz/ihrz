@@ -48,7 +48,7 @@ export default {
 
         let spamRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Spam);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
             return;
         } else if (turn === "on") {

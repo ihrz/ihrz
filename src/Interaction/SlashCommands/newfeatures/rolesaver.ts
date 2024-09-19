@@ -119,7 +119,7 @@ export const command: Command = {
         var settings = interaction.options.getString("settings") || "None";
         var timeout = interaction.options.getString("timeout") || "None";
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.reply({ content: lang.punishpub_not_admin });
             return;
         };

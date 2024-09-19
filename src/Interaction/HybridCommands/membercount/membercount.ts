@@ -106,7 +106,7 @@ export const command: Command = {
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
-        if (!permissions) {
+        if (!permissions && permCheck.neededPerm === 0) {
             await client.method.interactionSend(interaction, { content: lang.setmembercount_not_admin });
             return;
         };

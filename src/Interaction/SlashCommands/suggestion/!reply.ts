@@ -40,7 +40,7 @@ export default {
         let id = interaction.options.getString("id");
         let message = interaction.options.getString("message");
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.editReply({ content: data.suggest_reply_not_admin });
             return;
         };

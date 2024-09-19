@@ -38,7 +38,7 @@ export default {
 
         let channel = interaction.options.getChannel("id");
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.reply({ content: data.security_channel_not_admin });
             return;
         };

@@ -48,7 +48,7 @@ export default {
         let automodRules = await interaction.guild.autoModerationRules.fetch();
         let KeywordPresetRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.editReply({ content: data.blockpub_not_admin });
             return;
 

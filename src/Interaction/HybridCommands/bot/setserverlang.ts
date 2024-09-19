@@ -128,7 +128,7 @@ export const command: Command = {
             var type = args?.[0] as string | null;
         };
 
-        if (!permissions) {
+        if (!permissions && permCheck.neededPerm === 0) {
             await client.method.interactionSend(interaction, { content: lang.setserverlang_not_admin });
             return;
         };

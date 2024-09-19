@@ -47,7 +47,7 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.editReply({ content: data.setchannels_not_admin });
             return;
         };

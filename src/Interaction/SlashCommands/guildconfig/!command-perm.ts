@@ -40,7 +40,7 @@ export default {
 
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && permCheck.neededPerm === 0)) {
             await interaction.editReply({ content: lang.guildprofil_not_admin });
             return;
         }

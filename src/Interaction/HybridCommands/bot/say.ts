@@ -79,7 +79,7 @@ export const command: Command = {
             var toSay = args?.join(" ")!;
         };
 
-        if (!permissions) {
+        if (!permissions && permCheck.neededPerm === 0) {
             await client.method.interactionSend(interaction, { content: lang.setserverlang_not_admin });
             return;
         };
