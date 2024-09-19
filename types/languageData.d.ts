@@ -717,6 +717,9 @@ export interface LanguageData {
   perm_list_no_command_set: string;
   perm_set_deleted: string;
   perm_set_ok: string;
+  perm_roles_created_role: string;
+  perm_roles_already_upate: string;
+  perm_roles_error: string;
   setmembercount_not_admin: string;
   setmembercount_helpembed_title: string;
   setmembercount_helpembed_description: string;

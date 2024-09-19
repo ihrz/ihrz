@@ -947,6 +947,11 @@ perm_list_no_command_set: "Non ci sono comandi con permessi specifici impostati 
 perm_set_deleted: "${user.toString()} ha avuto il permesso **eliminato**!"
 perm_set_ok: "${user.toString()} ha cambiato il permesso a **`${perm}`**"
 
+# /perm roles
+perm_roles_created_role: "I seguenti ruoli sono stati creati: ${createdRoles.join(', ')}"
+perm_roles_already_upate: "Tutti i ruoli esistono già e sono aggiornati."
+perm_roles_error: "Si è verificato un errore durante la creazione o l'aggiornamento dei ruoli."
+
 
 # Member Count commands
 # /setmembercount

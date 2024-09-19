@@ -45,8 +45,12 @@ export default {
         };
 
         let all_members: DatabaseStructure.UtilsPermsUserData = await client.db.get(`${interaction.guildId}.UTILS.USER_PERMS`) || {};
-
+        let all_roles: DatabaseStructure.UtilsRoleData = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {};
         let allUsers: { group: number, userId: string }[] = [];
+
+        Object.entries(all_roles).forEach(([perm, userId]) => {
+            allUsers.push({ userId, group: parseInt(perm) });
+        });
 
         Object.entries(all_members).forEach(([userId, perm]) => {
             allUsers.push({ userId, group: perm });
@@ -68,7 +72,7 @@ export default {
 
             for (let i = startIndex; i < endIndex; i++) {
                 let { group, userId } = allUsers[i];
-                let user = client.users.cache.get(userId)?.toString() || data.perm_list_unknown_user.replace("${userId}", userId);
+                let user = interaction.guild.roles.cache.get(userId)?.toString() || interaction.guild.members.cache.get(userId)?.toString() || data.perm_list_unknown_user.replace("${userId}", userId);
 
                 if (!groupedUsers[group]) {
                     groupedUsers[group] = [];

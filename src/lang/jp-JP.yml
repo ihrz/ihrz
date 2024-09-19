@@ -947,6 +947,11 @@ perm_list_no_command_set: "このサーバーには特定の権限が設定さ�
 perm_set_deleted: "${user.toString()} の権限は **削除** されました！"
 perm_set_ok: "${user.toString()} の権限は **`${perm}`** に変更されました"
 
+# /perm roles
+perm_roles_created_role: "以下の役割が作成されました：${createdRoles.join('、')}"
+perm_roles_already_upate: "すべての役割が既に存在し、最新の状態です。"
+perm_roles_error: "役割の作成または更新中にエラーが発生しました。"
+
 
 # Member Count commands
 # /setmembercount

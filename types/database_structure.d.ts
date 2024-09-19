@@ -283,19 +283,28 @@ export namespace DatabaseStructure {
         STATS?: GuildStats;
     }
 
+    export interface UtilsRoleData {
+        1?: string;
+        2?: string;
+        3?: string;
+        4?: string;
+    }
+
     export interface UtilsData {
         PERMS?: UtilsPermsData;
         USER_PERMS?: UtilsPermsUserData;
         unban_members?: string[]
+        roles?: UtilsRoleData
     }
 
     export interface UtilsPermsData {
-        [key: string]: 0 | 1 | 2 | 3 | 4
+        [key: string]: 1 | 2 | 3 | 4
     }
 
     export interface UtilsPermsUserData {
-        [key: string]: 0 | 1 | 2 | 3 | 4
+        [key: string]: 1 | 2 | 3 | 4
     }
+
     export interface DbGuildUserObject {
         [userId: string]: {
             INVITES?: InvitesUserData;

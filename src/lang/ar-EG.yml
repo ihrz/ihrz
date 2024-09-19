@@ -945,6 +945,11 @@ perm_list_no_command_set: "لا توجد أوامر تم تعيين أذونات
 perm_set_deleted: "${user.toString()} تم **حذف** أذنه!"
 perm_set_ok: "${user.toString()} تم تغيير أذنه إلى **`${perm}`**"
 
+# /perm roles
+perm_roles_created_role: "الأدوار اللي اتعملت: ${createdRoles.join(', ')}"
+perm_roles_already_upate: "كل الأدوار موجودة وحديثة."
+perm_roles_error: "حصل خطأ أثناء إنشاء أو تحديث الأدوار."
+
 
 # Member Count commands
 # /setmembercount
