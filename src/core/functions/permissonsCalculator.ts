@@ -27,7 +27,7 @@ import { LanguageData } from "../../../types/languageData";
 
 export async function checkCommandPermission(interaction: ChatInputCommandInteraction<"cached"> | Message, command: string | Command | Option): Promise<{
     allowed: boolean;
-    neededPerm?: number;
+    neededPerm: number;
 }> {
     var usr = interaction instanceof ChatInputCommandInteraction ? interaction.user : interaction.author;
     var db = interaction.client.db;
@@ -37,7 +37,7 @@ export async function checkCommandPermission(interaction: ChatInputCommandIntera
     let userInDatabase = guildPerm?.USER_PERMS?.[usr.id] || 0;
     let cmdNeedPerm = guildPerm?.PERMS?.[cmd] || 0;
 
-    if (userInDatabase >= cmdNeedPerm) return { allowed: true };
+    if (userInDatabase >= cmdNeedPerm) return { allowed: true, neededPerm: 0 };
     return { allowed: false, neededPerm: cmdNeedPerm };
 }
 
