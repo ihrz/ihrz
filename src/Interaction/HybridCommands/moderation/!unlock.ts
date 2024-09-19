@@ -65,7 +65,7 @@ export default {
             .setTimestamp()
             .setDescription(data.unlock_embed_message_description);
 
-        await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: false });
+        await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: true });
         await client.method.iHorizonLogs.send(interaction, {
             title: data.unlock_logs_embed_title,
             description: data.unlock_logs_embed_description
