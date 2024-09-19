@@ -59,6 +59,8 @@ export async function checkCommandPermission(interaction: ChatInputCommandIntera
 
 export async function sendErrorMessage(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, neededPerm: number) {
     return await interaction.client.method.interactionSend(interaction, {
-        content: `${interaction.member?.user.toString()}, you are not allowed to use this command! Need perm: ${neededPerm === 0 ? 'Discord Permission' : neededPerm}`
+        content: lang.event_permission_wrong
+            .replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
+            .replace("${neededPerm === 0 ? 'Discord Permission' : neededPerm}", String(neededPerm === 0 ? 'Discord Permission' : neededPerm))
     })
 }
