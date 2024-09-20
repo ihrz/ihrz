@@ -123,6 +123,16 @@ export const command: Command = {
             ],
         },
         {
+            name: 'mutelist',
+
+            description: 'Show a list with all muted member',
+            description_localizations: {
+                "fr": "Affiche une liste des gens mise en sourdine"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
             name: 'kick',
 
             description: 'Kick a user!',
