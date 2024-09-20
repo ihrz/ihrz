@@ -947,6 +947,11 @@ perm_list_no_command_set: "Es gibt keine Befehle mit spezifischen Berechtigungen
 perm_set_deleted: "${user.toString()} hat seine Berechtigung **gelöscht**!"
 perm_set_ok: "${user.toString()} hat seine Berechtigung auf **`${perm}`** geändert"
 
+# /perm roles
+perm_roles_created_role: "Folgende Rollen wurden erstellt: ${createdRoles.join(', ')}"
+perm_roles_already_upate: "Alle Rollen existieren bereits und sind auf dem neuesten Stand."
+perm_roles_error: "Bei der Erstellung oder Aktualisierung der Rollen ist ein Fehler aufgetreten."
+
 
 # Member Count commands
 # /setmembercount
@@ -1219,6 +1224,13 @@ reactionroles_logs_embed_title_remove: "ReactionRoles-Protokolle"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> hat eine Reaktionsrolle gelöscht: Nachricht: `${messagei}` | Reaktion: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} wurde aus der Nachricht von ${messagei} gelöscht"
 reactionroles_dont_message_found: "Ich kann die Nachricht mit der aktuellen Nachrichten-ID nicht abrufen, oder das Emoji, das Sie ausgewählt haben, befindet sich nicht auf einem Server, auf dem ich bin!"
+
+# /buttonreaction
+buttonreaction_logs_embed_title_added: "ButtonReaction Protokolle"
+buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> hat eine Reaktion mit dem Button gesetzt: Nachricht: `${messagei}` | Reaktion: `${reaction}` | Rolle: ${role}"
+buttonreaction_dont_message_found: "Kann diesen Button nicht hinzufügen, die Rollen scheinen bereits in einem bestehenden Button gesetzt zu sein!"
+buttonreaction_roles_not_found: "Fehlende Argumente: Du hast die Rollen, die gesetzt werden sollen, nicht angegeben!"
+buttonreaction_message_other_user_error: "In Discord kann der Bot die Komponenten einer Nachricht eines anderen Benutzers nicht ändern. Du musst eine von mir gesendete Nachricht wählen. Tipp: Mach `/utils embed`, um dein eigenes schönes Embed zu erstellen!"
 
 
 # Neue Funktionenbefehle
@@ -1770,6 +1782,9 @@ event_boostlog_sub: "<@${newMember.user.id}> **hat gerade seinen Boost vom Serve
 # Wirtschaftsmodul
 economy_disable_msg: "<@${interaction.user.id}>, das `Wirtschaftsmodul` auf diesem Server ist **deaktiviert**. Du kannst das Wirtschaftsmodul nicht mehr verwenden!"
 
+# Permission Event
+event_permission_wrong: "${interaction.member?.user.toString()}, Sie dürfen diesen Befehl nicht verwenden! Benötigte Berechtigung: **`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
+
 # TempVoice-Modul
 # Alle Komponenten, globalVar...
 
@@ -1865,5 +1880,11 @@ notifier_generateAuthorsEmbed_embed_title: "Alle Streamer/YouTuber im Server"
 notifier_generateConfigurationEmbed_embed_title: "Konfiguration des Benachrichtigungsmoduls"
 notifier_generateConfigurationEmbed_embed_fields_1_name: "Benachrichtigungskanal"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "Benachrichtigungsnachricht"
+
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "Die Rolle in meiner Datenbank existiert nicht mehr im Server!"
+buttonreaction_role_too_high: "Die Rolle ist zu hoch, ich kann die Rolle nicht vergeben/entfernen. Ich muss meine Berechtigungen ändern!"
+buttonreaction_role_add: "Du hast die Rolle ${fetched_role.toString()} nicht mehr ✅"
+buttonreaction_role_remove: "Du hast jetzt die Rolle ${fetched_role.toString()} :tada:"
 
 # -----------------------------\ /-----------------------------

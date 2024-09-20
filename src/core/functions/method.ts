@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -299,10 +299,18 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
 
 export async function interactionSend(interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions): Promise<Message> {
     const nonce = SnowflakeUtil.generate().toString();
-
     if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return interaction.deferred ? await interaction.editReply(editOptions) : await interaction.reply(editOptions as any);
+        const editOptions: InteractionEditReplyOptions | InteractionDeferReplyOptions | InteractionReplyOptions = typeof options === 'string' ? { content: options } : options;
+
+        if (interaction.replied) {
+            return await interaction.editReply(editOptions as InteractionEditReplyOptions);
+        } else if (interaction.deferred) {
+            await interaction.editReply(editOptions as InteractionEditReplyOptions);
+            return await interaction.fetchReply();
+        } else {
+            const reply = await interaction.reply({ ...editOptions as InteractionReplyOptions, fetchReply: true });
+            return reply;
+        }
     } else {
         let replyOptions: MessageReplyOptions;
 
@@ -434,6 +442,64 @@ export const findOptionRecursively = (options: Option[], subcommandName: string)
     }
     return undefined;
 };
+
+export const buttonReact = async (msg: Message, button: ButtonBuilder): Promise<Message> => {
+    let comp = msg.components;
+    let isAdd = false;
+
+    if (comp.length >= 5) {
+        throw "Too much components on this message!";
+    }
+
+    for (let lines of comp) {
+        if (lines.components.length < 5 && !isAdd) {
+            if (lines.components.find(x => x.type === ComponentType.Button)) {
+                let newActionRow: ActionRowBuilder = ActionRowBuilder.from(lines);
+
+                newActionRow.addComponents(button);
+                comp[comp.indexOf(lines)] = newActionRow.toJSON() as ActionRow<MessageActionRowComponent>;
+                isAdd = true;
+                break;
+            }
+        }
+    }
+
+    if (!isAdd) {
+        let newActionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+        comp.push(newActionRow.toJSON() as ActionRow<MessageActionRowComponent>);
+    }
+
+    await msg.edit({ components: comp });
+
+    return msg;
+}
+
+export const buttonUnreact = async (msg: Message, buttonEmoji: string): Promise<Message> => {
+    let comp = msg.components;
+    let isRemoved = false;
+
+    const newComp = [];
+
+    for (let i = 0; i < comp.length; i++) {
+        const actionRow = comp[i];
+        const newComponents = actionRow.components.filter(component => {
+            if (component.type === ComponentType.Button && component.emoji?.name === buttonEmoji) {
+                isRemoved = true;
+                return false;
+            }
+            return true;
+        });
+
+        if (newComponents.length > 0) {
+            newComp.push({ type: 1, components: newComponents });
+        }
+    }
+
+    if (!isRemoved) return msg;
+
+    await msg.edit({ components: newComp });
+    return msg;
+}
 
 export const permission = perm;
 export const bot = f;

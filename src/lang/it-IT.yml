@@ -947,6 +947,11 @@ perm_list_no_command_set: "Non ci sono comandi con permessi specifici impostati 
 perm_set_deleted: "${user.toString()} ha avuto il permesso **eliminato**!"
 perm_set_ok: "${user.toString()} ha cambiato il permesso a **`${perm}`**"
 
+# /perm roles
+perm_roles_created_role: "I seguenti ruoli sono stati creati: ${createdRoles.join(', ')}"
+perm_roles_already_upate: "Tutti i ruoli esistono già e sono aggiornati."
+perm_roles_error: "Si è verificato un errore durante la creazione o l'aggiornamento dei ruoli."
+
 
 # Member Count commands
 # /setmembercount
@@ -1219,6 +1224,13 @@ reactionroles_logs_embed_title_remove: "Log ReactionRoles"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> ha eliminato una reaction role: Messaggio: ${messagei} | Reazione: ${reaction}"
 reactionroles_command_work_remove: "${reaction} è stato eliminato dal messaggio ${messagei}"
 reactionroles_dont_message_found: "Non riesco a ottenere il messaggio con l'ID del tuo messaggio attuale, oppure l'emoji che hai selezionato non è su un server in cui mi trovo!"
+
+# /buttonreaction
+buttonreaction_logs_embed_title_added: "Registri di ButtonReaction"
+buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> ha impostato una reazione con il pulsante: Messaggio: `${messagei}` | Reazione: `${reaction}` | Ruolo: ${role}"
+buttonreaction_dont_message_found: "Impossibile aggiungere questo pulsante, sembra che i ruoli siano già stati impostati in uno dei pulsanti esistenti!"
+buttonreaction_roles_not_found: "Argomenti mancanti: Non hai specificato i ruoli da impostare!"
+buttonreaction_message_other_user_error: "In Discord, il bot non può modificare i componenti di un messaggio di un altro utente. Devi scegliere un messaggio inviato da me. Suggerimento: Fai `/utils embed` per creare il tuo bel embed!"
 
 
 # New feature commands
@@ -1770,6 +1782,9 @@ event_boostlog_sub: "<@${newMember.user.id}> **ha appena rimosso il suo boost** 
 # Modulo Economia
 economy_disable_msg: "<@${interaction.user.id}>, il `Modulo Economia` in questo server è **disabilitato**. Non puoi più utilizzare il modulo economico!"
 
+# Permission Event
+event_permission_wrong: "${interaction.member?.user.toString()}, non sei autorizzato a usare questo comando! Permesso necessario: **`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
+
 # Modulo TempVoice
 # Tutti i componenti, variabili globali...
 
@@ -1866,5 +1881,11 @@ notifier_generateAuthorsEmbed_embed_title: "Tutti gli Streamer/YouTuber nel serv
 notifier_generateConfigurationEmbed_embed_title: "Configurazione del Modulo di Notifica"
 notifier_generateConfigurationEmbed_embed_fields_1_name: "Canale di Notifica"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "Messaggio di Notifica"
+
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "Il ruolo nel mio database non esiste più nel server!"
+buttonreaction_role_too_high: "Il ruolo è troppo alto, non posso dare/rimuovere il ruolo. Devo cambiare i miei permessi!"
+buttonreaction_role_add: "Non hai più il ruolo ${fetched_role.toString()} ✅"
+buttonreaction_role_remove: "Hai ora il ruolo ${fetched_role.toString()} :tada:"
 
 # -----------------------------\ /-----------------------------
