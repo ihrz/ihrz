@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -299,10 +299,18 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
 
 export async function interactionSend(interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions): Promise<Message> {
     const nonce = SnowflakeUtil.generate().toString();
-
     if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions = typeof options === 'string' ? { content: options } : options;
-        return interaction.deferred ? await interaction.editReply(editOptions) : await interaction.reply(editOptions as any);
+        const editOptions: InteractionEditReplyOptions | InteractionDeferReplyOptions | InteractionReplyOptions = typeof options === 'string' ? { content: options } : options;
+
+        if (interaction.replied) {
+            return await interaction.editReply(editOptions as InteractionEditReplyOptions);
+        } else if (interaction.deferred) {
+            await interaction.deferReply(editOptions as InteractionDeferReplyOptions);
+            return await interaction.fetchReply();
+        } else {
+            const reply = await interaction.reply({ ...editOptions as InteractionReplyOptions, fetchReply: true });
+            return reply;
+        }
     } else {
         let replyOptions: MessageReplyOptions;
 
