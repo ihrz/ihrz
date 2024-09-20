@@ -29,7 +29,8 @@ export const event: BotEvent = {
             || !interaction.guild?.channels
             || interaction.user.bot) return;
 
-        let get = client.buttons.get(interaction.customId);
+        let filtered_customId = interaction.customId.split("%")[0];
+        let get = client.buttons.get(filtered_customId);
         if (get) get(interaction);
     },
 };
