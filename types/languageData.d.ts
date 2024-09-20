@@ -909,6 +909,11 @@ export interface LanguageData {
   reactionroles_logs_embed_description_remove: string;
   reactionroles_command_work_remove: string;
   reactionroles_dont_message_found: string;
+  buttonreaction_logs_embed_title_added: string;
+  buttonreaction_logs_embed_description_added: string;
+  buttonreaction_dont_message_found: string;
+  buttonreaction_roles_not_found: string;
+  buttonreaction_message_other_user_error: string;
   punishpub_not_admin: string;
   punishpub_too_hight_enable: string;
   punishpub_negative_number_enable: string;
@@ -1347,4 +1352,8 @@ export interface LanguageData {
   notifier_generateConfigurationEmbed_embed_title: string;
   notifier_generateConfigurationEmbed_embed_fields_1_name: string;
   notifier_generateConfigurationEmbed_embed_fields_2_name: string;
+  buttonreaction_role_doesnt_exit: string;
+  buttonreaction_role_too_high: string;
+  buttonreaction_role_add: string;
+  buttonreaction_role_remove: string;
 }

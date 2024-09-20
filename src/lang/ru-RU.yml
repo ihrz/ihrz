@@ -1225,6 +1225,13 @@ reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> удал
 reactionroles_command_work_remove: "${reaction} была удалена из сообщения ${messagei}"
 reactionroles_dont_message_found: "Я не могу получить сообщение с текущим ID сообщения, или выбранный вами эмодзи не находится на сервере, где я есть!"
 
+# /buttonreaction
+buttonreaction_logs_embed_title_added: "Журналы ButtonReaction"
+buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> установил реакцию с помощью кнопки: Сообщение: `${messagei}` | Реакция: `${reaction}` | Роль: ${role}"
+buttonreaction_dont_message_found: "Не удалось добавить эту кнопку, похоже, роли уже установлены в одной из существующих кнопок!"
+buttonreaction_roles_not_found: "Недостаточно аргументов: вы не указали роли для установки!"
+buttonreaction_message_other_user_error: "В Discord бот не может изменять компоненты сообщения другого пользователя. Вам нужно выбрать сообщение, отправленное мной. Совет: используйте `/utils embed`, чтобы создать свой красивый embed!"
+
 
 # Команды новых функций
 # /punishpub, /report, /support
@@ -1776,7 +1783,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **только что убрал(а
 economy_disable_msg: "<@${interaction.user.id}>, `Модуль Экономики` на этом сервере **отключен**. Теперь вы не можете использовать модуль экономики!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, вам не разрешено использовать эту команду! Необходимое разрешение: **`${neededPerm === 0 ? 'Разрешение Discord' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, вам не разрешено использовать эту команду! Необходимое разрешение: **`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
 
 # Модуль TempVoice
 # Все компоненты, глобальные переменные...
@@ -1869,5 +1876,11 @@ notifier_generateAuthorsEmbed_embed_title: "Все стримеры/ютубер
 notifier_generateConfigurationEmbed_embed_title: "Конфигурация модуля уведомлений"
 notifier_generateConfigurationEmbed_embed_fields_1_name: "Канал уведомлений"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "Сообщение уведомления"
+
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "Роль в моей базе данных больше не существует на сервере!"
+buttonreaction_role_too_high: "Роль слишком высокая, я не могу дать/удалить эту роль. Мне нужно изменить свои права!"
+buttonreaction_role_add: "У вас больше нет роли ${fetched_role.toString()} ✅"
+buttonreaction_role_remove: "Теперь у вас есть роль ${fetched_role.toString()} :tada:"
 
 # -----------------------------/ \-----------------------------

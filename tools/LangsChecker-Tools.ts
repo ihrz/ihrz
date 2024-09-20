@@ -170,8 +170,13 @@ async function main() {
     let TypingFiles: TypingsFiles = {};
 
     for (const langFile of langsContent) {
-        const langData = yaml.load(readFileSync(path.join(langsPath, langFile), 'utf-8'));
-        TypingFiles[langFile] = generateTypeScriptType(langData);
+        try {
+            const langData = yaml.load(readFileSync(path.join(langsPath, langFile), 'utf-8'));
+            TypingFiles[langFile] = generateTypeScriptType(langData);
+
+        } catch (err) {
+            logger.warn(`Error when loading ${langFile} language file`)
+        }
     }
 
     const typeValues = Object.entries(TypingFiles);

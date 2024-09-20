@@ -1221,6 +1221,12 @@ reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> حذف �
 reactionroles_command_work_remove: "${reaction} تم حذفه من رسالة ${messagei}"
 reactionroles_dont_message_found: "لا أستطيع استرجاع الرسالة باستخدام ID الرسالة الحالي، أو أن الرموز التعبيرية التي اخترتها ليست على خادم أكون عليه!"
 
+# /buttonreaction
+buttonreaction_logs_embed_title_added: "سجلات ButtonReaction"
+buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> أضاف رد فعل باستخدام الزر: الرسالة: `${messagei}` | رد الفعل: `${reaction}` | الدور: ${role}"
+buttonreaction_dont_message_found: "لا يمكن إضافة هذا الزر، يبدو أن الأدوار تم تعيينها بالفعل في زر موجود!"
+buttonreaction_roles_not_found: "الوسائط مفقودة: لم تحدد الأدوار لتعيينها!"
+buttonreaction_message_other_user_error: "في ديسكورد، لا يمكن لروبوت ديسكورد تعديل مكونات رسالة مستخدم آخر. تحتاج لاختيار رسالة أرسلتها بنفسي. نصيحة: استخدم `/utils embed` لإنشاء تضمين جميل خاص بك!"
 
 
 # New feature commands
@@ -1769,7 +1775,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **أزال تعزيزهم** من ا
 economy_disable_msg: "<@${interaction.user.id}>, وحدة `الاقتصاد` في هذا الخادم **معطلة**. لا يمكنك استخدام وحدة الاقتصاد بعد الآن!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: **`${neededPerm === 0 ? 'صلاحية ديسكورد' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: **`${neededPerm === 0 ? 'Discord Permission'' : neededPerm}`**"
 
 # وحدة الصوت المؤقت
 temporary_voice_title_embec: "## التعديلات على قناتك الصوتية المؤقتة"
@@ -1856,5 +1862,11 @@ notifier_generateAuthorsEmbed_embed_title: "جميع الستريمر/اليوت
 notifier_generateConfigurationEmbed_embed_title: "إعدادات وحدة التنبيه"
 notifier_generateConfigurationEmbed_embed_fields_1_name: "قناة التنبيه"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "رسالة التنبيه"
+
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "الدور في قاعدة بياناتي لم يعد موجودًا في الخادم!"
+buttonreaction_role_too_high: "الدور مرتفع جدًا، لا أستطيع إعطاء/إزالة الدور. تحتاج إلى تغيير أذوناتي!"
+buttonreaction_role_add: "لم تعد لديك دور ${fetched_role.toString()} ✅"
+buttonreaction_role_remove: "لديك الآن دور ${fetched_role.toString()} :tada:"
 
 # -----------------------------\ /-----------------------------
