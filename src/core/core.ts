@@ -105,7 +105,11 @@ export async function main(client: Client) {
 
     errorManager.uncaughtExceptionHandler(client);
     client.db = await initializeDatabase(client.config);
-    client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "");
+    client.notifier = new StreamNotifier(client,
+        process.env.TWITCH_APPLICATION_ID || "",
+        process.env.TWITCH_APPLICATION_SECRET || "",
+        process.env.YOUTUBE_API_KEY || ""
+    );
 
     assetsCalc(client);
     playerManager(client);

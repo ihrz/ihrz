@@ -3,6 +3,7 @@
 # Prompt the user for the keys
 read -p "Enter your TWITCH_APPLICATION_ID: " TWITCH_APPLICATION_ID
 read -p "Enter your TWITCH_APPLICATION_SECRET: " TWITCH_APPLICATION_SECRET
+read -p "Enter your YOUTUBE_API_KEY: " YOUTUBE_API_KEY
 
 # Detect if the user is using Bash or Zsh
 SHELL_CONFIG=""
@@ -18,8 +19,9 @@ fi
 # Add the environment variables to the shell configuration file
 echo "export TWITCH_APPLICATION_ID=\"$TWITCH_APPLICATION_ID\"" >> $SHELL_CONFIG
 echo "export TWITCH_APPLICATION_SECRET=\"$TWITCH_APPLICATION_SECRET\"" >> $SHELL_CONFIG
+echo "export YOUTUBE_API_KEY=\"$YOUTUBE_API_KEY\"" >> $SHELL_CONFIG
 
 # Reload the shell configuration
 source $SHELL_CONFIG
 
-echo "TWITCH_APPLICATION_ID and TWITCH_APPLICATION_SECRET have been added to $SHELL_CONFIG and reloaded."
+echo "TWITCH_APPLICATION_ID, TWITCH_APPLICATION_SECRET and YOUTUBE_API_KEY have been added to $SHELL_CONFIG and reloaded."4000
