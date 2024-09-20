@@ -31,6 +31,6 @@ export const event: BotEvent = {
 
         let filtered_customId = interaction.customId.split("%")[0];
         let get = client.buttons.get(filtered_customId);
-        if (get) get(interaction);
+        if (get) get(interaction, await client.func.getLanguageData(interaction.guildId));
     },
 };

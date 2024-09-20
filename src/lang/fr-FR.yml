@@ -1225,6 +1225,13 @@ reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> a suppri
 reactionroles_command_work_remove: "${reaction} a été supprimé du message ${messagei}"
 reactionroles_dont_message_found: "Je ne peux pas obtenir le message avec l'ID de votre message actuel, ou alors l'émojis que vous avez sélectionner n'est pas sur un serveur où je suis!"
 
+# /buttonreaction
+buttonreaction_logs_embed_title_added: "Logs de ButtonReaction"
+buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> a ajouté une réaction avec le bouton : Message : `${messagei}` | Réaction : `${reaction}` | Rôle : ${role}"
+buttonreaction_dont_message_found: "Impossible d'ajouter ce bouton, les rôles semblent déjà être définis dans un des boutons existants !"
+buttonreaction_roles_not_found: "Arguments manquants : Vous n'avez pas spécifié les rôles à définir !"
+buttonreaction_message_other_user_error: "Dans Discord, le bot ne peut pas modifier les composants d'un message d'un autre utilisateur. Vous devez choisir un message envoyé par moi. Conseil : Faites `/utils embed` pour créer votre propre bel embed !"
+
 
 # New feature commands
 # /punishpub, /report, /support

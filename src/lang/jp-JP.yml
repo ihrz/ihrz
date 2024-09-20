@@ -1225,6 +1225,13 @@ reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> がリ�
 reactionroles_command_work_remove: "${reaction} が ${messagei} のメッセージから削除されました"
 reactionroles_dont_message_found: "現在のメッセージIDでメッセージを取得できません。または、選択した絵文字が私がいるサーバーにありません!"
 
+# /buttonreaction
+buttonreaction_logs_embed_title_added: "ButtonReactionログ"
+buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> がボタンでリアクションを設定しました: メッセージ: `${messagei}` | リアクション: `${reaction}` | ロール: ${role}"
+buttonreaction_dont_message_found: "このボタンを追加できません。役割は既存のボタンに設定されているようです！"
+buttonreaction_roles_not_found: "引数が不足しています: 設定する役割を指定していません！"
+buttonreaction_message_other_user_error: "Discordでは、ボットが他のユーザーのメッセージのコンポーネントを変更することはできません。私が送信したメッセージを選択する必要があります。ヒント: `/utils embed` を使って、自分の美しい埋め込みを作成してください！"
+
 
 # New feature commands
 # /punishpub, /report, /support
