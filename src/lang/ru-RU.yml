@@ -1776,7 +1776,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **только что убрал(а
 economy_disable_msg: "<@${interaction.user.id}>, `Модуль Экономики` на этом сервере **отключен**. Теперь вы не можете использовать модуль экономики!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, вам не разрешено использовать эту команду! Необходимое разрешение: **`${neededPerm === 0 ? 'Разрешение Discord' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, вам не разрешено использовать эту команду! Необходимое разрешение: **`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
 
 # Модуль TempVoice
 # Все компоненты, глобальные переменные...

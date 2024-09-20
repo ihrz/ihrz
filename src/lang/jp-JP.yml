@@ -1776,7 +1776,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **がサーバーからブースト
 economy_disable_msg: "<@${interaction.user.id}>、このギルドの `経済モジュール` は**無効**になっています。もう経済モジュールは使えません！"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}、このコマンドを使用する権限がありません！必要な権限：**`${neededPerm === 0 ? 'Discord権限' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}、このコマンドを使用する権限がありません！必要な権限：**`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
 
 # TempVoiceモジュール
 # すべてのコンポーネント、グローバル変数...
