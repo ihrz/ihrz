@@ -305,7 +305,7 @@ export async function interactionSend(interaction: ChatInputCommandInteraction<"
         if (interaction.replied) {
             return await interaction.editReply(editOptions as InteractionEditReplyOptions);
         } else if (interaction.deferred) {
-            await interaction.deferReply(editOptions as InteractionDeferReplyOptions);
+            await interaction.editReply(editOptions as InteractionEditReplyOptions);
             return await interaction.fetchReply();
         } else {
             const reply = await interaction.reply({ ...editOptions as InteractionReplyOptions, fetchReply: true });
