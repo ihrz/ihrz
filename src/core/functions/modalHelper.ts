@@ -22,7 +22,6 @@
 import {
     ActionRowBuilder,
     APIModalInteractionResponseCallbackData,
-    CacheType,
     Interaction,
     MessageComponentInteraction,
     ModalBuilder,
