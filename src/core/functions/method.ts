@@ -478,27 +478,26 @@ export const buttonUnreact = async (msg: Message, buttonEmoji: string): Promise<
     let comp = msg.components;
     let isRemoved = false;
 
+    const newComp = [];
+
     for (let i = 0; i < comp.length; i++) {
         const actionRow = comp[i];
-
         const newComponents = actionRow.components.filter(component => {
-            if (component.type === ComponentType.Button) {
-                const buttonComponent = component as ButtonComponent;
-                if (buttonComponent.emoji === buttonEmoji) {
-                }
+            if (component.type === ComponentType.Button && component.emoji?.name === buttonEmoji) {
+                isRemoved = true;
+                return false;
             }
             return true;
         });
 
-        if (newComponents.length !== actionRow.components.length) {
-            comp.push(actionRow.toJSON() as ActionRow<MessageActionRowComponent>);
+        if (newComponents.length > 0) {
+            newComp.push({ type: 1, components: newComponents });
         }
     }
 
     if (!isRemoved) return msg;
 
-    await msg.edit({ components: comp });
-
+    await msg.edit({ components: newComp });
     return msg;
 }
 
