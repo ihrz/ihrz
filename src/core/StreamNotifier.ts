@@ -87,7 +87,7 @@ export class StreamNotifier {
     }
 
     private getLatestMedia(items: YoutubeRssResponse[]): YoutubeRssResponse | null {
-        return items.reduce((latest, item) => {
+        return items?.reduce((latest, item) => {
             return new Date(item.pubDate) > new Date(latest.pubDate) ? item : latest;
         }, items[0]);
     }
@@ -96,7 +96,7 @@ export class StreamNotifier {
         const url = `https://www.googleapis.com/youtube/v3/search?key=${this.youtubeApiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=5`;
         try {
             const response = await axios.get(url);
-            return response.data.items.map((item: any) => ({
+            return response.data.error ? []: response.data.items.map((item: any) => ({
                 title: item.snippet.title,
                 link: `https://www.youtube.com/watch?v=${item.id.videoId}`,
                 pubDate: new Date(item.snippet.publishedAt),
@@ -116,7 +116,7 @@ export class StreamNotifier {
         for (const user of users) {
             try {
                 if (user.platform === 'youtube') {
-                    const videos = await this.getLatestYouTubeVideos(user.id_or_username); // Utiliser l'API YouTube
+                    const videos = await this.getLatestYouTubeVideos(user.id_or_username);
                     const latestMedia = this.getLatestMedia(videos);
                     if (latestMedia) {
                         result.push({ user, content: latestMedia, platform: "youtube" });
