@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -442,6 +442,65 @@ export const findOptionRecursively = (options: Option[], subcommandName: string)
     }
     return undefined;
 };
+
+export const buttonReact = async (msg: Message, button: ButtonBuilder): Promise<Message> => {
+    let comp = msg.components;
+    let isAdd = false;
+
+    if (comp.length >= 5) {
+        throw "Too much components on this message!";
+    }
+
+    for (let lines of comp) {
+        if (lines.components.length < 5 && !isAdd) {
+            if (lines.components.find(x => x.type === ComponentType.Button)) {
+                let newActionRow: ActionRowBuilder = ActionRowBuilder.from(lines);
+
+                newActionRow.addComponents(button);
+                comp[comp.indexOf(lines)] = newActionRow.toJSON() as ActionRow<MessageActionRowComponent>;
+                isAdd = true;
+                break;
+            }
+        }
+    }
+
+    if (!isAdd) {
+        let newActionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+        comp.push(newActionRow.toJSON() as ActionRow<MessageActionRowComponent>);
+    }
+
+    await msg.edit({ components: comp });
+
+    return msg;
+}
+
+export const buttonUnreact = async (msg: Message, buttonEmoji: string): Promise<Message> => {
+    let comp = msg.components;
+    let isRemoved = false;
+
+    for (let i = 0; i < comp.length; i++) {
+        const actionRow = comp[i];
+
+        const newComponents = actionRow.components.filter(component => {
+            if (component.type === ComponentType.Button) {
+                const buttonComponent = component as ButtonComponent;
+                if (buttonComponent.emoji === buttonEmoji) {
+                }
+            }
+            return true;
+        });
+
+        if (newComponents.length !== actionRow.components.length) {
+            comp.push(actionRow.toJSON() as ActionRow<MessageActionRowComponent>);
+        }
+    }
+
+    if (!isRemoved) return msg;
+
+    await msg.edit({ components: comp });
+
+    return msg;
+}
 
 export const permission = perm;
 export const bot = f;
