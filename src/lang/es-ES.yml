@@ -1225,6 +1225,13 @@ reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> ha elimi
 reactionroles_command_work_remove: "${reaction} se ha eliminado del mensaje de ${messagei}"
 reactionroles_dont_message_found: "No puedo obtener el mensaje con el ID de tu mensaje actual, o el emoji que seleccionaste no está en un servidor donde yo esté!"
 
+# /buttonreaction
+buttonreaction_logs_embed_title_added: "Registros de ButtonReaction"
+buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> estableció una reacción con el botón: Mensaje: `${messagei}` | Reacción: `${reaction}` | Rol: ${role}"
+buttonreaction_dont_message_found: "No se puede agregar este botón, ¡los roles parecen estar ya configurados en uno de los botones existentes!"
+buttonreaction_roles_not_found: "Faltan argumentos: ¡No has especificado los roles a establecer!"
+buttonreaction_message_other_user_error: "En Discord, el bot no puede modificar los componentes de un mensaje de otro usuario. Necesitas elegir un mensaje enviado por mí. Consejo: ¡Haz `/utils embed` para crear tu propio embed hermoso!"
+
 
 # New feature commands
 # /punishpub, /report, /support
@@ -1776,7 +1783,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **acaba de quitar su impulso** del 
 economy_disable_msg: "<@${interaction.user.id}>, el `Módulo de Economía` en este servidor está **desactivado**. ¡Ya no puedes usar el módulo de economía!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, ¡no tienes permiso para usar este comando! Permiso necesario: **`${neededPerm === 0 ? 'Permiso de Discord' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, ¡no tienes permiso para usar este comando! Permiso necesario: **`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
 
 # Módulo de TempVoice
 # Todos los componentes, globalVar...
@@ -1869,5 +1876,11 @@ notifier_generateAuthorsEmbed_embed_title: "Todos los Streamers/YouTubers en el 
 notifier_generateConfigurationEmbed_embed_title: "Configuración del Módulo de Notificación"
 notifier_generateConfigurationEmbed_embed_fields_1_name: "Canal de Notificación"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "Mensaje de Notificación"
+
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "¡El rol en mi base de datos ya no existe en el servidor!"
+buttonreaction_role_too_high: "¡El rol es demasiado alto, no puedo dar/quitar el rol. Necesito cambiar mis permisos!"
+buttonreaction_role_add: "Ya no tienes el rol ${fetched_role.toString()} ✅"
+buttonreaction_role_remove: "Ahora tienes el rol ${fetched_role.toString()} :tada:"
 
 # -----------------------------\ /-----------------------------

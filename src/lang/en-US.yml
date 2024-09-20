@@ -1224,6 +1224,13 @@ reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> delete a
 reactionroles_command_work_remove: "${reaction} has been deleted to the ${messagei}'s message"
 reactionroles_dont_message_found: "I can't retrieve the message with your current message ID, or the emoji you selected is not on a server where I am!"
 
+# /buttonreaction
+buttonreaction_logs_embed_title_added: "ButtonReaction Logs"
+buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> set a reaction with button: Message: `${messagei}` | Reaction: `${reaction}` | Role: ${role}"
+buttonreaction_dont_message_found: "Can't add this button, the roles seem to be already set in one of the existing button!"
+buttonreaction_roles_not_found: "Missing arguments: You don't have specified the roles to set!"
+buttonreaction_message_other_user_error: "In discord, discord bot can't modify the components of another user message. You need to choose a message sent by myself. Tip: Do `/utils embed` for creating your own beautiful embed!"
+
 
 # New feature commands
 # /punishpub, /report, /support
@@ -1868,5 +1875,11 @@ notifier_generateAuthorsEmbed_embed_title: "All Streamer/Youtuber in the guild"
 notifier_generateConfigurationEmbed_embed_title: "Notifier Module Configuration"
 notifier_generateConfigurationEmbed_embed_fields_1_name: "Notify Channel"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "Notify Message"
+
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "The role in my database doesn't exist anymore in the guild!"
+buttonreaction_role_too_high: "The role is too high, i can't give/remove the role. Need to change my permission!"
+buttonreaction_role_add: "You don't have anymore the ${fetched_role.toString()} role ✅"
+buttonreaction_role_remove: "You now have the ${fetched_role.toString()} role :tada:"
 
 # -----------------------------\ /-----------------------------

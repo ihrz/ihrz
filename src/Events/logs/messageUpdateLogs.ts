@@ -20,9 +20,32 @@
 */
 
 import { BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
-
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
+
+function getDiff(oldText: string, newText: string): string {
+    const oldLines = oldText.split('\n');
+    const newLines = newText.split('\n');
+
+    const diffLines = [];
+    const maxLines = Math.max(oldLines.length, newLines.length);
+
+    for (let i = 0; i < maxLines; i++) {
+        const oldLine = oldLines[i] || '';
+        const newLine = newLines[i] || '';
+
+        if (oldLine !== newLine) {
+            if (oldLine.trim() !== '') {
+                diffLines.push(`- ${oldLine.trim().substring(0, 40)}...`);
+            }
+            if (newLine.trim() !== '') {
+                diffLines.push(`+ ${newLine.trim().substring(0, 40)}...`);
+            }
+        }
+    }
+
+    return diffLines.join('\n');
+}
 
 export const event: BotEvent = {
     name: "messageUpdate",
@@ -33,13 +56,11 @@ export const event: BotEvent = {
         if (!oldMessage || !oldMessage.guild) return;
 
         if (!newMessage.author || newMessage.author.bot
-            || oldMessage.content == '' || !oldMessage.content
-            || newMessage.content == '' || !newMessage.content) return;
+            || oldMessage.content === '' || newMessage.content === '') return;
 
         let someinfo = await client.db.get(`${oldMessage.guildId}.GUILD.SERVER_LOGS.message`);
 
-        if (!someinfo || !oldMessage.content || !newMessage.content
-            || oldMessage.content === newMessage.content) return;
+        if (!someinfo || oldMessage.content === newMessage.content) return;
 
         let Msgchannel = client.channels.cache.get(someinfo);
         if (!Msgchannel) return;
@@ -52,12 +73,21 @@ export const event: BotEvent = {
             .setDescription(data.event_srvLogs_messageUpdate_description
                 .replace("${oldMessage.channelId}", oldMessage.channelId)
                 .replace("(xxx)", `(https://discord.com/channels/${oldMessage.guildId}/${oldMessage.channelId}/${oldMessage.id})`)
-            )
-            .setFields(
+            );
+
+        if (oldMessage.content.length > 160 || newMessage.content.length > 160) {
+            const changes = getDiff(oldMessage.content, newMessage.content);
+            logsEmbed.setFields(
+                { name: data.var_message, value: `\`\`\`git\n${changes}\n\`\`\`` },
+            );
+        } else {
+            logsEmbed.setFields(
                 { name: data.event_srvLogs_messageUpdate_footer_1, value: oldMessage.content + '.' },
                 { name: data.event_srvLogs_messageUpdate_footer_2, value: newMessage.content + '.' }
-            )
-            .setTimestamp();
+            );
+        }
+
+        logsEmbed.setTimestamp();
 
         await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
     },
