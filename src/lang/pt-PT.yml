@@ -1877,4 +1877,10 @@ notifier_generateConfigurationEmbed_embed_title: "Configuração do Módulo de N
 notifier_generateConfigurationEmbed_embed_fields_1_name: "Canal de Notificação"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "Mensagem de Notificação"
 
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "O papel na minha base de dados não existe mais no servidor!"
+buttonreaction_role_too_high: "O papel é muito alto, não posso dar/remover o papel. Preciso mudar minhas permissões!"
+buttonreaction_role_add: "Você não tem mais o papel ${fetched_role.toString()} ✅"
+buttonreaction_role_remove: "Agora você tem o papel ${fetched_role.toString()} :tada:"
+
 # -----------------------------\ /-----------------------------

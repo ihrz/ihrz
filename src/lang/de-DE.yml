@@ -1877,4 +1877,10 @@ notifier_generateConfigurationEmbed_embed_title: "Konfiguration des Benachrichti
 notifier_generateConfigurationEmbed_embed_fields_1_name: "Benachrichtigungskanal"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "Benachrichtigungsnachricht"
 
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "Die Rolle in meiner Datenbank existiert nicht mehr im Server!"
+buttonreaction_role_too_high: "Die Rolle ist zu hoch, ich kann die Rolle nicht vergeben/entfernen. Ich muss meine Berechtigungen ändern!"
+buttonreaction_role_add: "Du hast die Rolle ${fetched_role.toString()} nicht mehr ✅"
+buttonreaction_role_remove: "Du hast jetzt die Rolle ${fetched_role.toString()} :tada:"
+
 # -----------------------------\ /-----------------------------

@@ -1877,4 +1877,10 @@ notifier_generateConfigurationEmbed_embed_title: "通知モジュールの設定
 notifier_generateConfigurationEmbed_embed_fields_1_name: "通知チャンネル"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "通知メッセージ"
 
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "私のデータベースにある役割は、サーバーにはもう存在しません！"
+buttonreaction_role_too_high: "役割が高すぎるため、役割を与えたり削除したりできません。権限を変更する必要があります！"
+buttonreaction_role_add: "${fetched_role.toString()} の役割はもうありません ✅"
+buttonreaction_role_remove: "あなたは今、${fetched_role.toString()} の役割を持っています :tada:"
+
 # -----------------------------\ /-----------------------------

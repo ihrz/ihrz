@@ -1877,4 +1877,10 @@ notifier_generateConfigurationEmbed_embed_title: "Конфигурация мо�
 notifier_generateConfigurationEmbed_embed_fields_1_name: "Канал уведомлений"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "Сообщение уведомления"
 
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "Роль в моей базе данных больше не существует на сервере!"
+buttonreaction_role_too_high: "Роль слишком высокая, я не могу дать/удалить эту роль. Мне нужно изменить свои права!"
+buttonreaction_role_add: "У вас больше нет роли ${fetched_role.toString()} ✅"
+buttonreaction_role_remove: "Теперь у вас есть роль ${fetched_role.toString()} :tada:"
+
 # -----------------------------/ \-----------------------------

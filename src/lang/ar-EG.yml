@@ -1863,4 +1863,10 @@ notifier_generateConfigurationEmbed_embed_title: "إعدادات وحدة الت
 notifier_generateConfigurationEmbed_embed_fields_1_name: "قناة التنبيه"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "رسالة التنبيه"
 
+# ButtonReaction
+buttonreaction_role_doesnt_exit: "الدور في قاعدة بياناتي لم يعد موجودًا في الخادم!"
+buttonreaction_role_too_high: "الدور مرتفع جدًا، لا أستطيع إعطاء/إزالة الدور. تحتاج إلى تغيير أذوناتي!"
+buttonreaction_role_add: "لم تعد لديك دور ${fetched_role.toString()} ✅"
+buttonreaction_role_remove: "لديك الآن دور ${fetched_role.toString()} :tada:"
+
 # -----------------------------\ /-----------------------------
