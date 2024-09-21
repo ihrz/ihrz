@@ -39,7 +39,6 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';export 
     options: [
         {
             name: "addinvites",
-            aliases: ["add", "a"],
 
             description: "Add invites to a user!",
             description_localizations: {
@@ -91,7 +90,7 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';export 
                 "fr": "Obtenez le montant des invitations d'un utilisateur"
             },
 
-            aliases: ["me", "sh", "see"],
+            aliases: ["me", "invsee"],
 
             type: ApplicationCommandOptionType.Subcommand,
             options: [
@@ -122,7 +121,7 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';export 
         },
         {
             name: 'removeinvites',
-            aliases: ["remove", "sub"],
+            aliases: ["rinvites", "sub"],
 
             description: 'Remove invites from a user!',
             description_localizations: {
