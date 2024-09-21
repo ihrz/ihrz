@@ -44,7 +44,7 @@ export const command: Command = {
                 "fr": "créer"
             },
 
-            aliases: ["start", "create-here"],
+            aliases: ["gstart", "gcreate"],
 
             description: "Start a giveaway!",
             description_localizations: {
@@ -146,7 +146,7 @@ export const command: Command = {
                 "fr": "finnir"
             },
 
-            aliases: ["stop", "break"],
+            aliases: ["gstop", "gbreak"],
 
             description: "Stop a giveaway!",
             description_localizations: {
