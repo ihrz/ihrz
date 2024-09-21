@@ -203,7 +203,7 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
     const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
 
     if (!Array.isArray(args) || args.length < minArgsCount || (args.length === 1 && args[0] === "")) {
-        await sendErrorMessage(lang, message, cleanBotPrefix, { name: command.name, command: command as any }, expectedArgs, 0);
+        await sendErrorMessage(lang, message, cleanBotPrefix, "command" in command ? command : { name: command.name, command: command }, expectedArgs, 0);
         return false;
     }
 
@@ -219,7 +219,7 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
         if (i >= args.length && !expectedArgs[i].required) {
             continue;
         } else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type)) {
-            await sendErrorMessage(lang, message, cleanBotPrefix, command as any, expectedArgs, i);
+            await sendErrorMessage(lang, message, cleanBotPrefix, "command" in command ? command : { name: command.name, command: command }, expectedArgs, i);
             return false;
         }
     }

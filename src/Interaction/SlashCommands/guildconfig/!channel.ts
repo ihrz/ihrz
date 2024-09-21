@@ -166,7 +166,7 @@ export default {
                                 return;
                             };
 
-                            (interaction.client.channels.cache.get(channelId as string) as BaseGuildTextChannel).send({ content: data.setchannels_confirmation_message_on_join });
+                            (interaction.guild.channels.cache.get(channelId as string) as BaseGuildTextChannel).send({ content: data.setchannels_confirmation_message_on_join });
                             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`, channelId);
 
                             i2.delete();
@@ -245,7 +245,7 @@ export default {
                             return;
                         };
 
-                        (interaction.client.channels.cache.get(channelId as string) as BaseGuildTextChannel).send({ content: data.setchannels_confirmation_message_on_leave });
+                        (interaction.guild.channels.cache.get(channelId as string) as BaseGuildTextChannel).send({ content: data.setchannels_confirmation_message_on_leave });
                         await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`, channelId as string);
 
                         i2.delete();

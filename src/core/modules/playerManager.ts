@@ -58,7 +58,7 @@ export default async (client: Client) => {
     client.player.on("trackStart", async (player, track) => {
         let data = await client.func.getLanguageData(player.guildId) as LanguageData;
 
-        const channel = client.channels.cache.get(player.textChannelId!);
+        const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
 
         (channel as BaseGuildTextChannel).send({
             embeds: [
@@ -77,7 +77,7 @@ export default async (client: Client) => {
     client.player.on("queueEnd", async player => {
         let data = await client.func.getLanguageData(player.guildId) as LanguageData;
 
-        const channel = client.channels.cache.get(player.textChannelId!);
+        const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
 
         (channel as BaseGuildTextChannel).send({
             content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)

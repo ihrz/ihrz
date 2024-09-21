@@ -50,7 +50,7 @@ export default {
 
                 await client.db.set(`${interaction.guildId}`, response.data);
             } catch (error) {
-                await interaction.editReply({ content: data.guildconfig_config_restor_msg });
+                await interaction.editReply({ content: data.guildconfig_config_restore_msg });
                 return;
             }
         };

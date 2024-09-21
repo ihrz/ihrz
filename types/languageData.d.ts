@@ -705,7 +705,6 @@ export interface LanguageData {
   guildconfig_config_save_check_dm: string;
   guildconfig_config_save_user_msg: string;
   guildconfig_config_save_check_dm: string;
-  guildconfig_config_restor_msg: string;
   guildconfig_config_restore_msg: string;
   perm_list_embed_title: string;
   perm_list_unknown_user: string;

@@ -36,7 +36,7 @@ export const event: BotEvent = {
         let someinfo = await client.db.get(`${message.guild.id}.GUILD.SERVER_LOGS.message`);
         if (!someinfo) return;
 
-        let Msgchannel = client.channels.cache.get(someinfo);
+        let Msgchannel = message.guild.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
         let iconURL = message.author.displayAvatarURL();

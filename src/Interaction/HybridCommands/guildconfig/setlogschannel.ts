@@ -135,7 +135,7 @@ export const command: Command = {
                     return;
                 }
 
-                (client.channels.cache.get(channel.id) as BaseGuildTextChannel).send({
+                (interaction.guild?.channels.cache.get(channel.id) as BaseGuildTextChannel | null)?.send({
                     content: lang.setlogschannel_confirmation_message
                         .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                         .replace("${interaction.user.id}", interaction.member?.user.id!)
@@ -173,7 +173,7 @@ export const command: Command = {
                     }
                 }
                 allCreatedChannels.push(channel.id);
-                (client.channels.cache.get(channel.id) as BaseGuildTextChannel).send({
+                (interaction.guild.channels.cache.get(channel.id) as BaseGuildTextChannel | null)?.send({
                     content: lang.setlogschannel_confirmation_message
                         .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                         .replace("${interaction.user.id}", interaction.member.user.id!)
@@ -205,7 +205,7 @@ export const command: Command = {
                         });
                         if (channel) {
                             allCreatedChannels.push(channel.id);
-                            (client.channels.cache.get(channel.id) as BaseGuildTextChannel).send({
+                            (interaction.guild.channels.cache.get(channel.id) as BaseGuildTextChannel | null)?.send({
                                 content: lang.setlogschannel_confirmation_message
                                     .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                                     .replace("${interaction.user.id}", interaction.member.user.id!)
