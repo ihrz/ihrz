@@ -138,6 +138,10 @@ export default async function loadCommands(client: Client, path: string = p): Pr
 
                             let aliases = option.aliases || [];
                             for (let alias of aliases) {
+                                if (client.message_commands.has(alias)) {
+                                    logger.err(`Alias "${alias}" for command "${command.name}" already exists! Exiting...`.bgRed);
+                                    process.exit(1);
+                                }                                
                                 client.message_commands.set(alias, option);
                             }
                         }

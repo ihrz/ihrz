@@ -88,7 +88,7 @@ export default async (client: Client) => {
     client.player.nodeManager.on("disconnect", (node, reason) => {
         // logger.warn(`:: DISCONNECT :: ${node.id} Reason: ${reason.reason} (${reason.code})`);
     }).on("connect", (node) => {
-        logger.log(`:: CONNECTED :: ${node.id}`);
+        // logger.log(`:: CONNECTED :: ${node.id}`);
     }).on("reconnecting", (node) => {
         // logger.warn(`:: RECONNECTING :: ${node.id}`);
     }).on("create", (node) => {
@@ -96,7 +96,7 @@ export default async (client: Client) => {
     }).on("destroy", (node) => {
         // logger.err(`:: DESTROYED :: ${node.id}`);
     }).on("error", (node, error, payload) => {
-        // logger.err(`:: ERROR :: ${node.id} ${error.message}`);
+        logger.err(`:: ERROR :: ${node.id} ${error.message}`);
     }).on("resumed", (node, payload, players) => {
         // logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
     });

@@ -48,12 +48,10 @@ export default {
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var check = interaction.options.getString("title")!;
-            var source = interaction.options.getString('source') as SearchPlatform;
+            var query = interaction.options.getString("title")!;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var source = "ytsearch" as SearchPlatform;
-            var check = client.method.longString(args!, 1)!
+            var query = client.method.longString(args!, 0)!
         }
 
         if (!voiceChannel) {
@@ -61,7 +59,7 @@ export default {
             return;
         };
 
-        if (!client.func.isAllowedLinks(check)) {
+        if (!client.func.isAllowedLinks(query)) {
             return client.method.interactionSend(interaction, { content: data.p_not_allowed })
         };
 
@@ -71,7 +69,7 @@ export default {
             textChannelId: interaction.channelId,
         });
 
-        let res = await player.search({ query: check as string, source: source }, interaction.member.user.toString())
+        let res = await player.search({ query }, interaction.member.user.toString())
 
         if (res.tracks.length === 0) {
             let results = new EmbedBuilder()
