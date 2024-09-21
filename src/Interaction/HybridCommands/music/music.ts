@@ -154,27 +154,6 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'source',
-                    type: ApplicationCommandOptionType.String,
-
-                    description: "Select an source of music",
-                    description_localizations: {
-                        'fr': "Choisir la source de la musique"
-                    },
-
-                    choices: [
-                        { name: "Any", value: "ytsearch" },
-                        // { name: "Youtube", value: "ytsearch" },
-                        // { name: "Youtube Music", value: "ytmsearch" },
-                        { name: "Soundcloud", value: "scsearch" },
-                        // { name: "Deezer", value: "dzsearch" },
-                        { name: "Spotify", value: "spsearch" },
-                        // { name: "Apple Music", value: "amsearch" },
-                    ],
-
-                    required: true
-                },
-                {
                     name: 'title',
                     type: ApplicationCommandOptionType.String,
 
