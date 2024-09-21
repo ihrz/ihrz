@@ -35,7 +35,7 @@ export const event: BotEvent = {
         let someinfo = await client.db.get(`${oldState.guild.id}.GUILD.SERVER_LOGS.voice`);
         if (!someinfo) return;
 
-        let Msgchannel = client.channels.cache.get(someinfo);
+        let Msgchannel = oldState.guild.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
         var Ouser = oldState.id

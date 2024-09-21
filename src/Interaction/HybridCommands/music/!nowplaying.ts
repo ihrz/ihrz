@@ -104,7 +104,7 @@ export default {
                         return;
                     };
 
-                    let channel = client.channels.cache.get(player.textChannelId as string);
+                    let channel = i.guild?.channels.cache.get(player.textChannelId as string);
                     let requesterId = (player.queue.current?.requester as User).id
 
                     if (i.user.id === requesterId) {

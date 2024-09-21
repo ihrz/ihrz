@@ -93,7 +93,7 @@ export default {
 
         await player.queue.add(res.loadType === "playlist" ? res.tracks : res.tracks[0]);
 
-        let channel = client.channels.cache.get(player.textChannelId as string);
+        let channel = interaction.guild.channels.cache.get(player.textChannelId as string);
 
         (channel as BaseGuildTextChannel).send({
             embeds: [
