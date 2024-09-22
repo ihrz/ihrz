@@ -214,7 +214,11 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                         const memoryTable = memoryDB.table(table);
                         const allData = await memoryTable.all();
                         for (const { id, value } of allData) {
-                            await mysqlTable.set(id, value);
+                            try {
+                                await mysqlTable.set(id, value);
+                            } catch (error) {
+                                logger.err(error as any)
+                            }
                         }
                     }
 
