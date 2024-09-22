@@ -35,6 +35,7 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import maskLink from '../../../core/functions/maskLink.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
+import { SearchResult } from 'lavalink-client/dist/types';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
@@ -62,13 +63,13 @@ export default {
             return client.method.interactionSend(interaction, { content: data.p_not_allowed })
         };
 
-        let res: any;
+        let res: SearchResult | undefined;
         let node;
 
         for (let _node of client.player.nodeManager.nodes.values()) {
             if (_node.connected === false) continue;
 
-            res = await _node?.search({ query }, interaction.member.user.id);
+            res = await _node?.search({ query }, interaction.member.user.id)
 
             if (res?.tracks.length! > 0) {
                 node = _node;
@@ -95,7 +96,7 @@ export default {
             return;
         }
 
-        res.tracks.forEach((t: { info: { title: string; }; }) => {
+        res.tracks.forEach((t) => {
             t.info.title = maskLink(t.info.title);
         });
 
