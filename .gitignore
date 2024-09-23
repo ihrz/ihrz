@@ -155,3 +155,4 @@ src/files/db.png
 tools/export-worker.js
 tools/QuickDB-Tools2.ts
 tools/main.js
+tools/test.ts

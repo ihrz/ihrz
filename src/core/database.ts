@@ -136,12 +136,12 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
             break;
         case 'POSTGRES':
             dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-                const connectionAvailable = await isReachable(config.database);
+                // const connectionAvailable = await isReachable(config.database);
 
-                if (!connectionAvailable) {
-                    console.error(`${config.console.emojis.ERROR} >> Failed to connect to the Postgres database`);
-                    process.exit(1)
-                };
+                // if (!connectionAvailable) {
+                //     console.error(`${config.console.emojis.ERROR} >> Failed to connect to the Postgres database`);
+                //     process.exit(1)
+                // };
 
                 logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 
@@ -160,6 +160,63 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                     db.table(table);
                 };
                 resolve(db);
+            });
+            break;
+        case 'CACHED_POSTGRES':
+            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+                logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup (${config.database?.method}) !`.green);
+
+                const postgres = new PostgresDriver({
+                    host: config.database?.mySQL?.host,
+                    user: config.database?.mySQL?.user,
+                    password: config.database?.mySQL?.password,
+                    database: config.database?.mySQL?.database,
+                    port: config.database?.mySQL?.port,
+                });
+
+                await postgres.connect();
+
+                const postgresDb = new QuickDB({ driver: postgres });
+                const memoryDB = new QuickDB({ driver: new MemoryDriver() });
+
+                for (const table of tables) {
+                    const memoryTable = memoryDB.table(table);
+                    const allData = await (postgresDb.table(table)).all();
+                    for (const { id, value } of allData) {
+                        await memoryTable.set(id, value);
+                    }
+                }
+
+                const syncToPostgres = async () => {
+                    for (const table of tables) {
+                        const postgresTable = postgresDb.table(table);
+                        const memoryTable = memoryDB.table(table);
+                        const allData = await memoryTable.all();
+                        for (const { id, value } of allData) {
+                            try {
+                                await postgresTable.set(id, value);
+                            } catch (error) {
+                                logger.err(error as any);
+                            }
+                        }
+                    }
+
+                    overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres`));
+                };
+
+                process.on('SIGINT', async () => {
+                    await syncToPostgres();
+                    process.exit();
+                });
+
+                process.on('exit', async (code) => {
+                    if (code !== 0) {
+                        await syncToPostgres();
+                    }
+                });
+
+                setInterval(syncToPostgres, 60000 * 5);
+                resolve(memoryDB);
             });
             break;
         case 'SQLITE':
