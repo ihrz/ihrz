@@ -43,7 +43,7 @@ export default async (client: Client) => {
             onEmptyQueue: {
                 destroyAfterMs: 30_000,
             },
-            defaultSearchPlatform: "spotify",
+            defaultSearchPlatform: "youtube",
             onDisconnect: {
                 autoReconnect: false,
                 destroyPlayer: true
