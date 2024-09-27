@@ -91,6 +91,7 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                     process.on("SIGINT", async () => {
                         await driver.close();
                         logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
+                        process.exit()
                     });
                     resolve(new QuickDB({ driver }));
                 } catch (error: any) {
@@ -179,13 +180,13 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                 });
 
                 await postgres.connect();
-
                 const postgresDb = new QuickDB({ driver: postgres });
                 const memoryDB = new QuickDB({ driver: new MemoryDriver() });
 
                 for (const table of tables) {
                     const memoryTable = memoryDB.table(table);
                     const allData = await (postgresDb.table(table)).all();
+
                     for (const { id, value } of allData) {
                         await memoryTable.set(id, value);
                     }
@@ -195,17 +196,25 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                     for (const table of tables) {
                         const postgresTable = postgresDb.table(table);
                         const memoryTable = memoryDB.table(table);
-                        const allData = await memoryTable.all();
-                        for (const { id, value } of allData) {
-                            try {
-                                await postgresTable.set(id, value);
-                            } catch (error) {
-                                logger.err(error as any);
+
+                        const postgresData = await postgresTable.all();
+                        const memoryData = await memoryTable.all();
+
+                        const postgresMap = new Map(postgresData.map(item => [item.id, item.value]));
+                        const memoryMap = new Map(memoryData.map(item => [item.id, item.value]));
+
+                        for (const [id, value] of memoryMap) {
+                            if (!postgresMap.has(id) || JSON.stringify(postgresMap.get(id)) !== JSON.stringify(value)) {
+                                try {
+                                    await postgresTable.set(id, value);
+                                } catch (error) {
+                                    logger.err(error as any);
+                                }
                             }
                         }
                     }
 
-                    logger.log(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres`);
+                    logger.log(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres !`);
                 };
 
                 process.on('SIGINT', async () => {
@@ -213,7 +222,7 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                     process.exit();
                 });
 
-                setInterval(syncToPostgres, 60000 * 5);
+                setInterval(syncToPostgres, 10_000 /**60000 * 5 */);
                 resolve(memoryDB);
             });
             break;
