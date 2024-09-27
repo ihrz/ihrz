@@ -87,8 +87,12 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                 try {
                     await driver.connect();
                     logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
+
+                    process.on("SIGINT", async () => {
+                        await driver.close();
+                        logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
+                    });
                     resolve(new QuickDB({ driver }));
-                    proc.exit(driver, config);
                 } catch (error: any) {
                     logger.err(`${config.console.emojis.ERROR} >> ${error.toString().split('\n')[0]}`.red);
                     logger.err(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database?.method}) !`.red);
@@ -209,12 +213,6 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                     process.exit();
                 });
 
-                process.on('exit', async (code) => {
-                    if (code !== 0) {
-                        await syncToPostgres();
-                    }
-                });
-
                 setInterval(syncToPostgres, 60000 * 5);
                 resolve(memoryDB);
             });
@@ -284,13 +282,9 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
 
                 process.on('SIGINT', async () => {
                     await syncToMySQL();
+                    process.exit();
                 });
 
-                process.on('exit', async (code) => {
-                    if (code !== 0) {
-                        await syncToMySQL()
-                    }
-                });
                 setInterval(syncToMySQL, 60000 * 5);
                 resolve(memoryDB);
             });
@@ -340,12 +334,7 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
 
                     process.on('SIGINT', async () => {
                         await syncToMongo();
-                    });
-
-                    process.on('exit', async (code) => {
-                        if (code !== 0) {
-                            await syncToMongo();
-                        }
+                        process.exit();
                     });
 
                     setInterval(syncToMongo, 60000 * 5);
