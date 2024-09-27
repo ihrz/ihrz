@@ -127,7 +127,6 @@ export async function main(client: Client) {
 
     client.login(await getToken() || process.env.BOT_TOKEN || client.config.discord.token).then(async () => {
         const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
-        client.token = "Mais ptdr, ta vraiment crue avoir le token d'iHorizon ? Sale tocard và! Nique tes morts!";
 
         if (process.platform === 'win32') {
             process.title = title;
