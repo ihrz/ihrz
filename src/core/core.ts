@@ -92,9 +92,9 @@ export async function main(client: Client) {
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 
     process.on('SIGINT', async () => {
-        client.destroy();
+        await client.destroy();
         if (client.config.core.shutdownClusterWhenStop) await new OwnIHRZ().QuitProgram(client);
-        if (client.config.database?.method !== "CACHED_SQL") process.exit();
+        if (!client.config.database?.method.includes("CACHED")) process.exit();
     });
 
     client.config.owner.owners?.forEach(owner => {

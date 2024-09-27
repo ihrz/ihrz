@@ -19,18 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ConfigData } from '../../../types/configDatad.js';
 import { format } from '../functions/date-and-time.js';
 import logger from '../logger.js';
 
-import { MongoDriver } from 'quickmongo';
 import fs from 'node:fs';
-import { Client } from 'discord.js';
-
-let exec = async (driver: MongoDriver, config: ConfigData) => {
-    await driver.close();
-    logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
-};
+import { Client } from 'discord.js'; 
 
 export const uncaughtExceptionHandler = (client: Client) => {
     process.on('uncaughtException', function (err) {
@@ -47,10 +40,4 @@ export const uncaughtExceptionHandler = (client: Client) => {
 
         logger.err(err.stack || err.message);
     });
-};
-
-export let exit = async (driver: MongoDriver, config: ConfigData) => {
-    process.on('exit', async () => { await exec(driver, config); });
-    process.on('abort', async () => { await exec(driver, config); });
-    process.on('SIGINT', async () => { await exec(driver, config); });
 };
