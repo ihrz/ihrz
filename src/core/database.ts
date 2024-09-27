@@ -284,7 +284,6 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
 
                 process.on('SIGINT', async () => {
                     await syncToMySQL();
-                    process.exit();
                 });
 
                 process.on('exit', async (code) => {
