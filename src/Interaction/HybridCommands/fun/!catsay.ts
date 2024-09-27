@@ -48,6 +48,11 @@ export default {
 
     let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
 
+    if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
+      await client.method.interactionSend(interaction, { content: "You cannot use this command, the fun commands category is disable." });
+      return;
+    };
+
     if (interaction instanceof ChatInputCommandInteraction) {
       var text = interaction.options.getString('text')?.slice(0, 30);
     } else {

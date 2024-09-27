@@ -38,6 +38,10 @@ export default {
         let alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
         let morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(",");
 
+        if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
+            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            return;
+        };
         if (interaction instanceof ChatInputCommandInteraction) {
             var text = interaction.options.getString("input")?.toUpperCase() as string;
         } else {

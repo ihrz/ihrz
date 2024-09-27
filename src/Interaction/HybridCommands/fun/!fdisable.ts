@@ -23,12 +23,12 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
+    PermissionsBitField,
     User,
 } from 'discord.js';
 
-import { axios, AxiosResponse } from '../../../core/functions/axios.js';
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
@@ -37,35 +37,33 @@ export default {
         let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
         if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
-        if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member?.permissions.has(permissionsArray);
+
+        if (!permissions && permCheck.neededPerm === 0) {
+            await client.method.interactionSend(interaction, { content: lang.poll_not_admin });
             return;
         };
+
         if (interaction instanceof ChatInputCommandInteraction) {
-            var slap = interaction.options.getUser("user") as User;
-            var user = interaction.user;
+            var action = interaction.options.getString("action");
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var slap = await client.method.user(interaction, args!, 0) as User;
-            var user = interaction.author;
-        };
+            var action = client.method.string(args!, 1);
+        }
+    
+        console.log(action)
+        await client.db.set(`${interaction.guildId}.GUILD.FUN.states`, action);
 
-        let url = apiUrlParser.assetsFinder(client.assets, "slap");
+        let action_type = action === "off" ? lang.var_disabled : lang.var_enabled;
 
-        axios.get(url)
-            .then(async () => {
-                let embed = new EmbedBuilder()
-                    .setColor("#42ff08")
-                    .setDescription(lang.slap_embed_description
-                        .replace(/\${slap\.id}/g, slap?.id as string)
-                        .replace(/\${interaction\.user\.id}/g, user.id)
-                    )
-                    .setImage(url)
-                    .setTimestamp()
-                await client.method.interactionSend(interaction, { embeds: [embed] });
-                return;
-            }).catch(async (err) => {
-                await client.method.interactionSend(interaction, { content: lang.fun_var_down_api });
-            });
+        await client.method.interactionSend(interaction, {
+            content: lang.fun_disable_command_msg
+                .replace("${action_type}", action_type)
+                .replace("${interaction.member?.user.toString()}", String(interaction.member?.user.toString()))
+        });
+        return;
     },
 };

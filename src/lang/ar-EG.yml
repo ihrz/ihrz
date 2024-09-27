@@ -419,6 +419,11 @@ dogs_embed_title: "🐶 عواء."
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ من الحب 💗"
 love_command_error: "حدث خطأ أثناء محاولة إنشاء الصورة."
 
+# /fun disable
+fun_disable_command_msg: "${interaction.member?.user.toString()}، انت ${action_type} فئة الترفيه!"
+fun_category_disable: "مش مسموحلك تستخدم الأمر ده، فئة الأوامر الترفيهية معطلة."
+
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
