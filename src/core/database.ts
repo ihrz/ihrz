@@ -214,7 +214,7 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                         }
                     }
 
-                    logger.log(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres !`);
+                    overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres !`));
                 };
 
                 process.on('SIGINT', async () => {
@@ -222,7 +222,7 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                     process.exit();
                 });
 
-                setInterval(syncToPostgres, 10_000 /**60000 * 5 */);
+                setInterval(syncToPostgres, 60000 * 5);
                 resolve(memoryDB);
             });
             break;
