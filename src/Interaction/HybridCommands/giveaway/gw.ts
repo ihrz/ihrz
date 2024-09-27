@@ -263,7 +263,7 @@ export const command: Command = {
                 "fr": "Obtenir des informations à propos de tout les giveaways d'un serveur! (Format JSON)"
             },
 
-            aliases: ["all"],
+            aliases: ["gall"],
 
             type: ApplicationCommandOptionType.Subcommand,
         }
