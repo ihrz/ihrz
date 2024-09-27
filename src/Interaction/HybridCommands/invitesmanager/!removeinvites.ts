@@ -70,8 +70,8 @@ export default {
         let check = await client.db.get(`${interaction?.guild?.id}.USER.${user.id}.INVITES`);
 
         if (check) {
-            await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.invites`, amount!);
-            await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
+            await client.db.sub(`${interaction.guildId}.USER.${user.id}.INVITES.invites`, amount!);
+            await client.db.sub(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
         } else {
 
             await client.db.set(`${interaction?.guild?.id}.USER.${user.id}.INVITES`,
@@ -79,8 +79,8 @@ export default {
                     regular: 0, bonus: 0, leaves: 0, invites: 0
                 }
             );
-            await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.invites`, amount!);
-            await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
+            await client.db.sub(`${interaction.guildId}.USER.${user.id}.INVITES.invites`, amount!);
+            await client.db.sub(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
         };
 
         let finalEmbed = new EmbedBuilder()

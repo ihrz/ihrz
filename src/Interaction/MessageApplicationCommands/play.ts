@@ -85,7 +85,7 @@ export const command: AnotherCommand = {
 
             await player.queue.add(res.tracks[0]);
 
-            let channel = client.channels.cache.get(player.textChannelId!);
+            let channel = interaction.guild?.channels.cache.get(player.textChannelId!);
 
             (channel as BaseGuildTextChannel)?.send({
                 embeds: [

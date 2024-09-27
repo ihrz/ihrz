@@ -25,10 +25,8 @@ import { DatabaseStructure } from '../../types/database_structure.js';
 import logger from './logger.js';
 import { LanguageData } from '../../types/languageData.js';
 import { axios } from './functions/axios.js';
-import RSSParser from 'rss-parser';
 
 export type Platform = "kick" | "youtube" | "twitch";
-type VideoType = "short" | "video";
 
 interface NotifierUserResponse {
     user: DatabaseStructure.NotifierUserSchema;
@@ -54,18 +52,18 @@ interface TwitchResponse {
 }
 
 export class StreamNotifier {
-    private parser: RSSParser;
     private twitchClientID: string;
     private twitchAccessToken: string | null;
     private twitchAccessTokenExpireIn: number | null;
     private twitchClientSecret: string;
     private client: Client;
+    private youtubeApiKey: string;
 
-    constructor(client: Client, twitchClientID: string, twitchClientSecret: string) {
-        this.parser = new RSSParser();
+    constructor(client: Client, twitchClientID: string, twitchClientSecret: string, youtubeApiKey: string) {
         this.client = client;
         this.twitchClientID = twitchClientID;
         this.twitchClientSecret = twitchClientSecret;
+        this.youtubeApiKey = youtubeApiKey;
     }
 
     private delay(ms: number): Promise<void> {
@@ -89,9 +87,27 @@ export class StreamNotifier {
     }
 
     private getLatestMedia(items: YoutubeRssResponse[]): YoutubeRssResponse | null {
-        return items.reduce((latest, item) => {
+        return items?.reduce((latest, item) => {
             return new Date(item.pubDate) > new Date(latest.pubDate) ? item : latest;
         }, items[0]);
+    }
+
+    private async getLatestYouTubeVideos(channelId: string): Promise<YoutubeRssResponse[]> {
+        const url = `https://www.googleapis.com/youtube/v3/search?key=${this.youtubeApiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=5`;
+        try {
+            const response = await axios.get(url);
+            return response.data.error ? []: response.data.items.map((item: any) => ({
+                title: item.snippet.title,
+                link: `https://www.youtube.com/watch?v=${item.id.videoId}`,
+                pubDate: new Date(item.snippet.publishedAt),
+                author: item.snippet.channelTitle,
+                id: item.id.videoId,
+                isoDate: new Date(item.snippet.publishedAt),
+            }));
+        } catch (error) {
+            logger.err(`Error fetching YouTube videos for channel ${channelId}: ${error}`);
+            return [];
+        }
     }
 
     private async fetchUsersMedias(users: DatabaseStructure.NotifierUserSchema[]): Promise<NotifierUserResponse[]> {
@@ -100,21 +116,21 @@ export class StreamNotifier {
         for (const user of users) {
             try {
                 if (user.platform === 'youtube') {
-                    const feed = await this.parser.parseURL(`https://www.youtube.com/feeds/videos.xml?channel_id=${user.id_or_username}`);
-                    const latestMedia = this.getLatestMedia(feed.items as unknown as YoutubeRssResponse[]);
+                    const videos = await this.getLatestYouTubeVideos(user.id_or_username);
+                    const latestMedia = this.getLatestMedia(videos);
                     if (latestMedia) {
                         result.push({ user, content: latestMedia, platform: "youtube" });
                     }
                 } else if (user.platform === 'twitch') {
                     const feed = await this.checkTwitchStream(user.id_or_username);
                     if (feed) {
-                        result.push({ user, content: feed, platform: "twitch" })
+                        result.push({ user, content: feed, platform: "twitch" });
                     }
                 }
             } catch (error) {
                 logger.err(`Erreur lors de la vérification des flux pour ${user.id_or_username} sur ${user.platform} : ${error}`);
             }
-            await this.delay(20_000);
+            await this.delay(5_000);
         }
         return result;
     }
@@ -207,12 +223,20 @@ export class StreamNotifier {
 
     private async checkYouTubeChannelExists(channelId: string): Promise<{ state: boolean, name?: string }> {
         try {
-            const feed = await this.parser.parseURL(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`);
-            return { state: true, name: feed.title }
-        } catch (error: any) {
+            const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${this.youtubeApiKey}`;
+            const response = await axios.get(url);
+
+            if (response.data.items && response.data.items.length > 0) {
+                const channel = response.data.items[0];
+                return { state: true, name: channel.snippet.title };
+            } else {
+                return { state: false };
+            }
+        } catch (error) {
+            logger.err(`Error checking YouTube channel ${channelId}: ${error}`);
             return { state: false };
         }
-    }
+    };
 
     private async checkTwitchUserExists(userName: string): Promise<{ state: boolean, name?: string }> {
         try {

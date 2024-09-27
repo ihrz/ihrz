@@ -49,7 +49,7 @@ export const event: BotEvent = {
         let someinfo = await client.db.get(`${member.guild.id}.GUILD.SERVER_LOGS.moderation`);
         if (!someinfo) return;
 
-        let Msgchannel = client.channels.cache.get(someinfo);
+        let Msgchannel = member.guild.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
         let logsEmbed = new EmbedBuilder()

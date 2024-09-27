@@ -42,7 +42,7 @@ export const event: BotEvent = {
 
         if (!someinfo) return;
 
-        let Msgchannel = client.channels.cache.get(someinfo);
+        let Msgchannel = ban.guild.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
         let logsEmbed = new EmbedBuilder()

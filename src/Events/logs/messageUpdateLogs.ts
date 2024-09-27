@@ -62,7 +62,7 @@ export const event: BotEvent = {
 
         if (!someinfo || oldMessage.content === newMessage.content) return;
 
-        let Msgchannel = client.channels.cache.get(someinfo);
+        let Msgchannel = oldMessage.guild.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
         let icon = newMessage.author.displayAvatarURL();

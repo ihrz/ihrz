@@ -48,7 +48,7 @@ export const event: BotEvent = {
         ) return;
 
         let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
-        let Msgchannel = client.channels.cache.get(someinfo);
+        let Msgchannel = newMember.guild.channels.cache.get(someinfo);
 
         if (!someinfo || !Msgchannel) return;
 

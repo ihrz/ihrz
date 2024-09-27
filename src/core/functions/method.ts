@@ -161,11 +161,11 @@ interface ArgumentBrief {
 
 export interface SubCommandArgumentValue {
     name?: string;
-    command: Option | undefined;
+    command: Option | Command | undefined;
 }
 
 const isSubCommandArgumentValue = (command: any): command is SubCommandArgumentValue => {
-    return command && (command as SubCommandArgumentValue).command !== undefined;
+    return command && (command as SubCommandArgumentValue).command !== undefined || command.name !== command?.command
 };
 
 export async function checkCommandArgs(message: Message, command: SubCommandArgumentValue | Command, args: string[], lang: LanguageData): Promise<boolean> {
@@ -203,7 +203,7 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
     const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
 
     if (!Array.isArray(args) || args.length < minArgsCount || (args.length === 1 && args[0] === "")) {
-        await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, 0);
+        await sendErrorMessage(lang, message, cleanBotPrefix, "command" in command ? command : { name: command.name, command: command }, expectedArgs, 0);
         return false;
     }
 
@@ -219,7 +219,7 @@ export async function checkCommandArgs(message: Message, command: SubCommandArgu
         if (i >= args.length && !expectedArgs[i].required) {
             continue;
         } else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type)) {
-            await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
+            await sendErrorMessage(lang, message, cleanBotPrefix, "command" in command ? command : { name: command.name, command: command }, expectedArgs, i);
             return false;
         }
     }
@@ -248,7 +248,7 @@ function isValidArgument(arg: string, type: string): boolean {
     }
 }
 
-async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix: string, command: SubCommandArgumentValue | Command, expectedArgs: ArgumentBrief[], errorIndex: number) {
+async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix: string, command: SubCommandArgumentValue, expectedArgs: ArgumentBrief[], errorIndex: number) {
     let argument: string[] = [];
     let fullNameCommand: string;
 
@@ -258,9 +258,9 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
     let wrongArgumentName: string = "";
     let errorPosition = "";
 
-    if (isSubCommandArgumentValue(command) && command.command) {
-        currentCommand = command.command;
-        fullNameCommand = `${command.name} ${command.command.name}`;
+    if (command.name !== command.command?.name) {
+        currentCommand = command.command!;
+        fullNameCommand = `${command.name} ${command.command?.name}`;
     } else {
         fullNameCommand = command.name!;
         currentCommand = command as any;

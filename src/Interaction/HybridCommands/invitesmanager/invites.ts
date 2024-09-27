@@ -30,8 +30,8 @@ import {
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
-import { SubCommandArgumentValue } from '../../../core/functions/method';export const command: Command = {
-    name: "invites",
+import { SubCommandArgumentValue } from '../../../core/functions/method'; export const command: Command = {
+    name: "inv",
     description: "Subcommand for invites manager category!",
     description_localizations: {
         "fr": "Commande sous-groupé pour la catégorie d'InviteManager"
@@ -39,7 +39,6 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';export 
     options: [
         {
             name: "addinvites",
-            aliases: ["add", "a"],
 
             description: "Add invites to a user!",
             description_localizations: {
@@ -84,14 +83,14 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';export 
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "show-invites",
+            name: "invites",
 
             description: "Get the invites amount of a user!",
             description_localizations: {
                 "fr": "Obtenez le montant des invitations d'un utilisateur"
             },
 
-            aliases: ["me", "sh", "see"],
+            aliases: ["i", "invsee"],
 
             type: ApplicationCommandOptionType.Subcommand,
             options: [
@@ -109,20 +108,20 @@ import { SubCommandArgumentValue } from '../../../core/functions/method';export 
             ],
         },
         {
-            name: "reset-all",
+            name: "inv-reset",
 
             description: "Delete all data of InviteManager in the guild",
             description_localizations: {
                 "fr": "Supprimer toute les données du module d'InviteManager"
             },
 
-            aliases: ["delete-all", "reset", "rs"],
+            aliases: ["inv-delete-all", "invreset"],
 
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: 'removeinvites',
-            aliases: ["remove", "sub"],
+            aliases: ["rinvites", "subinv"],
 
             description: 'Remove invites from a user!',
             description_localizations: {

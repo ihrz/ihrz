@@ -125,7 +125,7 @@ async function clearSpamMessages(message: Message, messages: Set<AntiSpam.Cached
         });
 
         await Promise.all(messagesByChannel.map(async (messageIds, channelId) => {
-            const channel = message.client.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
+            const channel = message.guild?.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
             if (channel && messageIds.size > 0) {
                 const messageIdsArray = Array.from(messageIds.values());
                 for (let i = 0; i < messageIdsArray.length; i += CHUNK_SIZE) {

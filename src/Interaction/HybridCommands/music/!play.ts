@@ -34,8 +34,8 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import maskLink from '../../../core/functions/maskLink.js';
-import { SearchPlatform } from 'lavalink-client';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
+import { SearchResult } from 'lavalink-client/dist/types';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
@@ -48,12 +48,10 @@ export default {
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var check = interaction.options.getString("title")!;
-            var source = interaction.options.getString('source') as SearchPlatform;
+            var query = interaction.options.getString("title")!;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
-            var source = "ytsearch" as SearchPlatform;
-            var check = client.method.longString(args!, 1)!
+            var query = client.method.longString(args!, 0)!
         }
 
         if (!voiceChannel) {
@@ -61,19 +59,34 @@ export default {
             return;
         };
 
-        if (!client.func.isAllowedLinks(check)) {
+        if (!client.func.isAllowedLinks(query)) {
             return client.method.interactionSend(interaction, { content: data.p_not_allowed })
         };
+
+        let res: SearchResult | undefined;
+        let node;
+
+        for (let _node of client.player.nodeManager.nodes.values()) {
+            if (_node.connected === false) continue;
+
+            res = await _node?.search({ query }, interaction.member.user.id)
+
+            if (res?.tracks.length! > 0) {
+                node = _node;
+                break;
+            }
+        }
 
         let player = client.player.createPlayer({
             guildId: interaction.guildId as string,
             voiceChannelId: voiceChannel.id,
             textChannelId: interaction.channelId,
+            selfDeaf: true,
+            selfMute: false,
+            node
         });
 
-        let res = await player.search({ query: check as string, source: source }, interaction.member.user.toString())
-
-        if (res.tracks.length === 0) {
+        if (!res || res.tracks.length === 0) {
             let results = new EmbedBuilder()
                 .setTitle(data.p_embed_title)
                 .setColor('#ff0000')
@@ -81,19 +94,23 @@ export default {
 
             await client.method.interactionSend(interaction, { embeds: [results] });
             return;
-        };
+        }
 
-        res.tracks.forEach(t => {
+        res.tracks.forEach((t) => {
             t.info.title = maskLink(t.info.title);
         });
 
         if (!player.connected) {
             await player.connect();
-        };
+        }
 
         await player.queue.add(res.loadType === "playlist" ? res.tracks : res.tracks[0]);
 
-        let channel = client.channels.cache.get(player.textChannelId as string);
+        if (!player.playing) {
+            await player.play();
+        }
+
+        let channel = interaction.guild.channels.cache.get(player.textChannelId as string);
 
         (channel as BaseGuildTextChannel).send({
             embeds: [
@@ -106,21 +123,16 @@ export default {
             ]
         });
 
-        if (!player.playing) {
-            await player.play();
-        };
-
         let yes = res.tracks[0];
 
         function timeCalcultator() {
-            let totalDurationMs = yes.info.duration
+            let totalDurationMs = yes.info.duration;
             let totalDurationSec = Math.floor(totalDurationMs! / 1000);
             let hours = Math.floor(totalDurationSec / 3600);
             let minutes = Math.floor((totalDurationSec % 3600) / 60);
             let seconds = totalDurationSec % 60;
-            let durationStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            return durationStr;
-        };
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
 
         let embed = new EmbedBuilder()
             .setDescription(`**${yes.info.title}**`)
@@ -138,7 +150,7 @@ export default {
 
         function deleteContent() {
             i.edit({ content: null });
-        };
+        }
 
         await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,
             `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${res.tracks[0].requester} - ${res.tracks[0].info.title as string} | ${res.tracks[0].info.uri} } by ${res.tracks[0].requester}`);

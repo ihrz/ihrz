@@ -29,7 +29,6 @@ import { MongoDriver } from 'quick.db';
 let exec = async (driver: MongoDriver, config: ConfigData) => {
     await driver.close();
     logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
-    process.kill(0);
 };
 
 export const uncaughtExceptionHandler = (client: Client) => {

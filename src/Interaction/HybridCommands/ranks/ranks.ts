@@ -93,7 +93,7 @@ export const command: Command = {
                 "fr": "Obtenez le niveau XP de l'utilisateur"
             },
 
-            aliases: ["see", "sh", "look"],
+            aliases: ["rsee", "look"],
 
             type: ApplicationCommandOptionType.Subcommand,
             options: [
