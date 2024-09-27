@@ -37,9 +37,7 @@ export interface ConfigData {
         defaultMessageCommandsPrefix?: string;
     };
 
-    lavalink: {
-        nodes: LavalinkNodeOptions[];
-    };
+    lavalink:  any
 
     core: {
         devMode?: boolean;
