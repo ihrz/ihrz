@@ -26,6 +26,7 @@ interface LavalinkNodeOptions {
     host: string;
     port: number;
     authorization: string;
+    secure: boolean;
 };
 
 export interface ConfigData {
