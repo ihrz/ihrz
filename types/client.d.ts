@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { LyricsManager } from "../src/core/functions/lyrics-fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 import * as argsHelper from '../src/core/functions/method.js'
 
@@ -50,7 +49,6 @@ declare module 'discord.js' {
         commands: Collection<string, Command>,
         category: Category[]
         message_commands: Collection<string, Command>,
-        player: LavalinkManager,
         invites: Collection<string, Collection<string, number | null>>,
         vanityInvites: Collection<Snowflake, VanityInviteData>,
         buttons: Collection<string, Function>,
@@ -61,7 +59,6 @@ declare module 'discord.js' {
         giveawaysManager: GiveawayManager,
         content: BotContent[],
         timeCalculator: iHorizonTimeCalculator,
-        lyricsSearcher: LyricsManager,
         version: typeof ClientVersion,
         assets: Assets,
         config: ConfigData,

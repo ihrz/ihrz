@@ -23,7 +23,6 @@ import commandsSync from './commandsSync.js';
 import logger from "./logger.js";
 
 import * as errorManager from './modules/errorManager.js';
-import playerManager from "./modules/playerManager.js";
 import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData';
@@ -36,7 +35,6 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 
-import { LyricsManager } from './functions/lyrics-fetcher.js';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
 import database from './functions/DatabaseModel.js';
@@ -80,7 +78,6 @@ export async function main(client: Client) {
     errorManager.uncaughtExceptionHandler(client);
 
     assetsCalc(client);
-    playerManager(client);
     emojis(client);
 
     client.db = database;
@@ -88,9 +85,8 @@ export async function main(client: Client) {
     client.category = [];
     client.invites = new Collection();
     client.timeCalculator = new iHorizonTimeCalculator();
-    client.lyricsSearcher = new LyricsManager();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
-    client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "");
+    client.notifier = new StreamNotifier(client, process.env.TWITCH_APPLICATION_ID || "", process.env.TWITCH_APPLICATION_SECRET || "", process.env.YOUTUBE_API_KEY || "");
 
     let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
