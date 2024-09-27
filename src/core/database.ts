@@ -201,7 +201,7 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                         }
                     }
 
-                    overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres`));
+                    logger.log(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres`);
                 };
 
                 process.on('SIGINT', async () => {
