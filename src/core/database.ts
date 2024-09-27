@@ -91,6 +91,7 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                     process.on("SIGINT", async () => {
                         await driver.close();
                         logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
+                        process.exit()
                     });
                     resolve(new QuickDB({ driver }));
                 } catch (error: any) {
