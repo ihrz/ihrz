@@ -32,6 +32,10 @@ export default {
         let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
         if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
+        if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
+            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            return;
+        };
         if (interaction instanceof ChatInputCommandInteraction) {
             var user1 = interaction.options.getUser("user1") || interaction.user;
             var user2 = interaction.options.getUser("user2") || interaction.guild?.members.cache.random()?.user as User;

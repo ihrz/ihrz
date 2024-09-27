@@ -323,6 +323,8 @@ export interface LanguageData {
   dogs_embed_title: string;
   love_embed_description: string;
   love_command_error: string;
+  fun_disable_command_msg: string;
+  fun_category_disable: string;
   addmoney_not_admin: string;
   addmoney_logs_embed_title: string;
   addmoney_logs_embed_description: string;

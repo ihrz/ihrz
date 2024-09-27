@@ -423,6 +423,10 @@ dogs_embed_title: "🐶 わんわん。"
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ の愛 💗"
 love_command_error: "画像を作成しようとしてエラーが発生しました"
 
+# /fun disable
+fun_disable_command_msg: "${interaction.member?.user.toString()}さん、${action_type}でファンカテゴリーを操作しました！"
+fun_category_disable: "このコマンドを使用できません。ファンコマンドカテゴリーは無効です。"
+
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work

@@ -96,6 +96,40 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
+            name: 'fdisable',
+
+            description: 'Disable the fun category',
+            description_localizations: {
+                "fr": "Désactiver la catégorie fun"
+            },
+
+            options: [
+                {
+                    name: "action",
+
+                    description: "What do you want to do?",
+                    description_localizations: {
+                        "fr": "Que voulez-vous faire ?"
+                    },
+
+                    choices: [
+                        {
+                            name: "Power On",
+                            value: "on"
+                        },
+                        {
+                            name: "Power Off",
+                            value: "off"
+                        }
+                    ],
+        
+                    type: ApplicationCommandOptionType.String
+                }
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
             name: 'hack',
             name_localizations: {
                 "fr": "piratage"
