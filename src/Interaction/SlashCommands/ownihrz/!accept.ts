@@ -66,11 +66,6 @@ export default {
 
         id_2.AdminKey = client.config.api?.apiToken!;
         id_2.Code = id;
-        id_2.Lavalink = {
-            NodeHost: client.config.lavalink.nodes[0].host,
-            NodePort: client.config.lavalink.nodes[0].port,
-            NodeAuth: client.config.lavalink.nodes[0].authorization,
-        };
 
         await OWNIHRZ.Active_Intents(id_2.Auth).catch(() => { })
 
