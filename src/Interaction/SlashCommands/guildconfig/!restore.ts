@@ -50,7 +50,6 @@ export default {
                 const response = await axios.get(backup.url, { responseType: "arrayBuffer" });
                 let res = decrypt(client.config.api.apiToken, response.data);
 
-                console.log(res)
                 if (!res) throw "";
 
                 await client.db.set(`${interaction.guildId}`, res);
