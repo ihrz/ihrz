@@ -113,13 +113,13 @@ export const command: Command = {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var type = interaction.options.getString("action");
-            var messagei = interaction.options.getString("name")?.toLowerCase()!;
+            var messagei = interaction.options.getString("name");
             var channel = interaction.options.getChannel("channel") as BaseGuildVoiceChannel;
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var type = client.method.string(args!, 0);
             var channel = client.method.voiceChannel(interaction, args!, 0)!;
-            var messagei = client.method.string(args!, 2)?.toLowerCase()!;
+            var messagei = client.method.string(args!, 2);
         }
 
         let help_embed = new EmbedBuilder()
@@ -141,11 +141,11 @@ export const command: Command = {
             };
 
             let joinmsgreplace = messagei
-                .replace("{membercount}", interaction.guild.memberCount.toString()!)
-                .replace("{rolescount}", rolesCount.toString())
-                .replace("{channelcount}", channelsCount)
-                .replace("{boostcount}", boostsCount)
-                .replace("{botcount}", botMembers.size.toString()!);
+                .replace("{MemberCount}", interaction.guild.memberCount.toString()!)
+                .replace("{RolesCount}", rolesCount.toString())
+                .replace("{ChannelCount}", channelsCount)
+                .replace("{BoostCount}", boostsCount)
+                .replace("{BotCount}", botMembers.size.toString()!);
 
             if (messagei.includes("member")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.member`,

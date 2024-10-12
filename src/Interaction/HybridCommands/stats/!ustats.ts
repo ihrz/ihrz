@@ -82,6 +82,7 @@ export default {
             return await client.method.interactionSend(interaction, { content: data.unblacklist_user_is_not_exist })
         }
 
+        let monthlyVoice: DatabaseStructure.StatsMessage[] = [];
         let monthlyVoiceActivity = 0
         let weeklyVoiceActivity = 0;
         let dailyVoiceActivity = 0;
@@ -152,6 +153,32 @@ export default {
             'utf-8'
         );
 
+        const messageDataArray = Array(30).fill(0);
+        const voiceDataArray = Array(30).fill(0);
+
+
+        monthlyMessages.forEach(msg => {
+            const dayIndex = Math.floor((nowTimestamp - msg.sentTimestamp) / 86400000);
+            if (dayIndex >= 0 && dayIndex < 30) {
+                messageDataArray[29 - dayIndex] += 1;
+            }
+        });
+
+        monthlyMessages.forEach(msg => {
+            const dayIndex = Math.floor((nowTimestamp - msg.sentTimestamp) / 86400000);
+            if (dayIndex >= 0 && dayIndex < 30) {
+                messageDataArray[29 - dayIndex] += 1;
+            }
+        });
+
+        (res.voices || []).forEach(voice => {
+            const dayIndex = Math.floor((nowTimestamp - voice.startTimestamp) / 86400000);
+            if (dayIndex >= 0 && dayIndex < 30) {
+                const sessionDuration = (voice.endTimestamp - voice.startTimestamp) / 1000 / 60;
+                voiceDataArray[29 - dayIndex] += sessionDuration;
+            }
+        })
+
         htmlContent = htmlContent
             .replaceAll('{header_h1_value}', data.header_h1_value)
             .replaceAll('{messages_word}', data.messages_word)
@@ -180,7 +207,10 @@ export default {
             .replaceAll('{voice_top3}', String(getChannelName(interaction.guild, thirdActiveVoiceChannel)))
             .replaceAll('{voice_top1_2}', String(getChannelMinutesCount(firstActiveVoiceChannel, res.voices || [])))
             .replaceAll('{voice_top2_2}', String(getChannelMinutesCount(secondActiveVoiceChannel, res.voices || [])))
-            .replaceAll('{voice_top3_2}', String(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || [])));
+            .replaceAll('{voice_top3_2}', String(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || [])))
+            .replace('{message_voice_diag}', 'Votre contenu ici')
+            .replace('{messageData}', JSON.stringify(messageDataArray))
+            .replace('{voiceData}', JSON.stringify(voiceDataArray));
 
         const image = await client.method.imageManipulation.html2Png(htmlContent, {
             width: 1280,
