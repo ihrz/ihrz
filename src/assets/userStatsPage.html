@@ -146,7 +146,6 @@
             <img src="{author_pfp}" alt="Server Logo">
         </div>
 
-        <!-- Première colonne (Statistiques messages) -->
         <div class="stat">
             <p class="label" style="font-weight: bold;">{messages_word}</p>
             <p>1d<br><strong>{message_daily} {messages_word}</strong></p>
@@ -154,12 +153,10 @@
             <p>30d<br><strong>{message_monthly} {messages_word}</strong></p>
         </div>
 
-        <!-- Deuxième colonne (Graphique) -->
         <div class="chart-container">
             <canvas id="statsChart"></canvas>
         </div>
 
-        <!-- Troisième colonne (Statistiques vocales) -->
         <div class="stat">
             <p class="label" style="font-weight: bold;">{voice_activity}</p>
             <p>1d<br><strong>{voice_daily} {minutes_word}</strong></p>
@@ -167,7 +164,6 @@
             <p>30d<br><strong>{voice_monthly} {minutes_word}</strong></p>
         </div>
 
-        <!-- Top Message Members -->
         <div class="top-message-members">
             <p class="label" style="font-weight: bold;">{top_message}</p>
             <div class="list-item">
@@ -181,7 +177,6 @@
             </div>
         </div>
 
-        <!-- Top Voice Channels -->
         <div class="top-message-channels">
             <p class="label" style="font-weight: bold;">{top_voice}</p>
             <div class="list-item">
@@ -196,13 +191,12 @@
         </div>
     </div>
 
-    <!-- Script Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const messageData = {messageData}; 
         const voiceData = {voiceData};
 
-        const labels = Array.from({ length: 30 }, (_, i) => `${i + 1}j`);
+        const labels = Array.from({ length: 30 }, (_, i) => `.`);
 
         const ctx = document.getElementById('statsChart').getContext('2d');
         const statsChart = new Chart(ctx, {
@@ -211,7 +205,7 @@
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Nombre de messages',
+                        label: '{messages_word}',
                         data: messageData,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -219,7 +213,7 @@
                         tension: 0.1
                     },
                     {
-                        label: 'Minutes en voc',
+                        label: '{voice_activity}',
                         data: voiceData,
                         borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -235,7 +229,7 @@
                     x: {
                         title: {
                             display: true,
-                            text: 'Jour'
+                            text: ''
                         },
                         ticks: {
                             autoSkip: false,
@@ -246,7 +240,6 @@
                     y: {
                         title: {
                             display: true,
-                            text: 'Valeur'
                         },
                         ticks: {
                             stepSize: 5

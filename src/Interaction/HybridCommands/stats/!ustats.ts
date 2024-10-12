@@ -209,8 +209,8 @@ export default {
             .replaceAll('{voice_top2_2}', String(getChannelMinutesCount(secondActiveVoiceChannel, res.voices || [])))
             .replaceAll('{voice_top3_2}', String(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || [])))
             .replace('{message_voice_diag}', 'Votre contenu ici')
-            .replace('{ messageData }', JSON.stringify(messageDataArray))
-            .replace('{ voiceData }', JSON.stringify(voiceDataArray));
+            .replace('{messageData}', JSON.stringify(messageDataArray))
+            .replace('{voiceData}', JSON.stringify(voiceDataArray));
 
         const image = await client.method.imageManipulation.html2Png(htmlContent, {
             width: 1280,
