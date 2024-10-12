@@ -35,6 +35,10 @@ export default {
         let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
         if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
+        if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
+            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            return;
+        };
         axios.get('http://edgecats.net/random').then(async res => {
             let emb = new EmbedBuilder()
                 .setImage(res.data)

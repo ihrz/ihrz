@@ -423,6 +423,10 @@ dogs_embed_title: "🐶 au-au."
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ de amor 💗"
 love_command_error: "Ocorreu um erro ao tentar criar a imagem"
 
+# /fun disable
+fun_disable_command_msg: "${interaction.member?.user.toString()}, você ${action_type} a categoria de diversão!"
+fun_category_disable: "Você não pode usar este comando, a categoria de comandos de diversão está desativada."
+
 
 # Comandos de economia
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work

@@ -385,6 +385,8 @@ export namespace DatabaseStructure {
             boosts?: string;
             user?: string;
             antispam?: string;
+            channel?: string;
+            roles?: string;
         };
         SUPPORT?: {
             input?: string | null;

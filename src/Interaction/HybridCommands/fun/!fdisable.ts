@@ -23,51 +23,47 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
     Message,
+    PermissionsBitField,
     User,
 } from 'discord.js';
+
 import { LanguageData } from '../../../../types/languageData';
-import { SubCommandArgumentValue } from '../../../core/functions/method';
+import { SubCommandArgumentValue } from '../../../core/functions/method.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
         if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
-        if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member?.permissions.has(permissionsArray);
+
+        if (!permissions && permCheck.neededPerm === 0) {
+            await client.method.interactionSend(interaction, { content: lang.poll_not_admin });
             return;
         };
+
         if (interaction instanceof ChatInputCommandInteraction) {
-            var question = interaction.options.getString("question") as string;
-            var user = interaction.user;
+            var action = interaction.options.getString("action");
         } else {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
-            var question = client.method.string(args!, 0) as string;
-            var user = interaction.author;
-        };
-
-        let text = question?.split(" ");
-
-        if (!text[2]) {
-            await client.method.interactionSend(interaction, { content: lang.question_not_full });
-            return;
+            var action = client.method.string(args!, 1);
         }
+    
+        console.log(action)
+        await client.db.set(`${interaction.guildId}.GUILD.FUN.states`, action);
 
-        let reponses = lang.question_s
+        let action_type = action === "off" ? lang.var_disabled : lang.var_enabled;
 
-        let embed = new EmbedBuilder()
-            .setTitle(lang.question_embed_title
-                .replace(/\${interaction\.user\.username}/g, user.globalName || user.username)
-            )
-            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ddd98b")
-            .addFields(
-                { name: lang.question_fields_input_embed, value: question, inline: true },
-                { name: lang.question_fields_output_embed, value: reponses[Math.floor((Math.random() * reponses.length))] }
-            )
-            .setTimestamp();
-
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.method.interactionSend(interaction, {
+            content: lang.fun_disable_command_msg
+                .replace("${action_type}", action_type)
+                .replace("${interaction.member?.user.toString()}", String(interaction.member?.user.toString()))
+        });
         return;
     },
 };

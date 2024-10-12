@@ -44,21 +44,23 @@ export default {
         let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
         if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
-        let data = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-
+        if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
+            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            return;
+        };
         if (interaction instanceof ChatInputCommandInteraction) {
             var user: User = interaction.options.getUser('user') as User || interaction.user;
             var entry = interaction.options.getString('comment');
             var messageArgs = entry!.split(' ');
         } else {
-            var _ = await client.method.checkCommandArgs(interaction, command, args!, data); if (!_) return;
+            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var user: User = await client.method.user(interaction, args!, 0) || interaction.author;
             var entry = client.method.longString(args!, 1);
             var messageArgs = entry!.split(' ');
         };
 
         if (messageArgs.length < 1) {
-            await client.method.interactionSend(interaction, { content: data.fun_var_good_sentence });
+            await client.method.interactionSend(interaction, { content: lang.fun_var_good_sentence });
             return;
         };
 

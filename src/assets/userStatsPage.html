@@ -35,13 +35,13 @@
             height: auto;
             box-sizing: border-box;
             display: grid;
-            grid-template-rows: auto 1fr auto;
-            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            grid-template-columns: 1fr 2fr 1fr;
             gap: 10px;
         }
 
         .header {
-            grid-column: span 2;
+            grid-column: span 3;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -69,6 +69,22 @@
             justify-content: center;
         }
 
+        .chart-container {
+            background-color: #383838;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: 400px;
+        }
+
         .top-message-members,
         .top-message-channels {
             background-color: #383838;
@@ -87,7 +103,7 @@
         }
 
         .footer {
-            grid-column: span 2;
+            grid-column: span 3;
             font-size: 12px;
             color: #888;
             text-align: center;
@@ -107,6 +123,7 @@
             }
 
             .stat,
+            .chart-container,
             .top-message-members,
             .top-message-channels {
                 width: 100%;
@@ -135,6 +152,11 @@
             <p>7d<br><strong>{message_weekly} {messages_word}</strong></p>
             <p>30d<br><strong>{message_monthly} {messages_word}</strong></p>
         </div>
+
+        <div class="chart-container">
+            <canvas id="statsChart"></canvas>
+        </div>
+
         <div class="stat">
             <p class="label" style="font-weight: bold;">{voice_activity}</p>
             <p>1d<br><strong>{voice_daily} {minutes_word}</strong></p>
@@ -167,8 +189,80 @@
                 <span># {voice_top3}</span><span>{voice_top3_2} {minutes_word}</span>
             </div>
         </div>
+
+        <div class="top-message-channels">
+            <p class="label" style="font-weight: bold;">{guild_name}</p>
+            <div class="list-item">
+                <span>iHorizon</span>
+            </div>
+        </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const messageData = {messageData}; 
+        const voiceData = {voiceData};
+
+        const labels = Array.from({ length: 30 }, (_, i) => `.`);
+
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        const statsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: '{messages_word}',
+                        data: messageData,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: false,
+                        tension: 0.1
+                    },
+                    {
+                        label: '{voice_activity}',
+                        data: voiceData,
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: false,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: ''
+                        },
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 0,
+                            minRotation: 0
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                        },
+                        ticks: {
+                            stepSize: 5
+                        },
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -27,9 +27,10 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
+import { encrypt } from '../../../core/functions/encryptDecryptMethod';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData, command: SubCommandArgumentValue) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData, command: SubCommandArgumentValue) => {
         let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
         if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, data, permCheck.neededPerm || 0);
 
@@ -43,7 +44,7 @@ export default {
 
         const dbGuild = await client.db.get(`${interaction.guildId}`);
 
-        let buffer = Buffer.from(JSON.stringify(dbGuild), 'utf-8');
+        let buffer = Buffer.from(encrypt(client.config.api.apiToken, JSON.stringify(dbGuild)), 'utf-8');
         let attachment = new AttachmentBuilder(buffer, { name: interaction.guildId + '.json' })
 
         await interaction.editReply({ content: data.guildconfig_config_save_check_dm });
