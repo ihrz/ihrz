@@ -107,8 +107,7 @@ export const event: BotEvent = {
             let lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
             await command.run(client, interaction, lang, command, Date.now(), []);
         } catch (e: any) {
-            let block = `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${command.name}\nError: ${e}\`\`\`\n`
-            await client.method.interactionSend(interaction, { content: block + "**Let me suggest you to report this issue with `/report`.**" })
+            await client.method.interactionSend(interaction, { content: "**Let me suggest you to report this issue with `/report`.**" })
         };
     },
 };
