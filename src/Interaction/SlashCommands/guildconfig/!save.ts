@@ -27,7 +27,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { SubCommandArgumentValue } from '../../../core/functions/method';
-import { encrypt } from '../../../core/functions/encryptDecryptMethod';
+import { encrypt } from '../../../core/functions/encryptDecryptMethod.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData, command: SubCommandArgumentValue) => {
