@@ -1184,6 +1184,23 @@ unmute_command_work: "<@${tomute.id}>さんがミュート解除されました�
 unmute_logs_embed_title: "Unmute Logs"
 unmute_logs_embed_description: "<@${interaction.user.id}>さんが<@${tomute.id}>さんのミュートを解除しました。"
 
+# /warn
+warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} が警告されました！**理由**：`${reason}`\n__警告ID__：`${warnId}`"
+warn_logEmbed_title: "警告ログ"
+warn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} に警告しました。理由：`${reason}`"
+
+# /unwarn
+unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} はデータベースに警告が見つかりません！"
+unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} 提供された警告IDはデータベースにありません"
+unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} の警告が解除されました！"
+unwarn_logEmbed_title: "警告解除ログ"
+unwarn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} の警告を解除しました"
+
+# /warnlist
+warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} はデータベースに警告が見つかりません！"
+warnlist_embed_desc: "### ID：${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> 作成者：<@${x.authorID}>\n> 理由：`${x.reason}`"
+warnlist_embed_title: "${member?.user.globalName} の警告リスト | ページ ${i / usersPerPage + 1}"
+
 
 # Backup commands
 # /backup

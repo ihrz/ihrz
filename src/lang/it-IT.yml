@@ -1184,6 +1184,23 @@ unmute_command_work: "<@${tomute.id}> è stato smutato!"
 unmute_logs_embed_title: "Unmute Logs"
 unmute_logs_embed_description: "<@${interaction.user.id}> smuta <@${tomute.id}>."
 
+# /warn
+warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} è stato avvertito! **Motivo**: `${reason}`\n__ID Avvertimento__: `${warnId}`"
+warn_logEmbed_title: "Registro Avvertimenti"
+warn_logEmbed_desc: "${interaction.member.toString()} ha avvertito ${member?.toString()} per `${reason}`"
+
+# /unwarn
+unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} sembra non avere avvertimenti nel mio database!"
+unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} l'ID dell'avvertimento che hai fornito non è nel mio database"
+unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} L'avvertimento di ${member?.toString()} è stato rimosso!"
+unwarn_logEmbed_title: "Registro Rimozioni Avvertimenti"
+unwarn_logEmbed_desc: "${interaction.member.toString()} ha rimosso l'avvertimento di ${member?.toString()}"
+
+# /warnlist
+warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} sembra non avere avvertimenti nel mio database!"
+warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autore: <@${x.authorID}>\n> Motivo: `${x.reason}`"
+warnlist_embed_title: "Lista Avvertimenti di ${member?.user.globalName} | Pagina ${i / usersPerPage + 1}"
+
 
 # Backup commands
 # /backup

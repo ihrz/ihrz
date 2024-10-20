@@ -874,6 +874,17 @@ export interface LanguageData {
   unmute_command_work: string;
   unmute_logs_embed_title: string;
   unmute_logs_embed_description: string;
+  warn_command_work: string;
+  warn_logEmbed_title: string;
+  warn_logEmbed_desc: string;
+  unwarn_cannot_found: string;
+  unwarn_cannot_found_id: string;
+  unwarn_command_ok: string;
+  unwarn_logEmbed_title: string;
+  unwarn_logEmbed_desc: string;
+  warnlist_no_data: string;
+  warnlist_embed_desc: string;
+  warnlist_embed_title: string;
   backup_wait_please: string;
   backup_not_admin: string;
   backup_i_dont_have_permission: string;

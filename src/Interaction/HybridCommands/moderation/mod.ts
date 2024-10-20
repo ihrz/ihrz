@@ -327,6 +327,100 @@ export const command: Command = {
                     required: true
                 }
             ],
+        },
+        {
+            name: "warn",
+
+            description: "warn a user",
+            description_localizations: {
+                "fr": "avertir un utilisateur"
+            },
+
+            options: [
+                {
+                    name: "member",
+
+                    description: "The member you want to warn",
+                    description_localizations: {
+                        "fr": "le membre que vous voulez signaler"
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+                    required: true
+                },
+                {
+                    name: "reason",
+
+                    description: "The reason why you want to warn this member",
+                    description_localizations: {
+                        "fr": "La raison du warn"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+                    required: true
+                }
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
+            name: "unwarn",
+
+            description: "unwarn a user",
+            description_localizations: {
+                "fr": "supprimer un avertissement d'un utilisateur"
+            },
+
+            options: [
+                {
+                    name: "member",
+
+                    description: "The member you want to unwarn",
+                    description_localizations: {
+                        "fr": "le membre que vous voulez enlever sont signalement"
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+                    required: true
+                },
+                {
+                    name: "warn-id",
+
+                    description: "The warn id",
+                    description_localizations: {
+                        "fr": "l'identifiant du warn"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+                    required: true
+                }
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
+            name: "warnlist",
+
+            description: "show all warns of a user",
+            description_localizations: {
+                "fr": "afficher tout les avertissement d'un utilisateur"
+            },
+
+            options: [
+                {
+                    name: "member",
+
+                    description: "The member you want to lookup",
+                    description_localizations: {
+                        "fr": "le membre que vous shouaiter vérifier"
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+                    required: true
+                }
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand,
         }
     ],
     thinking: true,

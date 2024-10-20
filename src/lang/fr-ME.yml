@@ -1184,6 +1184,23 @@ unmute_command_work: "<@${tomute.id}> a été enlever de sa sourdine !"
 unmute_logs_embed_title: "Logs de sourdine"
 unmute_logs_embed_description: "<@${interaction.user.id}> a enlever de sa sourdine <@${tomute.id}>"
 
+# /warn
+warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ¡${member?.toString()} ha sido advertido! **Razón**: `${reason}`\n__ID de advertencia__: `${warnId}`"
+warn_logEmbed_title: "Registros de Advertencias"
+warn_logEmbed_desc: "${interaction.member.toString()} ha advertido a ${member?.toString()} por `${reason}`"
+
+# /unwarn
+unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ¡${member?.toString()} parece no tener ninguna advertencia en mi base de datos!"
+unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} el ID de advertencia que has proporcionado no está en mi base de datos"
+unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ¡Se ha retirado la advertencia de ${member?.toString()}!"
+unwarn_logEmbed_title: "Registros de Retiro de Advertencias"
+unwarn_logEmbed_desc: "${interaction.member.toString()} ha retirado la advertencia de ${member?.toString()}"
+
+# /warnlist
+warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ¡${member?.toString()} parece no tener ninguna advertencia en mi base de datos!"
+warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autor: <@${x.authorID}>\n> Razón: `${x.reason}`"
+warnlist_embed_title: "Lista de Advertencias de ${member?.user.globalName} | Página ${i / usersPerPage + 1}"
+
 
 # Backup commands
 # /backup
