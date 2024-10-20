@@ -91,7 +91,6 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                     process.on("SIGINT", async () => {
                         await driver.close();
                         logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
-                        process.exit()
                     });
                     resolve(new QuickDB({ driver }));
                 } catch (error: any) {
@@ -217,11 +216,6 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                     overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres !`));
                 };
 
-                process.on('SIGINT', async () => {
-                    await syncToPostgres();
-                    process.exit();
-                });
-
                 setInterval(syncToPostgres, 60000 * 5);
                 resolve(memoryDB);
             });
@@ -289,11 +283,6 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                     overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to MySQL`))
                 };
 
-                process.on('SIGINT', async () => {
-                    await syncToMySQL();
-                    process.exit();
-                });
-
                 setInterval(syncToMySQL, 60000 * 5);
                 resolve(memoryDB);
             });
@@ -340,11 +329,6 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
 
                         overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to MongoDB`));
                     };
-
-                    process.on('SIGINT', async () => {
-                        await syncToMongo();
-                        process.exit();
-                    });
 
                     setInterval(syncToMongo, 60000 * 5);
                     resolve(memoryDB);
