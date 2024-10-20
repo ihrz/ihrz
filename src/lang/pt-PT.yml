@@ -658,6 +658,10 @@ all_admins_unrank_not_owner: "Somente o proprietário do servidor pode desclassi
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Você não pode adicionar um papel a um usuário que tenha um papel superior ao seu..."
 utils_addrole_command_ok: "${author.toString()} adicionou com sucesso o papel ${role?.toString()} ao ${user.toString()}"
 
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Não podes remover um papel de um utilizador que tem um papel superior ao teu..."
+utils_delrole_command_ok: "${author.toString()} removeu com sucesso o papel ${role?.toString()} de ${user.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

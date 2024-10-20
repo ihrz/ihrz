@@ -658,6 +658,10 @@ all_admins_unrank_not_owner: "Solo il proprietario del server può declassare tu
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Non puoi aggiungere un ruolo a un utente che ha un ruolo superiore al tuo..."
 utils_addrole_command_ok: "${author.toString()} ha aggiunto con successo il ruolo ${role?.toString()} a ${user.toString()}"
 
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Non puoi rimuovere un ruolo da un utente che ha un ruolo più alto del tuo..."
+utils_delrole_command_ok: "${author.toString()} ha rimosso con successo il ruolo ${role?.toString()} da ${user.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

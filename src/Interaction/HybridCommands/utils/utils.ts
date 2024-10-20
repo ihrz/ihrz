@@ -505,6 +505,44 @@ export const command: Command = {
             ],
 
             type: ApplicationCommandOptionType.Subcommand
+        },
+        {
+            name: "delrole",
+
+            description: "Removew role to user",
+            description_localizations: {
+                "fr": "Enlever un rôle à un utilisateur"
+            },
+
+            options: [
+                {
+                    name: "user",
+
+                    description: "The user you want to remove role",
+                    description_localizations: {
+                        "fr": "L'utilisateur que vous voulez enlever le rôle"
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+
+                    required: true
+                },
+                {
+                    name: "role",
+
+                    description: "The role you want to remove to the user",
+                    description_localizations: {
+                        "fr": "Le role que vous voulez enlever a l'utilisateur"
+                    },
+
+                    type: ApplicationCommandOptionType.Role,
+
+                    required: true
+                },
+
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand
         }
     ],
 

@@ -658,6 +658,10 @@ all_admins_unrank_not_owner: "Только владелец сервера мо�
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете добавить роль пользователю, который имеет более высокую роль, чем вы..."
 utils_addrole_command_ok: "${author.toString()} успешно добавил роль ${role?.toString()} пользователю ${user.toString()}"
 
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете удалить роль у пользователя, у которого роль выше вашей..."
+utils_delrole_command_ok: "${author.toString()} успешно удалил роль ${role?.toString()} у ${user.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

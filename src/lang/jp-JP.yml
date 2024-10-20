@@ -658,6 +658,10 @@ all_admins_unrank_not_owner: "サーバーの所有者のみがサーバーの�
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたよりも高い役割を持つユーザーに役割を追加することはできません..."
 utils_addrole_command_ok: "${author.toString()} が ${user.toString()} に役割 ${role?.toString()} を正常に追加しました"
 
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたより高い役割を持つユーザーから役割を削除することはできません..."
+utils_delrole_command_ok: "${author.toString()} が ${user.toString()} から役割 ${role?.toString()} を正常に削除しました"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

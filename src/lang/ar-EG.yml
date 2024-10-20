@@ -650,10 +650,14 @@ all_admins_unrank_button_label: "إلغاء التصنيف لجميع"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, لقد قامت iHorizon بتنفيذ إلغاء التصنيف لجميع في وحدة AllAdmins.\n\n**${good}** مستخدم/مستخدمون __تم إلغاء تصنيفهم__ بنجاح\nفشلت iHorizon في إلغاء تصنيف **${bad}** مستخدم/مستخدمون."
 all_admins_unrank_not_owner: "فقط مالك الخادم يمكنه إلغاء تصنيف جميع المشرفين في الخادم"
 
-
 # /addrole
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} لا يمكنك إضافة دور لمستخدم لديه دور أعلى منك..."
 utils_addrole_command_ok: "${author.toString()} قد أضاف بنجاح دور ${role?.toString()} إلى ${user.toString()}"
+
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} لا يمكنك إزالة دور من مستخدم له دور أعلى منك..."
+utils_delrole_command_ok: "${author.toString()} قد أزال بنجاح دور ${role?.toString()} من ${user.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

@@ -657,6 +657,10 @@ all_admins_unrank_not_owner: "Only the owner of the guild can unrank all adminis
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} You cannot add role to user who have higher role than you..."
 utils_addrole_command_ok: "${author.toString()} have succefully added the ${role?.toString()} role to ${user.toString()}"
 
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} You cannot remove role to user who have higher role than you..."
+utils_delrole_command_ok: "${author.toString()} have succefully removed the ${role?.toString()} role to ${user.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

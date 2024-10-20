@@ -658,6 +658,9 @@ all_admins_unrank_not_owner: "Nur der Besitzer des Servers kann alle Administrat
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Du kannst einem Benutzer keine Rolle hinzufügen, der eine höhere Rolle als du hat..."
 utils_addrole_command_ok: "${author.toString()} hat erfolgreich die Rolle ${role?.toString()} zu ${user.toString()} hinzugefügt"
 
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Du kannst keine Rolle von einem Benutzer entfernen, der eine höhere Rolle als du hat..."
+utils_delrole_command_ok: "${author.toString()} hat erfolgreich die Rolle ${role?.toString()} von ${user.toString()} entfernt"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
