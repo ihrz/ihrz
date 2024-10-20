@@ -88,6 +88,22 @@ export const command: Command = {
                         {
                             name: "Perm 4",
                             value: "4"
+                        },
+                        {
+                            name: "Perm 5",
+                            value: "5"
+                        },
+                        {
+                            name: "Perm 6",
+                            value: "6"
+                        },
+                        {
+                            name: "Perm 7",
+                            value: "7"
+                        },
+                        {
+                            name: "Perm 8",
+                            value: "8"
                         }
                     ],
 
@@ -168,6 +184,22 @@ export const command: Command = {
                         {
                             name: "Perm 4",
                             value: "4"
+                        },
+                        {
+                            name: "Perm 5",
+                            value: "5"
+                        },
+                        {
+                            name: "Perm 6",
+                            value: "6"
+                        },
+                        {
+                            name: "Perm 7",
+                            value: "7"
+                        },
+                        {
+                            name: "Perm 8",
+                            value: "8"
                         }
                     ],
 
