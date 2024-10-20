@@ -35,7 +35,7 @@ export const command: BashCommands = {
             .setFooter({ text: `Kisakay - iHorizon`, iconURL: "attachment://footer_icon.png" });
 
         client.guilds.cache.forEach(async (guild) => {
-            let channel = guild.channels.cache.find((role: { name: string; }) => role.name === 'ihorizon-logs');
+            let channel = guild.channels.cache.find((chann) => chann.name === 'ihorizon-logs');
             if (channel) {
                 (channel as BaseGuildTextChannel).send({
                     content: '@here',

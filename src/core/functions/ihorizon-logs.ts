@@ -34,9 +34,7 @@ export async function send(
             .setTitle(embed.title)
             .setDescription(embed.description);
 
-        let logchannel = interaction.guild?.channels.cache.find((channel: {
-            name: string;
-        }) => channel.name === 'ihorizon-logs');
+        let logchannel = interaction.guild?.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
 
         if (!logchannel) return;
         (logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });
