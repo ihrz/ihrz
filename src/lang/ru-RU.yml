@@ -654,9 +654,16 @@ all_admins_unrank_button_label: "Разжаловать всех"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon выполнил разжалование всех для модуля AllAdmins.\n\n**${good}** Пользователь(и) __успешно__ разжалованы\niHorizon __не смог__ разжаловать **${bad}** Пользователь(и)."
 all_admins_unrank_not_owner: "Только владелец сервера может разжаловать всех администраторов сервера"
 
+# /allbots
+all_bots_embed_title: "Список всех бот(ов) | Страница ${i / usersPerPage + 1}"
+
 # /addrole
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете добавить роль пользователю, который имеет более высокую роль, чем вы..."
 utils_addrole_command_ok: "${author.toString()} успешно добавил роль ${role?.toString()} пользователю ${user.toString()}"
+
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете удалить роль у пользователя, у которого роль выше вашей..."
+utils_delrole_command_ok: "${author.toString()} успешно удалил роль ${role?.toString()} у ${user.toString()}"
 
 
 # Guild Config commands
@@ -1176,6 +1183,23 @@ unmute_muted_role_doesnt_exist: "Роль `muted` не существует. П�
 unmute_command_work: "<@${tomute.id}> был разблокирован!"
 unmute_logs_embed_title: "Логи разблокировки"
 unmute_logs_embed_description: "<@${interaction.user.id}> разблокировал <@${tomute.id}>"
+
+# /warn
+warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} получил предупреждение! **Причина**: `${reason}`\n__ID предупреждения__: `${warnId}`"
+warn_logEmbed_title: "Журнал предупреждений"
+warn_logEmbed_desc: "${interaction.member.toString()} выдал предупреждение ${member?.toString()} за `${reason}`"
+
+# /unwarn
+unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} Похоже, у ${member?.toString()} нет предупреждений в моей базе данных!"
+unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} предоставленный ID предупреждения отсутствует в моей базе данных"
+unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Предупреждение с ${member?.toString()} было снято!"
+unwarn_logEmbed_title: "Журнал снятия предупреждений"
+unwarn_logEmbed_desc: "${interaction.member.toString()} снял предупреждение с ${member?.toString()}"
+
+# /warnlist
+warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} Похоже, у ${member?.toString()} нет предупреждений в моей базе данных!"
+warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Автор: <@${x.authorID}>\n> Причина: `${x.reason}`"
+warnlist_embed_title: "Список предупреждений ${member?.user.globalName} | Страница ${i / usersPerPage + 1}"
 
 
 # Команды резервного копирования

@@ -443,6 +443,18 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand
         },
         {
+            name: 'allbots',
+
+            description: 'Get the list of all bot in the guild',
+            description_localizations: {
+                "fr": "Obtenez la liste de tous les bot de la guilde"
+            },
+
+            aliases: ["allb", "bots"],
+
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
             name: "addrole",
 
             description: "Add role to user",
@@ -469,6 +481,44 @@ export const command: Command = {
                     description: "The role you want to add to the user",
                     description_localizations: {
                         "fr": "Le role que vous voulez ajouter a l'utilisateur"
+                    },
+
+                    type: ApplicationCommandOptionType.Role,
+
+                    required: true
+                },
+
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
+            name: "delrole",
+
+            description: "Removew role to user",
+            description_localizations: {
+                "fr": "Enlever un rôle à un utilisateur"
+            },
+
+            options: [
+                {
+                    name: "user",
+
+                    description: "The user you want to remove role",
+                    description_localizations: {
+                        "fr": "L'utilisateur que vous voulez enlever le rôle"
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+
+                    required: true
+                },
+                {
+                    name: "role",
+
+                    description: "The role you want to remove to the user",
+                    description_localizations: {
+                        "fr": "Le role que vous voulez enlever a l'utilisateur"
                     },
 
                     type: ApplicationCommandOptionType.Role,

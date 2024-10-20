@@ -650,10 +650,17 @@ all_admins_unrank_button_label: "إلغاء التصنيف لجميع"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, لقد قامت iHorizon بتنفيذ إلغاء التصنيف لجميع في وحدة AllAdmins.\n\n**${good}** مستخدم/مستخدمون __تم إلغاء تصنيفهم__ بنجاح\nفشلت iHorizon في إلغاء تصنيف **${bad}** مستخدم/مستخدمون."
 all_admins_unrank_not_owner: "فقط مالك الخادم يمكنه إلغاء تصنيف جميع المشرفين في الخادم"
 
+# /allbots
+all_bots_embed_title: "قائمة جميع البوتات | الصفحة ${i / usersPerPage + 1}"
 
 # /addrole
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} لا يمكنك إضافة دور لمستخدم لديه دور أعلى منك..."
 utils_addrole_command_ok: "${author.toString()} قد أضاف بنجاح دور ${role?.toString()} إلى ${user.toString()}"
+
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} لا يمكنك إزالة دور من مستخدم له دور أعلى منك..."
+utils_delrole_command_ok: "${author.toString()} قد أزال بنجاح دور ${role?.toString()} من ${user.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1174,6 +1181,22 @@ unmute_command_work: "<@${tomute.id}> تم رفع ميوته!"
 unmute_logs_embed_title: "سجلات رفع الميوت"
 unmute_logs_embed_description: "<@${interaction.user.id}> رفع ميوت <@${tomute.id}>"
 
+# /warn
+warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} اتحذر! **السبب**: `${reason}`\n__رقم التحذير__: `${warnId}`"
+warn_logEmbed_title: "سجلات التحذير"
+warn_logEmbed_desc: "${interaction.member.toString()} حذر ${member?.toString()} بسبب `${reason}`"
+
+# /unwarn
+unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} شكله مفيش تحذيرات ليه في قاعدة البيانات بتاعتي!"
+unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} رقم التحذير اللي إديته مش موجود في قاعدة البيانات بتاعتي"
+unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} تم إلغاء التحذير بتاعه!"
+unwarn_logEmbed_title: "سجلات إلغاء التحذير"
+unwarn_logEmbed_desc: "${interaction.member.toString()} ألغى تحذير ${member?.toString()}"
+
+# /warnlist
+warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} شكله مفيش تحذيرات ليه في قاعدة البيانات بتاعتي!"
+warnlist_embed_desc: "### الرقم: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> الكاتب: <@${x.authorID}>\n> السبب: `${x.reason}`"
+warnlist_embed_title: "قائمة تحذيرات ${member?.user.globalName} | الصفحة ${i / usersPerPage + 1}"
 
 
 # Backup commands

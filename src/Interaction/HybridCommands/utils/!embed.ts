@@ -249,12 +249,22 @@ export default {
                     break;
                 case '10':
                     await handleCollector(i, 'embed_choose_10', (message) => {
-                        if (!isValidLink(message.content)) {
-                            __tempEmbed.setImage("https://exemple.com/exemple/png");
-                        } else {
+                        let files = [];
+
+                        if (isValidLink(message.content)) {
                             __tempEmbed.setImage(message.content);
+                        } else if (message.attachments.first()?.contentType?.startsWith("image/")) {
+                            __tempEmbed.setImage("attachment://image.png");
+                            files.push(
+                                {
+                                    attachment: message.attachments.first()?.url!,
+                                    name: 'image.png'
+                                }
+                            )
                         }
-                        response.edit({ embeds: [__tempEmbed] });
+                        response.edit({
+                            embeds: [__tempEmbed], files
+                        });
                     });
                     break;
                 case '11':

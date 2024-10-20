@@ -654,9 +654,16 @@ all_admins_unrank_button_label: "全員のランクを下げる"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}、iHorizonはAllAdminsモジュールの全員のランクダウンを実行しました。\n\n**${good}** ユーザーが__正常に__ランクを下げました\niHorizonは**${bad}** ユーザーのランクを下げることに__失敗しました__。"
 all_admins_unrank_not_owner: "サーバーの所有者のみがサーバーのすべての管理者のランクを下げることができます"
 
+# /allbots
+all_bots_embed_title: "全てのボットのリスト | ページ ${i / usersPerPage + 1}"
+
 # /addrole
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたよりも高い役割を持つユーザーに役割を追加することはできません..."
 utils_addrole_command_ok: "${author.toString()} が ${user.toString()} に役割 ${role?.toString()} を正常に追加しました"
+
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたより高い役割を持つユーザーから役割を削除することはできません..."
+utils_delrole_command_ok: "${author.toString()} が ${user.toString()} から役割 ${role?.toString()} を正常に削除しました"
 
 
 # Guild Config commands
@@ -1176,6 +1183,23 @@ unmute_muted_role_doesnt_exist: "`muted` 役職が存在しません。ミュー
 unmute_command_work: "<@${tomute.id}>さんがミュート解除されました！"
 unmute_logs_embed_title: "Unmute Logs"
 unmute_logs_embed_description: "<@${interaction.user.id}>さんが<@${tomute.id}>さんのミュートを解除しました。"
+
+# /warn
+warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} が警告されました！**理由**：`${reason}`\n__警告ID__：`${warnId}`"
+warn_logEmbed_title: "警告ログ"
+warn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} に警告しました。理由：`${reason}`"
+
+# /unwarn
+unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} はデータベースに警告が見つかりません！"
+unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} 提供された警告IDはデータベースにありません"
+unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} の警告が解除されました！"
+unwarn_logEmbed_title: "警告解除ログ"
+unwarn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} の警告を解除しました"
+
+# /warnlist
+warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} はデータベースに警告が見つかりません！"
+warnlist_embed_desc: "### ID：${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> 作成者：<@${x.authorID}>\n> 理由：`${x.reason}`"
+warnlist_embed_title: "${member?.user.globalName} の警告リスト | ページ ${i / usersPerPage + 1}"
 
 
 # Backup commands

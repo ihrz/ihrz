@@ -260,6 +260,13 @@ export namespace DatabaseStructure {
         channelId: string;
     }
 
+    export interface WarnSchema {
+        archivingTimeout?: number;
+        warnThreshold?: number;
+        sanction?: "mute" | "kick" | "ban";
+        punishment_time?: number;
+    }
+
     export interface DbInId {
         USER?: DbGuildUserObject;
         GUILD?: DbGuildObject;
@@ -273,6 +280,7 @@ export namespace DatabaseStructure {
         ECONOMY?: {
             disabled: boolean;
         };
+        WARN?: WarnSchema;
         SECURITY?: SecuritySchema;
         CONFESSION?: ConfessionSchema;
         UTILS?: {
@@ -288,6 +296,10 @@ export namespace DatabaseStructure {
         2?: string;
         3?: string;
         4?: string;
+        5?: string;
+        6?: string;
+        7?: string;
+        8?: string;
     }
 
     export interface UtilsData {
@@ -298,11 +310,11 @@ export namespace DatabaseStructure {
     }
 
     export interface UtilsPermsData {
-        [key: string]: 1 | 2 | 3 | 4
+        [key: string]: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
     }
 
     export interface UtilsPermsUserData {
-        [key: string]: 1 | 2 | 3 | 4
+        [key: string]: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
     }
 
     export interface DbGuildUserObject {
@@ -313,8 +325,11 @@ export namespace DatabaseStructure {
                 cooldown: number;
             };
             XP_LEVELING?: XpLevelingUserSchema;
+            WARNS?: WarnsData[];
         };
     }
+
+    export type WarnsData = { timestamp: number; reason: string; authorID: string; id: string; };
 
     export interface JoinBannerOptions {
         backgroundURL: string;

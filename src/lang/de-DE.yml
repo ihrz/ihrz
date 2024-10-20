@@ -654,10 +654,16 @@ all_admins_unrank_button_label: "Alle entlassen"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon hat das Entlassen aller für das AllAdmins Modul ausgeführt.\n\n**${good}** Benutzer wurden __erfolgreich__ entlassen\niHorizon konnte **${bad}** Benutzer __nicht__ entlassen."
 all_admins_unrank_not_owner: "Nur der Besitzer des Servers kann alle Administratoren des Servers entlassen"
 
+# /allbots
+all_bots_embed_title: "Liste aller Bot(s) | Seite ${i / usersPerPage + 1}"
+
 # /addrole
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Du kannst einem Benutzer keine Rolle hinzufügen, der eine höhere Rolle als du hat..."
 utils_addrole_command_ok: "${author.toString()} hat erfolgreich die Rolle ${role?.toString()} zu ${user.toString()} hinzugefügt"
 
+# /delrole
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Du kannst keine Rolle von einem Benutzer entfernen, der eine höhere Rolle als du hat..."
+utils_delrole_command_ok: "${author.toString()} hat erfolgreich die Rolle ${role?.toString()} von ${user.toString()} entfernt"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1176,6 +1182,23 @@ unmute_muted_role_doesnt_exist: "Die Rolle `stummgeschaltet` existiert nicht. Bi
 unmute_command_work: "<@${tomute.id}> wurde entstummschaltet!"
 unmute_logs_embed_title: "Entstummschaltungs-Protokolle"
 unmute_logs_embed_description: "<@${interaction.user.id}> entstummschaltet <@${tomute.id}>"
+
+# /warn
+warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} wurde verwarnt! **Grund**: `${reason}`\n__Verwarnungs-ID__: `${warnId}`"
+warn_logEmbed_title: "Verwarnungsprotokolle"
+warn_logEmbed_desc: "${interaction.member.toString()} hat ${member?.toString()} verwarnt wegen `${reason}`"
+
+# /unwarn
+unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} scheint keine Verwarnungen in meiner Datenbank zu haben!"
+unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} die von dir angegebene Verwarnungs-ID ist nicht in meiner Datenbank"
+unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Die Verwarnung von ${member?.toString()} wurde aufgehoben!"
+unwarn_logEmbed_title: "Protokolle aufgehobener Verwarnungen"
+unwarn_logEmbed_desc: "${interaction.member.toString()} hat die Verwarnung von ${member?.toString()} aufgehoben"
+
+# /warnlist
+warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} scheint keine Verwarnungen in meiner Datenbank zu haben!"
+warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autor: <@${x.authorID}>\n> Grund: `${x.reason}`"
+warnlist_embed_title: "Verwarnungsliste von ${member?.user.globalName} | Seite ${i / usersPerPage + 1}"
 
 
 # Backup-Befehle
