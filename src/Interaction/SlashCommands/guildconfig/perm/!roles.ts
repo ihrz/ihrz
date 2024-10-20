@@ -42,7 +42,7 @@ export default {
             return;
         }
 
-        var roles = ["Perm 1", "Perm 2", "Perm 3", "Perm 4"];
+        var roles = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8"];
         let existingRoles = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {} as DatabaseStructure.UtilsRoleData;
 
         try {
@@ -56,13 +56,13 @@ export default {
                 if (existingRoleId) {
                     const roleExists = await interaction.guild!.roles.fetch(existingRoleId).catch(() => null);
                     if (roleExists) {
-                        updatedRoles[permLevel as 1 | 2 | 3 | 4] = existingRoleId;
+                        updatedRoles[permLevel as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8] = existingRoleId;
                         continue;
                     }
                 }
 
                 const newRole = await interaction.guild!.roles.create({ name: roles[i] });
-                updatedRoles[permLevel as 1 | 2 | 3 | 4] = newRole.id;
+                updatedRoles[permLevel as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8] = newRole.id;
                 createdRoles.push(roles[i]);
             }
 

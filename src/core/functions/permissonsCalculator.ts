@@ -35,7 +35,7 @@ export async function checkCommandPermission(interaction: ChatInputCommandIntera
     var cmd = typeof command === 'string' ? command : command.name;
     let guildPerm = await db.get(`${interaction.guildId}.UTILS`) as DatabaseStructure.UtilsData;
     let userInDatabase = guildPerm?.USER_PERMS?.[usr.id] || 0;
-    let cmdNeedPerm: 1 | 2 | 3 | 4 | undefined = guildPerm?.PERMS?.[cmd];
+    let cmdNeedPerm: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | undefined = guildPerm?.PERMS?.[cmd];
 
     // if configuration is not set: return true and do discord permission check
     if (!cmdNeedPerm) {
