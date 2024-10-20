@@ -469,6 +469,18 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand
         },
         {
+            name: 'allbots',
+
+            description: 'Get the list of all bot in the guild',
+            description_localizations: {
+                "fr": "Obtenez la liste de tous les bot de la guilde"
+            },
+
+            aliases: ["allb", "bots"],
+
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
             name: "addrole",
 
             description: "Add role to user",

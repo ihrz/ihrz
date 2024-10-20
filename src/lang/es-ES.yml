@@ -654,6 +654,9 @@ all_admins_unrank_button_label: "Desclasificar a todos"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon ha ejecutado la desclasificación de todos para el módulo AllAdmins.\n\n**${good}** Usuario(s) __desclasificados__ con éxito\niHorizon __falló__ al desclasificar **${bad}** Usuario(s)."
 all_admins_unrank_not_owner: "Solo el dueño del servidor puede desclasificar a todos los administradores del servidor"
 
+# /allbots
+all_bots_embed_title: "Lista de todos los bot(s) | Página ${i / usersPerPage + 1}"
+
 # /addrole
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} No puedes agregar un rol a un usuario que tiene un rol más alto que tú..."
 utils_addrole_command_ok: "${author.toString()} ha añadido con éxito el rol ${role?.toString()} a ${user.toString()}"

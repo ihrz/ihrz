@@ -471,6 +471,7 @@ export interface LanguageData {
   massmove_too_much_member: string;
   all_admins_nobody_admins: string;
   all_admins_embed_title: string;
+  all_bots_embed_title: string;
   all_admins_unrank_button_label: string;
   all_admins_unrank_embed_desc: string;
   all_admins_unrank_not_owner: string;
