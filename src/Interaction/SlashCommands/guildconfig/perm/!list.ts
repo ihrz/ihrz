@@ -72,12 +72,14 @@ export default {
 
             for (let i = startIndex; i < endIndex; i++) {
                 let { group, userId } = allUsers[i];
-                let user = interaction.guild.roles.cache.get(userId)?.toString() || interaction.guild.members.cache.get(userId)?.toString() || data.perm_list_unknown_user.replace("${userId}", userId);
+                let user = interaction.guild.roles.cache.get(userId)?.toString() || interaction.guild.members.cache.get(userId)?.toString();
 
                 if (!groupedUsers[group]) {
                     groupedUsers[group] = [];
                 }
-                groupedUsers[group].push(user);
+                if (user) {
+                    groupedUsers[group].push(user);
+                }
             }
 
             Object.entries(groupedUsers).forEach(([group, users]) => {
