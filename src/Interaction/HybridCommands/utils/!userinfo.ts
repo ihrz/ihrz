@@ -171,6 +171,11 @@ export default {
                         name: lang.userinfo_embed_fields_5_name,
                         value: GetNitro(user_1.premium_type) || lang.userinfo_var_notfound,
                         inline: true,
+                    },
+                    {
+                        name: lang.var_roles,
+                        value: Array.from(interaction.guild?.members.cache.get(user.id)!.roles.cache.toJSON()!).slice(0, 37).join(",") || lang.var_none,
+                        inline: false,
                     }
                 )
                 .setImage("attachment://user_banner.gif");
