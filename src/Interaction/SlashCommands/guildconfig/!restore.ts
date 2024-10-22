@@ -28,7 +28,7 @@ import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
 
 import { SubCommandArgumentValue } from '../../../core/functions/method';
-import { decrypt } from '../../../core/functions/encryptDecryptMethod';
+import { decrypt } from '../../../core/functions/encryptDecryptMethod.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, data: LanguageData, command: SubCommandArgumentValue) => {

@@ -35,6 +35,8 @@ import {
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommandArgumentValue } from '../../../core/functions/method.js';
+import { generatePassword } from '../../../core/functions/random.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, data: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
@@ -113,5 +115,17 @@ export default {
                 .replace("${tomute.id}", tomute.id)
                 .replace("${ms(ms(mutetime))}", mutetimeString)
         });
+
+        let warnObject: DatabaseStructure.WarnsData = {
+            timestamp: Date.now(),
+            reason: data.tempmute_logs_embed_description
+                .replace("${interaction.user.id}", interaction.member.user.id)
+                .replace("${tomute.id}", tomute.id)
+                .replace("${ms(ms(mutetime))}", mutetimeString),
+            authorID: interaction.member.user.id,
+            id: generatePassword({ length: 8, lowercase: true, numbers: true })
+        }
+
+        await client.db.push(`${interaction.guildId}.USER.${tomute.user.id}.WARNS`, warnObject);
     },
 };
