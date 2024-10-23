@@ -677,6 +677,10 @@ utils_wlroles_embed_desc: "Here are all the allowed roles possibly giveable with
 utils_wlRoles_logsEmbed_title: "Whitelist Roles Modules"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} have edited wlRoles (for `addrole`, `delrole` command)"
 
+# /utils dm
+utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} The message was successfully sent to ${targetMember.toString()}."
+utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} I couldn't send a message to ${targetMember.toString()}. They may have blocked private messages, or they may have blocked me!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

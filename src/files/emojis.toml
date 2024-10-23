@@ -90,6 +90,10 @@ iHorizon_Invisible = "<a:iHorizon_Invisible:1218949698694549585>"
 
 iHorizon_Discord_Loading = "<a:iHorizon_Discord_Loading:1239942917842403338>"
 
+iHorizon_Unlock = "<a:iHorizon_Unlock:1298775695086059663>"
+
+iHorizon_Lock = "<a:iHorizon_Lock:1298775494820368445>"
+
 [vc]
 
 Name = "<:iHorizon_VC_Name:1210204645859922010>"

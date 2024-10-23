@@ -38,6 +38,7 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { CategoryData } from '../../../../types/category';
 import { Command } from '../../../../types/command';
+import { DatabaseStructure } from '../../../../types/database_structure';
 
 export const command: Command = {
     name: 'help',
@@ -105,7 +106,7 @@ export const command: Command = {
 
             const selectMenus = [];
             const categoriesPerMenu = Math.ceil(categories.length / 2);
-
+            const Commands = await client.db.get(`${interaction.guildId}.UTILS.PERMS`) as DatabaseStructure.UtilsPermsData | undefined;
             let index = 0;
 
             for (let i = 0; i < 2; i++) {
@@ -205,21 +206,28 @@ export const command: Command = {
                 let currentGroup: { name: string, value: string, inline: boolean }[] = [];
 
                 categories[i.values[0] as unknown as number].value.forEach(async (element, index) => {
+                    var states = "";
                     var cmdPrefix: string;
+                    var commandStates = Commands?.[element.cmd.split(" ").pop()!];
+                    if (!commandStates) {
+                        states += `${client.iHorizon_Emojis.icon.iHorizon_Unlock}`
+                    } else {
+                        states += `${client.iHorizon_Emojis.icon.iHorizon_Lock} ${commandStates}`
+                    }
 
                     switch (element.messageCmd) {
                         case 0:
-                            cmdPrefix = `${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`
+                            cmdPrefix = `${states} ${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`
                             break;
                         case 1:
                             cmdPrefix = bot_prefix.type === 'mention'
-                                ? `${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`
-                                : `${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${element.cmd}**`
+                                ? `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`
+                                : `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${element.cmd}**`
                             break;
                         case 2:
                             cmdPrefix = bot_prefix.type === 'mention'
-                                ? `${client.iHorizon_Emojis.icon.Prefix_Command} (@Ping-Me) ${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`
-                                : `${client.iHorizon_Emojis.icon.Prefix_Command} (${bot_prefix.string}) ${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`
+                                ? `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} (@Ping-Me) ${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`
+                                : `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} (${bot_prefix.string}) ${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`
                             break;
                     }
                     let descValue = (guildLang === "fr-ME" || guildLang === "fr-FR") ? `\`${element.desc_localized["fr"]}\`` : `\`${element.desc}\``;

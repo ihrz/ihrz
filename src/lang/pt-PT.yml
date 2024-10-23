@@ -678,6 +678,10 @@ utils_wlroles_embed_desc: "Aqui estão todos os cargos permitidos que podem ser 
 utils_wlRoles_logsEmbed_title: "Módulo de Cargos Permitidos"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} editou os cargos permitidos (para os comandos `addrole` e `delrole`)"
 
+# /utils 
+utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} A mensagem foi enviada com sucesso para ${targetMember.toString()}."
+utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} Não consegui enviar uma mensagem para ${targetMember.toString()}. Ele pode ter bloqueado mensagens privadas, ou pode ter me bloqueado!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
