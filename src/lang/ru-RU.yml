@@ -205,6 +205,11 @@ ranksSetMessage_buttom_del_name: "Сообщение по умолчанию"
 ranksSetMessage_awaiting_response: "Напишите новое пользовательское сообщение о рангах."
 ranksSetMessage_embed_fields_xpmessage: "Сообщение о рангах"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**Вы действительно уверены, что хотите удалить все данные о рангах?\nЭто действие необратимо и вы не сможете его отменить.**\n**Это действие разрушительно!!**"
+reset_uranks_logs_embed_title: "Журналы модуля рангов (ОПАСНОЕ ДЕЙСТВИЕ)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} удалил все данные модуля рангов для ${user.toString()}!"
+
 
 # Команды владельца
 # /owner, /unowner, /blacklist, /unblacklist
@@ -658,12 +663,20 @@ all_admins_unrank_not_owner: "Только владелец сервера мо�
 all_bots_embed_title: "Список всех бот(ов) | Страница ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете добавить роль пользователю, который имеет более высокую роль, чем вы..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете добавить роль пользователю, у которого роль выше вашей..."
 utils_addrole_command_ok: "${author.toString()} успешно добавил роль ${role?.toString()} пользователю ${user.toString()}"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | Роль, которую вы хотите добавить пользователю, не внесена в белый список. Администратор должен сначала добавить её! (используйте `/utils wlroles`)"
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете удалить роль у пользователя, у которого роль выше вашей..."
-utils_delrole_command_ok: "${author.toString()} успешно удалил роль ${role?.toString()} у ${user.toString()}"
+utils_delrole_command_ok: "${author.toString()} успешно удалил роль ${role?.toString()} у пользователя ${user.toString()}"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | Роль, которую вы хотите удалить у пользователя, не внесена в белый список. Администратор должен сначала добавить её! (используйте `/utils wlroles`)"
+
+# /utils wlroles
+utils_wlroles_embed_title: "Роли в белом списке"
+utils_wlroles_embed_desc: "Вот все разрешённые роли, которые можно назначить с помощью команд `addrole` и `delrole`!"
+utils_wlRoles_logsEmbed_title: "Модуль белого списка ролей"
+utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} изменил роли в белом списке (для команд `addrole` и `delrole`)"
 
 
 # Guild Config commands

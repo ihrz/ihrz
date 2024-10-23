@@ -37,6 +37,7 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 
 import { SubCommandArgumentValue } from '../../../core/functions/method';
+import { DatabaseStructure } from '../../../../types/database_structure';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
@@ -66,6 +67,15 @@ export default {
             var author = interaction.member as GuildMember;
         };
 
+        let allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`) || [];
+
+        if (!allowed_roles?.includes(role?.id!)) {
+            await client.method.interactionSend(interaction, {
+                content: lang.utils_addrole_not_wl.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            })
+            return;
+        };
+
         if (!user) {
             await client.method.interactionSend(interaction, {
                 content: lang.ban_dont_found_member
@@ -80,7 +90,7 @@ export default {
             return;
         };
 
-        if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position) {
+        if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id) {
             await client.method.interactionSend(interaction, {
                 content: lang.utils_addrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });

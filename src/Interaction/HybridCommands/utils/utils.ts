@@ -140,6 +140,18 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand
         },
         {
+            name: 'wlroles',
+
+            description: 'Define allowed roles for addrole & delrole command',
+            description_localizations: {
+                "fr": "Définir les rôles autorisés pour les commandes addrole et delrole"
+            },
+
+            aliases: ["wlrole"],
+
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
             name: 'setmentionrole',
 
             description: 'Give a specific role to the user who pings me!',

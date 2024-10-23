@@ -205,6 +205,11 @@ ranksSetMessage_buttom_del_name: "デフォルトメッセージ"
 ranksSetMessage_awaiting_response: "新しいカスタムランクメッセージを書いてください。"
 ranksSetMessage_embed_fields_xpmessage: "ランクメッセージ"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**すべてのランクデータを削除しても本当に良いですか？\nこの操作は永久的で、元に戻せません。**\n**この操作は破壊的です!!**"
+reset_uranks_logs_embed_title: "ランクモジュールのログ (危険な操作)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} が ${user.toString()} のランクモジュールデータをすべて削除しました！"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -658,12 +663,20 @@ all_admins_unrank_not_owner: "サーバーの所有者のみがサーバーの�
 all_bots_embed_title: "全てのボットのリスト | ページ ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたよりも高い役割を持つユーザーに役割を追加することはできません..."
-utils_addrole_command_ok: "${author.toString()} が ${user.toString()} に役割 ${role?.toString()} を正常に追加しました"
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたより上位の役職を持つユーザーに役職を追加することはできません..."
+utils_addrole_command_ok: "${author.toString()} は正常に ${role?.toString()} の役職を ${user.toString()} に追加しました"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | あなたがユーザーに追加しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたより高い役割を持つユーザーから役割を削除することはできません..."
-utils_delrole_command_ok: "${author.toString()} が ${user.toString()} から役割 ${role?.toString()} を正常に削除しました"
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたより上位の役職を持つユーザーから役職を削除することはできません..."
+utils_delrole_command_ok: "${author.toString()} は正常に ${user.toString()} から ${role?.toString()} の役職を削除しました"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | あなたがユーザーから削除しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）"
+
+# /utils wlroles
+utils_wlroles_embed_title: "ホワイトリストの役職"
+utils_wlroles_embed_desc: "`addrole`、`delrole` コマンドで割り当て可能な許可された役職は次の通りです！"
+utils_wlRoles_logsEmbed_title: "ホワイトリスト役職モジュール"
+utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} はホワイトリスト役職を編集しました（ `addrole`、`delrole` コマンド用）"
 
 
 # Guild Config commands
