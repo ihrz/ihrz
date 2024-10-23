@@ -64,7 +64,11 @@ export default {
                 fetchedCommand = fetchedCommand.options?.find(x => x.name === commandParts[1]);
             }
 
-            await client.db.set(`${interaction.guildId}.UTILS.PERMS.${fetchedCommand?.name}`, parseInt(perms!) || 0);
+            if (perms! === "0") {
+                await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${fetchedCommand?.name}`);
+            } else {
+                await client.db.set(`${interaction.guildId}.UTILS.PERMS.${fetchedCommand?.name}`, parseInt(perms!));
+            }
 
             if (fetchedCommand) {
                 const commandType = commandParts.length === 1 ? lang.var_command :
