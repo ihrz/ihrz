@@ -64,14 +64,28 @@ export default {
             var msg = client.method.longString(args!, 2)!
         };
 
+        let buttons = [new ButtonBuilder()
+            .setCustomId("forgot-my-name")
+            .setStyle(ButtonStyle.Secondary)
+            .setLabel("Message from: " + interaction.guildId)
+            .setDisabled(true)];
+
+        if (isPrivate === false) {
+            buttons.push(
+                new ButtonBuilder()
+                    .setCustomId("forgot-my-name2")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setLabel("Message by: " + interaction.member.user.id)
+                    .setDisabled(true)
+            )
+        };
+
+
         await targetMember.send({
             content: msg, components: [
                 new ActionRowBuilder<ButtonBuilder>()
                     .addComponents(
-                        new ButtonBuilder()
-                            .setCustomId("forgot-my-name")
-                            .setStyle(ButtonStyle.Secondary)
-                            .setLabel("Message from: " + interaction.guildId)
+                        buttons
                     )
             ]
         }).then(async () => {
