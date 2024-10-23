@@ -57,7 +57,6 @@ export const command: Command = {
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: SubCommandArgumentValue) => {        
-        console.log(command)
         let permCheck = await client.method.permission.checkCommandPermission(interaction, command as unknown as Command);
         if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
