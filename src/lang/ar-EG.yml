@@ -204,6 +204,12 @@ ranksSetMessage_buttom_del_name: "الرسالة الافتراضية"
 ranksSetMessage_awaiting_response: "اكتب رسالة الرتب المخصصة الجديدة."
 ranksSetMessage_embed_fields_xpmessage: "رسالة الرتب"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**هل أنت متأكد حقًا أنك تريد حذف جميع بيانات الرتب؟\nهذا الإجراء دائم ولن تتمكن من التراجع عنه.**\n**هذا الإجراء مدمر!!**"
+reset_uranks_logs_embed_title: "سجلات وحدة الرتب (إجراء خطير)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} قام بحذف جميع بيانات وحدة الرتب لـ ${user.toString()}!"
+
+
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
 

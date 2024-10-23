@@ -205,6 +205,11 @@ ranksSetMessage_buttom_del_name: "Standardnachricht"
 ranksSetMessage_awaiting_response: "Schreiben Sie die neue benutzerdefinierte Ränge-Nachricht."
 ranksSetMessage_embed_fields_xpmessage: "Ränge-Nachricht"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**Sind Sie sich wirklich sicher, dass Sie alle Rangdaten löschen möchten?\nDiese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden.**\n**Diese Aktion ist zerstörerisch!!**"
+reset_uranks_logs_embed_title: "Protokolle des Rangmoduls (GEFÄHRLICHE AKTION)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} hat alle Rangdaten für ${user.toString()} gelöscht!"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

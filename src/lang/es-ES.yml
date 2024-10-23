@@ -205,6 +205,11 @@ ranksSetMessage_buttom_del_name: "Mensaje predeterminado"
 ranksSetMessage_awaiting_response: "Escriba el nuevo mensaje de rangos personalizado."
 ranksSetMessage_embed_fields_xpmessage: "Mensaje de rangos"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**¿Estás realmente seguro de que deseas eliminar todos los datos de rango?\nEsta acción es permanente y no podrás deshacerla.**\n**¡Esta acción es destructiva!!**"
+reset_uranks_logs_embed_title: "Registros del Módulo de Rangos (ACCIÓN PELIGROSA)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} ha eliminado todos los datos del módulo de rangos para ${user.toString()}!"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

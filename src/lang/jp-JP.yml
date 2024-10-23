@@ -205,6 +205,11 @@ ranksSetMessage_buttom_del_name: "デフォルトメッセージ"
 ranksSetMessage_awaiting_response: "新しいカスタムランクメッセージを書いてください。"
 ranksSetMessage_embed_fields_xpmessage: "ランクメッセージ"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**すべてのランクデータを削除しても本当に良いですか？\nこの操作は永久的で、元に戻せません。**\n**この操作は破壊的です!!**"
+reset_uranks_logs_embed_title: "ランクモジュールのログ (危険な操作)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} が ${user.toString()} のランクモジュールデータをすべて削除しました！"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

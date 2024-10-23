@@ -205,6 +205,11 @@ ranksSetMessage_buttom_del_name: "Default Message"
 ranksSetMessage_awaiting_response: "Wrote the new custom ranks Message."
 ranksSetMessage_embed_fields_xpmessage: "Ranks Message"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**Are you really sure you want to delete all rank data?\nThis action is permanent and you cannot undo it.**\n**This action is destructive!!**"
+reset_uranks_logs_embed_title: "Rank Module Logs (DANGEROUS ACTION)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} has deleted all rank module data for ${user.toString()}!"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

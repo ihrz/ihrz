@@ -67,6 +67,9 @@ export interface LanguageData {
   var_confirm: string;
   var_succes: string;
   ranksSetMessage_embed_fields_xpmessage: string;
+  reset_uranks_are_you_sure: string;
+  reset_uranks_logs_embed_title: string;
+  reset_uranks_logs_embed_desc: string;
   ranks_ignorechannels_embed_desc: string;
   ranks_ignorechannels_embed_title: string;
   add_disabled_command: string;

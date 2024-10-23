@@ -205,6 +205,11 @@ ranksSetMessage_buttom_del_name: "Сообщение по умолчанию"
 ranksSetMessage_awaiting_response: "Напишите новое пользовательское сообщение о рангах."
 ranksSetMessage_embed_fields_xpmessage: "Сообщение о рангах"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**Вы действительно уверены, что хотите удалить все данные о рангах?\nЭто действие необратимо и вы не сможете его отменить.**\n**Это действие разрушительно!!**"
+reset_uranks_logs_embed_title: "Журналы модуля рангов (ОПАСНОЕ ДЕЙСТВИЕ)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} удалил все данные модуля рангов для ${user.toString()}!"
+
 
 # Команды владельца
 # /owner, /unowner, /blacklist, /unblacklist
