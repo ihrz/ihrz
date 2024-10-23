@@ -678,6 +678,10 @@ utils_wlroles_embed_desc: "Estos son todos los roles permitidos que se pueden as
 utils_wlRoles_logsEmbed_title: "Módulo de Roles en Lista Blanca"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} ha editado los roles de la lista blanca (para los comandos `addrole` y `delrole`)"
 
+# /utils dm
+utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} El mensaje fue enviado con éxito a ${targetMember.toString()}."
+utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} No pude enviar un mensaje a ${targetMember.toString()}. Puede que haya bloqueado los mensajes privados o me haya bloqueado a mí."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

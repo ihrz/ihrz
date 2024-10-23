@@ -488,6 +488,8 @@ export interface LanguageData {
   utils_wlroles_embed_desc: string;
   utils_wlRoles_logsEmbed_title: string;
   utils_wlRoles_logsEmbed_desc: string;
+  utils_dm: string;
+  utils_dm_cant: string;
   blockpub_not_admin: string;
   blockpub_now_enable: string;
   blockpub_now_disable: string;

@@ -675,6 +675,10 @@ utils_wlroles_embed_desc: "هذه هي جميع الأدوار المسموح ب
 utils_wlRoles_logsEmbed_title: "وحدة أدوار القائمة البيضاء"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} قام بتحرير أدوار القائمة البيضاء (لأوامر `addrole` و `delrole`)"
 
+# /utils dm
+utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} الرسالة اتبعتت بنجاح لـ ${targetMember.toString()}"
+utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} معرفتش أبعت الرسالة لـ ${targetMember.toString()}. يمكن يكون قافل الرسائل الخاصة أو يكون حظرني!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

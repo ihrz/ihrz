@@ -140,6 +140,59 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand
         },
         {
+            name: 'dm',
+            name_localizations: {
+                "fr": "mp"
+            },
+
+            description: 'Send a private message to the user1',
+            description_localizations: {
+                "fr": "Envoyer un message privée à un utilisateur"
+            },
+
+            options: [
+                {
+                    name: "private",
+
+                    description: "is private ?",
+                    description_localizations: {
+                        "fr": "l'autheur est-t'il anonyme ?"
+                    },
+
+                    choices: [
+                        { name: "Yes", value: "yes" },
+                        { name: "No", value: "no" }
+                    ],
+                    type: ApplicationCommandOptionType.String,
+                    required: true
+                },
+                {
+                    name: "member",
+
+                    description: "the member you want",
+                    description_localizations: {
+                        "fr": "l'autheur que vous voulez"
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+                    required: true
+                },
+                {
+                    name: "message",
+
+                    description: "the private message",
+                    description_localizations: {
+                        "fr": "le message"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+                    required: true
+                },
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
             name: 'wlroles',
 
             description: 'Define allowed roles for addrole & delrole command',

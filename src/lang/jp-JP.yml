@@ -678,6 +678,10 @@ utils_wlroles_embed_desc: "`addrole`、`delrole` コマンドで割り当て可�
 utils_wlRoles_logsEmbed_title: "ホワイトリスト役職モジュール"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} はホワイトリスト役職を編集しました（ `addrole`、`delrole` コマンド用）"
 
+# /utils dm
+utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} メッセージは ${targetMember.toString()} に正常に送信されました。"
+utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} ${targetMember.toString()} にメッセージを送信できませんでした。プライベートメッセージをブロックしているか、私をブロックしている可能性があります。"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

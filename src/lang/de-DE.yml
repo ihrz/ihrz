@@ -678,6 +678,10 @@ utils_wlroles_embed_desc: "Hier sind alle erlaubten Rollen, die mit den Befehlen
 utils_wlRoles_logsEmbed_title: "Whitelist-Rollenmodul"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} hat die Whitelist-Rollen bearbeitet (für die Befehle `addrole` und `delrole`)"
 
+# /utils dm
+utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} Die Nachricht wurde erfolgreich an ${targetMember.toString()} gesendet."
+utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} Ich konnte die Nachricht nicht an ${targetMember.toString()} senden. Vielleicht hat er private Nachrichten blockiert oder er hat mich blockiert!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
