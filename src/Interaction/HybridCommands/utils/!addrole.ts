@@ -67,9 +67,9 @@ export default {
             var author = interaction.member as GuildMember;
         };
 
-        let allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`);
+        let allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`) || [];
 
-        if (allowed_roles?.includes(role?.id!)) {
+        if (!allowed_roles?.includes(role?.id!)) {
             await client.method.interactionSend(interaction, {
                 content: lang.utils_addrole_not_wl.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             })
@@ -90,7 +90,7 @@ export default {
             return;
         };
 
-        if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position) {
+        if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id) {
             await client.method.interactionSend(interaction, {
                 content: lang.utils_addrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });
