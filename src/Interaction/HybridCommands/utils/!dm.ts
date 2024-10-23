@@ -105,7 +105,7 @@ export default {
 
             await client.method.interactionSend(interaction, {
                 content: lang.utils_dm_cant
-                    .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+                    .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     .replace("${targetMember.toString()}", targetMember.toString())
             })
         })
