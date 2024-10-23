@@ -678,6 +678,10 @@ utils_wlroles_embed_desc: "Вот все разрешённые роли, кот
 utils_wlRoles_logsEmbed_title: "Модуль белого списка ролей"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} изменил роли в белом списке (для команд `addrole` и `delrole`)"
 
+# /utils dm
+utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} Сообщение было успешно отправлено ${targetMember.toString()}."
+utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} Не удалось отправить сообщение пользователю ${targetMember.toString()}. Возможно, он заблокировал личные сообщения или заблокировал меня!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
