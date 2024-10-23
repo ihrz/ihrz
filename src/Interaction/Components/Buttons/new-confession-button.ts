@@ -75,7 +75,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
                 placeHolder: lang.confession_module_modal_components1_placeholder,
                 style: TextInputStyle.Paragraph,
                 required: true,
-                maxLength: 200,
+                maxLength: 2500,
                 minLength: 2
             },
             {

@@ -83,7 +83,7 @@ export const command: Command = {
             ],
         },
         {
-            name: "show-ranks",
+            name: "ranks-show",
             name_localizations: {
                 "fr": "afficher"
             },
@@ -109,6 +109,39 @@ export const command: Command = {
                     required: false
                 }
             ],
+        },
+        {
+            name: "ranks-ureset",
+
+            description: "Reset the ranks level of an user",
+            description_localizations: {
+                "fr": "Supprimer les données de rang d'un utilisateur"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'user',
+                    type: ApplicationCommandOptionType.User,
+
+                    description: 'The user you want to reset the ranks data',
+                    description_localizations: {
+                        "fr": "L'utilisateur que vous voulez supprimer du module de rangs."
+                    },
+
+                    required: true
+                }
+            ],
+        },
+        {
+            name: "ranks-greset",
+
+            description: "Reset the ranks level of every user in the guild",
+            description_localizations: {
+                "fr": "Supprimer les données de rang de tout les utilisateur"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
         },
         {
             name: "ranks-channel",

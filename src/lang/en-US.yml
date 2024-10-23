@@ -205,6 +205,11 @@ ranksSetMessage_buttom_del_name: "Default Message"
 ranksSetMessage_awaiting_response: "Wrote the new custom ranks Message."
 ranksSetMessage_embed_fields_xpmessage: "Ranks Message"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**Are you really sure you want to delete all rank data?\nThis action is permanent and you cannot undo it.**\n**This action is destructive!!**"
+reset_uranks_logs_embed_title: "Rank Module Logs (DANGEROUS ACTION)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} has deleted all rank module data for ${user.toString()}!"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -659,10 +664,18 @@ all_bots_embed_title: "List of all bot(s) | Page ${i / usersPerPage + 1}"
 # /addrole
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} You cannot add role to user who have higher role than you..."
 utils_addrole_command_ok: "${author.toString()} have succefully added the ${role?.toString()} role to ${user.toString()}"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | The role you want to add to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} You cannot remove role to user who have higher role than you..."
 utils_delrole_command_ok: "${author.toString()} have succefully removed the ${role?.toString()} role to ${user.toString()}"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | The role you want to delete to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
+
+# /utils wlroles
+utils_wlroles_embed_title: "Whitelist Role"
+utils_wlroles_embed_desc: "Here are all the allowed roles possibly giveable with `addrole`, `delrole` command!"
+utils_wlRoles_logsEmbed_title: "Whitelist Roles Modules"
+utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} have edited wlRoles (for `addrole`, `delrole` command)"
 
 
 # Guild Config commands

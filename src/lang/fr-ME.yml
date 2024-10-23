@@ -205,6 +205,11 @@ ranksSetMessage_buttom_del_name: "Message par défaut"
 ranksSetMessage_awaiting_response: "Écrivez le nouveau message des rangs personnalisé."
 ranksSetMessage_embed_fields_xpmessage: "Message des rangs"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**Êtes-vous vraiment sûr de vouloir supprimer toutes les données de rang?\nCette action est permanente et vous ne pourrez pas revenir en arrière.**\n**Cette action est destructive!!**"
+reset_uranks_logs_embed_title: "Logs du module de rangs (ACTION DANGEREUSE)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} a supprimé toutes les données du module de rangs pour ${user.toString()}!"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -658,12 +663,20 @@ all_admins_unrank_not_owner: "Seul le propriétaire du serveur peut déclasser t
 all_bots_embed_title: "Liste de tous les bot(s) | Page ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Vous ne pouvez pas ajouter un rôle à un utilisateur ayant un rôle supérieur au vôtre..."
-utils_addrole_command_ok: "${author.toString()} a réussi à ajouter le rôle ${role?.toString()} à ${user.toString()}"
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Vous ne pouvez pas ajouter un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
+utils_addrole_command_ok: "${author.toString()} a ajouté avec succès le rôle ${role?.toString()} à ${user.toString()}"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | Le rôle que vous souhaitez ajouter à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Vous ne pouvez pas retirer un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
-utils_delrole_command_ok: "${author.toString()} a retiré avec succès le rôle ${role?.toString()} à ${user.toString()}"
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Vous ne pouvez pas supprimer un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
+utils_delrole_command_ok: "${author.toString()} a supprimé avec succès le rôle ${role?.toString()} à ${user.toString()}"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | Le rôle que vous souhaitez supprimer à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
+
+# /utils wlroles
+utils_wlroles_embed_title: "Rôles dans la liste blanche"
+utils_wlroles_embed_desc: "Voici tous les rôles autorisés pouvant être attribués avec les commandes `addrole` et `delrole` !"
+utils_wlRoles_logsEmbed_title: "Module des rôles de la liste blanche"
+utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} a modifié les rôles dans la liste blanche (pour les commandes `addrole` et `delrole`)"
 
 
 # Guild Config commands
@@ -1185,21 +1198,21 @@ unmute_logs_embed_title: "Logs de sourdine"
 unmute_logs_embed_description: "<@${interaction.user.id}> a enlever de sa sourdine <@${tomute.id}>"
 
 # /warn
-warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ¡${member?.toString()} ha sido advertido! **Razón**: `${reason}`\n__ID de advertencia__: `${warnId}`"
-warn_logEmbed_title: "Registros de Advertencias"
-warn_logEmbed_desc: "${interaction.member.toString()} ha advertido a ${member?.toString()} por `${reason}`"
+warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} a été averti ! **Raison** : `${reason}`\n__ID de l'avertissement__: `${warnId}`"
+warn_logEmbed_title: "Historique des Avertissements"
+warn_logEmbed_desc: "${interaction.member.toString()} a averti ${member?.toString()} pour la raison : `${reason}`"
 
 # /unwarn
-unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ¡${member?.toString()} parece no tener ninguna advertencia en mi base de datos!"
-unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} el ID de advertencia que has proporcionado no está en mi base de datos"
-unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ¡Se ha retirado la advertencia de ${member?.toString()}!"
-unwarn_logEmbed_title: "Registros de Retiro de Advertencias"
-unwarn_logEmbed_desc: "${interaction.member.toString()} ha retirado la advertencia de ${member?.toString()}"
+unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} ne semble avoir aucun avertissement dans ma base de données !"
+unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} l'ID d'avertissement que vous avez fourni n'est pas dans ma base de données"
+unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} L'avertissement de ${member?.toString()} a été retiré avec succès !"
+unwarn_logEmbed_title: "Historique des Retraits d'Avertissements"
+unwarn_logEmbed_desc: "${interaction.member.toString()} a retiré l'avertissement de ${member?.toString()}"
 
 # /warnlist
-warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ¡${member?.toString()} parece no tener ninguna advertencia en mi base de datos!"
-warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autor: <@${x.authorID}>\n> Razón: `${x.reason}`"
-warnlist_embed_title: "Lista de Advertencias de ${member?.user.globalName} | Página ${i / usersPerPage + 1}"
+warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} ne semble avoir aucun avertissement dans ma base de données !"
+warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Auteur : <@${x.authorID}>\n> Raison : `${x.reason}`"
+warnlist_embed_title: "Liste des Avertissements de ${member?.user.globalName} | Page ${i / usersPerPage + 1}"
 
 
 # Backup commands

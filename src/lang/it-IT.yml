@@ -205,6 +205,11 @@ ranksSetMessage_buttom_del_name: "Messaggio predefinito"
 ranksSetMessage_awaiting_response: "Scrivi il nuovo messaggio dei ranghi personalizzato."
 ranksSetMessage_embed_fields_xpmessage: "Messaggio dei ranghi"
 
+# /ranks ranks-ureset
+reset_uranks_are_you_sure: "**Sei davvero sicuro di voler cancellare tutti i dati dei ranghi?\nQuesta azione è permanente e non potrai annullarla.**\n**Questa azione è distruttiva!!**"
+reset_uranks_logs_embed_title: "Log del Modulo dei Ranghi (AZIONE PERICOLOSA)"
+reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} ha cancellato tutti i dati del modulo dei ranghi per ${user.toString()}!"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
@@ -658,12 +663,20 @@ all_admins_unrank_not_owner: "Solo il proprietario del server può declassare tu
 all_bots_embed_title: "Elenco di tutti i bot | Pagina ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Non puoi aggiungere un ruolo a un utente che ha un ruolo superiore al tuo..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Non puoi aggiungere un ruolo a un utente che ha un ruolo più alto del tuo..."
 utils_addrole_command_ok: "${author.toString()} ha aggiunto con successo il ruolo ${role?.toString()} a ${user.toString()}"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | Il ruolo che vuoi aggiungere all'utente non è nella whitelist. Un amministratore deve aggiungerlo prima! (usando `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Non puoi rimuovere un ruolo da un utente che ha un ruolo più alto del tuo..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Non puoi rimuovere un ruolo a un utente che ha un ruolo più alto del tuo..."
 utils_delrole_command_ok: "${author.toString()} ha rimosso con successo il ruolo ${role?.toString()} da ${user.toString()}"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | Il ruolo che vuoi rimuovere dall'utente non è nella whitelist. Un amministratore deve aggiungerlo prima! (usando `/utils wlroles`)"
+
+# /utils wlroles
+utils_wlroles_embed_title: "Ruoli nella Whitelist"
+utils_wlroles_embed_desc: "Questi sono tutti i ruoli consentiti che possono essere assegnati con i comandi `addrole` e `delrole`!"
+utils_wlRoles_logsEmbed_title: "Modulo Ruoli Whitelist"
+utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} ha modificato i ruoli della whitelist (per i comandi `addrole` e `delrole`)"
 
 
 # Guild Config commands

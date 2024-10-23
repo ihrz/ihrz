@@ -53,8 +53,7 @@ export default {
             var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var action = client.method.string(args!, 1);
         }
-    
-        console.log(action)
+
         await client.db.set(`${interaction.guildId}.GUILD.FUN.states`, action);
 
         let action_type = action === "off" ? lang.var_disabled : lang.var_enabled;
