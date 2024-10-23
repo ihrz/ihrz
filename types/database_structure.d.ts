@@ -283,9 +283,6 @@ export namespace DatabaseStructure {
         WARN?: WarnSchema;
         SECURITY?: SecuritySchema;
         CONFESSION?: ConfessionSchema;
-        UTILS?: {
-            unban_members?: string[];
-        };
         VOICE_INTERFACE?: VoiceData;
         UTILS?: UtilsData;
         STATS?: GuildStats;
@@ -305,8 +302,9 @@ export namespace DatabaseStructure {
     export interface UtilsData {
         PERMS?: UtilsPermsData;
         USER_PERMS?: UtilsPermsUserData;
-        unban_members?: string[]
-        roles?: UtilsRoleData
+        unban_members?: string[];
+        roles?: UtilsRoleData;
+        wlRoles?: string[];
     }
 
     export interface UtilsPermsData {

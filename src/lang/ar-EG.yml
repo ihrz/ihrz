@@ -660,12 +660,20 @@ all_admins_unrank_not_owner: "فقط مالك الخادم يمكنه إلغاء
 all_bots_embed_title: "قائمة جميع البوتات | الصفحة ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} لا يمكنك إضافة دور لمستخدم لديه دور أعلى منك..."
-utils_addrole_command_ok: "${author.toString()} قد أضاف بنجاح دور ${role?.toString()} إلى ${user.toString()}"
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} لا يمكنك إضافة دور إلى مستخدم يمتلك دورًا أعلى منك..."
+utils_addrole_command_ok: "${author.toString()} قام بإضافة الدور ${role?.toString()} بنجاح إلى ${user.toString()}"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | الدور الذي تريد إضافته للمستخدم غير مدرج في القائمة البيضاء. يجب على المسؤول إضافته أولاً! (باستخدام `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} لا يمكنك إزالة دور من مستخدم له دور أعلى منك..."
-utils_delrole_command_ok: "${author.toString()} قد أزال بنجاح دور ${role?.toString()} من ${user.toString()}"
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} لا يمكنك إزالة دور من مستخدم يمتلك دورًا أعلى منك..."
+utils_delrole_command_ok: "${author.toString()} قام بإزالة الدور ${role?.toString()} بنجاح من ${user.toString()}"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | الدور الذي تريد حذفه من المستخدم غير مدرج في القائمة البيضاء. يجب على المسؤول إضافته أولاً! (باستخدام `/utils wlroles`)"
+
+# /utils wlroles
+utils_wlroles_embed_title: "الأدوار المسموح بها"
+utils_wlroles_embed_desc: "هذه هي جميع الأدوار المسموح بها التي يمكن إعطاؤها باستخدام أوامر `addrole` و `delrole`!"
+utils_wlRoles_logsEmbed_title: "وحدة أدوار القائمة البيضاء"
+utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} قام بتحرير أدوار القائمة البيضاء (لأوامر `addrole` و `delrole`)"
 
 
 # Guild Config commands

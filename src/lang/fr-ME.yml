@@ -663,12 +663,20 @@ all_admins_unrank_not_owner: "Seul le propriétaire du serveur peut déclasser t
 all_bots_embed_title: "Liste de tous les bot(s) | Page ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Vous ne pouvez pas ajouter un rôle à un utilisateur ayant un rôle supérieur au vôtre..."
-utils_addrole_command_ok: "${author.toString()} a réussi à ajouter le rôle ${role?.toString()} à ${user.toString()}"
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Vous ne pouvez pas ajouter un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
+utils_addrole_command_ok: "${author.toString()} a ajouté avec succès le rôle ${role?.toString()} à ${user.toString()}"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | Le rôle que vous souhaitez ajouter à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Vous ne pouvez pas retirer un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
-utils_delrole_command_ok: "${author.toString()} a retiré avec succès le rôle ${role?.toString()} à ${user.toString()}"
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Vous ne pouvez pas supprimer un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
+utils_delrole_command_ok: "${author.toString()} a supprimé avec succès le rôle ${role?.toString()} à ${user.toString()}"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | Le rôle que vous souhaitez supprimer à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
+
+# /utils wlroles
+utils_wlroles_embed_title: "Rôles dans la liste blanche"
+utils_wlroles_embed_desc: "Voici tous les rôles autorisés pouvant être attribués avec les commandes `addrole` et `delrole` !"
+utils_wlRoles_logsEmbed_title: "Module des rôles de la liste blanche"
+utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} a modifié les rôles dans la liste blanche (pour les commandes `addrole` et `delrole`)"
 
 
 # Guild Config commands

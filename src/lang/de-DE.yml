@@ -663,12 +663,21 @@ all_admins_unrank_not_owner: "Nur der Besitzer des Servers kann alle Administrat
 all_bots_embed_title: "Liste aller Bot(s) | Seite ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Du kannst einem Benutzer keine Rolle hinzufügen, der eine höhere Rolle als du hat..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Du kannst keine Rolle zu einem Benutzer hinzufügen, der eine höhere Rolle als du hat..."
 utils_addrole_command_ok: "${author.toString()} hat erfolgreich die Rolle ${role?.toString()} zu ${user.toString()} hinzugefügt"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | Die Rolle, die du dem Benutzer hinzufügen möchtest, ist nicht auf der Whitelist. Ein Administrator muss sie zuerst hinzufügen! (mit `/utils wlroles`)"
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Du kannst keine Rolle von einem Benutzer entfernen, der eine höhere Rolle als du hat..."
 utils_delrole_command_ok: "${author.toString()} hat erfolgreich die Rolle ${role?.toString()} von ${user.toString()} entfernt"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | Die Rolle, die du dem Benutzer entfernen möchtest, ist nicht auf der Whitelist. Ein Administrator muss sie zuerst hinzufügen! (mit `/utils wlroles`)"
+
+# /utils wlroles
+utils_wlroles_embed_title: "Whitelist-Rollen"
+utils_wlroles_embed_desc: "Hier sind alle erlaubten Rollen, die mit den Befehlen `addrole` und `delrole` gegeben werden können!"
+utils_wlRoles_logsEmbed_title: "Whitelist-Rollenmodul"
+utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} hat die Whitelist-Rollen bearbeitet (für die Befehle `addrole` und `delrole`)"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

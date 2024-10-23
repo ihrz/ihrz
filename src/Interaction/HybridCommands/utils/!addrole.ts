@@ -37,6 +37,7 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 
 import { SubCommandArgumentValue } from '../../../core/functions/method';
+import { DatabaseStructure } from '../../../../types/database_structure';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, execTimestamp?: number, args?: string[]) => {
         let permCheck = await client.method.permission.checkCommandPermission(interaction, command.command!);
@@ -64,6 +65,15 @@ export default {
             var user = client.method.member(interaction, args!, 0)! as GuildMember;
             var role = client.method.role(interaction, args!, 1);
             var author = interaction.member as GuildMember;
+        };
+
+        let allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`);
+
+        if (allowed_roles?.includes(role?.id!)) {
+            await client.method.interactionSend(interaction, {
+                content: lang.utils_addrole_not_wl.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+            })
+            return;
         };
 
         if (!user) {

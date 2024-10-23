@@ -663,12 +663,20 @@ all_admins_unrank_not_owner: "Somente o proprietário do servidor pode desclassi
 all_bots_embed_title: "Lista de todos os bot(s) | Página ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Você não pode adicionar um papel a um usuário que tenha um papel superior ao seu..."
-utils_addrole_command_ok: "${author.toString()} adicionou com sucesso o papel ${role?.toString()} ao ${user.toString()}"
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Você não pode adicionar um cargo a um usuário que tem um cargo superior ao seu..."
+utils_addrole_command_ok: "${author.toString()} adicionou com sucesso o cargo ${role?.toString()} a ${user.toString()}"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | O cargo que você deseja adicionar ao usuário não está na lista de permissões. Um administrador deve adicioná-lo primeiro! (usando `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Não podes remover um papel de um utilizador que tem um papel superior ao teu..."
-utils_delrole_command_ok: "${author.toString()} removeu com sucesso o papel ${role?.toString()} de ${user.toString()}"
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} Você não pode remover um cargo de um usuário que tem um cargo superior ao seu..."
+utils_delrole_command_ok: "${author.toString()} removeu com sucesso o cargo ${role?.toString()} de ${user.toString()}"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | O cargo que você deseja remover do usuário não está na lista de permissões. Um administrador deve adicioná-lo primeiro! (usando `/utils wlroles`)"
+
+# /utils wlroles
+utils_wlroles_embed_title: "Cargos Permitidos"
+utils_wlroles_embed_desc: "Aqui estão todos os cargos permitidos que podem ser atribuídos com os comandos `addrole` e `delrole`!"
+utils_wlRoles_logsEmbed_title: "Módulo de Cargos Permitidos"
+utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} editou os cargos permitidos (para os comandos `addrole` e `delrole`)"
 
 
 # Guild Config commands

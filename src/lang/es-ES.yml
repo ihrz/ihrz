@@ -663,12 +663,20 @@ all_admins_unrank_not_owner: "Solo el dueño del servidor puede desclasificar a 
 all_bots_embed_title: "Lista de todos los bot(s) | Página ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} No puedes agregar un rol a un usuario que tiene un rol más alto que tú..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} No puedes añadir un rol a un usuario que tiene un rol más alto que tú..."
 utils_addrole_command_ok: "${author.toString()} ha añadido con éxito el rol ${role?.toString()} a ${user.toString()}"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | El rol que deseas añadir al usuario no está en la lista blanca. Un administrador debe añadirlo primero! (usando `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} No puedes quitar un rol a un usuario que tiene un rol superior al tuyo..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} No puedes eliminar un rol de un usuario que tiene un rol más alto que tú..."
 utils_delrole_command_ok: "${author.toString()} ha eliminado con éxito el rol ${role?.toString()} de ${user.toString()}"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | El rol que deseas eliminar del usuario no está en la lista blanca. Un administrador debe añadirlo primero! (usando `/utils wlroles`)"
+
+# /utils wlroles
+utils_wlroles_embed_title: "Roles en la lista blanca"
+utils_wlroles_embed_desc: "Estos son todos los roles permitidos que se pueden asignar con los comandos `addrole` y `delrole`!"
+utils_wlRoles_logsEmbed_title: "Módulo de Roles en Lista Blanca"
+utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} ha editado los roles de la lista blanca (para los comandos `addrole` y `delrole`)"
 
 
 # Guild Config commands
