@@ -33,8 +33,11 @@ import { Option } from '../../../../types/option.js';
 
 export const command: Command = {
     name: "bulkunban",
+    name_localizations: {
+        "fr": 'unban'
+    },
 
-    aliases: ["massunban", "bunban"],
+    aliases: ["massunban"],
 
     description: "Mass action about unban",
     description_localizations: {
@@ -47,17 +50,20 @@ export const command: Command = {
 
             description: "Unban all member of the guild",
             description_localizations: {
-                "fr": "Bannir tout le monde sur un serveur"
+                "fr": "Débannir toute les personnes bannis du serveur"
             },
 
             type: ApplicationCommandOptionType.Subcommand
         },
         {
             name: "undo",
+            name_localizations: {
+                "fr": 'annuler'
+            },
 
-            description: "Undo the unban all of the guild",
+            description: "Undo the unban all of all members",
             description_localizations: {
-                "fr": "Annuler le dé-bannissement de tout les serveurs"
+                "fr": "Annuler le dé-bannissement de tout les membres"
             },
 
             type: ApplicationCommandOptionType.Subcommand
