@@ -44,7 +44,6 @@ import { SteganoDB } from "stegano.db";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";
 import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
 import { PallasDB } from "pallas-db";
-import { db } from "../src/core/database.js";
 
 declare module 'discord.js' {
     export interface Client {
@@ -57,7 +56,7 @@ declare module 'discord.js' {
         vanityInvites: Collection<Snowflake, VanityInviteData>,
         buttons: Collection<string, Function>,
         selectmenu: Collection<string, Function>,
-        db: db,
+        db: QuickDB<any>,
         applicationsCommands: Collection<string, AnotherCommand>,
         iHorizon_Emojis: Emojis,
         giveawaysManager: GiveawayManager,

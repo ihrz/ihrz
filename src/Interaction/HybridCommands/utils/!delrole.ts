@@ -61,13 +61,13 @@ export default {
             var role = interaction.options.getRole("role");
             var author = interaction.member as GuildMember;
         } else {
-            
+
             var user = client.method.member(interaction, args!, 0)! as GuildMember;
             var role = client.method.role(interaction, args!, 1);
             var author = interaction.member as GuildMember;
         };
 
-        let allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`);
+        let allowed_roles: DatabaseStructure.UtilsData["wlRoles"] | null = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`);
 
         if (!allowed_roles?.includes(role?.id!)) {
             await client.method.interactionSend(interaction, {

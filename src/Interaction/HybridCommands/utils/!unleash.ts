@@ -62,7 +62,7 @@ export default {
             return;
         }
 
-        let fetchedData: DatabaseStructure.LeashData[] = await client.db.get(`${interaction.guildId}.UTILS.LEASH`);
+        let fetchedData: DatabaseStructure.LeashData[] | null = await client.db.get(`${interaction.guildId}.UTILS.LEASH`);
 
         const pairingToRemove = fetchedData?.find(x =>
             (x.dom === interaction.member?.user.id && x.sub === user.id)
