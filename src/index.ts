@@ -35,12 +35,18 @@ execSync("npx tsc", {
 });
 
 import './core/functions/colors.js';
+
+import { getToken } from './core/functions/getToken.js';
+import logger from './core/logger.js';
+
 import { ShardingManager } from 'discord.js';
 import config from './files/config.js';
-import logger from './core/logger.js';
-import { getToken } from './core/functions/getToken.js';
 
 const _token = await getToken();
+
+logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
+logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
+logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
 
 let manager = new ShardingManager('./dist/src/core/bot.js', { totalShards: "auto", token: _token || process.env.BOT_TOKEN || config.discord.token });
 manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is now launched :) !`.green));

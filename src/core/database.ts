@@ -25,6 +25,7 @@ import { MongoDriver } from 'quickmongo';
 import ansiEscapes from 'ansi-escapes';
 import { SteganoDB } from 'stegano.db';
 import mysql from 'mysql2/promise.js';
+import { PallasDB } from 'pallas-db';
 import { setInterval } from 'timers';
 
 import { ConfigData } from '../../types/configDatad.js';
@@ -32,9 +33,10 @@ import logger from './logger.js';
 import fs from 'fs';
 import { MongoClient } from 'mongodb';
 
-let dbInstance: QuickDB<any> | SteganoDB;
+export type db = QuickDB<any> | SteganoDB | PallasDB;
+let dbInstance: db | null = null;
 
-const tables = ['OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', 'json', "RESTORECORD"];
+const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "RESTORECORD"];
 const readOnlyTables = ["RESTORECORD", "OWNIHRZ"];
 
 async function isReachable(database: ConfigData['database']): Promise<boolean> {
@@ -71,8 +73,12 @@ const overwriteLastLine = (message: string) => {
     process.stdout.write(message);
 };
 
-export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<any> | SteganoDB> => {
-    let dbPromise: Promise<QuickDB<any>> | SteganoDB;
+export async function initializeDatabase(config: ConfigData): Promise<db> {
+    if (dbInstance !== null) {
+        return dbInstance;
+    }
+
+    let dbPromise: Promise<QuickDB<any>> | SteganoDB | PallasDB | Promise<PallasDB>;
     let databasePath = `${process.cwd()}/src/files`;
 
     if (!fs.existsSync(databasePath)) {
@@ -166,6 +172,19 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                 resolve(db);
             });
             break;
+        case 'POSTGRES2':
+            dbPromise = new PallasDB({
+                host: config.database?.mySQL?.host,
+                username: config.database?.mySQL?.user,
+                password: config.database?.mySQL?.password,
+                database: config.database?.mySQL?.database,
+                port: config.database?.mySQL?.port,
+                dialect: "postgres",
+                tables
+            });
+
+            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
+            break;
         case 'CACHED_POSTGRES':
             dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
                 logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup (${config.database?.method}) !`.green);
@@ -227,11 +246,70 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
                 resolve(memoryDB);
             });
             break;
-        case 'SQLITE':
-            dbPromise = new Promise<QuickDB>((resolve, reject) => {
-                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
-                resolve(new QuickDB({ filePath: databasePath + '/db.sqlite' }));
+        case 'CACHED_POSTGRES2':
+            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+                logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup (${config.database?.method}) !`.green);
+
+                const postgresDb = new PallasDB({
+                    dialect: "postgres",
+                    tables,
+                    host: config.database?.mySQL?.host,
+                    port: config.database?.mySQL?.port,
+                    database: config.database?.mySQL?.database,
+                    username: config.database?.mySQL?.user,
+                    password: config.database?.mySQL?.password,
+                });
+
+                const memoryDB = new QuickDB({ driver: new MemoryDriver() });
+
+                for (const table of tables) {
+                    const memoryTable = memoryDB.table(table);
+                    const allData = await (postgresDb.table(table)).all();
+
+                    for (const { id, value } of allData) {
+                        await memoryTable.set(id, value);
+                    }
+                }
+
+                const syncToPostgres = async () => {
+                    for (const table of tables) {
+                        const postgresTable = postgresDb.table(table);
+                        const memoryTable = memoryDB.table(table);
+
+                        const postgresData = await postgresTable.all();
+                        const memoryData = await memoryTable.all();
+
+                        const postgresMap = new Map(postgresData.map(item => [item.id, item.value]));
+                        const memoryMap = new Map(memoryData.map(item => [item.id, item.value]));
+
+                        for (const [id, value] of memoryMap) {
+                            const postgresValue = postgresMap.get(id);
+                            if (!postgresValue || JSON.stringify(postgresValue) !== JSON.stringify(value)) {
+                                try {
+                                    if (readOnlyTables.includes(table)) {
+                                        for (const { id, value } of postgresData) {
+                                            await memoryTable.set(id, value);
+                                        }
+                                    } else {
+                                        await postgresTable.set(id, value);
+                                    }
+                                } catch (error) {
+                                    logger.err(error as any);
+                                }
+                            }
+                        }
+                    }
+
+                    overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres !`));
+                };
+
+                setInterval(syncToPostgres, 60000 * 5);
+                resolve(memoryDB);
             });
+            break;
+        case 'SQLITE':
+            dbPromise = new PallasDB({ dialect: "sqlite", tables: tables, storage: databasePath + "/db.sqlite" });
+            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
             break;
         case 'PNG':
             dbPromise = new SteganoDB(databasePath + '/db.png');
@@ -354,11 +432,12 @@ export const initializeDatabase = async (config: ConfigData): Promise<QuickDB<an
             break;
     }
 
-    dbInstance = await dbPromise;
+    dbInstance = await dbPromise
+
     return dbInstance;
 };
 
-export const getDatabaseInstance = (): QuickDB<any> | SteganoDB => {
+export function getDatabaseInstance(): db {
     if (!dbInstance) {
         throw new Error('Database has not been initialized. Call initializeDatabase first.');
     }

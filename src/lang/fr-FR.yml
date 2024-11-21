@@ -223,7 +223,7 @@ owner_is_now_owner: "${member.user.username} est désormais propriétaire du rob
 
 # /unowner
 unowner_not_owner: "Vous n'êtes pas propriétaire du robot. Vous ne pouvez pas utiliser cette commande."
-unowner_cant_unowner_creator: "Il n'est pas possible de supprimer cette perssonne, car elle est créateur du bot."
+unowner_cant_unowner_creator: "Il n'est pas possible de supprimer cette personne, car elle est créateur du bot."
 unowner_command_work: "${member.username} n'est plus propriétaire."
 
 # /blacklist

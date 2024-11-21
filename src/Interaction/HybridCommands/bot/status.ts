@@ -49,7 +49,7 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {
 
 
         // Guard's Typing
@@ -66,7 +66,7 @@ export const command: Command = {
                 { name: "Cpu", value: `${os.cpus()[0].model} (${os.machine()})`, inline: false },
                 { name: "Memory", value: `${niceBytes(os.totalmem() - os.freemem())}/${niceBytes(os.totalmem())}`, inline: false },
                 { name: "Machine Uptime", value: `${time(new Date(Date.now() - os.uptime() * 1000), 'd')}`, inline: false },
-                { name: "Bot Uptime", value: `${time(new Date(await client.method.core.getInitedTimestamp()), 'd')}` },
+                { name: "Bot Uptime", value: `${time(new Date(client.method.core.getCacheStorage()?.initialized_timestamp!), 'd')}` },
                 { name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
                 { name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },
                 { name: "NodeJS Version", value: `${process.version}`, inline: false },

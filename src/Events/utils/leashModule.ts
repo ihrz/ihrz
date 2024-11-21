@@ -19,8 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, User, VoiceState, time } from 'discord.js';
-
+import { Client, VoiceState } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure';
 
@@ -28,15 +27,23 @@ export const event: BotEvent = {
     name: "voiceStateUpdate",
     run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
         const baseData = await client.db.get(`${newState.guild.id}.UTILS.LEASH`) as DatabaseStructure.UtilsData["LEASH"];
+        const currentTime = Date.now();
 
-        const matchedPairings = baseData?.filter(x =>
+        const validEntries = baseData?.filter(entry => currentTime - entry.timestamp <= 30 * 60 * 1000) || [];
+        const expiredEntries = baseData?.filter(entry => currentTime - entry.timestamp > 30 * 60 * 1000) || [];
+
+        if (expiredEntries.length > 0) {
+            await client.db.set(`${newState.guild.id}.UTILS.LEASH`, validEntries);
+        }
+
+        const matchedPairings = validEntries.filter(x =>
             x.sub === oldState.member?.id ||
             x.dom === oldState.member?.id ||
             x.sub === newState.member?.id ||
             x.dom === newState.member?.id
         );
 
-        for (const pairing of matchedPairings || []) {
+        for (const pairing of matchedPairings) {
             const subMembers = pairing.sub.split(',').map(id =>
                 newState.guild.members.cache.get(id.trim())
             ).filter(member => member !== undefined);

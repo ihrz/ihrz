@@ -19,9 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User } from 'discord.js';
+import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User, BaseGuildTextChannel } from 'discord.js';
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
-import { OwnIHRZ } from "../../core/modules/ownihrzManager.js";
 import { format } from '../../core/functions/date-and-time.js';
 
 import status from "../../files/status.json" with { "type": "json" }
@@ -30,6 +29,7 @@ import logger from "../../core/logger.js";
 import { BotEvent } from '../../../types/event.js';
 import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
+import { CacheStorage } from '../../core/cache.js';
 
 export const event: BotEvent = {
     name: "ready",
@@ -183,6 +183,36 @@ export const event: BotEvent = {
 
         PfpsManager_Init(client);
 
+        let initData = client.method.core.getCacheStorage();
+
+        let oldV = initData?._cache.version;
+        let newV = client.version.version;
+
+        if (oldV !== newV) {
+            let sendingContent = {
+                content: "@everyone **New update available !**",
+                embeds: [
+                    new EmbedBuilder()
+                        .setTimestamp()
+                        .setURL(`https://github.com/ihrz/ihrz/compare/${oldV}...${newV}`)
+                        .setTitle(`Click me to see the changelog [${oldV} -> ${newV}]`)
+                ]
+            };
+
+            if (client.version.env !== "dev" && client.version.env !== "production") {
+                Array.from(new Set([client.config.owner.ownerid1, client.config.owner.ownerid2])).forEach(async usr => {
+                    let user = await client.users.fetch(usr);
+                    sendingContent.content = "**New update available !**"
+                    user.send(sendingContent).catch(() => false);
+                });
+            } else {
+                let channel_to_send = client.channels.cache.get(initData?._cache.updateChannelId || "00") as BaseGuildTextChannel | undefined;
+                channel_to_send?.send(sendingContent).catch(() => false);
+            }
+
+            CacheStorage.set('stored_data._cache.version', newV);
+
+        }
         logger.log(`${client.config.console.emojis.HOST} >> Bot is ready`.white);
     },
 };
