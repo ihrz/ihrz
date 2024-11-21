@@ -19,16 +19,9 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import pkg from "././../package.json" with { "type": "json" }
+import { SteganoDB } from 'stegano.db';
+import path from 'node:path';
 
-type Env = "ownihrz" | "dev" | "production";
+const uptime_path = path.join(process.cwd(), "src", "files", ".ihrz-cache")
 
-const env: Env = "ownihrz";
-const version = pkg.version;
-const djs = pkg.dependencies['discord.js'];
-
-const ClientVersion = `${env}@${version} discord.js@${djs}`;
-
-export {
-    env, version, djs, ClientVersion
-};
+export const CacheStorage = new SteganoDB({ driver: "json", filePath: uptime_path });

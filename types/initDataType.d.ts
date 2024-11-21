@@ -19,16 +19,10 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import pkg from "././../package.json" with { "type": "json" }
-
-type Env = "ownihrz" | "dev" | "production";
-
-const env: Env = "ownihrz";
-const version = pkg.version;
-const djs = pkg.dependencies['discord.js'];
-
-const ClientVersion = `${env}@${version} discord.js@${djs}`;
-
-export {
-    env, version, djs, ClientVersion
-};
+export interface InitData {
+    initialized_timestamp: number;
+    _cache: {
+        version: string;
+        updateChannelId: string;
+    };
+}

@@ -23,6 +23,13 @@ import { Client, Partials, GatewayIntentBits } from "discord.js";
 import * as core from './src/core/core.js';
 import config from './src/files/config.js';
 import * as ClientVersion from './src/version.js';
+import { initializeDatabase } from "./src/core/database.js";
+import logger from "./src/core/logger.js";
+
+logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
+logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
+logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
+
 let client = new Client({
     intents: [
         GatewayIntentBits.AutoModerationConfiguration,
@@ -56,6 +63,7 @@ let client = new Client({
     ]
 });
 
+client.db = await initializeDatabase(config);
 client.version = ClientVersion
 client.config = config;
 core.main(client);
