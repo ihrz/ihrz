@@ -23,7 +23,7 @@ import pkg from "././../package.json" with { "type": "json" }
 
 type Env = "ownihrz" | "dev" | "production";
 
-const env: Env = "ownihrz";
+const env: Env = "dev";
 const version = pkg.version;
 const djs = pkg.dependencies['discord.js'];
 
