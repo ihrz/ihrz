@@ -41,7 +41,7 @@ import { setMaxListeners } from 'node:events';
 import { version } from '../version.js';
 import { InitData } from '../../types/initDataType.js';
 import { CacheStorage } from './cache.js';
-import { getDatabaseInstance } from './database.js';
+import DatabaseModel from './functions/DatabaseModel.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -75,6 +75,7 @@ export async function main(client: Client) {
     assetsCalc(client);
     emojis(client);
 
+    client.db = DatabaseModel;
     client.content = [];
     client.category = [];
     client.invites = new Collection();

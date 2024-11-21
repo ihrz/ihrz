@@ -23,7 +23,6 @@ import { Client, Partials, GatewayIntentBits } from "discord.js";
 import * as core from './src/core/core.js';
 import config from './src/files/config.js';
 import * as ClientVersion from './src/version.js';
-import { initializeDatabase } from "./src/core/database.js";
 import logger from "./src/core/logger.js";
 
 logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
@@ -63,7 +62,6 @@ let client = new Client({
     ]
 });
 
-client.db = await initializeDatabase(config);
 client.version = ClientVersion
 client.config = config;
 core.main(client);

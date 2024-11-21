@@ -33,10 +33,3 @@ if (!db) {
 }
 
 export default await db;
-logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
-logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
-logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
-
-let manager = new ShardingManager('./dist/src/core/bot.js', { totalShards: "auto", token: _token || process.env.BOT_TOKEN || config.discord.token });
-manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is now launched :) !`.green));
-manager.spawn();
