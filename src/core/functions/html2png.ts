@@ -19,7 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
+
+let browser: Browser | null = await puppeteer.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+});
 
 export async function html2Png(
     code: string,
@@ -39,11 +43,13 @@ export async function html2Png(
             selectElement: false,
         }
 ): Promise<Buffer> {
-    let browser;
     try {
-        browser = await puppeteer.launch({
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        });
+        if (browser === null) {
+            browser = await puppeteer.launch({
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+        }
+
         const page = await browser.newPage();
 
         await page.setViewport({
@@ -83,9 +89,5 @@ export async function html2Png(
         return Buffer.from(imageBuffer);
     } catch (error) {
         throw error;
-    } finally {
-        if (browser) {
-            await browser.close();
-        }
     }
 }

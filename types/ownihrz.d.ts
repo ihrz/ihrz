@@ -33,6 +33,7 @@ export interface Custom_iHorizon {
     };
     Code: string;
     ExpireIn: string;
+    PowerOff?: boolean;
 }
 
 export interface OwnIHRZ_New_Owner_Object {
