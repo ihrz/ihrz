@@ -27,7 +27,7 @@ let db;
 
 if (!db) {
     db = new Promise<QuickDB>((resolve, reject) => {
-        logger.log(`${config.console.emojis.HOST} >> Connected to the database (JSON) !`.green);
+        logger.log(`${config.console.emojis.HOST} >> Connected to the database (SQLITE) !`.green);
         resolve(new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` }));
     });
 }
