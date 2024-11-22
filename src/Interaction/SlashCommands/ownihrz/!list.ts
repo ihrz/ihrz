@@ -23,53 +23,89 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    AttachmentBuilder
 } from 'discord.js';
-
 import { format } from '../../../core/functions/date-and-time.js';
-
 import { LanguageData } from '../../../../types/languageData';
-
-async function buildEmbed(client: Client, data: any, lang: LanguageData, guildID: string, interaction: ChatInputCommandInteraction) {
-
-    let bot_1 = (await client.ownihrz.Get_Bot(data.Auth).catch(() => { }))?.data || 404;
-
-    let utils_msg = lang.mybot_list_utils_msg
-        .replace('${data_2[i].bot.id}', data.Bot.Id)
-        .replace('${data_2[i].bot.username}', bot_1?.bot?.username || data?.Bot?.Name)
-        .replace("${data_2[i].bot_public ? 'Yes' : 'No'}", bot_1?.bot_public !== undefined ? (bot_1?.bot_public ? lang.mybot_list_utils_msg_yes : lang.mybot_list_utils_msg_no) : (data?.Bot?.Public ? lang.mybot_list_utils_msg_yes : lang.mybot_list_utils_msg_no));
-
-    let expire = format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
-
-    return new EmbedBuilder()
-        .setColor('#ff7f50')
-        .setThumbnail(`https://cdn.discordapp.com/avatars/${data.Bot.Id}/${bot_1?.bot?.avatar}.png`)
-        .setTitle(lang.mybot_list_embed1_title.replace('${data_2[i].bot.username}', bot_1?.bot?.username || data?.Bot?.Name))
-        .setDescription(
-            lang.mybot_list_embed1_desc
-                .replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
-                .replace('${data_2[i].code}', data.Code)
-                .replace('${expire}', expire)
-                .replace('${utils_msg}', utils_msg)
-        )
-        .setFooter(await client.method.bot.footerBuilder(interaction))
-        .setTimestamp();
-};
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
+import { readFileSync } from 'fs';
+import path from 'path';
+import { Custom_iHorizon } from '../../../../types/ownihrz.js';
+
+async function generateBotHTML(
+    client: Client,
+    data: Custom_iHorizon,
+    bot: any,
+    lang: LanguageData
+): Promise<string> {
+    let htmlContent = readFileSync(
+        path.join(process.cwd(), "src", "assets", "botProfileCard.html"),
+        'utf-8'
+    );
+
+    const accentColor = data.PowerOff === false ? '#23a559' : '#f23f43';
+    const statusColor = data.PowerOff === false ? '#23a559' : '#f23f43';
+    const statusText = data.PowerOff === false ? 'Online' : 'Offline';
+
+    return htmlContent
+        .replaceAll('AVATAR_URL', `https://cdn.discordapp.com/avatars/${data.Bot.Id}/${bot?.bot?.avatar}.png`)
+        .replaceAll('ACCENT_COLOR', accentColor)
+        .replaceAll('STATUS_COLOR', statusColor)
+        .replaceAll('STATUS_TEXT', statusText)
+        .replaceAll('BOT_NAME', bot?.bot?.username || data?.Bot?.Name)
+        .replaceAll('BOT_USERNAME', bot?.bot?.username || data?.Bot?.Name)
+        .replaceAll('BOT_ID', data.Bot.Id)
+        .replaceAll('PUBLIC_STATUS', bot?.bot_public ? lang.mybot_list_utils_msg_yes : lang.mybot_list_utils_msg_no)
+        .replaceAll('OWNER_TAG', `@${(await client.users.fetch(data.OwnerOne)).username}`)
+        .replaceAll('EXPIRE_DATE', format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY'))
+        .replaceAll('BOT_CODE', data.Code || 'N/A');
+}
+
+async function buildEmbed(
+    client: Client,
+    data: any,
+    lang: LanguageData,
+    interaction: ChatInputCommandInteraction
+): Promise<{ embed: EmbedBuilder; attachment: AttachmentBuilder }> {
+    let bot = (await client.ownihrz.Get_Bot(data.Auth).catch(() => { }))?.data || 404;
+
+    const htmlContent = await generateBotHTML(client, data, bot, lang);
+
+    const image = await client.method.imageManipulation.html2Png(htmlContent, {
+        elementSelector: '.card',
+        omitBackground: true,
+        selectElement: true,
+    });
+    const attachment = new AttachmentBuilder(image, { name: `bot-${data.Bot.Id}.png` });
+
+    let expire = format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
+    const embed = new EmbedBuilder()
+        .setColor('#ff7f50')
+        .setDescription(lang.mybot_list_embed1_desc
+            .replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+            .replace('${data_2[i].code}', data.Code)
+            .replace('${expire}', expire)
+            .replace('${utils_msg}', ""))
+        .setTitle(lang.mybot_list_embed1_title.replace('${data_2[i].bot.username}', bot?.bot?.username || data?.Bot?.Name))
+        .setImage(`attachment://bot-${data.Bot.Id}.png`)
+        .setFooter(await client.method.bot.footerBuilder(interaction))
+        .setTimestamp();
+
+    return { embed, attachment };
+}
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
-
-
-        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         await interaction.deferReply({ ephemeral: true });
+
         let table_1 = client.db.table("OWNIHRZ");
         let data_2 = await table_1.get(`MAIN.${interaction.user.id}`);
         let allData = await table_1.get("CLUSTER");
 
-        let lsEmbed: EmbedBuilder[] = [
+        let embeds: EmbedBuilder[] = [
             new EmbedBuilder()
                 .setTitle(lang.mybot_list_embed0_title)
                 .setColor('#000000')
@@ -77,24 +113,39 @@ export default {
                 .setTimestamp()
         ];
 
+        let attachments: AttachmentBuilder[] = [];
+
         for (let botId in data_2) {
             if (data_2[botId]) {
-                let embed = await buildEmbed(client, data_2[botId], lang, interaction.guildId!, interaction);
-                lsEmbed.push(embed);
+                const { embed, attachment } = await buildEmbed(
+                    client,
+                    data_2[botId],
+                    lang,
+                    interaction
+                );
+                embeds.push(embed);
+                attachments.push(attachment);
             }
         }
 
-        if (allData) {
+        if (allData && allData[interaction.user.id]) {
             for (let botId in allData[interaction.user.id]) {
-                let embed = await buildEmbed(client, allData[interaction.user.id][botId], lang, interaction.guildId!, interaction);
-                lsEmbed.push(embed);
+                const { embed, attachment } = await buildEmbed(
+                    client,
+                    allData[interaction.user.id][botId],
+                    lang,
+                    interaction
+                );
+                embeds.push(embed);
+                attachments.push(attachment);
             }
         }
 
         await interaction.editReply({
-            embeds: lsEmbed,
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            embeds: embeds,
+            files: [...attachments, await client.method.bot.footerAttachmentBuilder(interaction)]
         });
+
         return;
-    },
+    }
 };
