@@ -19,7 +19,9 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import pkg from "././../package.json" with { "type": "json" }
+import { readFileSync } from "fs";
+
+let pkg = JSON.parse(readFileSync(process.cwd() + "/package.json", 'utf-8'));
 
 type Env = "ownihrz" | "dev" | "production";
 
