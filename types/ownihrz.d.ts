@@ -46,3 +46,22 @@ export interface OwnIHRZ_New_Expire_Time_Object {
     method: "sub" | "add",
     ms: number;
 }
+
+export interface BotInstance {
+    Path: string;
+    Auth: string;
+    port?: number;
+    Cluster: string | number;
+    OwnerOne: string;
+    OwnerTwo: string;
+    ExpireIn: number;
+    Bot: {
+        Name: string;
+        Id: string;
+        Public: boolean;
+    }
+    Code: string;
+    PowerOff?: boolean;
+}
+
+export type BotCollection = Record<string, Record<string, BotInstance>>;

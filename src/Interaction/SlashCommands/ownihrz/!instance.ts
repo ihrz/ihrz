@@ -289,7 +289,7 @@ export default {
                             return;
                         }
 
-                        client.ownihrz.Change_Time(client.config, fetch.Cluster, id_to_bot, {
+                        client.ownihrz.Change_Time(fetch.Cluster, id_to_bot, {
                             method: "add",
                             ms: client.timeCalculator.to_ms(time)!
                         })
@@ -319,7 +319,7 @@ export default {
                             return;
                         }
 
-                        client.ownihrz.Change_Time(client.config, fetch.Cluster, id_to_bot, {
+                        client.ownihrz.Change_Time(fetch.Cluster, id_to_bot, {
                             method: "sub",
                             ms: client.timeCalculator.to_ms(time)!
                         })

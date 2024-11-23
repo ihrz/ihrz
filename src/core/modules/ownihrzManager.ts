@@ -19,13 +19,14 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import logger from "../logger.js";
 
 import { Client } from 'discord.js';
+
+import { BotCollection, Custom_iHorizon, OwnIHRZ_New_Expire_Time_Object, OwnIHRZ_New_Owner_Object } from "../../../types/ownihrz.js";
+
 import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.js";
 import { AxiosResponse, axios } from "../functions/axios.js";
-import { Custom_iHorizon, OwnIHRZ_New_Expire_Time_Object, OwnIHRZ_New_Owner_Object } from "../../../types/ownihrz.js";
-import { ConfigData } from "../../../types/configDatad.js";
+import logger from "../logger.js";
 
 class OwnIHRZ {
     private client: Client;
@@ -183,13 +184,13 @@ class OwnIHRZ {
         });
     };
 
-    async Change_Owner(config: ConfigData, cluster_id: number, botId: string, OwnerData: OwnIHRZ_New_Owner_Object) {
+    async Change_Owner(cluster_id: number, botId: string, OwnerData: OwnIHRZ_New_Owner_Object) {
         return await axios.post(OwnIhrzCluster({
             cluster_method: ClusterMethod.ChangeOwnerContainer,
             cluster_number: cluster_id,
         }),
             {
-                adminKey: config.api.apiToken,
+                adminKey: this.client.config.api.apiToken,
                 botId,
                 OwnerData
             },
@@ -197,18 +198,38 @@ class OwnIHRZ {
         );
     }
 
-    async Change_Time(config: ConfigData, cluster_id: number, botId: string, data: OwnIHRZ_New_Expire_Time_Object) {
+    async Change_Time(cluster_id: number, botId: string, data: OwnIHRZ_New_Expire_Time_Object) {
         return await axios.post(OwnIhrzCluster({
             cluster_method: ClusterMethod.ChangeExpireTime,
             cluster_number: cluster_id,
         }),
             {
-                adminKey: config.api.apiToken,
+                adminKey: this.client.config.api.apiToken,
                 botId,
                 data
             },
             { headers: { 'Accept': 'application/json' } }
         );
+    }
+
+    async GetOwnersList() {
+        let ownihrzTable = this.client.db.table("OWNIHRZ");
+        let ownihrzData = await ownihrzTable.get("CLUSTER") as BotCollection;
+
+        const owners: string[] = [];
+
+        for (const botGroup of Object.values(ownihrzData)) {
+            for (const botInstance of Object.values(botGroup)) {
+                if (!owners.includes(botInstance.OwnerOne)) {
+                    owners.push(botInstance.OwnerOne);
+                }
+                if (botInstance.OwnerTwo && !owners.includes(botInstance.OwnerTwo)) {
+                    owners.push(botInstance.OwnerTwo);
+                }
+            }
+        }
+
+        return owners;
     }
 }
 

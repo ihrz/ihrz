@@ -36,7 +36,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
@@ -109,7 +109,7 @@ export default {
             });
 
             try {
-                await client.ownihrz.Change_Owner(client.config, id_2.Cluster!, id_2.Code, {
+                await client.ownihrz.Change_Owner(id_2.Cluster!, id_2.Code, {
                     OldOwnerOne: id_2.OwnerOne,
                     NewOwnerOne: OwnerOne,
                     NewOwnerTwo: OwnerTwo
