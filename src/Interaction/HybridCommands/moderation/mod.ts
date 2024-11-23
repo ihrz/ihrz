@@ -41,31 +41,6 @@ export const command: Command = {
 
     options: [
         {
-            name: "avatar",
-
-            description: "Pick the avatar of a user!",
-            description_localizations: {
-                "fr": "Récuperer l'avatar d'un utilisateur"
-            },
-
-            aliases: ["pfp", "pp", "pic"],
-
-            type: ApplicationCommandOptionType.Subcommand,
-            options: [
-                {
-                    name: 'user',
-                    type: ApplicationCommandOptionType.User,
-
-                    description: 'The user',
-                    description_localizations: {
-                        "fr": "L'utilisateur"
-                    },
-
-                    required: false
-                }
-            ],
-        },
-        {
             name: 'ban',
 
             description: 'Ban a user!',
