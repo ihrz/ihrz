@@ -1229,6 +1229,7 @@ unmute_logs_embed_description: "<@${interaction.user.id}> desilenciou <@${tomute
 warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} foi advertido! **Motivo**: `${reason}`\n__ID da Advertência__: `${warnId}`"
 warn_logEmbed_title: "Registros de Advertências"
 warn_logEmbed_desc: "${interaction.member.toString()} advertiu ${member?.toString()} por `${reason}`"
+warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Você não tem permissão para advertir um membro neste servidor do Discord."
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} parece não ter nenhuma advertência no meu banco de dados!"
@@ -1236,11 +1237,13 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toStri
 unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} A advertência de ${member?.toString()} foi removida!"
 unwarn_logEmbed_title: "Registros de Remoção de Advertências"
 unwarn_logEmbed_desc: "${interaction.member.toString()} removeu a advertência de ${member?.toString()}"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Você não tem permissão para remover uma advertência de um membro neste servidor do Discord."
 
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} parece não ter nenhuma advertência no meu banco de dados!"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autor: <@${x.authorID}>\n> Motivo: `${x.reason}`"
 warnlist_embed_title: "Lista de Advertências de ${member?.user.globalName} | Página ${i / usersPerPage + 1}"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Você não tem permissão para gerenciar as advertências dos membros neste servidor do Discord."
 
 
 # Comandos de backup

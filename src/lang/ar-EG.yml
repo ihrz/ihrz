@@ -1227,6 +1227,7 @@ unmute_logs_embed_description: "<@${interaction.user.id}> رفع ميوت <@${to
 warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} اتحذر! **السبب**: `${reason}`\n__رقم التحذير__: `${warnId}`"
 warn_logEmbed_title: "سجلات التحذير"
 warn_logEmbed_desc: "${interaction.member.toString()} حذر ${member?.toString()} بسبب `${reason}`"
+warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | ليس لديك إذن لتحذير عضو في هذا السيرفر."
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} شكله مفيش تحذيرات ليه في قاعدة البيانات بتاعتي!"
@@ -1234,11 +1235,13 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toStri
 unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} تم إلغاء التحذير بتاعه!"
 unwarn_logEmbed_title: "سجلات إلغاء التحذير"
 unwarn_logEmbed_desc: "${interaction.member.toString()} ألغى تحذير ${member?.toString()}"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | ليس لديك إذن لإزالة تحذير من عضو في هذا السيرفر."
 
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} شكله مفيش تحذيرات ليه في قاعدة البيانات بتاعتي!"
 warnlist_embed_desc: "### الرقم: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> الكاتب: <@${x.authorID}>\n> السبب: `${x.reason}`"
 warnlist_embed_title: "قائمة تحذيرات ${member?.user.globalName} | الصفحة ${i / usersPerPage + 1}"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | ليس لديك إذن لإدارة تحذيرات الأعضاء في هذا السيرفر."
 
 
 # Backup commands

@@ -1229,6 +1229,7 @@ unmute_logs_embed_description: "<@${interaction.user.id}> entstummschaltet <@${t
 warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} wurde verwarnt! **Grund**: `${reason}`\n__Verwarnungs-ID__: `${warnId}`"
 warn_logEmbed_title: "Verwarnungsprotokolle"
 warn_logEmbed_desc: "${interaction.member.toString()} hat ${member?.toString()} verwarnt wegen `${reason}`"
+warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Sie haben keine Berechtigung, ein Mitglied auf diesem Discord-Server zu verwarnen."
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} scheint keine Verwarnungen in meiner Datenbank zu haben!"
@@ -1236,11 +1237,13 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toStri
 unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Die Verwarnung von ${member?.toString()} wurde aufgehoben!"
 unwarn_logEmbed_title: "Protokolle aufgehobener Verwarnungen"
 unwarn_logEmbed_desc: "${interaction.member.toString()} hat die Verwarnung von ${member?.toString()} aufgehoben"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Sie haben keine Berechtigung, eine Verwarnung eines Mitglieds auf diesem Discord-Server zu entfernen."
 
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} scheint keine Verwarnungen in meiner Datenbank zu haben!"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autor: <@${x.authorID}>\n> Grund: `${x.reason}`"
 warnlist_embed_title: "Verwarnungsliste von ${member?.user.globalName} | Seite ${i / usersPerPage + 1}"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Sie haben keine Berechtigung, die Verwarnungen von Mitgliedern auf diesem Discord-Server zu verwalten."
 
 
 # Backup-Befehle

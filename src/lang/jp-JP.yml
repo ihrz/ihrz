@@ -1229,6 +1229,7 @@ unmute_logs_embed_description: "<@${interaction.user.id}>さんが<@${tomute.id}
 warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} が警告されました！**理由**：`${reason}`\n__警告ID__：`${warnId}`"
 warn_logEmbed_title: "警告ログ"
 warn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} に警告しました。理由：`${reason}`"
+warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | このDiscordサーバーでメンバーに警告を与える権限がありません。"
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} はデータベースに警告が見つかりません！"
@@ -1236,11 +1237,13 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toStri
 unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} の警告が解除されました！"
 unwarn_logEmbed_title: "警告解除ログ"
 unwarn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} の警告を解除しました"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | このDiscordサーバーでメンバーの警告を削除する権限がありません。"
 
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} はデータベースに警告が見つかりません！"
 warnlist_embed_desc: "### ID：${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> 作成者：<@${x.authorID}>\n> 理由：`${x.reason}`"
 warnlist_embed_title: "${member?.user.globalName} の警告リスト | ページ ${i / usersPerPage + 1}"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | このDiscordサーバーでメンバーの警告を管理する権限がありません。"
 
 
 # Backup commands
