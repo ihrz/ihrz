@@ -183,37 +183,20 @@ export const event: BotEvent = {
                 isCustomVanity = true;
             }
 
-            if (!joinMessage) {
-                msg = client.method.generateCustomMessagePreview(data.event_welcomer_inviter,
-                    {
-                        user: member.user,
-                        guild: member.guild,
-                        guildLocal: guildLocal,
-                        inviter: {
-                            user: {
-                                username: (isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username),
-                                mention: isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString()
-                            },
-                            invitesAmount: invitesAmount
-                        }
+            msg = client.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_inviter,
+                {
+                    user: member.user,
+                    guild: member.guild,
+                    guildLocal: guildLocal,
+                    inviter: {
+                        user: {
+                            username: (isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username),
+                            mention: isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString()
+                        },
+                        invitesAmount: invitesAmount
                     }
-                );
-            } else {
-                msg = client.method.generateCustomMessagePreview(joinMessage,
-                    {
-                        user: member.user,
-                        guild: member.guild,
-                        guildLocal: guildLocal,
-                        inviter: {
-                            user: {
-                                username: (isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username),
-                                mention: isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString()
-                            },
-                            invitesAmount: invitesAmount
-                        }
-                    }
-                );
-            };
+                }
+            );
 
             await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files: files });
             return;
@@ -232,7 +215,7 @@ export const event: BotEvent = {
             if (!wChan || !channel) return;
 
             if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
-                msg = client.method.generateCustomMessagePreview(data.event_welcomer_inviter,
+                msg = client.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
                     {
                         user: member.user,
                         guild: member.guild,
