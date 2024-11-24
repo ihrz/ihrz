@@ -1229,6 +1229,7 @@ unmute_logs_embed_description: "<@${interaction.user.id}> разблокиров
 warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} получил предупреждение! **Причина**: `${reason}`\n__ID предупреждения__: `${warnId}`"
 warn_logEmbed_title: "Журнал предупреждений"
 warn_logEmbed_desc: "${interaction.member.toString()} выдал предупреждение ${member?.toString()} за `${reason}`"
+warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на предупреждение участника на этом сервере Discord."
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} Похоже, у ${member?.toString()} нет предупреждений в моей базе данных!"
@@ -1236,11 +1237,13 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toStri
 unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Предупреждение с ${member?.toString()} было снято!"
 unwarn_logEmbed_title: "Журнал снятия предупреждений"
 unwarn_logEmbed_desc: "${interaction.member.toString()} снял предупреждение с ${member?.toString()}"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на удаление предупреждения участника на этом сервере Discord."
 
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} Похоже, у ${member?.toString()} нет предупреждений в моей базе данных!"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Автор: <@${x.authorID}>\n> Причина: `${x.reason}`"
 warnlist_embed_title: "Список предупреждений ${member?.user.globalName} | Страница ${i / usersPerPage + 1}"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на управление предупреждениями участников на этом сервере Discord."
 
 
 # Команды резервного копирования

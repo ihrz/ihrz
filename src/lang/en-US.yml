@@ -1229,6 +1229,7 @@ unmute_logs_embed_description: "<@${interaction.user.id}> unmute <@${tomute.id}>
 warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} have been warned ! **Reason**: `${reason}`\n__Warn ID__: `${warnId}`"
 warn_logEmbed_title: "Warn Logs"
 warn_logEmbed_desc: "${interaction.member.toString()} have warned ${member?.toString()} for `${reason}`"
+warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | You don't have permission to warn a member in this discord server."
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} seem to doesn't have any warns on my database !"
@@ -1236,11 +1237,13 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toStri
 unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} have been unwarned !"
 unwarn_logEmbed_title: "UnWarn Logs"
 unwarn_logEmbed_desc: "${interaction.member.toString()} have unwarned ${member?.toString()}"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | You don't have permission to remove a warning from a member in this discord server."
 
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} seem to doesn't have any warns on my database !"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Author: <@${x.authorID}>\n> Reason: `${x.reason}`"
 warnlist_embed_title: "${member?.user.globalName}'s WarnList | Page ${i / usersPerPage + 1}"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | You don't have permission to manage member warnings in this discord server."
 
 
 # Backup commands

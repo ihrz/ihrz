@@ -59,7 +59,7 @@ export default {
 
         if (!permissions && neededPerm === 0) {
             await client.method.interactionSend(interaction, {
-                content: lang.unmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                content: lang.warn_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;;
         };

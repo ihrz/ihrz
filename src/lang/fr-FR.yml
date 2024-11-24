@@ -1229,6 +1229,7 @@ unmute_logs_embed_description: "<@${interaction.user.id}> a enlever de sa sourdi
 warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} a été averti ! **Raison** : `${reason}`\n__ID de l'avertissement__: `${warnId}`"
 warn_logEmbed_title: "Historique des Avertissements"
 warn_logEmbed_desc: "${interaction.member.toString()} a averti ${member?.toString()} pour la raison : `${reason}`"
+warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Vous n'avez pas la permission d'avertir un membre au seins de ce serveur discord."
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} ne semble avoir aucun avertissement dans ma base de données !"
@@ -1236,11 +1237,13 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toStri
 unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} L'avertissement de ${member?.toString()} a été retiré avec succès !"
 unwarn_logEmbed_title: "Historique des Retraits d'Avertissements"
 unwarn_logEmbed_desc: "${interaction.member.toString()} a retiré l'avertissement de ${member?.toString()}"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Vous n'avez pas la permission de supprimer un avertissement d'un membre de ce serveur discord."
 
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} ne semble avoir aucun avertissement dans ma base de données !"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Auteur : <@${x.authorID}>\n> Raison : `${x.reason}`"
 warnlist_embed_title: "Liste des Avertissements de ${member?.user.globalName} | Page ${i / usersPerPage + 1}"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Vous n'avez pas la permission de gérer les avertissements des membres de ce serveur discord."
 
 
 # Backup commands
