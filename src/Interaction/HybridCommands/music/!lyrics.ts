@@ -43,7 +43,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var title = interaction.options.getString("query")!;
         } else {
-            
+
             var title = (args?.join(" ") || " ") as string
         }
 
@@ -56,11 +56,9 @@ export default {
                         .setTitle(response?.title || lang.lyrics_embed_title_unknown)
                         .setURL(response?.url!)
                         .setTimestamp()
-                        .setThumbnail(response?.thumbnail!)
+                        .setThumbnail(response?.image!)
                         .setAuthor({
                             name: response?.artist.name || lang.lyrics_embed_author_name_unknown,
-                            iconURL: response?.artist.image,
-                            url: response?.artist.url
                         })
                         .setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
                         .setColor('#cd703a')

@@ -21,7 +21,6 @@
 
 import { JSONDriver, MemoryDriver, MySQLDriver, QuickDB } from 'quick.db';
 import { PostgresDriver } from 'quick.db/out/drivers/PostgresDriver.js'
-import { MongoDriver } from 'quickmongo';
 import ansiEscapes from 'ansi-escapes';
 import { SteganoDB } from 'stegano.db';
 import mysql from 'mysql2/promise.js';
@@ -31,7 +30,6 @@ import { setInterval } from 'timers';
 import { ConfigData } from '../../types/configDatad.js';
 import logger from './logger.js';
 import fs from 'fs';
-import { MongoClient } from 'mongodb';
 
 export type db = QuickDB<any> | SteganoDB | PallasDB;
 let dbInstance: db | null = null;
@@ -54,19 +52,6 @@ async function isReachable(database: ConfigData['database']): Promise<boolean> {
     }
 };
 
-async function isMongoDBReachable(mongoUri: string): Promise<boolean> {
-    let client: MongoClient | null = null;
-    try {
-        client = new MongoClient(mongoUri);
-        await client.connect();
-        return true;
-    } catch (error) {
-        return false;
-    } finally {
-        await client?.close().catch(() => { })
-    }
-}
-
 const overwriteLastLine = (message: string) => {
     process.stdout.write(ansiEscapes.eraseLine);
     process.stdout.write(ansiEscapes.cursorLeft);
@@ -86,30 +71,6 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
     }
 
     switch (config.database?.method) {
-        case 'MONGO_DB':
-            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-                const driver = new MongoDriver(config.database?.mongoDb!);
-
-                try {
-                    await driver.connect();
-                    logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
-
-                    process.on("SIGINT", async () => {
-                        await driver.close();
-                        logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
-                    });
-                    resolve(new QuickDB({ driver }));
-                } catch (error: any) {
-                    logger.err(`${config.console.emojis.ERROR} >> ${error.toString().split('\n')[0]}`.red);
-                    logger.err(`${config.console.emojis.ERROR} >> Database is unreachable (${config.database?.method}) !`.red);
-                    logger.err(`${config.console.emojis.ERROR} >> Please use a different database than ${config.database?.method}) !`.red);
-                    logger.err(`${config.console.emojis.ERROR} >> in the /src/files/config.ts at: 'database.method'.`.red);
-                    logger.err(`Exiting the code...`.bgRed);
-
-                    process.kill(0);
-                }
-            });
-            break;
         case 'JSON':
             dbPromise = new Promise<QuickDB>((resolve, reject) => {
                 logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
@@ -370,58 +331,6 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 
                 setInterval(syncToMySQL, 60000 * 5);
                 resolve(memoryDB);
-            });
-            break;
-        case 'CACHED_MONGO':
-            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-                const connectionAvailable = await isMongoDBReachable(config.database?.mongoDb!);
-
-                if (!connectionAvailable) {
-                    console.error(`${config.console.emojis.ERROR} >> Failed to connect to the MongoDB database`);
-                    process.kill(1);
-                };
-
-                logger.log(`${config.console.emojis.HOST} >> Initializing cached database setup (${config.database?.method}) !`.green);
-
-                const mongoDriver = new MongoDriver(config.database?.mongoDb!);
-
-                try {
-                    await mongoDriver.connect();
-                    const mongoDb = new QuickDB({ driver: mongoDriver });
-                    const memoryDB = new QuickDB({ driver: new MemoryDriver() });
-
-                    for (const table of tables) {
-                        const memoryTable = memoryDB.table(table);
-                        const allData = await (mongoDb.table(table)).all();
-                        for (const { id, value } of allData) {
-                            await memoryTable.set(id, value);
-                        }
-                    }
-
-                    const syncToMongo = async () => {
-                        for (const table of tables) {
-                            const mongoTable = mongoDb.table(table);
-                            const memoryTable = memoryDB.table(table);
-                            const allData = await memoryTable.all();
-                            for (const { id, value } of allData) {
-                                try {
-                                    await mongoTable.set(id, value);
-                                } catch (error) {
-                                    logger.err(error as any)
-                                }
-                            }
-                        }
-
-                        overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to MongoDB`));
-                    };
-
-                    setInterval(syncToMongo, 60000 * 5);
-                    resolve(memoryDB);
-                } catch (error: any) {
-                    logger.err(`${config.console.emojis.ERROR} >> ${error.toString().split('\n')[0]}`.red);
-                    logger.err(`${config.console.emojis.ERROR} >> Failed to connect to MongoDB (${config.database?.method}) !`.red);
-                    process.kill(1);
-                }
             });
             break;
         default:

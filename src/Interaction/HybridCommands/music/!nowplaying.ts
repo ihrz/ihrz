@@ -138,10 +138,9 @@ export default {
                                         .setTitle(player.queue.current?.info?.title as string)
                                         .setURL(player.queue.current?.info?.uri as string)
                                         .setTimestamp()
-                                        .setThumbnail(lyrics.thumbnail)
+                                        .setThumbnail(lyrics.image)
                                         .setAuthor({
                                             name: player.queue.current?.info?.author as string,
-                                            iconURL: lyrics.artist.image,
                                         })
                                         .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                                         .setColor('#cd703a')
