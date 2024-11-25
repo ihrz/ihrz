@@ -85,14 +85,10 @@ export interface ConfigData {
     };
 
     database?: {
-        method: 'CACHED_POSTGRES' | //Quick.DB Memory Cached with postgres
-        'JSON' | //Quick.DB with JSON Driver
-        'MYSQL' | //Quick.DB for MySQL/MariaDB
-        'SQLITE' | //Quick.DB for PallasDB
-        'CACHED_SQL' | //Quick.DB Memory Cached with SQL
-        'POSTGRES' | //Quick.DB for postgres
-        'PNG' | //SteganoDB with .PNG pictures
-        'JSON2' | //SteganoDB for json
+        method:
+        'JSON' | // Quick.DB with JSON Driver
+        'MYSQL' | // PallasDB for MySQL/MariaDB
+        'SQLITE' | // Sqlite for PallasDB
         "POSTGRES2" | // PallasDB for postgres
         "CACHED_POSTGRES2" // Quick.DB Memory Cached with PallasDB postgres 
 

@@ -20,9 +20,7 @@
 */
 
 import { JSONDriver, MemoryDriver, MySQLDriver, QuickDB } from 'quick.db';
-import { PostgresDriver } from 'quick.db/out/drivers/PostgresDriver.js'
 import ansiEscapes from 'ansi-escapes';
-import { SteganoDB } from 'stegano.db';
 import mysql from 'mysql2/promise.js';
 import { PallasDB } from 'pallas-db';
 import { setInterval } from 'timers';
@@ -31,7 +29,7 @@ import { ConfigData } from '../../types/configDatad.js';
 import logger from './logger.js';
 import fs from 'fs';
 
-export type db = QuickDB<any> | SteganoDB | PallasDB;
+export type db = QuickDB<any> | PallasDB;
 let dbInstance: db | null = null;
 
 const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "RESTORECORD"];
@@ -63,7 +61,7 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
         return dbInstance;
     }
 
-    let dbPromise: Promise<QuickDB<any>> | SteganoDB | PallasDB | Promise<PallasDB>;
+    let dbPromise: Promise<QuickDB<any>> | PallasDB | Promise<PallasDB>;
     let databasePath = `${process.cwd()}/src/files`;
 
     if (!fs.existsSync(databasePath)) {
@@ -78,7 +76,7 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
             });
             break;
         case 'MYSQL':
-            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+            dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
                 const connectionAvailable = await isReachable(config.database);
 
                 if (!connectionAvailable) {
@@ -88,45 +86,16 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 
                 logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 
-                const mysql = new MySQLDriver({
+                const db = new PallasDB({
+                    dialect: "mysql",
                     host: config.database?.mySQL?.host,
-                    user: config.database?.mySQL?.user,
+                    username: config.database?.mySQL?.user,
                     password: config.database?.mySQL?.password,
                     database: config.database?.mySQL?.database,
                     port: config.database?.mySQL?.port,
+                    tables
                 });
 
-                await mysql.connect();
-
-                const db = new QuickDB({ driver: mysql });
-                for (let table of tables) {
-                    db.table(table);
-                };
-                resolve(db);
-            });
-            break;
-        case 'POSTGRES':
-            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-                // const connectionAvailable = await isReachable(config.database);
-
-                // if (!connectionAvailable) {
-                //     console.error(`${config.console.emojis.ERROR} >> Failed to connect to the Postgres database`);
-                //     process.exit(1)
-                // };
-
-                logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
-
-                const mysql = new PostgresDriver({
-                    host: config.database?.mySQL?.host,
-                    user: config.database?.mySQL?.user,
-                    password: config.database?.mySQL?.password,
-                    database: config.database?.mySQL?.database,
-                    port: config.database?.mySQL?.port,
-                });
-
-                await mysql.connect();
-
-                const db = new QuickDB({ driver: mysql });
                 for (let table of tables) {
                     db.table(table);
                 };
@@ -145,67 +114,6 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
             });
 
             logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
-            break;
-        case 'CACHED_POSTGRES':
-            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-                logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup (${config.database?.method}) !`.green);
-
-                const postgres = new PostgresDriver({
-                    host: config.database?.mySQL?.host,
-                    user: config.database?.mySQL?.user,
-                    password: config.database?.mySQL?.password,
-                    database: config.database?.mySQL?.database,
-                    port: config.database?.mySQL?.port,
-                });
-
-                await postgres.connect();
-                const postgresDb = new QuickDB({ driver: postgres });
-                const memoryDB = new QuickDB({ driver: new MemoryDriver() });
-
-                for (const table of tables) {
-                    const memoryTable = memoryDB.table(table);
-                    const allData = await (postgresDb.table(table)).all();
-
-                    for (const { id, value } of allData) {
-                        await memoryTable.set(id, value);
-                    }
-                }
-
-                const syncToPostgres = async () => {
-                    for (const table of tables) {
-                        const postgresTable = postgresDb.table(table);
-                        const memoryTable = memoryDB.table(table);
-
-                        const postgresData = await postgresTable.all();
-                        const memoryData = await memoryTable.all();
-
-                        const postgresMap = new Map(postgresData.map(item => [item.id, item.value]));
-                        const memoryMap = new Map(memoryData.map(item => [item.id, item.value]));
-
-                        for (const [id, value] of memoryMap) {
-                            const postgresValue = postgresMap.get(id);
-                            if (!postgresValue || JSON.stringify(postgresValue) !== JSON.stringify(value)) {
-                                try {
-                                    if (readOnlyTables.includes(table)) {
-                                        for (const { id, value } of postgresData) {
-                                            await memoryTable.set(id, value);
-                                        }
-                                    } else {
-                                        await postgresTable.set(id, value);
-                                    }
-                                } catch (error) {
-                                    logger.err(error as any);
-                                }
-                            }
-                        }
-                    }
-
-                    overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres !`));
-                };
-
-                setInterval(syncToPostgres, 60000 * 5);
-                resolve(memoryDB);
-            });
             break;
         case 'CACHED_POSTGRES2':
             dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
@@ -259,6 +167,30 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
                                 }
                             }
                         }
+
+                        if (!readOnlyTables.includes(table)) {
+                            for (const id of postgresMap.keys()) {
+                                if (!memoryMap.has(id)) {
+                                    try {
+                                        await postgresTable.delete(id);
+                                    } catch (error) {
+                                        logger.err(error as any);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (readOnlyTables.includes(table)) {
+                            for (const id of memoryMap.keys()) {
+                                if (!postgresMap.has(id)) {
+                                    try {
+                                        await memoryTable.delete(id);
+                                    } catch (error) {
+                                        logger.err(error as any);
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres !`));
@@ -271,67 +203,6 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
         case 'SQLITE':
             dbPromise = new PallasDB({ dialect: "sqlite", tables: tables, storage: databasePath + "/db.sqlite" });
             logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
-            break;
-        case 'PNG':
-            dbPromise = new SteganoDB(databasePath + '/db.png');
-            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
-            break;
-        case 'JSON2':
-            dbPromise = new SteganoDB({ driver: "json", filePath: databasePath + '/db.json' });
-            logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
-            break;
-        case 'CACHED_SQL':
-            dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
-                const connectionAvailable = await isReachable(config.database);
-
-                if (!connectionAvailable) {
-                    console.error(`${config.console.emojis.ERROR} >> Failed to connect to the MySQL database`);
-                    process.kill(1)
-                };
-
-                logger.log(`${config.console.emojis.HOST} >> Initializing cached database setup (${config.database?.method}) !`.green);
-
-                const mysql = new MySQLDriver({
-                    host: config.database?.mySQL?.host,
-                    user: config.database?.mySQL?.user,
-                    password: config.database?.mySQL?.password,
-                    database: config.database?.mySQL?.database,
-                    port: config.database?.mySQL?.port,
-                });
-
-                await mysql.connect();
-
-                const mysqlDb = new QuickDB({ driver: mysql });
-                const memoryDB = new QuickDB({ driver: new MemoryDriver() });
-
-                for (const table of tables) {
-                    const memoryTable = memoryDB.table(table);
-                    const allData = await (mysqlDb.table(table)).all();
-                    for (const { id, value } of allData) {
-                        await memoryTable.set(id, value);
-                    }
-                }
-
-                const syncToMySQL = async () => {
-                    for (const table of tables) {
-                        const mysqlTable = mysqlDb.table(table);
-                        const memoryTable = memoryDB.table(table);
-                        const allData = await memoryTable.all();
-                        for (const { id, value } of allData) {
-                            try {
-                                await mysqlTable.set(id, value);
-                            } catch (error) {
-                                logger.err(error as any)
-                            }
-                        }
-                    }
-
-                    overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to MySQL`))
-                };
-
-                setInterval(syncToMySQL, 60000 * 5);
-                resolve(memoryDB);
-            });
             break;
         default:
             dbPromise = new Promise<QuickDB>((resolve, reject) => {
