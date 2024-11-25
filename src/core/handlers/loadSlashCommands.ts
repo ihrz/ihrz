@@ -149,7 +149,7 @@ async function processCommandOptions(
                     }
 
                     (option as any).run = commandModule.default.run;
-                    client.subCommands.set(option.name, option as any);
+                    client.subCommands.set(fullName, option as any);
                 }
             }
         }

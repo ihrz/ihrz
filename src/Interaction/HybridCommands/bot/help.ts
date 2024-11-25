@@ -128,6 +128,7 @@ async function handleCategorySelect(
         return;
     }
 
+    const guildData = await client.db.get(`${i.guildId}.GUILD.LANG.lang`);
     const categoryIndex = parseInt(i.values[0]);
     const category = categories[categoryIndex];
     let embeds: EmbedBuilder[] = [];
@@ -152,25 +153,26 @@ async function handleCategorySelect(
             ? `${client.iHorizon_Emojis.icon.iHorizon_Lock} ${commandStates}`
             : client.iHorizon_Emojis.icon.iHorizon_Unlock;
 
+        var prefixOrNot = element.prefixCmd ? `${client.iHorizon_Emojis.icon.Prefix_Command} ${bot_prefix.string}${element.prefixCmd} \n` : "";
+
         switch (element.messageCmd) {
             case 0:
-                cmdPrefix = `${states} ${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
+                cmdPrefix = `${states}\n${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
                 break;
             case 1:
                 cmdPrefix = bot_prefix.type === 'mention'
-                    ? `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`
-                    : `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${element.cmd}**`;
+                    ? `${states}\n${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.prefixCmd}**`
+                    : `${states}\n${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${element.prefixCmd}**`;
                 break;
             case 2:
                 cmdPrefix = bot_prefix.type === 'mention'
-                    ? `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} (@Ping-Me) ${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`
-                    : `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} (${bot_prefix.string}) ${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`;
+                    ? `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} (@Ping-Me) ${element.prefixCmd}\n≠${client.iHorizon_Emojis.badge.Slash_Bot} **${element.prefixCmd}**`
+                    : `${states}\n${prefixOrNot}${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`;
                 break;
             default:
-                cmdPrefix = `${states} **${element.cmd}**`;
+                cmdPrefix = `${states}\n**${element.cmd}**`;
         }
 
-        const guildData = await client.db.get(`${i.guildId}.GUILD.LANG.lang`);
         const descValue = (guildData === "fr-ME" || guildData === "fr-FR")
             ? `\`${element.desc_localized["fr"]}\``
             : `\`${element.desc}\``;

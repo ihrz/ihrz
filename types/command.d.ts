@@ -44,6 +44,7 @@ export interface DescriptionLocalizations {
 
 export interface Command {
     name: string;
+    prefixName?: string;
     description: string;
     name_localizations?: NameLocalizations;
     description_localizations: DescriptionLocalizations;

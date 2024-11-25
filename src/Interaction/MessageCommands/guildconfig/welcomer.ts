@@ -19,27 +19,31 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { ApplicationCommandOptionType } from 'discord.js';
-import { DescriptionLocalizations, NameLocalizations } from './command';
-import { Choice } from "./choice";
+import {
+    Client,
+    ChatInputCommandInteraction,
+    ApplicationCommandType,
+    Message,
+} from 'discord.js';
 
-export interface Choice {
-    name: string,
-    value: string | boolean
-}
+import { Command } from '../../../../types/command.js';
+import { LanguageData } from '../../../../types/languageData.js';
+import cmd from "../../SlashCommands/guildconfig/!channel.js";
 
-export interface Option {
-    type: ApplicationCommandOptionType,
-    options?: Option[],
-    name: string,
-    prefixName?: string,
-    name_localizations?: NameLocalizations
-    description_localizations: DescriptionLocalizations,
-    description: string,
-    required?: boolean,
-    autocomplete?: boolean,
-    channel_types?: number[],
-    choices?: Choice[],
-    aliases?: string[],
-    thinking?: boolean
-}
+export const command: Command = {
+    name: 'welcomer',
+
+    description: 'Set the welcomer module !',
+    description_localizations: {
+        "fr": "Définir le module welcomer"
+    },
+
+    aliases: ["welcomer", "leaver"],
+
+    thinking: true,
+    category: 'guildconfig',
+    type: ApplicationCommandType.ChatInput,
+    run: async (client: Client, interaction: Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {
+        cmd.run(client, interaction, lang, command, neededPerm!)
+    },
+};

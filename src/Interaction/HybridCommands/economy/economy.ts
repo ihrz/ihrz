@@ -135,7 +135,8 @@ export const command: Command = {
             ],
         },
         {
-            name: "economy-disable",
+            name: "disable",
+            prefixName: "economy-disable",
 
             description: "Disable the economy module into your guild",
             description_localizations: {
@@ -171,7 +172,8 @@ export const command: Command = {
             ]
         },
         {
-            name: 'economy-leaderboard',
+            name: 'leaderboard',
+            prefixName: "economy-leaderboard",
 
             description: "Get the users balance's leaderboard of the guild!",
             description_localizations: {

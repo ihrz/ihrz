@@ -39,10 +39,11 @@ export const command: Command = {
 
     options: [
         {
-            name: "sug-reply",
+            name: "reply",
             name_localizations: {
                 "fr": "répondre"
             },
+            prefixName: "sug-reply",
 
             description: "Reply to the suggestion (need admin permission)!",
             description_localizations: {
@@ -76,10 +77,11 @@ export const command: Command = {
             ],
         },
         {
-            name: "sug-deny",
+            name: "deny",
             name_localizations: {
                 "fr": "refusé"
             },
+            prefixName: "sug-deny",
 
             description: "Deny an suggestion (need admin permission)!",
             description_localizations: {
@@ -117,10 +119,11 @@ export const command: Command = {
             ],
         },
         {
-            name: "sug-accept",
+            name: "accept",
             name_localizations: {
                 "fr": "accepté"
             },
+            prefixName: "sug-accept",
 
             description: "Accept an suggestion (need admin permission)!",
             description_localizations: {
@@ -158,10 +161,11 @@ export const command: Command = {
             ],
         },
         {
-            name: "sug-delete",
+            name: "delete",
             name_localizations: {
                 "fr": "supprimer"
             },
+            prefixName: "sug-delete",
 
             description: "Delete an suggestion (need admin permission)!",
             description_localizations: {

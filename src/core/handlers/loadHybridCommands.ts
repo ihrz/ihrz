@@ -36,12 +36,14 @@ const __dirname = path.dirname(__filename);
 async function processOptions(options: Option[], category: string, parentName: string = "", client: Client) {
     for (let option of options) {
         let fullName = parentName ? `${parentName} ${option.name}` : option.name;
+        let fullNameForPrefix = option.prefixName || option.name;
 
         if (option.type === ApplicationCommandOptionType.Subcommand) {
 
             client.content.push(
                 {
                     cmd: fullName,
+                    prefixCmd: fullNameForPrefix,
                     messageCmd: 2,
                     category: category,
                     desc: option.description,
@@ -192,8 +194,8 @@ async function processCommandOptions(
                         }
                         client.message_commands.set(alias, (option as any));
                     }
-                    client.subCommands.set(option.name, (option as any));
-                    client.message_commands.set(option.name, (option as any))
+                    client.subCommands.set(fullName, (option as any));
+                    client.message_commands.set(option.prefixName || option.name, (option as any))
                 }
             }
         }

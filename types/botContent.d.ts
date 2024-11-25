@@ -24,6 +24,7 @@ import { DescriptionLocalizations } from "./command"
 
 export interface BotContent {
     cmd: string;
+    prefixCmd?: string;
     category: string;
     aliases?: string[];
     desc: string;

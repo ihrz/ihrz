@@ -73,7 +73,8 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "ticket-delete",
+            name: "delete",
+            prefixName: "ticket-delete",
 
             description: "Delete a iHorizon ticket!",
             description_localizations: {
@@ -83,7 +84,8 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "ticket-disable",
+            name: "disable",
+            prefixName: "ticket-disable",
 
             description: "Disable ticket commands on a guild!",
             description_localizations: {

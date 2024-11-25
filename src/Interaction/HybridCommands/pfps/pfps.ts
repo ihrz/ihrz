@@ -42,7 +42,8 @@ export const command: Command = {
 
     options: [
         {
-            name: "pfps-channel",
+            name: "channel",
+            prefixName: "pfps-channel",
 
             description: "Set the pfps module's channel!",
             description_localizations: {
@@ -67,7 +68,8 @@ export const command: Command = {
             ],
         },
         {
-            name: "pfps-disable",
+            name: "disable",
+            prefixName: "pfps-disable",
 
             description: "Enable or Disable the module!",
             description_localizations: {
