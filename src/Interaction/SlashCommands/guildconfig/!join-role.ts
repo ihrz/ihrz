@@ -44,14 +44,14 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await interaction.editReply({ content: lang.setjoinroles_not_admin });
+        if ((!interaction.member.permissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
+            await client.method.interactionSend(interaction, { content: lang.setjoinroles_not_admin });
             return;
         }
 
@@ -86,7 +86,7 @@ export default {
         let comp = new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelectMenu);
         let comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
 
-        let og_response = await interaction.editReply({
+        let og_response = await client.method.interactionSend(interaction, {
             embeds: [embed],
             components: [comp, comp_2]
         });
@@ -100,13 +100,13 @@ export default {
         const collector = og_response.createMessageComponentCollector({
             componentType: ComponentType.RoleSelect,
             time: 240_000,
-            filter: (i) => i.user.id === interaction.user.id
+            filter: (i) => i.user.id === interaction.member?.user.id
         });
 
         const buttonCollector = og_response.createMessageComponentCollector({
             componentType: ComponentType.Button,
             time: 240_000,
-            filter: (i) => i.user.id === interaction.user.id
+            filter: (i) => i.user.id === interaction.member?.user.id
         });
 
         collector.on('collect', async (roleInteraction: RoleSelectMenuInteraction) => {
@@ -117,8 +117,7 @@ export default {
             let too_highter_roles: { id: string, name: string, position: string }[] = [];
 
             if (!roleInteraction.guild?.members.me?.permissions.has(PermissionFlagsBits.ManageRoles)) {
-                await roleInteraction.deferUpdate();
-                await interaction.followUp({ content: lang.setjoinroles_var_perm_issue, ephemeral: true });
+                await roleInteraction.followUp({ content: lang.setjoinroles_var_perm_issue, ephemeral: true });
                 return;
             }
 
@@ -186,7 +185,7 @@ export default {
                 await client.method.iHorizonLogs.send(interaction, {
                     title: lang.setjoinroles_logs_embed_title_on_enable,
                     description: lang.setjoinroles_logs_embed_description_on_enable
-                        .replace("${interaction.user.id}", interaction.user.id)
+                        .replace("${interaction.user.id}", interaction.member?.user.id!)
                 });
 
                 await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinroles`, all_roles);
@@ -248,10 +247,10 @@ export default {
             let warn_msg = await roleInteraction.reply({ embeds: [dangerous_embed], components: [confirm_buttons], ephemeral: true });
 
             try {
-                let buttonInteraction = await interaction.channel?.awaitMessageComponent({
+                let buttonInteraction = await (interaction.channel as BaseGuildTextChannel)?.awaitMessageComponent({
                     componentType: ComponentType.Button,
                     time: 20_000,
-                    filter: (i) => i.user.id === interaction.user.id
+                    filter: (i) => i.user.id === interaction.member?.user.id
                 });
 
                 await buttonInteraction?.deferUpdate();

@@ -43,7 +43,8 @@ export const command: Command = {
 
     options: [
         {
-            name: "confess-channel",
+            name: "channel",
+            prefixName: "confess-channel",
 
             description: "Set the confession module's channel!",
             description_localizations: {
@@ -79,7 +80,8 @@ export const command: Command = {
             ],
         },
         {
-            name: "confess-disable",
+            name: "disable",
+            prefixName: "confess-disable",
 
             description: "Enable or Disable the module!",
             description_localizations: {
@@ -112,7 +114,8 @@ export const command: Command = {
             ]
         },
         {
-            name: "confess-cooldown",
+            name: "cooldown",
+            prefixName: "confess-cooldown",
 
             description: "Change the cooldown between confession!",
             description_localizations: {

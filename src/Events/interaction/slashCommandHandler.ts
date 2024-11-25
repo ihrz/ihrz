@@ -56,7 +56,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
         }
     }
     else if (subCommand) {
-        const subCmd = client.subCommands.get(subCommand);
+        const subCmd = client.subCommands.get(interaction.commandName + " " + subCommand);
 
         if (subCmd && subCmd.run) {
             let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);

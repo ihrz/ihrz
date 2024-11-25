@@ -635,6 +635,7 @@ export const command: Command = {
         },
         {
             name: "addrole",
+            prefixName: "addrole",
 
             description: "Add role to user",
             description_localizations: {

@@ -88,6 +88,9 @@ export async function html2Png(
 
         return Buffer.from(imageBuffer);
     } catch (error) {
-        throw error;
+        browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+        return await html2Png(code, options);
     }
 }

@@ -38,9 +38,10 @@ export default {
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let id = interaction.options.getString("id");
+        let message = interaction.options.getString("message");
 
         if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await interaction.editReply({ content: lang.suggest_delete_not_delete });
+            await interaction.editReply({ content: lang.suggest_reply_not_admin });
             return;
         };
 
@@ -52,8 +53,8 @@ export default {
             || baseData?.disable === true) {
             await interaction.deleteReply();
             await interaction.followUp({
-                content: lang.suggest_delete_not_good_channel
-                    .replace('${baselang?.channel}', baseData?.channel),
+                content: lang.suggest_reply_not_good_channel
+                    .replace('${baseData?.channel}', baseData?.channel),
                 ephemeral: true
             });
 
@@ -62,22 +63,47 @@ export default {
 
         if (!fetchId) {
             await interaction.deleteReply();
-            await interaction.followUp({ content: lang.suggest_delete_not_found_db, ephemeral: true });
+            await interaction.followUp({ content: lang.suggest_replynot_found_db, ephemeral: true });
+            return;
+        } else if (fetchId.replied) {
+            await interaction.deleteReply();
+            await interaction.followUp({ content: lang.suggest_reply_already_replied, ephemeral: true });
             return;
         };
 
         let channel = interaction.guild.channels.cache.get(baseData?.channel);
 
         await (channel as BaseGuildTextChannel).messages.fetch(fetchId?.msgId).then(async (msg) => {
-            msg.delete();
-            await client.db.delete(`${interaction.guildId}.SUGGESTION.${id}`);
+
+            let embed = new EmbedBuilder(msg.embeds[0].data);
+
+            embed.addFields({
+                name: lang.suggest_reply_embed_fields_to_put
+                    .replace('${interaction.user.username}', interaction.user.globalName as string),
+                value: message as string
+            });
+
+            embed.setColor('#8afe46');
+            embed.setFooter(await client.method.bot.footerBuilder(interaction));
+            embed.setTitle(lang.suggest_reply_embed_title_to_put
+                .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string)
+            );
+
+            await msg.edit({ embeds: [embed] });
+            await client.db.set(`${interaction.guildId}.SUGGESTION.${id}.replied`, true);
 
             await interaction.deleteReply();
-            await interaction.followUp({ content: lang.suggest_delete_command_work, ephemeral: true });
+            await interaction.followUp({
+                content: lang.suggest_reply_command_work
+                    .replace('${interaction.guild.id}', interaction.guildId as string)
+                    .replace('${interaction.channel.id}', interaction.channel?.id as string)
+                    .replace('${fetchId?.msgId}', fetchId?.msgId),
+                ephemeral: true
+            });
             return;
         }).catch(async () => {
             await interaction.deleteReply();
-            await interaction.followUp({ content: lang.suggest_delete_command_error, ephemeral: true });
+            await interaction.followUp({ content: lang.suggest_reply_command_error, ephemeral: true });
             return;
         });
     },

@@ -115,19 +115,20 @@ const getArgumentOptionTypeWithOptions = (o: Option): string => {
 };
 
 export async function createAwesomeEmbed(lang: LanguageData, command: Command, client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message): Promise<EmbedBuilder> {
-    var commandName = command.name.charAt(0).toUpperCase() + command.name.slice(1);
+    var commandName = command.prefixName || command.name;
+    var cleanCommandName = commandName.charAt(0).toUpperCase() + commandName.slice(1);;
     var botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
     var cleanBotPrefix = botPrefix.string;
 
     if (botPrefix.type === "mention") cleanBotPrefix = lang.hybridcommands_global_prefix_mention;
 
     let embed = new EmbedBuilder()
-        .setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", commandName))
+        .setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", cleanCommandName))
         .setColor("LightGrey");
 
     if (hasSubCommand(command.options)) {
         command.options?.map(x => {
-            var shortCommandName = x.name;
+            var shortCommandName = x.prefixName || x.name;
             var pathString = '';
 
             x.options?.forEach((value) => {

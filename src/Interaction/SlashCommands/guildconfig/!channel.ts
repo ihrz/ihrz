@@ -30,6 +30,8 @@ import {
     Client,
     ComponentType,
     EmbedBuilder,
+    GuildTextBasedChannel,
+    Message,
     PermissionsBitField,
     TextChannel,
 } from 'discord.js';
@@ -41,14 +43,14 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+        if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await interaction.editReply({ content: lang.setchannels_not_admin });
+        if ((!interaction.member.permissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
+            await client.method.interactionSend(interaction, { content: lang.setchannels_not_admin });
             return;
         };
 
@@ -99,7 +101,7 @@ export default {
                     .setStyle(ButtonStyle.Danger)
             );
 
-        let response = await interaction.editReply({
+        let response = await client.method.interactionSend(interaction, {
             embeds: [embed],
             components: [action_row],
             files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
@@ -112,7 +114,7 @@ export default {
 
         collector.on('collect', async (i) => {
 
-            if (i.user.id !== interaction.user.id) {
+            if (i.user.id !== interaction.member?.user.id) {
                 await i.reply({ content: lang.help_not_for_you, ephemeral: true });
                 return;
             };
@@ -129,12 +131,12 @@ export default {
                     )
                     ;
                 let i2 = await i.reply({
-                    content: lang.setchannels_which_channel.replace('${interaction.user.id}', interaction.user.id),
+                    content: lang.setchannels_which_channel.replace('${interaction.user.id}', interaction.member.user.id),
                     components: [channelSelectMenu]
                 });
 
-                let i2Collector = interaction.channel?.createMessageComponentCollector({
-                    filter: (x) => x.user.id === interaction.user.id && x.customId === 'guildconfig-channel-selectMenu-join-channel',
+                let i2Collector = (interaction.channel as GuildTextBasedChannel)?.createMessageComponentCollector({
+                    filter: (x) => x.user.id === interaction.member?.user.id && x.customId === 'guildconfig-channel-selectMenu-join-channel',
                     componentType: ComponentType.ChannelSelect,
                     time: 30_000,
                 })
@@ -155,7 +157,7 @@ export default {
                             title: lang.setchannels_logs_embed_title_on_join,
                             description: lang.setchannels_logs_embed_description_on_join
                                 .replace(/\${argsid\.id}/g, channelId as string)
-                                .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                                .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
                         });
 
                         try {
@@ -166,7 +168,7 @@ export default {
                                 return;
                             };
 
-                            (interaction.guild.channels.cache.get(channelId as string) as BaseGuildTextChannel).send({ content: lang.setchannels_confirmation_message_on_join });
+                            (interaction.guild!.channels.cache.get(channelId as string) as BaseGuildTextChannel).send({ content: lang.setchannels_confirmation_message_on_join });
                             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`, channelId);
 
                             i2.delete();
@@ -206,12 +208,12 @@ export default {
                     )
                     ;
                 let i2 = await i.reply({
-                    content: lang.setchannels_which_channel.replace('${interaction.user.id}', interaction.user.id),
+                    content: lang.setchannels_which_channel.replace('${interaction.user.id}', interaction.member.user.id),
                     components: [channelSelectMenu]
                 });
 
-                let i2Collector = interaction.channel?.createMessageComponentCollector({
-                    filter: (x) => x.user.id === interaction.user.id && x.customId === 'guildconfig-channel-selectMenu-leave-channel',
+                let i2Collector = (interaction.channel as GuildTextBasedChannel)?.createMessageComponentCollector({
+                    filter: (x) => x.user.id === interaction.member?.user.id && x.customId === 'guildconfig-channel-selectMenu-leave-channel',
                     componentType: ComponentType.ChannelSelect,
                     time: 30_000,
                 })
@@ -234,7 +236,7 @@ export default {
                         title: lang.setchannels_logs_embed_title_on_leave,
                         description: lang.setchannels_logs_embed_description_on_leave
                             .replace(/\${argsid\.id}/g, channelId as string)
-                            .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                            .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
                     });
 
                     try {
@@ -245,7 +247,7 @@ export default {
                             return;
                         };
 
-                        (interaction.guild.channels.cache.get(channelId as string) as BaseGuildTextChannel).send({ content: lang.setchannels_confirmation_message_on_leave });
+                        (interaction.guild!.channels.cache.get(channelId as string) as BaseGuildTextChannel).send({ content: lang.setchannels_confirmation_message_on_leave });
                         await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`, channelId as string);
 
                         i2.delete();
@@ -275,7 +277,7 @@ export default {
                 await client.method.iHorizonLogs.send(interaction, {
                     title: lang.setchannels_logs_embed_title_on_off,
                     description: lang.setchannels_logs_embed_description_on_off
-                        .replace(/\${interaction\.user\.id}/g, interaction.user.id)
+                        .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                 });
 
                 let leavec = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);

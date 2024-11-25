@@ -73,7 +73,9 @@ export const command: Command = {
             ],
         },
         {
-            name: 'invites-leaderboard',
+            name: 'leaderboard',
+            prefixName: "invites-leaderboard",
+
             aliases: ["lb-invites", "invlb", "inviteslb"],
 
             description: 'Show the guild invites\'s leaderboard!',
@@ -109,7 +111,8 @@ export const command: Command = {
             ],
         },
         {
-            name: "inv-reset",
+            name: "reset",
+            prefixName: "invites-reset",
 
             description: "Delete all data of InviteManager in the guild",
             description_localizations: {

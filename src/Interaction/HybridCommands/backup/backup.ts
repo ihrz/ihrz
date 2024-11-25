@@ -41,7 +41,9 @@ export const command: Command = {
 
     options: [
         {
-            name: "backup-create",
+            name: "create",
+            prefixName: "backup-create",
+
             name_localizations: {
                 "fr": "créer"
             },
@@ -79,10 +81,12 @@ export const command: Command = {
             ],
         },
         {
-            name: "backup-list",
+            name: "list",
             name_localizations: {
                 "fr": "listé"
             },
+            prefixName: "backup-list",
+
 
             description: "List your backup(s)!",
             description_localizations: {
@@ -92,10 +96,12 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "backup-load",
+            name: "load",
             name_localizations: {
                 "fr": "chargé"
             },
+            prefixName: "backup-load",
+
 
             description: "Load your backup to initialize!",
             description_localizations: {
@@ -118,7 +124,8 @@ export const command: Command = {
             ],
         },
         {
-            name: "backup-delete",
+            name: "delete",
+            prefixName: "backup-delete",
 
             description: "Delete your backup from the list",
             description_localizations: {
