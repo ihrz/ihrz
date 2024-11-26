@@ -19,17 +19,17 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { QuickDB } from "quick.db";
 import config from "../../files/config.js";
 import logger from "../logger.js";
 import { PallasDB } from "pallas-db";
 
-const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "RESTORECORD"];
 let db;
 
 if (!db) {
-    db = new Promise<PallasDB>((resolve, reject) => {
+    db = new Promise<QuickDB<any>>((resolve, reject) => {
         logger.log(`${config.console.emojis.HOST} >> Connected to the database (SQLITE) !`.green);
-        resolve(new PallasDB({ storage: `${process.cwd()}/src/files/db.sqlite`, dialect: "sqlite", tables }));
+        resolve(new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` }));
     });
 }
 
