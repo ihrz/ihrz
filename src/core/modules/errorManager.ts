@@ -20,16 +20,9 @@
 */
 
 import { format } from '../functions/date-and-time.js';
+import { Client } from 'discord.js';
 import logger from '../logger.js';
 import fs from 'node:fs';
-import { Client } from 'discord.js';
-import { MongoDriver } from 'quick.db';
-import { ConfigData } from '../../../types/configDatad.js';
-
-let exec = async (driver: MongoDriver, config: ConfigData) => {
-    await driver.close();
-    logger.warn(`${config.console.emojis.ERROR} >> Database connection are closed (${config.database?.method})!`);
-};
 
 export const uncaughtExceptionHandler = (client: Client) => {
     process.on('uncaughtException', function (err) {

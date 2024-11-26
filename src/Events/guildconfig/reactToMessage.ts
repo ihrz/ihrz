@@ -37,7 +37,7 @@ export const event: BotEvent = {
             'hey', 'salut', 'coucou', 'bonjour', 'salem', 'wesh',
             'hello', 'bienvenue', 'welcome', 'hi'
         ];
-        const customReacts = await client.db.get<{ [msg: string]: string }>(`${message.guildId}.GUILD.REACT_MSG`);
+        const customReacts = await client.db.get(`${message.guildId}.GUILD.REACT_MSG`);
         const firstWord = message.content.split(' ')[0]?.toLowerCase();
 
         if (customReacts) {
