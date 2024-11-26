@@ -190,7 +190,7 @@ export const event: BotEvent = {
             if (client.version.env !== "dev" && client.version.env !== "production") {
                 Array.from(new Set([client.config.owner.ownerid1, client.config.owner.ownerid2])).forEach(async usr => {
                     let user = await client.users.fetch(usr);
-                    sendingContent.content = "**New update available !**"
+                    sendingContent.content = "**Your ownihrz have successfully upgraded to the new version !**"
                     user.send(sendingContent).catch(() => false);
                 });
             } else {
