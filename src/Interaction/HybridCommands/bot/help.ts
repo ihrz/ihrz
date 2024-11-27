@@ -319,7 +319,7 @@ export const command: Command = {
                 const placeholderKey = cat.options.placeholder;
                 const placeholder = lang[placeholderKey as keyof LanguageData];
 
-                const commands = client.content.filter(c => c.category === cat.categoryName && c.cmd !== c.category);
+                const commands = client.content.filter(c => c.category === cat.categoryName);
 
                 categories.push({
                     name: placeholder.toString(),
@@ -382,7 +382,7 @@ export const command: Command = {
                     .replaceAll('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
                     .replaceAll('${categories.length}', categories.length.toString())
                     .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
-                    .replaceAll('${client.content.filter(c => c.messageCmd === false).length}', client.content.filter(c => c.messageCmd === 0 || 3).length.toString())
+                    .replaceAll('${client.content.filter(c => c.messageCmd === false).length}', client.content.length.toString())
                     .replaceAll('${client.iHorizon_Emojis.icon.Crown_Logo}', client.iHorizon_Emojis.icon.Crown_Logo)
                     .replaceAll('${config.owner.ownerid1}', client.owners[0])
                     .replaceAll('${config.owner.ownerid2}', client.owners[1] ?? client.owners[0])
