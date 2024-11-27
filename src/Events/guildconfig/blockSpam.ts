@@ -66,19 +66,24 @@ export const event: BotEvent = {
             try {
                 let blacklist = ["https://", "http://", ".gg/"];
                 let contentLower = message.content.toLowerCase();
+                let sanction = false;
                 let table = client.db.table("TEMP");
 
                 for (let word of blacklist) {
                     if (contentLower.includes(word)) {
-                        let FLAGS_FETCH = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`);
-                        FLAGS_FETCH = FLAGS_FETCH || 0;
-
-                        await table.set(`${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: FLAGS_FETCH + 1 });
-                        message.delete()
-                            .catch(() => { })
-                            .then(() => { });
+                        sanction = true;
                         break;
                     }
+                }
+
+                if (sanction) {
+                    let FLAGS_FETCH = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`);
+                    FLAGS_FETCH = FLAGS_FETCH || 0;
+
+                    await table.set(`${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: FLAGS_FETCH + 1 });
+                    message.delete()
+                        .catch(() => { })
+                        .then(() => { });
                 }
             } catch {
                 return;

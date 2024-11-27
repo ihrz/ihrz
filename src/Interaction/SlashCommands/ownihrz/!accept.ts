@@ -25,8 +25,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
-
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 
