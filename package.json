@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/ihrz/ihrz#readme",
   "dependencies": {
+    "better-sqlite3": "^11.6.0",
     "bufferutil": "^4.0.8",
     "discord-html-transcripts": "^3.2.0",
     "discord-rebackup": "^3.5.0",
