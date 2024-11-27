@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, GuildMember, Message, PermissionFlagsBits, PermissionsBitField } from 'discord.js';
+import { ApplicationCommandOptionType, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, GuildMember, Message, PermissionFlagsBits, PermissionsBitField } from 'discord.js';
 import { LanguageData } from '../../../types/languageData';
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
@@ -63,8 +63,10 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
         const potentialSubCommandName = args[0]?.toLowerCase();
         if (potentialSubCommandName && mainCommand.options) {
             const subCommand = mainCommand.options.find(opt =>
-                opt.name === potentialSubCommandName ||
-                opt.aliases?.includes(potentialSubCommandName)
+                (opt.name === potentialSubCommandName ||
+                    opt.aliases?.includes(potentialSubCommandName))
+                &&
+                opt.type === (1 || 2)//sub or subgroup
             );
             if (subCommand) {
                 args.shift();
