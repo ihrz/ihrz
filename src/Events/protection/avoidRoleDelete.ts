@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, Role } from 'discord.js'
+import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event';
 
@@ -29,6 +29,10 @@ export const event: BotEvent = {
 
         let data = await client.db.get(`${role.guild.id}.PROTECTION`);
         if (!data) return;
+
+        if (!role.guild.members.me?.permissions.has([
+            PermissionFlagsBits.Administrator
+        ])) return;
 
         if (data.deleterole && data.deleterole.mode === 'allowlist') {
             let fetchedLogs = await role.guild.fetchAuditLogs({

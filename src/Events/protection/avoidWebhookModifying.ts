@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel } from 'discord.js'
+import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event';
 
@@ -29,6 +29,10 @@ export const event: BotEvent = {
 
         let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
         if (!data) return;
+
+        if (!channel.guild.members.me?.permissions.has([
+            PermissionFlagsBits.Administrator
+        ])) return;
 
         if (data.webhook && data.webhook.mode === 'allowlist') {
             let fetchedLogs = await channel.guild.fetchAuditLogs({

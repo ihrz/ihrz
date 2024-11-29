@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan, PermissionFlagsBits } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
@@ -31,6 +31,10 @@ export const event: BotEvent = {
 
         if (!ban.guild.members.me
             || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+
+        if (!ban.guild.members.me?.permissions.has([
+            PermissionFlagsBits.Administrator
+        ])) return;
 
         let fetchedLogs = await ban.guild.fetchAuditLogs({
             type: AuditLogEvent.MemberBanRemove,

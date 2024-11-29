@@ -22,6 +22,7 @@
 import { Client, PermissionsBitField, ChannelType, Message } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure';
+import { axios } from '../../core/functions/axios.js';
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -33,13 +34,13 @@ export const event: BotEvent = {
             || message.channel.type !== ChannelType.GuildText || message.author.bot
             || message.author.id === client.user?.id) {
             return;
-        };
+        }
 
         let type = await client.db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`) as DatabaseStructure.GuildConfigSchema['antipub'];
 
         if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return;
-        };
+        }
 
         let member = message.guild.members.cache.get(message.author.id);
 
@@ -57,17 +58,67 @@ export const event: BotEvent = {
                         message.guild.members.kick(message.author).catch(() => { });
                         break;
                     case 'mute':
-                        await member?.timeout(40000, 'Timeout by PunishPUB')
+                        await member?.timeout(40000, 'Timeout by PunishPUB');
                         await table.set(`${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
                         break;
                 }
-            };
+            }
 
             try {
                 let blacklist = ["https://", "http://", ".gg/"];
+                const whitelist = [
+                    "giphy.com",
+                    "tenor.com",
+                    "imgur.com",
+                    "gyazo.com",
+                    "ezgif.com",
+                    "reddit.com",
+                    "tumblr.com",
+                    "twitter.com",
+                    "flickr.com",
+                    "postimages.org",
+                    "imagebam.com"
+                ];
+
                 let contentLower = message.content.toLowerCase();
                 let sanction = false;
-                let table = client.db.table("TEMP");
+
+                const isMediaLink = async (url: string): Promise<boolean> => {
+                    try {
+                        const response = await axios.head(url, {
+                            timeout: 5000,
+                        });
+
+                        const contentType = response.headers.get('content-type')?.toLowerCase() || '';
+                        const mediaTypes = [
+                            'image/',
+                            'video/',
+                            'gif',
+                        ];
+
+                        return mediaTypes.some(type => contentType.includes(type));
+                    } catch (error) {
+                        return false;
+                    }
+                };
+
+                const isWhitelisted = (url: string): boolean => {
+                    return whitelist.some(domain => url.includes(domain));
+                };
+
+                const links = contentLower.match(/https?:\/\/\S+/g) || [];
+
+                if (links.length > 0) {
+                    const mediaChecks = await Promise.all(links.map(isMediaLink));
+                    const whitelistChecks = links.map(isWhitelisted);
+
+                    const hasOnlyValidMedia = mediaChecks.every(Boolean);
+                    const isValidWhitelisted = whitelistChecks.some(Boolean);
+
+                    if (hasOnlyValidMedia || isValidWhitelisted) {
+                        return;
+                    }
+                }
 
                 for (let word of blacklist) {
                     if (contentLower.includes(word)) {
