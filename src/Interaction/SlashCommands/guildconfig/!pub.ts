@@ -36,7 +36,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
@@ -82,9 +82,7 @@ export default {
                     {
                         regexPatterns: [
                             '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
+                            '/(discord\.gg\/|\.gg\/|gg\/)/i'
                         ]
                     },
                     actions: arrayActionsForRule
@@ -97,9 +95,7 @@ export default {
                     {
                         regexPatterns: [
                             '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
+                            '/(discord\.gg\/|\.gg\/|gg\/)/i',
                         ]
                     },
                     actions: [
@@ -120,6 +116,7 @@ export default {
             };
 
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "on");
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`, true);
             await interaction.editReply({
                 content: lang.automod_block_pub_command_on
                     .replace('${interaction.user}', interaction.user.toString())
@@ -131,6 +128,7 @@ export default {
             await KeywordPresetRule?.setEnabled(false);
 
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "off");
+            await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`);
             await interaction.editReply({
                 content: lang.automod_block_pub_command_off
                     .replace('${interaction.user}', interaction.user.toString())

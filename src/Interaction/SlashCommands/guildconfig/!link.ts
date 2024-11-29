@@ -36,7 +36,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
@@ -82,8 +82,6 @@ export default {
                     {
                         regexPatterns: [
                             '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
                         ]
                     },
                     actions: arrayActionsForRule
@@ -96,8 +94,6 @@ export default {
                     {
                         regexPatterns: [
                             '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
                         ]
                     },
                     actions: [
@@ -122,9 +118,11 @@ export default {
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${logs_channel}', (logs_channel?.toString() || 'None'))
             });
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`, false);
 
             return;
         } else if (turn === "off") {
+            await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`);
             await KeywordPresetRule?.setEnabled(false);
 
             await interaction.editReply({

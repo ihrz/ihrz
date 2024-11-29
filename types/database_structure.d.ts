@@ -372,6 +372,7 @@ export namespace DatabaseStructure {
         mass_mention?: string;
         antipub?: string;
         spam?: string;
+        media?: boolean;
         hey_reaction?: boolean;
         rolesaver?: RoleSaverSchema;
         GHOST_PING: GhostPingData;

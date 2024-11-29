@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, Message } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, Message, PermissionFlagsBits } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
 
@@ -96,6 +96,10 @@ export const event: BotEvent = {
         let lang = await client.func.getLanguageData(oldChannel.guildId) as LanguageData;
 
         if (!oldChannel || !oldChannel?.guild) return;
+
+        if (!oldChannel.guild.members.me?.permissions.has([
+            PermissionFlagsBits.Administrator
+        ])) return;
 
         let fetchedLogs = await newChannel.guild.fetchAuditLogs({
             type: AuditLogEvent.ChannelUpdate,
