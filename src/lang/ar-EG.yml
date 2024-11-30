@@ -699,6 +699,11 @@ utils_piconly_modal2_title: "الصور فقط - إعداد الحد الأقص�
 utils_piconly_modal2_fields1_placeholder: "الحد الأقصى قبل الكتم"
 utils_piconly_modal2_fields1_label: "الحد الأقصى"
 
+# /zip-emojis
+zip_emojis_doesnt_have_perm: "ليس لديك إذن لإدارة الرموز التعبيرية."
+zip_emojis_command_work: "🎉 اكتمل التصدير في **${calcTime}** مللي ثانية! إليك الأرشيف الذي يحتوي على ${emojis.size} رمز تعبيري."
+zip_emojis_command_error: "حدث خطأ أثناء تصدير الرموز التعبيرية."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

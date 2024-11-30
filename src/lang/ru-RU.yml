@@ -702,6 +702,11 @@ utils_piconly_modal2_title: "ТолькоКартинки - Настройка �
 utils_piconly_modal2_fields1_placeholder: "порог перед мутом"
 utils_piconly_modal2_fields1_label: "Порог"
 
+# /zip-emojis
+zip_emojis_doesnt_have_perm: "У вас нет разрешения на управление эмодзи."
+zip_emojis_command_work: "🎉 Экспорт завершен за **${calcTime}** мс! Вот архив, содержащий ${emojis.size} эмодзи."
+zip_emojis_command_error: "Произошла ошибка при экспорте эмодзи."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

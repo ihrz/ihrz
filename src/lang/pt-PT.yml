@@ -702,6 +702,11 @@ utils_piconly_modal2_title: "SóImagens - Configuração de Limite"
 utils_piconly_modal2_fields1_placeholder: "o limite antes do silenciamento"
 utils_piconly_modal2_fields1_label: "Limite"
 
+# /zip-emojis
+zip_emojis_doesnt_have_perm: "Não tem permissão para gerir emojis."
+zip_emojis_command_work: "🎉 Exportação concluída em **${calcTime}**ms! Aqui está o arquivo com ${emojis.size} emojis."
+zip_emojis_command_error: "Ocorreu um erro ao exportar os emojis."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

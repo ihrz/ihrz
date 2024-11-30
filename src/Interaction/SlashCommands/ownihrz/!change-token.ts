@@ -69,19 +69,19 @@ export default {
         let id_2 = getData() as Custom_iHorizon;
 
         if (!id_2) {
-            await interaction.reply({ content: lang.mybot_manage_accept_not_found });
+            await client.method.interactionSend(interaction, { content: lang.mybot_manage_accept_not_found });
             return;
         };
 
         if (!client.owners.includes(interaction.user.id) && (id_2.OwnerOne !== interaction.user.id)) {
-            await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
+            await client.method.interactionSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         }
 
         let bot_1 = (await client.ownihrz.Get_Bot(newToken).catch(() => { }))?.data || 404
 
         if (!bot_1.bot) {
-            await interaction.reply({ content: lang.mybot_manage_accept_token_error });
+            await client.method.interactionSend(interaction, { content: lang.mybot_manage_accept_token_error });
             return;
         } else {
 
@@ -103,7 +103,7 @@ export default {
                 )
                 .setFooter(await client.method.bot.footerBuilder(interaction));
 
-            await interaction.reply({
+            await client.method.interactionSend(interaction, {
                 embeds: [embed],
                 ephemeral: false,
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]

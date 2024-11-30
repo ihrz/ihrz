@@ -54,6 +54,7 @@ export interface Command {
     category: string;
     options?: Option[];
     thinking: boolean;
+    ephemeral?: boolean;
     channel_types?: number[];
     type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND';
     aliases?: string[];

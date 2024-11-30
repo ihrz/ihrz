@@ -709,7 +709,19 @@ export const command: Command = {
             ],
 
             type: ApplicationCommandOptionType.Subcommand
-        }
+        },
+        {
+            name: 'zip-emojis',
+
+            description: 'Create zip files with all guild emojis in!',
+            description_localizations: {
+                "fr": "Créer un fichier zip contenant absolument tout les émojis du serveur"
+            },
+
+            aliases: ["zipemojis", "zip"],
+
+            type: ApplicationCommandOptionType.Subcommand
+        },
     ],
 
     category: 'utils',

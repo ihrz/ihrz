@@ -48,8 +48,8 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
             let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
             if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
-            if ((subCmd.thinking) || thinking) {
-                await interaction.deferReply();
+            if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
+                await interaction.deferReply({ ephemeral: subCmd.ephemeral });
             }
 
             return await subCmd.run(client, interaction, lang, command, permCheck.neededPerm, []);
@@ -58,20 +58,21 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
     else if (subCommand) {
         const subCmd = client.subCommands.get(interaction.commandName + " " + subCommand);
 
+        console.log(subCmd)
         if (subCmd && subCmd.run) {
             let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
             if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
-            if ((subCmd.thinking) || thinking) {
-                await interaction.deferReply();
+            if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
+                await interaction.deferReply({ ephemeral: subCmd.ephemeral });
             }
 
             return await subCmd.run(client, interaction, lang, command, permCheck.neededPerm, []);
         }
     }
 
-    if (command.thinking) {
-        await interaction.deferReply();
+    if (command.thinking || command.ephemeral) {
+        await interaction.deferReply({ ephemeral: command.ephemeral });
     }
 
     let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
@@ -185,13 +186,8 @@ export const event: BotEvent = {
         }
 
         try {
-            let thinking = false;
-            if (command.thinking) {
-                thinking = true;
-            }
-
             const lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-            await handleCommandExecution(client, (interaction as ChatInputCommandInteraction<"cached">), command, lang, thinking);
+            await handleCommandExecution(client, (interaction as ChatInputCommandInteraction<"cached">), command, lang, command.thinking);
         } catch (error) {
             await handleCommandError(client, interaction, command, error);
         }

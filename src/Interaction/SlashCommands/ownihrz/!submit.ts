@@ -39,8 +39,6 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        await interaction.deferReply({ ephemeral: true });
-
         let discord_bot_token = interaction.options.getString('discord_bot_token') as string;
         let bot_1 = (await client.ownihrz.Get_Bot(discord_bot_token).catch(() => { }))?.data || 404;
 

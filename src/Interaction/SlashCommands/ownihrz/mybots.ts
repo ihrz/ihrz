@@ -83,6 +83,8 @@ export const command: Command = {
                     required: false
                 }
             ],
+
+            ephemeral: true
         },
         {
             name: "change-token",
@@ -114,9 +116,11 @@ export const command: Command = {
                         "fr": "Le nouveau token de votre bot Discord"
                     },
 
-                    required: true
+                    required: true,
                 },
             ],
+
+            ephemeral: true
         },
         {
             name: "change-owner",
@@ -172,6 +176,7 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+            ephemeral: true
         },
         {
             name: "manage",

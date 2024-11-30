@@ -702,6 +702,11 @@ utils_piconly_modal2_title: "SóloFotos - Configuración de Umbral"
 utils_piconly_modal2_fields1_placeholder: "el umbral antes del silencio"
 utils_piconly_modal2_fields1_label: "Umbral"
 
+# /zip-emojis
+zip_emojis_doesnt_have_perm: "No tienes permiso para gestionar emojis."
+zip_emojis_command_work: "🎉 ¡Exportación completada en **${calcTime}**ms! Aquí está el archivo con ${emojis.size} emojis."
+zip_emojis_command_error: "Se produjo un error al exportar los emojis."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
