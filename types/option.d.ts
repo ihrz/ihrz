@@ -41,5 +41,6 @@ export interface Option {
     channel_types?: number[],
     choices?: Choice[],
     aliases?: string[],
-    thinking?: boolean
+    thinking?: boolean,
+    ephemeral?: boolean;
 }

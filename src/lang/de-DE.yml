@@ -702,6 +702,11 @@ utils_piconly_modal2_title: "NurBilder - Schwellenwert-Konfiguration"
 utils_piconly_modal2_fields1_placeholder: "der Schwellenwert vor der Stummschaltung"
 utils_piconly_modal2_fields1_label: "Schwellenwert"
 
+# /zip-emojis
+zip_emojis_doesnt_have_perm: "Sie haben keine Berechtigung, Emojis zu verwalten."
+zip_emojis_command_work: "🎉 Export abgeschlossen in **${calcTime}**ms! Hier ist das Archiv mit ${emojis.size} Emojis."
+zip_emojis_command_error: "Beim Exportieren der Emojis ist ein Fehler aufgetreten."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

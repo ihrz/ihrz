@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/ihrz/ihrz#readme",
   "dependencies": {
+    "archiver": "^7.0.1",
     "better-sqlite3": "^11.6.0",
     "bufferutil": "^4.0.8",
     "discord-html-transcripts": "^3.2.0",
@@ -43,6 +44,7 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@types/archiver": "^6.0.3",
     "@types/ws": "^8.5.13",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.17.7",

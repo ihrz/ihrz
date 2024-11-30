@@ -702,6 +702,11 @@ utils_piconly_modal2_title: "画像のみ - しきい値設定"
 utils_piconly_modal2_fields1_placeholder: "ミュート前のしきい値"
 utils_piconly_modal2_fields1_label: "しきい値"
 
+# /zip-emojis
+zip_emojis_doesnt_have_perm: "絵文字を管理する権限がありません。"
+zip_emojis_command_work: "🎉 **${calcTime}**ミリ秒で書き出し完了！${emojis.size}個の絵文字を含むアーカイブはこちらです。"
+zip_emojis_command_error: "絵文字の書き出し中にエラーが発生しました。"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

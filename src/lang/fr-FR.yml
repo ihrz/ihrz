@@ -702,6 +702,11 @@ utils_piconly_modal2_title: "PicOnly - Configuration du Seuil"
 utils_piconly_modal2_fields1_placeholder: "le seuil avant le mute"
 utils_piconly_modal2_fields1_label: "Seuil"
 
+# /zip-emojis
+zip_emojis_doesnt_have_perm: "Vous n'avez pas la permission de gérer les émojis."
+zip_emojis_command_work: "🎉 Exportation terminée en **${calcTime}**ms ! Voici l'archive contenant ${emojis.size} émojis."
+zip_emojis_command_error: "Une erreur s'est produite lors de l'exportation des émojis."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
