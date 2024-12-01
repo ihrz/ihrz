@@ -77,7 +77,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setTitle(lang.nowplaying_message_embed_title)
-            .setDescription(`by: ${player.queue.current?.requester}\n**[${player.queue.current?.info.title}](${player.queue.current?.info?.uri})**, ${player.queue.current?.info?.author}`)
+            .setDescription(`by: ${(player.queue.current?.requester as User).toString()}\n**[${player.queue.current?.info.title}](${player.queue.current?.info?.uri})**, ${player.queue.current?.info?.author}`)
             .addFields(
                 { name: '  ', value: progress?.replace(/ 0:00/g, 'LIVE')! }
             );
