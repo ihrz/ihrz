@@ -46,7 +46,7 @@ export const command: Command = {
 
             if (msg.stickers.size === 0) {
                 return await client.method.interactionSend(message, {
-                    content: 'No sticker found in the replied message.'
+                    content: lang.sticket_no_sticker
                 });
             } else {
                 let sticker = msg.stickers.first()!;
@@ -58,17 +58,17 @@ export const command: Command = {
                     tags: sticker?.tags || "copied"
                 }).then(async x => {
                     await client.method.interactionSend(message, {
-                        content: `The sticker \`${x.name}\` has been successfully created.`
+                        content: lang.sticket_command_work.replace("${x.name}", x.name)
                     });
                 }).catch(async err => {
                     await client.method.interactionSend(message, {
-                        content: `The sticker could not be created. An error occurred: \`${err.message}\`.`
+                        content: lang.sticker_command_error.replace("${err.message}", err.message)
                     });
                 });
             }
         } else {
             return await client.method.interactionSend(message, {
-                content: 'Please reply to a message containing a sticker.'
+                content: lang.sticket_command_error2
             });
         }
         return;

@@ -61,14 +61,26 @@ export const command: Command = {
             return;
         }
 
+        let emojiMsg = emoji || lang.var_none;
+
         if (!isSingleEmoji(emoji) && !isDiscordEmoji(emoji)) {
-            await interaction.reply({ content: `L'émoji \`${emoji || 'None'}\`de la réaction ne correspond pas à un émojis !`, allowedMentions: { repliedUser: false } });
+            await interaction.reply({
+                content: lang.add_react_command_err_emojis
+                    .replace('{emoji}', emojiMsg),
+                allowedMentions: { repliedUser: false }
+            });
             return;
         }
 
         let message = options![1];
 
-        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie \`${message.toLowerCase()}\`, le bot **réagis** avec ${emoji}`, allowedMentions: { repliedUser: false } });
+        await interaction.reply({
+            content: lang.add_react_command_work
+                .replace("${interaction.member?.id}", interaction.member?.id!)
+                .replace('{emoji}', emojiMsg)
+                .replace("${message.toLowerCase()}", message.toLowerCase()),
+            allowedMentions: { repliedUser: false }
+        });
 
         await client.db.set(`${interaction.guildId}.GUILD.REACT_MSG.${message.toLowerCase()}`, emoji);
         return;

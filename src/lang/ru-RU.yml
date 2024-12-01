@@ -707,6 +707,12 @@ zip_emojis_doesnt_have_perm: "У вас нет разрешения на упр�
 zip_emojis_command_work: "🎉 Экспорт завершен за **${calcTime}** мс! Вот архив, содержащий ${emojis.size} эмодзи."
 zip_emojis_command_error: "Произошла ошибка при экспорте эмодзи."
 
+# +sticker  
+sticket_no_sticker: "Стикер не найден в ответном сообщении."  
+sticket_command_work: "Стикер `${x.name}` успешно создан."  
+sticker_command_error: "Не удалось создать стикер. Произошла ошибка: `${err.message}`."  
+sticket_command_error2: "Пожалуйста, ответьте на сообщение, содержащее стикер."  
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1005,6 +1011,22 @@ perm_set_warn_message: "${interaction.member.toString()}, вы не можете
 perm_roles_created_role: "Созданы следующие роли: ${createdRoles.join(', ')}"
 perm_roles_already_upate: "Все роли уже существуют и актуальны."
 perm_roles_error: "Произошла ошибка при создании или обновлении ролей."
+
+# /toggle-react
+toggle_react_command_work: "<@${interaction.member?.id}>, теперь, когда участник отправляет приветственное сообщение, бот **{activeMsg}**"
+toggle_react_doesnt_react: "больше не будет реагировать"
+toggle_react_react: "будет реагировать"
+
+# /remove-react
+remove_react_command_work: "<@${interaction.member?.id}>, теперь, когда участник отправляет `${message.toLowerCase()}`, бот **больше не будет реагировать**."
+
+# /add-react
+add_react_command_err_emojis: "Эмодзи `{emoji}` для реакции недействителен!"
+add_react_command_work: "<@${interaction.member?.id}>, теперь, когда участник отправляет `${message.toLowerCase()}`, бот **будет реагировать** с {emoji}"
+
+# /list-react
+list_react_nothing_found: "Данные не найдены, сначала добавьте их."
+list_react_embed_msg: "Когда кто-то отправляет **`${key}`**, я **реагирую** с ${value}\n"
 
 
 # Commandes de décompte des membres
@@ -1391,6 +1413,9 @@ embed_copy_bad_channel_msg: "Канал, где находится сообще�
 embed_copy_bad_message_msg: "Сообщение недоступно!"
 embed_copy_bad_embed_message_msg: "Сообщение не содержит встроенных данных!"
 embed_copy_bad_url_msg: "Неверный URL, пожалуйста, попробуйте снова. Правильный формат: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
+embed_btn_replace: "Заменить встраивание"  
+embed_replace_question_msg: "Какой новый URL сообщения, в котором нужно заменить встраивание?"  
+embed_replace_message: "{user}, новое встраивание заменило встраивание для {messageUrl}"  
 
 # /rolesaver
 rolesaver_embed_title: "Модуль RoleSaver"
