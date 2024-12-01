@@ -707,6 +707,12 @@ zip_emojis_doesnt_have_perm: "絵文字を管理する権限がありません�
 zip_emojis_command_work: "🎉 **${calcTime}**ミリ秒で書き出し完了！${emojis.size}個の絵文字を含むアーカイブはこちらです。"
 zip_emojis_command_error: "絵文字の書き出し中にエラーが発生しました。"
 
+# +sticker  
+sticket_no_sticker: "返信されたメッセージにスタンプが見つかりませんでした。"  
+sticket_command_work: "スタンプ `${x.name}` が正常に作成されました。"  
+sticker_command_error: "スタンプを作成できませんでした。エラーが発生しました: `${err.message}`。"  
+sticket_command_error2: "スタンプを含むメッセージに返信してください。"  
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1005,6 +1011,22 @@ perm_set_warn_message: "${interaction.member.toString()}、あなたの権限以
 perm_roles_created_role: "以下の役割が作成されました：${createdRoles.join('、')}"
 perm_roles_already_upate: "すべての役割が既に存在し、最新の状態です。"
 perm_roles_error: "役割の作成または更新中にエラーが発生しました。"
+
+# /toggle-react
+toggle_react_command_work: "<@${interaction.member?.id}>, メンバーが歓迎メッセージを送信すると、ボットは **{activeMsg}**"
+toggle_react_doesnt_react: "もう反応しません"
+toggle_react_react: "反応します"
+
+# /remove-react
+remove_react_command_work: "<@${interaction.member?.id}>, メンバーが `${message.toLowerCase()}` を送信すると、ボットは **もう反応しません**."
+
+# /add-react
+add_react_command_err_emojis: "リアクションの絵文字 `{emoji}` は有効な絵文字ではありません！"
+add_react_command_work: "<@${interaction.member?.id}>, メンバーが `${message.toLowerCase()}` を送信すると、ボットは **{emoji} で反応します**."
+
+# /list-react
+list_react_nothing_found: "データが見つかりませんでした。まずいくつか追加してください。"
+list_react_embed_msg: "誰かが **`${key}`** を送信すると、私は **${value} で反応します**\n"
 
 
 # Member Count commands
@@ -1391,6 +1413,9 @@ embed_copy_bad_channel_msg: "メッセージがあるチャンネルにアクセ
 embed_copy_bad_message_msg: "メッセージにアクセスできません！"
 embed_copy_bad_embed_message_msg: "メッセージに埋め込みがありません！"
 embed_copy_bad_url_msg: "無効なURLです。再試行してください。正しい形式は次のとおりです: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
+embed_btn_replace: "埋め込みを置き換える"  
+embed_replace_question_msg: "埋め込みを置き換える必要があるメッセージの新しいURLは何ですか？"  
+embed_replace_message: "{user}、新しい埋め込みが {messageUrl} の埋め込みに置き換えられました。"  
 
 # /rolesaver
 rolesaver_embed_title: "RoleSaverモジュール"

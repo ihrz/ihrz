@@ -707,6 +707,12 @@ zip_emojis_doesnt_have_perm: "Non hai il permesso di gestire le emoji."
 zip_emojis_command_work: "🎉 Esportazione completata in **${calcTime}**ms! Ecco l'archivio contenente ${emojis.size} emoji."
 zip_emojis_command_error: "Si è verificato un errore durante l'esportazione delle emoji."
 
+# +sticker  
+sticket_no_sticker: "Nessun adesivo trovato nel messaggio a cui hai risposto."  
+sticket_command_work: "L'adesivo `${x.name}` è stato creato con successo."  
+sticker_command_error: "Impossibile creare l'adesivo. Si è verificato un errore: `${err.message}`."  
+sticket_command_error2: "Rispondi a un messaggio contenente un adesivo."  
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1005,6 +1011,22 @@ perm_set_warn_message: "${interaction.member.toString()}, non puoi concedere per
 perm_roles_created_role: "I seguenti ruoli sono stati creati: ${createdRoles.join(', ')}"
 perm_roles_already_upate: "Tutti i ruoli esistono già e sono aggiornati."
 perm_roles_error: "Si è verificato un errore durante la creazione o l'aggiornamento dei ruoli."
+
+# /toggle-react
+toggle_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia un messaggio di benvenuto, il bot **{activeMsg}**"
+toggle_react_doesnt_react: "non reagirà più"
+toggle_react_react: "reagirà"
+
+# /remove-react
+remove_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia `${message.toLowerCase()}`, il bot **non reagirà più**."
+
+# /add-react
+add_react_command_err_emojis: "L'emoji `{emoji}` della reazione non è valido!"
+add_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia `${message.toLowerCase()}`, il bot **reagirà** con {emoji}"
+
+# /list-react
+list_react_nothing_found: "Nessun dato trovato, aggiungi qualcosa prima."
+list_react_embed_msg: "Quando qualcuno invia **`${key}`**, io **reagirò** con ${value}\n"
 
 
 # Member Count commands
@@ -1391,6 +1413,9 @@ embed_copy_bad_channel_msg: "Il canale in cui si trova il messaggio è irraggiun
 embed_copy_bad_message_msg: "Il messaggio è irraggiungibile!"
 embed_copy_bad_embed_message_msg: "Il messaggio non ha un embed!"
 embed_copy_bad_url_msg: "URL non valida, si prega di riprovare. Il formato corretto è: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
+embed_btn_replace: "Sostituisci l'embed"  
+embed_replace_question_msg: "Qual è il nuovo URL del messaggio in cui è necessario sostituire l'embed?"  
+embed_replace_message: "{user}, il nuovo embed ha sostituito l'embed di {messageUrl}"  
 
 # /rolesaver
 rolesaver_embed_title: "Modulo RoleSaver"

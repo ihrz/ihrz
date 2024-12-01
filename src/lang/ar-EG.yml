@@ -704,6 +704,12 @@ zip_emojis_doesnt_have_perm: "ليس لديك إذن لإدارة الرموز �
 zip_emojis_command_work: "🎉 اكتمل التصدير في **${calcTime}** مللي ثانية! إليك الأرشيف الذي يحتوي على ${emojis.size} رمز تعبيري."
 zip_emojis_command_error: "حدث خطأ أثناء تصدير الرموز التعبيرية."
 
+# +sticker  
+sticket_no_sticker: "لم يتم العثور على ملصق في الرسالة التي تم الرد عليها."  
+sticket_command_work: "تم إنشاء الملصق `${x.name}` بنجاح."  
+sticker_command_error: "تعذر إنشاء الملصق. حدث خطأ: `${err.message}`."  
+sticket_command_error2: "يرجى الرد على رسالة تحتوي على ملصق."  
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1005,6 +1011,22 @@ perm_set_warn_message: "${interaction.member.toString()}، لا يمكنك من�
 perm_roles_created_role: "الأدوار اللي اتعملت: ${createdRoles.join(', ')}"
 perm_roles_already_upate: "كل الأدوار موجودة وحديثة."
 perm_roles_error: "حصل خطأ أثناء إنشاء أو تحديث الأدوار."
+
+# /toggle-react
+toggle_react_command_work: "<@${interaction.member?.id}>, الآن عندما يرسل أحد الأعضاء رسالة ترحيب، البوت **{activeMsg}**"
+toggle_react_doesnt_react: "لن يتفاعل بعد الآن"
+toggle_react_react: "سيتفاعل"
+
+# /remove-react
+remove_react_command_work: "<@${interaction.member?.id}>, الآن عندما يرسل أحد الأعضاء `${message.toLowerCase()}`، البوت **لن يتفاعل**."
+
+# /add-react
+add_react_command_err_emojis: "الرمز التعبيري `{emoji}` للتفاعل غير صحيح!"
+add_react_command_work: "<@${interaction.member?.id}>, الآن عندما يرسل أحد الأعضاء `${message.toLowerCase()}`، البوت **سيتفاعل** بـ {emoji}"
+
+# /list-react
+list_react_nothing_found: "لم يتم العثور على أي بيانات، يرجى إضافة بعض منها أولاً."
+list_react_embed_msg: "عندما يرسل أحد الأشخاص **`${key}`**، سأ**تفاعل** بـ ${value}\n"
 
 
 # Member Count commands
@@ -1388,6 +1410,9 @@ embed_copy_bad_channel_msg: "القناة التي توجد فيها الرسا�
 embed_copy_bad_message_msg: "الرسالة غير متاحة!"
 embed_copy_bad_embed_message_msg: "الرسالة لا تحتوي على إيمبد!"
 embed_copy_bad_url_msg: "رابط غير صالح، يرجى المحاولة مرة أخرى. التنسيق الصحيح هو: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
+embed_btn_replace: "استبدال التضمين"  
+embed_replace_question_msg: "ما هو عنوان URL الجديد للرسالة التي تحتاج إلى استبدال التضمين فيها؟"  
+embed_replace_message: "{user}، تم استبدال التضمين الجديد بالتضمين الخاص بـ {messageUrl}"  
 
 # /rolesaver
 rolesaver_embed_title: "وحدة حفظ الأدوار"

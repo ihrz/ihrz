@@ -707,6 +707,12 @@ zip_emojis_doesnt_have_perm: "Sie haben keine Berechtigung, Emojis zu verwalten.
 zip_emojis_command_work: "🎉 Export abgeschlossen in **${calcTime}**ms! Hier ist das Archiv mit ${emojis.size} Emojis."
 zip_emojis_command_error: "Beim Exportieren der Emojis ist ein Fehler aufgetreten."
 
+# +sticker  
+sticket_no_sticker: "Kein Sticker in der beantworteten Nachricht gefunden."  
+sticket_command_work: "Der Sticker `${x.name}` wurde erfolgreich erstellt."  
+sticker_command_error: "Der Sticker konnte nicht erstellt werden. Ein Fehler ist aufgetreten: `${err.message}`."  
+sticket_command_error2: "Bitte antworten Sie auf eine Nachricht, die einen Sticker enthält."  
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1005,6 +1011,22 @@ perm_set_warn_message: "${interaction.member.toString()}, du kannst keine Berech
 perm_roles_created_role: "Folgende Rollen wurden erstellt: ${createdRoles.join(', ')}"
 perm_roles_already_upate: "Alle Rollen existieren bereits und sind auf dem neuesten Stand."
 perm_roles_error: "Bei der Erstellung oder Aktualisierung der Rollen ist ein Fehler aufgetreten."
+
+# /toggle-react
+toggle_react_command_work: "<@${interaction.member?.id}>, jetzt wenn ein Mitglied eine Begrüßungsnachricht sendet, wird der Bot **{activeMsg}**"
+toggle_react_doesnt_react: "nicht mehr reagieren"
+toggle_react_react: "reagieren"
+
+# /remove-react
+remove_react_command_work: "<@${interaction.member?.id}>, jetzt wenn ein Mitglied `${message.toLowerCase()}` sendet, wird der Bot **nicht mehr reagieren**."
+
+# /add-react
+add_react_command_err_emojis: "Das Emoji `{emoji}` für die Reaktion ist kein gültiges Emoji!"
+add_react_command_work: "<@${interaction.member?.id}>, jetzt wenn ein Mitglied `${message.toLowerCase()}` sendet, wird der Bot **mit {emoji} reagieren**."
+
+# /list-react
+list_react_nothing_found: "Keine Daten gefunden, bitte füge erst welche hinzu."
+list_react_embed_msg: "Wenn jemand **`${key}`** sendet, werde ich **mit ${value} reagieren**.\n"
 
 
 # Member Count commands
@@ -1391,6 +1413,9 @@ embed_copy_bad_channel_msg: "Der Kanal, in dem sich die Nachricht befindet, ist 
 embed_copy_bad_message_msg: "Die Nachricht ist nicht erreichbar!"
 embed_copy_bad_embed_message_msg: "Die Nachricht hat kein Embed!"
 embed_copy_bad_url_msg: "Ungültige URL, bitte erneut versuchen. Das korrekte Format ist: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
+embed_btn_replace: "Einbettung ersetzen"  
+embed_replace_question_msg: "Was ist die neue URL der Nachricht, in der die Einbettung ersetzt werden soll?"  
+embed_replace_message: "{user}, die neue Einbettung hat die Einbettung von {messageUrl} ersetzt."  
 
 # /rolesaver
 rolesaver_embed_title: "RoleSaver Modul"

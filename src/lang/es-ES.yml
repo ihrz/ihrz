@@ -707,6 +707,12 @@ zip_emojis_doesnt_have_perm: "No tienes permiso para gestionar emojis."
 zip_emojis_command_work: "🎉 ¡Exportación completada en **${calcTime}**ms! Aquí está el archivo con ${emojis.size} emojis."
 zip_emojis_command_error: "Se produjo un error al exportar los emojis."
 
+# +sticker  
+sticket_no_sticker: "No se encontró ningún sticker en el mensaje respondido."  
+sticket_command_work: "El sticker `${x.name}` se ha creado con éxito."  
+sticker_command_error: "No se pudo crear el sticker. Ocurrió un error: `${err.message}`."  
+sticket_command_error2: "Por favor, responde a un mensaje que contenga un sticker."  
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1005,6 +1011,22 @@ perm_set_warn_message: "${interaction.member.toString()}, ¡no puedes otorgar pe
 perm_roles_created_role: "Se han creado los siguientes roles: ${createdRoles.join(', ')}"
 perm_roles_already_upate: "Todos los roles ya existen y están actualizados."
 perm_roles_error: "Se produjo un error al crear o actualizar los roles."
+
+# /toggle-react
+toggle_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia un messaggio di benvenuto, il bot **{activeMsg}**"
+toggle_react_doesnt_react: "non reagirà più"
+toggle_react_react: "reagirà"
+
+# /remove-react
+remove_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia `${message.toLowerCase()}`, il bot **non reagirà più**."
+
+# /add-react
+add_react_command_err_emojis: "L'emoji `{emoji}` della reazione non è valido!"
+add_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia `${message.toLowerCase()}`, il bot **reagirà** con {emoji}"
+
+# /list-react
+list_react_nothing_found: "Nessun dato trovato, aggiungi qualcosa prima."
+list_react_embed_msg: "Quando qualcuno invia **`${key}`**, io **reagirò** con ${value}\n"
 
 
 # Member Count commands
@@ -1391,6 +1413,9 @@ embed_copy_bad_channel_msg: "¡El canal donde está el mensaje es inalcanzable!"
 embed_copy_bad_message_msg: "¡El mensaje es inalcanzable!"
 embed_copy_bad_embed_message_msg: "¡El mensaje no tiene un embed!"
 embed_copy_bad_url_msg: "URL inválida, por favor intente nuevamente. El formato correcto es: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
+embed_btn_replace: "Reemplazar embed"  
+embed_replace_question_msg: "¿Cuál es la nueva URL del mensaje donde se debe reemplazar el embed?"  
+embed_replace_message: "{user}, el nuevo embed ha reemplazado el embed de {messageUrl}"  
 
 # /rolesaver
 rolesaver_embed_title: "Módulo RoleSaver"
