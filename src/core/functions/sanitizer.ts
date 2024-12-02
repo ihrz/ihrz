@@ -21,13 +21,13 @@
 
 import { escape } from "querystring"
 
-export const sanitizing = (text: string): string => {
-    return text.split('').filter(char => {
+export const sanitizing = (text: string | undefined): string => {
+    return text?.split('').filter(char => {
         try {
             decodeURIComponent(escape(char));
             return true;
         } catch {
             return false;
         }
-    }).join('')
+    }).join('') || '';
 }
