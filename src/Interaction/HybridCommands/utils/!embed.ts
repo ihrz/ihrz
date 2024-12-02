@@ -408,7 +408,7 @@ export default {
                     return;
                 }
 
-                targetMessage.edit({ embeds: [__tempEmbed] });
+                targetMessage.edit({ embeds: [__tempEmbed], files });
                 await confirmation.editReply({
                     content: lang.embed_replace_message.replace('{user}', interaction.member?.user.toString()!)
                         .replace('{messageUrl}', response2.first()?.content!),
