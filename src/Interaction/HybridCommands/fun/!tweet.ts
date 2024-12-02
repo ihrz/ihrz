@@ -80,7 +80,7 @@ export default {
             username = username.substring(0, 15);
         };
 
-        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent(sanitizing(username))}&comment=${encodeURIComponent(sanitizing(messageArgs.join(' ')))}&displayname=${encodeURIComponent(sanitizing(displayname!))}`;
+        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent(sanitizing(username.toLowerCase()))}&comment=${encodeURIComponent(sanitizing(messageArgs.join(' ')))}&displayname=${encodeURIComponent(sanitizing(displayname || username))}`;
 
         let embed = new EmbedBuilder()
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#000000")

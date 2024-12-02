@@ -104,8 +104,6 @@ async function executeCommand(
     let permCheck = await client.method.permission.checkCommandPermission(message, command!);
     if (!permCheck.allowed) return client.method.permission.sendErrorMessage(message, lang, permCheck.neededPerm || 0);
 
-    var _ = await client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
-
     // for format like: "+utils" without subcommand behind
     if (!command?.run) {
         await client.method.interactionSend(message, {
@@ -113,6 +111,8 @@ async function executeCommand(
         });
         return;
     }
+
+    var _ = await client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
 
     await command.run(client, message, lang, command, permCheck.neededPerm, args);
 }

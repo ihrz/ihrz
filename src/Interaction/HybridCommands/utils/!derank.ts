@@ -48,7 +48,6 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("member") as GuildMember;
         } else {
-            
             var member = client.method.member(interaction, args!, 0) || interaction.member;
         };
 
@@ -61,6 +60,11 @@ export default {
             await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
             return;
         };
+
+        if (!member) {
+            await client.method.interactionSend(interaction, { content: lang.perm_list_no_user });
+            return;
+        }
 
         let rolesToRemove = member.roles.cache;
         let promises: Promise<void>[] = [];
