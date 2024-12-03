@@ -74,7 +74,7 @@ export default {
         if (!ranksConfig.ranksRoles) {
             ranksConfig.ranksRoles = {};
         }
-        
+
         const itemsPerPage = 5;
         let currentPage = 0;
 
@@ -312,6 +312,7 @@ export default {
                     await client.db.set(`${interaction.guild?.id}.GUILD.XP_LEVELING`, ranksConfig);
 
                     await message.edit({
+                        content: null,
                         embeds: [createRankRolesEmbed(currentPage)],
                         components: [createActionRow()]
                     });
@@ -347,6 +348,7 @@ export default {
                     });
 
                     await message.edit({
+                        content: null,
                         embeds: [createRankRolesEmbed(currentPage)],
                         components: [createActionRow()]
                     });
@@ -394,6 +396,7 @@ export default {
                 await client.db.set(`${interaction.guild?.id}.GUILD.XP_LEVELING`, ranksConfig);
 
                 await message.edit({
+                    content: null,
                     embeds: [createRankRolesEmbed(currentPage)],
                     components: [createActionRow()]
                 });
