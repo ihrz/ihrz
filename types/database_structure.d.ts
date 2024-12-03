@@ -394,6 +394,7 @@ export namespace DatabaseStructure {
         disable?: 'disable' | boolean;
         xpchannels?: string;
         bypassChannels?: string[]
+        ranksRoles?: Record<string, string>;
     }
 
     export interface RestoreCordSchema {

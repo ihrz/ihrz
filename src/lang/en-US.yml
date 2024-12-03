@@ -212,6 +212,32 @@ reset_uranks_are_you_sure: "**Are you really sure you want to delete all rank da
 reset_uranks_logs_embed_title: "Rank Module Logs (DANGEROUS ACTION)"
 reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} has deleted all rank module data for ${user.toString()}!"
 
+# /ranks config
+ranks_config_embed_title: "🏆 Rank Roles Configuration"
+ranks_config_embed_desc: "Customize your server's XP-based role rewards!"
+ranks_config_autofields_name: "🌟 Level ${level}"
+ranks_config_autofields_value: "Role: <@&${roleId}>\n🔓 Unlocked at level ${level}"
+ranks_config_nofields_name: "🚫 No Roles Configured"
+ranks_config_nofields_value: "Set up rank roles to reward active members!"
+ranks_config_help_footer: "Page ${currentPage} of ${totalPage} • Total Ranks: ${totalRanks}"
+ranks_config_btn_add_name: "Add Role"
+ranks_config_btn_remove_name: "Remove Role"
+ranks_config_add_max_roles: "You've reached the maximum number of rank roles (25)."
+ranks_config_add_role_menu_placeholder: "Select a role"
+ranks_config_awaiting1_response: "Select the role you want to assign to a specific level."
+ranks_config_add_modal_title: "Set Level for Role"
+ranks_config_add_modal_fields1_placeholder: "Level Requirement"
+ranks_config_add_invalid_level: "Invalid level! Please enter a positive number."
+ranks_config_add_invalid_role: "The role {role} already exists. The role can only be assigned to one level."
+ranks_config_add_command_work: "Role ${selectedRole} added for level ${level}!"
+ranks_config_add_command_warn: "# WARN ⚠️ Warning: The role ${selectedRole} has the following sensitive permissions:\n\n${_}"
+ranks_config_remove_no_rank: "There are no rank roles configured to remove."
+ranks_config_var_level: "Level {level}"
+ranks_config_remove_string_menu_desc: "Remove role at level ${level}"
+ranks_config_remove_string_menu1_placeholder: "Select a role to remove"
+ranks_config_remove_awaiting_response: "Select the role you want to remove."
+ranks_config_remove_command_work: "Role for level ${levelToRemove} has been removed!"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

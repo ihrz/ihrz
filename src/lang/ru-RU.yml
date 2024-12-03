@@ -212,6 +212,32 @@ reset_uranks_are_you_sure: "**Вы действительно уверены, ч
 reset_uranks_logs_embed_title: "Журналы модуля рангов (ОПАСНОЕ ДЕЙСТВИЕ)"
 reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} удалил все данные модуля рангов для ${user.toString()}!"
 
+# /ranks config
+ranks_config_embed_title: "🏆 Конфигурация Ранг Ролей"
+ranks_config_embed_desc: "Настройте роли-награды на основе XP вашего сервера!"
+ranks_config_autofields_name: "🌟 Уровень ${level}"
+ranks_config_autofields_value: "Роль: <@&${roleId}>\n🔓 Разблокируется на уровне ${level}"
+ranks_config_nofields_name: "🚫 Роли не настроены"
+ranks_config_nofields_value: "Настройте ранговые роли для награждения активных участников!"
+ranks_config_help_footer: "Страница ${currentPage} из ${totalPage} • Всего Рангов: ${totalRanks}"
+ranks_config_btn_add_name: "Добавить Роль"
+ranks_config_btn_remove_name: "Удалить Роль"
+ranks_config_add_max_roles: "Вы достигли максимального количества ранговых ролей (25)."
+ranks_config_add_role_menu_placeholder: "Выберите роль"
+ranks_config_awaiting1_response: "Выберите роль, которую вы хотите назначить на определённый уровень."
+ranks_config_add_modal_title: "Задайте Уровень для Роли"
+ranks_config_add_modal_fields1_placeholder: "Требуемый уровень"
+ranks_config_add_invalid_level: "Недопустимый уровень! Пожалуйста, введите положительное число."
+ranks_config_add_invalid_role: "Роль {role} уже существует. Роль может быть назначена только одному уровню."
+ranks_config_add_command_work: "Роль ${selectedRole} добавлена на уровне ${level}!"
+ranks_config_add_command_warn: "# ВНИМАНИЕ ⚠️ Роль ${selectedRole} имеет следующие чувствительные разрешения:\n\n${_}"
+ranks_config_remove_no_rank: "Нет настроенных ранговых ролей для удаления."
+ranks_config_var_level: "Уровень {level}"
+ranks_config_remove_string_menu_desc: "Удалить роль на уровне ${level}"
+ranks_config_remove_string_menu1_placeholder: "Выберите роль для удаления"
+ranks_config_remove_awaiting_response: "Выберите роль, которую вы хотите удалить."
+ranks_config_remove_command_work: "Роль на уровне ${levelToRemove} была удалена!"
+
 
 # Команды владельца
 # /owner, /unowner, /blacklist, /unblacklist
