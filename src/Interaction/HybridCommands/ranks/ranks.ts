@@ -43,6 +43,20 @@ export const command: Command = {
 
     options: [
         {
+            name: "config",
+            prefixName: "ranks-config",
+
+            description: "When user earn a ranks's level, give it a role!",
+            description_localizations: {
+                "fr": "Lorsque l'utilisateur atteint un niveau de rang, attribuez-lui un rôle !"
+            },
+
+            aliases: ["rconfig"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+            thinking: true
+        },
+        {
             name: "disable",
             prefixName: "ranks-disable",
 

@@ -46,10 +46,10 @@ export const event: BotEvent = {
         if (!message.guild || message.author.bot || message.channel.type !== ChannelType.GuildText) return;
 
         var baseData = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING`) as DatabaseStructure.XpLevelingUserSchema;
-        var xpData = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING`) as DatabaseStructure.DbGuildObject['XP_LEVELING'];
-        var xpTurn = xpData?.disable;
+        var ranksConfig = await client.db.get(`${message.guild.id}.GUILD.XP_LEVELING`) as DatabaseStructure.DbGuildObject['XP_LEVELING'];
+        var xpTurn = ranksConfig?.disable;
 
-        if (xpTurn === 'disable' || xpData?.bypassChannels?.includes(message.channelId)) return;
+        if (xpTurn === 'disable' || ranksConfig?.bypassChannels?.includes(message.channelId)) return;
 
         var level = baseData?.level || 1;
         var randomNumber = Math.floor(Math.random() * 3) + 35;
@@ -60,18 +60,39 @@ export const event: BotEvent = {
         if ((level * 500) < baseData?.xp!) {
             await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1);
             await client.db.add(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, randomNumber);
-
             await client.db.sub(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, (level * 500));
 
             let newLevel = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`);
 
+            if (ranksConfig?.ranksRoles) {
+                const roleToAssign = Object.entries(ranksConfig.ranksRoles)
+                    .filter(([roleLevel]) => parseInt(roleLevel) <= newLevel)
+                    .sort(([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA))
+                [0]?.[1];
+
+                if (roleToAssign) {
+                    try {
+                        const member = await message.guild.members.fetch(message.author.id);
+                        const previousRoles = Object.values(ranksConfig.ranksRoles)
+                            .filter(roleId => member.roles.cache.has(roleId));
+
+                        if (previousRoles.length > 0) {
+                            await member.roles.remove(previousRoles);
+                        }
+
+                        await member.roles.add(roleToAssign, "Rank role assignment");
+                    } catch {
+                    }
+                }
+            }
+
             if (xpTurn === false
                 || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)) return;
 
-            let xpChan = xpData?.xpchannels!;
+            let xpChan = ranksConfig?.xpchannels!;
             let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel | null;
 
-            let msg = client.method.generateCustomMessagePreview(xpData?.message || data.event_xp_level_earn,
+            let msg = client.method.generateCustomMessagePreview(ranksConfig?.message || data.event_xp_level_earn,
                 {
                     user: message.author,
                     guild: message.guild,

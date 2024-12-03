@@ -212,6 +212,32 @@ reset_uranks_are_you_sure: "**¿Estás realmente seguro de que deseas eliminar t
 reset_uranks_logs_embed_title: "Registros del Módulo de Rangos (ACCIÓN PELIGROSA)"
 reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} ha eliminado todos los datos del módulo de rangos para ${user.toString()}!"
 
+# /ranks config
+ranks_config_embed_title: "🏆 Configuración de Roles por Rangos"
+ranks_config_embed_desc: "¡Personaliza las recompensas de roles basadas en XP de tu servidor!"
+ranks_config_autofields_name: "🌟 Nivel ${level}"
+ranks_config_autofields_value: "Rol: <@&${roleId}>\n🔓 Desbloqueado al nivel ${level}"
+ranks_config_nofields_name: "🚫 No hay roles configurados"
+ranks_config_nofields_value: "¡Configura roles de rango para recompensar a los miembros activos!"
+ranks_config_help_footer: "Página ${currentPage} de ${totalPage} • Total de rangos: ${totalRanks}"
+ranks_config_btn_add_name: "Agregar Rol"
+ranks_config_btn_remove_name: "Eliminar Rol"
+ranks_config_add_max_roles: "Has alcanzado el número máximo de roles por rango (25)."
+ranks_config_add_role_menu_placeholder: "Seleccionar un rol"
+ranks_config_awaiting1_response: "Selecciona el rol que quieres asignar a un nivel específico."
+ranks_config_add_modal_title: "Asignar Nivel al Rol"
+ranks_config_add_modal_fields1_placeholder: "Requisito de nivel"
+ranks_config_add_invalid_level: "¡Nivel no válido! Por favor, ingresa un número positivo."
+ranks_config_add_invalid_role: "El rol {role} ya existe. Un rol solo puede asignarse a un nivel."
+ranks_config_add_command_work: "¡Rol ${selectedRole} añadido para el nivel ${level}!"
+ranks_config_add_command_warn: "# ADVERTENCIA ⚠️ El rol ${selectedRole} tiene los siguientes permisos sensibles:\n\n${_}"
+ranks_config_remove_no_rank: "No hay roles configurados para eliminar."
+ranks_config_var_level: "Nivel {level}"
+ranks_config_remove_string_menu_desc: "Eliminar rol en nivel ${level}"
+ranks_config_remove_string_menu1_placeholder: "Seleccionar un rol para eliminar"
+ranks_config_remove_awaiting_response: "Selecciona el rol que quieres eliminar."
+ranks_config_remove_command_work: "¡Rol para el nivel ${levelToRemove} eliminado!"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

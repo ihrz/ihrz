@@ -212,6 +212,32 @@ reset_uranks_are_you_sure: "**すべてのランクデータを削除しても�
 reset_uranks_logs_embed_title: "ランクモジュールのログ (危険な操作)"
 reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} が ${user.toString()} のランクモジュールデータをすべて削除しました！"
 
+# /ranks config
+ranks_config_embed_title: "🏆 ランクロール設定"
+ranks_config_embed_desc: "サーバーのXPに基づいたロール報酬をカスタマイズしましょう！"
+ranks_config_autofields_name: "🌟 レベル ${level}"
+ranks_config_autofields_value: "ロール: <@&${roleId}>\n🔓 レベル ${level} でアンロック"
+ranks_config_nofields_name: "🚫 設定されたロールがありません"
+ranks_config_nofields_value: "アクティブなメンバーに報酬を与えるためのランクロールを設定しましょう！"
+ranks_config_help_footer: "ページ ${currentPage} / ${totalPage} • 総ランク数: ${totalRanks}"
+ranks_config_btn_add_name: "ロールを追加"
+ranks_config_btn_remove_name: "ロールを削除"
+ranks_config_add_max_roles: "ランクロールの最大数 (25) に達しました。"
+ranks_config_add_role_menu_placeholder: "ロールを選択"
+ranks_config_awaiting1_response: "特定のレベルに割り当てたいロールを選択してください。"
+ranks_config_add_modal_title: "ロールのレベルを設定"
+ranks_config_add_modal_fields1_placeholder: "レベル要件"
+ranks_config_add_invalid_level: "無効なレベルです！正の数字を入力してください。"
+ranks_config_add_invalid_role: "ロール {role} は既に存在します。ロールは1つのレベルにのみ割り当てることができます。"
+ranks_config_add_command_work: "ロール ${selectedRole} がレベル ${level} に追加されました！"
+ranks_config_add_command_warn: "# 警告 ⚠️ ロール ${selectedRole} には以下の機密権限があります:\n\n${_}"
+ranks_config_remove_no_rank: "削除できるランクロールが設定されていません。"
+ranks_config_var_level: "レベル {level}"
+ranks_config_remove_string_menu_desc: "レベル ${level} のロールを削除"
+ranks_config_remove_string_menu1_placeholder: "削除するロールを選択"
+ranks_config_remove_awaiting_response: "削除したいロールを選択してください。"
+ranks_config_remove_command_work: "レベル ${levelToRemove} のロールが削除されました！"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

@@ -212,6 +212,32 @@ reset_uranks_are_you_sure: "**Tem a certeza de que deseja apagar todos os dados 
 reset_uranks_logs_embed_title: "Registos do Módulo de Ranks (AÇÃO PERIGOSA)"
 reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} apagou todos os dados do módulo de ranks para ${user.toString()}!"
 
+# /ranks config
+ranks_config_embed_title: "🏆 Configuração de Roles por Nível"
+ranks_config_embed_desc: "Personalize as recompensas baseadas em XP do seu servidor!"
+ranks_config_autofields_name: "🌟 Nível ${level}"
+ranks_config_autofields_value: "Role: <@&${roleId}>\n🔓 Desbloqueado no nível ${level}"
+ranks_config_nofields_name: "🚫 Nenhum Role Configurado"
+ranks_config_nofields_value: "Configure roles para recompensar os membros ativos!"
+ranks_config_help_footer: "Página ${currentPage} de ${totalPage} • Total de Níveis: ${totalRanks}"
+ranks_config_btn_add_name: "Adicionar Role"
+ranks_config_btn_remove_name: "Remover Role"
+ranks_config_add_max_roles: "Você alcançou o número máximo de roles por nível (25)."
+ranks_config_add_role_menu_placeholder: "Selecione um role"
+ranks_config_awaiting1_response: "Selecione o role que deseja atribuir a um nível específico."
+ranks_config_add_modal_title: "Definir Nível para o Role"
+ranks_config_add_modal_fields1_placeholder: "Requisito de nível"
+ranks_config_add_invalid_level: "Nível inválido! Insira um número positivo."
+ranks_config_add_invalid_role: "O role {role} já existe. Um role só pode ser atribuído a um único nível."
+ranks_config_add_command_work: "Role ${selectedRole} adicionado para o nível ${level}!"
+ranks_config_add_command_warn: "# AVISO ⚠️ O role ${selectedRole} possui as seguintes permissões sensíveis:\n\n${_}"
+ranks_config_remove_no_rank: "Não há roles configurados para remover."
+ranks_config_var_level: "Nível {level}"
+ranks_config_remove_string_menu_desc: "Remover role no nível ${level}"
+ranks_config_remove_string_menu1_placeholder: "Selecione um role para remover"
+ranks_config_remove_awaiting_response: "Selecione o role que deseja remover."
+ranks_config_remove_command_work: "Role para o nível ${levelToRemove} foi removido!"
+
 
 # Comandos do Proprietário
 # /owner, /unowner, /blacklist, /unblacklist

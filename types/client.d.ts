@@ -67,7 +67,7 @@ declare module 'discord.js' {
         owners: string[],
         method: typeof argsHelper,
         bash: Collection<string, BashCommands>,
-        notifier: StreamNotifiern,
+        notifier: StreamNotifier,
         ownihrz: OwnIHRZ
     }
 };

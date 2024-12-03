@@ -211,6 +211,32 @@ reset_uranks_are_you_sure: "**هل أنت متأكد حقًا أنك تريد ح
 reset_uranks_logs_embed_title: "سجلات وحدة الرتب (إجراء خطير)"
 reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} قام بحذف جميع بيانات وحدة الرتب لـ ${user.toString()}!"
 
+# /ranks config
+ranks_config_embed_title: "🏆 تكوين أدوار الرتب"
+ranks_config_embed_desc: "قم بتخصيص مكافآت الأدوار المستندة إلى نقاط الخبرة في الخادم الخاص بك!"
+ranks_config_autofields_name: "🌟 المستوى ${level}"
+ranks_config_autofields_value: "الدور: <@&${roleId}>\n🔓 يتم فتحه عند المستوى ${level}"
+ranks_config_nofields_name: "🚫 لا توجد أدوار مهيأة"
+ranks_config_nofields_value: "قم بإعداد أدوار الرتب لمكافأة الأعضاء النشطين!"
+ranks_config_help_footer: "الصفحة ${currentPage} من ${totalPage} • إجمالي الرتب: ${totalRanks}"
+ranks_config_btn_add_name: "إضافة دور"
+ranks_config_btn_remove_name: "إزالة دور"
+ranks_config_add_max_roles: "لقد وصلت إلى الحد الأقصى لعدد أدوار الرتب (25)."
+ranks_config_add_role_menu_placeholder: "اختر دورًا"
+ranks_config_awaiting1_response: "اختر الدور الذي تريد تعيينه لمستوى معين."
+ranks_config_add_modal_title: "تحديد مستوى للدور"
+ranks_config_add_modal_fields1_placeholder: "متطلب المستوى"
+ranks_config_add_invalid_level: "مستوى غير صالح! يرجى إدخال رقم موجب."
+ranks_config_add_invalid_role: "الدور {role} موجود بالفعل. يمكن تعيين الدور لمستوى واحد فقط."
+ranks_config_add_command_work: "تم إضافة الدور ${selectedRole} للمستوى ${level}!"
+ranks_config_add_command_warn: "# تحذير ⚠️ الدور ${selectedRole} لديه الأذونات الحساسة التالية:\n\n${_}"
+ranks_config_remove_no_rank: "لا توجد أدوار رتب مهيأة للإزالة."
+ranks_config_var_level: "المستوى {level}"
+ranks_config_remove_string_menu_desc: "إزالة الدور عند المستوى ${level}"
+ranks_config_remove_string_menu1_placeholder: "اختر دورًا لإزالته"
+ranks_config_remove_awaiting_response: "اختر الدور الذي تريد إزالته."
+ranks_config_remove_command_work: "تمت إزالة الدور عند المستوى ${levelToRemove}!"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist

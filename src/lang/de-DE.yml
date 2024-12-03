@@ -212,6 +212,32 @@ reset_uranks_are_you_sure: "**Sind Sie sich wirklich sicher, dass Sie alle Rangd
 reset_uranks_logs_embed_title: "Protokolle des Rangmoduls (GEFÄHRLICHE AKTION)"
 reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} hat alle Rangdaten für ${user.toString()} gelöscht!"
 
+# /ranks config
+ranks_config_embed_title: "🏆 Rangrollen-Konfiguration"
+ranks_config_embed_desc: "Passen Sie die rollenbasierten Belohnungen Ihres Servers an!"
+ranks_config_autofields_name: "🌟 Stufe ${level}"
+ranks_config_autofields_value: "Rolle: <@&${roleId}>\n🔓 Freigeschaltet bei Stufe ${level}"
+ranks_config_nofields_name: "🚫 Keine Rollen konfiguriert"
+ranks_config_nofields_value: "Richten Sie Rangrollen ein, um aktive Mitglieder zu belohnen!"
+ranks_config_help_footer: "Seite ${currentPage} von ${totalPage} • Gesamtränge: ${totalRanks}"
+ranks_config_btn_add_name: "Rolle hinzufügen"
+ranks_config_btn_remove_name: "Rolle entfernen"
+ranks_config_add_max_roles: "Die maximale Anzahl von Rangrollen (25) wurde erreicht."
+ranks_config_add_role_menu_placeholder: "Wählen Sie eine Rolle"
+ranks_config_awaiting1_response: "Wählen Sie die Rolle, die Sie einer bestimmten Stufe zuweisen möchten."
+ranks_config_add_modal_title: "Stufe für Rolle festlegen"
+ranks_config_add_modal_fields1_placeholder: "Stufenanforderung"
+ranks_config_add_invalid_level: "Ungültige Stufe! Bitte geben Sie eine positive Zahl ein."
+ranks_config_add_invalid_role: "Die Rolle {role} existiert bereits. Eine Rolle kann nur einer Stufe zugewiesen werden."
+ranks_config_add_command_work: "Rolle ${selectedRole} für Stufe ${level} hinzugefügt!"
+ranks_config_add_command_warn: "# WARN ⚠️ Warnung: Die Rolle ${selectedRole} hat folgende sensible Berechtigungen:\n\n${_}"
+ranks_config_remove_no_rank: "Es sind keine Rangrollen konfiguriert, die entfernt werden können."
+ranks_config_var_level: "Stufe {level}"
+ranks_config_remove_string_menu_desc: "Rolle auf Stufe ${level} entfernen"
+ranks_config_remove_string_menu1_placeholder: "Wählen Sie eine Rolle zum Entfernen"
+ranks_config_remove_awaiting_response: "Wählen Sie die Rolle, die Sie entfernen möchten."
+ranks_config_remove_command_work: "Rolle für Stufe ${levelToRemove} wurde entfernt!"
+
 
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
