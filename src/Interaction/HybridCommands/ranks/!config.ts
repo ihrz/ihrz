@@ -71,6 +71,10 @@ export default {
             bypassChannels: undefined,
         } as DatabaseStructure.DbGuildXpLeveling;
 
+        if (!ranksConfig.ranksRoles) {
+            ranksConfig.ranksRoles = {};
+        }
+        
         const itemsPerPage = 5;
         let currentPage = 0;
 

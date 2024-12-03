@@ -84,6 +84,7 @@ export async function sendErrorMessage(interaction: ChatInputCommandInteraction<
     return await interaction.client.method.interactionSend(interaction, {
         content: lang.event_permission_wrong
             .replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
-            .replace("${neededPerm === 0 ? 'Discord Permission' : neededPerm}", String(neededPerm === 0 ? 'Discord Permission' : neededPerm))
+            .replace("${neededPerm === 0 ? 'Discord Permission' : neededPerm}", String(neededPerm === 0 ? 'Discord Permission' : neededPerm)),
+        ephemeral: true
     })
 }
