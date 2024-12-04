@@ -1054,6 +1054,26 @@ add_react_command_work: "<@${interaction.member?.id}>, メンバーが `${messag
 list_react_nothing_found: "データが見つかりませんでした。まずいくつか追加してください。"
 list_react_embed_msg: "誰かが **`${key}`** を送信すると、私は **${value} で反応します**\n"
 
+# /autoreact
+autoreact_embed_title: "オートリアクト設定"
+autoreact_embed_desc: "指定したチャンネルに新しいメッセージが送信されると、ボットは指定された絵文字でリアクションします。"
+autoreact_embed_autofields_value: "リアクション: ${reaction}"
+autoreact_embed_autofields_none_value: "オートリアクト設定はありません。"
+autoreact_embed_footer: "ページ ${currentPage} / ${totalPage} • 合計リアクション: ${totalReact}"
+autoreact_btn_add_name: "チャンネルを追加"
+autoreact_btn_remove_name: "チャンネルを削除"
+autoreact_max_25: "オートリアクト設定は最大25個までです。"
+autoreact_menu_add_place: "追加するチャンネルを選択"
+autoreact_awaiting1_msg: "オートリアクトモジュールに追加するチャンネルを選択してください。"
+autoreact_modal_title: "オートリアクト設定"
+autoreact_modal_fields1_label: "リアクション (絵文字)"
+autoreact_invalid_emoji: "無効な絵文字です。有効な絵文字を入力してください。"
+autoreact_add_command_ok: "オートリアクト設定が完了しました。"
+autoreact_remove_not_found: "オートリアクト設定はありません。"
+autoreact_menu_remove_place: "削除するチャンネルを選択"
+autoreact_awaiting_remove_msg: "オートリアクトモジュールから削除するチャンネルを選択してください。"
+autoreact_remove_command_ok: "このチャンネルのオートリアクト設定が削除されました。"
+
 
 # Member Count commands
 # /setmembercount

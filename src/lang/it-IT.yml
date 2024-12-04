@@ -1054,6 +1054,26 @@ add_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invi
 list_react_nothing_found: "Nessun dato trovato, aggiungi qualcosa prima."
 list_react_embed_msg: "Quando qualcuno invia **`${key}`**, io **reagirò** con ${value}\n"
 
+# /autoreact
+autoreact_embed_title: "Configurazione Autoreact"
+autoreact_embed_desc: "Quando viene inviato un nuovo messaggio nel canale specificato, il bot reagirà con le emoji specificate."
+autoreact_embed_autofields_value: "Reazione: ${reaction}"
+autoreact_embed_autofields_none_value: "Nessuna configurazione di autoreact impostata."
+autoreact_embed_footer: "Pagina ${currentPage} di ${totalPage} • Totale Reazioni: ${totalReact}"
+autoreact_btn_add_name: "Aggiungi canale"
+autoreact_btn_remove_name: "Rimuovi canale"
+autoreact_max_25: "È possibile impostare un massimo di 25 configurazioni di autoreact."
+autoreact_menu_add_place: "Seleziona un canale da aggiungere"
+autoreact_awaiting1_msg: "Seleziona un canale da aggiungere al modulo di autoreact."
+autoreact_modal_title: "Configurazione Autoreact"
+autoreact_modal_fields1_label: "La reazione (emoji)"
+autoreact_invalid_emoji: "Emoji non valida. Inserisci un'emoji valida."
+autoreact_add_command_ok: "La configurazione dell'autoreact è stata impostata."
+autoreact_remove_not_found: "Nessuna configurazione di autoreact impostata."
+autoreact_menu_remove_place: "Seleziona un canale da rimuovere"
+autoreact_awaiting_remove_msg: "Seleziona un canale da rimuovere dal modulo di autoreact."
+autoreact_remove_command_ok: "La configurazione dell'autoreact per questo canale è stata rimossa."
+
 
 # Member Count commands
 # /setmembercount

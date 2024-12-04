@@ -1054,6 +1054,26 @@ add_react_command_work: "<@${interaction.member?.id}>, теперь, когда 
 list_react_nothing_found: "Данные не найдены, сначала добавьте их."
 list_react_embed_msg: "Когда кто-то отправляет **`${key}`**, я **реагирую** с ${value}\n"
 
+# /autoreact
+autoreact_embed_title: "Настройка Авто-Реакции"
+autoreact_embed_desc: "Когда в указанном канале отправляется новое сообщение, бот реагирует заданными эмодзи."
+autoreact_embed_autofields_value: "Реакция: ${reaction}"
+autoreact_embed_autofields_none_value: "Авто-реакция не настроена."
+autoreact_embed_footer: "Страница ${currentPage} из ${totalPage} • Всего Реакций: ${totalReact}"
+autoreact_btn_add_name: "Добавить канал"
+autoreact_btn_remove_name: "Удалить канал"
+autoreact_max_25: "Можно настроить максимум 25 авто-реакций."
+autoreact_menu_add_place: "Выберите канал для добавления"
+autoreact_awaiting1_msg: "Выберите канал для добавления в модуль авто-реакции."
+autoreact_modal_title: "Настройка Авто-Реакции"
+autoreact_modal_fields1_label: "Реакция (эмодзи)"
+autoreact_invalid_emoji: "Недопустимое эмодзи. Пожалуйста, введите правильное эмодзи."
+autoreact_add_command_ok: "Авто-реакция успешно настроена."
+autoreact_remove_not_found: "Авто-реакции не настроены."
+autoreact_menu_remove_place: "Выберите канал для удаления"
+autoreact_awaiting_remove_msg: "Выберите канал для удаления из модуля авто-реакции."
+autoreact_remove_command_ok: "Настройка авто-реакции для этого канала была удалена."
+
 
 # Commandes de décompte des membres
 # /setmembercount
