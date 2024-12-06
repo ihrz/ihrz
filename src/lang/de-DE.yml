@@ -48,6 +48,7 @@ var_remove: "Entfernen"
 var_edit: "Bearbeiten"
 var_confirm: "Bestätigen"
 var_succes: "Erfolg"
+var_page: "Seite"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -176,11 +177,12 @@ level_xp_needed_for_new_level: "XP bis zum nächsten Level:"
 level_xp_total: "Gesamt-XP:"
 
 # /ranks leaderboard
-ranks_leaderboard_embed_title: "Level-Bestenliste von ${interaction.guild?.name}"
 ranks_leaderboard_top_txt: "Top #${i}"
 ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Level**: `${a.level || '0'}`\n🔱 ➥ **XP Gesamt**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Level: ${a.level || '0'}\n🔱 ➥ XP Gesamt: ${a.xptotal}"
+ranks_leaderboard_embed_title: "🏆 Server-Bestenliste der Legenden"
+ranks_leaderboard_embed_footer: "Seite ${cPage} von ${totalPages} • Sortiert nach Gesamt-XP"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "Ranks Modulkonfigurationen"

@@ -48,6 +48,7 @@ var_remove: "إزالة"
 var_edit: "تعديل"
 var_confirm: "تأكيد"
 var_succes: "نجاح"
+var_page: "صفحة"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -175,11 +176,12 @@ level_xp_needed_for_new_level: "نقاط الخبرة المطلوبة للمس�
 level_xp_total: "مجموع نقاط الخبرة:"
 
 # /ranks leaderboard
-ranks_leaderboard_embed_title: "لوحة المتصدرين لمستويات ${interaction.guild?.name}"
 ranks_leaderboard_top_txt: "أفضل #${i}"
 ranks_leaderboard_top_txt_raw: "أفضل #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **المستوى**: `${a.level || '0'}`\n🔱 ➥ **إجمالي XP**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ المستوى: ${a.level || '0'}\n🔱 ➥ إجمالي XP: ${a.xptotal}"
+ranks_leaderboard_embed_title: "🏆 لوحة صدارة الأساطير في الخادم"
+ranks_leaderboard_embed_footer: "الصفحة ${cPage} من ${totalPages} • مُرتبة حسب إجمالي النقاط"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "إعدادات وحدة الرتب"

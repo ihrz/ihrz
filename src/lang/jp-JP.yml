@@ -48,6 +48,7 @@ var_remove: "削除"
 var_edit: "編集"
 var_confirm: "確認"
 var_succes: "成功"
+var_page: "ページ"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -176,11 +177,12 @@ level_xp_needed_for_new_level: "次のレベルまでのXP："
 level_xp_total: "合計XP："
 
 # /ranks leaderboard
-ranks_leaderboard_embed_title: "${interaction.guild?.name}のレベルリーダーボード"
 ranks_leaderboard_top_txt: "トップ#${i}"
 ranks_leaderboard_top_txt_raw: "トップ#${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **レベル**: `${a.level || '0'}`\n🔱 ➥ **総XP**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ レベル: ${a.level || '0'}\n🔱 ➥ 総XP: ${a.xptotal}"
+ranks_leaderboard_embed_title: "🏆 サーバーレジェンドリーダーボード"
+ranks_leaderboard_embed_footer: "ページ ${cPage} / ${totalPages} • 総XPでランク付け"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "ランクモジュールの設定"

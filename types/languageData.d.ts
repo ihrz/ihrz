@@ -66,6 +66,7 @@ export interface LanguageData {
   var_edit: string;
   var_confirm: string;
   var_succes: string;
+  var_page: string;
   ranksSetMessage_embed_fields_xpmessage: string;
   reset_uranks_are_you_sure: string;
   reset_uranks_logs_embed_title: string;
@@ -190,6 +191,7 @@ export interface LanguageData {
   level_xp_needed_for_new_level: string;
   level_xp_total: string;
   ranks_leaderboard_embed_title: string;
+  ranks_leaderboard_embed_footer: string;
   ranks_leaderboard_top_txt: string;
   ranks_leaderboard_top_txt_raw: string;
   ranks_leaderboard_txt_text: string;

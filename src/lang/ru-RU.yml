@@ -48,6 +48,7 @@ var_remove: "Удалить"
 var_edit: "Редактировать"
 var_confirm: "Подтвердить"
 var_succes: "Успех"
+var_page: "Страница"
 
 # Команды для тикетов
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -176,11 +177,12 @@ level_xp_needed_for_new_level: "XP до следующего уровня:"
 level_xp_total: "Всего XP:"
 
 # /ranks leaderboard
-ranks_leaderboard_embed_title: "Таблица лидеров уровней ${interaction.guild?.name}"
 ranks_leaderboard_top_txt: "Топ #${i}"
 ranks_leaderboard_top_txt_raw: "Топ #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Уровень**: `${a.level || '0'}`\n🔱 ➥ **Общий опыт**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Уровень: ${a.level || '0'}\n🔱 ➥ Общий опыт: ${a.xptotal}"
+ranks_leaderboard_embed_title: "🏆 Таблица лидеров сервера легенд"
+ranks_leaderboard_embed_footer: "Страница ${cPage} из ${totalPages} • Сортировка по общему XP"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "Конфигурации модуля рангов"
