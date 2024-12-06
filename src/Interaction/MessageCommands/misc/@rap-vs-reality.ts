@@ -1,3 +1,24 @@
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2024 iHorizon
+*/
+
 import {
     ApplicationCommandOptionType,
     Message,
@@ -6,18 +27,17 @@ import {
 
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
-import fs, { writeFileSync } from 'fs';
-import { Readable } from 'stream';
+import fs from 'fs';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option.js';
 import { axios } from '../../../core/functions/axios.js';
 import os from 'os';
-import { writeFile } from 'fs/promises';
 import sharp from 'sharp';
 
 const tempDir = path.join(os.tmpdir(), 'rap-vs-reality');
+const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15 Mo
 
 async function convertToPng(buffer: Buffer, filename: string): Promise<string> {
     if (!fs.existsSync(tempDir)) {
@@ -25,7 +45,24 @@ async function convertToPng(buffer: Buffer, filename: string): Promise<string> {
     }
     const outputPath = path.join(tempDir, `${filename}.png`);
     try {
-        await sharp(buffer)
+        const image = sharp(buffer);
+        const metadata = await image.metadata();
+
+        const width = 1920;
+        const height = 1080;
+        const aspectRatio = metadata.width! / metadata.height!;
+
+        let newWidth, newHeight;
+        if (aspectRatio > (width / height)) {
+            newWidth = width;
+            newHeight = Math.round(width / aspectRatio);
+        } else {
+            newHeight = height;
+            newWidth = Math.round(height * aspectRatio);
+        }
+
+        await image
+            .resize(newWidth, newHeight)
             .toFormat('png')
             .toFile(outputPath);
 
@@ -35,12 +72,46 @@ async function convertToPng(buffer: Buffer, filename: string): Promise<string> {
     }
 }
 
+async function adjustImageQuality(imagePath: string) {
+    let stats = fs.statSync(imagePath);
+    let quality = 100;
 
-async function resizeImage(inputPath: string, outputPath: string
-    , width: number, height: number) {
-    await sharp(inputPath)
-        .resize(width, height)
+    while (stats.size > MAX_IMAGE_SIZE && quality > 10) {
+        quality -= 10;
+        await sharp(imagePath)
+            .png({ quality })
+            .toFile(imagePath);
+        stats = fs.statSync(imagePath);
+    }
+}
+
+async function resizeImage(inputPath: string, outputPath: string, width: number, height: number) {
+    const image = sharp(inputPath);
+    const metadata = await image.metadata();
+
+    const aspectRatio = metadata.width! / metadata.height!;
+
+    let newWidth, newHeight;
+    if (aspectRatio > (width / height)) {
+        newWidth = width;
+        newHeight = Math.round(width / aspectRatio);
+    } else {
+        newHeight = height;
+        newWidth = Math.round(height * aspectRatio);
+    }
+
+    await image
+        .resize(newWidth, newHeight)
+        .extend({
+            top: Math.round((height - newHeight) / 2),
+            bottom: Math.round((height - newHeight) / 2),
+            left: Math.round((width - newWidth) / 2),
+            right: Math.round((width - newWidth) / 2),
+            background: { r: 0, g: 0, b: 0, alpha: 1 }
+        })
         .toFile(outputPath);
+
+    await adjustImageQuality(outputPath);
 }
 
 export const command: Command = {
@@ -103,14 +174,11 @@ export const command: Command = {
                 `bigSucks-${interaction.id}`
             );
 
-            const videoWidth = 1920;
-            const videoHeight = 1080;
-
             const beforeSucksResizedPath = path.join(tempDir, `beforeSucksResized-${interaction.id}.png`);
             const bigSucksResizedPath = path.join(tempDir, `bigSucksResized-${interaction.id}.png`);
 
-            await resizeImage(beforeSucksPngPath, beforeSucksResizedPath, videoWidth, videoHeight);
-            await resizeImage(bigSucksPngPath, bigSucksResizedPath, videoWidth, videoHeight);
+            await resizeImage(beforeSucksPngPath, beforeSucksResizedPath, 1920, 1080);
+            await resizeImage(bigSucksPngPath, bigSucksResizedPath, 1920, 1080);
 
             const rapRealityPath = path.join(process.cwd(), 'src', 'assets', 'rap-vs-reality');
 
