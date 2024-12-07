@@ -99,7 +99,7 @@ export default {
         let id_to_bot = interaction.options.getString('id');
 
         if (!client.owners.includes(interaction.user.id)) {
-            await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
+            await interaction.editReply({ content: client.iHorizon_Emojis.icon.No_Logo });
             return;
         };
 
@@ -109,7 +109,7 @@ export default {
         // Working with Cluster
         if (action_to_do === 'shutdown') {
             if (!id_to_bot) {
-                await interaction.reply({
+                await interaction.editReply({
                     content: `${interaction.user}, you have forgot the ID of the bot!`
                 })
             };
@@ -121,13 +121,12 @@ export default {
                         let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
 
                         if (fetch.PowerOff) {
-                            await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...`, ephemeral: true });
+                            await interaction.editReply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...` });
                             return;
                         }
 
-                        await interaction.reply({
+                        await interaction.editReply({
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now shutdown.\nNow, the bot container can't be Power On when iHorizon-Prod booting...`,
-                            ephemeral: true
                         });
 
                         return await client.ownihrz.ShutDown(fetch.Cluster, id_to_bot, true);
@@ -138,7 +137,7 @@ export default {
             // Working with Cluster
         } else if (action_to_do === 'poweron') {
             if (!id_to_bot) {
-                await interaction.reply({
+                await interaction.editReply({
                     content: `${interaction.user}, you have forgot the ID of the bot!`
                 })
             };
@@ -150,11 +149,11 @@ export default {
                         let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
 
                         if (!fetch.PowerOff) {
-                            await interaction.reply({ content: `OwnIHRZ of <@${userId}>, is already up...`, ephemeral: true });
+                            await interaction.editReply({ content: `OwnIHRZ of <@${userId}>, is already up...` });
                             return;
                         }
 
-                        await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...`, ephemeral: true });
+                        await interaction.editReply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now Power On.\nNow, the bot container can be Power On when iHorizon-Prod booting...` });
                         return await client.ownihrz.PowerOn(fetch.Cluster, id_to_bot);
                     }
                 }
@@ -167,9 +166,8 @@ export default {
                     if (botId === id_to_bot) {
                         let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
 
-                        await interaction.reply({
+                        await interaction.editReply({
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`,
-                            ephemeral: true
                         });
                         return await client.ownihrz.Delete(fetch.Cluster, id_to_bot);
                     }
@@ -222,10 +220,9 @@ export default {
             };
 
             const embed = createListEmbed(botList, currentPage, totalPages);
-            const message = await interaction.reply({
+            const message = await interaction.editReply({
                 embeds: [embed],
                 components: [getButtons(currentPage)],
-                ephemeral: true
             });
 
             const collector = message.createMessageComponentCollector({
@@ -285,7 +282,7 @@ export default {
                         let time = interaction.options.getString('time') || '0d';
 
                         if (!client.timeCalculator.to_ms(time)) {
-                            await interaction.reply({ content: `Invalid time format!`, ephemeral: true });
+                            await interaction.editReply({ content: `Invalid time format!` });
                             return;
                         }
 
@@ -298,10 +295,10 @@ export default {
                         let expire: string | null = null;
 
                         if (ExpireIn !== null) {
-                            expire = format(new Date(ExpireIn - client.timeCalculator.to_ms(time)!), 'ddd, MMM DD YYYY');
+                            expire = format(new Date(ExpireIn + client.timeCalculator.to_ms(time)!), 'ddd, MMM DD YYYY');
                         }
 
-                        await interaction.reply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`, ephemeral: true });
+                        await interaction.editReply({ content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!` });
                         return;
                     }
                 }
@@ -315,7 +312,7 @@ export default {
                         let time = interaction.options.getString('time') || '0d';
 
                         if (!client.timeCalculator.to_ms(time)) {
-                            await interaction.reply({ content: `Invalid time format!`, ephemeral: true });
+                            await interaction.editReply({ content: `Invalid time format!` });
                             return;
                         }
 
@@ -331,9 +328,8 @@ export default {
                             expire = format(new Date(ExpireIn - client.timeCalculator.to_ms(time)!), 'ddd, MMM DD YYYY');
                         }
 
-                        await interaction.reply({
+                        await interaction.editReply({
                             content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` have now this expire Date changed!.\nThe bot expire now in \`${expire}\`!`,
-                            ephemeral: true
                         });
                         return;
                     }

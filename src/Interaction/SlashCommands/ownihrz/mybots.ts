@@ -317,7 +317,9 @@ export const command: Command = {
 
                             required: false
                         }
-                    ]
+                    ],
+
+                    ephemeral: true
                 },
             ],
         },
