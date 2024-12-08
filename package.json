@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/ihrz/ihrz#readme",
   "dependencies": {
+    "@types/fluent-ffmpeg": "^2.1.27",
     "archiver": "^7.0.1",
     "better-sqlite3": "^11.6.0",
     "bufferutil": "^4.0.8",
@@ -38,6 +39,7 @@
     "ping": "^0.4.4",
     "puppeteer": "^23.9.0",
     "quick.db": "^9.1.7",
+    "sharp": "^0.33.5",
     "stegano.db": "^3.5.0",
     "toml": "^3.0.0",
     "write-file-atomic": "^5.0.1",

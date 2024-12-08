@@ -48,6 +48,7 @@ var_remove: "Remove"
 var_edit: "Edit"
 var_confirm: "Confirm"
 var_succes: "Success"
+var_page: "Page"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -176,11 +177,12 @@ level_xp_needed_for_new_level: "XP until next level:"
 level_xp_total: "Total XP:"
 
 # /ranks leaderboard
-ranks_leaderboard_embed_title: "${interaction.guild?.name}'s Levels Leaderboard"
 ranks_leaderboard_top_txt: "Top #${i}"
 ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Level**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Level: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}"
+ranks_leaderboard_embed_title: "🏆 Server Leaderboard of Legends"
+ranks_leaderboard_embed_footer: "Page ${cPage} of ${totalPages} • Ranked by Total XP"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "Ranks Module Configurations"
@@ -1054,6 +1056,26 @@ add_react_command_work: "<@${interaction.member?.id}>, now when a member sends `
 # /list-react
 list_react_nothing_found: "No data found, please add some first."
 list_react_embed_msg: "When someone sends **`${key}`**, I will **react** with ${value}\n"
+
+# /autoreact
+autoreact_embed_title: "Autoreact Configuration"
+autoreact_embed_desc: "When a new message is sent in the specified channel, the bot will react with the specified emoji(s)."
+autoreact_embed_autofields_value: "Reaction: ${reaction}"
+autoreact_embed_autofields_none_value: "No autoreact configuration set."
+autoreact_embed_footer: "Page ${currentPage} of ${totalPage} • Total Ranks: ${totalReact}"
+autoreact_btn_add_name: "Add channel"
+autoreact_btn_remove_name: "Remove channel"
+autoreact_max_25: "Maximum of 25 autoreact configurations can be set."
+autoreact_menu_add_place: "Select a channel to add"
+autoreact_awaiting1_msg: "Please select a channel to add to the autoreact module."
+autoreact_modal_title: "AutoReact Configuration"
+autoreact_modal_fields1_label: "The reaction (emoji)"
+autoreact_invalid_emoji: "Invalid emoji. Please enter a valid emoji."
+autoreact_add_command_ok: "The autoreact configuration has been set."
+autoreact_remove_not_found: "No autoreact configurations set."
+autoreact_menu_remove_place: "Select a channel to remove"
+autoreact_awaiting_remove_msg: "Please select a channel to remove from the autoreact module."
+autoreact_remove_command_ok: "The autoreact configuration for this channel has been removed."
 
 
 # Member Count commands

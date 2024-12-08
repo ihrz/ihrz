@@ -66,6 +66,7 @@ export interface LanguageData {
   var_edit: string;
   var_confirm: string;
   var_succes: string;
+  var_page: string;
   ranksSetMessage_embed_fields_xpmessage: string;
   reset_uranks_are_you_sure: string;
   reset_uranks_logs_embed_title: string;
@@ -190,6 +191,7 @@ export interface LanguageData {
   level_xp_needed_for_new_level: string;
   level_xp_total: string;
   ranks_leaderboard_embed_title: string;
+  ranks_leaderboard_embed_footer: string;
   ranks_leaderboard_top_txt: string;
   ranks_leaderboard_top_txt_raw: string;
   ranks_leaderboard_txt_text: string;
@@ -789,7 +791,24 @@ export interface LanguageData {
   add_react_command_work: string;
   list_react_nothing_found: string;
   list_react_embed_msg: string;
-
+  autoreact_embed_title: string;
+  autoreact_embed_desc: string;
+  autoreact_embed_autofields_value: string;
+  autoreact_embed_autofields_none_value: string;
+  autoreact_embed_footer: string;
+  autoreact_btn_add_name: string;
+  autoreact_btn_remove_name: string;
+  autoreact_max_25: string;
+  autoreact_menu_add_place: string;
+  autoreact_awaiting1_msg: string;
+  autoreact_modal_title: string;
+  autoreact_modal_fields1_label: string;
+  autoreact_invalid_emoji: string;
+  autoreact_add_command_ok: string;
+  autoreact_remove_not_found: string;
+  autoreact_menu_remove_place: string;
+  autoreact_awaiting_remove_msg: string;
+  autoreact_remove_command_ok: string;
   setmembercount_not_admin: string;
   setmembercount_helpembed_title: string;
   setmembercount_helpembed_description: string;

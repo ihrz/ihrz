@@ -41,7 +41,7 @@ import { ConfigData } from "./configDatad.js";
 import { BashCommands } from "./bashCommands.js";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";
 import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
-import { PallasDB } from "pallas-db";
+import { db } from "../src/core/database.js";
 
 declare module 'discord.js' {
     export interface Client {
@@ -68,6 +68,6 @@ declare module 'discord.js' {
         method: typeof argsHelper,
         bash: Collection<string, BashCommands>,
         notifier: StreamNotifier,
-        ownihrz: OwnIHRZ
+        ownihrz: OwnIHRZ,
     }
 };

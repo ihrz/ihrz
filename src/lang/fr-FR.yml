@@ -48,6 +48,7 @@ var_remove: "Supprimer"
 var_edit: "Modifier"
 var_confirm: "Confirmer"
 var_succes: "Succès"
+var_page: "Page"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -176,11 +177,12 @@ level_xp_needed_for_new_level: "XP jusqu'au prochain niveau :"
 level_xp_total: "XP total :"
 
 # /ranks leaderboard
-ranks_leaderboard_embed_title: "Classement des Niveaux de ${interaction.guild?.name}"
 ranks_leaderboard_top_txt: "Top #${i}"
 ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Niveau**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Niveau: ${a.level || '0'}\n🔱 ➥ XP Total: ${a.xptotal}"
+ranks_leaderboard_embed_title: "🏆 Classement des Légendes du Serveur"
+ranks_leaderboard_embed_footer: "Page ${cPage} sur ${totalPages} • Classé par XP Total"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "Configurations du Module de Rangs"
@@ -1053,6 +1055,26 @@ add_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membr
 # /list-react
 list_react_nothing_found: "Aucune données as été trouvé, veuillez en ajouter avant."
 list_react_embed_msg: "Quand une personne envoie **`${key}`**, je **réagis** avec ${value}\n"
+
+# /autoreact
+autoreact_embed_title: "Configuration des Réactions Automatiques"
+autoreact_embed_desc: "Lorsqu'un nouveau message est envoyé dans le canal spécifié, le bot réagira avec les emojis spécifiés."
+autoreact_embed_autofields_value: "Réaction : ${reaction}"
+autoreact_embed_autofields_none_value: "Aucune configuration de réaction automatique définie."
+autoreact_embed_footer: "Page ${currentPage} sur ${totalPage} • Réactions totales : ${totalReact}"
+autoreact_btn_add_name: "Ajouter un canal"
+autoreact_btn_remove_name: "Supprimer un canal"
+autoreact_max_25: "Un maximum de 25 configurations de réactions automatiques peut être défini."
+autoreact_menu_add_place: "Sélectionnez un canal à ajouter"
+autoreact_awaiting1_msg: "Veuillez sélectionner un canal à ajouter au module de réactions automatiques."
+autoreact_modal_title: "Configuration des Réactions Automatiques"
+autoreact_modal_fields1_label: "La réaction (emoji)"
+autoreact_invalid_emoji: "Emoji invalide. Veuillez entrer un emoji valide."
+autoreact_add_command_ok: "La configuration des réactions automatiques a été définie."
+autoreact_remove_not_found: "Aucune configuration de réactions automatiques définie."
+autoreact_menu_remove_place: "Sélectionnez un canal à supprimer"
+autoreact_awaiting_remove_msg: "Veuillez sélectionner un canal à supprimer du module de réactions automatiques."
+autoreact_remove_command_ok: "La configuration des réactions automatiques pour ce canal a été supprimée."
 
 
 # Member Count commands

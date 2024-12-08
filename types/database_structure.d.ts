@@ -402,6 +402,12 @@ export namespace DatabaseStructure {
         messageId: string;
     }
 
+    export interface DbGuildAutoReact {
+        [channelId: string]: {
+            [emoji: string]: string;
+        };
+    }
+
     export interface DbGuildObject {
         BOT?: DbGuildBotObject;
         LANG?: {
@@ -436,6 +442,7 @@ export namespace DatabaseStructure {
             state?: string;
         };
         XP_LEVELING?: DbGuildXpLeveling
+        AUTOREACT?: DbGuildAutoReact;
         REACTION_ROLES?: ReactionRolesData;
         RANK_ROLES?: {
             roles: string;

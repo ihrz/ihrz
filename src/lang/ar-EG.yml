@@ -48,6 +48,7 @@ var_remove: "إزالة"
 var_edit: "تعديل"
 var_confirm: "تأكيد"
 var_succes: "نجاح"
+var_page: "صفحة"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -175,11 +176,12 @@ level_xp_needed_for_new_level: "نقاط الخبرة المطلوبة للمس�
 level_xp_total: "مجموع نقاط الخبرة:"
 
 # /ranks leaderboard
-ranks_leaderboard_embed_title: "لوحة المتصدرين لمستويات ${interaction.guild?.name}"
 ranks_leaderboard_top_txt: "أفضل #${i}"
 ranks_leaderboard_top_txt_raw: "أفضل #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **المستوى**: `${a.level || '0'}`\n🔱 ➥ **إجمالي XP**: `${a.xptotal}`"
 ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ المستوى: ${a.level || '0'}\n🔱 ➥ إجمالي XP: ${a.xptotal}"
+ranks_leaderboard_embed_title: "🏆 لوحة صدارة الأساطير في الخادم"
+ranks_leaderboard_embed_footer: "الصفحة ${cPage} من ${totalPages} • مُرتبة حسب إجمالي النقاط"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "إعدادات وحدة الرتب"
@@ -1053,6 +1055,26 @@ add_react_command_work: "<@${interaction.member?.id}>, الآن عندما ير�
 # /list-react
 list_react_nothing_found: "لم يتم العثور على أي بيانات، يرجى إضافة بعض منها أولاً."
 list_react_embed_msg: "عندما يرسل أحد الأشخاص **`${key}`**، سأ**تفاعل** بـ ${value}\n"
+
+# /autoreact
+autoreact_embed_title: "تكوين التفاعل التلقائي"
+autoreact_embed_desc: "عندما يتم إرسال رسالة جديدة في القناة المحددة، سيقوم البوت بالتفاعل مع الرموز التعبيرية المحددة."
+autoreact_embed_autofields_value: "التفاعل: ${reaction}"
+autoreact_embed_autofields_none_value: "لم يتم إعداد أي تكوين للتفاعل التلقائي."
+autoreact_embed_footer: "الصفحة ${currentPage} من ${totalPage} • إجمالي التفاعلات: ${totalReact}"
+autoreact_btn_add_name: "إضافة قناة"
+autoreact_btn_remove_name: "إزالة قناة"
+autoreact_max_25: "يمكن إعداد حد أقصى يبلغ 25 تكوينًا للتفاعل التلقائي."
+autoreact_menu_add_place: "اختر قناة لإضافتها"
+autoreact_awaiting1_msg: "يرجى اختيار قناة لإضافتها إلى وحدة التفاعل التلقائي."
+autoreact_modal_title: "تكوين التفاعل التلقائي"
+autoreact_modal_fields1_label: "التفاعل (الإيموجي)"
+autoreact_invalid_emoji: "رمز تعبيري غير صالح. يرجى إدخال رمز تعبيري صالح."
+autoreact_add_command_ok: "تم تعيين تكوين التفاعل التلقائي."
+autoreact_remove_not_found: "لم يتم إعداد أي تكوين للتفاعل التلقائي."
+autoreact_menu_remove_place: "اختر قناة للإزالة"
+autoreact_awaiting_remove_msg: "يرجى اختيار قناة لإزالتها من وحدة التفاعل التلقائي."
+autoreact_remove_command_ok: "تمت إزالة تكوين التفاعل التلقائي لهذه القناة."
 
 
 # Member Count commands

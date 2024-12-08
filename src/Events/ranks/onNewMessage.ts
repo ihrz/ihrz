@@ -73,13 +73,6 @@ export const event: BotEvent = {
                 if (roleToAssign) {
                     try {
                         const member = await message.guild.members.fetch(message.author.id);
-                        const previousRoles = Object.values(ranksConfig.ranksRoles)
-                            .filter(roleId => member.roles.cache.has(roleId));
-
-                        if (previousRoles.length > 0) {
-                            await member.roles.remove(previousRoles);
-                        }
-
                         await member.roles.add(roleToAssign, "Rank role assignment");
                     } catch {
                     }
