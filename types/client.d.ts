@@ -43,6 +43,7 @@ import { BashCommands } from "./bashCommands.js";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";
 import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
 import { db } from "../src/core/database.js";
+import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
 
 declare module 'discord.js' {
     export interface Client {
@@ -71,6 +72,7 @@ declare module 'discord.js' {
         method: typeof argsHelper,
         bash: Collection<string, BashCommands>,
         notifier: StreamNotifier,
-        ownihrz: OwnIHRZ
+        ownihrz: OwnIHRZ,
+        kdenlive: KdenLive
     }
 };

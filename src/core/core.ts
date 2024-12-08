@@ -48,6 +48,7 @@ import { version } from '../version.js';
 import { InitData } from '../../types/initDataType.js';
 import { CacheStorage } from './cache.js';
 import { getDatabaseInstance } from './database.js';
+import { KdenLive } from './functions/kdenliveManipulator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -88,6 +89,7 @@ export async function main(client: Client) {
     client.lyricsSearcher = new LyricsManager();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
     client.ownihrz = new OwnIHRZ(client)
+    client.kdenlive = new KdenLive();
 
     process.on('SIGINT', async () => {
         if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();

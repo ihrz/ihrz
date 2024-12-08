@@ -49,7 +49,7 @@ interface BotData {
 }
 
 function createListEmbed(
-    botList: Array<{ userId: string; botId: string; data: BotData }>,
+    botList: Array<{ userId: string; botCode: string; data: BotData; }>,
     page: number,
     totalPages: number
 ): EmbedBuilder {
@@ -62,11 +62,12 @@ function createListEmbed(
         .setDescription(`Showing page ${page} of ${totalPages}`)
         .setTimestamp();
 
-    currentPageItems.forEach(({ userId, botId, data }) => {
+    currentPageItems.forEach(({ userId, botCode, data }) => {
         const status = data.PowerOff ? '🔴 Offline' : '🟢 Online';
         const expireDate = format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
 
         const fieldValue = [
+            `📝 **Bot Id:** ${data.Bot.Id}`,
             `👤 **Owner:** <@${userId}>`,
             `📛 **Name:** \`${data.Bot.Name}\``,
             `⚡ **Status:** ${status}`,
@@ -75,7 +76,7 @@ function createListEmbed(
         ].join('\n');
 
         embed.addFields({
-            name: `Bot ID: ${botId}`,
+            name: `Bot Code: ${botCode}`,
             value: fieldValue,
             inline: false
         });
@@ -177,15 +178,15 @@ export default {
             const tableOWNIHRZ = client.db.table("OWNIHRZ");
             const ownihrzClusterData = await tableOWNIHRZ.get('CLUSTER');
 
-            const botList: Array<{ userId: string; botId: string; data: BotData }> = [];
+            const botList: Array<{ userId: string; botCode: string; data: BotData; }> = [];
 
             for (const userId in ownihrzClusterData) {
                 const botData = ownihrzClusterData[userId];
-                for (const botId in botData) {
+                for (const botCode in botData) {
                     botList.push({
                         userId,
-                        botId,
-                        data: botData[botId]
+                        botCode,
+                        data: botData[botCode],
                     });
                 }
             }
