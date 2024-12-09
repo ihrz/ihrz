@@ -583,7 +583,7 @@
   <property name="seekable">1</property>
   <property name="format">1</property>
   <property name="meta.media.width">screen2.width</property>
-  <property name="meta.media.height">screen2.width</property>
+  <property name="meta.media.height">screen2.height</property>
   <property name="mlt_service">qimage</property>
   <property name="kdenlive:duration">00:00:05:00</property>
   <property name="xml">was here</property>

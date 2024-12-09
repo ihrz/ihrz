@@ -18,6 +18,7 @@
 
 ・ Copyright © 2020-2024 iHorizon
 */
+
 import { readFileSync, rmSync, writeFileSync } from "fs";
 import { execSync } from "child_process";
 
@@ -43,7 +44,8 @@ class KdenLive {
 
     async export(projectPath: string) {
         let exportPath = path.join(tempDir, `merged_video_${Date.now()}.mp4`);
-        execSync(`melt -audio-samplerate 44100 ${projectPath} -consumer avformat:${exportPath}`, { stdio: "ignore" });
+        // Use xvfb-run for execute melt in an virtual X11 environnement
+        execSync(`xvfb-run -a melt -audio-samplerate 44100 ${projectPath} -consumer avformat:${exportPath}`);
         rmSync(projectPath);
         return exportPath;
     }
