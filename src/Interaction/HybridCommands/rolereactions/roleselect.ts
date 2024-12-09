@@ -36,7 +36,8 @@ import {
     TextInputStyle,
     RoleSelectMenuBuilder,
     StringSelectMenuInteraction,
-    CacheType
+    CacheType,
+    PermissionsBitField
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
@@ -112,6 +113,16 @@ export const command: Command = {
             return;
         }
 
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
+        if (!permissions && neededPerm === 0) {
+            await client.method.interactionSend(interaction, { content: lang.reactionroles_dont_admin_added });
+            return;
+        };
+        
         const channel = interaction instanceof ChatInputCommandInteraction
             ? interaction.options.getChannel("channel") as Channel
             : client.method.channel(interaction, args!, 0) as Channel;
