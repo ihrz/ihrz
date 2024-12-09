@@ -1378,6 +1378,38 @@ buttonreaction_dont_message_found: "No se puede agregar este botón, ¡los roles
 buttonreaction_roles_not_found: "Faltan argumentos: ¡No has especificado los roles a establecer!"
 buttonreaction_message_other_user_error: "En Discord, el bot no puede modificar los componentes de un mensaje de otro usuario. Necesitas elegir un mensaje enviado por mí. Consejo: ¡Haz `/utils embed` para crear tu propio embed hermoso!"
 
+# /roleselect
+roleselect_invalid_message_id: "ID de mensaje no válido proporcionado. Por favor, proporcione un ID de mensaje válido."
+roleselect_message_not_found: "Mensaje no encontrado en el canal especificado."
+roleselect_default_placeholder: "Selecciona roles configurados"
+roleselect_menu1_placeholder: "Elige una acción"
+roleselect_menu1_add: "Agregar opción de rol"
+roleselect_menu1_remove: "Eliminar opción de rol"
+roleselect_menu1_change_placeholder: "Cambiar marcador de posición del menú"
+roleselect_menu1_save: "Guardar y aplicar configuración"
+roleselect_menu1_cancel: "Cancelar"
+roleselect_menu1_embed_title: "Configuración de selección de roles"
+roleselect_menu1_embed_description: "Cuando el usuario selecciona campos en el menú, recibirá el rol especificado."
+roleselect_modal1_title: "Agregar opción de rol"
+roleselect_modal1_fields1_label: "Emoji"
+roleselect_modal1_fields1_placeholder: "Selecciona un emoji para esta opción de rol (opcional)"
+roleselect_modal1_fields2_label: "Título de la opción"
+roleselect_modal1_fields2_placeholder: "Título corto para la opción de rol"
+roleselect_modal1_fields3_label: "Descripción"
+roleselect_modal1_fields3_placeholder: "Describe la opción de rol (opcional)"
+roleselect_awaiting1_msg: "Selecciona un rol para esta opción"
+roleselect_awaiting1_menu_placeholder: "Elige un rol"
+roleselect_role_already_exist: "El rol ya existe en la configuración."
+roleselect_no_role_found: "No hay opciones de rol para eliminar."
+roleselect_all_role_removed: "Todas las opciones de rol han sido eliminadas."
+roleselect_last_role_removed: "Última opción de rol eliminada con éxito."
+roleselect_save_command_ok: "¡Configuración de selección de roles guardada con éxito!"
+roleselect_failed_to_save_config: "Error al guardar la configuración. Por favor, inténtalo de nuevo."
+roleselect_canceled_command_ok: "Configuración de selección de roles cancelada."
+roleselect_modal2_title: "Marcador de posición del menú"
+roleselect_modal2_label: "Marcador de posición"
+roleselect_modal2_placeholder: "Marcador de posición del menú de selección"
+
 
 # New feature commands
 # /punishpub, /report, /support

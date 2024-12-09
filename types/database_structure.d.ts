@@ -408,6 +408,13 @@ export namespace DatabaseStructure {
         };
     }
 
+    export type RoleReactData = {
+        roleId: string;
+        emoji?: string;
+        desc?: string;
+        label: string;
+    }[];
+
     export interface DbGuildObject {
         BOT?: DbGuildBotObject;
         LANG?: {
@@ -454,7 +461,8 @@ export namespace DatabaseStructure {
         };
         BLOCK_NEW_ACCOUNT?: BlockNewAccountSchema;
         ANTISPAM?: AntiSpam.AntiSpamOptions;
-        RESTORECORD?: RestoreCordSchema
+        RESTORECORD?: RestoreCordSchema;
+        ROLE_SELECT?: RoleReactData;
     }
 
     export interface DbTicketConfigurationObject {

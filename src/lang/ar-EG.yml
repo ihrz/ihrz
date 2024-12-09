@@ -179,7 +179,6 @@ level_xp_total: "مجموع نقاط الخبرة:"
 ranks_leaderboard_top_txt: "أفضل #${i}"
 ranks_leaderboard_top_txt_raw: "أفضل #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **المستوى**: `${a.level || '0'}`\n🔱 ➥ **إجمالي XP**: `${a.xptotal}`"
-ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ المستوى: ${a.level || '0'}\n🔱 ➥ إجمالي XP: ${a.xptotal}"
 ranks_leaderboard_embed_title: "🏆 لوحة صدارة الأساطير في الخادم"
 ranks_leaderboard_embed_footer: "الصفحة ${cPage} من ${totalPages} • مُرتبة حسب إجمالي النقاط"
 
@@ -1375,6 +1374,38 @@ buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> أضاف
 buttonreaction_dont_message_found: "لا يمكن إضافة هذا الزر، يبدو أن الأدوار تم تعيينها بالفعل في زر موجود!"
 buttonreaction_roles_not_found: "الوسائط مفقودة: لم تحدد الأدوار لتعيينها!"
 buttonreaction_message_other_user_error: "في ديسكورد، لا يمكن لروبوت ديسكورد تعديل مكونات رسالة مستخدم آخر. تحتاج لاختيار رسالة أرسلتها بنفسي. نصيحة: استخدم `/utils embed` لإنشاء تضمين جميل خاص بك!"
+
+# /roleselect
+roleselect_invalid_message_id: "معرّف الرسالة غير صالح. يرجى تقديم معرّف رسالة صالح."
+roleselect_message_not_found: "لم يتم العثور على الرسالة في القناة المحددة."
+roleselect_default_placeholder: "اختر الأدوار المكونة"
+roleselect_menu1_placeholder: "اختر إجراءً"
+roleselect_menu1_add: "إضافة خيار دور"
+roleselect_menu1_remove: "إزالة خيار دور"
+roleselect_menu1_change_placeholder: "تغيير عنصر النائب للقائمة"
+roleselect_menu1_save: "حفظ وتطبيق التهيئة"
+roleselect_menu1_cancel: "إلغاء"
+roleselect_menu1_embed_title: "تكوين اختيار الدور"
+roleselect_menu1_embed_description: "عند اختيار المستخدم للحقول في القائمة المنسدلة، سيحصل على الدور المحدد"
+roleselect_modal1_title: "إضافة خيار دور"
+roleselect_modal1_fields1_label: "الرمز التعبيري"
+roleselect_modal1_fields1_placeholder: "اختر رمزًا تعبيريًا لخيار الدور (اختياري)"
+roleselect_modal1_fields2_label: "عنوان الخيار"
+roleselect_modal1_fields2_placeholder: "عنوان قصير لخيار الدور"
+roleselect_modal1_fields3_label: "الوصف"
+roleselect_modal1_fields3_placeholder: "صف خيار الدور (اختياري)"
+roleselect_awaiting1_msg: "اختر دورًا لهذا الخيار"
+roleselect_awaiting1_menu_placeholder: "اختر دورًا"
+roleselect_role_already_exist: "الدور موجود بالفعل في التكوين."
+roleselect_no_role_found: "لا توجد خيارات أدوار للإزالة."
+roleselect_all_role_removed: "تمت إزالة جميع خيارات الأدوار."
+roleselect_last_role_removed: "تمت إزالة آخر خيار دور بنجاح."
+roleselect_save_command_ok: "تم حفظ تكوين اختيار الدور بنجاح!"
+roleselect_failed_to_save_config: "فشل في حفظ التكوين. يرجى المحاولة مرة أخرى."
+roleselect_canceled_command_ok: "تم إلغاء تكوين اختيار الدور."
+roleselect_modal2_title: "عنصر نائب للقائمة المنسدلة"
+roleselect_modal2_label: "عنصر نائب"
+roleselect_modal2_placeholder: "عنصر نائب للقائمة المنسدلة"
 
 
 # New feature commands
