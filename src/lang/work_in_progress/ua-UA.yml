@@ -132,7 +132,6 @@ ranks_leaderboard_embed_title: "Таблиця лідерів рівнів ${int
 ranks_leaderboard_top_txt: "Топ #${i}"
 ranks_leaderboard_top_txt_raw: "Топ #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Рівень**: `${a.level || '0'}`\n🔱 ➥ **Загальний XP**: `${a.xptotal}`"
-ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Рівень: ${a.level || '0'}\n🔱 ➥ Загальний XP: ${a.xptotal}"
 
 
 # Команды владельца

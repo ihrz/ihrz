@@ -40,7 +40,7 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let botId = interaction.options.getString('botid')!;
+        let botId = interaction.options.getString('bot_code')!;
         let OwnerOne = interaction.options.getUser('owner_one')!.id;
         let OwnerTwo = interaction.options.getUser('owner_two')?.id || OwnerOne;
 

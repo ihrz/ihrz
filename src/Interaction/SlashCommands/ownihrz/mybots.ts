@@ -97,7 +97,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'botid',
+                    name: 'bot_code',
                     type: ApplicationCommandOptionType.String,
 
                     description: 'Identifiant of your own iHorizon!',
@@ -133,7 +133,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'botid',
+                    name: 'bot_code',
                     type: ApplicationCommandOptionType.String,
 
                     description: 'Identifiant of your own iHorizon!',

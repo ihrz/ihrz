@@ -40,7 +40,7 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let botId = interaction.options.getString('botid')!;
+        let botId = interaction.options.getString('bot_code')!;
         let newToken = interaction.options.getString('new_discord_bot_token')!;
         let tempTable = client.db.table('TEMP');
         let table = client.db.table('OWNIHRZ');

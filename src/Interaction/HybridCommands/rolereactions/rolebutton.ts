@@ -41,7 +41,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 export const command: Command = {
-    name: 'buttonreaction',
+    name: 'rolebutton',
 
     description: 'Set a roles when user react to a button with specific emoji',
     description_localizations: {

@@ -67,7 +67,7 @@ function createListEmbed(
         const expireDate = format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
 
         const fieldValue = [
-            `📝 **Bot Id:** ${data.Bot.Id}`,
+            `📝 **Bot Id:** ${data.Bot.Id} (<@${data.Bot.Id}>)`,
             `👤 **Owner:** <@${userId}>`,
             `📛 **Name:** \`${data.Bot.Name}\``,
             `⚡ **Status:** ${status}`,
