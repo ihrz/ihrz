@@ -107,7 +107,7 @@ export const command: Command = {
 
                     description: "Remove Streamer/Youtuber/Twitcher",
                     description_localizations: {
-                        fr: "supprimer Streamer/Youtuber/Twitcher"
+                        fr: "Supprimer Streamer/Youtuber/Twitcher"
                     },
 
                     type: ApplicationCommandOptionType.Subcommand,
@@ -156,7 +156,7 @@ export const command: Command = {
 
                     description: "Show Streamer/Youtuber/Twitcher",
                     description_localizations: {
-                        fr: "supprimer Streamer/Youtuber/Twitcher"
+                        fr: "Afficher tout les Streamer/Youtuber/Twitcher configurer"
                     },
 
                     type: ApplicationCommandOptionType.Subcommand
