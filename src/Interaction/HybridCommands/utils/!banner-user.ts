@@ -31,6 +31,7 @@ import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
 
 import { Command } from '../../../../types/command';
+import { Option } from '../../../../types/option';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
@@ -47,13 +48,13 @@ export default {
 
         let format = 'png';
 
-        let config_1 = {
+        let config = {
             headers: {
-                Authorization: `Bot ${client.config.discord.token}`
+                Authorization: `Bot ${client.token}`
             }
         };
 
-        let user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, config_1))?.data;
+        let user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, config))?.data;
         let banner = user_1?.banner;
 
         if (banner !== null && banner?.startsWith('a_')) {
