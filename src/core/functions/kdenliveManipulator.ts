@@ -34,7 +34,7 @@ class KdenLive {
         return projectXML;
     }
 
-    async tempSave(projectData: any): Promise<string> {
+    async tempSave(projectData: string): Promise<string> {
         let savedFile = path.join(tempDir, Date.now() + ".kdenlive");
         let updatedXML = projectData;
 

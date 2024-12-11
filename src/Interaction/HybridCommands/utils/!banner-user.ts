@@ -34,7 +34,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
@@ -54,10 +54,10 @@ export default {
             }
         };
 
-        let user_1 = (await axios.get(`https://discord.com/api/v8/users/${user?.id}`, config))?.data;
-        let banner = user_1?.['banner'];
+        let user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, config))?.data;
+        let banner = user_1?.banner;
 
-        if (banner !== null && banner?.substring(0, 2) === 'a_') {
+        if (banner !== null && banner?.startsWith('a_')) {
             format = 'gif'
         };
 
@@ -65,7 +65,7 @@ export default {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#c4afed')
             .setTitle(lang.banner_user_embed.replace('${user?.username}', user?.username))
             .setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
-            .setThumbnail((user?.displayAvatarURL() as string))
+            .setThumbnail(user?.displayAvatarURL() as string)
             .setFooter(await client.method.bot.footerBuilder(interaction));
 
         await client.method.interactionSend(interaction, {

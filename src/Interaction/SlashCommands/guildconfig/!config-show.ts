@@ -26,6 +26,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    Guild,
     GuildMember,
     PermissionsBitField,
 } from 'discord.js';
@@ -269,13 +270,13 @@ export default {
     }
 };
 
-function supportConfigToString(supportConfig: any, lang: LanguageData): string {
+function supportConfigToString(supportConfig: DatabaseStructure.DbGuildObject["SUPPORT"], lang: LanguageData): string {
     return supportConfig ? lang.guildprofil_set_supportConfig
         .replace(/\${supportConfig\.input}/g, supportConfig.input ?? '')
         .replace(/\${supportConfig\.rolesId}/g, supportConfig.rolesId ?? '') : lang.guildprofil_not_set_supportConfig;
 }
 
-function ticketFetchedToString(charForTicket: any, lang: LanguageData): string {
+function ticketFetchedToString(charForTicket: DatabaseStructure.DbGuildObject["TICKET"], lang: LanguageData): string {
     let ticketFetched = '';
     for (const i in charForTicket) {
         const ticketConfig = charForTicket[i];
@@ -286,7 +287,7 @@ function ticketFetchedToString(charForTicket: any, lang: LanguageData): string {
     return ticketFetched || lang.guildprofil_not_set_ticketFetched;
 }
 
-function reactionRolesToString(charForRr: any, guild: any, lang: LanguageData): string {
+function reactionRolesToString(charForRr: DatabaseStructure.DbGuildObject["REACTION_ROLES"], guild: Guild, lang: LanguageData): string {
     let reactionrole = '';
     for (const i in charForRr) {
         const a = charForRr[i];
@@ -306,7 +307,7 @@ function reactionRolesToString(charForRr: any, guild: any, lang: LanguageData): 
     return reactionrole || lang.guildprofil_not_set_reactionrole;
 }
 
-function xpStatsToString(xp: any, lang: LanguageData): string {
+function xpStatsToString(xp: DatabaseStructure.DbGuildXpLeveling | undefined, lang: LanguageData): string {
     return (xp?.disable === false) ? (xp?.xpchannels ? lang.guildprofil_another_enable_xp.replace('${xp.xpchannels}', xp.xpchannels) : lang.guildprofil_enable_xp) : lang.guildprofil_disable_xp;
 }
 
@@ -314,7 +315,7 @@ function logsToString(logs: DatabaseStructure.DbGuildObject['SERVER_LOGS'], lang
     return logs ? [logs.roles, logs.moderation, logs.voice, logs.message, logs.boosts, logs.antispam].filter(Boolean).map(log => `<#${log}>`).join(',') : lang.guildprofil_not_logs_set;
 }
 
-function blockBotToString(blockBot: any, lang: LanguageData): string {
+function blockBotToString(blockBot: DatabaseStructure.DbGuildObject["BLOCK_BOT"], lang: LanguageData): string {
     return blockBot ? lang.guildprofil_blockbot_on : lang.guildprofil_blockbot_off;
 }
 

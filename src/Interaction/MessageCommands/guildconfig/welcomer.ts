@@ -43,7 +43,7 @@ export const command: Command = {
     thinking: true,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {
+    run: async (client: Client, interaction: Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
         cmd.run(client, interaction, lang, command, neededPerm!)
     },
 };

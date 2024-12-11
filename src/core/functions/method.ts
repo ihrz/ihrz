@@ -168,10 +168,6 @@ export interface SubCommandArgumentValue {
     command: Option | Command | undefined;
 }
 
-const isSubCommandArgumentValue = (command: any): command is SubCommandArgumentValue => {
-    return command && (command as SubCommandArgumentValue).command !== undefined || command.name !== command?.command
-};
-
 export async function checkCommandArgs(message: Message, command: Command, args: string[], lang: LanguageData): Promise<boolean> {
     if (!command) return false;
 

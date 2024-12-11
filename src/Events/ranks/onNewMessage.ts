@@ -67,13 +67,18 @@ export const event: BotEvent = {
             if (ranksConfig?.ranksRoles) {
                 const roleToAssign = Object.entries(ranksConfig.ranksRoles)
                     .filter(([roleLevel]) => parseInt(roleLevel) <= newLevel)
-                    .sort(([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA))
-                [0]?.[1];
+                    .sort(([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA))[0]?.[1];
 
                 if (roleToAssign) {
                     try {
                         const member = await message.guild.members.fetch(message.author.id);
-                        await member.roles.add(roleToAssign, "Rank role assignment");
+                        const rolesToRemove = Object.values(ranksConfig.ranksRoles).filter(role => member.roles.cache.has(role));
+
+                        if (rolesToRemove.length > 0) {
+                            await member.roles.remove(rolesToRemove, "Removal of old rank roles");
+                        }
+
+                        await member.roles.add(roleToAssign, "Rank Role Assignment");
                     } catch {
                     }
                 }

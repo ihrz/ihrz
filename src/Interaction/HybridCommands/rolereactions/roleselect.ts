@@ -108,7 +108,7 @@ export const command: Command = {
     category: 'rolereactions',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) {
             return;
         }
