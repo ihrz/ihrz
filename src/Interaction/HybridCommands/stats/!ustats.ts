@@ -175,7 +175,16 @@ export default {
             }
         })
 
+        const now = Date.now();
+
+        const timeLabels = Array.from({ length: 30 }, (_, i) => {
+            const date = new Date(now - ((29 - i) * 24 * 60 * 60 * 1000));
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        });
+
         htmlContent = htmlContent
+            .replaceAll("{username}", member.user.globalName || member.user.displayName)
+            .replaceAll("{guild_name}", interaction.guild.name)
             .replaceAll('{header_h1_value}', lang.header_h1_value)
             .replaceAll('{messages_word}', lang.messages_word)
             .replaceAll('{voice_activity}', lang.voice_activity)
@@ -205,13 +214,17 @@ export default {
             .replaceAll('{voice_top2_2}', String(getChannelMinutesCount(secondActiveVoiceChannel, res.voices || [])))
             .replaceAll('{voice_top3_2}', String(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || [])))
             .replace('{message_voice_diag}', 'Votre contenu ici')
-            .replace('{messageData}', JSON.stringify(messageDataArray))
-            .replace('{voiceData}', JSON.stringify(voiceDataArray));
+            .replace('{ messageData }', JSON.stringify(messageDataArray))
+            .replace('{ voiceData }', JSON.stringify(voiceDataArray))
+            .replace('{ timeLabels }', JSON.stringify(timeLabels));
 
         const image = await client.method.imageManipulation.html2Png(htmlContent, {
-            elementSelector: '.container',
+            elementSelector: '.card',
             omitBackground: true,
             selectElement: true,
+            width: 1280,
+            height: 706,
+            scaleSize: 1
         });
 
         const attachment = new AttachmentBuilder(image, { name: 'image.png' });
