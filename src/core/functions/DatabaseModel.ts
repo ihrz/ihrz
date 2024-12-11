@@ -22,7 +22,6 @@
 import { QuickDB } from "quick.db";
 import config from "../../files/config.js";
 import logger from "../logger.js";
-import { PallasDB } from "pallas-db";
 
 let db;
 
