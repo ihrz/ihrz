@@ -38,7 +38,7 @@ import logger from '../../../core/logger.js';
 import { Command } from '../../../../types/command.js';
 import { Option } from '../../../../types/option.js';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.member || !interaction.guild || !interaction.channel) return;

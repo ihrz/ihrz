@@ -38,7 +38,7 @@ import { Option } from '../../../../types/option';
 import { promptYesOrNo } from '../../../core/functions/awaitingResponse.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;

@@ -31,7 +31,7 @@ import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser("user") as User || interaction.user;

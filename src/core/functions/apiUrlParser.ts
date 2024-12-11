@@ -113,7 +113,7 @@ export function OwnIhrzCluster(options: {
     return data;
 };
 
-export function HorizonGateway(gateway_method: GatewayMethod, value1?: any, value2?: any): string {
+export function HorizonGateway(gateway_method: GatewayMethod): string {
     var data = config.api.HorizonGateway;
 
     if (!data) throw "Error: HorizonGateway empty in the configurations files";

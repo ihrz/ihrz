@@ -44,7 +44,7 @@ export default {
         client: Client,
         interaction: ChatInputCommandInteraction<"cached"> | Message,
         lang: LanguageData,
-        command: Option | Command | undefined,
+        command: Command,
         neededPerm: number,
         args?: string[]
     ) => {

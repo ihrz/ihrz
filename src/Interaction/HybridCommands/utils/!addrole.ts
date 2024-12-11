@@ -40,7 +40,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 import { DatabaseStructure } from '../../../../types/database_structure';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing

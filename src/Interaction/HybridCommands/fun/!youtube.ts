@@ -42,7 +42,7 @@ import { Command } from '../../../../types/command.js';
 import { Option } from '../../../../types/option.js';
 import { sanitizing } from '../../../core/functions/sanitizer.js';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {

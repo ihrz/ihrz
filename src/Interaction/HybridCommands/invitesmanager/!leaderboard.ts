@@ -37,7 +37,7 @@ import { Option } from '../../../../types/option';
 const itemsPerPage = 15;
 
 export default {
-    run: async (client: Client, interaction: Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm:number, options?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
         let execTimestamp = Date.now();
 
         // Guard's Typing
