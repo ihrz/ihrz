@@ -49,6 +49,9 @@ var_edit: "Editar"
 var_confirm: "Confirmar"
 var_succes: "Sucesso"
 var_page: "Página"
+var_permission: "Permissão"
+var_usage: "Uso"
+var_aliases: "Apelidos"
 
 # Comandos de ticket
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -2097,9 +2100,10 @@ antispam_log_embed_desc: "${client.user?.toString()} **${actionType}** ${user.to
 
 hybridcommands_global_prefix_mention: "`@Ping-Me`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
-hybridcommands_args_error_embed_desc: "```ts\nNome do Comando: ${currentCommand.name}\nDescrição do Comando: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErro ao enviar o argumento \"${wrongArgumentName}\".\n```"
+hybridcommands_args_error_embed_desc: "```ts\nNome do comando: ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErro ao enviar o argumento \"${wrongArgumentName}\".\n```"
 hybridcommands_embed_help_title: "Incorporar Ajuda de ${commandName}"
 hybridcommands_embed_help_fields_value: "**Apelidos:** ${aliases}\n**Uso:** ${use}"
+hybridcommands_embed_footer_text: "As opções dentro de [...] são obrigatórias, enquanto aquelas dentro de <...> são opcionais.\nUse o comando: ${botPrefix}help [command] para mais informações."
 
 ping_bot_show_info_msg: "Olá ${message.author.toString()}, estou 100% em `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) e utilizável em mais de 85% em comando de prefixo. Meu prefixo neste **servidor** é `${prefix}` !"
 

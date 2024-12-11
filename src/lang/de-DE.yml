@@ -49,6 +49,9 @@ var_edit: "Bearbeiten"
 var_confirm: "Bestätigen"
 var_succes: "Erfolg"
 var_page: "Seite"
+var_permission: "Berechtigung"
+var_usage: "Verwendung"
+var_aliases: "Aliase"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -2097,9 +2100,10 @@ antispam_log_embed_desc: "${client.user?.toString()} hat **${actionType}** ${use
 
 hybridcommands_global_prefix_mention: "`@Ping-Mich`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Mich "
-hybridcommands_args_error_embed_desc: "```ts\nBefehl Name: ${currentCommand.name}\nBefehl Beschreibung: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nFehler beim Senden des Arguments \"${wrongArgumentName}\".\n```"
+hybridcommands_args_error_embed_desc: "```ts\nBefehlname: ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nFehler beim Senden des Arguments \"${wrongArgumentName}\".\n```"
 hybridcommands_embed_help_title: "${commandName} Hilfe Einbettung"
 hybridcommands_embed_help_fields_value: "**Aliase:** ${aliases}\n**Verwendung:** ${use}"
+hybridcommands_embed_footer_text: "Optionen in [...] sind erforderlich, während diejenigen in <...> optional sind.\nVerwenden Sie den Befehl: ${botPrefix}help [command] für weitere Informationen."
 
 ping_bot_show_info_msg: "Hey ${message.author.toString()}, ich bin zu 100% in `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) und zu mehr als 85% in Präfix-Befehl nutzbar. Mein Präfix auf **diesem Server** ist `${prefix}` !"
 

@@ -49,6 +49,9 @@ var_edit: "تعديل"
 var_confirm: "تأكيد"
 var_succes: "نجاح"
 var_page: "صفحة"
+var_permission: "إذن"
+var_usage: "الاستخدام"
+var_aliases: "الأسماء المستعارة"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -2084,9 +2087,10 @@ antispam_log_embed_desc: "${client.user?.toString()} قد **${actionType}** ${us
 
 hybridcommands_global_prefix_mention: "`@Ping-Me`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
-hybridcommands_args_error_embed_desc: "```ts\nاسم الأمر: ${currentCommand.name}\nوصف الأمر: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nخطأ عند إرسال \"${wrongArgumentName}\" كوسيط.\n```"
+hybridcommands_args_error_embed_desc: "```ts\nاسم الأمر: ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nحدث خطأ عند إرسال الوسيطة \"${wrongArgumentName}\".\n```"
 hybridcommands_embed_help_title: "دليل ${commandName}"
 hybridcommands_embed_help_fields_value: "**الألقاب:** ${aliases}\n**الاستخدام:** ${use}"
+hybridcommands_embed_footer_text: "الخيارات داخل [...] مطلوبة، بينما الخيارات داخل <...> اختيارية.\nاستخدم الأمر: ${botPrefix}help [command] لمزيد من المعلومات."
 
 ping_bot_show_info_msg: "مرحبًا ${message.author.toString()}, أنا 100% في `أوامر التفاعل` (${client.iHorizon_Emojis.badge.Slash_Bot}) وقابل للاستخدام بنسبة 85% عبر الأوامر البادئة. بادئتي على **هذا الخادم** هي `${prefix}`!"
 
