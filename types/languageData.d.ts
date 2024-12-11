@@ -67,6 +67,9 @@ export interface LanguageData {
   var_confirm: string;
   var_succes: string;
   var_page: string;
+  var_permission: string;
+  var_usage: string;
+  var_aliases: string;
   ticket_disabled_command: string;
   add_disabled_command: string;
   add_command_work: string;
@@ -1523,6 +1526,7 @@ export interface LanguageData {
   hybridcommands_args_error_embed_desc: string;
   hybridcommands_embed_help_title: string;
   hybridcommands_embed_help_fields_value: string;
+  hybridcommands_embed_footer_text: string;
   ping_bot_show_info_msg: string;
   notifier_on_new_media_default_message: string;
   notifier_on_new_media_default_button_label: string;

@@ -56,7 +56,7 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.String,
 
-            description: 'What language you want ? (soon more)',
+            description: 'What language you want ?',
             description_localizations: {
                 "fr": "Quelle language voulez-vous mettre ?"
             },

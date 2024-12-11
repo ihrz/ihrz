@@ -29,6 +29,7 @@ import * as  h from './helper.js';
 import * as c from '../core.js';
 import * as html from './html2png.js';
 import * as l from './ihorizon-logs.js';
+import { DatabaseStructure } from "../../../types/database_structure.js";
 
 export function isNumber(str: string): boolean {
     return !isNaN(Number(str)) && str.trim() !== "";
@@ -146,11 +147,36 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
                     .replace("${use}", use)
             });
         });
-    } else {
-        embed.addFields({
-            name: `${cleanBotPrefix}${command.name} `,
-            value: `**\`${command.description}\`**`
-        });
+    } else if (command.options) {
+        var CommandsPerm = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${command.name}`) as DatabaseStructure.UtilsPermsData[""] | undefined;
+        var pathString = '';
+
+        command.options?.map(x => {
+            pathString += x.required ? "**`[" : "**`<";
+            pathString += getArgumentOptionTypeWithOptions(x);
+            pathString += x.required ? "]`**" + " " : ">`**" + " ";
+        })
+
+        embed.setDescription(command.description);
+        embed.setFields(
+            {
+                name: lang.var_usage,
+                value: `${cleanBotPrefix}${command.name} ${pathString}`,
+                inline: false
+            },
+            {
+                name: lang.var_permission,
+                value: `${lang.var_permission}: ${CommandsPerm || lang.var_none}`,
+                inline: false
+            },
+            {
+                name: lang.var_aliases,
+                value: command.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none,
+                inline: false
+            }
+        );
+
+        embed.setFooter(await client.method.bot.footerBuilder(interaction));
     }
 
     return embed;
@@ -270,7 +296,6 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
     const embed = new EmbedBuilder()
         .setDescription(lang.hybridcommands_args_error_embed_desc
             .replace("${currentCommand.name}", currentCommand.prefixName || currentCommand.name)
-            .replace("${currentCommand.description}", currentCommand.description ?? "")
             .replace("${botPrefix}", botPrefix)
             .replace("${fullNameCommand}", fullNameCommand)
             .replace("${argsString}", argsString)
@@ -278,7 +303,10 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
             .replace("${wrongArgumentName}", wrongArgumentName)
         )
         .setColor("Red")
-        .setFooter(await message.client.method.bot.footerBuilder(message));
+        .setFooter({
+            iconURL: "attachment://footer_icon.png",
+            text: lang.hybridcommands_embed_footer_text.replace("${botPrefix}", botPrefix)
+        });
 
     await message.client.method.interactionSend(message, {
         embeds: [embed],

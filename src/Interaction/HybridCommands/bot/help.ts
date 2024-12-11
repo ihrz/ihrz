@@ -434,7 +434,7 @@ export const command: Command = {
                 return;
             });
         } else {
-            let fetchCommand = client.commands.get(targetCommand);
+            let fetchCommand = client.commands.get(targetCommand) || client.message_commands.get(targetCommand);
 
             if (!fetchCommand) {
                 await client.method.interactionSend(interaction, {
@@ -444,7 +444,9 @@ export const command: Command = {
             }
 
             await client.method.interactionSend(interaction, {
-                embeds: [await client.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)], ephemeral: true
+                embeds: [await client.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)],
+                ephemeral: true,
+                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             })
         }
     },

@@ -49,6 +49,9 @@ var_edit: "Modifier"
 var_confirm: "Confirmer"
 var_succes: "Succès"
 var_page: "Page"
+var_permission: "Permission"
+var_usage: "Utilisation"
+var_aliases: "Alias"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -2097,9 +2100,10 @@ antispam_log_embed_desc: "${client.user?.toString()} a **${actionType}** ${user.
 
 hybridcommands_global_prefix_mention: "`@Ping-Moi`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Moi "
-hybridcommands_args_error_embed_desc: "```ts\nNom de la Commande: ${currentCommand.name}\nDescription de la Commande: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErreur lors de l'envoi de l'argument \"${wrongArgumentName}\".\n```"
+hybridcommands_args_error_embed_desc: "```ts\nNom de la commande : ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErreur lors de l’envoi de l’argument \"${wrongArgumentName}\".\n```"
 hybridcommands_embed_help_title: "${commandName} Menue d'Aide"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
+hybridcommands_embed_footer_text: "Les options entre [...] sont obligatoires, tandis que celles entre <...> sont facultatives.\nUtilisez la commande : ${botPrefix}help [command] pour plus d'informations."
 
 ping_bot_show_info_msg: "Hey ${message.author.toString()}, je suis 100% en `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) et utilisable à plus de 85% en commande préfixe. Mon préfixe sur **ce serveur** est `${prefix}` !"
 

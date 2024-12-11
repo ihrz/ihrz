@@ -49,6 +49,9 @@ var_edit: "Редактировать"
 var_confirm: "Подтвердить"
 var_succes: "Успех"
 var_page: "Страница"
+var_permission: "Разрешение"
+var_usage: "Использование"
+var_aliases: "Псевдонимы"
 
 # Команды для тикетов
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -2097,9 +2100,10 @@ antispam_log_embed_desc: "${client.user?.toString()} **${actionType}** ${user.to
 
 hybridcommands_global_prefix_mention: "`@Ping-Me`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
-hybridcommands_args_error_embed_desc: "```ts\nИмя Команды: ${currentCommand.name}\nОписание Команды: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nОшибка при отправке аргумента \"${wrongArgumentName}\".\n```"
+hybridcommands_args_error_embed_desc: "```ts\nНазвание команды: ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nОшибка при отправке аргумента \"${wrongArgumentName}\".\n```"
 hybridcommands_embed_help_title: "${commandName} Встроенная Помощь"
 hybridcommands_embed_help_fields_value: "**Псевдонимы:** ${aliases}\n**Использование:** ${use}"
+hybridcommands_embed_footer_text: "Параметры в [...] обязательны, а параметры в <...> — необязательны.\nИспользуйте команду: ${botPrefix}help [command] для получения дополнительной информации."
 
 ping_bot_show_info_msg: "Привет ${message.author.toString()}, я на 100% используюсь в `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) и более чем на 85% в командном префиксе. Мой префикс на **этом сервере** — `${prefix}` !"
 

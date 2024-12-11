@@ -107,7 +107,8 @@ async function executeCommand(
     // for format like: "+utils" without subcommand behind
     if (!command?.run) {
         await client.method.interactionSend(message, {
-            embeds: [await client.method.createAwesomeEmbed(lang, command, client, message)]
+            embeds: [await client.method.createAwesomeEmbed(lang, command, client, message)],
+            files: [await client.method.bot.footerAttachmentBuilder(message)]
         });
         return;
     }
