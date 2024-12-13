@@ -115,7 +115,7 @@ export const command: Command = {
             var messagei = interaction.options.getString("name");
             var channel = interaction.options.getChannel("channel") as BaseGuildVoiceChannel;
         } else {
-            
+
             var type = client.method.string(args!, 0);
             var channel = client.method.voiceChannel(interaction, args!, 0)!;
             var messagei = client.method.string(args!, 2);
@@ -146,27 +146,30 @@ export const command: Command = {
                 .replace("{BoostCount}", boostsCount)
                 .replace("{BotCount}", botMembers.size.toString()!);
 
-            if (messagei.includes("member")) {
+            if (messagei.includes("{MemberCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.member`,
                     { name: messagei, enable: true, event: "member", channel: channel?.id }
                 );
-            } else if (messagei.includes("roles")) {
+            } else if (messagei.includes("{RolesCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.roles`,
                     { name: messagei, enable: true, event: "roles", channel: channel?.id }
                 );
-            } else if (messagei.includes("channel")) {
+            } else if (messagei.includes("{ChannelCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.channel`,
                     { name: messagei, enable: true, event: "bot", channel: channel?.id }
                 );
-            } else if (messagei.includes("boost")) {
+            } else if (messagei.includes("{BoostCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.boost`,
                     { name: messagei, enable: true, event: "bot", channel: channel?.id }
                 );
-            } else if (messagei.includes("bot")) {
+            } else if (messagei.includes("{BotCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.bot`,
                     { name: messagei, enable: true, event: "bot", channel: channel?.id }
                 );
-            };
+            } else {
+                await client.method.interactionSend(interaction, { embeds: [help_embed] });
+                return;
+            }
 
             await client.method.iHorizonLogs.send(interaction, {
                 title: lang.setmembercount_logs_embed_title_on_enable,

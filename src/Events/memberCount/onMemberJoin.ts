@@ -52,7 +52,9 @@ export const event: BotEvent = {
 
                     const channel = guild.channels.cache.get(data.channel!) as TextChannel;
                     if (channel && channel.isTextBased()) {
-                        const newName = data.name!.replace(/{\w+count}/, String(count));
+                        const newName = data.name
+                            ?.replace(/{\w+Count}/, String(count))
+                            ?.replace(/{\w+count}/, String(count));
                         channel.edit({ name: newName });
                     }
                 }

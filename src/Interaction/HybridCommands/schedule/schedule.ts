@@ -111,6 +111,17 @@ export const command: Command = {
                 await chooseAction(i);
             });
 
+            collector.on('end', () => {
+                original_interaction.edit({
+                    content: null,
+                    embeds: [],
+                    files: [],
+                    components: [
+                        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(true)),
+                    ]
+                })
+            });
+
         } catch (e) {
             return await client.method.interactionSend(interaction, { content: lang.embed_timeout_getbtn });
         };
@@ -192,7 +203,7 @@ export const command: Command = {
                 if (!fetched || !fetched[arg0]) {
                     await original_interaction.edit({
                         content: lang.schedule_delete_not_found
-                            .replace('${arg0}', arg0), embeds: []
+                            .replace('${arg0}', arg0), embeds: [], files: []
                     });
                     return;
                 } else {
@@ -240,6 +251,8 @@ export const command: Command = {
                 } else {
                     await original_interaction.edit({
                         content: lang.schedule_deleteall_cancel,
+                        embeds: [],
+                        files: []
                     });
                     return;
                 }
@@ -249,7 +262,7 @@ export const command: Command = {
                 let fetched = await table.get(`${interaction.member?.user.id}`);
 
                 if (!fetched) {
-                    await original_interaction.edit({ content: lang.schedule_list_not_schedule, embeds: [] });
+                    await original_interaction.edit({ content: lang.schedule_list_not_schedule, embeds: [], files: [] });
                     return;
                 };
 
@@ -321,6 +334,7 @@ export const command: Command = {
                             embeds: [],
                             content: lang.schedule_create_not_number_time
                                 .replace('${interaction.user}', user.toString()),
+                            files: []
                         });
                         return;
                     };

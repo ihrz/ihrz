@@ -159,7 +159,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             pathString += x.required ? "]`**" + " " : ">`**" + " ";
         })
 
-        embed.setDescription((await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`)).startsWith("fr-") ? command.description_localizations["fr"] : command.description)
+        embed.setDescription((await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`))?.startsWith("fr-") ? command.description_localizations["fr"] : command.description)
         embed.setFields(
             {
                 name: lang.var_usage,
