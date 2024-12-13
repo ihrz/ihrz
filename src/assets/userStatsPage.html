@@ -4,209 +4,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     <style>
-        html,
         body {
-            height: 100%;
             margin: 0;
-            padding: 0;
-        }
-
-        body {
+            padding: 20px;
             font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
+            background: #2C2F33;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            box-sizing: border-box;
+            height: 100vh;
         }
 
-        .container {
-            background-color: #2c2c2c;
+        .card {
+            background: #23272A;
             border-radius: 15px;
             padding: 20px;
-            max-width: 100%;
-            width: 1024px;
-            height: auto;
-            box-sizing: border-box;
-            display: grid;
-            grid-template-rows: auto auto auto;
-            grid-template-columns: 1fr 2fr 1fr;
-            gap: 10px;
+            width: 800px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .header {
-            grid-column: span 3;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+
+        .header-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .username {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .rank {
+            color: #7289DA;
+            font-size: 18px;
+        }
+
+        .sections {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .section {
+            background: #2C2F33;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
             margin-bottom: 10px;
         }
 
-        .header h1 {
-            font-size: 28px;
-            margin: 0;
-        }
-
-        .header img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
-        .stat {
-            background-color: #383838;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        .section-content {
+            font-size: 14px;
         }
 
         .chart-container {
-            background-color: #383838;
+            background: #40444B;
+            border-radius: 10px;
+            margin-top: 20px;
             padding: 20px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            grid-column: span 1;
-            grid-row: span 1;
-        }
-
-        canvas {
-            max-width: 100%;
-            height: 400px;
-        }
-
-        .top-message-members,
-        .top-message-channels {
-            background-color: #383838;
-            padding: 15px;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            font-size: 16px;
-        }
-
-        .footer {
-            grid-column: span 3;
-            font-size: 12px;
-            color: #888;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        @media (max-width: 1024px) {
-            .container {
-                width: 90%;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-                width: 100%;
-            }
-
-            .stat,
-            .chart-container,
-            .top-message-members,
-            .top-message-channels {
-                width: 100%;
-            }
-        }
-
-        .noto-color-emoji-regular {
-            font-family: "Noto Color Emoji", sans-serif;
-            font-weight: 400;
-            font-style: normal;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
-
-    <div class="container">
+    <div class="card">
         <div class="header">
-            <h1>{header_h1_value}</h1>
-            <img src="{author_pfp}" alt="Server Logo">
+            <img src="{author_pfp}" alt="Avatar" class="avatar">
+            <div class="header-info">
+                <div class="username">{username}</div>
+                <div class="rank">{guild_name}</div>
+            </div>
         </div>
-
-        <div class="stat">
-            <p class="label" style="font-weight: bold;">{messages_word}</p>
-            <p>1d<br><strong>{message_daily} {messages_word}</strong></p>
-            <p>7d<br><strong>{message_weekly} {messages_word}</strong></p>
-            <p>30d<br><strong>{message_monthly} {messages_word}</strong></p>
+        <div class="sections">
+            <div class="section">
+                <div class="section-title">{top_voice} 🏆</div>
+                <div class="section-content">
+                    <strong>#{voice_top1}</strong>: {voice_top1_2} {minutes_word}<br>
+                    <strong>#{voice_top2}</strong>: {voice_top2_2} {minutes_word}<br>
+                    <strong>#{voice_top3}</strong>: {voice_top3_2} {minutes_word}
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">{top_message} 📊</div>
+                <div class="section-content">
+                    <strong>#{messages_top1}</strong>: {messages_top1_2} {messages_word}<br>
+                    <strong>#{messages_top2}</strong>: {messages_top2_2} {messages_word}<br>
+                    <strong>#{messages_top3}</strong>: {messages_top3_2} {messages_word}
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">{voice_activity} 🔊</div>
+                <div class="section-content">
+                    1d: {voice_daily} {minutes_word}<br>
+                    7d: {voice_weekly} {minutes_word}<br>
+                    30d: {voice_monthly} {minutes_word}
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">{messages_word} 📨</div>
+                <div class="section-content">
+                    1d: {message_daily} {messages_word}<br>
+                    7d: {message_weekly} {messages_word}<br>
+                    30d: {message_monthly} {messages_word}
+                </div>
+            </div>
         </div>
-
         <div class="chart-container">
             <canvas id="statsChart"></canvas>
         </div>
-
-        <div class="stat">
-            <p class="label" style="font-weight: bold;">{voice_activity}</p>
-            <p>1d<br><strong>{voice_daily} {minutes_word}</strong></p>
-            <p>7d<br><strong>{voice_weekly} {minutes_word}</strong></p>
-            <p>30d<br><strong>{voice_monthly} {minutes_word}</strong></p>
-        </div>
-
-        <div class="top-message-members">
-            <p class="label" style="font-weight: bold;">{top_message}</p>
-            <div class="list-item">
-                <span># {messages_top1}</span><span>{messages_top1_2} {messages_word}</span>
-            </div>
-            <div class="list-item">
-                <span># {messages_top2}</span><span>{messages_top2_2} {messages_word}</span>
-            </div>
-            <div class="list-item">
-                <span># {messages_top3}</span><span>{messages_top3_2} {messages_word}</span>
-            </div>
-        </div>
-
-        <div class="top-message-channels">
-            <p class="label" style="font-weight: bold;">{top_voice}</p>
-            <div class="list-item">
-                <span># {voice_top1}</span><span>{voice_top1_2} {minutes_word}</span>
-            </div>
-            <div class="list-item">
-                <span># {voice_top2}</span><span>{voice_top2_2} {minutes_word}</span>
-            </div>
-            <div class="list-item">
-                <span># {voice_top3}</span><span>{voice_top3_2} {minutes_word}</span>
-            </div>
-        </div>
-
-        <div class="top-message-channels">
-            <p class="label" style="font-weight: bold;">{guild_name}</p>
-            <div class="list-item">
-                <span>iHorizon</span>
-            </div>
-        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const messageData = {messageData}; 
-        const voiceData = {voiceData};
-
-        const labels = Array.from({ length: 30 }, (_, i) => `.`);
+        const messageData = { messageData };
+        const voiceData = { voiceData };
+        const labels = { timeLabels };
 
         const ctx = document.getElementById('statsChart').getContext('2d');
-        const statsChart = new Chart(ctx, {
+        new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
@@ -236,20 +171,13 @@
                     x: {
                         title: {
                             display: true,
-                            text: ''
-                        },
-                        ticks: {
-                            autoSkip: false,
-                            maxRotation: 0,
-                            minRotation: 0
+                            text: ' > '
                         }
                     },
                     y: {
                         title: {
                             display: true,
-                        },
-                        ticks: {
-                            stepSize: 5
+                            text: ' > '
                         },
                         beginAtZero: true
                     }
