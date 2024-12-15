@@ -198,6 +198,8 @@ export const command: Command = {
                 "fr": "Couper temporairement la possibilité d'envoyer des message pour un utilisateur"
             },
 
+            aliases: ["mute"],
+
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
