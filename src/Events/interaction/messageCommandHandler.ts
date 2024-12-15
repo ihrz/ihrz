@@ -24,6 +24,7 @@ import { LanguageData } from '../../../types/languageData';
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
 import { Option } from '../../../types/option';
+import { appendFile } from 'node:fs';
 
 type MessageCommandResponse = {
     success: boolean,
@@ -43,6 +44,19 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 
     if (!commandName) {
         return { success: false };
+    }
+
+    if (message.reference && message.reference.messageId) {
+        const referencedMessage = await message.channel.messages.fetch(message.reference.messageId);
+        if (referencedMessage && referencedMessage.author) {
+            const mainCommand = client.message_commands.get(commandName);
+            if (mainCommand && mainCommand.options) {
+                const userOptionIndex = mainCommand.options.findIndex(opt => opt.type === ApplicationCommandOptionType.User);
+                if (userOptionIndex !== -1 && args.length < mainCommand.options.length) {
+                    args.splice(userOptionIndex, 0, referencedMessage.author.id);
+                }
+            }
+        }
     }
 
     const directSubCommand = client.subCommands.get(commandName);
@@ -114,8 +128,16 @@ async function executeCommand(
     }
 
     var _ = await client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
-
+    logMessage(message, command, args);
     await command.run(client, message, lang, command, permCheck.neededPerm, args);
+}
+
+function logMessage(message: Message, command: Command | Option, args: string[]) {
+    appendFile(`${process.cwd()}/src/files/command.log`, `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}] "${message.guild?.name}" #${message.channel ? (message.channel as GuildChannel).name : 'Unknown Channel'}:\n${message.author.username}:\n${command.name} ${args.join(' ')}\n\n`, (err) => {
+        if (err) {
+            console.log('Error writing to command.log');
+        };
+    });
 }
 
 async function handleCommandError(client: Client, message: Message, command: Command | Option, error: any) {

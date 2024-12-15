@@ -49,7 +49,7 @@ export const command: Command = {
                 "fr": "le screen avant qu'il ce fasse défon",
             },
             type: ApplicationCommandOptionType.String,
-            required: true,
+            required: false,
         },
         {
             name: "image2",
@@ -58,7 +58,7 @@ export const command: Command = {
                 "fr": "le screen après qu'il ce soit défoncé",
             },
             type: ApplicationCommandOptionType.String,
-            required: true,
+            required: false,
         },
     ],
     thinking: false,
@@ -74,8 +74,8 @@ export const command: Command = {
     ) => {
         if (interaction.guild.preferredLocale !== 'fr') return;
 
-        const beforeSucksUrl = client.method.string(options!, 0);
-        const bigSucksUrl = client.method.string(options!, 1);
+        const beforeSucksUrl = client.method.string(options!, 0) || interaction.attachments.first()?.url;
+        const bigSucksUrl = client.method.string(options!, 1) || interaction.attachments.last()?.url;
 
         if (!beforeSucksUrl || !bigSucksUrl) {
             return interaction.reply('Please provide two valid image URLs.');
