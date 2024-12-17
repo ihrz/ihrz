@@ -62,7 +62,9 @@ export function setupHelpCategoryCollector(
             return;
         }
 
-        const categorySpecificEmbeds = categoryEmbeds[matchedCategory.value[0].category];
+        const categoryKey = selectedCategory;
+        const categorySpecificEmbeds = categoryEmbeds[categoryKey] ||
+            categoryEmbeds[matchedCategory.value[0].category];
 
         const row = new ActionRowBuilder<StringSelectMenuBuilder>()
             .addComponents(
@@ -99,8 +101,7 @@ export function setupHelpCategoryCollector(
                                         label: cat.name,
                                         value: cat.name.toLowerCase().replace(/\s+/g, '_'),
                                         emoji: cat.emoji
-                                    })
-                                    )
+                                    }))
                                 )
                                 .setDisabled(true)
                         )
@@ -134,6 +135,7 @@ export const command: Command = {
         } // by the way, this is a joke, don't take it seriouslys
 
         const categories: CategoryData[] = [];
+
         for (const cat of client.category) {
             const descriptionKey = cat.options.description;
             const description = lang[descriptionKey as keyof LanguageData].toString();
@@ -148,17 +150,32 @@ export const command: Command = {
 
             if (commands.length > 0) {
                 const embedPages: EmbedBuilder[] = [];
+                let suiteIndex = 0;
+                let fieldCount = 0;
                 let currentEmbed = new EmbedBuilder()
                     .setTitle(placeholder.toString())
                     .setDescription(lang.hybridcommands_embed_footer_text.replace('${botPrefix}', skidBot.botPrefix))
                     .setColor(skidBot.color as ColorResolvable)
                     .setFooter({ text: skidBot.footer });
 
-                let fieldCount = 0;
+                const suiteCategories: { name: string, commands: any[] }[] = [];
+                let currentSuiteCommands: any[] = [];
+
                 commands.forEach((cmd, index) => {
                     if (fieldCount >= 24) {
+                        embedPages.push(currentEmbed);
+
+                        suiteIndex++;
+                        const suiteCategoryName = `${placeholder.toString()} ${lang.h_suite} ${suiteIndex}`;
+                        currentSuiteCommands = commands.slice(index);
+
+                        suiteCategories.push({
+                            name: suiteCategoryName,
+                            commands: currentSuiteCommands
+                        });
+
                         currentEmbed = new EmbedBuilder()
-                            .setTitle(`${placeholder.toString()} ${lang.h_suite}`)
+                            .setTitle(suiteCategoryName)
                             .setDescription(lang.h_suite_desc)
                             .setColor(skidBot.color as ColorResolvable)
                             .setFooter({ text: skidBot.footer });
@@ -186,8 +203,37 @@ export const command: Command = {
                     color: "#1519f0",
                     emoji: cat.options.emoji
                 });
+
+                suiteCategories.forEach(suite => {
+                    const suiteEmbed = new EmbedBuilder()
+                        .setTitle(suite.name)
+                        .setDescription(lang.h_suite_desc)
+                        .setColor(skidBot.color as ColorResolvable)
+                        .setFooter({ text: skidBot.footer });
+
+                    suite.commands.forEach(cmd => {
+                        suiteEmbed.addFields({
+                            name: `\`${skidBot.botPrefix}${cmd.prefixCmd || cmd.cmd} ${cmd.usage}\``,
+                            value: (skidBot.lang.startsWith("fr") ? cmd.desc_localized["fr"] : cmd.desc)
+                        });
+                    });
+
+                    categoryEmbeds[suite.name.toLowerCase().replace(/\s+/g, '_')] = [suiteEmbed];
+
+                    categories.push({
+                        name: suite.name,
+                        value: suite.commands,
+                        inline: false,
+                        description: description,
+                        color: "#1519f0",
+                        emoji: cat.options.emoji
+                    });
+                });
             }
         }
+
+        categories.sort((a, b) => a.name.localeCompare(b.name));
+
 
         const row = new ActionRowBuilder<StringSelectMenuBuilder>()
             .addComponents(
