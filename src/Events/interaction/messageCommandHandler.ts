@@ -25,6 +25,7 @@ import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
 import { Option } from '../../../types/option';
 import { appendFile } from 'node:fs';
+import logger from '../../core/logger.js';
 
 type MessageCommandResponse = {
     success: boolean,
@@ -135,7 +136,7 @@ async function executeCommand(
 function logMessage(message: Message, command: Command | Option, args: string[]) {
     appendFile(`${process.cwd()}/src/files/command.log`, `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}] "${message.guild?.name}" #${message.channel ? (message.channel as GuildChannel).name : 'Unknown Channel'}:\n${message.author.username}:\n${command.name} ${args.join(' ')}\n\n`, (err) => {
         if (err) {
-            console.log('Error writing to command.log');
+            logger.err('Error writing to command.log');
         };
     });
 }

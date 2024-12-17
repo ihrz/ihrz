@@ -115,6 +115,26 @@ const getArgumentOptionTypeWithOptions = (o: Option): string => {
     return getArgumentOptionType(o.type);
 };
 
+export const stringifyOption = (option: Option[]): string => {
+    let _ = "";
+    option.forEach((value) => {
+        _ += value.required ? "[" : "<";
+        _ += getArgumentOptionTypeWithOptions(value);
+        _ += value.required ? "]" + " " : ">" + " ";
+    });
+    return _;
+}
+
+export const boldStringifyOption = (option: Option[]): string => {
+    let _ = "";
+    option.forEach((value) => {
+        _ += value.required ? "**`[" : "**`<";
+        _ += getArgumentOptionTypeWithOptions(value);
+        _ += value.required ? "]`**" + " " : ">`**" + " ";
+    });
+    return _;
+}
+
 export async function createAwesomeEmbed(lang: LanguageData, command: Command, client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message): Promise<EmbedBuilder> {
     var commandName = command.prefixName || command.name;
     var cleanCommandName = commandName.charAt(0).toUpperCase() + commandName.slice(1);;
@@ -132,13 +152,8 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
     if (hasSubCommand(command.options)) {
         command.options?.map(x => {
             var shortCommandName = x.prefixName || x.name;
-            var pathString = '';
+            var pathString = boldStringifyOption(x.options!);
 
-            x.options?.forEach((value) => {
-                pathString += value.required ? "**`[" : "**`<";
-                pathString += getArgumentOptionTypeWithOptions(value);
-                pathString += value.required ? "]`**" + " " : ">`**" + " ";
-            });
             var aliases = x.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none;
             var use = `${cleanBotPrefix}${shortCommandName} ${pathString}`;
 
@@ -149,15 +164,9 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
                     .replace("${use}", use)
             });
         });
-    } else if (command.options) {
+    } else {
         var CommandsPerm = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${command.name}`) as DatabaseStructure.UtilsPermsData[""] | undefined;
-        var pathString = '';
-
-        command.options?.map(x => {
-            pathString += x.required ? "**`[" : "**`<";
-            pathString += getArgumentOptionTypeWithOptions(x);
-            pathString += x.required ? "]`**" + " " : ">`**" + " ";
-        })
+        var pathString = boldStringifyOption(command.options || []);
 
         embed.setDescription((await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`))?.startsWith("fr-") ? command.description_localizations["fr"] : command.description)
         embed.setFields(

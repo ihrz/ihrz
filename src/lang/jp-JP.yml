@@ -411,6 +411,10 @@ help_notifier_fields: "通知機能"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "oAuth2を使用したサーバー検証。サーバーが攻撃されたり削除された場合でも、oAuth2を使用して古いメンバーを復元できます！"
 
+# /h
+h_suite: "(続き)"
+h_suite_desc: "*カテゴリのコマンドの続き*"
+
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
 

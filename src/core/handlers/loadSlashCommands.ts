@@ -45,6 +45,7 @@ async function processOptions(options: Option[], category: string, parentName: s
                     messageCmd: 0,
                     category: category,
                     desc: option.description,
+                    usage: null,
                     desc_localized: option.description_localizations
                 }
             )
@@ -62,10 +63,6 @@ export default async function loadCommands(client: Client, path: string = p): Pr
 
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
-
-    if (!client.commands) client.commands = new Collection<string, Command>();
-    if (!client.subCommands) client.subCommands = new Collection<string, Command>();
-    if (!client.message_commands) client.message_commands = new Collection<string, Command>();
 
     var i = 0;
     for (let path of paths) {
@@ -98,6 +95,7 @@ export default async function loadCommands(client: Client, path: string = p): Pr
                 desc: command.description,
                 category: command.category,
                 messageCmd: 0,
+                usage: null,
                 desc_localized: command.description_localizations
             });
 

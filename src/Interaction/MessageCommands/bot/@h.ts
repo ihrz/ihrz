@@ -1,0 +1,216 @@
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2024 iHorizon
+*/
+
+import {
+    Client,
+    Message,
+    EmbedBuilder,
+    ActionRowBuilder,
+    StringSelectMenuBuilder,
+    ColorResolvable,
+    BaseGuildTextChannel,
+    ComponentType
+} from 'discord.js';
+import { LanguageData } from '../../../../types/languageData';
+import { Command } from '../../../../types/command';
+import { CategoryData } from '../../../../types/category';
+import { guildPrefix } from '../../../core/functions/prefix.js';
+
+export function setupHelpCategoryCollector(
+    helpMessage: Message,
+    categoryEmbeds: { [key: string]: EmbedBuilder[] },
+    categories: CategoryData[],
+    lang: LanguageData,
+) {
+    const collector = helpMessage.createMessageComponentCollector({
+        componentType: ComponentType.StringSelect,
+        time: 120000 // 2 minutes
+    });
+
+    collector.on('collect', async (interaction) => {
+        if (interaction.customId !== 'help_category_select') return;
+
+        const selectedCategory = interaction.values[0];
+        const matchedCategory = categories.find(
+            cat => cat.name.toLowerCase().replace(/\s+/g, '_') === selectedCategory
+        );
+
+        if (!matchedCategory) {
+            await interaction.update({
+                content: lang.var_unreachable_command,
+                embeds: [],
+                components: []
+            });
+            return;
+        }
+
+        const categorySpecificEmbeds = categoryEmbeds[matchedCategory.value[0].category];
+
+        const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId('help_category_select')
+                    .setPlaceholder(lang.help_select_menu)
+                    .addOptions(
+                        categories.map(cat => ({
+                            label: cat.name,
+                            value: cat.name.toLowerCase().replace(/\s+/g, '_'),
+                            emoji: cat.emoji,
+                            default: cat.name.toLowerCase().replace(/\s+/g, '_') === selectedCategory
+                        }))
+                    )
+            );
+
+        await interaction.update({
+            embeds: [categorySpecificEmbeds[0]],
+            components: [row]
+        });
+    });
+
+    collector.on('end', async () => {
+        try {
+            await helpMessage.edit({
+                components: [
+                    new ActionRowBuilder<StringSelectMenuBuilder>()
+                        .addComponents(
+                            new StringSelectMenuBuilder()
+                                .setCustomId('help_category_select')
+                                .setPlaceholder(lang.help_select_menu)
+                                .addOptions(
+                                    categories.map(cat => ({
+                                        label: cat.name,
+                                        value: cat.name.toLowerCase().replace(/\s+/g, '_'),
+                                        emoji: cat.emoji
+                                    })
+                                    )
+                                )
+                                .setDisabled(true)
+                        )
+                ]
+            });
+        } catch (error) {
+            console.error('Error disabling help menu:', error);
+        }
+    });
+
+    return collector;
+}
+
+export const command: Command = {
+    name: 'h',
+    description: 'help menu for og user lmao',
+    description_localizations: {
+        "fr": "Un menu de help tah les matrixé"
+    },
+    thinking: false,
+    category: 'ownihrz',
+    type: "PREFIX_IHORIZON_COMMAND",
+    run: async (client: Client, interaction: Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+        const categoryEmbeds: { [key: string]: EmbedBuilder[] } = {};
+
+        const skidBot = {
+            color: "#1519f0",
+            footer: '© iHorizon 2024',
+            botPrefix: (await guildPrefix(client, interaction.guildId!)).string,
+            lang: await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || "en-US"
+        } // by the way, this is a joke, don't take it seriouslys
+
+        const categories: CategoryData[] = [];
+        for (const cat of client.category) {
+            const descriptionKey = cat.options.description;
+            const description = lang[descriptionKey as keyof LanguageData].toString();
+            const placeholderKey = cat.options.placeholder;
+            const placeholder = lang[placeholderKey as keyof LanguageData];
+
+            const commands = client.content.filter(c =>
+                c.category === cat.categoryName
+                && (c.messageCmd == 2 || c.messageCmd == 1)
+                && !(c.category === "ownihrz")
+            );
+
+            if (commands.length > 0) {
+                const embedPages: EmbedBuilder[] = [];
+                let currentEmbed = new EmbedBuilder()
+                    .setTitle(placeholder.toString())
+                    .setDescription(lang.hybridcommands_embed_footer_text.replace('${botPrefix}', skidBot.botPrefix))
+                    .setColor(skidBot.color as ColorResolvable)
+                    .setFooter({ text: skidBot.footer });
+
+                let fieldCount = 0;
+                commands.forEach((cmd, index) => {
+                    if (fieldCount >= 24) {
+                        currentEmbed = new EmbedBuilder()
+                            .setTitle(`${placeholder.toString()} ${lang.h_suite}`)
+                            .setDescription(lang.h_suite_desc)
+                            .setColor(skidBot.color as ColorResolvable)
+                            .setFooter({ text: skidBot.footer });
+                        fieldCount = 0;
+                    }
+
+                    currentEmbed.addFields({
+                        name: `\`${skidBot.botPrefix}${cmd.prefixCmd || cmd.cmd} ${cmd.usage}\``,
+                        value: (skidBot.lang.startsWith("fr") ? cmd.desc_localized["fr"] : cmd.desc)
+                    });
+                    fieldCount++;
+
+                    if (index === commands.length - 1) {
+                        embedPages.push(currentEmbed);
+                    }
+                });
+
+                categoryEmbeds[cat.categoryName] = embedPages;
+
+                categories.push({
+                    name: placeholder.toString(),
+                    value: commands,
+                    inline: false,
+                    description: description,
+                    color: "#1519f0",
+                    emoji: cat.options.emoji
+                });
+            }
+        }
+
+        const row = new ActionRowBuilder<StringSelectMenuBuilder>()
+            .addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId('help_category_select')
+                    .setPlaceholder(lang.help_select_menu)
+                    .addOptions(
+                        categories.map(cat => ({
+                            label: cat.name,
+                            value: cat.name.toLowerCase().replace(/\s+/g, '_'),
+                            emoji: cat.emoji
+                        }))
+                    )
+            );
+
+        const initialCategory = categories[0];
+        const initialEmbeds = categoryEmbeds[initialCategory.value[0].category];
+
+        const helpMessage = await (interaction.channel as BaseGuildTextChannel).send({
+            embeds: [initialEmbeds[0]],
+            components: [row]
+        });
+
+        setupHelpCategoryCollector(helpMessage, categoryEmbeds, categories, lang);
+    }
+};

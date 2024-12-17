@@ -28,6 +28,7 @@ export interface BotContent {
     category: string;
     aliases?: string[];
     desc: string;
+    usage: string | null;
     desc_localized: DescriptionLocalizations;
     messageCmd: 0 | 1 | 2;
     // 0 > Slash Commands
