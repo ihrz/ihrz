@@ -25,6 +25,7 @@ import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
 import { Option } from '../../../types/option';
 import { appendFile } from 'node:fs';
+import logger from '../../core/logger.js';
 
 type MessageCommandResponse = {
     success: boolean,

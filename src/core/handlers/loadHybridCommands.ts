@@ -47,6 +47,7 @@ async function processOptions(options: Option[], category: string, parentName: s
                     messageCmd: 2,
                     category: category,
                     desc: option.description,
+                    usage: argsHelper.stringifyOption(option.options || []),
                     desc_localized: option.description_localizations
                 }
             )
@@ -65,9 +66,6 @@ export default async function loadCommands(client: Client, path: string = p): Pr
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
 
-    if (!client.commands) client.commands = new Collection<string, Command>();
-    if (!client.subCommands) client.subCommands = new Collection<string, Command>();
-    if (!client.message_commands) client.message_commands = new Collection<string, Command>();
     if (!client.method) client.method = argsHelper;
 
     var i = 0;
@@ -96,13 +94,16 @@ export default async function loadCommands(client: Client, path: string = p): Pr
                 process.exit(1);
             }
 
-            client.content.push({
-                cmd: command.name,
-                desc: command.description,
-                desc_localized: command.description_localizations,
-                category: command.category,
-                messageCmd: 2,
-            });
+            if (!argsHelper.hasSubCommand(command.options)) {
+                client.content.push({
+                    cmd: command.name,
+                    desc: command.description,
+                    desc_localized: command.description_localizations,
+                    category: command.category,
+                    usage: argsHelper.stringifyOption(command.options || []),
+                    messageCmd: 2,
+                });
+            }
 
             client.commands.set(command.name, command);
             client.message_commands.set(command.name, command);

@@ -337,6 +337,8 @@ export interface LanguageData {
   help_notifier_fields: string;
   help_restorecord_fields: string;
   help_restorecord_dsc: string;
+  h_suite: string;
+  h_suite_desc: string;
   say_footer_msg: string;
   ping_down_msg: string;
   ping_embed_desc: string;

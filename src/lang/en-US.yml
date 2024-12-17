@@ -411,6 +411,10 @@ help_notifier_fields: "Notifier"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "Made server verification with oAuth2. When you server got raided/termed, with this oAuth2, you can recover your old members !"
 
+# /h
+h_suite: "(Continued)"
+h_suite_desc: "*Continued commands of the category*"
+
 # /say
 say_footer_msg: "\n\nSent from `/say` by ${interaction.user}"
 

@@ -408,6 +408,10 @@ help_notifier_fields: "المُبلغ"
 help_restorecord_fields: "استعادة كورد"
 help_restorecord_dsc: "التحقق من الخادم باستخدام oAuth2. عندما يتعرض خادمك لهجوم أو يُلغى، يمكنك استعادة الأعضاء القدامى باستخدام oAuth2!"
 
+# /h
+h_suite: "(تتمة)"
+h_suite_desc: "*استمرار أوامر الفئة*"
+
 # /say
 say_footer_msg: "\n\nأُرسل من `/say` بواسطة ${interaction.user}"
 

@@ -31,6 +31,13 @@ interface Action {
     type: number;
     metadata: Record<string, any>;
 };
+
+const regexPatterns = [
+    '(discord\\.gg\\/|\\.gg\\/|gg\\/|https?:\\/\\/|http?:\\/\\/)',
+    '[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
+];
+
+
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
@@ -80,10 +87,7 @@ export default {
                     triggerType: 1,
                     triggerMetadata:
                     {
-                        regexPatterns: [
-                            '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
-                            '/(discord\.gg\/|\.gg\/|gg\/)/i'
-                        ]
+                        regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
                     },
                     actions: arrayActionsForRule
                 });
@@ -93,10 +97,7 @@ export default {
                     enabled: true,
                     triggerMetadata:
                     {
-                        regexPatterns: [
-                            '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
-                            '/(discord\.gg\/|\.gg\/|gg\/)/i',
-                        ]
+                        regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
                     },
                     actions: [
                         {

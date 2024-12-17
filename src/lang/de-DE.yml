@@ -411,6 +411,10 @@ help_notifier_fields: "Benachrichtigung"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "Verifizierung des Servers mit oAuth2. Wenn Ihr Server angegriffen oder gelöscht wurde, können Sie Ihre alten Mitglieder über oAuth2 zurückholen!"
 
+# /h
+h_suite: "(Fortsetzung)"
+h_suite_desc: "*Fortsetzung der Kategoriekommandos*"
+
 # /say
 say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
 

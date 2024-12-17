@@ -411,6 +411,10 @@ help_notifier_fields: "Уведомитель"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "Проверка сервера с помощью oAuth2. Если ваш сервер был атакован или удален, вы можете восстановить своих старых участников с помощью oAuth2!"
 
+# /h
+h_suite: "(Продолжение)"
+h_suite_desc: "*Продолжение команд категории*"
+
 # /say
 say_footer_msg: "\n\nОтправлено из `/говорить` от ${interaction.user}"
 
