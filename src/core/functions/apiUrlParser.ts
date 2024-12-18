@@ -41,6 +41,7 @@ export enum GatewayMethod {
     ForceJoinRestoreCord = 2,
     AddSecurityCodeAmount = 3,
     ChangeRole = 4,
+    UserInfo = 5,
 };
 
 
@@ -133,6 +134,9 @@ export function HorizonGateway(gateway_method: GatewayMethod): string {
             break
         case 4:
             data += "/api/ihorizon/v1/role"
+            break;
+        case 5:
+            data += "/api/ihorizon/v1/userinfo"
             break;
     }
 

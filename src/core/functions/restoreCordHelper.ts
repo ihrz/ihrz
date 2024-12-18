@@ -22,7 +22,7 @@
 import * as apiUrlParser from "./apiUrlParser.js";
 import { axios } from "./axios.js";
 
-export const Oauth2_Link = 'https://discord.com/oauth2/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope=identify+guilds+guilds.join&state={guild_id}'
+export const Oauth2_Link = 'https://discord.com/oauth2/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&state={guild_id}'
 
 // {client_id}: id of the app/bot, 
 // {redirect_uri}: URL OF HORIZON GATEWAY, 
@@ -99,6 +99,7 @@ export function createRestoreCordLink(data: RestoreCord_EntryType): string {
         .replace("{client_id}", data.clientId!)
         .replace("{guild_id}", data.guildId)
         .replace("{redirect_uri}", apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.GenerateOauthLink))
+        .replace("{scope}", "identify+guilds+guilds.join")
 }
 
 export async function createRestoreCord(data: RestoreCord_EntryType): Promise<RestoreCord_ResponseType> {
