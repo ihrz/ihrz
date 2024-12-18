@@ -41,6 +41,7 @@ export enum GatewayMethod {
     ForceJoinRestoreCord = 2,
     AddSecurityCodeAmount = 3,
     ChangeRole = 4,
+    UserInfo = 5,
 };
 
 

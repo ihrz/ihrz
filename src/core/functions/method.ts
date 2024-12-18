@@ -36,7 +36,7 @@ export function isNumber(str: string): boolean {
 }
 
 export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
-    return interaction.content.startsWith(`<@${interaction.client.user.id}`)
+    return interaction.content?.startsWith(`<@${interaction.client.user.id}`)
         ?
         interaction.mentions.parsedUsers
             .map(x => x)
@@ -152,7 +152,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
     if (hasSubCommand(command.options)) {
         command.options?.map(x => {
             var shortCommandName = x.prefixName || x.name;
-            var pathString = boldStringifyOption(x.options!);
+            var pathString = boldStringifyOption(x.options || []);
 
             var aliases = x.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none;
             var use = `${cleanBotPrefix}${shortCommandName} ${pathString}`;

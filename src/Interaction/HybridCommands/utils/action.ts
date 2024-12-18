@@ -46,7 +46,8 @@ export const command: Command = {
 
     options: [
         {
-            name: "ball",
+            name: "all",
+            prefixName: "unbanall",
 
             description: "Unban all member of the guild",
             description_localizations: {
