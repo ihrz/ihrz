@@ -36,7 +36,7 @@ export function isNumber(str: string): boolean {
 }
 
 export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
-    return interaction.content.startsWith(`<@${interaction.client.user.id}`)
+    return interaction.content?.startsWith(`<@${interaction.client.user.id}`)
         ?
         interaction.mentions.parsedUsers
             .map(x => x)

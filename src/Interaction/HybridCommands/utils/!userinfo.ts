@@ -31,6 +31,7 @@ import {
     ButtonStyle,
     ChatInputCommandInteraction,
     Message,
+    UserContextMenuCommandInteraction,
 } from 'discord.js';
 
 import { axios } from '../../../core/functions/axios.js';
@@ -47,7 +48,7 @@ function createOauth2Link(client_id: string): string {
         .replace("{scope}", "identify")
 }
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | UserContextMenuCommandInteraction | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing
@@ -123,11 +124,13 @@ export default {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('user') || interaction.user;
+        } else if (interaction instanceof UserContextMenuCommandInteraction) {
+            var member = interaction.options.getUser('user') || interaction.user;
         } else {
             var member = await client.method.user(interaction, args!, 0) || interaction.author;
         };
 
-        const originalInteraction = await client.method.interactionSend(interaction, {
+        const originalInteraction = await client.method.interactionSend(interaction as ChatInputCommandInteraction, {
             content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
         });
 
@@ -228,31 +231,38 @@ export default {
         let fetchedUser = savedUsers.find((x) => x.id === member.id);
 
         async function GetNitro(): Promise<{ badge: string; type: string; }> {
-            let result = await axios.post(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.UserInfo),
-                {
-                    accessToken: fetchedUser?.token,
-                    adminKey: client.config.api.apiToken,
-                },
-            )
-            let input = result.data.premium_type;
-
             let badge = '';
             let type = '';
 
-            switch (input) {
-                case 1:
-                    badge = client.iHorizon_Emojis.badge.Nitro;
-                    type = "Nitro Classic";
-                    break;
-                case 2:
-                    badge = client.iHorizon_Emojis.badge.Nitro + client.iHorizon_Emojis.badge.Server_Boost_Badge;
-                    type = "Nitro Boost";
-                    break;
-                case 3:
-                    badge = client.iHorizon_Emojis.badge.Nitro;
-                    type = "Nitro Basic";
-                    break;
-            };
+            try {
+                let result = await axios.post(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.UserInfo),
+                    {
+                        accessToken: fetchedUser?.token,
+                        adminKey: client.config.api.apiToken,
+                    },
+                )
+                let input = result.data.premium_type;
+
+
+                switch (input) {
+                    case 1:
+                        badge = client.iHorizon_Emojis.badge.Nitro;
+                        type = "Nitro Classic";
+                        break;
+                    case 2:
+                        badge = client.iHorizon_Emojis.badge.Nitro + client.iHorizon_Emojis.badge.Server_Boost_Badge;
+                        type = "Nitro Boost";
+                        break;
+                    case 3:
+                        badge = client.iHorizon_Emojis.badge.Nitro;
+                        type = "Nitro Basic";
+                        break;
+                };
+            } catch (e) {
+                badge = '';
+                type = '';
+            }
+
 
             return { badge, type };
         };

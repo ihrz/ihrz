@@ -32,5 +32,5 @@ export interface AnotherCommand {
     name: string,
     type: ApplicationCommandType,
     thinking: boolean,
-    async run(client: Client, interaction: ChatInputCommandInteraction<"cached">): Promise<any>
+    async run(client: Client, interaction: UserContextMenuCommandInteraction<"cached">): Promise<any>
 }
