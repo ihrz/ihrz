@@ -137,7 +137,7 @@ export default {
 
             let user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, {
                 headers: {
-                    Authorization: `Bot ${config.discord.token}`
+                    Authorization: `Bot ${client.token}`
                 }
             })).data;
 
