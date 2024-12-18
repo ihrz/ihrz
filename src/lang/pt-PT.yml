@@ -616,6 +616,7 @@ setrankroles_logs_embed_title_disable: "Definir Função de Classificação"
 setrankroles_command_work_disable: "<@${interaction.user.id}>, você deletou a função de classificação!"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} O comando encontrou um erro! Por favor, tente novamente mais tarde."
 setrankroles_command_work_with_nicknames: "Agora, quando você me mencionar `@iHorizon`, eu adicionarei as seguintes funções: <@&${argsid}> **Apenas se o usuário tiver** `${nicknames}` no nome de usuário ou globalName"
+setrankroles_command_work_with_nicknames_2: "\n**Nota**:\nSe a pessoa remover a parte do nickname, o cargo será removido automaticamente. Quando o colocar de volta, eu voltarei a atribuir-lhe o cargo."
 
 # /snipe
 snipe_no_previous_message_deleted: "Nenhuma mensagem deletada neste canal!"

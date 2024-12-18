@@ -24,6 +24,7 @@ import { Client, GuildMember, TextChannel } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure';
 import logger from '../../core/logger.js';
+import { formatNumber } from '../../core/functions/numberBeautifuer.js';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
@@ -38,9 +39,9 @@ export const event: BotEvent = {
 
             if (!baseData) return;
 
-            const mappings: { key: keyof DatabaseStructure.MemberCountSchema, count: number }[] = [
+            const mappings: { key: keyof DatabaseStructure.MemberCountSchema, count: number | string }[] = [
                 { key: 'bot', count: botMembersCount },
-                { key: 'member', count: guild.memberCount },
+                { key: 'member', count: formatNumber(guild.memberCount) },
                 { key: 'roles', count: rolesCount },
                 { key: 'boost', count: boostsCount },
                 { key: 'channel', count: rolesCount }

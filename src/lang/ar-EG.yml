@@ -612,6 +612,7 @@ setrankroles_logs_embed_title_disable: "تعيين دور التصنيف"
 setrankroles_command_work_disable: "<@${interaction.user.id}>, لقد قمت بحذف دور التصنيف!"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} حدث خطأ في الأمر! يرجى المحاولة مرة أخرى لاحقًا."
 setrankroles_command_work_with_nicknames: "الآن، عندما تشير إليّ بـ `@iHorizon` سأضيف الأدوار التالية: <@&${argsid}> **فقط إذا كان المستخدم يحتوي على** `${nicknames}` في اسم المستخدم أو الاسم العالمي."
+setrankroles_command_work_with_nicknames_2: "\n**ملاحظة**:\nإذا أزالت الشخص الجزء من اللقب، سيتم إزالة الدور تلقائيًا. عندما تعيده، سأعيد له الدور."
 
 # /snipe
 snipe_no_previous_message_deleted: "لا توجد رسائل محذوفة في هذه القناة!"

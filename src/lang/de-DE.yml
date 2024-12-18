@@ -616,6 +616,7 @@ setrankroles_logs_embed_title_disable: "Rangrolle setzen"
 setrankroles_command_work_disable: "<@${interaction.user.id}>, du hast die Rangrolle gelöscht!"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} Bei der Ausführung des Befehls ist ein Fehler aufgetreten! Bitte versuche es später erneut."
 setrankroles_command_work_with_nicknames: "Wenn du mich jetzt mit `@iHorizon` pingst, werde ich die folgenden Rollen hinzufügen: <@&${argsid}> **Nur wenn der Benutzer** `${nicknames}` in seinem Benutzernamen oder globalen Namen hat"
+setrankroles_command_work_with_nicknames_2: "\n**Hinweis**:\nWenn die Person den Teil des Nicknamen entfernt, wird die Rolle automatisch entfernt. Wenn sie ihn wieder hinzufügt, werde ich ihm die Rolle zurückgeben."
 
 # /snipe
 snipe_no_previous_message_deleted: "Keine Nachricht in diesem Kanal gelöscht!"

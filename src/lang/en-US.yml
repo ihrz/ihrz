@@ -615,6 +615,7 @@ setrankroles_logs_embed_title_disable: "Set RankRole"
 setrankroles_command_work_disable: "<@${interaction.user.id}>, you have deleted the rank role !"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} The command has encountered an error! Please try again later."
 setrankroles_command_work_with_nicknames: "Now when you ping me `@iHorizon` i will add the following roles: <@&${argsid}> **Only if the user have** `${nicknames}` in them username or globalName"
+setrankroles_command_work_with_nicknames_2: "\n**Note**:\nIf the person removes the part of the nickname, the role will be automatically removed. When they put it back, I will give it back to them."
 
 # /snipe
 snipe_no_previous_message_deleted: "No message deleted in this channel !"
