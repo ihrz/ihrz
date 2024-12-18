@@ -35,14 +35,23 @@ export default {
             var gender = interaction.options.getString("gender")!;
             var user = interaction.user;
         } else {
-            
-            var gender = args?.join(" ") || "None"; 
+            var gender = args?.join(" ") || "None";
             var user = interaction.author;
         };
 
         let tableProfil = client.db.table('USER_PROFIL');
 
-        await tableProfil.set(`${user.id}.gender`, gender);
+        switch (gender) {
+            case "female":
+                await tableProfil.set(`${user.id}.gender`, "♀ Female");
+                break;
+            case "male":
+                await tableProfil.set(`${user.id}.gender`, "♂ Male");
+                break;
+            case "non-binary":
+                await tableProfil.set(`${user.id}.gender`, "⚧ Non-binary");
+                break;
+        }
 
         await client.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, ephemeral: true });
         return;
