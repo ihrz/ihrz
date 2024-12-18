@@ -616,6 +616,7 @@ setrankroles_logs_embed_title_disable: "Imposta Ruolo di Classifica"
 setrankroles_command_work_disable: "<@${interaction.user.id}>, hai eliminato il ruolo di classifica!"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} Si è verificato un errore durante l'esecuzione del comando! Riprova più tardi."
 setrankroles_command_work_with_nicknames: "Ora, quando mi pinghi `@iHorizon`, aggiungerò i seguenti ruoli: <@&${argsid}> **Solo se l'utente ha** `${nicknames}` nel suo nome utente o nome globale"
+setrankroles_command_work_with_nicknames_2: "\n**Nota**:\nSe la persona rimuove la parte del nickname, il ruolo verrà rimosso automaticamente. Quando lo reinserirà, glielo ridò."
 
 # /snipe
 snipe_no_previous_message_deleted: "Nessun messaggio eliminato in questo canale!"

@@ -616,6 +616,7 @@ setrankroles_logs_embed_title_disable: "Установить роли ранго
 setrankroles_command_work_disable: "<@${interaction.user.id}>, вы удалили роль рангов!"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} Команда столкнулась с ошибкой! Попробуйте еще раз позже."
 setrankroles_command_work_with_nicknames: "Теперь, когда вы упоминаете меня с `@iHorizon`, я добавлю следующие роли: <@&${argsid}> **Только если у пользователя в имени пользователя или глобальном имени есть** `${nicknames}`"
+setrankroles_command_work_with_nicknames_2: "\n**Примечание**:\nЕсли пользователь удалит часть никнейма, роль будет автоматически снята. Когда он его вернет, я верну ему роль."
 
 # /snipe
 snipe_no_previous_message_deleted: "В этом канале нет удаленных сообщений!"

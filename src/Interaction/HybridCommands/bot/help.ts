@@ -438,7 +438,7 @@ export const command: Command = {
 
             if (!fetchCommand) {
                 await client.method.interactionSend(interaction, {
-                    content: `${client.iHorizon_Emojis.icon.No_Logo}`
+                    content: client.iHorizon_Emojis.icon.No_Logo + " | " + lang.var_unreachable_command,
                 })
                 return;
             }

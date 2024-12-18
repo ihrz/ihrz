@@ -39,14 +39,22 @@ export function setupHelpCategoryCollector(
     categoryEmbeds: { [key: string]: EmbedBuilder[] },
     categories: CategoryData[],
     lang: LanguageData,
+    authorId: string
 ) {
     const collector = helpMessage.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
-        time: 120000 // 2 minutes
+        time: 120000 * 15// 30 minutes
     });
 
     collector.on('collect', async (interaction) => {
         if (interaction.customId !== 'help_category_select') return;
+        if (interaction.user.id !== authorId) {
+            await interaction.reply({
+                content: lang.help_not_for_you,
+                ephemeral: true
+            });
+            return;
+        };
 
         const selectedCategory = interaction.values[0];
         const matchedCategory = categories.find(
@@ -122,7 +130,7 @@ export const command: Command = {
         "fr": "Un menu de help tah les matrixé"
     },
     thinking: false,
-    category: 'ownihrz',
+    category: 'bot',
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
         const categoryEmbeds: { [key: string]: EmbedBuilder[] } = {};
@@ -182,8 +190,12 @@ export const command: Command = {
                         fieldCount = 0;
                     }
 
+                    let fields_name = `\`${skidBot.botPrefix}${cmd.prefixCmd || cmd.cmd}`
+                    if (cmd.usage) fields_name += " " + cmd.usage;
+                    fields_name += "`";
+
                     currentEmbed.addFields({
-                        name: `\`${skidBot.botPrefix}${cmd.prefixCmd || cmd.cmd} ${cmd.usage}\``,
+                        name: fields_name,
                         value: (skidBot.lang.startsWith("fr") ? cmd.desc_localized["fr"] : cmd.desc)
                     });
                     fieldCount++;
@@ -212,8 +224,12 @@ export const command: Command = {
                         .setFooter({ text: skidBot.footer });
 
                     suite.commands.forEach(cmd => {
+                        let fields_name = `\`${skidBot.botPrefix}${cmd.prefixCmd || cmd.cmd}`
+                        if (cmd.usage) fields_name += " " + cmd.usage;
+                        fields_name += "`";
+
                         suiteEmbed.addFields({
-                            name: `\`${skidBot.botPrefix}${cmd.prefixCmd || cmd.cmd} ${cmd.usage}\``,
+                            name: fields_name,
                             value: (skidBot.lang.startsWith("fr") ? cmd.desc_localized["fr"] : cmd.desc)
                         });
                     });
@@ -257,6 +273,6 @@ export const command: Command = {
             components: [row]
         });
 
-        setupHelpCategoryCollector(helpMessage, categoryEmbeds, categories, lang);
+        setupHelpCategoryCollector(helpMessage, categoryEmbeds, categories, lang, interaction.member?.user.id!);
     }
 };

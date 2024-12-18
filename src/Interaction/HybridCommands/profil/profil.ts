@@ -52,6 +52,8 @@ export const command: Command = {
                 "fr": "Voir le profil iHorizon du membre"
             },
 
+            aliases: ["me", "prof"],
+
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
@@ -142,24 +144,24 @@ export const command: Command = {
                     name: 'gender',
                     type: ApplicationCommandOptionType.String,
 
-                    description: "Faite votre choix",
+                    description: "Gender that fits you the most",
                     description_localizations: {
-                        "fr": "L'utilisateur que vous souhaitez rechercher"
+                        "fr": "Le genre qui vous correspond le plus"
                     },
 
                     required: true,
                     choices: [
                         {
                             name: "♀ Female",
-                            value: "♀️ Female"
+                            value: "female"
                         },
                         {
                             name: "♂ Male",
-                            value: "♂️ Male"
+                            value: "male"
                         },
                         {
-                            name: "🚻 Other",
-                            value: "⚧️ Other"
+                            name: "⚧ Non-binary",
+                            value: "non-binary"
                         }
                     ]
                 }

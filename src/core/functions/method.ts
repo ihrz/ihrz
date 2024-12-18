@@ -122,7 +122,7 @@ export const stringifyOption = (option: Option[]): string => {
         _ += getArgumentOptionTypeWithOptions(value);
         _ += value.required ? "]" + " " : ">" + " ";
     });
-    return _;
+    return _.trim();
 }
 
 export const boldStringifyOption = (option: Option[]): string => {
@@ -132,7 +132,7 @@ export const boldStringifyOption = (option: Option[]): string => {
         _ += getArgumentOptionTypeWithOptions(value);
         _ += value.required ? "]`**" + " " : ">`**" + " ";
     });
-    return _;
+    return _.trim();
 }
 
 export async function createAwesomeEmbed(lang: LanguageData, command: Command, client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message): Promise<EmbedBuilder> {

@@ -616,6 +616,7 @@ setrankroles_logs_embed_title_disable: "ランクロールの設定"
 setrankroles_command_work_disable: "<@${interaction.user.id}> さん、ランクロールを削除しました！"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} コマンドの実行中にエラーが発生しました！後でもう一度お試しください。"
 setrankroles_command_work_with_nicknames: "今、あなたが私を `@iHorizon` でピンすると、次の役割を追加します: <@&${argsid}> **ユーザーがユーザー名またはグローバル名に** `${nicknames}` **を持っている場合のみ**"
+setrankroles_command_work_with_nicknames_2: "\n**注意**:\nニックネームの一部を削除した場合、ロールは自動的に削除されます。再度追加した際には、ロールを再度付与します。"
 
 # /snipe
 snipe_no_previous_message_deleted: "このチャンネルで削除されたメッセージはありません！"

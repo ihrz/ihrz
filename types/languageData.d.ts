@@ -463,6 +463,7 @@ export interface LanguageData {
   setrankroles_command_work_disable: string;
   setrankroles_command_error: string;
   setrankroles_command_work_with_nicknames: string;
+  setrankroles_command_work_with_nicknames_2: string;
   snipe_no_previous_message_deleted: string;
   userinfo_wait_please: string;
   userinfo_embed_fields_1_name: string;
