@@ -37,16 +37,7 @@ import {
 import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Oauth2_Link, oauth2Member } from '../../../core/functions/restoreCordHelper.js';
-import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 
-function createOauth2Link(client_id: string): string {
-    return Oauth2_Link
-        .replace("{client_id}", client_id)
-        .replace("{guild_id}", "")
-        .replace("{redirect_uri}", apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.GenerateOauthLink))
-        .replace("{scope}", "identify")
-}
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | UserContextMenuCommandInteraction | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
@@ -151,8 +142,7 @@ export default {
             };
 
             let badges = getBadges(member.flags?.bitfield!);
-            let nitro = await GetNitro();
-            badges += nitro.badge;
+            let nitro = '';
 
             let embed = new EmbedBuilder()
                 .setFooter(await client.method.bot.footerBuilder(interaction))
@@ -182,7 +172,7 @@ export default {
                     },
                     {
                         name: lang.userinfo_embed_fields_5_name,
-                        value: nitro.type || `[\`Not found\`](${createOauth2Link(client.user?.id!)})`,
+                        value: "Not available yet",
                         inline: true,
                     },
                     {
@@ -224,47 +214,6 @@ export default {
             });
 
             return;
-        };
-
-        let table = client.db.table("RESTORECORD");
-        let savedUsers: oauth2Member[] = await table.get("saved_users") || [];
-        let fetchedUser = savedUsers.find((x) => x.id === member.id);
-
-        async function GetNitro(): Promise<{ badge: string; type: string; }> {
-            let badge = '';
-            let type = '';
-
-            try {
-                let result = await axios.post(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.UserInfo),
-                    {
-                        accessToken: fetchedUser?.token,
-                        adminKey: client.config.api.apiToken,
-                    },
-                )
-                let input = result.data.premium_type;
-
-
-                switch (input) {
-                    case 1:
-                        badge = client.iHorizon_Emojis.badge.Nitro;
-                        type = "Nitro Classic";
-                        break;
-                    case 2:
-                        badge = client.iHorizon_Emojis.badge.Nitro + client.iHorizon_Emojis.badge.Server_Boost_Badge;
-                        type = "Nitro Boost";
-                        break;
-                    case 3:
-                        badge = client.iHorizon_Emojis.badge.Nitro;
-                        type = "Nitro Basic";
-                        break;
-                };
-            } catch (e) {
-                badge = '';
-                type = '';
-            }
-
-
-            return { badge, type };
         };
 
         sendMessage(member);
