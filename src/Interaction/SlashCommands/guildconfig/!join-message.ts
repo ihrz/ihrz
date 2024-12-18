@@ -62,7 +62,7 @@ export default {
         let joinMessage = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`);
         let ImageBannerOptions = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
         let ImageBannerStates = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinbannerStates`) as string | undefined;
-        let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
+        let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "fr-FR";
 
         var backgroundURL = ImageBannerOptions?.backgroundURL || "https://img.freepik.com/vecteurs-libre/fond-courbe-bleue_53876-113112.jpg";
         var profilePictureRound = ImageBannerOptions?.profilePictureRound || "status";

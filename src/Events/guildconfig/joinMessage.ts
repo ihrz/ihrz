@@ -36,7 +36,7 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
     var textMessage = member.client.method.generateCustomMessagePreview("Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild", {
         user: member.user,
         guild: member.guild,
-        guildLocal: "en-US"
+        guildLocal: "fr-FR"
     });
     var textSize = "40px";
     var avatarSize = "140px"
@@ -118,7 +118,7 @@ export const event: BotEvent = {
 
         if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
 
-        let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
+        let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "fr-FR";
         let oldInvites = client.invites.get(member.guild.id);
         let newInvites = await member.guild.invites.fetch();
 

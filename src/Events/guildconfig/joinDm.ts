@@ -27,7 +27,7 @@ export const event: BotEvent = {
     run: async (client: Client, member: GuildMember) => {
         try {
             let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`)
-            let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
+            let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "fr-FR";
 
             if (!msg_dm || msg_dm === "off") return;
 

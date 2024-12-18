@@ -49,7 +49,7 @@ export default {
         };
 
         let joinDm = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`) as string | undefined;
-        let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
+        let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "fr-FR";
 
         joinDm = joinDm?.substring(0, 1010);
 

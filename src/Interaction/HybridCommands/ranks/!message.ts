@@ -49,7 +49,7 @@ export default {
         }
 
         let xpMessage = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.message`);
-        let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
+        let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "fr-FR";
 
         xpMessage = xpMessage?.substring(0, 1010);
 

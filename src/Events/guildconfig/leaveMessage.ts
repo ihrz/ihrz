@@ -35,7 +35,7 @@ export const event: BotEvent = {
          */
         const nonce = SnowflakeUtil.generate().toString();
         let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
-        let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
+        let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "fr-FR";
 
         try {
             let base = await client.db.get(`${member.guild.id}.USER.${member.user.id}.INVITES.BY`);

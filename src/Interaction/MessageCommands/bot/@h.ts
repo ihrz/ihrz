@@ -139,7 +139,7 @@ export const command: Command = {
             color: "#1519f0",
             footer: '© iHorizon 2024',
             botPrefix: (await guildPrefix(client, interaction.guildId!)).string,
-            lang: await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || "en-US"
+            lang: await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || "fr-FR"
         } // by the way, this is a joke, don't take it seriouslys
 
         const categories: CategoryData[] = [];
