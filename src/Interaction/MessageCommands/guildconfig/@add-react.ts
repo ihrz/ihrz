@@ -53,7 +53,7 @@ export const command: Command = {
     run: async (client: Client, interaction: Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
 
 
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
+        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.ManageGuildExpressions);
 
         let emoji = options![0];
 
