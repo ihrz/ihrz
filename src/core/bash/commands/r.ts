@@ -28,6 +28,10 @@ export const command: BashCommands = {
     command_name: "r",
     command_description: "Run an bash command",
     run: function (client: Client, args: string) {
-        execSync(args, { stdio: [0, 1, 2], cwd: process.cwd() });
+        try {
+            execSync(args, { stdio: [0, 1, 2], cwd: process.cwd() });
+        } catch (error) {
+            console.error((error as any).message);
+        }
     }
 };

@@ -50,6 +50,7 @@ import { CacheStorage } from './cache.js';
 import { getDatabaseInstance } from './database.js';
 import { KdenLive } from './functions/kdenliveManipulator.js';
 import { Command } from '../../types/command.js';
+import { BashCommands } from '../../types/bashCommands.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -82,6 +83,7 @@ export async function main(client: Client) {
 
     setMaxListeners(0)
 
+    client.bash = new Collection<string, BashCommands>();
     client.commands = new Collection<string, Command>();
     client.subCommands = new Collection<string, Command>();
     client.message_commands = new Collection<string, Command>();
