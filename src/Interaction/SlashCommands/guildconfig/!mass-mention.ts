@@ -73,23 +73,23 @@ export default {
             };
 
             try {
-
-                if (!mentionSpamRule) {
-
+                if (mentionSpamRule) {
+                    await mentionSpamRule.edit({
+                        name: 'Block mass-mention spam by iHorizon',
+                        enabled: true,
+                        eventType: 1,
+                        triggerMetadata: {
+                            mentionTotalLimit: max_mention,
+                            presets: [1, 2, 3]
+                        },
+                        actions: arrayActionsForRule
+                    })
+                } else {
                     await interaction.guild.autoModerationRules.create({
                         name: 'Block mass-mention spam by iHorizon',
                         enabled: true,
                         eventType: 1,
                         triggerType: 5,
-                        triggerMetadata:
-                        {
-                            mentionTotalLimit: max_mention,
-                            presets: [1, 2, 3]
-                        },
-                        actions: arrayActionsForRule
-                    });
-                } else if (mentionSpamRule) {
-                    await mentionSpamRule.edit({
                         triggerMetadata:
                         {
                             mentionTotalLimit: max_mention,

@@ -43,6 +43,7 @@ import { InitData } from '../../types/initDataType.js';
 import { CacheStorage } from './cache.js';
 import DatabaseModel from './functions/DatabaseModel.js';
 import { Command } from '../../types/command.js';
+import { BashCommands } from '../../types/bashCommands.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -76,10 +77,11 @@ export async function main(client: Client) {
     assetsCalc(client);
     emojis(client);
 
+    client.bash = new Collection<string, BashCommands>();
     client.commands = new Collection<string, Command>();
     client.subCommands = new Collection<string, Command>();
     client.message_commands = new Collection<string, Command>();
-    client.db = DatabaseModel;
+    client.owners = [];
     client.content = [];
     client.category = [];
     client.invites = new Collection();

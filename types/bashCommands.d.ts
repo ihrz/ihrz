@@ -22,5 +22,6 @@
 export interface BashCommands {
     command_name: string;
     command_description: string;
+    aliases?: string[];
     run: any
 }
