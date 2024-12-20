@@ -51,7 +51,7 @@ export const command: Command = {
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
 
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
+        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.ManageGuildExpressions);
 
         let active: boolean;
 
