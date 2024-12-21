@@ -77,6 +77,7 @@ export async function main(client: Client) {
     assetsCalc(client);
     emojis(client);
 
+    client.db = DatabaseModel
     client.bash = new Collection<string, BashCommands>();
     client.commands = new Collection<string, Command>();
     client.subCommands = new Collection<string, Command>();
