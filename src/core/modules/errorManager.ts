@@ -42,6 +42,7 @@ export const uncaughtExceptionHandler = (client: Client) => {
     });
 
     process.on("unhandledRejection", function (err) {
+        console.error(err);
         if (!client.config.core.devMode) {
             logger.err(`${client.config.console.emojis.ERROR} >> Error detected`.red);
             logger.err(`${client.config.console.emojis.OK} >> Save in the logs`.gray);

@@ -222,6 +222,29 @@ export const command: Command = {
             ],
         },
         {
+            name: "panel",
+
+            description: "Making a panel for custom ticket configuration",
+            description_localizations: {
+                "fr": "Créer un panel pour customiser le système de ticket"
+            },
+
+            options: [
+                {
+                    name: "panel_id",
+
+                    description: "ID of your panel",
+                    description_localizations: {
+                        "fr": "L'identifiant du panel"
+                    },
+
+                    required: false,
+                    type: ApplicationCommandOptionType.String
+                }
+            ],
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
             name: "set-category",
 
             description: "Set the category where ticket are create!",

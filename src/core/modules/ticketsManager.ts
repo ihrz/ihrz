@@ -52,6 +52,7 @@ import { iHorizonModalResolve } from '../functions/modalHelper.js';
 import * as discordTranscripts from 'discord-html-transcripts';
 import { getDatabaseInstance } from '../database.js';
 import logger from '../logger.js';
+import { TicketPanel } from '../../Interaction/SlashCommands/ticket/!panel.js';
 
 const database = getDatabaseInstance();
 
@@ -444,6 +445,23 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
     }
 };
 
+type ModalResultArray = { questonPlaceholder: string | undefined; questionValue: string; }[];
+
+async function CreateTicketChannelV2(interaction: StringSelectMenuInteraction<"cached">) {
+    let panelCode = await interaction.client.db.get(
+        `${interaction.guildId}.GUILD.TICKET_PANEL.${interaction.message.id}`
+    ) as string | null;
+    let result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`) as TicketPanel;
+    let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+
+    if (userTickets) {
+        await interaction.deferUpdate();
+        return;
+    } else {
+        await CreateChannelV2(interaction, result);
+    };
+}
+
 interface ResultButton {
     panelName: string;
     reason?: boolean;
@@ -642,6 +660,199 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
             return;
         } catch (e) { return };
     }).catch(() => { });
+};
+
+async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached">, result: TicketPanel) {
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+
+    let values: ModalResultArray = [];
+    let reasonInteraction: ModalSubmitInteraction<"cached">;
+
+
+    if (result.config.form.length >= 1) {
+        let modalFields = result.config.form.map((field) => {
+            return {
+                customId: field.questionId.toString(),
+                label: field.questionTitle,
+                style: TextInputStyle.Short,
+                required: true,
+                placeHolder: field.questionPlaceholder,
+                maxLength: 240,
+                minLength: 1
+            }
+        });
+
+        let modal = await iHorizonModalResolve({
+            customId: 'ticket_reason_modal',
+            title: "Ticket Forms",
+            deferUpdate: false,
+            fields: modalFields
+        }, interaction);
+
+        if (!modal) return;
+        reasonInteraction = modal;
+
+        // get the values from the modal
+        values = modal.fields.fields.map((field) => {
+            return {
+                questonPlaceholder: modalFields.find((x) => x.customId === field.customId)?.label,
+                questionValue: modal.fields.getTextInputValue(field.customId)
+            }
+        });
+    }
+
+    await interaction.guild?.channels.create({
+        name: `ticket-${interaction.user.username}`,
+        type: ChannelType.GuildText,
+        parent: interaction.guild.channels.cache.get(result.category || "")?.id || null
+    }).then(async (channel) => {
+        if (result.category) {
+            channel.lockPermissions();
+        };
+
+        await channel.permissionOverwrites.edit(interaction.guild?.roles.everyone as Role,
+            {
+                ViewChannel: false,
+                SendMessages: false,
+                ReadMessageHistory: false
+            }
+        );
+
+        await channel.permissionOverwrites.edit(interaction.user.id,
+            {
+                ViewChannel: true,
+                SendMessages: true,
+                ReadMessageHistory: true,
+                AttachFiles: true,
+                UseApplicationCommands: true,
+                SendVoiceMessages: true,
+                EmbedLinks: true
+            }
+        );
+
+        if (reasonInteraction) {
+            await reasonInteraction.reply({
+                content: lang.event_ticket_whenCreated_msg
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${channel.id}', channel.id),
+                ephemeral: true
+            });
+        } else {
+            await interaction.reply({
+                content: lang.event_ticket_whenCreated_msg
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${channel.id}', channel.id),
+                ephemeral: true
+            });
+        }
+
+        let embeds: EmbedBuilder[] = []
+
+        // get categoryName from the values of the select menu
+        // find the category name from the values of the select menu
+        let categoryName = result.config.optionFields?.find(item => item.value === interaction.values[0]);
+
+        embeds.push(
+            new EmbedBuilder()
+                .setColor(2829617)
+                .setDescription(
+                    lang.sethereticket_panel_select_embed_desc
+                        .replace('${result.panelName}', result.placeholder)
+                        .replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
+                        .replace('{category}', categoryName?.name!)
+                )
+                .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
+        );
+
+        if (values.length > 0) {
+            let desc = "";
+            for (let x in values) {
+                desc += `## ${values[x].questonPlaceholder}\n\`${values[x].questionValue}\`\n`
+            }
+            embeds.push(
+                new EmbedBuilder()
+                    .setColor(2829617)
+                    .setDescription(desc)
+                    .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
+            );
+        }
+
+        await database.set(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
+            {
+                channel: channel.id,
+                author: interaction.user.id,
+                alive: true
+            }
+        );
+
+        let delete_ticket_button = new ButtonBuilder()
+            .setCustomId('t-embed-delete-ticket')
+            .setEmoji('🗑️')
+            .setLabel(lang.ticket_module_button_delete)
+            .setStyle(ButtonStyle.Danger);
+
+        let transcript_ticket_button = new ButtonBuilder()
+            .setCustomId('t-embed-transcript-ticket')
+            .setEmoji('📜')
+            .setLabel(lang.ticket_module_button_transcript)
+            .setStyle(ButtonStyle.Primary);
+
+        let selectUsersMenu = new UserSelectMenuBuilder()
+            .setCustomId('t-embed-select-user')
+            .setPlaceholder(`${lang.ticket_module_button_addmember} / ${lang.ticket_module_button_removemember}`)
+            .setMinValues(0)
+            .setMaxValues(10);
+
+        let content: string = "";
+
+        if (result.config.pingUser) {
+            content = interaction.user.toString();
+        };
+
+        if (result.config.rolesToPing) {
+            result.config.rolesToPing.forEach((role) => {
+                content += `<@&${role}> `
+            })
+        };
+
+        (channel as BaseGuildTextChannel).send({
+            embeds: embeds,
+            content: content === "" ? undefined : content,
+            components: [
+                new ActionRowBuilder<UserSelectMenuBuilder>()
+                    .addComponents(selectUsersMenu)
+                , new ActionRowBuilder<ButtonBuilder>()
+                    .addComponents(transcript_ticket_button)
+                    .addComponents(delete_ticket_button)
+            ],
+            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+        }).then(async (msg) => {
+            await msg.pin("Ticket Panel").catch(() => { })
+        }).catch((err: any) => {
+            logger.err(err)
+        });
+
+        try {
+            let TicketLogsChannel = await database.get(`${interaction.guildId}.GUILD.TICKET.logs`);
+            TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+            if (!TicketLogsChannel) return;
+
+            let embed = new EmbedBuilder()
+                .setColor("#008000")
+                .setTitle(lang.event_ticket_logsChannel_onCreationChannel_embed_title)
+                .setDescription(lang.event_ticket_logsChannel_onCreationChannel_embed_desc
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${channel.id}', channel.id)
+                )
+                .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
+                .setTimestamp();
+
+            TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
+            return;
+        } catch (e) { return };
+    }).catch((e) => {
+        console.log(e)
+    });
 };
 
 async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
@@ -1014,6 +1225,7 @@ export {
 
     CloseTicket,
     CreateTicketChannel,
+    CreateTicketChannelV2,
     CreateSelectPanel,
     TicketTranscript,
     TicketDelete,

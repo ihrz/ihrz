@@ -49,7 +49,7 @@ export const command: Command = {
                 "fr": "Gérer le module antispam"
             },
 
-            aliases: ["mng"],
+            aliases: ["mng", "antimng"],
 
 
             type: ApplicationCommandOptionType.Subcommand,
