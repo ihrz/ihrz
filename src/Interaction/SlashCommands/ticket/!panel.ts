@@ -120,8 +120,8 @@ export default {
         // get panel data or initialize it
         let baseData: TicketPanel = await client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panel_id}`) || {
             panelCode: generatePassword({ length: 10, uppercase: true, numbers: true }),
-            relatedEmbedId: null,
-            category: null,
+            relatedEmbedId: "unknown",
+            category: undefined,
             placeholder: lang.ticket_panel_default_placeholder,
             config: {
                 rolesToPing: [],
