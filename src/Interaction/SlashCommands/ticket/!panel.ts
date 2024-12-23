@@ -122,7 +122,7 @@ export default {
             panelCode: generatePassword({ length: 10, uppercase: true, numbers: true }),
             relatedEmbedId: null,
             category: null,
-            placeholder: "Select a category to open a ticket",
+            placeholder: lang.ticket_panel_default_placeholder,
             config: {
                 rolesToPing: [],
                 optionFields: [],
@@ -136,46 +136,46 @@ export default {
         let is_saved = true;
 
         let panelEmbed = new EmbedBuilder()
-            .setTitle("Ticket Panel #" + panel_id)
-            .setDescription("Customize a ticket embed with specific options.")
+            .setTitle(lang.ticket_panel_embed_title + panel_id)
+            .setDescription(lang.ticket_panel_embed_desc)
             .setFields(
                 {
-                    name: "💾 Saved Configuration",
+                    name: lang.ticket_panel_saved_conf,
                     value: is_saved ? "🟢" : "🔴",
                     inline: true
                 },
                 {
-                    name: "🕸️ Related embed",
+                    name: lang.ticket_panel_related_embed,
                     value: baseData.relatedEmbedId || lang.var_no_set,
                     inline: true
                 },
                 {
-                    name: "📌 Role to ping",
+                    name: lang.ticket_panel_role_to_ping,
                     value: baseData.config.rolesToPing.length >= 1 ? baseData.config.rolesToPing.map(x => `<@&${x}>`).join("") : lang.var_no_set,
                     inline: true
                 },
                 {
-                    name: "📎 Ping user",
+                    name: lang.ticket_panel_ping_user,
                     value: baseData.config.pingUser ? "🟢" : "🔴",
                     inline: true
                 },
                 {
-                    name: "🏷️ Placeholder",
+                    name: lang.ticket_panel_placeholder,
                     value: baseData.placeholder || lang.var_no_set,
                     inline: true
                 },
                 {
-                    name: "📤 Category",
+                    name: lang.ticket_panel_category,
                     value: interaction.guild.channels.cache.get(baseData.category || "")?.toString() || lang.var_no_set,
                     inline: true
                 },
                 {
-                    name: "📔 Option Fields",
+                    name: lang.ticket_panel_option_fields,
                     value: stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set,
                     inline: false
                 },
                 {
-                    name: "📝 Form",
+                    name: lang.ticket_panel_form,
                     value: stringifyTicketPanelForm(baseData.config.form) || lang.var_no_set,
                     inline: false
                 },
@@ -184,41 +184,41 @@ export default {
 
         let panelSelec2t = new StringSelectMenuBuilder()
             .setCustomId("panelSelect")
-            .setPlaceholder("Choose options")
+            .setPlaceholder(lang.ticket_panel_panel_placeholder)
             .addOptions(
                 new StringSelectMenuOptionBuilder()
-                    .setLabel("Save current configuration")
+                    .setLabel(lang.ticket_panel_panel_1_label)
                     .setValue("save"),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel("Show preview")
+                    .setLabel(lang.ticket_panel_panel_2_label)
                     .setValue("preview"),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel("Change current related embed")
+                    .setLabel(lang.ticket_panel_panel_3_label)
                     .setValue("change_embed"),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel("Add/remove role to ping")
+                    .setLabel(lang.ticket_panel_panel_4_label)
                     .setValue("change_role"),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel("Change placeholder")
+                    .setLabel(lang.ticket_panel_panel_5_label)
                     .setValue("change_placeholder"),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel("Change category")
+                    .setLabel(lang.ticket_panel_panel_6_label)
                     .setValue("change_category"),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel("Change ping user")
+                    .setLabel(lang.ticket_panel_panel_7_label)
                     .setValue("change_ping"),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel("Add/Remove Option Fields")
+                    .setLabel(lang.ticket_panel_panel_8_label)
                     .setValue("change_option"),
                 new StringSelectMenuOptionBuilder()
-                    .setLabel("Modify form")
+                    .setLabel(lang.ticket_panel_panel_9_label)
                     .setValue("change_form")
             );
 
         let panelButton = [
             new ButtonBuilder()
                 .setCustomId("send_embed")
-                .setLabel("Send embed")
+                .setLabel(lang.ticket_panel_button_send)
                 .setStyle(ButtonStyle.Primary)
                 .setEmoji(client.iHorizon_Emojis.icon.Green_Tick_Logo),
         ];
@@ -247,7 +247,7 @@ export default {
 
         button_collector.on("collect", async (i) => {
             if (i.user.id !== interaction.user.id) {
-                return i.reply({ ephemeral: true, content: "This interaction is not for you" });
+                return i.reply({ ephemeral: true, content: lang.help_not_for_you });
             };
 
             let choice = i.customId;
@@ -262,7 +262,7 @@ export default {
 
         og_select_collector.on("collect", async (i) => {
             if (i.user.id !== interaction.user.id) {
-                return i.reply({ ephemeral: true, content: "This interaction is not for you" });
+                return i.reply({ ephemeral: true, content: lang.help_not_for_you });
             };
 
             let choice = i.values[0];
@@ -309,7 +309,7 @@ export default {
             let channelSelect = new ChannelSelectMenuBuilder()
                 .setCustomId("change_category")
                 .setChannelTypes(ChannelType.GuildCategory)
-                .setPlaceholder("Select a category");
+                .setPlaceholder(lang.ticket_panel_change_category_channelSelect_placeholder);
 
 
             const send_embed_interaction = await originalResponse.edit({
@@ -317,7 +317,7 @@ export default {
                     new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect)
                 ],
                 embeds: [],
-                content: "Select a channel to send the embed"
+                content: lang.ticket_panel_select_channel_to_send
             });
 
             // collector for channel select
@@ -328,7 +328,7 @@ export default {
 
             channelCollector.on("collect", async (i) => {
                 if (i.user.id !== interaction.user.id) {
-                    return i.reply({ ephemeral: true, content: "This interaction is not for you" });
+                    return i.reply({ ephemeral: true, content: lang.help_not_for_you });
                 };
 
                 let category = i.values[0];
@@ -355,11 +355,11 @@ export default {
             let modal = await iHorizonModalResolve({
                 customId: "change_placeholder",
                 deferUpdate: false,
-                title: "Change placeholder",
+                title: lang.ticket_panel_change_placeholder_modal_title,
                 fields: [
                     {
                         customId: "placeholder",
-                        label: "Placeholder",
+                        label: lang.ticket_panel_change_placeholder_modal_placeholder,
                         style: TextInputStyle.Short,
                         required: true,
                         maxLength: 100,
@@ -394,7 +394,7 @@ export default {
 
             if (!is_saved) {
                 return originalResponse.edit({
-                    content: "You need to save the configuration first",
+                    content: lang.ticket_panel_need_save_config,
                     components
                 });
             }
@@ -402,7 +402,7 @@ export default {
             // if 0 option fields
             if (baseData.config.optionFields.length === 0) {
                 return originalResponse.edit({
-                    content: "You need to add at least 1 option field",
+                    content: lang.ticket_panel_need_1_option,
                     embeds: [panelEmbed],
                     components
                 });
@@ -413,7 +413,7 @@ export default {
                     new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect)
                 ],
                 embeds: [],
-                content: "Select a channel to send the embed"
+                content: lang.ticket_panel_select_channel_to_send
             });
 
             // collector for channel select
@@ -424,14 +424,14 @@ export default {
 
             channelCollector.on("collect", async (i) => {
                 if (i.user.id !== interaction.user.id) {
-                    return i.reply({ ephemeral: true, content: "This interaction is not for you" });
+                    return i.reply({ ephemeral: true, content: lang.help_not_for_you });
                 };
 
                 let channel = i.values[0];
                 let relatedEmbed = await client.db.get(`EMBED.${baseData.relatedEmbedId}`);
 
                 if (!relatedEmbed || !relatedEmbed.embedSource) {
-                    return i.reply({ ephemeral: true, content: "The related embed does not exist" });
+                    return i.reply({ ephemeral: true, content: lang.ticket_panel_related_embed_dont_exist });
                 }
 
                 let embed = EmbedBuilder.from(relatedEmbed.embedSource);
@@ -460,7 +460,7 @@ export default {
                 let fetchChannel = await i.guild?.channels.fetch(channel);
 
                 if (!fetchChannel || !fetchChannel.isSendable()) {
-                    return i.reply({ ephemeral: true, content: "The channel does not exist or i don't have permission to send message in" });
+                    return i.reply({ ephemeral: true, content: lang.ticket_panel_channel_error });
                 }
 
                 i.deferUpdate();
@@ -475,7 +475,7 @@ export default {
                 await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${send_embed_interaction.id}`, baseData.panelCode);
 
                 await originalResponse.edit({
-                    content: "The embed has been sent",
+                    content: lang.ticket_panel_embed_been_send,
                     embeds: [panelEmbed],
                     components: []
                 });
@@ -502,7 +502,7 @@ export default {
 
             await originalResponse.edit({
                 embeds: [panelEmbed],
-                content: "Configuration saved successfully",
+                content: lang.ticket_panel_successfully_saved,
                 components: [
                     new ActionRowBuilder<ButtonBuilder>().addComponents(
                         new ButtonBuilder()
@@ -517,7 +517,7 @@ export default {
 
         async function change_role() {
             let roleSelect = new RoleSelectMenuBuilder()
-                .setPlaceholder("Select a role")
+                .setPlaceholder(lang.ticket_panel_change_role_roleSelect_placeholder)
                 .setCustomId("change_role")
                 .setMaxValues(10)
                 .setMinValues(0)
@@ -532,7 +532,7 @@ export default {
                         )
                 ],
                 embeds: [],
-                content: "Select a role to change the role that will be pinged"
+                content: lang.ticket_panel_change_role_interaction_content
             });
 
             // collector for role select
@@ -543,7 +543,7 @@ export default {
 
             roleCollector.on("collect", async (i) => {
                 if (i.user.id !== interaction.user.id) {
-                    return i.reply({ ephemeral: true, content: "This interaction is not for you" });
+                    return i.reply({ ephemeral: true, content: lang.help_not_for_you });
                 };
 
                 baseData.config.rolesToPing = i.values;
@@ -591,11 +591,11 @@ export default {
             let modal = await iHorizonModalResolve({
                 customId: "change_embed",
                 deferUpdate: false,
-                title: "Change related embed",
+                title: lang.ticket_panel_change_embed_modal_placeholder,
                 fields: [
                     {
                         customId: "embed_id",
-                        label: "Embed ID",
+                        label: lang.ticket_panel_change_embed_modal_placeholder,
                         style: TextInputStyle.Short,
                         required: true,
                         maxLength: 20,
@@ -613,7 +613,7 @@ export default {
             let embed = await client.db.get(`EMBED.${embed_id}`);
 
             if (!embed) {
-                return modal.reply({ ephemeral: true, content: "The embed does not exist" });
+                return modal.reply({ ephemeral: true, content: lang.ticket_panel_change_embed_dont_exist });
             }
 
             baseData.relatedEmbedId = embed_id;
@@ -633,13 +633,13 @@ export default {
         async function change_option() {
             let select = new StringSelectMenuBuilder()
                 .setCustomId("change_option")
-                .setPlaceholder("Choose an option")
+                .setPlaceholder(lang.ticket_panel_change_option_select_placeholder)
                 .addOptions(
                     new StringSelectMenuOptionBuilder()
-                        .setLabel("Add option field")
+                        .setLabel(lang.ticket_panel_change_option_select_1_label)
                         .setValue("add"),
                     new StringSelectMenuOptionBuilder()
-                        .setLabel("Remove option field")
+                        .setLabel(lang.ticket_panel_change_option_select_2_label)
                         .setValue("remove"),
                 );
 
@@ -648,7 +648,7 @@ export default {
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
                 ],
                 embeds: [],
-                content: "Select an option to add or remove option fields"
+                content: lang.ticket_panel_change_option_interaction_content
             });
 
             // collector for string select
@@ -659,7 +659,7 @@ export default {
 
             select_collector.on("collect", async (i) => {
                 if (i.user.id !== interaction.user.id) {
-                    return i.reply({ ephemeral: true, content: "This interaction is not for you" });
+                    return i.reply({ ephemeral: true, content: lang.help_not_for_you });
                 };
 
                 let choice = i.values[0];
@@ -695,17 +695,17 @@ export default {
                     components
                 });
 
-                return i.reply({ ephemeral: true, content: "You can't add more than 10 option fields" });
+                return i.reply({ ephemeral: true, content: lang.ticket_panel_add_option_max_10 });
             }
 
             let modal = await iHorizonModalResolve({
                 customId: "add_option",
                 deferUpdate: false,
-                title: "Add option field",
+                title: lang.ticket_panel_add_option_modal_title,
                 fields: [
                     {
                         customId: "name",
-                        label: "Name",
+                        label: lang.ticket_panel_add_option_modal_field1_label,
                         style: TextInputStyle.Short,
                         required: true,
                         maxLength: 128,
@@ -713,7 +713,7 @@ export default {
                     },
                     {
                         customId: "desc",
-                        label: "Description",
+                        label: lang.ticket_panel_add_option_modal_field2_label,
                         style: TextInputStyle.Short,
                         required: false,
                         maxLength: 130,
@@ -721,7 +721,7 @@ export default {
                     },
                     {
                         customId: "emoji",
-                        label: "Emoji",
+                        label: lang.ticket_panel_add_option_modal_field3_label,
                         style: TextInputStyle.Short,
                         required: false,
                         maxLength: 1000,
@@ -759,7 +759,7 @@ export default {
         async function remove_option() {
             if (baseData.config.optionFields.length === 0) {
                 return originalResponse.edit({
-                    content: "There are no option fields to remove",
+                    content: lang.ticket_panel_remove_option_empty,
                     embeds: [panelEmbed],
                     components
                 });
@@ -767,7 +767,7 @@ export default {
 
             let select = new StringSelectMenuBuilder()
                 .setCustomId("remove_option")
-                .setPlaceholder("Choose an option to remove")
+                .setPlaceholder(lang.ticket_panel_remove_option_select_placeholder)
                 .addOptions(
                     ...baseData.config.optionFields.map((x, i) => {
                         return new StringSelectMenuOptionBuilder()
@@ -781,7 +781,7 @@ export default {
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
                 ],
                 embeds: [],
-                content: "Select an option to remove"
+                content: lang.ticket_panel_rempve_option_interaction_content
             });
 
             // collector for string select
@@ -792,7 +792,7 @@ export default {
 
             select_collector.on("collect", async (i) => {
                 if (i.user.id !== interaction.user.id) {
-                    return i.reply({ ephemeral: true, content: "This interaction is not for you" });
+                    return i.reply({ ephemeral: true, content: lang.help_not_for_you });
                 };
 
                 let choice = i.values[0];
@@ -827,13 +827,13 @@ export default {
         async function change_form() {
             let select = new StringSelectMenuBuilder()
                 .setCustomId("change_form")
-                .setPlaceholder("Choose an option")
+                .setPlaceholder(lang.ticket_panel_change_option_select_placeholder)
                 .addOptions(
                     new StringSelectMenuOptionBuilder()
-                        .setLabel("Add form field")
+                        .setLabel(lang.ticket_panel_change_form_select_placeholder_1)
                         .setValue("add"),
                     new StringSelectMenuOptionBuilder()
-                        .setLabel("Remove form field")
+                        .setLabel(lang.ticket_panel_change_form_select_placeholder_2)
                         .setValue("remove"),
                 );
 
@@ -842,7 +842,7 @@ export default {
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
                 ],
                 embeds: [],
-                content: "Select an option to add or remove form fields"
+                content: lang.ticket_panel_change_form_interaction_content
             });
 
             // collector for string select
@@ -853,7 +853,7 @@ export default {
 
             select_collector.on("collect", async (i) => {
                 if (i.user.id !== interaction.user.id) {
-                    return i.reply({ ephemeral: true, content: "This interaction is not for you" });
+                    return i.reply({ ephemeral: true, content: lang.help_not_for_you });
                 };
 
                 let choice = i.values[0];
@@ -889,17 +889,17 @@ export default {
                     components
                 });
 
-                return i.reply({ ephemeral: true, content: "You can't add more than 3 form fields" });
+                return i.reply({ ephemeral: true, content: lang.ticket_panel_add_form_max_3 });
             }
 
             let modal = await iHorizonModalResolve({
                 customId: "add_form",
                 deferUpdate: false,
-                title: "Add form field",
+                title: lang.ticket_panel_add_form_modal_title,
                 fields: [
                     {
                         customId: "questionTitle",
-                        label: "Question Title",
+                        label: lang.ticket_panel_add_form_modal_field1_label,
                         style: TextInputStyle.Short,
                         required: true,
                         maxLength: 128,
@@ -907,7 +907,7 @@ export default {
                     },
                     {
                         customId: "questionPlaceholder",
-                        label: "Question Placeholder",
+                        label: lang.ticket_panel_add_form_modal_field2_label,
                         style: TextInputStyle.Short,
                         required: false,
                         maxLength: 130,
@@ -948,14 +948,14 @@ export default {
                 });
 
                 return originalResponse.edit({
-                    content: "There are no form fields to remove",
+                    content: lang.ticket_panel_remove_option_empty,
                     components
                 });
             }
 
             let select = new StringSelectMenuBuilder()
                 .setCustomId("remove_form")
-                .setPlaceholder("Choose an option to remove")
+                .setPlaceholder(lang.ticket_panel_remove_option_select_placeholder)
                 .addOptions(
                     ...baseData.config.form.map((x, i) => {
                         return new StringSelectMenuOptionBuilder()
@@ -969,7 +969,7 @@ export default {
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
                 ],
                 embeds: [],
-                content: "Select an option to remove"
+                content: lang.ticket_panel_rempve_option_interaction_content
             });
 
             // collector for string select
@@ -980,7 +980,7 @@ export default {
 
             select_collector.on("collect", async (i) => {
                 if (i.user.id !== interaction.user.id) {
-                    return i.reply({ ephemeral: true, content: "This interaction is not for you" });
+                    return i.reply({ ephemeral: true, content: lang.help_not_for_you });
                 };
 
                 let choice = i.values[0];
@@ -1022,12 +1022,12 @@ export default {
                     embeds: [panelEmbed]
                 });
 
-                return i.reply({ ephemeral: true, content: "The related embed does not exist" });
+                return i.reply({ ephemeral: true, content: lang.ticket_panel_related_embed_dont_exist });
             }
 
             // if 0 option fields
             if (baseData.config.optionFields.length === 0) {
-                return i.reply({ ephemeral: true, content: "You need to add at least 1 option field" });
+                return i.reply({ ephemeral: true, content: lang.ticket_panel_need_1_option });
             }
 
             let embed = EmbedBuilder.from(relatedEmbed.embedSource);
@@ -1055,7 +1055,7 @@ export default {
 
             i.reply({
                 embeds: [embed],
-                content: "Preview of the ticket panel",
+                content: lang.ticket_panel_preview_message,
                 components: [
                     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)
                 ],
