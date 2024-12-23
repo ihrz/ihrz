@@ -43,7 +43,7 @@ export default {
             var user = interaction.user;
         } else {
             
-            var question = client.method.string(args!, 0) as string;
+            var question = client.method.longString(args!, 0) as string;
             var user = interaction.author;
         };
 
