@@ -198,6 +198,8 @@ ticket_panel_add_form_modal_title: "إضافة حقل نموذج"
 ticket_panel_add_form_modal_field1_label: "عنوان السؤال"
 ticket_panel_add_form_modal_field2_label: "النص التوضيحي للسؤال"
 ticket_panel_preview_message: "معاينة لوحة التذاكر"
+ticket_panel_option_change_category: "اختر خيارًا لتغيير الفئة"
+ticket_panel_panel_10_label: "تغيير الفئة لخيار واحد محدد"
 
 
 # Ranks commands

@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { S } from "ollama/dist/shared/ollama.6319775f.js";
+
 export interface LanguageData {
   var_member: string;
   var_user: string;
@@ -191,6 +193,8 @@ export interface LanguageData {
   ticket_panel_add_form_modal_field1_label: string;
   ticket_panel_add_form_modal_field2_label: string;
   ticket_panel_preview_message: string;
+  ticket_panel_option_change_category: string;
+  ticket_panel_panel_10_label: string;
   disablexp_not_admin: string;
   disablexp_logs_embed_title_disable: string;
   disablexp_logs_embed_description_disable: string;

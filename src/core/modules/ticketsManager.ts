@@ -668,15 +668,18 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
     let values: ModalResultArray = [];
     let reasonInteraction: ModalSubmitInteraction<"cached">;
 
+    let category =
+        result.config.optionFields.find(item => item.value === interaction.values[0])?.categoryId
+        || result.category;
 
     if (result.config.form.length >= 1) {
         let modalFields = result.config.form.map((field) => {
             return {
                 customId: field.questionId.toString(),
-                label: field.questionTitle,
+                label: field.questionTitle.substring(0, 45),
                 style: TextInputStyle.Short,
                 required: true,
-                placeHolder: field.questionPlaceholder,
+                placeHolder: field.questionPlaceholder?.substring(0, 60),
                 maxLength: 240,
                 minLength: 1
             }
@@ -684,7 +687,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 
         let modal = await iHorizonModalResolve({
             customId: 'ticket_reason_modal',
-            title: "Ticket Forms",
+            title: lang.event_ticket_create_reason_modal_fields_1_label,
             deferUpdate: false,
             fields: modalFields
         }, interaction);
@@ -704,9 +707,9 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
     await interaction.guild?.channels.create({
         name: `ticket-${interaction.user.username}`,
         type: ChannelType.GuildText,
-        parent: interaction.guild.channels.cache.get(result.category || "")?.id || null
+        parent: interaction.guild.channels.cache.get(category || "")?.id || null
     }).then(async (channel) => {
-        if (result.category) {
+        if (category) {
             channel.lockPermissions();
         };
 

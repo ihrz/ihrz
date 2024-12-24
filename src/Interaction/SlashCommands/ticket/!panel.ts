@@ -59,6 +59,7 @@ export interface TicketPanel {
             desc?: string;
             value: string;
             emoji?: string;
+            categoryId?: string;
         }[];
         pingUser: boolean;
         form: {
@@ -78,6 +79,7 @@ export function stringifyTicketPanelOption(fields: TicketPanel["config"]["option
         _ += `${i++} - ${field.name}\n`
         field.desc ? (_ += `  ┖  ${field.desc}\n`) : null;
         field.emoji ? (_ += `  ┖  ${field.emoji}\n`) : null;
+        field.categoryId ? (_ += `  ┖  ${field.categoryId}\n`) : null;
         _ += "\n"
     }
     return _ + "```";
@@ -205,6 +207,9 @@ export default {
                     .setLabel(lang.ticket_panel_panel_6_label)
                     .setValue("change_category"),
                 new StringSelectMenuOptionBuilder()
+                    .setLabel(lang.ticket_panel_panel_10_label)
+                    .setValue("change_category_2"),
+                new StringSelectMenuOptionBuilder()
                     .setLabel(lang.ticket_panel_panel_7_label)
                     .setValue("change_ping"),
                 new StringSelectMenuOptionBuilder()
@@ -288,6 +293,10 @@ export default {
                     i.deferUpdate();
                     await change_option();
                     break;
+                case "change_category_2":
+                    i.deferUpdate();
+                    await change_category_for_option(i);
+                    break;
                 case "change_form":
                     i.deferUpdate();
                     await change_form();
@@ -304,6 +313,97 @@ export default {
                     break;
             }
         });
+
+        async function change_category_for_option(i: StringSelectMenuInteraction<CacheType>) {
+            // get the option with string select menu
+            if (baseData.config.optionFields.length === 0) {
+                return originalResponse.edit({
+                    content: lang.ticket_panel_remove_option_empty,
+                    embeds: [panelEmbed],
+                    components
+                });
+            }
+
+            let select = new StringSelectMenuBuilder()
+                .setCustomId("change_category_for_option")
+                .setPlaceholder(lang.ticket_panel_option_change_category)
+                .addOptions(
+                    ...baseData.config.optionFields.map((x, i) => {
+                        return new StringSelectMenuOptionBuilder()
+                            .setLabel(x.name)
+                            .setValue(i.toString())
+                    })
+                );
+
+            const select_interaction = await originalResponse.edit({
+                components: [
+                    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
+                ],
+                embeds: [],
+                content: lang.ticket_panel_option_change_category
+            });
+
+            // collector for string select
+            const select_collector = select_interaction.createMessageComponentCollector({
+                componentType: ComponentType.StringSelect,
+                time: 60_000,
+            });
+
+            select_collector.on("collect", async (i) => {
+                if (i.user.id !== interaction.user.id) {
+                    return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+                };
+
+                let choice = i.values[0];
+                let option = baseData.config.optionFields[parseInt(choice)];
+
+                await i.deferUpdate();
+
+
+                let channelSelect = new ChannelSelectMenuBuilder()
+                    .setCustomId("change_category_for_option")
+                    .setChannelTypes(ChannelType.GuildCategory)
+                    .setPlaceholder(lang.ticket_panel_change_category_channelSelect_placeholder);
+
+                const send_embed_interaction = await originalResponse.edit({
+                    components: [
+                        new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect)
+                    ],
+                    embeds: [],
+                    content: lang.ticket_panel_change_category_channelSelect_placeholder
+                });
+
+                // collector for channel select
+                const channelCollector = send_embed_interaction.createMessageComponentCollector({
+                    componentType: ComponentType.ChannelSelect,
+                    time: 60_000,
+                });
+
+                channelCollector.on("collect", async (i) => {
+                    if (i.user.id !== interaction.user.id) {
+                        return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+                    };
+
+                    let category = i.values[0];
+                    await i.deferUpdate();
+
+                    option.categoryId = category;
+                    is_saved = false;
+                    panelEmbed.data.fields![0].value = "🔴";
+
+                    panelEmbed.data.fields![6].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
+
+                    await originalResponse.edit({
+                        embeds: [panelEmbed],
+                        components
+                    });
+
+                    channelCollector.stop("legitEnd");
+                });
+
+                select_collector.stop("legitEnd");
+            });
+        }
 
         async function change_category() {
             let channelSelect = new ChannelSelectMenuBuilder()

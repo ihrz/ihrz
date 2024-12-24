@@ -198,6 +198,8 @@ ticket_panel_add_form_modal_title: "Add form field"
 ticket_panel_add_form_modal_field1_label: "Question Title"
 ticket_panel_add_form_modal_field2_label: "Question Placeholder"
 ticket_panel_preview_message: "Preview of the ticket panel"
+ticket_panel_option_change_category: "Select an option to change category"
+ticket_panel_panel_10_label: "Change category for one specific option"
 
 
 # Ranks commands

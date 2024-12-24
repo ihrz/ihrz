@@ -198,6 +198,8 @@ ticket_panel_add_form_modal_title: "Aggiungi campo modulo"
 ticket_panel_add_form_modal_field1_label: "Titolo della Domanda"
 ticket_panel_add_form_modal_field2_label: "Segnaposto della Domanda"
 ticket_panel_preview_message: "Anteprima del pannello ticket"
+ticket_panel_option_change_category: "Seleziona un'opzione per cambiare categoria"
+ticket_panel_panel_10_label: "Cambia la categoria per un'opzione specifica"
 
 
 # Ranks commands
