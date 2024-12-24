@@ -198,6 +198,8 @@ ticket_panel_add_form_modal_title: "Adicionar campo de formulário"
 ticket_panel_add_form_modal_field1_label: "Título da Pergunta"
 ticket_panel_add_form_modal_field2_label: "Marcador da Pergunta"
 ticket_panel_preview_message: "Pré-visualização do painel de tickets"
+ticket_panel_option_change_category: "Selecione uma opção para alterar a categoria"
+ticket_panel_panel_10_label: "Alterar categoria para uma opção específica"
 
 
 # Comandos de Níveis

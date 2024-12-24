@@ -198,6 +198,8 @@ ticket_panel_add_form_modal_title: "Ajouter un champ de formulaire"
 ticket_panel_add_form_modal_field1_label: "Titre de la Question"
 ticket_panel_add_form_modal_field2_label: "Texte indicatif de la Question"
 ticket_panel_preview_message: "Aperçu du panneau de tickets"
+ticket_panel_option_change_category: "Sélectionnez une option pour changer de catégorie"
+ticket_panel_panel_10_label: "Changer la catégorie pour une option spécifique"
 
 
 # Ranks commandsa
