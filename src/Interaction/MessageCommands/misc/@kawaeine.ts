@@ -35,27 +35,18 @@ import { convertToPng, resizeImage, tempDir } from '../../../core/functions/medi
 import { unlinkSync } from 'fs';
 
 export const command: Command = {
-    name: 'rap-vs-reality',
-    aliases: ['meme1'],
-    description: 'rap vs reality meme generator',
+    name: 'kawaeine',
+    aliases: ['meme3'],
+    description: 'kawaeine meme generator',
     description_localizations: {
-        "fr": "rap vs reality meme generator",
+        "fr": "kawaeine meme generator",
     },
     options: [
         {
             name: "image1",
             description: "the before sucks",
             description_localizations: {
-                "fr": "le screen avant qu'il ce fasse défon",
-            },
-            type: ApplicationCommandOptionType.String,
-            required: false,
-        },
-        {
-            name: "image2",
-            description: "the after sucks",
-            description_localizations: {
-                "fr": "le screen après qu'il ce soit défoncé",
+                "fr": "le screen qui te fait dire que ça va mal",
             },
             type: ApplicationCommandOptionType.String,
             required: false,
@@ -79,34 +70,27 @@ export const command: Command = {
         };
 
         const beforeSucksUrl = client.method.string(options!, 0) || interaction.attachments.first()?.url;
-        const bigSucksUrl = client.method.string(options!, 1) || interaction.attachments.last()?.url;
 
-        if (!beforeSucksUrl || !bigSucksUrl) {
+        if (!beforeSucksUrl) {
             return interaction.reply({ content: lang.media_gen_error_args });
         }
 
         try {
             const beforeSucksResponse = await axios.get(beforeSucksUrl, { responseType: 'arraybuffer' });
-            const bigSucksResponse = await axios.get(bigSucksUrl, { responseType: 'arraybuffer' });
 
             const beforeSucksResizedPath = path.join(tempDir, `beforeSucksResized-${interaction.id}.png`);
-            const bigSucksResizedPath = path.join(tempDir, `bigSucksResized-${interaction.id}.png`);
 
             await resizeImage(await convertToPng(Buffer.from(beforeSucksResponse.data)), beforeSucksResizedPath, 1920, 1080);
-            await resizeImage(await convertToPng(Buffer.from(bigSucksResponse.data)), bigSucksResizedPath, 1920, 1080);
 
-            const rapRealityPath = path.join(process.cwd(), 'src', 'assets', 'rap-vs-reality');
+            const rapRealityPath = path.join(process.cwd(), 'src', 'assets', 'kawaeine');
 
-            let data = await client.kdenlive.open(path.join(rapRealityPath, 'meme1.kdenlive'));
+            let data = await client.kdenlive.open(path.join(rapRealityPath, 'meme3.kdenlive'));
 
-            data = data.replace("/home/anais/Documents/GitHub/ihrz/src/assets/rap-vs-reality", tempDir)
-                .replaceAll("part1.mp4", path.join(rapRealityPath, 'part1.mp4'))
-                .replaceAll("part2.mp4", path.join(rapRealityPath, 'part2.mp4'))
-                .replaceAll("part3.mp4", path.join(rapRealityPath, 'part3.mp4'))
-                .replaceAll("part4.mp4", path.join(rapRealityPath, 'part4.mp4'))
-
-                .replaceAll("overlay1.png", beforeSucksResizedPath)
-                .replaceAll("overlay2.png", bigSucksResizedPath);
+            data = data.replace("/home/anais/Documents/GitHub/ihrz/src/assets/kawaeine", tempDir)
+                .replaceAll("before.mp4", path.join(rapRealityPath, 'before.mp4'))
+                .replaceAll("after.mp4", path.join(rapRealityPath, 'after.mp4'))
+                .replaceAll("oof.mp3", path.join(rapRealityPath, 'oof.mp3'))
+                .replaceAll("placeholder.png", beforeSucksResizedPath);
 
             let outPath = await client.kdenlive.tempSave(data);
             let exported = await client.kdenlive.export(outPath);
@@ -120,7 +104,6 @@ export const command: Command = {
 
             unlinkSync(exported);
             unlinkSync(beforeSucksResizedPath);
-            unlinkSync(bigSucksResizedPath);
         } catch (error) {
             interaction.reply(`An error occurred: ${(error as any).message}`);
         }

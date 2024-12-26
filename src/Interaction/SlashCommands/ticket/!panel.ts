@@ -70,34 +70,6 @@ export interface TicketPanel {
     }
 };
 
-export function stringifyTicketPanelOption(fields: TicketPanel["config"]["optionFields"]): string | undefined {
-    if (!fields || fields?.length === 0) return undefined;
-    let i = 0;
-    let _ = "```\n";
-
-    for (let field of fields) {
-        _ += `${i++} - ${field.name}\n`
-        field.desc ? (_ += `  ┖  ${field.desc}\n`) : null;
-        field.emoji ? (_ += `  ┖  ${field.emoji}\n`) : null;
-        field.categoryId ? (_ += `  ┖  ${field.categoryId}\n`) : null;
-        _ += "\n"
-    }
-    return _ + "```";
-}
-
-export function stringifyTicketPanelForm(fields: TicketPanel["config"]["form"]): string | undefined {
-    if (!fields || fields?.length === 0) return undefined;
-    let _ = "```\n";
-    let i = 0;
-
-    for (let field of fields) {
-        _ += `${i++} - ${field.questionTitle}\n`
-        field.questionPlaceholder ? (_ += `  ┖  ${field.questionPlaceholder}\n`) : null;
-        _ += "\n"
-    }
-    return _ + "```";
-}
-
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
@@ -237,6 +209,34 @@ export default {
             embeds: [panelEmbed],
             components
         });
+
+        function stringifyTicketPanelOption(fields: TicketPanel["config"]["optionFields"]): string | undefined {
+            if (!fields || fields?.length === 0) return undefined;
+            let i = 0;
+            let _ = "```\n";
+
+            for (let field of fields) {
+                _ += `${i++} - ${field.name}\n`
+                field.desc ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field2_label}: ${field.desc}\n`) : null;
+                field.emoji ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field3_label}: ${field.emoji}\n`) : null;
+                field.categoryId ? (_ += `  ┖  📂: ${interaction.guild.channels.cache.get(field.categoryId)?.name}\n`) : null;
+                _ += "\n"
+            }
+            return _ + "```";
+        }
+
+        function stringifyTicketPanelForm(fields: TicketPanel["config"]["form"]): string | undefined {
+            if (!fields || fields?.length === 0) return undefined;
+            let _ = "```\n";
+            let i = 0;
+
+            for (let field of fields) {
+                _ += `${i++} - ${field.questionTitle}\n`
+                field.questionPlaceholder ? (_ += `  ┖  ${field.questionPlaceholder}\n`) : null;
+                _ += "\n"
+            }
+            return _ + "```";
+        }
 
         // collector for string select
         const og_select_collector = originalResponse.createMessageComponentCollector({

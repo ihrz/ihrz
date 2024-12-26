@@ -1954,6 +1954,14 @@ rc_forceJoin_ws_start: "# Erzwungener Beitritt läuft..."
 rc_forceJoin_ws_end: "# Erzwungener Beitrittsprozess abgeschlossen."
 rc_forceJoin_ws_end_renew_msg: "# SORGFÄLTIG LESEN\nHIER IST DER PRIVATE CODE, DER AN NIEMANDEN WEITERGEGEBEN WERDEN DARF. EINE PERSON MIT DIESEM CODE KÖNNTE IHN LÖSCHEN, MITGLIEDER ZU IHREM SERVER HINZUFÜGEN... BEWAHREN SIE IHN SICHER AUF. iHorizon WIRD IHN IHNEN NIE WIEDER GEBEN:\n```${value2}```"
 
+
+# Misc category
+# media manipulation
+
+# media cooldown
+media_gen_cooldown: "Du musst `1 Minute und 30 Sekunden` zwischen Medienerstellungen warten!"
+media_gen_error_args: "Bitte gebe zwei gültige Bild-URLs an."
+
 # -----------------------------/ \-----------------------------
 # Bekenntnismodul Ereignisse
 confession_module_modal_title: "Ein Geständnis ablegen"

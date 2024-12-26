@@ -20,37 +20,40 @@
 */
 
 import { readFileSync, rmSync, writeFileSync } from "fs";
-import { execSync } from "child_process";
-
+import { exec } from "child_process";
+import { promisify } from "util";
 import { tempDir } from "./mediaManipulation.js";
 import path from "path";
 
-class KdenLive {
-    constructor() {
-    }
+const execAsync = promisify(exec);
 
-    async open(projectPath: string) {
-        let projectXML = readFileSync(projectPath, 'utf8');
-        return projectXML;
+class KdenLive {
+    constructor() { }
+
+    async open(projectPath: string): Promise<string> {
+        return readFileSync(projectPath, 'utf8');
     }
 
     async tempSave(projectData: string): Promise<string> {
-        let savedFile = path.join(tempDir, Date.now() + ".kdenlive");
-        let updatedXML = projectData;
-
-        writeFileSync(savedFile, updatedXML, 'utf8');
+        const savedFile = path.join(tempDir, `${Date.now()}.kdenlive`);
+        writeFileSync(savedFile, projectData, 'utf8');
         return savedFile;
     }
 
-    async export(projectPath: string) {
-        let exportPath = path.join(tempDir, `merged_video_${Date.now()}.mp4`);
-        // Use xvfb-run for execute melt in an virtual X11 environnement
-        execSync(`xvfb-run -a melt -audio-samplerate 44100 ${projectPath} -consumer avformat:${exportPath}`);
-        rmSync(projectPath);
-        return exportPath;
+    async export(projectPath: string): Promise<string> {
+        const exportPath = path.join(tempDir, `merged_video_${Date.now()}.mp4`);
+        try {
+            const command = `xvfb-run -a melt -audio-samplerate 44100 ${projectPath} -consumer avformat:${exportPath}`;
+            await execAsync(command);
+            rmSync(projectPath);
+            return exportPath;
+        } catch (error) {
+            console.error("Erreur lors de l'exportation : ", error);
+            throw error;
+        }
     }
 }
 
 export {
     KdenLive
-}
+};

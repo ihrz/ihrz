@@ -74,11 +74,15 @@ export const command: Command = {
     ) => {
         if (interaction.guild.preferredLocale !== 'fr') return;
 
+        if (await client.method.helper.coolDown(interaction, "media_manipulation", client.timeCalculator.to_ms("1m30s")!)) {
+            return interaction.reply({ content: lang.media_gen_cooldown })
+        };
+
         const beforeSucksUrl = client.method.string(options!, 0) || interaction.attachments.first()?.url;
         const bigSucksUrl = client.method.string(options!, 1) || interaction.attachments.last()?.url;
 
         if (!beforeSucksUrl || !bigSucksUrl) {
-            return interaction.reply('Please provide two valid image URLs.');
+            return interaction.reply({ content: lang.media_gen_error_args });
         }
 
         try {

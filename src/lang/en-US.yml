@@ -1955,6 +1955,14 @@ rc_forceJoin_ws_start: "# Force-joining in progress..."
 rc_forceJoin_ws_end: "# Force-joining process completed."
 rc_forceJoin_ws_end_renew_msg: "# READ CAREFULLY\nTHERE IS THE PRIVATE CODE THAT MUST NOT BE DISCLOSED TO ANYONE. A PERSON WITH THIS CODE COULD DELETE IT, ADD MEMBERS TO THEIR SERVER... KEEP IT SOMEWHERE SAFE. iHorizon WILL NEVER GIVE IT TO YOU AGAIN:\n```${value2}```"
 
+
+# Misc category
+# media manipulation
+
+# media cooldown
+media_gen_cooldown: "You need to wait `1minutes & 30 secondes` between medias generation!"
+media_gen_error_args: "Please provide two valid image URLs."
+
 # -----------------------------/ \-----------------------------
 # Confession Module Events
 confession_module_modal_title: "Send a confession"
