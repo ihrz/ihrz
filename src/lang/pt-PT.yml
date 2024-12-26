@@ -1954,6 +1954,14 @@ rc_forceJoin_ws_start: "# Processo de adesão forçada em andamento..."
 rc_forceJoin_ws_end: "# Processo de adesão forçada concluído."
 rc_forceJoin_ws_end_renew_msg: "# LEIA ATENTAMENTE\nESTE É O CÓDIGO PRIVADO QUE NÃO DEVE SER DIVULGADO. ALGUÉM COM ESTE CÓDIGO PODE EXCLUIR OU ADICIONAR MEMBROS AO SERVIDOR... GUARDE-O EM SEGURANÇA. iHorizon NÃO FORNECERÁ ESTE CÓDIGO NOVAMENTE:\n```${value2}```"
 
+
+# Categoria Miscelânea
+# manipulação de mídia
+
+# cooldown de mídia
+media_gen_cooldown: "Você precisa esperar `1 minuto e 30 segundos` entre cada geração de mídia!"
+media_gen_error_args: "Por favor, forneça dois URLs de imagens válidos."
+
 # -----------------------------/ \-----------------------------
 # Eventos do Módulo de Confissões
 confession_module_modal_title: "Enviar uma confissão"

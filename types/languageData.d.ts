@@ -1448,6 +1448,8 @@ export interface LanguageData {
   rc_forceJoin_ws_start: string;
   rc_forceJoin_ws_end: string;
   rc_forceJoin_ws_end_renew_msg: string;
+  media_gen_cooldown: string;
+  media_gen_error_args: string;
   confession_module_modal_title: string;
   confession_module_modal_components1_label: string;
   confession_module_modal_components1_placeholder: string;

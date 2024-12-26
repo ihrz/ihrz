@@ -1948,6 +1948,14 @@ rc_forceJoin_ws_start: "# عملية الانضمام القسري بدأت..."
 rc_forceJoin_ws_end: "# عملية الانضمام القسري انتهت."
 rc_forceJoin_ws_end_renew_msg: "# اقرأ بعناية\nده الكود الخاص اللي لازم تحتفظ بيه. أي شخص معاه الكود ده ممكن يحذف الوحدة أو يضيف أعضاء لسيرفره... احتفظ بيه في مكان آمن. iHorizon مش هيقدمه ليك تاني:\n```${value2}```"
 
+
+# Misc category
+# media manipulation
+
+# media cooldown
+media_gen_cooldown: "يجب أن تنتظر `1 دقيقة و 30 ثانية` بين عمليات إنشاء الوسائط!"
+media_gen_error_args: "يرجى تقديم رابطين صالحين للصور."
+
 # -----------------------------/ \-----------------------------
 # Confession Module Events
 confession_module_modal_title: "أرسل اعترافاً"
