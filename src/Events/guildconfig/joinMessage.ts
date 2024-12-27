@@ -22,12 +22,10 @@
 import { AttachmentBuilder, BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, time } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { DatabaseStructure } from '../../../types/database_structure';
 
 export async function generateJoinImage(member: GuildMember, optionalOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
-    var htmlContent = readFileSync(path.join(process.cwd(), "src", "assets", "guildconfigWelcomeCart.html"), 'utf-8');
+    var htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
     var ImageBannerOptions = await member.client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
 
     var backgroundURL = member.guild.bannerURL({ size: 512 }) || member.user.bannerURL({ size: 512 }) || ""

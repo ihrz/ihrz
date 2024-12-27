@@ -19,11 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { readFile } from 'node:fs/promises';
 import { LanguageData } from '../../../types/languageData.js';
 import database from './DatabaseModel.js';
 
 import yaml from 'js-yaml';
-import fs from 'node:fs';
 
 import { getClient } from '../core.js';
 
@@ -44,10 +44,12 @@ export default async function getLanguageData(arg: string): Promise<LanguageData
     let dat = LangsData[lang];
 
     if (!dat) {
-        dat = yaml.load(fs.readFileSync(process.cwd() + "/src/lang/" + lang + ".yml", 'utf8')
-            .replaceAll('iHorizon ', cached_client.user?.username! + " ")
-            .replaceAll(' iHorizon', " " + cached_client.user?.username!)
-            .replaceAll('iHorizon.', cached_client.user?.username! + ".")
+        let cleaned_username = cached_client.user?.username!.replace("\"", "");
+
+        dat = yaml.load((await readFile(process.cwd() + "/src/lang/" + lang + ".yml", 'utf8'))
+            .replaceAll('iHorizon ', cleaned_username + " ")
+            .replaceAll(' iHorizon', " " + cleaned_username)
+            .replaceAll('iHorizon.', cleaned_username + ".")
         ) as LanguageData;
         LangsData[lang] = dat;
     };

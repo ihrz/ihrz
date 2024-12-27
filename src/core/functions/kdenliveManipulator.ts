@@ -19,11 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { readFileSync, rmSync, writeFileSync } from "fs";
 import { exec } from "child_process";
 import { promisify } from "util";
 import { tempDir } from "./mediaManipulation.js";
 import path from "path";
+import { readFile, rm, writeFile } from "fs/promises";
 
 const execAsync = promisify(exec);
 
@@ -31,12 +31,12 @@ class KdenLive {
     constructor() { }
 
     async open(projectPath: string): Promise<string> {
-        return readFileSync(projectPath, 'utf8');
+        return readFile(projectPath, 'utf8');
     }
 
     async tempSave(projectData: string): Promise<string> {
         const savedFile = path.join(tempDir, `${Date.now()}.kdenlive`);
-        writeFileSync(savedFile, projectData, 'utf8');
+        await writeFile(savedFile, projectData, 'utf8');
         return savedFile;
     }
 
@@ -45,7 +45,7 @@ class KdenLive {
         try {
             const command = `xvfb-run -a melt -audio-samplerate 44100 ${projectPath} -consumer avformat:${exportPath}`;
             await execAsync(command);
-            rmSync(projectPath);
+            await rm(projectPath);
             return exportPath;
         } catch (error) {
             console.error("Erreur lors de l'exportation : ", error);

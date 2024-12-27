@@ -20,10 +20,10 @@
 */
 
 import { Client, Collection } from 'discord.js';
-import { readdirSync } from "node:fs";
 
 import { fileURLToPath } from 'url';
 import path from 'path';
+import { readdir } from 'node:fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,17 +34,17 @@ export default async (client: Client) => {
     client.buttons = new Collection<string, Function>();
     client.func = {};
 
-    readdirSync(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons')).filter(file => file.endsWith(".js")).forEach(async file => {
+    (await readdir(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons'))).filter(file => file.endsWith(".js")).forEach(async file => {
         const buttons = await import(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons', file));
         client.buttons.set(file.split('.js')[0], buttons.default || buttons);
     });
 
-    readdirSync(path.join(__dirname, '..', '..', 'core', 'functions')).filter(file => file.endsWith(".js")).forEach(async file => {
+    (await readdir(path.join(__dirname, '..', '..', 'core', 'functions'))).filter(file => file.endsWith(".js")).forEach(async file => {
         const functions = await import(path.join(__dirname, '..', '..', 'core', 'functions', file));
         client.func[file.split('.js')[0]] = functions.default || functions;
     });
 
-    readdirSync(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'SelectMenu')).filter(file => file.endsWith(".js")).forEach(async file => {
+    (await readdir(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'SelectMenu'))).filter(file => file.endsWith(".js")).forEach(async file => {
         let selectmenu = await import(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'SelectMenu', file));
         client.selectmenu.set(file.split('.js')[0], selectmenu.default || selectmenu);
     });

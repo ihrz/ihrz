@@ -30,8 +30,6 @@ import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 import { DatabaseStructure } from '../../../../types/database_structure';
-import { readFileSync } from 'fs';
-import path from 'path';
 
 import {
     calculateMessageTime,
@@ -144,10 +142,7 @@ export default {
         secondActiveVoiceChannel = activeVoiceChannels.secondActiveVoiceChannel;
         thirdActiveVoiceChannel = activeVoiceChannels.thirdActiveVoiceChannel;
 
-        let htmlContent = readFileSync(
-            path.join(process.cwd(), 'src', 'assets', 'userStatsPage.html'),
-            'utf-8'
-        );
+        let htmlContent = client.htmlfiles['userStatsPage'];
 
         const messageDataArray = Array(30).fill(0);
         const voiceDataArray = Array(30).fill(0);

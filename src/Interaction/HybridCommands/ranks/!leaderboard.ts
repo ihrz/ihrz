@@ -34,9 +34,6 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { formatNumber } from '../../../core/functions/numberBeautifuer.js';
 
 export default {
@@ -67,7 +64,7 @@ export default {
             });
         }
 
-        var htmlContent = readFileSync(path.join(process.cwd(), "src", "assets", "podiumRanksModule.html"), 'utf-8');
+        var htmlContent = client.htmlfiles["podiumRanksModule"];
 
         // Sort array by total XP in descending order
         array.sort((a, b) => b.xptotal - a.xptotal);

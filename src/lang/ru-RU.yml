@@ -708,8 +708,8 @@ prevnames_embed_footer_text: "iHorizon | Страница ${currentPage + 1}/${p
 blockbot_not_owner: ":x: **Вы не являетесь владельцем сервера!**"
 blockbot_logs_enable_title: "Лог блокировки бота"
 blockbot_logs_enable_description: "${interaction.user} (Владелец сервера) __включил__ `BlockBot`. Теперь бот **не может** быть добавлен на этот сервер!"
-blockbot_command_work_on_enable: "**Вы включили `BlockPub`**\nТеперь бот **не может** быть добавлен на этот сервер!"
-blockbot_command_work_on_disable: "**Вы выключили `BlockPub`**\nТеперь бот **может** быть добавлен на этот сервер!"
+blockbot_command_work_on_enable: "**Вы включили `BlockBot`**\nТеперь бот **не может** быть добавлен на этот сервер!"
+blockbot_command_work_on_disable: "**Вы выключили `BlockBot`**\nТеперь бот **может** быть добавлен на этот сервер!"
 blockbot_logs_disable_commmand_work: "Лог блокировки бота"
 blockbot_logs_disable_description: "${interaction.user} (Владелец сервера) __выключил__ `BlockBot`. Теперь бот **может** быть добавлен на этот сервер!"
 

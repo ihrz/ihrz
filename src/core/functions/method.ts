@@ -30,6 +30,7 @@ import * as c from '../core.js';
 import * as html from './html2png.js';
 import * as l from './ihorizon-logs.js';
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { generatePassword } from "./random.js";
 
 export function isNumber(str: string): boolean {
     return !isNaN(Number(str)) && str.trim() !== "";
@@ -542,6 +543,17 @@ export async function buttonUnreact(msg: Message, buttonEmoji: string): Promise<
 export function isAnimated(attachmentUrl: string): boolean {
     const fileName = attachmentUrl.split('/').pop() || '';
     return fileName.startsWith('a_');
+}
+
+export async function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<void> {
+    let warnObject: DatabaseStructure.WarnsData = {
+        timestamp: Date.now(),
+        reason: reason,
+        authorID: author.user.id,
+        id: generatePassword({ length: 8, lowercase: false, numbers: true })
+    }
+
+    await member.client.db.push(`${member.guild.id}.USER.${member.user.id}.WARNS`, warnObject);
 }
 
 export const permission = perm;

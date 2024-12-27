@@ -95,7 +95,7 @@ class GiveawayManager {
 
                 let requirement = data.requirement;
 
-                db.Create(
+                await db.Create(
                     {
                         channelId: response.channelId,
                         guildId: response.guildId!,
@@ -122,7 +122,7 @@ class GiveawayManager {
 
     public async addEntries(interaction: ButtonInteraction<"cached">) {
 
-        let giveawayData = db.GetGiveawayData(interaction.message.id);
+        let giveawayData = await db.GetGiveawayData(interaction.message.id);
         let lang = await getLanguageData(interaction.guildId!);
 
         if (giveawayData?.entries?.includes(interaction.user.id)) {
@@ -170,7 +170,7 @@ class GiveawayManager {
 
             await interaction.message.edit({ embeds: [embedsToEdit] });
 
-            db.AddEntries(interaction.message.id, interaction.user.id);
+            await db.AddEntries(interaction.message.id, interaction.user.id);
 
             return;
         };
@@ -201,7 +201,7 @@ class GiveawayManager {
         collector.on('collect', async (i: ButtonInteraction<"cached">) => {
             if (i.customId === 'giveaway-leave') {
 
-                let now_members = db.RemoveEntries(interaction.message.id, interaction.user.id);
+                let now_members = await db.RemoveEntries(interaction.message.id, interaction.user.id);
                 let regexPattern = `${lang.event_gw_entries_words}: \\*\\*\\d+\\*\\*`;
                 let regex = new RegExp(regexPattern);
 
@@ -225,7 +225,7 @@ class GiveawayManager {
     public isValid(giveawayId: string): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
             try {
-                let fetch = db.GetGiveawayData(giveawayId);
+                let fetch = await db.GetGiveawayData(giveawayId);
 
                 if (fetch) {
                     resolve(true);
@@ -241,7 +241,7 @@ class GiveawayManager {
     public isEnded(giveawayId: string): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
             try {
-                let fetch = db.GetGiveawayData(giveawayId);
+                let fetch = await db.GetGiveawayData(giveawayId);
 
                 if (fetch?.ended) {
                     resolve(true);
@@ -257,10 +257,10 @@ class GiveawayManager {
     end(client: Client, giveawayId: string): Promise<void> {
         return new Promise(async (resolve, reject) => {
             try {
-                let giveawayData = db.GetGiveawayData(giveawayId)!;
+                let giveawayData = (await db.GetGiveawayData(giveawayId))!;
 
                 if (giveawayData.isValid && !giveawayData.ended) {
-                    db.SetEnded(giveawayId, "End()");
+                    await db.SetEnded(giveawayId, "End()");
                     this.finish(
                         client,
                         giveawayId,
@@ -280,13 +280,13 @@ class GiveawayManager {
     public async finish(client: Client, giveawayId: string, guildId: string, channelId: string) {
         let lang = await getLanguageData(guildId);
 
-        let fetch = db.GetGiveawayData(giveawayId);
+        let fetch = await db.GetGiveawayData(giveawayId);
 
         if (!fetch) return;
 
         if (!fetch.ended || fetch.ended === 'End()') {
             let guild = await client.guilds.fetch(guildId).catch(async () => {
-                db.DeleteGiveaway(giveawayId)
+                await db.DeleteGiveaway(giveawayId)
             });
             if (!guild) return;
 
@@ -295,13 +295,13 @@ class GiveawayManager {
                 fetch.winnerCount
             );
 
-            db.SetEnded(giveawayId, true)
-            db.SetWinners(giveawayId, winner || 'None')
+            await db.SetEnded(giveawayId, true)
+            await db.SetWinners(giveawayId, winner || 'None')
 
             let channel = await guild.channels.fetch(channelId).catch(() => { db.DeleteGiveaway(giveawayId) })
 
             let message = await (channel as GuildTextBasedChannel).messages.fetch(giveawayId).catch(async () => {
-                db.DeleteGiveaway(giveawayId)
+                await db.DeleteGiveaway(giveawayId)
                 return;
             }) as Message;
 
@@ -382,7 +382,7 @@ class GiveawayManager {
     public reroll(client: Client, giveawayId: string): Promise<void> {
         return new Promise(async (resolve, reject) => {
             try {
-                let fetch = db.GetGiveawayData(giveawayId)!;
+                let fetch = (await db.GetGiveawayData(giveawayId))!;
 
                 let guild = await client.guilds.fetch(fetch.guildId);
                 let channel = await guild.channels.fetch(fetch.channelId);
@@ -434,7 +434,7 @@ class GiveawayManager {
                     });
                 }
 
-                db.SetWinners(giveawayId, winner || 'None');
+                await db.SetWinners(giveawayId, winner || 'None');
                 resolve();
             } catch (error) {
                 reject(error);
@@ -443,7 +443,7 @@ class GiveawayManager {
     };
 
     public async listEntries(interaction: ChatInputCommandInteraction<"cached"> | Message, giveawayId: string) {
-        let fetch = db.GetGiveawayData(giveawayId)!;
+        let fetch = (await db.GetGiveawayData(giveawayId))!;
         let lang = await getLanguageData(fetch.guildId);
 
         if (interaction.guildId === fetch.guildId) {
@@ -529,15 +529,15 @@ class GiveawayManager {
         };
     };
 
-    private refresh(client: Client) {
-        let drop_all_db = db.GetAllGiveawaysData();
+    private async refresh(client: Client) {
+        let drop_all_db = await db.GetAllGiveawaysData();
 
         for (let giveawayId in drop_all_db) {
             let now = new Date().getTime();
             let gwExp = new Date(drop_all_db[giveawayId].giveawayData.expireIn).getTime();
             let cooldownTime = now - gwExp;
 
-            db.AvoidDoubleEntries(drop_all_db[giveawayId].giveawayId);
+            await db.AvoidDoubleEntries(drop_all_db[giveawayId].giveawayId);
 
             if (now >= gwExp) {
                 this.finish(
@@ -549,7 +549,7 @@ class GiveawayManager {
             };
 
             if (cooldownTime >= this.options.config.endedGiveawaysLifetime) {
-                db.DeleteGiveaway(drop_all_db[giveawayId].giveawayId)
+                await db.DeleteGiveaway(drop_all_db[giveawayId].giveawayId)
             };
         }
     };
@@ -570,15 +570,15 @@ class GiveawayManager {
         });
     };
 
-    public getAllGiveawayData() {
-        return db.GetAllGiveawaysData();
+    public async getAllGiveawayData() {
+        return await db.GetAllGiveawaysData();
     }
 
     public delete(giveawayId: string): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
             try {
                 if (await this.isValid(giveawayId)) {
-                    db.DeleteGiveaway(giveawayId);
+                    await db.DeleteGiveaway(giveawayId);
                     resolve(true);
                 } else {
                     reject(new Error("Giveaway non valide"));

@@ -59,7 +59,7 @@ export default {
             var tomute = interaction.options.getMember("user") as GuildMember | null;
             var mutetime = interaction.options.getString("time");
         } else {
-            
+
             var tomute = client.method.member(interaction, args!, 0) as GuildMember | null;
             var mutetime = client.method.string(args!, 1) as string | null;
         };
@@ -115,16 +115,13 @@ export default {
                 .replace("${ms(ms(mutetime))}", mutetimeString)
         });
 
-        let warnObject: DatabaseStructure.WarnsData = {
-            timestamp: Date.now(),
-            reason: lang.tempmute_logs_embed_description
+        await client.method.warnMember(
+            interaction.member!,
+            tomute!,
+            lang.tempmute_logs_embed_description
                 .replace("${interaction.user.id}", interaction.member.user.id)
                 .replace("${tomute.id}", tomute.id)
-                .replace("${ms(ms(mutetime))}", mutetimeString),
-            authorID: interaction.member.user.id,
-            id: generatePassword({ length: 8, lowercase: true, numbers: true })
-        }
-
-        await client.db.push(`${interaction.guildId}.USER.${tomute.user.id}.WARNS`, warnObject);
+                .replace("${ms(ms(mutetime))}", mutetimeString)
+        ).catch(() => { });
     },
 };

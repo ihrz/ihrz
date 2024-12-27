@@ -29,7 +29,6 @@ import { VanityInviteData } from '../../types/vanityUrlData';
 import { ConfigData } from '../../types/configDatad.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
-import { readdirSync, readFileSync } from "node:fs";
 import backup from 'discord-rebackup';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -44,6 +43,8 @@ import { CacheStorage } from './cache.js';
 import DatabaseModel from './functions/DatabaseModel.js';
 import { Command } from '../../types/command.js';
 import { BashCommands } from '../../types/bashCommands.js';
+import { mkdir, readdir } from 'node:fs/promises';
+import { readdirSync } from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,7 +55,7 @@ let global_config: ConfigData;
 let global_client: Client;
 
 if (!fs.existsSync(backups_folder)) {
-    fs.mkdirSync(backups_folder, { recursive: true });
+    await mkdir(backups_folder, { recursive: true });
 }
 
 backup.setStorageFolder(backups_folder);

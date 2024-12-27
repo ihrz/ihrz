@@ -19,39 +19,22 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { AnotherCommand } from '../../../types/anotherCommand';
-import { Client, Collection } from 'discord.js';
+import { Client } from 'discord.js';
 
 import { fileURLToPath } from 'url';
 import path from 'path';
-import { readdir } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default async (client: Client) => {
-    client.applicationsCommands = new Collection<string, AnotherCommand>();
 
-    let loadCommands = async (commandType: string) => {
-        let commandPath = path.join(__dirname, '..', '..', 'Interaction', commandType + 'ApplicationCommands');
+    client.htmlfiles = {};
 
-        let files = await readdir(commandPath);
+    (await readdir(path.join(process.cwd(), "src", "assets"))).filter(file => file.endsWith(".html")).forEach(async file => {
+        const htlmContent = await readFile(path.join(process.cwd(), "src", "assets", file), "utf-8");
+        client.htmlfiles[file.split('.html')[0]] = htlmContent;
+    });
 
-        for (let file of files.filter((file: string) => file.endsWith('.js'))) {
-            let { command } = await import(`${commandPath}/${file}`);
-
-            client.applicationsCommands.set(command.name, {
-                type: command.type,
-                run: command.run,
-                name: command.name,
-                thinking: command.thinking,
-            });
-        }
-    };
-
-    /**  Load MessageApplicationCommands */
-    await loadCommands('Message');
-
-    /**  Load UserApplicationCommands */
-    await loadCommands('User');
 };

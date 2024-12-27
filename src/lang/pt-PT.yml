@@ -708,8 +708,8 @@ prevnames_embed_footer_text: "iHorizon | Página ${currentPage + 1}/${pages.leng
 blockbot_not_owner: ":x: **Você não é o proprietário do servidor!**"
 blockbot_logs_enable_title: "Log de Bloqueio de Bot"
 blockbot_logs_enable_description: "${interaction.user} (O proprietário do servidor) __ativou__ `BlockBot`. Agora, bots **não podem** ser adicionados nesta guilda!"
-blockbot_command_work_on_enable: "**Você ativou o `BlockPub`**\nAgora, bots **não podem** ser adicionados nesta guilda!"
-blockbot_command_work_on_disable: "**Você desativou o `BlockPub`**\nAgora, bots **podem** ser adicionados nesta guilda!"
+blockbot_command_work_on_enable: "**Você ativou o `BlockBot`**\nAgora, bots **não podem** ser adicionados nesta guilda!"
+blockbot_command_work_on_disable: "**Você desativou o `BlockBot`**\nAgora, bots **podem** ser adicionados nesta guilda!"
 blockbot_logs_disable_commmand_work: "Log de Bloqueio de Bot"
 blockbot_logs_disable_description: "${interaction.user} (O proprietário do servidor) __desativou__ `BlockBot`. Agora, bots **podem** ser adicionados nesta guilda!"
 

@@ -32,7 +32,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option.js';
 import { axios } from '../../../core/functions/axios.js';
 import { convertToPng, resizeImage, tempDir } from '../../../core/functions/mediaManipulation.js';
-import { unlinkSync } from 'fs';
+import { unlink } from 'fs/promises';
 
 export const command: Command = {
     name: 'kawaeine',
@@ -102,8 +102,8 @@ export const command: Command = {
                 }]
             });
 
-            unlinkSync(exported);
-            unlinkSync(beforeSucksResizedPath);
+            await unlink(exported);
+            await unlink(beforeSucksResizedPath);
         } catch (error) {
             interaction.reply(`An error occurred: ${(error as any).message}`);
         }
