@@ -708,8 +708,8 @@ prevnames_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.le
 blockbot_not_owner: ":x: **サーバーのオーナーではありません！**"
 blockbot_logs_enable_title: "BlockBot ログ"
 blockbot_logs_enable_description: "${interaction.user}（サーバーのオーナー）が `BlockBot` を __有効化__ しました。これにより、ボットはこのサーバーには **追加できなくなります**！"
-blockbot_command_work_on_enable: "**`BlockPub` を有効にしました**\nボットはこのサーバーには **追加できなくなります**！"
-blockbot_command_work_on_disable: "**`BlockPub` を無効にしました**\nボットはこのサーバーに追加できるようになります！"
+blockbot_command_work_on_enable: "**`BlockBot` を有効にしました**\nボットはこのサーバーには **追加できなくなります**！"
+blockbot_command_work_on_disable: "**`BlockBot` を無効にしました**\nボットはこのサーバーに追加できるようになります！"
 blockbot_logs_disable_commmand_work: "BlockBot ログ"
 blockbot_logs_disable_description: "${interaction.user}（サーバーのオーナー）が `BlockBot` を __無効化__ しました。ボットはこのサーバーに追加できるようになります！"
 

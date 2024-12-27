@@ -507,8 +507,8 @@ prevnames_embed_footer_text: "iHorizon | Сторінка ${currentPage + 1}/${p
 blockbot_not_owner: ":x: **Ви не є власником сервера!**"
 blockbot_logs_enable_title: "Журнал блокування бота"
 blockbot_logs_enable_description: "${interaction.user} (Власник сервера) __увімкнув__ `BlockBot`. Тепер бот **не може** бути доданий на цей сервер!"
-blockbot_command_work_on_enable: "**Ви увімкнули `BlockPub`**\nТепер бот **не може** бути доданий на цей сервер!"
-blockbot_command_work_on_disable: "**Ви вимкнули `BlockPub`**\nТепер бот **може** бути доданий на цей сервер!"
+blockbot_command_work_on_enable: "**Ви увімкнули `BlockBot`**\nТепер бот **не може** бути доданий на цей сервер!"
+blockbot_command_work_on_disable: "**Ви вимкнули `BlockBot`**\nТепер бот **може** бути доданий на цей сервер!"
 blockbot_logs_disable_commmand_work: "Журнал блокування бота"
 blockbot_logs_disable_description: "${interaction.user} (Власник сервера) __вимкнув__ `BlockBot`. Тепер бот **може** бути доданий на цей сервер!"
 

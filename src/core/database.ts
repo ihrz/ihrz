@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { JSONDriver, MemoryDriver, MySQLDriver, QuickDB } from 'quick.db';
+import { JSONDriver, MemoryDriver, QuickDB } from 'quick.db';
 import ansiEscapes from 'ansi-escapes';
 import mysql from 'mysql2/promise.js';
 import { PallasDB } from 'pallas-db';
@@ -28,6 +28,7 @@ import { setInterval } from 'timers';
 import { ConfigData } from '../../types/configDatad.js';
 import logger from './logger.js';
 import fs from 'fs';
+import { mkdir } from 'fs/promises';
 
 export type db = QuickDB<any> | PallasDB;
 let dbInstance: db | null = null;
@@ -65,7 +66,7 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
     let databasePath = `${process.cwd()}/src/files`;
 
     if (!fs.existsSync(databasePath)) {
-        fs.mkdirSync(databasePath, { recursive: true });
+        await mkdir(databasePath, { recursive: true });
     }
 
     switch (config.database?.method) {

@@ -81,6 +81,12 @@ export const event: BotEvent = {
 
                     try {
                         await message.member?.timeout((picOnlyConfig.muteTime || 10 * 60 * 1000), lang.piconly_module_timeout_reason);
+                        await client.method.warnMember(
+                            message.guild?.members.me!,
+                            message.member!,
+                            "Automated Punishment - Pic Only"
+                        ).catch(() => { });
+
                         await message.author.send({
                             content: lang.piconly_module_punish_msg
                                 .replace("${message.author}", message.author.toString())

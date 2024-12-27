@@ -29,8 +29,6 @@ import { format } from '../../../core/functions/date-and-time.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
-import { readFileSync } from 'fs';
-import path from 'path';
 import { Custom_iHorizon } from '../../../../types/ownihrz.js';
 
 async function generateBotHTML(
@@ -39,10 +37,7 @@ async function generateBotHTML(
     bot: any,
     lang: LanguageData
 ): Promise<string> {
-    let htmlContent = readFileSync(
-        path.join(process.cwd(), "src", "assets", "botProfileCard.html"),
-        'utf-8'
-    );
+    let htmlContent = client.htmlfiles['botProfileCard'];
 
     const accentColor = data.PowerOff === false ? '#23a559' : '#f23f43';
     const statusColor = data.PowerOff === false ? '#23a559' : '#f23f43';

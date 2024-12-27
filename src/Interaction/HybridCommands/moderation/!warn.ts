@@ -46,7 +46,7 @@ export default {
             var member = interaction.options.getMember("member") as GuildMember | null;
             var reason = interaction.options.getString("reason")!;
         } else {
-            
+
             var member = client.method.member(interaction, args!, 0) as GuildMember | null;
             var reason = client.method.longString(args!, 1)!;
         };
@@ -65,14 +65,11 @@ export default {
         };
 
         let warnId = generatePassword({ length: 8, lowercase: true, numbers: true });
-        let warnObject: DatabaseStructure.WarnsData = {
-            timestamp: Date.now(),
-            reason,
-            authorID: interaction.member.user.id,
-            id: warnId
-        }
-
-        await client.db.push(`${interaction.guildId}.USER.${member?.id}.WARNS`, warnObject);
+        await client.method.warnMember(
+            interaction.member!,
+            member!,
+            reason
+        ).catch(() => { });
 
         await client.method.interactionSend(interaction, {
             content: lang.warn_command_work

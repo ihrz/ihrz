@@ -707,8 +707,8 @@ prevnames_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}
 blockbot_not_owner: ":x: **You are not the Owner of the server !**"
 blockbot_logs_enable_title: "BlockBot Log"
 blockbot_logs_enable_description: "${interaction.user} (The owner of the server) __enable__ `BlockBot`. Now bot **can't** be added in this guild!"
-blockbot_command_work_on_enable: "**You have enable the `BlockPub`**\nNow bot **can't** be added in this guild!"
-blockbot_command_work_on_disable: "**You have disable the `BlockPub`**\nNow bot **can** be added in this guild!"
+blockbot_command_work_on_enable: "**You have enable the `BlockBot`**\nNow bot **can't** be added in this guild!"
+blockbot_command_work_on_disable: "**You have disable the `BlockBot`**\nNow bot **can** be added in this guild!"
 blockbot_logs_disable_commmand_work: "BlockBot Log"
 blockbot_logs_disable_description: "${interaction.user} (The owner of the server) __disable__ `BlockBot`. Now bot **can** be added in this guild!"
 

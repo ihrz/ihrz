@@ -708,8 +708,8 @@ prevnames_embed_footer_text: "iHorizon | Pagina ${currentPage + 1}/${pages.lengt
 blockbot_not_owner: ":x: **¡No eres el propietario del servidor!**"
 blockbot_logs_enable_title: "Registro de BlockBot"
 blockbot_logs_enable_description: "${interaction.user} (El propietario del servidor) ha __habilitado__ `BlockBot`. ¡Ahora el bot **no** puede ser agregado a este servidor!"
-blockbot_command_work_on_enable: "**Has habilitado `BlockPub`**\nAhora el bot **no** puede ser agregado a este servidor!"
-blockbot_command_work_on_disable: "**Has deshabilitado `BlockPub`**\nAhora el bot puede ser agregado a este servidor!"
+blockbot_command_work_on_enable: "**Has habilitado `BlockBot`**\nAhora el bot **no** puede ser agregado a este servidor!"
+blockbot_command_work_on_disable: "**Has deshabilitado `BlockBot`**\nAhora el bot puede ser agregado a este servidor!"
 blockbot_logs_disable_commmand_work: "Registro de BlockBot"
 blockbot_logs_disable_description: "${interaction.user} (El propietario del servidor) ha __deshabilitado__ `BlockBot`. Ahora el bot puede ser agregado a este servidor!"
 

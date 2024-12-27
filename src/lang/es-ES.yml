@@ -708,7 +708,7 @@ prevnames_embed_footer_text: "iHorizon | Página ${currentPage + 1}/${pages.leng
 blockbot_not_owner: ":x: **Non sei il proprietario del server!**"
 blockbot_logs_enable_title: "Registro BlockBot"
 blockbot_logs_enable_description: "${interaction.user} (Il proprietario del server) ha __abilitato__ `BlockBot`. Ora il bot **non** può essere aggiunto a questo server!"
-blockbot_command_work_on_enable: "**Hai abilitato `BlockPub`**\nOra il bot **non** può essere aggiunto a questo server!"
+blockbot_command_work_on_enable: "**Hai abilitato `BlockBot`**\nOra il bot **non** può essere aggiunto a questo server!"
 blockbot_command_work_on_disable: "**Hai disabilitato `BlockPub`**\nOra il bot può essere aggiunto a questo server!"
 blockbot_logs_disable_commmand_work: "Registro BlockBot"
 blockbot_logs_disable_description: "${interaction.user} (Il proprietario del server) ha __disabilitato__ `BlockBot`. Ora il bot può essere aggiunto a questo server!"

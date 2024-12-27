@@ -3,12 +3,9 @@ import { Giveaway } from '../../../types/giveaways';
 import {
     existsSync,
     mkdirSync,
-    readFileSync,
-    readdirSync,
-    unlinkSync,
-    writeFileSync
 } from 'node:fs';
 import logger from '../logger.js';
+import { readdir, readFile, unlink, writeFile } from 'node:fs/promises';
 
 class db {
     path: string;
@@ -26,69 +23,69 @@ class db {
         return `${this.path}/${giveawayId}.json`;
     }
 
-    private readGiveawayFile(giveawayId: string): Giveaway | null {
+    private async readGiveawayFile(giveawayId: string): Promise<Giveaway | null> {
         const filePath = this.getFilePath(giveawayId);
         try {
-            const data = readFileSync(filePath, 'utf-8');
+            const data = await readFile(filePath, 'utf-8');
             return JSON.parse(data) as Giveaway;
         } catch (error) {
             return null;
         }
     }
 
-    private writeGiveawayFile(giveawayId: string, data: Giveaway) {
+    private async writeGiveawayFile(giveawayId: string, data: Giveaway) {
         const filePath = this.getFilePath(giveawayId);
-        writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+        await writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
     }
 
-    AddEntries(giveawayId: string, user: string) {
-        const giveaway = this.readGiveawayFile(giveawayId);
+    public async AddEntries(giveawayId: string, user: string) {
+        const giveaway = await this.readGiveawayFile(giveawayId);
         if (giveaway) {
             giveaway.entries.push(user);
-            this.writeGiveawayFile(giveawayId, giveaway);
+            await this.writeGiveawayFile(giveawayId, giveaway);
         }
     }
 
-    RemoveEntries(giveawayId: string, userId: string): string[] {
-        const giveaway = this.readGiveawayFile(giveawayId);
+    public async RemoveEntries(giveawayId: string, userId: string): Promise<string[]> {
+        const giveaway = await this.readGiveawayFile(giveawayId);
         if (giveaway) {
             giveaway.entries = giveaway.entries.filter((entry: string) => entry !== userId);
-            this.writeGiveawayFile(giveawayId, giveaway);
+            await this.writeGiveawayFile(giveawayId, giveaway);
             return giveaway.entries;
         }
         return [];
     }
 
-    GetGiveawayData(giveawayId: string): Giveaway | undefined {
-        const giveaway = this.readGiveawayFile(giveawayId);
+    public async GetGiveawayData(giveawayId: string): Promise<Giveaway | undefined> {
+        const giveaway = await this.readGiveawayFile(giveawayId);
         return giveaway ? giveaway : undefined;
     }
 
-    Create(giveaway: Giveaway, giveawayId: string) {
-        this.writeGiveawayFile(giveawayId, giveaway);
+    public async Create(giveaway: Giveaway, giveawayId: string) {
+        await this.writeGiveawayFile(giveawayId, giveaway);
     }
 
-    SetEnded(giveawayId: string, state: boolean | string) {
-        const giveaway = this.readGiveawayFile(giveawayId)!;
+    public async SetEnded(giveawayId: string, state: boolean | string) {
+        const giveaway = (await this.readGiveawayFile(giveawayId))!;
         giveaway.ended = state;
-        this.writeGiveawayFile(giveawayId, giveaway);
+        await this.writeGiveawayFile(giveawayId, giveaway);
         return 'OK';
     }
 
-    SetWinners(giveawayId: string, winners: string[] | string) {
-        const giveaway = this.readGiveawayFile(giveawayId)!;
+    public async SetWinners(giveawayId: string, winners: string[] | string) {
+        const giveaway = (await this.readGiveawayFile(giveawayId))!;
         giveaway.winners = winners;
-        this.writeGiveawayFile(giveawayId, giveaway);
+        await this.writeGiveawayFile(giveawayId, giveaway);
         return 'OK';
     }
 
-    GetAllGiveawaysData(): { giveawayId: string; giveawayData: Giveaway }[] {
-        const giveawayFiles = readdirSync(this.path);
+    public async GetAllGiveawaysData(): Promise<{ giveawayId: string; giveawayData: Giveaway }[]> {
+        const giveawayFiles = await readdir(this.path);
         const allGiveaways: { giveawayId: string; giveawayData: Giveaway }[] = [];
 
-        giveawayFiles.forEach((file) => {
+        giveawayFiles.forEach(async (file) => {
             const giveawayId = file.replace('.json', '');
-            const giveawayData = this.readGiveawayFile(giveawayId);
+            const giveawayData = await this.readGiveawayFile(giveawayId);
             if (giveawayData) {
                 allGiveaways.push({ giveawayId, giveawayData });
             }
@@ -97,24 +94,24 @@ class db {
         return allGiveaways;
     }
 
-    DeleteGiveaway(giveawayId: string) {
+    public async DeleteGiveaway(giveawayId: string) {
         const filePath = this.getFilePath(giveawayId);
 
         try {
-            unlinkSync(filePath);
+            await unlink(filePath);
             logger.log(`Giveaway ${giveawayId} deleted successfully.`);
         } catch (error) {
             logger.err(`Error deleting giveaway ${giveawayId}: ${error}`);
         }
     }
 
-    AvoidDoubleEntries(giveawayId: string) {
-        const giveaway = this.readGiveawayFile(giveawayId)!;
+    public async AvoidDoubleEntries(giveawayId: string) {
+        const giveaway = (await this.readGiveawayFile(giveawayId))!;
         const uniqueEntries = Array.from(new Set(giveaway.entries));
 
         giveaway.entries = uniqueEntries;
 
-        this.writeGiveawayFile(giveawayId, giveaway);
+        await this.writeGiveawayFile(giveawayId, giveaway);
     }
 
 };

@@ -23,13 +23,14 @@ import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
+import { mkdir } from 'fs/promises';
 
 const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15 Mo
 export const tempDir = path.join(os.tmpdir(), 'media-manipulation');
 
 export async function convertToPng(buffer: Buffer): Promise<Buffer> {
     if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir, { recursive: true });
+        await mkdir(tempDir, { recursive: true });
     }
     try {
         const image = sharp(buffer);

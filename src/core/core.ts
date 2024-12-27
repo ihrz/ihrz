@@ -32,7 +32,6 @@ import { VanityInviteData } from '../../types/vanityUrlData';
 import { ConfigData } from '../../types/configDatad.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
-import { readdirSync, readFileSync } from "node:fs";
 import backup from 'discord-rebackup';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -51,6 +50,7 @@ import { getDatabaseInstance } from './database.js';
 import { KdenLive } from './functions/kdenliveManipulator.js';
 import { Command } from '../../types/command.js';
 import { BashCommands } from '../../types/bashCommands.js';
+import { mkdir, readdir } from 'node:fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,7 +60,7 @@ const backups_folder = `${process.cwd()}/src/files/backups`;
 let global_config: ConfigData;
 
 if (!fs.existsSync(backups_folder)) {
-    fs.mkdirSync(backups_folder, { recursive: true });
+    await mkdir(backups_folder, { recursive: true });
 }
 
 backup.setStorageFolder(backups_folder);
@@ -122,7 +122,7 @@ export async function main(client: Client) {
     bash(client);
     emojis(client);
     let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-    let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
+    let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.js'));
 
     for (const file of handlerFiles) {
         const { default: handlerFunction } = await import(`${handlerPath}/${file}`);

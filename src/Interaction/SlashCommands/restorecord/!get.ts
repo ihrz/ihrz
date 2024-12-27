@@ -35,8 +35,6 @@ import { Option } from '../../../../types/option';
 import { getGuildDataPerSecretCode, SavedMembersRestoreCord, securityCodeUpdate } from '../../../core/functions/restoreCordHelper.js';
 import { discordLocales } from '../../../files/locales.js';
 import { format } from '../../../core/functions/date-and-time.js';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
@@ -82,10 +80,7 @@ export default {
             )
             .setFooter(footer);
 
-        let htmlContent = readFileSync(
-            path.join(process.cwd(), 'src', 'assets', 'restoreCordGetPage.html'),
-            'utf-8'
-        );
+        let htmlContent = client.htmlfiles['restoreCordGetPage'];
 
         const now = Date.now();
 

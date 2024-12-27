@@ -705,8 +705,8 @@ prevnames_embed_footer_text: "iHorizon | الصفحة ${currentPage + 1}/${pages
 blockbot_not_owner: ":x: **أنت لست مالك الخادم!**"
 blockbot_logs_enable_title: "سجل BlockBot"
 blockbot_logs_enable_description: "${interaction.user} (مالك الخادم) __قام بتمكين__ `BlockBot`. الآن لا يمكن إضافة البوت إلى هذا الخادم!"
-blockbot_command_work_on_enable: "**لقد قمت بتمكين `BlockPub`**\nالآن لا يمكن إضافة البوت إلى هذا الخادم!"
-blockbot_command_work_on_disable: "**لقد قمت بتعطيل `BlockPub`**\nالآن يمكن إضافة البوت إلى هذا الخادم!"
+blockbot_command_work_on_enable: "**لقد قمت بتمكين `BlockBot`**\nالآن لا يمكن إضافة البوت إلى هذا الخادم!"
+blockbot_command_work_on_disable: "**لقد قمت بتعطيل `BlockBot`**\nالآن يمكن إضافة البوت إلى هذا الخادم!"
 blockbot_logs_disable_commmand_work: "سجل BlockBot"
 blockbot_logs_disable_description: "${interaction.user} (مالك الخادم) __قام بتعطيل__ `BlockBot`. الآن يمكن إضافة البوت إلى هذا الخادم!"
 

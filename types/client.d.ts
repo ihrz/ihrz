@@ -73,6 +73,7 @@ declare module 'discord.js' {
         bash: Collection<string, BashCommands>,
         notifier: StreamNotifier,
         ownihrz: OwnIHRZ,
-        kdenlive: KdenLive
+        kdenlive: KdenLive,
+        htmlfiles: Record<string, string>
     }
 };

@@ -49,7 +49,7 @@ export default {
             return;
         };
 
-        let giveawayData = client.giveawaysManager.getAllGiveawayData();
+        let giveawayData = await client.giveawaysManager.getAllGiveawayData();
         let filtered = giveawayData.filter((giveaway) => giveaway.giveawayData.guildId === interaction.guildId && !giveaway.giveawayData.ended);
 
         let embed = new EmbedBuilder()

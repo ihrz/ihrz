@@ -30,9 +30,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
@@ -53,7 +51,7 @@ export default {
         var xpNeeded = level * 500 + 500;
         var expNeededForLevelUp = xpNeeded - currentxp;
 
-        var htmlContent = readFileSync(path.join(process.cwd(), "src", "assets", "ranksCard.html"), 'utf-8');
+        var htmlContent = client.htmlfiles['ranksCard'];
 
         htmlContent = htmlContent
             .replace('AVATAR_URL', user.displayAvatarURL({ extension: 'png', size: 128 }))
