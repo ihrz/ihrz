@@ -86,7 +86,7 @@ export const command: Command = {
     thinking: true,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {        
 
 
         // Guard's Typing
@@ -237,8 +237,8 @@ export const command: Command = {
                         .replace(/\${interaction\.user\.id}/g, interaction.member.user.id!)
                 });
 
-                let checklang = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS`);
-                if (!checklang) {
+                let checkData = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS`);
+                if (!checkData) {
                     await client.method.interactionSend(interaction, { content: lang.setlogschannel_already_deleted });
                     return;
                 }

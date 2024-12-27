@@ -149,9 +149,6 @@ const config: ConfigData = {
         method: 'SQLITE',
         // The method you want for the database
 
-        mongoDb: "mongodb://ihrz:1337/iHorizonDB",
-        // If you use MongoDB, put the address of the MongoDB connection.
-
         mySQL: {
             host: '',
             password: '',

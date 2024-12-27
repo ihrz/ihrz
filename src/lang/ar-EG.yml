@@ -48,6 +48,10 @@ var_remove: "إزالة"
 var_edit: "تعديل"
 var_confirm: "تأكيد"
 var_succes: "نجاح"
+var_page: "صفحة"
+var_permission: "إذن"
+var_usage: "الاستخدام"
+var_aliases: "الأسماء المستعارة"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -136,6 +140,68 @@ setticketcategory_command_work: "<@${interaction.user.id}>, لقد قمت بتع
 ticket_logchannel_embed_title: "قناة سجلات التذاكر"
 ticket_logchannel_embed_desc: "${interaction.user}, لقد قمت بتعيين قناة سجلات وحدة التذاكر إلى ${channel}!"
 
+# /ticket panel
+ticket_panel_default_placeholder: "اختر فئة لفتح تذكرة"
+ticket_panel_embed_title: "لوحة التذاكر #"
+ticket_panel_embed_desc: "تخصيص تضمين التذكرة بخيارات محددة"
+ticket_panel_saved_conf: "💾 تم حفظ التكوين"
+ticket_panel_related_embed: "🕸️ التضمين المرتبط"
+ticket_panel_role_to_ping: "📌 الدور للتنبيه"
+ticket_panel_ping_user: "📎 تنبيه المستخدم"
+ticket_panel_placeholder: "🏷️ النص التوضيحي"
+ticket_panel_category: "📤 الفئة"
+ticket_panel_option_fields: "📔 حقول الخيارات"
+ticket_panel_form: "📝 النموذج"
+ticket_panel_panel_placeholder: "اختر الخيارات"
+ticket_panel_panel_1_label: "حفظ التكوين الحالي"
+ticket_panel_panel_2_label: "عرض المعاينة"
+ticket_panel_panel_3_label: "تغيير التضمين المرتبط الحالي"
+ticket_panel_panel_4_label: "إضافة/إزالة دور للتنبيه"
+ticket_panel_panel_5_label: "تغيير النص التوضيحي"
+ticket_panel_panel_6_label: "تغيير الفئة"
+ticket_panel_panel_7_label: "تغيير تنبيه المستخدم"
+ticket_panel_panel_8_label: "إضافة/إزالة حقول الخيارات"
+ticket_panel_panel_9_label: "تغيير النموذج"
+ticket_panel_button_send: "إرسال التضمين"
+ticket_panel_change_category_channelSelect_placeholder: "اختر فئة"
+ticket_panel_select_channel_to_send: "اختر قناة لإرسال التضمين"
+ticket_panel_change_placeholder_modal_title: "تغيير النص التوضيحي"
+ticket_panel_change_placeholder_modal_placeholder: "نص توضيحي جديد"
+ticket_panel_need_save_config: "تحتاج إلى حفظ التكوين الحالي قبل إرسال التضمين"
+ticket_panel_need_1_option: "تحتاج إلى خيار واحد على الأقل لإرسال التضمين"
+ticket_panel_related_embed_dont_exist: "التضمين المرتبط غير موجود"
+ticket_panel_channel_error: "القناة غير موجودة أو ليس لدي صلاحية إرسال رسائل فيها"
+ticket_panel_embed_been_send: "تم إرسال التضمين إلى القناة"
+ticket_panel_successfully_saved: "تم حفظ التكوين بنجاح"
+ticket_panel_change_role_roleSelect_placeholder: "اختر دورًا"
+ticket_panel_change_role_interaction_content: "اختر دورًا لتغيير الدور الذي سيتم تنبيهه عند فتح تذكرة"
+ticket_panel_change_embed_modal_title: "تغيير التضمين المرتبط"
+ticket_panel_change_embed_modal_placeholder: "معرف التضمين"
+ticket_panel_change_embed_dont_exist: "التضمين غير موجود"
+ticket_panel_change_option_select_placeholder: "اختر خيارًا"
+ticket_panel_change_option_select_1_label: "إضافة حقل خيار جديد"
+ticket_panel_change_option_select_2_label: "إزالة حقل الخيار"
+ticket_panel_change_option_interaction_content: "اختر خيارًا لإضافة أو إزالة حقول الخيارات"
+ticket_panel_add_option_max_10: "لا يمكنك إضافة أكثر من 10 حقول خيارات"
+ticket_panel_add_option_modal_title: "إضافة حقل خيار"
+ticket_panel_add_option_modal_field1_label: "الاسم"
+ticket_panel_add_option_modal_field2_label: "الوصف"
+ticket_panel_add_option_modal_field3_label: "الرمز التعبيري"
+ticket_panel_remove_option_empty: "لا توجد حقول خيارات للإزالة"
+ticket_panel_remove_option_select_placeholder: "اختر خيارًا للإزالة"
+ticket_panel_rempve_option_interaction_content: "اختر خيارًا للإزالة"
+ticket_panel_change_form_select_placeholder_1: "إضافة حقل نموذج"
+ticket_panel_change_form_select_placeholder_2: "إزالة حقل نموذج"
+ticket_panel_change_form_interaction_content: "اختر خيارًا لإضافة أو إزالة حقول النموذج"
+ticket_panel_add_form_max_3: "لا يمكنك إضافة أكثر من 3 حقول نموذج"
+ticket_panel_add_form_modal_title: "إضافة حقل نموذج"
+ticket_panel_add_form_modal_field1_label: "عنوان السؤال"
+ticket_panel_add_form_modal_field2_label: "النص التوضيحي للسؤال"
+ticket_panel_preview_message: "معاينة لوحة التذاكر"
+ticket_panel_option_change_category: "اختر خيارًا لتغيير الفئة"
+ticket_panel_panel_10_label: "تغيير الفئة لخيار واحد محدد"
+
+
 # Ranks commands
 # /level, /setxpchannels, /disablexp
 
@@ -171,13 +237,15 @@ level_embed_fields1_value: "`${currentxp}/${xpNeeded}`"
 level_embed_fields2_name: ":money_with_wings:・__الخبرة:__"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` **نقاط الخبرة المطلوبة للمستوى التالي!**"
+level_xp_needed_for_new_level: "نقاط الخبرة المطلوبة للمستوى التالي:"
+level_xp_total: "مجموع نقاط الخبرة:"
 
 # /ranks leaderboard
-ranks_leaderboard_embed_title: "لوحة المتصدرين لمستويات ${interaction.guild?.name}"
 ranks_leaderboard_top_txt: "أفضل #${i}"
 ranks_leaderboard_top_txt_raw: "أفضل #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **المستوى**: `${a.level || '0'}`\n🔱 ➥ **إجمالي XP**: `${a.xptotal}`"
-ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ المستوى: ${a.level || '0'}\n🔱 ➥ إجمالي XP: ${a.xptotal}"
+ranks_leaderboard_embed_title: "🏆 لوحة صدارة الأساطير في الخادم"
+ranks_leaderboard_embed_footer: "الصفحة ${cPage} من ${totalPages} • مُرتبة حسب إجمالي النقاط"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "إعدادات وحدة الرتب"
@@ -208,6 +276,32 @@ ranksSetMessage_embed_fields_xpmessage: "رسالة الرتب"
 reset_uranks_are_you_sure: "**هل أنت متأكد حقًا أنك تريد حذف جميع بيانات الرتب؟\nهذا الإجراء دائم ولن تتمكن من التراجع عنه.**\n**هذا الإجراء مدمر!!**"
 reset_uranks_logs_embed_title: "سجلات وحدة الرتب (إجراء خطير)"
 reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} قام بحذف جميع بيانات وحدة الرتب لـ ${user.toString()}!"
+
+# /ranks config
+ranks_config_embed_title: "🏆 تكوين أدوار الرتب"
+ranks_config_embed_desc: "قم بتخصيص مكافآت الأدوار المستندة إلى نقاط الخبرة في الخادم الخاص بك!"
+ranks_config_autofields_name: "🌟 المستوى ${level}"
+ranks_config_autofields_value: "الدور: <@&${roleId}>\n🔓 يتم فتحه عند المستوى ${level}"
+ranks_config_nofields_name: "🚫 لا توجد أدوار مهيأة"
+ranks_config_nofields_value: "قم بإعداد أدوار الرتب لمكافأة الأعضاء النشطين!"
+ranks_config_help_footer: "الصفحة ${currentPage} من ${totalPage} • إجمالي الرتب: ${totalRanks}"
+ranks_config_btn_add_name: "إضافة دور"
+ranks_config_btn_remove_name: "إزالة دور"
+ranks_config_add_max_roles: "لقد وصلت إلى الحد الأقصى لعدد أدوار الرتب (25)."
+ranks_config_add_role_menu_placeholder: "اختر دورًا"
+ranks_config_awaiting1_response: "اختر الدور الذي تريد تعيينه لمستوى معين."
+ranks_config_add_modal_title: "تحديد مستوى للدور"
+ranks_config_add_modal_fields1_placeholder: "متطلب المستوى"
+ranks_config_add_invalid_level: "مستوى غير صالح! يرجى إدخال رقم موجب."
+ranks_config_add_invalid_role: "الدور {role} موجود بالفعل. يمكن تعيين الدور لمستوى واحد فقط."
+ranks_config_add_command_work: "تم إضافة الدور ${selectedRole} للمستوى ${level}!"
+ranks_config_add_command_warn: "# تحذير ⚠️ الدور ${selectedRole} لديه الأذونات الحساسة التالية:\n\n${_}"
+ranks_config_remove_no_rank: "لا توجد أدوار رتب مهيأة للإزالة."
+ranks_config_var_level: "المستوى {level}"
+ranks_config_remove_string_menu_desc: "إزالة الدور عند المستوى ${level}"
+ranks_config_remove_string_menu1_placeholder: "اختر دورًا لإزالته"
+ranks_config_remove_awaiting_response: "اختر الدور الذي تريد إزالته."
+ranks_config_remove_command_work: "تمت إزالة الدور عند المستوى ${levelToRemove}!"
 
 
 # Owner commands
@@ -298,6 +392,9 @@ invite_embed_description: "أحبك، أظهر لي محبتك بالمقابل!
 # /kisakay
 kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay هي المبدعة والمطورة الخاصة بي. بفضلها وبفضل لوحة مفاتيحها، جئت إلى الحياة. أنا ممتن لها بشدة!✨ ❤️❤️"
 
+# /andru
+andru_message: "أندرو هو متعاون ومطور. \"الرجل المتعدد المهام\"، يدير التسويق والمجتمع..."
+
 # /nayaweb
 nayaweb_message: "😼 NayaWeb هو مطور/مساهم الثاني لي، NayaWeb x Kisakay ❤️"
 
@@ -372,6 +469,10 @@ help_notifier_dsc: "خليك متبلغ لما يوتيوبر أو ستريمر 
 help_notifier_fields: "المُبلغ"
 help_restorecord_fields: "استعادة كورد"
 help_restorecord_dsc: "التحقق من الخادم باستخدام oAuth2. عندما يتعرض خادمك لهجوم أو يُلغى، يمكنك استعادة الأعضاء القدامى باستخدام oAuth2!"
+
+# /h
+h_suite: "(تتمة)"
+h_suite_desc: "*استمرار أوامر الفئة*"
 
 # /say
 say_footer_msg: "\n\nأُرسل من `/say` بواسطة ${interaction.user}"
@@ -573,6 +674,7 @@ setrankroles_logs_embed_title_disable: "تعيين دور التصنيف"
 setrankroles_command_work_disable: "<@${interaction.user.id}>, لقد قمت بحذف دور التصنيف!"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} حدث خطأ في الأمر! يرجى المحاولة مرة أخرى لاحقًا."
 setrankroles_command_work_with_nicknames: "الآن، عندما تشير إليّ بـ `@iHorizon` سأضيف الأدوار التالية: <@&${argsid}> **فقط إذا كان المستخدم يحتوي على** `${nicknames}` في اسم المستخدم أو الاسم العالمي."
+setrankroles_command_work_with_nicknames_2: "\n**ملاحظة**:\nإذا أزالت الشخص الجزء من اللقب، سيتم إزالة الدور تلقائيًا. عندما تعيده، سأعيد له الدور."
 
 # /snipe
 snipe_no_previous_message_deleted: "لا توجد رسائل محذوفة في هذه القناة!"
@@ -603,8 +705,8 @@ prevnames_embed_footer_text: "iHorizon | الصفحة ${currentPage + 1}/${pages
 blockbot_not_owner: ":x: **أنت لست مالك الخادم!**"
 blockbot_logs_enable_title: "سجل BlockBot"
 blockbot_logs_enable_description: "${interaction.user} (مالك الخادم) __قام بتمكين__ `BlockBot`. الآن لا يمكن إضافة البوت إلى هذا الخادم!"
-blockbot_command_work_on_enable: "**لقد قمت بتمكين `BlockPub`**\nالآن لا يمكن إضافة البوت إلى هذا الخادم!"
-blockbot_command_work_on_disable: "**لقد قمت بتعطيل `BlockPub`**\nالآن يمكن إضافة البوت إلى هذا الخادم!"
+blockbot_command_work_on_enable: "**لقد قمت بتمكين `BlockBot`**\nالآن لا يمكن إضافة البوت إلى هذا الخادم!"
+blockbot_command_work_on_disable: "**لقد قمت بتعطيل `BlockBot`**\nالآن يمكن إضافة البوت إلى هذا الخادم!"
 blockbot_logs_disable_commmand_work: "سجل BlockBot"
 blockbot_logs_disable_description: "${interaction.user} (مالك الخادم) __قام بتعطيل__ `BlockBot`. الآن يمكن إضافة البوت إلى هذا الخادم!"
 
@@ -680,6 +782,30 @@ utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} قام ب�
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} الرسالة اتبعتت بنجاح لـ ${targetMember.toString()}"
 utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} معرفتش أبعت الرسالة لـ ${targetMember.toString()}. يمكن يكون قافل الرسائل الخاصة أو يكون حظرني!"
+
+# /utils pic-only
+utils_pic_only_embed_title: "قنوات الصور فقط"
+utils_pic_only_emnbed_desc: "قناة حيث الصور هي الشيء الوحيد المسموح به. المحتوى الآخر محظور من قبل البوت"
+utils_piconly_embed_fields_3_name: "وقت الإيقاف المؤقت"
+utils_piconly_select1_option1_label: "تغيير وقت الإيقاف المؤقت"
+utils_piconly_select1_option2_label: "تغيير الحد الأقصى"
+utils_piconly_modal1_title: "الصور فقط - إعدادات الوقت"
+utils_piconly_modal1_fields1_placeholder: "مدة الكتم"
+utils_piconly_modal1_fields1_label: "وقت الكتم"
+utils_piconly_modal2_title: "الصور فقط - إعداد الحد الأقصى"
+utils_piconly_modal2_fields1_placeholder: "الحد الأقصى قبل الكتم"
+utils_piconly_modal2_fields1_label: "الحد الأقصى"
+
+# /zip-emojis
+zip_emojis_doesnt_have_perm: "ليس لديك إذن لإدارة الرموز التعبيرية."
+zip_emojis_command_work: "🎉 اكتمل التصدير في **${calcTime}** مللي ثانية! إليك الأرشيف الذي يحتوي على ${emojis.size} رمز تعبيري."
+zip_emojis_command_error: "حدث خطأ أثناء تصدير الرموز التعبيرية."
+
+# +sticker  
+sticket_no_sticker: "لم يتم العثور على ملصق في الرسالة التي تم الرد عليها."  
+sticket_command_work: "تم إنشاء الملصق `${x.name}` بنجاح."  
+sticker_command_error: "تعذر إنشاء الملصق. حدث خطأ: `${err.message}`."  
+sticket_command_error2: "يرجى الرد على رسالة تحتوي على ملصق."  
 
 
 # Guild Config commands
@@ -983,6 +1109,42 @@ perm_roles_created_role: "الأدوار اللي اتعملت: ${createdRoles.j
 perm_roles_already_upate: "كل الأدوار موجودة وحديثة."
 perm_roles_error: "حصل خطأ أثناء إنشاء أو تحديث الأدوار."
 
+# /toggle-react
+toggle_react_command_work: "<@${interaction.member?.id}>, الآن عندما يرسل أحد الأعضاء رسالة ترحيب، البوت **{activeMsg}**"
+toggle_react_doesnt_react: "لن يتفاعل بعد الآن"
+toggle_react_react: "سيتفاعل"
+
+# /remove-react
+remove_react_command_work: "<@${interaction.member?.id}>, الآن عندما يرسل أحد الأعضاء `${message.toLowerCase()}`، البوت **لن يتفاعل**."
+
+# /add-react
+add_react_command_err_emojis: "الرمز التعبيري `{emoji}` للتفاعل غير صحيح!"
+add_react_command_work: "<@${interaction.member?.id}>, الآن عندما يرسل أحد الأعضاء `${message.toLowerCase()}`، البوت **سيتفاعل** بـ {emoji}"
+
+# /list-react
+list_react_nothing_found: "لم يتم العثور على أي بيانات، يرجى إضافة بعض منها أولاً."
+list_react_embed_msg: "عندما يرسل أحد الأشخاص **`${key}`**، سأ**تفاعل** بـ ${value}\n"
+
+# /autoreact
+autoreact_embed_title: "تكوين التفاعل التلقائي"
+autoreact_embed_desc: "عندما يتم إرسال رسالة جديدة في القناة المحددة، سيقوم البوت بالتفاعل مع الرموز التعبيرية المحددة."
+autoreact_embed_autofields_value: "التفاعل: ${reaction}"
+autoreact_embed_autofields_none_value: "لم يتم إعداد أي تكوين للتفاعل التلقائي."
+autoreact_embed_footer: "الصفحة ${currentPage} من ${totalPage} • إجمالي التفاعلات: ${totalReact}"
+autoreact_btn_add_name: "إضافة قناة"
+autoreact_btn_remove_name: "إزالة قناة"
+autoreact_max_25: "يمكن إعداد حد أقصى يبلغ 25 تكوينًا للتفاعل التلقائي."
+autoreact_menu_add_place: "اختر قناة لإضافتها"
+autoreact_awaiting1_msg: "يرجى اختيار قناة لإضافتها إلى وحدة التفاعل التلقائي."
+autoreact_modal_title: "تكوين التفاعل التلقائي"
+autoreact_modal_fields1_label: "التفاعل (الإيموجي)"
+autoreact_invalid_emoji: "رمز تعبيري غير صالح. يرجى إدخال رمز تعبيري صالح."
+autoreact_add_command_ok: "تم تعيين تكوين التفاعل التلقائي."
+autoreact_remove_not_found: "لم يتم إعداد أي تكوين للتفاعل التلقائي."
+autoreact_menu_remove_place: "اختر قناة للإزالة"
+autoreact_awaiting_remove_msg: "يرجى اختيار قناة لإزالتها من وحدة التفاعل التلقائي."
+autoreact_remove_command_ok: "تمت إزالة تكوين التفاعل التلقائي لهذه القناة."
+
 
 # Member Count commands
 # /setmembercount
@@ -1082,6 +1244,9 @@ start_confirmation_command: "تم بدء المسابقة في ${giveawayChannel
 start_logs_embed_title: "سجلات المسابقات"
 start_logs_embed_description: "<@${interaction.user.id}> بدأ مسابقة في: ${giveawayChannel}"
 start_time_not_valid: "${interaction.user}, مدة المسابقة التي حددتها غير صحيحة، يرجى المحاولة مرة أخرى!"
+start_invalid_invites_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | القيمة لـ 'دعوات' غير صالحة! يجب أن يكون عدد الدعوات للانضمام إلى الهدية!"
+start_invalid_messages_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | القيمة لـ 'رسائل' غير صالحة! يجب أن يكون عدد الرسائل للانضمام إلى الهدية!"
+start_invalid_roles_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | الدور لقيمة 'الأدوار' غير موجود! يجب إدخال معرف الدور للانضمام إلى الهدية!"
 
 # /reroll
 reroll_not_perm: "يجب أن تكون لديك أذونات إدارة الرسائل لإنهاء هذه المسابقة."
@@ -1206,6 +1371,7 @@ unmute_logs_embed_description: "<@${interaction.user.id}> رفع ميوت <@${to
 warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} اتحذر! **السبب**: `${reason}`\n__رقم التحذير__: `${warnId}`"
 warn_logEmbed_title: "سجلات التحذير"
 warn_logEmbed_desc: "${interaction.member.toString()} حذر ${member?.toString()} بسبب `${reason}`"
+warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | ليس لديك إذن لتحذير عضو في هذا السيرفر."
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} شكله مفيش تحذيرات ليه في قاعدة البيانات بتاعتي!"
@@ -1213,11 +1379,13 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toStri
 unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} تم إلغاء التحذير بتاعه!"
 unwarn_logEmbed_title: "سجلات إلغاء التحذير"
 unwarn_logEmbed_desc: "${interaction.member.toString()} ألغى تحذير ${member?.toString()}"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | ليس لديك إذن لإزالة تحذير من عضو في هذا السيرفر."
 
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} شكله مفيش تحذيرات ليه في قاعدة البيانات بتاعتي!"
 warnlist_embed_desc: "### الرقم: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> الكاتب: <@${x.authorID}>\n> السبب: `${x.reason}`"
 warnlist_embed_title: "قائمة تحذيرات ${member?.user.globalName} | الصفحة ${i / usersPerPage + 1}"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | ليس لديك إذن لإدارة تحذيرات الأعضاء في هذا السيرفر."
 
 
 # Backup commands
@@ -1276,6 +1444,38 @@ buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> أضاف
 buttonreaction_dont_message_found: "لا يمكن إضافة هذا الزر، يبدو أن الأدوار تم تعيينها بالفعل في زر موجود!"
 buttonreaction_roles_not_found: "الوسائط مفقودة: لم تحدد الأدوار لتعيينها!"
 buttonreaction_message_other_user_error: "في ديسكورد، لا يمكن لروبوت ديسكورد تعديل مكونات رسالة مستخدم آخر. تحتاج لاختيار رسالة أرسلتها بنفسي. نصيحة: استخدم `/utils embed` لإنشاء تضمين جميل خاص بك!"
+
+# /roleselect
+roleselect_invalid_message_id: "معرّف الرسالة غير صالح. يرجى تقديم معرّف رسالة صالح."
+roleselect_message_not_found: "لم يتم العثور على الرسالة في القناة المحددة."
+roleselect_default_placeholder: "اختر الأدوار المكونة"
+roleselect_menu1_placeholder: "اختر إجراءً"
+roleselect_menu1_add: "إضافة خيار دور"
+roleselect_menu1_remove: "إزالة خيار دور"
+roleselect_menu1_change_placeholder: "تغيير عنصر النائب للقائمة"
+roleselect_menu1_save: "حفظ وتطبيق التهيئة"
+roleselect_menu1_cancel: "إلغاء"
+roleselect_menu1_embed_title: "تكوين اختيار الدور"
+roleselect_menu1_embed_description: "عند اختيار المستخدم للحقول في القائمة المنسدلة، سيحصل على الدور المحدد"
+roleselect_modal1_title: "إضافة خيار دور"
+roleselect_modal1_fields1_label: "الرمز التعبيري"
+roleselect_modal1_fields1_placeholder: "اختر رمزًا تعبيريًا لخيار الدور (اختياري)"
+roleselect_modal1_fields2_label: "عنوان الخيار"
+roleselect_modal1_fields2_placeholder: "عنوان قصير لخيار الدور"
+roleselect_modal1_fields3_label: "الوصف"
+roleselect_modal1_fields3_placeholder: "صف خيار الدور (اختياري)"
+roleselect_awaiting1_msg: "اختر دورًا لهذا الخيار"
+roleselect_awaiting1_menu_placeholder: "اختر دورًا"
+roleselect_role_already_exist: "الدور موجود بالفعل في التكوين."
+roleselect_no_role_found: "لا توجد خيارات أدوار للإزالة."
+roleselect_all_role_removed: "تمت إزالة جميع خيارات الأدوار."
+roleselect_last_role_removed: "تمت إزالة آخر خيار دور بنجاح."
+roleselect_save_command_ok: "تم حفظ تكوين اختيار الدور بنجاح!"
+roleselect_failed_to_save_config: "فشل في حفظ التكوين. يرجى المحاولة مرة أخرى."
+roleselect_canceled_command_ok: "تم إلغاء تكوين اختيار الدور."
+roleselect_modal2_title: "عنصر نائب للقائمة المنسدلة"
+roleselect_modal2_label: "عنصر نائب"
+roleselect_modal2_placeholder: "عنصر نائب للقائمة المنسدلة"
 
 
 # New feature commands
@@ -1359,6 +1559,9 @@ embed_copy_bad_channel_msg: "القناة التي توجد فيها الرسا�
 embed_copy_bad_message_msg: "الرسالة غير متاحة!"
 embed_copy_bad_embed_message_msg: "الرسالة لا تحتوي على إيمبد!"
 embed_copy_bad_url_msg: "رابط غير صالح، يرجى المحاولة مرة أخرى. التنسيق الصحيح هو: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
+embed_btn_replace: "استبدال التضمين"  
+embed_replace_question_msg: "ما هو عنوان URL الجديد للرسالة التي تحتاج إلى استبدال التضمين فيها؟"  
+embed_replace_message: "{user}، تم استبدال التضمين الجديد بالتضمين الخاص بـ {messageUrl}"  
 
 # /rolesaver
 rolesaver_embed_title: "وحدة حفظ الأدوار"
@@ -1745,6 +1948,14 @@ rc_forceJoin_ws_start: "# عملية الانضمام القسري بدأت..."
 rc_forceJoin_ws_end: "# عملية الانضمام القسري انتهت."
 rc_forceJoin_ws_end_renew_msg: "# اقرأ بعناية\nده الكود الخاص اللي لازم تحتفظ بيه. أي شخص معاه الكود ده ممكن يحذف الوحدة أو يضيف أعضاء لسيرفره... احتفظ بيه في مكان آمن. iHorizon مش هيقدمه ليك تاني:\n```${value2}```"
 
+
+# Misc category
+# media manipulation
+
+# media cooldown
+media_gen_cooldown: "يجب أن تنتظر `1 دقيقة و 30 ثانية` بين عمليات إنشاء الوسائط!"
+media_gen_error_args: "يرجى تقديم رابطين صالحين للصور."
+
 # -----------------------------/ \-----------------------------
 # Confession Module Events
 confession_module_modal_title: "أرسل اعترافاً"
@@ -1802,6 +2013,7 @@ ticket_module_button_addmember: "إضافة عضو"
 ticket_module_button_removemember: "إزالة عضو"
 ticket_module_add_question: "من تريد إضافته إلى تذكرتك؟ (حدد معرف المستخدم)!"
 ticket_module_remove_question: "من هو المستخدم الذي تريد إزالته من تذكرتك؟ (حدد معرف المستخدم)!"
+ticket_transcript_failed_to_send: "لقد حاولت إرسال الملف لك في رسالة خاصة، لكن لقد قمت بحظر الرسائل الخاصة بك :/"
 
 # سجلات الخادم
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **حظر** <@${firstEntry.target.id}>"
@@ -1821,6 +2033,10 @@ event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> كتم سما
 event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> ألغى كتم سماعات الرأس الخاصة به في القناة <#${channelID}>"
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> كتم نفسه في القناة <#${channelID}>"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> ألغى كتم نفسه في القناة <#${channelID}>"
+event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} تم إلغاء تفعيلها لـ ${target}\n"
+event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} تم تفعيلها لـ ${target}\n"
+event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} مسموح بها لـ ${target}\n"
+event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} تم رفضها لـ ${target}\n"
 
 # حدث الترقية
 event_rank_role: "<@${message.author.id}>, لديك الآن الدور <@&${fetch.id}>"
@@ -1946,9 +2162,10 @@ antispam_log_embed_desc: "${client.user?.toString()} قد **${actionType}** ${us
 
 hybridcommands_global_prefix_mention: "`@Ping-Me`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
-hybridcommands_args_error_embed_desc: "```ts\nاسم الأمر: ${currentCommand.name}\nوصف الأمر: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nخطأ عند إرسال \"${wrongArgumentName}\" كوسيط.\n```"
+hybridcommands_args_error_embed_desc: "```ts\nاسم الأمر: ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nحدث خطأ عند إرسال الوسيطة \"${wrongArgumentName}\".\n```"
 hybridcommands_embed_help_title: "دليل ${commandName}"
 hybridcommands_embed_help_fields_value: "**الألقاب:** ${aliases}\n**الاستخدام:** ${use}"
+hybridcommands_embed_footer_text: "الخيارات داخل [...] مطلوبة، بينما الخيارات داخل <...> اختيارية.\nاستخدم الأمر: ${botPrefix}help [command] لمزيد من المعلومات."
 
 ping_bot_show_info_msg: "مرحبًا ${message.author.toString()}, أنا 100% في `أوامر التفاعل` (${client.iHorizon_Emojis.badge.Slash_Bot}) وقابل للاستخدام بنسبة 85% عبر الأوامر البادئة. بادئتي على **هذا الخادم** هي `${prefix}`!"
 
@@ -1976,5 +2193,10 @@ rc_total_key_used_count: "عدد مرات استخدام المفتاح"
 rc_recent_locales_distribution: "توزيع مواقع الأعضاء"
 rc_recent_verifications: "عمليات التحقق الأخيرة"
 rc_registration_over_time: "التسجيلات عبر الزمن"
+
+# وحدة الصور فقط 
+piconly_module_punish_msg: "${message.author}, تم إيقافك مؤقتًا لمدة 10 دقائق لإرسال الكثير من الرسائل بدون صور في قناة مخصصة للصور."
+piconly_module_warn_msg: "${message.author}, هذه القناة تقبل فقط الرسائل التي تحتوي على صور (التنسيقات المقبولة: JPG, PNG, GIF, WEBP, BMP, TIFF). تحذير ${userWarnings.length}/${threshold}"
+piconly_module_timeout_reason: "إرسال رسائل متكررة بدون صور في قناة مخصصة للصور فقط"
 
 # -----------------------------\ /-----------------------------

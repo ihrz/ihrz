@@ -31,7 +31,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
@@ -43,7 +43,7 @@ export default {
             var user = interaction.user;
         } else {
             
-            var question = client.method.string(args!, 0) as string;
+            var question = client.method.longString(args!, 0) as string;
             var user = interaction.author;
         };
 

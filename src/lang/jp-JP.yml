@@ -48,6 +48,10 @@ var_remove: "削除"
 var_edit: "編集"
 var_confirm: "確認"
 var_succes: "成功"
+var_page: "ページ"
+var_permission: "権限"
+var_usage: "使用法"
+var_aliases: "エイリアス"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -136,6 +140,67 @@ setticketcategory_command_work: "<@${interaction.user.id}>さん、チケット�
 ticket_logchannel_embed_title: "チケットログチャンネル"
 ticket_logchannel_embed_desc: "${interaction.user}、チケットモジュールのログチャンネルを${channel}に設定しました！"
 
+# /ticket panel
+ticket_panel_default_placeholder: "チケットを作成するカテゴリーを選択してください"
+ticket_panel_embed_title: "チケットパネル #"
+ticket_panel_embed_desc: "特定のオプションでチケット埋め込みをカスタマイズ"
+ticket_panel_saved_conf: "💾 保存された設定"
+ticket_panel_related_embed: "🕸️ 関連埋め込み"
+ticket_panel_role_to_ping: "📌 メンション対象のロール"
+ticket_panel_ping_user: "📎 ユーザーをメンション"
+ticket_panel_placeholder: "🏷️ プレースホルダー"
+ticket_panel_category: "📤 カテゴリー"
+ticket_panel_option_fields: "📔 オプションフィールド"
+ticket_panel_form: "📝 フォーム"
+ticket_panel_panel_placeholder: "オプションを選択"
+ticket_panel_panel_1_label: "現在の設定を保存"
+ticket_panel_panel_2_label: "プレビューを表示"
+ticket_panel_panel_3_label: "現在の関連埋め込みを変更"
+ticket_panel_panel_4_label: "メンション対象のロールを追加/削除"
+ticket_panel_panel_5_label: "プレースホルダーを変更"
+ticket_panel_panel_6_label: "カテゴリーを変更"
+ticket_panel_panel_7_label: "ユーザーメンションを変更"
+ticket_panel_panel_8_label: "オプションフィールドを追加/削除"
+ticket_panel_panel_9_label: "フォームを変更"
+ticket_panel_button_send: "埋め込みを送信"
+ticket_panel_change_category_channelSelect_placeholder: "カテゴリーを選択"
+ticket_panel_select_channel_to_send: "埋め込みを送信するチャンネルを選択"
+ticket_panel_change_placeholder_modal_title: "プレースホルダーを変更"
+ticket_panel_change_placeholder_modal_placeholder: "新しいプレースホルダー"
+ticket_panel_need_save_config: "埋め込みを送信する前に現在の設定を保存する必要があります"
+ticket_panel_need_1_option: "埋め込みを送信するには少なくとも1つのオプションが必要です"
+ticket_panel_related_embed_dont_exist: "関連する埋め込みが存在しません"
+ticket_panel_channel_error: "チャンネルが存在しないか、メッセージを送信する権限がありません"
+ticket_panel_embed_been_send: "埋め込みがチャンネルに送信されました"
+ticket_panel_successfully_saved: "設定が正常に保存されました"
+ticket_panel_change_role_roleSelect_placeholder: "ロールを選択"
+ticket_panel_change_role_interaction_content: "チケットが開かれた時にメンションされるロールを選択してください"
+ticket_panel_change_embed_modal_title: "関連埋め込みを変更"
+ticket_panel_change_embed_modal_placeholder: "埋め込みID"
+ticket_panel_change_embed_dont_exist: "埋め込みが存在しません"
+ticket_panel_change_option_select_placeholder: "オプションを選択"
+ticket_panel_change_option_select_1_label: "新しいオプションフィールドを追加"
+ticket_panel_change_option_select_2_label: "オプションフィールドを削除"
+ticket_panel_change_option_interaction_content: "オプションフィールドを追加または削除するオプションを選択"
+ticket_panel_add_option_max_10: "オプションフィールドは10個以上追加できません"
+ticket_panel_add_option_modal_title: "オプションフィールドを追加"
+ticket_panel_add_option_modal_field1_label: "名前"
+ticket_panel_add_option_modal_field2_label: "説明"
+ticket_panel_add_option_modal_field3_label: "絵文字"
+ticket_panel_remove_option_empty: "削除するオプションフィールドがありません"
+ticket_panel_remove_option_select_placeholder: "削除するオプションを選択"
+ticket_panel_rempve_option_interaction_content: "削除するオプションを選択してください"
+ticket_panel_change_form_select_placeholder_1: "フォームフィールドを追加"
+ticket_panel_change_form_select_placeholder_2: "フォームフィールドを削除"
+ticket_panel_change_form_interaction_content: "フォームフィールドを追加または削除するオプションを選択"
+ticket_panel_add_form_max_3: "フォームフィールドは3つ以上追加できません"
+ticket_panel_add_form_modal_title: "フォームフィールドを追加"
+ticket_panel_add_form_modal_field1_label: "質問タイトル"
+ticket_panel_add_form_modal_field2_label: "質問プレースホルダー"
+ticket_panel_preview_message: "チケットパネルのプレビュー"
+ticket_panel_option_change_category: "カテゴリを変更するオプションを選択してください"
+ticket_panel_panel_10_label: "特定のオプションのカテゴリを変更する"
+
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
@@ -172,13 +237,15 @@ level_embed_fields1_value: "`${currentxp}/${xpNeeded}`"
 level_embed_fields2_name: ":money_with_wings:・__経験値:__"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` **次のレベルに必要な経験値ポイント！**"
+level_xp_needed_for_new_level: "次のレベルまでのXP："
+level_xp_total: "合計XP："
 
 # /ranks leaderboard
-ranks_leaderboard_embed_title: "${interaction.guild?.name}のレベルリーダーボード"
 ranks_leaderboard_top_txt: "トップ#${i}"
 ranks_leaderboard_top_txt_raw: "トップ#${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **レベル**: `${a.level || '0'}`\n🔱 ➥ **総XP**: `${a.xptotal}`"
-ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ レベル: ${a.level || '0'}\n🔱 ➥ 総XP: ${a.xptotal}"
+ranks_leaderboard_embed_title: "🏆 サーバーレジェンドリーダーボード"
+ranks_leaderboard_embed_footer: "ページ ${cPage} / ${totalPages} • 総XPでランク付け"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "ランクモジュールの設定"
@@ -209,6 +276,32 @@ ranksSetMessage_embed_fields_xpmessage: "ランクメッセージ"
 reset_uranks_are_you_sure: "**すべてのランクデータを削除しても本当に良いですか？\nこの操作は永久的で、元に戻せません。**\n**この操作は破壊的です!!**"
 reset_uranks_logs_embed_title: "ランクモジュールのログ (危険な操作)"
 reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} が ${user.toString()} のランクモジュールデータをすべて削除しました！"
+
+# /ranks config
+ranks_config_embed_title: "🏆 ランクロール設定"
+ranks_config_embed_desc: "サーバーのXPに基づいたロール報酬をカスタマイズしましょう！"
+ranks_config_autofields_name: "🌟 レベル ${level}"
+ranks_config_autofields_value: "ロール: <@&${roleId}>\n🔓 レベル ${level} でアンロック"
+ranks_config_nofields_name: "🚫 設定されたロールがありません"
+ranks_config_nofields_value: "アクティブなメンバーに報酬を与えるためのランクロールを設定しましょう！"
+ranks_config_help_footer: "ページ ${currentPage} / ${totalPage} • 総ランク数: ${totalRanks}"
+ranks_config_btn_add_name: "ロールを追加"
+ranks_config_btn_remove_name: "ロールを削除"
+ranks_config_add_max_roles: "ランクロールの最大数 (25) に達しました。"
+ranks_config_add_role_menu_placeholder: "ロールを選択"
+ranks_config_awaiting1_response: "特定のレベルに割り当てたいロールを選択してください。"
+ranks_config_add_modal_title: "ロールのレベルを設定"
+ranks_config_add_modal_fields1_placeholder: "レベル要件"
+ranks_config_add_invalid_level: "無効なレベルです！正の数字を入力してください。"
+ranks_config_add_invalid_role: "ロール {role} は既に存在します。ロールは1つのレベルにのみ割り当てることができます。"
+ranks_config_add_command_work: "ロール ${selectedRole} がレベル ${level} に追加されました！"
+ranks_config_add_command_warn: "# 警告 ⚠️ ロール ${selectedRole} には以下の機密権限があります:\n\n${_}"
+ranks_config_remove_no_rank: "削除できるランクロールが設定されていません。"
+ranks_config_var_level: "レベル {level}"
+ranks_config_remove_string_menu_desc: "レベル ${level} のロールを削除"
+ranks_config_remove_string_menu1_placeholder: "削除するロールを選択"
+ranks_config_remove_awaiting_response: "削除したいロールを選択してください。"
+ranks_config_remove_command_work: "レベル ${levelToRemove} のロールが削除されました！"
 
 
 # Owner commands
@@ -301,6 +394,9 @@ invite_embed_description: "私はあなたを愛しています、私に対す�
 # /kisakay
 kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakayは私の創造者であり開発者です。彼女と彼女のキーボードのおかげで生まれました。彼女には深く感謝しています！✨ ❤️❤️"
 
+# /andru
+andru_message: "Andruはコラボレーターであり開発者です。\"何でも屋\"として、マーケティング、コミュニティを管理しています..."
+
 # /nayaweb
 nayaweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
 
@@ -375,6 +471,10 @@ help_notifier_dsc: "YouTuberやストリーマーが動画を公開したら通�
 help_notifier_fields: "通知機能"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "oAuth2を使用したサーバー検証。サーバーが攻撃されたり削除された場合でも、oAuth2を使用して古いメンバーを復元できます！"
+
+# /h
+h_suite: "(続き)"
+h_suite_desc: "*カテゴリのコマンドの続き*"
 
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
@@ -577,6 +677,7 @@ setrankroles_logs_embed_title_disable: "ランクロールの設定"
 setrankroles_command_work_disable: "<@${interaction.user.id}> さん、ランクロールを削除しました！"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} コマンドの実行中にエラーが発生しました！後でもう一度お試しください。"
 setrankroles_command_work_with_nicknames: "今、あなたが私を `@iHorizon` でピンすると、次の役割を追加します: <@&${argsid}> **ユーザーがユーザー名またはグローバル名に** `${nicknames}` **を持っている場合のみ**"
+setrankroles_command_work_with_nicknames_2: "\n**注意**:\nニックネームの一部を削除した場合、ロールは自動的に削除されます。再度追加した際には、ロールを再度付与します。"
 
 # /snipe
 snipe_no_previous_message_deleted: "このチャンネルで削除されたメッセージはありません！"
@@ -607,8 +708,8 @@ prevnames_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.le
 blockbot_not_owner: ":x: **サーバーのオーナーではありません！**"
 blockbot_logs_enable_title: "BlockBot ログ"
 blockbot_logs_enable_description: "${interaction.user}（サーバーのオーナー）が `BlockBot` を __有効化__ しました。これにより、ボットはこのサーバーには **追加できなくなります**！"
-blockbot_command_work_on_enable: "**`BlockPub` を有効にしました**\nボットはこのサーバーには **追加できなくなります**！"
-blockbot_command_work_on_disable: "**`BlockPub` を無効にしました**\nボットはこのサーバーに追加できるようになります！"
+blockbot_command_work_on_enable: "**`BlockBot` を有効にしました**\nボットはこのサーバーには **追加できなくなります**！"
+blockbot_command_work_on_disable: "**`BlockBot` を無効にしました**\nボットはこのサーバーに追加できるようになります！"
 blockbot_logs_disable_commmand_work: "BlockBot ログ"
 blockbot_logs_disable_description: "${interaction.user}（サーバーのオーナー）が `BlockBot` を __無効化__ しました。ボットはこのサーバーに追加できるようになります！"
 
@@ -683,6 +784,30 @@ utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} はホワ�
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} メッセージは ${targetMember.toString()} に正常に送信されました。"
 utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} ${targetMember.toString()} にメッセージを送信できませんでした。プライベートメッセージをブロックしているか、私をブロックしている可能性があります。"
+
+# /utils pic-only
+utils_pic_only_embed_title: "画像専用チャンネル"
+utils_pic_only_emnbed_desc: "写真・画像のみが許可されているチャンネル。他のコンテンツはボットによってブロックされます"
+utils_piconly_embed_fields_3_name: "タイムアウト時間"
+utils_piconly_select1_option1_label: "タイムアウト時間を変更"
+utils_piconly_select1_option2_label: "しきい値を変更"
+utils_piconly_modal1_title: "画像のみ - 時間設定"
+utils_piconly_modal1_fields1_placeholder: "ミュート時間"
+utils_piconly_modal1_fields1_label: "ミュート時間"
+utils_piconly_modal2_title: "画像のみ - しきい値設定"
+utils_piconly_modal2_fields1_placeholder: "ミュート前のしきい値"
+utils_piconly_modal2_fields1_label: "しきい値"
+
+# /zip-emojis
+zip_emojis_doesnt_have_perm: "絵文字を管理する権限がありません。"
+zip_emojis_command_work: "🎉 **${calcTime}**ミリ秒で書き出し完了！${emojis.size}個の絵文字を含むアーカイブはこちらです。"
+zip_emojis_command_error: "絵文字の書き出し中にエラーが発生しました。"
+
+# +sticker  
+sticket_no_sticker: "返信されたメッセージにスタンプが見つかりませんでした。"  
+sticket_command_work: "スタンプ `${x.name}` が正常に作成されました。"  
+sticker_command_error: "スタンプを作成できませんでした。エラーが発生しました: `${err.message}`。"  
+sticket_command_error2: "スタンプを含むメッセージに返信してください。"  
 
 
 # Guild Config commands
@@ -983,6 +1108,42 @@ perm_roles_created_role: "以下の役割が作成されました：${createdRol
 perm_roles_already_upate: "すべての役割が既に存在し、最新の状態です。"
 perm_roles_error: "役割の作成または更新中にエラーが発生しました。"
 
+# /toggle-react
+toggle_react_command_work: "<@${interaction.member?.id}>, メンバーが歓迎メッセージを送信すると、ボットは **{activeMsg}**"
+toggle_react_doesnt_react: "もう反応しません"
+toggle_react_react: "反応します"
+
+# /remove-react
+remove_react_command_work: "<@${interaction.member?.id}>, メンバーが `${message.toLowerCase()}` を送信すると、ボットは **もう反応しません**."
+
+# /add-react
+add_react_command_err_emojis: "リアクションの絵文字 `{emoji}` は有効な絵文字ではありません！"
+add_react_command_work: "<@${interaction.member?.id}>, メンバーが `${message.toLowerCase()}` を送信すると、ボットは **{emoji} で反応します**."
+
+# /list-react
+list_react_nothing_found: "データが見つかりませんでした。まずいくつか追加してください。"
+list_react_embed_msg: "誰かが **`${key}`** を送信すると、私は **${value} で反応します**\n"
+
+# /autoreact
+autoreact_embed_title: "オートリアクト設定"
+autoreact_embed_desc: "指定したチャンネルに新しいメッセージが送信されると、ボットは指定された絵文字でリアクションします。"
+autoreact_embed_autofields_value: "リアクション: ${reaction}"
+autoreact_embed_autofields_none_value: "オートリアクト設定はありません。"
+autoreact_embed_footer: "ページ ${currentPage} / ${totalPage} • 合計リアクション: ${totalReact}"
+autoreact_btn_add_name: "チャンネルを追加"
+autoreact_btn_remove_name: "チャンネルを削除"
+autoreact_max_25: "オートリアクト設定は最大25個までです。"
+autoreact_menu_add_place: "追加するチャンネルを選択"
+autoreact_awaiting1_msg: "オートリアクトモジュールに追加するチャンネルを選択してください。"
+autoreact_modal_title: "オートリアクト設定"
+autoreact_modal_fields1_label: "リアクション (絵文字)"
+autoreact_invalid_emoji: "無効な絵文字です。有効な絵文字を入力してください。"
+autoreact_add_command_ok: "オートリアクト設定が完了しました。"
+autoreact_remove_not_found: "オートリアクト設定はありません。"
+autoreact_menu_remove_place: "削除するチャンネルを選択"
+autoreact_awaiting_remove_msg: "オートリアクトモジュールから削除するチャンネルを選択してください。"
+autoreact_remove_command_ok: "このチャンネルのオートリアクト設定が削除されました。"
+
 
 # Member Count commands
 # /setmembercount
@@ -1084,6 +1245,9 @@ start_confirmation_command: "${giveawayChannel}でギブアウェイが開始さ
 start_logs_embed_title: "ギブアウェイのログ"
 start_logs_embed_description: "<@${interaction.user.id}>が${giveawayChannel}でギブアウェイを開始しました。"
 start_time_not_valid: "${interaction.user}、指定したギブアウェイの期間が無効です。もう一度試してみてください！"
+start_invalid_invites_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | 「招待」の値が無効です！ギブアウェイに参加するために招待数を指定する必要があります！"
+start_invalid_messages_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | 「メッセージ」の値が無効です！ギブアウェイに参加するためにメッセージ数を指定する必要があります！"
+start_invalid_roles_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | 「役割」の値のロールが見つかりません！ギブアウェイに参加するためにロールIDを指定する必要があります！"
 
 # /reroll
 reroll_not_perm: "このギブアウェイを終了するためには、メッセージを管理する権限が必要です。"
@@ -1208,6 +1372,7 @@ unmute_logs_embed_description: "<@${interaction.user.id}>さんが<@${tomute.id}
 warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} が警告されました！**理由**：`${reason}`\n__警告ID__：`${warnId}`"
 warn_logEmbed_title: "警告ログ"
 warn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} に警告しました。理由：`${reason}`"
+warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | このDiscordサーバーでメンバーに警告を与える権限がありません。"
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} はデータベースに警告が見つかりません！"
@@ -1215,11 +1380,13 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toStri
 unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} の警告が解除されました！"
 unwarn_logEmbed_title: "警告解除ログ"
 unwarn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} の警告を解除しました"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | このDiscordサーバーでメンバーの警告を削除する権限がありません。"
 
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} はデータベースに警告が見つかりません！"
 warnlist_embed_desc: "### ID：${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> 作成者：<@${x.authorID}>\n> 理由：`${x.reason}`"
 warnlist_embed_title: "${member?.user.globalName} の警告リスト | ページ ${i / usersPerPage + 1}"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | このDiscordサーバーでメンバーの警告を管理する権限がありません。"
 
 
 # Backup commands
@@ -1279,6 +1446,38 @@ buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> がボ�
 buttonreaction_dont_message_found: "このボタンを追加できません。役割は既存のボタンに設定されているようです！"
 buttonreaction_roles_not_found: "引数が不足しています: 設定する役割を指定していません！"
 buttonreaction_message_other_user_error: "Discordでは、ボットが他のユーザーのメッセージのコンポーネントを変更することはできません。私が送信したメッセージを選択する必要があります。ヒント: `/utils embed` を使って、自分の美しい埋め込みを作成してください！"
+
+# /roleselect
+roleselect_invalid_message_id: "無効なメッセージIDが提供されました。有効なメッセージIDを入力してください。"
+roleselect_message_not_found: "指定されたチャンネルにメッセージが見つかりませんでした。"
+roleselect_default_placeholder: "設定されたロールを選択"
+roleselect_menu1_placeholder: "アクションを選択"
+roleselect_menu1_add: "ロールオプションを追加"
+roleselect_menu1_remove: "ロールオプションを削除"
+roleselect_menu1_change_placeholder: "メニューのプレースホルダーを変更"
+roleselect_menu1_save: "設定を保存して適用"
+roleselect_menu1_cancel: "キャンセル"
+roleselect_menu1_embed_title: "ロール選択の設定"
+roleselect_menu1_embed_description: "ユーザーがメニューからオプションを選択すると、指定されたロールが付与されます。"
+roleselect_modal1_title: "ロールオプションを追加"
+roleselect_modal1_fields1_label: "絵文字"
+roleselect_modal1_fields1_placeholder: "このロールオプションの絵文字を選択（任意）"
+roleselect_modal1_fields2_label: "オプションタイトル"
+roleselect_modal1_fields2_placeholder: "ロールオプションの短いタイトル"
+roleselect_modal1_fields3_label: "説明"
+roleselect_modal1_fields3_placeholder: "ロールオプションを説明する（任意）"
+roleselect_awaiting1_msg: "このオプションに対するロールを選択してください。"
+roleselect_awaiting1_menu_placeholder: "ロールを選択"
+roleselect_role_already_exist: "そのロールは既に設定されています。"
+roleselect_no_role_found: "削除するロールオプションが見つかりません。"
+roleselect_all_role_removed: "すべてのロールオプションが削除されました。"
+roleselect_last_role_removed: "最後のロールオプションが正常に削除されました。"
+roleselect_save_command_ok: "ロール選択の設定が正常に保存されました！"
+roleselect_failed_to_save_config: "設定の保存に失敗しました。もう一度お試しください。"
+roleselect_canceled_command_ok: "ロール選択の設定がキャンセルされました。"
+roleselect_modal2_title: "メニュープレースホルダー"
+roleselect_modal2_label: "プレースホルダー"
+roleselect_modal2_placeholder: "選択メニューのプレースホルダー"
 
 
 # New feature commands
@@ -1362,6 +1561,9 @@ embed_copy_bad_channel_msg: "メッセージがあるチャンネルにアクセ
 embed_copy_bad_message_msg: "メッセージにアクセスできません！"
 embed_copy_bad_embed_message_msg: "メッセージに埋め込みがありません！"
 embed_copy_bad_url_msg: "無効なURLです。再試行してください。正しい形式は次のとおりです: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
+embed_btn_replace: "埋め込みを置き換える"  
+embed_replace_question_msg: "埋め込みを置き換える必要があるメッセージの新しいURLは何ですか？"  
+embed_replace_message: "{user}、新しい埋め込みが {messageUrl} の埋め込みに置き換えられました。"  
 
 # /rolesaver
 rolesaver_embed_title: "RoleSaverモジュール"
@@ -1752,6 +1954,14 @@ rc_forceJoin_ws_start: "# 強制参加プロセスを開始しています..."
 rc_forceJoin_ws_end: "# 強制参加プロセスが完了しました。"
 rc_forceJoin_ws_end_renew_msg: "# 注意\nこのコードは非常に重要です。他の誰にも公開しないでください。このコードを持っている人は、削除やメンバー追加ができてしまいます。安全な場所に保管してください。iHorizonは再発行しません:\n```${value2}```"
 
+
+# ミスカテゴリ
+# メディア操作
+
+# メディアクールダウン
+media_gen_cooldown: "メディア生成は`1分間 30秒`間をあける必要があります！"
+media_gen_error_args: "2つの有効な画像URLを提供してください。"
+
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント
 confession_module_modal_title: "告白を送る"
@@ -1809,6 +2019,7 @@ ticket_module_button_addmember: "メンバーを追加"
 ticket_module_button_removemember: "メンバーを削除"
 ticket_module_add_question: "チケットに追加したいユーザーは誰ですか？（ユーザーIDを指定してください）！"
 ticket_module_remove_question: "チケットから削除したいユーザーは誰ですか？（ユーザーIDを指定してください）！"
+ticket_transcript_failed_to_send: "ファイルをプライベートメッセージで送信しようとしましたが、あなたはDMをブロックしています :/"
 
 # サーバーログ
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **が<@${firstEntry.target.id}>をBANしました**"
@@ -1828,6 +2039,10 @@ event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> **が<#${chan
 event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> **が<#${channelID}>チャンネルでヘッドセットのミュートを解除しました**"
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> **が<#${channelID}>チャンネルで自身をミュートしました**"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> **が<#${channelID}>チャンネルで自身のミュートを解除しました**"
+event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} は ${target} で無効化されました\n"
+event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} は ${target} で有効化されました\n"
+event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} は ${target} に許可されました\n"
+event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} は ${target} に拒否されました\n"
 
 # ランクアップイベント
 event_rank_role: "<@${message.author.id}>さん、あなたは今、役職 <@&${fetch.id}> を持っています"
@@ -1959,9 +2174,10 @@ antispam_log_embed_desc: "${client.user?.toString()} が **${actionType}** ${use
 
 hybridcommands_global_prefix_mention: "`@Ping-Me`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
-hybridcommands_args_error_embed_desc: "```ts\nコマンド名: ${currentCommand.name}\nコマンド説明: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\n\"${wrongArgumentName}\" 引数の送信中にエラーが発生しました。\n```"
+hybridcommands_args_error_embed_desc: "```ts\nコマンド名: ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\n引数 \"${wrongArgumentName}\" の送信中にエラーが発生しました。\n```"
 hybridcommands_embed_help_title: "${commandName} ヘルプ埋め込み"
 hybridcommands_embed_help_fields_value: "**エイリアス:** ${aliases}\n**使用法:** ${use}"
+hybridcommands_embed_footer_text: "［...］内のオプションは必須で、<...>内のオプションは任意です。\n詳しくは、コマンド: ${botPrefix}help [command] を使用してください。"
 
 # RPG
 # help
@@ -1994,5 +2210,10 @@ rc_total_key_used_count: "キー使用回数"
 rc_recent_locales_distribution: "メンバーのロケール分布"
 rc_recent_verifications: "最近の認証"
 rc_registration_over_time: "時間経過による登録"
+
+# 画像専用モジュール
+piconly_module_punish_msg: "${message.author}、画像専用チャンネルで画像なしのメッセージを多く送信したため、10分間タイムアウトされました。"
+piconly_module_warn_msg: "${message.author}、このチャンネルは画像を含むメッセージのみを受け付けます（対応フォーマット：JPG、PNG、GIF、WEBP、BMP、TIFF）。警告 ${userWarnings.length}/${threshold}"
+piconly_module_timeout_reason: "画像専用チャンネルでの画像なしメッセージのスパム"
 
 # -----------------------------\ /-----------------------------

@@ -25,8 +25,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
-
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 
@@ -46,17 +44,17 @@ export default {
         let id = interaction.options.getString('id')!;
 
         var table = client.db.table("TEMP");
-        let alllang = await table.get(`OWNIHRZ`);
+        let allData = await table.get(`OWNIHRZ`);
 
-        function getlang() {
-            for (let ownerId in alllang) {
-                for (let botId in alllang[ownerId]) {
+        function getData() {
+            for (let ownerId in allData) {
+                for (let botId in allData[ownerId]) {
                     if (botId !== id) continue;
-                    return alllang[ownerId][botId];
+                    return allData[ownerId][botId];
                 }
             }
         }
-        let id_2 = getlang() as Custom_iHorizon;
+        let id_2 = getData() as Custom_iHorizon;
 
         if (!id_2) {
             await interaction.reply({ content: lang.mybot_manage_accept_not_found });

@@ -33,8 +33,8 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';import { Option } from '../../../../types/option';
- export const command: Command = {
+import { Command } from '../../../../types/command'; import { Option } from '../../../../types/option';
+export const command: Command = {
 
     name: 'remove-react',
     aliases: ['react-remove', 'removereact', 'reactremove'],
@@ -49,7 +49,7 @@ import { Command } from '../../../../types/command';import { Option } from '../.
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
 
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
+        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.ManageGuildExpressions);
 
         let message = options![0];
 
@@ -57,7 +57,12 @@ import { Command } from '../../../../types/command';import { Option } from '../.
             return;
         }
 
-        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie \`${message.toLowerCase()}\`, le bot **ne réagis plus**.`, allowedMentions: { repliedUser: false } });
+        await interaction.reply({
+            content: lang.remove_react_command_work
+                .replace("${interaction.member?.id}", interaction.member?.id!)
+                .replace("${message.toLowerCase()}", message.toLowerCase())
+            , allowedMentions: { repliedUser: false }
+        });
 
         await client.db.delete(`${interaction.guildId}.GUILD.REACT_MSG.${message.toLowerCase()}`);
         return;

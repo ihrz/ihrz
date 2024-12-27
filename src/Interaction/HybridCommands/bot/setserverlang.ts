@@ -56,7 +56,7 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.String,
 
-            description: 'What language you want ? (soon more)',
+            description: 'What language you want ?',
             description_localizations: {
                 "fr": "Quelle language voulez-vous mettre ?"
             },
@@ -109,7 +109,7 @@ export const command: Command = {
     thinking: false,
     category: 'bot',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing

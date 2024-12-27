@@ -32,6 +32,7 @@ export interface Option {
     type: ApplicationCommandOptionType,
     options?: Option[],
     name: string,
+    prefixName?: string,
     name_localizations?: NameLocalizations
     description_localizations: DescriptionLocalizations,
     description: string,
@@ -40,5 +41,6 @@ export interface Option {
     channel_types?: number[],
     choices?: Choice[],
     aliases?: string[],
-    thinking?: boolean
+    thinking?: boolean,
+    ephemeral?: boolean;
 }

@@ -19,14 +19,6 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-/*
-・ ElektraBots Discord Bot (https://github.com/belugafr/ElektraBots)
-
-・ Mainly developed by NayaWeb (https://github.com/belugafr)
-
-・ Copyright © 2021-2023 ElektraBots
-*/
-
 import {
   AttachmentBuilder,
   ChatInputCommandInteraction,
@@ -43,7 +35,7 @@ import { Command } from '../../../../types/command.js';
 import { Option } from '../../../../types/option.js';
 
 export default {
-  run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+  run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
     let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
 
@@ -71,15 +63,15 @@ export default {
 
     let embed = new EmbedBuilder()
       .setColor('#000000')
-      .setImage('attachment://all-human-have-rights-elektra.png')
+      .setImage('attachment://catsay.png')
       .setTimestamp()
       .setFooter(await client.method.bot.footerBuilder(interaction));
 
     let imgs: AttachmentBuilder | undefined;
 
     try {
-      imgs = new AttachmentBuilder(await newImg.getBufferAsync(Jimp.MIME_GIF), { name: 'all-humans-have-right-elektra.png' });
-      embed.setImage(`attachment://all-humans-have-right-elektra.png`);
+      imgs = new AttachmentBuilder(await newImg.getBufferAsync(Jimp.MIME_GIF), { name: 'catsay.png' });
+      embed.setImage(`attachment://catsay.png`);
 
       if (imgs) {
         await client.method.interactionSend(interaction, {

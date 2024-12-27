@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, Collection } from 'discord.js';
+import { Client } from 'discord.js';
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
@@ -77,8 +77,6 @@ async function loadCommands(client: Client, path: string = p): Promise<void> {
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
 
-    if (!client.bash) client.bash = new Collection<string, BashCommands>();
-
     var i = 0;
     for (let path of paths) {
         if (!path.endsWith('.js')) continue;
@@ -87,6 +85,10 @@ async function loadCommands(client: Client, path: string = p): Promise<void> {
         let { command } = await import(path) as CommandModule; if (!command) continue;
 
         client.bash.set(command.command_name, command);
+        let aliases = command.aliases || [];
+        for (let alias of aliases) {
+            client.bash.set(alias, command);
+        }
     };
 
     logger.log(`${client.config.console.emojis.OK} >> Loaded ${i} bash commands.`);

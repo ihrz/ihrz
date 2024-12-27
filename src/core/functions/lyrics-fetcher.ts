@@ -19,36 +19,32 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { axios } from "./axios.js";
+import { sanitizing } from "./sanitizer.js";
+
 /*
     This code are a remixed code from https://github.com/Androz2091/discord-player
     Thank you!
 */
-import { Client as GeniusClient } from 'genius-lyrics';
 
 interface LyricsData {
     title: string;
-    fullTitle: string;
-    id: number;
-    thumbnail: string;
     image: string;
     url: string;
     artist: {
         name: string;
-        id: number;
-        url: string;
-        image: string;
     };
     lyrics: string;
 }
 
 export class LyricsManager {
-    private client: GeniusClient;
+    // private client: GeniusClient;
 
-    constructor(apiKey?: string, force?: boolean) {
-        if (!this.client && !force) {
-            this.client = new GeniusClient(apiKey);
-        }
-    }
+    // constructor(apiKey: string = process.env.GENIUS_API_KEY || "none", force?: boolean) {
+    //     if (!this.client && !force) {
+    //         this.client = new GeniusClient("ctqcTcvIvWeOjXqYLKU10PBwWVS5xb2bfD0OKnpnxN8VdQyFYvG4gZUavWQHlR8j");
+    //     }
+    // }
 
     public async search(query: string): Promise<LyricsData | null> {
         return new Promise<LyricsData | null>((resolve, reject) => {
@@ -56,23 +52,20 @@ export class LyricsManager {
                 return reject(new TypeError(`Expected search query to be a string, received "${typeof query}"!`));
             }
 
-            this.client.songs
-                .search(query)
-                .then(async (songs) => {
-                    const data = {
+            axios.get("https://weeb-api.vercel.app/genius?query=" + encodeURI(sanitizing(query)))
+                .then(async (res) => {
+                    const songs = res.data;
+
+                    if (songs.length === 0) throw "Not found!"
+
+                    const data: LyricsData = {
                         title: songs[0].title,
-                        fullTitle: songs[0].fullTitle,
-                        id: songs[0].id,
-                        thumbnail: songs[0].thumbnail,
                         image: songs[0].image,
                         url: songs[0].url,
                         artist: {
-                            name: songs[0].artist.name,
-                            id: songs[0].artist.id,
-                            url: songs[0].artist.url,
-                            image: songs[0].artist.image
+                            name: songs[0].artist,
                         },
-                        lyrics: await songs[0].lyrics(false)
+                        lyrics: await this.lyrics(songs[0]["url"]) || "not found"
                     };
 
                     resolve(data);
@@ -81,5 +74,9 @@ export class LyricsManager {
                     reject(new Error('Could not parse lyrics'));
                 });
         });
+    }
+
+    private async lyrics(url: string): Promise<string | undefined> {
+        return (await axios.get("https://weeb-api.vercel.app/lyrics?url=" + encodeURI(sanitizing(url)))).data
     }
 };

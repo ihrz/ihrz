@@ -19,6 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+export interface GiveawayRequirementBody {
+    type: "none" | "invites" | "messages" | "roles";
+    value: string | null;
+}
+
 export interface Giveaway {
     isValid: boolean;
     guildId: string;
@@ -37,10 +42,7 @@ export interface Giveaway {
 
     embedImageURL: string | null;
 
-    requirement: {
-        type: "none" | "invites" | "messages" | "roles";
-        value: string | null;
-    }
+    requirement: GiveawayRequirementBody;
 };
 
 export interface GiveawayCreateOptions {
@@ -49,7 +51,7 @@ export interface GiveawayCreateOptions {
     winnerCount: number;
     hostedBy: string;
     embedImageURL: string | null;
-    requirement: { type: "none" | "invites" | "messages" | "roles", value: string | null }
+    requirement: GiveawayRequirementBody;
 };
 
 export interface GiveawayData {

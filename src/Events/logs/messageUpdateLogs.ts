@@ -23,28 +23,61 @@ import { BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js'
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
 
-function getDiff(oldText: string, newText: string): string {
-    const oldLines = oldText.split('\n');
-    const newLines = newText.split('\n');
+export function getDetailedDiff(oldText: string, newText: string): string {
+    const oldLines = oldText.trim().split('\n');
+    const newLines = newText.trim().split('\n');
 
-    const diffLines = [];
+    const diff: string[] = [];
+    const maxLineLength = 30;
+
     const maxLines = Math.max(oldLines.length, newLines.length);
 
     for (let i = 0; i < maxLines; i++) {
         const oldLine = oldLines[i] || '';
         const newLine = newLines[i] || '';
 
-        if (oldLine !== newLine) {
-            if (oldLine.trim() !== '') {
-                diffLines.push(`- ${oldLine.trim().substring(0, 40)}...`);
-            }
-            if (newLine.trim() !== '') {
-                diffLines.push(`+ ${newLine.trim().substring(0, 40)}...`);
-            }
+        let truncatedOldLine = oldLine;
+        let truncatedNewLine = newLine;
+
+        if (oldLine.length > maxLineLength) {
+            const diffIndex = getDifferenceIndex(oldLine, newLine);
+            truncatedOldLine = getTruncatedLine(oldLine, diffIndex);
+        }
+
+        if (newLine.length > maxLineLength) {
+            const diffIndex = getDifferenceIndex(oldLine, newLine);
+            truncatedNewLine = getTruncatedLine(newLine, diffIndex);
+        }
+
+        if (oldLine && !newLine) {
+            diff.push(`- ${truncatedOldLine}`);
+        } else if (!oldLine && newLine) {
+            diff.push(`+ ${truncatedNewLine}`);
+        } else if (oldLine !== newLine) {
+            diff.push(`- ${truncatedOldLine}`);
+            diff.push(`+ ${truncatedNewLine}`);
         }
     }
+    return `\`\`\`diff\n${diff.join('\n')}\n\`\`\``;
+}
 
-    return diffLines.join('\n');
+function getDifferenceIndex(oldLine: string, newLine: string): number {
+    let diffIndex = -1;
+    for (let i = 0; i < Math.min(oldLine.length, newLine.length); i++) {
+        if (oldLine[i] !== newLine[i]) {
+            diffIndex = i;
+            break;
+        }
+    }
+    return diffIndex === -1 ? Math.max(oldLine.length, newLine.length) : diffIndex;
+}
+
+function getTruncatedLine(line: string, diffIndex: number): string {
+    const maxLineLength = 30;
+    const start = Math.max(0, diffIndex - Math.floor(maxLineLength / 2));
+    const end = Math.min(line.length, start + maxLineLength);
+
+    return line.substring(start, end);
 }
 
 export const event: BotEvent = {
@@ -67,6 +100,10 @@ export const event: BotEvent = {
 
         let icon = newMessage.author.displayAvatarURL();
 
+        if (oldMessage.partial) {
+            return;
+        }
+
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({ name: newMessage.author.username, iconURL: icon })
@@ -76,9 +113,8 @@ export const event: BotEvent = {
             );
 
         if (oldMessage.content.length > 160 || newMessage.content.length > 160) {
-            const changes = getDiff(oldMessage.content, newMessage.content);
             logsEmbed.setFields(
-                { name: data.var_message, value: `\`\`\`git\n${changes}\n\`\`\`` },
+                { name: data.var_message, value: getDetailedDiff(oldMessage.content, newMessage.content) },
             );
         } else {
             logsEmbed.setFields(

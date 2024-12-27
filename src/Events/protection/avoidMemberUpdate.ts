@@ -30,6 +30,7 @@ export const event: BotEvent = {
         let data = await client.db.get(`${newMember.guild.id}.PROTECTION`);
         if (!data) return;
 
+        
         if (data.updatemember && data.updatemember.mode === 'allowlist') {
             let fetchedLogs = await oldMember.guild.fetchAuditLogs({
                 type: AuditLogEvent.MemberRoleUpdate,

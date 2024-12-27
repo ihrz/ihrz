@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { initializeDatabase } from './database.js';
 import commandsSync from './commandsSync.js';
 import bash from './bash/bash.js';
 import logger from "./logger.js";
@@ -33,7 +32,6 @@ import { VanityInviteData } from '../../types/vanityUrlData';
 import { ConfigData } from '../../types/configDatad.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
-import { readdirSync } from "node:fs";
 import backup from 'discord-rebackup';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -42,32 +40,34 @@ import fs from 'fs';
 import { LyricsManager } from './functions/lyrics-fetcher.js';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
-import { readFile } from 'node:fs/promises';
 import { getToken } from './functions/getToken.js';
 import { StreamNotifier } from './StreamNotifier.js';
 import { setMaxListeners } from 'node:events';
+import { version } from '../version.js';
+import { InitData } from '../../types/initDataType.js';
+import { CacheStorage } from './cache.js';
+import { getDatabaseInstance } from './database.js';
+import { KdenLive } from './functions/kdenliveManipulator.js';
+import { Command } from '../../types/command.js';
+import { BashCommands } from '../../types/bashCommands.js';
+import { mkdir, readdir } from 'node:fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const backups_folder = `${process.cwd()}/src/files/backups`;
-const uptime_path = path.join(process.cwd(), "src", "files", ".uptime")
 
 let global_config: ConfigData;
 
 if (!fs.existsSync(backups_folder)) {
-    fs.mkdirSync(backups_folder, { recursive: true });
+    await mkdir(backups_folder, { recursive: true });
 }
 
 backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
     initConfig(client.config);
-    timestampInitializer();
-
-    logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
-    logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
-    logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
+    dataInitializer();
 
     if (client.config.discord.phonePresence) {
 
@@ -83,6 +83,10 @@ export async function main(client: Client) {
 
     setMaxListeners(0)
 
+    client.bash = new Collection<string, BashCommands>();
+    client.commands = new Collection<string, Command>();
+    client.subCommands = new Collection<string, Command>();
+    client.message_commands = new Collection<string, Command>();
     client.owners = [];
     client.content = [];
     client.category = [];
@@ -91,6 +95,7 @@ export async function main(client: Client) {
     client.lyricsSearcher = new LyricsManager();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
     client.ownihrz = new OwnIHRZ(client)
+    client.kdenlive = new KdenLive();
 
     process.on('SIGINT', async () => {
         if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
@@ -105,7 +110,7 @@ export async function main(client: Client) {
     if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
 
     errorManager.uncaughtExceptionHandler(client);
-    client.db = await initializeDatabase(client.config);
+    client.db = getDatabaseInstance();
     client.notifier = new StreamNotifier(client,
         process.env.TWITCH_APPLICATION_ID || "",
         process.env.TWITCH_APPLICATION_SECRET || "",
@@ -117,7 +122,7 @@ export async function main(client: Client) {
     bash(client);
     emojis(client);
     let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-    let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
+    let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.js'));
 
     for (const file of handlerFiles) {
         const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
@@ -156,16 +161,18 @@ export const getConfig = (): ConfigData => {
     return global_config;
 };
 
-export function timestampInitializer() {
-    fs.writeFileSync(uptime_path, Date.now().toString())
+export function dataInitializer() {
+    let baseData: InitData = {
+        initialized_timestamp: Date.now(),
+        _cache: {
+            version: getCacheStorage()?._cache.version || version,
+            updateChannelId: getCacheStorage()?._cache.updateChannelId || "None"
+        }
+    }
+    CacheStorage.set("stored_data", baseData)
     logger.log(`${global_config.console.emojis.OK} >> Timestamp Generated in .uptime`);
 }
 
-export async function getInitedTimestamp(): Promise<number> {
-    try {
-        const content = await readFile(uptime_path);
-        return Number(content);
-    } catch (err) {
-        return 0;
-    }
+export function getCacheStorage(): InitData | undefined {
+    return CacheStorage.get("stored_data");
 }

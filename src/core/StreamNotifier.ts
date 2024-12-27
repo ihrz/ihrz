@@ -162,7 +162,10 @@ export class StreamNotifier {
 
     private async mediaHaveAlreadyBeNotified(guildID: string, media: NotifierUserResponse): Promise<boolean> {
         const notifiedMedias = (await this.client.db.get(`${guildID}.NOTIFIER.lastMediaNotified`) || []) as DatabaseStructure.NotifierLastNotifiedMedias[];
-        return notifiedMedias.some(item => item.userId === media.user.id_or_username && item.mediaId === media.content.id);
+        return notifiedMedias.some(item => 
+            item.userId === media.user.id_or_username && 
+            (item.mediaId === media.content.id || new Date(item.timestamp) >= new Date(media.content.pubDate))
+        );
     }
 
     private createLinkButton(url: string, label: string): ActionRowBuilder<ButtonBuilder> {
@@ -340,6 +343,7 @@ export class StreamNotifier {
                         await this.client.db.push(`${entry.guildId}.NOTIFIER.lastMediaNotified`, {
                             userId: media.user.id_or_username,
                             mediaId: media.content.id,
+                            timestamp: media.content.pubDate.toISOString()
                         });
                         await channel.send({
                             content: message,

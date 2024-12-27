@@ -42,7 +42,7 @@ interface AxiosRequestConfig {
     params?: any;
     data?: any;
     timeout?: number;
-    responseType?: 'json' | 'arrayBuffer';
+    responseType?: 'json' | 'arrayBuffer' | 'arraybuffer';
 }
 
 class AxiosClass {
@@ -59,7 +59,7 @@ class AxiosClass {
             body: data ? JSON.stringify(data) : undefined,
         };
 
-        if (responseType === 'arrayBuffer') {
+        if (responseType === 'arrayBuffer' || responseType === 'arraybuffer') {
             if (!options.headers) options.headers = {};
             (options.headers as Record<string, string>)['Accept'] = 'application/octet-stream';
         }

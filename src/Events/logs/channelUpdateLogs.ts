@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, Message } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, Message, PermissionFlagsBits } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
 
@@ -45,22 +45,30 @@ function getDiff(
 
             const removedPerms = oldPerm.allow.toArray().filter(perm => !newPerm.allow.has(perm));
             removedPerms.forEach(perm => {
-                after += `-    ❌ ${perm} désactivée pour ${target}\n`;
+                after += lang.event_srvLogs_channelUpdate_disabled_for
+                    .replace("${perm}", perm)
+                    .replace("${target}", target);
             });
 
             const addedPerms = newPerm.allow.toArray().filter(perm => !oldPerm.allow.has(perm));
             addedPerms.forEach(perm => {
-                after += `-    ✅ ${perm} activée pour ${target}\n`;
+                after += lang.event_srvLogs_channelUpdate_enabled_for
+                    .replace("${perm}", perm)
+                    .replace("${target}", target);
             });
 
             const removedDeniedPerms = oldPerm.deny.toArray().filter(perm => !newPerm.deny.has(perm));
             removedDeniedPerms.forEach(perm => {
-                after += `-    ✅ ${perm} autorisée pour ${target}\n`;
+                after += lang.event_srvLogs_channelUpdate_allowed_for
+                    .replace("${perm}", perm)
+                    .replace("${target}", target);
             });
 
             const addedDeniedPerms = newPerm.deny.toArray().filter(perm => !oldPerm.deny.has(perm));
             addedDeniedPerms.forEach(perm => {
-                after += `-    ❌ ${perm} refusée pour ${target}\n`;
+                after += lang.event_srvLogs_channelUpdate_unallowed_for
+                    .replace("${perm}", perm)
+                    .replace("${target}", target);
             });
         }
     });
@@ -88,6 +96,10 @@ export const event: BotEvent = {
         let lang = await client.func.getLanguageData(oldChannel.guildId) as LanguageData;
 
         if (!oldChannel || !oldChannel?.guild) return;
+
+        if (!oldChannel.guild.members.me?.permissions.has([
+            PermissionFlagsBits.Administrator
+        ])) return;
 
         let fetchedLogs = await newChannel.guild.fetchAuditLogs({
             type: AuditLogEvent.ChannelUpdate,

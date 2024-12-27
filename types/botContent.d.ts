@@ -24,9 +24,11 @@ import { DescriptionLocalizations } from "./command"
 
 export interface BotContent {
     cmd: string;
+    prefixCmd?: string;
     category: string;
     aliases?: string[];
     desc: string;
+    usage: string | null;
     desc_localized: DescriptionLocalizations;
     messageCmd: 0 | 1 | 2;
     // 0 > Slash Commands

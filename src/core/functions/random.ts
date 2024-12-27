@@ -44,61 +44,73 @@ export function generatePassword(options: PasswordOptions): string {
         strict = false,
     } = options;
 
-    let characters = '';
+    if (length <= 0) throw new Error('La longueur doit être positive');
+    if (!(lowercase || uppercase || numbers || symbols)) {
+        throw new Error('Au moins un type de caractère doit être activé');
+    }
 
-    if (lowercase) characters += 'abcdefghijklmnopqrstuvwxyz';
-    if (uppercase) characters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    if (numbers) characters += '0123456789';
-    if (symbols) characters += symbols === true ? '!@#$%^&*()_+=' : symbols;
+    const charSets = {
+        lowercase: 'abcdefghijklmnopqrstuvwxyz',
+        uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        numbers: '0123456789',
+        symbols: symbols === true ? '!@#$%^&*()_+=' : symbols as string
+    };
+
+    let characters = '';
+    if (lowercase) characters += charSets.lowercase;
+    if (uppercase) characters += charSets.uppercase;
+    if (numbers) characters += charSets.numbers;
+    if (symbols) characters += charSets.symbols;
 
     if (exclude) {
         const excludeSet = new Set(exclude.split(''));
         characters = characters.split('').filter(char => !excludeSet.has(char)).join('');
     }
-
     if (excludeSimilarCharacters) {
         characters = characters.replace(/[il1Lo0O]/g, '');
     }
 
-    const passwordArray: string[] = [];
-    const bytesNeeded = Math.ceil((Math.log(characters.length) * length) / Math.log(256));
-    const maxValid = 256 - (256 % characters.length);
-
-    while (passwordArray.length < length) {
-        const randomBytes = crypto.randomBytes(bytesNeeded);
-        for (let i = 0; i < randomBytes.length && passwordArray.length < length; i++) {
-            if (randomBytes[i] < maxValid) {
-                const randomIndex = randomBytes[i] % characters.length;
-                passwordArray.push(characters[randomIndex]);
-            }
-        }
+    if (characters.length === 0) {
+        throw new Error('Pas de caractères disponibles après exclusions');
     }
 
-    let generatedPassword = passwordArray.join('');
+    const passwordArray: string[] = [];
+    const getSecureRandomChar = (): string => {
+        const randomBuffer = new Uint8Array(1);
+        let randomNum;
+        do {
+            crypto.randomFillSync(randomBuffer);
+            randomNum = randomBuffer[0];
+        } while (randomNum >= 256 - (256 % characters.length));
+        
+        return characters[randomNum % characters.length];
+    };
+
+    for (let i = 0; i < length; i++) {
+        passwordArray.push(getSecureRandomChar());
+    }
 
     if (strict) {
-        if (!(lowercase && [...generatedPassword].some(char => 'abcdefghijklmnopqrstuvwxyz'.includes(char)))) {
-            generatedPassword = generatedPassword.replace(/[a-z]/, () => 'abcdefghijklmnopqrstuvwxyz'[randomInt(0, 26)]);
-        }
-        if (!(uppercase && [...generatedPassword].some(char => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.includes(char)))) {
-            generatedPassword = generatedPassword.replace(/[A-Z]/, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[randomInt(0, 26)]);
-        }
-        if (!(numbers && [...generatedPassword].some(char => '0123456789'.includes(char)))) {
-            generatedPassword = generatedPassword.replace(/[0-9]/, () => '0123456789'[randomInt(0, 10)]);
-        }
+        const requirements = {
+            lowercase: lowercase && charSets.lowercase,
+            uppercase: uppercase && charSets.uppercase,
+            numbers: numbers && charSets.numbers,
+            symbols: symbols && charSets.symbols
+        };
+
+        Object.entries(requirements).forEach(([type, chars]) => {
+            if (chars && !passwordArray.some(char => chars.includes(char))) {
+                const position = crypto.randomInt(0, length);
+                passwordArray[position] = chars[crypto.randomInt(0, chars.length)];
+            }
+        });
     }
 
-    return generatedPassword;
+    return passwordArray.join('');
 }
 
 export function generateMultiplePasswords(amount: number, options: PasswordOptions): string[] {
-    const passwords: string[] = [];
-    for (let i = 0; i < amount; i++) {
-        passwords.push(generatePassword(options));
-    }
-    return passwords;
-}
-
-function randomInt(min: number, max: number): number {
-    return Math.floor(crypto.randomInt(max - min) + min);
+    if (amount <= 0) throw new Error('Le nombre de mots de passe doit être positif');
+    
+    return Array.from({ length: amount }, () => generatePassword(options));
 }

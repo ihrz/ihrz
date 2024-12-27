@@ -53,10 +53,13 @@ export const command: Command = {
             required: true
         }
     ],
+
+    aliases: ["unbl"],
+
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing
@@ -73,7 +76,7 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('user');
         } else {
-            
+
             var member = await client.method.user(interaction, args!, 0);
         };
 

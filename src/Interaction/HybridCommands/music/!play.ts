@@ -39,7 +39,7 @@ import { Option } from '../../../../types/option';
 import { SearchResult } from 'lavalink-client/dist/types';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
@@ -68,7 +68,7 @@ export default {
         for (let _node of client.player.nodeManager.nodes.values()) {
             if (_node.connected === false) continue;
 
-            res = await _node?.search({ query }, interaction.member.user.id)
+            res = await _node?.search({ query }, interaction.member.user)
 
             if (res?.tracks.length! > 0) {
                 node = _node;

@@ -43,7 +43,23 @@ export const command: Command = {
 
     options: [
         {
-            name: "ranks-disable",
+            name: "config",
+            prefixName: "ranks-config",
+
+            description: "When user earn a ranks's level, give it a role!",
+            description_localizations: {
+                "fr": "Lorsque l'utilisateur atteint un niveau de rang, attribuez-lui un rôle !"
+            },
+
+            aliases: ["rconfig"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+            thinking: true
+        },
+        {
+            name: "disable",
+            prefixName: "ranks-disable",
+
             name_localizations: {
                 "fr": "statut"
             },
@@ -83,7 +99,9 @@ export const command: Command = {
             ],
         },
         {
-            name: "ranks-show",
+            name: "show",
+            prefixName: "ranks-show",
+
             name_localizations: {
                 "fr": "afficher"
             },
@@ -93,7 +111,7 @@ export const command: Command = {
                 "fr": "Obtenez le niveau XP de l'utilisateur"
             },
 
-            aliases: ["rsee", "look"],
+            aliases: ["rsee", "look", "level"],
 
             type: ApplicationCommandOptionType.Subcommand,
             options: [
@@ -109,9 +127,12 @@ export const command: Command = {
                     required: false
                 }
             ],
+
+            thinking: true
         },
         {
-            name: "ranks-ureset",
+            name: "ureset",
+            prefixName: "ranks-ureset",
 
             description: "Reset the ranks level of an user",
             description_localizations: {
@@ -134,7 +155,8 @@ export const command: Command = {
             ],
         },
         {
-            name: "ranks-greset",
+            name: "greset",
+            prefixName: "ranks-greset",
 
             description: "Reset the ranks level of every user in the guild",
             description_localizations: {
@@ -144,7 +166,9 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "ranks-channel",
+            name: "channel",
+            prefixName: "ranks-channel",
+
             name_localizations: {
                 "fr": "définir-cannal"
             },
@@ -195,7 +219,9 @@ export const command: Command = {
             ],
         },
         {
-            name: "ranks-leaderboard",
+            name: "leaderboard",
+            prefixName: "ranks-leaderboard",
+
             name_localizations: {
                 "fr": "classement"
             },
@@ -210,7 +236,8 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "ranks-ignore-channels",
+            name: "ignore-channels",
+            prefixName: "ranks-ignore-channels",
 
             description: "Ignore this channels in the Ranks Module",
             description_localizations: {
@@ -222,7 +249,8 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
-            name: "ranks-message",
+            name: "message",
+            prefixName: "ranks-message",
 
             description: "Set a custom message when user earn level",
             description_localizations: {

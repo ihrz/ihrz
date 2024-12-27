@@ -96,6 +96,7 @@ export const command: Command = {
             ],
 
             thinking: true,
+            ephemeral: true,
 
             type: ApplicationCommandOptionType.Subcommand
         },

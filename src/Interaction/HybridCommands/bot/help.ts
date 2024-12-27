@@ -102,6 +102,11 @@ async function handleCategorySelect(
     bot_prefix: { type: 'prefix' | 'mention'; string: string; },
     Commands: DatabaseStructure.UtilsPermsData | undefined
 ) {
+    const previousCollector = (response as any).buttonCollector;
+    if (previousCollector && !previousCollector.ended) {
+        previousCollector.stop();
+    }
+
     if (i.values[0] === "back") {
         const og_embed = new EmbedBuilder()
             .setColor('#001eff')
@@ -110,7 +115,7 @@ async function handleCategorySelect(
                 .replaceAll('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
                 .replaceAll('${categories.length}', categories.length.toString())
                 .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
-                .replaceAll('${client.content.filter(c => c.messageCmd === false).length}', i.client.content.filter(c => c.messageCmd === 0 || 3).length.toString())
+                .replaceAll('${client.content.filter(c => c.messageCmd === false).length}', i.client.content.length.toString())
                 .replaceAll('${client.iHorizon_Emojis.icon.Crown_Logo}', client.iHorizon_Emojis.icon.Crown_Logo)
                 .replaceAll('${config.owner.ownerid1}', client.owners[0])
                 .replaceAll('${config.owner.ownerid2}', client.owners[1] ?? client.owners[0])
@@ -128,6 +133,7 @@ async function handleCategorySelect(
         return;
     }
 
+    const guildData = await client.db.get(`${i.guildId}.GUILD.LANG.lang`);
     const categoryIndex = parseInt(i.values[0]);
     const category = categories[categoryIndex];
     let embeds: EmbedBuilder[] = [];
@@ -152,32 +158,37 @@ async function handleCategorySelect(
             ? `${client.iHorizon_Emojis.icon.iHorizon_Lock} ${commandStates}`
             : client.iHorizon_Emojis.icon.iHorizon_Unlock;
 
+        var cleanedPrefixCommandName = element.prefixCmd || element.cmd;
+        var prefixOrNot = `${client.iHorizon_Emojis.icon.Prefix_Command} ${bot_prefix.string}${cleanedPrefixCommandName} \n`;
+
         switch (element.messageCmd) {
+            // Slash command
             case 0:
-                cmdPrefix = `${states} ${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
+                cmdPrefix = `${states}\n${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
                 break;
+            // Message command
             case 1:
                 cmdPrefix = bot_prefix.type === 'mention'
-                    ? `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${element.cmd}**`
-                    : `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${element.cmd}**`;
+                    ? `${states}\n${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${cleanedPrefixCommandName}**`
+                    : `${states}\n${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${cleanedPrefixCommandName}**`;
                 break;
+            // Hybrid command
             case 2:
                 cmdPrefix = bot_prefix.type === 'mention'
-                    ? `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} (@Ping-Me) ${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`
-                    : `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} (${bot_prefix.string}) ${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`;
+                    ? `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} (@Ping-Me) ${element.prefixCmd}\n≠${client.iHorizon_Emojis.badge.Slash_Bot} **${element.prefixCmd}**`
+                    : `${states}\n${prefixOrNot}${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`;
                 break;
             default:
-                cmdPrefix = `${states} **${element.cmd}**`;
+                cmdPrefix = `${states}\n**${element.cmd}**`;
         }
 
-        const guildData = await client.db.get(`${i.guildId}.GUILD.LANG.lang`);
         const descValue = (guildData === "fr-ME" || guildData === "fr-FR")
             ? `\`${element.desc_localized["fr"]}\``
             : `\`${element.desc}\``;
 
         const newFieldLength = cmdPrefix.length + descValue.length;
 
-        if (currentFieldsCount >= 8 || currentFieldsLength + newFieldLength > 5500) {
+        if (currentFieldsCount >= 8 || currentFieldsLength + newFieldLength > 4000) {
             embeds.push(currentEmbed);
             currentEmbed = new EmbedBuilder()
                 .setTitle(`${category.emoji}・${category.name}`)
@@ -217,6 +228,8 @@ async function handleCategorySelect(
         time: 840_000
     });
 
+    (response as any).buttonCollector = buttonCollector;
+
     buttonCollector.on('collect', async (interaction) => {
         if (interaction.user.id !== i.user.id) {
             await interaction.reply({
@@ -246,6 +259,15 @@ async function handleCategorySelect(
         const updatedNavigationRow = createNavigationRow(currentPage, embeds.length);
         await updatePage(response, embeds, currentPage, menuRows, updatedNavigationRow);
     });
+
+    buttonCollector.on('end', async () => {
+        const disabledNavigationRow = createNavigationRow(currentPage, embeds.length);
+        disabledNavigationRow.components.forEach(button => button.setDisabled(true));
+
+        await response.edit({
+            components: [...menuRows, disabledNavigationRow]
+        });
+    });
 }
 
 export const command: Command = {
@@ -272,7 +294,7 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing
@@ -360,7 +382,7 @@ export const command: Command = {
                     .replaceAll('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
                     .replaceAll('${categories.length}', categories.length.toString())
                     .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
-                    .replaceAll('${client.content.filter(c => c.messageCmd === false).length}', client.content.filter(c => c.messageCmd === 0 || 3).length.toString())
+                    .replaceAll('${client.content.filter(c => c.messageCmd === false).length}', client.content.length.toString())
                     .replaceAll('${client.iHorizon_Emojis.icon.Crown_Logo}', client.iHorizon_Emojis.icon.Crown_Logo)
                     .replaceAll('${config.owner.ownerid1}', client.owners[0])
                     .replaceAll('${config.owner.ownerid2}', client.owners[1] ?? client.owners[0])
@@ -412,17 +434,19 @@ export const command: Command = {
                 return;
             });
         } else {
-            let fetchCommand = client.commands.get(targetCommand);
+            let fetchCommand = client.commands.get(targetCommand) || client.message_commands.get(targetCommand);
 
             if (!fetchCommand) {
                 await client.method.interactionSend(interaction, {
-                    content: `${client.iHorizon_Emojis.icon.No_Logo}`
+                    content: client.iHorizon_Emojis.icon.No_Logo + " | " + lang.var_unreachable_command,
                 })
                 return;
             }
 
             await client.method.interactionSend(interaction, {
-                embeds: [await client.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)], ephemeral: true
+                embeds: [await client.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)],
+                ephemeral: true,
+                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             })
         }
     },

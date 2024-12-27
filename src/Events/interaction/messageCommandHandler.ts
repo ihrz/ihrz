@@ -19,11 +19,13 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder, GuildMember, Message, PermissionFlagsBits } from 'discord.js';
+import { ApplicationCommandOptionType, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, GuildMember, Message, PermissionFlagsBits, PermissionsBitField } from 'discord.js';
 import { LanguageData } from '../../../types/languageData';
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
 import { Option } from '../../../types/option';
+import { appendFile } from 'node:fs';
+import logger from '../../core/logger.js';
 
 type MessageCommandResponse = {
     success: boolean,
@@ -45,6 +47,19 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
         return { success: false };
     }
 
+    if (message.reference && message.reference.messageId) {
+        const referencedMessage = await message.channel.messages.fetch(message.reference.messageId);
+        if (referencedMessage && referencedMessage.author) {
+            const mainCommand = client.message_commands.get(commandName);
+            if (mainCommand && mainCommand.options) {
+                const userOptionIndex = mainCommand.options.findIndex(opt => opt.type === ApplicationCommandOptionType.User);
+                if (userOptionIndex !== -1 && args.length < mainCommand.options.length) {
+                    args.splice(userOptionIndex, 0, referencedMessage.author.id);
+                }
+            }
+        }
+    }
+
     const directSubCommand = client.subCommands.get(commandName);
     if (directSubCommand) {
         const parentCommand = client.commands.find(cmd =>
@@ -63,8 +78,10 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
         const potentialSubCommandName = args[0]?.toLowerCase();
         if (potentialSubCommandName && mainCommand.options) {
             const subCommand = mainCommand.options.find(opt =>
-                opt.name === potentialSubCommandName ||
-                opt.aliases?.includes(potentialSubCommandName)
+                (opt.name === potentialSubCommandName ||
+                    opt.aliases?.includes(potentialSubCommandName))
+                &&
+                opt.type === (1 || 2)//sub or subgroup
             );
             if (subCommand) {
                 args.shift();
@@ -93,19 +110,35 @@ async function executeCommand(
     args: string[],
     lang: LanguageData,
 ) {
+    const channel = message.channel as GuildChannel;
+    const permissions = channel.permissionsFor(message.member!);
+    const canUseCommands = permissions.has(PermissionsBitField.Flags.UseApplicationCommands);
+
+    if (!canUseCommands) return;
+
     let permCheck = await client.method.permission.checkCommandPermission(message, command!);
     if (!permCheck.allowed) return client.method.permission.sendErrorMessage(message, lang, permCheck.neededPerm || 0);
 
-    var _ = await client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
-
+    // for format like: "+utils" without subcommand behind
     if (!command?.run) {
         await client.method.interactionSend(message, {
-            embeds: [await client.method.createAwesomeEmbed(lang, command, client, message)]
+            embeds: [await client.method.createAwesomeEmbed(lang, command, client, message)],
+            files: [await client.method.bot.footerAttachmentBuilder(message)]
         });
         return;
     }
 
+    var _ = await client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
+    logMessage(message, command, args);
     await command.run(client, message, lang, command, permCheck.neededPerm, args);
+}
+
+function logMessage(message: Message, command: Command | Option, args: string[]) {
+    appendFile(`${process.cwd()}/src/files/command.log`, `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}] "${message.guild?.name}" #${message.channel ? (message.channel as GuildChannel).name : 'Unknown Channel'}:\n${message.author.username}:\n${command.name} ${args.join(' ')}\n\n`, (err) => {
+        if (err) {
+            logger.err('Error writing to command.log');
+        };
+    });
 }
 
 async function handleCommandError(client: Client, message: Message, command: Command | Option, error: any) {

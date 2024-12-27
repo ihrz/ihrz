@@ -41,7 +41,7 @@ export const event: BotEvent = {
         const firstWord = message.content.split(' ')[0]?.toLowerCase();
 
         if (customReacts) {
-            const react = Object.keys(customReacts).find(r => message.content.includes(r));
+            const react = Object.keys(customReacts).find(r => message.content.toLowerCase().includes(r));
             if (react) {
                 await message.react(customReacts[react]).catch(() => { });
             }

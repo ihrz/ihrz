@@ -42,7 +42,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
@@ -77,7 +77,7 @@ export default {
 
         let embed = new EmbedBuilder()
             .setTitle(lang.nowplaying_message_embed_title)
-            .setDescription(`by: ${player.queue.current?.requester}\n**[${player.queue.current?.info.title}](${player.queue.current?.info?.uri})**, ${player.queue.current?.info?.author}`)
+            .setDescription(`by: ${(player.queue.current?.requester as User).toString()}\n**[${player.queue.current?.info.title}](${player.queue.current?.info?.uri})**, ${player.queue.current?.info?.author}`)
             .addFields(
                 { name: '  ', value: progress?.replace(/ 0:00/g, 'LIVE')! }
             );
@@ -138,10 +138,9 @@ export default {
                                         .setTitle(player.queue.current?.info?.title as string)
                                         .setURL(player.queue.current?.info?.uri as string)
                                         .setTimestamp()
-                                        .setThumbnail(lyrics.thumbnail)
+                                        .setThumbnail(lyrics.image)
                                         .setAuthor({
                                             name: player.queue.current?.info?.author as string,
-                                            iconURL: lyrics.artist.image,
                                         })
                                         .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                                         .setColor('#cd703a')

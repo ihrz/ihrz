@@ -48,6 +48,10 @@ var_remove: "Rimuovi"
 var_edit: "Modifica"
 var_confirm: "Conferma"
 var_succes: "Successo"
+var_page: "Pagina"
+var_permission: "Permesso"
+var_usage: "Utilizzo"
+var_aliases: "Alias"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -136,6 +140,67 @@ setticketcategory_command_work: "<@${interaction.user.id}>, hai impostato la cat
 ticket_logchannel_embed_title: "Canale dei Log dei Ticket"
 ticket_logchannel_embed_desc: "${interaction.user}, hai impostato il canale dei log del modulo Ticket su ${channel}!"
 
+# /ticket panel
+ticket_panel_default_placeholder: "Seleziona una categoria per aprire un ticket"
+ticket_panel_embed_title: "Pannello Ticket #"
+ticket_panel_embed_desc: "Personalizza un embed del ticket con opzioni specifiche"
+ticket_panel_saved_conf: "💾 Configurazione Salvata"
+ticket_panel_related_embed: "🕸️ Embed correlato"
+ticket_panel_role_to_ping: "📌 Ruolo da menzionare"
+ticket_panel_ping_user: "📎 Menziona utente"
+ticket_panel_placeholder: "🏷️ Segnaposto"
+ticket_panel_category: "📤 Categoria"
+ticket_panel_option_fields: "📔 Campi Opzione"
+ticket_panel_form: "📝 Modulo"
+ticket_panel_panel_placeholder: "Scegli le opzioni"
+ticket_panel_panel_1_label: "Salva configurazione attuale"
+ticket_panel_panel_2_label: "Mostra anteprima"
+ticket_panel_panel_3_label: "Modifica embed correlato attuale"
+ticket_panel_panel_4_label: "Aggiungi/rimuovi ruolo da menzionare"
+ticket_panel_panel_5_label: "Modifica segnaposto"
+ticket_panel_panel_6_label: "Modifica categoria"
+ticket_panel_panel_7_label: "Modifica menzione utente"
+ticket_panel_panel_8_label: "Aggiungi/Rimuovi Campi Opzione"
+ticket_panel_panel_9_label: "Modifica modulo"
+ticket_panel_button_send: "Invia embed"
+ticket_panel_change_category_channelSelect_placeholder: "Seleziona una categoria"
+ticket_panel_select_channel_to_send: "Seleziona un canale dove inviare l'embed"
+ticket_panel_change_placeholder_modal_title: "Modifica Segnaposto"
+ticket_panel_change_placeholder_modal_placeholder: "Nuovo Segnaposto"
+ticket_panel_need_save_config: "Devi salvare la configurazione attuale prima di inviare l'embed"
+ticket_panel_need_1_option: "Hai bisogno di almeno un'opzione per inviare l'embed"
+ticket_panel_related_embed_dont_exist: "L'embed correlato non esiste"
+ticket_panel_channel_error: "Il canale non esiste o non ho il permesso di inviarvi messaggi"
+ticket_panel_embed_been_send: "L'embed è stato inviato nel canale"
+ticket_panel_successfully_saved: "La configurazione è stata salvata con successo"
+ticket_panel_change_role_roleSelect_placeholder: "Seleziona un ruolo"
+ticket_panel_change_role_interaction_content: "Seleziona un ruolo che verrà menzionato quando viene aperto un ticket"
+ticket_panel_change_embed_modal_title: "Modifica Embed Correlato"
+ticket_panel_change_embed_modal_placeholder: "ID dell'Embed"
+ticket_panel_change_embed_dont_exist: "L'embed non esiste"
+ticket_panel_change_option_select_placeholder: "Seleziona un'opzione"
+ticket_panel_change_option_select_1_label: "Aggiungi nuovo campo opzione"
+ticket_panel_change_option_select_2_label: "Rimuovi campo opzione"
+ticket_panel_change_option_interaction_content: "Seleziona un'opzione per aggiungere o rimuovere campi opzione"
+ticket_panel_add_option_max_10: "Non puoi aggiungere più di 10 campi opzione"
+ticket_panel_add_option_modal_title: "Aggiungi campo opzione"
+ticket_panel_add_option_modal_field1_label: "Nome"
+ticket_panel_add_option_modal_field2_label: "Descrizione"
+ticket_panel_add_option_modal_field3_label: "Emoji"
+ticket_panel_remove_option_empty: "Non ci sono campi opzione da rimuovere"
+ticket_panel_remove_option_select_placeholder: "Scegli un'opzione da rimuovere"
+ticket_panel_rempve_option_interaction_content: "Seleziona un'opzione da rimuovere"
+ticket_panel_change_form_select_placeholder_1: "Aggiungi campo modulo"
+ticket_panel_change_form_select_placeholder_2: "Rimuovi campo modulo"
+ticket_panel_change_form_interaction_content: "Seleziona un'opzione per aggiungere o rimuovere campi modulo"
+ticket_panel_add_form_max_3: "Non puoi aggiungere più di 3 campi modulo"
+ticket_panel_add_form_modal_title: "Aggiungi campo modulo"
+ticket_panel_add_form_modal_field1_label: "Titolo della Domanda"
+ticket_panel_add_form_modal_field2_label: "Segnaposto della Domanda"
+ticket_panel_preview_message: "Anteprima del pannello ticket"
+ticket_panel_option_change_category: "Seleziona un'opzione per cambiare categoria"
+ticket_panel_panel_10_label: "Cambia la categoria per un'opzione specifica"
+
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
@@ -172,13 +237,15 @@ level_embed_fields1_value: "`${currentxp}/${xpNeeded}`"
 level_embed_fields2_name: ":money_with_wings:・__Esperienza:__"
 level_embed_fields2_value: "`${level}`"
 level_embed_description: "`${expNeededForLevelUp}` **punti esperienza necessari per il prossimo livello!**"
+level_xp_needed_for_new_level: "XP per il prossimo livello:"
+level_xp_total: "XP totale:"
 
 # /ranks leaderboard
-ranks_leaderboard_embed_title: "Classifica dei Livelli di ${interaction.guild?.name}"
 ranks_leaderboard_top_txt: "Top #${i}"
 ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Livello**: `${a.level || '0'}`\n🔱 ➥ **XP Totale**: `${a.xptotal}`"
-ranks_leaderboard_txt_raw: "👤 (${user.globalName})\n⭐ ➥ Livello: ${a.level || '0'}\n🔱 ➥ XP Totale: ${a.xptotal}"
+ranks_leaderboard_embed_title: "🏆 Classifica delle Leggende del Server"
+ranks_leaderboard_embed_footer: "Pagina ${cPage} di ${totalPages} • Classificato per XP Totale"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "Configurazioni del Modulo Classifiche"
@@ -209,6 +276,32 @@ ranksSetMessage_embed_fields_xpmessage: "Messaggio dei ranghi"
 reset_uranks_are_you_sure: "**Sei davvero sicuro di voler cancellare tutti i dati dei ranghi?\nQuesta azione è permanente e non potrai annullarla.**\n**Questa azione è distruttiva!!**"
 reset_uranks_logs_embed_title: "Log del Modulo dei Ranghi (AZIONE PERICOLOSA)"
 reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} ha cancellato tutti i dati del modulo dei ranghi per ${user.toString()}!"
+
+# /ranks config
+ranks_config_embed_title: "🏆 Configurazione dei Ruoli per Livello"
+ranks_config_embed_desc: "Personalizza i premi di ruolo basati sull'XP del tuo server!"
+ranks_config_autofields_name: "🌟 Livello ${level}"
+ranks_config_autofields_value: "Ruolo: <@&${roleId}>\n🔓 Sbloccato al livello ${level}"
+ranks_config_nofields_name: "🚫 Nessun Ruolo Configurato"
+ranks_config_nofields_value: "Configura i ruoli di livello per premiare i membri attivi!"
+ranks_config_help_footer: "Pagina ${currentPage} di ${totalPage} • Totale Livelli: ${totalRanks}"
+ranks_config_btn_add_name: "Aggiungi Ruolo"
+ranks_config_btn_remove_name: "Rimuovi Ruolo"
+ranks_config_add_max_roles: "Hai raggiunto il numero massimo di ruoli per livello (25)."
+ranks_config_add_role_menu_placeholder: "Seleziona un ruolo"
+ranks_config_awaiting1_response: "Seleziona il ruolo che desideri assegnare a un livello specifico."
+ranks_config_add_modal_title: "Imposta Livello per Ruolo"
+ranks_config_add_modal_fields1_placeholder: "Livello Richiesto"
+ranks_config_add_invalid_level: "Livello non valido! Inserisci un numero positivo."
+ranks_config_add_invalid_role: "Il ruolo {role} esiste già. Un ruolo può essere assegnato a un solo livello."
+ranks_config_add_command_work: "Ruolo ${selectedRole} aggiunto per il livello ${level}!"
+ranks_config_add_command_warn: "# AVVISO ⚠️ Il ruolo ${selectedRole} ha i seguenti permessi sensibili:\n\n${_}"
+ranks_config_remove_no_rank: "Non ci sono ruoli configurati da rimuovere."
+ranks_config_var_level: "Livello {level}"
+ranks_config_remove_string_menu_desc: "Rimuovi ruolo al livello ${level}"
+ranks_config_remove_string_menu1_placeholder: "Seleziona un ruolo da rimuovere"
+ranks_config_remove_awaiting_response: "Seleziona il ruolo che desideri rimuovere."
+ranks_config_remove_command_work: "Ruolo per il livello ${levelToRemove} rimosso!"
 
 
 # Owner commands
@@ -301,6 +394,9 @@ invite_embed_description: "Ti voglio bene, mostrami il tuo amore per me a tua vo
 # /kisakay
 kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay è sia la mia creatrice che la mia sviluppatrice. È grazie a lei e alla sua tastiera che sono nata. Le sono profondamente grata!✨ ❤️❤️"
 
+# /andru
+andru_message: "Andru è un collaboratore e sviluppatore. \"Il tuttofare\", gestisce il marketing, la comunità..."
+
 # /nayaweb
 nayaweb_message: "😼NayaWeb è il mio secondo sviluppatore/contribuente , NayaWeb x Kisakay ❤️"
 
@@ -375,6 +471,10 @@ help_notifier_dsc: "Ricevi una notifica quando un Youtuber o Streamer pubblica u
 help_notifier_fields: "Notificatore"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "Verifica del server con oAuth2. Se il tuo server viene attaccato o terminato, puoi recuperare i tuoi vecchi membri con oAuth2!"
+
+# /h
+h_suite: "(Continua)"
+h_suite_desc: "*Continua i comandi della categoria*"
 
 # /say
 say_footer_msg: "\n\nInviato da `/say` da ${interaction.user}"
@@ -577,6 +677,7 @@ setrankroles_logs_embed_title_disable: "Imposta Ruolo di Classifica"
 setrankroles_command_work_disable: "<@${interaction.user.id}>, hai eliminato il ruolo di classifica!"
 setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} Si è verificato un errore durante l'esecuzione del comando! Riprova più tardi."
 setrankroles_command_work_with_nicknames: "Ora, quando mi pinghi `@iHorizon`, aggiungerò i seguenti ruoli: <@&${argsid}> **Solo se l'utente ha** `${nicknames}` nel suo nome utente o nome globale"
+setrankroles_command_work_with_nicknames_2: "\n**Nota**:\nSe la persona rimuove la parte del nickname, il ruolo verrà rimosso automaticamente. Quando lo reinserirà, glielo ridò."
 
 # /snipe
 snipe_no_previous_message_deleted: "Nessun messaggio eliminato in questo canale!"
@@ -607,8 +708,8 @@ prevnames_embed_footer_text: "iHorizon | Pagina ${currentPage + 1}/${pages.lengt
 blockbot_not_owner: ":x: **¡No eres el propietario del servidor!**"
 blockbot_logs_enable_title: "Registro de BlockBot"
 blockbot_logs_enable_description: "${interaction.user} (El propietario del servidor) ha __habilitado__ `BlockBot`. ¡Ahora el bot **no** puede ser agregado a este servidor!"
-blockbot_command_work_on_enable: "**Has habilitado `BlockPub`**\nAhora el bot **no** puede ser agregado a este servidor!"
-blockbot_command_work_on_disable: "**Has deshabilitado `BlockPub`**\nAhora el bot puede ser agregado a este servidor!"
+blockbot_command_work_on_enable: "**Has habilitado `BlockBot`**\nAhora el bot **no** puede ser agregado a este servidor!"
+blockbot_command_work_on_disable: "**Has deshabilitado `BlockBot`**\nAhora el bot puede ser agregado a este servidor!"
 blockbot_logs_disable_commmand_work: "Registro de BlockBot"
 blockbot_logs_disable_description: "${interaction.user} (El propietario del servidor) ha __deshabilitado__ `BlockBot`. Ahora el bot puede ser agregado a este servidor!"
 
@@ -683,6 +784,30 @@ utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} ha modific
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} Il messaggio è stato inviato con successo a ${targetMember.toString()}."
 utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} Non sono riuscito a inviare un messaggio a ${targetMember.toString()}. Potrebbe aver bloccato i messaggi privati o potrebbe aver bloccato me!"
+
+# /utils pic-only
+utils_pic_only_embed_title: "Canali Solo Immagini"
+utils_pic_only_emnbed_desc: "Canale dove sono permesse solo foto/immagini. Altri contenuti sono bloccati dal bot"
+utils_piconly_embed_fields_3_name: "Tempo di Timeout"
+utils_piconly_select1_option1_label: "Cambia tempo di timeout"
+utils_piconly_select1_option2_label: "Cambia soglia"
+utils_piconly_modal1_title: "SoloFoto - Configurazione Tempo"
+utils_piconly_modal1_fields1_placeholder: "il tempo del muto"
+utils_piconly_modal1_fields1_label: "Tempo di Muto"
+utils_piconly_modal2_title: "SoloFoto - Configurazione Soglia"
+utils_piconly_modal2_fields1_placeholder: "la soglia prima del muto"
+utils_piconly_modal2_fields1_label: "Soglia"
+
+# /zip-emojis
+zip_emojis_doesnt_have_perm: "Non hai il permesso di gestire le emoji."
+zip_emojis_command_work: "🎉 Esportazione completata in **${calcTime}**ms! Ecco l'archivio contenente ${emojis.size} emoji."
+zip_emojis_command_error: "Si è verificato un errore durante l'esportazione delle emoji."
+
+# +sticker  
+sticket_no_sticker: "Nessun adesivo trovato nel messaggio a cui hai risposto."  
+sticket_command_work: "L'adesivo `${x.name}` è stato creato con successo."  
+sticker_command_error: "Impossibile creare l'adesivo. Si è verificato un errore: `${err.message}`."  
+sticket_command_error2: "Rispondi a un messaggio contenente un adesivo."  
 
 
 # Guild Config commands
@@ -983,6 +1108,42 @@ perm_roles_created_role: "I seguenti ruoli sono stati creati: ${createdRoles.joi
 perm_roles_already_upate: "Tutti i ruoli esistono già e sono aggiornati."
 perm_roles_error: "Si è verificato un errore durante la creazione o l'aggiornamento dei ruoli."
 
+# /toggle-react
+toggle_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia un messaggio di benvenuto, il bot **{activeMsg}**"
+toggle_react_doesnt_react: "non reagirà più"
+toggle_react_react: "reagirà"
+
+# /remove-react
+remove_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia `${message.toLowerCase()}`, il bot **non reagirà più**."
+
+# /add-react
+add_react_command_err_emojis: "L'emoji `{emoji}` della reazione non è valido!"
+add_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia `${message.toLowerCase()}`, il bot **reagirà** con {emoji}"
+
+# /list-react
+list_react_nothing_found: "Nessun dato trovato, aggiungi qualcosa prima."
+list_react_embed_msg: "Quando qualcuno invia **`${key}`**, io **reagirò** con ${value}\n"
+
+# /autoreact
+autoreact_embed_title: "Configurazione Autoreact"
+autoreact_embed_desc: "Quando viene inviato un nuovo messaggio nel canale specificato, il bot reagirà con le emoji specificate."
+autoreact_embed_autofields_value: "Reazione: ${reaction}"
+autoreact_embed_autofields_none_value: "Nessuna configurazione di autoreact impostata."
+autoreact_embed_footer: "Pagina ${currentPage} di ${totalPage} • Totale Reazioni: ${totalReact}"
+autoreact_btn_add_name: "Aggiungi canale"
+autoreact_btn_remove_name: "Rimuovi canale"
+autoreact_max_25: "È possibile impostare un massimo di 25 configurazioni di autoreact."
+autoreact_menu_add_place: "Seleziona un canale da aggiungere"
+autoreact_awaiting1_msg: "Seleziona un canale da aggiungere al modulo di autoreact."
+autoreact_modal_title: "Configurazione Autoreact"
+autoreact_modal_fields1_label: "La reazione (emoji)"
+autoreact_invalid_emoji: "Emoji non valida. Inserisci un'emoji valida."
+autoreact_add_command_ok: "La configurazione dell'autoreact è stata impostata."
+autoreact_remove_not_found: "Nessuna configurazione di autoreact impostata."
+autoreact_menu_remove_place: "Seleziona un canale da rimuovere"
+autoreact_awaiting_remove_msg: "Seleziona un canale da rimuovere dal modulo di autoreact."
+autoreact_remove_command_ok: "La configurazione dell'autoreact per questo canale è stata rimossa."
+
 
 # Member Count commands
 # /setmembercount
@@ -1084,6 +1245,9 @@ start_confirmation_command: "Il giveaway è stato avviato in ${giveawayChannel}!
 start_logs_embed_title: "Registri Giveaway"
 start_logs_embed_description: "<@${interaction.user.id}> ha avviato un giveaway in: ${giveawayChannel}"
 start_time_not_valid: "${interaction.user}, la durata del giveaway che hai specificato non è valida, riprova!"
+start_invalid_invites_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | Il valore per 'inviti' non è valido! Devi specificare un numero di inviti per partecipare al giveaway!"
+start_invalid_messages_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | Il valore per 'messaggi' non è valido! Devi specificare un numero di messaggi per partecipare al giveaway!"
+start_invalid_roles_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | Il ruolo per 'ruoli' non è trovato! Devi fornire un ID di ruolo per partecipare al giveaway!"
 
 # /reroll
 reroll_not_perm: "Devi avere i permessi per gestire i messaggi per eseguire nuovamente questo giveaway."
@@ -1208,6 +1372,7 @@ unmute_logs_embed_description: "<@${interaction.user.id}> smuta <@${tomute.id}>.
 warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} è stato avvertito! **Motivo**: `${reason}`\n__ID Avvertimento__: `${warnId}`"
 warn_logEmbed_title: "Registro Avvertimenti"
 warn_logEmbed_desc: "${interaction.member.toString()} ha avvertito ${member?.toString()} per `${reason}`"
+warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Non hai il permesso di avvertire un membro in questo server Discord."
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} sembra non avere avvertimenti nel mio database!"
@@ -1215,11 +1380,13 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toStri
 unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} L'avvertimento di ${member?.toString()} è stato rimosso!"
 unwarn_logEmbed_title: "Registro Rimozioni Avvertimenti"
 unwarn_logEmbed_desc: "${interaction.member.toString()} ha rimosso l'avvertimento di ${member?.toString()}"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Non hai il permesso di rimuovere un avvertimento da un membro in questo server Discord."
 
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} sembra non avere avvertimenti nel mio database!"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autore: <@${x.authorID}>\n> Motivo: `${x.reason}`"
 warnlist_embed_title: "Lista Avvertimenti di ${member?.user.globalName} | Pagina ${i / usersPerPage + 1}"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Non hai il permesso di gestire gli avvertimenti dei membri in questo server Discord."
 
 
 # Backup commands
@@ -1279,6 +1446,38 @@ buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> ha impos
 buttonreaction_dont_message_found: "Impossibile aggiungere questo pulsante, sembra che i ruoli siano già stati impostati in uno dei pulsanti esistenti!"
 buttonreaction_roles_not_found: "Argomenti mancanti: Non hai specificato i ruoli da impostare!"
 buttonreaction_message_other_user_error: "In Discord, il bot non può modificare i componenti di un messaggio di un altro utente. Devi scegliere un messaggio inviato da me. Suggerimento: Fai `/utils embed` per creare il tuo bel embed!"
+
+# /roleselect
+roleselect_invalid_message_id: "ID del messaggio non valido fornito. Si prega di fornire un ID valido."
+roleselect_message_not_found: "Messaggio non trovato nel canale specificato."
+roleselect_default_placeholder: "Seleziona ruoli configurati"
+roleselect_menu1_placeholder: "Scegli un'azione"
+roleselect_menu1_add: "Aggiungi opzione di ruolo"
+roleselect_menu1_remove: "Rimuovi opzione di ruolo"
+roleselect_menu1_change_placeholder: "Cambia segnaposto del menu"
+roleselect_menu1_save: "Salva e applica la configurazione"
+roleselect_menu1_cancel: "Annulla"
+roleselect_menu1_embed_title: "Configurazione selezione ruoli"
+roleselect_menu1_embed_description: "Quando l'utente seleziona un'opzione, riceverà il ruolo specificato."
+roleselect_modal1_title: "Aggiungi opzione di ruolo"
+roleselect_modal1_fields1_label: "Emoji"
+roleselect_modal1_fields1_placeholder: "Seleziona un'emoji per questa opzione di ruolo (facoltativo)"
+roleselect_modal1_fields2_label: "Titolo dell'opzione"
+roleselect_modal1_fields2_placeholder: "Titolo breve per l'opzione di ruolo"
+roleselect_modal1_fields3_label: "Descrizione"
+roleselect_modal1_fields3_placeholder: "Descrivi l'opzione di ruolo (facoltativo)"
+roleselect_awaiting1_msg: "Seleziona un ruolo per questa opzione"
+roleselect_awaiting1_menu_placeholder: "Scegli un ruolo"
+roleselect_role_already_exist: "Il ruolo esiste già nella configurazione."
+roleselect_no_role_found: "Nessuna opzione di ruolo da rimuovere."
+roleselect_all_role_removed: "Tutte le opzioni di ruolo sono state rimosse."
+roleselect_last_role_removed: "Ultima opzione di ruolo rimossa con successo."
+roleselect_save_command_ok: "Configurazione di selezione dei ruoli salvata con successo!"
+roleselect_failed_to_save_config: "Errore nel salvataggio della configurazione. Riprova."
+roleselect_canceled_command_ok: "Configurazione di selezione dei ruoli annullata."
+roleselect_modal2_title: "Segnaposto del menu"
+roleselect_modal2_label: "Segnaposto"
+roleselect_modal2_placeholder: "Segnaposto del menu"
 
 
 # New feature commands
@@ -1362,6 +1561,9 @@ embed_copy_bad_channel_msg: "Il canale in cui si trova il messaggio è irraggiun
 embed_copy_bad_message_msg: "Il messaggio è irraggiungibile!"
 embed_copy_bad_embed_message_msg: "Il messaggio non ha un embed!"
 embed_copy_bad_url_msg: "URL non valida, si prega di riprovare. Il formato corretto è: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
+embed_btn_replace: "Sostituisci l'embed"  
+embed_replace_question_msg: "Qual è il nuovo URL del messaggio in cui è necessario sostituire l'embed?"  
+embed_replace_message: "{user}, il nuovo embed ha sostituito l'embed di {messageUrl}"  
 
 # /rolesaver
 rolesaver_embed_title: "Modulo RoleSaver"
@@ -1752,6 +1954,14 @@ rc_forceJoin_ws_start: "# Processo di unione forzata in corso..."
 rc_forceJoin_ws_end: "# Processo di unione forzata completato."
 rc_forceJoin_ws_end_renew_msg: "# LEGGI ATTENTAMENTE\nECCO IL CODICE PRIVATO CHE NON DEVE ESSERE RIVELATO A NESSUNO. UNA PERSONA CON QUESTO CODICE POTREBBE ELIMINARLO, AGGIUNGERE MEMBRI AL PROPRIO SERVER... CONSERVALO IN UN POSTO SICURO. iHorizon NON TE LO DARÀ MAI PIÙ:\n```${value2}```"
 
+
+# Categoria Varie
+# manipolazione dei media
+
+# cooldown media
+media_gen_cooldown: "Devi aspettare `1 minuto e 30 secondi` tra una generazione di media e l'altra!"
+media_gen_error_args: "Per favore, fornisci due URL di immagini valide."
+
 # -----------------------------/ \-----------------------------
 # Eventi del Modulo Confessioni
 confession_module_modal_title: "Invia una confessione"
@@ -1809,6 +2019,7 @@ ticket_module_button_addmember: "Aggiungi Membro"
 ticket_module_button_removemember: "Rimuovi Membro"
 ticket_module_add_question: "Chi vuoi aggiungere al tuo ticket? (Specificare l'ID utente)!"
 ticket_module_remove_question: "Chi è l'utente che desideri rimuovere dal tuo ticket? (Specificare l'ID utente)!"
+ticket_transcript_failed_to_send: "Ho provato a inviarti il file in un messaggio privato, ma hai bloccato i tuoi DM :/"
 
 # Registri del Server
 event_srvLogs_banAdd_description: "<@${firstEntry.executor.id}> **ha bannato** <@${firstEntry.target.id}>"
@@ -1828,6 +2039,10 @@ event_srvLogs_voiceStateUpdate_3_description: "<@${targetUser.id}> ha messo in m
 event_srvLogs_voiceStateUpdate_4_description: "<@${targetUser.id}> ha tolto il muto alle cuffie nel canale <#${channelID}>"
 event_srvLogs_voiceStateUpdate_5_description: "<@${targetUser.id}> si è messo in muto nel canale <#${channelID}>"
 event_srvLogs_voiceStateUpdate_6_description: "<@${targetUser.id}> si è tolto il muto nel canale <#${channelID}>"
+event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} disabilitata per ${target}\n"
+event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} abilitata per ${target}\n"
+event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} consentita per ${target}\n"
+event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} non consentita per ${target}\n"
 
 # Evento di Promozione di Livello
 event_rank_role: "<@${message.author.id}>, ora hai il ruolo <@&${fetch.id}>"
@@ -1959,9 +2174,10 @@ antispam_log_embed_desc: "${client.user?.toString()} ha **${actionType}** ${user
 
 hybridcommands_global_prefix_mention: "`@Ping-Me`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Me "
-hybridcommands_args_error_embed_desc: "```ts\nNome del Comando: ${currentCommand.name}\nDescrizione del Comando: ${currentCommand.description}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErrore nell'invio dell'argomento \"${wrongArgumentName}\".\n```"
+hybridcommands_args_error_embed_desc: "```ts\nNome del comando: ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErrore durante l'invio dell'argomento \"${wrongArgumentName}\".\n```"
 hybridcommands_embed_help_title: "Incorporamento di Aiuto di ${commandName}"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Uso:** ${use}"
+hybridcommands_embed_footer_text: "Le opzioni tra [...] sono obbligatorie, mentre quelle tra <...> sono facoltative.\nUsa il comando: ${botPrefix}help [command] per ulteriori informazioni."
 
 # RPG
 # help
@@ -1994,5 +2210,10 @@ rc_total_key_used_count: "Conteggio Usato Chiave"
 rc_recent_locales_distribution: "Distribuzione delle Località dei Membri"
 rc_recent_verifications: "Verifiche Recenti"
 rc_registration_over_time: "Registrazioni nel Tempo"
+
+# Modulo SoloImmagini
+piconly_module_punish_msg: "${message.author}, sei stato silenziato per 10 minuti per aver inviato troppi messaggi senza immagini in un canale dedicato alle immagini."
+piconly_module_warn_msg: "${message.author}, questo canale accetta solo messaggi contenenti immagini (formati accettati: JPG, PNG, GIF, WEBP, BMP, TIFF). Avviso ${userWarnings.length}/${threshold}"
+piconly_module_timeout_reason: "Spam di messaggi senza immagini in un canale solo immagini"
 
 # -----------------------------\ /-----------------------------

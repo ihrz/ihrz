@@ -23,7 +23,7 @@
 ... (Your copyright and license information)
 */
 
-import { Client, AuditLogEvent, Guild, GuildEditOptions, GuildAuditLogsEntry } from 'discord.js';
+import { Client, AuditLogEvent, Guild, GuildEditOptions, GuildAuditLogsEntry, PermissionFlagsBits } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 
@@ -32,6 +32,10 @@ export const event: BotEvent = {
     run: async (client: Client, oldGuild: Guild, newGuild: Guild) => {
         let data = await client.db.get(`${newGuild.id}.PROTECTION`);
         if (!data) return;
+
+        if (!oldGuild.members.me?.permissions.has([
+            PermissionFlagsBits.Administrator
+        ])) return;
 
         if (data.updateguild && data.updateguild.mode === 'allowlist') {
             let fetchedLogs = await newGuild.fetchAuditLogs({

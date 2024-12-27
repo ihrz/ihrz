@@ -3,13 +3,12 @@
 iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org/) and uses [discord.js](https://npmjs.com/discord.js)!
 iHorizon have a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backups and a lot more!
 
-[![npm version](https://badge.fury.io/js/ihrz.svg)](https://badge.fury.io/js/ihrz)
-![NPM Downloads](https://img.shields.io/npm/dm/ihrz)
 ![GitHub Release](https://img.shields.io/github/v/release/ihrz/ihrz)
 ![GitHub Repo stars](https://img.shields.io/github/stars/ihrz/ihrz)
 
 ## Languages
 
+* Arabic Egyptian
 * English
 * French
 * Rude French (Troll)
@@ -86,8 +85,8 @@ Your bot will be faster than most popular bots and you can do what you want with
 
 # About the bot
 
-IHorizon is trusted by more than **275 000** users!<br>
-Used by more than 540 servers!
+IHorizon is trusted by more than **290 000** users!<br>
+Used by more than 810 servers!
 <br>
 Certified by Discord and had even more than 75 servers before starting the verification process!
 

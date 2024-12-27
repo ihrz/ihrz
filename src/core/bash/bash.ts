@@ -27,6 +27,7 @@ import fs from 'node:fs';
 
 import getIP from "../functions/getIp.js";
 import wait from "../functions/wait.js";
+import { mkdir } from 'node:fs/promises';
 
 function niceBytes(a: Number) { let b = 0, c = parseInt((a.toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
 
@@ -63,7 +64,7 @@ export default async (client: Client) => {
     let bash_history_path = `${process.cwd()}/src/files`
 
     if (!fs.existsSync(bash_history_path)) {
-        fs.mkdirSync(bash_history_path, { recursive: true });
+        await mkdir(bash_history_path, { recursive: true });
     }
 
     let createFiles = fs.createWriteStream(bash_history_path + '/.bash_history', { flags: 'a' });

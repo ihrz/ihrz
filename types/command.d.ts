@@ -44,6 +44,7 @@ export interface DescriptionLocalizations {
 
 export interface Command {
     name: string;
+    prefixName?: string;
     description: string;
     name_localizations?: NameLocalizations;
     description_localizations: DescriptionLocalizations;
@@ -53,6 +54,7 @@ export interface Command {
     category: string;
     options?: Option[];
     thinking: boolean;
+    ephemeral?: boolean;
     channel_types?: number[];
     type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND';
     aliases?: string[];

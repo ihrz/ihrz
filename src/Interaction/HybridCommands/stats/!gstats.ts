@@ -8,10 +8,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 import { DatabaseStructure } from '../../../../types/database_structure';
-import { readFileSync } from 'fs';
-import path from 'path';
 import {
     calculateActiveChannels,
     calculateActiveVoiceChannels,
@@ -42,7 +39,7 @@ type ChannelStats = {
 };
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         if (!client.user || !interaction.guild || !interaction.channel) return;
 
@@ -143,8 +140,7 @@ export default {
         let [firstActiveChannel, secondActiveChannel, thirdActiveChannel] = topThree(channelStats, 'dailyMessages').map(item => item.id);
         let [firstActiveVoiceChannel, secondActiveVoiceChannel, thirdActiveVoiceChannel] = topThree(channelStats, 'dailyVoice').map(item => item.id);
 
-        var htmlContent = readFileSync(path.join(process.cwd(), 'src', 'assets', 'guildStatsLeaderboard.html'), 'utf-8');
-
+        var htmlContent = client.htmlfiles['guildStatsLeaderboard'];
         leaderboardData = getStatsLeaderboard(leaderboardData)
 
         htmlContent = htmlContent

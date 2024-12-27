@@ -26,8 +26,6 @@ import { generatePassword } from '../../../core/functions/random.js'
 import { LanguageData } from '../../../../types/languageData';
 import maskLink from '../../../core/functions/maskLink.js';
 
-var modalIdRegistered: number[] = [];
-
 export default async function (interaction: ButtonInteraction<"cached">) {
 
     /**
@@ -95,7 +93,18 @@ export default async function (interaction: ButtonInteraction<"cached">) {
     let name = maskLink(submitInteraction.fields.getTextInputValue("case_name"));
     let view: string | boolean = submitInteraction.fields.getTextInputValue("case_private");
     let code = generatePassword({ length: 6, numbers: true, lowercase: true });
-    let files = [];
+
+    let body: {
+        embeds: EmbedBuilder[],
+        files: { attachment: Buffer | string, name: string }[],
+        enforceNonce: boolean,
+        nonce: string
+    } = {
+        embeds: [],
+        files: [],
+        enforceNonce: true,
+        nonce: nonce
+    }
 
     const embed = new EmbedBuilder()
         .setColor(2829617)
@@ -106,7 +115,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
     if (view.toLowerCase().includes('no') || view.toLowerCase().includes(lang.mybot_submit_utils_msg_no)) {
         view = false;
 
-        files.push({ attachment: interaction.user.avatarURL({ size: 512 })!, name: "user_icon.png" });
+        body.files.push({ attachment: interaction.user.avatarURL({ size: 512 })!, name: "user_icon.png" });
 
         embed.setFooter({
             text: interaction.user.globalName || interaction.user.username,
@@ -115,6 +124,9 @@ export default async function (interaction: ButtonInteraction<"cached">) {
     } else {
         view = true;
     }
+
+    (body.embeds as EmbedBuilder[]).push(embed);
+    await (channel as BaseGuildTextChannel).send(body);
 
     await interaction.client.db.push(`${interaction.guildId}.GUILD.CONFESSION.ALL_CONFESSIONS`, {
         code: code,
@@ -125,12 +137,6 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
     await interaction.client.db.table('TEMP').set(`CONFESSION_COOLDOWN.${interaction.user.id}`, Date.now());
 
-    await (channel as BaseGuildTextChannel).send({
-        embeds: [embed],
-        files: files,
-        enforceNonce: true, nonce: nonce
-    });
-
     let panelMessage = await interaction.channel?.messages.fetch(allDataConfession.panel?.messageId!);
     let embedFromPanelMessage = panelMessage?.embeds[0];
     let compFromPanelMessage = panelMessage?.components[0];
@@ -138,8 +144,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
     await panelMessage?.delete();
 
     const newPanelFromOldData: MessageReplyOptions = {
-        embeds: [embedFromPanelMessage!], components: [compFromPanelMessage!],
-        //  files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] 
+        embeds: [EmbedBuilder.from(embedFromPanelMessage!).setFooter(await interaction.client.method.bot.footerBuilder(interaction))], components: [compFromPanelMessage!],
+        files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
     };
 
     interaction.client.method.channelSend(interaction.message, newPanelFromOldData).then(async (msg) => {

@@ -42,6 +42,31 @@ export const command: Command = {
 
     options: [
         {
+            name: "avatar",
+
+            description: "Pick the avatar of a user!",
+            description_localizations: {
+                "fr": "Récuperer l'avatar d'un utilisateur"
+            },
+
+            aliases: ["pfp", "pp", "pic"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'user',
+                    type: ApplicationCommandOptionType.User,
+
+                    description: 'The user',
+                    description_localizations: {
+                        "fr": "L'utilisateur"
+                    },
+
+                    required: false
+                }
+            ],
+        },
+        {
             name: 'vc',
 
             description: 'Get the voice states of the guild!',
@@ -140,6 +165,54 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand
         },
         {
+            name: 'leash',
+
+            description: 'Leash a member in the guild',
+            description_localizations: {
+                "fr": "Mettre en laisse un utilisateur sur le serveur"
+            },
+
+            options: [
+                {
+                    name: 'member',
+                    type: ApplicationCommandOptionType.User,
+
+                    description: 'member you want to leash',
+                    description_localizations: {
+                        "fr": "utilisateur que vous souhaitez mettre en laisse"
+                    },
+
+                    required: true,
+                },
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
+            name: 'unleash',
+
+            description: 'UnLeash a member in the guild',
+            description_localizations: {
+                "fr": "Enlever la laisse à un utilisateur sur le serveur"
+            },
+
+            options: [
+                {
+                    name: 'member',
+                    type: ApplicationCommandOptionType.User,
+
+                    description: 'member you want to unleash',
+                    description_localizations: {
+                        "fr": "utilisateur que vous souhaitez supprimer sa laisse"
+                    },
+
+                    required: true,
+                },
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
             name: 'dm',
             name_localizations: {
                 "fr": "mp"
@@ -201,6 +274,18 @@ export const command: Command = {
             },
 
             aliases: ["wlrole"],
+
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
+            name: 'pic-only',
+
+            description: 'Define channels for only picture sending (block other content)',
+            description_localizations: {
+                "fr": "Définir des canaux pour l'envoi d'images uniquement (bloquer d'autres contenus)"
+            },
+
+            aliases: ["piconly"],
 
             type: ApplicationCommandOptionType.Subcommand
         },
@@ -393,6 +478,7 @@ export const command: Command = {
                 },
             ],
 
+            thinking: true,
             type: ApplicationCommandOptionType.Subcommand
         },
         {
@@ -439,6 +525,8 @@ export const command: Command = {
                     required: true
                 }
             ],
+
+            thinking: true,
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
@@ -547,6 +635,7 @@ export const command: Command = {
         },
         {
             name: "addrole",
+            prefixName: "addrole",
 
             description: "Add role to user",
             description_localizations: {
@@ -620,7 +709,19 @@ export const command: Command = {
             ],
 
             type: ApplicationCommandOptionType.Subcommand
-        }
+        },
+        {
+            name: 'zip-emojis',
+
+            description: 'Create zip files with all guild emojis in!',
+            description_localizations: {
+                "fr": "Créer un fichier zip contenant absolument tout les émojis du serveur"
+            },
+
+            aliases: ["zipemojis", "zip"],
+
+            type: ApplicationCommandOptionType.Subcommand
+        },
     ],
 
     category: 'utils',

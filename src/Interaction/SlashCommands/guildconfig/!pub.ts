@@ -29,14 +29,21 @@ import {
 
 interface Action {
     type: number;
-    metalang: Record<string, any>;
+    metadata: Record<string, any>;
 };
+
+const regexPatterns = [
+    '(discord\\.gg\\/|\\.gg\\/|gg\\/|https?:\\/\\/|http?:\\/\\/)',
+    '[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
+];
+
+
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
@@ -46,7 +53,7 @@ export default {
         let logs_channel = interaction.options.getChannel('logs-channel');
 
         let automodRules = await interaction.guild.autoModerationRules.fetch();
-        let KeywordPresetRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+        let KeywordPresetRule = automodRules.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
         if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
             await interaction.editReply({ content: lang.blockpub_not_admin });
@@ -58,7 +65,7 @@ export default {
                 let arrayActionsForRule: Action[] = [
                     {
                         type: 1,
-                        metalang: {
+                        metadata: {
                             customMessage: "This message was prevented by iHorizon"
                         }
                     },
@@ -67,7 +74,7 @@ export default {
                 if (logs_channel) {
                     arrayActionsForRule.push({
                         type: 2,
-                        metalang: {
+                        metadata: {
                             channel: logs_channel,
                         }
                     });
@@ -80,12 +87,7 @@ export default {
                     triggerType: 1,
                     triggerMetadata:
                     {
-                        regexPatterns: [
-                            '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
-                        ]
+                        regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
                     },
                     actions: arrayActionsForRule
                 });
@@ -95,12 +97,7 @@ export default {
                     enabled: true,
                     triggerMetadata:
                     {
-                        regexPatterns: [
-                            '(https?:\/\/)?(www\.)?(discord\.(gg|io|me|li)|discordapp\.com\/invite)\/.+[a-z]',
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
-                        ]
+                        regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
                     },
                     actions: [
                         {
@@ -120,6 +117,7 @@ export default {
             };
 
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "on");
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`, true);
             await interaction.editReply({
                 content: lang.automod_block_pub_command_on
                     .replace('${interaction.user}', interaction.user.toString())
@@ -131,6 +129,7 @@ export default {
             await KeywordPresetRule?.setEnabled(false);
 
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "off");
+            await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`);
             await interaction.editReply({
                 content: lang.automod_block_pub_command_off
                     .replace('${interaction.user}', interaction.user.toString())

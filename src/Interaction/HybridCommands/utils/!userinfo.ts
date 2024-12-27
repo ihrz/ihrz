@@ -31,15 +31,24 @@ import {
     ButtonStyle,
     ChatInputCommandInteraction,
     Message,
+    UserContextMenuCommandInteraction,
 } from 'discord.js';
 
 import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { Oauth2_Link, oauth2Member } from '../../../core/functions/restoreCordHelper.js';
+import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 
+function createOauth2Link(client_id: string): string {
+    return Oauth2_Link
+        .replace("{client_id}", client_id)
+        .replace("{guild_id}", "")
+        .replace("{redirect_uri}", apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.GenerateOauthLink))
+        .replace("{scope}", "identify")
+}
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | UserContextMenuCommandInteraction | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing
@@ -115,13 +124,14 @@ export default {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('user') || interaction.user;
+        } else if (interaction instanceof UserContextMenuCommandInteraction) {
+            var member = interaction.options.getUser('user') || interaction.user;
         } else {
-            
             var member = await client.method.user(interaction, args!, 0) || interaction.author;
         };
 
-        const originalInteraction = await client.method.interactionSend(interaction, {
-            content: lang.userinfo_wait_please.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
+        const originalInteraction = await client.method.interactionSend(interaction as ChatInputCommandInteraction, {
+            content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
         });
 
         async function sendMessage(user: User) {
@@ -140,6 +150,10 @@ export default {
                 format = 'gif'
             };
 
+            let badges = getBadges(member.flags?.bitfield!);
+            let nitro = await GetNitro();
+            badges += nitro.badge;
+
             let embed = new EmbedBuilder()
                 .setFooter(await client.method.bot.footerBuilder(interaction))
                 .setThumbnail("attachment://user_icon.gif")
@@ -148,7 +162,7 @@ export default {
                 .setFields(
                     {
                         name: lang.userinfo_embed_fields_1_name,
-                        value: getBadges(member.flags?.bitfield!) || lang.userinfo_var_notfound,
+                        value: badges || lang.userinfo_var_notfound,
                         inline: true,
                     },
                     {
@@ -168,7 +182,7 @@ export default {
                     },
                     {
                         name: lang.userinfo_embed_fields_5_name,
-                        value: GetNitro(user_1.premium_type) || lang.userinfo_var_notfound,
+                        value: nitro.type || `[\`Not found\`](${createOauth2Link(client.user?.id!)})`,
                         inline: true,
                     },
                     {
@@ -195,7 +209,7 @@ export default {
             });
 
             await originalInteraction.edit({
-                content: client.iHorizon_Emojis.icon.Yes_Logo,
+                content: null,
                 embeds: [embed],
                 files: files,
                 components: [
@@ -212,22 +226,45 @@ export default {
             return;
         };
 
-        function GetNitro(input: number): string {
-            let nitro = '';
+        let table = client.db.table("RESTORECORD");
+        let savedUsers: oauth2Member[] = await table.get("saved_users") || [];
+        let fetchedUser = savedUsers.find((x) => x.id === member.id);
 
-            switch (input) {
-                case 1:
-                    nitro = client.iHorizon_Emojis.badge.Nitro;
-                    break;
-                case 2:
-                    nitro = client.iHorizon_Emojis.badge.Nitro + client.iHorizon_Emojis.badge.Server_Boost_Badge;
-                    break;
-                case 3:
-                    nitro = client.iHorizon_Emojis.badge.Nitro;
-                    break;
-            };
+        async function GetNitro(): Promise<{ badge: string; type: string; }> {
+            let badge = '';
+            let type = '';
 
-            return nitro;
+            try {
+                let result = await axios.post(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.UserInfo),
+                    {
+                        accessToken: fetchedUser?.token,
+                        adminKey: client.config.api.apiToken,
+                    },
+                )
+                let input = result.data.premium_type;
+
+
+                switch (input) {
+                    case 1:
+                        badge = client.iHorizon_Emojis.badge.Nitro;
+                        type = "Nitro Classic";
+                        break;
+                    case 2:
+                        badge = client.iHorizon_Emojis.badge.Nitro + client.iHorizon_Emojis.badge.Server_Boost_Badge;
+                        type = "Nitro Boost";
+                        break;
+                    case 3:
+                        badge = client.iHorizon_Emojis.badge.Nitro;
+                        type = "Nitro Basic";
+                        break;
+                };
+            } catch (e) {
+                badge = '';
+                type = '';
+            }
+
+
+            return { badge, type };
         };
 
         sendMessage(member);

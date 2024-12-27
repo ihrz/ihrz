@@ -47,7 +47,7 @@ export const command: Command = {
 
             description: 'The member you want to made owner of the iHorizon Projects',
             description_localizations: {
-                "fr": "Le membre que vous souhaitez rendre propriétaire des projets Horizon"
+                "fr": "Le membre que vous souhaitez rendre propriétaire des projets iHorizon"
             },
 
             required: false
@@ -56,7 +56,7 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing

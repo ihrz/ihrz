@@ -29,20 +29,29 @@ import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var gender = interaction.options.getString("gender")!;
             var user = interaction.user;
         } else {
-            
-            var gender = args?.join(" ") || "None"; 
+            var gender = args?.join(" ") || "None";
             var user = interaction.author;
         };
 
         let tableProfil = client.db.table('USER_PROFIL');
 
-        await tableProfil.set(`${user.id}.gender`, gender);
+        switch (gender) {
+            case "female":
+                await tableProfil.set(`${user.id}.gender`, "♀ Female");
+                break;
+            case "male":
+                await tableProfil.set(`${user.id}.gender`, "♂ Male");
+                break;
+            case "non-binary":
+                await tableProfil.set(`${user.id}.gender`, "⚧ Non-binary");
+                break;
+        }
 
         await client.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, ephemeral: true });
         return;

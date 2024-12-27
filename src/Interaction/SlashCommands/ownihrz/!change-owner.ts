@@ -25,8 +25,6 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { OwnIHRZ } from '../../../core/modules/ownihrzManager.js';
-
 import { LanguageData } from '../../../../types/languageData';
 import { Custom_iHorizon } from '../../../../types/ownihrz';
 
@@ -36,20 +34,20 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let botId = interaction.options.getString('botid')!;
+        let botId = interaction.options.getString('bot_code')!;
         let OwnerOne = interaction.options.getUser('owner_one')!.id;
         let OwnerTwo = interaction.options.getUser('owner_two')?.id || OwnerOne;
 
         let tempTable = client.db.table('TEMP');
         let table = client.db.table('OWNIHRZ');
 
-        let alllang = await table.get("CLUSTER");
+        let allData = await table.get("CLUSTER");
 
         let timeout: number = 3600000;
         let executingBefore = await tempTable.get(`OWNIHRZ_CHANGE_OWNER.${botId}.timeout`);
@@ -61,16 +59,16 @@ export default {
             return;
         };
 
-        function getlang() {
-            for (let ownerId in alllang) {
-                for (let bot_id in alllang[ownerId]) {
+        function getData() {
+            for (let ownerId in allData) {
+                for (let bot_id in allData[ownerId]) {
                     if (bot_id !== botId) continue;
-                    return alllang[ownerId][botId];
+                    return allData[ownerId][botId];
                 }
             }
         }
 
-        let id_2 = getlang() as Custom_iHorizon;
+        let id_2 = getData() as Custom_iHorizon;
 
         if (!id_2) {
             await interaction.reply({ content: lang.mybot_manage_accept_not_found });
@@ -109,7 +107,7 @@ export default {
             });
 
             try {
-                await client.ownihrz.Change_Owner(client.config, id_2.Cluster!, id_2.Code, {
+                await client.ownihrz.Change_Owner(id_2.Cluster!, id_2.Code, {
                     OldOwnerOne: id_2.OwnerOne,
                     NewOwnerOne: OwnerOne,
                     NewOwnerTwo: OwnerTwo

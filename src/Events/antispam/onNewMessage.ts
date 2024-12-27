@@ -166,6 +166,11 @@ async function PunishUsers(
 
                 if (userCanBeMuted) {
                     await member.timeout(time, 'Spamming');
+                    await member.client.method.warnMember(
+                        member.guild?.members.me!,
+                        member!,
+                        "Antispam Punishment"
+                    ).catch(() => { });
                 }
                 break;
             case 'ban':

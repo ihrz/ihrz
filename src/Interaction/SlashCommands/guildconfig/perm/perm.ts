@@ -29,6 +29,7 @@ import {
 
 import { Command } from '../../../../../types/command';
 import { LanguageData } from '../../../../../types/languageData';
+import { Option } from '../../../../../types/option.js';
 
 export const command: Command = {
     name: "perm",
@@ -237,12 +238,12 @@ export const command: Command = {
         let choices: string[] = [];
 
         if (focusedOption.name === 'command') {
-            const getCommandChoices = (command: Command, parentName = '') => {
+            const getCommandChoices = (command: Command | Option, parentName = '') => {
                 const commandName = parentName ? `${parentName} ${command.name}` : command.name;
                 choices.push(commandName);
 
                 if (command.options) {
-                    command.options.forEach((option: any) => {
+                    command.options.forEach((option) => {
                         if (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand) {
                             getCommandChoices(option, commandName);
                         }

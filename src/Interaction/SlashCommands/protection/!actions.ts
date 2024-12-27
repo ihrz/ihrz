@@ -31,7 +31,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
@@ -78,7 +78,7 @@ export default {
             });
             return;
         } else if (rule === 'cls') {
-            await client.db.set(`${interaction.guild.id}.PROTECTION`, {});
+            await client.db.delete(`${interaction.guild.id}.PROTECTION`);
 
             await interaction.editReply({
                 content: lang.authorization_actions_rule_clear

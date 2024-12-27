@@ -19,7 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
+
+let browser: Browser | null = await puppeteer.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+});
 
 export async function html2Png(
     code: string,
@@ -27,7 +31,7 @@ export async function html2Png(
         width?: number;
         height?: number;
         scaleSize?: number;
-        elementSelector: string;
+        elementSelector?: string;
         omitBackground: boolean;
         selectElement: boolean;
     } = {
@@ -39,11 +43,19 @@ export async function html2Png(
             selectElement: false,
         }
 ): Promise<Buffer> {
-    let browser;
     try {
-        browser = await puppeteer.launch({
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        });
+        if (browser === null) {
+            browser = await puppeteer.launch({
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+        }
+        if (!browser?.connected) {
+            browser = await puppeteer.launch({
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+            return await html2Png(code, options);
+        }
+
         const page = await browser.newPage();
 
         await page.setViewport({
@@ -55,7 +67,17 @@ export async function html2Png(
         await page.setContent(code);
 
         let imageBuffer;
-        if (options.selectElement) {
+        if (options.selectElement && options.elementSelector) {
+            await page.evaluate(() => {
+                document.body.style.background = 'transparent';
+            });
+            await page.evaluate((selector) => {
+                const element: any = document.querySelector(selector);
+                if (element) {
+                    element.style.margin = '0';
+                    element.style.padding = '0';
+                }
+            }, options.elementSelector);
             const element = await page.$(options.elementSelector);
             if (!element) throw new Error('Element not found');
             const boundingBox = await element.boundingBox();
@@ -65,8 +87,8 @@ export async function html2Png(
                 clip: {
                     x: boundingBox.x,
                     y: boundingBox.y,
-                    width: Math.min(boundingBox.width, options.width ?? 1280),
-                    height: Math.min(boundingBox.height, options.height ?? 800),
+                    width: boundingBox.width,
+                    height: boundingBox.height,
                 },
                 type: 'png',
                 omitBackground: options.omitBackground,
@@ -80,12 +102,9 @@ export async function html2Png(
             });
         }
 
+        await page.close();
         return Buffer.from(imageBuffer);
     } catch (error) {
         throw error;
-    } finally {
-        if (browser) {
-            await browser.close();
-        }
     }
 }

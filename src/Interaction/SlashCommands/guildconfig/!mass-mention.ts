@@ -28,15 +28,14 @@ import {
 
 interface Action {
     type: number;
-    metalang: Record<string, any>;
+    metadata: Record<string, any>;
 };
 import { LanguageData } from '../../../../types/languageData';
-import logger from '../../../core/logger.js';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
@@ -48,50 +47,49 @@ export default {
 
         let automodRules = await interaction.guild.autoModerationRules.fetch();
 
-        let mentionSpamRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
+        let mentionSpamRule = automodRules.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
 
         if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
             await interaction.editReply({ content: lang.blockpub_not_admin });
             return;
 
         } else if (turn === "on") {
+            let arrayActionsForRule: Action[] = [
+                {
+                    type: 1,
+                    metadata: {
+                        customMessage: "This message was prevented by iHorizon"
+                    }
+                },
+            ];
+
+            if (logs_channel) {
+                arrayActionsForRule.push({
+                    type: 2,
+                    metadata: {
+                        channel: logs_channel.id,
+                    }
+                });
+            };
 
             try {
-
-                let arrayActionsForRule: Action[] = [
-                    {
-                        type: 1,
-                        metalang: {
-                            customMessage: "This message was prevented by iHorizon"
-                        }
-                    },
-                ];
-
-                if (logs_channel) {
-                    arrayActionsForRule.push({
-                        type: 2,
-                        metalang: {
-                            channel: logs_channel,
-                        }
-                    });
-                };
-
-                if (!mentionSpamRule) {
-
+                if (mentionSpamRule) {
+                    await mentionSpamRule.edit({
+                        name: 'Block mass-mention spam by iHorizon',
+                        enabled: true,
+                        eventType: 1,
+                        triggerMetadata: {
+                            mentionTotalLimit: max_mention,
+                            presets: [1, 2, 3]
+                        },
+                        actions: arrayActionsForRule
+                    })
+                } else {
                     await interaction.guild.autoModerationRules.create({
                         name: 'Block mass-mention spam by iHorizon',
                         enabled: true,
                         eventType: 1,
                         triggerType: 5,
-                        triggerMetadata:
-                        {
-                            mentionTotalLimit: max_mention,
-                            presets: [1, 2, 3]
-                        },
-                        actions: arrayActionsForRule
-                    });
-                } else if (mentionSpamRule) {
-                    await mentionSpamRule.edit({
                         triggerMetadata:
                         {
                             mentionTotalLimit: max_mention,
@@ -110,7 +108,6 @@ export default {
                 });
                 return;
             } catch (error) {
-                logger.err(error as any);
                 await interaction.editReply({ content: 'Error 404' });
             }
         } else if (turn === "off") {

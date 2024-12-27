@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, ChannelType, CategoryChannel, TextChannel } from 'discord.js';
+import { Client, AuditLogEvent, GuildChannel, ChannelType, CategoryChannel, TextChannel, PermissionFlagsBits } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { protectionCache } from './ready.js';
 import wait from '../../core/functions/wait.js';
@@ -33,6 +33,10 @@ export const event: BotEvent = {
 
         let data = await client.db.get(`${guildId}.PROTECTION`);
         if (!data) return;
+
+        if (!channel.guild.members.me?.permissions.has([
+            PermissionFlagsBits.Administrator
+        ])) return;
 
         if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
             const fetchedLogs = await channel.guild.fetchAuditLogs({

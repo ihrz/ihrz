@@ -40,7 +40,7 @@ import { LanguageData } from '../../../../types/languageData';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing
@@ -51,7 +51,7 @@ export default {
             var argsid = interaction.options.getRole("roles");
             var nickname = interaction.options.getString("part-of-nickname");
         } else {
-            
+
             var type = client.method.string(args!, 0);
             var argsid = client.method.role(interaction, args!, 0) as Role | null;
             var nickname = client.method.longString(args!, 2);
@@ -98,6 +98,7 @@ export default {
                     msg = lang.setrankroles_command_work_with_nicknames
                         .replace('${argsid}', argsid.id)
                         .replace('${nicknames}', nickname);
+                    msg += lang.setrankroles_command_work_with_nicknames_2
 
                     await client.db.set(`${interaction.guildId}.GUILD.RANK_ROLES.nicknames`, nickname);
                 } else {

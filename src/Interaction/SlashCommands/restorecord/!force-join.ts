@@ -30,7 +30,7 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 import WebSocket from 'ws';
-import { forceJoinRestoreCord, getGuildDataPerSecretCode } from '../../../core/functions/restoreCordHelper.js';
+import { forceJoinRestoreCord, getGuildDataPerSecretCode, SavedMembersRestoreCord } from '../../../core/functions/restoreCordHelper.js';
 import { Command } from '../../../../types/command.js';
 import { Option } from '../../../../types/option.js';
 import { LanguageData } from '../../../../types/languageData.js';
@@ -49,6 +49,7 @@ export default {
         const secretCode = interaction.options.getString("key")!;
         const table = client.db.table("RESTORECORD");
         const Data = getGuildDataPerSecretCode(await table.all(), secretCode);
+        const AllUsersData = await (client.db.table("RESTORECORD")).get("saved_users") as SavedMembersRestoreCord;
 
         if (!Data) return client.method.interactionSend(interaction, {
             content: lang.rc_key_doesnt_exist
@@ -58,8 +59,8 @@ export default {
         });
 
         const members = Data.data.members || [];
-        const membersAlreadyHere = Data.data.members.filter(user => {
-            return interaction.guild.members.cache.has(user.id)
+        const membersAlreadyHere = Data.data.members.filter(userId => {
+            return interaction.guild.members.cache.has(userId)
         });
 
         let embed = new EmbedBuilder()
@@ -117,9 +118,9 @@ export default {
                     interaction.editReply({ embeds: [embed] });
                 };
 
-                const forceJoinMembers = Data.data.members.filter(user => {
-                    return !interaction.guild.members.cache.has(user.id)
-                }).map(x => x.id);
+                const forceJoinMembers = Data.data.members.filter(userId => {
+                    return !interaction.guild.members.cache.has(userId)
+                }).map(x => x);
 
                 const updateInterval = 5;
                 const maxUpdateInterval = 10000;
@@ -140,8 +141,8 @@ export default {
                         ws.send("forceJoin%" + data[1]);
                     });
 
-                    ws.on('message', async function message(messagelang) {
-                        const messageParts = messagelang.toString().split(":");
+                    ws.on('message', async function message(messageData) {
+                        const messageParts = messageData.toString().split(":");
                         const value = messageParts[1];
                         const value2 = messageParts[2] || "";
 

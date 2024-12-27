@@ -28,8 +28,8 @@ export const event: BotEvent = {
     name: "guildMemberRemove",
     run: async (client: Client, member: GuildMember) => {
 
-        if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
-            let admin = await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.admin`);
+        if (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`)) {
+            let admin = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.admin`);
             let rolesArray: string[] = [];
 
             member.roles.cache.each((role) => {

@@ -61,11 +61,14 @@ export const command: Command = {
         let pages: string[] = [];
 
         Object.entries(all_specific_message!).forEach(([key, value]) => {
-            pages.push(`Quand une personne envoie **\`${key}\`**, je **réagis** avec ${value}\n`);
+            pages.push(lang.list_react_embed_msg.replace("${key}", key).replace("${value}", value));
         });
 
         if (pages.length === 0) {
-            await interaction.reply({ content: 'Aucune données as été trouvé, veuillez en ajouter avant.', allowedMentions: { repliedUser: false } });
+            await interaction.reply({
+                content: lang.list_react_nothing_found,
+                allowedMentions: { repliedUser: false }
+            });
             return;
         }
 
@@ -80,11 +83,11 @@ export const command: Command = {
         let row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('previousPage')
-                .setLabel('⬅️')
+                .setLabel('<<<')
                 .setStyle(ButtonStyle.Secondary),
             new ButtonBuilder()
                 .setCustomId('nextPage')
-                .setLabel('➡️')
+                .setLabel('>>>')
                 .setStyle(ButtonStyle.Secondary),
         );
 

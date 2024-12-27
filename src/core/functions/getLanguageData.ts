@@ -19,11 +19,11 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
+import { readFile } from 'node:fs/promises';
 import { LanguageData } from '../../../types/languageData.js';
 import { getDatabaseInstance } from '../database.js';
 
 import yaml from 'js-yaml';
-import fs from 'node:fs';
 
 interface LangsData {
     [lang: string]: LanguageData;
@@ -42,7 +42,7 @@ export default async function getLanguageData(arg: string): Promise<LanguageData
     let dat = LangsData[lang];
 
     if (!dat) {
-        dat = yaml.load(fs.readFileSync(process.cwd() + "/src/lang/" + lang + ".yml", 'utf8')) as LanguageData;
+        dat = yaml.load(await readFile(process.cwd() + "/src/lang/" + lang + ".yml", 'utf8')) as LanguageData;
         LangsData[lang] = dat;
     };
 

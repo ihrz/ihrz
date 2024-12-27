@@ -42,7 +42,7 @@ import { Command } from '../../../../types/command.js';
 import { Option } from '../../../../types/option.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
@@ -60,15 +60,15 @@ export default {
 
         let embed = new EmbedBuilder()
             .setColor('#000000')
-            .setImage('attachment://all-human-have-rights-elektra.png')
+            .setImage('attachment://transgender.png')
             .setTimestamp()
             .setFooter(await client.method.bot.footerBuilder(interaction));
 
         let imgs: AttachmentBuilder | undefined;
 
         let response: AxiosResponse = await axios.get(link, { responseType: 'arrayBuffer' })
-        imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'all-humans-have-right-elektra.png' });
-        embed.setImage(`attachment://all-humans-have-right-elektra.png`);
+        imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'transgender.png' });
+        embed.setImage(`attachment://transgender.png`);
 
         await client.method.interactionSend(interaction, {
             embeds: [embed],

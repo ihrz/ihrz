@@ -33,7 +33,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
@@ -51,9 +51,9 @@ export default {
         }
 
         var ip = [
-            '1', '100', '168', '254', '345', '128', '256', '255', '0', '144',
-            '38', '67', '97', '32', '64', '192', '10', '172', '12', '200', '87',
-            '150', '42', '99', '76', '211', '172', '18', '86', '55', '220', '7'
+            '01', '-10', '168', '254', '3045', '128', '256', '255', '-0', '-144',
+            '308', '670', '097', '32', '-64', '1092', '-10', '172', '1002', '2000', '87',
+            '150', '402', '99', '7-6', '211', '172', '398', '-806', '055', '220', '7'
         ];
 
         var hackerNames = [

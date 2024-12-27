@@ -28,7 +28,6 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
-import { LanguageData } from '../../../../types/languageData';
 
 export const command: Command = {
     name: "security",
@@ -43,10 +42,11 @@ export const command: Command = {
 
     options: [
         {
-            name: "security-channel",
+            name: "channel",
             name_localizations: {
                 "fr": "définir-cannal"
             },
+            prefixName: "security-channel",
 
             description: "Channel where are been the verification process for new member(s)!",
             description_localizations: {
@@ -70,10 +70,11 @@ export const command: Command = {
             ],
         },
         {
-            name: "security-disable",
+            name: "disable",
             name_localizations: {
                 "fr": "statut"
             },
+            prefixName: "security-disable",
 
             description: "Disable or enable the Security Module feature!",
             description_localizations: {

@@ -123,6 +123,7 @@ export const command: Command = {
                         }
                     ],
         
+                    required: true,
                     type: ApplicationCommandOptionType.String
                 }
             ],

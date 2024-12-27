@@ -20,8 +20,11 @@
 */
 
 import { Client, Partials, GatewayIntentBits } from 'discord.js';
+import { initializeDatabase } from './database.js';
+
 import * as ClientVersion from "../version.js";
 import * as core from './core.js';
+
 import config from "../files/config.js";
 
 const client = new Client({
@@ -57,6 +60,7 @@ const client = new Client({
     ]
 })
 
+client.db = await initializeDatabase(config);
 client.version = ClientVersion
 client.config = config;
 core.main(client);

@@ -32,11 +32,9 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
-import { getGuildDataPerSecretCode, securityCodeUpdate } from '../../../core/functions/restoreCordHelper.js';
+import { getGuildDataPerSecretCode, SavedMembersRestoreCord, securityCodeUpdate } from '../../../core/functions/restoreCordHelper.js';
 import { discordLocales } from '../../../files/locales.js';
 import { format } from '../../../core/functions/date-and-time.js';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
@@ -52,6 +50,7 @@ export default {
         const secretCode = interaction.options.getString("key")!;
         const table = client.db.table("RESTORECORD");
         const Data = getGuildDataPerSecretCode(await table.all(), secretCode);
+        const AllUsersData = await (client.db.table("RESTORECORD")).get("saved_users") as SavedMembersRestoreCord;
 
         if (!Data) return client.method.interactionSend(interaction, {
             content: lang.rc_key_doesnt_exist
@@ -62,7 +61,7 @@ export default {
 
         await securityCodeUpdate({ guildId: Data.id, apiToken: client.config.api.apiToken, secretCode });
 
-        const members = Data.data.members || [];
+        const members = AllUsersData.filter(x => Data.data.members.includes(x.id)) || [];
         const itemsPerPage = 5;
         let currentCategory = 0;
         let currentPage = 0;
@@ -77,14 +76,11 @@ export default {
                 { name: lang.rc_get_mainEmbed_field2_name, value: interaction.guild.roles.cache.get(Data.data.config.roleId)?.toString() || Data.data.config.roleId, inline: true },
                 { name: lang.rc_get_mainEmbed_field3_name, value: `${lang.rc_get_mainEmbed_field3_value}\n\n${format(new Date(Data.data.config.createDate || 0), "MM/DD/YYYY HH:mm")}`, inline: false },
                 { name: lang.rc_get_mainEmbed_field4_name, value: String(Data.data.config.securityCodeUsed || 0), inline: true },
-                { name: lang.rc_get_mainEmbed_field5_name, value: (await client.users.fetch(Data.data.config.author.id)).toString() || lang.rc_get_unkwnon_user.replace("${lang.data.config.author.id}", Data.data.config.author.id), inline: true }
+                { name: lang.rc_get_mainEmbed_field5_name, value: (await client.users.fetch(Data.data.config.author.id)).toString() || lang.rc_get_unkwnon_user.replace("${Data.data.config.author.id}", Data.data.config.author.id), inline: true }
             )
             .setFooter(footer);
 
-        let htmlContent = readFileSync(
-            path.join(process.cwd(), 'src', 'assets', 'restoreCordGetPage.html'),
-            'utf-8'
-        );
+        let htmlContent = client.htmlfiles['restoreCordGetPage'];
 
         const now = Date.now();
 

@@ -27,7 +27,7 @@ export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
 
-        if (await client.db.get(`${member.guild.id}.GUILD_CONFIG.rolesaver.enable`)) {
+        if (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`)) {
 
             let array: string[] | null = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
 

@@ -32,12 +32,12 @@ import { DatabaseStructure } from '../../../../types/database_structure';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let langAccount = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY`) as DatabaseStructure.EconomyUserSchema;
+        let dataAccount = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY`) as DatabaseStructure.EconomyUserSchema;
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var toWithdraw = interaction.options.getString('how-much') as string;
@@ -54,7 +54,7 @@ export default {
             return;
         };
 
-        if (toWithdraw === "all") toWithdraw = langAccount.bank?.toString()!;
+        if (toWithdraw === "all") toWithdraw = dataAccount.bank?.toString()!;
 
         if (isNaN(Number(toWithdraw))) {
             await client.method.interactionSend(interaction, {
@@ -66,7 +66,7 @@ export default {
 
         var clean_to_withdraw = parseInt(toWithdraw)
 
-        if (toWithdraw && clean_to_withdraw > langAccount?.bank!) {
+        if (toWithdraw && clean_to_withdraw > dataAccount?.bank!) {
             await client.method.interactionSend(interaction, {
                 content: lang.withdraw_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });

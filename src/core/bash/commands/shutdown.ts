@@ -27,6 +27,7 @@ import logger from '../../logger.js';
 export const command: BashCommands = {
     command_name: "shutdown",
     command_description: "Shutdown the bot",
+    aliases: ["exit", "poweroff"],
     run: async function (client: Client, args: string) {
         logger.legacy(`* Closed session...`.gray.bgBlack);
 
@@ -37,6 +38,10 @@ export const command: BashCommands = {
         logger.legacy(`* All are successfully unloaded`.gray.bgBlack);
 
         logger.legacy(`* Power off...`.red.bgBlack);
-        process.kill(0);
+
+        client.shard?.send("shutdown");
+        await client.destroy();
+        process.kill(process.ppid, 9);
+        process.kill(process.pid, 9);
     }
 };

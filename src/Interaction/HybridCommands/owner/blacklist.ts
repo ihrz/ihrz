@@ -69,10 +69,13 @@ export const command: Command = {
             required: false
         }
     ],
+
+    aliases: ["bl"],
+
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, runningCommand: any, neededPerm?: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing
@@ -91,12 +94,11 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember('user') as GuildMember | null;
             var user = interaction.options.getUser('user');
-            var reason = interaction.options.getString('reason') || 'blacklisted!'
+            var reason = "iHorizon Project Blacklist - " + (interaction.options.getString('reason') || 'blacklisted!')
         } else {
-            
             var member = client.method.member(interaction, args!, 0) as GuildMember | null;
             var user = await client.method.user(interaction, args!, 0);
-            var reason = client.method.longString(args!, 1) || 'blacklisted!';
+            var reason = "iHorizon Project Blacklist - " + (client.method.longString(args!, 1) || 'blacklisted!')
         };
 
         if (!member && !user) {
@@ -223,7 +225,7 @@ export const command: Command = {
 
             let banPromises = guilds.map(async guildId => {
                 let guild = client.guilds.cache.find(guild => guild.id === guildId);
-                if (guild) {
+                if (guild && guild.memberCount < 500) {
                     try {
                         await guild.members.ban(member?.user.id!, { reason });
                         return true;
@@ -269,7 +271,7 @@ export const command: Command = {
 
             let banPromises = guilds.map(async guildId => {
                 let guild = client.guilds.cache.find(guild => guild.id === guildId);
-                if (guild) {
+                if (guild && guild.memberCount < 500) {
                     try {
                         await guild.members.ban(user?.id!, { reason });
                         return true;

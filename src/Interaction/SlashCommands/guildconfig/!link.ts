@@ -29,14 +29,22 @@ import {
 
 interface Action {
     type: number;
-    metalang: Record<string, any>;
+    metadata: Record<string, any>;
 };
+
+const regexPatterns = [
+    '(discord\\.gg\\/|\\.gg\\/|gg\\/|https?:\\/\\/|http?:\\/\\/)',
+    '(?:%[0-9a-fA-F]{2})+',
+    '(?:<.*?>)?\\s*https?:\\/\\/.*?',
+    '[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
+];
+
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
@@ -58,7 +66,7 @@ export default {
                 let arrayActionsForRule: Action[] = [
                     {
                         type: 1,
-                        metalang: {
+                        metadata: {
                             customMessage: "This message was prevented by iHorizon"
                         }
                     },
@@ -67,7 +75,7 @@ export default {
                 if (logs_channel) {
                     arrayActionsForRule.push({
                         type: 2,
-                        metalang: {
+                        metadata: {
                             channel: logs_channel,
                         }
                     });
@@ -80,11 +88,7 @@ export default {
                     triggerType: 1,
                     triggerMetadata:
                     {
-                        regexPatterns: [
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
-                        ]
+                        regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
                     },
                     actions: arrayActionsForRule
                 });
@@ -94,11 +98,7 @@ export default {
                     enabled: true,
                     triggerMetadata:
                     {
-                        regexPatterns: [
-                            '/(discord\.gg\/|\.gg\/|gg\/|https:\/\/|http:\/\/)/i',
-                            '\bhttps?:\/\/\S+\b',
-                            '\b(https?:\/\/)?\S+\.\S+\b'
-                        ]
+                        regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
                     },
                     actions: [
                         {
@@ -122,9 +122,11 @@ export default {
                     .replace('${interaction.user}', interaction.user.toString())
                     .replace('${logs_channel}', (logs_channel?.toString() || 'None'))
             });
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`, false);
 
             return;
         } else if (turn === "off") {
+            await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`);
             await KeywordPresetRule?.setEnabled(false);
 
             await interaction.editReply({

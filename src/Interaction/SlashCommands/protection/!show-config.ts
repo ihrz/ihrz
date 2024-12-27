@@ -43,30 +43,30 @@ export default {
         var text = "";
         var text2 = "";
 
-        let baselang = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
+        let baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
 
-        let baselang4Protection = await client.db.get(`${interaction.guild.id}.PROTECTION`);
+        let baseData4Protection = await client.db.get(`${interaction.guild.id}.PROTECTION`);
 
-        if (!baselang || !baselang4Protection) {
+        if (!baseData || !baseData4Protection) {
             await interaction.editReply({ content: lang.authorization_configshow_not_anything_setup });
             return;
         };
 
-        for (var i in baselang?.list) {
+        for (var i in baseData?.list) {
             text += `<@${i}>\n`
         };
 
-        for (var i in baselang4Protection) {
+        for (var i in baseData4Protection) {
             if (i !== 'SANCTION') {
-                var a = baselang4Protection[i].mode;
+                var a = baseData4Protection[i].mode;
                 text2 += `**${i.toUpperCase()}** -> \`${a}\`\n`
             }
         };
 
         let okay = '';
-        if (baselang4Protection.SANCTION === 'simply') okay = lang.authorization_configshow_simply;
-        if (baselang4Protection.SANCTION === 'simply+ban') okay = lang.authorization_configshow_simply_ban;
-        if (baselang4Protection.SANCTION === 'simply+derank') okay = lang.authorization_configshow_simply_unrank;
+        if (baseData4Protection.SANCTION === 'simply') okay = lang.authorization_configshow_simply;
+        if (baseData4Protection.SANCTION === 'simply+ban') okay = lang.authorization_configshow_simply_ban;
+        if (baseData4Protection.SANCTION === 'simply+derank') okay = lang.authorization_configshow_simply_unrank;
 
         text2 += lang.authorization_configshow_punishement.replace('${okay}', okay);
 

@@ -156,3 +156,5 @@ tools/export-worker.js
 tools/QuickDB-Tools2.ts
 tools/main.js
 tools/test.ts
+src/files/.ihrz-cache
+src/files/db.json

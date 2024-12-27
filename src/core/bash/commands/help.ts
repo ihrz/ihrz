@@ -34,6 +34,11 @@ export const command: BashCommands = {
             command_description: index.command_description
         }));
 
+        commands = commands.filter((value, index, self) =>
+            index === self.findIndex((t) => (
+                t.command_name === value.command_name && t.command_description === value.command_description
+            ))
+        );
         commands.sort((a, b) => a.command_name.localeCompare(b.command_name));
 
         commands.forEach(command => {

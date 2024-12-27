@@ -34,7 +34,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
@@ -50,27 +50,27 @@ export default {
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var inputlang = interaction.options.getString("giveaway-id");
+            var inputData = interaction.options.getString("giveaway-id");
         } else {
             
-            var inputlang = client.method.string(args!, 0);
+            var inputData = client.method.string(args!, 0);
         };
 
-        if (!await client.giveawaysManager.isValid(inputlang as string)) {
+        if (!await client.giveawaysManager.isValid(inputData as string)) {
             await client.method.interactionSend(interaction, {
                 content: lang.reroll_dont_find_giveaway
-                    .replace("{args}", inputlang as string)
+                    .replace("{args}", inputData as string)
             });
             return;
         };
 
-        if (!await client.giveawaysManager.isEnded(inputlang as string)) {
+        if (!await client.giveawaysManager.isEnded(inputData as string)) {
             await client.method.interactionSend(interaction, { content: lang.reroll_giveaway_not_over });
             return;
         };
 
         // @ts-ignore
-        await client.giveawaysManager.reroll(client, inputlang as string);
+        await client.giveawaysManager.reroll(client, inputData as string);
 
         await client.method.interactionSend(interaction, { content: lang.reroll_command_work });
 
@@ -78,7 +78,7 @@ export default {
             title: lang.reroll_logs_embed_title,
             description: lang.reroll_logs_embed_description
                 .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-                .replace(/\${giveaway\.messageID}/g, inputlang as string)
+                .replace(/\${giveaway\.messageID}/g, inputData as string)
         });
 
         return;

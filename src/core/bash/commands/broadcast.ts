@@ -26,7 +26,8 @@ import { BashCommands } from '../../../../types/bashCommands.js';
 export const command: BashCommands = {
     command_name: "broadcast",
     command_description: "Send a message to all of iHorizon guild",
-    run: function (client: Client, args: string) {
+    aliases: ["bc", "announce", "sendall", "send"],
+    run: async function (client: Client, args: string) {
         let args2 = args.split(" ");
         let embed = new EmbedBuilder()
             .setColor('#4dff00')
@@ -34,17 +35,22 @@ export const command: BashCommands = {
             .setDescription(`\`${args2.slice(0).join(" ")}\``)
             .setFooter({ text: `Kisakay - iHorizon`, iconURL: "attachment://footer_icon.png" });
 
-        client.guilds.cache.forEach(async (guild) => {
-            let channel = guild.channels.cache.find((chann) => chann.name === 'ihorizon-logs');
-            if (channel) {
-                (channel as BaseGuildTextChannel).send({
-                    content: '@here',
-                    embeds: [embed],
-                    files: [await client.method.bot.footerAttachmentBuilder(client)]
-                })
-            };
-        });
+        let i = 0;
+        for (let guildId of client.guilds.cache) {
+            let guild = guildId[1];
+            try {
+                let channel = guild.channels.cache.find((chann) => chann.name === 'ihorizon-logs');
+                if (channel) {
+                    (channel as BaseGuildTextChannel).send({
+                        content: '@here',
+                        embeds: [embed],
+                        files: [await client.method.bot.footerAttachmentBuilder(client)]
+                    });
+                    i++;
+                };
+            } catch { }
+        };
 
-        logger.legacy(`* All are successfully sended`.gray.bgBlack);
+        logger.legacy(`* All are successfully sended to ${i} guild(s)`.gray.bgBlack);
     }
 }

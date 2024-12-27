@@ -30,7 +30,9 @@ export enum ClusterMethod {
     PowerOnContainer = 4,
     ChangeTokenContainer = 5,
     ChangeOwnerContainer = 6,
-    ChangeExpireTime = 7
+    ChangeExpireTime = 7,
+    StartupCluster = 8,
+    ShutDownCluster = 9
 };
 
 export enum GatewayMethod {
@@ -39,6 +41,7 @@ export enum GatewayMethod {
     ForceJoinRestoreCord = 2,
     AddSecurityCodeAmount = 3,
     ChangeRole = 4,
+    UserInfo = 5,
 };
 
 
@@ -46,39 +49,52 @@ export function assetsFinder(body: Assets, type: string): string {
     return `https://raw.githubusercontent.com/ihrz/assets/main/${type}/${Math.floor(Math.random() * body[type])}.gif`;
 };
 
-export function OwnIhrzCluster(cluster_number: number, cluster_method: ClusterMethod, bot_id?: string, discord_bot_token?: string): string {
-    var data = config.core.cluster[cluster_number];
+export function OwnIhrzCluster(options: {
+    cluster_number: number
+    cluster_method: ClusterMethod,
+    bot_id?: string;
+    discord_bot_token?: string;
+    forceDatabaseSet?: boolean;
+}): string {
+    var data = config.core.cluster[options.cluster_number];
     var admin_key = config.api.apiToken;
 
     data += "/api/v1/instance/";
-    switch (cluster_method) {
+    switch (options.cluster_method) {
         case 0:
             data += "create"
             break;
         case 1:
             data += `delete`
-            if (bot_id) data += `/${bot_id}`
+            if (!options.bot_id) throw "Error: bot_id doesn't found!"
+            if (options.bot_id) data += `/${options.bot_id}`
             if (admin_key) data += `/${admin_key}`
             break;
         case 2:
             data += `startup`
-            if (bot_id) data += `/${bot_id}`
+            if (!options.bot_id) throw "Error: bot_id doesn't found!"
+            if (options.bot_id) data += `/${options.bot_id}`
             if (admin_key) data += `/${admin_key}`
             break;
         case 3:
             data += `shutdown`
-            if (bot_id) data += `/${bot_id}`
+            if (!options.bot_id) throw "Error: bot_id doesn't found!"
+            if (options.bot_id) data += `/${options.bot_id}`
+            if (options.forceDatabaseSet) data += `/${options.forceDatabaseSet}`
             if (admin_key) data += `/${admin_key}`
             break;
         case 4:
             data += `poweron`
-            if (bot_id) data += `/${bot_id}`
+            if (!options.bot_id) throw "Error: bot_id doesn't found!"
+            if (options.bot_id) data += `/${options.bot_id}`
             if (admin_key) data += `/${admin_key}`
             break;
         case 5:
             data += `change_token`
-            if (bot_id) data += `/${bot_id}`
-            if (discord_bot_token) data += `/${discord_bot_token}`
+            if (!options.bot_id) throw "Error: bot_id doesn't found!"
+            if (!options.discord_bot_token) throw "Error: discord_bot_token doesn't found!"
+            if (options.bot_id) data += `/${options.bot_id}`
+            if (options.discord_bot_token) data += `/${options.discord_bot_token}`
             if (admin_key) data += `/${admin_key}`
             break;
         case 6:
@@ -87,12 +103,18 @@ export function OwnIhrzCluster(cluster_number: number, cluster_method: ClusterMe
         case 7:
             data += `change_time`
             break;
+        case 8:
+            data += `startup_cluster`
+            break;
+        case 9:
+            data += `shutdown_cluster`
+            break;
     }
 
     return data;
 };
 
-export function HorizonGateway(gateway_method: GatewayMethod, value1?: any, value2?: any): string {
+export function HorizonGateway(gateway_method: GatewayMethod): string {
     var data = config.api.HorizonGateway;
 
     if (!data) throw "Error: HorizonGateway empty in the configurations files";
@@ -112,6 +134,9 @@ export function HorizonGateway(gateway_method: GatewayMethod, value1?: any, valu
             break
         case 4:
             data += "/api/ihorizon/v1/role"
+            break;
+        case 5:
+            data += "/api/ihorizon/v1/userinfo"
             break;
     }
 

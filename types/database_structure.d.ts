@@ -249,6 +249,7 @@ export namespace DatabaseStructure {
     }
 
     export interface NotifierLastNotifiedMedias {
+        timestamp: string | number | Date;
         userId: string;
         mediaId: string;
     }
@@ -258,6 +259,7 @@ export namespace DatabaseStructure {
         users?: NotifierUserSchema[];
         lastMediaNotified?: NotifierLastNotifiedMedias[];
         channelId: string;
+        timestamp: string;
     }
 
     export interface WarnSchema {
@@ -270,6 +272,10 @@ export namespace DatabaseStructure {
     export interface DbInId {
         USER?: DbGuildUserObject;
         GUILD?: DbGuildObject;
+        PFPS?: {
+            channel?: string;
+            disable?: boolean;
+        };
         TICKET_ALL?: TicketData;
         PROTECTION?: ProtectionData;
         ROLE_SAVER?: RoleSaverData;
@@ -299,12 +305,28 @@ export namespace DatabaseStructure {
         8?: string;
     }
 
+    export interface PicOnlyConfig {
+        threshold?: number;
+        muteTime?: number;
+    }
+
+    export interface LeashConfig {
+        maxLeashedByUsers?: number;
+        maxLeashTime?: number;
+    }
+
+    export type LeashData = { dom: string; sub: string; timestamp: number; };
+
     export interface UtilsData {
+        LEASH?: LeashData[]; // yeah, bdsm ref lmao
+        LEASH_CONFIFG?: LeashConfig;
         PERMS?: UtilsPermsData;
         USER_PERMS?: UtilsPermsUserData;
         unban_members?: string[];
         roles?: UtilsRoleData;
         wlRoles?: string[];
+        picOnly?: string[];
+        picOnlyConfig?: PicOnlyConfig;
     }
 
     export interface UtilsPermsData {
@@ -350,6 +372,7 @@ export namespace DatabaseStructure {
         mass_mention?: string;
         antipub?: string;
         spam?: string;
+        media?: boolean;
         hey_reaction?: boolean;
         rolesaver?: RoleSaverSchema;
         GHOST_PING: GhostPingData;
@@ -371,12 +394,26 @@ export namespace DatabaseStructure {
         disable?: 'disable' | boolean;
         xpchannels?: string;
         bypassChannels?: string[]
+        ranksRoles?: Record<string, string>;
     }
 
     export interface RestoreCordSchema {
         channelId: string;
         messageId: string;
     }
+
+    export interface DbGuildAutoReact {
+        [channelId: string]: {
+            [emoji: string]: string;
+        };
+    }
+
+    export type RoleReactData = {
+        roleId: string;
+        emoji?: string;
+        desc?: string;
+        label: string;
+    }[];
 
     export interface DbGuildObject {
         BOT?: DbGuildBotObject;
@@ -411,11 +448,8 @@ export namespace DatabaseStructure {
             rolesId?: string;
             state?: string;
         };
-        PFPS?: {
-            channel?: string;
-            disable?: boolean;
-        };
         XP_LEVELING?: DbGuildXpLeveling
+        AUTOREACT?: DbGuildAutoReact;
         REACTION_ROLES?: ReactionRolesData;
         RANK_ROLES?: {
             roles: string;
@@ -427,7 +461,8 @@ export namespace DatabaseStructure {
         };
         BLOCK_NEW_ACCOUNT?: BlockNewAccountSchema;
         ANTISPAM?: AntiSpam.AntiSpamOptions;
-        RESTORECORD?: RestoreCordSchema
+        RESTORECORD?: RestoreCordSchema;
+        ROLE_SELECT?: RoleReactData;
     }
 
     export interface DbTicketConfigurationObject {

@@ -40,8 +40,9 @@ import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
 import { Option } from '../../../../types/option.js';
+import { sanitizing } from '../../../core/functions/sanitizer.js';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
@@ -53,7 +54,7 @@ export default {
             var entry = interaction.options.getString('comment');
             var messageArgs = entry!.split(' ');
         } else {
-            
+
             var user: User = await client.method.user(interaction, args!, 0) || interaction.author;
             var entry = client.method.longString(args!, 1);
             var messageArgs = entry!.split(' ');
@@ -79,19 +80,19 @@ export default {
             username = username.substring(0, 15);
         };
 
-        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent((username))}&comment=${encodeURIComponent(messageArgs.join(' '))}&displayname=${encodeURIComponent((displayname!))}`;
+        let link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent(sanitizing(username.toLowerCase()))}&comment=${encodeURIComponent(sanitizing(messageArgs.join(' ')))}&displayname=${encodeURIComponent(sanitizing(displayname || username))}`;
 
         let embed = new EmbedBuilder()
             .setColor('#000000')
-            .setImage('attachment://tweet-elektra.png')
+            .setImage('attachment://tweet.png')
             .setTimestamp()
             .setFooter(await client.method.bot.footerBuilder(interaction));
 
         let imgs: AttachmentBuilder;
 
         await axios.get(link, { responseType: 'arrayBuffer' }).then((response: AxiosResponse) => {
-            imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'tweet-elektra.png' });
-            embed.setImage(`attachment://tweet-elektra.png`);
+            imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'tweet.png' });
+            embed.setImage(`attachment://tweet.png`);
         });
 
         await client.method.interactionSend(interaction, { embeds: [embed], files: [imgs!, await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });

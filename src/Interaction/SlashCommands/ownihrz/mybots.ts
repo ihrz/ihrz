@@ -69,7 +69,7 @@ export const command: Command = {
                         "fr": "Le préfixe du bot (Optionnel)"
                     },
 
-                    required: false
+                    required: true
                 },
                 {
                     name: 'owner_two',
@@ -83,6 +83,8 @@ export const command: Command = {
                     required: false
                 }
             ],
+
+            ephemeral: true
         },
         {
             name: "change-token",
@@ -95,7 +97,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'botid',
+                    name: 'bot_code',
                     type: ApplicationCommandOptionType.String,
 
                     description: 'Identifiant of your own iHorizon!',
@@ -114,9 +116,11 @@ export const command: Command = {
                         "fr": "Le nouveau token de votre bot Discord"
                     },
 
-                    required: true
+                    required: true,
                 },
             ],
+
+            ephemeral: true
         },
         {
             name: "change-owner",
@@ -129,7 +133,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'botid',
+                    name: 'bot_code',
                     type: ApplicationCommandOptionType.String,
 
                     description: 'Identifiant of your own iHorizon!',
@@ -172,6 +176,7 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+            ephemeral: true
         },
         {
             name: "manage",
@@ -312,7 +317,9 @@ export const command: Command = {
 
                             required: false
                         }
-                    ]
+                    ],
+
+                    ephemeral: true
                 },
             ],
         },

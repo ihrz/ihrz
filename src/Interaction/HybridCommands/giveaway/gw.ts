@@ -27,9 +27,7 @@ import {
     Message,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
 export const command: Command = {
     name: "gw",
@@ -39,10 +37,11 @@ export const command: Command = {
     },
     options: [
         {
-            name: "gw-create",
+            name: "create",
             name_localizations: {
                 "fr": "créer"
             },
+            prefixName: "gw-create",
 
             aliases: ["gstart", "gcreate"],
 
@@ -141,10 +140,11 @@ export const command: Command = {
             ]
         },
         {
-            name: "gw-end",
+            name: "end",
             name_localizations: {
                 "fr": "finnir"
             },
+            prefixName: "gw-end",
 
             aliases: ["gstop", "gbreak"],
 

@@ -48,7 +48,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
@@ -65,7 +65,7 @@ export default {
         let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
 
         var backgroundURL = ImageBannerOptions?.backgroundURL || "https://img.freepik.com/vecteurs-libre/fond-courbe-bleue_53876-113112.jpg";
-        var profilePictureRound: any = ImageBannerOptions?.profilePictureRound || "status";
+        var profilePictureRound = ImageBannerOptions?.profilePictureRound || "status";
         var textColour = ImageBannerOptions?.textColour || "#000000"
         var message = ImageBannerOptions?.message || lang.setjoinmessage_image_default_text;
         var textSize = ImageBannerOptions?.textSize || "40px";
@@ -326,7 +326,7 @@ export default {
 
                         i.deferUpdate()
 
-                        profilePictureRound = i.values[0];
+                        profilePictureRound = (i.values[0] as typeof profilePictureRound);
 
                         let attachment2 = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
                         await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment2], components: [buttons, buttons2] })

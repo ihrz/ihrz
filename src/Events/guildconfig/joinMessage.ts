@@ -22,12 +22,10 @@
 import { AttachmentBuilder, BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, time } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
 import { DatabaseStructure } from '../../../types/database_structure';
 
 export async function generateJoinImage(member: GuildMember, optionalOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
-    var htmlContent = readFileSync(path.join(process.cwd(), "src", "assets", "guildconfigWelcomeCart.html"), 'utf-8');
+    var htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
     var ImageBannerOptions = await member.client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
 
     var backgroundURL = member.guild.bannerURL({ size: 512 }) || member.user.bannerURL({ size: 512 }) || ""
@@ -183,37 +181,20 @@ export const event: BotEvent = {
                 isCustomVanity = true;
             }
 
-            if (!joinMessage) {
-                msg = client.method.generateCustomMessagePreview(data.event_welcomer_inviter,
-                    {
-                        user: member.user,
-                        guild: member.guild,
-                        guildLocal: guildLocal,
-                        inviter: {
-                            user: {
-                                username: (isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username),
-                                mention: isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString()
-                            },
-                            invitesAmount: invitesAmount
-                        }
+            msg = client.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_inviter,
+                {
+                    user: member.user,
+                    guild: member.guild,
+                    guildLocal: guildLocal,
+                    inviter: {
+                        user: {
+                            username: (isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username),
+                            mention: isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString()
+                        },
+                        invitesAmount: invitesAmount
                     }
-                );
-            } else {
-                msg = client.method.generateCustomMessagePreview(joinMessage,
-                    {
-                        user: member.user,
-                        guild: member.guild,
-                        guildLocal: guildLocal,
-                        inviter: {
-                            user: {
-                                username: (isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username),
-                                mention: isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString()
-                            },
-                            invitesAmount: invitesAmount
-                        }
-                    }
-                );
-            };
+                }
+            );
 
             await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files: files });
             return;
@@ -232,7 +213,7 @@ export const event: BotEvent = {
             if (!wChan || !channel) return;
 
             if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
-                msg = client.method.generateCustomMessagePreview(data.event_welcomer_inviter,
+                msg = client.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
                     {
                         user: member.user,
                         guild: member.guild,

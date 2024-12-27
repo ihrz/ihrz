@@ -19,12 +19,16 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel } from 'discord.js'
+import { Client, AuditLogEvent, GuildChannel, PermissionFlagsBits } from 'discord.js'
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
     name: "channelCreate",
     run: async (client: Client, channel: GuildChannel) => {
+
+        if (!channel.guild.members.me?.permissions.has([
+            PermissionFlagsBits.Administrator
+        ])) return;
 
         let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
         if (!data) return;

@@ -53,7 +53,8 @@ export const command: Command = {
 
             options: [
                 {
-                    name: "author-add",
+                    name: "add",
+                    prefixName: "author-add",
 
                     description: "Add Streamer/Youtuber/Twitcher",
                     description_localizations: {
@@ -101,11 +102,12 @@ export const command: Command = {
                     ]
                 },
                 {
-                    name: "author-remove",
+                    name: "remove",
+                    prefixName: "author-remove",
 
                     description: "Remove Streamer/Youtuber/Twitcher",
                     description_localizations: {
-                        fr: "supprimer Streamer/Youtuber/Twitcher"
+                        fr: "Supprimer Streamer/Youtuber/Twitcher"
                     },
 
                     type: ApplicationCommandOptionType.Subcommand,
@@ -149,11 +151,12 @@ export const command: Command = {
                     ]
                 },
                 {
-                    name: "author-list",
+                    name: "list",
+                    prefixName: "author-list",
 
                     description: "Show Streamer/Youtuber/Twitcher",
                     description_localizations: {
-                        fr: "supprimer Streamer/Youtuber/Twitcher"
+                        fr: "Afficher tout les Streamer/Youtuber/Twitcher configurer"
                     },
 
                     type: ApplicationCommandOptionType.Subcommand

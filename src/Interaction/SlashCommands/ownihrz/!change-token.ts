@@ -40,12 +40,12 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        let botId = interaction.options.getString('botid')!;
+        let botId = interaction.options.getString('bot_code')!;
         let newToken = interaction.options.getString('new_discord_bot_token')!;
         let tempTable = client.db.table('TEMP');
         let table = client.db.table('OWNIHRZ');
 
-        let alllang = await table.get("CLUSTER");
+        let allData = await table.get("CLUSTER");
 
         let timeout: number = 3600000;
         let executingBefore = await tempTable.get(`OWNIHRZ_CHANGE_TOKEN.${interaction.user.id}.timeout`);
@@ -57,31 +57,31 @@ export default {
             return;
         };
 
-        function getlang() {
-            for (let ownerId in alllang) {
-                for (let bot_id in alllang[ownerId]) {
+        function getData() {
+            for (let ownerId in allData) {
+                for (let bot_id in allData[ownerId]) {
                     if (bot_id !== botId) continue;
-                    return alllang[ownerId][botId];
+                    return allData[ownerId][botId];
                 }
             }
         }
 
-        let id_2 = getlang() as Custom_iHorizon;
+        let id_2 = getData() as Custom_iHorizon;
 
         if (!id_2) {
-            await interaction.reply({ content: lang.mybot_manage_accept_not_found });
+            await client.method.interactionSend(interaction, { content: lang.mybot_manage_accept_not_found });
             return;
         };
 
         if (!client.owners.includes(interaction.user.id) && (id_2.OwnerOne !== interaction.user.id)) {
-            await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
+            await client.method.interactionSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         }
 
         let bot_1 = (await client.ownihrz.Get_Bot(newToken).catch(() => { }))?.data || 404
 
         if (!bot_1.bot) {
-            await interaction.reply({ content: lang.mybot_manage_accept_token_error });
+            await client.method.interactionSend(interaction, { content: lang.mybot_manage_accept_token_error });
             return;
         } else {
 
@@ -103,7 +103,7 @@ export default {
                 )
                 .setFooter(await client.method.bot.footerBuilder(interaction));
 
-            await interaction.reply({
+            await client.method.interactionSend(interaction, {
                 embeds: [embed],
                 ephemeral: false,
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]

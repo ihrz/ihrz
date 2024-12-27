@@ -85,7 +85,12 @@ export interface ConfigData {
     };
 
     database?: {
-        method: 'CACHED_POSTGRES' | 'MONGO_DB' | 'JSON' | 'MYSQL' | 'SQLITE' | 'CACHED_SQL' | 'CACHED_MONGO' | 'POSTGRES' | 'PNG' | 'JSON2'
+        method:
+        'JSON' | // Quick.DB with JSON Driver
+        'MYSQL' | // PallasDB for MySQL/MariaDB
+        'SQLITE' | // Sqlite for PallasDB
+        "POSTGRES2" | // PallasDB for postgres
+        "CACHED_POSTGRES2" // Quick.DB Memory Cached with PallasDB postgres 
 
         mongoDb?: string;
 

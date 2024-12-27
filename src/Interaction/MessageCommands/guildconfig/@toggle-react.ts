@@ -51,7 +51,7 @@ export const command: Command = {
     type: "PREFIX_IHORIZON_COMMAND",
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
 
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.AddReactions);
+        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.ManageGuildExpressions);
 
         let active: boolean;
 
@@ -69,8 +69,14 @@ export const command: Command = {
             active = true;
             await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, active)
         };
+        let activeMsg = active ? lang.toggle_react_react : lang.toggle_react_doesnt_react;
 
-        await interaction.reply({ content: `<@${interaction.member?.id}>, maintenant quand un membre envoie un message de bienvenue, le bot **${active ? 'réagis' : 'ne réagis pas'}**`, allowedMentions: { repliedUser: false } });
+        await interaction.reply({
+            content: lang.toggle_react_command_work
+                .replace("{activeMsg}", activeMsg)
+                .replace("${interaction.member?.id}", interaction.member?.id!)
+            , allowedMentions: { repliedUser: false }
+        });
         return;
     },
 };

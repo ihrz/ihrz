@@ -37,7 +37,7 @@ import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;;
@@ -46,7 +46,7 @@ export default {
             var member = interaction.options.getMember("member") as GuildMember | null;
             var reason = interaction.options.getString("reason")!;
         } else {
-            
+
             var member = client.method.member(interaction, args!, 0) as GuildMember | null;
             var reason = client.method.longString(args!, 1)!;
         };
@@ -59,20 +59,17 @@ export default {
 
         if (!permissions && neededPerm === 0) {
             await client.method.interactionSend(interaction, {
-                content: lang.unmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                content: lang.warn_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;;
         };
 
         let warnId = generatePassword({ length: 8, lowercase: true, numbers: true });
-        let warnObject: DatabaseStructure.WarnsData = {
-            timestamp: Date.now(),
-            reason,
-            authorID: interaction.member.user.id,
-            id: warnId
-        }
-
-        await client.db.push(`${interaction.guildId}.USER.${member?.id}.WARNS`, warnObject);
+        await client.method.warnMember(
+            interaction.member!,
+            member!,
+            reason
+        ).catch(() => { });
 
         await client.method.interactionSend(interaction, {
             content: lang.warn_command_work

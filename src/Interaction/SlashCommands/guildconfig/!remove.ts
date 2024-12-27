@@ -33,7 +33,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
 
 
         // Guard's Typing
@@ -55,7 +55,7 @@ export default {
             return;
         };
 
-        all_channels?.splice(all_channels.indexOf(channel.id), 1);
+        all_channels = all_channels.filter(x => x !== channel.id);
 
         await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`, all_channels);
 
@@ -65,7 +65,9 @@ export default {
             .setDescription(lang.joinghostping_remove_ok_embed_desc)
             .addFields({
                 name: lang.joinghostping_add_ok_embed_fields_name,
-                value: all_channels ? Array.from(new Set(all_channels.map(x => `<#${x}>`))).join('\n') : `<#${channel.id}>`
+                value: all_channels.length > 0
+                    ? Array.from(new Set(all_channels.map(x => `<#${x}>`))).join('\n')
+                    : lang.var_no_set
             });
 
         await client.method.iHorizonLogs.send(interaction, {

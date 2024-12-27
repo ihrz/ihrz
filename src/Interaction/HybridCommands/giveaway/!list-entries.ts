@@ -32,7 +32,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
@@ -48,27 +48,27 @@ export default {
         };
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var inputlang = interaction.options.getString("giveaway-id") as string;
+            var inputData = interaction.options.getString("giveaway-id") as string;
         } else {
             
-            var inputlang = client.method.string(args!, 0) as string;
+            var inputData = client.method.string(args!, 0) as string;
         };
 
-        if (!await client.giveawaysManager.isValid(inputlang)) {
+        if (!await client.giveawaysManager.isValid(inputData)) {
             await client.method.interactionSend(interaction, {
                 content: lang.end_not_find_giveaway
-                    .replace(/\${gw}/g, inputlang)
+                    .replace(/\${gw}/g, inputData)
             });
             return;
         };
 
-        if (await client.giveawaysManager.isEnded(inputlang)) {
+        if (await client.giveawaysManager.isEnded(inputData)) {
             await client.method.interactionSend(interaction, { content: lang.end_command_error });
             return;
         };
 
         // @ts-ignore
-        await client.giveawaysManager.listEntries(interaction, inputlang)
+        await client.giveawaysManager.listEntries(interaction, inputData)
         return;
     },
 };

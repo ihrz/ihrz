@@ -41,7 +41,7 @@ import { Option } from '../../../../types/option';
 
 import { SubCommandArgumentValue, member } from '../../../core/functions/method';
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing
@@ -55,7 +55,6 @@ export default {
             var toChannel = interaction.options.getChannel('to')! as BaseGuildVoiceChannel | null;
             await interaction.deferReply();
         } else {
-            
             var fromChannel = client.method.voiceChannel(interaction, args!, 0);
             var toChannel = client.method.voiceChannel(interaction, args!, 1);
         };
@@ -74,6 +73,10 @@ export default {
 
         let movedCount = 0;
         let errorCount = 0;
+
+        await client.method.interactionSend(interaction, {
+            content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
+        });
 
         if (fromChannel) {
             for (const member of (fromChannel as BaseGuildVoiceChannel).members.values()) {
@@ -111,6 +114,7 @@ export default {
             );
 
         await client.method.interactionSend(interaction, {
+            content: null,
             embeds: [embed],
             files: [await client.method.bot.footerAttachmentBuilder(interaction)]
         });

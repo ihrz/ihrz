@@ -29,9 +29,15 @@ import * as  h from './helper.js';
 import * as c from '../core.js';
 import * as html from './html2png.js';
 import * as l from './ihorizon-logs.js';
+import { DatabaseStructure } from "../../../types/database_structure.js";
+import { generatePassword } from "./random.js";
+
+export function isNumber(str: string): boolean {
+    return !isNaN(Number(str)) && str.trim() !== "";
+}
 
 export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
-    return interaction.content.startsWith(`<@${interaction.client.user.id}`)
+    return interaction.content?.startsWith(`<@${interaction.client.user.id}`)
         ?
         interaction.mentions.parsedUsers
             .map(x => x)
@@ -110,27 +116,45 @@ const getArgumentOptionTypeWithOptions = (o: Option): string => {
     return getArgumentOptionType(o.type);
 };
 
+export const stringifyOption = (option: Option[]): string => {
+    let _ = "";
+    option.forEach((value) => {
+        _ += value.required ? "[" : "<";
+        _ += getArgumentOptionTypeWithOptions(value);
+        _ += value.required ? "]" + " " : ">" + " ";
+    });
+    return _.trim();
+}
+
+export const boldStringifyOption = (option: Option[]): string => {
+    let _ = "";
+    option.forEach((value) => {
+        _ += value.required ? "**`[" : "**`<";
+        _ += getArgumentOptionTypeWithOptions(value);
+        _ += value.required ? "]`**" + " " : ">`**" + " ";
+    });
+    return _.trim();
+}
+
 export async function createAwesomeEmbed(lang: LanguageData, command: Command, client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message): Promise<EmbedBuilder> {
-    var commandName = command.name.charAt(0).toUpperCase() + command.name.slice(1);
+    var commandName = command.prefixName || command.name;
+    var cleanCommandName = commandName.charAt(0).toUpperCase() + commandName.slice(1);;
     var botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
     var cleanBotPrefix = botPrefix.string;
 
     if (botPrefix.type === "mention") cleanBotPrefix = lang.hybridcommands_global_prefix_mention;
 
     let embed = new EmbedBuilder()
-        .setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", commandName))
+        .setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", cleanCommandName))
         .setColor("LightGrey");
+
+    embed.setFooter(await client.method.bot.footerBuilder(interaction));
 
     if (hasSubCommand(command.options)) {
         command.options?.map(x => {
-            var shortCommandName = x.name;
-            var pathString = '';
+            var shortCommandName = x.prefixName || x.name;
+            var pathString = boldStringifyOption(x.options || []);
 
-            x.options?.forEach((value) => {
-                pathString += value.required ? "**`[" : "**`<";
-                pathString += getArgumentOptionTypeWithOptions(value);
-                pathString += value.required ? "]`**" + " " : ">`**" + " ";
-            });
             var aliases = x.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none;
             var use = `${cleanBotPrefix}${shortCommandName} ${pathString}`;
 
@@ -142,10 +166,27 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             });
         });
     } else {
-        embed.addFields({
-            name: `${cleanBotPrefix}${command.name} `,
-            value: `**\`${command.description}\`**`
-        });
+        var CommandsPerm = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${command.name}`) as DatabaseStructure.UtilsPermsData[""] | undefined;
+        var pathString = boldStringifyOption(command.options || []);
+
+        embed.setDescription((await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`))?.startsWith("fr-") ? command.description_localizations["fr"] : command.description)
+        embed.setFields(
+            {
+                name: lang.var_usage,
+                value: `${cleanBotPrefix}${command.name} ${pathString}`,
+                inline: false
+            },
+            {
+                name: lang.var_permission,
+                value: `${lang.var_permission}: ${CommandsPerm || lang.var_none}`,
+                inline: false
+            },
+            {
+                name: lang.var_aliases,
+                value: command.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none,
+                inline: false
+            }
+        );
     }
 
     return embed;
@@ -163,10 +204,6 @@ export interface SubCommandArgumentValue {
     command: Option | Command | undefined;
 }
 
-const isSubCommandArgumentValue = (command: any): command is SubCommandArgumentValue => {
-    return command && (command as SubCommandArgumentValue).command !== undefined || command.name !== command?.command
-};
-
 export async function checkCommandArgs(message: Message, command: Command, args: string[], lang: LanguageData): Promise<boolean> {
     if (!command) return false;
 
@@ -179,26 +216,14 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 
     let expectedArgs: ArgumentBrief[] = [];
 
-    if (isSubCommandArgumentValue(command) && command.command) {
-        command.command.options?.forEach(option => {
-            expectedArgs.push({
-                name: option.name,
-                type: getArgumentOptionTypeWithOptions(option),
-                required: option.required || false,
-                longString: option.type === 3 && !option.choices
-            });
+    command.options?.forEach(option => {
+        expectedArgs.push({
+            name: option.name,
+            type: getArgumentOptionTypeWithOptions(option),
+            required: option.required || false,
+            longString: option.type === 3 && !option.choices
         });
-    }
-    else if ('options' in command) {
-        command.options?.forEach(option => {
-            expectedArgs.push({
-                name: option.name,
-                type: getArgumentOptionTypeWithOptions(option),
-                required: option.required || false,
-                longString: option.type === 3 && !option.choices
-            });
-        });
-    }
+    });
 
     const minArgsCount = expectedArgs.filter(arg => arg.required).length;
     const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
@@ -263,7 +288,7 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
     let wrongArgumentName: string = "";
     let errorPosition = "";
 
-    fullNameCommand = command.name!;
+    fullNameCommand = command.prefixName || command.name!;
     currentCommand = command as any;
 
     errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
@@ -280,8 +305,7 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
     let argsString = argument.join(" ");
     const embed = new EmbedBuilder()
         .setDescription(lang.hybridcommands_args_error_embed_desc
-            .replace("${currentCommand.name}", currentCommand.name ?? "")
-            .replace("${currentCommand.description}", currentCommand.description ?? "")
+            .replace("${currentCommand.name}", currentCommand.prefixName || currentCommand.name)
             .replace("${botPrefix}", botPrefix)
             .replace("${fullNameCommand}", fullNameCommand)
             .replace("${argsString}", argsString)
@@ -289,7 +313,10 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
             .replace("${wrongArgumentName}", wrongArgumentName)
         )
         .setColor("Red")
-        .setFooter(await message.client.method.bot.footerBuilder(message));
+        .setFooter({
+            iconURL: "attachment://footer_icon.png",
+            text: lang.hybridcommands_embed_footer_text.replace("${botPrefix}", botPrefix)
+        });
 
     await message.client.method.interactionSend(message, {
         embeds: [embed],
@@ -516,6 +543,17 @@ export async function buttonUnreact(msg: Message, buttonEmoji: string): Promise<
 export function isAnimated(attachmentUrl: string): boolean {
     const fileName = attachmentUrl.split('/').pop() || '';
     return fileName.startsWith('a_');
+}
+
+export async function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<void> {
+    let warnObject: DatabaseStructure.WarnsData = {
+        timestamp: Date.now(),
+        reason: reason,
+        authorID: author.user.id,
+        id: generatePassword({ length: 8, lowercase: false, numbers: true })
+    }
+
+    await member.client.db.push(`${member.guild.id}.USER.${member.user.id}.WARNS`, warnObject);
 }
 
 export const permission = perm;
