@@ -46,9 +46,9 @@ class GiveawayManager {
 
         db.InitFilePath(this.options.storage);
 
-        client.on('interactionCreate', (interaction) => {
+        client.on('interactionCreate', async (interaction) => {
             if (interaction.isButton() && interaction.customId === "confirm-entry-giveaway") {
-                this.addEntries(interaction as ButtonInteraction<"cached">);
+                await this.addEntries(interaction as ButtonInteraction<"cached">);
             };
         });
 

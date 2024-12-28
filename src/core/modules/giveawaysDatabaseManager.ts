@@ -83,13 +83,14 @@ class db {
         const giveawayFiles = await readdir(this.path);
         const allGiveaways: { giveawayId: string; giveawayData: Giveaway }[] = [];
 
-        giveawayFiles.forEach(async (file) => {
+        for (const file of giveawayFiles) {
             const giveawayId = file.replace('.json', '');
             const giveawayData = await this.readGiveawayFile(giveawayId);
+
             if (giveawayData) {
                 allGiveaways.push({ giveawayId, giveawayData });
             }
-        });
+        }
 
         return allGiveaways;
     }
