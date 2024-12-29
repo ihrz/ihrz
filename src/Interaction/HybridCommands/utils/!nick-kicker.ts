@@ -201,7 +201,7 @@ export default {
                 deferUpdate: true,
                 fields: [
                     {
-                        customId: lang.util_nick_kicker_words,
+                        customId: "word",
                         label: capitalizeFirstLetter(lang.util_nick_kicker_words),
                         style: TextInputStyle.Short,
                         required: true,
