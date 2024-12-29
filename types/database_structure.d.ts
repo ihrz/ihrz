@@ -317,6 +317,11 @@ export namespace DatabaseStructure {
 
     export type LeashData = { dom: string; sub: string; timestamp: number; };
 
+    export interface NickKickerData {
+        enabled: boolean;
+        words: string[];
+    };
+
     export interface UtilsData {
         LEASH?: LeashData[]; // yeah, bdsm ref lmao
         LEASH_CONFIFG?: LeashConfig;
@@ -327,6 +332,7 @@ export namespace DatabaseStructure {
         wlRoles?: string[];
         picOnly?: string[];
         picOnlyConfig?: PicOnlyConfig;
+        NICK_KICKER?: NickKickerData;
     }
 
     export interface UtilsPermsData {
