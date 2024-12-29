@@ -809,6 +809,22 @@ sticket_command_work: "Стикер `${x.name}` успешно создан."
 sticker_command_error: "Не удалось создать стикер. Произошла ошибка: `${err.message}`."  
 sticket_command_error2: "Пожалуйста, ответьте на сообщение, содержащее стикер."  
 
+# /util nick-kicker
+util_nick_kicker_embed_title: "Кикер никнеймов"
+util_nick_kicker_embed_desc: "Когда участник присоединяется, если его никнейм содержит определенное слово, он будет исключен"
+util_nick_kicker_words: "слова"
+util_nick_kicker_select_to_remove: "Выберите слово для удаления"
+util_nick_kicker_remove_word: "Удалить это слово"
+util_nick_kicker_no_word_to_remove: "Нет слов для удаления"
+util_nick_kicker_add_word: "Добавить слово"
+util_nick_kicker_words_max_15: "Вы не можете добавить более 15 слов"
+util_nick_kicker_disable: "Отключить"
+util_nick_kicker_remove_word2: "Удалить слово"
+util_nick_kicker_remove_desc: "Удалить слово из кикера никнеймов"
+util_nick_kicker_add_desc: "Добавить слово в кикер никнеймов"
+util_nick_kicker_disable_desc: "Отключить кикер никнеймов"
+util_nick_kicker_enable_desc: "Включить кикер никнеймов"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -2210,5 +2226,9 @@ rc_registration_over_time: "Регистрации с течением врем�
 piconly_module_punish_msg: "${message.author}, вы получили тайм-аут на 10 минут за отправку слишком большого количества сообщений без изображений в канале, предназначенном только для изображений."
 piconly_module_warn_msg: "${message.author}, этот канал принимает только сообщения, содержащие изображения (допустимые форматы: JPG, PNG, GIF, WEBP, BMP, TIFF). Предупреждение ${userWarnings.length}/${threshold}"
 piconly_module_timeout_reason: "Спам сообщениями без изображений в канале только для изображений"
+
+# Nick Kicker Event
+event_nick_kicker_kick_reason: "Запрещенное слово в имени пользователя - Кикер никнеймов"
+event_nick_kicker_kick_msg: "На сервере `${member.guild.name}` ваше имя пользователя содержит запрещенное слово. Вы были исключены с сервера."
 
 # -----------------------------/ \-----------------------------
