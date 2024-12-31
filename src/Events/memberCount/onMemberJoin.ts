@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2024 iHorizon
 */
 
-import { Client, GuildMember, TextChannel } from 'discord.js';
+import { ChannelType, Client, GuildMember, StageChannel, TextChannel, VoiceBasedChannel, VoiceChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure';
@@ -34,6 +34,20 @@ export const event: BotEvent = {
             const botMembersCount = guild.members.cache.filter((m) => m.user.bot).size;
             const rolesCount = guild.roles.cache.size;
             const boostsCount = member.guild.premiumSubscriptionCount || 0;
+            const voiceChannels = member.guild.channels.cache
+                .filter((channel): channel is VoiceBasedChannel =>
+                    channel.type === ChannelType.GuildVoice ||
+                    channel.type === ChannelType.GuildStageVoice
+                )
+                .toJSON();
+
+            let voiceCount = 0;
+            voiceChannels.forEach((channel) => {
+                if ('members' in channel) {
+                    voiceCount += channel.members?.size ?? 0;
+                }
+            });
+
 
             const baseData = await client.db.get(`${guild.id}.GUILD.MCOUNT`) as DatabaseStructure.MemberCountSchema;
 
@@ -44,7 +58,8 @@ export const event: BotEvent = {
                 { key: 'member', count: formatNumber(guild.memberCount) },
                 { key: 'roles', count: rolesCount },
                 { key: 'boost', count: boostsCount },
-                { key: 'channel', count: rolesCount }
+                { key: 'channel', count: rolesCount },
+                { key: "voice", count: voiceCount }
             ];
 
             for (const { key, count } of mappings) {

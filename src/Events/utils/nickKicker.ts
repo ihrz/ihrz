@@ -33,7 +33,14 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${member.guild.id}.UTILS.NICK_KICKER`) as DatabaseStructure.NickKickerData | null;
             let lang = await client.func.getLanguageData(member.guild.id) as LanguageData;
 
-            if (baseData?.enabled && baseData.words.some(word => member.user.username.toLowerCase().includes(word.toLowerCase()))) {
+            if (baseData?.enabled &&
+                (
+                    baseData.words.some(word => member.user.username.toLowerCase().includes(word.toLowerCase()))
+                    ||
+                    baseData.words.some(word => member.user.displayName?.toLowerCase().includes(word.toLowerCase()))
+                    ||
+                    baseData.words.some(word => member.user.globalName?.toLowerCase().includes(word.toLowerCase()))
+                )) {
                 member.send({
                     content: lang.event_nick_kicker_kick_msg
                         .replace("${member.guild.name}", member.guild.name)

@@ -64,7 +64,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var mode = interaction.options.getString("show-mode");
         } else {
-            
+
             var mode = client.method.string(args!, 0);
         };
 
@@ -77,14 +77,14 @@ export default {
 
         files.push(await interaction.client.method.bot.footerAttachmentBuilder(interaction))
 
-        let total_members_size = membersStates?.size.toString()!;
-        let total_members_states_dnd = membersStates?.filter(mbr => mbr.presence?.status === "dnd").size.toString()!;
-        let total_members_states_online = membersStates?.filter(mbr => mbr.presence?.status === "online").size.toString()!;
-        let total_members_states_idle = membersStates?.filter(mbr => mbr.presence?.status === "idle").size.toString()!;
-        let total_members_states_invisible = membersStates?.filter(mbr => mbr.presence?.status === "invisible").size.toString()!;
+        let total_members_size = membersStates?.size!;
+        let total_members_states_dnd = membersStates?.filter(mbr => mbr.presence?.status === "dnd").size!;
+        let total_members_states_online = membersStates?.filter(mbr => mbr.presence?.status === "online").size!;
+        let total_members_states_idle = membersStates?.filter(mbr => mbr.presence?.status === "idle").size;
+        let total_members_states_invisible = total_members_size - total_members_states_dnd - total_members_states_online - total_members_states_idle;
 
         let total_guild_boost_count = interaction.guild?.premiumSubscriptionCount?.toString()!;
-        let total_guild_boosters = interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`).toString()!;
+        let total_guild_boosters = interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)!;
 
         let total_members_vc_streaming = voiceStates?.filter(vc => vc.streaming).size.toString()!;
         let total_members_vc_deaf = voiceStates?.filter(vc => vc.selfDeaf).size.toString()!;
@@ -105,17 +105,17 @@ export default {
                         .replaceAll('${voiceStates?.filter(vc => vc.selfMute).size}', total_members_vc_mute)
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Camera}', client.iHorizon_Emojis.icon.iHorizon_Camera)
                         .replaceAll('${voiceStates?.filter(vc => vc.selfVideo).size}', total_members_vc_video)
-                        .replaceAll('${membersStates?.size}', total_members_size)
+                        .replaceAll('${membersStates?.size}', total_members_size.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_DND}', client.iHorizon_Emojis.icon.iHorizon_DND)
-                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}', total_members_states_dnd)
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}', total_members_states_dnd.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Online}', client.iHorizon_Emojis.icon.iHorizon_Online)
-                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', total_members_states_online)
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', total_members_states_online.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Idle}', client.iHorizon_Emojis.icon.iHorizon_Idle)
-                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', total_members_states_idle)
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', total_members_states_idle.toString()!)
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Invisible}', client.iHorizon_Emojis.icon.iHorizon_Invisible)
-                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', total_members_states_invisible)
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', total_members_states_invisible.toString())
                         .replaceAll('${interaction.guild?.premiumSubscriptionCount}', total_guild_boost_count)
-                        .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', total_guild_boosters)
+                        .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', total_guild_boosters.toString())
                 )
                 .addFields(
                     {
@@ -147,13 +147,13 @@ export default {
                         .replaceAll("${total_members_vc_mute}", total_members_vc_mute)
                         .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Camera}", client.iHorizon_Emojis.icon.iHorizon_Camera)
                         .replaceAll("${total_members_vc_video}", total_members_vc_video)
-                        .replaceAll("${total_members_size}", total_members_size)
+                        .replaceAll("${total_members_size}", total_members_size.toString())
                         .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_DND}", client.iHorizon_Emojis.icon.iHorizon_DND)
-                        .replaceAll("${total_members_states_dnd}", total_members_states_dnd)
+                        .replaceAll("${total_members_states_dnd}", total_members_states_dnd.toString())
                         .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Online}", client.iHorizon_Emojis.icon.iHorizon_Online)
-                        .replaceAll("${total_members_states_online}", total_members_states_online)
+                        .replaceAll("${total_members_states_online}", total_members_states_online.toString())
                         .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Idle}", client.iHorizon_Emojis.icon.iHorizon_Idle)
-                        .replaceAll("${total_members_states_idle}", total_members_states_idle)
+                        .replaceAll("${total_members_states_idle}", total_members_states_idle.toString())
                 )
                 .setThumbnail("attachment://guild_icon.png")
                 .setFooter(await client.method.bot.footerBuilder(interaction))

@@ -179,7 +179,7 @@ export default {
                         name: lang.var_roles,
                         value: Array.from(interaction.guild?.members.cache.get(user.id)?.roles.cache?.values() ?? [])
                             .slice(0, 37)
-                            .join(",") || lang.var_none,
+                            .join("") || lang.var_none,
                         inline: false,
                     }
                 )

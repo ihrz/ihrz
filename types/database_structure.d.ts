@@ -219,6 +219,12 @@ export namespace DatabaseStructure {
             event?: string;
             channel?: string;
         };
+        voice?: {
+            name?: string;
+            enable?: boolean;
+            event?: string;
+            channel?: string;
+        };
     }
 
     export interface StatsMessage {
