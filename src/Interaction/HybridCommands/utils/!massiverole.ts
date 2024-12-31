@@ -73,7 +73,7 @@ export default {
             return;
         };
 
-        await client.method.interactionSend(interaction, {
+        let ogInteraction = await client.method.interactionSend(interaction, {
             content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
         });
 
@@ -85,7 +85,7 @@ export default {
 
                 for (let [memberID, member] of members!) {
                     if (!member.roles.cache.has(role?.id!)) {
-                        let promise = member.roles.add(role as Role)
+                        let promise = await member.roles.add(role as Role)
                             .then(() => {
                                 a++;
                             })
@@ -114,7 +114,8 @@ export default {
                     .replaceAll('${role}', role?.toString()!)
                 );
 
-            await client.method.interactionSend(interaction, {
+            await ogInteraction.edit({
+                content: null,
                 embeds: [embed],
                 files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
             });
@@ -127,7 +128,7 @@ export default {
 
                 for (let [memberID, member] of members!) {
                     if (member.roles.cache.has(role?.id!)) {
-                        let promise = member.roles.remove(role as Role)
+                        let promise = await member.roles.remove(role as Role)
                             .then(() => {
                                 a++;
                             })
@@ -156,7 +157,7 @@ export default {
                     .replaceAll('${role}', role?.toString()!)
                 );
 
-            await client.method.interactionSend(interaction, {
+            await ogInteraction.edit({
                 content: null,
                 embeds: [embed],
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]

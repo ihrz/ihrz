@@ -182,14 +182,14 @@ export default {
                     },
                     {
                         name: lang.userinfo_embed_fields_5_name,
-                        value: nitro.type || `[\`Not found\`](${createOauth2Link(client.user?.id!)})`,
+                        value: nitro.type || (client.config.api.HorizonGateway?.startsWith("http://") ? `[\`Not found\`](${createOauth2Link(client.user?.id!)})` : "`Not found`"),
                         inline: true,
                     },
                     {
                         name: lang.var_roles,
                         value: Array.from(interaction.guild?.members.cache.get(user.id)?.roles.cache?.values() ?? [])
                             .slice(0, 37)
-                            .join(",") || lang.var_none,
+                            .join("") || lang.var_none,
                         inline: false,
                     }
                 )
@@ -235,14 +235,15 @@ export default {
             let type = '';
 
             try {
-                let result = await axios.post(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.UserInfo),
-                    {
-                        accessToken: fetchedUser?.token,
-                        adminKey: client.config.api.apiToken,
-                    },
-                )
-                let input = result.data.premium_type;
-
+                if (client.config.api.HorizonGateway?.startsWith("http")) {
+                    var result = await axios.post(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.UserInfo),
+                        {
+                            accessToken: fetchedUser?.token,
+                            adminKey: client.config.api.apiToken,
+                        },
+                    )
+                    var input = result.data.premium_type;
+                }
 
                 switch (input) {
                     case 1:
