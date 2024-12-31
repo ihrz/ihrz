@@ -30,7 +30,8 @@ import {
     ApplicationCommandType,
     Message,
     ChannelType,
-    BaseGuildVoiceChannel
+    BaseGuildVoiceChannel,
+    VoiceBasedChannel
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
@@ -85,9 +86,9 @@ export const command: Command = {
             required: false,
             type: ApplicationCommandOptionType.String,
 
-            description: `{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}`,
+            description: `{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}`,
             description_localizations: {
-                "fr": "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}"
+                "fr": "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}"
             }
         },
     ],
@@ -133,6 +134,19 @@ export const command: Command = {
             let channelsCount = interaction.guild.channels.cache.size.toString()!;
             let rolesCount = rolesCollection.size!;
             let boostsCount = interaction.guild.premiumSubscriptionCount?.toString() || '0';
+            const voiceChannels = interaction.guild.channels.cache
+                .filter((channel): channel is VoiceBasedChannel =>
+                    channel.type === ChannelType.GuildVoice ||
+                    channel.type === ChannelType.GuildStageVoice
+                )
+                .toJSON();
+
+            let voiceCount = 0;
+            voiceChannels.forEach((channel) => {
+                if ('members' in channel) {
+                    voiceCount += channel.members?.size ?? 0;
+                }
+            });
 
             if (!messagei) {
                 await client.method.interactionSend(interaction, { embeds: [help_embed] });
@@ -144,6 +158,7 @@ export const command: Command = {
                 .replace("{RolesCount}", rolesCount.toString())
                 .replace("{ChannelCount}", channelsCount)
                 .replace("{BoostCount}", boostsCount)
+                .replace("{VoiceCount}", voiceCount.toString())
                 .replace("{BotCount}", botMembers.size.toString()!);
 
             if (messagei.includes("{MemberCount}")) {
@@ -164,6 +179,10 @@ export const command: Command = {
                 );
             } else if (messagei.includes("{BotCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.bot`,
+                    { name: messagei, enable: true, event: "bot", channel: channel?.id }
+                );
+            } else if (messagei.includes("{VoiceCount}")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.voice`,
                     { name: messagei, enable: true, event: "bot", channel: channel?.id }
                 );
             } else {
