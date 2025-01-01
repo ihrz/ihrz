@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {
@@ -141,9 +141,9 @@ export const command: Command = {
             var reaction = interaction.options.getString("reaction");
             var role = interaction.options.getRole("role");
         } else {
-            
+
             var type = client.method.string(args!, 0);
-            var channel = client.method.channel(interaction, args!, 1);
+            var channel = await client.method.channel(interaction, args!, 1);
             var messagei = client.method.string(args!, 2);
             var reaction = client.method.string(args!, 3);
             var role = client.method.role(interaction, args!, 4);

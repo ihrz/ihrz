@@ -809,6 +809,22 @@ sticket_command_work: "Der Sticker `${x.name}` wurde erfolgreich erstellt."
 sticker_command_error: "Der Sticker konnte nicht erstellt werden. Ein Fehler ist aufgetreten: `${err.message}`."  
 sticket_command_error2: "Bitte antworten Sie auf eine Nachricht, die einen Sticker enthält."  
 
+# /util nick-kicker
+util_nick_kicker_embed_title: "Spitzname-Entferner"
+util_nick_kicker_embed_desc: "Wenn ein Mitglied beitritt und sein Spitzname ein bestimmtes Wort enthält, wird es gekickt"
+util_nick_kicker_words: "Wörter"
+util_nick_kicker_select_to_remove: "Wählen Sie ein Wort zum Entfernen"
+util_nick_kicker_remove_word: "Dieses Wort entfernen"
+util_nick_kicker_no_word_to_remove: "Es gibt kein Wort zum Entfernen"
+util_nick_kicker_add_word: "Wort hinzufügen"
+util_nick_kicker_words_max_15: "Sie können nicht mehr als 15 Wörter hinzufügen"
+util_nick_kicker_disable: "Deaktivieren"
+util_nick_kicker_remove_word2: "Wort entfernen"
+util_nick_kicker_remove_desc: "Ein Wort aus dem Spitzname-Entferner entfernen"
+util_nick_kicker_add_desc: "Ein Wort zum Spitzname-Entferner hinzufügen"
+util_nick_kicker_disable_desc: "Spitzname-Entferner deaktivieren"
+util_nick_kicker_enable_desc: "Spitzname-Entferner aktivieren"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -2214,5 +2230,9 @@ rc_registration_over_time: "Registrierungen im Laufe der Zeit"
 piconly_module_punish_msg: "${message.author}, Sie wurden für 10 Minuten stummgeschaltet, weil Sie zu viele Nachrichten ohne Bilder in einem bildexklusiven Kanal gesendet haben."
 piconly_module_warn_msg: "${message.author}, dieser Kanal akzeptiert nur Nachrichten mit Bildern (akzeptierte Formate: JPG, PNG, GIF, WEBP, BMP, TIFF). Warnung ${userWarnings.length}/${threshold}"
 piconly_module_timeout_reason: "Spam von Nachrichten ohne Bilder in einem Nur-Bilder-Kanal"
+
+# Nick Kicker Event
+event_nick_kicker_kick_reason: "Gesperrtes Wort im Benutzernamen - Spitzname-Entferner"
+event_nick_kicker_kick_msg: "Im Server `${member.guild.name}` enthält dein Benutzername ein gesperrtes Wort. Du wurdest vom Server gekickt."
 
 # -----------------------------\ /-----------------------------

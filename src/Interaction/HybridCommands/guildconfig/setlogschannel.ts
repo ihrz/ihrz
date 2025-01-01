@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {
@@ -86,7 +86,7 @@ export const command: Command = {
     thinking: true,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
 
         // Guard's Typing
@@ -118,9 +118,9 @@ export const command: Command = {
             var type = interaction.options.getString("type")!;
             var channel = interaction.options.getChannel("channel") as Channel | null;
         } else {
-            
+
             var type = client.method.string(args!, 0)!;
-            var channel = client.method.channel(interaction, args!, 0)
+            var channel = await client.method.channel(interaction, args!, 1)
         };
 
         const createLogsChannel = async (name: string, typeOfLogs: string) => {

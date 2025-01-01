@@ -809,6 +809,22 @@ sticket_command_work: "El sticker `${x.name}` se ha creado con éxito."
 sticker_command_error: "No se pudo crear el sticker. Ocurrió un error: `${err.message}`."  
 sticket_command_error2: "Por favor, responde a un mensaje que contenga un sticker."  
 
+# /util nick-kicker
+util_nick_kicker_embed_title: "Expulsor de Apodos"
+util_nick_kicker_embed_desc: "Cuando un miembro se une, si su apodo contiene una palabra específica, será expulsado"
+util_nick_kicker_words: "palabras"
+util_nick_kicker_select_to_remove: "Selecciona una palabra para eliminar"
+util_nick_kicker_remove_word: "Eliminar esta palabra"
+util_nick_kicker_no_word_to_remove: "No hay palabra para eliminar"
+util_nick_kicker_add_word: "Añadir Palabra"
+util_nick_kicker_words_max_15: "No puedes añadir más de 15 palabras"
+util_nick_kicker_disable: "Desactivar"
+util_nick_kicker_remove_word2: "Eliminar Palabra"
+util_nick_kicker_remove_desc: "Eliminar una palabra del expulsor de apodos"
+util_nick_kicker_add_desc: "Añadir una palabra al expulsor de apodos"
+util_nick_kicker_disable_desc: "Desactivar el expulsor de apodos"
+util_nick_kicker_enable_desc: "Activar el expulsor de apodos"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -2215,5 +2231,9 @@ rc_registration_over_time: "Registros a lo Largo del Tiempo"
 piconly_module_punish_msg: "${message.author}, has sido silenciado durante 10 minutos por enviar demasiados mensajes sin imágenes en un canal exclusivo para imágenes."
 piconly_module_warn_msg: "${message.author}, este canal solo acepta mensajes que contengan imágenes (formatos aceptados: JPG, PNG, GIF, WEBP, BMP, TIFF). Advertencia ${userWarnings.length}/${threshold}"
 piconly_module_timeout_reason: "Spam de mensajes sin imágenes en un canal exclusivo para imágenes"
+
+# Nick Kicker Event
+event_nick_kicker_kick_reason: "Palabra prohibida en el nombre de usuario - Expulsor de Apodos"
+event_nick_kicker_kick_msg: "En el servidor `${member.guild.name}`, tu nombre de usuario contiene una palabra prohibida. Has sido expulsado del servidor."
 
 # -----------------------------\ /-----------------------------

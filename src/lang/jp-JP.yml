@@ -809,6 +809,22 @@ sticket_command_work: "スタンプ `${x.name}` が正常に作成されまし�
 sticker_command_error: "スタンプを作成できませんでした。エラーが発生しました: `${err.message}`。"  
 sticket_command_error2: "スタンプを含むメッセージに返信してください。"  
 
+# /util nick-kicker
+util_nick_kicker_embed_title: "ニックネームキッカー"
+util_nick_kicker_embed_desc: "メンバーが参加したとき、そのニックネームが特定の単語を含んでいる場合、キックされます"
+util_nick_kicker_words: "単語"
+util_nick_kicker_select_to_remove: "削除する単語を選択"
+util_nick_kicker_remove_word: "この単語を削除"
+util_nick_kicker_no_word_to_remove: "削除する単語がありません"
+util_nick_kicker_add_word: "単語を追加"
+util_nick_kicker_words_max_15: "15個以上の単語は追加できません"
+util_nick_kicker_disable: "無効化"
+util_nick_kicker_remove_word2: "単語を削除"
+util_nick_kicker_remove_desc: "ニックネームキッカーから単語を削除"
+util_nick_kicker_add_desc: "ニックネームキッカーに単語を追加"
+util_nick_kicker_disable_desc: "ニックネームキッカーを無効化"
+util_nick_kicker_enable_desc: "ニックネームキッカーを有効化"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -2215,5 +2231,9 @@ rc_registration_over_time: "時間経過による登録"
 piconly_module_punish_msg: "${message.author}、画像専用チャンネルで画像なしのメッセージを多く送信したため、10分間タイムアウトされました。"
 piconly_module_warn_msg: "${message.author}、このチャンネルは画像を含むメッセージのみを受け付けます（対応フォーマット：JPG、PNG、GIF、WEBP、BMP、TIFF）。警告 ${userWarnings.length}/${threshold}"
 piconly_module_timeout_reason: "画像専用チャンネルでの画像なしメッセージのスパム"
+
+# Nick Kicker Event
+event_nick_kicker_kick_reason: "ユーザー名に禁止された単語があります - ニックネームキッカー"
+event_nick_kicker_kick_msg: "サーバー `${member.guild.name}` において、あなたのユーザー名に禁止された単語が含まれています。サーバーからキックされました。"
 
 # -----------------------------\ /-----------------------------

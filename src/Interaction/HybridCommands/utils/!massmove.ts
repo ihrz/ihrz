@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {
@@ -55,8 +55,8 @@ export default {
             var toChannel = interaction.options.getChannel('to')! as BaseGuildVoiceChannel | null;
             await interaction.deferReply();
         } else {
-            var fromChannel = client.method.voiceChannel(interaction, args!, 0);
-            var toChannel = client.method.voiceChannel(interaction, args!, 1);
+            var fromChannel = await client.method.voiceChannel(interaction, args!, 0);
+            var toChannel = await client.method.voiceChannel(interaction, args!, 1);
         };
 
         if (toChannel === null) return;

@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {
@@ -40,8 +40,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var channel = interaction.options.getChannel('to') as BaseGuildTextChannel | null;
         } else {
-            
-            var channel = client.method.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
+
+            var channel = await client.method.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
         }
 
         let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);

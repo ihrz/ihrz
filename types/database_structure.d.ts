@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import { EmbedBuilder } from "@discordjs/builders";
@@ -219,6 +219,12 @@ export namespace DatabaseStructure {
             event?: string;
             channel?: string;
         };
+        voice?: {
+            name?: string;
+            enable?: boolean;
+            event?: string;
+            channel?: string;
+        };
     }
 
     export interface StatsMessage {
@@ -317,6 +323,11 @@ export namespace DatabaseStructure {
 
     export type LeashData = { dom: string; sub: string; timestamp: number; };
 
+    export interface NickKickerData {
+        enabled: boolean;
+        words: string[];
+    };
+
     export interface UtilsData {
         LEASH?: LeashData[]; // yeah, bdsm ref lmao
         LEASH_CONFIFG?: LeashConfig;
@@ -327,6 +338,7 @@ export namespace DatabaseStructure {
         wlRoles?: string[];
         picOnly?: string[];
         picOnlyConfig?: PicOnlyConfig;
+        NICK_KICKER?: NickKickerData;
     }
 
     export interface UtilsPermsData {

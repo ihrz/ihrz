@@ -810,6 +810,22 @@ sticket_command_work: "The sticker `${x.name}` has been successfully created."
 sticker_command_error: "The sticker could not be created. An error occurred: `${err.message}`."
 sticket_command_error2: "Please reply to a message containing a sticker."
 
+# /util nick-kicker
+util_nick_kicker_embed_title: "Nick Content Kicker"
+util_nick_kicker_embed_desc: "When member join, if it's nickname contains the an specific word, it will be kicked."
+util_nick_kicker_words: "words"
+util_nick_kicker_select_to_remove: "Select a word to remove"
+util_nick_kicker_remove_word: "Remove this word"
+util_nick_kicker_no_word_to_remove: "There is no word to remove"
+util_nick_kicker_add_word: "Add Word"
+util_nick_kicker_words_max_15: "You can't add more than 15 words"
+util_nick_kicker_disable: "Disable"
+util_nick_kicker_remove_word2: "Remove Word"
+util_nick_kicker_remove_desc: "Remove a word from the nick-kicker"
+util_nick_kicker_add_desc: "Add a word to the nick-kicker"
+util_nick_kicker_disable_desc: "Disable the nick-kicker"
+util_nick_kicker_enable_desc: "Enable the nick-kicker"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -2217,5 +2233,9 @@ rc_registration_over_time: "Registrations Over Time"
 piconly_module_punish_msg: "${message.author}, you have been timed out for 10 minutes for sending too many messages without pictures in a pictures-only channel."
 piconly_module_warn_msg: "${message.author}, this channel only accepts messages containing pictures (accepted formats: JPG, PNG, GIF, WEBP, BMP, TIFF). Warning ${userWarnings.length}/${threshold}"
 piconly_module_timeout_reason: "Spamming messages without pictures in a pictures-only channel"
+
+# Nick Kicker Event
+event_nick_kicker_kick_reason: "Blacklisted word in username - Nick Kicker"
+event_nick_kicker_kick_msg: "In the guild `${member.guild.name}`, your username contains a blacklisted word. You have been kicked from the guild."
 
 # -----------------------------\ /-----------------------------
