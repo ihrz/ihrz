@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {
@@ -125,7 +125,7 @@ export const command: Command = {
         
         const channel = interaction instanceof ChatInputCommandInteraction
             ? interaction.options.getChannel("channel") as Channel
-            : client.method.channel(interaction, args!, 0) as Channel;
+            : await client.method.channel(interaction, args!, 0) as Channel;
 
         const messageId = interaction instanceof ChatInputCommandInteraction
             ? interaction.options.getString("messageid") as string

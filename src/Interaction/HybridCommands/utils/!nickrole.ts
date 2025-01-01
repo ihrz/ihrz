@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {
@@ -52,7 +52,7 @@ export default {
             
             var action_1 = client.method.string(args!, 0);
             var part_of_nickname = client.method.string(args!, 1)?.toLowerCase();
-            var role = client.method.role(interaction, args!, 0);
+            var role = client.method.role(interaction, args!, 2);
         };
 
         if (!part_of_nickname || !role) return;

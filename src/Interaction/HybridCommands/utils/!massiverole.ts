@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {
@@ -51,7 +51,7 @@ export default {
         } else {
 
             var action = client.method.string(args!, 0);
-            var role = client.method.role(interaction, args!, 0);
+            var role = client.method.role(interaction, args!, 1);
         };
 
         let a: number = 0;

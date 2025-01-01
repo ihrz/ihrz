@@ -16,15 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
-*/
-
-/*
-・ ElektraBots Discord Bot (https://github.com/belugafr/ElektraBots)
-
-・ Mainly developed by NayaWeb (https://github.com/belugafr)
-
-・ Copyright © 2021-2023 ElektraBots
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {

@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {
@@ -60,11 +60,11 @@ export const command: Command = {
             choices: [
                 {
                     name: "Power On",
-                    value: "enable"
+                    value: "on"
                 },
                 {
                     name: "Power Off",
-                    value: "disable"
+                    value: "off"
                 }
             ]
         },
@@ -116,11 +116,11 @@ export const command: Command = {
         } else {
             
             var action = client.method.string(args!, 0)
-            var roles = client.method.role(interaction, args!, 0) as Role | null;
+            var roles = client.method.role(interaction, args!, 1) as Role | null;
             var input = client.method.longString(args!, 2)
         };
 
-        if (action == "enable") {
+        if (action == "on") {
             if (!roles) {
                 await client.method.interactionSend(interaction, { content: lang.support_command_not_role });
                 return;
