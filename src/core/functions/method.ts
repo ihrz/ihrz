@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent } from "discord.js";
@@ -36,50 +36,91 @@ export function isNumber(str: string): boolean {
     return !isNaN(Number(str)) && str.trim() !== "";
 }
 
-export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
-    return interaction.content?.startsWith(`<@${interaction.client.user.id}`)
-        ?
-        interaction.mentions.parsedUsers
+export function user(interaction: Message, args: string[], argsNumber: number): User | null {
+    if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
+        return interaction.mentions.parsedUsers
             .map(x => x)
-            .filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
-        :
-        interaction.mentions.parsedUsers
-            .map(x => x)[argsNumber]
-        || interaction.client.users.fetch(args[argsNumber]).catch(() => false) || null
+            .filter(x => x.id !== interaction.client.user?.id!)[argsNumber] || null;
+    }
+
+    const userId = args[argsNumber]?.replace(/[<@!>]/g, '');
+    return interaction.mentions.parsedUsers.map(x => x)?.[argsNumber] ||
+        (userId ? interaction.client.users.fetch(userId).catch(() => null) : null);
 }
 
-export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | undefined | null {
-    return interaction.content.startsWith(`<@${interaction.client.user.id}`)
-        ?
-        interaction.mentions.members?.map(x => x)
-            .filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
-        :
-        interaction.mentions.members?.map(x => x)[argsNumber]
-        || interaction.guild?.members.cache.get(args[argsNumber]) || null
+export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | null {
+    if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
+        return interaction.mentions.members?.map(x => x)
+            .filter(x => x.id !== interaction.client.user?.id!)?.[argsNumber] || null;
+    }
+
+    const memberId = args[argsNumber]?.replace(/[<@!>]/g, '');
+    return interaction.mentions.members?.map(x => x)[argsNumber] ||
+        (memberId ? interaction.guild?.members.cache.get(memberId) : null) || null;
 }
 
-export function voiceChannel(interaction: Message, args: string[], argsNumber: number): BaseGuildVoiceChannel | null {
-    return interaction.mentions.channels
+export async function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null> {
+    // Get potential channel ID from argument, strip any channel mention formatting
+    const channelId = args[argsNumber]?.replace(/[<#>]/g, '');
+
+    // First try from mentions
+    const mentionedChannel = interaction.mentions.channels
         .map(x => x)
-        .filter(x => x.type === ChannelType.GuildVoice || ChannelType.GuildStageVoice)
-    [argsNumber] as BaseGuildVoiceChannel || interaction.guild?.channels.cache.get(args[argsNumber]) || null;
+        .filter(x => x.type === ChannelType.GuildVoice || x.type === ChannelType.GuildStageVoice)
+    [argsNumber] as BaseGuildVoiceChannel;
+
+    if (mentionedChannel) return Promise.resolve(mentionedChannel);
+
+    // Then try to fetch by ID if it's a valid ID format
+    if (channelId && /^\d+$/.test(channelId)) {
+        // Try from cache first
+        const channelFromCache = interaction.guild?.channels.cache.get(channelId);
+        if (channelFromCache && (channelFromCache.type === ChannelType.GuildVoice || channelFromCache.type === ChannelType.GuildStageVoice)) {
+            return Promise.resolve(channelFromCache as BaseGuildVoiceChannel);
+        }
+
+        // If not in cache, try to fetch it
+        const fetchedChannel = await interaction.guild?.channels.fetch(channelId).catch(() => null);
+        if (fetchedChannel && (fetchedChannel.type === ChannelType.GuildVoice || fetchedChannel.type === ChannelType.GuildStageVoice)) {
+            return fetchedChannel as BaseGuildVoiceChannel;
+        }
+        return null;
+    }
+
+    return null;
 }
 
-export function channel(interaction: Message, args: string[], argsNumber: number): Channel | null {
-    return interaction.mentions.channels
-        .map(x => x)
-    [argsNumber] || interaction.guild?.channels.cache.get(args[argsNumber]) || null;
+export async function channel(interaction: Message, args: string[], argsNumber: number): Promise<Channel | null> {
+    // Get potential channel ID from argument, strip any channel mention formatting
+    const channelId = args[argsNumber]?.replace(/[<#>]/g, '');
+
+    // First try from mentions
+    const mentionedChannel = interaction.mentions.channels
+        .map(x => x)[argsNumber];
+
+    if (mentionedChannel) return mentionedChannel;
+
+    // Then try to fetch by ID if it's a valid ID format
+    if (channelId && /^\d+$/.test(channelId)) {
+        const channelFromId = interaction.guild?.channels.cache.get(channelId);
+        if (channelFromId) return channelFromId;
+
+        // If not in cache, try to fetch it
+        const fetchedChannel = await interaction.guild?.channels.fetch(channelId).catch(() => null);
+        return fetchedChannel || null;
+    }
+
+    return null;
 }
 
 export function role(interaction: Message, args: string[], argsNumber: number): Role | null {
-    return interaction.mentions.roles
-        .map(x => x)
-    [argsNumber] || interaction.guild?.roles.cache.get(args[argsNumber]) || null;
+    const roleId = args[argsNumber]?.replace(/[<@&>]/g, '');
+    return interaction.mentions.roles.map(x => x)[argsNumber] ||
+        (roleId ? interaction.guild?.roles.cache.get(roleId) : null) || null;
 }
 
 export function string(args: string[], argsNumber: number): string | null {
-    return args
-    [argsNumber] || null;
+    return args[argsNumber] || null;
 }
 
 export function longString(args: string[], argsNumber: number): string | null {
@@ -87,8 +128,8 @@ export function longString(args: string[], argsNumber: number): string | null {
 }
 
 export function number(args: string[], argsNumber: number): number {
-    let _ = args[argsNumber];
-    return Number.isNaN(parseInt(_)) ? 0 : parseInt(_);
+    const value = args[argsNumber];
+    return Number.isNaN(parseInt(value)) ? 0 : parseInt(value);
 }
 
 const getArgumentOptionType = (type: number): string => {

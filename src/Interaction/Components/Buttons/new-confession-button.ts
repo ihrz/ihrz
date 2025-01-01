@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextInputStyle, SnowflakeUtil, MessageReplyOptions, InteractionReplyOptions } from 'discord.js';

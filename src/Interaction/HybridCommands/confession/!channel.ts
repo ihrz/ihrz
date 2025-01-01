@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {
@@ -49,7 +49,7 @@ export default {
             var buttonTitle = interaction.options.getString('button-title')?.substring(0, 32) || '+';
         } else {
             
-            var channel = (client.method.channel(interaction, args!, 0) || interaction.channel) as TextChannel;
+            var channel = (await client.method.channel(interaction, args!, 0) || interaction.channel) as TextChannel;
             var buttonTitle = client.method.string(args!, 1)?.substring(0, 32) || '+';
         };
 

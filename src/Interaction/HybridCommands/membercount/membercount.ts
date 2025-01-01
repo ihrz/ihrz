@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
 
-・ Copyright © 2020-2024 iHorizon
+・ Copyright © 2020-2025 iHorizon
 */
 
 import {
@@ -116,9 +116,8 @@ export const command: Command = {
             var messagei = interaction.options.getString("name");
             var channel = interaction.options.getChannel("channel") as BaseGuildVoiceChannel;
         } else {
-
             var type = client.method.string(args!, 0);
-            var channel = client.method.voiceChannel(interaction, args!, 0)!;
+            var channel = await client.method.voiceChannel(interaction, args!, 1) as BaseGuildVoiceChannel;
             var messagei = client.method.string(args!, 2);
         }
 
