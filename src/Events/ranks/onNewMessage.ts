@@ -25,6 +25,7 @@ import { parseMessageCommand } from '../interaction/messageCommandHandler.js';
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure.js';
+import { getMemberBoost } from '../../Interaction/HybridCommands/economy/economy.js';
 
 export const event: BotEvent = {
     name: "messageCreate",
@@ -59,7 +60,7 @@ export const event: BotEvent = {
 
         if ((level * 500) < baseData?.xp!) {
             await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1);
-            await client.db.add(`${message.guild.id}.USER.${message.author.id}.ECONOMY.money`, randomNumber);
+            await client.method.addCoins(message.member!, randomNumber * await getMemberBoost(message.member!))
             await client.db.sub(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, (level * 500));
 
             let newLevel = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`);

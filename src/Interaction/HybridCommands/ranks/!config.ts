@@ -250,20 +250,7 @@ export default {
                 let rolePermissions = new PermissionsBitField((selectedRole as Role).permissions);
                 let roleDangerousPermissions: string[] = [];
 
-                const dangerousPermissions = [
-                    { flag: PermissionsBitField.Flags.Administrator, name: lang.setjoinroles_var_perm_admin },
-                    { flag: PermissionsBitField.Flags.ManageGuild, name: lang.setjoinroles_var_perm_manage_guild },
-                    { flag: PermissionsBitField.Flags.ManageRoles, name: lang.setjoinroles_var_perm_manage_role },
-                    { flag: PermissionsBitField.Flags.MentionEveryone, name: lang.setjoinroles_var_perm_use_mention },
-                    { flag: PermissionsBitField.Flags.BanMembers, name: lang.setjoinroles_var_perm_ban_members },
-                    { flag: PermissionsBitField.Flags.KickMembers, name: lang.setjoinroles_var_perm_kick_members },
-                    { flag: PermissionsBitField.Flags.ManageWebhooks, name: lang.setjoinroles_var_perm_manage_webhooks },
-                    { flag: PermissionsBitField.Flags.ManageChannels, name: lang.setjoinroles_var_perm_manage_channels },
-                    { flag: PermissionsBitField.Flags.ManageGuildExpressions, name: lang.setjoinroles_var_perm_manage_expression },
-                    { flag: PermissionsBitField.Flags.ViewCreatorMonetizationAnalytics, name: lang.setjoinroles_var_perm_view_monetization_analytics },
-                ];
-
-                for (const perm of dangerousPermissions) {
+                for (const perm of client.method.getDangerousPermissions(lang)) {
                     if (rolePermissions.has(perm.flag)) {
                         roleDangerousPermissions.push(perm.name);
                     }

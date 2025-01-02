@@ -23,6 +23,7 @@ import { Client, VoiceState } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure';
+import { getMemberBoost } from '../../Interaction/HybridCommands/economy/economy.js';
 
 const voiceSessionTimestamps = new Map<string, { startTimestamp: number, channelId: string }>();
 
@@ -64,8 +65,20 @@ export const event: BotEvent = {
                     channelId: session.channelId
                 };
 
+                // Save the voice session to the database
                 await client.db.push(`${newState.guild.id}.STATS.USER.${userId}.voices`, sessionInfo)
+
+                // Delete the session from the cache
                 voiceSessionTimestamps.delete(userId);
+
+                // Earn coins for the user for being active in voice channels
+                const voiceSessionDuration = sessionInfo.endTimestamp - sessionInfo.startTimestamp;
+                const voiceSessionDurationInMinutes = voiceSessionDuration / 1000 / 60;
+                const coinsEarned = Math.floor(voiceSessionDurationInMinutes / 10);
+
+                if (coinsEarned > 0) {
+                    await client.method.addCoins(newState.member!, coinsEarned * await getMemberBoost(newState.member!));
+                }
             }
         }
 

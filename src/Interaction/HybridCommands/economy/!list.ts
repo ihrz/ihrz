@@ -24,22 +24,21 @@ import {
     EmbedBuilder,
     ChatInputCommandInteraction,
     Message,
-    User
+    User,
+    PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
-import { getMemberBoost } from './economy.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { generateRoleFields } from './economy.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
+
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
-        let timeout = 604800000;
-        let amount = 1000 * await getMemberBoost(interaction.member);
-        let weekly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.weekly`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await client.method.interactionSend(interaction, {
@@ -49,25 +48,42 @@ export default {
             return;
         };
 
-        if (weekly !== null && timeout - (Date.now() - weekly) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - weekly));
+        const permissionsArray = [PermissionsBitField.Flags.ManageGuild]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
 
+        if (!permissions && neededPerm === 0) {
             await client.method.interactionSend(interaction, {
-                content: lang.weekly_cooldown_error
-                    .replace(/\${time}/g, time)
+                content: lang.var_dont_have_perm
+                    .replace("{perm}", lang.setjoinroles_var_perm_manage_guild)
             });
-        } else {
-            let embed = new EmbedBuilder()
-                .setAuthor({ name: lang.weekly_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#a4cb80")
-                .setDescription(lang.weekly_embed_description)
-                .addFields({ name: lang.weekly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
-
-
-            await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.weekly`, Date.now());
-            await client.method.interactionSend(interaction, { embeds: [embed] });
             return;
         };
+
+        var roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
+        if (!roleData) {
+            roleData = {};
+        }
+
+        if (Object.keys(roleData).length === 0) {
+            await client.method.interactionSend(interaction, {
+                content: "There are no buyable roles to list."
+            });
+            return;
+        }
+
+        let embed = new EmbedBuilder()
+            .setTitle("Economy System - Buyable Roles")
+            .setDescription("All buyable roles are listed below.")
+            .setFields(generateRoleFields(roleData, lang))
+            .setColor("#0097ff")
+            .setTimestamp()
+            .setFooter(await client.method.bot.footerBuilder(interaction));
+
+        await client.method.interactionSend(interaction, {
+            embeds: [embed],
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+        });
     },
 };

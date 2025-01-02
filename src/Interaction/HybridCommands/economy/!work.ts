@@ -30,6 +30,7 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
+import { getMemberBoost } from './economy.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
@@ -40,7 +41,7 @@ export default {
         let work = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction,{
+            await client.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -50,7 +51,7 @@ export default {
         if (work !== null && timeout - (Date.now() - work) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work));
 
-            await client.method.interactionSend(interaction,{
+            await client.method.interactionSend(interaction, {
                 content: lang.work_cooldown_error
                     .replace('${interaction.user.id}', interaction.member.user.id)
                     .replace('${time}', time),
@@ -59,7 +60,7 @@ export default {
             return;
         };
 
-        let amount = Math.floor(Math.random() * 1024) + 1;
+        let amount = (Math.floor(Math.random() * 1024) + 1) * await getMemberBoost(interaction.member);
 
         let embed = new EmbedBuilder()
             .setAuthor({
@@ -73,7 +74,7 @@ export default {
             )
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#f1d488");
 
-        await client.method.interactionSend(interaction,{ embeds: [embed] });
+        await client.method.interactionSend(interaction, { embeds: [embed] });
 
         await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
         await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`, Date.now());
