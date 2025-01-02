@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User, BaseGuildTextChannel } from 'discord.js';
+import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User, BaseGuildTextChannel, PresenceStatusData } from 'discord.js';
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
 import { format } from '../../core/functions/date-and-time.js';
 
@@ -76,9 +76,15 @@ export const event: BotEvent = {
             let e = await client.db.get(`BOT.PRESENCE`);
 
             if (e) {
-                client.user?.setActivity(e.name, {
-                    type: e.type,
-                    url: `https://www.twitch.tv/${e.twitch_username}`
+                client.user?.setPresence({
+                    status: e.status as PresenceStatusData,
+                    activities: [
+                        {
+                            type: e.type || ActivityType.Custom,
+                            name: e.name || "Custom this Presence with /presence",
+                            url: `https://www.twitch.tv/${e.twitch_username}`
+                        }
+                    ],
                 });
             } else {
                 client.user?.setPresence({ activities: [{ name: "Custom this Presence with /presence", type: ActivityType.Custom }] });

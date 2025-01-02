@@ -116,7 +116,6 @@ export const command: Command = {
             var action_2 = interaction.options.getString("name")!;
             var action_3 = interaction.options.getString("twitch_username") || "anaissaraiva";
         } else {
-            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var action_1 = client.method.string(args!, 0)!;
             var action_2 = client.method.string(args!, 1)!;
             var action_3 = client.method.longString(args!, 2) || "anaissaraiva"

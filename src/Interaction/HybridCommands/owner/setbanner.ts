@@ -80,7 +80,6 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var action_2 = interaction.options.getString("banner");
         } else {
-            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var action_2 = client.method.string(args!, 0);
         };
 

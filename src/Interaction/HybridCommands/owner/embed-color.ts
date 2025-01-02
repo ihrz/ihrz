@@ -131,7 +131,6 @@ export const command: Command = {
             var choices = interaction.options.getString("action");
             var hex_color = interaction.options.getString("hex-color");
         } else {
-            var _ = await client.method.checkCommandArgs(interaction, command, args!, lang); if (!_) return;
             var choices = client.method.string(args!, 0);
             var hex_color = client.method.string(args!, 1);
         };

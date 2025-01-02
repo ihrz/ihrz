@@ -21,99 +21,93 @@
 
 import {
     Client,
-    EmbedBuilder,
-    PermissionsBitField,
     ApplicationCommandOptionType,
     ActivityType,
     ApplicationCommandType,
     ChatInputCommandInteraction,
-    Message
+    Message,
+    PresenceStatusData
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
-import logger from '../../../core/logger.js';
-
-import { axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData';
 
-async function isImageUrl(url: string): Promise<boolean> {
-    try {
-        const response = await axios.head(url);
-        const contentType = response.headers.get('content-type');
-
-        return contentType.startsWith("image/");
-    } catch (error) {
-        return false;
-    }
-};
-
 export const command: Command = {
-    name: 'setavatar',
+    name: 'status',
 
-    description: 'Set the avatar of the bot !',
+    description: 'Set the status of the bot !',
     description_localizations: {
-        "fr": "Définir l'avatar du bot !"
+        "fr": "Définir le status du bot"
     },
 
     options: [
         {
-            name: 'pfp',
+            name: 'type',
             type: ApplicationCommandOptionType.String,
 
-            description: 'The pfp for the bot',
+            description: 'The type of activity you want!',
             description_localizations: {
-                "fr": "La pp du bot"
+                "fr": "Quelle type d'activité voulez-vous ?"
             },
 
             required: true,
+            choices: [
+                {
+                    name: 'Reset Status',
+                    value: 'reset'
+                },
+                {
+                    name: 'Online',
+                    value: 'online'
+                },
+                {
+                    name: 'Do not disturb',
+                    value: 'dnd'
+                },
+                {
+                    name: 'Idle',
+                    value: 'idle'
+                },
+            ]
         },
     ],
     category: 'owner',
-    thinking: false,
+    thinking: true,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction | Message, lang: LanguageData, runningCommand: any, execTimestamp?: number, args?: string[]) => {        // Guard's Typing
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var action_2 = interaction.options.getString("pfp");
+            var action_1 = interaction.options.getString("type")!;
         } else {
-            var action_2 = client.method.string(args!, 0);
+            var action_1 = client.method.string(args!, 0)!;
         };
 
         let table = client.db.table('OWNER');
 
         if (await table.get(`${interaction.member.user.id}.owner`)
             !== true) {
-
-            await client.method.interactionSend(interaction, { content: lang.owner_not_owner, ephemeral: true });
+            await client.method.interactionSend(interaction, { content: lang.owner_not_owner });
             return;
         };
 
-        if (await client.method.helper.hardCooldown(client.db, "setavatar", 1_800_000)) {
-            let time = client.timeCalculator.to_beautiful_string(1_800_000 - (Date.now() -
-                await (client.db.table("TEMP")).get(`COOLDOWN.setavatar`)
-            ));
+        let baseData = await client.db.get("BOT.PRESENCE");
 
-            await interaction.reply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });
-            return;
-        }
+        await client.db.set(`BOT.PRESENCE.status`, action_1);
 
-        isImageUrl(action_2 as string)
-            .then(async (isValid) => {
-                if (isValid) {
-                    await client.user?.setAvatar(action_2);
 
-                    return interaction.reply({ content: `La photo de profil du bot as bien été changer avec succès.` });
-                } else {
-                    return interaction.reply({ content: `L'URL saisie n'est pas une image. Veuillez changer d'URL.` });
+        client.user?.setPresence({
+            status: (action_1 || "online") as PresenceStatusData,
+            activities: [
+                {
+                    type: baseData?.type || ActivityType.Custom,
+                    name: baseData?.name || "Custom this Presence with /presence",
                 }
-            })
-            .catch((error: any) => {
-                interaction.reply({ content: error });
-                logger.err(`Erreur lors de la vérification de l'URL d'image : ${error}`);
-            });
+            ],
+        });
 
+        await client.method.interactionSend(interaction, { content: `✅` });
         return;
     },
 };
