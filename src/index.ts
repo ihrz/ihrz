@@ -24,7 +24,7 @@ execSync("git pull", {
     stdio: [0, 1, 2],
     cwd: process.cwd()
 });
-execSync("rm dist -r", {
+execSync("rm -r dist", {
     stdio: [0, 1, 2],
     cwd: process.cwd()
 });
