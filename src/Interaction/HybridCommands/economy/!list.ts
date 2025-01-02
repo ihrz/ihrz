@@ -20,25 +20,25 @@
 */
 
 import {
-    ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    ChatInputCommandInteraction,
     Message,
     User,
+    PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
-import { getMemberBoost } from './economy.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { generateRoleFields } from './economy.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
+
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
-        let timeout = 3_600_000;
-        let work = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await client.method.interactionSend(interaction, {
@@ -48,35 +48,42 @@ export default {
             return;
         };
 
-        if (work !== null && timeout - (Date.now() - work) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work));
+        const permissionsArray = [PermissionsBitField.Flags.ManageGuild]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
 
+        if (!permissions && neededPerm === 0) {
             await client.method.interactionSend(interaction, {
-                content: lang.work_cooldown_error
-                    .replace('${interaction.user.id}', interaction.member.user.id)
-                    .replace('${time}', time),
-                ephemeral: true
+                content: lang.var_dont_have_perm
+                    .replace("{perm}", lang.setjoinroles_var_perm_manage_guild)
             });
             return;
         };
 
-        let amount = (Math.floor(Math.random() * 1024) + 1) * await getMemberBoost(interaction.member);
+        var roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
+        if (!roleData) {
+            roleData = {};
+        }
+
+        if (Object.keys(roleData).length === 0) {
+            await client.method.interactionSend(interaction, {
+                content: "There are no buyable roles to list."
+            });
+            return;
+        }
 
         let embed = new EmbedBuilder()
-            .setAuthor({
-                name: lang.work_embed_author
-                    .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username),
-                iconURL: (interaction.member.user as User).displayAvatarURL()
-            })
-            .setDescription(lang.work_embed_description
-                .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
-                .replace(/\${amount}/g, amount.toString())
-            )
-            .setColor("#f1d488");
+            .setTitle("Economy System - Buyable Roles")
+            .setDescription("All buyable roles are listed below.")
+            .setFields(generateRoleFields(roleData, lang))
+            .setColor("#0097ff")
+            .setTimestamp()
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
-
-        await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
-        await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`, Date.now());
+        await client.method.interactionSend(interaction, {
+            embeds: [embed],
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+        });
     },
 };

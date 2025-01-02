@@ -29,7 +29,8 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+import { getMemberBoost } from './economy.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
@@ -48,36 +49,28 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member: GuildMember = interaction.options.getMember('user') as GuildMember || interaction.member;
         } else {
-            
+
             var member: GuildMember = client.method.member(interaction, args!, 0) || interaction.member;
         };
 
-        var bal = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`);
+        var baseData: DatabaseStructure.EconomyUserSchema = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY`) || { money: 0, bank: 0, ownedRoles: [] };
 
-        if (!bal) {
-            await client.db.set(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`, 1);
-            await client.method.interactionSend(interaction, {
-                content: lang.balance_he_dont_have_wallet
-                    .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
-                    .replace('${user}', member.toString())
-            });
-            return;
-        };
-
-        let totalWallet = (bal || 0) + (await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`) || 0);
+        var possibleBoost = await getMemberBoost(interaction.member!);
+        let totalWallet = (baseData.money || 0) + (baseData.bank || 0);
 
         let embed = new EmbedBuilder()
             .setColor('#e3c6ff')
             .setTitle(`\`${member.user.username}\`'s Wallet`)
             .setThumbnail(member.displayAvatarURL())
             .setDescription(lang.balance_he_have_wallet
-                .replace(/\${bal}/g, totalWallet)
+                .replace("${bal}", totalWallet.toString())
                 .replace('${user}', member.toString())
                 .replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
             )
             .addFields(
-                { name: lang.balance_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.bank`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
-                { name: lang.balance_embed_fields2_name, value: `${await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`) || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true }
+                { name: lang.balance_embed_fields1_name, value: `${baseData.bank || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
+                { name: lang.balance_embed_fields2_name, value: `${baseData.money || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
+                { name: lang.var_boost, value: `${possibleBoost}x`, inline: true }
             )
             .setFooter(await client.method.bot.footerBuilder(interaction))
             .setTimestamp()

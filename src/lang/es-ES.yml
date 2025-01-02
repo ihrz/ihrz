@@ -52,6 +52,9 @@ var_page: "Página"
 var_permission: "Permiso"
 var_usage: "Uso"
 var_aliases: "Alias"
+var_dont_have_perm: "No tienes los permisos necesarios para hacer esto. (Requiere permiso {perm})"
+var_price: "Precio"
+var_boost: "Impulso"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -618,6 +621,29 @@ economy_disable_set_enable: "<@${interaction.user.id}>, has activado exitosament
 economy_disable_set_disable: "<@${interaction.user.id}>, has desactivado exitosamente el Módulo de Economía."
 economy_disable_logs_embed_desc: "<@${interaction.user.id}> ha cambiado el estado de activación a `${state}` del Módulo de Economía."
 economy_disable_logs_embed_title: "Registros de Economía"
+
+# /economy boost-set
+economy_boost_role_not_found: "Rol no encontrada. Debes establecer un precio para el rol."
+economy_boost_embed_title: "Sistema de Economía - Roles Comprables"
+economy_boost_embed_desc: "Todos los roles comprables están listados a continuación."
+
+# /economy role add
+economy_role_add_no_role: "No hay roles comprables para eliminar."
+economy_role_add_max_20_roles: "Solo puedes tener hasta 20 roles comprables."
+economy_role_add_canceled: "El rol no se agregó a los roles comprables."
+economy_role_add_prompt_dangerous: "¿Estás seguro de que quieres agregar este rol a los roles comprables?\n**Advertencia:** Este rol tiene permisos peligrosos.\nPermisos: ${stringDangerousPermissions}"
+
+# /economy shop
+economy_shop_embed_title: "🛍️ Tienda de `${interaction.guild.name}`"
+economy_shop_embed_desc: "La tienda te permite comprar artículos/roles usando tu dinero. Puedes ver los roles disponibles para comprar a continuación."
+economy_shop_not_available: "El rol seleccionado no está disponible para la compra."
+economy_shop_already_own_role: "Ya tienes este rol."
+economy_shop_not_enough_money: "No tienes suficiente dinero para comprar este rol."
+economy_shop_role_purchased: "Has comprado con éxito el rol **{roleName}** por **${role.price}** 💰."
+economy_shop_unknown_role: "Rol desconocido"
+economy_shop_not_set: "No hay roles disponibles para comprar en este servidor. Por favor, contacta al administrador del servidor para más información."
+economy_shop_already_owned: "Ya poseído"
+economy_shop_menu_placeholder: "Selecciona un rol para comprar"
 
 
 # Profil Customisation commands
