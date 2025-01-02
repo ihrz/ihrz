@@ -182,7 +182,7 @@ export default {
                     },
                     {
                         name: lang.userinfo_embed_fields_5_name,
-                        value: nitro.type || (client.config.api.HorizonGateway?.startsWith("http://") ? `[\`Not found\`](${createOauth2Link(client.user?.id!)})` : "`Not found`"),
+                        value: nitro.type || (client.config.api.HorizonGateway?.startsWith("http") ? `[\`Not found\`](${createOauth2Link(client.user?.id!)})` : "`Not found`"),
                         inline: true,
                     },
                     {

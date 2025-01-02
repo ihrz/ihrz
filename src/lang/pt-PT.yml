@@ -52,6 +52,9 @@ var_page: "Página"
 var_permission: "Permissão"
 var_usage: "Uso"
 var_aliases: "Apelidos"
+var_dont_have_perm: "Não tem as permissões necessárias para fazer isto. (Requer permissão {perm})"
+var_price: "Preço"
+var_boost: "Impulso"
 
 # Comandos de ticket
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -618,6 +621,29 @@ economy_disable_set_enable: "<@${interaction.user.id}>, você **ativou** com suc
 economy_disable_set_disable: "<@${interaction.user.id}>, você **desativou** com sucesso o Módulo de Economia!"
 economy_disable_logs_embed_desc: "<@${interaction.user.id}> alterou para `${state}` o Módulo de Economia!"
 economy_disable_logs_embed_title: "Registros de Economia"
+
+# /economy boost-set
+economy_boost_role_not_found: "Papel não encontrado. Você deve definir um preço para o papel."
+economy_boost_embed_title: "Sistema Econômico - Papéis Compráveis"
+economy_boost_embed_desc: "Todos os papéis compráveis estão listados abaixo."
+
+# /economy role add
+economy_role_add_no_role: "Não há papéis compráveis para excluir."
+economy_role_add_max_20_roles: "Você pode ter no máximo 20 papéis compráveis."
+economy_role_add_canceled: "O papel não foi adicionado aos papéis compráveis."
+economy_role_add_prompt_dangerous: "Tem certeza de que deseja adicionar este papel aos papéis compráveis?\n**Aviso:** Este papel possui permissões perigosas.\nPermissões: ${stringDangerousPermissions}"
+
+# /economy shop
+economy_shop_embed_title: "🛍️ Loja de `${interaction.guild.name}`"
+economy_shop_embed_desc: "A loja permite que você compre itens/papéis usando seu dinheiro. Você pode visualizar os papéis disponíveis para compra abaixo."
+economy_shop_not_available: "O papel selecionado não está disponível para compra."
+economy_shop_already_own_role: "Você já possui este papel."
+economy_shop_not_enough_money: "Você não tem dinheiro suficiente para comprar este papel."
+economy_shop_role_purchased: "Você comprou com sucesso o papel **{roleName}** por **${role.price}** 💰."
+economy_shop_unknown_role: "Papel desconhecido"
+economy_shop_not_set: "Não há papéis disponíveis para compra neste servidor. Entre em contato com o administrador do servidor para mais informações."
+economy_shop_already_owned: "Já possuído"
+economy_shop_menu_placeholder: "Selecione um papel para comprar"
 
 
 # Comandos de personalização de perfil

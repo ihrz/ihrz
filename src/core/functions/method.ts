@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -595,6 +595,34 @@ export async function warnMember(author: GuildMember, member: GuildMember, reaso
     }
 
     await member.client.db.push(`${member.guild.id}.USER.${member.user.id}.WARNS`, warnObject);
+}
+
+export function getDangerousPermissions(lang: LanguageData): {
+    flag: bigint;
+    name: string;
+}[] {
+    const dangerousPermissions = [
+        { flag: PermissionsBitField.Flags.Administrator, name: lang.setjoinroles_var_perm_admin },
+        { flag: PermissionsBitField.Flags.ManageGuild, name: lang.setjoinroles_var_perm_manage_guild },
+        { flag: PermissionsBitField.Flags.ManageRoles, name: lang.setjoinroles_var_perm_manage_role },
+        { flag: PermissionsBitField.Flags.MentionEveryone, name: lang.setjoinroles_var_perm_use_mention },
+        { flag: PermissionsBitField.Flags.BanMembers, name: lang.setjoinroles_var_perm_ban_members },
+        { flag: PermissionsBitField.Flags.KickMembers, name: lang.setjoinroles_var_perm_kick_members },
+        { flag: PermissionsBitField.Flags.ManageWebhooks, name: lang.setjoinroles_var_perm_manage_webhooks },
+        { flag: PermissionsBitField.Flags.ManageChannels, name: lang.setjoinroles_var_perm_manage_channels },
+        { flag: PermissionsBitField.Flags.ManageGuildExpressions, name: lang.setjoinroles_var_perm_manage_expression },
+        { flag: PermissionsBitField.Flags.ViewCreatorMonetizationAnalytics, name: lang.setjoinroles_var_perm_view_monetization_analytics },
+    ];
+
+    return dangerousPermissions
+}
+
+export async function addCoins(member: GuildMember, coins: number): Promise<void> {
+    await member.client.db.add(`${member.guild.id}.USER.${member.id}.ECONOMY.money`, coins);
+}
+
+export async function subCoins(member: GuildMember, coins: number): Promise<void> {
+    await member.client.db.sub(`${member.guild.id}.USER.${member.id}.ECONOMY.money`, coins);
 }
 
 export const permission = perm;

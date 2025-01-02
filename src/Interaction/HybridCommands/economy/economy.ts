@@ -25,11 +25,42 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     Message,
+    GuildMember,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
+
+export function generateRoleFields(roleData: DatabaseStructure.EconomyModel["buyableRoles"], lang: LanguageData) {
+    return Object.entries(roleData || {})
+        .sort(([, amountA], [, amountB]) => Number(amountB) - Number(amountA))
+        .map(([roleID, roleData], index) => ({
+            name: `Role ${index + 1}`,
+            value: `${lang.var_roles}: <@&${roleID}>\n${lang.var_price}: ${roleData.price}\nBoost: x${roleData.boost || 1}`,
+            amount: roleData.price,
+            inline: true
+        }));
+};
+
+export async function getMemberBoost(member: GuildMember): Promise<number> {
+    try {
+        let economyConfig = await member.guild.client.db.get(`${member.guild.id}.ECONOMY`) as DatabaseStructure.EconomyModel;
+
+        // get the roles that the user has
+        let role = Object.entries(economyConfig?.buyableRoles || [])
+            .filter(([roleID]) => member?.roles.cache.has(roleID))
+            .map(([roleID]) => roleID);
+
+        // get the role with the highest boost
+        let highestBoost = role.map(r => economyConfig?.buyableRoles?.[r]?.boost ?? 0).sort((a, b) => b - a)[0];
+
+        // calculate the new money amount and add it to the user
+        return highestBoost || 1;
+    } catch {
+        return 1;
+    }
+}
 
 export const command: Command = {
     name: "economy",
@@ -325,6 +356,159 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand
         },
+        {
+            name: "role",
+            prefixName: "economy-role",
+
+            description: "Set a role for a certain amount of money!",
+            description_localizations: {
+                "fr": "Définir un rôle pour un certain montant d'argent"
+            },
+
+            type: ApplicationCommandOptionType.SubcommandGroup,
+
+            options: [
+                {
+                    name: "add",
+                    prefixName: "economy-role-add",
+
+                    description: "Add a role for a certain amount of money!",
+                    description_localizations: {
+                        "fr": "Ajouter un rôle pour un certain montant d'argent"
+                    },
+
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'role',
+                            type: ApplicationCommandOptionType.Role,
+
+                            description: 'The role you want to add',
+                            description_localizations: {
+                                "fr": "Le rôle que vous souhaitez ajouter"
+                            },
+
+                            required: true
+                        },
+                        {
+                            name: 'amount',
+                            type: ApplicationCommandOptionType.Number,
+
+                            description: 'The amount of money you want to add',
+                            description_localizations: {
+                                "fr": "Le montant d'argent que vous souhaitez ajouter"
+                            },
+
+                            required: true
+                        }
+                    ],
+                },
+                {
+                    name: "delete",
+                    prefixName: "economy-role-delete",
+
+                    description: "Delete a role for a certain amount of money!",
+                    description_localizations: {
+                        "fr": "Supprimer un rôle pour un certain montant d'argent"
+                    },
+
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'role',
+                            type: ApplicationCommandOptionType.Role,
+
+                            description: 'The role you want to delete',
+                            description_localizations: {
+                                "fr": "Le rôle que vous souhaitez supprimer"
+                            },
+
+                            required: true
+                        },
+                    ],
+                },
+                {
+                    name: "list",
+                    prefixName: "economy-role-list",
+
+                    description: "List all roles that you can buy!",
+                    description_localizations: {
+                        "fr": "Liste de tous les rôles que vous pouvez acheter"
+                    },
+
+                    type: ApplicationCommandOptionType.Subcommand,
+                },
+            ]
+        },
+        {
+            name: "boost-set",
+            prefixName: "economy-boost-set",
+
+            description: "Set a money boost for a certain role!",
+            description_localizations: {
+                "fr": "Définir un boost d'argent pour un certain rôle"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'role',
+                    type: ApplicationCommandOptionType.Role,
+
+                    description: 'The role you want to modify the boost',
+                    description_localizations: {
+                        "fr": "Le rôle que vous souhaitez modifier le boost"
+                    },
+
+                    required: true
+                },
+                {
+                    name: 'boost',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'The boost you want to add',
+                    description_localizations: {
+                        "fr": "Le boost que vous souhaitez ajouter"
+                    },
+
+                    choices: [
+                        {
+                            name: 'Default',
+                            value: "1"
+                        },
+                        {
+                            name: 'x2',
+                            value: "2"
+                        },
+                        {
+                            name: 'x3',
+                            value: "3"
+                        },
+                        {
+                            name: 'x4',
+                            value: "4"
+                        },
+                        {
+                            name: 'x5',
+                            value: "5"
+                        },
+                    ],
+
+                    required: true
+                }
+            ],
+        },
+        {
+            name: "shop",
+            prefixName: "shop",
+
+            description: "Get the shop of the guild!",
+            description_localizations: {
+                "fr": "Obtenez le magasin du serveur"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand
+        }
     ],
     thinking: false,
     category: 'economy',

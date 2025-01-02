@@ -30,6 +30,7 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
+import { getMemberBoost } from './economy.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
@@ -38,11 +39,11 @@ export default {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         let timeout = 86400000;
-        let amount = 500;
+        let amount = 500 * await getMemberBoost(interaction.member);
         let daily = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction,{
+            await client.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.member.user.od}', interaction.member.user.id)
             });
@@ -53,7 +54,7 @@ export default {
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - daily));
 
-            await client.method.interactionSend(interaction,{ content: lang.daily_cooldown_error.replace(/\${time}/g, time) });
+            await client.method.interactionSend(interaction, { content: lang.daily_cooldown_error.replace(/\${time}/g, time) });
             return;
         } else {
             let embed = new EmbedBuilder()
@@ -62,7 +63,7 @@ export default {
                 .setDescription(lang.daily_embed_description)
                 .addFields({ name: lang.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
 
-            await client.method.interactionSend(interaction,{ embeds: [embed] });
+            await client.method.interactionSend(interaction, { embeds: [embed] });
             await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
             await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`, Date.now());
             return;

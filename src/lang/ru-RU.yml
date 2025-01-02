@@ -52,6 +52,9 @@ var_page: "Страница"
 var_permission: "Разрешение"
 var_usage: "Использование"
 var_aliases: "Псевдонимы"
+var_dont_have_perm: "У вас нет необходимых разрешений для этого. (Требуется разрешение {perm})"
+var_price: "Цена"
+var_boost: "Ускорение"
 
 # Команды для тикетов
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -618,6 +621,29 @@ economy_disable_set_enable: "<@${interaction.user.id}>, вы успешно **в
 economy_disable_set_disable: "<@${interaction.user.id}>, вы успешно **отключили** Модуль Экономики!"
 economy_disable_logs_embed_desc: "<@${interaction.user.id}> изменил(а) состояние Модуля Экономики на `${state}`!"
 economy_disable_logs_embed_title: "Логи Экономики"
+
+# /economy boost-set
+economy_boost_role_not_found: "Роль не найдена. Вы должны установить цену для роли."
+economy_boost_embed_title: "Экономическая система - Покупаемые роли"
+economy_boost_embed_desc: "Все покупаемые роли перечислены ниже."
+
+# /economy role add
+economy_role_add_no_role: "Нет ролей для удаления из покупаемых."
+economy_role_add_max_20_roles: "Вы можете иметь не более 20 покупаемых ролей."
+economy_role_add_canceled: "Роль не была добавлена в список покупаемых."
+economy_role_add_prompt_dangerous: "Вы уверены, что хотите добавить эту роль в список покупаемых?\n**Внимание:** У этой роли есть опасные разрешения.\nРазрешения: ${stringDangerousPermissions}"
+
+# /economy shop
+economy_shop_embed_title: "🛍️ Магазин `${interaction.guild.name}`"
+economy_shop_embed_desc: "Магазин позволяет покупать предметы/роли за ваши деньги. Вы можете увидеть доступные для покупки роли ниже."
+economy_shop_not_available: "Выбранная вами роль недоступна для покупки."
+economy_shop_already_own_role: "Вы уже владеете этой ролью."
+economy_shop_not_enough_money: "У вас недостаточно денег для покупки этой роли."
+economy_shop_role_purchased: "Вы успешно купили роль **{roleName}** за **${role.price}** 💰."
+economy_shop_unknown_role: "Неизвестная роль"
+economy_shop_not_set: "Нет ролей, доступных для покупки на этом сервере. Пожалуйста, свяжитесь с администратором сервера для получения дополнительной информации."
+economy_shop_already_owned: "Уже есть"
+economy_shop_menu_placeholder: "Выберите роль для покупки"
 
 
 # Profil Customisation commands

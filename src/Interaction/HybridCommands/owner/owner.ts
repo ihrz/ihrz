@@ -40,6 +40,8 @@ export const command: Command = {
         "fr": "Ajoutez un membre dans la liste des propriétaire de iHorizon. (Seulement pour les dev)"
     },
 
+    aliases: ["addowner", "owneradd", "owners", "ownerlist"],
+
     options: [
         {
             name: 'member',
@@ -86,7 +88,7 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('member');
         } else {
-            
+
             var member = await client.method.user(interaction, args!, 0);
         };
 

@@ -52,6 +52,9 @@ var_page: "ページ"
 var_permission: "権限"
 var_usage: "使用法"
 var_aliases: "エイリアス"
+var_dont_have_perm: "必要な権限がありません。({perm}権限が必要です)"
+var_price: "価格"
+var_boost: "ブースト"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -618,6 +621,29 @@ economy_disable_set_enable: "<@${interaction.user.id}>、経済モジュール�
 economy_disable_set_disable: "<@${interaction.user.id}>、経済モジュールを正常に **無効化** しました！"
 economy_disable_logs_embed_desc: "<@${interaction.user.id}> が経済モジュールの状態を `${state}` に変更しました！"
 economy_disable_logs_embed_title: "経済ログ"
+
+# /economy boost-set
+economy_boost_role_not_found: "ロールが見つかりません。ロールの価格を設定する必要があります。"
+economy_boost_embed_title: "経済システム - 購入可能なロール"
+economy_boost_embed_desc: "購入可能なすべてのロールが以下に一覧表示されています。"
+
+# /economy role add
+economy_role_add_no_role: "削除する購入可能なロールがありません。"
+economy_role_add_max_20_roles: "購入可能なロールは最大20個までに制限されています。"
+economy_role_add_canceled: "ロールは購入可能なロールに追加されませんでした。"
+economy_role_add_prompt_dangerous: "このロールを購入可能なロールに追加してもよろしいですか？\n**警告:** このロールには危険な権限があります。\n権限: ${stringDangerousPermissions}"
+
+# /economy shop
+economy_shop_embed_title: "🛍️ `${interaction.guild.name}`のショップ"
+economy_shop_embed_desc: "ショップでは、お金を使用してアイテムやロールを購入できます。以下に購入可能なロールが表示されています。"
+economy_shop_not_available: "選択したロールは購入できません。"
+economy_shop_already_own_role: "このロールはすでに所有しています。"
+economy_shop_not_enough_money: "このロールを購入するのに十分なお金がありません。"
+economy_shop_role_purchased: "ロール **{roleName}** を **${role.price}** 💰で購入しました。"
+economy_shop_unknown_role: "不明なロール"
+economy_shop_not_set: "このサーバーでは購入可能なロールがありません。詳細についてはサーバー管理者にお問い合わせください。"
+economy_shop_already_owned: "すでに所有しています"
+economy_shop_menu_placeholder: "購入するロールを選択してください"
 
 
 # Profil Customisation commands
