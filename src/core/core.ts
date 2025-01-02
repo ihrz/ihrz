@@ -83,7 +83,6 @@ export async function main(client: Client) {
     client.commands = new Collection<string, Command>();
     client.subCommands = new Collection<string, Command>();
     client.message_commands = new Collection<string, Command>();
-    client.owners = [];
     client.content = [];
     client.category = [];
     client.invites = new Collection();
