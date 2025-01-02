@@ -122,7 +122,7 @@ export const command: Command = {
             await client.method.interactionSend(interaction, { content: lang.reactionroles_dont_admin_added });
             return;
         };
-        
+
         const channel = interaction instanceof ChatInputCommandInteraction
             ? interaction.options.getChannel("channel") as Channel
             : await client.method.channel(interaction, args!, 0) as Channel;
@@ -333,6 +333,8 @@ export const command: Command = {
 
                 if (desc) newRoleOption.desc = desc;
 
+                await roleResponse.deferUpdate();
+                await roleSelectResponse?.delete()
                 baseData.push(newRoleOption);
 
                 updateConfiguration(baseData);
@@ -445,6 +447,7 @@ export const command: Command = {
 
         collector.on('end', async () => {
             await configMessage.edit({
+                embeds: [embed],
                 components: []
             });
         });

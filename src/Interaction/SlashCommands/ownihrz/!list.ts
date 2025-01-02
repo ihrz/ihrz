@@ -41,7 +41,7 @@ async function generateBotHTML(
 
     const accentColor = data.PowerOff === false ? '#23a559' : '#f23f43';
     const statusColor = data.PowerOff === false ? '#23a559' : '#f23f43';
-    const statusText = data.PowerOff === false ? 'Online' : 'Offline';
+    const statusText = data.PowerOff === undefined || data.PowerOff === true ? 'Offline' : 'Online';
 
     return htmlContent
         .replaceAll('AVATAR_URL', `https://cdn.discordapp.com/avatars/${data.Bot.Id}/${bot?.bot?.avatar}.png`)
