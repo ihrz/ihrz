@@ -507,7 +507,7 @@ hack_embed_fields_password: "Mot de passe"
 hug_embed_title: "<@${interaction.user.id}> fait un câlin à et oui no hate que du love<@${hug.id}> ❤️"
 
 # /kiss
-kiss_embed_description: "<@${interaction.user.id}> fait un baiser à jespere ca finit en ph <@${kiss.id}> 💏"
+kiss_embed_description: "<@${interaction.user.id}> fait un baiser à <@${kiss.id}> jespere ca finit en ph 💏"
 
 # /poll
 poll_not_admin: "Ta pas les perms pour faire ca bouffon !"
@@ -517,7 +517,7 @@ poll_embed_fields_choice: ":white_check_mark: **Oui**\n :x: **Non** "
 
 # /question
 question_not_full: "Entrez une question complète avec 3 mots ou plus!"
-question_s: ["Oui.","Non.","Je ne sais pas.","Je ne suis pas sûr(e) !","Tu es fou/folle!", "Non merci jsuis pas gay.", "Non.", "Oui.", "sah je men tape de ta question"]
+question_s: ["Oui.","Non.","wAllah j'en sais rien","Je ne suis pas sûr(e) !","Tu es fou/folle!", "Non merci jsuis pas gay.", "Non.", "Oui.", "sah je men tape de ta question"]
 question_fields_input_embed: ":question: **Question**"
 question_fields_output_embed: ":grey_exclamation: **Réponse:**"
 question_embed_title: "`Question: ${interaction.user.username}`"
@@ -635,13 +635,13 @@ economy_role_add_prompt_dangerous: "Êtes-vous sûr de vouloir ajouter ce rôle 
 
 # /economy shop
 economy_shop_embed_title: "🛍️ Boutique de `${interaction.guild.name}`"
-economy_shop_embed_desc: "La boutique vous permet d'acheter des objets/rôles avec votre argent. Vous pouvez consulter les rôles disponibles à l'achat ci-dessous."
+economy_shop_embed_desc: "La boutique vous permet d'acheter des objets/rôles avec votre argent. (komme sa tu deviens une discord kitten tqt) Vous pouvez consulter les rôles disponibles à l'achat ci-dessous.\nj'espere que t'as de la thune sinon tu va pleurer"
 economy_shop_not_available: "Le rôle que vous avez sélectionné n'est pas disponible à l'achat."
-economy_shop_already_own_role: "Vous possédez déjà ce rôle."
-economy_shop_not_enough_money: "Vous n'avez pas assez d'argent pour acheter ce rôle."
+economy_shop_already_own_role: "Mais trou dballe tu as déjà ce rôle !"
+economy_shop_not_enough_money: " t pas assez riche pour acheter ce rôle, va travailler un peu !"
 economy_shop_role_purchased: "Vous avez acheté avec succès le rôle **{roleName}** pour **${role.price}** 💰."
 economy_shop_unknown_role: "Rôle inconnu"
-economy_shop_not_set: "Il n'y a aucun rôle disponible à l'achat sur ce serveur. Veuillez contacter l'administrateur du serveur pour plus d'informations."
+economy_shop_not_set: "Il n'y a aucun rôle disponible à l'achat sur ce serveur. Veuillez contacter l'administrateur du serveur pour plus d'informations. (ou alors t'es juste pauvre)"
 economy_shop_already_owned: "Déjà possédé"
 economy_shop_menu_placeholder: "Sélectionnez un rôle à acheter"
 
@@ -673,9 +673,9 @@ profil_embed_fields_gender: "👤 ・ __C'que t'a entre les jambes__"
 # /serverinfo, /snipe, /userinfo, /renew
 
 # /serverinfo
-serverinfo_verlvl_NONE: "Aucun"
+serverinfo_verlvl_NONE: "Aucun comme ta vie"
 serverinfo_verlvl_LOW: "Faible comme le vietnam"
-serverinfo_verlvl_MEDIUM: "Moyen"
+serverinfo_verlvl_MEDIUM: "Moyen comme ta meuf"
 serverinfo_verlvl_HIGHT: "(╯°□°）╯︵ ┻━┻"
 serverinfo_verlvl_VERY_HIGHT: "(ノಠ益ಠ)ノ彡┻━┻ "
 serverinfo_embed_author: "🚩 -> ${interaction.guild.name}"
@@ -782,7 +782,7 @@ massmove_results: "${interaction.user}, iHorizon a déplacé des membres entre l
 massmove_too_much_member: "Trop de membres, je ne peux pas le faire en raison d'une éventuelle limitation ! eh ouais gars faut rationné les requête à l'api discord!. tu crois c'est toi qui payent les serveur dédiers ? bha nan enft. donc tu prend tes click et tes clack et tu te casse. sérieux frr"
 
 # /all-admins
-all_admins_nobody_admins: "Il n'y a aucun administrateur dans ce serveur !"
+all_admins_nobody_admins: "Il n'y a aucun administrateur dans ce serveur, ptêtre prck l'owner est schyzo et veut tout faire tout seul"
 all_admins_embed_title: "Liste de tous les administrateurs | Page ${i / usersPerPage + 1}"
 all_admins_unrank_button_label: "Déclasser tous"
 all_admins_unrank_embed_desc: "${interaction.member?.user.toString()}, iHorizon a exécuté la déclassification de tous pour le module AllAdmins.\n\n**${good}** Utilisateur(s) __déclassés__ avec succès\niHorizon a __échoué__ à déclasser **${bad}** Utilisateur(s)."
@@ -837,7 +837,7 @@ sticket_command_error2: "Veuillez répondre à un message contenant un autocolla
 
 # /util nick-kicker
 util_nick_kicker_embed_title: "Expulseur de Pseudos"
-util_nick_kicker_embed_desc: "Quand un membre rejoint, si son pseudo contient un mot spécifique, il sera expulsé"
+util_nick_kicker_embed_desc: "Un mec te clc avec sa team de saloppe? pas de soucis, iHorizon est là pour les expulser !"
 util_nick_kicker_words: "mots"
 util_nick_kicker_select_to_remove: "Sélectionnez un mot à supprimer"
 util_nick_kicker_remove_word: "Supprimer ce mot"
@@ -1623,7 +1623,7 @@ rolesaver_on_off_embed_fields_1_name: "Activer"
 # /setsuggest, /suggest
 
 # /suggest accept
-suggest_accept_not_admin: "Tu n'est pas administrateur !"
+suggest_accept_not_admin: "Tu n'est pas administrateur, ta cru quoi ?"
 suggest_acceptnot_good_channel: "Cette commande doit être exécutée dans le canal du module de suggestions (<#${baseData?.channel}>) !\nVeuillez vérifier que le module de suggestions n'est pas désactivé !"
 suggest_accept_not_found_db: "La suggestion n'a pas été trouvée dans ma base de données !"
 suggest_accept_already_replied: "Cette suggestion a déjà reçu une réponse !"
@@ -2026,12 +2026,12 @@ event_channel_create_message_embed_title: "Configuration réussie !"
 event_channel_create_message_embed_description: "Bot bien config t'en fais pas bg fait toi un café. Tu n'avez plus rien à faire (zen).\n\nTous les journaux de modération liés à iHorizon seront affichés ici."
 
 # Welcome Message Events
-event_welcomer_inviter: "{memberMention} (compte créé le {accountCreationTimestamp}) a rejoint le serveur. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invitations), nous sommes maintenant {memberCount} dans {guildName}"
-event_welcomer_default: "{memberMention} (compte créé le {accountCreationTimestamp}) a rejoint le serveur. Nous sommes maintenant {memberCount} dans {guildName}"
+event_welcomer_inviter: "let's go un con d'+! C'est {memberMention} ce gars ou meuf lv jsp. Ce bg a été invité par **{inviterUsername}** (**{invitesCount}** invitations), nous sommes maintenant {memberCount} dans ce serveur de con {guildName}"
+event_welcomer_default: "let's go un con d'+! C'est {memberMention} ce gars ou meuf lv jsp. Il as rejoins rejoint le serveur. Nous sommes maintenant {memberCount} dans {guildName}"
 
 # Goodbye Message Events
-event_goodbye_inviter: "{memberUsername} (compte créé le {accountCreationTimestamp}) quitte la guilde. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invitations), nous sommes maintenant {memberCount} dans {guildName}"
-event_goodbye_default: "{memberUsername} (compte créé le {accountCreationTimestamp}) quitte la guilde. Nous sommes maintenant {memberCount} dans {guildName}"
+event_goodbye_inviter: "Oh fdp pq t partit? C'est {memberUsername} (compte créé le {accountCreationTimestamp}) qui quitte la guilde. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invitations), nous sommes maintenant {memberCount} dans {guildName}"
+event_goodbye_default: "Oh fdp pq t partit? C'est {memberUsername} (compte créé le {accountCreationTimestamp}) qui quitte la guilde. Nous sommes maintenant {memberCount} dans {guildName}"
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention}, bravo sale modo, ta gagné un niveau! On sen branle (Niveau : **{xpLevel}**)"

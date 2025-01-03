@@ -48,6 +48,8 @@ export const command: Command = {
                 fr: "Regarder un profil"
             },
 
+            aliases: ["u"],
+
             options: [
                 {
                     name: "member",

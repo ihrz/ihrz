@@ -77,6 +77,7 @@ export default {
 
         if (!permissions && neededPerm === 0) {
             await client.method.interactionSend(interaction, { content: lang.renew_not_administrator });
+            return;
         }
 
         let db = client.db.table('API');

@@ -2111,7 +2111,7 @@ event_ticket_logsChannel_onAddMember_embed_desc: "${member} are added in the tic
 event_ticket_logsChannel_onReopen_embed_title: "TicketLog - Re-Open a Ticket"
 event_ticket_logsChannel_onReopen_embed_desc: "${interaction.user} re-open a ticket (<#${interaction.channel.id}>) !"
 event_ticket_logsChannel_onDelete_embed_title: "TicketLog - Deletion of a Ticket"
-event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} have delete a ticket (#${interaction.channel.name}) !"
+event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} has delete a ticket (#${interaction.channel.name}) !"
 event_ticket_logsChannel_onAddMember2_embed_title: "TicketLog - Add/Remove Members of a Ticket"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRemoved: ${removedMembers}.\nAdded: ${addedMembers}.\n in the ticket (${interaction.channel}) !"
 
