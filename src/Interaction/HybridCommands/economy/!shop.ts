@@ -50,7 +50,7 @@ export default {
         };
 
         let economy = await client.db.get(`${interaction.guildId}.ECONOMY`) as DatabaseStructure.EconomyModel;
-        let buyableRolesArray = Object.entries(economy.buyableRoles || {}).map(([roleId, details]) => ({
+        let buyableRolesArray = Object.entries(economy?.buyableRoles || {}).map(([roleId, details]) => ({
             roleId,
             ...details
         }));
