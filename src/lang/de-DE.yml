@@ -1453,6 +1453,8 @@ backup_backup_doesnt_exist: "FEHLER? Sicherungskopie existiert nicht."
 backup_string_see_v: ":placard:・Anzahl der Kategorien: `${data.categoryCount}`\n:hash:・Anzahl der Kanäle: `${data.channelCount}`"
 backup_all_of_your_backup: "**Alle Ihre Sicherungskopien:**"
 backup_string_see_another_v: ":placard:・Anzahl der Kategorien: `${result.categoryCount}`\n:hash:・Anzahl der Kanäle: `${result.channelCount}`"
+backup_load_confirm: "${interaction.member.user.toString()},\n# EXTREM GEFÄHRLICHE AKTION\n# Sind Sie sicher, dass Sie dieses Backup laden möchten?\nDies wird alle aktuellen Kanäle, Rollen, Emojis, Bannungen, Konfigurationen... Ihres Servers ersetzen.\nDIESE AKTION IST NICHT UMKEHRBAR!"
+backup_not_load: "Das Backup wurde nicht geladen, die Aktion wurde auf Ihren Wunsch hin abgebrochen."
 
 # /backup delete
 backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} Möchten Sie wirklich dieses Backup löschen?"
@@ -2113,6 +2115,7 @@ event_ticket_logsChannel_onDelete_embed_title: "Ticket-Protokoll - Löschen eine
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} hat ein Ticket gelöscht (#${interaction.channel.name})!"
 event_ticket_logsChannel_onAddMember2_embed_title: "Ticket-Protokoll - Hinzufügen/Entfernen von Mitgliedern eines Tickets"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nEntfernt: ${removedMembers}.\nHinzugefügt: ${addedMembers}.\n im Ticket (${interaction.channel})!"
+event_ticket_already_opened: "عذرًا، لديك بالفعل تذكرة مفتوحة (<#${channelId}>)! يرجى إغلاقها قبل فتح واحدة جديدة."
 
 # Gewinnspiel-Ereignis
 event_gw_reroll_win_msg: "Herzlichen Glückwunsch ${winners}! Sie haben **${fetch[channelId][messageId].prize}** gewonnen!"

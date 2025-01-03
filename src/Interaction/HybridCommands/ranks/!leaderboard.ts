@@ -64,6 +64,13 @@ export default {
             });
         }
 
+        if (array.length === 0) {
+            await client.method.interactionSend(interaction, {
+                content: lang.perm_list_no_user
+            });
+            return;
+        }
+
         var htmlContent = client.htmlfiles["podiumRanksModule"];
 
         // Sort array by total XP in descending order

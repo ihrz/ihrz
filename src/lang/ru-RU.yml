@@ -1453,6 +1453,8 @@ backup_backup_doesnt_exist: "Ошибка? Резервная копия не с
 backup_string_see_v: ":placard:・Количество категорий: `${data.categoryCount}`\n:hash:・Количество каналов: `${data.channelCount}`"
 backup_all_of_your_backup: "**Все ваши резервные копии:**"
 backup_string_see_another_v: ":placard:・Количество категорий: `${result.categoryCount}`\n:hash:・Количество каналов: `${result.channelCount}`"
+backup_load_confirm: "${interaction.member.user.toString()},\n# ЧРЕЗВЫЧАЙНО ОПАСНОЕ ДЕЙСТВИЕ\n# Вы уверены, что хотите загрузить этот бэкап?\nЭто заменит все текущие каналы, роли, эмодзи, баны, настройки... вашего сервера.\nЭТО ДЕЙСТВИЕ НЕОБРАТИМО!"
+backup_not_load: "Резервная копия не была загружена, действие было отменено по вашему запросу."
 
 # /backup delete
 backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} Вы действительно хотите удалить этот бэкап?"
@@ -2113,6 +2115,7 @@ event_ticket_logsChannel_onDelete_embed_title: "Лог билетов - Удал
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} удалил билет (#${interaction.channel.name})!"
 event_ticket_logsChannel_onAddMember2_embed_title: "Лог билетов - Добавление/удаление участников из билета"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nУдаленные: ${removedMembers}.\nДобавленные: ${addedMembers}.\n в билете (${interaction.channel})!"
+event_ticket_already_opened: "Ой, у вас уже есть открытый тикет (<#${channelId}>)! Пожалуйста, закройте его, прежде чем открывать новый."
 
 # Событие раздачи подарков
 event_gw_reroll_win_msg: "Поздравляем ${winners}! Вы выиграли **${fetch[channelId][messageId].prize}**!"

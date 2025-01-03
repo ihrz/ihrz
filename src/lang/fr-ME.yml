@@ -1453,6 +1453,8 @@ backup_backup_doesnt_exist: "ERREUR ? La sauvegarde n'existe pas."
 backup_string_see_v: ":placard:・Nombre de catégories: `${data.categoryCount}`\n:hash:・Nombre de canaux: `${data.channelCount}`"
 backup_all_of_your_backup: "**Toutes tes sauvegardes :**"
 backup_string_see_another_v: ":placard:・Nombre de catégories: `${result.categoryCount}`\n:hash:・Nombre de canaux: `${result.channelCount}`"
+backup_load_confirm: "${interaction.member.user.toString()},\n# ACTION EXTREMEMENT DANGEREUSE\n# Êtes-vous sûr de vouloir charger cette sauvegarde ?\nCela remplacera tous les salons, rôles, émojis, bannisement, configuration... actuels de votre serveur.\nC'EST UNE ACTION IRREVERSIBLE !"
+backup_not_load: "La sauvegarde n'a pas été chargée, l'action a été annulée sur votre demande."
 
 # /backup delete
 backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} Voulez-vous vraiment supprimer cette sauvegarde ?"
@@ -2113,6 +2115,7 @@ event_ticket_logsChannel_onDelete_embed_title: "Journal des tickets - Suppressio
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} a supprimé un ticket (#${interaction.channel.name}) !"
 event_ticket_logsChannel_onAddMember2_embed_title: "Journal des tickets - Ajout/Retrait de con d'un ticket"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRetirés : ${removedMembers}.\nAjoutés : ${addedMembers}.\n dans le ticket (${interaction.channel})  (enfaite je m'en branle mdr)!"
+event_ticket_already_opened: "Oups, vous avez déjà un ticket ouvert (<#${channelId}>) ! Veuillez le fermer avant d'en ouvrir un nouveau."
 
 # Événement Giveaway
 event_gw_reroll_win_msg: "Félicitations ${winners} ! Vous avez remporté **${fetch[channelId][messageId].prize}** (j'éspère c'est un nitro nikoumouk)!"

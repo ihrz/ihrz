@@ -53,6 +53,8 @@ import * as discordTranscripts from 'discord-html-transcripts';
 import database from '../functions/DatabaseModel.js';
 import logger from '../logger.js';
 import { TicketPanel } from '../../Interaction/SlashCommands/ticket/!panel.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
+import getLanguageData from '../functions/getLanguageData.js';
 
 interface CreatePanelData {
     name: string | null;
@@ -408,13 +410,19 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
 
     if (interaction instanceof ButtonInteraction) {
         let result = await database.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
-        let userTickets = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+        let userTickets = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData;
 
         if (!result || result.channel !== interaction.message.channelId
             || result.messageID !== interaction.message.id) return;
 
+        let channelId = Object.values(userTickets)[0]?.channel;
+
         if (userTickets) {
-            await interaction.deferUpdate();
+            await interaction.reply({
+                ephemeral: true,
+                content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
+                    .replace('${channelId}', channelId)
+            });
             return;
         } else {
             await CreateChannel(
@@ -425,13 +433,19 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
         };
     } else {
         let result = await database.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
-        let userTickets = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+        let userTickets = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData;
 
         if (!result || result.channel !== interaction.message.channelId
             || result.messageID !== interaction.message.id) return;
 
+        let channelId = Object.values(userTickets)[0]?.channel;
+
         if (userTickets) {
-            interaction.deferUpdate();
+            await interaction.reply({
+                ephemeral: true,
+                content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
+                    .replace('${channelId}', channelId)
+            });
             return;
         } else {
             await CreateChannel(
@@ -450,10 +464,15 @@ async function CreateTicketChannelV2(interaction: StringSelectMenuInteraction<"c
         `${interaction.guildId}.GUILD.TICKET_PANEL.${interaction.message.id}`
     ) as string | null;
     let result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`) as TicketPanel;
-    let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+    let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData;
+    let channelId = Object.values(userTickets)[0]?.channel;
 
     if (userTickets) {
-        await interaction.deferUpdate();
+        await interaction.reply({
+            ephemeral: true,
+            content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
+                .replace('${channelId}', channelId)
+        });
         return;
     } else {
         await CreateChannelV2(interaction, result);

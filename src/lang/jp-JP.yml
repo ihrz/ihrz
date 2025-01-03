@@ -1453,6 +1453,8 @@ backup_backup_doesnt_exist: "ERROR? バックアップが存在しません。"
 backup_string_see_v: ":placard:・カテゴリ数: `${data.categoryCount}`\n:hash:・チャンネル数: `${data.channelCount}`"
 backup_all_of_your_backup: "**すべてのバックアップ:**"
 backup_string_see_another_v: ":placard:・カテゴリ数: `${result.categoryCount}`\n:hash:・チャンネル数: `${result.channelCount}`"
+backup_load_confirm: "${interaction.member.user.toString()},\n# 非常に危険な操作\n# このバックアップをロードしてもよろしいですか？\n現在のサーバーのすべてのチャンネル、役職、絵文字、禁止、設定...が置き換えられます。\nこの操作は元に戻せません！"
+backup_not_load: "バックアップはロードされませんでした。リクエストにより操作がキャンセルされました。"
 
 # /backup delete
 backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} 本当にこのバックアップを削除しますか？"
@@ -2113,6 +2115,7 @@ event_ticket_logsChannel_onDelete_embed_title: "チケットログ - チケッ�
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user}さんがチケットを削除しました（#${interaction.channel.name}）！"
 event_ticket_logsChannel_onAddMember2_embed_title: "チケットログ - チケットのメンバーの追加/削除"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}さん\n削除されたメンバー：${removedMembers}。\n追加されたメンバー：${addedMembers}。\nチケット（${interaction.channel}）にいます！"
+event_ticket_already_opened: "あらら、既にチケットが開いています (<#${channelId}>)！新しいチケットを作成する前に閉じてください。"
 
 # ギブアウェイイベント
 event_gw_reroll_win_msg: "おめでとうございます、${winners}さん！ **${fetch[channelId][messageId].prize}** を獲得しました！"

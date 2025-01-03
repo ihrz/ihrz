@@ -31,6 +31,7 @@ import backup from 'discord-rebackup';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
+import { promptYesOrNo } from '../../../core/functions/awaitingResponse.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
@@ -40,7 +41,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var backupID = interaction.options.getString('backup-id')!;
         } else {
-            
+
             var backupID = client.method.string(args!, 0)!;
         };
 
@@ -71,8 +72,21 @@ export default {
             return;
         };
 
+        let confirm = await promptYesOrNo(interaction, {
+            content: lang.backup_load_confirm.replace("${interaction.member.user.toString()}", interaction.member.user.toString()),
+            yesButton: lang.var_confirm,
+            noButton: lang.embed_btn_cancel,
+            dangerAction: true
+        })
+
+        if (!confirm) return await client.method.interactionSend(interaction, {
+            content: lang.backup_not_load,
+            components: []
+        });
+
         await client.method.channelSend(interaction, {
-            content: lang.backup_waiting_on_load.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+            content: lang.backup_waiting_on_load.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
+            components: []
         });
 
         backup.fetch(backupID).then(async () => {
