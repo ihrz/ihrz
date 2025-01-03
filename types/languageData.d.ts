@@ -1097,6 +1097,8 @@ export interface LanguageData {
   backup_string_see_v: string;
   backup_all_of_your_backup: string;
   backup_string_see_another_v: string;
+  backup_load_confirm: string;
+  backup_not_load: string;
   backup_really_want: string;
   backup_confirm_button: string;
   backup_cancel_button: string;
@@ -1560,6 +1562,7 @@ export interface LanguageData {
   event_ticket_logsChannel_onDelete_embed_desc: string;
   event_ticket_logsChannel_onAddMember2_embed_title: string;
   event_ticket_logsChannel_onAddMember2_embed_desc: string;
+  event_ticket_already_opened: string;
   event_gw_reroll_win_msg: string;
   event_gw_reroll_cannot_win_msg: string;
   event_gw_finnish_msg: string;

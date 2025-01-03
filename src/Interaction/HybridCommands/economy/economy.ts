@@ -211,6 +211,8 @@ export const command: Command = {
                 "fr": "Obtenez le classement du solde des utilisateurs du serveur"
             },
 
+            aliases: ["eclb", "eco-lb", "economy-lb", "economy-leaderboard"],
+
             type: ApplicationCommandOptionType.Subcommand,
         },
         {

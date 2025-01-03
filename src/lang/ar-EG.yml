@@ -1453,6 +1453,8 @@ backup_backup_doesnt_exist: "خطأ؟ النسخة الاحتياطية غير �
 backup_string_see_v: ":placard:・عدد الفئات: `${data.categoryCount}`\n:hash:・عدد القنوات: `${data.channelCount}`"
 backup_all_of_your_backup: "**كل نسخك الاحتياطية:**"
 backup_string_see_another_v: ":placard:・عدد الفئات: `${result.categoryCount}`\n:hash:・عدد القنوات: `${result.channelCount}`"
+backup_load_confirm: "${interaction.member.user.toString()},\n# إجراء خطير للغاية\n# هل أنت متأكد أنك تريد تحميل هذه النسخة الاحتياطية؟\nسيتم استبدال جميع القنوات، الأدوار، الرموز التعبيرية، الحظر، الإعدادات... الحالية في الخادم.\nهَذَا الإِجْرَاء غَيْر قَابِل للإِرْجَاع!"
+backup_not_load: "لم يتم تحميل النسخة الاحتياطية، تم إلغاء الإجراء بناءً على طلبك."
 
 # /backup delete
 backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} هل تريد حقاً حذف هذه النسخة الاحتياطية؟"
@@ -2108,6 +2110,7 @@ event_ticket_logsChannel_onDelete_embed_title: "تذكرة السجل - حذف �
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} قام بحذف التذكرة (#${interaction.channel.name})!"
 event_ticket_logsChannel_onAddMember2_embed_title: "تذكرة السجل - إضافة/إزالة أعضاء من التذكرة"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nتمت إزالة: ${removedMembers}.\nتمت إضافة: ${addedMembers}.\n في التذكرة (${interaction.channel})!"
+event_ticket_already_opened: "عذرًا، لديك بالفعل تذكرة مفتوحة (<#${channelId}>)! يرجى إغلاقها قبل فتح واحدة جديدة."
 
 # حدث السحب
 event_gw_reroll_win_msg: "تهانينا ${winners}! فزت بـ **${fetch[channelId][messageId].prize}**!"
