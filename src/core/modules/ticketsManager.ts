@@ -417,7 +417,7 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
         if (!result || result.channel !== interaction.message.channelId
             || result.messageID !== interaction.message.id) return;
 
-        let channelId = Object.values(userTickets)[0]?.channel;
+        let channelId = userTickets && Object.values(userTickets)[0]?.channel;
 
         if (userTickets) {
             await interaction.reply({
@@ -440,7 +440,7 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
         if (!result || result.channel !== interaction.message.channelId
             || result.messageID !== interaction.message.id) return;
 
-        let channelId = Object.values(userTickets)[0]?.channel;
+        let channelId = userTickets && Object.values(userTickets)[0]?.channel;
 
         if (userTickets) {
             await interaction.reply({
@@ -467,7 +467,7 @@ async function CreateTicketChannelV2(interaction: StringSelectMenuInteraction<"c
     ) as string | null;
     let result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`) as TicketPanel;
     let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData;
-    let channelId = Object.values(userTickets)[0]?.channel;
+    let channelId = userTickets && Object.values(userTickets)[0]?.channel;
 
     if (userTickets) {
         await interaction.reply({
