@@ -1144,6 +1144,13 @@ perm_list_no_command_set: "Es gibt keine Befehle mit spezifischen Berechtigungen
 perm_set_deleted: "${user.toString()} hat seine Berechtigung **gelöscht**!"
 perm_set_ok: "${user.toString()} hat seine Berechtigung auf **`${perm}`** geändert"
 perm_set_warn_message: "${interaction.member.toString()}, du kannst keine Berechtigungen vergeben, die höher oder gleich deinen eigenen sind!"
+perm_set_chng_perm_lvl: "Berechtigungsstufe geändert"
+perm_set_add_role: "Rolle hinzugefügt"
+perm_set_add_usr: "Benutzer hinzugefügt"
+perm_rmv_role: "Rolle entfernt"
+perm_rmv_usr: "Benutzer entfernt"
+perm_set_command_reset: "Dieser Befehl wurde zurückgesetzt"
+perm_set_no_modified: "Keine Berechtigung geändert"
 
 # /perm roles
 perm_roles_created_role: "Folgende Rollen wurden erstellt: ${createdRoles.join(', ')}"
@@ -2140,7 +2147,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **hat gerade seinen Boost vom Serve
 economy_disable_msg: "<@${interaction.user.id}>, das `Wirtschaftsmodul` auf diesem Server ist **deaktiviert**. Du kannst das Wirtschaftsmodul nicht mehr verwenden!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, Sie dürfen diesen Befehl nicht verwenden! Benötigte Berechtigung: **`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, Sie dürfen diesen Befehl nicht verwenden! Benötigte Berechtigung: **`${neededPerm}`**"
 
 # TempVoice-Modul
 # Alle Komponenten, globalVar...

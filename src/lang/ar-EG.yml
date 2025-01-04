@@ -1146,6 +1146,13 @@ perm_list_no_command_set: "لا توجد أوامر تم تعيين أذونات
 perm_set_deleted: "${user.toString()} تم **حذف** أذنه!"
 perm_set_ok: "${user.toString()} تم تغيير أذنه إلى **`${perm}`**"
 perm_set_warn_message: "${interaction.member.toString()}، لا يمكنك منح إذن أعلى أو مساوٍ لك!"
+perm_set_chng_perm_lvl: "تم تغيير مستوى الصلاحية"
+perm_set_add_role: "تم إضافة دور"
+perm_set_add_usr: "تم إضافة مستخدم"
+perm_rmv_role: "تم إزالة الدور"
+perm_rmv_usr: "تم إزالة المستخدم"
+perm_set_command_reset: "تم إعادة تعيين هذا الأمر"
+perm_set_no_modified: "لم يتم تعديل أي صلاحية"
 
 # /perm roles
 perm_roles_created_role: "الأدوار اللي اتعملت: ${createdRoles.join(', ')}"
@@ -2135,7 +2142,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **أزال تعزيزهم** من ا
 economy_disable_msg: "<@${interaction.user.id}>, وحدة `الاقتصاد` في هذا الخادم **معطلة**. لا يمكنك استخدام وحدة الاقتصاد بعد الآن!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: **`${neededPerm === 0 ? 'Discord Permission'' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: **`${neededPerm}`**"
 
 # وحدة الصوت المؤقت
 temporary_voice_title_embec: "## التعديلات على قناتك الصوتية المؤقتة"

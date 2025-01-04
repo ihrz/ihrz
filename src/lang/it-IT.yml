@@ -1144,6 +1144,13 @@ perm_list_no_command_set: "Non ci sono comandi con permessi specifici impostati 
 perm_set_deleted: "${user.toString()} ha avuto il permesso **eliminato**!"
 perm_set_ok: "${user.toString()} ha cambiato il permesso a **`${perm}`**"
 perm_set_warn_message: "${interaction.member.toString()}, non puoi concedere permessi uguali o superiori ai tuoi!"
+perm_set_chng_perm_lvl: "Livello di permesso modificato"
+perm_set_add_role: "Ruolo aggiunto"
+perm_set_add_usr: "Utente aggiunto"
+perm_rmv_role: "Ruolo rimosso"
+perm_rmv_usr: "Utente rimosso"
+perm_set_command_reset: "Questo comando è stato reimpostato"
+perm_set_no_modified: "Nessun permesso modificato"
 
 # /perm roles
 perm_roles_created_role: "I seguenti ruoli sono stati creati: ${createdRoles.join(', ')}"
@@ -2140,7 +2147,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **ha appena rimosso il suo boost** 
 economy_disable_msg: "<@${interaction.user.id}>, il `Modulo Economia` in questo server è **disabilitato**. Non puoi più utilizzare il modulo economico!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, non sei autorizzato a usare questo comando! Permesso necessario: **`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, non sei autorizzato a usare questo comando! Permesso necessario: **`${neededPerm}`**"
 
 # Modulo TempVoice
 # Tutti i componenti, variabili globali...

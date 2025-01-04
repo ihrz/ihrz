@@ -19,32 +19,63 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ChatInputCommandInteraction, GuildMember, Message } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    GuildMember,
+    Message
+} from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure";
-import { Command } from "../../../types/command";
-import { Option } from "../../../types/option";
 import { LanguageData } from "../../../types/languageData";
 
 export async function checkCommandPermission(
     interaction: ChatInputCommandInteraction<"cached"> | Message,
-    command: string | Command | Option
+    command: string
 ): Promise<{
     allowed: boolean;
-    neededPerm: number;
+    neededPerm: DatabaseStructure.PermLevel | DatabaseStructure.PermNone;
 }> {
-    const usr = interaction instanceof ChatInputCommandInteraction ? interaction.user : interaction.author;
+    const usr =
+        interaction instanceof ChatInputCommandInteraction
+            ? interaction.user
+            : interaction.author;
     const db = interaction.client.db;
-    const cmd = typeof command === 'string' ? command : command.name;
 
-    // Get permission data from database
-    const guildPerm = await db.get(`${interaction.guildId}.UTILS`) as DatabaseStructure.UtilsData;
-    const userPermLevel = guildPerm?.USER_PERMS?.[usr.id] || 0;
-    const cmdNeedPerm: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | undefined = guildPerm?.PERMS?.[cmd];
+    // Fetch permission data from database
+    const guildPerm = (await db.get(
+        `${interaction.guildId}.UTILS`
+    )) as DatabaseStructure.UtilsData;
 
-    // If no configuration is required, grant permission by default
-    if (!cmdNeedPerm) {
+    let cmdPermData = guildPerm?.PERMS?.[command] as DatabaseStructure.PermCommandData | DatabaseStructure.PermLevel | undefined;
+
+    // Handle legacy permission levels (numbers instead of PermCommandData)
+    if (typeof cmdPermData === "number") {
+        cmdPermData = {
+            users: [],
+            roles: [],
+            level: cmdPermData
+        };
+    }
+
+    // If the command is not set, check if the category is set
+    if (!cmdPermData && guildPerm?.PERMS?.[command.split(" ")[0]]) {
+        cmdPermData = guildPerm?.PERMS?.[command.split(" ")[0]];
+
+        // Handle legacy permission levels (numbers instead of PermCommandData)
+        if (typeof cmdPermData === "number") {
+            cmdPermData = {
+                users: [],
+                roles: [],
+                level: cmdPermData
+            };
+        }
+    }
+
+    // If no specific permission is required, allow by default
+    if (!cmdPermData) {
         return { allowed: true, neededPerm: 0 };
     }
+
+    const { users, roles, level: cmdNeededPerm } = cmdPermData;
 
     // Check roles and implement pyramidal system
     let highestRolePermLevel = 0;
@@ -60,31 +91,53 @@ export async function checkCommandPermission(
     }
 
     // Check if user has a role with permission level equal or higher than required
-    if (highestRolePermLevel >= cmdNeedPerm) {
-        return { allowed: true, neededPerm: cmdNeedPerm };
+    if (highestRolePermLevel >= cmdNeededPerm) {
+        return { allowed: true, neededPerm: cmdNeededPerm };
+    }
+
+    // Check if user is explicitly allowed
+    if (users.includes(usr.id)) {
+        return { allowed: true, neededPerm: cmdNeededPerm };
+    }
+
+    // Check if user has the required role
+    const memberRoles = interaction.member?.roles.cache;
+    if (memberRoles && roles.some((roleId) => memberRoles.has(roleId))) {
+        return { allowed: true, neededPerm: cmdNeededPerm };
     }
 
     // Check if user has a permission level in database equal or higher than required
-    if (userPermLevel >= cmdNeedPerm) {
-        return { allowed: true, neededPerm: cmdNeedPerm };
+    const userPermLevel = guildPerm?.USER_PERMS?.[usr.id] || 0;
+    if (userPermLevel >= cmdNeededPerm) {
+        return { allowed: true, neededPerm: cmdNeededPerm };
     }
 
     // If no conditions are met, deny access
-    return { allowed: false, neededPerm: cmdNeedPerm };
+    return { allowed: false, neededPerm: cmdNeededPerm };
 }
 
-export async function checkUserPermissions(member: GuildMember): Promise<DatabaseStructure.UtilsPermsData["user_id"] | 0> {
-    let fetch: DatabaseStructure.UtilsPermsData["user_id"] | 0 = (await member.client.db.get(
-        `${member.guild.id}.UTILS.USER_PERMS.${member.user.id}`,
-    )) || 0;
-    return fetch;
+export async function checkUserPermissions(
+    member: GuildMember
+): Promise<DatabaseStructure.PermLevel | DatabaseStructure.PermNone> {
+    const userPerm = (await member.client.db.get(
+        `${member.guild.id}.UTILS.USER_PERMS.${member.user.id}`
+    )) as DatabaseStructure.PermLevel | undefined;
+
+    return userPerm || 0;
 }
 
-export async function sendErrorMessage(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, neededPerm: number) {
+export async function sendErrorMessage(
+    interaction: ChatInputCommandInteraction<"cached"> | Message,
+    lang: LanguageData,
+    neededPerm: DatabaseStructure.PermLevel | DatabaseStructure.PermNone
+) {
     return await interaction.client.method.interactionSend(interaction, {
         content: lang.event_permission_wrong
-            .replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
-            .replace("${neededPerm === 0 ? 'Discord Permission' : neededPerm}", String(neededPerm === 0 ? 'Discord Permission' : neededPerm)),
+            .replace(
+                "${interaction.member?.user.toString()}",
+                interaction.member?.user.toString()!
+            )
+            .replace("${neededPerm}", String(neededPerm === 0 ? 'Discord Permission' : neededPerm)),
         ephemeral: true
-    })
+    });
 }

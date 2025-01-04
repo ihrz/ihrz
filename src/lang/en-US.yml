@@ -1145,6 +1145,13 @@ perm_list_no_command_set: "There is not command with specific permission set in 
 perm_set_deleted: "${user.toString()} have their permission **deleted**!"
 perm_set_ok: "${user.toString()} have their permission changed to **`${perm}`**"
 perm_set_warn_message: "${interaction.member.toString()}, you cannot give permission highter or equals than your!"
+perm_set_chng_perm_lvl: "Changed permission level"
+perm_set_add_role: "Added Role"
+perm_set_add_usr: "Added user"
+perm_rmv_role: "Removed Role"
+perm_rmv_usr: "Removed user"
+perm_set_command_reset: "This command has been reset"
+perm_set_no_modified: "No permission modified"
 
 # /perm roles
 perm_roles_created_role: "The following roles have been created: ${createdRoles.join(', ')}"
@@ -2141,7 +2148,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **just removed their boost** from t
 economy_disable_msg: "<@${interaction.user.id}>, the `Economy Module` in this guild are **disable**. You can't use economy module anymore!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, you are not allowed to use this command! Need perm: **`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, you are not allowed to use this command! Need perm: **`${neededPerm}`**"
 
 # TempVoice Module
 # All components, globalVar...

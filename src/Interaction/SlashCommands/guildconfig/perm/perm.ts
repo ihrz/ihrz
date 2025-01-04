@@ -28,7 +28,6 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../../types/command';
-import { LanguageData } from '../../../../../types/languageData';
 import { Option } from '../../../../../types/option.js';
 
 export const command: Command = {
@@ -205,6 +204,30 @@ export const command: Command = {
                     ],
 
                     type: ApplicationCommandOptionType.String,
+                    required: false
+                },
+                {
+                    name: "custom-role",
+
+                    description: "The custom role you want to set for the command",
+                    description_localizations: {
+                        "fr": "Le role personnalisé que vous souhaiter définir pour la commande"
+                    },
+
+                    type: ApplicationCommandOptionType.Role,
+
+                    required: false
+                },
+                {
+                    name: "custom-user",
+
+                    description: "The custom user you want to set for the command",
+                    description_localizations: {
+                        "fr": "L'utilisateur personnalisé que vous souhaiter définir pour la commande"
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+
                     required: false
                 }
             ],

@@ -71,7 +71,7 @@ export const command: Command = {
             name: "disable",
             prefixName: "pfps-disable",
 
-            description: "Enable or Disable the module!",
+            description: "Enable or Disable the PFPS module!",
             description_localizations: {
                 "fr": "Activer ou désactiver le module"
             },
