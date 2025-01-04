@@ -22,25 +22,24 @@
 import {
     ChatInputCommandInteraction,
     Client,
-    EmbedBuilder,
     Message,
-    User,
+    PermissionsBitField,
 } from 'discord.js';
-
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { getMemberBoost } from './economy.js';
+import { Option } from '../../../../types/option';
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
-
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.monthly.cooldown`) || 2592000000);
-        let amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.monthly.amount`) || 5000) * await getMemberBoost(interaction.member);
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
 
-        let monthly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await client.method.interactionSend(interaction, {
@@ -50,21 +49,23 @@ export default {
             return;
         };
 
-        if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly));
-
-            await client.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
-            return;
-        } else {
-            let embed = new EmbedBuilder()
-                .setAuthor({ name: lang.monthly_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
-                .setColor("#a4cb80")
-                .setDescription(lang.monthly_embed_description)
-                .addFields({ name: lang.monthly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` });
-            await client.method.interactionSend(interaction, { embeds: [embed] });
-            await client.method.addCoins(interaction.member, amount);
-            await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`, Date.now());
+        if (!permissions && neededPerm === 0) {
+            await client.method.interactionSend(interaction, { content: lang.removemoney_not_admin });
             return;
         };
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var type = interaction.options.getString("type")!;
+            var money = interaction.options.getNumber("how-much")!;
+        } else {
+            var type = client.method.string(args!, 0)!;
+            var money = client.method.number(args!, 1)!;
+        };
+
+        await client.db.set(`${interaction.guildId}.ECONOMY.settings.${type}.amount`, money);
+
+        await client.method.interactionSend(interaction, {
+            content: `Successfully set the money for ${type} to ${money}`
+        });
     },
 };

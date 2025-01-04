@@ -29,7 +29,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 import { getMemberBoost } from './economy.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
@@ -37,7 +36,7 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let timeout = 3_600_000;
+        let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.work.cooldown`) || 3_600_000);
         let work = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
@@ -52,8 +51,7 @@ export default {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work));
 
             await client.method.interactionSend(interaction, {
-                content: lang.work_cooldown_error
-                    .replace('${interaction.user.id}', interaction.member.user.id)
+                content: lang.economy_cooldown_error
                     .replace('${time}', time),
                 ephemeral: true
             });

@@ -464,6 +464,7 @@ export interface LanguageData {
   weekly_embed_title: string;
   weekly_embed_description: string;
   weekly_embed_fields: string;
+  economy_cooldown_error: string;
   work_cooldown_error: string;
   work_embed_author: string;
   work_embed_description: string;

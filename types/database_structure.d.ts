@@ -128,6 +128,7 @@ export namespace DatabaseStructure {
         monthly?: number;
         weekly?: number;
         work?: number;
+        rob?: number;
         ownedRoles?: string[];
     }
 
@@ -284,8 +285,33 @@ export namespace DatabaseStructure {
     export interface EconomyModel {
         disabled?: boolean;
         buyableRoles?: Record<string, EconomyRole>;
+        settings?: EconomySettings;
     }
 
+    export interface EconomySettings {
+        work: {
+            cooldown: number;
+        }
+
+        rob: {
+            cooldown: number;
+        }
+
+        daily: {
+            cooldown: number;
+            amount: number;
+        }
+
+        weekly: {
+            cooldown: number;
+            amount: number;
+        }
+
+        monthly: {
+            cooldown: number;
+            amount: number;
+        }
+    }
     export interface DbInId {
         USER?: DbGuildUserObject;
         GUILD?: DbGuildObject;
