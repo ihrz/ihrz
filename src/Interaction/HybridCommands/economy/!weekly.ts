@@ -37,8 +37,8 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let timeout = 604800000;
-        let amount = 1000 * await getMemberBoost(interaction.member);
+        let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.weekly.cooldown`) || 604800000);
+        let amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.weekly.amount`) || 1000) * await getMemberBoost(interaction.member);
         let weekly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.weekly`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {

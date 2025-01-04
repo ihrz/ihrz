@@ -20,53 +20,61 @@
 */
 
 import {
-    Client,
-    EmbedBuilder,
     ChatInputCommandInteraction,
+    Client,
     Message,
-    User,
+    PermissionsBitField,
 } from 'discord.js';
-
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
-import { getMemberBoost } from './economy.js';
+
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
-
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.cooldown`) || 86400000);
-        let amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.amount`) || 500) * await getMemberBoost(interaction.member);
-        let daily = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`);
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
             await client.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
-                    .replace('${interaction.member.user.od}', interaction.member.user.id)
+                    .replace('${interaction.user.id}', interaction.member.user.id)
             });
             return;
         };
 
-
-        if (daily !== null && timeout - (Date.now() - daily) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - daily));
-
-            await client.method.interactionSend(interaction, { content: lang.daily_cooldown_error.replace(/\${time}/g, time) });
-            return;
-        } else {
-            let embed = new EmbedBuilder()
-                .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#a4cb80")
-                .setAuthor({ name: lang.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
-                .setDescription(lang.daily_embed_description)
-                .addFields({ name: lang.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
-
-            await client.method.interactionSend(interaction, { embeds: [embed] });
-            await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
-            await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`, Date.now());
+        if (!permissions && neededPerm === 0) {
+            await client.method.interactionSend(interaction, { content: lang.removemoney_not_admin });
             return;
         };
+
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var type = interaction.options.getString("type")!;
+            var cooldown = interaction.options.getString("time")!;
+        } else {
+            var type = client.method.string(args!, 0)!;
+            var cooldown = client.method.string(args!, 1)!;
+        };
+
+        let time = client.timeCalculator.to_ms(cooldown);
+
+        if (!time) {
+            await client.method.interactionSend(interaction, {
+                content: "Invalid time format. Please use a valid time format."
+            });
+            return;
+        }
+
+        await client.db.set(`${interaction.guildId}.ECONOMY.settings.${type}.cooldown`, time);
+
+        await client.method.interactionSend(interaction, {
+            content: `Successfully set the cooldown for ${type} to ${client.timeCalculator.to_beautiful_string(time)}`
+        });
     },
 };

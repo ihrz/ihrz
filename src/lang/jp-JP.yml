@@ -541,6 +541,8 @@ fun_category_disable: "このコマンドを使用できません。ファンコ
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
+economy_cooldown_error: "このコマンドを再度実行するには **${time}** 待つ必要があります！"
+
 # /addmoney
 addmoney_not_admin: "You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`"
 addmoney_logs_embed_title: "Economy Logs"

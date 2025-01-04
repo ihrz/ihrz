@@ -541,6 +541,8 @@ fun_category_disable: "Você não pode usar este comando, a categoria de comando
 # Comandos de economia
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
+economy_cooldown_error: "Espere **${time}** antes de poder executar este comando novamente!"
+
 # /addmoney
 addmoney_not_admin: "Você não pode executar este comando porque não tem as permissões necessárias `ADMINISTRADOR`"
 addmoney_logs_embed_title: "Registros de Economia"

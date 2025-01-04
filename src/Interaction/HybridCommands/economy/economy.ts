@@ -501,6 +501,98 @@ export const command: Command = {
             ],
         },
         {
+            name: 'manage-rewards',
+        
+            description: 'Manage how much money you can get from daily, weekly and monthly!',
+            description_localizations: {
+                "fr": "Gérer combien d'argent vous pouvez obtenir quotidiennement, hebdomadairement et mensuellement"
+            },
+        
+            type: ApplicationCommandOptionType.SubcommandGroup,
+            options: [
+                {
+                    name: "set-money",
+                    description: 'Manage how much money you can get from daily, weekly and monthly!',
+                    description_localizations: {
+                        "fr": "Gérer combien d'argent vous pouvez obtenir quotidiennement, hebdomadairement et mensuellement"
+                    },
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'type',
+                            type: ApplicationCommandOptionType.String,
+                            description: 'The type of reward you want to set',
+                            description_localizations: {
+                                "fr": "Le type de récompense que vous souhaitez définir"
+                            },
+                            choices: [
+                                {
+                                    name: 'Daily',
+                                    value: "daily"
+                                },
+                                {
+                                    name: 'Weekly',
+                                    value: "weekly"
+                                },
+                                {
+                                    name: 'Monthly',
+                                    value: "monthly"
+                                },
+                            ],
+                            required: true,
+                        },
+                        {
+                            name: 'how-much',
+                            type: ApplicationCommandOptionType.Number,
+                            description: 'How much money you want to set',
+                            description_localizations: {
+                                "fr": "Combien d'argent vous souhaitez définir"
+                            },
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    name: "set-cooldown",
+                    description: 'Manage the cooldown of the actions!',
+                    description_localizations: {
+                        "fr": "Gérer le temps de recharge des actions"
+                    },
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: 'type',
+                            type: ApplicationCommandOptionType.String,
+                            description: 'Les actions que vous souhaitez définir',
+                            description_localizations: {
+                                "fr": "Les actions que vous souhaitez définir"
+                            },
+                            choices: [
+                                {
+                                    name: 'Rob',
+                                    value: "rob"
+                                },
+                                {
+                                    name: 'Work',
+                                    value: "work"
+                                },
+                            ],
+                            required: true,
+                        },
+                        {
+                            name: 'time',
+                            type: ApplicationCommandOptionType.String,
+                            description: 'The time you want to set',
+                            description_localizations: {
+                                "fr": "Le temps que vous souhaitez définir"
+                            },
+                            required: true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             name: "shop",
             prefixName: "shop",
 

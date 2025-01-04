@@ -540,6 +540,8 @@ fun_category_disable: "You cannot use this command, the fun commands category is
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
+economy_cooldown_error: "Wait **${time}** before you can execute this command again!"
+
 # /addmoney
 addmoney_not_admin: "You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`"
 addmoney_logs_embed_title: "Economy Logs"

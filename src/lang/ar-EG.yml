@@ -539,6 +539,8 @@ fun_category_disable: "مش مسموحلك تستخدم الأمر ده، فئة
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
+economy_cooldown_error: "انتظر **${time}** قبل أن تتمكن من تنفيذ هذا الأمر مرة أخرى!"
+
 # /addmoney
 addmoney_not_admin: "لا يمكنك تنفيذ هذا الأمر لأنك لا تمتلك الصلاحيات اللازمة `ADMINISTRATOR`"
 addmoney_logs_embed_title: "سجلات الاقتصاد"

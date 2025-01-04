@@ -541,6 +541,8 @@ fun_category_disable: "Вы не можете использовать эту к
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
+economy_cooldown_error: "Подождите **${time}**, прежде чем вы сможете снова выполнить эту команду!"
+
 # /addmoney
 addmoney_not_admin: "Вы не можете выполнить эту команду, так как у вас нет необходимых прав `АДМИНИСТРАТОР`"
 addmoney_logs_embed_title: "Логи экономики"

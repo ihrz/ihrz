@@ -29,9 +29,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-let talkedRecentlyforr = new Set();
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
 
@@ -46,15 +44,24 @@ export default {
             return;
         };
 
+        let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.rob.cooldown`) || 3000000);
+        let rob = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.rob`);
+
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getMember("member") as GuildMember;
         } else {
-            
             var user = client.method.member(interaction, args!, 0) as GuildMember;
         };
 
-        if (talkedRecentlyforr.has(interaction.member.user.id)) {
-            await client.method.interactionSend(interaction, { content: lang.rob_cooldown_error });
+        if (rob !== null && timeout - (Date.now() - rob) > 0) {
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - rob));
+
+            await client.method.interactionSend(interaction, {
+                content: lang.work_cooldown_error
+                    .replace('${interaction.user.id}', interaction.member.user.id)
+                    .replace('${time}', time),
+                ephemeral: true
+            });
             return;
         };
 
@@ -89,10 +96,6 @@ export default {
 
         await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, random);
         await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, random);
-
-        talkedRecentlyforr.add(interaction.member.user.id);
-        setTimeout(() => {
-            talkedRecentlyforr.delete(interaction.member?.user.id);
-        }, 3000000);
+        await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.rob`, Date.now());
     },
 };
