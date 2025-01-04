@@ -623,6 +623,9 @@ export interface LanguageData {
   zip_emojis_doesnt_have_perm: string;
   zip_emojis_command_work: string;
   zip_emojis_command_error: string;
+  zip_stickers_doesnt_have_perm: string;
+  zip_stickers_command_work: string;
+  zip_stickers_command_error: string;
   sticket_no_sticker: string;
   sticket_command_work: string;
   sticker_command_error: string;

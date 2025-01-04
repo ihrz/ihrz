@@ -53,6 +53,18 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand,
         },
+        {
+            name: 'zip-stickers',
+
+            description: 'Create zip files with all guild stickers in!',
+            description_localizations: {
+                "fr": "Créer un fichier zip contenant absolument tout les stickers du serveur"
+            },
+
+            aliases: ["zipstickers", "zip2"],
+
+            type: ApplicationCommandOptionType.Subcommand
+        },
     ],
 
     category: 'utils',

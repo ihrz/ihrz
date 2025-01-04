@@ -829,6 +829,11 @@ zip_emojis_doesnt_have_perm: "Vous n'avez pas la permission de gérer les émoji
 zip_emojis_command_work: "🎉 Exportation terminée en **${calcTime}**ms ! Voici l'archive contenant ${emojis.size} émojis."
 zip_emojis_command_error: "Une erreur s'est produite lors de l'exportation des émojis."
 
+# /zip-stickers
+zip_stickers_doesnt_have_perm: "Vous n'avez pas la permission de gérer les stickers."
+zip_stickers_command_work: "🎉 Exportation terminée en **${calcTime}**ms ! Voici l'archive contenant ${stickers.size} stickers."
+zip_stickers_command_error: "Une erreur est survenue lors de l'exportation des stickers."
+
 # +sticker  
 sticket_no_sticker: "Aucun autocollant trouvé dans le message auquel vous avez répondu."  
 sticket_command_work: "L'autocollant `${x.name}` a été créé avec succès."  

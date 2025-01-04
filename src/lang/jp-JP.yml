@@ -829,6 +829,11 @@ zip_emojis_doesnt_have_perm: "絵文字を管理する権限がありません�
 zip_emojis_command_work: "🎉 **${calcTime}**ミリ秒で書き出し完了！${emojis.size}個の絵文字を含むアーカイブはこちらです。"
 zip_emojis_command_error: "絵文字の書き出し中にエラーが発生しました。"
 
+# /zip-stickers
+zip_stickers_doesnt_have_perm: "ステッカーを管理する権限がありません。"
+zip_stickers_command_work: "🎉 **${calcTime}**ミリ秒でエクスポートが完了しました！ ${stickers.size}枚のステッカーが含まれるアーカイブです。"
+zip_stickers_command_error: "ステッカーをエクスポート中にエラーが発生しました。"
+
 # +sticker  
 sticket_no_sticker: "返信されたメッセージにスタンプが見つかりませんでした。"  
 sticket_command_work: "スタンプ `${x.name}` が正常に作成されました。"  

@@ -718,7 +718,7 @@ export const command: Command = {
                 "fr": "Créer un fichier zip contenant absolument tout les émojis du serveur"
             },
 
-            aliases: ["zipemojis", "zip"],
+            aliases: ["zipemojis", "zip1"],
 
             type: ApplicationCommandOptionType.Subcommand
         },
