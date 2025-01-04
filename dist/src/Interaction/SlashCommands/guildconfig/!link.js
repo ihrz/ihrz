@@ -1,0 +1,114 @@
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2025 iHorizon
+*/
+import { PermissionsBitField, AutoModerationRuleTriggerType } from 'discord.js';
+;
+const regexPatterns = [
+    '(discord\\.gg\\/|\\.gg\\/|gg\\/|https?:\\/\\/|http?:\\/\\/)',
+    '(?:%[0-9a-fA-F]{2})+',
+    '(?:<.*?>)?\\s*https?:\\/\\/.*?',
+    '[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
+];
+export default {
+    run: async (client, interaction, lang, command, neededPerm) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel)
+            return;
+        let turn = interaction.options.getString("action");
+        let logs_channel = interaction.options.getChannel('logs-channel');
+        let automodRules = await interaction.guild.autoModerationRules.fetch();
+        let KeywordPresetRule = automodRules.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
+            await interaction.editReply({ content: lang.blockpub_not_admin });
+            return;
+        }
+        else if (turn === "on") {
+            if (!KeywordPresetRule) {
+                let arrayActionsForRule = [
+                    {
+                        type: 1,
+                        metadata: {
+                            customMessage: "This message was prevented by iHorizon"
+                        }
+                    },
+                ];
+                if (logs_channel) {
+                    arrayActionsForRule.push({
+                        type: 2,
+                        metadata: {
+                            channel: logs_channel,
+                        }
+                    });
+                }
+                ;
+                await interaction.guild.autoModerationRules.create({
+                    name: 'Block advertissement message by iHorizon',
+                    enabled: true,
+                    eventType: 1,
+                    triggerType: 1,
+                    triggerMetadata: {
+                        regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
+                    },
+                    actions: arrayActionsForRule
+                });
+            }
+            else if (KeywordPresetRule) {
+                KeywordPresetRule.edit({
+                    enabled: true,
+                    triggerMetadata: {
+                        regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
+                    },
+                    actions: [
+                        {
+                            type: 1,
+                            metadata: {
+                                customMessage: "This message was prevented by iHorizon"
+                            }
+                        },
+                        {
+                            type: 2,
+                            metadata: {
+                                channel: logs_channel
+                            }
+                        },
+                    ]
+                });
+            }
+            ;
+            await interaction.editReply({
+                content: lang.automod_block_link_command_on
+                    .replace('${interaction.user}', interaction.user.toString())
+                    .replace('${logs_channel}', (logs_channel?.toString() || 'None'))
+            });
+            await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`, false);
+            return;
+        }
+        else if (turn === "off") {
+            await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`);
+            await KeywordPresetRule?.setEnabled(false);
+            await interaction.editReply({
+                content: lang.automod_block_link_command_off
+                    .replace('${interaction.user}', interaction.user.toString())
+            });
+            return;
+        }
+        ;
+    },
+};

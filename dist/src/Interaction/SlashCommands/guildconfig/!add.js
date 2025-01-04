@@ -1,0 +1,62 @@
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2025 iHorizon
+*/
+import { PermissionsBitField, EmbedBuilder, } from 'discord.js';
+export default {
+    run: async (client, interaction, lang, command, neededPerm) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel)
+            return;
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
+            await client.method.interactionSend(interaction, { content: lang.setup_not_admin });
+            return;
+        }
+        ;
+        let channel = interaction.options.getChannel('channel');
+        let all_channels = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) || [];
+        if (all_channels?.includes(channel.id)) {
+            await interaction.reply({
+                content: lang.joinghostping_add_already_set
+                    .replace('${channel}', channel.toString())
+            });
+            return;
+        }
+        ;
+        await client.db.push(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`, channel.id);
+        channel.send({ content: lang.joinghostping_add_sent_to_channel });
+        all_channels?.push(channel.id);
+        let embed = new EmbedBuilder()
+            .setTitle(lang.joinghostping_add_ok_embed_title)
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#475387")
+            .setDescription(lang.joinghostping_add_ok_embed_desc)
+            .addFields({
+            name: lang.joinghostping_add_ok_embed_fields_name,
+            value: all_channels ? Array.from(new Set(all_channels.map(x => `<#${x}>`))).join('\n') : `<#${channel.id}>`
+        });
+        await client.method.iHorizonLogs.send(interaction, {
+            title: lang.joinghostping_add_logs_embed_title,
+            description: lang.joinghostping_add_logs_embed_desc
+                .replace('${interaction.user}', interaction.user.toString())
+                .replace('${channel}', channel.toString())
+        });
+        await interaction.reply({ embeds: [embed] });
+        return;
+    },
+};

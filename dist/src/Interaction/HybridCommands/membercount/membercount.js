@@ -1,0 +1,185 @@
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2025 iHorizon
+*/
+import { EmbedBuilder, PermissionsBitField, ApplicationCommandOptionType, ChatInputCommandInteraction, ApplicationCommandType, ChannelType } from 'discord.js';
+export const command = {
+    name: 'membercount',
+    description: 'Set a member count channels!',
+    description_localizations: {
+        "fr": "Parametrer un canal vocal pour afficher des statistique"
+    },
+    options: [
+        {
+            name: "action",
+            description: "<Power on /Power off>",
+            description_localizations: {
+                "fr": "<Power on /Power off>"
+            },
+            type: ApplicationCommandOptionType.String,
+            required: true,
+            choices: [
+                {
+                    name: "Power on",
+                    value: "on"
+                },
+                {
+                    name: "Power off",
+                    value: "off"
+                },
+            ]
+        },
+        {
+            name: "channel",
+            description: `The channel to set the member count`,
+            description_localizations: {
+                "fr": "Le cannal pour définir le module membercount"
+            },
+            channel_types: [ChannelType.GuildVoice],
+            type: ApplicationCommandOptionType.Channel,
+            required: true,
+        },
+        {
+            name: 'name',
+            required: false,
+            type: ApplicationCommandOptionType.String,
+            description: `{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}`,
+            description_localizations: {
+                "fr": "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}"
+            }
+        },
+    ],
+    thinking: true,
+    category: 'membercount',
+    type: ApplicationCommandType.ChatInput,
+    run: async (client, interaction, lang, command, neededPerm, args) => {
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel)
+            return;
+        const permissionsArray = [PermissionsBitField.Flags.Administrator];
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+        if (!permissions && neededPerm === 0) {
+            await client.method.interactionSend(interaction, { content: lang.setmembercount_not_admin });
+            return;
+        }
+        ;
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var type = interaction.options.getString("action");
+            var messagei = interaction.options.getString("name");
+            var channel = interaction.options.getChannel("channel");
+        }
+        else {
+            var type = client.method.string(args, 0);
+            var channel = await client.method.voiceChannel(interaction, args, 1);
+            var messagei = client.method.string(args, 2);
+        }
+        let help_embed = new EmbedBuilder()
+            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0014a8")
+            .setTitle(lang.setmembercount_helpembed_title)
+            .setDescription(lang.setmembercount_helpembed_description)
+            .addFields({ name: lang.setmembercount_helpembed_fields_name, value: lang.setmembercount_helpembed_fields_value });
+        if (type == "on") {
+            let botMembers = interaction.guild.members.cache.filter((member) => member.user.bot);
+            let rolesCollection = interaction.guild.roles.cache;
+            let channelsCount = interaction.guild.channels.cache.size.toString();
+            let rolesCount = rolesCollection.size;
+            let boostsCount = interaction.guild.premiumSubscriptionCount?.toString() || '0';
+            const voiceChannels = interaction.guild.channels.cache
+                .filter((channel) => channel.type === ChannelType.GuildVoice ||
+                channel.type === ChannelType.GuildStageVoice)
+                .toJSON();
+            let voiceCount = 0;
+            voiceChannels.forEach((channel) => {
+                if ('members' in channel) {
+                    voiceCount += channel.members?.size ?? 0;
+                }
+            });
+            if (!messagei) {
+                await client.method.interactionSend(interaction, { embeds: [help_embed] });
+                return;
+            }
+            ;
+            let joinmsgreplace = messagei
+                .replace("{MemberCount}", interaction.guild.memberCount.toString())
+                .replace("{RolesCount}", rolesCount.toString())
+                .replace("{ChannelCount}", channelsCount)
+                .replace("{BoostCount}", boostsCount)
+                .replace("{VoiceCount}", voiceCount.toString())
+                .replace("{BotCount}", botMembers.size.toString());
+            if (messagei.includes("{MemberCount}")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.member`, { name: messagei, enable: true, event: "member", channel: channel?.id });
+            }
+            else if (messagei.includes("{RolesCount}")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.roles`, { name: messagei, enable: true, event: "roles", channel: channel?.id });
+            }
+            else if (messagei.includes("{ChannelCount}")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.channel`, { name: messagei, enable: true, event: "bot", channel: channel?.id });
+            }
+            else if (messagei.includes("{BoostCount}")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.boost`, { name: messagei, enable: true, event: "bot", channel: channel?.id });
+            }
+            else if (messagei.includes("{BotCount}")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.bot`, { name: messagei, enable: true, event: "bot", channel: channel?.id });
+            }
+            else if (messagei.includes("{VoiceCount}")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.voice`, { name: messagei, enable: true, event: "bot", channel: channel?.id });
+            }
+            else {
+                await client.method.interactionSend(interaction, { embeds: [help_embed] });
+                return;
+            }
+            await client.method.iHorizonLogs.send(interaction, {
+                title: lang.setmembercount_logs_embed_title_on_enable,
+                description: lang.setmembercount_logs_embed_description_on_enable
+                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+                    .replace(/\${channel\.id}/g, channel?.id)
+                    .replace(/\${messagei}/g, messagei)
+            });
+            let fetched = interaction.guild?.channels.cache.get(channel?.id);
+            fetched.edit({ name: joinmsgreplace });
+            await client.method.interactionSend(interaction, {
+                content: lang.setmembercount_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+            });
+            return;
+        }
+        else if (type == "off") {
+            await client.db.delete(`${interaction.guildId}.GUILD.MCOUNT`);
+            await client.method.iHorizonLogs.send(interaction, {
+                title: lang.setmembercount_logs_embed_title_on_disable,
+                description: lang.setmembercount_logs_embed_description_on_disable
+                    .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+            });
+            await client.method.interactionSend(interaction, {
+                content: lang.setmembercount_command_work_on_disable.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)
+            });
+            return;
+        }
+        else if (!type) {
+            await client.method.interactionSend(interaction, { embeds: [help_embed] });
+            return;
+        }
+        else if (!messagei) {
+            await client.method.interactionSend(interaction, { embeds: [help_embed] });
+            return;
+        }
+        ;
+    },
+};

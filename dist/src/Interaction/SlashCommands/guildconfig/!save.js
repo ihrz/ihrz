@@ -1,0 +1,46 @@
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2025 iHorizon
+*/
+import { PermissionsBitField, AttachmentBuilder, } from 'discord.js';
+import { encrypt } from '../../../core/functions/encryptDecryptMethod.js';
+export default {
+    run: async (client, interaction, lang, command, neededPerm) => {
+        // Guard's Typing
+        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel)
+            return;
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
+            await interaction.editReply({ content: lang.setup_not_admin });
+            return;
+        }
+        ;
+        const dbGuild = await client.db.get(`${interaction.guildId}`);
+        let buffer = Buffer.from(encrypt(client.config.api.apiToken, JSON.stringify(dbGuild)), 'utf-8');
+        let attachment = new AttachmentBuilder(buffer, { name: interaction.guildId + '.json' });
+        await interaction.editReply({ content: lang.guildconfig_config_save_check_dm });
+        await interaction.user.send({
+            content: lang.guildconfig_config_save_user_msg
+                .replace("${interaction.guild.name}", interaction.guild.name),
+            files: [attachment]
+        })
+            .catch(() => { })
+            .then(() => { });
+        return;
+    },
+};

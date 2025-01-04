@@ -1,0 +1,290 @@
+/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2025 iHorizon
+*/
+import { ChatInputCommandInteraction, EmbedBuilder, PermissionsBitField, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputStyle, ComponentType, Colors, ApplicationCommandType, ChannelSelectMenuBuilder, ChannelType, } from 'discord.js';
+import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
+import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
+export const command = {
+    name: "autoreact",
+    description: "Sent specified emoji when new message in specified channel",
+    description_localizations: {
+        "fr": "Envoyer un emoji spécifié lorsqu'un nouveau message est envoyé dans un canal spécifié"
+    },
+    thinking: true,
+    category: 'guildconfig',
+    type: ApplicationCommandType.ChatInput,
+    run: async (client, interaction, lang, command, neededPerm, args) => {
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel)
+            return;
+        const permissionsArray = [PermissionsBitField.Flags.Administrator];
+        const permissions = interaction instanceof ChatInputCommandInteraction ?
+            interaction.memberPermissions?.has(permissionsArray)
+            : interaction.member.permissions.has(permissionsArray);
+        if (!permissions && neededPerm === 0) {
+            await client.method.interactionSend(interaction, { content: lang.setxpchannels_not_admin });
+            return;
+        }
+        let autoreactConfig = await client.db.get(`${interaction.guild.id}.GUILD.AUTOREACT`) || {};
+        const itemsPerPage = 5;
+        let currentPage = 0;
+        const createRankRolesEmbed = (page) => {
+            const channelEntries = Object.entries(autoreactConfig || {})
+                .sort(([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA));
+            const startIndex = page * itemsPerPage;
+            const pageValue = channelEntries.slice(startIndex, startIndex + itemsPerPage);
+            let currentPage = page + 1;
+            let totalPage = Math.max(1, Math.ceil(channelEntries.length / itemsPerPage));
+            let totalReact = channelEntries.length;
+            const embed = new EmbedBuilder()
+                .setColor(Colors.Blurple)
+                .setTitle(lang.autoreact_embed_title)
+                .setDescription(lang.autoreact_embed_desc)
+                .addFields(pageValue.length > 0
+                ? pageValue.map(([channelId, reaction]) => ({
+                    name: `${interaction.guild?.channels.cache.get(channelId)?.toString() || lang.var_unknown}`,
+                    value: lang.autoreact_embed_autofields_value.replace("${reaction}", String(reaction)),
+                    inline: false
+                }))
+                : [{
+                        name: lang.var_no_set,
+                        value: lang.autoreact_embed_autofields_none_value,
+                        inline: false
+                    }])
+                .setFooter({
+                text: lang.autoreact_embed_footer.replace("${currentPage}", String(currentPage))
+                    .replace("${totalPage}", String(totalPage))
+                    .replace("${totalReact}", String(totalReact)),
+                iconURL: interaction.guild?.iconURL() || undefined
+            })
+                .setTimestamp();
+            return embed;
+        };
+        const createActionRow = () => {
+            const valueEntries = Object.entries(autoreactConfig || {});
+            const navigationRow = new ActionRowBuilder()
+                .addComponents(new ButtonBuilder()
+                .setCustomId('prev_page')
+                .setLabel('<<<')
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(currentPage === 0), new ButtonBuilder()
+                .setCustomId('add_channel')
+                .setLabel(lang.autoreact_btn_add_name)
+                .setStyle(ButtonStyle.Success), new ButtonBuilder()
+                .setCustomId('remove_channel')
+                .setLabel(lang.autoreact_btn_remove_name)
+                .setStyle(ButtonStyle.Danger), new ButtonBuilder()
+                .setCustomId('next_page')
+                .setLabel('>>>')
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(currentPage >= Math.floor(valueEntries.length / itemsPerPage)));
+            return navigationRow;
+        };
+        const createReturnRow = () => {
+            return new ActionRowBuilder()
+                .addComponents(new ButtonBuilder()
+                .setCustomId('return_to_main')
+                .setLabel(lang.backup_cancel_button)
+                .setStyle(ButtonStyle.Secondary));
+        };
+        const message = await client.method.interactionSend(interaction, {
+            embeds: [createRankRolesEmbed(currentPage)],
+            components: [createActionRow()]
+        });
+        const collector = message.createMessageComponentCollector({
+            time: 180000,
+            componentType: ComponentType.Button
+        });
+        collector.on('collect', async (interaction2) => {
+            if (interaction2.user.id !== interaction.member?.user.id) {
+                await interaction2.reply({
+                    content: lang.help_not_for_you,
+                    ephemeral: true
+                });
+                return;
+            }
+            if (interaction2.customId === 'prev_page') {
+                currentPage = Math.max(0, currentPage - 1);
+                await interaction2.update({
+                    embeds: [createRankRolesEmbed(currentPage)],
+                    components: [createActionRow()]
+                });
+                return;
+            }
+            if (interaction2.customId === 'next_page') {
+                const valueEntries = Object.entries(autoreactConfig || {});
+                currentPage = Math.min(Math.floor(valueEntries.length / itemsPerPage), currentPage + 1);
+                await interaction2.update({
+                    embeds: [createRankRolesEmbed(currentPage)],
+                    components: [createActionRow()]
+                });
+                return;
+            }
+            if (interaction2.customId === 'return_to_main') {
+                await interaction2.update({
+                    content: null,
+                    embeds: [createRankRolesEmbed(currentPage)],
+                    components: [createActionRow()]
+                });
+                return;
+            }
+            if (interaction2.customId === 'add_channel') {
+                const currentValues = Object.values(autoreactConfig || {});
+                if (currentValues.length >= 25) {
+                    await interaction2.reply({
+                        content: lang.autoreact_max_25,
+                        ephemeral: true
+                    });
+                    return;
+                }
+                const channelSelectRow = new ActionRowBuilder()
+                    .addComponents(new ChannelSelectMenuBuilder()
+                    .setCustomId('select_channel_to_add')
+                    .setPlaceholder(lang.autoreact_menu_add_place)
+                    .setChannelTypes(ChannelType.GuildText));
+                let awaiting = await interaction2.update({
+                    content: lang.autoreact_awaiting1_msg,
+                    components: [channelSelectRow, createReturnRow()]
+                });
+                let response1;
+                try {
+                    response1 = await awaiting.awaitMessageComponent({
+                        time: 600_000,
+                        componentType: ComponentType.ChannelSelect
+                    });
+                }
+                catch {
+                    await message.edit({
+                        content: null,
+                        embeds: [createRankRolesEmbed(currentPage)],
+                        components: [createActionRow()]
+                    });
+                    return;
+                }
+                const selectedChannel = response1.values[0];
+                if (!selectedChannel)
+                    return;
+                const response2 = await iHorizonModalResolve({
+                    title: lang.autoreact_modal_title,
+                    customId: 'level_input_modal',
+                    deferUpdate: false,
+                    fields: [
+                        {
+                            customId: 'reaction_input',
+                            label: lang.autoreact_modal_fields1_label,
+                            style: TextInputStyle.Short,
+                            required: true,
+                            minLength: 1,
+                            maxLength: 200,
+                        }
+                    ]
+                }, response1);
+                const reactInput = response2?.fields.getTextInputValue('reaction_input') || "";
+                if (reactInput !== '') {
+                    if (!isSingleEmoji(reactInput) && !isDiscordEmoji(reactInput)) {
+                        await response2?.reply({
+                            content: lang.autoreact_invalid_emoji,
+                            ephemeral: true
+                        });
+                        await message.edit({
+                            content: null,
+                            embeds: [createRankRolesEmbed(currentPage)],
+                            components: [createActionRow()]
+                        });
+                        return;
+                    }
+                }
+                if (selectedChannel) {
+                    autoreactConfig[selectedChannel] = reactInput;
+                    await client.db.set(`${interaction.guild?.id}.GUILD.AUTOREACT`, autoreactConfig);
+                    await message.edit({
+                        content: null,
+                        embeds: [createRankRolesEmbed(currentPage)],
+                        components: [createActionRow()]
+                    });
+                    await response2?.reply({
+                        content: lang.autoreact_add_command_ok,
+                        ephemeral: true
+                    });
+                }
+                return;
+            }
+            // Remove Role Flow
+            if (interaction2.customId === 'remove_channel') {
+                const channelEntries = Object.entries(autoreactConfig || {});
+                if (channelEntries.length === 0) {
+                    await interaction2.reply({
+                        content: lang.autoreact_remove_not_found,
+                        ephemeral: true
+                    });
+                    await message.edit({
+                        content: null,
+                        embeds: [createRankRolesEmbed(currentPage)],
+                        components: [createActionRow()]
+                    });
+                    return;
+                }
+                const channelOptions = Object.entries(autoreactConfig || {}).map(([channelId, _]) => new StringSelectMenuOptionBuilder()
+                    .setLabel(lang.var_text_channel + ": " + interaction.guild?.channels.cache.get(channelId)?.name || lang.var_unknown)
+                    .setValue(channelId));
+                const removeRoleRow = new ActionRowBuilder()
+                    .addComponents(new StringSelectMenuBuilder()
+                    .setCustomId('select_channel_to_remove')
+                    .setPlaceholder(lang.autoreact_menu_remove_place)
+                    .addOptions(channelOptions));
+                let awaiting = await interaction2.update({
+                    content: lang.autoreact_awaiting_remove_msg,
+                    components: [removeRoleRow, createReturnRow()]
+                });
+                let response1;
+                try {
+                    response1 = await awaiting.awaitMessageComponent({
+                        time: 600_000,
+                        componentType: ComponentType.StringSelect
+                    });
+                }
+                catch {
+                    await message.edit({
+                        content: null,
+                        embeds: [createRankRolesEmbed(currentPage)],
+                        components: [createActionRow()]
+                    });
+                    return;
+                }
+                const channelToRemove = response1.values[0];
+                delete autoreactConfig[channelToRemove];
+                await client.db.set(`${interaction.guild?.id}.GUILD.AUTOREACT`, autoreactConfig);
+                await message.edit({
+                    content: null,
+                    embeds: [createRankRolesEmbed(currentPage)],
+                    components: [createActionRow()]
+                });
+                await response1.reply({
+                    content: lang.autoreact_remove_command_ok,
+                    ephemeral: true
+                });
+                return;
+            }
+        });
+        collector.on('end', async () => {
+            await message.edit({ components: [] });
+        });
+    },
+};

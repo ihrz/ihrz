@@ -1,0 +1,11 @@
+{
+    "categoryInitializer": {
+        "categoryName": "confession",
+        "categoryColor": "#d193a7",
+        "options": {
+            "description": "help_confession_dsc",
+            "emoji": "😶",
+            "placeholder": "help_confession_fields"
+        }
+    }
+}

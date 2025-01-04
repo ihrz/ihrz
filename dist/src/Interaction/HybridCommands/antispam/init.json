@@ -1,0 +1,11 @@
+{
+    "categoryInitializer": {
+        "categoryName": "antispam",
+        "categoryColor": "#6666ff",
+        "options": {
+            "description": "help_antispam_dsc",
+            "emoji": "🔐",
+            "placeholder": "help_antispam_fields"
+        }
+    }
+}
