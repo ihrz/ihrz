@@ -28,95 +28,84 @@ import { LanguageData } from '../../../types/languageData';
 export const event: BotEvent = {
     name: "guildMemberRemove",
     run: async (client: Client, member: GuildMember) => {
-        /**
-         * Why doing this?
-         * On iHorizon Production, we have some ~problems~ 👎
-         * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-         */
         const nonce = SnowflakeUtil.generate().toString();
         let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
         let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
 
         try {
             let base = await client.db.get(`${member.guild.id}.USER.${member.user.id}.INVITES.BY`);
-            let inviter = await client.users.fetch(base.inviter);
-
-            let check = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES`) as DatabaseStructure.InvitesUserData
-
-            if (check) {
-                if (check?.invites! >= 1) {
-                    await client.db.sub(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
-                }
-
-                await client.db.add(`${member.guild.id}.USER.${inviter.id}.INVITES.leaves`, 1);
-            };
-
-            var invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
-            var lChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
-
-            if (!lChan || !member.guild.channels.cache.get(lChan)) return;
-
+            let lChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
             let leaveMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage`);
 
-            if (!leaveMessage) {
-                let lChanManager = member.guild.channels.cache.get(lChan);
+            if (!lChan || !member.guild.channels.cache.get(lChan)) return;
+            let lChanManager = member.guild.channels.cache.get(lChan) as BaseGuildTextChannel;
 
-                (lChanManager as BaseGuildTextChannel).send({
-                    content: client.method.generateCustomMessagePreview(data.event_goodbye_inviter,
+            if (base?.inviter) {
+                const inviter = await client.users.fetch(base.inviter);
+                const inviterStats = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES`) as DatabaseStructure.InvitesUserData;
+
+                if (inviterStats) {
+                    if (inviterStats?.invites && inviterStats.invites >= 1) {
+                        await client.db.sub(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`, 1);
+                    }
+                    await client.db.add(`${member.guild.id}.USER.${inviter.id}.INVITES.leaves`, 1);
+                }
+
+                const invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
+
+                const messageContent = client.method.generateCustomMessagePreview(
+                    leaveMessage || data.event_goodbye_inviter,
+                    {
+                        user: member.user,
+                        guild: member.guild,
+                        guildLocal: guildLocal,
+                        inviter: {
+                            user: {
+                                username: inviter.username,
+                                mention: inviter.toString()
+                            },
+                            invitesAmount: invitesAmount
+                        }
+                    }
+                );
+
+                await lChanManager.send({
+                    content: messageContent,
+                    enforceNonce: true,
+                    nonce: nonce
+                }).catch(() => { });
+            } else {
+                await lChanManager.send({
+                    content: client.method.generateCustomMessagePreview(
+                        leaveMessage ||
+                        data.event_goodbye_default,
                         {
                             user: member.user,
                             guild: member.guild,
                             guildLocal: guildLocal,
-                            inviter: {
-                                user: {
-                                    username: inviter.username,
-                                    mention: inviter.toString()
-                                },
-                                invitesAmount: invitesAmount
-                            }
                         }
                     ),
-                    enforceNonce: true, nonce: nonce
-                });
-                return;
-            };
-
-            var joinMessageFormated = client.method.generateCustomMessagePreview(data.event_goodbye_inviter,
-                {
-                    user: member.user,
-                    guild: member.guild,
-                    guildLocal: guildLocal,
-                    inviter: {
-                        user: {
-                            username: inviter.username,
-                            mention: inviter.toString()
-                        },
-                        invitesAmount: invitesAmount
-                    }
-                }
-            )
-
-            let lChanManager = member.guild.channels.cache.get(lChan) as BaseGuildTextChannel;
-
-            lChanManager.send({ content: joinMessageFormated, enforceNonce: true, nonce: nonce }).catch(() => { });
-            return;
+                    enforceNonce: true,
+                    nonce: nonce
+                }).catch(() => { });
+            }
         } catch (e) {
             let lChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.leave`);
-
             if (!lChan || !member.guild.channels.cache.get(lChan)) return;
-            let lChanManager = member.guild.channels.cache.get(lChan);
 
-            (lChanManager as BaseGuildTextChannel).send({
-                content: client.method.generateCustomMessagePreview(data.event_goodbye_default,
+            let lChanManager = member.guild.channels.cache.get(lChan) as BaseGuildTextChannel;
+            await lChanManager.send({
+                content: client.method.generateCustomMessagePreview(
+                    data.event_goodbye_default,
                     {
                         user: member.user,
                         guild: member.guild,
                         guildLocal: guildLocal,
                     }
                 ),
-                enforceNonce: true, nonce: nonce
+                enforceNonce: true,
+                nonce: nonce
             }).catch(() => { });
-            return;
         }
     },
 };

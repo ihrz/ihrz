@@ -2195,6 +2195,8 @@ temporary_voice_transfer_unblocked_placeholder: "Selected users will be unblocke
 
 temporary_voice_transfer_untrust_placeholder: "Selected users will be untrusted for joining"
 
+temporary_voice_channel_name: "{nickname}'s Channel"
+
 # Protection Module
 # Event message
 

@@ -2194,6 +2194,8 @@ temporary_voice_transfer_unblocked_placeholder: "Gli utenti selezionati saranno 
 
 temporary_voice_transfer_untrust_placeholder: "Gli utenti selezionati non saranno attendibili per unirsi"
 
+temporary_voice_channel_name: "Canale di {nickname}"
+
 # Modulo di Protezione
 # Messaggio di evento
 

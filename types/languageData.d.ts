@@ -1615,6 +1615,7 @@ export interface LanguageData {
   temporary_voice_transfer_trust_placeholder: string;
   temporary_voice_transfer_unblocked_placeholder: string;
   temporary_voice_transfer_untrust_placeholder: string;
+  temporary_voice_channel_name: string;  
   protection_avoid_channel_delete: string;
   antispam_base_warn_message: string;
   antispam_more_ban_msg: string;

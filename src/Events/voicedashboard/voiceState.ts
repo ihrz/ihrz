@@ -22,6 +22,7 @@
 import { Client, VoiceState, CategoryChannel, ChannelType, GuildChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
     name: "voiceStateUpdate",
@@ -73,12 +74,12 @@ export const event: BotEvent = {
         };
 
         let staff_role = await client.db.get(`${oldState.guild.id}.VOICE_INTERFACE.staff_role`);
+        let lang = await client.func.getLanguageData(newState.guild.id) as LanguageData;
 
         // If the user join the Create's Channel
         if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {
-
             newState.guild.channels.create({
-                name: `${newState.member?.displayName || newState.member?.nickname}'s Channel`,
+                name: lang.temporary_voice_channel_name.replace("{nicker}", `${newState.member?.displayName || newState.member?.nickname}`),
                 parent: result_channel?.parentId,
                 permissionOverwrites: category_channel.permissionOverwrites.cache,
                 type: ChannelType.GuildVoice,

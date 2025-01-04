@@ -2194,6 +2194,8 @@ temporary_voice_transfer_unblocked_placeholder: "Выбранные пользо
 
 temporary_voice_transfer_untrust_placeholder: "Выбранные пользователи не будут доверены для присоединения"
 
+temporary_voice_channel_name: "Канал {nickname}"
+
 # Модуль Защиты
 # Сообщение о событии
 
