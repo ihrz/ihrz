@@ -50,7 +50,7 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
-        cmd.run(client, interaction, lang, command, neededPerm)
+    run: async (client: Client, interaction: Message<true>, lang: LanguageData, command: Command | Option | undefined, allowed, options?: string[]) => {
+        cmd.run(client, interaction, lang, command, allowed)
     },
 };

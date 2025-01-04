@@ -108,7 +108,7 @@ export const command: Command = {
     category: 'rolereactions',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) {
             return;
         }
@@ -118,7 +118,7 @@ export const command: Command = {
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
-        if (!permissions && neededPerm === 0) {
+        if (!permissions && !allowed) {
             await client.method.interactionSend(interaction, { content: lang.reactionroles_dont_admin_added });
             return;
         };

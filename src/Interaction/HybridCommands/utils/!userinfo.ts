@@ -39,7 +39,7 @@ import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | UserContextMenuCommandInteraction | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | UserContextMenuCommandInteraction | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
 
 
         // Guard's Typing

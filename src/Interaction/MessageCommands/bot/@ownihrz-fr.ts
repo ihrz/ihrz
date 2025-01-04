@@ -39,7 +39,7 @@ export const command: Command = {
     thinking: false,
     category: 'ownihrz',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
 
         let option1 = args?.[0];
         var content = "";

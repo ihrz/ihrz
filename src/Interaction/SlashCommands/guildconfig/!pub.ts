@@ -43,7 +43,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
 
         // Guard's Typing
@@ -55,7 +55,7 @@ export default {
         let automodRules = await interaction.guild.autoModerationRules.fetch();
         let KeywordPresetRule = automodRules.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
+        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
             await interaction.editReply({ content: lang.blockpub_not_admin });
             return;
 

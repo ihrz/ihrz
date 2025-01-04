@@ -53,7 +53,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                 await interaction.deferReply({ ephemeral: subCmd.ephemeral });
             }
 
-            return await subCmd.run(client, interaction, lang, command, permCheck.neededPerm, []);
+            return await subCmd.run(client, interaction, lang, command, permCheck.allowed, []);
         }
     }
     else if (subCommand) {
@@ -68,7 +68,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                 await interaction.deferReply({ ephemeral: subCmd.ephemeral });
             }
 
-            return await subCmd.run(client, interaction, lang, command, permCheck.neededPerm, []);
+            return await subCmd.run(client, interaction, lang, command, permCheck.allowed, []);
         }
     }
 
@@ -79,7 +79,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
     let permCheck = await client.method.permission.checkCommandPermission(interaction, interaction.commandName);
     if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
-    if (command.run) await command.run(client, interaction, lang, command, permCheck.neededPerm, []);
+    if (command.run) await command.run(client, interaction, lang, command, permCheck.allowed, []);
     return
 }
 

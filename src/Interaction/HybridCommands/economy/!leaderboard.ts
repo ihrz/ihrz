@@ -42,7 +42,7 @@ export default {
         interaction: ChatInputCommandInteraction<"cached"> | Message,
         lang: LanguageData,
         command: Command,
-        neededPerm: number,
+        allowed: boolean,
         args?: string[]
     ) => {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;

@@ -60,7 +60,7 @@ export const command: Command = {
     ],
     type: ApplicationCommandType.ChatInput,
     thinking: false,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {        
 
 
         // Guard's Typing
@@ -78,7 +78,7 @@ export const command: Command = {
             var toSay = args?.join(" ")!;
         };
 
-        if (!permissions && neededPerm === 0) {
+        if (!permissions && !allowed) {
             await client.method.interactionSend(interaction, { content: lang.setserverlang_not_admin });
             return;
         };
