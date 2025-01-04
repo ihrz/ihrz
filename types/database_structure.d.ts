@@ -350,12 +350,21 @@ export namespace DatabaseStructure {
         NICK_KICKER?: NickKickerData;
     }
 
+    export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    export type PermNone = 0;
+
+    export type PermCommandData = {
+        users: string[];
+        roles: string[];
+        level: PermLevel;
+    }
+
     export interface UtilsPermsData {
-        [key: string]: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+        [key: string]: PermLevel | PermCommandData;
     }
 
     export interface UtilsPermsUserData {
-        [key: string]: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+        [key: string]: PermLevel
     }
 
     export interface DbGuildUserObject {

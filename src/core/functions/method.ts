@@ -207,7 +207,16 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             });
         });
     } else {
-        var CommandsPerm = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${command.name}`) as DatabaseStructure.UtilsPermsData[""] | undefined;
+        let fetchFullCommandName = interaction.client.content.find(c => c.desc === command.description);
+        var CommandsPerm = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${fetchFullCommandName?.cmd}`) as DatabaseStructure.UtilsPermsData[""] | undefined;
+
+        if (typeof CommandsPerm === "number") {
+            CommandsPerm = {
+                users: [],
+                roles: [],
+                level: CommandsPerm
+            };
+        }
         var pathString = boldStringifyOption(command.options || []);
 
         embed.setDescription((await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`))?.startsWith("fr-") ? command.description_localizations["fr"] : command.description)
@@ -219,7 +228,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             },
             {
                 name: lang.var_permission,
-                value: `${lang.var_permission}: ${CommandsPerm || lang.var_none}`,
+                value: `${lang.var_permission}: ${CommandsPerm?.level || lang.var_none}`,
                 inline: false
             },
             {

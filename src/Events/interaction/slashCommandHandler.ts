@@ -42,10 +42,11 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
     const subCommand = options.getSubcommand(false);
 
     if (group && subCommand) {
-        const subCmd = client.subCommands.get(group + " " + subCommand);
+        let stringCommand = interaction.commandName + " " + group + " " + subCommand;
+        const subCmd = client.subCommands.get(stringCommand);
 
         if (subCmd && subCmd.run) {
-            let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
+            let permCheck = await client.method.permission.checkCommandPermission(interaction, stringCommand);
             if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
             if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
@@ -56,10 +57,11 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
         }
     }
     else if (subCommand) {
-        const subCmd = client.subCommands.get(interaction.commandName + " " + subCommand);
+        let stringCommand = interaction.commandName + " " + subCommand;
+        const subCmd = client.subCommands.get(stringCommand);
 
         if (subCmd && subCmd.run) {
-            let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
+            let permCheck = await client.method.permission.checkCommandPermission(interaction, stringCommand);
             if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
             if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
@@ -74,7 +76,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
         await interaction.deferReply({ ephemeral: command.ephemeral });
     }
 
-    let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
+    let permCheck = await client.method.permission.checkCommandPermission(interaction, interaction.commandName);
     if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
     if (command.run) await command.run(client, interaction, lang, command, permCheck.neededPerm, []);

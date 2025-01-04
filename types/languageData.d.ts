@@ -491,14 +491,14 @@ export interface LanguageData {
   economy_role_add_max_20_roles: string;
   economy_role_add_canceled: string;
   economy_role_add_prompt_dangerous: string;
+  economy_shop_embed_title: string;
+  economy_shop_embed_desc: string;
   economy_shop_not_available: string;
   economy_shop_already_own_role: string;
   economy_shop_not_enough_money: string;
   economy_shop_role_purchased: string;
   economy_shop_unknown_role: string;
   economy_shop_not_set: string;
-  economy_shop_embed_title: string;
-  economy_shop_embed_desc: string;
   economy_shop_already_owned: string;
   economy_shop_menu_placeholder: string;
   setprofilage_command_work: string;
@@ -883,6 +883,13 @@ export interface LanguageData {
   perm_set_deleted: string;
   perm_set_ok: string;
   perm_set_warn_message: string;
+  perm_set_chng_perm_lvl: string;
+  perm_set_add_role: string;
+  perm_set_add_usr: string;
+  perm_rmv_role: string;
+  perm_rmv_usr: string;
+  perm_set_command_reset: string;
+  perm_set_no_modified: string;
   perm_roles_created_role: string;
   perm_roles_already_upate: string;
   perm_roles_error: string;
@@ -1615,7 +1622,7 @@ export interface LanguageData {
   temporary_voice_transfer_trust_placeholder: string;
   temporary_voice_transfer_unblocked_placeholder: string;
   temporary_voice_transfer_untrust_placeholder: string;
-  temporary_voice_channel_name: string;  
+  temporary_voice_channel_name: string;
   protection_avoid_channel_delete: string;
   antispam_base_warn_message: string;
   antispam_more_ban_msg: string;
@@ -1653,5 +1660,5 @@ export interface LanguageData {
   piconly_module_warn_msg: string;
   piconly_module_timeout_reason: string;
   event_nick_kicker_kick_reason: string;
-  event_nick_kicker_kick_msg: string
+  event_nick_kicker_kick_msg: string;
 }

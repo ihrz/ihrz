@@ -104,7 +104,6 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 }
 
 async function executeCommand(
-    client: Client,
     message: Message,
     command: Command,
     args: string[],
@@ -116,20 +115,22 @@ async function executeCommand(
 
     if (!canUseCommands) return;
 
-    let permCheck = await client.method.permission.checkCommandPermission(message, command!);
-    if (!permCheck.allowed) return client.method.permission.sendErrorMessage(message, lang, permCheck.neededPerm || 0);
+    let fetchFullCommandName = message.client.content.find(c => c.desc === command.description);
+
+    let permCheck = await message.client.method.permission.checkCommandPermission(message, fetchFullCommandName?.cmd!);
+    if (!permCheck.allowed) return message.client.method.permission.sendErrorMessage(message, lang, permCheck.neededPerm || 0);
 
     // for format like: "+utils" without subcommand behind
     if (!command?.run) {
-        await client.method.interactionSend(message, {
-            embeds: [await client.method.createAwesomeEmbed(lang, command, client, message)],
-            files: [await client.method.bot.footerAttachmentBuilder(message)]
+        await message.client.method.interactionSend(message, {
+            embeds: [await message.client.method.createAwesomeEmbed(lang, command, message.client, message)],
+            files: [await message.client.method.bot.footerAttachmentBuilder(message)]
         });
         return;
     }
 
-    var _ = await client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
-    await command.run(client, message, lang, command, permCheck.neededPerm, args);
+    var _ = await message.client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
+    await command.run(message.client, message, lang, command, 0, args);
 }
 
 export const event: BotEvent = {
@@ -152,10 +153,10 @@ export const event: BotEvent = {
             const lang = await client.func.getLanguageData(message.guildId) as LanguageData;
 
             if (result.subCommand) {
-                await executeCommand(client, message, result.subCommand as Command, result.args || [], lang);
+                await executeCommand(message, result.subCommand as Command, result.args || [], lang);
             }
             else if (result.command) {
-                await executeCommand(client, message, result.command, result.args || [], lang);
+                await executeCommand(message, result.command, result.args || [], lang);
             }
         } catch (error) {
         }

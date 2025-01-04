@@ -31,7 +31,7 @@ import { LanguageData } from '../../../../types/languageData';
 export const command: Command = {
     name: 'noaimie',
 
-    description: 'Get unnecessary information about my contributor',
+    description: 'Get unnecessary information about my contributor noaimie',
     description_localizations: {
         "fr": "Obtenir des informations non nécessaires sur ma contributrice"
     },

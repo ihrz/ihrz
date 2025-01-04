@@ -83,7 +83,7 @@ export const command: Command = {
             name: "disable",
             prefixName: "confess-disable",
 
-            description: "Enable or Disable the module!",
+            description: "Enable or Disable the confession module!",
             description_localizations: {
                 "fr": "Activer ou désactiver le module"
             },

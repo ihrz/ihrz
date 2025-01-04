@@ -57,7 +57,8 @@ export default {
                 interaction.member,
             );
 
-            if (fetchedPerm <= parseInt(perm) && interaction.guild.ownerId !== interaction.member.id) {
+            // @ts-ignore
+            if (Array.isArray(fetchedPerm) ? false : fetchedPerm <= parseInt(perm) && interaction.guild.ownerId !== interaction.member.id) {
                 await client.method.interactionSend(interaction, {
                     content: lang.perm_set_warn_message.replace(
                         "${interaction.member.toString()}",

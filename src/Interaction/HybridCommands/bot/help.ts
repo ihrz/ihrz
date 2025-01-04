@@ -153,9 +153,18 @@ async function handleCategorySelect(
         let states = "";
         let cmdPrefix: string;
 
-        const commandStates = Commands?.[element.cmd.split(" ").pop()!];
+        var commandStates = Commands?.[element.cmd]
+
+        if (typeof commandStates === 'number') {
+            commandStates = {
+                users: [],
+                roles: [],
+                level: commandStates
+            }
+        }
+
         states += commandStates
-            ? `${client.iHorizon_Emojis.icon.iHorizon_Lock} ${commandStates}`
+            ? `${client.iHorizon_Emojis.icon.iHorizon_Lock} ${commandStates.level}`
             : client.iHorizon_Emojis.icon.iHorizon_Unlock;
 
         var cleanedPrefixCommandName = element.prefixCmd || element.cmd;
