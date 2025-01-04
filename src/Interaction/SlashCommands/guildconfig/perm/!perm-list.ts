@@ -120,7 +120,7 @@ export default {
         });
 
         const collector = message.createMessageComponentCollector({
-            time: 60_000,
+            time: 60_000 * 5,
         });
 
         collector.on('collect', async i => {

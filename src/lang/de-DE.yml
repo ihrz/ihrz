@@ -2194,6 +2194,8 @@ temporary_voice_transfer_unblocked_placeholder: "Ausgewählte Benutzer werden al
 
 temporary_voice_transfer_untrust_placeholder: "Ausgewählte Benutzer werden als nicht vertrauenswürdig eingestuft, um beizutreten"
 
+temporary_voice_channel_name: "{nickname}s Kanal"
+
 # Schutzmodul
 # Ereignisnachricht
 

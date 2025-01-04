@@ -2194,6 +2194,8 @@ temporary_voice_transfer_unblocked_placeholder: "選択したユーザーは参�
 
 temporary_voice_transfer_untrust_placeholder: "選択したユーザーは参加するために信頼されません"
 
+temporary_voice_channel_name: "{nickname}のチャンネル"
+
 # 保護モジュール
 # イベントメッセージ
 

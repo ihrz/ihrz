@@ -2185,6 +2185,8 @@ temporary_voice_transfer_unblocked_placeholder: "المستخدمون المحد
 
 temporary_voice_transfer_untrust_placeholder: "المستخدمون المحددون سيتم رفضهم للانضمام"
 
+temporary_voice_channel_name: "قناة {nickname}"
+
 # وحدة الحماية
 # رسالة الحدث
 
