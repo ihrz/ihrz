@@ -31,7 +31,7 @@ import { Command } from '../../../../types/command.js';
 import { Option } from '../../../../types/option.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
 
         // Guard's Typing
@@ -41,7 +41,8 @@ export default {
             await interaction.editReply({ content: lang.ticket_disabled_command });
             return;
         };
-        if (!(interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
+
+        if (!await client.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
             await interaction.editReply({ content: lang.close_not_in_ticket });
             return;
         };

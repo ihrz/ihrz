@@ -634,6 +634,29 @@ export async function subCoins(member: GuildMember, coins: number): Promise<void
     await member.client.db.sub(`${member.guild.id}.USER.${member.id}.ECONOMY.money`, coins);
 }
 
+export async function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean> {
+    let allTickets = await channel.client.db.get(`${channel.guild.id}.TICKET_ALL`);
+
+    if (!allTickets || typeof allTickets !== "object") {
+        return false;
+    }
+
+    for (const authorId of Object.keys(allTickets)) {
+        const ticketsByAuthor = allTickets[authorId];
+
+        if (ticketsByAuthor && typeof ticketsByAuthor === "object") {
+            for (const ticketId of Object.keys(ticketsByAuthor)) {
+                const ticketData = ticketsByAuthor[ticketId];
+
+                if (ticketData && ticketData.channel === channel.id) {
+                    return ticketData?.channel === channel.id;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 export const permission = perm;
 export const bot = f;
 export const helper = h;

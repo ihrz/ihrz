@@ -204,6 +204,10 @@ ticket_panel_preview_message: "チケットパネルのプレビュー"
 ticket_panel_option_change_category: "カテゴリを変更するオプションを選択してください"
 ticket_panel_panel_10_label: "特定のオプションのカテゴリを変更する"
 
+# /ticket rename
+ticket_rename_ok: "チケットチャンネルの名前が変更されました！"
+ticket_rename_error: "テキストチャンネルの名前を変更中にエラーが発生しました。"
+
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp

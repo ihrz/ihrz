@@ -204,6 +204,10 @@ ticket_panel_preview_message: "Preview of the ticket panel"
 ticket_panel_option_change_category: "Select an option to change category"
 ticket_panel_panel_10_label: "Change category for one specific option"
 
+# /ticket rename
+ticket_rename_ok: "Ticket channel has been renamed !"
+ticket_rename_error: "Error when renaming the text channel"
+
 
 # Ranks commands
 # /level, /setxpchannels, /disablexp

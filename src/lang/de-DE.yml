@@ -204,6 +204,10 @@ ticket_panel_preview_message: "Vorschau des Ticket-Panels"
 ticket_panel_option_change_category: "Wählen Sie eine Option, um die Kategorie zu ändern"
 ticket_panel_panel_10_label: "Kategorie für eine spezifische Option ändern"
 
+# /ticket rename
+ticket_rename_ok: "Ticket-Kanal wurde umbenannt!"
+ticket_rename_error: "Fehler beim Umbenennen des Textkanals."
+
 
 # Ranks commands
 # /xp, /setxpchannels, /disablexp

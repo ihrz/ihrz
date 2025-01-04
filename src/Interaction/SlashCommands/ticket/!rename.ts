@@ -31,7 +31,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
 
         // Guard's Typing
@@ -46,6 +46,13 @@ export default {
             await interaction.editReply({ content: lang.delete_not_in_ticket });
             return;
         }
-        await TicketDelete(interaction);
+
+        let name = interaction.options.getString('name')!;
+
+        interaction.channel.setName(name).then(async () => {
+            await interaction.editReply({ content: lang.ticket_rename_ok });
+        }).catch(async () => {
+            await interaction.editReply({ content: lang.ticket_rename_error });
+        });
     },
 };
