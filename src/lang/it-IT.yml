@@ -829,6 +829,11 @@ zip_emojis_doesnt_have_perm: "Non hai il permesso di gestire le emoji."
 zip_emojis_command_work: "🎉 Esportazione completata in **${calcTime}**ms! Ecco l'archivio contenente ${emojis.size} emoji."
 zip_emojis_command_error: "Si è verificato un errore durante l'esportazione delle emoji."
 
+# /zip-stickers
+zip_stickers_doesnt_have_perm: "Non hai il permesso di gestire gli adesivi."
+zip_stickers_command_work: "🎉 Esportazione completata in **${calcTime}**ms! Ecco l'archivio che contiene ${stickers.size} adesivi."
+zip_stickers_command_error: "Si è verificato un errore durante l'esportazione degli adesivi."
+
 # +sticker  
 sticket_no_sticker: "Nessun adesivo trovato nel messaggio a cui hai risposto."  
 sticket_command_work: "L'adesivo `${x.name}` è stato creato con successo."  

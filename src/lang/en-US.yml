@@ -830,6 +830,11 @@ zip_emojis_doesnt_have_perm: "You don't have permission to manage emojis."
 zip_emojis_command_work: "🎉 Export completed in **${calcTime}**ms! Here's the archive containing ${emojis.size} emojis."
 zip_emojis_command_error: "An error occurred while exporting emojis."
 
+# /zip-stickers
+zip_stickers_doesnt_have_perm: "You don't have permission to manage stickers."
+zip_stickers_command_work: "🎉 Export completed in **${calcTime}**ms! Here's the archive containing ${stickers.size} stickers."
+zip_stickers_command_error: "An error occurred while exporting stickers."
+
 # +sticker
 sticket_no_sticker: "No sticker found in the replied message."
 sticket_command_work: "The sticker `${x.name}` has been successfully created."
