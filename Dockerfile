@@ -29,3 +29,4 @@ RUN npx tsc
 
 # Running command
 CMD ["npm", "t"]
+#
