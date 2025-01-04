@@ -96,61 +96,40 @@ export default {
             if (perms) {
                 const permLevel = parseInt(perms) as DatabaseStructure.PermLevel;
                 if (permLevel !== newPerms.level) {
-                    // If the permission level has changed, add it to the change summary
                     changes.push(`${lang.perm_set_chng_perm_lvl}: ${newPerms.level} ➡️ ${permLevel}`);
                     newPerms.level = permLevel;
                 }
             }
 
-            // Check for role additions
-            if (customRole && !newPerms.roles.includes(customRole.id)) {
-                // If a new role is being added, include it in the change summary
-                changes.push(`${lang.perm_set_add_role}: ${customRole.toString()}`);
-                newPerms.roles.push(customRole.id);
-            }
-
-            // Check for user additions
-            if (customUser && !newPerms.users.includes(customUser.id)) {
-                // If a new user is being added, include it in the change summary
-                changes.push(`${lang.perm_set_add_usr}: ${customUser.toString()}`);
-                newPerms.users.push(customUser.id);
-            }
-
-            // Check for removals (e.g., permissions being reset)
-            if (existingPerms) {
-                if (typeof existingPerms === 'object' && 'roles' in existingPerms) {
-                    // Identify roles that have been removed
-                    const removedRoles = existingPerms.roles.filter(role => !newPerms.roles.includes(role));
-                    if (removedRoles.length > 0) {
-                        changes.push(
-                            `${lang.perm_rmv_role}: ${removedRoles.map(roleId => {
-                                const role = interaction.guild?.roles.cache.get(roleId);
-                                return role ? role.toString() : roleId;
-                            }).join(", ")}`
-                        );
-                    }
+            // Toggle role (add if not present, remove if present)
+            if (customRole) {
+                const roleIndex = newPerms.roles.indexOf(customRole.id);
+                if (roleIndex === -1) {
+                    changes.push(`${lang.perm_set_add_role}: ${customRole.toString()}`);
+                    newPerms.roles.push(customRole.id);
+                } else {
+                    changes.push(`${lang.perm_rmv_role}: ${customRole.toString()}`);
+                    newPerms.roles.splice(roleIndex, 1);
                 }
+            }
 
-                if (typeof existingPerms === 'object' && 'users' in existingPerms) {
-                    // Identify users that have been removed
-                    const removedUsers = existingPerms.users.filter(user => !newPerms.users.includes(user));
-                    if (removedUsers.length > 0) {
-                        changes.push(
-                            `${lang.perm_rmv_usr}: ${removedUsers.map(userId => {
-                                const user = interaction.guild?.members.cache.get(userId)?.user;
-                                return user ? user.toString() : userId;
-                            }).join(", ")}`
-                        );
-                    }
+            // Toggle user (add if not present, remove if present)
+            if (customUser) {
+                const userIndex = newPerms.users.indexOf(customUser.id);
+                if (userIndex === -1) {
+                    changes.push(`${lang.perm_set_add_usr}: ${customUser.toString()}`);
+                    newPerms.users.push(customUser.id);
+                } else {
+                    changes.push(`${lang.perm_rmv_usr}: ${customUser.toString()}`);
+                    newPerms.users.splice(userIndex, 1);
                 }
             }
 
             // Save the updated permissions to the database
-            if (perms === "0") {
+            if (perms === "0" && newPerms.users.length === 0 && newPerms.roles.length === 0) {
                 // If all permissions are cleared, delete the entry from the database
                 await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${requestedCommand}`);
 
-                // Send a response to the user summarizing the changes
                 await client.method.interactionSend(interaction, {
                     content: `${commandType}: ${requestedCommand}\n ${lang.perm_set_command_reset}`
                 });
@@ -159,10 +138,8 @@ export default {
                     ? `${changes.join("\n")}`
                     : lang.perm_set_no_modified;
 
-                // Otherwise, save the updated permissions structure
                 await client.db.set(`${interaction.guildId}.UTILS.PERMS.${requestedCommand}`, newPerms);
 
-                // Send a response to the user summarizing the changes
                 await client.method.interactionSend(interaction, {
                     content: `${commandType}: ${requestedCommand}\n\n${changesSummary}`
                 });
@@ -190,15 +167,12 @@ export default {
 
             // Process each command's permissions
             for (const [commandName, permData] of Object.entries(res)) {
-                // Handle both legacy (PermLevel) and new (PermCommandData) formats
                 if (typeof permData === 'number') {
-                    // Legacy format - just a permission level
                     if (!groupedByLevel[permData]) {
                         groupedByLevel[permData] = [];
                     }
                     groupedByLevel[permData].push(`\`${commandName}\``);
                 } else {
-                    // New format - PermCommandData object
                     if (permData.level > 0) {
                         if (!groupedByLevel[permData.level]) {
                             groupedByLevel[permData.level] = [];
@@ -206,7 +180,6 @@ export default {
                         groupedByLevel[permData.level].push(`\`${commandName}\``);
                     }
 
-                    // Process roles
                     permData.roles.forEach(roleId => {
                         if (!groupedByRole[roleId]) {
                             groupedByRole[roleId] = [];
@@ -214,7 +187,6 @@ export default {
                         groupedByRole[roleId].push(commandName);
                     });
 
-                    // Process users
                     permData.users.forEach(userId => {
                         if (!groupedByUser[userId]) {
                             groupedByUser[userId] = [];

@@ -196,6 +196,8 @@ export interface LanguageData {
   ticket_panel_preview_message: string;
   ticket_panel_option_change_category: string;
   ticket_panel_panel_10_label: string;
+  ticket_rename_ok: string;
+  ticket_rename_error: string;
   disablexp_not_admin: string;
   disablexp_logs_embed_title_disable: string;
   disablexp_logs_embed_description_disable: string;
@@ -429,6 +431,7 @@ export interface LanguageData {
   love_command_error: string;
   fun_disable_command_msg: string;
   fun_category_disable: string;
+  economy_cooldown_error: string;
   addmoney_not_admin: string;
   addmoney_logs_embed_title: string;
   addmoney_logs_embed_description: string;
@@ -464,7 +467,6 @@ export interface LanguageData {
   weekly_embed_title: string;
   weekly_embed_description: string;
   weekly_embed_fields: string;
-  economy_cooldown_error: string;
   work_cooldown_error: string;
   work_embed_author: string;
   work_embed_description: string;

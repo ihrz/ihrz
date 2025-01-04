@@ -42,7 +42,7 @@ export default {
             return;
         };
 
-        if ((interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
+        if (!await client.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
             await TicketReOpen(interaction);
         } else {
             await interaction.editReply({ content: lang.open_not_in_ticket });

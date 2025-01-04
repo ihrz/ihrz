@@ -204,6 +204,10 @@ ticket_panel_preview_message: "معاينة لوحة التذاكر"
 ticket_panel_option_change_category: "اختر خيارًا لتغيير الفئة"
 ticket_panel_panel_10_label: "تغيير الفئة لخيار واحد محدد"
 
+# /ticket rename
+ticket_rename_ok: "تم تغيير اسم قناة التذكرة!"
+ticket_rename_error: "حدث خطأ أثناء إعادة تسمية القناة النصية."
+
 
 # Ranks commands
 # /level, /setxpchannels, /disablexp

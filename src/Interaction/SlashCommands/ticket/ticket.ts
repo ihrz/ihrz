@@ -73,6 +73,30 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
+            name: "rename",
+
+            description: "Rename a ticket!",
+            description_localizations: {
+                "fr": "Rénommer un ticket"
+            },
+
+            options: [
+                {
+                    name: "name",
+
+                    description: "The new name of the ticket channel.",
+                    description_localizations: {
+                        "fr": "Le nouveau nom du canal de ticket"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+                }
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand,
+        },
+        {
             name: "delete",
             prefixName: "ticket-delete",
 
