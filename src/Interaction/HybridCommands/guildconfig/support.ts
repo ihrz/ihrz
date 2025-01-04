@@ -93,7 +93,7 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {        // Guard's Typing
 
 
         // Guard's Typing
@@ -104,7 +104,7 @@ export const command: Command = {
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
-        if (!permissions && neededPerm === 0) {
+        if (!permissions && !allowed) {
             await client.method.interactionSend(interaction, { content: lang.support_not_admin });
             return;
         };

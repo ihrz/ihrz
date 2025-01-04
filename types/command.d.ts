@@ -59,5 +59,5 @@ export interface Command {
     type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND';
     aliases?: string[];
     async autocomplete?(client: Client, interaction: AutocompleteInteraction): Promise<any>;
-    async run?(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, neededPerm: number, args?: string[]): Promise<any>;
+    async run?(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, allowed: boolean, args?: string[]): Promise<any>;
 }

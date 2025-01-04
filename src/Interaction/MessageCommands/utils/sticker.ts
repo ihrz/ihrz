@@ -40,7 +40,7 @@ export const command: Command = {
     thinking: false,
     category: 'utils',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, message: Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
+    run: async (client: Client, message: Message<true>, lang: LanguageData, command: Command | Option | undefined, allowed, options?: string[]) => {
         if (message.reference) {
             let msg = await message.channel.messages.fetch(message.reference.messageId || "");
 

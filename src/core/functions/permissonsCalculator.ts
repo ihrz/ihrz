@@ -90,13 +90,13 @@ export async function checkCommandPermission(
         }
     }
 
-    // Check if user has a role with permission level equal or higher than required
-    if (highestRolePermLevel >= cmdNeededPerm) {
-        return { allowed: true, neededPerm: cmdNeededPerm };
-    }
-
     // Check if user is explicitly allowed
     if (users.includes(usr.id)) {
+        return { allowed: true, neededPerm: 8 };
+    }
+
+    // Check if user has a role with permission level equal or higher than required
+    if (highestRolePermLevel >= cmdNeededPerm) {
         return { allowed: true, neededPerm: cmdNeededPerm };
     }
 

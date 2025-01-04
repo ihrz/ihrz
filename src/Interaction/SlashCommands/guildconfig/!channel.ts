@@ -43,13 +43,13 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.member.permissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
+        if ((!interaction.member.permissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
             await client.method.interactionSend(interaction, { content: lang.setchannels_not_admin });
             return;
         };

@@ -24,8 +24,6 @@ import { LanguageData } from '../../../types/languageData';
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
 import { Option } from '../../../types/option';
-import { appendFile } from 'node:fs';
-import logger from '../../core/logger.js';
 
 type MessageCommandResponse = {
     success: boolean,
@@ -130,7 +128,7 @@ async function executeCommand(
     }
 
     var _ = await message.client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
-    await command.run(message.client, message, lang, command, 0, args);
+    await command.run(message.client, message, lang, command, permCheck.allowed, args);
 }
 
 async function handleCommandError(message: Message, command: Command | Option, error: any) {

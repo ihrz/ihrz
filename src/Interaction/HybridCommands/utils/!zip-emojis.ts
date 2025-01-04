@@ -42,7 +42,7 @@ export default {
         interaction: ChatInputCommandInteraction<"cached"> | Message,
         lang: LanguageData,
         command: Option | Command | undefined,
-        neededPerm: number
+        allowed: boolean
     ) => {
         let time = Date.now();
 

@@ -35,11 +35,11 @@ import { Option } from '../../../../types/option.js';
 import { Command } from '../../../../types/command.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0) {
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed) {
             await client.method.interactionSend(interaction, { content: lang.security_disable_not_admin });
             return;
         }

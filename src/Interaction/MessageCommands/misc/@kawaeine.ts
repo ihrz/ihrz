@@ -60,7 +60,7 @@ export const command: Command = {
         interaction: Message<true>,
         lang: LanguageData,
         command: Command | Option | undefined,
-        neededPerm,
+        allowed,
         options?: string[],
     ) => {
         if (interaction.guild.preferredLocale !== 'fr') return;

@@ -35,7 +35,7 @@ import { promptYesOrNo } from '../../../core/functions/awaitingResponse.js';
 import { generateRoleFields } from './economy.js';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         const permissionsArray = [PermissionsBitField.Flags.ManageGuild]
@@ -43,7 +43,7 @@ export default {
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
-        if (!permissions && neededPerm === 0) {
+        if (!permissions && !allowed) {
             await client.method.interactionSend(interaction, {
                 content: lang.var_dont_have_perm.replace("{perm}", lang.setjoinroles_var_perm_manage_guild)
             });
