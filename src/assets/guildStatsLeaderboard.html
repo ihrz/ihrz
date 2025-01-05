@@ -1,156 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
     <style>
-        html,
-        body {
-            height: 100%;
+        :root {
+            --primary-bg: #1e1f22;
+            --secondary-bg: #2b2d31;
+            --accent-color: #5865f2;
+            --text-primary: #f3f4f5;
+            --text-secondary: #b5bac1;
+            --card-bg: #313338;
+            --hover-bg: #404249;
+            --border-radius: 8px;
+            --spacing: 1rem;
+        }
+
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-sizing: border-box;
+            font-family: 'gg sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: var(--spacing);
+            display: grid;
+            place-items: center;
         }
 
         .container {
-            background-color: #2c2c2c;
-            border-radius: 15px;
-            padding: 20px;
-            max-width: 100%;
-            width: 1024px;
-            height: auto;
-            box-sizing: border-box;
-            display: grid;
-            grid-template-rows: auto 1fr 1fr;
-            gap: 10px;
+            width: 100%;
+            max-width: 1200px;
+            background-color: var(--secondary-bg);
+            border-radius: var(--border-radius);
+            padding: calc(var(--spacing) * 2);
+            gap: calc(var(--spacing) * 2);
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
+            gap: var(--spacing);
+            padding-bottom: var(--spacing);
+            border-bottom: 2px solid var(--card-bg);
         }
 
         .header h1 {
-            font-size: 28px;
-            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            flex-grow: 1;
         }
 
         .header img {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing);
         }
 
         .section {
-            background-color: #383838;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: calc(var(--spacing) * 1.5);
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing);
+            padding-bottom: calc(var(--spacing) / 2);
+            border-bottom: 1px solid var(--hover-bg);
         }
 
         .list-item {
-            display: flex;
-            flex-direction: column;
-            padding: 10px 0;
-            font-size: 16px;
-            border-bottom: 1px solid #4c4c4c;
+            padding: calc(var(--spacing) / 2);
+            border-radius: calc(var(--border-radius) / 2);
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .list-item:hover {
+            background-color: var(--hover-bg);
         }
 
         .user-info {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
+            align-items: center;
+            margin-bottom: calc(var(--spacing) / 4);
         }
 
         .activity-stats {
             display: flex;
-            justify-content: space-around;
-            font-size: 14px;
-            color: #ccc;
+            gap: var(--spacing);
+            font-size: 0.875rem;
+            color: var(--text-secondary);
         }
 
         .badge {
-            background-color: #ff9800;
-            color: white;
-            border-radius: 5px;
-            padding: 2px 5px;
-            font-size: 12px;
-            margin-right: 5px;
-        }
-
-        .footer {
-            font-size: 12px;
-            color: #888;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        @media (max-width: 1024px) {
-            .container {
-                width: 90%;
-            }
+            background-color: var(--accent-color);
+            color: var(--text-primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: calc(var(--border-radius) / 2);
+            font-size: 0.75rem;
+            font-weight: 500;
         }
 
         @media (max-width: 768px) {
             .container {
-                width: 100%;
+                padding: var(--spacing);
             }
 
-            .section {
-                width: 100%;
+            .grid-layout {
+                grid-template-columns: 1fr;
             }
-        }
-
-        .noto-color-emoji-regular {
-            font-family: "Noto Color Emoji", sans-serif;
-            font-weight: 400;
-            font-style: normal;
         }
     </style>
 </head>
-
 <body>
-
     <div class="container">
         <div class="header">
             <h1>{header_h1_value}</h1>
             <img src="{guild_pfp}" alt="Server Logo">
         </div>
-
-        <div class="section">
-            <p class="label" style="font-weight: bold;">Top Active Users</p>
-            {top_message_users}
-        </div>
-
-        <div class="section">
-            <p class="label" style="font-weight: bold;">Top Active Text Channels</p>
-            {top_text_channels}
-        </div>
-
-        <div class="section">
-            <p class="label" style="font-weight: bold;">Top Active Voice Channels</p>
-            {top_voice_channels}
+        <div class="grid-layout">
+            <div class="section">
+                <h2 class="section-title">Top Active Users</h2>
+                {top_message_users}
+            </div>
+            <div class="section">
+                <h2 class="section-title">Top Active Text Channels</h2>
+                {top_text_channels}
+            </div>
+            <div class="section">
+                <h2 class="section-title">Top Active Voice Channels</h2>
+                {top_voice_channels}
+            </div>
         </div>
     </div>
-
 </body>
-
 </html>

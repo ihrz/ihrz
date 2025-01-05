@@ -177,6 +177,7 @@ export const event: BotEvent = {
 
         PfpsManager_Init(client);
 
+        await client.memberCountManager.init();
         let initData = client.method.core.getCacheStorage();
 
         let oldV = initData?._cache.version;
