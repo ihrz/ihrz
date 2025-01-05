@@ -20,9 +20,15 @@
 */
 
 import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonInteraction,
+    ButtonStyle,
     ChatInputCommandInteraction,
     Client,
+    ComponentType,
     EmbedBuilder,
+    Message,
     PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../../types/languageData';
@@ -153,11 +159,6 @@ export default {
                 return;
             }
 
-            const embed = new EmbedBuilder()
-                .setColor("#000000")
-                .setTitle(`${lang.var_permission}`)
-                .setTimestamp();
-
             // Initialize grouping objects
             const groupedByLevel: Record<DatabaseStructure.PermLevel, string[]> = {
                 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []
@@ -165,7 +166,7 @@ export default {
             const groupedByRole: Record<string, string[]> = {};
             const groupedByUser: Record<string, string[]> = {};
 
-            // Process each command's permissions
+            // Process each command's permissions [same as before]
             for (const [commandName, permData] of Object.entries(res)) {
                 if (typeof permData === 'number') {
                     if (!groupedByLevel[permData]) {
@@ -196,39 +197,125 @@ export default {
                 }
             }
 
-            // Add permission levels to embed
+            // Prepare all fields
+            const allFields: { name: string, value: string, inline?: boolean }[] = [];
+
+            // Add permission levels
             Object.entries(groupedByLevel)
                 .sort(([a], [b]) => parseInt(a) - parseInt(b))
                 .forEach(([level, commands]) => {
                     if (commands.length >= 1) {
-                        embed.addFields({
+                        allFields.push({
                             name: `**${lang.var_permission} ${level}**`,
                             value: commands.join(", ")
                         });
                     }
                 });
 
-            // Add roles to embed
+            // Add roles
             for (const [roleId, commands] of Object.entries(groupedByRole)) {
                 const role = interaction.guild.roles.cache.get(roleId);
                 if (role) {
                     const codeBlock = `${role.toString()}\n\`\`\`\n${commands.map((cmd, i) =>
                         `${i + 1} ${cmd}`).join('\n')}\n\`\`\``;
-                    embed.addFields({ name: "** **", value: codeBlock, inline: true });
+                    allFields.push({ name: "** **", value: codeBlock, inline: true });
                 }
             }
 
-            // Add users to embed
+            // Add users
             for (const [userId, commands] of Object.entries(groupedByUser)) {
                 const user = await client.users.fetch(userId);
                 if (user) {
                     const codeBlock = `${user.toString()}\n\`\`\`\n${commands.map((cmd, i) =>
                         `${i + 1} ${cmd}`).join('\n')}\n\`\`\``;
-                    embed.addFields({ name: "** **", value: codeBlock, inline: true });
+                    allFields.push({ name: "** **", value: codeBlock, inline: true });
                 }
             }
 
-            await client.method.interactionSend(interaction, { embeds: [embed] });
+            // Pagination logic
+            const fieldsPerPage = 15;
+            const pages = Math.ceil(allFields.length / fieldsPerPage);
+            let currentPage = 0;
+
+            // Create embed for current page
+            const createEmbed = (page: number) => {
+                const embed = new EmbedBuilder()
+                    .setColor("#000000")
+                    .setTitle(`${lang.var_permission} (${page + 1}/${pages})`)
+                    .setTimestamp();
+
+                const startIdx = page * fieldsPerPage;
+                const endIdx = Math.min(startIdx + fieldsPerPage, allFields.length);
+                
+                for (let i = startIdx; i < endIdx; i++) {
+                    embed.addFields(allFields[i]);
+                }
+
+                return embed;
+            };
+
+            // Create navigation buttons
+            const createButtons = (page: number) => {
+                const row = new ActionRowBuilder<ButtonBuilder>()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('prev')
+                            .setLabel('◀')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(page === 0),
+                        new ButtonBuilder()
+                            .setCustomId('next')
+                            .setLabel('▶')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(page === pages - 1)
+                    );
+                return row;
+            };
+
+            // Only show pagination if there are more than 15 fields
+            if (allFields.length <= fieldsPerPage) {
+                const embed = createEmbed(0);
+                await client.method.interactionSend(interaction, { embeds: [embed] });
+                return;
+            }
+
+            // Send initial message with buttons
+            const message = await client.method.interactionSend(interaction, {
+                embeds: [createEmbed(currentPage)],
+                components: [createButtons(currentPage)]
+            }) as Message;
+
+            // Create button collector
+            const collector = message.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                time: 300000 // 5 minutes
+            });
+
+            collector.on('collect', async (i: ButtonInteraction) => {
+                if (i.user.id !== interaction.user.id) {
+                    await i.reply({ content: lang.help_not_for_you, ephemeral: true });
+                    return;
+                }
+
+                if (i.customId === 'prev') {
+                    currentPage = Math.max(0, currentPage - 1);
+                } else if (i.customId === 'next') {
+                    currentPage = Math.min(pages - 1, currentPage + 1);
+                }
+
+                await i.update({
+                    embeds: [createEmbed(currentPage)],
+                    components: [createButtons(currentPage)]
+                });
+            });
+
+            collector.on('end', async () => {
+                // Remove buttons when collector expires
+                await message.edit({
+                    embeds: [createEmbed(currentPage)],
+                    components: []
+                }).catch(() => {});
+            });
         }
     }
 };

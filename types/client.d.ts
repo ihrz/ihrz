@@ -44,6 +44,7 @@ import { StreamNotifier } from "../src/core/StreamNotifier.js";
 import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
 import { db } from "../src/core/database.js";
 import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
+import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
 
 declare module 'discord.js' {
     export interface Client {
@@ -74,6 +75,7 @@ declare module 'discord.js' {
         notifier: StreamNotifier,
         ownihrz: OwnIHRZ,
         kdenlive: KdenLive,
-        htmlfiles: Record<string, string>
+        htmlfiles: Record<string, string>,
+        memberCountManager: MemberCountModule
     }
 };

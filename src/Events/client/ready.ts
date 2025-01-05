@@ -174,6 +174,7 @@ export const event: BotEvent = {
 
         await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
 
+        await client.memberCountManager.init();
         await client.ownihrz.Startup_Cluster();
         await client.notifier.start();
 
