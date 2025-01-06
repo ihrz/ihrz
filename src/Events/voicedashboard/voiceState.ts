@@ -79,7 +79,7 @@ export const event: BotEvent = {
         // If the user join the Create's Channel
         if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {
             newState.guild.channels.create({
-                name: lang.temporary_voice_channel_name.replace("{nicker}", `${newState.member?.displayName || newState.member?.nickname}`),
+                name: lang.temporary_voice_channel_name.replace("{nickname}", `${newState.member?.displayName || newState.member?.nickname}`),
                 parent: result_channel?.parentId,
                 permissionOverwrites: category_channel.permissionOverwrites.cache,
                 type: ChannelType.GuildVoice,

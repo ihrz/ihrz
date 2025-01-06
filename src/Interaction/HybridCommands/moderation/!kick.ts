@@ -61,7 +61,7 @@ export default {
             var member = interaction.options.getMember("member") as GuildMember | null;
             var reason = interaction.options.getString("reason")
         } else {
-            
+
             var member = client.method.member(interaction, args!, 0) as GuildMember | null;
             var reason = client.method.longString(args!, 1);
         };
@@ -99,7 +99,12 @@ export default {
                 .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
         }).catch(() => { });
 
-        await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`);
+        await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`)
+            .catch((error) => {
+                return client.method.interactionSend(interaction, {
+                    content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                });
+            });
 
         await client.method.interactionSend(interaction, {
             embeds: [

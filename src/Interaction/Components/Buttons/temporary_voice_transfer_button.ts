@@ -71,7 +71,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
             await table.set(`CUSTOM_VOICE.${interaction.guildId}.${newOwner?.user?.id}`, getChannelId)
 
             // change the voice channel name
-            targetedChannel?.setName(lang.temporary_voice_channel_name.replace("{nicker}", `${(newOwner as GuildMember)?.displayName || newOwner?.user?.username}`));
+            targetedChannel?.setName(lang.temporary_voice_channel_name.replace("{nickname}", `${(newOwner as GuildMember)?.displayName || newOwner?.user?.username}`));
 
             targetedChannel?.permissionOverwrites.delete(interaction.user.id);
 
