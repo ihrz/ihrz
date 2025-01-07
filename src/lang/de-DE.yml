@@ -862,6 +862,16 @@ util_nick_kicker_add_desc: "Ein Wort zum Spitzname-Entferner hinzufügen"
 util_nick_kicker_disable_desc: "Spitzname-Entferner deaktivieren"
 util_nick_kicker_enable_desc: "Spitzname-Entferner aktivieren"
 
+# /util wakeup
+util_wakeup_yourself: "Ey, bist du verrückt oder was? Schreibst du im Schlaf auf der Tastatur oder was ist los? lol"
+util_wakeup_not_in_vc: "Ey Bruder, der Bot wird keinen kleinen Chinesen namens ${user.displayName} mit demselben Profilbild und Banner erstellen, um dich glauben zu lassen, dass die Person aufwacht... Er ist nicht mal im Sprachkanal lol"
+util_wakeup_command_work: "Los geht's mit dem Wecken von ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "Du kleiner Frechdachs, du kannst nicht mehr als 3 Personen an die Leine nehmen :D"
+util_leah_already_owned: "Du kleiner Frechdachs, du besitzt diese kleinen Wunder schon :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Das Mitglied, das du an die Leine legen möchtest, ist nicht in einem Sprachkanal!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Bist du sicher, dass du diese Aktion ausführen möchtest?"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

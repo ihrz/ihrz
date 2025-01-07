@@ -862,6 +862,16 @@ util_nick_kicker_add_desc: "Добавить слово в кикер никне
 util_nick_kicker_disable_desc: "Отключить кикер никнеймов"
 util_nick_kicker_enable_desc: "Включить кикер никнеймов"
 
+# /util wakeup
+util_wakeup_yourself: "Братан, ты что, глупый? Неужели ты пишешь эту команду, пока спишь на клавиатуре, лол"
+util_wakeup_not_in_vc: "Братан, бот не создаст маленького китайца по имени ${user.displayName} с той же аватаркой и баннером, чтобы ты поверил, что он проснулся... Он даже не в голосовом канале, лол"
+util_wakeup_command_work: "Давай разбудим ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "Шалунишка, ты не можешь привязать больше 3 человек :D"
+util_leah_already_owned: "Шалунишка, у тебя уже есть эти маленькие чудеса :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Участник, которого ты хочешь привязать, не находится в голосовом канале!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Ты уверен, что хочешь выполнить это действие?"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

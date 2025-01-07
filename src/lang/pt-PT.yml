@@ -862,6 +862,16 @@ util_nick_kicker_add_desc: "Adicionar uma palavra ao expulsor de apelidos"
 util_nick_kicker_disable_desc: "Desativar o expulsor de apelidos"
 util_nick_kicker_enable_desc: "Ativar o expulsor de apelidos"
 
+# /util wakeup
+util_wakeup_yourself: "Mano, estás a brincar ou quê? Não me digas que estás a dormir no teclado enquanto escreves este comando lol"
+util_wakeup_not_in_vc: "Mano, o bot não vai criar um chinês pequeno chamado ${user.displayName} com a mesma foto de perfil e banner para te fazer acreditar que ele acordou... Ele nem está no canal de voz lol"
+util_wakeup_command_work: "Bora acordar o ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "Pecadorzinho, não podes colocar mais de 3 pessoas na trela :D"
+util_leah_already_owned: "Pecadorzinho, já possuis estas pequenas maravilhas :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | O membro que queres colocar na trela não está num canal de voz!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Tens a certeza de que queres proceder com esta ação?"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

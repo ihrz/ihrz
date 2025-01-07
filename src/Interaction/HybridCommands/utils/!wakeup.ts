@@ -21,23 +21,17 @@
 
 import {
     Client,
-    ApplicationCommandOptionType,
-    EmbedBuilder,
     PermissionsBitField,
     ChatInputCommandInteraction,
-    ApplicationCommandType,
     Message,
-    MessagePayload,
-    InteractionEditReplyOptions,
-    MessageReplyOptions,
     GuildMember,
-    GuildChannel,
-    VoiceBasedChannel
+    VoiceBasedChannel,
+    ChannelType
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData';
 
-import { DatabaseStructure } from '../../../../types/database_structure';
+import wait from '../../../core/functions/wait.js';
 import { Command } from '../../../../types/command.js';
 
 export default {
@@ -46,15 +40,13 @@ export default {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        if (interaction instanceof ChatInputCommandInteraction) {
-            var user = interaction.options.getMember("member")!;
-        } else {
-            var user = client.method.member(interaction, args!, 0)!;
-        }
+        const user = interaction instanceof ChatInputCommandInteraction
+            ? interaction.options.getMember("member")!
+            : client.method.member(interaction, args!, 0)!;
 
-        const permissionsArray = [PermissionsBitField.Flags.ModerateMembers, PermissionsBitField.Flags.MoveMembers]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
+        const permissionsArray = [PermissionsBitField.Flags.ModerateMembers, PermissionsBitField.Flags.MoveMembers];
+        const permissions = interaction instanceof ChatInputCommandInteraction
+            ? interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
         if (!permissions && !allowed) {
@@ -62,27 +54,40 @@ export default {
             return;
         }
 
-        let fetchedData: DatabaseStructure.LeashData[] = await client.db.get(`${interaction.guildId}.UTILS.LEASH`);
+        if (user.id === interaction.member.user.id) {
+            await client.method.interactionSend(interaction, { content: lang.util_wakeup_yourself });
+            return;
+        }
 
-        const pairingToRemove = fetchedData?.find(x =>
-            (x.dom === interaction.member?.user.id && x.sub === user.id)
-        );
-
-        if (!pairingToRemove) {
+        if (user.voice.channelId === null) {
             await client.method.interactionSend(interaction, {
-                content: `${client.iHorizon_Emojis.icon.No_Logo} | This user is not on your leash!`
+                content: lang.util_wakeup_not_in_vc
+                    .replace("${user.displayName}", user.displayName)
             });
             return;
         }
 
-        const updatedData = fetchedData?.filter(x =>
-            !(x.dom === interaction.member?.user.id && x.sub === user.id)
-        );
-
-        await client.db.set(`${interaction.guildId}.UTILS.LEASH`, Array.from(new Set(updatedData)));
-
         await client.method.interactionSend(interaction, {
-            content: `${client.iHorizon_Emojis.icon.Yes_Logo} | You have successfully unleashed the user in this guild :)`
+            content: lang.util_wakeup_command_work.replace("${user.toString()}", user.toString())
         });
+
+        const moveUser = async () => {
+            if (!user.voice.channelId) return;
+
+            const channel = interaction.guild?.channels.cache.filter(
+                (c) => c.type === ChannelType.GuildVoice
+                    && c.permissionsFor(user as GuildMember)?.has(PermissionsBitField.Flags.Connect)
+                    && c.id !== (interaction.member as GuildMember).voice.channelId
+            ).random() as VoiceBasedChannel;
+
+            if (!channel) return;
+
+            await user.voice.setChannel(channel);
+            await wait(300);
+
+            return moveUser();
+        };
+
+        await moveUser();
     },
 };
