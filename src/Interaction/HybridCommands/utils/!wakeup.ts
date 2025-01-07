@@ -71,7 +71,7 @@ export default {
             content: lang.util_wakeup_command_work.replace("${user.toString()}", user.toString())
         });
 
-        const moveUser = async () => {
+        async function moveUser() {
             if (!user.voice.channelId) return;
 
             const channel = interaction.guild?.channels.cache.filter(
