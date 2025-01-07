@@ -863,6 +863,16 @@ util_nick_kicker_add_desc: "Add a word to the nick-kicker"
 util_nick_kicker_disable_desc: "Disable the nick-kicker"
 util_nick_kicker_enable_desc: "Enable the nick-kicker"
 
+# /util wakeup
+util_wakeup_yourself: "Bro, are you dumb or what? Don’t tell me you’re sleeping on the keyboard while typing this command lol"
+util_wakeup_not_in_vc: "Bro, the bot isn’t going to create a little Chinese guy named ${user.displayName} with the same profile pic and banner to make you think they woke up... They’re not even in the VC lol"
+util_wakeup_command_work: "Let’s go wake up ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "You little rascal, you can’t leash more than 3 people :D"
+util_leah_already_owned: "You little rascal, you already own these little wonders :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | The member you want to leash isn’t in a voice channel!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Are you sure you want to proceed with this action?"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

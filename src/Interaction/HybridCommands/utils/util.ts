@@ -65,6 +65,33 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand
         },
+        {
+            name: 'wakeup',
+
+            description: 'Wake up an user with mass mooving randomly in voice channel',
+            description_localizations: {
+                "fr": "Réveiller un utilisateur avec un déplacement massif aléatoire dans les salons vocaux"
+            },
+
+            aliases: ["wake"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+
+            options: [
+                {
+                    name: 'member',
+
+                    description: 'The member to wake up',
+                    description_localizations: {
+                        "fr": "Le membre à réveiller"
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+
+                    required: true
+                }
+            ]
+        },
     ],
 
     category: 'utils',

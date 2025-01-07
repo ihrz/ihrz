@@ -862,6 +862,16 @@ util_nick_kicker_add_desc: "Añadir una palabra al expulsor de apodos"
 util_nick_kicker_disable_desc: "Desactivar el expulsor de apodos"
 util_nick_kicker_enable_desc: "Activar el expulsor de apodos"
 
+# /util wakeup
+util_wakeup_yourself: "¿Hermano, eres tonto o qué? No me digas que estás dormido en el teclado mientras escribes este comando jajaja"
+util_wakeup_not_in_vc: "Hermano, el bot no va a crear un pequeño chino llamado ${user.displayName} con la misma foto de perfil y banner para hacerte creer que la persona despertó... Ni siquiera está en el canal de voz jajaja"
+util_wakeup_command_work: "¡Vamos a despertar a ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "Pequeño travieso, no puedes poner a más de 3 personas en la correa :D"
+util_leah_already_owned: "Pequeño travieso, ya posees estas pequeñas maravillas :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | ¡El miembro que quieres poner en la correa no está en un canal de voz!\n${client.iHorizon_Emojis.icon.Warning_Icon} | ¿Estás seguro de que quieres realizar esta acción?"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

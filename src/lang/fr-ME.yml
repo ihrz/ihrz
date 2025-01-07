@@ -862,6 +862,16 @@ util_nick_kicker_add_desc: "Ajouter un mot à l'expulseur de pseudos"
 util_nick_kicker_disable_desc: "Désactiver l'expulseur de pseudos"
 util_nick_kicker_enable_desc: "Activer l'expulseur de pseudos"
 
+# /util wakeup
+util_wakeup_yourself: "mais mon reuf? t con ou t con? tu vas pas quand même me dire que tu dors le keyboard en même temps d'écrire cette commande mdr"
+util_wakeup_not_in_vc: "Mais frr, le bot vas pas créer un ptit chinois nommées ${user.displayName} avec la même pp et bannière pour te faire croire que le gars ce réveille... Il est pas en voc ton gars ptdrr"
+util_wakeup_command_work: "C'est partiiiiit pour le réveil de ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "Petit coquin, tu ne peux pas mettre plus de 3 personnes en laisse :D"
+util_leah_already_owned: "Petit coquin, tu possèdes déjà ces petites merveilles :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Le membre que tu veux mettre en laisse n'est pas dans un canal vocal !\n${client.iHorizon_Emojis.icon.Warning_Icon} | Es-tu sûr de vouloir effectuer cette action ?"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

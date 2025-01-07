@@ -249,11 +249,6 @@ interface ArgumentBrief {
     longString?: boolean;
 }
 
-export interface SubCommandArgumentValue {
-    name?: string;
-    command: Option | Command | undefined;
-}
-
 export async function checkCommandArgs(message: Message, command: Command, args: string[], lang: LanguageData): Promise<boolean> {
     if (!command) return false;
 

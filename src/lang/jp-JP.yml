@@ -862,6 +862,16 @@ util_nick_kicker_add_desc: "ニックネームキッカーに単語を追加"
 util_nick_kicker_disable_desc: "ニックネームキッカーを無効化"
 util_nick_kicker_enable_desc: "ニックネームキッカーを有効化"
 
+# /util wakeup
+util_wakeup_yourself: "おい、お前バカか？このコマンドを打ちながら寝てるって言わないよな？笑"
+util_wakeup_not_in_vc: "おいおい、ボットが${user.displayName}っていう同じアイコンとバナーの小さい中国人を作るわけじゃないんだぞ…その人はVCにいないよ笑"
+util_wakeup_command_work: "${user.toString()}を起こしに行くぞ！"
+
+# /util leash
+util_leash_too_naugthy: "やんちゃ坊主、3人以上はリードに繋げないよ :D"
+util_leah_already_owned: "やんちゃ坊主、もうその小さな宝物を持ってるじゃないか :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | リードに繋げたいメンバーはボイスチャンネルにいません！\n${client.iHorizon_Emojis.icon.Warning_Icon} | この操作を実行してもよろしいですか？"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

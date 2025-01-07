@@ -861,6 +861,16 @@ util_nick_kicker_add_desc: "إضافة كلمة إلى طارد الألقاب"
 util_nick_kicker_disable_desc: "تعطيل طارد الألقاب"
 util_nick_kicker_enable_desc: "تفعيل طارد الألقاب"
 
+# /util wakeup
+util_wakeup_yourself: "يا أخي؟ أنت مجنون أم ماذا؟ لا تقلي أنك نائم على الكيبورد وتكتب هذا الأمر في نفس الوقت ههه"
+util_wakeup_not_in_vc: "يا أخي، البوت لن يخلق صيني صغير يُسمى ${user.displayName} بنفس الصورة والبنر ليجعلك تصدق أن الشخص استيقظ... الشخص مش في الصوتي أصلاً ههه"
+util_wakeup_command_work: "يبدأ الآن الإيقاظ لـ ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "أيها الشقي الصغير، لا يمكنك وضع أكثر من 3 أشخاص في الحبل :D"
+util_leah_already_owned: "أيها الشقي الصغير، أنت تمتلك هؤلاء بالفعل :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | العضو الذي تريد وضعه في الحبل ليس في قناة صوتية!\n${client.iHorizon_Emojis.icon.Warning_Icon} | هل أنت متأكد أنك تريد القيام بهذا الإجراء؟"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

@@ -862,6 +862,16 @@ util_nick_kicker_add_desc: "Aggiungi una parola all'espulsore di nickname"
 util_nick_kicker_disable_desc: "Disattiva l'espulsore di nickname"
 util_nick_kicker_enable_desc: "Attiva l'espulsore di nickname"
 
+# /util wakeup
+util_wakeup_yourself: "Fratello, sei scemo o cosa? Non dirmi che stai dormendo sulla tastiera mentre scrivi questo comando ahaha"
+util_wakeup_not_in_vc: "Fratello, il bot non creerà un piccolo cinese chiamato ${user.displayName} con la stessa foto e banner per farti credere che si sia svegliato... Non è nemmeno nel canale vocale ahaha"
+util_wakeup_command_work: "Cominciamo a svegliare ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "Piccolo birichino, non puoi mettere più di 3 persone al guinzaglio :D"
+util_leah_already_owned: "Piccolo birichino, possiedi già queste piccole meraviglie :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Il membro che vuoi mettere al guinzaglio non è in un canale vocale!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Sei sicuro di voler procedere con questa azione?"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
