@@ -459,9 +459,7 @@ export namespace DatabaseStructure {
     }
 
     export interface DbGuildAutoReact {
-        [channelId: string]: {
-            [emoji: string]: string;
-        };
+        [channelId: string]: string | string[];
     }
 
     export type RoleReactData = {

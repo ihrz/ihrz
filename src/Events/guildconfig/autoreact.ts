@@ -19,8 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, Message, SnowflakeUtil } from 'discord.js';
-
+import { Client, Message } from 'discord.js';
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
@@ -28,14 +27,19 @@ export const event: BotEvent = {
     run: async (client: Client, message: Message) => {
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        if (!message.guild
-            || !message.channel) return;
+        const reactionData = await client.db.get(`${message.guildId}.GUILD.AUTOREACT.${message.channelId}`);
+        if (!reactionData) return;
 
-        let baseData = await client.db.get(`${message.guildId}.GUILD.AUTOREACT.${message.channelId}`);
+        const reactions = Array.isArray(reactionData) ? reactionData : [reactionData];
 
-        if (!baseData) return;
+        for (const reaction of reactions) {
+            try {
+                await message.react(reaction);
+            } catch {
+                continue;
+            }
+        }
 
-        message.react(baseData).catch(() => { });
         return;
     },
 };
