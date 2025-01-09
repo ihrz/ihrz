@@ -29,7 +29,6 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import crypto from 'crypto';
-import { SubCommandArgumentValue } from '../../../core/functions/method';
 import fs from "node:fs";
 import { Option } from '../../../../types/option';
 import { Command } from '../../../../types/command';
