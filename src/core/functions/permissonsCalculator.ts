@@ -70,9 +70,9 @@ export async function checkCommandPermission(
         }
     }
 
-    // If no specific permission is required, allow by default
+    // If no specific permission is required, unallow by default
     if (!cmdPermData) {
-        return { allowed: true, neededPerm: 0 };
+        return { allowed: false, neededPerm: 0 };
     }
 
     const { users, roles, level: cmdNeededPerm } = cmdPermData;

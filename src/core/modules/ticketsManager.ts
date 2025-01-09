@@ -873,7 +873,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
             return;
         } catch (e) { return };
     }).catch((e) => {
-        console.log(e)
+        logger.log(e)
     });
 };
 

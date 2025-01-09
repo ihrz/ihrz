@@ -39,19 +39,12 @@ export default {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        let Lockembed = new EmbedBuilder()
-            .setColor("#5b3475")
-            .setTimestamp()
-            .setDescription(lang.lock_embed_message_description
-                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-            );
-
-        const permissionsArray = [PermissionsBitField.Flags.ManageChannels]
+        const permissionsArray = [PermissionsBitField.Flags.Administrator]
         const permissions = interaction instanceof ChatInputCommandInteraction ?
             interaction.memberPermissions?.has(permissionsArray)
             : interaction.member.permissions.has(permissionsArray);
 
+        console.log(permissions, allowed)
         if (!permissions && !allowed) {
             await client.method.interactionSend(interaction, { content: lang.lock_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
             return;
@@ -60,13 +53,16 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var role = interaction.options.getRole("role");
         } else {
-            
+
             var role = client.method.role(interaction, args!, 0);
         };
 
         (interaction.channel as BaseGuildTextChannel).permissionOverwrites
             .create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: false }).then(async () => {
-                await client.method.interactionSend(interaction, { embeds: [Lockembed] });
+                await client.method.interactionSend(interaction, {
+                    content: lang.lock_embed_message_description
+                        .replace(/\${interaction\.user\.id}/g, interaction.member!.user.id)
+                });
             }).catch(() => { })
 
         await client.method.iHorizonLogs.send(interaction, {

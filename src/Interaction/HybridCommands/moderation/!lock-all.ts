@@ -35,9 +35,7 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import logger from '../../../core/logger.js';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
@@ -58,7 +56,7 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var role = interaction.options.getRole("role");
         } else {
-            
+
             var role = client.method.role(interaction, args!, 0);
         };
 
@@ -68,12 +66,6 @@ export default {
             };
         });
 
-        let Lockembed = new EmbedBuilder()
-            .setColor("#5b3475")
-            .setTimestamp()
-            .setDescription(lang.lockall_embed_message_description
-                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-            );
 
         await client.method.iHorizonLogs.send(interaction, {
             title: lang.lockall_logs_embed_title,
@@ -81,7 +73,10 @@ export default {
                 .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
         });
 
-        await client.method.interactionSend(interaction, { embeds: [Lockembed] });
+        await client.method.interactionSend(interaction, {
+            content: lang.lockall_embed_message_description
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+        });
         return;
     },
 };
