@@ -50,7 +50,7 @@ export interface Command {
     description_localizations: DescriptionLocalizations;
     integration_types?: number[],
     contexts?: number[],
-    permission?: bigint | 0;
+    permission: bigint | 0 | null;
     category: string;
     options?: Option[];
     thinking: boolean;

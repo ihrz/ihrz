@@ -24,6 +24,7 @@ import { LanguageData } from '../../../types/languageData';
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
 import { Option } from '../../../types/option';
+import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 
 type MessageCommandResponse = {
     success: boolean,
@@ -125,6 +126,18 @@ async function executeCommand(
             files: [await message.client.method.bot.footerAttachmentBuilder(message)]
         });
         return;
+    }
+
+    if (command.permission && !message.member!.permissions.has(command.permission)) {
+        let perm = getPermissionByValue(command.permission);
+
+        if (perm) {
+            const permName = lang[perm.name] || perm.name;
+            return await message.reply({
+                content: lang.var_dont_have_perm
+                    .replace("{perm}", permName)
+            });
+        }
     }
 
     var _ = await message.client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;

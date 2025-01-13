@@ -30,18 +30,13 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let action = interaction.options.getString("action");
-
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.reply({ content: lang.security_disable_not_admin });
-            return;
-        };
 
         if (action === 'on') {
             await client.db.set(`${interaction.guildId}.SECURITY.disable`, false);

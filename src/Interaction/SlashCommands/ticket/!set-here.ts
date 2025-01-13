@@ -51,13 +51,6 @@ export default {
             return;
         };
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({
-                content: lang.sethereticket_not_admin.replace(":x:", client.iHorizon_Emojis.icon.No_Logo)
-            });
-            return;
-        };
-
         let comp = new StringSelectMenuBuilder()
             .setCustomId("choose_panel_type")
             .setPlaceholder(lang.sethereticket_command_type_menu_placeholder)

@@ -40,14 +40,6 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
-            await interaction.editReply({
-                content: lang.tempvoice_if_text_not_admin
-                    .replace('${interaction.user.id}', interaction.user.id)
-            });
-            return;
-        }
-
         let targetedChannel = interaction.options.getChannel('channel');
 
         let embed = new EmbedBuilder()

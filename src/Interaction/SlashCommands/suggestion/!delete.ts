@@ -39,11 +39,6 @@ export default {
 
         let id = interaction.options.getString("id");
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({ content: lang.suggest_delete_not_delete });
-            return;
-        };
-
         let baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
         let fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`);
 

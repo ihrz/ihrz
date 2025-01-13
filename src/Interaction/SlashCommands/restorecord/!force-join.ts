@@ -41,11 +41,6 @@ export default {
 
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.security_disable_not_admin });
-            return;
-        }
-
         const secretCode = interaction.options.getString("key")!;
         const table = client.db.table("RESTORECORD");
         const Data = getGuildDataPerSecretCode(await table.all(), secretCode);

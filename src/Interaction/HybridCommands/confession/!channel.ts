@@ -53,16 +53,6 @@ export default {
             var buttonTitle = client.method.string(args!, 1)?.substring(0, 32) || '+';
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.security_channel_not_admin });
-            return;
-        };
-
         await client.db.set(`${interaction.guildId}.CONFESSION.channel`, channel.id);
 
         await client.method.interactionSend(interaction, {

@@ -43,16 +43,6 @@ export default {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.lockall_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
-            return;
-        };
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var role = interaction.options.getRole("role");
         } else {

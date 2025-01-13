@@ -47,15 +47,10 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
+    permission: PermissionsBitField.Flags.ManageGuildExpressions,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, command: Command | Option | undefined, allowed, options?: string[]) => {
 
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.ManageGuildExpressions);
-
         let message = options![0];
-
-        if (!permission) {
-            return;
-        }
 
         await interaction.reply({
             content: lang.remove_react_command_work

@@ -44,16 +44,6 @@ export default {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.setxpchannels_not_admin });
-            return;
-        };
-
         var all_channels = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING`) as DatabaseStructure.DbGuildXpLeveling["bypassChannels"];
 
         const embed = new EmbedBuilder()

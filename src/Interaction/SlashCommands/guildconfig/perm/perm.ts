@@ -25,6 +25,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     ChannelType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../../types/command';
@@ -58,7 +59,9 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.User,
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: "permission",
@@ -108,11 +111,15 @@ export const command: Command = {
                     ],
 
                     type: ApplicationCommandOptionType.String,
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'command',
@@ -143,6 +150,8 @@ export const command: Command = {
                             value: "list"
                         }
                     ],
+                    
+                    permission: null
                 },
                 {
                     name: "command",
@@ -154,7 +163,9 @@ export const command: Command = {
 
                     autocomplete: true,
                     type: ApplicationCommandOptionType.String,
-                    required: false
+                    required: false,
+
+                    permission: null
                 },
                 {
                     name: "permission",
@@ -204,7 +215,9 @@ export const command: Command = {
                     ],
 
                     type: ApplicationCommandOptionType.String,
-                    required: false
+                    required: false,
+
+                    permission: null
                 },
                 {
                     name: "custom-role",
@@ -216,7 +229,9 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.Role,
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 },
                 {
                     name: "custom-user",
@@ -228,11 +243,15 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.User,
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'perm-list',
@@ -243,6 +262,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'create-roles',
@@ -253,6 +274,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
     ],
 
@@ -296,4 +319,5 @@ export const command: Command = {
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

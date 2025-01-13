@@ -39,11 +39,6 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({ content: lang.disableticket_not_admin });
-            return;
-        };
-
         let type = interaction.options.getString('action');
 
         if (type === "off") {

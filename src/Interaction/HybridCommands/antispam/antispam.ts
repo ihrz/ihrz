@@ -25,6 +25,7 @@ import {
     ApplicationCommandType,
     ApplicationCommandOptionType,
     Message,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
@@ -53,6 +54,8 @@ export const command: Command = {
 
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator,
         },
         {
             name: "bypass-roles",
@@ -66,6 +69,8 @@ export const command: Command = {
             aliases: ["roles"],
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator,
         },
         {
             name: "ignore-channels",
@@ -79,9 +84,12 @@ export const command: Command = {
             aliases: ["channels"],
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator,
         },
     ],
     category: 'antispam',
     thinking: true,
     type: ApplicationCommandType.ChatInput,
+    permission: null
 };

@@ -50,16 +50,6 @@ export default {
             .values()
         ) || [];
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        };
-
         if (all_admin_members.length == 0) {
             await client.method.interactionSend(interaction, { content: lang.all_admins_nobody_admins });
             return;

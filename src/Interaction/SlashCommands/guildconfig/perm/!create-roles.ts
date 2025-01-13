@@ -37,10 +37,6 @@ export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await client.method.interactionSend(interaction, { content: lang.setup_not_admin });
-            return;
-        }
 
         var roles = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8"];
         let existingRoles = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {} as DatabaseStructure.UtilsRoleData;

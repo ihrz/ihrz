@@ -53,13 +53,15 @@ export const command: Command = {
                 "fr": "le rôle que vous souhaitez donner"
             },
             type: ApplicationCommandOptionType.Role,
-            required: true
+            required: true,
+            permission: null
         }
     ],
 
     thinking: false,
     category: 'ownihrz',
     type: "PREFIX_IHORIZON_COMMAND",
+    permission: null,
     run: async (client: Client, message: Message<true>, lang: LanguageData, command: Command | Option | undefined, allowed, options?: string[]) => {
         let role = client.method.role(message, options!, 0);
 

@@ -56,6 +56,58 @@ var_dont_have_perm: "You don't have the necessary permissions to do this. (Requi
 var_price: "Price"
 var_boost: "Boost"
 
+# Discord Permission Name
+perm_createinstantinvite_name: "Create Instant Invite"
+perm_kickmembers_name: "Kick Members"
+perm_banmembers_name: "Ban Members"
+perm_administrator_name: "Administrator"
+perm_managechannels_name: "Manage Channels"
+perm_manageguild_name: "Manage Guild"
+perm_addreactions_name: "Add Reactions"
+perm_viewauditlog_name: "View Audit Log"
+perm_priorityspeaker_name: "Priority Speaker"
+perm_stream_name: "Stream"
+perm_viewchannel_name: "View Channel"
+perm_sendmessages_name: "Send Messages"
+perm_sendttsmessages_name: "Send TTS Messages"
+perm_managemessages_name: "Manage Messages"
+perm_embedlinks_name: "Embed Links"
+perm_attachfiles_name: "Attach Files"
+perm_readmessagehistory_name: "Read Message History"
+perm_mentioneveryone_name: "Mention Everyone"
+perm_useexternalemojis_name: "Use External Emojis"
+perm_viewguildinsights_name: "View Guild Insights"
+perm_connect_name: "Connect"
+perm_speak_name: "Speak"
+perm_mutemembers_name: "Mute Members"
+perm_deafenmembers_name: "Deafen Members"
+perm_movemembers_name: "Move Members"
+perm_usevad_name: "Use Voice Activity"
+perm_changenickname_name: "Change Nickname"
+perm_managenicknames_name: "Manage Nicknames"
+perm_manageroles_name: "Manage Roles"
+perm_managewebhooks_name: "Manage Webhooks"
+perm_manageemojisandstickers_name: "Manage Emojis and Stickers"
+perm_manageguildexpressions_name: "Manage Guild Expressions"
+perm_useapplicationcommands_name: "Use Application Commands"
+perm_requesttospeak_name: "Request to Speak"
+perm_manageevents_name: "Manage Events"
+perm_managethreads_name: "Manage Threads"
+perm_createpublicthreads_name: "Create Public Threads"
+perm_createprivatethreads_name: "Create Private Threads"
+perm_useexternalstickers_name: "Use External Stickers"
+perm_sendmessagesinthreads_name: "Send Messages in Threads"
+perm_useembeddedactivities_name: "Use Embedded Activities"
+perm_moderatemembers_name: "Moderate Members"
+perm_viewcreatormonetizationanalytics_name: "View Creator Monetization Analytics"
+perm_usesoundboard_name: "Use Soundboard"
+perm_createguildexpressions_name: "Create Guild Expressions"
+perm_createevents_name: "Create Events"
+perm_useexternalsounds_name: "Use External Sounds"
+perm_sendvoicemessages_name: "Send Voice Messages"
+perm_sendpolls_name: "Send Polls"
+perm_useexternalapps_name: "Use External Apps"
+
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
 ticket_disabled_command: "You can't use this command because an Administrator disabled the ticket commands !"
@@ -478,6 +530,8 @@ help_notifier_dsc: "Be notified when a Youtuber, Streamer publish a video!"
 help_notifier_fields: "Notifier"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "Made server verification with oAuth2. When you server got raided/termed, with this oAuth2, you can recover your old members !"
+help_tags_fields: "Custom Tags"
+help_tags_dsc: "Create tags message for your server, and use them in your server!"
 
 # /h
 h_suite: "(Continued)"
@@ -1224,7 +1278,7 @@ setmembercount_not_admin: ":x: | You must be an administrator of this server to 
 setmembercount_helpembed_title: "Set MemberCount Help !"
 setmembercount_helpembed_description: "/membercount <Enable / Disable> <Channel Name>"
 setmembercount_helpembed_fields_name: "How to use it?"
-setmembercount_helpembed_fields_value: "{MemberCount} = number of members in the server\n{RolesCount} = number of roles\n{BotCount} = number of bots in the server\n{ChannelCount} = number of channels in the server\n{BoostCount} = number of boosts on the server"
+setmembercount_helpembed_fields_value: "{MemberCount} = number of members in the server\n{RolesCount} = number of roles\n{BotCount} = number of bots in the server\n{ChannelCount} = number of channels in the server\n{BoostCount} = number of boosts on the server\n{VoiceCount} = total number of members in voice channel on the guild\n{OnlineCount} = total online members in the guild"
 setmembercount_logs_embed_title_on_enable: "Set MemberCount Logs"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> set the MemberCount of <#${channel.id}> to `${messagei}`!"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully set MemberCount."
@@ -1814,6 +1868,45 @@ allowlist_delete_member_unreachable: "The member you wanted to remove into the a
 allowlist_delete_cant_remove_owner: "This is not possible to delete the owner of the server from the allowlist!"
 allowlist_delete_isnt_in: "The member you want to remove from the allowlist isn't in it!"
 allowlist_delete_command_work: "${member.user} has been removed from the allowlist !"
+
+
+# Custom Tag Module
+# /tag create, ... delete, ... edit, ... list, ... info
+
+tag_name: "Tag"
+tag_embed_created_at: "Created At"
+tag_embed_last_update: "Last Update"
+tag_embed_last_updated_by: "Last Updated By"
+
+# /tag create
+tag_create_not_permited: "You are not allowed to create a tag.\nNeed administrator permission or you need to be in the whitelist (`tag wlroles-create`)."
+tag_create_not_good_name: "The tag name must not include spaces and must not exceed 16 characters."
+tag_create_command_work: "The tag `${tag_name}` has been created."
+tag_create_already_exist: "The tag already exists."
+tag_create_embed_doesnt_exist: "The embed doesn't exist."
+
+# /tag delete
+tag_no_one_found: "There is not tags saved on this guild !"
+tag_delete_dnt_exist: "The tag `${tag_name}` doesn't exist."
+tag_delete_command_ok: "The tag `${tag_name}` has been deleted."
+
+# /tag info
+tag_doesnt_exist: "The tag `${tag_name}` doesn't exist !"
+
+# /tag wlcreate
+tag_wlcreate_embed_title: "Whitelist create - Tags"
+tag_wlcreate_embed_desc: "All roles that are allowed to create tags."
+
+# /tag wluse
+tag_wluse_embed_title: "Whitelist use - Tags"
+tag_wluse_embed_desc: "All roles that are allowed to use tags."
+
+# /tag list
+tag_list_no_anything: "There are no tags saved on this guild!"
+
+# /tag use
+tag_use_not_allowed: "You are not allowed to use the tag `${tag_name}`.\nNeed administrator permission or you can ask the tag owner <@${tag.createBy}> to add you to the whitelist (`tag wlroles-use`)."
+tag_use_command_work: "Tag `${tag_name}` has been sent."
 
 
 # OWNIHRZ Module

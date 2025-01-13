@@ -67,9 +67,13 @@ export const command: Command = {
                                 "fr": "Quel est le membre alors?"
                             },
 
-                            required: true
+                            required: true,
+
+                            permission: null
                         },
                     ],
+
+                    permission: null
                 },
                 {
                     name: "remove",
@@ -90,9 +94,13 @@ export const command: Command = {
                                 "fr": "Quel est le membre alors?"
                             },
 
-                            required: true
+                            required: true,
+
+                            permission: null
                         },
                     ],
+
+                    permission: null
                 },
                 {
                     name: "list",
@@ -103,11 +111,17 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.Subcommand,
+
+                    permission: null
                 },
             ],
+
+            permission: null
         },
     ],
     thinking: false,
     category: 'protection',
     type: ApplicationCommandType.ChatInput,
+
+    permission: null
 };

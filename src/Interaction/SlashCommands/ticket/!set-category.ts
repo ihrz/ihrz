@@ -44,11 +44,6 @@ export default {
             return;
         };
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({ content: lang.setticketcategory_not_admin });
-            return;
-        };
-
         if (!(category instanceof CategoryChannel)) {
             await interaction.editReply({ content: lang.setticketcategory_not_a_category });
             return;

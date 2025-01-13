@@ -45,16 +45,6 @@ export default {
             var backupID = client.method.string(args!, 0)!;
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.backup_dont_have_perm_on_load });
-            return;
-        };
-
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
             await client.method.interactionSend(interaction, { content: lang.backup_i_dont_have_perm_on_load });
             return;

@@ -40,11 +40,6 @@ export default {
         let id = interaction.options.getString("id");
         let message = interaction.options.getString("message");
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({ content: lang.suggest_reply_not_admin });
-            return;
-        };
-
         let baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
         let fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`);
 

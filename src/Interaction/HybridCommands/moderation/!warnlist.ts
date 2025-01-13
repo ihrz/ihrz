@@ -53,19 +53,6 @@ export default {
             var member = client.method.member(interaction, args!, 0) as GuildMember | null;
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.ModerateMembers]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, {
-                content: lang.warnlist_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-            });
-            return;;
-        };
-
         let allWarns: DatabaseStructure.WarnsData[] | null = await client.db.get(`${interaction.guildId}.USER.${member?.id}.WARNS`);
 
         if (!allWarns) {

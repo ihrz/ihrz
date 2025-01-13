@@ -50,6 +50,8 @@ export const command: Command = {
             },
             type: ApplicationCommandOptionType.String,
             required: false,
+
+            permission: null
         },
         {
             name: "image2",
@@ -59,11 +61,14 @@ export const command: Command = {
             },
             type: ApplicationCommandOptionType.String,
             required: false,
+
+            permission: null
         },
     ],
     thinking: false,
     category: 'misc',
     type: "PREFIX_IHORIZON_COMMAND",
+    permission: null,
     run: async (
         client: Client,
         interaction: Message<true>,

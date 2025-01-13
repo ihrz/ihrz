@@ -66,7 +66,9 @@ export const command: Command = {
                     name: "Power Off",
                     value: "off"
                 }
-            ]
+            ],
+
+            permission: null
         },
         {
             name: 'roles',
@@ -77,6 +79,8 @@ export const command: Command = {
             },
 
             required: false,
+
+            permission: null
         },
         {
             name: 'input',
@@ -88,10 +92,13 @@ export const command: Command = {
             },
 
             required: false,
+
+            permission: null
         },
     ],
     thinking: false,
     category: 'guildconfig',
+    permission: PermissionsBitField.Flags.Administrator,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {        // Guard's Typing
 
@@ -99,22 +106,12 @@ export const command: Command = {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.support_not_admin });
-            return;
-        };
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var action = interaction.options.getString("action");
             var roles = interaction.options.getRole("roles");
             var input = interaction.options.getString("input");
         } else {
-            
+
             var action = client.method.string(args!, 0)
             var roles = client.method.role(interaction, args!, 1) as Role | null;
             var input = client.method.longString(args!, 2)

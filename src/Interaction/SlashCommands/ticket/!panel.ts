@@ -82,12 +82,6 @@ export default {
             return;
         };
 
-        // check admin perm
-        if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-            await interaction.editReply({ content: lang.setup_not_admin });
-            return;
-        }
-
         // check panel id
         let panel_id = interaction.options.getString("panel_id");
 

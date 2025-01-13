@@ -56,11 +56,7 @@ export default {
         let automodRules = await interaction.guild.autoModerationRules.fetch();
         let KeywordPresetRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({ content: lang.blockpub_not_admin });
-            return;
-
-        } else if (turn === "on") {
+        if (turn === "on") {
 
             if (!KeywordPresetRule) {
                 let arrayActionsForRule: Action[] = [

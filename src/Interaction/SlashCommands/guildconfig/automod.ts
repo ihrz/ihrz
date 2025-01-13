@@ -25,6 +25,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     ChannelType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -79,6 +80,7 @@ export const command: Command = {
                                     value: "off"
                                 },
                             ],
+                            permission: null
                         },
                         {
                             name: 'logs-channel',
@@ -92,8 +94,11 @@ export const command: Command = {
                             channel_types: [ChannelType.GuildText],
 
                             required: false,
+                            permission: null
                         }
                     ],
+
+                    permission: PermissionFlagsBits.Administrator
                 },
                 {
                     name: 'link',
@@ -125,6 +130,7 @@ export const command: Command = {
                                     value: "off"
                                 },
                             ],
+                            permission: null
                         },
                         {
                             name: 'logs-channel',
@@ -137,9 +143,12 @@ export const command: Command = {
                             type: ApplicationCommandOptionType.Channel,
                             channel_types: [ChannelType.GuildText],
 
-                            required: false
+                            required: false,
+                            permission: null
                         }
                     ],
+
+                    permission: PermissionFlagsBits.Administrator
                 },
                 {
                     name: 'spam',
@@ -171,6 +180,7 @@ export const command: Command = {
                                     value: "off"
                                 }
                             ],
+                            permission: null
                         },
                         {
                             name: 'logs-channel',
@@ -183,9 +193,12 @@ export const command: Command = {
                             type: ApplicationCommandOptionType.Channel,
                             channel_types: [ChannelType.GuildText],
 
-                            required: false
+                            required: false,
+                            permission: null
                         }
                     ],
+
+                    permission: PermissionFlagsBits.Administrator
                 },
                 {
                     name: 'mass-mention',
@@ -217,6 +230,7 @@ export const command: Command = {
                                     value: "off"
                                 }
                             ],
+                            permission: null
                         },
                         {
                             name: 'max-mention-allowed',
@@ -227,7 +241,8 @@ export const command: Command = {
                                 "fr": "Nombre maximum de mentions autorisées dans un seul message"
                             },
 
-                            required: false
+                            required: false,
+                            permission: null
                         },
                         {
                             name: 'logs-channel',
@@ -240,14 +255,20 @@ export const command: Command = {
                             type: ApplicationCommandOptionType.Channel,
                             channel_types: [ChannelType.GuildText],
 
-                            required: false
+                            required: false,
+                            permission: null
                         }
                     ],
+
+                    permission: PermissionFlagsBits.Administrator
                 }
             ],
+            permission: null
         },
     ],
     thinking: true,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
+
+    permission: null
 };

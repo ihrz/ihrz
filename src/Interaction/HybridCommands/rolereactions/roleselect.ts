@@ -37,7 +37,8 @@ import {
     RoleSelectMenuBuilder,
     StringSelectMenuInteraction,
     CacheType,
-    PermissionsBitField
+    PermissionsBitField,
+    PermissionFlagsBits
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
@@ -93,7 +94,8 @@ export const command: Command = {
                 "fr": "Le salon où se trouve le message à configurer"
             },
             channel_types: [ChannelType.GuildText],
-            required: true
+            required: true,
+            permission: null
         },
         {
             name: 'messageid',
@@ -102,10 +104,12 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Identifiant du message à configurer pour la sélection de rôles"
             },
-            required: true
+            required: true,
+            permission: null
         },
     ],
     category: 'rolereactions',
+    permission: PermissionFlagsBits.Administrator,
     thinking: false,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
@@ -113,15 +117,6 @@ export const command: Command = {
             return;
         }
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.reactionroles_dont_admin_added });
-            return;
-        };
 
         const channel = interaction instanceof ChatInputCommandInteraction
             ? interaction.options.getChannel("channel") as Channel

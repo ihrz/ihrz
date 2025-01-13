@@ -36,15 +36,6 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.prevnames_not_admin });
-        }
-
         let unbanned_members = await client.db.get(`${interaction.guildId}.UTILS.unban_members`);
         let banned_members: string[] = [];
         let cannot_ban = 0;
@@ -76,7 +67,7 @@ export default {
                     )
                     .setFooter(await client.method.bot.footerBuilder(interaction))
             ],
-files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
         });
 
         return;

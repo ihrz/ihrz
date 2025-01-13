@@ -71,4 +71,5 @@ export const command: Command = {
         await client.method.interactionSend(interaction, { embeds: [clientembed], files: [await client.method.bot.footerAttachmentBuilder(interaction)] });
         return;
     },
+    permission: null
 };

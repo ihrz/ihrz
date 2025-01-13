@@ -48,7 +48,6 @@ class KdenLive {
             await rm(projectPath);
             return exportPath;
         } catch (error) {
-            console.error("Erreur lors de l'exportation : ", error);
             throw error;
         }
     }

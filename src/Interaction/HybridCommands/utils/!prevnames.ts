@@ -52,11 +52,6 @@ export default {
             var user = await client.method.user(interaction, args!, 0) || interaction.member.user;
         };
 
-        // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        //     await client.method.interactionSend(interaction,{ content: lang.prevnames_not_admin });
-        //     return;
-        // };
-
         var table = client.db.table("PREVNAMES")
         var char: Array<string> = await table.get(`${user.id}`) || [];
 

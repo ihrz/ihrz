@@ -45,11 +45,6 @@ export default {
         };
         let channel = interaction.options.getChannel('channel') as GuildChannel;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({ content: lang.disableticket_not_admin });
-            return;
-        };
-
         await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
 
         let embed = new EmbedBuilder()

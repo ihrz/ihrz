@@ -297,7 +297,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.String,
-            required: false
+            required: false,
+            permission: null
         }
     ],
     category: 'bot',
@@ -409,7 +410,7 @@ export const command: Command = {
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             });
 
-            let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840_000 });
+            let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840000 });
             let bot_prefix = await client.func.prefix.guildPrefix(client, interaction.guild?.id!);
 
             collector.on('collect', async (i: StringSelectMenuInteraction) => {
@@ -432,7 +433,7 @@ export const command: Command = {
                 );
             });
 
-            collector.on('end', async i => {
+            collector.on('end', async (i) => {
                 rows.forEach((comp, i) => {
                     comp.components.forEach((component) => {
                         component.setDisabled(true);
@@ -448,7 +449,7 @@ export const command: Command = {
             if (!fetchCommand) {
                 await client.method.interactionSend(interaction, {
                     content: client.iHorizon_Emojis.icon.No_Logo + " | " + lang.var_unreachable_command,
-                })
+                });
                 return;
             }
 
@@ -456,7 +457,8 @@ export const command: Command = {
                 embeds: [await client.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)],
                 ephemeral: true,
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]
-            })
+            });
         }
     },
+    permission: null
 };

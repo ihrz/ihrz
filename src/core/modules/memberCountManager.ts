@@ -54,6 +54,12 @@ class MemberCountModule {
         for (let guildObject of memberCountData) {
             try {
                 const guild = this.client.guilds.cache.get(guildObject.guildId)!;
+                const onlineCount = guild.members.cache
+                    .filter(member =>
+                        member.presence?.status === 'online' ||
+                        member.presence?.status === 'idle' ||
+                        member.presence?.status === 'dnd'
+                    ).size;
                 const botMembersCount = guild.members.cache.filter((m) => m.user.bot).size;
                 const rolesCount = guild.roles.cache.size;
                 const boostsCount = guild.premiumSubscriptionCount || 0;
@@ -81,7 +87,8 @@ class MemberCountModule {
                     { key: 'roles', count: rolesCount },
                     { key: 'boost', count: boostsCount },
                     { key: 'channel', count: rolesCount },
-                    { key: "voice", count: voiceCount }
+                    { key: "voice", count: voiceCount },
+                    { key: "online", count: onlineCount }
                 ];
 
                 for (const { key, count } of mappings) {

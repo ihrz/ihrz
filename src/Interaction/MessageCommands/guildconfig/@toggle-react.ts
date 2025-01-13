@@ -49,16 +49,10 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
+    permission: PermissionsBitField.Flags.ManageGuildExpressions,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, command: Command | Option | undefined, allowed, options?: string[]) => {
 
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.ManageGuildExpressions);
-
         let active: boolean;
-
-        if (!permission) {
-            await interaction.reply({ content: lang.setup_not_admin, allowedMentions: { repliedUser: false } });
-            return;
-        }
 
         if (await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`) === true) {
 

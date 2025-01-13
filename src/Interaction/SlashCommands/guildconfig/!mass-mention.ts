@@ -49,11 +49,7 @@ export default {
 
         let mentionSpamRule = automodRules.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({ content: lang.blockpub_not_admin });
-            return;
-
-        } else if (turn === "on") {
+        if (turn === "on") {
             let arrayActionsForRule: Action[] = [
                 {
                     type: 1,

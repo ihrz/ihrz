@@ -26,6 +26,7 @@ import {
     ApplicationCommandType,
     Message,
     EmbedBuilder,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
@@ -78,9 +79,13 @@ export const command: Command = {
                             name: 'On',
                             value: 'track'
                         }
-                    ]
+                    ],
+
+                    permission: null
                 }
             ],
+
+            permission: null
         },
         {
             name: 'lyrics',
@@ -101,9 +106,13 @@ export const command: Command = {
                         "fr": "Titre de la musique"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: null
         },
         {
             name: 'history',
@@ -117,6 +126,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'nowplaying',
@@ -130,6 +141,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'pause',
@@ -140,6 +153,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'play',
@@ -162,9 +177,13 @@ export const command: Command = {
                         "fr": "Titre de la musique (URL si vous le voulez)"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: null
         },
         {
             name: 'queue',
@@ -174,7 +193,9 @@ export const command: Command = {
                 "fr": "Obtenir la file d'attente des musique sur le serveur!"
             },
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'resume',
@@ -188,6 +209,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'shuffle',
@@ -201,6 +224,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'skip',
@@ -211,6 +236,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'stop',
@@ -221,10 +248,12 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         }
     ],
     thinking: true,
     category: 'music',
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

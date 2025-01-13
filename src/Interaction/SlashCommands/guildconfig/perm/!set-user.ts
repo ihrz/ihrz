@@ -38,10 +38,7 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await client.method.interactionSend(interaction, { content: lang.setup_not_admin });
-            return;
-        };
+
 
         let user = interaction.options.getUser('user') as User;
         let perm = interaction.options.getString('permission') as string;

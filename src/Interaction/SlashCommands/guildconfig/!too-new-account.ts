@@ -42,10 +42,6 @@ export default {
         let action = interaction.options.getString('action') as string;
         let maximumDate = interaction.options.getString('maximum-date');
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({ content: lang.setup_not_admin });
-            return;
-        }
 
         if (action === 'on') {
             if (!maximumDate) {

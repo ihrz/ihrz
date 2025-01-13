@@ -39,10 +39,7 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.reply({ content: lang.punishpub_not_admin });
-            return;
-        };
+
 
         let platform = interaction.options.getString("platform") as Platform;
         let author = interaction.options.getString("author") as string;

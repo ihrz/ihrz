@@ -47,16 +47,6 @@ export default {
             .setColor("#FF0000")
             .setDescription(lang.removeinvites_not_admin_embed_description);
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { embeds: [a] });
-            return;
-        };
-
         let response = await promptYesOrNo(interaction, {
             content: lang.resetallinvites_warning_msg,
             noButton: lang.resetallinvites_no_button,

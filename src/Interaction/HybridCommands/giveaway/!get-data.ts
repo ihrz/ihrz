@@ -38,16 +38,6 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        const permissionsArray = [PermissionsBitField.Flags.ManageMessages]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.end_not_admin });
-            return;
-        };
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var giveawayId = interaction.options.getString("giveaway-id")!;
         } else {

@@ -31,11 +31,11 @@ import {
     Message,
     ChannelType,
     BaseGuildVoiceChannel,
-    VoiceBasedChannel
+    VoiceBasedChannel,
+    PermissionFlagsBits
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
@@ -66,7 +66,9 @@ export const command: Command = {
                     name: "Power off",
                     value: "off"
                 },
-            ]
+            ],
+
+            permission: null
         },
         {
             name: "channel",
@@ -80,19 +82,24 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Channel,
             required: true,
+
+            permission: null
         },
         {
             name: 'name',
             required: false,
             type: ApplicationCommandOptionType.String,
 
-            description: `{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}`,
+            description: `{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}`,
             description_localizations: {
-                "fr": "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}"
-            }
+                "fr": "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}"
+            },
+
+            permission: null
         },
     ],
     thinking: true,
+    permission: PermissionFlagsBits.Administrator,
     category: 'membercount',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
@@ -100,16 +107,6 @@ export const command: Command = {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.setmembercount_not_admin });
-            return;
-        };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var type = interaction.options.getString("action");
@@ -133,6 +130,13 @@ export const command: Command = {
             let channelsCount = interaction.guild.channels.cache.size.toString()!;
             let rolesCount = rolesCollection.size!;
             let boostsCount = interaction.guild.premiumSubscriptionCount?.toString() || '0';
+            let onlineCount = interaction.guild.members.cache
+                .filter(member =>
+                    member.presence?.status === 'online' ||
+                    member.presence?.status === 'idle' ||
+                    member.presence?.status === 'dnd'
+                ).size;
+
             const voiceChannels = interaction.guild.channels.cache
                 .filter((channel): channel is VoiceBasedChannel =>
                     channel.type === ChannelType.GuildVoice ||
@@ -158,31 +162,36 @@ export const command: Command = {
                 .replace("{ChannelCount}", channelsCount)
                 .replace("{BoostCount}", boostsCount)
                 .replace("{VoiceCount}", voiceCount.toString())
-                .replace("{BotCount}", botMembers.size.toString()!);
+                .replace("{BotCount}", botMembers.size.toString()!)
+                .replace("{OnlineCount}", onlineCount.toString());
 
             if (messagei.includes("{MemberCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.member`,
-                    { name: messagei, enable: true, event: "member", channel: channel?.id }
+                    { name: messagei, enable: true, channel: channel?.id }
                 );
             } else if (messagei.includes("{RolesCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.roles`,
-                    { name: messagei, enable: true, event: "roles", channel: channel?.id }
+                    { name: messagei, enable: true, channel: channel?.id }
                 );
             } else if (messagei.includes("{ChannelCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.channel`,
-                    { name: messagei, enable: true, event: "bot", channel: channel?.id }
+                    { name: messagei, enable: true, channel: channel?.id }
                 );
             } else if (messagei.includes("{BoostCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.boost`,
-                    { name: messagei, enable: true, event: "bot", channel: channel?.id }
+                    { name: messagei, enable: true, channel: channel?.id }
                 );
             } else if (messagei.includes("{BotCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.bot`,
-                    { name: messagei, enable: true, event: "bot", channel: channel?.id }
+                    { name: messagei, enable: true, channel: channel?.id }
                 );
             } else if (messagei.includes("{VoiceCount}")) {
                 await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.voice`,
-                    { name: messagei, enable: true, event: "bot", channel: channel?.id }
+                    { name: messagei, enable: true, channel: channel?.id }
+                );
+            } else if (messagei.includes("{OnlineCount}")) {
+                await client.db.set(`${interaction.guildId}.GUILD.MCOUNT.online`,
+                    { name: messagei, enable: true, channel: channel?.id }
                 );
             } else {
                 await client.method.interactionSend(interaction, { embeds: [help_embed] });

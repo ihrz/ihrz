@@ -54,16 +54,6 @@ export default {
         let nemj: string = '';
 
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        };
-
         for (let emoji of str) {
             let match = emoji.match(/:(\w+):(\d+)>/);
             if (match) {

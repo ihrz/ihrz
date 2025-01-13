@@ -39,10 +39,7 @@ export default {
 
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await client.method.interactionSend(interaction, { content: lang.setup_not_admin });
-            return;
-        };
+
 
         let all_members: DatabaseStructure.UtilsPermsUserData = await client.db.get(`${interaction.guildId}.UTILS.USER_PERMS`) || {};
         let all_roles: DatabaseStructure.UtilsRoleData = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {};

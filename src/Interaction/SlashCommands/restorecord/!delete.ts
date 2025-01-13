@@ -41,11 +41,6 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await client.method.interactionSend(interaction, { content: lang.security_disable_not_admin });
-            return;
-        };
-
         let result: DatabaseStructure.RestoreCordSchema | null = await client.db.get(`${interaction.guildId}.GUILD.RESTORECORD`);
 
         if (!result) return client.method.interactionSend(interaction, { content: lang.rc_delete_config_not_found });

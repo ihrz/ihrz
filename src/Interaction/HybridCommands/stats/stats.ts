@@ -60,9 +60,13 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.User,
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
+
+            permission: null,
 
             type: ApplicationCommandOptionType.Subcommand
         },
@@ -74,30 +78,28 @@ export const command: Command = {
                 fr: "Regarder le classement du serveur"
             },
 
+            aliases: ["g"],
+
+            permission: null,
             type: ApplicationCommandOptionType.Subcommand
         },
         // {
         //     name: "reset",
-
         //     description: "Reset profil",
         //     description_localizations: {
         //         fr: "Réintialiser un profil"
         //     },
-
         //     options: [
         //         {
         //             name: "member",
-
         //             description: "The member you want",
         //             description_localizations: {
         //                 fr: "L'utilisateur que vous souhaiter"
         //             },
-
         //             type: ApplicationCommandOptionType.String,
         //             required: false
         //         }
         //     ],
-
         //     type: ApplicationCommandOptionType.Subcommand,
         // },
     ],
@@ -105,5 +107,5 @@ export const command: Command = {
     thinking: true,
     category: 'stats',
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

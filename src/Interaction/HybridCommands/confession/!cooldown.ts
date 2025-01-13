@@ -48,16 +48,6 @@ export default {
 
         let time = client.timeCalculator.to_ms(action);
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.security_disable_not_admin });
-            return;
-        };
-
         if (!time) {
             await client.method.interactionSend(interaction, {
                 content: lang.too_new_account_invalid_time_on_enable

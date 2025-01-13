@@ -32,7 +32,6 @@ import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
 
 import os from 'node:os';
-import { format } from '../../../core/functions/date-and-time.js';
 
 function niceBytes(a: Number) { let b = 0, c = parseInt((a.toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
 
@@ -49,6 +48,7 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
+    permission: null,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
 
 
@@ -59,7 +59,6 @@ export const command: Command = {
         //     await client.method.interactionSend(interaction, { content: lang.status_be_bot_dev });
         //     return;
         // };
-
         let embed = new EmbedBuilder()
             .setColor("#82cda8")
             .setFields(
@@ -69,10 +68,10 @@ export const command: Command = {
                 { name: "Bot Uptime", value: `${time(new Date(client.method.core.getCacheStorage()?.initialized_timestamp!), 'd')}` },
                 { name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
                 { name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },
-                { name: "NodeJS Version", value: `${process.version}`, inline: false },
+                { name: "NodeJS Version", value: `${process.version}`, inline: false }
             )
             .setThumbnail(interaction.guild.iconURL() as string)
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
         await client.method.interactionSend(interaction, {
             embeds: [embed],

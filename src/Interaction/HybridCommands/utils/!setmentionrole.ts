@@ -57,16 +57,6 @@ export default {
             var nickname = client.method.longString(args!, 2);
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        }
-
         if (type === "on") {
             if (!argsid) {
                 await client.method.interactionSend(interaction, {

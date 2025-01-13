@@ -27,6 +27,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     PermissionsBitField,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -61,7 +62,9 @@ export const command: Command = {
                     name: "Power Off",
                     value: "off"
                 }
-            ]
+            ],
+
+            permission: null
         },
         {
             name: 'settings',
@@ -82,7 +85,9 @@ export const command: Command = {
                     name: "No",
                     value: "no"
                 }
-            ]
+            ],
+
+            permission: null
         },
         // {
         //     name: 'timeout',
@@ -107,6 +112,7 @@ export const command: Command = {
     ],
     thinking: false,
     category: 'newfeatures',
+    permission: PermissionFlagsBits.Administrator,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
@@ -116,11 +122,6 @@ export const command: Command = {
         var action = interaction.options.getString("action");
         var settings = interaction.options.getString("settings") || "None";
         var timeout = interaction.options.getString("timeout") || "None";
-
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.reply({ content: lang.punishpub_not_admin });
-            return;
-        };
 
         if (action === 'on') {
 

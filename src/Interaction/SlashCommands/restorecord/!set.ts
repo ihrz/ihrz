@@ -41,11 +41,6 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await client.method.interactionSend(interaction, { content: lang.security_disable_not_admin });
-            return;
-        };
-
         var channel = interaction.options.getChannel("channel") as Channel | null;
         var messagei = interaction.options.getString("messageid");
         var role = interaction.options.getRole("role");

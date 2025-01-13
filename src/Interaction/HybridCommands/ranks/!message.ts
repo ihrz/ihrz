@@ -43,11 +43,6 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.member.permissions?.has(PermissionsBitField.Flags.Administrator)) {
-            await client.method.interactionSend(interaction, { content: lang.ranksSetMessage_not_admin, ephemeral: true });
-            return;
-        }
-
         let xpMessage = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.message`);
         let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
 

@@ -70,16 +70,6 @@ export default {
             var VanityCode = client.method.string(args!, 0) as string;
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.renew_not_administrator });
-            return;
-        }
-
         let db = client.db.table('API');
 
         let get = await db.get('VANITY');

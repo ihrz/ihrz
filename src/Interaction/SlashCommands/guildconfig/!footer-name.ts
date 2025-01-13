@@ -39,10 +39,7 @@ export default {
         let action = interaction.options.getString("action");
         let footerName = interaction.options.getString('name');
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({ content: lang.setup_not_admin });
-            return;
-        };
+
 
         if (action === "reset") {
             await client.db.delete(`${interaction.guildId}.BOT.botName`);
