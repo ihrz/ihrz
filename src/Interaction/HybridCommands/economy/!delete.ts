@@ -48,20 +48,6 @@ export default {
             return;
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.ManageGuild]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, {
-                content: lang.var_dont_have_perm
-                    .replace("{perm}", lang.setjoinroles_var_perm_manage_guild)
-            });
-            return;
-        };
-
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var role = interaction.options.getRole("role") as Role;
         } else {

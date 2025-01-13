@@ -38,11 +38,6 @@ export default {
 
         let channel = interaction.options.getChannel("id");
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.reply({ content: lang.security_channel_not_admin });
-            return;
-        };
-
         await client.db.set(`${interaction.guildId}.SECURITY.channel`, channel?.id);
 
         await interaction.reply({

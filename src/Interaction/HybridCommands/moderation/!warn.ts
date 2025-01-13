@@ -51,19 +51,6 @@ export default {
             var reason = client.method.longString(args!, 1)!;
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.ModerateMembers]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, {
-                content: lang.warn_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-            });
-            return;;
-        };
-
         let warnId = generatePassword({ length: 8, lowercase: true, numbers: true });
         await client.method.warnMember(
             interaction.member!,

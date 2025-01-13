@@ -49,16 +49,6 @@ export default {
             var argsid = await client.method.channel(interaction, args!, 1) || interaction.channel;
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.setxpchannels_not_admin });
-            return;
-        };
-
         if (type === "on") {
             if (!argsid) {
                 await client.method.interactionSend(interaction, { content: lang.setxpchannels_valid_channel_message });

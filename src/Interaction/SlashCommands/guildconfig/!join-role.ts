@@ -73,7 +73,7 @@ export default {
             .setMaxValues(8)
             .setMinValues(0);
 
-        if (all_channels?.joinroles !== undefined && all_channels?.joinroles.length > 1) {
+        if (all_channels?.joinroles !== undefined && all_channels?.joinroles.length >= 1) {
             const roles: string[] = Array.isArray(all_channels.joinroles) ? all_channels.joinroles : [all_channels.joinroles];
             roleSelectMenu.setDefaultRoles(roles);
         }

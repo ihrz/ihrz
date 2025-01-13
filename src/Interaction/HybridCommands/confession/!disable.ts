@@ -46,16 +46,6 @@ export default {
             var action = client.method.string(args!, 0);
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.security_disable_not_admin });
-            return;
-        };
-
         if (action === 'on') {
             await client.db.set(`${interaction.guildId}.CONFESSION.disable`, false);
             await client.method.interactionSend(interaction, {

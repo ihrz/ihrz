@@ -56,6 +56,59 @@ var_dont_have_perm: "Não tem as permissões necessárias para fazer isto. (Requ
 var_price: "Preço"
 var_boost: "Impulso"
 
+# Discord Permission Name
+perm_createinstantinvite_name: "Criar Convite Instantâneo"
+perm_kickmembers_name: "Expulsar Membros"
+perm_banmembers_name: "Banir Membros"
+perm_administrator_name: "Administrador"
+perm_managechannels_name: "Gerenciar Canais"
+perm_manageguild_name: "Gerenciar Servidor"
+perm_addreactions_name: "Adicionar Reações"
+perm_viewauditlog_name: "Visualizar Registro de Auditoria"
+perm_priorityspeaker_name: "Falar com Prioridade"
+perm_stream_name: "Transmitir"
+perm_viewchannel_name: "Ver Canal"
+perm_sendmessages_name: "Enviar Mensagens"
+perm_sendttsmessages_name: "Enviar Mensagens TTS"
+perm_managemessages_name: "Gerenciar Mensagens"
+perm_embedlinks_name: "Inserir Links"
+perm_attachfiles_name: "Anexar Arquivos"
+perm_readmessagehistory_name: "Ler Histórico de Mensagens"
+perm_mentioneveryone_name: "Mencionar Todos"
+perm_useexternalemojis_name: "Usar Emojis Externos"
+perm_viewguildinsights_name: "Ver Insights do Servidor"
+perm_connect_name: "Conectar"
+perm_speak_name: "Falar"
+perm_mutemembers_name: "Silenciar Membros"
+perm_deafenmembers_name: "Ensurdecer Membros"
+perm_movemembers_name: "Mover Membros"
+perm_usevad_name: "Usar Atividade de Voz"
+perm_changenickname_name: "Alterar Apelido"
+perm_managenicknames_name: "Gerenciar Apelidos"
+perm_manageroles_name: "Gerenciar Funções"
+perm_managewebhooks_name: "Gerenciar Webhooks"
+perm_manageemojisandstickers_name: "Gerenciar Emojis e Figurinhas"
+perm_manageguildexpressions_name: "Gerenciar Expressões do Servidor"
+perm_useapplicationcommands_name: "Usar Comandos de Aplicativo"
+perm_requesttospeak_name: "Solicitar Falar"
+perm_manageevents_name: "Gerenciar Eventos"
+perm_managethreads_name: "Gerenciar Tópicos"
+perm_createpublicthreads_name: "Criar Tópicos Públicos"
+perm_createprivatethreads_name: "Criar Tópicos Privados"
+perm_useexternalstickers_name: "Usar Figurinhas Externas"
+perm_sendmessagesinthreads_name: "Enviar Mensagens em Tópicos"
+perm_useembeddedactivities_name: "Usar Atividades Incorporadas"
+perm_moderatemembers_name: "Moderar Membros"
+perm_viewcreatormonetizationanalytics_name: "Visualizar Análises de Monetização"
+perm_usesoundboard_name: "Usar Mesa de Som"
+perm_createguildexpressions_name: "Criar Expressões do Servidor"
+perm_createevents_name: "Criar Eventos"
+perm_useexternalsounds_name: "Usar Sons Externos"
+perm_sendvoicemessages_name: "Enviar Mensagens de Voz"
+perm_sendpolls_name: "Enviar Enquetes"
+perm_useexternalapps_name: "Usar Aplicativos Externos"
+
+
 # Comandos de ticket
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
 ticket_disabled_command: "Você não pode usar este comando porque um Administrador desativou os comandos de ticket!"
@@ -478,6 +531,8 @@ help_notifier_dsc: "Seja notificado quando um Youtuber ou Streamer publicar um v
 help_notifier_fields: "Notificador"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "Verificação do servidor com oAuth2. Se o seu servidor foi invadido ou excluído, você pode recuperar seus antigos membros com oAuth2!"
+help_tags_fields: "Tags personalizadas"
+help_tags_dsc: "Crie mensagens de tags para o seu servidor e use-as no seu servidor!"
 
 # /h
 h_suite: "(Continuação)"
@@ -1223,7 +1278,7 @@ setmembercount_not_admin: ":x: | You must be an administrator of this server to 
 setmembercount_helpembed_title: "Set MemberCount Help !"
 setmembercount_helpembed_description: "/membercount <Ativar / Desativar> <Nome do canal>"
 setmembercount_helpembed_fields_name: "Como usá-lo?"
-setmembercount_helpembed_fields_value: "{MemberCount} = número de membros no servidor\n{RolesCount} = número de funções\n{BotCount} = número de bots no servidor\n{ChannelCount} = número de canais no servidor\n{BoostCount} = número de impulsos no servidor"
+setmembercount_helpembed_fields_value: "{MemberCount} = número de membros no servidor\n{RolesCount} = número de cargos\n{BotCount} = número de bots no servidor\n{ChannelCount} = número de canais no servidor\n{BoostCount} = número de impulsos no servidor\n{VoiceCount} = número total de membros nos canais de voz no servidor\n{OnlineCount} = total de membros online no servidor"
 setmembercount_logs_embed_title_on_enable: "Set MemberCount Logs"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> set the MemberCount of <#${channel.id}> to `${messagei}`!"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully set MemberCount."
@@ -1813,6 +1868,45 @@ allowlist_delete_member_unreachable: "O membro que você queria remover da lista
 allowlist_delete_cant_remove_owner: "Não é possível remover o dono do servidor da lista de permissões!"
 allowlist_delete_isnt_in: "O membro que você quer remover da lista de permissões não está nela!"
 allowlist_delete_command_work: "${member.user} foi removido da lista de permissões!"
+
+
+# Custom Tag Module
+# /tag create, ... delete, ... edit, ... list, ... info
+
+tag_name: "Tag"
+tag_embed_created_at: "Criado em"
+tag_embed_last_update: "Última atualização"
+tag_embed_last_updated_by: "Última atualização por"
+
+# /tag create
+tag_create_not_permited: "Não tem permissão para criar uma tag.\nPrecisa de permissões de administrador ou estar na lista branca (`tag wlroles-create`)."
+tag_create_not_good_name: "O nome da tag não deve incluir espaços e não deve exceder 16 caracteres."
+tag_create_command_work: "A tag `${tag_name}` foi criada."
+tag_create_already_exist: "A tag já existe."
+tag_create_embed_doesnt_exist: "O embed não existe."
+
+# /tag delete
+tag_no_one_found: "Não existem tags guardadas neste servidor!"
+tag_delete_dnt_exist: "A tag `${tag_name}` não existe."
+tag_delete_command_ok: "A tag `${tag_name}` foi eliminada."
+
+# /tag info
+tag_doesnt_exist: "A tag `${tag_name}` não existe!"
+
+# /tag wlcreate
+tag_wlcreate_embed_title: "Lista branca criar - Tags"
+tag_wlcreate_embed_desc: "Todos os cargos que têm permissão para criar tags."
+
+# /tag wluse
+tag_wluse_embed_title: "Lista branca usar - Tags"
+tag_wluse_embed_desc: "Todos os cargos que têm permissão para usar tags."
+
+# /tag list
+tag_list_no_anything: "Não existem tags guardadas neste servidor!"
+
+# /tag use
+tag_use_not_allowed: "Não tem permissão para usar a tag `${tag_name}`.\nPrecisa de permissões de administrador ou pode pedir ao proprietário da tag <@${tag.createBy}> para o adicionar à lista branca (`tag wlroles-use`)."
+tag_use_command_work: "A tag `${tag_name}` foi enviada."
 
 
 # Módulo OWNIHRZ

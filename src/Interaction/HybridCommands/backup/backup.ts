@@ -25,6 +25,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     Message,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
@@ -77,8 +78,11 @@ export const command: Command = {
                         }
                     ],
                     required: true,
+
+                    permission: null
                 },
             ],
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "list",
@@ -94,6 +98,7 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+            permission: null
         },
         {
             name: "load",
@@ -119,9 +124,13 @@ export const command: Command = {
                         "fr": "Quelle est l'identifiant de la backup ?"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "delete",
@@ -142,14 +151,17 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.String,
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+            permission: null
         }
     ],
     category: 'backup',
     thinking: true,
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

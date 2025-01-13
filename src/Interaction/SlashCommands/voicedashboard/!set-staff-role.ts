@@ -36,14 +36,6 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
-            await interaction.editReply({
-                content: lang.tempvoice_staff_not_admin
-                    .replace("${interaction.user.id}", interaction.user.id)
-            });
-            return;
-        };
-
         let targetedRole = interaction.options.getRole('role');
 
         let embed = new EmbedBuilder()

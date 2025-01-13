@@ -60,6 +60,7 @@ export const command: Command = {
             },
             required: true,
             choices: [
+                { name: "Setup all channels", value: "auto" },
                 { name: "Delete all settings", value: "off" },
                 { name: "AntiSpam Logs", value: "antispam" },
                 { name: "Boost Logs", value: "boost" },
@@ -67,10 +68,11 @@ export const command: Command = {
                 { name: "Messages Logs", value: "message" },
                 { name: "Moderation Logs", value: "moderation" },
                 { name: "Roles Logs", value: "roles" },
-                { name: "Setup all channels", value: "auto" },
                 { name: "Ticket Logs", value: "ticket" },
                 { name: "Voice Logs", value: "voice" },
-            ]
+            ],
+
+            permission: null
         },
         {
             name: 'channel',
@@ -80,12 +82,14 @@ export const command: Command = {
             description_localizations: {
                 "fr": "Le canal sur lequel vous souhaitez recevoir votre message de journaux"
             },
-            required: false
+            required: false,
+            permission: null
         }
     ],
     thinking: true,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
+    permission: PermissionFlagsBits.Administrator,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
 
 
@@ -104,23 +108,13 @@ export const command: Command = {
             { id: "channel", value: lang.var_text_channel }
         ];
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.setlogschannel_not_admin });
-            return;
-        };
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var type = interaction.options.getString("type")!;
             var channel = interaction.options.getChannel("channel") as Channel | null;
         } else {
 
             var type = client.method.string(args!, 0)!;
-            var channel = await client.method.channel(interaction, args!, 1)
+            var channel = await client.method.channel(interaction, args!, 1);
         };
 
         const createLogsChannel = async (name: string, typeOfLogs: string) => {
@@ -255,7 +249,7 @@ export const command: Command = {
             return;
         }
 
-        const typeOfLogsMap: { [key: string]: string } = {
+        const typeOfLogsMap: { [key: string]: string; } = {
             "roles": lang.setlogschannel_var_roles,
             "moderation": lang.setlogschannel_var_mods,
             "voice": lang.setlogschannel_var_voice,

@@ -38,11 +38,6 @@ export default {
 
         let role = interaction.options.getRole("role");
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.reply({ content: lang.security_role_to_give_not_admin });
-            return;
-        };
-
         await client.db.set(`${interaction.guildId}.SECURITY.role`, role?.id);
 
         await interaction.reply({

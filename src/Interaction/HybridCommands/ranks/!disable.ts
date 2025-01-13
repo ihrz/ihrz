@@ -41,18 +41,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var types = interaction.options.getString("action");
         } else {
-            
+
             var types = client.method.string(args!, 0);
-        };
-
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.disablexp_not_admin });
-            return;
         };
 
         if (types == "off") {

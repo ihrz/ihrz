@@ -23,6 +23,7 @@ import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Cha
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
 import { Command } from '../../../types/command';
+import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 
 var timeout: number = 1000;
 
@@ -53,6 +54,19 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                 await interaction.deferReply({ ephemeral: subCmd.ephemeral });
             }
 
+            if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
+                let perm = getPermissionByValue(subCmd.permission);
+        
+                if (perm) {
+                    const permName = lang[perm.name] || perm.name;
+                    const body = {
+                        content: lang.var_dont_have_perm
+                            .replace("{perm}", permName)
+                    }
+                    return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+                }
+            }
+
             return await subCmd.run(client, interaction, lang, command, permCheck.allowed, []);
         }
     }
@@ -68,6 +82,19 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                 await interaction.deferReply({ ephemeral: subCmd.ephemeral });
             }
 
+            if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
+                let perm = getPermissionByValue(subCmd.permission);
+        
+                if (perm) {
+                    const permName = lang[perm.name] || perm.name;
+                    const body = {
+                        content: lang.var_dont_have_perm
+                            .replace("{perm}", permName)
+                    }
+                    return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+                }
+            }
+
             return await subCmd.run(client, interaction, lang, command, permCheck.allowed, []);
         }
     }
@@ -78,6 +105,19 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 
     let permCheck = await client.method.permission.checkCommandPermission(interaction, interaction.commandName);
     if (!permCheck.allowed && permCheck.neededPerm !== 0) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+
+    if (command.permission && !interaction.member!.permissions.has(command.permission) && !permCheck.allowed) {
+        let perm = getPermissionByValue(command.permission);
+
+        if (perm) {
+            const permName = lang[perm.name] || perm.name;
+            const body = {
+                content: lang.var_dont_have_perm
+                    .replace("{perm}", permName)
+            }
+            return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+        }
+    }
 
     if (command.run) await command.run(client, interaction, lang, command, permCheck.allowed, []);
     return

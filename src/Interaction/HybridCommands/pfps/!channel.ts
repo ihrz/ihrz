@@ -46,16 +46,6 @@ export default {
 
         let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.pfps_channel_not_admin });
-            return;
-        };
-
         if (!fetch && channel) {
             await client.db.set(`${interaction.guildId}.PFPS.channel`, channel.id);
 

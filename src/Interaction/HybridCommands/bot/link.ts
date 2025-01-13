@@ -60,11 +60,12 @@ export const command: Command = {
         let githubbutton = new ButtonBuilder()
             .setLabel(lang.links_github)
             .setStyle(ButtonStyle.Link)
-            .setURL('https://github.com/ihrz/ihrz')
+            .setURL('https://github.com/ihrz/ihrz');
 
         let row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, githubbutton);
 
         await client.method.interactionSend(interaction, { content: lang.links_message, components: [row] });
         return;
     },
+    permission: null
 };

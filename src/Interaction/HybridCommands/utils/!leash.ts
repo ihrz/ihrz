@@ -55,16 +55,6 @@ export default {
             var user = client.method.member(interaction, args!, 0)!;
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.ModerateMembers, PermissionsBitField.Flags.MoveMembers]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        };
-
         let baseData = await client.db.get(`${interaction.guildId}.UTILS.LEASH_CONFIG`) || {
             maxLeashedByUsers: 3,
             maxLeashTime: client.timeCalculator.to_ms("30min")

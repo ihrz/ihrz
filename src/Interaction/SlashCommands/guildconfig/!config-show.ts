@@ -44,11 +44,6 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.editReply({ content: lang.guildprofil_not_admin });
-            return;
-        }
-
         const originalResponse = await interaction.editReply({
             content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
         });

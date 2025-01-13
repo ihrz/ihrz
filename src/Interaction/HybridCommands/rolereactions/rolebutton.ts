@@ -32,7 +32,8 @@ import {
     ButtonStyle,
     ChannelType,
     Channel,
-    GuildTextBasedChannel
+    GuildTextBasedChannel,
+    PermissionFlagsBits
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
@@ -69,7 +70,9 @@ export const command: Command = {
                     name: "Remove one",
                     value: "remove"
                 }
-            ]
+            ],
+
+            permission: null
         },
         {
             name: 'channel',
@@ -82,7 +85,9 @@ export const command: Command = {
 
             channel_types: [ChannelType.GuildText],
 
-            required: true
+            required: true,
+
+            permission: null
         },
         {
             name: 'messageid',
@@ -93,7 +98,9 @@ export const command: Command = {
                 "fr": "Veuillez copier l'identifiant du message que vous souhaitez configurer"
             },
 
-            required: true
+            required: true,
+
+            permission: null
         },
         {
             name: 'reaction',
@@ -104,7 +111,9 @@ export const command: Command = {
                 "fr": "Les emojis que tu veux"
             },
 
-            required: false
+            required: false,
+
+            permission: null
         },
         {
             name: 'role',
@@ -115,9 +124,12 @@ export const command: Command = {
                 "fr": "Le rôle que vous souhaitez configurer"
             },
 
-            required: false
+            required: false,
+
+            permission: null
         }
     ],
+    permission: PermissionFlagsBits.Administrator,
     category: 'rolereactions',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
@@ -128,15 +140,6 @@ export const command: Command = {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         const regex = /<a?:\w+:(\d+)>/;
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.reactionroles_dont_admin_added });
-            return;
-        };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var type = interaction.options.getString("value");

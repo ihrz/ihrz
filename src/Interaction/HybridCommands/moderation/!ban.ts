@@ -49,25 +49,13 @@ export default {
             var member = interaction.options.getUser("member")!
             var reason = interaction.options.getString("reason")
         } else {
-            
+
             var member = await client.method.user(interaction, args!, 0) as User;
             var reason = client.method.longString(args!, 1);
         };
 
         if (!reason) {
             reason = lang.guildprofil_not_set_punishPub
-        };
-
-        const permissionsArray = [PermissionsBitField.Flags.BanMembers]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, {
-                content: lang.ban_not_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-            });
-            return;
         };
 
         if (!member) {
@@ -110,31 +98,6 @@ export default {
             };
         }
 
-        const ban = async () => {
-            interaction.guild?.bans.create(member?.id!, { reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}` })
-                .then(async () => {
-                    client.method.interactionSend(interaction, {
-                        embeds: [
-                            new EmbedBuilder()
-                                .setTitle(lang.setjoinroles_var_perm_ban_members)
-                                .setFields({ name: lang.var_member, value: member.toString(), inline: true },
-                                    { name: lang.var_author, value: interaction.member?.toString()!, inline: true },
-                                    { name: lang.var_reason, value: reason || lang.var_no_set, inline: true }
-                                )
-                                .setFooter(await client.method.bot.footerBuilder(interaction))
-                        ],
-                        files: [await client.method.bot.footerAttachmentBuilder(interaction)]
-                    }).catch(() => { });
-
-                    await client.method.iHorizonLogs.send(interaction, {
-                        title: lang.ban_logs_embed_title,
-                        description: lang.ban_logs_embed_description
-                            .replace(/\${member\.user\.id}/g, member.id)
-                            .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
-                    });
-                })
-        }
-
         member.send({
             content: lang.ban_message_to_the_banned_member
                 .replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
@@ -143,6 +106,32 @@ export default {
             .catch(() => false)
             .then(() => false);
 
-        ban();
+        interaction.guild?.bans.create(member?.id!, { reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}` })
+            .then(async () => {
+                client.method.interactionSend(interaction, {
+                    embeds: [
+                        new EmbedBuilder()
+                            .setTitle(lang.setjoinroles_var_perm_ban_members)
+                            .setFields({ name: lang.var_member, value: member.toString(), inline: true },
+                                { name: lang.var_author, value: interaction.member?.toString()!, inline: true },
+                                { name: lang.var_reason, value: reason || lang.var_no_set, inline: true }
+                            )
+                            .setFooter(await client.method.bot.footerBuilder(interaction))
+                    ],
+                    files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                }).catch(() => { });
+
+                await client.method.iHorizonLogs.send(interaction, {
+                    title: lang.ban_logs_embed_title,
+                    description: lang.ban_logs_embed_description
+                        .replace(/\${member\.user\.id}/g, member.id)
+                        .replace(/\${interaction\.member\.id}/g, interaction.member?.user.id!)
+                });
+            })
+            .catch(() => {
+                return client.method.interactionSend(interaction, {
+                    content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                });
+            });
     },
 };

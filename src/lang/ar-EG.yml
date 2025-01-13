@@ -56,6 +56,59 @@ var_dont_have_perm: "ليس لديك الصلاحيات اللازمة للقي�
 var_price: "السعر"
 var_boost: "تعزيز"
 
+# Discord Permission Name
+perm_createinstantinvite_name: "إنشاء دعوة فورية"
+perm_kickmembers_name: "طرد الأعضاء"
+perm_banmembers_name: "حظر الأعضاء"
+perm_administrator_name: "المسؤول"
+perm_managechannels_name: "إدارة القنوات"
+perm_manageguild_name: "إدارة الخادم"
+perm_addreactions_name: "إضافة ردود فعل"
+perm_viewauditlog_name: "عرض سجل التدقيق"
+perm_priorityspeaker_name: "المتحدث المميز"
+perm_stream_name: "البث"
+perm_viewchannel_name: "عرض القناة"
+perm_sendmessages_name: "إرسال الرسائل"
+perm_sendttsmessages_name: "إرسال رسائل TTS"
+perm_managemessages_name: "إدارة الرسائل"
+perm_embedlinks_name: "إضافة الروابط"
+perm_attachfiles_name: "إرفاق الملفات"
+perm_readmessagehistory_name: "قراءة سجل الرسائل"
+perm_mentioneveryone_name: "منشن للجميع"
+perm_useexternalemojis_name: "استخدام الإيموجي الخارجي"
+perm_viewguildinsights_name: "عرض إحصاءات الخادم"
+perm_connect_name: "الاتصال"
+perm_speak_name: "التحدث"
+perm_mutemembers_name: "إسكات الأعضاء"
+perm_deafenmembers_name: "كتم صوت الأعضاء"
+perm_movemembers_name: "نقل الأعضاء"
+perm_usevad_name: "استخدام الكشف عن الصوت"
+perm_changenickname_name: "تغيير اللقب"
+perm_managenicknames_name: "إدارة الألقاب"
+perm_manageroles_name: "إدارة الأدوار"
+perm_managewebhooks_name: "إدارة الويب هوكس"
+perm_manageemojisandstickers_name: "إدارة الإيموجي والملصقات"
+perm_manageguildexpressions_name: "إدارة تعبيرات الخادم"
+perm_useapplicationcommands_name: "استخدام أوامر التطبيق"
+perm_requesttospeak_name: "طلب التحدث"
+perm_manageevents_name: "إدارة الأحداث"
+perm_managethreads_name: "إدارة المواضيع"
+perm_createpublicthreads_name: "إنشاء مواضيع عامة"
+perm_createprivatethreads_name: "إنشاء مواضيع خاصة"
+perm_useexternalstickers_name: "استخدام الملصقات الخارجية"
+perm_sendmessagesinthreads_name: "إرسال الرسائل في المواضيع"
+perm_useembeddedactivities_name: "استخدام الأنشطة المدمجة"
+perm_moderatemembers_name: "إدارة الأعضاء"
+perm_viewcreatormonetizationanalytics_name: "عرض تحليلات الربح"
+perm_usesoundboard_name: "استخدام لوحة الصوت"
+perm_createguildexpressions_name: "إنشاء تعبيرات الخادم"
+perm_createevents_name: "إنشاء الأحداث"
+perm_useexternalsounds_name: "استخدام الأصوات الخارجية"
+perm_sendvoicemessages_name: "إرسال الرسائل الصوتية"
+perm_sendpolls_name: "إرسال الاستطلاعات"
+perm_useexternalapps_name: "استخدام التطبيقات الخارجية"
+
+
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
 ticket_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
@@ -476,6 +529,8 @@ help_notifier_dsc: "خليك متبلغ لما يوتيوبر أو ستريمر 
 help_notifier_fields: "المُبلغ"
 help_restorecord_fields: "استعادة كورد"
 help_restorecord_dsc: "التحقق من الخادم باستخدام oAuth2. عندما يتعرض خادمك لهجوم أو يُلغى، يمكنك استعادة الأعضاء القدامى باستخدام oAuth2!"
+help_tags_fields: "العلامات المخصصة"
+help_tags_dsc: "قم بإنشاء رسائل علامات لخادمك واستخدمها في خادمك!"
 
 # /h
 h_suite: "(تتمة)"
@@ -1225,7 +1280,7 @@ setmembercount_not_admin: ":x: | يجب أن تكون مسؤولًا عن الخ
 setmembercount_helpembed_title: "مساعدة Set MemberCount!"
 setmembercount_helpembed_description: "/membercount <تفعيل / إيقاف> <اسم القناة>"
 setmembercount_helpembed_fields_name: "كيف تستخدمه؟"
-setmembercount_helpembed_fields_value: "{MemberCount} = عدد الأعضاء في الخادم\n{RolesCount} = عدد الأدوار\n{BotCount} = عدد الروبوتات في الخادم\n{ChannelCount} = عدد القنوات في الخادم\n{BoostCount} = عدد التعزيزات على الخادم"
+setmembercount_helpembed_fields_value: "{MemberCount} = عدد الأعضاء في السيرفر\n{RolesCount} = عدد الرتب\n{BotCount} = عدد البوتات في السيرفر\n{ChannelCount} = عدد القنوات في السيرفر\n{BoostCount} = عدد التعزيزات في السيرفر\n{VoiceCount} = إجمالي عدد الأعضاء في القنوات الصوتية في السيرفر\n{OnlineCount} = إجمالي الأعضاء المتصلين في السيرفر"
 setmembercount_logs_embed_title_on_enable: "سجلات Set MemberCount"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتعيين MemberCount في <#${channel.id}> إلى `${messagei}`!"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | تم تعيين MemberCount بنجاح."
@@ -1812,6 +1867,46 @@ allowlist_delete_member_unreachable: "العضو الذي تريد إزالته 
 allowlist_delete_cant_remove_owner: "لا يمكن حذف مالك الخادم من القائمة المسموحة!"
 allowlist_delete_isnt_in: "العضو الذي تريد إزالته من القائمة المسموحة ليس موجوداً فيها!"
 allowlist_delete_command_work: "${member.user} تم إزالته من القائمة المسموحة!"
+
+
+# Custom Tag Module
+# /tag create, ... delete, ... edit, ... list, ... info
+
+tag_name: "الوسم"
+tag_embed_created_at: "تم الإنشاء في"
+tag_embed_last_update: "آخر تحديث"
+tag_embed_last_updated_by: "آخر تحديث بواسطة"
+
+# /tag create
+tag_create_not_permited: "غير مسموح لك بإنشاء وسم.\nتحتاج إلى صلاحيات المسؤول أو يجب أن تكون في القائمة البيضاء (`tag wlroles-create`)."
+tag_create_not_good_name: "يجب ألا يحتوي اسم الوسم على مسافات وألا يتجاوز 16 حرفًا."
+tag_create_command_work: "تم إنشاء الوسم `${tag_name}`."
+tag_create_already_exist: "الوسم موجود بالفعل."
+tag_create_embed_doesnt_exist: "الإطار المضمن غير موجود."
+
+# /tag delete
+tag_no_one_found: "لا توجد وسوم محفوظة في هذا السيرفر!"
+tag_delete_dnt_exist: "الوسم `${tag_name}` غير موجود."
+tag_delete_command_ok: "تم حذف الوسم `${tag_name}`."
+
+# /tag info
+tag_doesnt_exist: "الوسم `${tag_name}` غير موجود!"
+
+# /tag wlcreate
+tag_wlcreate_embed_title: "القائمة البيضاء للإنشاء - الوسوم"
+tag_wlcreate_embed_desc: "جميع الأدوار المسموح لها بإنشاء الوسوم."
+
+# /tag wluse
+tag_wluse_embed_title: "القائمة البيضاء للاستخدام - الوسوم"
+tag_wluse_embed_desc: "جميع الأدوار المسموح لها باستخدام الوسوم."
+
+# /tag list
+tag_list_no_anything: "لا توجد وسوم محفوظة في هذا السيرفر!"
+
+# /tag use
+tag_use_not_allowed: "غير مسموح لك باستخدام الوسم `${tag_name}`.\nتحتاج إلى صلاحيات المسؤول أو يمكنك أن تطلب من مالك الوسم <@${tag.createBy}> إضافتك إلى القائمة البيضاء (`tag wlroles-use`)."
+tag_use_command_work: "تم إرسال الوسم `${tag_name}`."
+
 
 # OWNIHRZ Module
 # /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance

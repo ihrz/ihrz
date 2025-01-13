@@ -23,6 +23,34 @@ import { REST, Routes, Client, ApplicationCommand } from 'discord.js';
 import logger from "./logger.js";
 import { getToken } from './functions/getToken.js';
 
+function removePermissionProperties(obj: any): any {
+    // If obj is an array, map through its elements
+    if (Array.isArray(obj)) {
+        return obj.map(item => removePermissionProperties(item));
+    }
+
+    // If obj is not an object or is null, return it as is
+    if (typeof obj !== 'object' || obj === null) {
+        return obj;
+    }
+
+    // Create a new object to store cleaned properties
+    const cleanedObj: any = {};
+
+    // Iterate through object properties
+    for (const [key, value] of Object.entries(obj)) {
+        // Skip permission-related properties
+        if (key === 'perm' || key === 'permission') {
+            continue;
+        }
+
+        // Recursively clean nested objects/arrays
+        cleanedObj[key] = removePermissionProperties(value);
+    }
+
+    return cleanedObj;
+}
+
 const synchronizeCommands = async (client: Client): Promise<void> => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -36,15 +64,18 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
                 type: command.type,
             }));
 
-            let slashCommands = client.commands?.map((command) => ({
-                name: command.name,
-                type: command.type,
-                description: command.description,
-                description_localizations: command.description_localizations,
-                options: command.options,
-                integration_types: command.integration_types || [0],
-                contexts: command.contexts || [0]
-            })) || [];
+            let slashCommands = client.commands?.map((command) => {
+                const commandData = {
+                    name: command.name,
+                    type: command.type,
+                    description: command.description,
+                    description_localizations: command.description_localizations,
+                    options: removePermissionProperties(command.options),
+                    integration_types: command.integration_types || [0],
+                    contexts: command.contexts || [0]
+                };
+                return commandData;
+            }) || [];
 
             let allCommands = [...slashCommands, ...appCmds];
 

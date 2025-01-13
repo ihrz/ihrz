@@ -38,11 +38,6 @@ export default {
 
         let action = interaction.options.getString("action");
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.reply({ content: lang.setsuggest_disable_not_admin });
-            return;
-        };
-
         if (action === 'on') {
             await client.db.set(`${interaction.guildId}.SUGGEST.disable`, false);
             await interaction.reply({

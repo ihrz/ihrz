@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, ApplicationCommandType, UserContextMenuCommandInteraction } from 'discord.js';
+import { Client, ApplicationCommandType, UserContextMenuCommandInteraction, PermissionFlagsBits } from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand';
 
 import command2 from '../HybridCommands/utils/!userinfo.js';
@@ -29,6 +29,7 @@ export const command: AnotherCommand = {
     name: 'User Lookup',
     type: ApplicationCommandType.User,
     thinking: false,
+    permission: PermissionFlagsBits.Administrator,
     run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
         // @ts-ignore
         command2.run(client, interaction as UserContextMenuCommandInteraction<'cached'>, await getLanguageData(interaction.guildId!), {}, 0);

@@ -24,6 +24,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -122,6 +123,8 @@ export const command: Command = {
                         name: value.placeholder,
                         value: value.value,
                     })),
+
+                    permission: null
                 },
                 {
                     name: 'allow',
@@ -142,9 +145,13 @@ export const command: Command = {
                             name: 'All of member',
                             value: 'member'
                         }
-                    ]
+                    ],
+
+                    permission: PermissionFlagsBits.Administrator
                 }
             ],
+
+            permission: null
         },
         {
             name: "sanction",
@@ -179,9 +186,13 @@ export const command: Command = {
                             name: "Simply Cancel Actions + Ban",
                             value: "simply+ban"
                         }
-                    ]
+                    ],
+
+                    permission: null,
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator,
         },
         {
             name: "show-config",
@@ -192,10 +203,13 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator,
         },
     ],
     thinking: true,
     category: 'protection',
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

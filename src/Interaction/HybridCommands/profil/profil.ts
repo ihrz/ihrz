@@ -65,9 +65,13 @@ export const command: Command = {
                         "fr": "L'utilisateur que vous souhaitez rechercher"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
+
+            permission: null
         },
         {
             name: "set-age",
@@ -93,9 +97,13 @@ export const command: Command = {
                         "fr": "Votre âge sur votre profil iHorizon"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: null
         },
         {
             name: "set-description",
@@ -121,9 +129,13 @@ export const command: Command = {
                         "fr": "La description sur votre profil"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: null
         },
         {
             name: "set-gender",
@@ -163,9 +175,13 @@ export const command: Command = {
                             name: "⚧ Non-binary",
                             value: "non-binary"
                         }
-                    ]
+                    ],
+
+                    permission: null
                 }
             ],
+
+            permission: null
         }
     ],
     integration_types: [0, 1],
@@ -174,5 +190,5 @@ export const command: Command = {
     thinking: false,
     category: 'profil',
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

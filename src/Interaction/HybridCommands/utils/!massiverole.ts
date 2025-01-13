@@ -58,16 +58,6 @@ export default {
         let s: number = 0;
         let e: number = 0;
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        };
-
         if ((interaction.guild as Guild).memberCount >= 5500) {
             await client.method.interactionSend(interaction, { content: lang.massiverole_too_much_member });
             return;

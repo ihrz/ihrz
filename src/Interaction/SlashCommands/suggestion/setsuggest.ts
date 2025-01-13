@@ -25,6 +25,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     ChannelType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -69,9 +70,13 @@ export const command: Command = {
                             name: 'Power Off the Suggestion Module',
                             value: 'off'
                         },
-                    ]
+                    ],
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "channel",
@@ -95,12 +100,17 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
     ],
     thinking: false,
     category: 'suggestion',
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

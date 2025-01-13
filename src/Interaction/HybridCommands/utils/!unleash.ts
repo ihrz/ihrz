@@ -52,17 +52,7 @@ export default {
             var user = client.method.member(interaction, args!, 0)!;
         }
 
-        const permissionsArray = [PermissionsBitField.Flags.ModerateMembers, PermissionsBitField.Flags.MoveMembers]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        }
-
-        let fetchedData: DatabaseStructure.LeashData[] | null = await client.db.get(`${interaction.guildId}.UTILS.LEASH`);
+        let fetchedData: DatabaseStructure.LeashData[] = await client.db.get(`${interaction.guildId}.UTILS.LEASH`);
 
         const pairingToRemove = fetchedData?.find(x =>
             (x.dom === interaction.member?.user.id && x.sub === user.id)

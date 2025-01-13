@@ -26,6 +26,7 @@ import {
     ChatInputCommandInteraction,
     Client,
     Message,
+    PermissionFlagsBits,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -62,9 +63,12 @@ export const command: Command = {
                         "fr": "L'utilisateur"
                     },
 
-                    required: false
+                    required: false,
+                    permission: null
                 }
             ],
+
+            permission: null
         },
         {
             name: 'vc',
@@ -95,10 +99,13 @@ export const command: Command = {
                     ],
 
                     type: ApplicationCommandOptionType.String,
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
             type: ApplicationCommandOptionType.Subcommand,
+            permission: PermissionFlagsBits.ManageGuild
         },
         {
             name: 'userinfo',
@@ -121,10 +128,14 @@ export const command: Command = {
                     },
 
                     required: false,
+
+                    permission: null
                 },
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'snipe',
@@ -136,7 +147,9 @@ export const command: Command = {
 
             aliases: ["s", "snp"],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'leash',
@@ -157,10 +170,13 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
 
             type: ApplicationCommandOptionType.Subcommand,
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'unleash',
@@ -181,10 +197,13 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
 
             type: ApplicationCommandOptionType.Subcommand,
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'dm',
@@ -211,7 +230,9 @@ export const command: Command = {
                         { name: "No", value: "no" }
                     ],
                     type: ApplicationCommandOptionType.String,
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: "member",
@@ -222,7 +243,9 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.User,
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: "message",
@@ -233,9 +256,13 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.String,
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator,
 
             type: ApplicationCommandOptionType.Subcommand
         },
@@ -249,7 +276,9 @@ export const command: Command = {
 
             aliases: ["wlrole"],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'pic-only',
@@ -261,7 +290,9 @@ export const command: Command = {
 
             aliases: ["piconly"],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'setmentionrole',
@@ -294,6 +325,7 @@ export const command: Command = {
                             value: "on"
                         }
                     ],
+                    permission: null
                 },
                 {
                     name: 'roles',
@@ -304,7 +336,8 @@ export const command: Command = {
                         "fr": "Les rôles spécifiques à donner"
                     },
 
-                    required: false
+                    required: false,
+                    permission: null
                 },
                 {
                     name: 'part-of-nickname',
@@ -315,11 +348,15 @@ export const command: Command = {
                         "fr": "The part of the nickname you want the person to have in their nickname"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 },
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'renew',
@@ -331,7 +368,9 @@ export const command: Command = {
 
             aliases: ["r", "rnw"],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ManageChannels
         },
         {
             name: 'prevnames',
@@ -353,11 +392,15 @@ export const command: Command = {
                         "fr": "user you want to see this previous username"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 },
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'nickrole',
@@ -387,7 +430,9 @@ export const command: Command = {
                             name: 'Remove',
                             value: 'sub'
                         }
-                    ]
+                    ],
+
+                    permission: null
                 },
                 {
                     name: 'nickname',
@@ -399,6 +444,8 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
                 {
                     name: 'role',
@@ -410,10 +457,14 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'massmove',
@@ -436,6 +487,8 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
                 {
                     name: 'from',
@@ -449,11 +502,14 @@ export const command: Command = {
                     },
 
                     required: false,
+
+                    permission: null
                 },
             ],
 
             thinking: true,
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+            permission: [PermissionFlagsBits.MoveMembers, PermissionFlagsBits.ModerateMembers]
         },
         {
             name: 'massiverole',
@@ -486,6 +542,8 @@ export const command: Command = {
                             value: "sub"
                         }
                     ],
+
+                    permission: null
                 },
                 {
                     name: 'role',
@@ -496,12 +554,16 @@ export const command: Command = {
                         "fr": "Le rôle spécifié que vous souhaitez ajouter"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
 
             thinking: true,
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'guildinfo',
@@ -513,7 +575,9 @@ export const command: Command = {
 
             aliases: ["si", "gi", "serverinfo"],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'emojis',
@@ -534,10 +598,14 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ManageGuildExpressions
         },
         {
             name: 'embed',
@@ -554,10 +622,14 @@ export const command: Command = {
                         "fr": "Si vous disposez d\'un identifiant d\'un embed précèdement enregistrer",
                     },
                     required: false,
+
+                    permission: null
                 },
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ManageMessages
         },
         {
             name: 'derank',
@@ -578,10 +650,14 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'admin-users',
@@ -593,7 +669,9 @@ export const command: Command = {
 
             aliases: ["alladmin", "allperms"],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'allbots',
@@ -605,7 +683,9 @@ export const command: Command = {
 
             aliases: ["allb", "bots"],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "addrole",
@@ -627,7 +707,9 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.User,
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: "role",
@@ -639,12 +721,15 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.Role,
 
-                    required: true
-                },
+                    required: true,
 
+                    permission: null
+                },
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ManageRoles
         },
         {
             name: "delrole",
@@ -665,7 +750,9 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.User,
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: "role",
@@ -677,12 +764,15 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.Role,
 
-                    required: true
-                },
+                    required: true,
 
+                    permission: null
+                },
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ManageRoles
         },
         {
             name: 'zip-emojis',
@@ -694,12 +784,14 @@ export const command: Command = {
 
             aliases: ["zipemojis", "zip1"],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ManageGuildExpressions
         },
     ],
 
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

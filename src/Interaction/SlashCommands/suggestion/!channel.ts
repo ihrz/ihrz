@@ -39,11 +39,6 @@ export default {
 
         let channel = interaction.options.getChannel("channel") as BaseGuildTextChannel;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await interaction.reply({ content: lang.setsuggest_channel_not_admin });
-            return;
-        };
-
         let fetchOldChannel = await client.db.get(`${interaction.guild.id}.SUGGEST.channel`);
 
         if (fetchOldChannel === channel?.id) {

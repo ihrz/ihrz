@@ -50,16 +50,11 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
+    permission: PermissionsBitField.Flags.ManageGuildExpressions,
     run: async (client: Client, interaction: Message<true>, lang: LanguageData, command: Command | Option | undefined, allowed, options?: string[]) => {
 
 
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.ManageGuildExpressions);
-
         let emoji = options![0];
-
-        if (!permission) {
-            return;
-        }
 
         let emojiMsg = emoji || lang.var_none;
 

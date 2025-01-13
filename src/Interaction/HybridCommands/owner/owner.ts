@@ -52,7 +52,9 @@ export const command: Command = {
                 "fr": "Le membre que vous souhaitez rendre propriétaire des projets iHorizon"
             },
 
-            required: false
+            required: false,
+
+            permission: null
         }
     ],
     thinking: false,
@@ -108,4 +110,5 @@ export const command: Command = {
         await client.method.interactionSend(interaction, { content: lang.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
         return;
     },
+    permission: null
 };
