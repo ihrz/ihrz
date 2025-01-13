@@ -26,6 +26,7 @@ import {
     Message,
     GuildMember,
     PermissionFlagsBits,
+    ChatInputCommandInteraction,
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';

@@ -68,11 +68,14 @@ export const command: Command = {
                     name: 'Idle',
                     value: 'idle'
                 },
-            ]
+            ],
+
+            permission: null
         },
     ],
     category: 'owner',
     thinking: true,
+    permission: null,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client<boolean>, interaction: any, lang: LanguageData, command: any, allowed: boolean, args?: string[]): Promise<any> => {
         // Guard's Typing

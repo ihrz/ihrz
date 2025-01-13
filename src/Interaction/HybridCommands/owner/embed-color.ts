@@ -96,7 +96,8 @@ export const command: Command = {
                     name: 'All others Embed!',
                     value: 'all'
                 },
-            ]
+            ],
+            permission: null
         },
         {
             name: 'hex-color',
@@ -107,11 +108,13 @@ export const command: Command = {
                 "fr": "Veuillez utilisé www.color-hex.com"
             },
 
-            required: false
+            required: false,
+            permission: null
         },
     ],
     category: 'owner',
     thinking: true,
+    permission: null,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client<boolean>, interaction: any, lang: LanguageData, command: any, allowed: boolean, args?: string[]): Promise<any> => {
 

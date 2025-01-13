@@ -79,7 +79,8 @@ export const command: Command = {
                     name: 'Competing',
                     value: 'competing'
                 },
-            ]
+            ],
+            permission: null
         },
         {
             name: 'name',
@@ -91,6 +92,7 @@ export const command: Command = {
             },
 
             required: true,
+            permission: null
         },
         {
             name: 'twitch_username',
@@ -102,10 +104,12 @@ export const command: Command = {
             },
 
             required: false,
+            permission: null
         }
     ],
     category: 'owner',
     thinking: true,
+    permission: null,
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client<boolean>, interaction: any, lang: LanguageData, command: any, allowed: boolean, args?: string[]): Promise<any> => {
 
