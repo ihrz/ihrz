@@ -22,7 +22,6 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { DescriptionLocalizations, NameLocalizations } from './command';
 import { Choice } from "./choice";
-import { PermissionFlags } from 'discord.js-selfbot-v13';
 
 export interface Choice {
     name: string,
