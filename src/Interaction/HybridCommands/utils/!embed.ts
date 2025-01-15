@@ -477,7 +477,7 @@ export default {
 
         async function saveEmbed() {
             var password = "";
-            if (potentialEmbed.embedOwner !== interaction.member?.user.id!
+            if (potentialEmbed?.embedOwner !== interaction.member?.user.id!
                 || !arg
             ) {
                 password = generatePassword({ length: 16 });
