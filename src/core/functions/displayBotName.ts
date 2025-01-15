@@ -76,7 +76,7 @@ export async function displayBotPP(client: Client, guildId?: string): Promise<{ 
     }
 };
 
-export default async function displayBotName(guildId: string): Promise<string> {
+export async function displayBotName(guildId: string): Promise<string> {
     let botName = await database.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
 
     if (!botName) {
