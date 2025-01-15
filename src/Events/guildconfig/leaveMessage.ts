@@ -29,7 +29,7 @@ export const event: BotEvent = {
     name: "guildMemberRemove",
     run: async (client: Client, member: GuildMember) => {
         const nonce = SnowflakeUtil.generate().toString();
-        let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(member.guild.id);
         let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
 
         try {

@@ -73,7 +73,7 @@ export default {
             return;
         };
 
-        let progress = client.func.generateProgressBar(player.position, player.queue.current?.info.duration)
+        let progress = client.func.generateProgressBar(player.position, player.queue.current?.info.duration!)
 
         let embed = new EmbedBuilder()
             .setTitle(lang.nowplaying_message_embed_title)

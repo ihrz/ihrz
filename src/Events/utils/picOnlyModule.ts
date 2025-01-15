@@ -62,7 +62,7 @@ export const event: BotEvent = {
                 return contentType && validImageTypes.includes(contentType.toLowerCase());
             });
 
-            let lang = await client.func.getLanguageData(message.guildId) as LanguageData;
+            let lang = await client.func.getLanguageData(message.guildId);
 
             if (!hasValidImageAttachment) {
                 await message.delete();

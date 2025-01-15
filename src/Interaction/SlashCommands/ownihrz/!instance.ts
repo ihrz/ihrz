@@ -29,7 +29,7 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { format } from '../../../core/functions/date-and-time.js';
+import { format } from '../../../core/functions/date_and_time.js';
 
 import { LanguageData } from '../../../../types/languageData';
 

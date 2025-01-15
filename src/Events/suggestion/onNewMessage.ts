@@ -37,7 +37,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.func.getLanguageData(message.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(message.guild.id);
 
         let baseData = await client.db.get(`${message.guildId}.SUGGEST`);
 

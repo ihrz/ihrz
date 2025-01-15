@@ -93,7 +93,7 @@ export const event: BotEvent = {
     name: "channelUpdate",
     run: async (client: Client, oldChannel: GuildChannel, newChannel: GuildChannel) => {
 
-        let lang = await client.func.getLanguageData(oldChannel.guildId) as LanguageData;
+        let lang = await client.func.getLanguageData(oldChannel.guildId);
 
         if (!oldChannel || !oldChannel?.guild) return;
 

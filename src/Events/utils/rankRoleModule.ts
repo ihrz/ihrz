@@ -31,7 +31,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let lang = await client.func.getLanguageData(message.guild.id) as LanguageData;
+        let lang = await client.func.getLanguageData(message.guild.id);
 
         if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
             || message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)

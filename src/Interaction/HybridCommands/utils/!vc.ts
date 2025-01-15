@@ -148,10 +148,13 @@ export default {
                 .setThumbnail("attachment://guild_icon.png")
                 .setFooter(await client.method.bot.footerBuilder(interaction))
 
-            files.push({
-                name: "guild_icon.png",
-                attachment: await client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL())
-            })
+            const guildIconAttachment = await client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL());
+            if (guildIconAttachment) {
+                files.push({
+                    name: "guild_icon.png",
+                    attachment: guildIconAttachment
+                });
+            }
         }
 
         await client.method.interactionSend(interaction, {

@@ -210,7 +210,7 @@ export const event: BotEvent = {
         }
 
         if (await cooldDown(client, interaction)) {
-            const data = await client.func.getLanguageData(interaction.guild?.id) as LanguageData;
+            const data = await client.func.getLanguageData(interaction.guild?.id);
             return await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
         }
 
@@ -227,7 +227,7 @@ export const event: BotEvent = {
         }
 
         try {
-            const lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+            const lang = await client.func.getLanguageData(interaction.guildId);
             await handleCommandExecution(client, (interaction as ChatInputCommandInteraction<"cached">), command, lang, command.thinking);
         } catch (error) {
             if (client.config.core.devMode) {

@@ -37,7 +37,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 
-import { LyricsManager } from './functions/lyrics-fetcher.js';
+import { LyricsManager } from './functions/lyrics_fetcher.js';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
 import { getToken } from './functions/getToken.js';

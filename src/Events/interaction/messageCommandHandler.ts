@@ -191,7 +191,7 @@ export const event: BotEvent = {
         if (!result.success) return;
 
         try {
-            const lang = await client.func.getLanguageData(message.guildId) as LanguageData;
+            const lang = await client.func.getLanguageData(message.guildId);
 
             if (result.subCommand) {
                 await executeCommand(message, result.subCommand as Command, result.args || [], lang);

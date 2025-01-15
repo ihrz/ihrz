@@ -55,6 +55,7 @@ var_aliases: "Alias"
 var_dont_have_perm: "Non hai i permessi necessari per fare questo. (Richiede il permesso {perm})"
 var_price: "Prezzo"
 var_boost: "Potenziamento"
+var_uses: "Usi"
 
 # Nomi dei Permessi Discord
 perm_createinstantinvite_name: "Crea invito istantaneo"
@@ -1908,6 +1909,9 @@ tag_list_no_anything: "Non ci sono tag salvati in questo server!"
 tag_use_not_allowed: "Non hai il permesso di utilizzare il tag `${tag_name}`.\nHai bisogno dei permessi di amministratore o puoi chiedere al proprietario del tag <@${tag.createBy}> di aggiungerti alla whitelist (`tag wlroles-use`)."
 tag_use_command_work: "Il tag `${tag_name}` è stato inviato."
 
+# /tag edit
+tag_edit_error_perm: "Per modificare il tag, devi avere i permessi di amministratore o essere il proprietario del tag."
+
 
 # Modulo OWNIHRZ
 # /mybot invia, ... elenco, /mybot gestisci accetta, ... rifiuta, ... istanza
@@ -2383,5 +2387,11 @@ piconly_module_timeout_reason: "Spam di messaggi senza immagini in un canale sol
 # Nick Kicker Event
 event_nick_kicker_kick_reason: "Parola vietata nel nome utente - Espulsore di Nickname"
 event_nick_kicker_kick_msg: "Nel server `${member.guild.name}`, il tuo nome utente contiene una parola vietata. Sei stato espulso dal server."
+
+# Modulo avatar
+pfps_embed_user_title: "Avatar **utente** di ${username}"
+pfps_embed_guild_title: "Avatar **server** di ${username}"
+pfps_download_user_button: "Scarica avatar utente"
+pfps_download_guild_button: "Scarica avatar server"
 
 # -----------------------------\ /-----------------------------

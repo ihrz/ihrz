@@ -21,7 +21,7 @@
 
 import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User, BaseGuildTextChannel } from 'discord.js';
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
-import { format } from '../../core/functions/date-and-time.js';
+import { format } from '../../core/functions/date_and_time.js';
 
 import status from "../../files/status.json" with { "type": "json" }
 import logger from "../../core/logger.js";

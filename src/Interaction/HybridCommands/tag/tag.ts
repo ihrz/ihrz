@@ -42,6 +42,7 @@ export function generateTagInfoEmbed(interaction: ChatInputCommandInteraction<"c
             `${interaction.client.iHorizon_Emojis.icon.Crown_Logo} > **${lang.var_author}:** <@${tag.createBy}>\n` +
             `${interaction.client.iHorizon_Emojis.icon.Sparkles} > **${lang.tag_embed_created_at}:** ${time(new Date(tag.createTimestamp), "D")}\n` +
             `${interaction.client.iHorizon_Emojis.icon.Timer} > **${lang.tag_embed_last_update}:** ${time(new Date(tag.lastUseTimestamp), "D")}\n` +
+            `${interaction.client.iHorizon_Emojis.icon.Timer} > **${lang.var_uses}:** ${"**`" + tag.uses + "`**"}\n` +
             `${interaction.client.iHorizon_Emojis.icon.Boosting_24_Months_Logo} > **${lang.tag_embed_last_updated_by}:** ${tag.lastUseBy ? '<@' + tag.lastUseBy + '>' : lang.var_no_set}`
         );
 }
@@ -168,6 +169,44 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand,
             permission: null
+        },
+        {
+            name: "edit",
+
+            description: "Edit a tag",
+            description_localizations: {
+                "fr": "Modifier un tag"
+            },
+
+            options: [
+                {
+                    name: "current_tag_name",
+
+                    description: "The current tag name",
+                    description_localizations: {
+                        "fr": "Le nom actuel du tag"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+                    permission: null,
+                    required: true
+                },
+                {
+                    name: "new_tag_name",
+
+                    description: "The new tag name",
+                    description_localizations: {
+                        "fr": "Le nouveau nom du tag"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+                    permission: null,
+                    required: true
+                }
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand,
+            permission: null,
         },
         {
             name: "delete",

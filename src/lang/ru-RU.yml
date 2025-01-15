@@ -55,6 +55,7 @@ var_aliases: "Псевдонимы"
 var_dont_have_perm: "У вас нет необходимых разрешений для этого. (Требуется разрешение {perm})"
 var_price: "Цена"
 var_boost: "Ускорение"
+var_uses: "Использования"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"
@@ -1908,6 +1909,9 @@ tag_list_no_anything: "На этом сервере нет сохраненны�
 tag_use_not_allowed: "У вас нет разрешения на использование тега `${tag_name}`.\nНеобходимы права администратора или вы можете попросить владельца тега <@${tag.createBy}> добавить вас в белый список (`tag wlroles-use`)."
 tag_use_command_work: "Тег `${tag_name}` был отправлен."
 
+# /tag edit
+tag_edit_error_perm: "Чтобы изменить тег, вам нужны права администратора или вы должны быть владельцем тега."
+
 
 # Модуль OWNIHRZ
 # /mybot отправить, ... список, /mybot управление принять, ... отказать, ... экземпляр
@@ -2383,5 +2387,11 @@ piconly_module_timeout_reason: "Спам сообщениями без изоб�
 # Nick Kicker Event
 event_nick_kicker_kick_reason: "Запрещенное слово в имени пользователя - Кикер никнеймов"
 event_nick_kicker_kick_msg: "На сервере `${member.guild.name}` ваше имя пользователя содержит запрещенное слово. Вы были исключены с сервера."
+
+# Модуль аватаров
+pfps_embed_user_title: "**Пользовательский** аватар ${username}"
+pfps_embed_guild_title: "**Серверный** аватар ${username}"
+pfps_download_user_button: "Скачать аватар пользователя"
+pfps_download_guild_button: "Скачать аватар сервера"
 
 # -----------------------------/ \-----------------------------
