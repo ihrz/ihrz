@@ -590,7 +590,7 @@ export function isAnimated(attachmentUrl: string): boolean {
     return fileName.startsWith('a_');
 }
 
-export async function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<void> {
+export async function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string> {
     let warnObject: DatabaseStructure.WarnsData = {
         timestamp: Date.now(),
         reason: reason,
@@ -599,6 +599,8 @@ export async function warnMember(author: GuildMember, member: GuildMember, reaso
     }
 
     await member.client.db.push(`${member.guild.id}.USER.${member.user.id}.WARNS`, warnObject);
+
+    return warnObject.id;
 }
 
 export function getDangerousPermissions(lang: LanguageData): {

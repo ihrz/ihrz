@@ -49,13 +49,13 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("member") as GuildMember | null;
         } else {
-            
+
             var member = client.method.member(interaction, args!, 0) as GuildMember | null;
         };
 
         let allWarns: DatabaseStructure.WarnsData[] | null = await client.db.get(`${interaction.guildId}.USER.${member?.id}.WARNS`);
 
-        if (!allWarns) {
+        if (!allWarns || allWarns.length === 0) {
             await client.method.interactionSend(interaction, {
                 content: lang.warnlist_no_data
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)

@@ -44,14 +44,14 @@ export default {
             var member = interaction.options.getMember("member") as GuildMember | null;
             var warnID = interaction.options.getString("warn-id")!;
         } else {
-            
+
             var member = client.method.member(interaction, args!, 0) as GuildMember | null;
             var warnID = client.method.longString(args!, 1)!;
         };
 
         let allWarns: DatabaseStructure.WarnsData[] | null = await client.db.get(`${interaction.guildId}.USER.${member?.id}.WARNS`);
 
-        if (!allWarns) {
+        if (!allWarns || allWarns.length === 0) {
             await client.method.interactionSend(interaction, {
                 content: lang.unwarn_cannot_found
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
@@ -60,11 +60,12 @@ export default {
             return;
         }
 
+        console.log(allWarns)
         if (!allWarns.find(x => x.id === warnID)) {
             await client.method.interactionSend(interaction, {
                 content: lang.unwarn_cannot_found_id
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-                    .replace("${member?.toString()}", member?.toString()!)
+                    .replace("${member?.toString()}", interaction.member?.toString()!)
             })
             return;
         }
