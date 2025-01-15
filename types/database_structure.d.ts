@@ -23,6 +23,7 @@ import { EmbedBuilder } from "@discordjs/builders";
 import { CaseList } from "../src/core/modules/ticketsManager.js";
 import { AntiSpam } from "./antispam.js";
 import { Platform } from "../src/core/StreamNotifier.js";
+import { APIEmbed } from "discord.js";
 
 export namespace DatabaseStructure {
 
@@ -35,7 +36,7 @@ export namespace DatabaseStructure {
     export interface DbEmbedObject {
         [code: string]: {
             embedOwner: string;
-            embedSource: EmbedBuilder;
+            embedSource: APIEmbed;
         };
     }
 
