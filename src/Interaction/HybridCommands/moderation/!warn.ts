@@ -51,12 +51,11 @@ export default {
             var reason = client.method.longString(args!, 1)!;
         };
 
-        let warnId = generatePassword({ length: 8, lowercase: true, numbers: true });
-        await client.method.warnMember(
+        let warnId = await client.method.warnMember(
             interaction.member!,
             member!,
             reason
-        ).catch(() => { });
+        );
 
         await client.method.interactionSend(interaction, {
             content: lang.warn_command_work
