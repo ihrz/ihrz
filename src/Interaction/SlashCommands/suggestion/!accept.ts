@@ -79,7 +79,7 @@ export default {
             });
 
             embed.setFooter(await client.method.bot.footerBuilder(interaction));
-            embed.setFooter({ text: await client.func.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
+            embed.setFooter({ text: await client.func.displayBotName.displayBotName(interaction.guild?.id), iconURL: "attachment://icon.png" });
             embed.setTitle(lang.suggest_acceptembed_title_to_put
                 .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string));
 

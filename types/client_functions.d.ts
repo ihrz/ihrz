@@ -15,38 +15,8 @@ declare namespace Client_Functions {
   // From getToken.ts
   export function getToken(): Promise<string | undefined>;
 
-  // From getIp.ts
-  export function getIp({ useIPv6 = false }: { useIPv6?: boolean }): any;
-
-  // From wait.ts
-  export namespace wait {
-  }
-
   // From date_and_time.ts
   export namespace date_and_time {
-  }
-
-  // From apiUrlParser.ts
-  export namespace apiUrlParser {
-    export function assetsFinder(body: Assets, type: string): string;
-    export function OwnIhrzCluster(
-      options: {
-    cluster_number: number
-    cluster_method: ClusterMethod,
-    bot_id?: string;
-    discord_bot_token?: string;
-    forceDatabaseSet?: boolean;
-}
-    ): string;
-    export function HorizonGateway(gateway_method: GatewayMethod): string;
-  }
-
-  // From sanitizer.ts
-  export namespace sanitizer {
-  }
-
-  // From lyrics_fetcher.ts
-  export namespace lyrics_fetcher {
   }
 
   // From ms.ts
@@ -55,6 +25,10 @@ declare namespace Client_Functions {
 
   // From assetsCalc.ts
   export function assetsCalc(client: Client): Promise<void>;
+
+  // From DatabaseModel.ts
+  export namespace DatabaseModel {
+  }
 
   // From emojiChecker.ts
   export namespace emojiChecker {
@@ -75,17 +49,6 @@ declare namespace Client_Functions {
   // From getLanguageData.ts
   export function getLanguageData(arg: string | undefined | null): Promise<LanguageData>;
 
-  // From mediaManipulation.ts
-  export namespace mediaManipulation {
-    export function convertToPng(buffer: Buffer): Promise<Buffer>;
-    export function adjustImageQuality(imagePath: string): any;
-    export function resizeImage(inputImage: Buffer, outputPath: string, width?: number, height?: number): any;
-  }
-
-  // From kdenliveManipulator.ts
-  export namespace kdenliveManipulator {
-  }
-
   // From numberBeautifuer.ts
   export function numberBeautifuer(num: number): string;
 
@@ -103,6 +66,10 @@ declare namespace Client_Functions {
     ): any;
   }
 
+  // From wait.ts
+  export namespace wait {
+  }
+
   // From prefix.ts
   export namespace prefix {
     export function guildPrefix(client: Client, guildId: string): Promise<{ type: 'prefix' | 'mention'; string: string; }>;
@@ -115,6 +82,13 @@ declare namespace Client_Functions {
 
   // From awaitingResponse.ts
   export function awaitingResponse(interaction: ChatInputCommandInteraction<"cached"> | Message, opt: LangForPrompt): any;
+
+  // From apiUrlParser.ts
+  export function apiUrlParser(body: Assets, type: string): string;
+
+  // From sanitizer.ts
+  export namespace sanitizer {
+  }
 
   // From userStatsUtils.ts
   export namespace userStatsUtils {
@@ -178,16 +152,6 @@ declare namespace Client_Functions {
     export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
   }
 
-  // From restoreCordHelper.ts
-  export namespace restoreCordHelper {
-    export function createRestoreCordLink(data: RestoreCord_EntryType): string;
-    export function createRestoreCord(data: RestoreCord_EntryType): Promise<RestoreCord_ResponseType>;
-    export function getGuildDataPerSecretCode(data: { id: string; value: any }[], secretCode: string): { id: string, data: GuildRestoreCord } | null;
-    export function forceJoinRestoreCord(data: RestoreCord_ForceJoin_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
-    export function securityCodeUpdate(data: RestoreCord_KeyUpdate_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
-    export function changeRoleRestoreCord(data: RestoreCord_RoleUpdate_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
-  }
-
   // From displayBotName.ts
   export namespace displayBotName {
     export function footerBuilder(
@@ -203,10 +167,13 @@ declare namespace Client_Functions {
   // From generateProgressBar.ts
   export function generateProgressBar(currentTimeMs: number, totalTimeMs: number): string;
 
+  // From getIp.ts
+  export function getIp({ useIPv6 = false }: { useIPv6?: boolean }): any;
+
   // From helper.ts
   export namespace helper {
     export function coolDown(message: Message, method: string, ms: number): any;
-    export function hardCooldown(database: QuickDB<any>, method: string, ms: number): any;
+    export function hardCooldown(database: QuickDB, method: string, ms: number): any;
   }
 
   // From html2png.ts
@@ -236,6 +203,17 @@ declare namespace Client_Functions {
 
   // From isAllowedLinks.ts
   export function isAllowedLinks(link: string): boolean;
+
+  // From mediaManipulation.ts
+  export namespace mediaManipulation {
+    export function convertToPng(buffer: Buffer): Promise<Buffer>;
+    export function adjustImageQuality(imagePath: string): any;
+    export function resizeImage(inputImage: Buffer, outputPath: string, width?: number, height?: number): any;
+  }
+
+  // From kdenliveManipulator.ts
+  export namespace kdenliveManipulator {
+  }
 
   // From method.ts
   export namespace method {
