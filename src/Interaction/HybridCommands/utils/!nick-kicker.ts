@@ -156,7 +156,7 @@ export default {
             embed.data.fields![0].value = "✅";
             await client.db.set(`${interaction.guild!.id}.UTILS.NICK_KICKER`, baseData);
 
-            await client.method.interactionSend(interaction, {
+            await ogInteraction.edit({
                 embeds: [embed],
                 components: [row],
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]
@@ -168,7 +168,7 @@ export default {
             embed.data.fields![0].value = "❌";
             await client.db.set(`${interaction.guild!.id}.UTILS.NICK_KICKER`, baseData);
 
-            await client.method.interactionSend(interaction, {
+            await ogInteraction.edit({
                 embeds: [embed],
                 components: [row],
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]
