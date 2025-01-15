@@ -49,6 +49,7 @@ import { LanguageData } from '../../../../types/languageData';
 
 import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
 
@@ -63,7 +64,7 @@ export default {
             var arg = client.method.string(args!, 0);
         };
 
-        let potentialEmbed = await client.db.get(`EMBED.${arg}`);
+        let potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
         let files: { attachment: string; name: string; }[] = [];
 
 
@@ -475,14 +476,23 @@ export default {
         }
 
         async function saveEmbed() {
-            let password = arg || generatePassword({ length: 16 });
+            var password = "";
+            if (potentialEmbed.embedOwner !== interaction.member?.user.id!
+                || !arg
+            ) {
+                password = generatePassword({ length: 16 });
+                await client.db.set(`EMBED.${password}`, {
+                    embedOwner: interaction.member?.user.id!,
+                    embedSource: __tempEmbed.toJSON()
+                });
+                return password;
+            }
 
-            await client.db.set(`EMBED.${password}`, {
+            await client.db.set(`EMBED.${arg}`, {
                 embedOwner: interaction.member?.user.id!,
                 embedSource: __tempEmbed.toJSON()
             });
-
-            return password;
+            return arg;
         }
 
         const buttonCollector = response.createMessageComponentCollector({
