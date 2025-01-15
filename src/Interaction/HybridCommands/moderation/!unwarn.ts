@@ -60,7 +60,6 @@ export default {
             return;
         }
 
-        console.log(allWarns)
         if (!allWarns.find(x => x.id === warnID)) {
             await client.method.interactionSend(interaction, {
                 content: lang.unwarn_cannot_found_id
