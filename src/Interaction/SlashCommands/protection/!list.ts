@@ -29,7 +29,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
 
         // Guard's Typing
@@ -56,6 +56,10 @@ export default {
         for (var i in baseData.list) {
             text += `<@${i}>\n`
         };
+
+        for (var i of client.owners) {
+            text += `<@${i}> [👑]\n`
+        }
 
         if (interaction.user.id !== interaction.guild.ownerId && !text.includes(interaction.user.id)) {
             await interaction.reply({ content: lang.allowlist_show_not_permited });

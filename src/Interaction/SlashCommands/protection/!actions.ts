@@ -37,7 +37,7 @@ export default {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if (interaction.user.id !== interaction.guild?.ownerId) {
+        if (interaction.user.id !== interaction.guild?.ownerId && !client.owners.includes(interaction.user.id)) {
             await interaction.editReply({ content: lang.authorization_actions_not_permited });
             return;
         };

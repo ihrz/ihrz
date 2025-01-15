@@ -32,7 +32,7 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
 
         // Guard's Typing
@@ -41,7 +41,7 @@ export default {
         let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
         let member = interaction.options.getUser('member') as User;
 
-        if (interaction.user.id !== interaction.guild.ownerId) {
+        if (interaction.user.id !== interaction.guild.ownerId && !client.owners.includes(interaction.user.id)) {
             await interaction.reply({ content: lang.allowlist_delete_not_owner });
             return;
         };

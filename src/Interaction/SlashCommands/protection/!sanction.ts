@@ -29,13 +29,13 @@ import { Command } from '../../../../types/command';
 import { Option } from '../../../../types/option';
 
 export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if (interaction.user.id !== interaction.guild.ownerId) {
+        if (interaction.user.id !== interaction.guild.ownerId && !client.owners.includes(interaction.user.id)) {
             await interaction.editReply({ content: lang.authorization_sanction_not_permited });
             return;
         };
