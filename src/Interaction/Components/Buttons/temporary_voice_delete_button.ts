@@ -29,7 +29,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
 
-    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId);
     let member = interaction.member as GuildMember;
 
     let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);

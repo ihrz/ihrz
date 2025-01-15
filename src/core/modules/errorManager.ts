@@ -19,10 +19,11 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { format } from '../functions/date-and-time.js';
-import { Client } from 'discord.js';
+import { format } from '../functions/date_and_time.js';
 import logger from '../logger.js';
+
 import fs from 'node:fs';
+import { Client } from 'discord.js';
 
 export const uncaughtExceptionHandler = (client: Client) => {
     process.on('uncaughtException', function (err) {

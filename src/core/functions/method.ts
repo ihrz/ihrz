@@ -28,7 +28,7 @@ import * as f from './displayBotName.js';
 import * as  h from './helper.js';
 import * as c from '../core.js';
 import * as html from './html2png.js';
-import * as l from './ihorizon-logs.js';
+import * as l from './ihorizon_logs.js';
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { generatePassword } from "./random.js";
 
@@ -252,7 +252,7 @@ interface ArgumentBrief {
 export async function checkCommandArgs(message: Message, command: Command, args: string[], lang: LanguageData): Promise<boolean> {
     if (!command) return false;
 
-    const botPrefix = await message.client.func.prefix.guildPrefix(message.client, message.guildId);
+    const botPrefix = await message.client.func.prefix.guildPrefix(message.client, message.guildId!);
     let cleanBotPrefix = botPrefix.string;
 
     if (botPrefix.type === "mention") {

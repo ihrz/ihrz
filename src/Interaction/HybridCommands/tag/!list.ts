@@ -47,7 +47,7 @@ export default {
         let baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS.storedTags`) as DatabaseStructure.GuildTagsStructure["storedTags"] | undefined;
 
         // Check if there are no tags
-        if (!baseData) {
+        if (!baseData || Object.entries(baseData).length === 0) {
             await client.method.interactionSend(interaction, { content: lang.tag_list_no_anything });
             return;
         }

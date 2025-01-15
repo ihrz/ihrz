@@ -44,10 +44,11 @@ import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
 import { db } from "../src/core/database.js";
 import { QuickDB } from "quick.db";
 import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
+import { Client_Functions } from "./client_functions.js";
 
 declare module 'discord.js' {
     export interface Client {
-        func: clientFunction,
+        func: typeof Client_Functions,
         commands: Collection<string, Command>,
         subCommands: Collection<string, Command>,
         category: Category[]

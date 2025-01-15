@@ -40,7 +40,7 @@ import {
     Guild
 } from 'discord.js';
 
-import { format } from '../../../core/functions/date-and-time.js';
+import { format } from '../../../core/functions/date_and_time.js';
 
 import { Command } from '../../../../types/command.js';
 import { generatePassword } from '../../../core/functions/random.js';

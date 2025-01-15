@@ -55,6 +55,7 @@ var_aliases: "الأسماء المستعارة"
 var_dont_have_perm: "ليس لديك الصلاحيات اللازمة للقيام بذلك. (تتطلب صلاحية {perm})"
 var_price: "السعر"
 var_boost: "تعزيز"
+var_uses: "الاستخدامات"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "إنشاء دعوة فورية"
@@ -1907,6 +1908,9 @@ tag_list_no_anything: "لا توجد وسوم محفوظة في هذا السي�
 tag_use_not_allowed: "غير مسموح لك باستخدام الوسم `${tag_name}`.\nتحتاج إلى صلاحيات المسؤول أو يمكنك أن تطلب من مالك الوسم <@${tag.createBy}> إضافتك إلى القائمة البيضاء (`tag wlroles-use`)."
 tag_use_command_work: "تم إرسال الوسم `${tag_name}`."
 
+# /tag edit
+tag_edit_error_perm: "لتعديل الوسم، تحتاج إلى الحصول على أذونات المدير أو أن تكون مالك الوسم."
+
 
 # OWNIHRZ Module
 # /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
@@ -2373,5 +2377,11 @@ piconly_module_timeout_reason: "إرسال رسائل متكررة بدون صو
 # Nick Module
 event_nick_kicker_kick_reason: "كلمة محظورة في اسم المستخدم - طارد الألقاب"
 event_nick_kicker_kick_msg: "في السيرفر `${member.guild.name}`، يحتوي اسم المستخدم الخاص بك على كلمة محظورة. تم طردك من السيرفر."
+
+# وحدة الصور الشخصية
+pfps_embed_user_title: "صورة ${username} **الشخصية**"
+pfps_embed_guild_title: "صورة ${username} **للسيرفر**"
+pfps_download_user_button: "تحميل الصورة الشخصية"
+pfps_download_guild_button: "تحميل صورة السيرفر"
 
 # -----------------------------\ /-----------------------------

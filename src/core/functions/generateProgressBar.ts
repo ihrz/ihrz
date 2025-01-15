@@ -29,7 +29,7 @@ function emojis_(): Emojis {
 
 let emojis: Emojis;
 
-function generateProgressBar(currentTimeMs: number, totalTimeMs: number): string {
+export function generateProgressBar(currentTimeMs: number, totalTimeMs: number): string {
     let currentTimeInSeconds = Math.floor(currentTimeMs / 1000);
     let totalTimeInSeconds = Math.floor(totalTimeMs / 1000);
 
@@ -58,5 +58,3 @@ function formatTime(seconds: number): string {
 
     return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }
-
-export default generateProgressBar;

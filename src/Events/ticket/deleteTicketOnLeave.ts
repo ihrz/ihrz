@@ -32,7 +32,7 @@ export const event: BotEvent = {
         let fetch = await client.db.get(`${member.guild.id}.TICKET_ALL.${member.user.id}`);
 
         for (let channelId in fetch) {
-            let lang = await client.func.getLanguageData(member.guild.id) as LanguageData;
+            let lang = await client.func.getLanguageData(member.guild.id);
             let channel = member.guild.channels.cache.get(fetch[channelId].channel);
 
             try {

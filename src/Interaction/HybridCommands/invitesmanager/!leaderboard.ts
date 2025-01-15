@@ -114,7 +114,7 @@ export default {
             )],
             files: [
                 await interaction.client.method.bot.footerAttachmentBuilder(interaction),
-                { attachment: await interaction.client.func.image64(interaction.guild.iconURL({ size: 512 }) || interaction.client.user?.displayAvatarURL()), name: 'guildIcon.png' }
+                { attachment: (await interaction.client.func.image64(interaction.guild.iconURL({ size: 512 }) || interaction.client.user?.displayAvatarURL())) ?? Buffer.from([]), name: 'guildIcon.png' }
             ]
         });
 

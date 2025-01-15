@@ -55,6 +55,7 @@ var_aliases: "Apelidos"
 var_dont_have_perm: "Não tem as permissões necessárias para fazer isto. (Requer permissão {perm})"
 var_price: "Preço"
 var_boost: "Impulso"
+var_uses: "Usos"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Criar Convite Instantâneo"
@@ -1908,6 +1909,9 @@ tag_list_no_anything: "Não existem tags guardadas neste servidor!"
 tag_use_not_allowed: "Não tem permissão para usar a tag `${tag_name}`.\nPrecisa de permissões de administrador ou pode pedir ao proprietário da tag <@${tag.createBy}> para o adicionar à lista branca (`tag wlroles-use`)."
 tag_use_command_work: "A tag `${tag_name}` foi enviada."
 
+# /tag edit
+tag_edit_error_perm: "Para modificar a tag, precisas de permissões de administrador ou de ser o proprietário da tag."
+
 
 # Módulo OWNIHRZ
 # /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
@@ -2383,5 +2387,11 @@ piconly_module_timeout_reason: "Spam de mensagens sem imagens num canal exclusiv
 # Nick Kicker Event
 event_nick_kicker_kick_reason: "Palavra proibida no nome de utilizador - Expulsor de Apelidos"
 event_nick_kicker_kick_msg: "No servidor `${member.guild.name}`, o seu nome de utilizador contém uma palavra proibida. Foi expulso do servidor."
+
+# Módulo de avatares
+pfps_embed_user_title: "Avatar de **utilizador** de ${username}"
+pfps_embed_guild_title: "Avatar do **servidor** de ${username}"
+pfps_download_user_button: "Descarregar avatar de utilizador"
+pfps_download_guild_button: "Descarregar avatar do servidor"
 
 # -----------------------------\ /-----------------------------

@@ -20,6 +20,7 @@
 */
 
 import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, EmbedBuilder } from 'discord.js';
+import { LanguageData } from '../../../types/languageData.js';
 
 async function PfpsManager_Init(client: Client) {
     Refresh(client);
@@ -46,7 +47,7 @@ async function Refresh(client: Client) {
     });
 }
 
-let usr: string;
+let usr: Record<string, string> = {};
 async function SendMessage(client: Client, data: { guildId: string; channelId: string; }) {
 
     let guild = client.guilds.cache.get(data.guildId);
@@ -62,26 +63,31 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
     let user = guild.members.cache.filter(user => !user.user.bot).random();
 
     if (!user) return;
+
+    let lang = await client.func.getLanguageData(guild.id);
+
     // Prevent the same before and after
-    if (user.id === usr) {
-        usr = (user.id);
-        user = guild.members.cache.filter(user => user.id !== usr).random()!;
-    } else usr = (user.id);
+    if (user.id === usr[data.guildId]) {
+        usr[data.guildId] = (user.id);
+        user = guild.members.cache.filter(user => user.id !== usr[data.guildId]).random()!;
+    } else usr[data.guildId] = (user.id);
 
     let actRow: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder();
     let ebds = [];
+
+    let username = user.user.globalName || user.user.username;
 
     if (user.avatarURL() !== null) {
 
         actRow.addComponents(new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
             .setURL(user.displayAvatarURL({ extension: 'png' }).toString())
-            .setLabel('Download Guild Avatar')
+            .setLabel(lang.pfps_download_guild_button)
         );
 
         ebds.push(new EmbedBuilder()
             .setColor(await client.db.get(`${channel.guild?.id}.GUILD.GUILD_CONFIG.embed_color.mod-cmd`) || "#a2add0")
-            .setTitle(`${user?.user.username || user?.user.globalName}'s **Guild** avatar`)
+            .setTitle(lang.pfps_embed_guild_title.replace('{username}', username!))
             .setImage(user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         );
 
@@ -90,12 +96,12 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
     actRow.addComponents(new ButtonBuilder()
         .setStyle(ButtonStyle.Link)
         .setURL(user.user.displayAvatarURL({ extension: 'png' }))
-        .setLabel('Download User Avatar')
+        .setLabel(lang.pfps_download_user_button)
     );
 
     ebds.push(new EmbedBuilder()
         .setColor(await client.db.get(`${channel.guild?.id}.GUILD.GUILD_CONFIG.embed_color.mod-cmd`) || "#a2add0")
-        .setTitle(`${user?.user.username || user?.user.globalName}'s **User** avatar`)
+        .setTitle(lang.pfps_embed_user_title.replace('{username}', username!))
         .setImage(user.user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         .setTimestamp()
         .setFooter(await client.method.bot.footerBuilder(channel.guild))

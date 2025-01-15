@@ -73,6 +73,7 @@ export interface LanguageData {
   var_dont_have_perm: string;
   var_price: string;
   var_boost: string;
+  var_uses: string;
   perm_createinstantinvite_name: string;
   perm_kickmembers_name: string;
   perm_banmembers_name: string;
@@ -1436,6 +1437,7 @@ export interface LanguageData {
   tag_list_no_anything: string;
   tag_use_not_allowed: string;
   tag_use_command_work: string;
+  tag_edit_error_perm: string;
   mybot_submit_token_invalid: string;
   mybot_submit_utils_msg: string;
   mybot_submit_utils_msg_yes: string;
@@ -1745,4 +1747,8 @@ export interface LanguageData {
   piconly_module_timeout_reason: string;
   event_nick_kicker_kick_reason: string;
   event_nick_kicker_kick_msg: string;
+  pfps_embed_user_title: string;
+  pfps_embed_guild_title: string;
+  pfps_download_user_button: string;
+  pfps_download_guild_button: string;
 }

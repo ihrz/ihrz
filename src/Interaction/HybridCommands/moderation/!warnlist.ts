@@ -38,7 +38,7 @@ import { Command } from '../../../../types/command.js';
 import { Option } from '../../../../types/option.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js';
-import { format } from '../../../core/functions/date-and-time.js';
+import { format } from '../../../core/functions/date_and_time.js';
 
 export default {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {

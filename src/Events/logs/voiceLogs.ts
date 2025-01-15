@@ -28,7 +28,7 @@ export const event: BotEvent = {
     name: "voiceStateUpdate",
     run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
-        let data = await client.func.getLanguageData(oldState.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(oldState.guild.id);
 
         if (!oldState || !oldState.guild) return;
 

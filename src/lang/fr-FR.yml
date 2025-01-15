@@ -55,6 +55,7 @@ var_aliases: "Alias"
 var_dont_have_perm: "Vous n'avez pas les permissions nécessaires pour faire cela. (Requiert la permission {perm})"
 var_price: "Prix"
 var_boost: "Boost"
+var_uses: "Utilisations"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Créer une invitation"
@@ -497,7 +498,7 @@ help_guildconf_dsc: "Vous voulez une configuration avancée et facile à mettre 
 help_prof_dsc: "Vous êtes du genre à prendre soin de votre apparence ? Voici des commandes pour vous garantir un profil magnifique auprès des utilisateurs :)"
 help_economy_dsc: "Vous faites attention à votre porte-monnaie ? Ou souhaitez-vous simplement faire des achats ? Je suis là :)"
 help_owner_dsc: "Cette catégorie est réservée aux propriétaires et aux administrateurs du projet d'iHorizon !"
-help_roler_dsc: "Vous voulez configurer un rôle de réaction pour votre serveur ? Me voilà !!"
+help_roler_dsc: "Vous voulez configurer un rôle de réaction pour votre serveur ? Me voilà !"
 help_invitem_dsc: "Vous voulez consulter les invitations d'un membre ? C'est ici !"
 help_ticket_dsc: "Vous souhaitez créer un ticket ou utiliser l'une de mes fonctions à l'intérieur ? Bien sûr !"
 help_memberc_dsc: "Vous voulez configurer des salons vocaux pour le comptage des membres ? Bien sûr :smile:"
@@ -918,8 +919,8 @@ util_nick_kicker_disable_desc: "Désactiver l'expulseur de pseudos"
 util_nick_kicker_enable_desc: "Activer l'expulseur de pseudos"
 
 # /util wakeup
-util_wakeup_yourself: "mais mon reuf? t con ou t con? tu vas pas quand même me dire que tu dors le keyboard en même temps d'écrire cette commande mdr"
-util_wakeup_not_in_vc: "Mais frr, le bot vas pas créer un ptit chinois nommées ${user.displayName} avec la même pp et bannière pour te faire croire que le gars ce réveille... Il est pas en voc ton gars ptdrr"
+util_wakeup_yourself: "Vous ne pouvez pas vous réveiller vous même !"
+util_wakeup_not_in_vc: "L'utilisateur mentionné n'est pas dans un salon vocal."
 util_wakeup_command_work: "C'est partiiiiit pour le réveil de ${user.toString()} !"
 
 # /util leash
@@ -1246,7 +1247,7 @@ add_react_command_err_emojis: "L'émoji `{emoji}`de la réaction ne correspond p
 add_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membre envoie `${message.toLowerCase()}`, le bot **réagis** avec {emoji}"
 
 # /list-react
-list_react_nothing_found: "Aucune données as été trouvé, veuillez en ajouter avant."
+list_react_nothing_found: "Aucune donnée a été trouvé, veuillez en ajouter avant."
 list_react_embed_msg: "Quand une personne envoie **`${key}`**, je **réagis** avec ${value}\n"
 
 # /autoreact
@@ -1520,7 +1521,7 @@ warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Vous n'
 # /backup
 backup_wait_please: "⏲ Attendez s'il vous plaît..."
 backup_not_admin: ":x: | Vous devez être administrateur de ce serveur pour demander une sauvegarde !"
-backup_i_dont_have_permission: "Je n'ai pas la permission ADMINISTRATOR"
+backup_i_dont_have_permission: "Je n'ai pas la permission ADMINISTRATEUR"
 backup_command_work_on_creation: ":white_check_mark: Sauvegarde créée avec succès."
 backup_command_work_info_on_creation: "La sauvegarde a été créée ! ID : ${backupData.id} !"
 backup_logs_embed_title_on_creation: "Logs de la sauvegarde"
@@ -1700,7 +1701,7 @@ rolesaver_embed_fields_2_name: "Rôles administrateur redonnés"
 rolesaver_embed_fields_3_name: "Délai d'attente"
 rolesaver_on_off_already_set: "Le module est déjà désactivé !"
 rolesaver_on_off_embed_title: "Module RoleSaver"
-rolesaver_on_off_embed_desc: "Lorsque les membres de la guilde quittent le serveur, leurs rôles ne sont pas sauvegardés dans la base de données. Désormais, iHorizon ne restaure plus les anciens rôles aux membres lorsqu'ils reviennent sur le serveur."
+rolesaver_on_off_embed_desc: "Lorsque les membres de la guilde quittent le serveur, leurs rôles ne seront pas sauvegardés dans la base de données et donc désormais, iHorizon ne restaure plus les anciens rôles aux membres lorsqu'ils reviennent sur le serveur."
 rolesaver_on_off_embed_fields_1_name: "Activer"
 
 
@@ -1907,6 +1908,9 @@ tag_list_no_anything: "Il n'y a pas de tags enregistrés sur ce serveur !"
 # /tag use
 tag_use_not_allowed: "Vous n'êtes pas autorisé à utiliser le tag `${tag_name}`.\nVous avez besoin des permissions d'administrateur ou vous pouvez demander au propriétaire du tag <@${tag.createBy}> de vous ajouter à la liste blanche (`tag wlroles-use`)."
 tag_use_command_work: "Le tag `${tag_name}` a été envoyé."
+
+# /tag edit
+tag_edit_error_perm: "Pour modifier le tag, vous devez avoir les permissions d'administrateur ou être le propriétaire du tag."
 
 
 # Module OWNIHRZ
@@ -2184,7 +2188,7 @@ ticket_module_button_transcript: "Transcrire le ticket"
 ticket_module_button_addmember: "Ajouter un membre"
 ticket_module_button_removemember: "Supprimer un membre"
 ticket_module_add_question: "Qui souhaitez-vous ajouter à votre ticket ? (Spécifiez sont identifiant d'utilisateur) !"
-ticket_module_remove_question: "Qui est l'utilisateur que vous souhaitez retirer de votre ticket ? (Spécifiez sont identifiant d'utilisateur) !"
+ticket_module_remove_question: "Qui est l'utilisateur que vous souhaitez retirer de votre ticket ? (Spécifiez son identifiant d'utilisateur) !"
 ticket_transcript_failed_to_send: "J'ai essayé de vous envoyer le fichier par message privé, mais vous avez bloqué vos messages directs :/"
 
 # Server Logs
@@ -2383,5 +2387,11 @@ piconly_module_timeout_reason: "Spam de messages sans images dans un salon image
 # Nick Kicker Event
 event_nick_kicker_kick_reason: "Mot interdit dans le nom d'utilisateur - Expulseur de Pseudos"
 event_nick_kicker_kick_msg: "Dans le serveur `${member.guild.name}`, votre nom d'utilisateur contient un mot interdit. Vous avez été expulsé du serveur."
+
+# Module des avatars
+pfps_embed_user_title: "Avatar **utilisateur** de ${username}"
+pfps_embed_guild_title: "Avatar de **serveur** de ${username}"
+pfps_download_user_button: "Télécharger l'avatar utilisateur"
+pfps_download_guild_button: "Télécharger l'avatar du serveur"
 
 # -----------------------------\ /-----------------------------

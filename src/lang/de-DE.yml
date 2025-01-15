@@ -55,6 +55,7 @@ var_aliases: "Aliase"
 var_dont_have_perm: "Sie haben nicht die erforderlichen Berechtigungen. (Benötigt {perm} Berechtigung)"
 var_price: "Preis"
 var_boost: "Boost"
+var_uses: "Verwendungen"
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"
@@ -1908,6 +1909,9 @@ tag_list_no_anything: "Es gibt keine gespeicherten Tags in dieser Gilde!"
 tag_use_not_allowed: "Sie dürfen den Tag `${tag_name}` nicht verwenden.\nSie benötigen Administratorrechte oder können den Tag-Besitzer <@${tag.createBy}> bitten, Sie zur Whitelist hinzuzufügen (`tag wlroles-use`)."
 tag_use_command_work: "Tag `${tag_name}` wurde gesendet."
 
+# /tag edit
+tag_edit_error_perm: "Um den Tag zu bearbeiten, benötigen Sie Administratorrechte oder müssen der Besitzer des Tags sein."
+
 
 # OWNIHRZ-Modul
 # /mybot einreichen, ... Liste, /mybot verwalten annehmen, ... ablehnen, ... Instanz
@@ -2383,5 +2387,11 @@ piconly_module_timeout_reason: "Spam von Nachrichten ohne Bilder in einem Nur-Bi
 # Nick Kicker Event
 event_nick_kicker_kick_reason: "Gesperrtes Wort im Benutzernamen - Spitzname-Entferner"
 event_nick_kicker_kick_msg: "Im Server `${member.guild.name}` enthält dein Benutzername ein gesperrtes Wort. Du wurdest vom Server gekickt."
+
+# Profilbilder-Modul
+pfps_embed_user_title: "${username}s **Benutzer**-Avatar"
+pfps_embed_guild_title: "${username}s **Server**-Avatar"
+pfps_download_user_button: "Benutzer-Avatar herunterladen"
+pfps_download_guild_button: "Server-Avatar herunterladen"
 
 # -----------------------------\ /-----------------------------

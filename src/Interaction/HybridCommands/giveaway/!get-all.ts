@@ -77,7 +77,7 @@ export default {
                 embeds: [embed],
                 files: [
                     {
-                        attachment: await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL()),
+                        attachment: (await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL())) ?? Buffer.from([]),
                         name: 'guild_icon.png'
                     }, await interaction.client.method.bot.footerAttachmentBuilder(interaction)
                 ],

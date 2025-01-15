@@ -34,7 +34,7 @@ export const event: BotEvent = {
         let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
         if (!baseData || baseData?.disable === true) return;
 
-        let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(member.guild.id);
         let channel = member.guild.channels.cache.get(baseData?.channel);
         if (!channel) return;
         let generatedCaptcha = await captcha(280, 100)

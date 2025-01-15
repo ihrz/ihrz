@@ -34,7 +34,7 @@ interface LangsData {
 let LangsData: LangsData = {};
 let cached_client = getClient();
 
-export default async function getLanguageData(arg: string): Promise<LanguageData> {
+export default async function getLanguageData(arg: string | undefined | null): Promise<LanguageData> {
     let lang = await database.get(`${arg}.GUILD.LANG.lang`) as string;
 
     if (!lang) {

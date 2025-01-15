@@ -74,7 +74,7 @@ export const event: BotEvent = {
         };
 
         let staff_role = await client.db.get(`${oldState.guild.id}.VOICE_INTERFACE.staff_role`);
-        let lang = await client.func.getLanguageData(newState.guild.id) as LanguageData;
+        let lang = await client.func.getLanguageData(newState.guild.id);
 
         // If the user join the Create's Channel
         if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {

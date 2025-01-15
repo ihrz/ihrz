@@ -55,6 +55,7 @@ var_aliases: "エイリアス"
 var_dont_have_perm: "必要な権限がありません。({perm}権限が必要です)"
 var_price: "価格"
 var_boost: "ブースト"
+var_uses: "使用回数"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
@@ -1908,6 +1909,9 @@ tag_list_no_anything: "このサーバーには保存されているタグがあ
 tag_use_not_allowed: "タグ `${tag_name}` を使用する権限がありません。\n管理者権限が必要か、タグの所有者 <@${tag.createBy}> にホワイトリストへの追加を依頼してください（`tag wlroles-use`）。"
 tag_use_command_work: "タグ `${tag_name}` が送信されました。"
 
+# /tag edit
+tag_edit_error_perm: "タグを編集するには、管理者権限を持っているか、タグの所有者である必要があります。"
+
 
 # モジュール OWNHRZ
 # /mybot 提出、... 一覧、/mybot 管理 承認、... 拒否、... インスタンス
@@ -2383,5 +2387,11 @@ piconly_module_timeout_reason: "画像専用チャンネルでの画像なしメ
 # Nick Kicker Event
 event_nick_kicker_kick_reason: "ユーザー名に禁止された単語があります - ニックネームキッカー"
 event_nick_kicker_kick_msg: "サーバー `${member.guild.name}` において、あなたのユーザー名に禁止された単語が含まれています。サーバーからキックされました。"
+
+# プロフィール画像モジュール
+pfps_embed_user_title: "${username}の**ユーザー**アバター"
+pfps_embed_guild_title: "${username}の**サーバー**アバター"
+pfps_download_user_button: "ユーザーアバターをダウンロード"
+pfps_download_guild_button: "サーバーアバターをダウンロード"
 
 # -----------------------------\ /-----------------------------

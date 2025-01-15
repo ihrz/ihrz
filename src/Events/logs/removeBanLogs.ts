@@ -27,7 +27,7 @@ import { LanguageData } from '../../../types/languageData';
 export const event: BotEvent = {
     name: "guildBanRemove",
     run: async (client: Client, ban: GuildBan) => {
-        let data = await client.func.getLanguageData(ban.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(ban.guild.id);
 
         if (!ban.guild.members.me
             || !ban.guild.members.me.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;

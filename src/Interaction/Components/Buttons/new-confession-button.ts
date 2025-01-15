@@ -41,7 +41,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
     let allDataConfession = await interaction.client.db.get(`${interaction.guildId}.GUILD.CONFESSION`) as DatabaseStructure.ConfessionSchema;
     let confessionTime = await interaction.client.db.table('TEMP').get(`CONFESSION_COOLDOWN.${interaction.user.id}`);
-    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
     let timeout = allDataConfession.cooldown!;
     let panel = allDataConfession.panel;

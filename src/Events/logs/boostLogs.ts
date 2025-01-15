@@ -28,7 +28,7 @@ export const event: BotEvent = {
     name: "guildMemberUpdate",
     run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
 
-        let data = await client.func.getLanguageData(newMember.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(newMember.guild.id);
 
         if (!newMember.guild.roles.premiumSubscriberRole) return;
         let Msgchannel = newMember.guild.channels.cache.get(await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`) as string);
