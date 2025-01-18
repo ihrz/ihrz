@@ -26,7 +26,8 @@ import {
     ApplicationCommandOptionType,
     ApplicationCommandType,
     ChatInputCommandInteraction,
-    Message
+    Message,
+    PermissionFlagsBits
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -114,22 +115,12 @@ export const command: Command = {
     ],
     category: 'owner',
     thinking: true,
-    permission: null,
+    permission: PermissionFlagsBits.Administrator,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client<boolean>, interaction: any, lang: LanguageData, command: any, allowed: boolean, args?: string[]): Promise<any> => {
+    run: async (client: Client<boolean>, interaction: any, lang: LanguageData, args?: string[]): Promise<any> => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        const permissionsArray = [PermissionsBitField.Flags.ManageMessages]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && !allowed) {
-            await client.method.interactionSend(interaction, { content: lang.setjoindm_not_admin });
-            return;
-        };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var choices = interaction.options.getString("action");

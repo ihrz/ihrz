@@ -73,7 +73,7 @@ export const command: Command = {
     thinking: false,
     permission: null,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client<boolean>, interaction: any, lang: LanguageData, command: any, allowed: boolean, args?: string[]): Promise<any> => {
+    run: async (client: Client<boolean>, interaction: any, lang: LanguageData, args?: string[]): Promise<any> => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
