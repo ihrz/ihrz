@@ -64,7 +64,7 @@ export const command: Command = {
     type: ApplicationCommandType.ChatInput,
     thinking: false,
     permission: PermissionFlagsBits.Administrator,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing

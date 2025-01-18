@@ -30,7 +30,7 @@ import {
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
     name: "profil",

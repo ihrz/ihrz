@@ -31,11 +31,13 @@ import {
 } from 'discord.js';
 import { changeRoleRestoreCord, getGuildDataPerSecretCode } from '../../../core/functions/restoreCordHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Option } from '../../../../types/option.js';
+
 import { Command } from '../../../../types/command.js';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 

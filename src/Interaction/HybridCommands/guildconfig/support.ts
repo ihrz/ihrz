@@ -100,7 +100,7 @@ export const command: Command = {
     category: 'guildconfig',
     permission: PermissionsBitField.Flags.Administrator,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {        // Guard's Typing
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {        // Guard's Typing
 
 
         // Guard's Typing

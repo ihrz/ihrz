@@ -29,7 +29,7 @@ import path from 'path';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option.js';
+
 import { axios } from '../../../core/functions/axios.js';
 import { convertToPng, resizeImage, tempDir } from '../../../core/functions/mediaManipulation.js';
 import { unlink } from 'fs/promises';
@@ -62,8 +62,6 @@ export const command: Command = {
         client: Client,
         interaction: Message<true>,
         lang: LanguageData,
-        command: Command | Option | undefined,
-        allowed,
         options?: string[],
     ) => {
         if (interaction.guild.preferredLocale !== 'fr') return;

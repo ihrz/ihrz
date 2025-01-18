@@ -112,7 +112,7 @@ export const command: Command = {
     permission: PermissionFlagsBits.Administrator,
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) {
             return;
         }

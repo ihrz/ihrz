@@ -35,7 +35,7 @@ import {
 } from 'discord.js';
 
 import { axios } from '../../../core/functions/axios.js';
-import { Command } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData.js';
 import { Oauth2_Link, oauth2Member } from '../../../core/functions/restoreCordHelper.js';
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
@@ -47,9 +47,13 @@ function createOauth2Link(client_id: string): string {
         .replace("{redirect_uri}", apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.GenerateOauthLink))
         .replace("{scope}", "identify")
 }
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | UserContextMenuCommandInteraction | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
-
+export const subCommand: SubCommand = {
+    run: async (
+        client: Client,
+        interaction: ChatInputCommandInteraction<"cached"> | UserContextMenuCommandInteraction<"cached"> | Message,
+        lang: LanguageData,
+        args?: string[]
+    ) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;

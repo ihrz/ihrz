@@ -1,15 +1,15 @@
 declare namespace Client_Functions {
 
+  // From encryptDecryptMethod.ts
+  export namespace encryptDecryptMethod {
+  }
+
   // From colors.ts
   export namespace colors {
   }
 
   // From axios.ts
   export namespace axios {
-  }
-
-  // From encryptDecryptMethod.ts
-  export namespace encryptDecryptMethod {
   }
 
   // From getToken.ts
@@ -293,7 +293,7 @@ declare namespace Client_Functions {
     export function buttonReact(msg: Message, button: ButtonBuilder): Promise<Message>;
     export function buttonUnreact(msg: Message, buttonEmoji: string): Promise<Message>;
     export function isAnimated(attachmentUrl: string): boolean;
-    export function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<void>;
+    export function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string>;
     export function getDangerousPermissions(lang: LanguageData): {
     flag: bigint;
     name: string;

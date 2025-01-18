@@ -55,6 +55,8 @@ _There are only some few software needed :_
 - [NodeJS](https://nodejs.org) (**20 or higher required**)
 - [Npm](https://npmjs.com) (**With NodeJS**)
 
+⚠️ You cannot host iHorizon directly on Windows 10/11 but you can use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) (Windows Subsystem for Linux) to emulate a Linux system.
+
 ### How to configure the bot ?
 
 * Open [config.example.ts](https://github.com/ihrz/ihrz/blob/dev/src/files/config.example.ts) in a file Editor (Notepad, VSCode...), enter your informations, and rename to config.ts.

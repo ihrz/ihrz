@@ -56,7 +56,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 
             if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
                 let perm = getPermissionByValue(subCmd.permission);
-        
+
                 if (perm) {
                     const permName = lang[perm.name] || perm.name;
                     const body = {
@@ -67,7 +67,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                 }
             }
 
-            return await subCmd.run(client, interaction, lang, command, permCheck.allowed, []);
+            return await subCmd.run(client, interaction, lang, []);
         }
     }
     else if (subCommand) {
@@ -84,7 +84,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 
             if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
                 let perm = getPermissionByValue(subCmd.permission);
-        
+
                 if (perm) {
                     const permName = lang[perm.name] || perm.name;
                     const body = {
@@ -95,7 +95,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                 }
             }
 
-            return await subCmd.run(client, interaction, lang, command, permCheck.allowed, []);
+            return await subCmd.run(client, interaction, lang, []);
         }
     }
 
@@ -119,7 +119,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
         }
     }
 
-    if (command.run) await command.run(client, interaction, lang, command, permCheck.allowed, []);
+    if (command.run) await command.run(client, interaction, lang, []);
     return
 }
 

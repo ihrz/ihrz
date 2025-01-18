@@ -21,8 +21,8 @@
 
 import { ApplicationCommandOptionType, Client, Collection } from 'discord.js';
 
-import { buildDirectoryTree, buildPaths, CommandModule } from '../handlerHelper.js';
-import { Command } from "../../../types/command.js";
+import { buildDirectoryTree, buildPaths } from '../handlerHelper.js';
+import { Command, SubCommand, SubCommandModule } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { fileURLToPath } from 'url';
 
@@ -130,7 +130,7 @@ async function processCommandOptions(
                             process.exit(1);
                         }
 
-                        (subOption as any).run = commandModule.default.run;
+                        (subOption as any).run = commandModule.subCommand.run;
                         client.subCommands.set(fullSubCommandName, subOption as any);
                     }
                 }
@@ -146,7 +146,7 @@ async function processCommandOptions(
                         process.exit(1);
                     }
 
-                    (option as any).run = commandModule.default.run;
+                    (option as any).run = commandModule.subCommand.run;
                     client.subCommands.set(fullName, option as any);
                 }
             }
@@ -164,9 +164,9 @@ async function processCommandOptions(
     }
 }
 
-async function loadSubCommandModule(directoryPath: string, commandName: string): Promise<CommandModule | null> {
+async function loadSubCommandModule(directoryPath: string, commandName: string): Promise<SubCommandModule | null> {
     try {
-        return await import(`${directoryPath}/!${commandName}.js`) as CommandModule;
+        return await import(`${directoryPath}/!${commandName}.js`) as SubCommandModule;
     } catch (error) {
         logger.err(`Failed to load subcommand module: ${commandName}`);
         return null;

@@ -32,12 +32,14 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 const itemsPerPage = 15;
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
         let execTimestamp = Date.now();
 
         // Guard's Typing

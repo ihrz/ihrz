@@ -28,7 +28,7 @@ import {
 import { format } from '../../../core/functions/date_and_time.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 import { Custom_iHorizon } from '../../../../types/ownihrz.js';
 
 async function generateBotHTML(
@@ -90,8 +90,10 @@ async function buildEmbed(
     return { embed, attachment };
 }
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
         let table_1 = client.db.table("OWNIHRZ");

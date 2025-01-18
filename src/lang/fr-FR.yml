@@ -458,6 +458,9 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay est à la fois
 # /andru
 andru_message: "Andru est un collaborateur et développeur. \"L'homme à tout faire\", il gère le marketing, la communauté..."
 
+# /ether
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether est un contributeur d'iHorizon. Il repère chaque faute de frappe dans le bot et s'improvise comme assistant support pour le bot iHorizon."
+
 # /nayaweb
 nayaweb_message: "😼NayaWeb est ma seconde développeuse/contributrice , NayaWeb x Kisakay ❤️"
 
@@ -870,8 +873,8 @@ utils_wlRoles_logsEmbed_title: "Module des rôles de la liste blanche"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} a modifié les rôles dans la liste blanche (pour les commandes `addrole` et `delrole`)"
 
 # /utils dm
-utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} Le message as parfaitement été envoyer à ${targetMember.toString()}"
-utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} Je n'ai pas réussi à envoyer de message à ${targetMember.toString()}. Il à peut-être bloquer les message privée, ou il m'a bloqué!"
+utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} Le message a parfaitement été envoyé à ${targetMember.toString()}"
+utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} Je n'ai pas réussi à envoyer de message à ${targetMember.toString()}. Il à peut-être bloqué ses message privés, ou il m'a bloqué!"
 
 # /utils pic-only
 utils_pic_only_embed_title: "Salons Images Uniquement"

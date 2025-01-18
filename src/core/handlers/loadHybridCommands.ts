@@ -21,8 +21,8 @@
 
 import { ApplicationCommandOptionType, Client, Collection } from 'discord.js';
 
-import { buildDirectoryTree, buildPaths, CommandModule } from '../handlerHelper.js';
-import { Command } from "../../../types/command.js";
+import { buildDirectoryTree, buildPaths } from '../handlerHelper.js';
+import { Command, SubCommand, SubCommandModule } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { fileURLToPath } from 'url';
 
@@ -126,9 +126,9 @@ export default async function loadCommands(client: Client, path: string = p): Pr
     logger.log(`${client.config.console.emojis.OK} >> Loaded ${i} Hybrid commands.`);
 };
 
-async function loadSubCommandModule(directoryPath: string, commandName: string): Promise<CommandModule | null> {
+async function loadSubCommandModule(directoryPath: string, commandName: string): Promise<SubCommandModule | null> {
     try {
-        return await import(`${directoryPath}/!${commandName}.js`) as CommandModule;
+        return await import(`${directoryPath}/!${commandName}.js`) as SubCommandModule;
     } catch (error) {
         logger.err(`Failed to load subcommand module: ${commandName}`);
         console.error(error)
@@ -163,7 +163,7 @@ async function processCommandOptions(
                             continue; // Skip instead of exiting
                         }
 
-                        (subOption as any).run = commandModule.default.run;
+                        (subOption as any).run = commandModule.subCommand.run;
 
                         let aliases = subOption.aliases || [];
                         for (let alias of aliases) {
@@ -191,7 +191,7 @@ async function processCommandOptions(
                     continue;
                 }
 
-                (option as any).run = commandModule.default.run;
+                (option as any).run = commandModule.subCommand.run;
                 client.subCommands.set(fullName, option as any);
 
                 let aliases = option.aliases || [];

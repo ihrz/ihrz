@@ -31,13 +31,15 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 import { getGuildDataPerSecretCode, SavedMembersRestoreCord, securityCodeUpdate } from '../../../core/functions/restoreCordHelper.js';
 import { discordLocales } from '../../../files/locales.js';
 import { format } from '../../../core/functions/date_and_time.js';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;

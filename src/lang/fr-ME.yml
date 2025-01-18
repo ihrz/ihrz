@@ -458,6 +458,9 @@ kisakay_message: "Wsh c ma owner, elle est blg et a un vrai beau cul, elle m'a c
 # /andru
 andru_message: "Andru est un collaborateur et développeur. \"L'homme à tout faire\", il gère le marketing, la communauté..."
 
+# /ether
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether est un contributeur d'iHorizon. Il repère chaque faute de frappe dans le bot et s'improvise comme assistant support pour le bot iHorizon."
+
 # /nayaweb
 nayaweb_message: "😼Naya c ma seconde dev , jladore surtout sa chatte la miam , elle ma crée en version comme ca et pour ca je me soumet a elle❤️"
 

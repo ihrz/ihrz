@@ -163,7 +163,7 @@ function promptUser(): Promise<number> {
 
 async function main() {
     const langsPath = path.join(process.cwd(), 'src', 'lang');
-    const langsContent = readdirSync(langsPath);
+    const langsContent = readdirSync(langsPath).filter(x => x.endsWith(".yml"));
 
     logger.legacy(`[-] Starting to check ${langsContent.length} lang files!`);
 

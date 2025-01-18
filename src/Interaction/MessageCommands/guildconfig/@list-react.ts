@@ -32,7 +32,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { DatabaseStructure } from '../../../../types/database_structure.js'; import { Option } from '../../../../types/option.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js'; 
 export const command: Command = {
 
     name: 'list-react',
@@ -47,7 +47,7 @@ export const command: Command = {
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
     permission: PermissionsBitField.Flags.AddReactions,
-    run: async (client: Client, interaction: Message<true>, lang: LanguageData, command: Command | Option | undefined, allowed, options?: string[]) => {
+    run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
 
         let all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
 
