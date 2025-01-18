@@ -34,12 +34,14 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 const itemsPerPage = 5;
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
@@ -121,7 +123,7 @@ export default {
             components: [generateButtons(currentPage)],
             files: [
                 await interaction.client.method.bot.footerAttachmentBuilder(interaction),
-                { attachment: await interaction.client.func.image64((interaction.member as GuildMember).user.displayAvatarURL()), name: 'user_icon.png' }
+                { attachment: (await interaction.client.func.image64((interaction.member as GuildMember).user.displayAvatarURL())) ?? Buffer.alloc(0), name: 'user_icon.png' }
             ]
         });
 

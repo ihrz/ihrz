@@ -37,31 +37,23 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 import { DatabaseStructure } from '../../../../types/database_structure';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        const permissionsArray = [PermissionsBitField.Flags.ManageRoles]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getMember("user")! as GuildMember;
             var role = interaction.options.getRole("role");
             var author = interaction.member as GuildMember;
         } else {
-            
+
             var user = client.method.member(interaction, args!, 0)! as GuildMember;
             var role = client.method.role(interaction, args!, 1);
             var author = interaction.member as GuildMember;

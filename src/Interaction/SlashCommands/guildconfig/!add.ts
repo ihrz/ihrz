@@ -30,17 +30,16 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await client.method.interactionSend(interaction, { content: lang.setup_not_admin });
-            return;
-        };
+
 
         let channel = interaction.options.getChannel('channel') as GuildChannel;
         let all_channels: DatabaseStructure.GhostPingData['channels'] = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) || [];

@@ -26,7 +26,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option.js';
+
 
 export const command: Command = {
     name: 'sticker',
@@ -40,7 +40,9 @@ export const command: Command = {
     thinking: false,
     category: 'utils',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, message: Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
+
+    permission: null,
+    run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
         if (message.reference) {
             let msg = await message.channel.messages.fetch(message.reference.messageId || "");
 

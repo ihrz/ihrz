@@ -27,7 +27,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
     let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
     let table = interaction.client.db.table('TEMP');
 
-    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId);
     let member = interaction.member as GuildMember;
 
     let targetedChannel = (interaction.member as GuildMember).voice.channel;
@@ -62,7 +62,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
         await table.set(`CUSTOM_VOICE.${interaction.guildId}.${interaction?.user?.id}`, targetedChannel?.id)
 
         // change the voice channel name
-        targetedChannel?.setName(`${interaction.user.displayName || interaction.user.username}'s Channel`);
+        targetedChannel?.setName(lang.temporary_voice_channel_name.replace("{nickname}", `${interaction.user.displayName || interaction.user.username}`));
 
         targetedChannel?.permissionOverwrites.delete(previousOwner?.user.id as string);
 

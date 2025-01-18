@@ -30,19 +30,16 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../../types/languageData';
 import { DatabaseStructure } from '../../../../../types/database_structure';
-import { Command } from '../../../../../types/command';
-import { Option } from '../../../../../types/option';
+import { SubCommand } from '../../../../../types/command';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await client.method.interactionSend(interaction, { content: lang.setup_not_admin });
-            return;
-        };
+
 
         let all_members: DatabaseStructure.UtilsPermsUserData = await client.db.get(`${interaction.guildId}.UTILS.USER_PERMS`) || {};
         let all_roles: DatabaseStructure.UtilsRoleData = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {};
@@ -120,7 +117,7 @@ export default {
         });
 
         const collector = message.createMessageComponentCollector({
-            time: 60_000,
+            time: 60_000 * 5,
         });
 
         collector.on('collect', async i => {

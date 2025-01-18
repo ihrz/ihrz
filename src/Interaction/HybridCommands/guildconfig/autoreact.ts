@@ -61,23 +61,23 @@ export const command: Command = {
 
     thinking: true,
     category: 'guildconfig',
+
+    permission: PermissionsBitField.Flags.Administrator,
+
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.setxpchannels_not_admin });
-            return;
-        }
-
         let autoreactConfig = await client.db.get(`${interaction.guild.id}.GUILD.AUTOREACT`) || {} as DatabaseStructure.DbGuildAutoReact;
+
+        autoreactConfig = Object.fromEntries(
+            Object.entries(autoreactConfig).map(([channelId, reaction]) => [
+                channelId,
+                Array.isArray(reaction) ? reaction : [reaction]
+            ])
+        );
 
         const itemsPerPage = 5;
         let currentPage = 0;
@@ -99,9 +99,12 @@ export const command: Command = {
                 .setDescription(lang.autoreact_embed_desc)
                 .addFields(
                     pageValue.length > 0
-                        ? pageValue.map(([channelId, reaction]) => ({
+                        ? pageValue.map(([channelId, reactions]) => ({
                             name: `${interaction.guild?.channels.cache.get(channelId)?.toString() || lang.var_unknown}`,
-                            value: lang.autoreact_embed_autofields_value.replace("${reaction}", String(reaction)),
+                            value: lang.autoreact_embed_autofields_value.replace(
+                                "${reaction}",
+                                Array.isArray(reactions) ? reactions.join(" ") : String(reactions)
+                            ),
                             inline: false
                         }))
                         : [{
@@ -111,7 +114,8 @@ export const command: Command = {
                         }]
                 )
                 .setFooter({
-                    text: lang.autoreact_embed_footer.replace("${currentPage}", String(currentPage))
+                    text: lang.autoreact_embed_footer
+                        .replace("${currentPage}", String(currentPage))
                         .replace("${totalPage}", String(totalPage))
                         .replace("${totalReact}", String(totalReact)),
                     iconURL: interaction.guild?.iconURL() || undefined
@@ -283,8 +287,14 @@ export const command: Command = {
                 }
 
                 if (selectedChannel) {
-                    autoreactConfig[selectedChannel] = reactInput;
-                    await client.db.set(`${interaction.guild?.id}.GUILD.AUTOREACT`, autoreactConfig);
+                    const existingReactions = autoreactConfig[selectedChannel] || [];
+                    const reactionsArray = Array.isArray(existingReactions) ? existingReactions : [existingReactions];
+
+                    if (!reactionsArray.includes(reactInput)) {
+                        reactionsArray.push(reactInput);
+                        autoreactConfig[selectedChannel] = reactionsArray;
+                        await client.db.set(`${interaction.guild?.id}.GUILD.AUTOREACT`, autoreactConfig);
+                    }
 
                     await message.edit({
                         content: null,

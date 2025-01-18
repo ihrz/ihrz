@@ -34,10 +34,12 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -47,16 +49,6 @@ export default {
             .filter(x => x.user.bot)
             .values()
         ) || [];
-
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        };
 
         if (all_bots.length == 0) {
             await client.method.interactionSend(interaction, { content: lang.all_admins_nobody_admins });

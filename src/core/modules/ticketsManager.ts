@@ -53,6 +53,8 @@ import * as discordTranscripts from 'discord-html-transcripts';
 import { getDatabaseInstance } from '../database.js';
 import logger from '../logger.js';
 import { TicketPanel } from '../../Interaction/SlashCommands/ticket/!panel.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
+import getLanguageData from '../functions/getLanguageData.js';
 
 const database = getDatabaseInstance();
 
@@ -65,7 +67,7 @@ interface CreatePanelData {
 
 async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cached">, data: CreatePanelData) {
 
-    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
     let panel = new EmbedBuilder()
         .setTitle(data.name)
@@ -128,7 +130,7 @@ export interface CaseList {
 }
 
 async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cached">, data: CreatePanelData) {
-    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId);
     let case_list: CaseList[] = [];
 
     let panel_for_create = new EmbedBuilder()
@@ -410,13 +412,19 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
 
     if (interaction instanceof ButtonInteraction) {
         let result = await database.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
-        let userTickets = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+        let userTickets = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData;
 
         if (!result || result.channel !== interaction.message.channelId
             || result.messageID !== interaction.message.id) return;
 
+        let channelId = userTickets && Object.values(userTickets)[0]?.channel;
+
         if (userTickets) {
-            await interaction.deferUpdate();
+            await interaction.reply({
+                ephemeral: true,
+                content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
+                    .replace('${channelId}', channelId)
+            });
             return;
         } else {
             await CreateChannel(
@@ -427,13 +435,19 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
         };
     } else {
         let result = await database.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
-        let userTickets = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+        let userTickets = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData;
 
         if (!result || result.channel !== interaction.message.channelId
             || result.messageID !== interaction.message.id) return;
 
+        let channelId = userTickets && Object.values(userTickets)[0]?.channel;
+
         if (userTickets) {
-            interaction.deferUpdate();
+            await interaction.reply({
+                ephemeral: true,
+                content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
+                    .replace('${channelId}', channelId)
+            });
             return;
         } else {
             await CreateChannel(
@@ -452,10 +466,15 @@ async function CreateTicketChannelV2(interaction: StringSelectMenuInteraction<"c
         `${interaction.guildId}.GUILD.TICKET_PANEL.${interaction.message.id}`
     ) as string | null;
     let result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`) as TicketPanel;
-    let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+    let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData;
+    let channelId = userTickets && Object.values(userTickets)[0]?.channel;
 
     if (userTickets) {
-        await interaction.deferUpdate();
+        await interaction.reply({
+            ephemeral: true,
+            content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
+                .replace('${channelId}', channelId)
+        });
         return;
     } else {
         await CreateChannelV2(interaction, result);
@@ -475,7 +494,7 @@ interface ResultButton {
 };
 
 async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">, result: ResultButton) {
-    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId);
     let category = await database.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
 
     if (result.categoryId) category = result.categoryId
@@ -663,7 +682,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 };
 
 async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached">, result: TicketPanel) {
-    let lang = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
     let values: ModalResultArray = [];
     let reasonInteraction: ModalSubmitInteraction<"cached">;
@@ -854,12 +873,12 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
             return;
         } catch (e) { return };
     }).catch((e) => {
-        console.log(e)
+        logger.log(e)
     });
 };
 
 async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
-    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId);
 
     let fetch = await database.get(
         `${interaction.guildId}.TICKET_ALL`
@@ -920,7 +939,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
 };
 
 async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
-    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId);
     let interactionChannel = interaction.channel;
 
     let fetch = await database.get(
@@ -965,7 +984,7 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 };
 
 async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cached">) {
-    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId);
     let member = interaction.options.getUser("user");
 
     try {
@@ -999,7 +1018,7 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cach
 };
 
 async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached">) {
-    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId);
     let member = interaction.options.getUser("user");
 
     if (!member) {
@@ -1038,7 +1057,7 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached"
 };
 
 async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) {
-    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId);
     let fetch = await database.get(`${interaction.guildId}.TICKET_ALL`);
 
     for (let user in fetch) {
@@ -1091,7 +1110,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) 
 };
 
 async function TicketDelete(interaction: Interaction<"cached">) {
-    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId);
     let fetch = await database.get(`${interaction.guildId}.TICKET_ALL`);
 
     for (let user in fetch) {
@@ -1141,7 +1160,7 @@ async function TicketDelete(interaction: Interaction<"cached">) {
 };
 
 async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached">) {
-    let data = await interaction.client.func.getLanguageData(interaction.guildId) as LanguageData;;
+    let data = await interaction.client.func.getLanguageData(interaction.guildId);;
     let owner_ticket = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${interaction.channel?.id}`);
 
     if (!owner_ticket) {

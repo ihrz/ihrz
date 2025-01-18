@@ -39,10 +39,12 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
@@ -73,7 +75,7 @@ export default {
             return;
         };
 
-        let progress = client.func.generateProgressBar(player.position, player.queue.current?.info.duration)
+        let progress = client.func.generateProgressBar(player.position, player.queue.current?.info.duration!)
 
         let embed = new EmbedBuilder()
             .setTitle(lang.nowplaying_message_embed_title)

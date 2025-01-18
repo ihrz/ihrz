@@ -32,5 +32,6 @@ export interface AnotherCommand {
     name: string,
     type: ApplicationCommandType,
     thinking: boolean,
+    permission: bigint | bigint[] | null,
     async run(client: Client, interaction: UserContextMenuCommandInteraction<"cached">): Promise<any>
 }

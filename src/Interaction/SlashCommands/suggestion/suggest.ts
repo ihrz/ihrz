@@ -24,6 +24,7 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -62,6 +63,8 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
                 {
                     name: 'message',
@@ -73,8 +76,12 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "deny",
@@ -100,6 +107,8 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
                 {
                     name: 'reason',
@@ -115,8 +124,12 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "accept",
@@ -142,6 +155,8 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
                 {
                     name: 'reason',
@@ -157,8 +172,12 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "delete",
@@ -184,12 +203,17 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
     ],
     category: 'suggestion',
     thinking: true,
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

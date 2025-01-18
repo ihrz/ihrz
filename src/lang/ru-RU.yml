@@ -55,6 +55,60 @@ var_aliases: "Псевдонимы"
 var_dont_have_perm: "У вас нет необходимых разрешений для этого. (Требуется разрешение {perm})"
 var_price: "Цена"
 var_boost: "Ускорение"
+var_uses: "Использования"
+
+# Discord Permission Name
+perm_createinstantinvite_name: "Создать мгновенное приглашение"
+perm_kickmembers_name: "Выгнать участников"
+perm_banmembers_name: "Заблокировать участников"
+perm_administrator_name: "Администратор"
+perm_managechannels_name: "Управление каналами"
+perm_manageguild_name: "Управление сервером"
+perm_addreactions_name: "Добавлять реакции"
+perm_viewauditlog_name: "Просмотр журнала аудита"
+perm_priorityspeaker_name: "Приоритетный спикер"
+perm_stream_name: "Трансляция"
+perm_viewchannel_name: "Просмотр канала"
+perm_sendmessages_name: "Отправлять сообщения"
+perm_sendttsmessages_name: "Отправлять TTS-сообщения"
+perm_managemessages_name: "Управление сообщениями"
+perm_embedlinks_name: "Встраивать ссылки"
+perm_attachfiles_name: "Прикреплять файлы"
+perm_readmessagehistory_name: "Читать историю сообщений"
+perm_mentioneveryone_name: "Упомянуть всех"
+perm_useexternalemojis_name: "Использовать внешние эмодзи"
+perm_viewguildinsights_name: "Просмотр статистики сервера"
+perm_connect_name: "Подключение"
+perm_speak_name: "Говорить"
+perm_mutemembers_name: "Отключение звука участников"
+perm_deafenmembers_name: "Заглушение участников"
+perm_movemembers_name: "Перемещение участников"
+perm_usevad_name: "Использование голосовой активности"
+perm_changenickname_name: "Изменить никнейм"
+perm_managenicknames_name: "Управление никнеймами"
+perm_manageroles_name: "Управление ролями"
+perm_managewebhooks_name: "Управление вебхуками"
+perm_manageemojisandstickers_name: "Управление эмодзи и стикерами"
+perm_manageguildexpressions_name: "Управление выражениями сервера"
+perm_useapplicationcommands_name: "Использование команд приложений"
+perm_requesttospeak_name: "Запрос на выступление"
+perm_manageevents_name: "Управление событиями"
+perm_managethreads_name: "Управление темами"
+perm_createpublicthreads_name: "Создание публичных тем"
+perm_createprivatethreads_name: "Создание приватных тем"
+perm_useexternalstickers_name: "Использовать внешние стикеры"
+perm_sendmessagesinthreads_name: "Отправлять сообщения в темах"
+perm_useembeddedactivities_name: "Использовать встроенные активности"
+perm_moderatemembers_name: "Модерация участников"
+perm_viewcreatormonetizationanalytics_name: "Просмотр аналитики монетизации"
+perm_usesoundboard_name: "Использовать звуковую панель"
+perm_createguildexpressions_name: "Создать выражения сервера"
+perm_createevents_name: "Создать события"
+perm_useexternalsounds_name: "Использовать внешние звуки"
+perm_sendvoicemessages_name: "Отправлять голосовые сообщения"
+perm_sendpolls_name: "Отправлять опросы"
+perm_useexternalapps_name: "Использовать внешние приложения"
+
 
 # Команды для тикетов
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -203,6 +257,10 @@ ticket_panel_add_form_modal_field2_label: "Заполнитель вопроса
 ticket_panel_preview_message: "Предварительный просмотр панели тикетов"
 ticket_panel_option_change_category: "Выберите вариант для изменения категории"
 ticket_panel_panel_10_label: "Изменить категорию для одной конкретной опции"
+
+# /ticket rename
+ticket_rename_ok: "Канал тикета был переименован!"
+ticket_rename_error: "Ошибка при переименовании текстового канала."
 
 
 # Команды для рангов
@@ -400,6 +458,9 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay - и мой с
 # /andru
 andru_message: "Andru - сотрудник и разработчик. \"Мастер на все руки\", он управляет маркетингом, сообществом..."
 
+# /ether
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether - это участник проекта iHorizon. Он находит каждую опечатку в боте и выступает в роли помощника поддержки для бота iHorizon."
+
 # /nayaweb
 nayaweb_message: "😼NayaWeb - мой второй разработчик/соавтор , NayaWeb и Kisakay ❤️"
 
@@ -474,6 +535,8 @@ help_notifier_dsc: "Получайте уведомления, когда юту
 help_notifier_fields: "Уведомитель"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "Проверка сервера с помощью oAuth2. Если ваш сервер был атакован или удален, вы можете восстановить своих старых участников с помощью oAuth2!"
+help_tags_fields: "Пользовательские теги"
+help_tags_dsc: "Создайте сообщения с тегами для вашего сервера и используйте их на своем сервере!"
 
 # /h
 h_suite: "(Продолжение)"
@@ -540,6 +603,8 @@ fun_category_disable: "Вы не можете использовать эту к
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
+
+economy_cooldown_error: "Подождите **${time}**, прежде чем вы сможете снова выполнить эту команду!"
 
 # /addmoney
 addmoney_not_admin: "Вы не можете выполнить эту команду, так как у вас нет необходимых прав `АДМИНИСТРАТОР`"
@@ -829,6 +894,11 @@ zip_emojis_doesnt_have_perm: "У вас нет разрешения на упр�
 zip_emojis_command_work: "🎉 Экспорт завершен за **${calcTime}** мс! Вот архив, содержащий ${emojis.size} эмодзи."
 zip_emojis_command_error: "Произошла ошибка при экспорте эмодзи."
 
+# /zip-stickers
+zip_stickers_doesnt_have_perm: "У вас нет разрешения на управление стикерами."
+zip_stickers_command_work: "🎉 Экспорт завершен за **${calcTime}**мс! Вот архив, содержащий ${stickers.size} стикеров."
+zip_stickers_command_error: "Произошла ошибка при экспорте стикеров."
+
 # +sticker  
 sticket_no_sticker: "Стикер не найден в ответном сообщении."  
 sticket_command_work: "Стикер `${x.name}` успешно создан."  
@@ -850,6 +920,16 @@ util_nick_kicker_remove_desc: "Удалить слово из кикера ни�
 util_nick_kicker_add_desc: "Добавить слово в кикер никнеймов"
 util_nick_kicker_disable_desc: "Отключить кикер никнеймов"
 util_nick_kicker_enable_desc: "Включить кикер никнеймов"
+
+# /util wakeup
+util_wakeup_yourself: "Братан, ты что, глупый? Неужели ты пишешь эту команду, пока спишь на клавиатуре, лол"
+util_wakeup_not_in_vc: "Братан, бот не создаст маленького китайца по имени ${user.displayName} с той же аватаркой и баннером, чтобы ты поверил, что он проснулся... Он даже не в голосовом канале, лол"
+util_wakeup_command_work: "Давай разбудим ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "Шалунишка, ты не можешь привязать больше 3 человек :D"
+util_leah_already_owned: "Шалунишка, у тебя уже есть эти маленькие чудеса :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Участник, которого ты хочешь привязать, не находится в голосовом канале!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Ты уверен, что хочешь выполнить это действие?"
 
 
 # Guild Config commands
@@ -1144,6 +1224,13 @@ perm_list_no_command_set: "В этом сервере нет команд с у�
 perm_set_deleted: "${user.toString()} имеет разрешение **удалено**!"
 perm_set_ok: "${user.toString()} изменил свое разрешение на **`${perm}`**"
 perm_set_warn_message: "${interaction.member.toString()}, вы не можете назначить разрешения выше или равные вашим!"
+perm_set_chng_perm_lvl: "Уровень разрешений изменен"
+perm_set_add_role: "Роль добавлена"
+perm_set_add_usr: "Пользователь добавлен"
+perm_rmv_role: "Роль удалена"
+perm_rmv_usr: "Пользователь удален"
+perm_set_command_reset: "Эта команда была сброшена"
+perm_set_no_modified: "Разрешения не изменены"
 
 # /perm roles
 perm_roles_created_role: "Созданы следующие роли: ${createdRoles.join(', ')}"
@@ -1195,7 +1282,7 @@ setmembercount_not_admin: ":x: | Вы должны быть администра
 setmembercount_helpembed_title: "Помощь по установке счетчика участников!"
 setmembercount_helpembed_description: "/membercount <Включить / Отключить> <Название канала>"
 setmembercount_helpembed_fields_name: "Как это использовать?"
-setmembercount_helpembed_fields_value: "{MemberCount} = количество участников на сервере\n{RolesCount} = количество ролей\n{BotCount} = количество ботов на сервере\n{ChannelCount} = количество каналов на сервере\n{BoostCount} = количество бустов на сервере"
+setmembercount_helpembed_fields_value: "{MemberCount} = количество участников на сервере\n{RolesCount} = количество ролей\n{BotCount} = количество ботов на сервере\n{ChannelCount} = количество каналов на сервере\n{BoostCount} = количество бустов на сервере\n{VoiceCount} = общее количество участников в голосовых каналах на сервере\n{OnlineCount} = общее количество участников онлайн на сервере"
 setmembercount_logs_embed_title_on_enable: "Журнал установки счетчика участников"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> установил счетчик участников на <#${channel.id}> в `${messagei}`!"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успешно установлен счетчик участников."
@@ -1453,6 +1540,8 @@ backup_backup_doesnt_exist: "Ошибка? Резервная копия не с
 backup_string_see_v: ":placard:・Количество категорий: `${data.categoryCount}`\n:hash:・Количество каналов: `${data.channelCount}`"
 backup_all_of_your_backup: "**Все ваши резервные копии:**"
 backup_string_see_another_v: ":placard:・Количество категорий: `${result.categoryCount}`\n:hash:・Количество каналов: `${result.channelCount}`"
+backup_load_confirm: "${interaction.member.user.toString()},\n# ЧРЕЗВЫЧАЙНО ОПАСНОЕ ДЕЙСТВИЕ\n# Вы уверены, что хотите загрузить этот бэкап?\nЭто заменит все текущие каналы, роли, эмодзи, баны, настройки... вашего сервера.\nЭТО ДЕЙСТВИЕ НЕОБРАТИМО!"
+backup_not_load: "Резервная копия не была загружена, действие было отменено по вашему запросу."
 
 # /backup delete
 backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} Вы действительно хотите удалить этот бэкап?"
@@ -1785,6 +1874,48 @@ allowlist_delete_isnt_in: "Участник, которого вы хотите 
 allowlist_delete_command_work: "${member.user} был удален из списка разрешений!"
 
 
+# Custom Tag Module
+# /tag create, ... delete, ... edit, ... list, ... info
+
+tag_name: "Тег"
+tag_embed_created_at: "Создано"
+tag_embed_last_update: "Последнее обновление"
+tag_embed_last_updated_by: "Последнее обновление от"
+
+# /tag create
+tag_create_not_permited: "У вас нет разрешения на создание тега.\nНеобходимы права администратора или нахождение в белом списке (`tag wlroles-create`)."
+tag_create_not_good_name: "Имя тега не должно содержать пробелов и не должно превышать 16 символов."
+tag_create_command_work: "Тег `${tag_name}` был создан."
+tag_create_already_exist: "Тег уже существует."
+tag_create_embed_doesnt_exist: "Встраивание не существует."
+
+# /tag delete
+tag_no_one_found: "На этом сервере нет сохраненных тегов!"
+tag_delete_dnt_exist: "Тег `${tag_name}` не существует."
+tag_delete_command_ok: "Тег `${tag_name}` был удален."
+
+# /tag info
+tag_doesnt_exist: "Тег `${tag_name}` не существует!"
+
+# /tag wlcreate
+tag_wlcreate_embed_title: "Белый список создания - Теги"
+tag_wlcreate_embed_desc: "Все роли, которым разрешено создавать теги."
+
+# /tag wluse
+tag_wluse_embed_title: "Белый список использования - Теги"
+tag_wluse_embed_desc: "Все роли, которым разрешено использовать теги."
+
+# /tag list
+tag_list_no_anything: "На этом сервере нет сохраненных тегов!"
+
+# /tag use
+tag_use_not_allowed: "У вас нет разрешения на использование тега `${tag_name}`.\nНеобходимы права администратора или вы можете попросить владельца тега <@${tag.createBy}> добавить вас в белый список (`tag wlroles-use`)."
+tag_use_command_work: "Тег `${tag_name}` был отправлен."
+
+# /tag edit
+tag_edit_error_perm: "Чтобы изменить тег, вам нужны права администратора или вы должны быть владельцем тега."
+
+
 # Модуль OWNIHRZ
 # /mybot отправить, ... список, /mybot управление принять, ... отказать, ... экземпляр
 
@@ -2113,6 +2244,7 @@ event_ticket_logsChannel_onDelete_embed_title: "Лог билетов - Удал
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} удалил билет (#${interaction.channel.name})!"
 event_ticket_logsChannel_onAddMember2_embed_title: "Лог билетов - Добавление/удаление участников из билета"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nУдаленные: ${removedMembers}.\nДобавленные: ${addedMembers}.\n в билете (${interaction.channel})!"
+event_ticket_already_opened: "Ой, у вас уже есть открытый тикет (<#${channelId}>)! Пожалуйста, закройте его, прежде чем открывать новый."
 
 # Событие раздачи подарков
 event_gw_reroll_win_msg: "Поздравляем ${winners}! Вы выиграли **${fetch[channelId][messageId].prize}**!"
@@ -2137,7 +2269,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **только что убрал(а
 economy_disable_msg: "<@${interaction.user.id}>, `Модуль Экономики` на этом сервере **отключен**. Теперь вы не можете использовать модуль экономики!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, вам не разрешено использовать эту команду! Необходимое разрешение: **`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, вам не разрешено использовать эту команду! Необходимое разрешение: **`${neededPerm}`**"
 
 # Модуль TempVoice
 # Все компоненты, глобальные переменные...
@@ -2190,6 +2322,8 @@ temporary_voice_transfer_trust_placeholder: "Выбранные пользова
 temporary_voice_transfer_unblocked_placeholder: "Выбранные пользователи будут разблокированы для присоединения"
 
 temporary_voice_transfer_untrust_placeholder: "Выбранные пользователи не будут доверены для присоединения"
+
+temporary_voice_channel_name: "Канал {nickname}"
 
 # Модуль Защиты
 # Сообщение о событии
@@ -2261,5 +2395,11 @@ piconly_module_timeout_reason: "Спам сообщениями без изоб�
 # Nick Kicker Event
 event_nick_kicker_kick_reason: "Запрещенное слово в имени пользователя - Кикер никнеймов"
 event_nick_kicker_kick_msg: "На сервере `${member.guild.name}` ваше имя пользователя содержит запрещенное слово. Вы были исключены с сервера."
+
+# Модуль аватаров
+pfps_embed_user_title: "**Пользовательский** аватар ${username}"
+pfps_embed_guild_title: "**Серверный** аватар ${username}"
+pfps_download_user_button: "Скачать аватар пользователя"
+pfps_download_guild_button: "Скачать аватар сервера"
 
 # -----------------------------/ \-----------------------------

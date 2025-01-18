@@ -37,13 +37,15 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 
-import { SubCommandArgumentValue, member } from '../../../core/functions/method.js';
 import { isInVoiceChannel } from '../../../core/functions/leashModuleHelper.js';
 import { promptYesOrNo } from '../../../core/functions/awaitingResponse.js';
 import { DatabaseStructure } from '../../../../types/database_structure';
+import { Command } from '../../../../types/command.js';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, neededPerm?: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -55,16 +57,6 @@ export default {
             var user = client.method.member(interaction, args!, 0)!;
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.ModerateMembers, PermissionsBitField.Flags.MoveMembers]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        };
-
         let baseData = await client.db.get(`${interaction.guildId}.UTILS.LEASH_CONFIG`) || {
             maxLeashedByUsers: 3,
             maxLeashTime: client.timeCalculator.to_ms("30min")
@@ -73,20 +65,22 @@ export default {
         let filteredData = fetchedData.filter(x => x.dom === interaction.member?.user.id) || [];
 
         if (filteredData.length >= (baseData.maxLeashedByUsers)) {
-            await client.method.interactionSend(interaction, { content: `Little naughty guy, you can't put more than 3 people on a leash :D` });
+            await client.method.interactionSend(interaction, { content: lang.util_leash_too_naugthy });
             return;
         }
 
 
         if (filteredData.find(x => x.sub === user.id)) {
-            await client.method.interactionSend(interaction, { content: `Little naughty guy, you already own this cuties :smirk:` });
+            await client.method.interactionSend(interaction, { content: lang.util_leah_already_owned });
             return;
         }
 
 
         if (!isInVoiceChannel(user) || isInVoiceChannel(interaction.member)) {
             let response = await promptYesOrNo(interaction, {
-                content: `${client.iHorizon_Emojis.icon.No_Logo} | The member you want to leash (or yourself) is not in voice channel!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Are you sure to want to perform this action ?`,
+                content: lang.util_leash_confirm_message
+                    .replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+                    .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo).replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
                 yesButton: lang.var_yes,
                 noButton: lang.var_no,
                 dangerAction: false

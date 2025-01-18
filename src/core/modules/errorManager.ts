@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { format } from '../functions/date-and-time.js';
+import { format } from '../functions/date_and_time.js';
 import logger from '../logger.js';
 
 import fs from 'node:fs';

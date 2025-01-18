@@ -32,12 +32,14 @@ import {
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
+
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;;
@@ -51,25 +53,11 @@ export default {
             var reason = client.method.longString(args!, 1)!;
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.ModerateMembers]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, {
-                content: lang.warn_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-            });
-            return;;
-        };
-
-        let warnId = generatePassword({ length: 8, lowercase: true, numbers: true });
-        await client.method.warnMember(
+        let warnId = await client.method.warnMember(
             interaction.member!,
             member!,
             reason
-        ).catch(() => { });
+        );
 
         await client.method.interactionSend(interaction, {
             content: lang.warn_command_work

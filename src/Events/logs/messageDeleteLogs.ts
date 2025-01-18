@@ -29,7 +29,7 @@ export const event: BotEvent = {
     name: "messageDelete",
     run: async (client: Client, message: Message) => {
 
-        let data = await client.func.getLanguageData(message.guildId) as LanguageData;
+        let data = await client.func.getLanguageData(message.guildId);
         if (!message.guild || !message.author
             || message.author.id == client.user?.id) return;
 

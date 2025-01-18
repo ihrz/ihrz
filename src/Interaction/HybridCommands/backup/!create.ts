@@ -33,27 +33,14 @@ import logger from '../../../core/logger.js';
 import backup from 'discord-rebackup';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.backup_not_admin });
-            return;
-        };
-
-        if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await client.method.interactionSend(interaction, { content: lang.backup_i_dont_have_permission });
-            return;
-        };
 
         let i: number = 0;
         let j: number = 0;

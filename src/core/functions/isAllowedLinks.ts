@@ -35,7 +35,7 @@ let allowedDomains: string[] = [
     'cdn.discordapp.com'
 ];
 
-function isAllowedLinks(link: string): boolean {
+export function isAllowedLinks(link: string): boolean {
     if (link !== null) {
         let parsedUrl = url.parse(link);
 
@@ -45,5 +45,3 @@ function isAllowedLinks(link: string): boolean {
     };
     return true;
 };
-
-export default isAllowedLinks;

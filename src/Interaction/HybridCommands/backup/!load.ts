@@ -30,9 +30,12 @@ import {
 import backup from 'discord-rebackup';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { promptYesOrNo } from '../../../core/functions/awaitingResponse.js';
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
@@ -40,18 +43,8 @@ export default {
         if (interaction instanceof ChatInputCommandInteraction) {
             var backupID = interaction.options.getString('backup-id')!;
         } else {
-            
+
             var backupID = client.method.string(args!, 0)!;
-        };
-
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.backup_dont_have_perm_on_load });
-            return;
         };
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
@@ -71,8 +64,21 @@ export default {
             return;
         };
 
+        let confirm = await promptYesOrNo(interaction, {
+            content: lang.backup_load_confirm.replace("${interaction.member.user.toString()}", interaction.member.user.toString()),
+            yesButton: lang.var_confirm,
+            noButton: lang.embed_btn_cancel,
+            dangerAction: true
+        })
+
+        if (!confirm) return await client.method.interactionSend(interaction, {
+            content: lang.backup_not_load,
+            components: []
+        });
+
         await client.method.channelSend(interaction, {
-            content: lang.backup_waiting_on_load.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+            content: lang.backup_waiting_on_load.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
+            components: []
         });
 
         backup.fetch(backupID).then(async () => {

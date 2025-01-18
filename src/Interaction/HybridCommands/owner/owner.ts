@@ -52,13 +52,15 @@ export const command: Command = {
                 "fr": "Le membre que vous souhaitez rendre propriétaire des projets iHorizon"
             },
 
-            required: false
+            required: false,
+
+            permission: null
         }
     ],
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -108,4 +110,5 @@ export const command: Command = {
         await client.method.interactionSend(interaction, { content: lang.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
         return;
     },
+    permission: null
 };

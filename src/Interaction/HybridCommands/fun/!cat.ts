@@ -29,10 +29,12 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {

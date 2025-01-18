@@ -36,32 +36,22 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        const permissionsArray = [PermissionsBitField.Flags.KickMembers]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, {
-                content: lang.kick_not_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-            });
-            return;
-        };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("member") as GuildMember | null;
             var reason = interaction.options.getString("reason")
         } else {
-            
+
             var member = client.method.member(interaction, args!, 0) as GuildMember | null;
             var reason = client.method.longString(args!, 1);
         };
@@ -99,7 +89,12 @@ export default {
                 .replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
         }).catch(() => { });
 
-        await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`);
+        await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`)
+            .catch((error) => {
+                return client.method.interactionSend(interaction, {
+                    content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+                });
+            });
 
         await client.method.interactionSend(interaction, {
             embeds: [

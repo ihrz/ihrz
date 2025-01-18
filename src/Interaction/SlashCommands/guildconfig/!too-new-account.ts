@@ -30,10 +30,12 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {        
 
 
         // Guard's Typing
@@ -42,10 +44,6 @@ export default {
         let action = interaction.options.getString('action') as string;
         let maximumDate = interaction.options.getString('maximum-date');
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await interaction.editReply({ content: lang.setup_not_admin });
-            return;
-        }
 
         if (action === 'on') {
             if (!maximumDate) {

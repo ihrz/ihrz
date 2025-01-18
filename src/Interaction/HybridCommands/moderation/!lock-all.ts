@@ -35,30 +35,20 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import logger from '../../../core/logger.js';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.lockall_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
-            return;
-        };
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var role = interaction.options.getRole("role");
         } else {
-            
+
             var role = client.method.role(interaction, args!, 0);
         };
 
@@ -68,12 +58,6 @@ export default {
             };
         });
 
-        let Lockembed = new EmbedBuilder()
-            .setColor("#5b3475")
-            .setTimestamp()
-            .setDescription(lang.lockall_embed_message_description
-                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
-            );
 
         await client.method.iHorizonLogs.send(interaction, {
             title: lang.lockall_logs_embed_title,
@@ -81,7 +65,10 @@ export default {
                 .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
         });
 
-        await client.method.interactionSend(interaction, { embeds: [Lockembed] });
+        await client.method.interactionSend(interaction, {
+            content: lang.lockall_embed_message_description
+                .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+        });
         return;
     },
 };

@@ -25,6 +25,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     ChannelType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -58,9 +59,13 @@ export const command: Command = {
                         "fr": "L'utilisateur que vous souhaitez ajouter à votre ticket"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.ManageChannels
         },
         {
             name: "close",
@@ -71,6 +76,36 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
+        },
+        {
+            name: "rename",
+
+            description: "Rename a ticket!",
+            description_localizations: {
+                "fr": "Rénommer un ticket"
+            },
+
+            options: [
+                {
+                    name: "name",
+
+                    description: "The new name of the ticket channel.",
+                    description_localizations: {
+                        "fr": "Le nouveau nom du canal de ticket"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+                    required: true,
+
+                    permission: null
+                }
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: "delete",
@@ -82,6 +117,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: "disable",
@@ -114,8 +151,12 @@ export const command: Command = {
                             value: "on"
                         },
                     ],
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'log-channel',
@@ -137,9 +178,13 @@ export const command: Command = {
                         "fr": "Où voulez-vous les journaux ?"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "open",
@@ -150,6 +195,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: 'remove-member',
@@ -170,9 +217,13 @@ export const command: Command = {
                         "fr": "L'utilisateur que vous souhaitez supprimer de votre ticket"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.ManageChannels
         },
         {
             name: "set-here",
@@ -194,6 +245,8 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.String,
                     required: true,
+
+                    permission: null
                 },
                 {
                     name: "description",
@@ -205,6 +258,8 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.String,
                     required: false,
+
+                    permission: null
                 },
                 {
                     name: "category",
@@ -218,8 +273,12 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.Channel,
                     required: false,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "panel",
@@ -239,10 +298,14 @@ export const command: Command = {
                     },
 
                     required: false,
-                    type: ApplicationCommandOptionType.String
+                    type: ApplicationCommandOptionType.String,
+
+                    permission: null
                 }
             ],
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "set-category",
@@ -266,8 +329,12 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.Channel,
                     required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "transcript",
@@ -278,10 +345,13 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
     ],
     thinking: true,
     category: 'ticket',
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

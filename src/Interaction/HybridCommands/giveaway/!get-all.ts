@@ -31,23 +31,15 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
-        const permissionsArray = [PermissionsBitField.Flags.ManageMessages]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.end_not_admin });
-            return;
-        };
 
         let giveawayData = await client.giveawaysManager.getAllGiveawayData();
         let filtered = giveawayData.filter((giveaway) => giveaway.giveawayData.guildId === interaction.guildId && !giveaway.giveawayData.ended);
@@ -87,7 +79,7 @@ export default {
                 embeds: [embed],
                 files: [
                     {
-                        attachment: await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL()),
+                        attachment: (await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL())) ?? Buffer.from([]),
                         name: 'guild_icon.png'
                     }, await interaction.client.method.bot.footerAttachmentBuilder(interaction)
                 ],

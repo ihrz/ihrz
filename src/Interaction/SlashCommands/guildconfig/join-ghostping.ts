@@ -25,6 +25,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     ChannelType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -70,8 +71,11 @@ import { LanguageData } from '../../../../types/languageData';export const comma
                             },
 
                             required: true,
+                            permission: null
                         }
-                    ]
+                    ],
+
+                    permission: PermissionFlagsBits.Administrator
                 },
                 {
                     name: 'remove',
@@ -95,14 +99,20 @@ import { LanguageData } from '../../../../types/languageData';export const comma
                             },
 
                             required: true,
+                            permission: null
                         }
-                    ]
+                    ],
+
+                    permission: PermissionFlagsBits.Administrator
                 },
             ],
+
+            permission: null
         },
     ],
     thinking: false,
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

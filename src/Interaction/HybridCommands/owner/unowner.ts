@@ -49,13 +49,15 @@ export const command: Command = {
                 "fr": "Le membre que vous souhaitez supprimer de la liste des propriétaires"
             },
 
-            required: true
+            required: true,
+
+            permission: null
         },
     ],
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -71,8 +73,8 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser('member');
         } else {
-            
-            var member = await client.method.user(interaction, args!, 0);
+
+            var member = client.method.user(interaction, args!, 0);
         };
 
         if (client.owners.includes(member?.id!)) {
@@ -85,4 +87,5 @@ export const command: Command = {
         await client.method.interactionSend(interaction, { content: lang.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
         return;
     },
+    permission: null
 };

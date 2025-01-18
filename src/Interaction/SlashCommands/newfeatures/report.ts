@@ -30,7 +30,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
     name: 'report',
@@ -50,13 +50,16 @@ export const command: Command = {
                 "fr": "Quelle est le problème? S'il vous plaît expliquer le problème."
             },
 
-            required: true
+            required: true,
+
+            permission: null
         }
     ],
     thinking: true,
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+    permission: null,
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;

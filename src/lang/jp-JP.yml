@@ -55,6 +55,60 @@ var_aliases: "エイリアス"
 var_dont_have_perm: "必要な権限がありません。({perm}権限が必要です)"
 var_price: "価格"
 var_boost: "ブースト"
+var_uses: "使用回数"
+
+# Discord Permission Name
+perm_createinstantinvite_name: "インスタント招待を作成"
+perm_kickmembers_name: "メンバーをキック"
+perm_banmembers_name: "メンバーを禁止"
+perm_administrator_name: "管理者"
+perm_managechannels_name: "チャンネルを管理"
+perm_manageguild_name: "サーバーを管理"
+perm_addreactions_name: "リアクションを追加"
+perm_viewauditlog_name: "監査ログを表示"
+perm_priorityspeaker_name: "優先スピーカー"
+perm_stream_name: "配信"
+perm_viewchannel_name: "チャンネルを見る"
+perm_sendmessages_name: "メッセージを送信"
+perm_sendttsmessages_name: "TTSメッセージを送信"
+perm_managemessages_name: "メッセージを管理"
+perm_embedlinks_name: "リンクを埋め込み"
+perm_attachfiles_name: "ファイルを添付"
+perm_readmessagehistory_name: "メッセージ履歴を読む"
+perm_mentioneveryone_name: "全員をメンション"
+perm_useexternalemojis_name: "外部絵文字を使用"
+perm_viewguildinsights_name: "サーバーのインサイトを表示"
+perm_connect_name: "接続"
+perm_speak_name: "発言"
+perm_mutemembers_name: "メンバーをミュート"
+perm_deafenmembers_name: "メンバーをデフン"
+perm_movemembers_name: "メンバーを移動"
+perm_usevad_name: "音声アクティビティを使用"
+perm_changenickname_name: "ニックネームを変更"
+perm_managenicknames_name: "ニックネームを管理"
+perm_manageroles_name: "ロールを管理"
+perm_managewebhooks_name: "Webhookを管理"
+perm_manageemojisandstickers_name: "絵文字とステッカーを管理"
+perm_manageguildexpressions_name: "サーバー表現を管理"
+perm_useapplicationcommands_name: "アプリコマンドを使用"
+perm_requesttospeak_name: "発言をリクエスト"
+perm_manageevents_name: "イベントを管理"
+perm_managethreads_name: "スレッドを管理"
+perm_createpublicthreads_name: "公開スレッドを作成"
+perm_createprivatethreads_name: "非公開スレッドを作成"
+perm_useexternalstickers_name: "外部ステッカーを使用"
+perm_sendmessagesinthreads_name: "スレッドでメッセージを送信"
+perm_useembeddedactivities_name: "埋め込みアクティビティを使用"
+perm_moderatemembers_name: "メンバーをモデレート"
+perm_viewcreatormonetizationanalytics_name: "収益化分析を表示"
+perm_usesoundboard_name: "サウンドボードを使用"
+perm_createguildexpressions_name: "サーバー表現を作成"
+perm_createevents_name: "イベントを作成"
+perm_useexternalsounds_name: "外部サウンドを使用"
+perm_sendvoicemessages_name: "音声メッセージを送信"
+perm_sendpolls_name: "投票を送信"
+perm_useexternalapps_name: "外部アプリを使用"
+
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -203,6 +257,10 @@ ticket_panel_add_form_modal_field2_label: "質問プレースホルダー"
 ticket_panel_preview_message: "チケットパネルのプレビュー"
 ticket_panel_option_change_category: "カテゴリを変更するオプションを選択してください"
 ticket_panel_panel_10_label: "特定のオプションのカテゴリを変更する"
+
+# /ticket rename
+ticket_rename_ok: "チケットチャンネルの名前が変更されました！"
+ticket_rename_error: "テキストチャンネルの名前を変更中にエラーが発生しました。"
 
 
 # Ranks commands
@@ -400,6 +458,9 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakayは私の創造
 # /andru
 andru_message: "Andruはコラボレーターであり開発者です。\"何でも屋\"として、マーケティング、コミュニティを管理しています..."
 
+# /ether
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Etherは iHorizonのコントリビューターです。ボットのタイプミスを全て見つけ、iHorizonボットのサポートヘルパーとして活動しています。"
+
 # /nayaweb
 nayaweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
 
@@ -474,6 +535,8 @@ help_notifier_dsc: "YouTuberやストリーマーが動画を公開したら通�
 help_notifier_fields: "通知機能"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "oAuth2を使用したサーバー検証。サーバーが攻撃されたり削除された場合でも、oAuth2を使用して古いメンバーを復元できます！"
+help_tags_fields: "カスタムタグ"
+help_tags_dsc: "サーバー用のタグメッセージを作成し、それをサーバー内で使用しましょう！"
 
 # /h
 h_suite: "(続き)"
@@ -540,6 +603,8 @@ fun_category_disable: "このコマンドを使用できません。ファンコ
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
+
+economy_cooldown_error: "このコマンドを再度実行するには **${time}** 待つ必要があります！"
 
 # /addmoney
 addmoney_not_admin: "You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`"
@@ -829,6 +894,11 @@ zip_emojis_doesnt_have_perm: "絵文字を管理する権限がありません�
 zip_emojis_command_work: "🎉 **${calcTime}**ミリ秒で書き出し完了！${emojis.size}個の絵文字を含むアーカイブはこちらです。"
 zip_emojis_command_error: "絵文字の書き出し中にエラーが発生しました。"
 
+# /zip-stickers
+zip_stickers_doesnt_have_perm: "ステッカーを管理する権限がありません。"
+zip_stickers_command_work: "🎉 **${calcTime}**ミリ秒でエクスポートが完了しました！ ${stickers.size}枚のステッカーが含まれるアーカイブです。"
+zip_stickers_command_error: "ステッカーをエクスポート中にエラーが発生しました。"
+
 # +sticker  
 sticket_no_sticker: "返信されたメッセージにスタンプが見つかりませんでした。"  
 sticket_command_work: "スタンプ `${x.name}` が正常に作成されました。"  
@@ -850,6 +920,16 @@ util_nick_kicker_remove_desc: "ニックネームキッカーから単語を削�
 util_nick_kicker_add_desc: "ニックネームキッカーに単語を追加"
 util_nick_kicker_disable_desc: "ニックネームキッカーを無効化"
 util_nick_kicker_enable_desc: "ニックネームキッカーを有効化"
+
+# /util wakeup
+util_wakeup_yourself: "おい、お前バカか？このコマンドを打ちながら寝てるって言わないよな？笑"
+util_wakeup_not_in_vc: "おいおい、ボットが${user.displayName}っていう同じアイコンとバナーの小さい中国人を作るわけじゃないんだぞ…その人はVCにいないよ笑"
+util_wakeup_command_work: "${user.toString()}を起こしに行くぞ！"
+
+# /util leash
+util_leash_too_naugthy: "やんちゃ坊主、3人以上はリードに繋げないよ :D"
+util_leah_already_owned: "やんちゃ坊主、もうその小さな宝物を持ってるじゃないか :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | リードに繋げたいメンバーはボイスチャンネルにいません！\n${client.iHorizon_Emojis.icon.Warning_Icon} | この操作を実行してもよろしいですか？"
 
 
 # Guild Config commands
@@ -1144,6 +1224,13 @@ perm_list_no_command_set: "このサーバーには特定の権限が設定さ�
 perm_set_deleted: "${user.toString()} の権限は **削除** されました！"
 perm_set_ok: "${user.toString()} の権限は **`${perm}`** に変更されました"
 perm_set_warn_message: "${interaction.member.toString()}、あなたの権限以上または同等の権限を与えることはできません！"
+perm_set_chng_perm_lvl: "権限レベルが変更されました"
+perm_set_add_role: "ロールを追加しました"
+perm_set_add_usr: "ユーザーを追加しました"
+perm_rmv_role: "ロールを削除しました"
+perm_rmv_usr: "ユーザーを削除しました"
+perm_set_command_reset: "このコマンドはリセットされました"
+perm_set_no_modified: "権限が変更されませんでした"
 
 # /perm roles
 perm_roles_created_role: "以下の役割が作成されました：${createdRoles.join('、')}"
@@ -1195,7 +1282,7 @@ setmembercount_not_admin: ":x: | このコマンドを要求するには、こ�
 setmembercount_helpembed_title: "メンバーカウント設定ヘルプ！"
 setmembercount_helpembed_description: "/membercount <有効 / 無効> <チャンネル名>"
 setmembercount_helpembed_fields_name: "使い方"
-setmembercount_helpembed_fields_value: "{MemberCount} = サーバー内のメンバー数\n{RolesCount} = 役割の数\n{BotCount} = サーバー内のボット数\n{ChannelCount} = サーバー内のチャンネル数\n{BoostCount} = サーバーのブースト数"
+setmembercount_helpembed_fields_value: "{MemberCount} = サーバーのメンバー数\n{RolesCount} = ロール数\n{BotCount} = サーバーのボット数\n{ChannelCount} = サーバーのチャンネル数\n{BoostCount} = サーバーのブースト数\n{VoiceCount} = サーバーのボイスチャンネルにいるメンバーの総数\n{OnlineCount} = サーバーのオンラインメンバーの総数"
 setmembercount_logs_embed_title_on_enable: "メンバーカウントログ"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}>さんが <#${channel.id}> チャンネルのメンバーカウントを ${messagei} に設定しました！"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | メンバーカウントを設定しました。"
@@ -1453,6 +1540,8 @@ backup_backup_doesnt_exist: "ERROR? バックアップが存在しません。"
 backup_string_see_v: ":placard:・カテゴリ数: `${data.categoryCount}`\n:hash:・チャンネル数: `${data.channelCount}`"
 backup_all_of_your_backup: "**すべてのバックアップ:**"
 backup_string_see_another_v: ":placard:・カテゴリ数: `${result.categoryCount}`\n:hash:・チャンネル数: `${result.channelCount}`"
+backup_load_confirm: "${interaction.member.user.toString()},\n# 非常に危険な操作\n# このバックアップをロードしてもよろしいですか？\n現在のサーバーのすべてのチャンネル、役職、絵文字、禁止、設定...が置き換えられます。\nこの操作は元に戻せません！"
+backup_not_load: "バックアップはロードされませんでした。リクエストにより操作がキャンセルされました。"
 
 # /backup delete
 backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} 本当にこのバックアップを削除しますか？"
@@ -1785,6 +1874,48 @@ allowlist_delete_isnt_in: "許可リストから削除しようとするメン�
 allowlist_delete_command_work: "${member.user} が許可リストから削除されました！"
 
 
+# Custom Tag Module
+# /tag create, ... delete, ... edit, ... list, ... info
+
+tag_name: "タグ"
+tag_embed_created_at: "作成日"
+tag_embed_last_update: "最終更新"
+tag_embed_last_updated_by: "最終更新者"
+
+# /tag create
+tag_create_not_permited: "タグを作成する権限がありません。\n管理者権限またはホワイトリストに登録される必要があります（`tag wlroles-create`）。"
+tag_create_not_good_name: "タグ名にスペースを含めることはできず、16文字を超えることはできません。"
+tag_create_command_work: "タグ `${tag_name}` が作成されました。"
+tag_create_already_exist: "タグは既に存在します。"
+tag_create_embed_doesnt_exist: "埋め込みが存在しません。"
+
+# /tag delete
+tag_no_one_found: "このサーバーには保存されているタグがありません！"
+tag_delete_dnt_exist: "タグ `${tag_name}` は存在しません。"
+tag_delete_command_ok: "タグ `${tag_name}` が削除されました。"
+
+# /tag info
+tag_doesnt_exist: "タグ `${tag_name}` は存在しません！"
+
+# /tag wlcreate
+tag_wlcreate_embed_title: "ホワイトリスト作成 - タグ"
+tag_wlcreate_embed_desc: "タグを作成できるすべての役割。"
+
+# /tag wluse
+tag_wluse_embed_title: "ホワイトリスト使用 - タグ"
+tag_wluse_embed_desc: "タグを使用できるすべての役割。"
+
+# /tag list
+tag_list_no_anything: "このサーバーには保存されているタグがありません！"
+
+# /tag use
+tag_use_not_allowed: "タグ `${tag_name}` を使用する権限がありません。\n管理者権限が必要か、タグの所有者 <@${tag.createBy}> にホワイトリストへの追加を依頼してください（`tag wlroles-use`）。"
+tag_use_command_work: "タグ `${tag_name}` が送信されました。"
+
+# /tag edit
+tag_edit_error_perm: "タグを編集するには、管理者権限を持っているか、タグの所有者である必要があります。"
+
+
 # モジュール OWNHRZ
 # /mybot 提出、... 一覧、/mybot 管理 承認、... 拒否、... インスタンス
 
@@ -2113,6 +2244,7 @@ event_ticket_logsChannel_onDelete_embed_title: "チケットログ - チケッ�
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user}さんがチケットを削除しました（#${interaction.channel.name}）！"
 event_ticket_logsChannel_onAddMember2_embed_title: "チケットログ - チケットのメンバーの追加/削除"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}さん\n削除されたメンバー：${removedMembers}。\n追加されたメンバー：${addedMembers}。\nチケット（${interaction.channel}）にいます！"
+event_ticket_already_opened: "あらら、既にチケットが開いています (<#${channelId}>)！新しいチケットを作成する前に閉じてください。"
 
 # ギブアウェイイベント
 event_gw_reroll_win_msg: "おめでとうございます、${winners}さん！ **${fetch[channelId][messageId].prize}** を獲得しました！"
@@ -2137,7 +2269,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **がサーバーからブースト
 economy_disable_msg: "<@${interaction.user.id}>、このギルドの `経済モジュール` は**無効**になっています。もう経済モジュールは使えません！"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}、このコマンドを使用する権限がありません！必要な権限：**`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}、このコマンドを使用する権限がありません！必要な権限：**`${neededPerm}`**"
 
 # TempVoiceモジュール
 # すべてのコンポーネント、グローバル変数...
@@ -2190,6 +2322,8 @@ temporary_voice_transfer_trust_placeholder: "選択したユーザーは参加�
 temporary_voice_transfer_unblocked_placeholder: "選択したユーザーは参加できるようになります"
 
 temporary_voice_transfer_untrust_placeholder: "選択したユーザーは参加するために信頼されません"
+
+temporary_voice_channel_name: "{nickname}のチャンネル"
 
 # 保護モジュール
 # イベントメッセージ
@@ -2261,5 +2395,11 @@ piconly_module_timeout_reason: "画像専用チャンネルでの画像なしメ
 # Nick Kicker Event
 event_nick_kicker_kick_reason: "ユーザー名に禁止された単語があります - ニックネームキッカー"
 event_nick_kicker_kick_msg: "サーバー `${member.guild.name}` において、あなたのユーザー名に禁止された単語が含まれています。サーバーからキックされました。"
+
+# プロフィール画像モジュール
+pfps_embed_user_title: "${username}の**ユーザー**アバター"
+pfps_embed_guild_title: "${username}の**サーバー**アバター"
+pfps_download_user_button: "ユーザーアバターをダウンロード"
+pfps_download_guild_button: "サーバーアバターをダウンロード"
 
 # -----------------------------\ /-----------------------------

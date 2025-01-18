@@ -26,11 +26,12 @@ import {
     ApplicationCommandType,
     Message,
     ChannelType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
     name: "notifier",
@@ -85,7 +86,9 @@ export const command: Command = {
                                 }
                             ],
 
-                            required: true
+                            required: true,
+
+                            permission: null
                         },
                         {
                             name: "author",
@@ -97,9 +100,13 @@ export const command: Command = {
 
                             type: ApplicationCommandOptionType.String,
 
-                            required: true
+                            required: true,
+
+                            permission: null
                         }
-                    ]
+                    ],
+
+                    permission: PermissionFlagsBits.ManageGuild
                 },
                 {
                     name: "remove",
@@ -134,7 +141,9 @@ export const command: Command = {
                                 }
                             ],
 
-                            required: true
+                            required: true,
+
+                            permission: null
                         },
                         {
                             name: "author",
@@ -146,9 +155,13 @@ export const command: Command = {
 
                             type: ApplicationCommandOptionType.String,
 
-                            required: true
+                            required: true,
+
+                            permission: null
                         },
-                    ]
+                    ],
+
+                    permission: PermissionFlagsBits.ManageGuild
                 },
                 {
                     name: "list",
@@ -159,9 +172,13 @@ export const command: Command = {
                         fr: "Afficher tout les Streamer/Youtuber/Twitcher configurer"
                     },
 
-                    type: ApplicationCommandOptionType.Subcommand
+                    type: ApplicationCommandOptionType.Subcommand,
+
+                    permission: PermissionFlagsBits.ManageGuild
                 }
-            ]
+            ],
+
+            permission: null
         },
         {
             name: "config",
@@ -191,11 +208,15 @@ export const command: Command = {
 
                             channel_types: [ChannelType.GuildText],
                             type: ApplicationCommandOptionType.Channel,
-                            required: true
+                            required: true,
+
+                            permission: null
                         }
                     ],
 
-                    type: ApplicationCommandOptionType.Subcommand
+                    type: ApplicationCommandOptionType.Subcommand,
+
+                    permission: PermissionFlagsBits.ManageGuild
                 },
                 {
                     name: "message",
@@ -205,15 +226,19 @@ export const command: Command = {
                         fr: "Lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, iHorizon envoie un message"
                     },
 
-                    type: ApplicationCommandOptionType.Subcommand
+                    type: ApplicationCommandOptionType.Subcommand,
+
+                    permission: PermissionFlagsBits.ManageGuild
                 }
             ],
 
             type: ApplicationCommandOptionType.SubcommandGroup,
+            permission: PermissionFlagsBits.ManageGuild
         }
     ],
     thinking: false,
     category: 'notifier',
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

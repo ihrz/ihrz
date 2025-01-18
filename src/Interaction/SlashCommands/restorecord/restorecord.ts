@@ -33,7 +33,8 @@ import {
     ChannelType,
     Channel,
     GuildTextBasedChannel,
-    ActionRowBuilder
+    ActionRowBuilder,
+    PermissionFlagsBits
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
@@ -69,7 +70,9 @@ export const command: Command = {
 
                     channel_types: [ChannelType.GuildText],
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'messageid',
@@ -80,7 +83,9 @@ export const command: Command = {
                         "fr": "Veuillez copier l'identifiant du message que vous souhaitez configurer"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'role',
@@ -91,14 +96,18 @@ export const command: Command = {
                         "fr": "Le rôle que vous souhaitez configurer"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
 
             thinking: true,
             ephemeral: true,
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "delete",
@@ -108,7 +117,9 @@ export const command: Command = {
                 "fr": "Supprimer le bouton du module de RestoreCord"
             },
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "get",
@@ -128,10 +139,14 @@ export const command: Command = {
                         "fr": "La clé privée de votre configuration RestoreCord"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
             ],
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "force-join",
@@ -151,10 +166,14 @@ export const command: Command = {
                         "fr": "La clé privée de votre configuration RestoreCord"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
             ],
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "roles",
@@ -174,7 +193,9 @@ export const command: Command = {
                         "fr": "La clé privée de votre configuration RestoreCord"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'roles',
@@ -185,10 +206,14 @@ export const command: Command = {
                         "fr": "Le nouveau rôle pour votre configuration RestoreCord"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
             ],
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
 
     ],
@@ -196,4 +221,5 @@ export const command: Command = {
     thinking: true,
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

@@ -26,11 +26,12 @@ import {
     ChatInputCommandInteraction,
     Client,
     Message,
+    PermissionFlagsBits,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
+
 
 export const command: Command = {
     name: "util",
@@ -52,11 +53,58 @@ export const command: Command = {
             aliases: ["nickkick", "nk"],
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
+        },
+        {
+            name: 'zip-stickers',
+
+            description: 'Create zip files with all guild stickers in!',
+            description_localizations: {
+                "fr": "Créer un fichier zip contenant absolument tout les stickers du serveur"
+            },
+
+            aliases: ["zipstickers", "zip2"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ManageGuildExpressions
+        },
+        {
+            name: 'wakeup',
+
+            description: 'Wake up an user with mass mooving randomly in voice channel',
+            description_localizations: {
+                "fr": "Réveiller un utilisateur avec un déplacement massif aléatoire dans les salons vocaux"
+            },
+
+            aliases: ["wake"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+
+            options: [
+                {
+                    name: 'member',
+
+                    description: 'The member to wake up',
+                    description_localizations: {
+                        "fr": "Le membre à réveiller"
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+
+                    required: true,
+
+                    permission: null
+                }
+            ],
+
+            permission: [PermissionFlagsBits.ModerateMembers, PermissionFlagsBits.MoveMembers]
         },
     ],
 
     category: 'utils',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

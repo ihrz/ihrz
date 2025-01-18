@@ -31,11 +31,13 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
+
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;;
@@ -44,27 +46,14 @@ export default {
             var member = interaction.options.getMember("member") as GuildMember | null;
             var warnID = interaction.options.getString("warn-id")!;
         } else {
-            
+
             var member = client.method.member(interaction, args!, 0) as GuildMember | null;
             var warnID = client.method.longString(args!, 1)!;
         };
 
-        const permissionsArray = [PermissionsBitField.Flags.ModerateMembers]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, {
-                content: lang.unwarn_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-            });
-            return;;
-        };
-
         let allWarns: DatabaseStructure.WarnsData[] | null = await client.db.get(`${interaction.guildId}.USER.${member?.id}.WARNS`);
 
-        if (!allWarns) {
+        if (!allWarns || allWarns.length === 0) {
             await client.method.interactionSend(interaction, {
                 content: lang.unwarn_cannot_found
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
@@ -77,7 +66,7 @@ export default {
             await client.method.interactionSend(interaction, {
                 content: lang.unwarn_cannot_found_id
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
-                    .replace("${member?.toString()}", member?.toString()!)
+                    .replace("${member?.toString()}", interaction.member?.toString()!)
             })
             return;
         }

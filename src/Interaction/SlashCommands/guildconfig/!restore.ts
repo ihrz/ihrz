@@ -28,20 +28,19 @@ import { LanguageData } from '../../../../types/languageData';
 import { axios } from '../../../core/functions/axios.js';
 
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 import { decrypt } from '../../../core/functions/encryptDecryptMethod.js';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await interaction.editReply({ content: lang.setup_not_admin });
-            return;
-        };
+
 
         let backup = interaction.options.getAttachment("backup-to-load");
 

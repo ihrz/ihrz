@@ -27,11 +27,12 @@ import {
     Message,
     EmbedBuilder,
     ChannelType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
     name: "confession",
@@ -64,7 +65,9 @@ export const command: Command = {
 
                     channel_types: [ChannelType.GuildText],
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'button-title',
@@ -75,15 +78,19 @@ export const command: Command = {
                         "fr": "Le titre du bouton"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "disable",
             prefixName: "confess-disable",
 
-            description: "Enable or Disable the module!",
+            description: "Enable or Disable the confession module!",
             description_localizations: {
                 "fr": "Activer ou désactiver le module"
             },
@@ -110,8 +117,12 @@ export const command: Command = {
                             value: "off"
                         },
                     ],
+
+                    permission: null
                 }
-            ]
+            ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "cooldown",
@@ -134,12 +145,16 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 }
-            ]
+            ],
+
+            permission: PermissionFlagsBits.Administrator
         }
     ],
     thinking: false,
     category: 'confession',
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

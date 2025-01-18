@@ -33,7 +33,7 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command'; import { Option } from '../../../../types/option';
+import { Command } from '../../../../types/command';
 export const command: Command = {
 
     name: 'remove-react',
@@ -47,15 +47,10 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
-
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.ManageGuildExpressions);
+    permission: PermissionsBitField.Flags.ManageGuildExpressions,
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
 
         let message = options![0];
-
-        if (!permission) {
-            return;
-        }
 
         await interaction.reply({
             content: lang.remove_react_command_work

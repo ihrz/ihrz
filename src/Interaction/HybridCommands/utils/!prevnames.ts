@@ -37,10 +37,12 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -51,11 +53,6 @@ export default {
             
             var user = await client.method.user(interaction, args!, 0) || interaction.member.user;
         };
-
-        // if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-        //     await client.method.interactionSend(interaction,{ content: lang.prevnames_not_admin });
-        //     return;
-        // };
 
         var table = client.db.table("PREVNAMES")
         var char: Array<string> = await table.get(`${user.id}`) || [];

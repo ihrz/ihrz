@@ -29,12 +29,12 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { format } from '../../../core/functions/date-and-time.js';
+import { format } from '../../../core/functions/date_and_time.js';
 
 import { LanguageData } from '../../../../types/languageData';
 
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 const ITEMS_PER_PAGE = 5;
 
@@ -89,8 +89,10 @@ function createListEmbed(
     return embed;
 }
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing

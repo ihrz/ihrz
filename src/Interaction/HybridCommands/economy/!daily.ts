@@ -29,17 +29,19 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 import { getMemberBoost } from './economy.js';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let timeout = 86400000;
-        let amount = 500 * await getMemberBoost(interaction.member);
+        let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.cooldown`) || 86400000);
+        let amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.amount`) || 500) * await getMemberBoost(interaction.member);
         let daily = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {

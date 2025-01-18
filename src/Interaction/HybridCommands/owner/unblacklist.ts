@@ -50,7 +50,9 @@ export const command: Command = {
                 "fr": "L'utilisateur que vous souhaitez supprimer de la liste noire (uniquement propriétaire d'ihorizon)"
             },
 
-            required: true
+            required: true,
+
+            permission: null
         }
     ],
 
@@ -59,7 +61,7 @@ export const command: Command = {
     thinking: false,
     category: 'owner',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -101,7 +103,7 @@ export const command: Command = {
 
             await client.method.interactionSend(interaction, { content: lang.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
 
-            let banPromises = guilds.map(async guildId => {
+            let banPromises = guilds.map(async (guildId) => {
                 let guild = client.guilds.cache.find(guild => guild.id === guildId);
                 if (guild) {
                     try {
@@ -128,4 +130,5 @@ export const command: Command = {
             return;
         };
     },
+    permission: null
 };

@@ -35,25 +35,17 @@ import {
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
+
 import { generatePassword } from '../../../core/functions/random.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-        const permissionsArray = [PermissionsBitField.Flags.ManageMessages]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.tempmute_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
-            return;
-        };
 
         if (interaction instanceof ChatInputCommandInteraction) {
             var tomute = interaction.options.getMember("user") as GuildMember | null;

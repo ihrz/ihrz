@@ -25,11 +25,12 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     Message,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
     name: "mod",
@@ -59,7 +60,9 @@ export const command: Command = {
                         "fr": "le membre que vous souhaitez bannir"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'reason',
@@ -70,9 +73,13 @@ export const command: Command = {
                         "fr": "la raison du ban"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.BanMembers
         },
         {
             name: 'clear',
@@ -93,11 +100,28 @@ export const command: Command = {
                         "fr": "Le nombre de messages que vous souhaitez supprimer"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
+                },
+                {
+                    name: 'member',
+                    type: ApplicationCommandOptionType.User,
+
+                    description: 'The member you want to delete the message',
+                    description_localizations: {
+                        "fr": "Le membre dont vous souhaitez supprimer les messages"
+                    },
+
+                    required: false,
+
+                    permission: null
                 }
             ],
 
             aliases: ["cls"],
+
+            permission: PermissionFlagsBits.ManageMessages
         },
         {
             name: 'mutelist',
@@ -108,6 +132,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ModerateMembers
         },
         {
             name: 'kick',
@@ -128,7 +154,9 @@ export const command: Command = {
                         "fr": "le membre que vous voulez expulser"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'reason',
@@ -139,9 +167,13 @@ export const command: Command = {
                         "fr": "la raison du kick"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.KickMembers
         },
         {
             name: 'lock',
@@ -161,9 +193,13 @@ export const command: Command = {
                     },
 
                     required: false,
-                    type: ApplicationCommandOptionType.Role
+                    type: ApplicationCommandOptionType.Role,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.Administrator,
             type: ApplicationCommandOptionType.Subcommand,
         },
         {
@@ -184,11 +220,14 @@ export const command: Command = {
                     },
 
                     required: false,
-                    type: ApplicationCommandOptionType.Role
+                    type: ApplicationCommandOptionType.Role,
+
+                    permission: null
                 }
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'tempmute',
@@ -211,7 +250,9 @@ export const command: Command = {
                         "fr": "L'utilisateur que vous souhaitez dé-mute textuellement"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'time',
@@ -222,9 +263,13 @@ export const command: Command = {
                         "fr": "la durée du tempmute de l'utilisateur"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.ModerateMembers
         },
         {
             name: 'unban',
@@ -245,7 +290,9 @@ export const command: Command = {
                         "fr": "L'identifiant de l'utilisateur que vous souhaitez débannir"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'reason',
@@ -256,9 +303,13 @@ export const command: Command = {
                         "fr": "La raison du bannissement de cet utilisateur"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.BanMembers
         },
         {
             name: 'unlock',
@@ -278,11 +329,15 @@ export const command: Command = {
                     },
 
                     required: false,
-                    type: ApplicationCommandOptionType.Role
+                    type: ApplicationCommandOptionType.Role,
+
+                    permission: null
                 }
             ],
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: 'unmute',
@@ -303,9 +358,13 @@ export const command: Command = {
                         "fr": "L'utilisateur que vous souhaitez unmuted"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.ModerateMembers
         },
         {
             name: "warn",
@@ -325,7 +384,9 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.User,
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: "reason",
@@ -336,11 +397,14 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.String,
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
 
             type: ApplicationCommandOptionType.Subcommand,
+            permission: PermissionFlagsBits.ModerateMembers
         },
         {
             name: "unwarn",
@@ -360,7 +424,9 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.User,
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: "warn-id",
@@ -371,11 +437,14 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.String,
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
 
             type: ApplicationCommandOptionType.Subcommand,
+            permission: PermissionFlagsBits.ModerateMembers
         },
         {
             name: "warnlist",
@@ -395,15 +464,19 @@ export const command: Command = {
                     },
 
                     type: ApplicationCommandOptionType.User,
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ModerateMembers
         }
     ],
     thinking: true,
     category: 'moderation',
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

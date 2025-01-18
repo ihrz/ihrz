@@ -29,13 +29,14 @@ import {
     GuildMember,
     GuildVoiceChannelResolvable,
     Message,
+    PermissionFlagsBits,
     PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
-import cmd from "../../SlashCommands/guildconfig/!join-role.js"
+
+import { subCommand } from "../../SlashCommands/guildconfig/!join-role.js"
 
 export const command: Command = {
 
@@ -50,7 +51,8 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
-        cmd.run(client, interaction, lang, command, neededPerm)
+    permission: PermissionFlagsBits.Administrator,
+    run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
+        subCommand.run(client, interaction, lang)
     },
 };

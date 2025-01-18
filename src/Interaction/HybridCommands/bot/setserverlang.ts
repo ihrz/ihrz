@@ -27,7 +27,8 @@ import {
     ChatInputCommandInteraction,
     BaseGuildTextChannel,
     ApplicationCommandType,
-    Message
+    Message,
+    PermissionFlagsBits
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
@@ -104,31 +105,24 @@ export const command: Command = {
                     value: "es-ES"
                 },
             ],
+
+            permission: null
         }
     ],
     thinking: false,
     category: 'bot',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    permission: PermissionFlagsBits.Administrator,
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.setserverlang_not_admin });
-            return;
-        };
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var type = interaction.options.getString("language");
         } else {
-            
+
             var type = args?.[0] as string | null;
         };
 
@@ -140,7 +134,7 @@ export const command: Command = {
         }
 
         await client.db.set(`${interaction.guildId}.GUILD.LANG`, { lang: type });
-        lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+        lang = await client.func.getLanguageData(interaction.guildId);
 
         await client.method.iHorizonLogs.send(interaction, {
             title: lang.setserverlang_logs_embed_title_on_enable,

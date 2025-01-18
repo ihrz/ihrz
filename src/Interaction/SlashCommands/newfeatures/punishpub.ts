@@ -27,11 +27,12 @@ import {
     ChatInputCommandInteraction,
     BaseGuildTextChannel,
     ApplicationCommandType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
     name: 'punishpub',
@@ -61,7 +62,9 @@ export const command: Command = {
                     name: "OFF",
                     value: "false"
                 }
-            ]
+            ],
+
+            permission: null,
         },
         {
             name: 'amount',
@@ -73,6 +76,7 @@ export const command: Command = {
             },
 
             required: false,
+            permission: null,
         },
         {
             name: 'punishement',
@@ -97,21 +101,20 @@ export const command: Command = {
                     name: "MUTE",
                     value: "mute"
                 }
-            ]
+            ],
+            permission: null
         }
     ],
     thinking: false,
+    permission: PermissionFlagsBits.Administrator,
     category: 'newfeatures',
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await interaction.reply({ content: lang.punishpub_not_admin });
-            return;
-        };
+
 
         let action = interaction.options.getString("status");
         let amount = interaction.options.getNumber("amount");

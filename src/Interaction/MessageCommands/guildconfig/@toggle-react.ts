@@ -34,7 +34,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
 
@@ -49,16 +49,10 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
-
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.ManageGuildExpressions);
+    permission: PermissionsBitField.Flags.ManageGuildExpressions,
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
 
         let active: boolean;
-
-        if (!permission) {
-            await interaction.reply({ content: lang.setup_not_admin, allowedMentions: { repliedUser: false } });
-            return;
-        }
 
         if (await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`) === true) {
 

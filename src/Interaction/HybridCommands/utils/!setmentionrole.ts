@@ -37,10 +37,12 @@ import {
 import { Command } from '../../../../types/command';
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -56,16 +58,6 @@ export default {
             var argsid = client.method.role(interaction, args!, 1) as Role | null;
             var nickname = client.method.longString(args!, 2);
         };
-
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        }
 
         if (type === "on") {
             if (!argsid) {

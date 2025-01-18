@@ -89,7 +89,7 @@ typings/
 
 # vuepress build output
 .vuepress/dist
-dist
+/dist
 
 # Serverless directories
 .serverless/
@@ -158,3 +158,4 @@ tools/main.js
 tools/test.ts
 src/files/.ihrz-cache
 src/files/db.json
+draft

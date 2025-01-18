@@ -24,8 +24,7 @@ import { LanguageData } from '../../../types/languageData';
 import { Command } from '../../../types/command';
 import { BotEvent } from '../../../types/event';
 import { Option } from '../../../types/option';
-import { appendFile } from 'node:fs';
-import logger from '../../core/logger.js';
+import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 
 type MessageCommandResponse = {
     success: boolean,
@@ -104,7 +103,6 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 }
 
 async function executeCommand(
-    client: Client,
     message: Message,
     command: Command,
     args: string[],
@@ -116,34 +114,39 @@ async function executeCommand(
 
     if (!canUseCommands) return;
 
-    let permCheck = await client.method.permission.checkCommandPermission(message, command!);
-    if (!permCheck.allowed) return client.method.permission.sendErrorMessage(message, lang, permCheck.neededPerm || 0);
+    let fetchFullCommandName = message.client.content.find(c => c.desc === command.description);
+
+    let permCheck = await message.client.method.permission.checkCommandPermission(message, fetchFullCommandName?.cmd!);
+    if (!permCheck.allowed && permCheck.neededPerm !== 0) return message.client.method.permission.sendErrorMessage(message, lang, permCheck.neededPerm || 0);
 
     // for format like: "+utils" without subcommand behind
     if (!command?.run) {
-        await client.method.interactionSend(message, {
-            embeds: [await client.method.createAwesomeEmbed(lang, command, client, message)],
-            files: [await client.method.bot.footerAttachmentBuilder(message)]
+        await message.client.method.interactionSend(message, {
+            embeds: [await message.client.method.createAwesomeEmbed(lang, command, message.client, message)],
+            files: [await message.client.method.bot.footerAttachmentBuilder(message)]
         });
         return;
     }
 
-    var _ = await client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
-    logMessage(message, command, args);
-    await command.run(client, message, lang, command, permCheck.neededPerm, args);
+    if (command.permission && !message.member!.permissions.has(command.permission)) {
+        let perm = getPermissionByValue(command.permission);
+
+        if (perm) {
+            const permName = lang[perm.name] || perm.name;
+            return await message.reply({
+                content: lang.var_dont_have_perm
+                    .replace("{perm}", permName)
+            });
+        }
+    }
+
+    var _ = await message.client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
+    await command.run(message.client, message, lang, args);
 }
 
-function logMessage(message: Message, command: Command | Option, args: string[]) {
-    appendFile(`${process.cwd()}/src/files/command.log`, `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}] "${message.guild?.name}" #${message.channel ? (message.channel as GuildChannel).name : 'Unknown Channel'}:\n${message.author.username}:\n${command.name} ${args.join(' ')}\n\n`, (err) => {
-        if (err) {
-            logger.err('Error writing to command.log');
-        };
-    });
-}
-
-async function handleCommandError(client: Client, message: Message, command: Command | Option, error: any) {
+async function handleCommandError(message: Message, command: Command | Option, error: any) {
     const errorBlock = `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${command.name}\nError: ${error}\`\`\`\n`;
-    const channel = client.channels.cache.get(client.config.core.reportChannelID) as BaseGuildTextChannel;
+    const channel = message.client.channels.cache.get(message.client.config.core.reportChannelID) as BaseGuildTextChannel;
 
     if (channel) {
         await channel.send({
@@ -188,16 +191,16 @@ export const event: BotEvent = {
         if (!result.success) return;
 
         try {
-            const lang = await client.func.getLanguageData(message.guildId) as LanguageData;
+            const lang = await client.func.getLanguageData(message.guildId);
 
             if (result.subCommand) {
-                await executeCommand(client, message, result.subCommand as Command, result.args || [], lang);
+                await executeCommand(message, result.subCommand as Command, result.args || [], lang);
             }
             else if (result.command) {
-                await executeCommand(client, message, result.command, result.args || [], lang);
+                await executeCommand(message, result.command, result.args || [], lang);
             }
         } catch (error) {
-            await handleCommandError(client, message, result.subCommand || result.command!, error);
+            await handleCommandError(message, result.subCommand || result.command!, error);
         }
     }
 };

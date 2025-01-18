@@ -34,35 +34,22 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import logger from '../../../core/logger.js';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        const permissionsArray = [PermissionsBitField.Flags.ManageChannels]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.unlock_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
-            return;
-        };
-
         if (interaction instanceof ChatInputCommandInteraction) {
             var role = interaction.options.getRole("role");
         } else {
-            
+
             var role = client.method.role(interaction, args!, 0);
         };
-
-        let embed = new EmbedBuilder()
-            .setColor("#5b3475")
-            .setTimestamp()
-            .setDescription(lang.unlock_embed_message_description);
 
         await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: true });
         await client.method.iHorizonLogs.send(interaction, {
@@ -72,7 +59,7 @@ export default {
                 .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
         });
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.method.interactionSend(interaction, { content: lang.unlock_embed_message_description });
         return;
     },
 };

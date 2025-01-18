@@ -25,11 +25,12 @@ import {
     ChatInputCommandInteraction,
     Client,
     Message,
+    PermissionFlagsBits,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
+
 
 export const command: Command = {
     name: "bulkunban",
@@ -54,7 +55,9 @@ export const command: Command = {
                 "fr": "Débannir toute les personnes bannis du serveur"
             },
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: "undo",
@@ -67,7 +70,9 @@ export const command: Command = {
                 "fr": "Annuler le dé-bannissement de tout les membres"
             },
 
-            type: ApplicationCommandOptionType.Subcommand
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         }
     ],
 
@@ -75,4 +80,6 @@ export const command: Command = {
     thinking: true,
     type: ApplicationCommandType.ChatInput,
 
+
+    permission: PermissionFlagsBits.Administrator
 };

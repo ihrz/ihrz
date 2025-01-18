@@ -46,7 +46,7 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -60,11 +60,12 @@ export const command: Command = {
         let githubbutton = new ButtonBuilder()
             .setLabel(lang.links_github)
             .setStyle(ButtonStyle.Link)
-            .setURL('https://github.com/ihrz/ihrz')
+            .setURL('https://github.com/ihrz/ihrz');
 
         let row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, githubbutton);
 
         await client.method.interactionSend(interaction, { content: lang.links_message, components: [row] });
         return;
     },
+    permission: null
 };

@@ -29,17 +29,18 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 import { getMemberBoost } from './economy.js';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-        let timeout: number = 2592000000;
-        let amount: number = 5000 * await getMemberBoost(interaction.member);
+        let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.monthly.cooldown`) || 2592000000);
+        let amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.monthly.amount`) || 5000) * await getMemberBoost(interaction.member);
 
         let monthly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`);
 

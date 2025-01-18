@@ -37,7 +37,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 
-import { LyricsManager } from './functions/lyrics-fetcher.js';
+import { LyricsManager } from './functions/lyrics_fetcher.js';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
 import { getToken } from './functions/getToken.js';
@@ -51,6 +51,7 @@ import { KdenLive } from './functions/kdenliveManipulator.js';
 import { Command } from '../../types/command.js';
 import { BashCommands } from '../../types/bashCommands.js';
 import { mkdir, readdir } from 'node:fs/promises';
+import { MemberCountModule } from './modules/memberCountManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -87,6 +88,7 @@ export async function main(client: Client) {
     client.commands = new Collection<string, Command>();
     client.subCommands = new Collection<string, Command>();
     client.message_commands = new Collection<string, Command>();
+    client.memberCountManager = new MemberCountModule(client);
     client.owners = [];
     client.content = [];
     client.category = [];

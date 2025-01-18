@@ -28,10 +28,12 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {        
 
 
         // Guard's Typing
@@ -39,11 +41,6 @@ export default {
 
         let id = interaction.options.getString("id");
         let message = interaction.options.getString("reason");
-
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await interaction.editReply({ content: lang.suggest_accept_not_admin });
-            return;
-        };
 
         let baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
         let fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`);
@@ -88,7 +85,7 @@ export default {
             embed.setTitle(lang.suggest_acceptembed_title_to_put
                 .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string));
 
-            await msg.edit({ embeds: [embed] });
+            await msg.edit({ embeds: [embed], files: [await client.method.bot.footerAttachmentBuilder(interaction)] });
             await client.db.set(`${interaction.guildId}.SUGGESTION.${id}.replied`, true);
 
             await interaction.deleteReply();

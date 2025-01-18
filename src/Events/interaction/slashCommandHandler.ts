@@ -23,6 +23,7 @@ import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Cha
 import { LanguageData } from '../../../types/languageData';
 import { BotEvent } from '../../../types/event';
 import { Command } from '../../../types/command';
+import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 
 var timeout: number = 1000;
 
@@ -42,31 +43,59 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
     const subCommand = options.getSubcommand(false);
 
     if (group && subCommand) {
-        const subCmd = client.subCommands.get(group + " " + subCommand);
+        let stringCommand = interaction.commandName + " " + group + " " + subCommand;
+        const subCmd = client.subCommands.get(stringCommand);
 
         if (subCmd && subCmd.run) {
-            let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
-            if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+            let permCheck = await client.method.permission.checkCommandPermission(interaction, stringCommand);
+            if (!permCheck.allowed && permCheck.neededPerm !== 0) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
             if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
                 await interaction.deferReply({ ephemeral: subCmd.ephemeral });
             }
 
-            return await subCmd.run(client, interaction, lang, command, permCheck.neededPerm, []);
+            if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
+                let perm = getPermissionByValue(subCmd.permission);
+
+                if (perm) {
+                    const permName = lang[perm.name] || perm.name;
+                    const body = {
+                        content: lang.var_dont_have_perm
+                            .replace("{perm}", permName)
+                    }
+                    return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+                }
+            }
+
+            return await subCmd.run(client, interaction, lang, []);
         }
     }
     else if (subCommand) {
-        const subCmd = client.subCommands.get(interaction.commandName + " " + subCommand);
+        let stringCommand = interaction.commandName + " " + subCommand;
+        const subCmd = client.subCommands.get(stringCommand);
 
         if (subCmd && subCmd.run) {
-            let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
-            if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+            let permCheck = await client.method.permission.checkCommandPermission(interaction, stringCommand);
+            if (!permCheck.allowed && permCheck.neededPerm !== 0) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
             if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
                 await interaction.deferReply({ ephemeral: subCmd.ephemeral });
             }
 
-            return await subCmd.run(client, interaction, lang, command, permCheck.neededPerm, []);
+            if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
+                let perm = getPermissionByValue(subCmd.permission);
+
+                if (perm) {
+                    const permName = lang[perm.name] || perm.name;
+                    const body = {
+                        content: lang.var_dont_have_perm
+                            .replace("{perm}", permName)
+                    }
+                    return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+                }
+            }
+
+            return await subCmd.run(client, interaction, lang, []);
         }
     }
 
@@ -74,10 +103,23 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
         await interaction.deferReply({ ephemeral: command.ephemeral });
     }
 
-    let permCheck = await client.method.permission.checkCommandPermission(interaction, command!);
-    if (!permCheck.allowed) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
+    let permCheck = await client.method.permission.checkCommandPermission(interaction, interaction.commandName);
+    if (!permCheck.allowed && permCheck.neededPerm !== 0) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.neededPerm || 0);
 
-    if (command.run) await command.run(client, interaction, lang, command, permCheck.neededPerm, []);
+    if (command.permission && !interaction.member!.permissions.has(command.permission) && !permCheck.allowed) {
+        let perm = getPermissionByValue(command.permission);
+
+        if (perm) {
+            const permName = lang[perm.name] || perm.name;
+            const body = {
+                content: lang.var_dont_have_perm
+                    .replace("{perm}", permName)
+            }
+            return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+        }
+    }
+
+    if (command.run) await command.run(client, interaction, lang, []);
     return
 }
 
@@ -168,7 +210,7 @@ export const event: BotEvent = {
         }
 
         if (await cooldDown(client, interaction)) {
-            const data = await client.func.getLanguageData(interaction.guild?.id) as LanguageData;
+            const data = await client.func.getLanguageData(interaction.guild?.id);
             return await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
         }
 
@@ -185,7 +227,7 @@ export const event: BotEvent = {
         }
 
         try {
-            const lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+            const lang = await client.func.getLanguageData(interaction.guildId);
             await handleCommandExecution(client, (interaction as ChatInputCommandInteraction<"cached">), command, lang, command.thinking);
         } catch (error) {
             if (client.config.core.devMode) {

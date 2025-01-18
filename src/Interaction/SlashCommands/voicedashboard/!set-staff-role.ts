@@ -27,22 +27,16 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {        
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-        if (!interaction.memberPermissions?.has([PermissionsBitField.Flags.Administrator])) {
-            await interaction.editReply({
-                content: lang.tempvoice_staff_not_admin
-                    .replace("${interaction.user.id}", interaction.user.id)
-            });
-            return;
-        };
 
         let targetedRole = interaction.options.getRole('role');
 

@@ -31,7 +31,7 @@ import { LanguageData } from '../../../../types/languageData';
 export const command: Command = {
     name: 'noaimie',
 
-    description: 'Get unnecessary information about my contributor',
+    description: 'Get unnecessary information about my contributor noaimie',
     description_localizations: {
         "fr": "Obtenir des informations non nécessaires sur ma contributrice"
     },
@@ -41,7 +41,7 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -50,4 +50,5 @@ export const command: Command = {
         await client.method.interactionSend(interaction, { content: "https://imgs.search.brave.com/1d_tcHbIHT78tsDIVByVQAxm3lfKc8rKh_sBO8fjXrA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zLnlp/bWcuY29tL255L2Fw/aS9yZXMvMS4yL2xX/eVBwbFBKUWN6UVAy/MDg0RlFpR2ctLS9Z/WEJ3YVdROWFHbG5h/R3hoYm1SbGNqdDNQ/VGsyTUR0b1BUVTJN/QS0tL2h0dHBzOi8v/bWVkaWEuemVuZnMu/Y29tL2VuL3BhcmFk/ZV8yNTAvOWMyMzI4/ZWIyZGI0MWU3MDZk/ODlmODQ2NGM0ODQ1/MGY" });
         return;
     },
+    permission: null
 };

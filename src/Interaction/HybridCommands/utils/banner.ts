@@ -29,10 +29,9 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
-    
     name: 'banner',
 
     description: 'Pick the banner of specified things (Server/User)',
@@ -62,8 +61,12 @@ export const command: Command = {
                     },
 
                     required: false,
+
+                    permission: null
                 },
             ],
+
+            permission: null
         },
         {
             name: "banner-server",
@@ -74,9 +77,11 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
     ],
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

@@ -24,6 +24,7 @@ import {
     ApplicationCommand,
     ApplicationCommandType,
     AutocompleteInteraction,
+    ChatInputCommandInteraction,
     Client,
     CommandInteraction,
     CommandInteractionOptionResolver,
@@ -50,7 +51,7 @@ export interface Command {
     description_localizations: DescriptionLocalizations;
     integration_types?: number[],
     contexts?: number[],
-    permission?: bigint | 0;
+    permission: bigint | 0 | null;
     category: string;
     options?: Option[];
     thinking: boolean;
@@ -59,5 +60,13 @@ export interface Command {
     type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND';
     aliases?: string[];
     async autocomplete?(client: Client, interaction: AutocompleteInteraction): Promise<any>;
-    async run?(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: SubCommandArgumentValue, neededPerm: number, args?: string[]): Promise<any>;
+    async run?(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]): Promise<any>;
+}
+
+export interface SubCommand {
+    async run(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]): Promise<any>;
+}
+
+export interface SubCommandModule {
+    subCommand: SubCommand
 }

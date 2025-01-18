@@ -29,21 +29,14 @@ import {
 import { LanguageData } from '../../../../types/languageData';
 import wait from '../../../core/functions/wait.js';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.prevnames_not_admin });
-        }
 
         let unbanned_members = await client.db.get(`${interaction.guildId}.UTILS.unban_members`);
         let banned_members: string[] = [];
@@ -76,7 +69,7 @@ export default {
                     )
                     .setFooter(await client.method.bot.footerBuilder(interaction))
             ],
-files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
         });
 
         return;

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { LyricsManager } from "../src/core/functions/lyrics-fetcher.js";
+import { LyricsManager } from "../src/core/functions/lyrics_fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 import * as argsHelper from '../src/core/functions/method.js'
 
@@ -44,10 +44,12 @@ import { StreamNotifier } from "../src/core/StreamNotifier.js";
 import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
 import { db } from "../src/core/database.js";
 import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
+import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
+import { Client_Functions } from "./client_functions.js";
 
 declare module 'discord.js' {
     export interface Client {
-        func: clientFunction,
+        func: typeof Client_Functions,
         commands: Collection<string, Command>,
         subCommands: Collection<string, Command>,
         category: Category[]
@@ -74,6 +76,7 @@ declare module 'discord.js' {
         notifier: StreamNotifier,
         ownihrz: OwnIHRZ,
         kdenlive: KdenLive,
-        htmlfiles: Record<string, string>
+        htmlfiles: Record<string, string>,
+        memberCountManager: MemberCountModule
     }
 };

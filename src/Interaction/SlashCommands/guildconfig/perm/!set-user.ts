@@ -29,19 +29,16 @@ import {
     User,
 } from 'discord.js';
 import { LanguageData } from '../../../../../types/languageData';
-import { Command } from '../../../../../types/command';
-import { Option } from '../../../../../types/option';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+import { SubCommand } from '../../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await client.method.interactionSend(interaction, { content: lang.setup_not_admin });
-            return;
-        };
+
 
         let user = interaction.options.getUser('user') as User;
         let perm = interaction.options.getString('permission') as string;
@@ -57,7 +54,8 @@ export default {
                 interaction.member,
             );
 
-            if (fetchedPerm <= parseInt(perm) && interaction.guild.ownerId !== interaction.member.id) {
+            // @ts-ignore
+            if (Array.isArray(fetchedPerm) ? false : fetchedPerm <= parseInt(perm) && interaction.guild.ownerId !== interaction.member.id) {
                 await client.method.interactionSend(interaction, {
                     content: lang.perm_set_warn_message.replace(
                         "${interaction.member.toString()}",

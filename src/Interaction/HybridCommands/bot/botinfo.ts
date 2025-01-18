@@ -29,7 +29,7 @@ import {
 
 import { Command } from '../../../../types/command';
 import { LanguageData } from '../../../../types/languageData';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
     name: 'botinfo',
@@ -44,7 +44,7 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command | Option | undefined, neededPerm: number, options?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, options?: string[]) => {
 
 
         // Guard's Typing
@@ -71,4 +71,5 @@ export const command: Command = {
         await client.method.interactionSend(interaction, { embeds: [clientembed], files: [await client.method.bot.footerAttachmentBuilder(interaction)] });
         return;
     },
+    permission: null
 };

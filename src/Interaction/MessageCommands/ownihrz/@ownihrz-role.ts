@@ -34,7 +34,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
     name: 'ownihrz-roles',
@@ -53,14 +53,16 @@ export const command: Command = {
                 "fr": "le rôle que vous souhaitez donner"
             },
             type: ApplicationCommandOptionType.Role,
-            required: true
+            required: true,
+            permission: null
         }
     ],
 
     thinking: false,
     category: 'ownihrz',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, message: Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
+    permission: null,
+    run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
         let role = client.method.role(message, options!, 0);
 
         let added = 0;

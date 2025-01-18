@@ -33,16 +33,14 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
-import { Command } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command';
 import { formatNumber } from '../../../core/functions/numberBeautifuer.js';
 
-export default {
+export const subCommand: SubCommand = {
     run: async (
         client: Client,
         interaction: ChatInputCommandInteraction<"cached"> | Message,
         lang: LanguageData,
-        command: Command,
-        neededPerm: number,
         args?: string[]
     ) => {
         // Guard's Typing
@@ -62,6 +60,13 @@ export default {
                 xptotal: a.xptotal || 0,
                 xp: a.xp || 0
             });
+        }
+
+        if (array.length === 0) {
+            await client.method.interactionSend(interaction, {
+                content: lang.perm_list_no_user
+            });
+            return;
         }
 
         var htmlContent = client.htmlfiles["podiumRanksModule"];

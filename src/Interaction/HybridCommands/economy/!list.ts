@@ -30,11 +30,13 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generateRoleFields } from './economy.js';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -44,19 +46,6 @@ export default {
             await client.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
-            });
-            return;
-        };
-
-        const permissionsArray = [PermissionsBitField.Flags.ManageGuild]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, {
-                content: lang.var_dont_have_perm
-                    .replace("{perm}", lang.setjoinroles_var_perm_manage_guild)
             });
             return;
         };

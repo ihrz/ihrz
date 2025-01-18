@@ -50,13 +50,13 @@ export const command: Command = {
     category: 'bot',
     thinking: false,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         let button_add_me = new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
             .setLabel(lang.invite_embed_title)
-            .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`)
+            .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`);
 
         let invites = new EmbedBuilder()
             .setColor("#416fec")
@@ -75,4 +75,5 @@ export const command: Command = {
         });
         return;
     },
+    permission: null
 };

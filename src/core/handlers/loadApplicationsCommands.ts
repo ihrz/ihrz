@@ -45,6 +45,7 @@ export default async (client: Client) => {
                 run: command.run,
                 name: command.name,
                 thinking: command.thinking,
+                permission: command.permission
             });
         }
     };

@@ -31,16 +31,20 @@ import { DatabaseStructure } from '../../../../types/database_structure';
 import { LanguageData } from '../../../../types/languageData';
 
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`) as DatabaseStructure.SnipeData[""];
+
+        var message_content = based.snipe;
 
         if (!based) {
             await client.method.interactionSend(interaction, { content: lang.snipe_no_previous_message_deleted });
@@ -50,7 +54,7 @@ export default {
         let embed = new EmbedBuilder()
             .setColor("#474749")
             .setAuthor({ name: based.snipeUserInfoTag, iconURL: based.snipeUserInfoPp })
-            .setDescription(`\`\`\`${based.snipe}\`\`\``)
+            .setDescription(message_content)
             .setTimestamp(based.snipeTimestamp);
 
         await client.method.interactionSend(interaction, { embeds: [embed] });

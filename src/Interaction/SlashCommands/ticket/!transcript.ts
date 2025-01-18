@@ -30,10 +30,12 @@ import {
 import { TicketTranscript } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {        
 
 
         // Guard's Typing
@@ -44,7 +46,7 @@ export default {
             return;
         };
 
-        if (!(interaction.channel as BaseGuildTextChannel).name.includes('ticket-')) {
+        if (!await client.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
             await interaction.editReply({ content: lang.transript_not_in_ticket });
             return;
         } 

@@ -58,7 +58,9 @@ export const command: Command = {
                         "fr": "Le token de votre bot Discord"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'prefix',
@@ -69,7 +71,9 @@ export const command: Command = {
                         "fr": "Le préfixe du bot (Optionnel)"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'owner_two',
@@ -80,11 +84,15 @@ export const command: Command = {
                         "fr": "Le second propriétaire de votre propre iHorizon (Optionnel)"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
 
-            ephemeral: true
+            ephemeral: true,
+
+            permission: null
         },
         {
             name: "change-token",
@@ -105,7 +113,9 @@ export const command: Command = {
                         "fr": "l'identifiant de votre propre iHorizon"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'new_discord_bot_token',
@@ -117,9 +127,12 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
 
+            permission: null,
             ephemeral: true
         },
         {
@@ -141,7 +154,9 @@ export const command: Command = {
                         "fr": "l'identifiant de votre propre iHorizon"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'owner_one',
@@ -152,7 +167,9 @@ export const command: Command = {
                         "fr": "Le nouveau premier propriétaire de votre propre iHorizon"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'owner_two',
@@ -163,9 +180,13 @@ export const command: Command = {
                         "fr": "Le nouveau second propriétaire de votre propre iHorizon (Optionnel)"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
+
+            permission: null,
         },
         {
             name: "list",
@@ -176,7 +197,9 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
-            ephemeral: true
+            ephemeral: true,
+
+            permission: null
         },
         {
             name: "manage",
@@ -207,7 +230,9 @@ export const command: Command = {
                                 "fr": "L'identifiant du bot pour accepter son hébergement"
                             },
 
-                            required: true
+                            required: true,
+
+                            permission: null
                         },
                         {
                             name: 'cluster',
@@ -217,13 +242,17 @@ export const command: Command = {
                             description_localizations: {
                                 "fr": "Le cluster où seras localisé l'ownihrz"
                             },
-                            choices: Object.entries(getConfig().core.cluster).map(([key, value]) => ({
+                            choices: Object.entries(getConfig().core.cluster).map(([key]) => ({
                                 name: `Cluster #${key}`,
                                 value: key,
                             })),
-                            required: true
+                            required: true,
+
+                            permission: null
                         }
                     ],
+
+                    permission: null
                 },
                 {
                     name: "deny",
@@ -244,9 +273,13 @@ export const command: Command = {
                                 "fr": "L'identifiant du bot pour refuser son hébergement"
                             },
 
-                            required: true
+                            required: true,
+
+                            permission: null
                         }
                     ],
+
+                    permission: null
                 },
                 {
                     name: 'instance',
@@ -293,7 +326,9 @@ export const command: Command = {
                                     value: 'ls'
                                 }
                             ],
-                            required: true
+                            required: true,
+
+                            permission: null
                         },
                         {
                             name: 'id',
@@ -304,7 +339,9 @@ export const command: Command = {
                                 "fr": "L'identifiant du bot à gérer"
                             },
 
-                            required: false
+                            required: false,
+
+                            permission: null
                         },
                         {
                             name: 'time',
@@ -315,17 +352,23 @@ export const command: Command = {
                                 "fr": "L'heure à ajouter/supprimer pour la date d'expiration"
                             },
 
-                            required: false
+                            required: false,
+
+                            permission: null
                         }
                     ],
+
+                    permission: null,
 
                     ephemeral: true
                 },
             ],
+            permission: null
         },
     ],
     thinking: false,
     category: 'ownihrz',
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

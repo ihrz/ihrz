@@ -42,7 +42,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 import { generatePassword } from '../../../core/functions/random.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 
@@ -70,8 +70,10 @@ export interface TicketPanel {
     }
 };
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -81,12 +83,6 @@ export default {
             await interaction.editReply({ content: lang.open_disabled_command });
             return;
         };
-
-        // check admin perm
-        if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
-            await interaction.editReply({ content: lang.setup_not_admin });
-            return;
-        }
 
         // check panel id
         let panel_id = interaction.options.getString("panel_id");

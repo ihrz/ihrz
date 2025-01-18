@@ -35,7 +35,7 @@ import logger from '../../../core/logger.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
+
 
 async function isImageUrl(url: string): Promise<boolean> {
     try {
@@ -46,21 +46,13 @@ async function isImageUrl(url: string): Promise<boolean> {
         return false;
     }
 };
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
-        const permissionsArray = [PermissionsBitField.Flags.ManageMessages]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.start_not_perm });
-            return;
-        };
 
         var giveawayChannel = interaction.channel! as Channel;
 

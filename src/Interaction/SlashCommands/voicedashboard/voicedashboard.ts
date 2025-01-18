@@ -25,6 +25,7 @@ import {
     ChannelType,
     ChatInputCommandInteraction,
     Client,
+    PermissionFlagsBits,
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
@@ -69,8 +70,11 @@ export const command: Command = {
                             },
 
                             required: true,
+                            permission: null
                         }
-                    ]
+                    ],
+
+                    permission: PermissionFlagsBits.Administrator
                 },
                 {
                     name: "set-text-channel",
@@ -93,8 +97,11 @@ export const command: Command = {
                             },
 
                             required: true,
+                            permission: null
                         }
-                    ]
+                    ],
+
+                    permission: PermissionFlagsBits.Administrator
                 },
                 {
                     name: "set-staff-role",
@@ -116,10 +123,14 @@ export const command: Command = {
                             },
 
                             required: true,
+                            permission: null
                         }
-                    ]
+                    ],
+
+                    permission: PermissionFlagsBits.Administrator
                 }
-            ]
+            ],
+            permission: null
         },
 
     ],
@@ -133,4 +144,5 @@ export const command: Command = {
     thinking: true,
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

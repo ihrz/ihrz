@@ -35,7 +35,7 @@ import {
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option.js';
+
 
 export const command: Command = {
 
@@ -50,16 +50,11 @@ export const command: Command = {
     thinking: false,
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
-    run: async (client: Client, interaction: Message<true>, lang: LanguageData, command: Command | Option | undefined, neededPerm, options?: string[]) => {
+    permission: PermissionsBitField.Flags.ManageGuildExpressions,
+    run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
 
-
-        let permission = interaction.member?.permissions?.has(PermissionsBitField.Flags.ManageGuildExpressions);
 
         let emoji = options![0];
-
-        if (!permission) {
-            return;
-        }
 
         let emojiMsg = emoji || lang.var_none;
 

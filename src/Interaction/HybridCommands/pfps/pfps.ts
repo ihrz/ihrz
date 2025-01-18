@@ -26,11 +26,12 @@ import {
     ApplicationCommandType,
     Message,
     ChannelType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
     name: "pfps",
@@ -63,15 +64,19 @@ export const command: Command = {
 
                     channel_types: [ChannelType.GuildText],
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "disable",
             prefixName: "pfps-disable",
 
-            description: "Enable or Disable the module!",
+            description: "Enable or Disable the PFPS module!",
             description_localizations: {
                 "fr": "Activer ou désactiver le module"
             },
@@ -98,12 +103,16 @@ export const command: Command = {
                             value: "off"
                         },
                     ],
+
+                    permission: null
                 }
-            ]
+            ],
+
+            permission: PermissionFlagsBits.Administrator
         }
     ],
     thinking: false,
     category: 'pfps',
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

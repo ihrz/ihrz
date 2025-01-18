@@ -283,7 +283,7 @@ export class StreamNotifier {
     }
 
     public async generateAuthorsEmbed(guild: Guild): Promise<EmbedBuilder> {
-        let lang = await this.client.func.getLanguageData(guild?.id) as LanguageData;
+        let lang = await this.client.func.getLanguageData(guild?.id);
         let authors = (await this.getGuildData(guild.id))?.users || [];
         let embed = new EmbedBuilder();
         let desc = lang.notifier_generateAuthorsEmbed_embed_desc;
@@ -298,7 +298,7 @@ export class StreamNotifier {
     }
 
     public async generateConfigurationEmbed(guild: Guild) {
-        let lang = await this.client.func.getLanguageData(guild?.id) as LanguageData;
+        let lang = await this.client.func.getLanguageData(guild?.id);
         let config = (await this.getGuildData(guild.id));
 
         let channel = guild.channels.cache.get(config?.channelId || "");
@@ -320,7 +320,7 @@ export class StreamNotifier {
         for (let entry of guildsData) {
             let guild = this.client.guilds.cache.get(entry.guildId);
             let channel = guild?.channels.cache.get(entry.value.channelId) as BaseGuildTextChannel | undefined;
-            let lang = await this.client.func.getLanguageData(guild?.id) as LanguageData;
+            let lang = await this.client.func.getLanguageData(guild?.id);
             let medias = await this.fetchUsersMedias(entry.value.users || []);
 
             for (let media of medias) {

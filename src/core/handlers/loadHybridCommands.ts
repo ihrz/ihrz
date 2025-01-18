@@ -21,8 +21,8 @@
 
 import { ApplicationCommandOptionType, Client, Collection } from 'discord.js';
 
-import { buildDirectoryTree, buildPaths, CommandModule } from '../handlerHelper.js';
-import { Command } from "../../../types/command.js";
+import { buildDirectoryTree, buildPaths } from '../handlerHelper.js';
+import { Command, SubCommand, SubCommandModule } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { fileURLToPath } from 'url';
 
@@ -126,9 +126,9 @@ export default async function loadCommands(client: Client, path: string = p): Pr
     logger.log(`${client.config.console.emojis.OK} >> Loaded ${i} Hybrid commands.`);
 };
 
-async function loadSubCommandModule(directoryPath: string, commandName: string): Promise<CommandModule | null> {
+async function loadSubCommandModule(directoryPath: string, commandName: string): Promise<SubCommandModule | null> {
     try {
-        return await import(`${directoryPath}/!${commandName}.js`) as CommandModule;
+        return await import(`${directoryPath}/!${commandName}.js`) as SubCommandModule;
     } catch (error) {
         logger.err(`Failed to load subcommand module: ${commandName}`);
         console.error(error)
@@ -147,18 +147,23 @@ async function processCommandOptions(
         const fullName = parentName ? `${parentName} ${option.name}` : option.name;
 
         if (option.type === ApplicationCommandOptionType.SubcommandGroup && option.options) {
-            await Promise.all(option.options.map(async (subOption) => {
+            if (!parentName) {
+                logger.log(`Skipping subcommand group at root level: ${option.name}`);
+                continue;
+            }
+
+            for (const subOption of option.options) {
                 if (argsHelper.isSubCommand(subOption) && subOption.name) {
+                    const fullSubCommandName = `${fullName} ${subOption.name}`;
+
                     const commandModule = await loadSubCommandModule(directoryPath, subOption.name);
                     if (commandModule) {
-                        const fullSubCommandName = `${option.name} ${subOption.name}`;
-
                         if (client.subCommands.has(fullSubCommandName)) {
-                            logger.err(`Subcommand "${fullSubCommandName}" already exists! Exiting...`.bgRed);
-                            process.exit(1);
+                            logger.err(`Duplicate subcommand detected: ${fullSubCommandName}`);
+                            continue; // Skip instead of exiting
                         }
 
-                        (subOption as any).run = commandModule.default.run;
+                        (subOption as any).run = commandModule.subCommand.run;
 
                         let aliases = subOption.aliases || [];
                         for (let alias of aliases) {
@@ -169,39 +174,40 @@ async function processCommandOptions(
                             client.message_commands.set(alias, (subOption as any));
                         }
                         client.subCommands.set(fullSubCommandName, subOption as any);
-                        client.message_commands.set(option.name, (subOption as any))
+                        client.message_commands.set(subOption.prefixName || subOption.name, (subOption as any))
                     }
-                }
-            }));
-        }
-
-        if (option.type === ApplicationCommandOptionType.Subcommand) {
-            if (option.name) {
-                const commandModule = await loadSubCommandModule(directoryPath, option.name);
-                if (commandModule) {
-
-                    if (client.subCommands.has(option.name)) {
-                        logger.err(`Subcommand "${option.name}" already exists! Exiting...`.bgRed);
-                        process.exit(1);
-                    }
-
-                    (option as any).run = commandModule.default.run;
-
-                    let aliases = option.aliases || [];
-                    for (let alias of aliases) {
-                        if (client.message_commands.has(alias)) {
-                            logger.err(`Alias "${alias}" for command "${option.name}" already exists! Exiting...`.bgRed);
-                            process.exit(1);
-                        }
-                        client.message_commands.set(alias, (option as any));
-                    }
-                    client.subCommands.set(fullName, (option as any));
-                    client.message_commands.set(option.prefixName || option.name, (option as any))
                 }
             }
         }
 
-        if (option.options) {
+        if (option.type === ApplicationCommandOptionType.Subcommand) {
+            if (!parentName) {
+                continue;
+            }
+
+            const commandModule = await loadSubCommandModule(directoryPath, option.name);
+            if (commandModule) {
+                if (client.subCommands.has(fullName)) {
+                    continue;
+                }
+
+                (option as any).run = commandModule.subCommand.run;
+                client.subCommands.set(fullName, option as any);
+
+                let aliases = option.aliases || [];
+                for (let alias of aliases) {
+                    if (client.message_commands.has(alias)) {
+                        logger.err(`Alias "${alias}" for command "${option.name}" already exists! Exiting...`.bgRed);
+                        process.exit(1);
+                    }
+                    client.message_commands.set(alias, (option as any));
+                }
+                client.subCommands.set(fullName, (option as any));
+                client.message_commands.set(option.prefixName || option.name, (option as any))
+            }
+        }
+
+        if (option.options && (parentName || option.type === ApplicationCommandOptionType.SubcommandGroup)) {
             await processCommandOptions(
                 option.options,
                 category,

@@ -25,6 +25,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     Message,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -61,7 +62,9 @@ export const command: Command = {
                         "fr": "Nombre de gagnants pour les cadeaux"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'time',
@@ -72,7 +75,9 @@ export const command: Command = {
                         "fr": "La durée des cadeaux"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: "requirement",
@@ -102,7 +107,9 @@ export const command: Command = {
                     ],
 
                     type: ApplicationCommandOptionType.String,
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'prize',
@@ -113,7 +120,9 @@ export const command: Command = {
                         "fr": "Le prix du cadeau"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'requirement-value',
@@ -124,7 +133,9 @@ export const command: Command = {
                         "fr": "La valeur du prérequis pour entrer dans le giveaways"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 },
                 {
                     name: 'image',
@@ -135,9 +146,13 @@ export const command: Command = {
                         "fr": "le lien d'une image qui seras inclu dans l'embed du giveaway"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 },
-            ]
+            ],
+
+            permission: PermissionFlagsBits.ManageMessages
         },
         {
             name: "end",
@@ -164,9 +179,13 @@ export const command: Command = {
                         "fr": "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.ManageMessages
         },
         {
             name: "reroll",
@@ -192,9 +211,13 @@ export const command: Command = {
                         "fr": "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.ManageGuild
         },
         {
             name: "list-entries",
@@ -220,9 +243,13 @@ export const command: Command = {
                         "fr": "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionFlagsBits.ManageMessages
         },
         {
             name: 'get-data',
@@ -249,8 +276,12 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.String,
                     required: true,
+
+                    permission: null
                 }
-            ]
+            ],
+
+            permission: PermissionFlagsBits.ManageMessages
         },
         {
             name: 'get-all',
@@ -266,10 +297,12 @@ export const command: Command = {
             aliases: ["gall"],
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ManageMessages
         }
     ],
     thinking: true,
     category: 'giveaway',
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

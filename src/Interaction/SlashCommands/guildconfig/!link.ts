@@ -41,10 +41,12 @@ const regexPatterns = [
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -56,11 +58,7 @@ export default {
         let automodRules = await interaction.guild.autoModerationRules.fetch();
         let KeywordPresetRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await interaction.editReply({ content: lang.blockpub_not_admin });
-            return;
-
-        } else if (turn === "on") {
+        if (turn === "on") {
 
             if (!KeywordPresetRule) {
                 let arrayActionsForRule: Action[] = [

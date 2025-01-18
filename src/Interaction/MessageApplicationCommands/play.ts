@@ -38,6 +38,7 @@ export const command: AnotherCommand = {
     name: "Play it in a voice channel",
     type: ApplicationCommandType.Message,
     thinking: true,
+    permission: null,
     run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
 
         let lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;

@@ -28,7 +28,7 @@ import * as f from './displayBotName.js';
 import * as  h from './helper.js';
 import * as c from '../core.js';
 import * as html from './html2png.js';
-import * as l from './ihorizon-logs.js';
+import * as l from './ihorizon_logs.js';
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { generatePassword } from "./random.js";
 
@@ -207,19 +207,28 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             });
         });
     } else {
-        var CommandsPerm = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${command.name}`) as DatabaseStructure.UtilsPermsData[""] | undefined;
+        let fetchFullCommandName = interaction.client.content.find(c => c.desc === command.description);
+        var CommandsPerm = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${fetchFullCommandName?.cmd}`) as DatabaseStructure.UtilsPermsData[""] | undefined;
+
+        if (typeof CommandsPerm === "number") {
+            CommandsPerm = {
+                users: [],
+                roles: [],
+                level: CommandsPerm
+            };
+        }
         var pathString = boldStringifyOption(command.options || []);
 
         embed.setDescription((await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`))?.startsWith("fr-") ? command.description_localizations["fr"] : command.description)
         embed.setFields(
             {
                 name: lang.var_usage,
-                value: `${cleanBotPrefix}${command.name} ${pathString}`,
+                value: `${cleanBotPrefix}${command.prefixName || command.name} ${pathString}`,
                 inline: false
             },
             {
                 name: lang.var_permission,
-                value: `${lang.var_permission}: ${CommandsPerm || lang.var_none}`,
+                value: `${lang.var_permission}: ${CommandsPerm?.level || lang.var_none}`,
                 inline: false
             },
             {
@@ -240,15 +249,10 @@ interface ArgumentBrief {
     longString?: boolean;
 }
 
-export interface SubCommandArgumentValue {
-    name?: string;
-    command: Option | Command | undefined;
-}
-
 export async function checkCommandArgs(message: Message, command: Command, args: string[], lang: LanguageData): Promise<boolean> {
     if (!command) return false;
 
-    const botPrefix = await message.client.func.prefix.guildPrefix(message.client, message.guildId);
+    const botPrefix = await message.client.func.prefix.guildPrefix(message.client, message.guildId!);
     let cleanBotPrefix = botPrefix.string;
 
     if (botPrefix.type === "mention") {
@@ -586,7 +590,7 @@ export function isAnimated(attachmentUrl: string): boolean {
     return fileName.startsWith('a_');
 }
 
-export async function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<void> {
+export async function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string> {
     let warnObject: DatabaseStructure.WarnsData = {
         timestamp: Date.now(),
         reason: reason,
@@ -595,6 +599,8 @@ export async function warnMember(author: GuildMember, member: GuildMember, reaso
     }
 
     await member.client.db.push(`${member.guild.id}.USER.${member.user.id}.WARNS`, warnObject);
+
+    return warnObject.id;
 }
 
 export function getDangerousPermissions(lang: LanguageData): {
@@ -623,6 +629,29 @@ export async function addCoins(member: GuildMember, coins: number): Promise<void
 
 export async function subCoins(member: GuildMember, coins: number): Promise<void> {
     await member.client.db.sub(`${member.guild.id}.USER.${member.id}.ECONOMY.money`, coins);
+}
+
+export async function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean> {
+    let allTickets = await channel.client.db.get(`${channel.guild.id}.TICKET_ALL`);
+
+    if (!allTickets || typeof allTickets !== "object") {
+        return false;
+    }
+
+    for (const authorId of Object.keys(allTickets)) {
+        const ticketsByAuthor = allTickets[authorId];
+
+        if (ticketsByAuthor && typeof ticketsByAuthor === "object") {
+            for (const ticketId of Object.keys(ticketsByAuthor)) {
+                const ticketData = ticketsByAuthor[ticketId];
+
+                if (ticketData && ticketData.channel === channel.id) {
+                    return ticketData?.channel === channel.id;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 export const permission = perm;

@@ -31,7 +31,7 @@ export const event: BotEvent = {
 
         try {
             let baseData = await client.db.get(`${member.guild.id}.UTILS.NICK_KICKER`) as DatabaseStructure.NickKickerData | null;
-            let lang = await client.func.getLanguageData(member.guild.id) as LanguageData;
+            let lang = await client.func.getLanguageData(member.guild.id);
 
             if (baseData?.enabled &&
                 (

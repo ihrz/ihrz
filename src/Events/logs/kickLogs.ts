@@ -28,7 +28,7 @@ export const event: BotEvent = {
     name: "guildMemberRemove",
     run: async (client: Client, member: GuildMember) => {
 
-        let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(member.guild.id);
 
         if (!member.guild) return;
         if (!member.guild.members.me) return;

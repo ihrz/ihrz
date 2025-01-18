@@ -26,7 +26,8 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     Message,
-    GuildMember
+    GuildMember,
+    PermissionFlagsBits,
 } from 'discord.js'
 
 import { Command } from '../../../../types/command';
@@ -50,13 +51,16 @@ export const command: Command = {
                 "fr": "JS Code"
             },
 
-            required: true
+            required: true,
+
+            permission: null
         }
     ],
     thinking: false,
     category: 'owner',
+    permission: null,
     type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing

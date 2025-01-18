@@ -223,7 +223,7 @@ export const event: BotEvent = {
             return false;
         }
 
-        let lang = await client.func.getLanguageData(message.guild.id) as LanguageData;
+        let lang = await client.func.getLanguageData(message.guild.id);
 
         let currentMessage: AntiSpam.CachedMessage = {
             messageID: message.id,

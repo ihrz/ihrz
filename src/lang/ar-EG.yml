@@ -55,6 +55,60 @@ var_aliases: "الأسماء المستعارة"
 var_dont_have_perm: "ليس لديك الصلاحيات اللازمة للقيام بذلك. (تتطلب صلاحية {perm})"
 var_price: "السعر"
 var_boost: "تعزيز"
+var_uses: "الاستخدامات"
+
+# Discord Permission Name
+perm_createinstantinvite_name: "إنشاء دعوة فورية"
+perm_kickmembers_name: "طرد الأعضاء"
+perm_banmembers_name: "حظر الأعضاء"
+perm_administrator_name: "المسؤول"
+perm_managechannels_name: "إدارة القنوات"
+perm_manageguild_name: "إدارة الخادم"
+perm_addreactions_name: "إضافة ردود فعل"
+perm_viewauditlog_name: "عرض سجل التدقيق"
+perm_priorityspeaker_name: "المتحدث المميز"
+perm_stream_name: "البث"
+perm_viewchannel_name: "عرض القناة"
+perm_sendmessages_name: "إرسال الرسائل"
+perm_sendttsmessages_name: "إرسال رسائل TTS"
+perm_managemessages_name: "إدارة الرسائل"
+perm_embedlinks_name: "إضافة الروابط"
+perm_attachfiles_name: "إرفاق الملفات"
+perm_readmessagehistory_name: "قراءة سجل الرسائل"
+perm_mentioneveryone_name: "منشن للجميع"
+perm_useexternalemojis_name: "استخدام الإيموجي الخارجي"
+perm_viewguildinsights_name: "عرض إحصاءات الخادم"
+perm_connect_name: "الاتصال"
+perm_speak_name: "التحدث"
+perm_mutemembers_name: "إسكات الأعضاء"
+perm_deafenmembers_name: "كتم صوت الأعضاء"
+perm_movemembers_name: "نقل الأعضاء"
+perm_usevad_name: "استخدام الكشف عن الصوت"
+perm_changenickname_name: "تغيير اللقب"
+perm_managenicknames_name: "إدارة الألقاب"
+perm_manageroles_name: "إدارة الأدوار"
+perm_managewebhooks_name: "إدارة الويب هوكس"
+perm_manageemojisandstickers_name: "إدارة الإيموجي والملصقات"
+perm_manageguildexpressions_name: "إدارة تعبيرات الخادم"
+perm_useapplicationcommands_name: "استخدام أوامر التطبيق"
+perm_requesttospeak_name: "طلب التحدث"
+perm_manageevents_name: "إدارة الأحداث"
+perm_managethreads_name: "إدارة المواضيع"
+perm_createpublicthreads_name: "إنشاء مواضيع عامة"
+perm_createprivatethreads_name: "إنشاء مواضيع خاصة"
+perm_useexternalstickers_name: "استخدام الملصقات الخارجية"
+perm_sendmessagesinthreads_name: "إرسال الرسائل في المواضيع"
+perm_useembeddedactivities_name: "استخدام الأنشطة المدمجة"
+perm_moderatemembers_name: "إدارة الأعضاء"
+perm_viewcreatormonetizationanalytics_name: "عرض تحليلات الربح"
+perm_usesoundboard_name: "استخدام لوحة الصوت"
+perm_createguildexpressions_name: "إنشاء تعبيرات الخادم"
+perm_createevents_name: "إنشاء الأحداث"
+perm_useexternalsounds_name: "استخدام الأصوات الخارجية"
+perm_sendvoicemessages_name: "إرسال الرسائل الصوتية"
+perm_sendpolls_name: "إرسال الاستطلاعات"
+perm_useexternalapps_name: "استخدام التطبيقات الخارجية"
+
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -203,6 +257,10 @@ ticket_panel_add_form_modal_field2_label: "النص التوضيحي للسؤا�
 ticket_panel_preview_message: "معاينة لوحة التذاكر"
 ticket_panel_option_change_category: "اختر خيارًا لتغيير الفئة"
 ticket_panel_panel_10_label: "تغيير الفئة لخيار واحد محدد"
+
+# /ticket rename
+ticket_rename_ok: "تم تغيير اسم قناة التذكرة!"
+ticket_rename_error: "حدث خطأ أثناء إعادة تسمية القناة النصية."
 
 
 # Ranks commands
@@ -398,6 +456,9 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay هي المب�
 # /andru
 andru_message: "أندرو هو متعاون ومطور. \"الرجل المتعدد المهام\"، يدير التسويق والمجتمع..."
 
+# /ether
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} إيثر هو مساهم في آي هورايزون. يكتشف كل خطأ مطبعي في البوت ويعمل كمساعد دعم لبوت آي هورايزون."
+
 # /nayaweb
 nayaweb_message: "😼 NayaWeb هو مطور/مساهم الثاني لي، NayaWeb x Kisakay ❤️"
 
@@ -472,6 +533,8 @@ help_notifier_dsc: "خليك متبلغ لما يوتيوبر أو ستريمر 
 help_notifier_fields: "المُبلغ"
 help_restorecord_fields: "استعادة كورد"
 help_restorecord_dsc: "التحقق من الخادم باستخدام oAuth2. عندما يتعرض خادمك لهجوم أو يُلغى، يمكنك استعادة الأعضاء القدامى باستخدام oAuth2!"
+help_tags_fields: "العلامات المخصصة"
+help_tags_dsc: "قم بإنشاء رسائل علامات لخادمك واستخدمها في خادمك!"
 
 # /h
 h_suite: "(تتمة)"
@@ -538,6 +601,8 @@ fun_category_disable: "مش مسموحلك تستخدم الأمر ده، فئة
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
+
+economy_cooldown_error: "انتظر **${time}** قبل أن تتمكن من تنفيذ هذا الأمر مرة أخرى!"
 
 # /addmoney
 addmoney_not_admin: "لا يمكنك تنفيذ هذا الأمر لأنك لا تمتلك الصلاحيات اللازمة `ADMINISTRATOR`"
@@ -828,6 +893,11 @@ zip_emojis_doesnt_have_perm: "ليس لديك إذن لإدارة الرموز �
 zip_emojis_command_work: "🎉 اكتمل التصدير في **${calcTime}** مللي ثانية! إليك الأرشيف الذي يحتوي على ${emojis.size} رمز تعبيري."
 zip_emojis_command_error: "حدث خطأ أثناء تصدير الرموز التعبيرية."
 
+# /zip-stickers
+zip_stickers_doesnt_have_perm: "ليس لديك إذن لإدارة الملصقات."
+zip_stickers_command_work: "🎉 تم التصدير في **${calcTime}** مللي ثانية! إليك الأرشيف الذي يحتوي على ${stickers.size} ملصقات."
+zip_stickers_command_error: "حدث خطأ أثناء تصدير الملصقات."
+
 # +sticker  
 sticket_no_sticker: "لم يتم العثور على ملصق في الرسالة التي تم الرد عليها."  
 sticket_command_work: "تم إنشاء الملصق `${x.name}` بنجاح."  
@@ -849,6 +919,16 @@ util_nick_kicker_remove_desc: "إزالة كلمة من طارد الألقاب"
 util_nick_kicker_add_desc: "إضافة كلمة إلى طارد الألقاب"
 util_nick_kicker_disable_desc: "تعطيل طارد الألقاب"
 util_nick_kicker_enable_desc: "تفعيل طارد الألقاب"
+
+# /util wakeup
+util_wakeup_yourself: "يا أخي؟ أنت مجنون أم ماذا؟ لا تقلي أنك نائم على الكيبورد وتكتب هذا الأمر في نفس الوقت ههه"
+util_wakeup_not_in_vc: "يا أخي، البوت لن يخلق صيني صغير يُسمى ${user.displayName} بنفس الصورة والبنر ليجعلك تصدق أن الشخص استيقظ... الشخص مش في الصوتي أصلاً ههه"
+util_wakeup_command_work: "يبدأ الآن الإيقاظ لـ ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "أيها الشقي الصغير، لا يمكنك وضع أكثر من 3 أشخاص في الحبل :D"
+util_leah_already_owned: "أيها الشقي الصغير، أنت تمتلك هؤلاء بالفعل :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | العضو الذي تريد وضعه في الحبل ليس في قناة صوتية!\n${client.iHorizon_Emojis.icon.Warning_Icon} | هل أنت متأكد أنك تريد القيام بهذا الإجراء؟"
 
 
 # Guild Config commands
@@ -1146,6 +1226,13 @@ perm_list_no_command_set: "لا توجد أوامر تم تعيين أذونات
 perm_set_deleted: "${user.toString()} تم **حذف** أذنه!"
 perm_set_ok: "${user.toString()} تم تغيير أذنه إلى **`${perm}`**"
 perm_set_warn_message: "${interaction.member.toString()}، لا يمكنك منح إذن أعلى أو مساوٍ لك!"
+perm_set_chng_perm_lvl: "تم تغيير مستوى الصلاحية"
+perm_set_add_role: "تم إضافة دور"
+perm_set_add_usr: "تم إضافة مستخدم"
+perm_rmv_role: "تم إزالة الدور"
+perm_rmv_usr: "تم إزالة المستخدم"
+perm_set_command_reset: "تم إعادة تعيين هذا الأمر"
+perm_set_no_modified: "لم يتم تعديل أي صلاحية"
 
 # /perm roles
 perm_roles_created_role: "الأدوار اللي اتعملت: ${createdRoles.join(', ')}"
@@ -1197,7 +1284,7 @@ setmembercount_not_admin: ":x: | يجب أن تكون مسؤولًا عن الخ
 setmembercount_helpembed_title: "مساعدة Set MemberCount!"
 setmembercount_helpembed_description: "/membercount <تفعيل / إيقاف> <اسم القناة>"
 setmembercount_helpembed_fields_name: "كيف تستخدمه؟"
-setmembercount_helpembed_fields_value: "{MemberCount} = عدد الأعضاء في الخادم\n{RolesCount} = عدد الأدوار\n{BotCount} = عدد الروبوتات في الخادم\n{ChannelCount} = عدد القنوات في الخادم\n{BoostCount} = عدد التعزيزات على الخادم"
+setmembercount_helpembed_fields_value: "{MemberCount} = عدد الأعضاء في السيرفر\n{RolesCount} = عدد الرتب\n{BotCount} = عدد البوتات في السيرفر\n{ChannelCount} = عدد القنوات في السيرفر\n{BoostCount} = عدد التعزيزات في السيرفر\n{VoiceCount} = إجمالي عدد الأعضاء في القنوات الصوتية في السيرفر\n{OnlineCount} = إجمالي الأعضاء المتصلين في السيرفر"
 setmembercount_logs_embed_title_on_enable: "سجلات Set MemberCount"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتعيين MemberCount في <#${channel.id}> إلى `${messagei}`!"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | تم تعيين MemberCount بنجاح."
@@ -1453,6 +1540,8 @@ backup_backup_doesnt_exist: "خطأ؟ النسخة الاحتياطية غير �
 backup_string_see_v: ":placard:・عدد الفئات: `${data.categoryCount}`\n:hash:・عدد القنوات: `${data.channelCount}`"
 backup_all_of_your_backup: "**كل نسخك الاحتياطية:**"
 backup_string_see_another_v: ":placard:・عدد الفئات: `${result.categoryCount}`\n:hash:・عدد القنوات: `${result.channelCount}`"
+backup_load_confirm: "${interaction.member.user.toString()},\n# إجراء خطير للغاية\n# هل أنت متأكد أنك تريد تحميل هذه النسخة الاحتياطية؟\nسيتم استبدال جميع القنوات، الأدوار، الرموز التعبيرية، الحظر، الإعدادات... الحالية في الخادم.\nهَذَا الإِجْرَاء غَيْر قَابِل للإِرْجَاع!"
+backup_not_load: "لم يتم تحميل النسخة الاحتياطية، تم إلغاء الإجراء بناءً على طلبك."
 
 # /backup delete
 backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} هل تريد حقاً حذف هذه النسخة الاحتياطية؟"
@@ -1783,6 +1872,49 @@ allowlist_delete_cant_remove_owner: "لا يمكن حذف مالك الخادم 
 allowlist_delete_isnt_in: "العضو الذي تريد إزالته من القائمة المسموحة ليس موجوداً فيها!"
 allowlist_delete_command_work: "${member.user} تم إزالته من القائمة المسموحة!"
 
+
+# Custom Tag Module
+# /tag create, ... delete, ... edit, ... list, ... info
+
+tag_name: "الوسم"
+tag_embed_created_at: "تم الإنشاء في"
+tag_embed_last_update: "آخر تحديث"
+tag_embed_last_updated_by: "آخر تحديث بواسطة"
+
+# /tag create
+tag_create_not_permited: "غير مسموح لك بإنشاء وسم.\nتحتاج إلى صلاحيات المسؤول أو يجب أن تكون في القائمة البيضاء (`tag wlroles-create`)."
+tag_create_not_good_name: "يجب ألا يحتوي اسم الوسم على مسافات وألا يتجاوز 16 حرفًا."
+tag_create_command_work: "تم إنشاء الوسم `${tag_name}`."
+tag_create_already_exist: "الوسم موجود بالفعل."
+tag_create_embed_doesnt_exist: "الإطار المضمن غير موجود."
+
+# /tag delete
+tag_no_one_found: "لا توجد وسوم محفوظة في هذا السيرفر!"
+tag_delete_dnt_exist: "الوسم `${tag_name}` غير موجود."
+tag_delete_command_ok: "تم حذف الوسم `${tag_name}`."
+
+# /tag info
+tag_doesnt_exist: "الوسم `${tag_name}` غير موجود!"
+
+# /tag wlcreate
+tag_wlcreate_embed_title: "القائمة البيضاء للإنشاء - الوسوم"
+tag_wlcreate_embed_desc: "جميع الأدوار المسموح لها بإنشاء الوسوم."
+
+# /tag wluse
+tag_wluse_embed_title: "القائمة البيضاء للاستخدام - الوسوم"
+tag_wluse_embed_desc: "جميع الأدوار المسموح لها باستخدام الوسوم."
+
+# /tag list
+tag_list_no_anything: "لا توجد وسوم محفوظة في هذا السيرفر!"
+
+# /tag use
+tag_use_not_allowed: "غير مسموح لك باستخدام الوسم `${tag_name}`.\nتحتاج إلى صلاحيات المسؤول أو يمكنك أن تطلب من مالك الوسم <@${tag.createBy}> إضافتك إلى القائمة البيضاء (`tag wlroles-use`)."
+tag_use_command_work: "تم إرسال الوسم `${tag_name}`."
+
+# /tag edit
+tag_edit_error_perm: "لتعديل الوسم، تحتاج إلى الحصول على أذونات المدير أو أن تكون مالك الوسم."
+
+
 # OWNIHRZ Module
 # /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
 
@@ -2108,6 +2240,7 @@ event_ticket_logsChannel_onDelete_embed_title: "تذكرة السجل - حذف �
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} قام بحذف التذكرة (#${interaction.channel.name})!"
 event_ticket_logsChannel_onAddMember2_embed_title: "تذكرة السجل - إضافة/إزالة أعضاء من التذكرة"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nتمت إزالة: ${removedMembers}.\nتمت إضافة: ${addedMembers}.\n في التذكرة (${interaction.channel})!"
+event_ticket_already_opened: "عذرًا، لديك بالفعل تذكرة مفتوحة (<#${channelId}>)! يرجى إغلاقها قبل فتح واحدة جديدة."
 
 # حدث السحب
 event_gw_reroll_win_msg: "تهانينا ${winners}! فزت بـ **${fetch[channelId][messageId].prize}**!"
@@ -2132,7 +2265,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **أزال تعزيزهم** من ا
 economy_disable_msg: "<@${interaction.user.id}>, وحدة `الاقتصاد` في هذا الخادم **معطلة**. لا يمكنك استخدام وحدة الاقتصاد بعد الآن!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: **`${neededPerm === 0 ? 'Discord Permission'' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: **`${neededPerm}`**"
 
 # وحدة الصوت المؤقت
 temporary_voice_title_embec: "## التعديلات على قناتك الصوتية المؤقتة"
@@ -2181,6 +2314,8 @@ temporary_voice_transfer_trust_placeholder: "المستخدمون المحددو
 temporary_voice_transfer_unblocked_placeholder: "المستخدمون المحددون سيتم إلغاء حظرهم للانضمام"
 
 temporary_voice_transfer_untrust_placeholder: "المستخدمون المحددون سيتم رفضهم للانضمام"
+
+temporary_voice_channel_name: "قناة {nickname}"
 
 # وحدة الحماية
 # رسالة الحدث
@@ -2245,5 +2380,11 @@ piconly_module_timeout_reason: "إرسال رسائل متكررة بدون صو
 # Nick Module
 event_nick_kicker_kick_reason: "كلمة محظورة في اسم المستخدم - طارد الألقاب"
 event_nick_kicker_kick_msg: "في السيرفر `${member.guild.name}`، يحتوي اسم المستخدم الخاص بك على كلمة محظورة. تم طردك من السيرفر."
+
+# وحدة الصور الشخصية
+pfps_embed_user_title: "صورة ${username} **الشخصية**"
+pfps_embed_guild_title: "صورة ${username} **للسيرفر**"
+pfps_download_user_button: "تحميل الصورة الشخصية"
+pfps_download_guild_button: "تحميل صورة السيرفر"
 
 # -----------------------------\ /-----------------------------

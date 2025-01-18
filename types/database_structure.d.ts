@@ -23,6 +23,7 @@ import { EmbedBuilder } from "@discordjs/builders";
 import { CaseList } from "../src/core/modules/ticketsManager.js";
 import { AntiSpam } from "./antispam.js";
 import { Platform } from "../src/core/StreamNotifier.js";
+import { APIEmbed } from "discord.js";
 
 export namespace DatabaseStructure {
 
@@ -35,7 +36,7 @@ export namespace DatabaseStructure {
     export interface DbEmbedObject {
         [code: string]: {
             embedOwner: string;
-            embedSource: EmbedBuilder;
+            embedSource: APIEmbed;
         };
     }
 
@@ -128,6 +129,7 @@ export namespace DatabaseStructure {
         monthly?: number;
         weekly?: number;
         work?: number;
+        rob?: number;
         ownedRoles?: string[];
     }
 
@@ -226,6 +228,12 @@ export namespace DatabaseStructure {
             event?: string;
             channel?: string;
         };
+        online?: {
+            name?: string;
+            enable?: boolean;
+            event?: string;
+            channel?: string;
+        }
     }
 
     export interface StatsMessage {
@@ -284,8 +292,33 @@ export namespace DatabaseStructure {
     export interface EconomyModel {
         disabled?: boolean;
         buyableRoles?: Record<string, EconomyRole>;
+        settings?: EconomySettings;
     }
 
+    export interface EconomySettings {
+        work: {
+            cooldown: number;
+        }
+
+        rob: {
+            cooldown: number;
+        }
+
+        daily: {
+            cooldown: number;
+            amount: number;
+        }
+
+        weekly: {
+            cooldown: number;
+            amount: number;
+        }
+
+        monthly: {
+            cooldown: number;
+            amount: number;
+        }
+    }
     export interface DbInId {
         USER?: DbGuildUserObject;
         GUILD?: DbGuildObject;
@@ -350,12 +383,21 @@ export namespace DatabaseStructure {
         NICK_KICKER?: NickKickerData;
     }
 
+    export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    export type PermNone = 0;
+
+    export type PermCommandData = {
+        users: string[];
+        roles: string[];
+        level: PermLevel;
+    }
+
     export interface UtilsPermsData {
-        [key: string]: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+        [key: string]: PermLevel | PermCommandData;
     }
 
     export interface UtilsPermsUserData {
-        [key: string]: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+        [key: string]: PermLevel
     }
 
     export interface DbGuildUserObject {
@@ -424,9 +466,7 @@ export namespace DatabaseStructure {
     }
 
     export interface DbGuildAutoReact {
-        [channelId: string]: {
-            [emoji: string]: string;
-        };
+        [channelId: string]: string | string[];
     }
 
     export type RoleReactData = {
@@ -436,7 +476,23 @@ export namespace DatabaseStructure {
         label: string;
     }[];
 
+    export interface TagInfo {
+        embedId: string;
+        createBy: string;
+        createTimestamp: number;
+        uses: number;
+        lastUseTimestamp: number;
+        lastUseBy: string | null;
+    }
+
+    export interface GuildTagsStructure {
+        storedTags?: Record<string, TagInfo>;
+        whitelist_use?: string[];
+        whitelist_create?: string[];
+    }
+
     export interface DbGuildObject {
+        TAGS: GuildTagsStructure;
         BOT?: DbGuildBotObject;
         LANG?: {
             lang: string;

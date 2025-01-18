@@ -112,7 +112,7 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
-        let data = await client.func.getLanguageData(member.guild.id) as LanguageData;
+        let data = await client.func.getLanguageData(member.guild.id);
 
         if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
 

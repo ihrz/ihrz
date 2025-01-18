@@ -55,6 +55,60 @@ var_aliases: "Apelidos"
 var_dont_have_perm: "Não tem as permissões necessárias para fazer isto. (Requer permissão {perm})"
 var_price: "Preço"
 var_boost: "Impulso"
+var_uses: "Usos"
+
+# Discord Permission Name
+perm_createinstantinvite_name: "Criar Convite Instantâneo"
+perm_kickmembers_name: "Expulsar Membros"
+perm_banmembers_name: "Banir Membros"
+perm_administrator_name: "Administrador"
+perm_managechannels_name: "Gerenciar Canais"
+perm_manageguild_name: "Gerenciar Servidor"
+perm_addreactions_name: "Adicionar Reações"
+perm_viewauditlog_name: "Visualizar Registro de Auditoria"
+perm_priorityspeaker_name: "Falar com Prioridade"
+perm_stream_name: "Transmitir"
+perm_viewchannel_name: "Ver Canal"
+perm_sendmessages_name: "Enviar Mensagens"
+perm_sendttsmessages_name: "Enviar Mensagens TTS"
+perm_managemessages_name: "Gerenciar Mensagens"
+perm_embedlinks_name: "Inserir Links"
+perm_attachfiles_name: "Anexar Arquivos"
+perm_readmessagehistory_name: "Ler Histórico de Mensagens"
+perm_mentioneveryone_name: "Mencionar Todos"
+perm_useexternalemojis_name: "Usar Emojis Externos"
+perm_viewguildinsights_name: "Ver Insights do Servidor"
+perm_connect_name: "Conectar"
+perm_speak_name: "Falar"
+perm_mutemembers_name: "Silenciar Membros"
+perm_deafenmembers_name: "Ensurdecer Membros"
+perm_movemembers_name: "Mover Membros"
+perm_usevad_name: "Usar Atividade de Voz"
+perm_changenickname_name: "Alterar Apelido"
+perm_managenicknames_name: "Gerenciar Apelidos"
+perm_manageroles_name: "Gerenciar Funções"
+perm_managewebhooks_name: "Gerenciar Webhooks"
+perm_manageemojisandstickers_name: "Gerenciar Emojis e Figurinhas"
+perm_manageguildexpressions_name: "Gerenciar Expressões do Servidor"
+perm_useapplicationcommands_name: "Usar Comandos de Aplicativo"
+perm_requesttospeak_name: "Solicitar Falar"
+perm_manageevents_name: "Gerenciar Eventos"
+perm_managethreads_name: "Gerenciar Tópicos"
+perm_createpublicthreads_name: "Criar Tópicos Públicos"
+perm_createprivatethreads_name: "Criar Tópicos Privados"
+perm_useexternalstickers_name: "Usar Figurinhas Externas"
+perm_sendmessagesinthreads_name: "Enviar Mensagens em Tópicos"
+perm_useembeddedactivities_name: "Usar Atividades Incorporadas"
+perm_moderatemembers_name: "Moderar Membros"
+perm_viewcreatormonetizationanalytics_name: "Visualizar Análises de Monetização"
+perm_usesoundboard_name: "Usar Mesa de Som"
+perm_createguildexpressions_name: "Criar Expressões do Servidor"
+perm_createevents_name: "Criar Eventos"
+perm_useexternalsounds_name: "Usar Sons Externos"
+perm_sendvoicemessages_name: "Enviar Mensagens de Voz"
+perm_sendpolls_name: "Enviar Enquetes"
+perm_useexternalapps_name: "Usar Aplicativos Externos"
+
 
 # Comandos de ticket
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
@@ -203,6 +257,10 @@ ticket_panel_add_form_modal_field2_label: "Marcador da Pergunta"
 ticket_panel_preview_message: "Pré-visualização do painel de tickets"
 ticket_panel_option_change_category: "Selecione uma opção para alterar a categoria"
 ticket_panel_panel_10_label: "Alterar categoria para uma opção específica"
+
+# /ticket rename
+ticket_rename_ok: "O canal do ticket foi renomeado!"
+ticket_rename_error: "Erro ao renomear o canal de texto."
 
 
 # Comandos de Níveis
@@ -400,6 +458,9 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay é minha criad
 # /andru
 andru_message: "Andru é um colaborador e desenvolvedor. \"O faz-tudo\", ele gerencia o marketing, a comunidade..."
 
+# /ether
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether é um contribuidor do iHorizon. Ele detecta cada erro de digitação no bot e atua como assistente de suporte para o bot iHorizon."
+
 # /nayaweb
 nayaweb_message: "😼NayaWeb é minha segunda desenvolvedora/contribuidora, NayaWeb x Kisakay ❤️"
 
@@ -474,6 +535,8 @@ help_notifier_dsc: "Seja notificado quando um Youtuber ou Streamer publicar um v
 help_notifier_fields: "Notificador"
 help_restorecord_fields: "RestoreCord"
 help_restorecord_dsc: "Verificação do servidor com oAuth2. Se o seu servidor foi invadido ou excluído, você pode recuperar seus antigos membros com oAuth2!"
+help_tags_fields: "Tags personalizadas"
+help_tags_dsc: "Crie mensagens de tags para o seu servidor e use-as no seu servidor!"
 
 # /h
 h_suite: "(Continuação)"
@@ -540,6 +603,8 @@ fun_category_disable: "Você não pode usar este comando, a categoria de comando
 
 # Comandos de economia
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
+
+economy_cooldown_error: "Espere **${time}** antes de poder executar este comando novamente!"
 
 # /addmoney
 addmoney_not_admin: "Você não pode executar este comando porque não tem as permissões necessárias `ADMINISTRADOR`"
@@ -829,6 +894,11 @@ zip_emojis_doesnt_have_perm: "Não tem permissão para gerir emojis."
 zip_emojis_command_work: "🎉 Exportação concluída em **${calcTime}**ms! Aqui está o arquivo com ${emojis.size} emojis."
 zip_emojis_command_error: "Ocorreu um erro ao exportar os emojis."
 
+# /zip-stickers
+zip_stickers_doesnt_have_perm: "Você não tem permissão para gerenciar adesivos."
+zip_stickers_command_work: "🎉 Exportação concluída em **${calcTime}**ms! Aqui está o arquivo contendo ${stickers.size} adesivos."
+zip_stickers_command_error: "Ocorreu um erro ao exportar os adesivos."
+
 # +sticker  
 sticket_no_sticker: "Nenhum adesivo encontrado na mensagem respondida."  
 sticket_command_work: "O adesivo `${x.name}` foi criado com sucesso."  
@@ -850,6 +920,16 @@ util_nick_kicker_remove_desc: "Remover uma palavra do expulsor de apelidos"
 util_nick_kicker_add_desc: "Adicionar uma palavra ao expulsor de apelidos"
 util_nick_kicker_disable_desc: "Desativar o expulsor de apelidos"
 util_nick_kicker_enable_desc: "Ativar o expulsor de apelidos"
+
+# /util wakeup
+util_wakeup_yourself: "Mano, estás a brincar ou quê? Não me digas que estás a dormir no teclado enquanto escreves este comando lol"
+util_wakeup_not_in_vc: "Mano, o bot não vai criar um chinês pequeno chamado ${user.displayName} com a mesma foto de perfil e banner para te fazer acreditar que ele acordou... Ele nem está no canal de voz lol"
+util_wakeup_command_work: "Bora acordar o ${user.toString()} !"
+
+# /util leash
+util_leash_too_naugthy: "Pecadorzinho, não podes colocar mais de 3 pessoas na trela :D"
+util_leah_already_owned: "Pecadorzinho, já possuis estas pequenas maravilhas :smirk:"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | O membro que queres colocar na trela não está num canal de voz!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Tens a certeza de que queres proceder com esta ação?"
 
 
 # Guild Config commands
@@ -1144,6 +1224,13 @@ perm_list_no_command_set: "Não há comandos com permissões específicas defini
 perm_set_deleted: "${user.toString()} teve sua permissão **excluída**!"
 perm_set_ok: "${user.toString()} teve sua permissão alterada para **`${perm}`**"
 perm_set_warn_message: "${interaction.member.toString()}, você não pode conceder permissões iguais ou superiores às suas!"
+perm_set_chng_perm_lvl: "Nível de permissão alterado"
+perm_set_add_role: "Papel adicionado"
+perm_set_add_usr: "Usuário adicionado"
+perm_rmv_role: "Papel removido"
+perm_rmv_usr: "Usuário removido"
+perm_set_command_reset: "Este comando foi redefinido"
+perm_set_no_modified: "Nenhuma permissão modificada"
 
 # /perm roles
 perm_roles_created_role: "Созданы следующие роли: ${createdRoles.join(', ')}"
@@ -1195,7 +1282,7 @@ setmembercount_not_admin: ":x: | You must be an administrator of this server to 
 setmembercount_helpembed_title: "Set MemberCount Help !"
 setmembercount_helpembed_description: "/membercount <Ativar / Desativar> <Nome do canal>"
 setmembercount_helpembed_fields_name: "Como usá-lo?"
-setmembercount_helpembed_fields_value: "{MemberCount} = número de membros no servidor\n{RolesCount} = número de funções\n{BotCount} = número de bots no servidor\n{ChannelCount} = número de canais no servidor\n{BoostCount} = número de impulsos no servidor"
+setmembercount_helpembed_fields_value: "{MemberCount} = número de membros no servidor\n{RolesCount} = número de cargos\n{BotCount} = número de bots no servidor\n{ChannelCount} = número de canais no servidor\n{BoostCount} = número de impulsos no servidor\n{VoiceCount} = número total de membros nos canais de voz no servidor\n{OnlineCount} = total de membros online no servidor"
 setmembercount_logs_embed_title_on_enable: "Set MemberCount Logs"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> set the MemberCount of <#${channel.id}> to `${messagei}`!"
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Successfully set MemberCount."
@@ -1453,6 +1540,8 @@ backup_backup_doesnt_exist: "ERRO? O backup não existe."
 backup_string_see_v: ":placard:・Quantidade de Categorias: `${data.categoryCount}`\n:hash:・Quantidade de Canais: `${data.channelCount}`"
 backup_all_of_your_backup: "**Todos os seus backups:**"
 backup_string_see_another_v: ":placard:・Quantidade de Categorias: `${result.categoryCount}`\n:hash:・Quantidade de Canais: `${result.channelCount}`"
+backup_load_confirm: "${interaction.member.user.toString()},\n# AÇÃO EXTREMAMENTE PERIGOSA\n# Tem a certeza de que deseja carregar este backup?\nIsto substituirá todos os canais, cargos, emojis, banimentos, configurações... atuais do seu servidor.\nESTA AÇÃO É IRREVERSÍVEL!"
+backup_not_load: "O backup não foi carregado, a ação foi cancelada a seu pedido."
 
 # /backup delete
 backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} Você realmente quer deletar este backup?"
@@ -1785,6 +1874,48 @@ allowlist_delete_isnt_in: "O membro que você quer remover da lista de permissõ
 allowlist_delete_command_work: "${member.user} foi removido da lista de permissões!"
 
 
+# Custom Tag Module
+# /tag create, ... delete, ... edit, ... list, ... info
+
+tag_name: "Tag"
+tag_embed_created_at: "Criado em"
+tag_embed_last_update: "Última atualização"
+tag_embed_last_updated_by: "Última atualização por"
+
+# /tag create
+tag_create_not_permited: "Não tem permissão para criar uma tag.\nPrecisa de permissões de administrador ou estar na lista branca (`tag wlroles-create`)."
+tag_create_not_good_name: "O nome da tag não deve incluir espaços e não deve exceder 16 caracteres."
+tag_create_command_work: "A tag `${tag_name}` foi criada."
+tag_create_already_exist: "A tag já existe."
+tag_create_embed_doesnt_exist: "O embed não existe."
+
+# /tag delete
+tag_no_one_found: "Não existem tags guardadas neste servidor!"
+tag_delete_dnt_exist: "A tag `${tag_name}` não existe."
+tag_delete_command_ok: "A tag `${tag_name}` foi eliminada."
+
+# /tag info
+tag_doesnt_exist: "A tag `${tag_name}` não existe!"
+
+# /tag wlcreate
+tag_wlcreate_embed_title: "Lista branca criar - Tags"
+tag_wlcreate_embed_desc: "Todos os cargos que têm permissão para criar tags."
+
+# /tag wluse
+tag_wluse_embed_title: "Lista branca usar - Tags"
+tag_wluse_embed_desc: "Todos os cargos que têm permissão para usar tags."
+
+# /tag list
+tag_list_no_anything: "Não existem tags guardadas neste servidor!"
+
+# /tag use
+tag_use_not_allowed: "Não tem permissão para usar a tag `${tag_name}`.\nPrecisa de permissões de administrador ou pode pedir ao proprietário da tag <@${tag.createBy}> para o adicionar à lista branca (`tag wlroles-use`)."
+tag_use_command_work: "A tag `${tag_name}` foi enviada."
+
+# /tag edit
+tag_edit_error_perm: "Para modificar a tag, precisas de permissões de administrador ou de ser o proprietário da tag."
+
+
 # Módulo OWNIHRZ
 # /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
 
@@ -2113,6 +2244,7 @@ event_ticket_logsChannel_onDelete_embed_title: "TicketLog - Deleção de Ticket"
 event_ticket_logsChannel_onDelete_embed_desc: "${interaction.user} deletou um ticket (#${interaction.channel.name})!"
 event_ticket_logsChannel_onAddMember2_embed_title: "TicketLog - Adição/Remoção de Membros de um Ticket"
 event_ticket_logsChannel_onAddMember2_embed_desc: "${interaction.user}\nRemovidos: ${removedMembers}.\nAdicionados: ${addedMembers}.\n no ticket (${interaction.channel})!"
+event_ticket_already_opened: "Ops, você já tem um ticket aberto (<#${channelId}>)! Por favor, feche-o antes de abrir um novo."
 
 # Evento de Sorteio
 event_gw_reroll_win_msg: "Parabéns ${winners}! Você ganhou o **${fetch[channelId][messageId].prize}**!"
@@ -2137,7 +2269,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **acabou de remover seu boost** do 
 economy_disable_msg: "<@${interaction.user.id}>, o `Módulo de Economia` neste servidor está **desativado**. Você não pode mais usar o módulo de economia!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, você não tem permissão para usar este comando! Permissão necessária: **`${neededPerm === 0 ? 'Discord Permission' : neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, você não tem permissão para usar este comando! Permissão necessária: **`${neededPerm}`**"
 
 # Módulo TempVoice
 # Todos os componentes, globalVar...
@@ -2190,6 +2322,8 @@ temporary_voice_transfer_trust_placeholder: "Usuários selecionados serão confi
 temporary_voice_transfer_unblocked_placeholder: "Usuários selecionados serão desbloqueados para entrar"
 
 temporary_voice_transfer_untrust_placeholder: "Usuários selecionados não serão confiáveis para entrar"
+
+temporary_voice_channel_name: "Canal de {nickname}"
 
 # Módulo de Proteção
 # Mensagem de evento
@@ -2261,5 +2395,11 @@ piconly_module_timeout_reason: "Spam de mensagens sem imagens num canal exclusiv
 # Nick Kicker Event
 event_nick_kicker_kick_reason: "Palavra proibida no nome de utilizador - Expulsor de Apelidos"
 event_nick_kicker_kick_msg: "No servidor `${member.guild.name}`, o seu nome de utilizador contém uma palavra proibida. Foi expulso do servidor."
+
+# Módulo de avatares
+pfps_embed_user_title: "Avatar de **utilizador** de ${username}"
+pfps_embed_guild_title: "Avatar do **servidor** de ${username}"
+pfps_download_user_button: "Descarregar avatar de utilizador"
+pfps_download_guild_button: "Descarregar avatar do servidor"
 
 # -----------------------------\ /-----------------------------

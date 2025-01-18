@@ -25,6 +25,7 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     ChannelType,
+    PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
@@ -66,8 +67,12 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "disable",
@@ -102,9 +107,13 @@ export const command: Command = {
                             name: "Power Off",
                             value: "off",
                         }
-                    ]
+                    ],
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "role-to-give",
@@ -129,12 +138,17 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
                 },
             ],
+
+            permission: PermissionFlagsBits.Administrator
         },
     ],
     thinking: false,
     category: 'security',
     type: ApplicationCommandType.ChatInput,
 
+    permission: null
 };

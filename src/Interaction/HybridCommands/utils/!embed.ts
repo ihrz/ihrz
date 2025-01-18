@@ -48,9 +48,12 @@ import { generatePassword } from '../../../core/functions/random.js';
 import { LanguageData } from '../../../../types/languageData';
 
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, neededPerm: number, args?: string[]) => {
+
+import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -63,18 +66,9 @@ export default {
             var arg = client.method.string(args!, 0);
         };
 
-        let potentialEmbed = await client.db.get(`EMBED.${arg}`);
+        let potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
         let files: { attachment: string; name: string; }[] = [];
 
-        const permissionsArray = [PermissionsBitField.Flags.Administrator]
-        const permissions = interaction instanceof ChatInputCommandInteraction ?
-            interaction.memberPermissions?.has(permissionsArray)
-            : interaction.member.permissions.has(permissionsArray);
-
-        if (!permissions && neededPerm === 0) {
-            await client.method.interactionSend(interaction, { content: lang.punishpub_not_admin });
-            return;
-        };
 
         let __tempEmbed = new EmbedBuilder().setDescription('** **');
         if (potentialEmbed) {
@@ -484,14 +478,23 @@ export default {
         }
 
         async function saveEmbed() {
-            let password = generatePassword({ length: 16 });
+            var password = "";
+            if (potentialEmbed?.embedOwner !== interaction.member?.user.id!
+                || !arg
+            ) {
+                password = generatePassword({ length: 16 });
+                await client.db.set(`EMBED.${password}`, {
+                    embedOwner: interaction.member?.user.id!,
+                    embedSource: __tempEmbed.toJSON()
+                });
+                return password;
+            }
 
-            await client.db.set(`EMBED.${password}`, {
+            await client.db.set(`EMBED.${arg}`, {
                 embedOwner: interaction.member?.user.id!,
                 embedSource: __tempEmbed.toJSON()
             });
-
-            return password;
+            return arg;
         }
 
         const buttonCollector = response.createMessageComponentCollector({
@@ -507,7 +510,6 @@ export default {
 
             switch (confirmation.customId) {
                 case "save":
-                    if (arg) await client.db.delete(`EMBED.${arg}`);
                     let embedId = await saveEmbed();
                     await confirmation.update({
                         content: lang.embed_save_message.replace('${interaction.user.id}', interaction.member?.user.id!).replace('${await saveEmbed()}', embedId),

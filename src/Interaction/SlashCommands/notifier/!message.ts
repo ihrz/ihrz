@@ -35,19 +35,16 @@ import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, command: Option | Command | undefined, neededPerm: number) => {        
+
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {        
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-        if ((!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) && neededPerm === 0)) {
-            await client.method.interactionSend(interaction, { content: lang.ranksSetMessage_not_admin, ephemeral: true });
-            return;
-        }
 
         let notifyMessage = await client.db.get(`${interaction.guildId}.NOTIFIER.message`);
         let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";

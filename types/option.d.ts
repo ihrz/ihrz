@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ApplicationCommandOptionType } from 'discord.js';
+import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
 import { DescriptionLocalizations, NameLocalizations } from './command';
 import { Choice } from "./choice";
 
@@ -42,5 +42,6 @@ export interface Option {
     choices?: Choice[],
     aliases?: string[],
     thinking?: boolean,
-    ephemeral?: boolean;
+    ephemeral?: boolean,
+    permission: bigint | bigint[] | null;
 }

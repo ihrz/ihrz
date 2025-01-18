@@ -25,11 +25,12 @@ import {
     ChatInputCommandInteraction,
     ApplicationCommandType,
     Message,
+    PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
+
 
 export const command: Command = {
     name: "inv",
@@ -57,7 +58,9 @@ export const command: Command = {
                         "fr": "le membre auquel vous souhaitez ajouter des invitations"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'amount',
@@ -68,9 +71,13 @@ export const command: Command = {
                         "fr": "Nombre d'invitations que vous souhaitez ajouter"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionsBitField.Flags.Administrator
         },
         {
             name: 'leaderboard',
@@ -84,6 +91,8 @@ export const command: Command = {
             },
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
         },
         {
             name: "invites",
@@ -106,9 +115,13 @@ export const command: Command = {
                         "fr": "le membre où souhaitez voir ces invitations"
                     },
 
-                    required: false
+                    required: false,
+
+                    permission: null
                 }
             ],
+
+            permission: null
         },
         {
             name: "reset",
@@ -122,6 +135,8 @@ export const command: Command = {
             aliases: ["inv-delete-all", "invreset"],
 
             type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionsBitField.Flags.Administrator
         },
         {
             name: 'removeinvites',
@@ -143,7 +158,9 @@ export const command: Command = {
                         "fr": "le membre où vous souhaitez supprimer ces invites"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 },
                 {
                     name: 'amount',
@@ -154,13 +171,17 @@ export const command: Command = {
                         "fr": "Nombre d'invitations que vous souhaitez soustraire"
                     },
 
-                    required: true
+                    required: true,
+
+                    permission: null
                 }
             ],
+
+            permission: PermissionsBitField.Flags.Administrator
         }
     ],
     thinking: true,
     category: 'invitemanager',
     type: ApplicationCommandType.ChatInput,
-
+    permission: null
 };

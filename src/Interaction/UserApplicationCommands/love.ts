@@ -31,8 +31,9 @@ export const command: AnotherCommand = {
     name: "Estimate the love",
     type: ApplicationCommandType.User,
     thinking: false,
+    permission: null,
     run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
-        let lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+        let lang = await client.func.getLanguageData(interaction.guildId);
         var user1 = interaction.user;
         var user2 = interaction.targetUser;
 
