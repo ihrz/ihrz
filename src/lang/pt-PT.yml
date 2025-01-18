@@ -458,6 +458,9 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay é minha criad
 # /andru
 andru_message: "Andru é um colaborador e desenvolvedor. \"O faz-tudo\", ele gerencia o marketing, a comunidade..."
 
+# /ether
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether é um contribuidor do iHorizon. Ele detecta cada erro de digitação no bot e atua como assistente de suporte para o bot iHorizon."
+
 # /nayaweb
 nayaweb_message: "😼NayaWeb é minha segunda desenvolvedora/contribuidora, NayaWeb x Kisakay ❤️"
 

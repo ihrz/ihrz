@@ -30,12 +30,6 @@ import path from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export interface CommandModule {
-    default: {
-        run: Function;
-    };
-}
-
 export async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
     let result = [];
     let dir = await opendir(path);

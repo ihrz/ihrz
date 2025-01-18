@@ -31,9 +31,11 @@ export const event: BotEvent = {
         if (!message.guild || !message.author
             || message.author.id == client.user?.id) return;
 
+        let message_content = hidden(message.content);
+
         await client.db.set(`${message.guildId}.GUILD.SNIPE.${message.channel.id}`,
             {
-                snipe: `${hidden(message.content)}`,
+                snipe: message_content,
                 snipeUserInfoTag: `${message.author.username} (${message.author.id})`,
                 snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
                 snipeTimestamp: message.createdTimestamp
@@ -42,7 +44,7 @@ export const event: BotEvent = {
 
         await client.db.set(`${message.guildId}.GUILD.SNIPE.${message.channel.id}`,
             {
-                snipe: `${hidden(message.content)}`,
+                snipe: message_content,
                 snipeUserInfoTag: `${message.author.username} (${message.author.id})`,
                 snipeUserInfoPp: `${message.author.displayAvatarURL()}`,
                 snipeTimestamp: message.createdTimestamp

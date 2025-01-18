@@ -223,7 +223,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
         embed.setFields(
             {
                 name: lang.var_usage,
-                value: `${cleanBotPrefix}${command.name} ${pathString}`,
+                value: `${cleanBotPrefix}${command.prefixName || command.name} ${pathString}`,
                 inline: false
             },
             {

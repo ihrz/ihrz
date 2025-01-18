@@ -133,7 +133,7 @@ export const command: Command = {
     category: 'bot',
     type: "PREFIX_IHORIZON_COMMAND",
     permission: null,
-    run: async (client: Client, interaction: Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
+    run: async (client: Client, interaction: Message, lang: LanguageData, args?: string[]) => {
         const categoryEmbeds: { [key: string]: EmbedBuilder[] } = {};
 
         const skidBot = {

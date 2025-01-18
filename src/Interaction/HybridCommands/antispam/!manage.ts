@@ -43,7 +43,7 @@ import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData';
 import { AntiSpam } from '../../../../types/antispam';
 import { Command } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
+
 
 type AntiSpamOptionKey = keyof AntiSpam.AntiSpamOptions;
 type PresetKeys = "chill" | "guard" | "extreme";
@@ -81,8 +81,10 @@ const AntiSpamPreset: { [key in PresetKeys]: AntiSpam.AntiSpamOptions } = {
     },
 }
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing

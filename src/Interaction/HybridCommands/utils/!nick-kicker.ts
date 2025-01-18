@@ -52,8 +52,10 @@ function capitalizeFirstLetter(string: string): string {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -156,7 +158,7 @@ export default {
             embed.data.fields![0].value = "✅";
             await client.db.set(`${interaction.guild!.id}.UTILS.NICK_KICKER`, baseData);
 
-            await client.method.interactionSend(interaction, {
+            await ogInteraction.edit({
                 embeds: [embed],
                 components: [row],
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]
@@ -168,7 +170,7 @@ export default {
             embed.data.fields![0].value = "❌";
             await client.db.set(`${interaction.guild!.id}.UTILS.NICK_KICKER`, baseData);
 
-            await client.method.interactionSend(interaction, {
+            await ogInteraction.edit({
                 embeds: [embed],
                 components: [row],
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]

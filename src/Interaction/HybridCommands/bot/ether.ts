@@ -20,35 +20,35 @@
 */
 
 import {
-    ChatInputCommandInteraction,
-    Client,
-    EmbedBuilder,
+    Client, ChatInputCommandInteraction, ApplicationCommandType,
     Message,
-} from 'discord.js';
+    CommandInteractionOptionResolver,
+} from 'discord.js'
 
-import { LanguageData } from '../../../../types/languageData';
-import { axios } from '../../../core/functions/axios.js';
 import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData';
 
+export const command: Command = {
+    name: 'ether',
 
-import { SubCommand } from '../../../../types/command';
+    description: 'Get unnecessary information about my contributor ether',
+    description_localizations: {
+        "fr": "Obtenir des informations non nécessaires sur mon contributeur ether!"
+    },
 
-export const subCommand: SubCommand = {
+    category: 'bot',
+    thinking: false,
+    type: ApplicationCommandType.ChatInput,
+    permission: null,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
-        if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
-            return;
-        };
-        axios.get('http://edgecats.net/random').then(async res => {
-            let emb = new EmbedBuilder()
-                .setImage(res.data)
-                .setTitle(lang.cats_embed_title)
-                .setTimestamp();
+        // Guard's Typing
+        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-            await client.method.interactionSend(interaction, { embeds: [emb] });
-            return;
+        await client.method.interactionSend(interaction, {
+            content: lang.ether_message.replace("${client.iHorizon_Emojis.icon.Sparkles}", client.iHorizon_Emojis.icon.Sparkles)
         });
+        return;
     },
 };

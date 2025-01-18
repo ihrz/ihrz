@@ -22,7 +22,7 @@
 import { Client, ApplicationCommandType, UserContextMenuCommandInteraction, PermissionFlagsBits } from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand';
 
-import command2 from '../HybridCommands/utils/!userinfo.js';
+import { subCommand } from '../HybridCommands/utils/!userinfo.js';
 import getLanguageData from '../../core/functions/getLanguageData.js';
 
 export const command: AnotherCommand = {
@@ -32,6 +32,6 @@ export const command: AnotherCommand = {
     permission: PermissionFlagsBits.Administrator,
     run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
         // @ts-ignore
-        command2.run(client, interaction as UserContextMenuCommandInteraction<'cached'>, await getLanguageData(interaction.guildId!), {}, 0);
+        subCommand.run(client, interaction, await getLanguageData(interaction.guildId!));
     },
 };

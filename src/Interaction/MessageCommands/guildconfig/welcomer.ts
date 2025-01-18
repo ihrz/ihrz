@@ -28,7 +28,7 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import cmd from "../../SlashCommands/guildconfig/!channel.js";
+import { subCommand } from "../../SlashCommands/guildconfig/!channel.js";
 
 export const command: Command = {
     name: 'welcomer',
@@ -44,7 +44,7 @@ export const command: Command = {
     category: 'guildconfig',
     type: ApplicationCommandType.ChatInput,
     permission: null,
-    run: async (client: Client, interaction: Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
-        cmd.run(client, interaction, lang, command, allowed!)
+    run: async (client: Client, interaction: Message, lang: LanguageData, args?: string[]) => {
+        subCommand.run(client, interaction, lang)
     },
 };

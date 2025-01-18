@@ -37,22 +37,16 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import logger from '../../../core/logger.js';
 import { DatabaseStructure } from '../../../../types/database_structure';
-import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
 
-export default {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Option | Command | undefined, allowed: boolean) => {
+import { SubCommand } from '../../../../types/command';
+
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
-
-        if ((!interaction.member.permissions?.has(PermissionsBitField.Flags.Administrator) && !allowed)) {
-            await client.method.interactionSend(interaction, { content: lang.setchannels_not_admin });
-            return;
-        };
 
         var baseData = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG`) as DatabaseStructure.DbGuildObject['GUILD_CONFIG'];
         var current_join_channel = '';

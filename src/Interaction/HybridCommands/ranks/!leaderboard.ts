@@ -33,16 +33,14 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
 import { DatabaseStructure } from '../../../../types/database_structure';
-import { Command } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command';
 import { formatNumber } from '../../../core/functions/numberBeautifuer.js';
 
-export default {
+export const subCommand: SubCommand = {
     run: async (
         client: Client,
         interaction: ChatInputCommandInteraction<"cached"> | Message,
         lang: LanguageData,
-        command: Command,
-        allowed: boolean,
         args?: string[]
     ) => {
         // Guard's Typing

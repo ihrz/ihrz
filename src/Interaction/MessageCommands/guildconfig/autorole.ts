@@ -35,8 +35,8 @@ import {
 
 import { LanguageData } from '../../../../types/languageData';
 import { Command } from '../../../../types/command';
-import { Option } from '../../../../types/option';
-import cmd from "../../SlashCommands/guildconfig/!join-role.js"
+
+import { subCommand } from "../../SlashCommands/guildconfig/!join-role.js"
 
 export const command: Command = {
 
@@ -52,7 +52,7 @@ export const command: Command = {
     category: 'guildconfig',
     type: "PREFIX_IHORIZON_COMMAND",
     permission: PermissionFlagsBits.Administrator,
-    run: async (client: Client, interaction: Message<true>, lang: LanguageData, command: Command | Option | undefined, allowed, options?: string[]) => {
-        cmd.run(client, interaction, lang, command, allowed)
+    run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
+        subCommand.run(client, interaction, lang)
     },
 };

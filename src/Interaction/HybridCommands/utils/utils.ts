@@ -31,7 +31,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
+
 
 export const command: Command = {
     name: "utils",

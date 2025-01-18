@@ -29,12 +29,18 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { axios } from '../../../core/functions/axios.js';
-import { Command } from '../../../../types/command.js';
+import { SubCommand } from '../../../../types/command.js';
 import { Option } from '../../../../types/option.js';
 import Jimp from 'jimp';
 
-export default {
-  run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, command: Command, allowed: boolean, args?: string[]) => {
+
+export const subCommand: SubCommand = {
+  run: async (
+    client: Client,
+    interaction: ChatInputCommandInteraction<"cached"> | Message,
+    lang: LanguageData,
+    args?: string[]
+  ) => {
 
     let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
 
