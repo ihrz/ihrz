@@ -116,14 +116,18 @@ export const event: BotEvent = {
         let Msgchannel = oldChannel.guild.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
+        const changes = getDiff(oldChannel, newChannel, lang);
+
+        if (changes === "") {
+            return;
+        }
+
         let icon = firstEntry?.executor?.displayAvatarURL();
 
         let logsEmbed = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({ name: firstEntry?.executor?.username || lang.var_unknown, iconURL: icon })
             .setDescription(`${newChannel.toString()} are updated`)
-
-        const changes = getDiff(oldChannel, newChannel, lang);
 
         logsEmbed.setFields(
             { name: lang.event_srvLogs_messageUpdate_footer_2, value: changes },
