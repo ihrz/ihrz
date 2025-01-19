@@ -31,9 +31,9 @@ import { LanguageData } from '../../../../types/languageData';
 export const command: Command = {
     name: 'ether',
 
-    description: 'Get unnecessary information about my contributor ether',
+    description: 'Get unnecessary information about my contributor Ether',
     description_localizations: {
-        "fr": "Obtenir des informations non nécessaires sur mon contributeur ether!"
+        "fr": "Obtenir des informations non nécessaires sur mon contributeur Ether!"
     },
 
     category: 'bot',

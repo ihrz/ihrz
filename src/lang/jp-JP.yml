@@ -459,7 +459,7 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakayは私の創造
 andru_message: "Andruはコラボレーターであり開発者です。\"何でも屋\"として、マーケティング、コミュニティを管理しています..."
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Etherは iHorizonのコントリビューターです。ボットのタイプミスを全て見つけ、iHorizonボットのサポートヘルパーとして活動しています。"
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} EtherはiHorizonの貢献者です。iHorizonボットのサポートアシスタントとして、ボットの誤字脱字を即座に発見する。"
 
 # /nayaweb
 nayaweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
