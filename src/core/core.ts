@@ -52,6 +52,7 @@ import { Command } from '../../types/command.js';
 import { BashCommands } from '../../types/bashCommands.js';
 import { mkdir, readdir } from 'node:fs/promises';
 import { MemberCountModule } from './modules/memberCountManager.js';
+import { AutoRenew } from './modules/autorenewManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -89,6 +90,7 @@ export async function main(client: Client) {
     client.subCommands = new Collection<string, Command>();
     client.message_commands = new Collection<string, Command>();
     client.memberCountManager = new MemberCountModule(client);
+    client.autoRenewManager = new AutoRenew(client);
     client.owners = [];
     client.content = [];
     client.category = [];

@@ -930,6 +930,12 @@ util_leash_too_naugthy: "أيها الشقي الصغير، لا يمكنك وض
 util_leah_already_owned: "أيها الشقي الصغير، أنت تمتلك هؤلاء بالفعل :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | العضو الذي تريد وضعه في الحبل ليس في قناة صوتية!\n${client.iHorizon_Emojis.icon.Warning_Icon} | هل أنت متأكد أنك تريد القيام بهذا الإجراء؟"
 
+# /util autorenew
+util_autorenew_time_too_short: "يجب أن يكون الوقت بين تجديد القناة أكثر من دقيقة واحدة"
+util_autorenew_time_too_long: "يجب أن يكون الوقت بين تجديد القناة أقل من 24 ساعة"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} الآن، سيتم حذف-إنشاء قناة ${channel.toString()} تلقائياً (تجديد) كل ${time}!\nلإيقاف تجديد القناة، فقط قم بحذفها بنفسك."
+event_autorenew_channel_renewed: "لقد تم تجديد القناة!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

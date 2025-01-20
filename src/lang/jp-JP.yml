@@ -931,6 +931,12 @@ util_leash_too_naugthy: "やんちゃ坊主、3人以上はリードに繋げな
 util_leah_already_owned: "やんちゃ坊主、もうその小さな宝物を持ってるじゃないか :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | リードに繋げたいメンバーはボイスチャンネルにいません！\n${client.iHorizon_Emojis.icon.Warning_Icon} | この操作を実行してもよろしいですか？"
 
+# /util autorenew
+util_autorenew_time_too_short: "チャンネルの更新間隔は1分以上である必要があります"
+util_autorenew_time_too_long: "チャンネルの更新間隔は24時間未満である必要があります"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} これで、${channel.toString()} チャンネルは${time}ごとに自動的に削除-作成（更新）されます！\nチャンネルの更新を停止するには、自分で削除してください。"
+event_autorenew_channel_renewed: "AutoRenewがチャンネルを更新しました！"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

@@ -101,6 +101,47 @@ export const command: Command = {
 
             permission: [PermissionFlagsBits.ModerateMembers, PermissionFlagsBits.MoveMembers]
         },
+        {
+            name: "autorenew",
+            description: "Renew automaticaly X time a channel",
+
+            description_localizations: {
+                "fr": "Renouveller automatiquement un salon"
+            },
+
+            options: [
+                {
+                    name: "channel",
+
+                    description: "The channel to renew every x times",
+                    description_localizations: {
+                        "fr": "Le salon qui ce renouveleras x temps"
+                    },
+
+                    type: ApplicationCommandOptionType.Channel,
+                    channel_types: [ChannelType.GuildText],
+
+                    required: true,
+                    permission: null
+                },
+                {
+                    name: "time",
+
+                    description: "The x time",
+                    description_localizations: {
+                        "fr": "Le temps x"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+
+                    required: true,
+                    permission: null
+                }
+            ],
+
+            permission: PermissionFlagsBits.Administrator,
+            type: ApplicationCommandOptionType.Subcommand
+        }
     ],
 
     category: 'utils',

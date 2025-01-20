@@ -116,10 +116,14 @@ export const event: BotEvent = {
         let Msgchannel = oldChannel.guild.channels.cache.get(someinfo);
         if (!Msgchannel) return;
 
-        const changes = getDiff(oldChannel, newChannel, lang);
+        var changes = getDiff(oldChannel, newChannel, lang);
 
         if (changes === "") {
             return;
+        }
+
+        if (changes.length > 1024) {
+            changes = changes.substring(0, 1021) + "...";
         }
 
         let icon = firstEntry?.executor?.displayAvatarURL();
@@ -128,10 +132,7 @@ export const event: BotEvent = {
             .setColor("#000000")
             .setAuthor({ name: firstEntry?.executor?.username || lang.var_unknown, iconURL: icon })
             .setDescription(`${newChannel.toString()} are updated`)
-
-        logsEmbed.setFields(
-            { name: lang.event_srvLogs_messageUpdate_footer_2, value: changes },
-        );
+            .addFields({ name: lang.event_srvLogs_messageUpdate_footer_2, value: changes });
 
         logsEmbed.setTimestamp();
 
