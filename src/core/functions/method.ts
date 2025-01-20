@@ -139,6 +139,31 @@ const getArgumentOptionNameWithOptions = (o: Option): string => {
     return o.name;
 };
 
+const getArgumentOptionType = (type: number): string => {
+    switch (type) {
+        case 3:
+            return "string";
+        case 6:
+            return "user";
+        case 8:
+            return "roles";
+        case 10:
+        case 4:
+            return "number";
+        case 7:
+            return "channel";
+        default:
+            return "default";
+    }
+};
+
+const getArgumentOptionTypeWithOptions = (o: Option): string => {
+    if (o.choices) {
+        return o.choices.map(x => x.value).join("/");
+    }
+    return getArgumentOptionType(o.type);
+};
+
 export const stringifyOption = (option: Option[]): string => {
     let _ = "";
     option.forEach((value) => {
@@ -246,7 +271,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
     command.options?.forEach(option => {
         expectedArgs.push({
             name: option.name,
-            type: getArgumentOptionNameWithOptions(option),
+            type: getArgumentOptionTypeWithOptions(option),
             required: option.required || false,
             longString: option.type === 3 && !option.choices
         });
