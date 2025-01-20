@@ -57,7 +57,7 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand,
 
-            permission: null
+            permission: PermissionFlagsBits.Administrator
         },
         {
             name: "undo",
@@ -72,7 +72,7 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand,
 
-            permission: null
+            permission: PermissionFlagsBits.Administrator
         }
     ],
 
