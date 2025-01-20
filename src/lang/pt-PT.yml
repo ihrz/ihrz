@@ -931,6 +931,12 @@ util_leash_too_naugthy: "Pecadorzinho, não podes colocar mais de 3 pessoas na t
 util_leah_already_owned: "Pecadorzinho, já possuis estas pequenas maravilhas :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | O membro que queres colocar na trela não está num canal de voz!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Tens a certeza de que queres proceder com esta ação?"
 
+# /util autorenew
+util_autorenew_time_too_short: "O tempo entre uma renovação de canal deve ser superior a 1 minuto"
+util_autorenew_time_too_long: "O tempo entre uma renovação de canal deve ser inferior a 24 horas"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Agora, o canal ${channel.toString()} será automaticamente eliminado-criado (renovado) a cada ${time}!\nPara parar a renovação do canal, basta eliminá-lo você mesmo."
+event_autorenew_channel_renewed: "O AutoRenew renovou o canal!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

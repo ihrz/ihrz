@@ -931,6 +931,12 @@ util_leash_too_naugthy: "Petit coquin, tu ne peux pas mettre plus de 3 personnes
 util_leah_already_owned: "Petit coquin, tu possèdes déjà ces petites merveilles :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Le membre que tu veux mettre en laisse n'est pas dans un canal vocal !\n${client.iHorizon_Emojis.icon.Warning_Icon} | Es-tu sûr de vouloir effectuer cette action ?"
 
+# /util autorenew
+util_autorenew_time_too_short: "Le temps entre chaque renouvellement de salon doit être supérieur à 1 minute"
+util_autorenew_time_too_long: "Le temps entre chaque renouvellement de salon doit être inférieur à 24 heures"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Désormais, le salon ${channel.toString()} sera automatiquement supprimé-créé (renouvelé) toutes les ${time} !\nPour arrêter le renouvellement du salon, il suffit de le supprimer vous-même."
+event_autorenew_channel_renewed: "L'AutoRenew a renouvelé le salon !"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

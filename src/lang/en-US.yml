@@ -931,6 +931,12 @@ util_leash_too_naugthy: "You little rascal, you can’t leash more than 3 people
 util_leah_already_owned: "You little rascal, you already own these little wonders :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | The member you want to leash isn’t in a voice channel!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Are you sure you want to proceed with this action?"
 
+# /util autorenew
+util_autorenew_time_too_short: "The time between a channel renew must be more than 1 minutes"
+util_autorenew_time_too_long: "The time between a channel renew must be more than 24 hours"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Now, the ${channel.toString()} channel is automaticaly deleted-created (renewed) every ${time} !\nFor stoping the channel to be renewed, just delete it by yourself."
+event_autorenew_channel_renewed: "The AutoRenew have renewed the channel!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

@@ -931,6 +931,12 @@ util_leash_too_naugthy: "Pequeño travieso, no puedes poner a más de 3 personas
 util_leah_already_owned: "Pequeño travieso, ya posees estas pequeñas maravillas :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | ¡El miembro que quieres poner en la correa no está en un canal de voz!\n${client.iHorizon_Emojis.icon.Warning_Icon} | ¿Estás seguro de que quieres realizar esta acción?"
 
+# /util autorenew
+util_autorenew_time_too_short: "El tiempo entre una renovación de canal debe ser más de 1 minuto"
+util_autorenew_time_too_long: "El tiempo entre una renovación de canal debe ser menos de 24 horas"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ¡Ahora, el canal ${channel.toString()} se eliminará y creará automáticamente (renovará) cada ${time}!\nPara detener la renovación del canal, simplemente elimínalo tú mismo."
+event_autorenew_channel_renewed: "¡AutoRenew ha renovado el canal!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

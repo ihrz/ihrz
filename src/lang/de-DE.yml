@@ -931,6 +931,12 @@ util_leash_too_naugthy: "Du kleiner Frechdachs, du kannst nicht mehr als 3 Perso
 util_leah_already_owned: "Du kleiner Frechdachs, du besitzt diese kleinen Wunder schon :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Das Mitglied, das du an die Leine legen möchtest, ist nicht in einem Sprachkanal!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Bist du sicher, dass du diese Aktion ausführen möchtest?"
 
+# /util autorenew
+util_autorenew_time_too_short: "Die Zeit zwischen einer Kanalerneuerung muss mehr als 1 Minute betragen"
+util_autorenew_time_too_long: "Die Zeit zwischen einer Kanalerneuerung muss weniger als 24 Stunden betragen"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Ab jetzt wird der Kanal ${channel.toString()} automatisch alle ${time} gelöscht und neu erstellt (erneuert)!\nUm die Kanalerneuerung zu stoppen, lösche ihn einfach selbst."
+event_autorenew_channel_renewed: "Die AutoRenew-Funktion hat den Kanal erneuert!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

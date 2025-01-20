@@ -342,7 +342,7 @@ export const subCommand: SubCommand = {
             // collector for string select
             const select_collector = select_interaction.createMessageComponentCollector({
                 componentType: ComponentType.StringSelect,
-                time: 60_000,
+                time: 60_000 * 5,
             });
 
             select_collector.on("collect", async (i) => {

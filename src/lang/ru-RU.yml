@@ -931,6 +931,12 @@ util_leash_too_naugthy: "Шалунишка, ты не можешь привяз
 util_leah_already_owned: "Шалунишка, у тебя уже есть эти маленькие чудеса :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Участник, которого ты хочешь привязать, не находится в голосовом канале!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Ты уверен, что хочешь выполнить это действие?"
 
+# /util autorenew
+util_autorenew_time_too_short: "Время между обновлением канала должно быть более 1 минуты"
+util_autorenew_time_too_long: "Время между обновлением канала должно быть менее 24 часов"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Теперь канал ${channel.toString()} будет автоматически удаляться-создаваться (обновляться) каждые ${time}!\nЧтобы остановить обновление канала, просто удалите его самостоятельно."
+event_autorenew_channel_renewed: "AutoRenew обновил канал!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

@@ -931,6 +931,12 @@ util_leash_too_naugthy: "Piccolo birichino, non puoi mettere più di 3 persone a
 util_leah_already_owned: "Piccolo birichino, possiedi già queste piccole meraviglie :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Il membro che vuoi mettere al guinzaglio non è in un canale vocale!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Sei sicuro di voler procedere con questa azione?"
 
+# /util autorenew
+util_autorenew_time_too_short: "Il tempo tra un rinnovo del canale deve essere superiore a 1 minuto"
+util_autorenew_time_too_long: "Il tempo tra un rinnovo del canale deve essere inferiore a 24 ore"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Ora, il canale ${channel.toString()} verrà automaticamente eliminato-creato (rinnovato) ogni ${time}!\nPer interrompere il rinnovo del canale, eliminalo semplicemente tu stesso."
+event_autorenew_channel_renewed: "AutoRenew ha rinnovato il canale!"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
