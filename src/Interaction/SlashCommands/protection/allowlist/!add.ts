@@ -25,11 +25,11 @@ import {
     EmbedBuilder,
     GuildMember,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../../types/languageData';
+import { Command } from '../../../../../types/command';
 
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../../types/command';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {        

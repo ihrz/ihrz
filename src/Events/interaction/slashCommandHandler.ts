@@ -63,7 +63,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                         content: lang.var_dont_have_perm
                             .replace("{perm}", permName)
                     }
-                    return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+                    return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
                 }
             }
 
@@ -91,7 +91,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                         content: lang.var_dont_have_perm
                             .replace("{perm}", permName)
                     }
-                    return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+                    return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
                 }
             }
 
@@ -115,7 +115,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                 content: lang.var_dont_have_perm
                     .replace("{perm}", permName)
             }
-            return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+            return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
         }
     }
 

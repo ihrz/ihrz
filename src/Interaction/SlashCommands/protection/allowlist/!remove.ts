@@ -23,12 +23,15 @@ import {
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
+    GuildMember,
+    User,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+
+import { LanguageData } from '../../../../../types/languageData';
+import { Command } from '../../../../../types/command';
 
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../../types/command';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {        
@@ -37,48 +40,40 @@ export const subCommand: SubCommand = {
         // Guard's Typing
         if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        var text = "";
-
         let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
+        let member = interaction.options.getUser('member') as User;
 
-        if (!baseData) {
-
-            await client.db.set(`${interaction.guildId}.ALLOWLIST`,
-                {
-                    enable: false,
-                    list: {
-                        [`${interaction.guild?.ownerId}`]: { allowed: true },
-                    },
-                }
-            );
-
-            baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
-        };
-
-        for (var i in baseData.list) {
-            text += `<@${i}>\n`
-        };
-
-        for (var i of client.owners) {
-            text += `<@${i}> [👑]\n`
-        }
-
-        if (interaction.user.id !== interaction.guild.ownerId && !text.includes(interaction.user.id)) {
-            await interaction.reply({ content: lang.allowlist_show_not_permited });
+        if (interaction.user.id !== interaction.guild.ownerId && !client.owners.includes(interaction.user.id)) {
+            await interaction.reply({ content: lang.allowlist_delete_not_owner });
             return;
         };
 
-        let embed = new EmbedBuilder()
-            .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
-            .setAuthor({ name: lang.allowlist_show_embed_author })
-            .setDescription(`${text}`)
-            .setFooter(await client.method.bot.footerBuilder(interaction))
-            .setTimestamp();
+        if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
+            await interaction.reply({ content: lang.allowlist_delete_not_permited });
+            return;
+        };
 
+        if (!member) {
+            await interaction.reply({ content: lang.allowlist_delete_member_unreachable });
+            return;
+        };
+
+        if (member.id === interaction.guild.ownerId) {
+            await interaction.reply({ content: lang.allowlist_delete_cant_remove_owner });
+            return;
+        };
+
+        if (!baseData.list[member.id]?.allowed == true) {
+            await interaction.reply({ content: lang.allowlist_delete_isnt_in });
+            return;
+        };
+
+        await client.db.delete(`${interaction.guild.id}.ALLOWLIST.list.${member.id}`);
         await interaction.reply({
-            embeds: [embed],
-            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+            content: lang.allowlist_delete_command_work
+                .replace('${member.user}', member.toString())
         });
+
         return;
     },
 };

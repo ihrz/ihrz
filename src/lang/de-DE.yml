@@ -936,6 +936,7 @@ util_autorenew_time_too_short: "Die Zeit zwischen einer Kanalerneuerung muss meh
 util_autorenew_time_too_long: "Die Zeit zwischen einer Kanalerneuerung muss weniger als 24 Stunden betragen"
 util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Ab jetzt wird der Kanal ${channel.toString()} automatisch alle ${time} gelöscht und neu erstellt (erneuert)!\nUm die Kanalerneuerung zu stoppen, lösche ihn einfach selbst."
 event_autorenew_channel_renewed: "Die AutoRenew-Funktion hat den Kanal erneuert!"
+event_autorenew_channel_warning: "Das AutoRenew-Modul ist so konfiguriert, dass dieser Kanal erneuert wird. Nächste Erneuerung in ${time}."
 
 
 # Guild Config commands

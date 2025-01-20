@@ -132,36 +132,18 @@ export function number(args: string[], argsNumber: number): number {
     return Number.isNaN(parseInt(value)) ? 0 : parseInt(value);
 }
 
-const getArgumentOptionType = (type: number): string => {
-    switch (type) {
-        case 3:
-            return "string";
-        case 6:
-            return "user";
-        case 8:
-            return "roles";
-        case 10:
-        case 4:
-            return "number";
-        case 7:
-            return "channel";
-        default:
-            return "default";
-    }
-};
-
-const getArgumentOptionTypeWithOptions = (o: Option): string => {
+const getArgumentOptionNameWithOptions = (o: Option): string => {
     if (o.choices) {
         return o.choices.map(x => x.value).join("/");
     }
-    return getArgumentOptionType(o.type);
+    return o.name;
 };
 
 export const stringifyOption = (option: Option[]): string => {
     let _ = "";
     option.forEach((value) => {
         _ += value.required ? "[" : "<";
-        _ += getArgumentOptionTypeWithOptions(value);
+        _ += getArgumentOptionNameWithOptions(value);
         _ += value.required ? "]" + " " : ">" + " ";
     });
     return _.trim();
@@ -171,7 +153,7 @@ export const boldStringifyOption = (option: Option[]): string => {
     let _ = "";
     option.forEach((value) => {
         _ += value.required ? "**`[" : "**`<";
-        _ += getArgumentOptionTypeWithOptions(value);
+        _ += getArgumentOptionNameWithOptions(value);
         _ += value.required ? "]`**" + " " : ">`**" + " ";
     });
     return _.trim();
@@ -264,7 +246,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
     command.options?.forEach(option => {
         expectedArgs.push({
             name: option.name,
-            type: getArgumentOptionTypeWithOptions(option),
+            type: getArgumentOptionNameWithOptions(option),
             required: option.required || false,
             longString: option.type === 3 && !option.choices
         });

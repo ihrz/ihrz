@@ -711,6 +711,7 @@ export interface LanguageData {
   util_autorenew_time_too_long: string;
   util_autorenew_command_ok: string;
   event_autorenew_channel_renewed: string;
+  event_autorenew_channel_warning: string;
   blockpub_not_admin: string;
   blockpub_now_enable: string;
   blockpub_now_disable: string;

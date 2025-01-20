@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var channel = interaction.options.getChannel("to") as TextChannel;
+            var channel = interaction.options.getChannel("channel") as TextChannel;
             var buttonTitle = interaction.options.getString('button-title')?.substring(0, 32) || '+';
         } else {
             
