@@ -52,8 +52,7 @@ export const subCommand: SubCommand = {
     if (interaction instanceof ChatInputCommandInteraction) {
       var text = interaction.options.getString('text')?.slice(0, 30);
     } else {
-
-      var text = client.method.longString(args!, 0) as string | undefined;
+      var text = client.method.longString(args!, 0)?.slice(0, 30);
     }
 
     let font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
