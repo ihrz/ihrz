@@ -48,12 +48,15 @@ class MemberCountModule {
                 const guildObject = v.value as DatabaseStructure.DbInId;
                 return { guildId: v.id, data: guildObject.GUILD?.MCOUNT };
             })
+            .filter(v => v.data);
     }
 
     private async Refresh(memberCountData: memberCountData) {
         for (let guildObject of memberCountData) {
             try {
-                const guild = this.client.guilds.cache.get(guildObject.guildId)!;
+                const guild = this.client.guilds.cache.get(guildObject.guildId);
+                if (!guild) continue;
+
                 const onlineCount = guild.members.cache
                     .filter(member =>
                         member.presence?.status === 'online' ||
@@ -78,8 +81,7 @@ class MemberCountModule {
                 });
 
                 const baseData = guildObject.data;
-
-                if (!baseData) return;
+                if (!baseData) continue;
 
                 const mappings: { key: keyof DatabaseStructure.MemberCountSchema, count: number | string }[] = [
                     { key: 'bot', count: botMembersCount },
@@ -94,13 +96,12 @@ class MemberCountModule {
                 for (const { key, count } of mappings) {
                     const data = baseData[key];
                     if (data) {
-
                         const channel = guild.channels.cache.get(data.channel!) as TextChannel;
                         if (channel && channel.isTextBased()) {
                             const newName = data.name
                                 ?.replace(/{\w+Count}/, String(count))
                                 ?.replace(/{\w+count}/, String(count));
-                            channel.edit({ name: newName });
+                            await channel.edit({ name: newName });
                         }
                     }
                 }
