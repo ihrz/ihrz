@@ -57,9 +57,9 @@ class AutoRenew {
                 .map(v => {
                     const guildObject = v.value as DatabaseStructure.DbInId;
                     return { guildId: v.id, data: guildObject.UTILS?.renew_channel };
-                });
+                })
+                .filter(v => v.data);
         } catch (error) {
-            console.error('Error getting AutoRenew data:', error);
             return [];
         }
     }
@@ -119,7 +119,7 @@ class AutoRenew {
 
                             await channel.send({
                                 content: lang.event_autorenew_channel_warning
-                                .replace("${time}", time(new Date(Date.now() + (data.maxTime / 2)), "R"))
+                                    .replace("${time}", time(new Date(Date.now() + (data.maxTime / 2)), "R"))
                             }).catch(() => false);
                         }
                     } catch (error) {
