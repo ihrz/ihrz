@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BaseGuildTextChannel, Client } from "discord.js";
+import { BaseGuildTextChannel, Client, time } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 type AutorenewData = {
@@ -78,7 +78,6 @@ class AutoRenew {
                         if (data.timestamp <= (Date.now() - data.maxTime)) {
                             const channel = await guild.channels.fetch(channelId) as BaseGuildTextChannel | null;
 
-                            console.log(channelId, data)
                             if (!channel) {
                                 // Clean up database if channel doesn't exist
                                 await this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
@@ -110,6 +109,18 @@ class AutoRenew {
                                     content: lang.event_autorenew_channel_renewed
                                 }).catch(() => false);
                             }
+                        } else if (data.timestamp <= (Date.now() - (data.maxTime / 2))) {
+                            const channel = await guild.channels.fetch(channelId) as BaseGuildTextChannel | null;
+
+                            if (!channel) {
+                                await this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
+                                continue;
+                            }
+
+                            await channel.send({
+                                content: lang.event_autorenew_channel_warning
+                                .replace("${time}", time(new Date(Date.now() + (data.maxTime / 2)), "R"))
+                            }).catch(() => false);
                         }
                     } catch (error) {
                         await this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);

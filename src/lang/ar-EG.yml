@@ -935,6 +935,7 @@ util_autorenew_time_too_short: "يجب أن يكون الوقت بين تجدي�
 util_autorenew_time_too_long: "يجب أن يكون الوقت بين تجديد القناة أقل من 24 ساعة"
 util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} الآن، سيتم حذف-إنشاء قناة ${channel.toString()} تلقائياً (تجديد) كل ${time}!\nلإيقاف تجديد القناة، فقط قم بحذفها بنفسك."
 event_autorenew_channel_renewed: "لقد تم تجديد القناة!"
+event_autorenew_channel_warning: "تم تكوين وحدة AutoRenew لتجديد هذه القناة. التجديد التالي بعد ${time}."
 
 
 # Guild Config commands

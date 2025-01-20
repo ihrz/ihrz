@@ -77,7 +77,7 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand,
 
-            permission: null
+            permission: PermissionFlagsBits.ManageChannels
         },
         {
             name: "rename",
@@ -105,7 +105,7 @@ export const command: Command = {
 
             type: ApplicationCommandOptionType.Subcommand,
 
-            permission: null
+            permission: PermissionFlagsBits.ManageChannels
         },
         {
             name: "delete",

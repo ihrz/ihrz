@@ -170,7 +170,7 @@ remove_command_error: "Error occurred, please try again"
 remove_command_work: "Successfully removed ${member.tag} from your ticket!"
 
 # /transript
-transript_disabled_command: "You can't use this command because an Administrator disabled the ticket command !"
+transript_disabled_command: "You cannot use this command because an administrator has disabled it!"
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Ticket Chat transcript for ${channel.name}"
 transript_command_error: "Error occurred, please try again!"
@@ -936,7 +936,7 @@ util_autorenew_time_too_short: "The time between a channel renew must be more th
 util_autorenew_time_too_long: "The time between a channel renew must be more than 24 hours"
 util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Now, the ${channel.toString()} channel is automaticaly deleted-created (renewed) every ${time} !\nFor stoping the channel to be renewed, just delete it by yourself."
 event_autorenew_channel_renewed: "The AutoRenew have renewed the channel!"
-
+event_autorenew_channel_warning: "The AutoRenew module is config to renew this channel. Futur renew in ${time}."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

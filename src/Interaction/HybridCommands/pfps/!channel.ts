@@ -40,7 +40,7 @@ export const subCommand: SubCommand = {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (interaction instanceof ChatInputCommandInteraction) {
-            var channel = interaction.options.getChannel('to') as BaseGuildTextChannel | null;
+            var channel = interaction.options.getChannel('channel') as BaseGuildTextChannel | null;
         } else {
 
             var channel = await client.method.channel(interaction, args!, 0) as BaseGuildTextChannel | null;

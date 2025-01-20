@@ -889,50 +889,48 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
             if (channel === interaction.channel?.id) {
                 let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
-                if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id) {
-                    interaction.channel.messages.fetch().then(async (messages) => {
+                interaction.channel.messages.fetch().then(async (messages) => {
 
-                        //@ts-ignore
-                        let attachment = await discordTranscripts.createTranscript(interaction.channel, {
-                            limit: -1,
-                            filename: 'transcript.html',
-                            footerText: "Exported {number} message{s}",
-                            poweredBy: false,
-                            hydrate: true
-                        });
+                    //@ts-ignore
+                    let attachment = await discordTranscripts.createTranscript(interaction.channel, {
+                        limit: -1,
+                        filename: `${interaction.guildId}-transcript.html`,
+                        footerText: "Exported {number} message{s}",
+                        poweredBy: false,
+                        hydrate: true
+                    });
+
+                    let embed = new EmbedBuilder()
+                        .setDescription(data.close_title_sourcebin)
+                        .setColor('#0014a8');
+
+                    try {
+                        (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+                        interaction.editReply({ content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
+                    } catch {
+                        await interaction.client.method.channelSend(interaction, data.close_command_error);
+                        return;
+                    };
+
+                    try {
+                        let TicketLogsChannel = await database.get(`${interaction.guildId}.GUILD.TICKET.logs`);
+                        TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+                        if (!TicketLogsChannel) return;
 
                         let embed = new EmbedBuilder()
-                            .setDescription(data.close_title_sourcebin)
-                            .setColor('#0014a8');
+                            .setColor("#008000")
+                            .setTitle(data.event_ticket_logsChannel_onClose_embed_title)
+                            .setDescription(data.event_ticket_logsChannel_onClose_embed_desc
+                                .replace('${interaction.user}', interaction.user.toString())
+                                .replace('${interaction.channel.id}', interaction.channel?.id!)
+                            )
+                            .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
+                            .setTimestamp();
 
-                        try {
-                            (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-                            interaction.editReply({ content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
-                        } catch {
-                            await interaction.client.method.channelSend(interaction, data.close_command_error);
-                            return;
-                        };
-
-                        try {
-                            let TicketLogsChannel = await database.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-                            TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
-                            if (!TicketLogsChannel) return;
-
-                            let embed = new EmbedBuilder()
-                                .setColor("#008000")
-                                .setTitle(data.event_ticket_logsChannel_onClose_embed_title)
-                                .setDescription(data.event_ticket_logsChannel_onClose_embed_desc
-                                    .replace('${interaction.user}', interaction.user.toString())
-                                    .replace('${interaction.channel.id}', interaction.channel?.id!)
-                                )
-                                .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
-                                .setTimestamp();
-
-                            TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
-                            return;
-                        } catch (e) { return };
-                    });
-                }
+                        TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
+                        return;
+                    } catch (e) { return };
+                });
             }
         }
     }
@@ -950,34 +948,30 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
         for (let channel in fetch[user]) {
 
             if (channel === interaction.channel?.id) {
-                let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
+                let attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
+                    limit: -1,
+                    filename: `${interaction.guildId}-transcript.html`,
+                    footerText: "Exported {number} message{s}",
+                    poweredBy: false,
+                    hydrate: true,
+                    saveImages: true,
+                    favicon: interaction.client.user.displayAvatarURL({ size: 512, extension: "png" })
+                });
 
-                if (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id) {
-                    let attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
-                        limit: -1,
-                        filename: `${interaction.guildId}-transcript.html`,
-                        footerText: "Exported {number} message{s}",
-                        poweredBy: false,
-                        hydrate: true,
-                        saveImages: true,
-                        favicon: interaction.client.user.displayAvatarURL({ size: 512, extension: "png" })
-                    });
+                let embed = new EmbedBuilder()
+                    .setDescription(data.close_title_sourcebin)
+                    .setColor('#0014a8');
 
-                    let embed = new EmbedBuilder()
-                        .setDescription(data.close_title_sourcebin)
-                        .setColor('#0014a8');
+                if (interaction.deferred) {
+                    await interaction.editReply({ content: data.guildconfig_config_save_check_dm });
+                } else {
+                    await interaction.reply({ content: data.guildconfig_config_save_check_dm, ephemeral: true });
+                };
 
-                    if (interaction.deferred) {
-                        await interaction.editReply({ content: data.guildconfig_config_save_check_dm });
-                    } else {
-                        await interaction.reply({ content: data.guildconfig_config_save_check_dm, ephemeral: true });
-                    };
+                await interaction.user.send({ embeds: [embed], content: data.transript_command_work, files: [attachment] })
+                    .catch(() => interaction.followUp({ content: data.ticket_transcript_failed_to_send, ephemeral: true }))
 
-                    await interaction.user.send({ embeds: [embed], content: data.transript_command_work, files: [attachment] })
-                        .catch(() => interaction.followUp({ content: data.ticket_transcript_failed_to_send, ephemeral: true }))
-
-                    return;
-                }
+                return;
             }
         }
     }
@@ -1131,7 +1125,7 @@ async function TicketDelete(interaction: Interaction<"cached">) {
                         //@ts-ignore
                         let attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
                             limit: -1,
-                            filename: 'transcript.html',
+                            filename: `${interaction.guildId}-transcript.html`,
                             footerText: "Exported {number} message{s}",
                             poweredBy: false,
                             hydrate: true

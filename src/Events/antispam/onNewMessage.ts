@@ -35,6 +35,7 @@ import { DatabaseStructure } from '../../../types/database_structure';
 import { AntiSpam } from '../../../types/antispam';
 import { BotEvent } from '../../../types/event';
 import { LanguageData } from '../../../types/languageData';
+import { time } from 'node:console';
 
 export const cache: AntiSpam.AntiSpamCache = {
     raidInfo: new Map<string, Map<string, number | boolean>>(),
@@ -43,12 +44,12 @@ export const cache: AntiSpam.AntiSpamCache = {
     membersFlags: new Map<string, Map<string, number>>()
 };
 
-let timeout: NodeJS.Timeout | null = null;
+let timeout: Record<string, NodeJS.Timeout | undefined> = {};
 
-async function waitForFinish(): Promise<void> {
+async function waitForFinish(guildId: string): Promise<void> {
     return new Promise((resolve) => {
-        if (timeout) clearTimeout(timeout);
-        timeout = setTimeout(() => {
+        if (timeout[guildId]) clearTimeout(timeout[guildId]);
+        timeout[guildId] = setTimeout(() => {
             resolve();
         }, 5000);
     });
@@ -295,7 +296,7 @@ export const event: BotEvent = {
             }
 
             if (timeout < currentTime) {
-                await waitForFinish();
+                await waitForFinish(message.guildId!);
                 await PunishUsers(message.guild.id, membersToPunish!, options);
                 await clearSpamMessages(message, cache.messages.get(message.guild.id)!);
                 await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options);

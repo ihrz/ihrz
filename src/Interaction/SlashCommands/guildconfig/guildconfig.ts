@@ -155,18 +155,6 @@ export const command: Command = {
             permission: null
         },
         {
-            name: 'config-show',
-
-            description: 'Get the guild configuration!',
-            description_localizations: {
-                "fr": "Obtenez la configuration du serveur"
-            },
-
-            type: ApplicationCommandOptionType.Subcommand,
-
-            permission: PermissionFlagsBits.Administrator
-        },
-        {
             name: 'set',
 
             description: 'Set someting/behaviours into this guild!',
@@ -241,7 +229,7 @@ export const command: Command = {
             permission: null
         },
         {
-            name: 'set-bot',
+            name: 'bot',
 
             description: 'Set someting/behaviours in the bot!',
             description_localizations: {
@@ -417,7 +405,18 @@ export const command: Command = {
             type: ApplicationCommandOptionType.SubcommandGroup,
 
             options: [
-
+                {
+                    name: 'show',
+        
+                    description: 'Get the guild configuration!',
+                    description_localizations: {
+                        "fr": "Obtenez la configuration du serveur"
+                    },
+        
+                    type: ApplicationCommandOptionType.Subcommand,
+        
+                    permission: PermissionFlagsBits.Administrator
+                },
                 {
                     name: "restore",
 

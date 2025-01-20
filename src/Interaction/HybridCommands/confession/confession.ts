@@ -55,7 +55,7 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'to',
+                    name: 'channel',
                     type: ApplicationCommandOptionType.Channel,
 
                     description: 'The channel!',
