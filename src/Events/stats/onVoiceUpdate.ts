@@ -25,63 +25,105 @@ import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure';
 import { getMemberBoost } from '../../Interaction/HybridCommands/economy/economy.js';
 
-const voiceSessionTimestamps = new Map<string, { startTimestamp: number, channelId: string }>();
+interface VoiceSession {
+    startTimestamp: number;
+    channelId: string;
+}
 
 export const event: BotEvent = {
     name: "voiceStateUpdate",
     run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
-
         if (!oldState.guild) return;
 
-        let oldChannelId = oldState.channelId;
-        let newChannelId = newState.channelId;
+        const userId = oldState.id;
+        const guildId = oldState.guild.id;
+        const oldChannelId = oldState.channelId;
+        const newChannelId = newState.channelId;
 
-        let userId = oldState.id;
+        const saveActiveSession = async (userId: string, session: VoiceSession) => {
+            await client.db.set(
+                `${guildId}.ACTIVE_VOICE_SESSIONS.${userId}`,
+                session
+            );
+        };
+
+        const getActiveSession = async (userId: string): Promise<VoiceSession | null> => {
+            return await client.db.get(
+                `${guildId}.ACTIVE_VOICE_SESSIONS.${userId}`
+            );
+        };
+
+        const clearActiveSession = async (userId: string) => {
+            await client.db.delete(
+                `${guildId}.ACTIVE_VOICE_SESSIONS.${userId}`
+            );
+        };
+
+        const processSessionEnd = async (session: VoiceSession) => {
+            const endTimestamp = Date.now();
+            const sessionInfo: DatabaseStructure.StatsVoice = {
+                startTimestamp: session.startTimestamp,
+                endTimestamp,
+                channelId: session.channelId
+            };
+
+            await client.db.push(
+                `${guildId}.STATS.USER.${userId}.voices`,
+                sessionInfo
+            );
+
+            const voiceSessionDuration = endTimestamp - session.startTimestamp;
+            const voiceSessionDurationInMinutes = voiceSessionDuration / 1000 / 60;
+            const coinsEarned = Math.floor(voiceSessionDurationInMinutes / 10);
+
+            if (coinsEarned > 0 && newState.member) {
+                await client.method.addCoins(
+                    newState.member,
+                    coinsEarned * await getMemberBoost(newState.member)
+                );
+            }
+        };
 
         if (userId && newChannelId && oldChannelId !== newChannelId) {
-            if (voiceSessionTimestamps.has(userId)) {
-                const session = voiceSessionTimestamps.get(userId);
-                if (session) {
-                    const endTimestamp = Date.now();
-                    const sessionInfo = {
-                        startTimestamp: session.startTimestamp,
-                        endTimestamp,
-                        channelId: session.channelId
-                    };
-                    voiceSessionTimestamps.delete(userId);
-                }
+            const existingSession = await getActiveSession(userId);
+
+            if (existingSession) {
+                await processSessionEnd(existingSession);
+                await clearActiveSession(userId);
             }
 
-            voiceSessionTimestamps.set(userId, { startTimestamp: Date.now(), channelId: newChannelId });
+            await saveActiveSession(userId, {
+                startTimestamp: Date.now(),
+                channelId: newChannelId
+            });
         }
 
         if (userId && oldChannelId && !newChannelId) {
-            const session = voiceSessionTimestamps.get(userId);
-            if (session) {
-                const endTimestamp = Date.now();
-                const sessionInfo: DatabaseStructure.StatsVoice = {
-                    startTimestamp: session.startTimestamp,
-                    endTimestamp,
-                    channelId: session.channelId
-                };
+            const existingSession = await getActiveSession(userId);
 
-                // Save the voice session to the database
-                await client.db.push(`${newState.guild.id}.STATS.USER.${userId}.voices`, sessionInfo)
-
-                // Delete the session from the cache
-                voiceSessionTimestamps.delete(userId);
-
-                // Earn coins for the user for being active in voice channels
-                const voiceSessionDuration = sessionInfo.endTimestamp - sessionInfo.startTimestamp;
-                const voiceSessionDurationInMinutes = voiceSessionDuration / 1000 / 60;
-                const coinsEarned = Math.floor(voiceSessionDurationInMinutes / 10);
-
-                if (coinsEarned > 0) {
-                    await client.method.addCoins(newState.member!, coinsEarned * await getMemberBoost(newState.member!));
-                }
+            if (existingSession) {
+                await processSessionEnd(existingSession);
+                await clearActiveSession(userId);
             }
         }
-
-        return;
     },
+};
+
+export const recoverActiveSessions = async (client: Client) => {
+    for (const guild of client.guilds.cache.values()) {
+        const activeSessions = await client.db.get(
+            `${guild.id}.ACTIVE_VOICE_SESSIONS`
+        ) || {};
+
+        for (const [userId, session] of Object.entries(activeSessions)) {
+            const member = await guild.members.fetch(userId).catch(() => null);
+            if (!member?.voice.channelId) {
+                await event.run(
+                    client,
+                    { guild, id: userId, channelId: (session as VoiceSession).channelId } as VoiceState,
+                    { guild, id: userId, channelId: null } as VoiceState
+                );
+            }
+        }
+    }
 };

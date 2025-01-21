@@ -30,6 +30,7 @@ import { BotEvent } from '../../../types/event.js';
 import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { CacheStorage } from '../../core/cache.js';
+import { recoverActiveSessions } from '../stats/onVoiceUpdate.js';
 
 export const event: BotEvent = {
     name: "ready",
@@ -177,6 +178,7 @@ export const event: BotEvent = {
 
         PfpsManager_Init(client);
 
+        await recoverActiveSessions(client);
         await client.memberCountManager.init();
         await client.autoRenewManager.init();
         let initData = client.method.core.getCacheStorage();
