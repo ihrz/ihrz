@@ -228,11 +228,11 @@ export const event: BotEvent = {
                 // Fetch all guilds
                 const guilds = await client.guilds.fetch();
 
-                console.log('\n=== Starting Cache Loading Process ===\n');
+                logger.legacy('\n=== Starting Cache Loading Process ===\n');
 
                 for (const [guildId, guild] of guilds) {
                     totalGuilds++;
-                    console.log(`📋 Processing Guild: ${guild.name} (${guild.id})`);
+                    logger.legacy(`📋 Processing Guild: ${guild.name} (${guild.id})`);
 
                     // Load complete guild
                     const fullGuild = await guild.fetch();
@@ -240,12 +240,12 @@ export const event: BotEvent = {
                     // Load roles
                     const roles = await fullGuild.roles.fetch();
                     totalRoles += roles.size;
-                    console.log(`   ┣━ Roles Loaded: ${roles.size}`);
+                    logger.legacy(`   ┣━ Roles Loaded: ${roles.size}`);
 
                     // Load channels
                     const channels = await fullGuild.channels.fetch();
                     totalChannels += channels.size;
-                    console.log(`   ┣━ Channels Loaded: ${channels.size}`);
+                    logger.legacy(`   ┣━ Channels Loaded: ${channels.size}`);
 
                     // Load members with chunking
                     try {
@@ -254,11 +254,11 @@ export const event: BotEvent = {
                             .then(members => {
                                 totalMembers += members.size;
                                 members.forEach(member => totalUniqueUsers.add(member.user.id));
-                                console.log(`   ┗━ Members Loaded: ${members.size}`);
+                                logger.legacy(`   ┗━ Members Loaded: ${members.size}`);
                             })
                             .catch(error => {
                                 if (error.code === 'GuildMembersTimeout') {
-                                    console.log(`   ┗━ ⚠️ Partial Members Load: Timeout occurred for ${fullGuild.name}`);
+                                    logger.legacy(`   ┗━ ⚠️ Partial Members Load: Timeout occurred for ${fullGuild.name}`);
                                 } else {
                                     throw error;
                                 }
@@ -266,17 +266,17 @@ export const event: BotEvent = {
                     } catch (memberError) {
                         console.error(`   ┗━ ❌ Error loading members for ${fullGuild.name}:`, memberError);
                     }
-                    console.log(''); // Empty line for readability
+                    logger.legacy(''); // Empty line for readability
                 }
 
                 // Print global statistics
-                console.log('=== Global Cache Statistics ===');
-                console.log(`📊 Total Guilds: ${totalGuilds}`);
-                console.log(`👥 Total Unique Users: ${totalUniqueUsers.size}`);
-                console.log(`👤 Total Members (including duplicates): ${totalMembers}`);
-                console.log(`📜 Total Roles: ${totalRoles}`);
-                console.log(`📝 Total Channels: ${totalChannels}`);
-                console.log('\n=== Cache Loading Complete ===');
+                logger.legacy('=== Global Cache Statistics ===');
+                logger.legacy(`📊 Total Guilds: ${totalGuilds}`);
+                logger.legacy(`👥 Total Unique Users: ${totalUniqueUsers.size}`);
+                logger.legacy(`👤 Total Members (including duplicates): ${totalMembers}`);
+                logger.legacy(`📜 Total Roles: ${totalRoles}`);
+                logger.legacy(`📝 Total Channels: ${totalChannels}`);
+                logger.legacy('\n=== Cache Loading Complete ===');
 
             } catch (error) {
                 console.error('❌ Error while loading caches:', error);

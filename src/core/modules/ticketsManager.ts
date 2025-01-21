@@ -1109,11 +1109,7 @@ async function TicketDelete(interaction: Interaction<"cached">) {
 
     for (let user in fetch) {
         for (let channel in fetch[user]) {
-            let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
-
-            if (channel === interaction.channel?.id
-                &&
-                (interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator) || interaction.user.id === member?.user.id)) {
+            if (channel === interaction.channel?.id) {
 
                 await database.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
 
