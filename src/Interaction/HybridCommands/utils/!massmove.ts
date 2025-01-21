@@ -54,7 +54,6 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
             var toChannel = interaction.options.getChannel('channel')! as BaseGuildVoiceChannel | null;
-            await interaction.deferReply();
         } else {
             var fromChannel = await client.method.voiceChannel(interaction, args!, 0);
             var toChannel = await client.method.voiceChannel(interaction, args!, 1);
