@@ -50,10 +50,11 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var tomute = interaction.options.getMember("user") as GuildMember | null;
             var mutetime = interaction.options.getString("time");
+            var reason = interaction.options.getString("reason");
         } else {
-
             var tomute = client.method.member(interaction, args!, 0) as GuildMember | null;
             var mutetime = client.method.string(args!, 1) as string | null;
+            var reason = client.method.longString(args!, 2);
         };
 
         if (!mutetime || !tomute || !mutetime) { return; };
@@ -91,6 +92,7 @@ export const subCommand: SubCommand = {
         await client.method.interactionSend(interaction, lang.tempmute_command_work
             .replace("${tomute.id}", tomute.id)
             .replace("${ms(ms(mutetime))}", mutetimeString)
+            .replace("${reason}", reason || lang.var_no_set)
         );
 
         setTimeout(async () => {
@@ -105,6 +107,7 @@ export const subCommand: SubCommand = {
                 .replace("${interaction.user.id}", interaction.member.user.id)
                 .replace("${tomute.id}", tomute.id)
                 .replace("${ms(ms(mutetime))}", mutetimeString)
+                .replace("${reason}", reason || lang.var_no_set)
         });
 
         await client.method.warnMember(
@@ -114,6 +117,7 @@ export const subCommand: SubCommand = {
                 .replace("${interaction.user.id}", interaction.member.user.id)
                 .replace("${tomute.id}", tomute.id)
                 .replace("${ms(ms(mutetime))}", mutetimeString)
+                .replace("${reason}", reason || lang.var_no_set)
         ).catch(() => { });
     },
 };

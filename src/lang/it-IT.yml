@@ -1488,10 +1488,10 @@ tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Non hai
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Non ho il permesso."
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Non puoi mutare te stesso!"
 tempmute_already_muted: "Questo utente è già mutato!"
-tempmute_command_work: "<@${tomute.id}> è stato mutato per ${ms(ms(mutetime))}"
+tempmute_command_work: "<@${tomute.id}> è stato silenziato per ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
 tempmute_unmuted_by_time: "<@${tomute.id}> è stato smutato!"
 tempmute_logs_embed_title: "Log Tempmute"
-tempmute_logs_embed_description: "<@${interaction.user.id}> ha mutato temporaneamente <@${tomute.id}> per ${ms(ms(mutetime))}"
+tempmute_logs_embed_description: "<@${interaction.user.id}> ha silenziato <@${tomute.id}> per ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
 tempmute_reason_create_roles: "Creazione del ruolo temporaneo di muting!"
 
 # /unmute

@@ -269,6 +269,19 @@ export const command: Command = {
                     required: true,
 
                     permission: null
+                },
+                {
+                    name: 'reason',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'the reason why you tempmuted',
+                    description_localizations: {
+                        "fr": "la raison du tempmute"
+                    },
+
+                    required: false,
+
+                    permission: null
                 }
             ],
 

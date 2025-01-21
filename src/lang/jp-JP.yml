@@ -1488,10 +1488,10 @@ tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メン�
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | 私には権限がありません。"
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | 自分自身をミュートすることはできません！"
 tempmute_already_muted: "このユーザーはすでにミュートされています！"
-tempmute_command_work: "<@${tomute.id}>さんが${ms(ms(mutetime))}間ミュートされました。"
+tempmute_command_work: "<@${tomute.id}> は ${ms(ms(mutetime))} の間ミュートされました\n**理由**: `${reason}`"
 tempmute_unmuted_by_time: "<@${tomute.id}>さんがミュート解除されました！"
 tempmute_logs_embed_title: "Tempmute Logs"
-tempmute_logs_embed_description: "<@${interaction.user.id}>さんが<@${tomute.id}>さんを${ms(ms(mutetime))}間ミュートしました。"
+tempmute_logs_embed_description: "<@${interaction.user.id}> が <@${tomute.id}> を ${ms(ms(mutetime))} の間ミュートしました\n**理由**: `${reason}`"
 tempmute_reason_create_roles: "一時ミュートのミュート役職を作成してください！"
 
 # /unmute

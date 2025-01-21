@@ -1488,10 +1488,10 @@ tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | ليس 
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | ليس لدي إذن."
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | لا يمكنك إسكات نفسك!"
 tempmute_already_muted: "هذا العضو مُسكَت بالفعل!"
-tempmute_command_work: "<@${tomute.id}> تم إسكاتها لمدة ${ms(ms(mutetime))}"
+tempmute_command_work: "<@${tomute.id}> تم كتمه لمدة ${ms(ms(mutetime))}\n**السبب**: `${reason}`"
 tempmute_unmuted_by_time: "<@${tomute.id}> تم رفع الميوت!"
 tempmute_logs_embed_title: "سجلات الميوت المؤقت"
-tempmute_logs_embed_description: "<@${interaction.user.id}> قام بإسكات <@${tomute.id}> لمدة ${ms(ms(mutetime))}"
+tempmute_logs_embed_description: "<@${interaction.user.id}> قام بكتم <@${tomute.id}> لمدة ${ms(ms(mutetime))}\n**السبب**: `${reason}`"
 tempmute_reason_create_roles: "إنشاء دور مؤقت للميوت!"
 
 # /unmute

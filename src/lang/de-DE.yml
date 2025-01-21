@@ -1488,10 +1488,10 @@ tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Du hast
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Ich habe keine Berechtigung."
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Du kannst dich nicht selbst stummschalten!"
 tempmute_already_muted: "Dieser Benutzer ist bereits stummgeschaltet!"
-tempmute_command_work: "<@${tomute.id}> wurde für ${ms(ms(mutetime))} stummgeschaltet."
+tempmute_command_work: "<@${tomute.id}> wurde für ${ms(ms(mutetime))} stummgeschaltet\n**Grund**: `${reason}`"
 tempmute_unmuted_by_time: "<@${tomute.id}> wurde wieder freigeschaltet!"
 tempmute_logs_embed_title: "Tempmute-Protokolle"
-tempmute_logs_embed_description: "<@${interaction.user.id}> stummschalten <@${tomute.id}> für ${ms(ms(mutetime))}"
+tempmute_logs_embed_description: "<@${interaction.user.id}> stummschaltete <@${tomute.id}> für ${ms(ms(mutetime))}\n**Grund**: `${reason}`"
 tempmute_reason_create_roles: "Erstellen von temporären stummschaltbaren Rollen!"
 
 # /unmute
