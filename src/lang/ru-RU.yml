@@ -1488,10 +1488,10 @@ tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У ва
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У меня нет разрешения."
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Вы не можете временно заблокировать сами себя!"
 tempmute_already_muted: "Этот пользователь уже заблокирован!"
-tempmute_command_work: "<@${tomute.id}> был заблокирован на ${ms(ms(mutetime))}"
+tempmute_command_work: "<@${tomute.id}> был замучен на ${ms(ms(mutetime))}\n**Причина**: `${reason}`"
 tempmute_unmuted_by_time: "<@${tomute.id}> был разблокирован!"
 tempmute_logs_embed_title: "Логи временной блокировки"
-tempmute_logs_embed_description: "<@${interaction.user.id}> заблокировал <@${tomute.id}> на ${ms(ms(mutetime))}"
+tempmute_logs_embed_description: "<@${interaction.user.id}> замутил <@${tomute.id}> на ${ms(ms(mutetime))}\n**Причина**: `${reason}`"
 tempmute_reason_create_roles: "Создана роль для временной блокировки!"
 
 # /unmute

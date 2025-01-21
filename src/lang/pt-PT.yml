@@ -1488,10 +1488,10 @@ tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Você n
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Eu não tenho permissão."
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Você não pode silenciar a si mesmo!"
 tempmute_already_muted: "Este usuário já está silenciado!"
-tempmute_command_work: "<@${tomute.id}> foi silenciado por ${ms(ms(mutetime))}"
+tempmute_command_work: "<@${tomute.id}> foi silenciado por ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
 tempmute_unmuted_by_time: "<@${tomute.id}> foi desilenciado!"
 tempmute_logs_embed_title: "Logs de Silenciamento Temporário"
-tempmute_logs_embed_description: "<@${interaction.user.id}> silenciou <@${tomute.id}> por ${ms(ms(mutetime))}"
+tempmute_logs_embed_description: "<@${interaction.user.id}> silenciou <@${tomute.id}> por ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
 tempmute_reason_create_roles: "Criar cargo de silenciamento temporário!"
 
 # /unmute
