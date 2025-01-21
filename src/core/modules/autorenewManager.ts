@@ -59,7 +59,6 @@ class AutoRenew {
                     return { guildId: v.id, data: guildObject.UTILS?.renew_channel };
                 });
         } catch (error) {
-            console.error('Error getting AutoRenew data:', error);
             return [];
         }
     }
@@ -75,11 +74,16 @@ class AutoRenew {
 
                 for (const [channelId, data] of all_channels) {
                     try {
-                        if (data.timestamp <= (Date.now() - data.maxTime)) {
+                        const halfTime = data.maxTime / 2;
+                        const currentTime = Date.now();
+                        const timeElapsed = currentTime - data.timestamp;
+                        
+                        const isHalfTimeWindow = Math.abs(timeElapsed - halfTime) < 15_000;
+
+                        if (timeElapsed >= data.maxTime) {
                             const channel = await guild.channels.fetch(channelId) as BaseGuildTextChannel | null;
 
                             if (!channel) {
-                                // Clean up database if channel doesn't exist
                                 await this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
                                 continue;
                             }
@@ -93,10 +97,9 @@ class AutoRenew {
                             });
 
                             if (newChannel) {
-                                // Update database with new channel
                                 await Promise.all([
                                     this.client.db.set(`${guild.id}.UTILS.renew_channel.${newChannel.id}`, {
-                                        timestamp: Date.now(),
+                                        timestamp: currentTime,
                                         maxTime: data.maxTime
                                     }),
                                     this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channel.id}`),
@@ -108,7 +111,7 @@ class AutoRenew {
                                     content: lang.event_autorenew_channel_renewed
                                 }).catch(() => false);
                             }
-                        } else if (data.timestamp <= (Date.now() - (data.maxTime / 2))) {
+                        } else if (isHalfTimeWindow) {
                             const channel = await guild.channels.fetch(channelId) as BaseGuildTextChannel | null;
 
                             if (!channel) {
@@ -118,7 +121,7 @@ class AutoRenew {
 
                             await channel.send({
                                 content: lang.event_autorenew_channel_warning
-                                .replace("${time}", time(new Date(Date.now() + (data.maxTime / 2)), "R"))
+                                    .replace("${time}", time(new Date(data.timestamp + data.maxTime), "R"))
                             }).catch(() => false);
                         }
                     } catch (error) {
