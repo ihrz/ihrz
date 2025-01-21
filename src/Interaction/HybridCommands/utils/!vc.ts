@@ -48,7 +48,7 @@ export const subCommand: SubCommand = {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let voiceStates = interaction.guild.voiceStates.cache;
-        let membersStates = interaction.guild.members.cache;
+        let membersStates = await interaction.guild.members.fetch();
 
         let textChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildText).size;
         let voiceChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildVoice).size;

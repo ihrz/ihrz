@@ -79,6 +79,7 @@ export const command: Command = {
                 }
             ],
 
+            aliases: ["addban", "createban"],
             permission: PermissionFlagsBits.BanMembers
         },
         {
@@ -226,6 +227,8 @@ export const command: Command = {
                 }
             ],
 
+            aliases: ["lockall"],
+
             type: ApplicationCommandOptionType.Subcommand,
             permission: PermissionFlagsBits.Administrator
         },
@@ -308,6 +311,8 @@ export const command: Command = {
                     permission: null
                 }
             ],
+
+            aliases: ["delban", "removeban"],
 
             permission: PermissionFlagsBits.BanMembers
         },
@@ -469,6 +474,8 @@ export const command: Command = {
                     permission: null
                 }
             ],
+
+            aliases: ["warns", "listwarns", "listwarn", "warnslist", "sanctions"],
 
             type: ApplicationCommandOptionType.Subcommand,
 
