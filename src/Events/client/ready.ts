@@ -209,6 +209,74 @@ export const event: BotEvent = {
             CacheStorage.set('stored_data._cache.version', newV);
 
         }
+
+        if (client.version.env === "production") {
+            try {
+                // Global counters
+                let totalGuilds = 0;
+                let totalRoles = 0;
+                let totalChannels = 0;
+                let totalMembers = 0;
+                let totalUniqueUsers = new Set();
+
+                // Fetch all guilds
+                const guilds = await client.guilds.fetch();
+
+                logger.legacy('\n=== Starting Cache Loading Process ===\n');
+
+                for (const [guildId, guild] of guilds) {
+                    totalGuilds++;
+                    logger.legacy(`📋 Processing Guild: ${guild.name} (${guild.id})`);
+
+                    // Load complete guild
+                    const fullGuild = await guild.fetch();
+
+                    // Load roles
+                    const roles = await fullGuild.roles.fetch();
+                    totalRoles += roles.size;
+                    logger.legacy(`   ┣━ Roles Loaded: ${roles.size}`);
+
+                    // Load channels
+                    const channels = await fullGuild.channels.fetch();
+                    totalChannels += channels.size;
+                    logger.legacy(`   ┣━ Channels Loaded: ${channels.size}`);
+
+                    // Load members with chunking
+                    try {
+                        // Request guild members chunking
+                        await fullGuild.members.fetch()
+                            .then(members => {
+                                totalMembers += members.size;
+                                members.forEach(member => totalUniqueUsers.add(member.user.id));
+                                logger.legacy(`   ┗━ Members Loaded: ${members.size}`);
+                            })
+                            .catch(error => {
+                                if (error.code === 'GuildMembersTimeout') {
+                                    logger.legacy(`   ┗━ ⚠️ Partial Members Load: Timeout occurred for ${fullGuild.name}`);
+                                } else {
+                                    throw error;
+                                }
+                            });
+                    } catch (memberError) {
+                        console.error(`   ┗━ ❌ Error loading members for ${fullGuild.name}:`, memberError);
+                    }
+                    logger.legacy(''); // Empty line for readability
+                }
+
+                // Print global statistics
+                logger.legacy('=== Global Cache Statistics ===');
+                logger.legacy(`📊 Total Guilds: ${totalGuilds}`);
+                logger.legacy(`👥 Total Unique Users: ${totalUniqueUsers.size}`);
+                logger.legacy(`👤 Total Members (including duplicates): ${totalMembers}`);
+                logger.legacy(`📜 Total Roles: ${totalRoles}`);
+                logger.legacy(`📝 Total Channels: ${totalChannels}`);
+                logger.legacy('\n=== Cache Loading Complete ===');
+
+            } catch (error) {
+                console.error('❌ Error while loading caches:', error);
+            }
+        }
+
         logger.log(`${client.config.console.emojis.HOST} >> Bot is ready`.white);
     },
 };

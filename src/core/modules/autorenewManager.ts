@@ -81,7 +81,6 @@ class AutoRenew {
                             if (!channel) {
                                 // Clean up database if channel doesn't exist
                                 await this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
-                                console.log(`Cleaned up non-existent channel ${channelId} from database`);
                                 continue;
                             }
 
