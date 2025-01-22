@@ -25,8 +25,6 @@ import {
     User,
 } from 'discord.js';
 
-import logger from '../../core/logger.js';
-
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
@@ -38,27 +36,24 @@ export const event: BotEvent = {
             let fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
             if (fetched) {
-                let role = reaction.message.guild.roles.cache.get(fetched.rolesID);
+                let role = reaction.message.guild.roles.cache.get(fetched.rolesID) || await reaction.message.guild.roles.fetch(fetched.rolesID);
                 if (!role) return;
 
-                let member = reaction.message.guild.members.cache.get(user.id);
-                await member?.roles.add(role).catch(() => { });
+                let member = reaction.message.guild.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
+                await member?.roles.add(role.id).catch(() => { });
                 return;
             };
 
             let fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`);
 
             if (fetchedForNitro) {
-                let role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID);
+                let role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID) || await reaction.message.guild.roles.fetch(fetchedForNitro.rolesID);
                 if (!role) return;
 
-                let member = reaction.message.guild.members.cache.get(user.id);
-                await member?.roles.add(role).catch(() => { });
+                let member = reaction.message.guild.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
+                await member?.roles.add(role.id).catch(() => { });
                 return;
             };
-        } catch (e: any) {
-            logger.err(e);
-            return;
-        };
+        } catch { return; };
     },
 };
