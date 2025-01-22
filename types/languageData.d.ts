@@ -713,6 +713,11 @@ export interface LanguageData {
   util_autorenew_command_ok: string;
   event_autorenew_channel_renewed: string;
   event_autorenew_channel_warning: string;
+  util_where_deaf: string;
+  util_where_mute: string;
+  var_video: string;
+  var_whereis: string;
+  util_not_in_vc: string;
   blockpub_not_admin: string;
   blockpub_now_enable: string;
   blockpub_now_disable: string;
@@ -1158,6 +1163,11 @@ export interface LanguageData {
   warnlist_embed_desc: string;
   warnlist_embed_title: string;
   warnlist_dont_have_permission: string;
+  baninfo_not_banned: string;
+  baninfo_ban_info: string;
+  baninfo_user_not_found: string;
+  var_banned_by: string;
+  var_ban_date: string;
   backup_wait_please: string;
   backup_not_admin: string;
   backup_i_dont_have_permission: string;

@@ -939,6 +939,12 @@ util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Désormais, 
 event_autorenew_channel_renewed: "L'AutoRenew a renouvelé le salon !"
 event_autorenew_channel_warning: "Le module AutoRenew est configuré pour renouveler ce canal. Prochain renouvellement dans ${time}."
 
+# /util where
+util_where_deaf: "Sourd"
+util_where_mute: "Muet"
+var_video: "Vidéo"
+var_whereis: "Où est"
+util_not_in_vc: "Les membres ne sont pas dans un canal vocal"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1524,6 +1530,13 @@ warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} 
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Auteur : <@${x.authorID}>\n> Raison : `${x.reason}`"
 warnlist_embed_title: "Liste des Avertissements de ${member?.user.globalName} | Page ${i / usersPerPage + 1}"
 warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Vous n'avez pas la permission de gérer les avertissements des membres de ce serveur discord."
+
+# /baninfo
+baninfo_not_banned: "L'utilisateur n'est pas banni"
+baninfo_ban_info: "Informations du bannissement"
+baninfo_user_not_found: "Utilisateur non trouvé"
+var_banned_by: "Banni par"
+var_ban_date: "Date du bannissement"
 
 
 # Backup commands

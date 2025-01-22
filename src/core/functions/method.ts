@@ -36,7 +36,7 @@ export function isNumber(str: string): boolean {
     return !isNaN(Number(str)) && str.trim() !== "";
 }
 
-export function user(interaction: Message, args: string[], argsNumber: number): User | null {
+export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
     if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
         return interaction.mentions.parsedUsers
             .map(x => x)

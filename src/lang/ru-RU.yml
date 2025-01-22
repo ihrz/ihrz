@@ -939,6 +939,12 @@ util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Теперь
 event_autorenew_channel_renewed: "AutoRenew обновил канал!"
 event_autorenew_channel_warning: "Модуль AutoRenew настроен на обновление этого канала. Следующее обновление через ${time}."
 
+# /util where
+util_where_deaf: "Самозаглушение звука"
+util_where_mute: "Самозаглушение микрофона"
+var_video: "Видео"
+var_whereis: "Где находится"
+util_not_in_vc: "Участники не находятся в голосовом канале"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1524,6 +1530,13 @@ warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} Похоже, у ${mem
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Автор: <@${x.authorID}>\n> Причина: `${x.reason}`"
 warnlist_embed_title: "Список предупреждений ${member?.user.globalName} | Страница ${i / usersPerPage + 1}"
 warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на управление предупреждениями участников на этом сервере Discord."
+
+# /baninfo
+baninfo_not_banned: "Пользователь не заблокирован"
+baninfo_ban_info: "Информация о блокировке"
+baninfo_user_not_found: "Пользователь не найден"
+var_banned_by: "Заблокирован"
+var_ban_date: "Дата блокировки"
 
 
 # Команды резервного копирования

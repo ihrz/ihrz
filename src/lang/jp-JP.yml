@@ -939,6 +939,12 @@ util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} これで、
 event_autorenew_channel_renewed: "AutoRenewがチャンネルを更新しました！"
 event_autorenew_channel_warning: "AutoRenewモジュールはこのチャンネルを更新するように設定されています。次回の更新は${time}です。"
 
+# /util where
+util_where_deaf: "スピーカーミュート"
+util_where_mute: "マイクミュート"
+var_video: "ビデオ"
+var_whereis: "どこに"
+util_not_in_vc: "メンバーはボイスチャンネルにいません"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1524,6 +1530,13 @@ warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} 
 warnlist_embed_desc: "### ID：${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> 作成者：<@${x.authorID}>\n> 理由：`${x.reason}`"
 warnlist_embed_title: "${member?.user.globalName} の警告リスト | ページ ${i / usersPerPage + 1}"
 warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | このDiscordサーバーでメンバーの警告を管理する権限がありません。"
+
+# /baninfo
+baninfo_not_banned: "ユーザーはBANされていません"
+baninfo_ban_info: "BAN情報"
+baninfo_user_not_found: "ユーザーが見つかりません"
+var_banned_by: "BAN実行者"
+var_ban_date: "BAN日時"
 
 
 # Backup commands

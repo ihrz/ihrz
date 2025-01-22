@@ -77,7 +77,7 @@ class AutoRenew {
                         const halfTime = data.maxTime / 2;
                         const currentTime = Date.now();
                         const timeElapsed = currentTime - data.timestamp;
-                        
+
                         const isHalfTimeWindow = Math.abs(timeElapsed - halfTime) < 15_000;
 
                         if (timeElapsed >= data.maxTime) {
@@ -122,7 +122,11 @@ class AutoRenew {
                             await channel.send({
                                 content: lang.event_autorenew_channel_warning
                                     .replace("${time}", time(new Date(data.timestamp + data.maxTime), "R"))
-                            }).catch(() => false);
+                            })
+                                .then(x => {
+                                    if (x.pinnable) x.pin();
+                                })
+                                .catch(() => false);
                         }
                     } catch (error) {
                         await this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
