@@ -141,6 +141,49 @@ export const command: Command = {
 
             permission: PermissionFlagsBits.Administrator,
             type: ApplicationCommandOptionType.Subcommand
+        },
+        {
+            name: 'where',
+            aliases: ['whereis'],
+
+            description: 'Sending the channel where the members is',
+            description_localizations: {
+                "fr": "Envoie le salon vocal où est le membre."
+            },
+
+            thinking: false,
+            type: ApplicationCommandOptionType.Subcommand,
+
+            options: [
+                {
+                    name: "member",
+
+                    description: "The member you want to check",
+                    description_localizations: {
+                        "fr": "le membre que vous souhaitez vérifier"
+                    },
+
+                    permission: null,
+
+                    type: ApplicationCommandOptionType.User,
+                    required: true
+                }
+            ],
+
+            permission: PermissionFlagsBits.ModerateMembers,
+        },
+        {
+            name: 'serverpic',
+
+            description: 'Sending the guild image',
+            description_localizations: {
+                "fr": "Envoie le logo du serveur"
+            },
+
+            thinking: false,
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ModerateMembers,
         }
     ],
 

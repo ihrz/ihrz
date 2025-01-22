@@ -83,6 +83,33 @@ export const command: Command = {
             permission: PermissionFlagsBits.BanMembers
         },
         {
+            name: 'baninfo',
+
+            description: 'Check if user is banned and why',
+            description_localizations: {
+                "fr": "Vérifier si l'utilisateur est bannis du serveur et pourquoi"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'user',
+                    type: ApplicationCommandOptionType.User,
+
+                    description: 'the member you want to check',
+                    description_localizations: {
+                        "fr": "le membre que vous souhaitez vérifier"
+                    },
+
+                    required: true,
+
+                    permission: null
+                },
+            ],
+
+            permission: PermissionFlagsBits.BanMembers
+        },
+        {
             name: 'clear',
 
             description: 'Clear a amount of message in the channel !',
