@@ -49,7 +49,7 @@ export const subCommand = {
             : "short";
 
         const memberStats = calculateMemberStats(guild.members.cache);
-        const voiceStats = calculateVoiceStats(voiceStates);
+        const voiceStats = calculateVoiceStats(voiceStates.filter(x => x.channelId !== null));
 
         const embed = new EmbedBuilder();
         const files = [];
