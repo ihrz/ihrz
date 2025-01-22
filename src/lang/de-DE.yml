@@ -56,6 +56,7 @@ var_dont_have_perm: "Sie haben nicht die erforderlichen Berechtigungen. (Benöti
 var_price: "Preis"
 var_boost: "Boost"
 var_uses: "Verwendungen"
+var_vc_stats: "Sprachstatistiken"
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"

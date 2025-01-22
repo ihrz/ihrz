@@ -36,7 +36,7 @@ let client = new Client({
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.DirectMessageTyping,
-        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildExpressions,
         GatewayIntentBits.GuildIntegrations,
         GatewayIntentBits.GuildInvites,
         GatewayIntentBits.GuildMembers,
@@ -49,7 +49,9 @@ let client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildWebhooks,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessagePolls,
+        GatewayIntentBits.DirectMessagePolls
     ],
     partials: [
         Partials.Channel,
