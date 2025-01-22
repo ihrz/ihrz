@@ -74,6 +74,7 @@ export interface LanguageData {
   var_price: string;
   var_boost: string;
   var_uses: string;
+  var_vc_stats: string;
   perm_createinstantinvite_name: string;
   perm_kickmembers_name: string;
   perm_banmembers_name: string;

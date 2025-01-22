@@ -56,6 +56,7 @@ var_dont_have_perm: "ليس لديك الصلاحيات اللازمة للقي�
 var_price: "السعر"
 var_boost: "تعزيز"
 var_uses: "الاستخدامات"
+var_vc_stats: "إحصائيات الصوت"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "إنشاء دعوة فورية"

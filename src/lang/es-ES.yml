@@ -56,6 +56,7 @@ var_dont_have_perm: "No tienes los permisos necesarios para hacer esto. (Requier
 var_price: "Precio"
 var_boost: "Impulso"
 var_uses: "Usos"
+var_vc_stats: "Estadísticas de voz"
 
 # Nombres de Permisos de Discord
 perm_createinstantinvite_name: "Crear invitación instantánea"

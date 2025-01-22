@@ -56,6 +56,7 @@ var_dont_have_perm: "必要な権限がありません。({perm}権限が必要�
 var_price: "価格"
 var_boost: "ブースト"
 var_uses: "使用回数"
+var_vc_stats: "音声統計"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"

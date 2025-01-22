@@ -53,7 +53,6 @@ export const subCommand = {
 
         const embed = new EmbedBuilder();
         const files = [];
-        files.push(await interaction.client.method.bot.footerAttachmentBuilder(interaction));
 
         if (mode === "large") {
             const boosters = guild.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`) || [];
@@ -98,30 +97,38 @@ export const subCommand = {
                         inline: true
                     }
                 )
-                .setFooter(await client.method.bot.footerBuilder(interaction));
         } else {
             embed
-                .setDescription(
-                    lang.vc_embed_short_desc
-                        .replaceAll("${voiceStates?.size}", voiceStats.total.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Streaming}", client.iHorizon_Emojis.icon.iHorizon_Streaming)
-                        .replaceAll("${total_members_vc_streaming}", voiceStats.streaming.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Deaf}", client.iHorizon_Emojis.icon.iHorizon_Deaf)
-                        .replaceAll("${total_members_vc_deaf}", voiceStats.selfDeaf.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Mute}", client.iHorizon_Emojis.icon.iHorizon_Mute)
-                        .replaceAll("${total_members_vc_mute}", voiceStats.selfMute.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Camera}", client.iHorizon_Emojis.icon.iHorizon_Camera)
-                        .replaceAll("${total_members_vc_video}", voiceStats.selfVideo.toString())
-                        .replaceAll("${total_members_size}", memberStats.total.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_DND}", client.iHorizon_Emojis.icon.iHorizon_DND)
-                        .replaceAll("${total_members_states_dnd}", memberStats.dnd.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Online}", client.iHorizon_Emojis.icon.iHorizon_Online)
-                        .replaceAll("${total_members_states_online}", memberStats.online.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Idle}", client.iHorizon_Emojis.icon.iHorizon_Idle)
-                        .replaceAll("${total_members_states_idle}", memberStats.idle.toString())
+                .setTitle(lang.var_vc_stats)
+                .setColor(2829617)
+                .setFields(
+                    {
+                        name: client.iHorizon_Emojis.vc.Limit,
+                        value: voiceStats.total.toString(),
+                        inline: true
+                    },
+                    {
+                        name: client.iHorizon_Emojis.icon.iHorizon_Streaming,
+                        value: voiceStats.streaming.toString(),
+                        inline: true
+                    },
+                    {
+                        name: client.iHorizon_Emojis.icon.iHorizon_Camera,
+                        value: voiceStats.selfVideo.toString(),
+                        inline: true
+                    },
+                    {
+                        name: client.iHorizon_Emojis.icon.iHorizon_Mute,
+                        value: voiceStats.selfMute.toString(),
+                        inline: true
+                    },
+                    {
+                        name: client.iHorizon_Emojis.icon.iHorizon_Deaf,
+                        value: voiceStats.selfDeaf.toString(),
+                        inline: true
+                    }
                 )
                 .setThumbnail("attachment://guild_icon.png")
-                .setFooter(await client.method.bot.footerBuilder(interaction));
 
             const guildIconAttachment = await client.func.image64(guild.iconURL() || client.user.displayAvatarURL());
             if (guildIconAttachment) {
