@@ -36,7 +36,7 @@ let client = new Client({
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.DirectMessageTyping,
-        GatewayIntentBits.GuildExpressions,
+        GatewayIntentBits.GuildEmojisAndStickers,
         GatewayIntentBits.GuildIntegrations,
         GatewayIntentBits.GuildInvites,
         GatewayIntentBits.GuildMembers,
