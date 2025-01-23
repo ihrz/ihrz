@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { LanguageData } from "../../../types/languageData.js";
+
 class iHorizonTimeCalculator {
 
     to_ms(timeString: string): number | undefined {
@@ -106,7 +108,7 @@ class iHorizonTimeCalculator {
         return totalMilliseconds === 0 ? undefined : totalMilliseconds;
     };
 
-    to_beautiful_string(timeStringOrMs: string | number, options?: { long?: boolean }): string {
+    to_beautiful_string(timeStringOrMs: string | number, options?: { long?: boolean }, lang?: LanguageData): string {
         let milliseconds: number;
 
         if (typeof timeStringOrMs === 'string') {
@@ -120,14 +122,13 @@ class iHorizonTimeCalculator {
         const longFormat = options?.long;
 
         const timeUnits = [
-            { unit: 'y', factor: 31557600000, longName: 'year', shortName: 'y' },
-            { unit: 'mo', factor: 2592000000, longName: 'month', shortName: 'mo' },
-            { unit: 'w', factor: 604800000, longName: 'week', shortName: 'w' },
-            { unit: 'd', factor: 86400000, longName: 'day', shortName: 'd' },
-            { unit: 'h', factor: 3600000, longName: 'hour', shortName: 'h' },
-            { unit: 'm', factor: 60000, longName: 'minute', shortName: 'm' },
-            { unit: 's', factor: 1000, longName: 'second', shortName: 's' },
-            { unit: 'ms', factor: 1, longName: 'millisecond', shortName: 'ms' }
+            { unit: 'y', factor: 31557600000, longName: 'year', shortName: lang ? lang.var_year : 'y' },
+            { unit: 'mo', factor: 2592000000, longName: 'month', shortName: lang ? lang.var_mo : 'mo' },
+            { unit: 'w', factor: 604800000, longName: 'week', shortName: lang ? lang.var_w : 'w' },
+            { unit: 'd', factor: 86400000, longName: 'day', shortName: lang ? lang.var_d : 'd' },
+            { unit: 'h', factor: 3600000, longName: 'hour', shortName: lang ? lang.var_h : 'h' },
+            { unit: 'm', factor: 60000, longName: 'minute', shortName: lang ? lang.var_m : 'm' },
+            { unit: 's', factor: 1000, longName: 'second', shortName: lang ? lang.var_s : 's' },
         ];
 
         let result = '';
@@ -144,7 +145,7 @@ class iHorizonTimeCalculator {
             }
         };
 
-        return result.trim();
+        return result === "" ? "0" + (lang ? lang.var_m : 'm') : result.trim();
     }
 };
 

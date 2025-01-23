@@ -38,7 +38,7 @@ export const subCommand: SubCommand = {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         let embed = new EmbedBuilder()
-            .setImage(interaction.guild.iconURL())
+            .setImage(interaction.guild.iconURL({ extension: "webp", size: 4096 }))
             .setColor("#add5ff")
             .setTitle(interaction.guild.name);
 
@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
                         new ButtonBuilder()
                             .setStyle(ButtonStyle.Link)
                             .setLabel(lang.pfps_download_guild_button)
-                            .setURL(interaction.guild.iconURL() || "")
+                            .setURL(interaction.guild.iconURL({ extension: "webp", size: 4096 }) || "https://ihorizon.me/assets/img/unknown-user.png")
                     )
             ]
         });
