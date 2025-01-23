@@ -20,20 +20,15 @@
 */
 
 import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
-    GuildMember,
-    InteractionEditReplyOptions,
     Message,
-    MessagePayload,
-    MessageReplyOptions,
-    User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
-
-
 import { SubCommand } from '../../../../types/command';
 
 export const subCommand: SubCommand = {
@@ -45,14 +40,19 @@ export const subCommand: SubCommand = {
         let embed = new EmbedBuilder()
             .setImage(interaction.guild.iconURL())
             .setColor("#add5ff")
-            .setTitle("Server icon")
-            .setDescription(lang.avatar_embed_description)
-            .setTimestamp()
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setTitle(interaction.guild.name);
 
         await client.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            components: [
+                new ActionRowBuilder<ButtonBuilder>()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setStyle(ButtonStyle.Link)
+                            .setLabel(lang.pfps_download_guild_button)
+                            .setURL(interaction.guild.iconURL() || "")
+                    )
+            ]
         });
         return;
     },
