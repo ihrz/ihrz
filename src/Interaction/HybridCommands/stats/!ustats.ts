@@ -189,9 +189,9 @@ export const subCommand: SubCommand = {
             .replaceAll('{author_pfp}', member.user.displayAvatarURL({ size: 512 }))
             .replaceAll('{guild_name}', interaction.guild.name)
             .replaceAll('{messages_length}', String(totalMessages))
-            .replaceAll('{voice_daily}', String(Math.round(dailyVoiceActivity / 1000 / 60)))
-            .replaceAll('{voice_weekly}', String(Math.round(weeklyVoiceActivity / 1000 / 60)))
-            .replaceAll('{voice_monthly}', String(Math.round(monthlyVoiceActivity / 1000 / 60)))
+            .replaceAll('{voice_daily}', String(client.timeCalculator.to_beautiful_string(dailyVoiceActivity, {}, lang)))
+            .replaceAll('{voice_weekly}', String(client.timeCalculator.to_beautiful_string(weeklyVoiceActivity, {}, lang)))
+            .replaceAll('{voice_monthly}', String(client.timeCalculator.to_beautiful_string(monthlyVoiceActivity, {}, lang)))
             .replaceAll('{message_daily}', String(dailyMessages.length))
             .replaceAll('{message_weekly}', String(weeklyMessages.length))
             .replaceAll('{message_monthly}', String(monthlyMessages.length))
@@ -207,10 +207,14 @@ export const subCommand: SubCommand = {
             .replaceAll('{voice_top1_2}', String(client.timeCalculator.to_beautiful_string(getChannelMinutesCount(firstActiveVoiceChannel, res.voices || []) * 60_000)))
             .replaceAll('{voice_top2_2}', String(client.timeCalculator.to_beautiful_string(getChannelMinutesCount(secondActiveVoiceChannel, res.voices || []) * 60_000)))
             .replaceAll('{voice_top3_2}', String(client.timeCalculator.to_beautiful_string(getChannelMinutesCount(thirdActiveVoiceChannel, res.voices || []) * 60_000)))
+            .replaceAll("{var_1d}", lang.var_1d)
+            .replaceAll("{var_7d}", lang.var_7d)
+            .replaceAll("{var_14d}", lang.var_14d)
             .replace('{message_voice_diag}', 'Votre contenu ici')
             .replace('{ messageData }', JSON.stringify(messageDataArray))
             .replace('{ voiceData }', JSON.stringify(voiceDataArray))
-            .replace('{ timeLabels }', JSON.stringify(timeLabels));
+            .replace('{ timeLabels }', JSON.stringify(timeLabels))
+            ;
 
         const image = await client.method.imageManipulation.html2Png(htmlContent, {
             elementSelector: '.card',
