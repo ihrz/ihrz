@@ -43,6 +43,19 @@ export const command: Command = {
 
     options: [
         {
+            name: "allwebhooks",
+
+            description: "List all registered webhook on the server",
+            description_localizations: {
+                'fr': "Afficher toute les webhooks enregistrer sur le serveur"
+            },
+
+            aliases: ["webhooks", "webhook"],
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
+        },
+        {
             name: "nick-kicker",
 
             description: "Kick a user if their nickname contains a specific word",
