@@ -34,7 +34,7 @@ import { Command } from '../../../../../types/command';
 import { SubCommand } from '../../../../../types/command';
 
 export const subCommand: SubCommand = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -43,12 +43,18 @@ export const subCommand: SubCommand = {
         let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
         let member = interaction.options.getUser('member') as User;
 
-        if (interaction.user.id !== interaction.guild.ownerId && !client.owners.includes(interaction.user.id)) {
+        if (
+            interaction.user.id !== interaction.guild.ownerId
+            && !client.owners.includes(interaction.user.id)
+        ) {
             await interaction.reply({ content: lang.allowlist_delete_not_owner });
             return;
         };
 
-        if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
+        if (interaction.user.id !== interaction.guild.ownerId
+            && baseData.list[interaction.user.id]?.allowed !== true
+            && !client.owners.includes(interaction.user.id)
+        ) {
             await interaction.reply({ content: lang.allowlist_delete_not_permited });
             return;
         };
