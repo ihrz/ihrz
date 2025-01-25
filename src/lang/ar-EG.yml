@@ -958,6 +958,13 @@ var_video: "فيديو"
 var_whereis: "أين هو"
 util_not_in_vc: "الأعضاء ليسوا في قناة صوتية"
 
+# /util allwebhooks
+util_no_webhooks: "لا توجد webhooks في هذه الخادم."
+util_allwebhooks_embed_title: "جميع الويب هوكس"
+util_allwebhooks_deleting: "جاري حذف جميع الويب هوكس..."
+util_allwebhooks_deleted: "**`${u}`** ويب هوك تم حذفه!"
+
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

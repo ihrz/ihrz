@@ -731,6 +731,10 @@ export interface LanguageData {
   var_video: string;
   var_whereis: string;
   util_not_in_vc: string;
+  util_no_webhooks: string;
+  util_allwebhooks_embed_title: string;
+  util_allwebhooks_deleting: string;
+  util_allwebhooks_deleted: string;
   blockpub_not_admin: string;
   blockpub_now_enable: string;
   blockpub_now_disable: string;
