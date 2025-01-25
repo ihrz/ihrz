@@ -110,6 +110,20 @@ export const command: Command = {
             permission: PermissionFlagsBits.BanMembers
         },
         {
+            name: 'banlist',
+
+            description: 'Show a list with all banned member',
+            description_localizations: {
+                "fr": "Affiche une liste des gens bannis"
+            },
+
+            aliases: ["bans", "listban", "listbans", "banlists"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ManageGuild
+        },
+        {
             name: 'clear',
 
             description: 'Clear a amount of message in the channel !',

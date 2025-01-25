@@ -68,6 +68,8 @@ var_h: "Stunde(n)"
 var_m: "Minute(n)"
 var_s: "Sekunde(n)"
 var_ms: "Millisekunde(n)"
+var_banned_user: "Gesperrter Benutzer"
+var_no_one_banned: "Niemand ist in diesem Server gesperrt."
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"
