@@ -68,6 +68,8 @@ var_h: "hora(s)"
 var_m: "minuto(s)"
 var_s: "segundo(s)"
 var_ms: "milisegundo(s)"
+var_banned_user: "Usuario(s) Baneado(s)"
+var_no_one_banned: "Nadie está baneado en este servidor."
 
 # Nombres de Permisos de Discord
 perm_createinstantinvite_name: "Crear invitación instantánea"

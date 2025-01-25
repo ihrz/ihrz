@@ -177,7 +177,7 @@ export const subCommand: SubCommand = {
                 .setTitle(lang.rc_get_secondEmbed_title)
                 .setDescription(lang.rc_get_secondEmbed_footer
                     .replace("${from}", String(page + 1))
-                    .replace("${to)", String(Math.ceil(members.length / itemsPerPage)))
+                    .replace("${to}", String(Math.ceil(members.length / itemsPerPage)))
                 )
                 .setFooter(footer)
                 .setTimestamp();
