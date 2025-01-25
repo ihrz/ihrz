@@ -46,7 +46,6 @@ export const subCommand: SubCommand = {
         const secretCode = interaction.options.getString("key")!;
         const table = client.db.table("RESTORECORD");
         const Data = getGuildDataPerSecretCode(await table.all(), secretCode);
-        const AllUsersData = await (client.db.table("RESTORECORD")).get("saved_users") as SavedMembersRestoreCord;
 
         if (!Data) return client.method.interactionSend(interaction, {
             content: lang.rc_key_doesnt_exist

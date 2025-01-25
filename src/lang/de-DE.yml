@@ -56,6 +56,20 @@ var_dont_have_perm: "Sie haben nicht die erforderlichen Berechtigungen. (Benöti
 var_price: "Preis"
 var_boost: "Boost"
 var_uses: "Verwendungen"
+var_vc_stats: "Sprachstatistiken"
+var_1d: "1 Tag"
+var_7d: "7 Tage"
+var_14d: "14 Tage"
+var_year: "Jahr(e)"
+var_mo: "Monat(e)"
+var_w: "Woche(n)"
+var_d: "Tag(e)"
+var_h: "Stunde(n)"
+var_m: "Minute(n)"
+var_s: "Sekunde(n)"
+var_ms: "Millisekunde(n)"
+var_banned_user: "Gesperrter Benutzer"
+var_no_one_banned: "Niemand ist in diesem Server gesperrt."
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"
@@ -459,7 +473,7 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay ist sowohl mei
 andru_message: "Andru ist ein Mitarbeiter und Entwickler. \"Das Mädchen für alles\", er kümmert sich um Marketing, Community..."
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether ist ein Mitwirkender bei iHorizon. Er findet jeden Tippfehler im Bot und fungiert als Support-Helfer für den iHorizon-Bot."
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether ist ein Mitwirkender bei iHorizon. Er ist bereit, jeden Tippfehler im Bot aufzuspüren und improvisiert sich als Support-Assistent für den iHorizon-Bot."
 
 # /nayaweb
 nayaweb_message: "😼NayaWeb ist meine zweite Entwicklerin/Zuträgerin , NayaWeb x Kisakay ❤️"
@@ -931,6 +945,19 @@ util_leash_too_naugthy: "Du kleiner Frechdachs, du kannst nicht mehr als 3 Perso
 util_leah_already_owned: "Du kleiner Frechdachs, du besitzt diese kleinen Wunder schon :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Das Mitglied, das du an die Leine legen möchtest, ist nicht in einem Sprachkanal!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Bist du sicher, dass du diese Aktion ausführen möchtest?"
 
+# /util autorenew
+util_autorenew_time_too_short: "Die Zeit zwischen einer Kanalerneuerung muss mehr als 1 Minute betragen"
+util_autorenew_time_too_long: "Die Zeit zwischen einer Kanalerneuerung muss weniger als 24 Stunden betragen"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Ab jetzt wird der Kanal ${channel.toString()} automatisch alle ${time} gelöscht und neu erstellt (erneuert)!\nUm die Kanalerneuerung zu stoppen, lösche ihn einfach selbst."
+event_autorenew_channel_renewed: "Die AutoRenew-Funktion hat den Kanal erneuert!"
+event_autorenew_channel_warning: "Das AutoRenew-Modul ist so konfiguriert, dass dieser Kanal erneuert wird. Nächste Erneuerung in ${time}."
+
+# /util where
+util_where_deaf: "Selbst taub"
+util_where_mute: "Selbst stumm"
+var_video: "Video"
+var_whereis: "Wo ist"
+util_not_in_vc: "Die Mitglieder sind nicht in einem Sprachkanal"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1481,10 +1508,10 @@ tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Du hast
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Ich habe keine Berechtigung."
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Du kannst dich nicht selbst stummschalten!"
 tempmute_already_muted: "Dieser Benutzer ist bereits stummgeschaltet!"
-tempmute_command_work: "<@${tomute.id}> wurde für ${ms(ms(mutetime))} stummgeschaltet."
+tempmute_command_work: "<@${tomute.id}> wurde für ${ms(ms(mutetime))} stummgeschaltet\n**Grund**: `${reason}`"
 tempmute_unmuted_by_time: "<@${tomute.id}> wurde wieder freigeschaltet!"
 tempmute_logs_embed_title: "Tempmute-Protokolle"
-tempmute_logs_embed_description: "<@${interaction.user.id}> stummschalten <@${tomute.id}> für ${ms(ms(mutetime))}"
+tempmute_logs_embed_description: "<@${interaction.user.id}> stummschaltete <@${tomute.id}> für ${ms(ms(mutetime))}\n**Grund**: `${reason}`"
 tempmute_reason_create_roles: "Erstellen von temporären stummschaltbaren Rollen!"
 
 # /unmute
@@ -1516,6 +1543,13 @@ warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} 
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autor: <@${x.authorID}>\n> Grund: `${x.reason}`"
 warnlist_embed_title: "Verwarnungsliste von ${member?.user.globalName} | Seite ${i / usersPerPage + 1}"
 warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | Sie haben keine Berechtigung, die Verwarnungen von Mitgliedern auf diesem Discord-Server zu verwalten."
+
+# /baninfo
+baninfo_not_banned: "Benutzer ist nicht gebannt"
+baninfo_ban_info: "Bann-Informationen"
+baninfo_user_not_found: "Benutzer nicht gefunden"
+var_banned_by: "Gebannt von"
+var_ban_date: "Bann-Datum"
 
 
 # Backup-Befehle

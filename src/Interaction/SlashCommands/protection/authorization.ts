@@ -28,8 +28,6 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../../../types/command';
-import { LanguageData } from '../../../../types/languageData';
-
 
 export const rules = [
     {
@@ -91,7 +89,7 @@ export const rules = [
 ] as const
 
 export const command: Command = {
-    name: "authorization",
+    name: "protect",
 
     description: "Subcommand for protection category!",
     description_localizations: {
@@ -195,7 +193,7 @@ export const command: Command = {
             permission: PermissionFlagsBits.Administrator,
         },
         {
-            name: "show-config",
+            name: "show",
 
             description: "Show the current configuration about protection authorization/rule & allow list!",
             description_localizations: {

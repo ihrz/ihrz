@@ -43,7 +43,7 @@ export const event: BotEvent = {
                 // @ts-ignore
                 let attachment = await createTranscript(channel as TextChannel, {
                     limit: -1,
-                    filename: 'transcript.html',
+                    filename: `${member.guild.id}-transcript.html`,
                     footerText: "Exported {number} message{s}",
                     poweredBy: false,
                     hydrate: true

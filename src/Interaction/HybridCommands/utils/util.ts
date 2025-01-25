@@ -101,6 +101,90 @@ export const command: Command = {
 
             permission: [PermissionFlagsBits.ModerateMembers, PermissionFlagsBits.MoveMembers]
         },
+        {
+            name: "autorenew",
+            description: "Renew automaticaly X time a channel",
+
+            description_localizations: {
+                "fr": "Renouveller automatiquement un salon"
+            },
+
+            options: [
+                {
+                    name: "channel",
+
+                    description: "The channel to renew every x times",
+                    description_localizations: {
+                        "fr": "Le salon qui ce renouveleras x temps"
+                    },
+
+                    type: ApplicationCommandOptionType.Channel,
+                    channel_types: [ChannelType.GuildText],
+
+                    required: true,
+                    permission: null
+                },
+                {
+                    name: "time",
+
+                    description: "The x time",
+                    description_localizations: {
+                        "fr": "Le temps x"
+                    },
+
+                    type: ApplicationCommandOptionType.String,
+
+                    required: true,
+                    permission: null
+                }
+            ],
+
+            permission: PermissionFlagsBits.Administrator,
+            type: ApplicationCommandOptionType.Subcommand
+        },
+        {
+            name: 'where',
+            aliases: ['whereis'],
+
+            description: 'Sending the channel where the members is',
+            description_localizations: {
+                "fr": "Envoie le salon vocal où est le membre."
+            },
+
+            thinking: false,
+            type: ApplicationCommandOptionType.Subcommand,
+
+            options: [
+                {
+                    name: "member",
+
+                    description: "The member you want to check",
+                    description_localizations: {
+                        "fr": "le membre que vous souhaitez vérifier"
+                    },
+
+                    permission: null,
+
+                    type: ApplicationCommandOptionType.User,
+                    required: true
+                }
+            ],
+
+            permission: PermissionFlagsBits.ModerateMembers,
+        },
+        {
+            name: 'serverpic',
+
+            description: 'Sending the guild image',
+            description_localizations: {
+                "fr": "Envoie le logo du serveur"
+            },
+
+            thinking: false,
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ModerateMembers,
+        }
     ],
 
     category: 'utils',

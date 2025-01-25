@@ -22,9 +22,10 @@
 import config from "../../files/config.js";
 import { axios } from "./axios.js";
 import { encrypt } from "./encryptDecryptMethod.js";
+import { env } from "../../version.js";
 
 export async function getToken(): Promise<string | undefined> {
-    if (config.api.HorizonGateway) {
+    if (config.api.HorizonGateway && env === "production") {
         let url = config.api.HorizonGateway + "/api/ihorizon/v1/login";
         let key = config.api.apiToken;
 

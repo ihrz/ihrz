@@ -505,7 +505,7 @@ export const command: Command = {
 
             options: [
                 {
-                    name: 'to',
+                    name: 'channel',
                     type: ApplicationCommandOptionType.Channel,
 
                     channel_types: [ChannelType.GuildVoice],

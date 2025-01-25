@@ -24,6 +24,8 @@ import { writeFileSync } from 'fs';
 export class FunctionAnalyzer {
     private program: ts.Program;
     private typeChecker: ts.TypeChecker;
+    private importedTypes: Set<string> = new Set();
+    private importStatements: Map<string, Set<string>> = new Map();
 
     constructor(private rootDir: string) {
         const configPath = ts.findConfigFile(
@@ -106,6 +108,49 @@ export class FunctionAnalyzer {
         };
     }
 
+    private collectImportsFromType(typeNode: ts.TypeNode | ts.Node, sourceFile: ts.SourceFile) {
+        const visit = (node: ts.Node) => {
+            if (ts.isTypeReferenceNode(node)) {
+                const symbol = this.typeChecker.getSymbolAtLocation(node.typeName);
+                if (symbol && symbol.declarations && symbol.declarations.length > 0) {
+                    const declaration = symbol.declarations[0];
+                    const declarationSourceFile = declaration.getSourceFile();
+
+                    if (declarationSourceFile.fileName !== sourceFile.fileName) {
+                        const importPath = this.getRelativeImportPath(sourceFile.fileName, declarationSourceFile.fileName);
+                        if (importPath) {
+                            if (!this.importStatements.has(importPath)) {
+                                this.importStatements.set(importPath, new Set());
+                            }
+                            this.importStatements.get(importPath)!.add(symbol.name);
+                            this.importedTypes.add(symbol.name);
+                        }
+                    }
+                }
+            }
+            ts.forEachChild(node, visit);
+        };
+
+        visit(typeNode);
+    }
+
+    private collectParameterImports(parameters: ParameterMetadata[], fileName: string): void {
+        const sourceFile = this.program.getSourceFile(fileName);
+        if (!sourceFile) return;
+
+        for (const param of parameters) {
+            // Find type references in the source file that match our parameter type
+            const visit = (node: ts.Node) => {
+                if (ts.isTypeReferenceNode(node) && node.getText() === param.type) {
+                    this.collectImportsFromType(node, sourceFile);
+                }
+                ts.forEachChild(node, visit);
+            };
+
+            ts.forEachChild(sourceFile, visit);
+        }
+    }
+
     private analyzeFunctionNode(node: ts.FunctionDeclaration | ts.MethodDeclaration): FunctionMetadata | null {
         if (!this.isNodeExported(node)) {
             return null;
@@ -121,6 +166,10 @@ export class FunctionAnalyzer {
                 ? this.getFullTypeText(param.type)
                 : 'any';
 
+            if (param.type) {
+                this.collectImportsFromType(param.type, node.getSourceFile());
+            }
+
             return {
                 name: param.name.getText(),
                 type: paramType,
@@ -131,6 +180,10 @@ export class FunctionAnalyzer {
         const returnType = node.type
             ? this.getFullTypeText(node.type)
             : 'any';
+
+        if (node.type) {
+            this.collectImportsFromType(node.type, node.getSourceFile());
+        }
 
         return {
             name: node.name.getText(),
@@ -157,9 +210,34 @@ export class FunctionAnalyzer {
         return fullText;
     }
 
+    private getRelativeImportPath(fromPath: string, toPath: string): string | null {
+        if (toPath.includes('node_modules')) {
+            const nodeModulesIndex = toPath.indexOf('node_modules');
+            return toPath.slice(nodeModulesIndex + 13).replace(/\\/g, '/').replace(/\.d\.ts$/, '').replace(/\.ts$/, '');
+        }
+
+        let relativePath = path.relative(path.dirname(fromPath), toPath)
+            .replace(/\\/g, '/')
+            .replace(/\.ts$/, '');
+
+        if (!relativePath.startsWith('.')) {
+            relativePath = './' + relativePath;
+        }
+
+        return relativePath;
+    }
+
+
     public generateInterfaces(): string {
         const fileMetadata = this.analyzeFunctions();
         let output = '';
+
+        // Generate imports
+        this.importStatements.forEach((types, importPath) => {
+            const typesList = Array.from(types).join(', ');
+            output += `import type { ${typesList} } from '${importPath}';\n`;
+        });
+        output += '\n';
 
         const dirName = path.basename(this.rootDir);
         const namespaceName = this.formatNamespaceName(dirName);
@@ -171,6 +249,7 @@ export class FunctionAnalyzer {
 
             if (file.functions.length === 1) {
                 const func = file.functions[0];
+                this.collectParameterImports(func.parameters, file.fileName);
                 const params = this.generateParameterList(func.parameters);
                 if (params.length > 80) {
                     output += `  export function ${this.sanitizeIdentifier(file.fileName.split('.')[0])}(\n`;
@@ -186,6 +265,7 @@ export class FunctionAnalyzer {
                 output += `  export namespace ${moduleNamespace} {\n`;
 
                 for (const func of file.functions) {
+                    this.collectParameterImports(func.parameters, file.fileName);
                     const params = this.generateParameterList(func.parameters);
                     if (params.length > 80) {
                         output += `    export function ${this.sanitizeIdentifier(func.name)}(\n`;

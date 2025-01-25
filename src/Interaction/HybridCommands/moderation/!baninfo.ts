@@ -20,60 +20,69 @@
 */
 
 import {
-    BaseGuildTextChannel,
+    AuditLogEvent,
     ChatInputCommandInteraction,
     Client,
     EmbedBuilder,
     Message,
-    PermissionsBitField,
-    TextChannel
-} from 'discord.js';
+    time,
+} from 'discord.js'
 import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
-
 import { SubCommand } from '../../../../types/command';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-        // Guard's Typing
-        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
         if (interaction instanceof ChatInputCommandInteraction) {
-            var channel = interaction.options.getChannel('channel') as BaseGuildTextChannel | null;
+            var user = interaction.options.getUser("user")
         } else {
-
-            var channel = await client.method.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
+            var user = await client.method.user(interaction, args!, 0);
         }
 
-        let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);
-
-        if (!fetch && channel) {
-            await client.db.set(`${interaction.guildId}.PFPS.channel`, channel.id);
-
-            let embed = new EmbedBuilder()
-                .setColor('#333333')
-                .setTitle(lang.pfps_channel_embed_title)
-                .setDescription(lang.pfps_channel_embed_desc
-                    .replace('${interaction.user}', interaction.member.user.toString())
-                )
-                .setTimestamp();
-
+        if (!user) {
             await client.method.interactionSend(interaction, {
-                content: lang.pfps_channel_command_work
-                    .replace('${interaction.user}', interaction.member.user.toString())
-                    .replace('${channel}', channel.toString())
-            });
-
-            client.method.channelSend(channel, { embeds: [embed] });
+                content: lang.baninfo_user_not_found
+            })
             return;
+        }
 
-        } else {
+        let ban_info;
+        try {
+            ban_info = await interaction.guild?.bans.fetch(user.id);
+        } catch {
+            ban_info = null;
+        }
+
+        if (!ban_info) {
             await client.method.interactionSend(interaction, {
-                content: lang.pfps_channel_command_error
-                    .replace('${interaction.user}', interaction.member.user.toString())
-            });
+                content: lang.baninfo_not_banned
+            })
             return;
-        };
+        }
+
+        const auditLogs = await interaction.guild?.fetchAuditLogs({
+            type: AuditLogEvent.MemberBanAdd,
+            limit: 100
+        });
+
+        const banLog = auditLogs?.entries.find(log =>
+            log.target?.id === user!.id &&
+            log.action === AuditLogEvent.MemberBanAdd
+        );
+
+        let embed = new EmbedBuilder()
+            .setTitle(`${lang.baninfo_ban_info}: ${user.displayName}`)
+            .setColor("#4fdb12")
+            .setDescription(
+                `> 🕒 **${lang.var_ban_date}:** ${time(banLog?.createdAt || new Date())}
+           > 👤 **${lang.var_banned_by}:** ${banLog?.executor?.tag || lang.var_unknown}
+           > 📝 **${lang.var_reason}:** ${ban_info.reason || lang.blacklist_var_no_reason}`
+            )
+            .setThumbnail(user.displayAvatarURL({ extension: "gif", forceStatic: false, size: 4096 }));
+
+        await client.method.interactionSend(interaction, {
+            embeds: [embed]
+        });
+        return;
     },
 };

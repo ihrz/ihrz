@@ -79,7 +79,49 @@ export const command: Command = {
                 }
             ],
 
+            aliases: ["addban", "createban"],
             permission: PermissionFlagsBits.BanMembers
+        },
+        {
+            name: 'baninfo',
+
+            description: 'Check if user is banned and why',
+            description_localizations: {
+                "fr": "Vérifier si l'utilisateur est bannis du serveur et pourquoi"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'user',
+                    type: ApplicationCommandOptionType.User,
+
+                    description: 'the member you want to check',
+                    description_localizations: {
+                        "fr": "le membre que vous souhaitez vérifier"
+                    },
+
+                    required: true,
+
+                    permission: null
+                },
+            ],
+
+            permission: PermissionFlagsBits.BanMembers
+        },
+        {
+            name: 'banlist',
+
+            description: 'Show a list with all banned member',
+            description_localizations: {
+                "fr": "Affiche une liste des gens bannis"
+            },
+
+            aliases: ["bans", "listban", "listbans", "banlists"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ManageGuild
         },
         {
             name: 'clear',
@@ -226,6 +268,8 @@ export const command: Command = {
                 }
             ],
 
+            aliases: ["lockall"],
+
             type: ApplicationCommandOptionType.Subcommand,
             permission: PermissionFlagsBits.Administrator
         },
@@ -264,6 +308,19 @@ export const command: Command = {
                     },
 
                     required: true,
+
+                    permission: null
+                },
+                {
+                    name: 'reason',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: 'the reason why you tempmuted',
+                    description_localizations: {
+                        "fr": "la raison du tempmute"
+                    },
+
+                    required: false,
 
                     permission: null
                 }
@@ -308,6 +365,8 @@ export const command: Command = {
                     permission: null
                 }
             ],
+
+            aliases: ["delban", "removeban"],
 
             permission: PermissionFlagsBits.BanMembers
         },
@@ -469,6 +528,8 @@ export const command: Command = {
                     permission: null
                 }
             ],
+
+            aliases: ["warns", "listwarns", "listwarn", "warnslist", "sanctions"],
 
             type: ApplicationCommandOptionType.Subcommand,
 

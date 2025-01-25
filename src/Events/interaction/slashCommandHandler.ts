@@ -63,7 +63,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                         content: lang.var_dont_have_perm
                             .replace("{perm}", permName)
                     }
-                    return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+                    return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
                 }
             }
 
@@ -91,7 +91,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                         content: lang.var_dont_have_perm
                             .replace("{perm}", permName)
                     }
-                    return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+                    return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
                 }
             }
 
@@ -115,7 +115,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
                 content: lang.var_dont_have_perm
                     .replace("{perm}", permName)
             }
-            return command.thinking ? await interaction.editReply(body) : await interaction.reply(body);
+            return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
         }
     }
 
@@ -230,11 +230,8 @@ export const event: BotEvent = {
             const lang = await client.func.getLanguageData(interaction.guildId);
             await handleCommandExecution(client, (interaction as ChatInputCommandInteraction<"cached">), command, lang, command.thinking);
         } catch (error) {
-            if (client.config.core.devMode) {
-                console.error(error);
-            } else {
-                await handleCommandError(client, interaction, command, error);
-            }
+            console.error(error);
+            await handleCommandError(client, interaction, command, error);
         }
     },
 };

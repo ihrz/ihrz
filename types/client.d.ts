@@ -46,6 +46,7 @@ import { db } from "../src/core/database.js";
 import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
 import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
 import { Client_Functions } from "./client_functions.js";
+import { AutoRenew } from "../src/core/modules/autorenewManager.js";
 
 declare module 'discord.js' {
     export interface Client {
@@ -77,6 +78,7 @@ declare module 'discord.js' {
         ownihrz: OwnIHRZ,
         kdenlive: KdenLive,
         htmlfiles: Record<string, string>,
-        memberCountManager: MemberCountModule
+        memberCountManager: MemberCountModule,
+        autoRenewManager: AutoRenew
     }
 };

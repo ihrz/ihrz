@@ -20,32 +20,27 @@
 */
 
 import { Client, GuildMember, PermissionsBitField } from 'discord.js';
-
 import { BotEvent } from '../../../types/event';
 import { DatabaseStructure } from '../../../types/database_structure';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
+        try {
+            if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
 
-        if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
+            const roleid = await Promise.resolve(client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`)) as DatabaseStructure.GuildConfigSchema['joinroles'];
+            if (!roleid) return;
 
-        let roleid = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`) as DatabaseStructure.GuildConfigSchema['joinroles']
-        if (!roleid) return;
-
-        if (Array.isArray(roleid)) {
-            member.roles.set(roleid)
-                .catch(() => { })
-                .then(() => { });
-        } else {
-            let role = member.guild.roles.cache.get(roleid);
-            if (role) {
-                try {
-                    member.roles.add(role)
-                        .catch(() => { })
-                        .then(() => { });
-                } catch { }
-            }
+            await Promise.resolve().then(async () => {
+                if (Array.isArray(roleid)) {
+                    await member.roles.set(roleid).catch(() => null);
+                } else {
+                    const role = member.guild.roles.cache.get(roleid);
+                    if (role) await member.roles.add(role).catch(() => null);
+                }
+            });
+        } catch {
         }
-    },
+    }
 };

@@ -36,7 +36,7 @@ export function isNumber(str: string): boolean {
     return !isNaN(Number(str)) && str.trim() !== "";
 }
 
-export function user(interaction: Message, args: string[], argsNumber: number): User | null {
+export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
     if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
         return interaction.mentions.parsedUsers
             .map(x => x)
@@ -132,6 +132,13 @@ export function number(args: string[], argsNumber: number): number {
     return Number.isNaN(parseInt(value)) ? 0 : parseInt(value);
 }
 
+const getArgumentOptionNameWithOptions = (o: Option): string => {
+    if (o.choices) {
+        return o.choices.map(x => x.value).join("/");
+    }
+    return o.name;
+};
+
 const getArgumentOptionType = (type: number): string => {
     switch (type) {
         case 3:
@@ -161,7 +168,7 @@ export const stringifyOption = (option: Option[]): string => {
     let _ = "";
     option.forEach((value) => {
         _ += value.required ? "[" : "<";
-        _ += getArgumentOptionTypeWithOptions(value);
+        _ += getArgumentOptionNameWithOptions(value);
         _ += value.required ? "]" + " " : ">" + " ";
     });
     return _.trim();
@@ -171,7 +178,7 @@ export const boldStringifyOption = (option: Option[]): string => {
     let _ = "";
     option.forEach((value) => {
         _ += value.required ? "**`[" : "**`<";
-        _ += getArgumentOptionTypeWithOptions(value);
+        _ += getArgumentOptionNameWithOptions(value);
         _ += value.required ? "]`**" + " " : ">`**" + " ";
     });
     return _.trim();

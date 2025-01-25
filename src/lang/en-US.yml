@@ -56,6 +56,20 @@ var_dont_have_perm: "You don't have the necessary permissions to do this. (Requi
 var_price: "Price"
 var_boost: "Boost"
 var_uses: "Uses"
+var_vc_stats: "Voice statistics"
+var_1d: "1 day"
+var_7d: "7 days"
+var_14d: "14 days"
+var_year: "year(s)"
+var_mo: "month(s)"
+var_w: "week(s)"
+var_d: "day(s)"
+var_h: "hour(S)"
+var_m: "minute(s)"
+var_s: "secondes"
+var_ms: "milisecondes"
+var_banned_user: "Banned User(s)"
+var_no_one_banned: "No one is banned in this server."
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Create Instant Invite"
@@ -170,7 +184,7 @@ remove_command_error: "Error occurred, please try again"
 remove_command_work: "Successfully removed ${member.tag} from your ticket!"
 
 # /transript
-transript_disabled_command: "You can't use this command because an Administrator disabled the ticket command !"
+transript_disabled_command: "You cannot use this command because an administrator has disabled it!"
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Ticket Chat transcript for ${channel.name}"
 transript_command_error: "Error occurred, please try again!"
@@ -391,7 +405,7 @@ blacklist_embed_title: "Blacklist - Page ${i / usersPerPage + 1}"
 unblacklist_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
 unblacklist_command_work: "<@${member.id}> is no longer blacklisted"
 unblacklist_not_blacklisted: "<@${member.id}> was not blacklisted"
-unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} is now unlacklisted, Can't unban this member here, missing permission or already unban?"
+unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} is now unblacklisted, Can't unban this member here, missing permission or already unban?"
 unblacklist_user_is_not_exist: "I couldn't find the user"
 
 
@@ -458,7 +472,7 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay is both my cre
 andru_message: "Andru is a Collaborator and developer. \"L'homme à tout faire\", he manage the marketing, the community..."
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether is a contributor to iHorizon. He catches every typo in the bot, and he improvises himself as a support helper for the iHorizon bot."
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether is a contributor to iHorizon. He is ready to catch every typo in the bot, and he improvises himself as a support helper for the iHorizon bot."
 
 # /nayaweb
 nayaweb_message: "😼NayaWeb is my second developer/contributor , NayaWeb x Kisakay ❤️"
@@ -931,6 +945,19 @@ util_leash_too_naugthy: "You little rascal, you can’t leash more than 3 people
 util_leah_already_owned: "You little rascal, you already own these little wonders :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | The member you want to leash isn’t in a voice channel!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Are you sure you want to proceed with this action?"
 
+# /util autorenew
+util_autorenew_time_too_short: "The time between a channel renew must be more than 1 minutes"
+util_autorenew_time_too_long: "The time between a channel renew must be more than 24 hours"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Now, the ${channel.toString()} channel is automaticaly deleted-created (renewed) every ${time} !\nFor stoping the channel to be renewed, just delete it by yourself."
+event_autorenew_channel_renewed: "The AutoRenew have renewed the channel!"
+event_autorenew_channel_warning: "The AutoRenew module is config to renew this channel. Futur renew in ${time}."
+
+# /util where
+util_where_deaf: "Self deaf"
+util_where_mute: "Self mute"
+var_video: "Video"
+var_whereis: "Where is"
+util_not_in_vc: "The members are not in a voice channel"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1481,10 +1508,10 @@ tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | You don
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | I don't have permission."
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | You cannot mute yourself!"
 tempmute_already_muted: "This user is already muted !"
-tempmute_command_work: "<@${tomute.id}> has been muted for ${ms(ms(mutetime))}"
+tempmute_command_work: "<@${tomute.id}> has been muted for ${ms(ms(mutetime))}\n**Reason**: `${reason}`"
 tempmute_unmuted_by_time: "<@${tomute.id}> has been unmuted!"
 tempmute_logs_embed_title: "Tempmute Logs"
-tempmute_logs_embed_description: "<@${interaction.user.id}> mute <@${tomute.id}> for ${ms(ms(mutetime))}"
+tempmute_logs_embed_description: "<@${interaction.user.id}> mute <@${tomute.id}> for ${ms(ms(mutetime))}\n**Reason**: `${reason}`"
 tempmute_reason_create_roles: "Create tempmute muted role!"
 
 # /unmute
@@ -1517,6 +1544,12 @@ warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> 
 warnlist_embed_title: "${member?.user.globalName}'s WarnList | Page ${i / usersPerPage + 1}"
 warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | You don't have permission to manage member warnings in this discord server."
 
+# /baninfo
+baninfo_not_banned: "User is not banned"
+baninfo_ban_info: "Ban info"
+baninfo_user_not_found: "User not found"
+var_banned_by: "Banned by"
+var_ban_date: "Ban date"
 
 # Backup commands
 # /backup
@@ -2109,7 +2142,7 @@ rc_get_mainEmbed_field3_value: "*the date is in MM/DD/YYYY HH:mm format*"
 rc_get_mainEmbed_field4_name: "Key Used Count"
 rc_get_mainEmbed_field5_name: "Configuration Author"
 rc_get_secondEmbed_title: "Stocked user(s)"
-rc_get_secondEmbed_footer: "Page ${from} / ${to)}"
+rc_get_secondEmbed_footer: "Page ${from} / ${to}"
 rc_get_locale: "Locale"
 rc_get_username: "Username"
 rc_get_unkwnon_user: "Unknown user (${Data.data.config.author.id})"

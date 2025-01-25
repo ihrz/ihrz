@@ -370,6 +370,11 @@ export namespace DatabaseStructure {
         words: string[];
     };
 
+    type renewChannelStructure = {
+        timestamp: number;
+        maxTime: number;
+    }
+
     export interface UtilsData {
         LEASH?: LeashData[]; // yeah, bdsm ref lmao
         LEASH_CONFIFG?: LeashConfig;
@@ -381,6 +386,7 @@ export namespace DatabaseStructure {
         picOnly?: string[];
         picOnlyConfig?: PicOnlyConfig;
         NICK_KICKER?: NickKickerData;
+        renew_channel?: Record<string, renewChannelStructure>;
     }
 
     export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;

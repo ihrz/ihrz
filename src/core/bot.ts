@@ -47,7 +47,9 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildWebhooks,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessagePolls,
+        GatewayIntentBits.DirectMessagePolls
     ],
     partials: [
         Partials.Channel,

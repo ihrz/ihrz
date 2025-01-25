@@ -37,6 +37,8 @@ const regexPatterns = [
     '(?:%[0-9a-fA-F]{2})+',
     '(?:<.*?>)?\\s*https?:\\/\\/.*?',
     '[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
+    '(?:%[0-9a-fA-F]{2}){2,}',
+    '(?:https?:\/\/)?(?:%[0-9a-fA-F]{2})+(?:\.[a-zA-Z]{2,}|\/%[0-9a-fA-F]{2,})*'
 ];
 
 import { LanguageData } from '../../../../types/languageData';

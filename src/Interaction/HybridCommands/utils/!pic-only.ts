@@ -101,7 +101,7 @@ export const subCommand: SubCommand = {
                     .setValue("utils-picOnly-option-change-threshold")
             );
 
-        if (all_channels !== undefined && all_channels?.length > 1) {
+        if (all_channels !== undefined && all_channels?.length >= 1) {
             const channels: string[] = Array.isArray(all_channels) ? all_channels : [all_channels];
             channelSelectMenu.setDefaultChannels(channels);
         }

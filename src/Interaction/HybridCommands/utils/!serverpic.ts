@@ -20,34 +20,39 @@
 */
 
 import {
-    Client, ChatInputCommandInteraction, ApplicationCommandType,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    Client,
+    EmbedBuilder,
     Message,
-    CommandInteractionOptionResolver,
-} from 'discord.js'
-
-import { Command } from '../../../../types/command';
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData';
+import { SubCommand } from '../../../../types/command';
 
-export const command: Command = {
-    name: 'ether',
-
-    description: 'Get unnecessary information about my contributor Ether',
-    description_localizations: {
-        "fr": "Obtenir des informations non nécessaires sur mon contributeur Ether!"
-    },
-
-    category: 'bot',
-    thinking: false,
-    type: ApplicationCommandType.ChatInput,
-    permission: null,
+export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
+        let embed = new EmbedBuilder()
+            .setImage(interaction.guild.iconURL({ extension: "webp", size: 4096 }))
+            .setColor("#add5ff")
+            .setTitle(interaction.guild.name);
+
         await client.method.interactionSend(interaction, {
-            content: lang.ether_message.replace("${client.iHorizon_Emojis.icon.Sparkles}", client.iHorizon_Emojis.icon.Sparkles)
+            embeds: [embed],
+            components: [
+                new ActionRowBuilder<ButtonBuilder>()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setStyle(ButtonStyle.Link)
+                            .setLabel(lang.pfps_download_guild_button)
+                            .setURL(interaction.guild.iconURL({ extension: "webp", size: 4096 }) || "https://ihorizon.me/assets/img/unknown-user.png")
+                    )
+            ]
         });
         return;
     },

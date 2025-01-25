@@ -1,8 +1,16 @@
-declare namespace Client_Functions {
+import type { DatabaseStructure } from './database_structure';
+import type { LanguageData } from './languageData.js';
+import { ClusterMethod, GatewayMethod } from '../src/core/functions/apiUrlParser.js';
+import { ModalOptionsBuilder } from '../src/core/functions/modalHelper.js';
+import { AnySelectMenuInteraction, APIModalInteractionResponseCallbackData, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, Role, StringSelectMenuInteraction, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
+import { Assets } from './assets.js';
+import { QuickDB } from 'quick.db';
+import { LangForPrompt } from '../src/core/functions/awaitingResponse.js';
+import { RestoreCord_EntryType, RestoreCord_ResponseType, GuildRestoreCord, RestoreCord_ForceJoin_EntryType, RestoreCord_ForceJoin_ResponseType, RestoreCord_KeyUpdate_EntryType, RestoreCord_RoleUpdate_EntryType } from '../src/core/functions/restoreCordHelper.js';
+import { Command } from './command.js';
+import { Option } from './option.js';
 
-  // From encryptDecryptMethod.ts
-  export namespace encryptDecryptMethod {
-  }
+declare namespace Client_Functions {
 
   // From colors.ts
   export namespace colors {
@@ -10,6 +18,10 @@ declare namespace Client_Functions {
 
   // From axios.ts
   export namespace axios {
+  }
+
+  // From encryptDecryptMethod.ts
+  export namespace encryptDecryptMethod {
   }
 
   // From getToken.ts
@@ -31,12 +43,12 @@ declare namespace Client_Functions {
     export function assetsFinder(body: Assets, type: string): string;
     export function OwnIhrzCluster(
       options: {
-    cluster_number: number
-    cluster_method: ClusterMethod,
-    bot_id?: string;
-    discord_bot_token?: string;
-    forceDatabaseSet?: boolean;
-}
+        cluster_number: number
+        cluster_method: ClusterMethod,
+        bot_id?: string;
+        discord_bot_token?: string;
+        forceDatabaseSet?: boolean;
+      }
     ): string;
     export function HorizonGateway(gateway_method: GatewayMethod): string;
   }
@@ -92,9 +104,9 @@ declare namespace Client_Functions {
   // From permissonsCalculator.ts
   export namespace permissonsCalculator {
     export function checkCommandPermission(interaction: ChatInputCommandInteraction<"cached"> | Message, command: string): Promise<{
-    allowed: boolean;
-    neededPerm: DatabaseStructure.PermLevel | DatabaseStructure.PermNone;
-}>;
+      allowed: boolean;
+      neededPerm: DatabaseStructure.PermLevel | DatabaseStructure.PermNone;
+    }>;
     export function checkUserPermissions(member: GuildMember): Promise<DatabaseStructure.PermLevel | DatabaseStructure.PermNone>;
     export function sendErrorMessage(
       interaction: ChatInputCommandInteraction<"cached"> | Message,
@@ -128,10 +140,10 @@ declare namespace Client_Functions {
       weeklyMessages: DatabaseStructure.StatsMessage[],
       monthlyMessages: DatabaseStructure.StatsMessage[]
     ): {
-    dailyMessages: DatabaseStructure.StatsMessage[],
-    weeklyMessages: DatabaseStructure.StatsMessage[],
-    monthlyMessages: DatabaseStructure.StatsMessage[],
-};
+      dailyMessages: DatabaseStructure.StatsMessage[],
+      weeklyMessages: DatabaseStructure.StatsMessage[],
+      monthlyMessages: DatabaseStructure.StatsMessage[],
+    };
     export function calculateVoiceActivity(
       voice: DatabaseStructure.StatsVoice,
       nowTimestamp: number,
@@ -142,33 +154,33 @@ declare namespace Client_Functions {
       weeklyVoiceActivity: number,
       monthlyVoiceActivity: number
     ): {
-    dailyVoiceActivity: number,
-    weeklyVoiceActivity: number,
-    monthlyVoiceActivity: number,
-};
+      dailyVoiceActivity: number,
+      weeklyVoiceActivity: number,
+      monthlyVoiceActivity: number,
+    };
     export function calculateActiveChannels(messages: DatabaseStructure.StatsMessage[]): {
-    firstActiveChannel: string,
-    secondActiveChannel: string,
-    thirdActiveChannel: string,
-};
+      firstActiveChannel: string,
+      secondActiveChannel: string,
+      thirdActiveChannel: string,
+    };
     export function calculateActiveVoiceChannels(voices: DatabaseStructure.StatsVoice[]): {
-    firstActiveVoiceChannel: string,
-    secondActiveVoiceChannel: string,
-    thirdActiveVoiceChannel: string,
-};
+      firstActiveVoiceChannel: string,
+      secondActiveVoiceChannel: string,
+      thirdActiveVoiceChannel: string,
+    };
     export function getChannelName(guild: Guild, channelId: string): string;
     export function getChannelMessagesCount(channelId: string, messages: DatabaseStructure.StatsMessage[]): number;
     export function getChannelMinutesCount(channelId: string, voices: DatabaseStructure.StatsVoice[]): number;
     export function getStatsLeaderboard(
       data: {
-    member: User | undefined,
-    dailyMessages: number,
-    weeklyMessages: number,
-    monthlyMessages: number,
-    dailyVoiceActivity: number,
-    weeklyVoiceActivity: number,
-    monthlyVoiceActivity: number
-}[]
+        member: User | undefined,
+        dailyMessages: number,
+        weeklyMessages: number,
+        monthlyMessages: number,
+        dailyVoiceActivity: number,
+        weeklyVoiceActivity: number,
+        monthlyVoiceActivity: number
+      }[]
     ): any;
   }
 
@@ -213,12 +225,12 @@ declare namespace Client_Functions {
   export function html2png(
     code: string,
     options: {
-        width?: number;
-        height?: number;
-        scaleSize?: number;
-        elementSelector?: string;
-        omitBackground: boolean;
-        selectElement: boolean;
+      width?: number;
+      height?: number;
+      scaleSize?: number;
+      elementSelector?: string;
+      omitBackground: boolean;
+      selectElement: boolean;
     }
   ): Promise<Buffer>;
 
@@ -226,8 +238,8 @@ declare namespace Client_Functions {
   export function ihorizon_logs(
     interaction: ChatInputCommandInteraction<"cached"> | Message,
     embed: {
-        title: string;
-        description: string;
+      title: string;
+      description: string;
     }
   ): any;
 
@@ -274,30 +286,30 @@ declare namespace Client_Functions {
         user: User;
         guildLocal: string;
         inviter?: {
-            user: {
-                username: string;
-                mention: string;
-            }
-            invitesAmount: string;
+          user: {
+            username: string;
+            mention: string;
+          }
+          invitesAmount: string;
         },
         ranks?: {
-            level: string;
+          level: string;
         },
         notifier?: {
-            artistAuthor: string;
-            artistLink: string;
-            mediaURL: string;
+          artistAuthor: string;
+          artistLink: string;
+          mediaURL: string;
         }
-    }
+      }
     ): string;
     export function buttonReact(msg: Message, button: ButtonBuilder): Promise<Message>;
     export function buttonUnreact(msg: Message, buttonEmoji: string): Promise<Message>;
     export function isAnimated(attachmentUrl: string): boolean;
     export function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string>;
     export function getDangerousPermissions(lang: LanguageData): {
-    flag: bigint;
-    name: string;
-}[];
+      flag: bigint;
+      name: string;
+    }[];
     export function addCoins(member: GuildMember, coins: number): Promise<void>;
     export function subCoins(member: GuildMember, coins: number): Promise<void>;
     export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;

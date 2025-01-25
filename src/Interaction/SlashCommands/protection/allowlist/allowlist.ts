@@ -24,95 +24,90 @@ import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
     ApplicationCommandType,
-    Message,
-    ChannelType,
-    PermissionFlagsBits,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
-
+import { Command } from '../../../../../types/command';
+import { LanguageData } from '../../../../../types/languageData';
 
 export const command: Command = {
-    name: "pfps",
+    name: "allowlist",
 
-    description: "Sending random user avatar in channel!",
+    description: "Subcommand for protection category!",
     description_localizations: {
-        "fr": "Envoi d'un avatar d'utilisateur aléatoire dans un canal pré-définis"
+        "fr": "Commande sous-groupé pour la catégorie de protection"
     },
 
     options: [
         {
-            name: "channel",
-            prefixName: "pfps-channel",
+            name: "add",
 
-            description: "Set the pfps module's channel!",
+            description: "Adding an user in the allowlist!",
             description_localizations: {
-                "fr": "Définir le canal du module pfps"
+                "fr": "Ajouter un utilisateur à la liste blanche"
             },
 
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'channel',
-                    type: ApplicationCommandOptionType.Channel,
+                    name: 'member',
+                    type: ApplicationCommandOptionType.User,
 
-                    description: 'The channel!',
+                    description: 'Whats is the member then?',
                     description_localizations: {
-                        "fr": "Le channel"
+                        "fr": "Quel est le membre alors?"
                     },
-
-                    channel_types: [ChannelType.GuildText],
 
                     required: true,
 
                     permission: null
-                }
+                },
             ],
 
-            permission: PermissionFlagsBits.Administrator
+            permission: null
         },
         {
-            name: "disable",
-            prefixName: "pfps-disable",
+            name: "remove",
 
-            description: "Enable or Disable the PFPS module!",
+            description: "Removing an user in the allowlist!",
             description_localizations: {
-                "fr": "Activer ou désactiver le module"
+                "fr": "Supprimer un utilisateur de la liste blanche"
             },
 
             type: ApplicationCommandOptionType.Subcommand,
             options: [
                 {
-                    name: 'action',
-                    type: ApplicationCommandOptionType.String,
+                    name: 'member',
+                    type: ApplicationCommandOptionType.User,
 
-                    description: 'What do you want to do ?',
+                    description: 'Whats is the member then?',
                     description_localizations: {
-                        "fr": "Que voulez-vous faire ?"
+                        "fr": "Quel est le membre alors?"
                     },
 
                     required: true,
-                    choices: [
-                        {
-                            name: 'Power On',
-                            value: "on"
-                        },
-                        {
-                            name: "Power Off",
-                            value: "off"
-                        },
-                    ],
 
                     permission: null
-                }
+                },
             ],
 
-            permission: PermissionFlagsBits.Administrator
-        }
+            permission: null
+        },
+        {
+            name: "show",
+
+            description: "List the users in the allowlist!",
+            description_localizations: {
+                "fr": "Lister les utilisateurs dans la liste autorisée"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: null
+        },
     ],
     thinking: false,
-    category: 'pfps',
+    category: 'protection',
     type: ApplicationCommandType.ChatInput,
+
     permission: null
 };

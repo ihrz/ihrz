@@ -19,7 +19,12 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, MessageReaction, User } from 'discord.js';
+import {
+    Client,
+    MessageReaction,
+    User
+} from 'discord.js';
+
 import { BotEvent } from '../../../types/event';
 
 export const event: BotEvent = {
@@ -27,27 +32,25 @@ export const event: BotEvent = {
     run: async (client: Client, reaction: MessageReaction, user: User) => {
 
         try {
-            if (user.bot || user.id == client.user?.id
-                || !reaction.message.guildId) return;
-
+            if (user.id == client.user?.id || !reaction.message.guild) return;
             let fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
             if (fetched) {
-                let role = reaction.message.guild?.roles.cache.get(fetched.rolesID);
+                let role = reaction.message.guild!.roles.cache.get(fetched.rolesID) || await reaction.message.guild.roles.fetch(fetched.rolesID);
                 if (!role) return;
 
-                let member = reaction.message.guild?.members.cache.get(user.id);
-                await member?.roles.remove(role).catch(() => { });
+                let member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
+                await member?.roles.remove(role.id).catch(() => { });
                 return;
             };
 
             let fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
             if (fetchedForNitro) {
-                let role = reaction.message.guild?.roles.cache.get(fetchedForNitro.rolesID);
+                let role = reaction.message.guild!.roles.cache.get(fetchedForNitro.rolesID) || await reaction.message.guild.roles.fetch(fetchedForNitro.rolesID);
                 if (!role) return;
 
-                let member = reaction.message.guild?.members.cache.get(user.id);
+                let member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
                 await member?.roles.remove(role).catch(() => { });
                 return;
             };

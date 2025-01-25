@@ -22,135 +22,115 @@
 import {
     Client,
     EmbedBuilder,
-    CommandInteraction,
-    ApplicationCommandType,
-    ChannelType,
-    PermissionsBitField,
     ChatInputCommandInteraction,
     Message,
-    InteractionEditReplyOptions,
-    MessagePayload,
-    MessageReplyOptions,
-    ApplicationCommandOptionType,
+    ChannelType,
+    GuildMember,
+    Collection,
+    VoiceState,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
 
-
-import { SubCommand } from '../../../../types/command';
-
-export const subCommand: SubCommand = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
-        // Guard's Typing
+export const subCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData) => {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        let voiceStates = interaction.guild.voiceStates.cache;
-        let membersStates = interaction.guild.members.cache;
+        const guild = interaction.guild;
+        await guild.members.fetch();
 
-        let textChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildText).size;
-        let voiceChannelSize = interaction.guild?.channels.cache.filter(c => c.type === ChannelType.GuildVoice).size;
+        const voiceStates = guild.voiceStates.cache;
 
-        if (interaction instanceof ChatInputCommandInteraction) {
-            var mode = interaction.options.getString("show-mode");
-        } else {
+        const textChannelSize = guild.channels.cache.filter(c => c.type === ChannelType.GuildText).size;
+        const voiceChannelSize = guild.channels.cache.filter(c => c.type === ChannelType.GuildVoice).size;
 
-            var mode = client.method.string(args!, 0);
-        };
+        const mode = interaction instanceof ChatInputCommandInteraction
+            ? interaction.options.getString("show-mode") || "short"
+            : "short";
 
-        if (!mode) {
-            mode = "short"
-        }
+        const memberStats = calculateMemberStats(guild.members.cache);
+        const voiceStats = calculateVoiceStats(voiceStates.filter(x => x.channelId !== null));
 
-        let embed = new EmbedBuilder();
-        let files = [];
-
-        files.push(await interaction.client.method.bot.footerAttachmentBuilder(interaction))
-
-        let total_members_size = membersStates?.size!;
-        let total_members_states_dnd = membersStates?.filter(mbr => mbr.presence?.status === "dnd").size!;
-        let total_members_states_online = membersStates?.filter(mbr => mbr.presence?.status === "online").size!;
-        let total_members_states_idle = membersStates?.filter(mbr => mbr.presence?.status === "idle").size;
-        let total_members_states_invisible = total_members_size - total_members_states_dnd - total_members_states_online - total_members_states_idle;
-
-        let total_guild_boost_count = interaction.guild?.premiumSubscriptionCount?.toString()!;
-        let total_guild_boosters = interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)!;
-
-        let total_members_vc_streaming = voiceStates?.filter(vc => vc.streaming).size.toString()!;
-        let total_members_vc_deaf = voiceStates?.filter(vc => vc.selfDeaf).size.toString()!;
-        let total_members_vc_mute = voiceStates?.filter(vc => vc.selfMute).size.toString()!;
-        let total_members_vc_video = voiceStates?.filter(vc => vc.selfVideo).size.toString()!;
+        const embed = new EmbedBuilder();
+        const files = [];
 
         if (mode === "large") {
+            const boosters = guild.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`) || [];
+
             embed
                 .setColor(2829617)
                 .setDescription(
                     lang.vc_embed_desc
-                        .replaceAll('${voiceStates?.size}', voiceStates?.size.toString()!)
+                        .replaceAll('${voiceStates?.size}', voiceStats.total.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Streaming}', client.iHorizon_Emojis.icon.iHorizon_Streaming)
-                        .replaceAll('${voiceStates?.filter(vc => vc.streaming).size}', total_members_vc_streaming)
+                        .replaceAll('${voiceStates?.filter(vc => vc.streaming).size}', voiceStats.streaming.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Deaf}', client.iHorizon_Emojis.icon.iHorizon_Deaf)
-                        .replaceAll('${voiceStates?.filter(vc => vc.selfDeaf).size}', total_members_vc_deaf)
+                        .replaceAll('${voiceStates?.filter(vc => vc.selfDeaf).size}', voiceStats.selfDeaf.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Mute}', client.iHorizon_Emojis.icon.iHorizon_Mute)
-                        .replaceAll('${voiceStates?.filter(vc => vc.selfMute).size}', total_members_vc_mute)
+                        .replaceAll('${voiceStates?.filter(vc => vc.selfMute).size}', voiceStats.selfMute.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Camera}', client.iHorizon_Emojis.icon.iHorizon_Camera)
-                        .replaceAll('${voiceStates?.filter(vc => vc.selfVideo).size}', total_members_vc_video)
-                        .replaceAll('${membersStates?.size}', total_members_size.toString())
+                        .replaceAll('${voiceStates?.filter(vc => vc.selfVideo).size}', voiceStats.selfVideo.toString())
+                        .replaceAll('${membersStates?.size}', memberStats.total.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_DND}', client.iHorizon_Emojis.icon.iHorizon_DND)
-                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}', total_members_states_dnd.toString())
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}', memberStats.dnd.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Online}', client.iHorizon_Emojis.icon.iHorizon_Online)
-                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', total_members_states_online.toString())
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', memberStats.online.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Idle}', client.iHorizon_Emojis.icon.iHorizon_Idle)
-                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', total_members_states_idle.toString()!)
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', memberStats.idle.toString())
                         .replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Invisible}', client.iHorizon_Emojis.icon.iHorizon_Invisible)
-                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', total_members_states_invisible.toString())
-                        .replaceAll('${interaction.guild?.premiumSubscriptionCount}', total_guild_boost_count)
-                        .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', total_guild_boosters.toString())
+                        .replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', memberStats.invisible.toString())
+                        .replaceAll('${interaction.guild?.premiumSubscriptionCount}', guild.premiumSubscriptionCount?.toString() || '0')
+                        .replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', boosters.join(', '))
                 )
                 .addFields(
                     {
                         name: lang.vc_embed_fields_1_name,
                         value: lang.vc_embed_fields_1_value
-                            .replace('${interaction.guild?.memberCount}', interaction.guild?.memberCount.toString()!),
+                            .replace('${interaction.guild?.memberCount}', guild.memberCount.toString()),
                         inline: true
                     },
                     {
                         name: lang.vc_embed_fields_2_name,
                         value: lang.vc_embed_fields_2_value
-                            .replace('${textChannelSize}', textChannelSize?.toString()!)
-                            .replace('${voiceChannelSize}', voiceChannelSize?.toString()!),
+                            .replace('${textChannelSize}', textChannelSize.toString())
+                            .replace('${voiceChannelSize}', voiceChannelSize.toString()),
                         inline: true
-                    },
+                    }
                 )
-                .setFooter(await client.method.bot.footerBuilder(interaction))
-                ;
         } else {
             embed
-                .setDescription(
-                    lang.vc_embed_short_desc
-                        .replaceAll("${voiceStates?.size}", voiceStates.size.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Streaming}", client.iHorizon_Emojis.icon.iHorizon_Streaming)
-                        .replaceAll("${total_members_vc_streaming}", total_members_vc_streaming)
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Deaf}", client.iHorizon_Emojis.icon.iHorizon_Deaf)
-                        .replaceAll("${total_members_vc_deaf}", total_members_vc_deaf)
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Mute}", client.iHorizon_Emojis.icon.iHorizon_Mute)
-                        .replaceAll("${total_members_vc_mute}", total_members_vc_mute)
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Camera}", client.iHorizon_Emojis.icon.iHorizon_Camera)
-                        .replaceAll("${total_members_vc_video}", total_members_vc_video)
-                        .replaceAll("${total_members_size}", total_members_size.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_DND}", client.iHorizon_Emojis.icon.iHorizon_DND)
-                        .replaceAll("${total_members_states_dnd}", total_members_states_dnd.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Online}", client.iHorizon_Emojis.icon.iHorizon_Online)
-                        .replaceAll("${total_members_states_online}", total_members_states_online.toString())
-                        .replaceAll("${client.iHorizon_Emojis.icon.iHorizon_Idle}", client.iHorizon_Emojis.icon.iHorizon_Idle)
-                        .replaceAll("${total_members_states_idle}", total_members_states_idle.toString())
+                .setTitle(lang.var_vc_stats)
+                .setColor(2829617)
+                .setFields(
+                    {
+                        name: client.iHorizon_Emojis.vc.Limit,
+                        value: voiceStats.total.toString(),
+                        inline: true
+                    },
+                    {
+                        name: client.iHorizon_Emojis.icon.iHorizon_Streaming,
+                        value: voiceStats.streaming.toString(),
+                        inline: true
+                    },
+                    {
+                        name: client.iHorizon_Emojis.icon.iHorizon_Camera,
+                        value: voiceStats.selfVideo.toString(),
+                        inline: true
+                    },
+                    {
+                        name: client.iHorizon_Emojis.icon.iHorizon_Mute,
+                        value: voiceStats.selfMute.toString(),
+                        inline: true
+                    },
+                    {
+                        name: client.iHorizon_Emojis.icon.iHorizon_Deaf,
+                        value: voiceStats.selfDeaf.toString(),
+                        inline: true
+                    }
                 )
                 .setThumbnail("attachment://guild_icon.png")
-                .setFooter(await client.method.bot.footerBuilder(interaction))
 
-            const guildIconAttachment = await client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL());
+            const guildIconAttachment = await client.func.image64(guild.iconURL() || client.user.displayAvatarURL());
             if (guildIconAttachment) {
                 files.push({
                     name: "guild_icon.png",
@@ -163,6 +143,55 @@ export const subCommand: SubCommand = {
             embeds: [embed],
             files: files
         });
-        return;
-    },
+    }
 };
+
+interface MemberStats {
+    total: number;
+    online: number;
+    idle: number;
+    dnd: number;
+    invisible: number;
+}
+
+interface VoiceStats {
+    total: number;
+    streaming: number;
+    selfDeaf: number;
+    selfMute: number;
+    selfVideo: number;
+}
+
+function calculateMemberStats(members: Collection<string, GuildMember>): MemberStats {
+    const stats = {
+        total: members.size,
+        online: 0,
+        idle: 0,
+        dnd: 0,
+        invisible: 0
+    };
+
+    members.forEach(member => {
+        const status = member.presence?.status;
+        switch (status) {
+            case 'online': stats.online++; break;
+            case 'idle': stats.idle++; break;
+            case 'dnd': stats.dnd++; break;
+            default: stats.invisible++; break;
+        }
+    });
+
+    return stats;
+}
+
+function calculateVoiceStats(voiceStates: Collection<string, VoiceState>): VoiceStats {
+    // Making a set with userid
+    let data = new Set(voiceStates.keys())
+    return {
+        total: data.size,
+        streaming: voiceStates.filter(vc => vc.streaming).size,
+        selfDeaf: voiceStates.filter(vc => vc.selfDeaf).size,
+        selfMute: voiceStates.filter(vc => vc.selfMute).size,
+        selfVideo: voiceStates.filter(vc => vc.selfVideo).size
+    };
+}

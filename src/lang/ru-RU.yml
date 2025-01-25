@@ -56,6 +56,20 @@ var_dont_have_perm: "У вас нет необходимых разрешени�
 var_price: "Цена"
 var_boost: "Ускорение"
 var_uses: "Использования"
+var_vc_stats: "Голосовая статистика"
+var_1d: "1 dia"
+var_7d: "7 dias"
+var_14d: "14 dias"
+var_year: "год(а/лет)"
+var_mo: "месяц(а/ев)"
+var_w: "неделя(и/ь)"
+var_d: "день(я/ей)"
+var_h: "час(а/ов)"
+var_m: "минута(ы)"
+var_s: "секунда(ы)"
+var_ms: "миллисекунда(ы)"
+var_banned_user: "Заблокированный пользователь(и)"
+var_no_one_banned: "В этом сервере никто не заблокирован."
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"
@@ -459,7 +473,7 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay - и мой с
 andru_message: "Andru - сотрудник и разработчик. \"Мастер на все руки\", он управляет маркетингом, сообществом..."
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether - это участник проекта iHorizon. Он находит каждую опечатку в боте и выступает в роли помощника поддержки для бота iHorizon."
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether - контрибьютор iHorizon. Он готов найти любую опечатку в боте и импровизирует в качестве помощника по поддержке бота iHorizon."
 
 # /nayaweb
 nayaweb_message: "😼NayaWeb - мой второй разработчик/соавтор , NayaWeb и Kisakay ❤️"
@@ -931,6 +945,19 @@ util_leash_too_naugthy: "Шалунишка, ты не можешь привяз
 util_leah_already_owned: "Шалунишка, у тебя уже есть эти маленькие чудеса :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Участник, которого ты хочешь привязать, не находится в голосовом канале!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Ты уверен, что хочешь выполнить это действие?"
 
+# /util autorenew
+util_autorenew_time_too_short: "Время между обновлением канала должно быть более 1 минуты"
+util_autorenew_time_too_long: "Время между обновлением канала должно быть менее 24 часов"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Теперь канал ${channel.toString()} будет автоматически удаляться-создаваться (обновляться) каждые ${time}!\nЧтобы остановить обновление канала, просто удалите его самостоятельно."
+event_autorenew_channel_renewed: "AutoRenew обновил канал!"
+event_autorenew_channel_warning: "Модуль AutoRenew настроен на обновление этого канала. Следующее обновление через ${time}."
+
+# /util where
+util_where_deaf: "Самозаглушение звука"
+util_where_mute: "Самозаглушение микрофона"
+var_video: "Видео"
+var_whereis: "Где находится"
+util_not_in_vc: "Участники не находятся в голосовом канале"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1481,10 +1508,10 @@ tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У ва
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У меня нет разрешения."
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Вы не можете временно заблокировать сами себя!"
 tempmute_already_muted: "Этот пользователь уже заблокирован!"
-tempmute_command_work: "<@${tomute.id}> был заблокирован на ${ms(ms(mutetime))}"
+tempmute_command_work: "<@${tomute.id}> был замучен на ${ms(ms(mutetime))}\n**Причина**: `${reason}`"
 tempmute_unmuted_by_time: "<@${tomute.id}> был разблокирован!"
 tempmute_logs_embed_title: "Логи временной блокировки"
-tempmute_logs_embed_description: "<@${interaction.user.id}> заблокировал <@${tomute.id}> на ${ms(ms(mutetime))}"
+tempmute_logs_embed_description: "<@${interaction.user.id}> замутил <@${tomute.id}> на ${ms(ms(mutetime))}\n**Причина**: `${reason}`"
 tempmute_reason_create_roles: "Создана роль для временной блокировки!"
 
 # /unmute
@@ -1516,6 +1543,13 @@ warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} Похоже, у ${mem
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Автор: <@${x.authorID}>\n> Причина: `${x.reason}`"
 warnlist_embed_title: "Список предупреждений ${member?.user.globalName} | Страница ${i / usersPerPage + 1}"
 warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас нет разрешения на управление предупреждениями участников на этом сервере Discord."
+
+# /baninfo
+baninfo_not_banned: "Пользователь не заблокирован"
+baninfo_ban_info: "Информация о блокировке"
+baninfo_user_not_found: "Пользователь не найден"
+var_banned_by: "Заблокирован"
+var_ban_date: "Дата блокировки"
 
 
 # Команды резервного копирования
@@ -2109,7 +2143,7 @@ rc_get_mainEmbed_field3_value: "*дата в формате MM/DD/YYYY HH:mm*"
 rc_get_mainEmbed_field4_name: "Количество использований ключа"
 rc_get_mainEmbed_field5_name: "Автор настройки"
 rc_get_secondEmbed_title: "Сохраненные пользователи"
-rc_get_secondEmbed_footer: "Страница ${from} / ${to)}"
+rc_get_secondEmbed_footer: "Страница ${from} / ${to}"
 rc_get_locale: "Локализация"
 rc_get_username: "Имя пользователя"
 rc_get_unkwnon_user: "Неизвестный пользователь (${Data.data.config.author.id})"
