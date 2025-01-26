@@ -735,6 +735,9 @@ export interface LanguageData {
   util_allwebhooks_embed_title: string;
   util_allwebhooks_deleting: string;
   util_allwebhooks_deleted: string;
+  util_unzip_emojis_command_work: string;
+  util_unzip_emojis_command_error: string;
+  util_unzip_emojis_command_no_file: string;
   blockpub_not_admin: string;
   blockpub_now_enable: string;
   blockpub_now_disable: string;

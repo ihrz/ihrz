@@ -45,13 +45,6 @@ export const subCommand: SubCommand = {
     ) => {
         let time = Date.now();
 
-        if (!interaction.member?.permissions.has(PermissionsBitField.Flags.ManageGuildExpressions)) {
-            return interaction.reply({
-                content: lang.zip_emojis_doesnt_have_perm,
-                ephemeral: true
-            });
-        }
-
         if (!interaction.guild) return;
 
         const emojis = interaction.guild.emojis.cache;

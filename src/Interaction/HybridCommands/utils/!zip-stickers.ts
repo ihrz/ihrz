@@ -39,14 +39,6 @@ export const subCommand: SubCommand = {
         args?: string[]
     ) => {
         let time = Date.now();
-
-        if (!interaction.member?.permissions.has(PermissionsBitField.Flags.ManageGuildExpressions)) {
-            return interaction.reply({
-                content: lang.zip_stickers_doesnt_have_perm,
-                ephemeral: true
-            });
-        }
-
         if (!interaction.guild) return;
 
         const stickers = interaction.guild.stickers.cache;
