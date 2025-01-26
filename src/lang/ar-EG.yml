@@ -964,6 +964,11 @@ util_allwebhooks_embed_title: "جميع الويب هوكس"
 util_allwebhooks_deleting: "جاري حذف جميع الويب هوكس..."
 util_allwebhooks_deleted: "**`${u}`** ويب هوك تم حذفه!"
 
+# /util unzip-emojis
+util_unzip_emojis_command_work: "🎉 اكتمل فك الضغط في ${calcTime} ملي ثانية! لقد قمت بإنشاء ${emojiCount} رمز تعبيري في السيرفر."
+util_unzip_emojis_command_error: "حدث خطأ أثناء فك ضغط الرموز التعبيرية."
+util_unzip_emojis_command_no_file: "يرجى إرفاق ملف مضغوط يحتوي على رموز تعبيرية."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

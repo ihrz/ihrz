@@ -965,6 +965,11 @@ util_allwebhooks_embed_title: "Tutti i webhook"
 util_allwebhooks_deleting: "Eliminando tutti i webhook..."
 util_allwebhooks_deleted: "**`${u}`** webhook(s) eliminato(i)!"
 
+# /util unzip-emojis
+util_unzip_emojis_command_work: "🎉 Decompressione completata in ${calcTime}ms! Ho creato ${emojiCount} emoji nel server."
+util_unzip_emojis_command_error: "Si è verificato un errore durante la decompressione delle emoji."
+util_unzip_emojis_command_no_file: "Allega un file zip contenente emoji."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
