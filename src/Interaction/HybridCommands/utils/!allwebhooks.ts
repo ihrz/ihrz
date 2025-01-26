@@ -150,6 +150,12 @@ export const subCommand: SubCommand = {
             }
         });
 
+        collector.on("end", async () => {
+            await message.edit({
+                components: []
+            });
+        });
+
         return;
     },
 };
