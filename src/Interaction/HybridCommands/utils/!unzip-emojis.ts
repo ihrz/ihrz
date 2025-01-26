@@ -67,20 +67,28 @@ export const subCommand: SubCommand = {
             const zip = new JSZip();
             const zipContents = await zip.loadAsync(zipBuffer);
 
-            const emojiCreationPromises = Object.entries(zipContents.files).map(async ([filename, file]) => {
-                const match = filename.match(/^(.+)_(\d+)\.(png|gif)$/);
-                if (!match) return null;
+            let emojis: [string, JSZip.JSZipObject][] = [];
 
-                const [, name, id, extension] = match;
+            Object.entries(zipContents.files)
+                .filter(([filename, file]) => {
+                    // Extract just the filename by splitting on '/' and taking the last part
+                    const bareFileName = filename.split('/').pop() || '';
 
-                // Clean up name
-                const cleanedName = name.split("/")[1].replace(/_/g, ' ');
-                // Remove special characters and limit to 32 characters
-                const emojiName = cleanedName.replace(/[^\w\s]/g, '').slice(0, 32);
+                    const match = bareFileName.match(/^(.+)_(\d+)\.(png|gif)$/);
+                    if (!match) return false;
 
-                // Check if emoji already exists
-                if (interaction.guild!.emojis.cache.some(emoji => emoji.name === emojiName)) return null;
+                    const [, name, id, extension] = match;
+                    const cleanedName = name.replace(/_/g, ' ');
+                    const emojiName = cleanedName.replace(/[^\w\s]/g, '').slice(0, 32);
 
+                    if (interaction.guild!.emojis.cache.some(emoji => emoji.name === emojiName)) return false;
+
+                    emojis.push([emojiName, file]);
+                    return true;
+                })
+                .slice(0, 50);
+
+            const emojiCreationPromises = emojis.map(async ([emojiName, file]) => {
                 const fileBuffer = await file.async('arraybuffer');
 
                 // Create emoji
