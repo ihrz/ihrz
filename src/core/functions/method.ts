@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -300,7 +300,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
         } else if (i >= args.length && expectedArgs[i].required) {
             await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
             return false;
-        } else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type)) {
+        } else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.attachments)) {
             await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
             return false;
         }
@@ -309,7 +309,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
     return true;
 }
 
-function isValidArgument(arg: string, type: string): boolean {
+function isValidArgument(arg: string, type: string, atc: Collection<string, Attachment>): boolean {
     if (type.includes("/")) {
         return type.split("/").includes(arg);
     }
@@ -325,6 +325,8 @@ function isValidArgument(arg: string, type: string): boolean {
             return !isNaN(Number(arg));
         case "channel":
             return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg));
+        case "default":
+            return true;
         default:
             return false;
     }
@@ -505,7 +507,7 @@ export function generateCustomMessagePreview(
         .replaceAll("{memberMention}", input.user.toString())
         .replaceAll('{memberCount}', input.guild.memberCount?.toString()!)
         .replaceAll('{createdAt}', input.user.createdAt.toLocaleDateString(input.guildLocal))
-        .replaceAll('{accountCreationTimestamp}', time(input.user.createdAt))
+        .replaceAll('{accountCreationTimestamp}', time(input.user.createdAt, 'R'))
         .replaceAll('{guildName}', input.guild.name)
         .replaceAll('{inviterUsername}', input.inviter?.user.username || `unknow_user`)
         .replaceAll('{inviterMention}', input.inviter?.user.mention || `@unknow_user`)

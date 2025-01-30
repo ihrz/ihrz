@@ -39,9 +39,10 @@ async function generateBotHTML(
 ): Promise<string> {
     let htmlContent = client.htmlfiles['botProfileCard'];
 
-    const accentColor = data.PowerOff === false ? '#23a559' : '#f23f43';
-    const statusColor = data.PowerOff === false ? '#23a559' : '#f23f43';
-    const statusText = data.PowerOff === undefined || data.PowerOff === true ? 'Offline' : 'Online';
+    const PowerOff = data.PowerOff ? false : true;
+    const accentColor = PowerOff ? '#23a559' : '#f23f43';
+    const statusColor = PowerOff ? '#23a559' : '#f23f43';
+    const statusText = PowerOff ? 'Online' : 'Offline';
 
     return htmlContent
         .replaceAll('AVATAR_URL', `https://cdn.discordapp.com/avatars/${data.Bot.Id}/${bot?.bot?.avatar}.png`)

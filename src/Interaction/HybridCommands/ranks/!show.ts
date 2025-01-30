@@ -97,7 +97,7 @@ export const subCommand: SubCommand = {
             .setDescription(lang.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp.toString())
             )
             .setTimestamp()
-            .setThumbnail("https://cdn.discordapp.com/attachments/847484098070970388/850684283655946240/discord-icon-new-2021-logo-09772BF096-seeklogo.com.png")
+            .setThumbnail(interaction.member.user.avatarURL({ forceStatic: false, size: 4096 }))
             .setFooter(await client.method.bot.footerBuilder(interaction));
 
         await client.method.interactionSend(interaction, {

@@ -32,7 +32,7 @@ export default async function (interaction: ButtonInteraction<"cached">, lang: L
 
     let filtered_res = res[interaction.customId];
 
-    let fetched_role = interaction.guild.roles.cache.get(filtered_res.rolesID);
+    let fetched_role = interaction.guild.roles.cache.get(filtered_res.rolesID) || await interaction.guild.roles.fetch(filtered_res.rolesID).catch(() => null);
 
     if (!fetched_role) {
         await interaction.reply({

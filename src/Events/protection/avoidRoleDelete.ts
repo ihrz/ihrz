@@ -60,7 +60,7 @@ export const event: BotEvent = {
                     ...role, reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
                 });
 
-                newRole.setPosition(role.rawPosition);
+                await newRole.setPosition(role.rawPosition);
             };
         }
     },
