@@ -38,10 +38,9 @@ function generateTypeScriptType(json: any, name: string = "Root"): string {
     if (Array.isArray(json)) {
         if (json.length === 0) {
             return `${name}[]`;
-        } else {
-            const arrayType = generateTypeScriptType(json[0], `${name}Item`);
-            return `${arrayType}[]`;
         }
+        const arrayType = generateTypeScriptType(json[0], `${name}Item`);
+        return `${arrayType}[]`;
     } else if (typeof json === 'object' && json !== null) {
         let typeString = `{\n`;
         for (const key in json) {
@@ -53,9 +52,8 @@ function generateTypeScriptType(json: any, name: string = "Root"): string {
         }
         typeString += `}`;
         return typeString;
-    } else {
-        return getPrimitiveType(json);
     }
+    return getPrimitiveType(json);
 }
 
 function getPrimitiveType(value: any): string {

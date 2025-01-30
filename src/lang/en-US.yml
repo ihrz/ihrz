@@ -52,7 +52,7 @@ var_page: "Page"
 var_permission: "Permission"
 var_usage: "Usage"
 var_aliases: "Aliases"
-var_dont_have_perm: "You don't have the necessary permissions to do this. (Require {perm} permission)"
+var_dont_have_perm: "You aren't allowed to do this, you are missing a permission! (Require {perm} permission(s))"
 var_price: "Price"
 var_boost: "Boost"
 var_uses: "Uses"
@@ -66,8 +66,8 @@ var_w: "week(s)"
 var_d: "day(s)"
 var_h: "hour(S)"
 var_m: "minute(s)"
-var_s: "secondes"
-var_ms: "milisecondes"
+var_s: "seconds"
+var_ms: "miliseconds"
 var_banned_user: "Banned User(s)"
 var_no_one_banned: "No one is banned in this server."
 
@@ -137,7 +137,7 @@ close_disabled_command: "You can't use this command because an Administrator dis
 close_title_sourcebin: "Ticket transcripted by iHorizon"
 close_description_sourcebin: " "
 close_error_command: "Error occurred, please try again!"
-close_command_work_channel: "You have closed your ticket. iHorizon sent you the transcript"
+close_command_work_channel: "You just closed your ticket. iHorizon sent you the transcript"
 close_command_work_notify_channel: "The ticket was successfully closed !"
 close_command_error: "Error occurred, please try again!"
 close_not_in_ticket: "You cannot use this command outside of a ticket channel !"
@@ -148,7 +148,7 @@ delete_not_in_ticket: "You cannot use this command outside of a ticket channel !
 
 # /sethereticket
 sethereticket_disabled_command: "You can't use this command because an Administrator disabled the ticket commands !"
-sethereticket_not_admin: ":x: | You must be an administrator of this server in order to do this command!"
+sethereticket_not_admin: ":x: | You must be an administrator of this server in order to use this command!"
 sethereticket_description_embed: "To create a new ticket, please react with 📩"
 sethereticket_command_work: "Ticket panel has been set successfully!"
 sethereticket_command_type_menu_placeholder: "What type of panel do you want ?"
@@ -240,7 +240,7 @@ ticket_panel_change_placeholder_modal_placeholder: "New Placeholder"
 ticket_panel_need_save_config: "You need to save the current configuration before sending the embed."
 ticket_panel_need_1_option: "You need at least one option to send the embed."
 ticket_panel_related_embed_dont_exist: "The related embed does not exist"
-ticket_panel_channel_error: "The channel does not exist or i don't have permission to send message in"
+ticket_panel_channel_error: "The channel does not exist or I do not have permission to send message in it"
 ticket_panel_embed_been_send: "The embed has been sent to the channel"
 ticket_panel_successfully_saved: "The configuration has been successfully saved"
 ticket_panel_change_role_roleSelect_placeholder: "Select a role"
@@ -298,7 +298,7 @@ setxpchannels_command_work_disable: "You have successfully disable the custom xp
 setxpchannels_command_error_disable: "Error: missing permissions or channel doesn't exist"
 setxpchannels_logs_embed_title_enable: "SetXpChannels Logs"
 setxpchannels_logs_embed_description_enable: "<@${interaction.user.id}> set the custom xp channels to: <#${argsid}>"
-setxpchannels_valid_channel_message: "You must specify a valid channel for you configurations."
+setxpchannels_valid_channel_message: "You must specify a valid channel for your configuration."
 setxpchannels_already_with_this_config: "The custom xp channels is already config with this channels id!"
 setxpchannels_confirmation_message: "**Custom XP channel set here!**"
 setxpchannels_command_work_enable: "You have successfully set the custom xp channel to <#${argsid}>"
@@ -384,20 +384,20 @@ ranks_config_remove_command_work: "Role for level ${levelToRemove} has been remo
 # /owner
 owner_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
 owner_already_owner: "This user is already owner !"
-owner_is_now_owner: "${member.user.username} is now owner of the iHorizon Projects"
+owner_is_now_owner: "${member.user.username} is now an owner of the iHorizon Projects!"
 
 # /unowner
-unowner_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
-unowner_cant_unowner_creator: "Is not possible to remove this user, is the iHorizon Projects Creator."
-unowner_command_work: "${member.username} no longer owner"
+unowner_not_owner: "You are not an owner of the iHorizon Projects. You can't use this command."
+unowner_cant_unowner_creator: "It is not possible to remove this user, it's the creator of the iHorizon Projects."
+unowner_command_work: "${member.username} is no longer an owner"
 
 # /blacklist
-blacklist_not_owner: "You are not owner of the iHorizon Projects. You can't use this command."
+blacklist_not_owner: "You are not an owner of the iHorizon Projects. You can't use this command."
 blacklist_bot_lol: "Can't blacklist myself x)"
 blacklist_command_work: "${member.user.username} is now blacklisted"
 blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} is now blacklisted, can't ban this member here, missing permission?"
 blacklist_already_blacklisted: "${member.user.username} is already blacklisted !"
-blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} No one blacklisted found!"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} no one blacklisted found!"
 blacklist_var_no_reason: "No reason found"
 blacklist_embed_title: "Blacklist - Page ${i / usersPerPage + 1}"
 
@@ -413,7 +413,7 @@ unblacklist_user_is_not_exist: "I couldn't find the user"
 # /addinvites, /invites, /leaderboard, /removeinvites
 
 # /addinvites
-addinvites_not_admin_embed_description: "You need to be an admin to use this!"
+addinvites_not_admin_embed_description: "You need to be an admin to use this command!"
 addinvites_confirmation_embed_description: "Added ${amount} invites for ${user}"
 addinvites_logs_embed_title: "Invite Manager Logs"
 addinvites_logs_embed_description: "<@${interaction.user.id}> Added ${amount} invites to <@${user.id}> !"
@@ -430,18 +430,18 @@ leaderboard_rank_none: "🏅You are not currently ranked.\n\n"
 leaderboard_gen_time_msg: "**${interaction.guild?.name}**'s leaderboard generated in ${Date.now() - execTimestamp}ms.\n\n"
 
 # /removeinvites
-removeinvites_not_admin_embed_description: "You need to be an admin to use this!"
-removeinvites_confirmation_embed_description: "Remove ${amount} invites for ${user}"
+removeinvites_not_admin_embed_description: "You need to be an admin to use this command!"
+removeinvites_confirmation_embed_description: "Removed ${amount} invites for ${user}"
 removeinvites_logs_embed_title: "Invite Manager Logs"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> removed ${amount} invites to <@${user.id}> !"
 
 # /invites reset-all
-resetallinvites_warning_msg: "**Are you really sure to delete all data of the InviteManager?\nThis action are permanent and you can't roll-back.**\n**This action is destructive!!**"
+resetallinvites_warning_msg: "**Are you really sure to delete all of the data of the Invite Manager?\nThis action is permanent and you can't roll it back.**\n**This action is destructive!!**"
 resetallinvites_yes_button: "Delete all"
 resetallinvites_no_button: "Undo action"
 resetallinvites_succes_on_delete: "Successfully deleted!"
 resetallinvites_logs_embed_title: "Invite Manager Logs (DANGER ACTION)"
-resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} have deleted all data of Invites Manager!"
+resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} have deleted all data of the Invites Manager!"
 
 
 # Bot commands
@@ -462,11 +462,11 @@ botinfo_embed_fields_created_at: "Create at:"
 botinfo_embed_fields_created_by: "Create by:"
 
 # /invite
-invite_embed_title: "Thank to adding iHorizon !"
+invite_embed_title: "Thank you for adding iHorizon !"
 invite_embed_description: "I love you, show me your love for me back! Invite me!"
 
 # /kisakay
-kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay is both my creator and my developer. It is thanks to her and her keyboard that I came into existence. I am deeply grateful to her!✨ ❤️❤️"
+kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay is both my creator and my developer. It is because of her and her keyboard that I came into existence. I am deeply grateful to her!✨ ❤️❤️"
 
 # /andru
 andru_message: "Andru is a Collaborator and developer. \"L'homme à tout faire\", he manage the marketing, the community..."
@@ -484,7 +484,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: ":x: | **You have to be the bot developer to do this!**"
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ Help Menu```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** available Command's Categories\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** available Slash Commands\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Created by** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Do you know ? ・ Tips```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} is an **100% multilangual**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ Help Menu```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** available Commands' Categories\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** available Slash Commands\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Created by** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Do you know ? ・ Tips```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} is an **100% multilangual**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
 help_mod_fields: "Moderation"
 help_ranks_fields: "Ranks"
 help_fun_fields: "Fun"

@@ -110,6 +110,9 @@ export const event: BotEvent = {
 
         var firstEntry = fetchedLogs.entries.first();
 
+        // check if the author is the bot
+        if (firstEntry?.executor?.id === client.user?.id) return;
+
         let someinfo = await client.db.get(`${oldChannel.guildId}.GUILD.SERVER_LOGS.channel`);
         if (!someinfo) return;
 

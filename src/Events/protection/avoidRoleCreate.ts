@@ -56,7 +56,7 @@ export const event: BotEvent = {
                 let member = role.guild.members.cache.get(relevantLog?.executorId as string);
                 await client.method.punish(data, member);
 
-                role.delete('Protect!');
+                await role.delete('Protect!');
             };
         }
     },
