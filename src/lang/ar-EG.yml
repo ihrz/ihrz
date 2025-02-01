@@ -483,7 +483,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: ":x: | **يجب أن تكون مطور البوت للقيام بذلك!**"
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ قائمة المساعدة```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** فئة أوامر متاحة\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** أوامر سلاش متاحة\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **أنشأه** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```هل تعلم؟ ・ نصائح```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} هو **100% متعدد اللغات**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ قائمة المساعدة```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** فئة أوامر متاحة\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** أوامر سلاش متاحة\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **أنشأه** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```هل تعلم؟ ・ نصائح```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} هو **100% متعدد اللغات**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setlang language:Japanese`"
 help_mod_fields: "إدارة"
 help_ranks_fields: "الرتب"
 help_fun_fields: "متعة"
