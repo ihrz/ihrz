@@ -485,7 +485,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: ":x: | **Botの開発者である必要があります！**"
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ ヘルプメニュー```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** 利用可能なコマンドカテゴリ\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** 利用可能なスラッシュコマンド\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **作成者** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```知ってますか？ ・ ヒント```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} は**100％マルチ言語**です\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ ヘルプメニュー```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** 利用可能なコマンドカテゴリ\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** 利用可能なスラッシュコマンド\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **作成者** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```知ってますか？ ・ ヒント```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} は**100％マルチ言語**です\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setlang language:Japanese`"
 help_mod_fields: "モデレーション"
 help_ranks_fields: "ランク"
 help_fun_fields: "楽しい"

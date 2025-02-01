@@ -485,7 +485,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: "**:x: | ¡Tienes que ser el desarrollador del bot para hacer esto!**"
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ Menú de ayuda```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** categorías de comandos disponibles\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** comandos Slash disponibles\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Creado por** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```¿Sabías? ・ Consejos```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} es **100% multilingüe**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ Menú de ayuda```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** categorías de comandos disponibles\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** comandos Slash disponibles\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Creado por** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```¿Sabías? ・ Consejos```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} es **100% multilingüe**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setlang language:Japanese`"
 help_mod_fields: "Moderación"
 help_ranks_fields: "Rangos"
 help_fun_fields: "Diversión"

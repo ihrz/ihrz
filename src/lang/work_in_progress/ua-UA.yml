@@ -223,7 +223,7 @@ pong_message: "【:ballot_box_with_check:】__**Понг**__ : "
 status_be_bot_dev: ":x: | **Ви маєте бути розробником бота, щоб виконати це!**"
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ Меню допомоги```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** доступні категорії команд\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** доступні слеш-команди\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Створено** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Чи знаєте ви? ・ Підказки```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} **100% багатомовний**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ Меню допомоги```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** доступні категорії команд\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** доступні слеш-команди\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Створено** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Чи знаєте ви? ・ Підказки```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} **100% багатомовний**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setlang language:Japanese`"
 help_mod_fields: "Модерація"
 help_ranks_fields: "Ранги"
 help_fun_fields: "Розваги"

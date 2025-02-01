@@ -41,14 +41,14 @@ import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
-    name: 'setlogschannel',
+    name: 'setlogs',
 
     description: 'Set a logs channel for Audits Logs!',
     description_localizations: {
         "fr": "Définir des canaux de journaux pour les journaux d'audit"
     },
 
-    aliases: ["setlogs", "logs", "setlog"],
+    aliases: ["logs", "setlog"],
 
     options: [
         {
