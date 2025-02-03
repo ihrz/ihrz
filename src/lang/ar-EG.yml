@@ -1243,6 +1243,7 @@ guildconfig_setbot_prefix_prefix_is_good: "تم تغيير رمز التميز �
 # /guildconfig config save
 guildconfig_config_save_check_dm: "يرجى التحقق من الرسائل المباشرة الخاصة بك. إذا لم تستلم الرسالة، حاول التحقق مما إذا كنت تقبل الرسائل المباشرة."
 guildconfig_config_save_user_msg: "هذه نسخة احتياطية من إعدادات `${interaction.guild.name}`!"
+guildconfig_config_save_user_msg_2: "إليك الرابط لتنزيل نسخة احتياطية من الخادم!\n"
 
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "حدث خطأ أثناء تنزيل الملف."

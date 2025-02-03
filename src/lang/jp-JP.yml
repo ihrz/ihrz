@@ -1241,6 +1241,7 @@ guildconfig_setbot_prefix_prefix_is_good: "ボットプレフィックスが正�
 # /guildconfig config save
 guildconfig_config_save_check_dm: "DMを確認してください。メッセージが届いていない場合は、DMを受け入れる設定になっているか確認してください。"
 guildconfig_config_save_user_msg: "`${interaction.guild.name}` の設定のバックアップです！"
+guildconfig_config_save_user_msg_2: "サーバーのバックアップをダウンロードするリンクはこちらです！\n"
 
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "ファイルのダウンロード中にエラーが発生しました。"

@@ -42,6 +42,7 @@ export enum GatewayMethod {
     AddSecurityCodeAmount = 3,
     ChangeRole = 4,
     UserInfo = 5,
+    ServerBackup = 6
 };
 
 
@@ -137,6 +138,9 @@ export function HorizonGateway(gateway_method: GatewayMethod): string {
             break;
         case 5:
             data += "/api/ihorizon/v1/userinfo"
+            break;
+        case 6:
+            data += "/api/ihorizon/v1/serverBackup"
             break;
     }
 

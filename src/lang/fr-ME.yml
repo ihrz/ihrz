@@ -1241,6 +1241,7 @@ guildconfig_setbot_prefix_prefix_is_good: "Le préfixe du bot a été changé av
 # /guildconfig config save
 guildconfig_config_save_check_dm: "Veuille consulter vos DM. Si vous n'avez pas reçu le message, vérifiez si vous acceptez les DM."
 guildconfig_config_save_user_msg: "Voici la sauvegarde des configurations de `${interaction.guild.name}` !"
+guildconfig_config_save_user_msg_2: "Voici le lien pour télécharger la sauvegarde du serveur !\n"
 
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "Il y a eu une erreur lors du téléchargement du fichier."

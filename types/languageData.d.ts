@@ -966,6 +966,7 @@ export interface LanguageData {
   guildconfig_setbot_prefix_prefix_is_good: string;
   guildconfig_config_save_check_dm: string;
   guildconfig_config_save_user_msg: string;
+  guildconfig_config_save_user_msg_2: string;
   guildconfig_config_restore_err_msg: string;
   guildconfig_config_restore_msg: string;
   perm_add_args_error: string;

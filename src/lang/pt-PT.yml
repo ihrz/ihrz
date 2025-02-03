@@ -1241,6 +1241,7 @@ guildconfig_setbot_prefix_prefix_is_good: "O prefixo do bot foi alterado com suc
 # /guildconfig config save
 guildconfig_config_save_check_dm: "Por favor, verifique suas mensagens diretas. Se você não recebeu a mensagem, verifique se você aceita DMs."
 guildconfig_config_save_user_msg: "Este é o backup das configurações de `${interaction.guild.name}`!"
+guildconfig_config_save_user_msg_2: "Aqui está o link para baixar o backup do servidor!\n"
 
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "Ocorreu um erro ao baixar o arquivo."
