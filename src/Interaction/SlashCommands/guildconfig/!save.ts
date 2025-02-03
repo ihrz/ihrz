@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
             await interaction.editReply({ content: lang.guildconfig_config_save_check_dm });
             let link = apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.ServerBackup);
 
-            await interaction.user.send({ content: `${lang.guildconfig_config_save_user_msg_2}${link}/${interaction.guildId}/${encrypt(client.config.api.apiToken, interaction.guildId)}` })
+            await interaction.user.send({ content: `${lang.guildconfig_config_save_user_msg_2}${link}/${interaction.guildId}/${encrypt(client.config.api.apiToken, Date.now().toString())}` })
                 .catch(() => { })
                 .then(() => { });
         } else {
