@@ -225,6 +225,16 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             };
         }
         var pathString = boldStringifyOption(command.options || []);
+        let perm: DatabaseStructure.PermLevel | string | undefined | null = null;
+
+        if (command.permission) {
+            let perm_cmd = permission.getPermissionByValue(command.permission);
+            if (perm_cmd) perm = lang[perm_cmd.name];
+        }
+
+        if (CommandsPerm?.level) {
+            perm = CommandsPerm.level
+        }
 
         embed.setDescription((await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`))?.startsWith("fr-") ? command.description_localizations["fr"] : command.description)
         embed.setFields(
@@ -235,7 +245,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             },
             {
                 name: lang.var_permission,
-                value: `${lang.var_permission}: ${CommandsPerm?.level || lang.var_none}`,
+                value: `${lang.var_permission}: ${perm || lang.var_none}`,
                 inline: false
             },
             {
