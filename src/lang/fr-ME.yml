@@ -746,6 +746,31 @@ profil_embed_fields_xplevels_value: " niveaux d'XP"
 profil_embed_fields_age: "🎂 ・ __Âge__"
 profil_embed_fields_age_value: " ans"
 profil_embed_fields_gender: "👤 ・ __C'que t'a entre les jambes__"
+profil_embed_fields_pronouns: "📌 ・ __Pronom__"
+profil_embed_fields_birthdate: "🎂 ・ __Date d'anniversaire__"
+
+# /profil définir-anniversaire
+profil_birthday_month_button_label: "Définir le mois"
+profil_birthday_day_button_label: "Définir le jour"
+profil_birthday_year_button_label: "Définir l'année"
+profil_birthday_embed_title: "🎂 ・ Définissez votre anniversaire !"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **Comme tout être humain, vous avez un anniversaire !**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ Hey, ${interaction.member?.toString()}\n:tada: ・ Pour le célébrer, il est temps de le définir !\n"
+profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.icon.Pin} ・ **Anniversaire actuel**: `${birthday.month}/${birthday.day}/${birthday.year}` (au format MM/JJ/AAAA)"
+profil_birthday_modal1_title: "Entrez votre année de naissance"
+profil_birthday_modal1_fields1_label: "Année"
+profil_birthday_invalid_year: "Année invalide ! Veuillez entrer une année valide."
+profil_birthday_year_already_set: "Votre année est déjà définie."
+profil_birthday_year_set: "Votre année a été définie !"
+profil_birthday_modal2_title: "Entrez votre mois de naissance"
+profil_birthday_modal2_fields1_label: "Mois"
+profil_birthday_invalid_month: "Mois invalide ! Veuillez entrer un mois valide."
+profil_birthday_month_already_set: "Votre mois est déjà défini."
+profil_birthday_month_set: "Votre mois a été défini !"
+profil_birthday_modal3_title: "Entrez votre jour de naissance"
+profil_birthday_modal3_fields1_label: "Jour"
+profil_birthday_invalid_day: "Jour invalide ! Veuillez entrer un jour valide."
+profil_birthday_day_already_set: "Votre jour est déjà défini."
+profil_birthday_day_set: "Votre jour a été défini !"
 
 
 # Utils commands
@@ -1241,6 +1266,7 @@ guildconfig_setbot_prefix_prefix_is_good: "Le préfixe du bot a été changé av
 # /guildconfig config save
 guildconfig_config_save_check_dm: "Veuille consulter vos DM. Si vous n'avez pas reçu le message, vérifiez si vous acceptez les DM."
 guildconfig_config_save_user_msg: "Voici la sauvegarde des configurations de `${interaction.guild.name}` !"
+guildconfig_config_save_user_msg_2: "Voici le lien pour télécharger la sauvegarde du serveur !\n"
 
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "Il y a eu une erreur lors du téléchargement du fichier."
@@ -1562,6 +1588,9 @@ baninfo_ban_info: "Informations du bannissement"
 baninfo_user_not_found: "Utilisateur non trouvé"
 var_banned_by: "Banni par"
 var_ban_date: "Date du bannissement"
+
+# /effacer-avertissements
+clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}, **`${allWarns.length}`** avertissement(s) de ${member?.toString()} a/ont été effacé(s)."
 
 
 # Backup commands
@@ -2315,7 +2344,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **vient de retirer son boost telle 
 economy_disable_msg: "<@${interaction.user.id}>, le `Module Économie` sur ce serveur est **désactivé**. Vous ne pouvez plus utiliser le module d'économie ! Putain!!!! LA THUNE BATARD"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, vous n'êtes pas autorisé à utiliser cette commande ! Permission nécessaire : **`${neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, vous n'êtes pas autorisé à utiliser cette commande ! Permission nécessaire : ${neededPerm}"
 
 # Module TempVoice
 # Tous les composants, variables globales...

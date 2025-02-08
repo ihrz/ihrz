@@ -473,7 +473,7 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay - и мой с
 andru_message: "Andru - сотрудник и разработчик. \"Мастер на все руки\", он управляет маркетингом, сообществом..."
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether - контрибьютор iHorizon. Он готов найти любую опечатку в боте и импровизирует в качестве помощника по поддержке бота iHorizon."
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether - автор проекта iHorizon. Он увлекается Linux и кибербезопасностью, а также импровизирует в качестве помощника для бота iHorizon."
 
 # /nayaweb
 nayaweb_message: "😼NayaWeb - мой второй разработчик/соавтор , NayaWeb и Kisakay ❤️"
@@ -746,6 +746,31 @@ profil_embed_fields_xplevels_value: " Уровней опыта"
 profil_embed_fields_age: "🎂 ・ __Возраст__"
 profil_embed_fields_age_value: " лет"
 profil_embed_fields_gender: "👤 ・ __Пол__"
+profil_embed_fields_pronouns: "📌 ・ __Местоимение__"
+profil_embed_fields_birthdate: "🎂 ・ __Дата дня рождения__"
+
+# /профиль установить-день-рождения
+profil_birthday_month_button_label: "Установить месяц"
+profil_birthday_day_button_label: "Установить день"
+profil_birthday_year_button_label: "Установить год"
+profil_birthday_embed_title: "🎂 ・ Установите свой день рождения!"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **Как у каждого человека, у вас есть день рождения!**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ Привет, ${interaction.member?.toString()}\n:tada: ・ Чтобы отпраздновать его, пора его установить!\n"
+profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.icon.Pin} ・ **Текущий день рождения**: `${birthday.month}/${birthday.day}/${birthday.year}` (в формате ММ/ДД/ГГГГ)"
+profil_birthday_modal1_title: "Введите год рождения"
+profil_birthday_modal1_fields1_label: "Год"
+profil_birthday_invalid_year: "Неверный год! Пожалуйста, введите правильный год."
+profil_birthday_year_already_set: "Ваш год уже установлен."
+profil_birthday_year_set: "Ваш год установлен!"
+profil_birthday_modal2_title: "Введите месяц рождения"
+profil_birthday_modal2_fields1_label: "Месяц"
+profil_birthday_invalid_month: "Неверный месяц! Пожалуйста, введите правильный месяц."
+profil_birthday_month_already_set: "Ваш месяц уже установлен."
+profil_birthday_month_set: "Ваш месяц установлен!"
+profil_birthday_modal3_title: "Введите день рождения"
+profil_birthday_modal3_fields1_label: "День"
+profil_birthday_invalid_day: "Неверный день! Пожалуйста, введите правильный день."
+profil_birthday_day_already_set: "Ваш день уже установлен."
+profil_birthday_day_set: "Ваш день установлен!"
 
 
 # Utils commands
@@ -1241,6 +1266,7 @@ guildconfig_setbot_prefix_prefix_is_good: "Префикс бота успешн�
 # /guildconfig config save
 guildconfig_config_save_check_dm: "Пожалуйста, проверьте свои личные сообщения. Если вы не получили сообщение, убедитесь, что принимаете личные сообщения."
 guildconfig_config_save_user_msg: "Это резервная копия настроек `${interaction.guild.name}`!"
+guildconfig_config_save_user_msg_2: "Вот ссылка для загрузки резервной копии сервера!\n"
 
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "Произошла ошибка при загрузке файла."
@@ -1563,6 +1589,8 @@ baninfo_user_not_found: "Пользователь не найден"
 var_banned_by: "Заблокирован"
 var_ban_date: "Дата блокировки"
 
+# /очистить-предупреждения
+clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}, **`${allWarns.length}`** предупреждение(-я) участника ${member?.toString()} удалено(-ы)."
 
 # Команды резервного копирования
 # /backup
@@ -2315,7 +2343,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **только что убрал(а
 economy_disable_msg: "<@${interaction.user.id}>, `Модуль Экономики` на этом сервере **отключен**. Теперь вы не можете использовать модуль экономики!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, вам не разрешено использовать эту команду! Необходимое разрешение: **`${neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, вам не разрешено использовать эту команду! Необходимое разрешение: ${neededPerm}"
 
 # Модуль TempVoice
 # Все компоненты, глобальные переменные...

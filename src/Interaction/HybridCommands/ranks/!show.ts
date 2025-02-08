@@ -97,7 +97,7 @@ export const subCommand: SubCommand = {
             .setDescription(lang.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp.toString())
             )
             .setTimestamp()
-            .setThumbnail(interaction.member.user.avatarURL({ forceStatic: false, size: 4096 }))
+            .setThumbnail(user.avatarURL({ forceStatic: false, size: 4096 }))
             .setFooter(await client.method.bot.footerBuilder(interaction));
 
         await client.method.interactionSend(interaction, {

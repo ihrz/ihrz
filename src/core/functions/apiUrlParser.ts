@@ -42,6 +42,7 @@ export enum GatewayMethod {
     AddSecurityCodeAmount = 3,
     ChangeRole = 4,
     UserInfo = 5,
+    ServerBackup = 6
 };
 
 

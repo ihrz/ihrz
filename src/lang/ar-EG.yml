@@ -471,7 +471,7 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay هي المب�
 andru_message: "أندرو هو متعاون ومطور. \"الرجل المتعدد المهام\"، يدير التسويق والمجتمع..."
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} إيثر هو مساهم في آي هورايزون. يكتشف كل خطأ مطبعي في البوت ويعمل كمساعد دعم لبوت آي هورايزون."
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether هو أحد المساهمين في iHorizon. وهو مفتون بنظام لينكس والأمن السيبراني، وهو يرتجل نفسه كمساعد دعم لروبوت iHorizon."
 
 # /nayaweb
 nayaweb_message: "😼 NayaWeb هو مطور/مساهم الثاني لي، NayaWeb x Kisakay ❤️"
@@ -745,6 +745,32 @@ profil_embed_fields_xplevels_value: " مستويات XP"
 profil_embed_fields_age: "🎂 ・ __العمر__"
 profil_embed_fields_age_value: " سنوات"
 profil_embed_fields_gender: "👤 ・ __الجنس__"
+profil_embed_fields_pronouns: "📌 ・ __الضمائر__"
+profil_embed_fields_birthdate: "🎂 ・ __تاريخ عيد الميلاد__"
+
+# /تعيين-تاريخ-الميلاد 
+profil_birthday_month_button_label: "تعيين الشهر"
+profil_birthday_day_button_label: "تعيين اليوم"
+profil_birthday_year_button_label: "تعيين السنة"
+profil_birthday_embed_title: "🎂 ・ تعيين تاريخ ميلادك!"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **مثل كل البشر، لديك عيد ميلاد!**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ مرحباً، ${interaction.member?.toString()}\n:tada: ・ من أجل الاحتفال به، حان الوقت لتعيينه!\n"
+profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.icon.Pin} ・ **تاريخ الميلاد الحالي**: `${birthday.month}/${birthday.day}/${birthday.year}` (بتنسيق شهر/يوم/سنة)"
+profil_birthday_modal1_title: "أدخل سنة ميلادك"
+profil_birthday_modal1_fields1_label: "السنة"
+profil_birthday_invalid_year: "سنة غير صالحة! الرجاء إدخال سنة صالحة."
+profil_birthday_year_already_set: "تم تعيين السنة مسبقاً."
+profil_birthday_year_set: "تم تعيين السنة!"
+profil_birthday_modal2_title: "أدخل شهر ميلادك"
+profil_birthday_modal2_fields1_label: "الشهر"
+profil_birthday_invalid_month: "شهر غير صالح! الرجاء إدخال شهر صالح."
+profil_birthday_month_already_set: "تم تعيين الشهر مسبقاً."
+profil_birthday_month_set: "تم تعيين الشهر!"
+profil_birthday_modal3_title: "أدخل يوم ميلادك"
+profil_birthday_modal3_fields1_label: "اليوم"
+profil_birthday_invalid_day: "يوم غير صالح! الرجاء إدخال يوم صالح."
+profil_birthday_day_already_set: "تم تعيين اليوم مسبقاً."
+profil_birthday_day_set: "تم تعيين اليوم!"
+
 
 # Utils commands
 # /serverinfo, /snipe, /userinfo, /renew
@@ -1243,6 +1269,7 @@ guildconfig_setbot_prefix_prefix_is_good: "تم تغيير رمز التميز �
 # /guildconfig config save
 guildconfig_config_save_check_dm: "يرجى التحقق من الرسائل المباشرة الخاصة بك. إذا لم تستلم الرسالة، حاول التحقق مما إذا كنت تقبل الرسائل المباشرة."
 guildconfig_config_save_user_msg: "هذه نسخة احتياطية من إعدادات `${interaction.guild.name}`!"
+guildconfig_config_save_user_msg_2: "إليك الرابط لتنزيل نسخة احتياطية من الخادم!\n"
 
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "حدث خطأ أثناء تنزيل الملف."
@@ -1562,6 +1589,9 @@ baninfo_ban_info: "معلومات الحظر"
 baninfo_user_not_found: "المستخدم غير موجود"
 var_banned_by: "محظور من قبل"
 var_ban_date: "تاريخ الحظر"
+
+# /مسح_التحذيرات
+clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}, تم مسح **`${allWarns.length}`** تحذير(ات) من ${member?.toString()}"
 
 
 # Backup commands
@@ -2311,7 +2341,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **أزال تعزيزهم** من ا
 economy_disable_msg: "<@${interaction.user.id}>, وحدة `الاقتصاد` في هذا الخادم **معطلة**. لا يمكنك استخدام وحدة الاقتصاد بعد الآن!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: **`${neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: ${neededPerm}"
 
 # وحدة الصوت المؤقت
 temporary_voice_title_embec: "## التعديلات على قناتك الصوتية المؤقتة"
