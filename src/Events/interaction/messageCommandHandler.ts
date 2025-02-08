@@ -117,7 +117,7 @@ async function executeCommand(
     let fetchFullCommandName = message.client.content.find(c => c.desc === command.description);
 
     let permCheck = await message.client.method.permission.checkCommandPermission(message, fetchFullCommandName?.cmd!);
-    if (!permCheck.allowed && permCheck.neededPerm !== 0) return message.client.method.permission.sendErrorMessage(message, lang, permCheck.neededPerm || 0);
+    if (!permCheck.allowed && permCheck.permissionData.level !== 0) return message.client.method.permission.sendErrorMessage(message, lang, permCheck.permissionData);
 
     // for format like: "+utils" without subcommand behind
     if (!command?.run) {

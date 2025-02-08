@@ -225,7 +225,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             };
         }
         var pathString = boldStringifyOption(command.options || []);
-        let perm: DatabaseStructure.PermLevel | string | undefined | null = null;
+        let perm: DatabaseStructure.PermLevel | string | undefined | null = "";
 
         if (command.permission) {
             let perm_cmd = permission.getPermissionByValue(command.permission);
@@ -234,6 +234,14 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
 
         if (CommandsPerm?.level) {
             perm = CommandsPerm.level
+        }
+
+        if (CommandsPerm?.roles && CommandsPerm?.roles.length > 0) {
+            perm = CommandsPerm.roles.map(x => `<@&${x}>`).join(", ");
+        }
+
+        if (CommandsPerm?.users && CommandsPerm?.users.length > 0) {
+            perm += CommandsPerm.users.map(x => `<@${x}>`).join(", ");
         }
 
         embed.setDescription((await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`))?.startsWith("fr-") ? command.description_localizations["fr"] : command.description)
@@ -245,7 +253,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             },
             {
                 name: lang.var_permission,
-                value: `${lang.var_permission}: ${perm || lang.var_none}`,
+                value: `${lang.var_permission}: ${perm === "" ? lang.setjoinroles_var_none : perm}`,
                 inline: false
             },
             {

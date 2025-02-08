@@ -472,7 +472,7 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay is both my cre
 andru_message: "Andru is a Collaborator and developer. \"L'homme à tout faire\", he manage the marketing, the community..."
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether is a contributor to iHorizon. He is ready to catch every typo in the bot, and he improvises himself as a support helper for the iHorizon bot."
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether is a contributor to iHorizon. He is fascinated about Linux and cybersecurity, and he improvises himself as a support helper for the iHorizon bot."
 
 # /nayaweb
 nayaweb_message: "😼NayaWeb is my second developer/contributor , NayaWeb x Kisakay ❤️"
@@ -744,7 +744,31 @@ profil_embed_fields_xplevels_value: " XP Levels"
 profil_embed_fields_age: "🎂 ・ __Age__"
 profil_embed_fields_age_value: " years olds"
 profil_embed_fields_gender: "👤 ・ __Gender__"
+profil_embed_fields_pronouns: "📌 ・ __Pronoun__"
+profil_embed_fields_birthdate: "🎂 ・ __Birthday date__"
 
+# /profil set-birthday
+profil_birthday_month_button_label: "Set month"
+profil_birthday_day_button_label: "Set day"
+profil_birthday_year_button_label: "Set year"
+profil_birthday_embed_title: "🎂 ・ Set your birthday!"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **Like every human being, you have a birthday!**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ Hey, ${interaction.member?.toString()}\n:tada: ・ In order to celebrate it, is time to set it!\n"
+profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.icon.Pin} ・ **Current birthday**: `${birthday.month}/${birthday.day}/${birthday.year}` (in the format of MM/DD/YYYY)"
+profil_birthday_modal1_title: "Enter your birth year"
+profil_birthday_modal1_fields1_label: "Year"
+profil_birthday_invalid_year: "Invalid year! Please enter a valid year."
+profil_birthday_year_already_set: "Your year is already set."
+profil_birthday_year_set: "Your year has been set!"
+profil_birthday_modal2_title: "Enter your birth month"
+profil_birthday_modal2_fields1_label: "Month"
+profil_birthday_invalid_month: "Invalid month! Please enter a valid month."
+profil_birthday_month_already_set: "Your month is already set."
+profil_birthday_month_set: "Your month has been set!"
+profil_birthday_modal3_title: "Enter your birth day"
+profil_birthday_modal3_fields1_label: "Day"
+profil_birthday_invalid_day: "Invalid day! Please enter a valid day."
+profil_birthday_day_already_set: "Your day is already set."
+profil_birthday_day_set: "Your day has been set!"
 
 # Utils commands
 # /serverinfo, /snipe, /userinfo, /renew
@@ -1564,6 +1588,10 @@ baninfo_user_not_found: "User not found"
 var_banned_by: "Banned by"
 var_ban_date: "Ban date"
 
+# /clearwarn
+clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}, **`${allWarns.length}`** warn(s) of ${member?.toString()} has been cleared."
+
+
 # Backup commands
 # /backup
 
@@ -2315,7 +2343,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **just removed their boost** from t
 economy_disable_msg: "<@${interaction.user.id}>, the `Economy Module` in this guild is **disabled**. You can't use the economy module anymore!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, you are not allowed to use this command! You need this permission: **`${neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, you are not allowed to use this command! You need this permission: ${neededPerm}"
 
 # TempVoice Module
 # All components, globalVar...

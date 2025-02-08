@@ -473,7 +473,7 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakayは私の創造
 andru_message: "Andruはコラボレーターであり開発者です。\"何でも屋\"として、マーケティング、コミュニティを管理しています..."
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} EtherはiHorizonの貢献者です。iHorizonボットのサポートアシスタントとして、ボットの誤字脱字を即座に発見する。"
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} EtherはiHorizonのコントリビューターです。Linuxとサイバーセキュリティに魅了され、iHorizonボットのサポートヘルパーとして即興で活動している。"
 
 # /nayaweb
 nayaweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
@@ -746,6 +746,31 @@ profil_embed_fields_xplevels_value: " XPレベル"
 profil_embed_fields_age: "🎂 ・ __年齢__"
 profil_embed_fields_age_value: " 歳"
 profil_embed_fields_gender: "👤 ・ __性別__"
+profil_embed_fields_pronouns: "📌 ・ __代名詞__"
+profil_embed_fields_birthdate: "🎂 ・ __誕生日の日付__"
+
+# /プロフィール 誕生日設定
+profil_birthday_month_button_label: "月を設定"
+profil_birthday_day_button_label: "日を設定"
+profil_birthday_year_button_label: "年を設定"
+profil_birthday_embed_title: "🎂 ・ 誕生日を設定しましょう！"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **人間なら誰でも誕生日がありますよね！**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ こんにちは、${interaction.member?.toString()}\n:tada: ・ お祝いするために、設定しましょう！\n"
+profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.icon.Pin} ・ **現在の誕生日**: `${birthday.month}/${birthday.day}/${birthday.year}` (MM/DD/YYYY形式)"
+profil_birthday_modal1_title: "生年を入力してください"
+profil_birthday_modal1_fields1_label: "年"
+profil_birthday_invalid_year: "無効な年です！有効な年を入力してください。"
+profil_birthday_year_already_set: "年は既に設定されています。"
+profil_birthday_year_set: "年が設定されました！"
+profil_birthday_modal2_title: "誕生月を入力してください"
+profil_birthday_modal2_fields1_label: "月"
+profil_birthday_invalid_month: "無効な月です！有効な月を入力してください。"
+profil_birthday_month_already_set: "月は既に設定されています。"
+profil_birthday_month_set: "月が設定されました！"
+profil_birthday_modal3_title: "誕生日を入力してください"
+profil_birthday_modal3_fields1_label: "日"
+profil_birthday_invalid_day: "無効な日です！有効な日を入力してください。"
+profil_birthday_day_already_set: "日は既に設定されています。"
+profil_birthday_day_set: "日が設定されました！"
 
 
 # Utils commands
@@ -1564,6 +1589,9 @@ baninfo_user_not_found: "ユーザーが見つかりません"
 var_banned_by: "BAN実行者"
 var_ban_date: "BAN日時"
 
+# /警告クリア
+clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}、${member?.toString()} の **`${allWarns.length}`** 件の警告が削除されました。"
+
 
 # Backup commands
 # /backup
@@ -2316,7 +2344,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **がサーバーからブースト
 economy_disable_msg: "<@${interaction.user.id}>、このギルドの `経済モジュール` は**無効**になっています。もう経済モジュールは使えません！"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}、このコマンドを使用する権限がありません！必要な権限：**`${neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}、このコマンドを使用する権限がありません！必要な権限：${neededPerm}"
 
 # TempVoiceモジュール
 # すべてのコンポーネント、グローバル変数...

@@ -19,29 +19,30 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, GuildMember } from 'discord.js';
+import {
+    ChatInputCommandInteraction,
+    Client,
+    Message,
+} from 'discord.js';
 
-import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../../types/languageData';
 
-export const event: BotEvent = {
-    name: "guildMemberAdd",
-    run: async (client: Client, member: GuildMember) => {
+import { SubCommand } from '../../../../types/command';
 
-        try {
-            let table = client.db.table('BLACKLIST')
+export const subCommand: SubCommand = {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-            let data = await table.get(`${member.user.id}`);
-            if (data.blacklisted === true && !((member.guild.memberCount < 500 && client.version.env === 'production'))) {
-                member.send({ content: "You've been banned, because you are blacklisted ! \nReason: \`" + data.reason + '\`' })
-                    .catch(() => { })
-                    .then(() => { });
-                member.ban({ reason: `iHorizon Project Punishement - Blacklist | Reason: ${data.reason}` })
-                    .catch(() => { })
-                    .then(() => { });
-            }
+        if (interaction instanceof ChatInputCommandInteraction) {
+            var pronoun = interaction.options.getString("pronoun")!;
+        } else {
+            var pronoun = client.method.string(args!, 0) || lang.var_none;
+        };
 
-        } catch (error) {
-            return;
-        }
+        let tableProfil = client.db.table('USER_PROFIL');
+
+        await tableProfil.set(`${interaction.member?.user.id}.pronoun`, pronoun);
+
+        await client.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, ephemeral: true });
+        return;
     },
 };

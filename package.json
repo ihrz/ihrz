@@ -34,7 +34,7 @@
     "jimp": "^0.22.12",
     "js-yaml": "^4.1.0",
     "jszip": "^3.10.1",
-    "lavalink-client": "^2.4.6",
+    "lavalink-client": "^2.4.7",
     "mysql2": "3.10.0",
     "pallas-db": "^1.0.14",
     "pg": "^8.13.1",
@@ -51,7 +51,7 @@
     "@types/archiver": "^6.0.3",
     "@types/ws": "^8.5.14",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.17.16",
+    "@types/node": "^20.17.17",
     "@types/ping": "^0.4.4",
     "tslib": "^2.8.1",
     "typescript": "5.4.5"

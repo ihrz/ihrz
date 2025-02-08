@@ -163,9 +163,26 @@ async function handleCategorySelect(
             }
         }
 
-        states += commandStates
-            ? `${client.iHorizon_Emojis.icon.iHorizon_Lock} ${commandStates.level}`
-            : client.iHorizon_Emojis.icon.iHorizon_Unlock;
+        if (commandStates) {
+            if (commandStates.level > 0) {
+                states = `${client.iHorizon_Emojis.icon.iHorizon_Lock} ${commandStates.level}`;
+            } else {
+                states = `${client.iHorizon_Emojis.icon.iHorizon_Unlock}`;
+            }
+
+            const hasRoles = commandStates.roles.length > 0;
+            const hasUsers = commandStates.users.length > 0;
+
+            if (hasRoles && hasUsers) {
+                states = ` ${client.iHorizon_Emojis.icon.iHorizon_Lock} (${commandStates.roles.length} ${lang.var_roles}) (${commandStates.users.length} ${lang.var_member})`;
+            } else if (hasRoles) {
+                states = ` ${client.iHorizon_Emojis.icon.iHorizon_Lock} (${commandStates.roles.length} ${lang.var_roles})`;
+            } else if (hasUsers) {
+                states = ` ${client.iHorizon_Emojis.icon.iHorizon_Lock} (${commandStates.users.length} ${lang.var_member})`;
+            }
+        } else {
+            states = `${client.iHorizon_Emojis.icon.iHorizon_Unlock}`;
+        }
 
         var cleanedPrefixCommandName = element.prefixCmd || element.cmd;
         var prefixOrNot = `${client.iHorizon_Emojis.icon.Prefix_Command} ${bot_prefix.string}${cleanedPrefixCommandName} \n`;
