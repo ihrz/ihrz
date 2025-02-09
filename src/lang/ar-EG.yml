@@ -2238,6 +2238,7 @@ event_goodbye_default: "{memberUsername} (تم إنشاء الحساب في {acc
 
 # أحداث مستوى XP
 event_xp_level_earn: "**تهانينا**، {memberMention} لقد ارتفعت بمستوى واحد في XP (المستوى: **{xpLevel}**)"
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.vc.OpenChat} هل تجد هذه الرسالة مزعجة؟ يمكنك تعطيل هذه الرسالة عن طريق تعطيل نظام المستويات باستخدام الأمر `/ranks disable`"
 
 # أحداث وحدة التذاكر
 event_ticket_embed_description: "مرحبًا ${user.username}، مرحبًا بك في تذكرتك! يرجى التحلي بالصبر، وسنكون معك قريبًا. إذا كنت ترغب في إغلاق هذه التذكرة، يرجى تشغيل الأمر `/ticket close`"
