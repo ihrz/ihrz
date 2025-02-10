@@ -2241,6 +2241,7 @@ event_goodbye_default: "{memberUsername} (cuenta creada el {accountCreationTimes
 
 # Eventos de Nivel de XP
 event_xp_level_earn: "**GG**, {memberMention} has ganado +1 para el nivel de XP (Nivel: **{xpLevel}**)"
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.vc.OpenChat} ¿Te resulta molesto este mensaje? Puedes desactivar este mensaje deshabilitando el sistema de niveles con el comando `/ranks disable`"
 
 # Eventos del Módulo de Tickets
 event_ticket_embed_description: "¡Hola ${user.username}! ¡Bienvenido a tu ticket! Por favor, sé paciente, te atenderemos en breve. Si deseas cerrar este ticket, ejecuta `/ticket close`"

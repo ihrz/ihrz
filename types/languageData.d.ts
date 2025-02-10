@@ -1657,6 +1657,7 @@ export interface LanguageData {
   event_goodbye_inviter: string;
   event_goodbye_default: string;
   event_xp_level_earn: string;
+  event_xp_level_additional_info: string;
   event_ticket_embed_description: string;
   event_ticket_add_member: string;
   event_ticket_del_member: string;
