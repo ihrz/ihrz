@@ -21,8 +21,8 @@
 
 import { Client, EmbedBuilder, GuildChannel, GuildTextBasedChannel } from 'discord.js'
 
-import { LanguageData } from '../../../types/languageData';
-import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData.js';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "channelCreate",

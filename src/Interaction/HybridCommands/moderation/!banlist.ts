@@ -31,8 +31,8 @@ import {
     Message,
     time,
 } from 'discord.js'
-import { LanguageData } from '../../../../types/languageData';
-import { SubCommand } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -93,30 +93,42 @@ export const subCommand: SubCommand = {
         });
 
         const collector = message.createMessageComponentCollector({
-            filter: async (i) => {
-                await i.deferUpdate();
-                return interaction.member?.user.id === i.user.id;
-            },
             time: 60000,
             componentType: ComponentType.Button
         });
 
         collector.on("collect", async (i) => {
+            if (i.user.id !== interaction.member?.user.id) {
+                await i.reply({
+                    content: lang.help_not_for_you,
+                    ephemeral: true
+                });
+                return;
+            }
+
             if (i.customId === "previous") {
+                i.deferUpdate();
                 if (currentPage == 0) return;
                 currentPage--;
-                await i.update({
+                await message.edit({
                     embeds: [createEmbed()],
                     components: [row]
                 });
             } else if (i.customId === "next") {
+                i.deferUpdate();
                 if (currentPage == pages.length - 1) return;
                 currentPage++;
-                await i.update({
+                await message.edit({
                     embeds: [createEmbed()],
                     components: [row]
                 });
             }
+        });
+
+        collector.on("end", async () => {
+            await message.edit({
+                components: []
+            });
         });
 
         return;

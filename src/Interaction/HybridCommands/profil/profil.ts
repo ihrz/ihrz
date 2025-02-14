@@ -28,8 +28,8 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { Command } from '../../../../types/command';
-import { LanguageData } from '../../../../types/languageData';
+import { Command } from '../../../../types/command.js';
+import { LanguageData } from '../../../../types/languageData.js';
 
 
 export const command: Command = {
@@ -145,7 +145,7 @@ export const command: Command = {
 
             description: "Set your gender on the iHorizon's Profil!",
             description_localizations: {
-                "fr": "Définissez votre sexe sur le profil iHorizon"
+                "fr": "Définissez votre genre sur le profil iHorizon"
             },
 
             aliases: ["gender"],
@@ -181,6 +181,80 @@ export const command: Command = {
                 }
             ],
 
+            permission: null
+        },
+        {
+            name: "set-pronoun",
+            name_localizations: {
+                "fr": "définir-pronom"
+            },
+
+            description: "Set your pronoun on the iHorizon's Profil!",
+            description_localizations: {
+                "fr": "Définissez votre pronom sur le profil iHorizon"
+            },
+
+            aliases: ["pronoun", "pronom"],
+
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'pronoun',
+                    type: ApplicationCommandOptionType.String,
+
+                    description: "Pronoun that fits you the most",
+                    description_localizations: {
+                        "fr": "Le pronom qui vous correspond le plus"
+                    },
+
+                    required: true,
+                    choices: [
+                        {
+                            name: "she/her",
+                            value: "she-her"
+                        },
+                        {
+                            name: "he/him",
+                            value: "he-him"
+                        },
+                        {
+                            name: "they/them",
+                            value: "they-them"
+                        },
+                        {
+                            name: "xe/xem",
+                            value: "xe-xem"
+                        },
+                        {
+                            name: "ze/zem",
+                            value: "ze-zem"
+                        },
+                        {
+                            name: "other (say my name)",
+                            value: "other"
+                        }
+                    ],
+
+                    permission: null
+                }
+            ],
+
+            permission: null
+        },
+        {
+            name: "set-birthday",
+            name_localizations: {
+                "fr": "définir-anniversaire"
+            },
+
+            description: "Set your birthday on the iHorizon's Profil!",
+            description_localizations: {
+                "fr": "Définissez votre anniversaire sur le profil iHorizon"
+            },
+
+            aliases: ["birthday", "anniversaire"],
+
+            type: ApplicationCommandOptionType.Subcommand,
             permission: null
         }
     ],

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -225,6 +225,24 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             };
         }
         var pathString = boldStringifyOption(command.options || []);
+        let perm: DatabaseStructure.PermLevel | string | undefined | null = "";
+
+        if (command.permission) {
+            let perm_cmd = permission.getPermissionByValue(command.permission);
+            if (perm_cmd) perm = lang[perm_cmd.name];
+        }
+
+        if (CommandsPerm?.level) {
+            perm = CommandsPerm.level
+        }
+
+        if (CommandsPerm?.roles && CommandsPerm?.roles.length > 0) {
+            perm = CommandsPerm.roles.map(x => `<@&${x}>`).join(", ");
+        }
+
+        if (CommandsPerm?.users && CommandsPerm?.users.length > 0) {
+            perm += CommandsPerm.users.map(x => `<@${x}>`).join(", ");
+        }
 
         embed.setDescription((await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`))?.startsWith("fr-") ? command.description_localizations["fr"] : command.description)
         embed.setFields(
@@ -235,7 +253,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
             },
             {
                 name: lang.var_permission,
-                value: `${lang.var_permission}: ${CommandsPerm?.level || lang.var_none}`,
+                value: `${lang.var_permission}: ${perm === "" ? lang.setjoinroles_var_none : perm}`,
                 inline: false
             },
             {
@@ -300,7 +318,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
         } else if (i >= args.length && expectedArgs[i].required) {
             await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
             return false;
-        } else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type)) {
+        } else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.attachments)) {
             await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
             return false;
         }
@@ -309,7 +327,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
     return true;
 }
 
-function isValidArgument(arg: string, type: string): boolean {
+function isValidArgument(arg: string, type: string, atc: Collection<string, Attachment>): boolean {
     if (type.includes("/")) {
         return type.split("/").includes(arg);
     }
@@ -325,6 +343,8 @@ function isValidArgument(arg: string, type: string): boolean {
             return !isNaN(Number(arg));
         case "channel":
             return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg));
+        case "default":
+            return true;
         default:
             return false;
     }
@@ -376,10 +396,16 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
     });
 }
 
-export async function interactionSend(interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions): Promise<Message> {
+export async function interactionSend(
+    interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message,
+    options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
+): Promise<Message> {
     const nonce = SnowflakeUtil.generate().toString();
+
     if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions | InteractionDeferReplyOptions | InteractionReplyOptions = typeof options === 'string' ? { content: options } : options;
+        const editOptions: InteractionReplyOptions = typeof options === 'string'
+            ? { content: options }
+            : { ...options as InteractionReplyOptions };
 
         if (interaction.replied) {
             return await interaction.editReply(editOptions as InteractionEditReplyOptions);
@@ -387,22 +413,23 @@ export async function interactionSend(interaction: ChatInputCommandInteraction<"
             await interaction.editReply(editOptions as InteractionEditReplyOptions);
             return await interaction.fetchReply();
         } else {
-            const reply = await interaction.reply({ ...editOptions as InteractionReplyOptions, fetchReply: true });
-            return reply;
+            return await interaction.reply({ ...editOptions, fetchReply: true });
         }
     } else {
         let replyOptions: MessageReplyOptions;
-
         if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+            replyOptions = {
+                content: options,
+                allowedMentions: { repliedUser: false }
+            };
         } else {
             replyOptions = {
-                ...options,
+                ...options as MessageReplyOptions,
                 allowedMentions: { repliedUser: false, roles: [], users: [] },
                 content: options.content ?? undefined,
                 nonce: nonce,
                 enforceNonce: true
-            } as MessageReplyOptions;
+            };
         }
 
         try {
@@ -505,7 +532,7 @@ export function generateCustomMessagePreview(
         .replaceAll("{memberMention}", input.user.toString())
         .replaceAll('{memberCount}', input.guild.memberCount?.toString()!)
         .replaceAll('{createdAt}', input.user.createdAt.toLocaleDateString(input.guildLocal))
-        .replaceAll('{accountCreationTimestamp}', time(input.user.createdAt))
+        .replaceAll('{accountCreationTimestamp}', time(input.user.createdAt, 'R'))
         .replaceAll('{guildName}', input.guild.name)
         .replaceAll('{inviterUsername}', input.inviter?.user.username || `unknow_user`)
         .replaceAll('{inviterMention}', input.inviter?.user.mention || `@unknow_user`)

@@ -73,6 +73,9 @@ interface Icon {
     iHorizon_Plus: string;
     iHorizon_Folder: string;
     iHorizon_Pages: string;
+    iHorizon_Pause: string;
+    iHorizon_Paper: string;
+    iHorizon_Stop: string;
 }
 
 interface Vc {

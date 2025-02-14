@@ -25,15 +25,15 @@ import {
     EmbedBuilder,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
-import { Custom_iHorizon } from '../../../../types/ownihrz';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Custom_iHorizon } from '../../../../types/ownihrz.js';
 
 import logger from '../../../core/logger.js';
 
-import { Command } from '../../../../types/command';
+import { Command } from '../../../../types/command.js';
 
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
         if (executingBefore !== null && timeout - (Date.now() - executingBefore) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - executingBefore));
 
-            await interaction.reply({ content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
+            await client.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
             return;
         };
 
@@ -82,43 +82,38 @@ export const subCommand: SubCommand = {
 
         let bot_1 = (await client.ownihrz.Get_Bot(newToken).catch(() => { }))?.data || 404
 
-        if (!bot_1.bot) {
-            await client.method.interactionSend(interaction, { content: lang.mybot_manage_accept_token_error });
-            return;
-        } else {
+        let utils_msg = lang.mybot_manage_accept_utils_msg
+            .replace('${bot_1.bot.id}', bot_1.bot.id)
+            .replace('${bot_1.bot.username}', bot_1.bot.username)
+            .replace("${bot_1.bot_public ? 'Yes' : 'No'}",
+                bot_1.bot_public ? lang.mybot_manage_accept_utiis_yes : lang.mybot_manage_accept_utils_no
+            );
 
-            let utils_msg = lang.mybot_manage_accept_utils_msg
-                .replace('${bot_1.bot.id}', bot_1.bot.id)
+        let embed = new EmbedBuilder()
+            .setColor('#ff7f50')
+            .setTitle(lang.mybot_manage_accept_embed_title
                 .replace('${bot_1.bot.username}', bot_1.bot.username)
-                .replace("${bot_1.bot_public ? 'Yes' : 'No'}",
-                    bot_1.bot_public ? lang.mybot_manage_accept_utiis_yes : lang.mybot_manage_accept_utils_no
-                );
+                .replace('${bot_1.bot.discriminator}', bot_1.bot.discriminator)
+            )
+            .setDescription(lang.mybot_manage_accept_embed_desc
+                .replace('${utils_msg}', utils_msg)
+            )
+            .setFooter(await client.method.bot.footerBuilder(interaction));
 
-            let embed = new EmbedBuilder()
-                .setColor('#ff7f50')
-                .setTitle(lang.mybot_manage_accept_embed_title
-                    .replace('${bot_1.bot.username}', bot_1.bot.username)
-                    .replace('${bot_1.bot.discriminator}', bot_1.bot.discriminator)
-                )
-                .setDescription(lang.mybot_manage_accept_embed_desc
-                    .replace('${utils_msg}', utils_msg)
-                )
-                .setFooter(await client.method.bot.footerBuilder(interaction));
+        await client.method.interactionSend(interaction, {
+            embeds: [embed],
+            ephemeral: false,
+            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+        });
 
-            await client.method.interactionSend(interaction, {
-                embeds: [embed],
-                ephemeral: false,
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
-            });
-
-            try {
-                await client.ownihrz.Change_Token(id_2.Cluster!, id_2.Code, newToken);
-            } catch (error: any) {
-                return logger.err(error)
-            };
-
-            await tempTable.set(`OWNIHRZ_CHANGE_TOKEN.${interaction.user.id}.timeout`, Date.now());
-            return;
+        try {
+            await client.ownihrz.Change_Token(id_2.Cluster!, id_2.Code, newToken);
+        } catch (error: any) {
+            return logger.err(error)
         };
+
+        await tempTable.set(`OWNIHRZ_CHANGE_TOKEN.${interaction.user.id}.timeout`, Date.now());
+        return;
+
     },
 };

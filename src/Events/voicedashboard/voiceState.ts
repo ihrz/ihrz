@@ -21,7 +21,7 @@
 
 import { Client, VoiceState, CategoryChannel, ChannelType, GuildChannel } from 'discord.js';
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {

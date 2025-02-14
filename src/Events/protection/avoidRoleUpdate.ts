@@ -21,7 +21,7 @@
 
 import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "roleUpdate",
@@ -53,7 +53,7 @@ export const event: BotEvent = {
             let baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
             if (!baseData) {
-                newRole.edit({
+                await newRole.edit({
                     ...oldRole
                 });
 

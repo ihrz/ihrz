@@ -27,8 +27,7 @@ import {
     PermissionFlagsBits,
 } from 'discord.js';
 
-import { Command } from '../../../../types/command';
-import { LanguageData } from '../../../../types/languageData';
+import { Command } from '../../../../types/command.js';
 
 export const command: Command = {
     name: "guildconfig",
@@ -457,7 +456,7 @@ export const command: Command = {
 
                     type: ApplicationCommandOptionType.Subcommand,
 
-                    permission: null
+                    permission: PermissionFlagsBits.Administrator
                 }
             ],
 

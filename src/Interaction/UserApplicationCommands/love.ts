@@ -20,12 +20,11 @@
 */
 
 import { Client, EmbedBuilder, ApplicationCommandType, UserContextMenuCommandInteraction } from 'discord.js';
-import { AnotherCommand } from '../../../types/anotherCommand';
+import { AnotherCommand } from '../../../types/anotherCommand.js';
 
 import Jimp from 'jimp';
 
 import logger from '../../core/logger.js';
-import { LanguageData } from '../../../types/languageData';
 
 export const command: AnotherCommand = {
     name: "Estimate the love",

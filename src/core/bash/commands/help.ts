@@ -20,7 +20,7 @@
 */
 
 import { Client } from "discord.js";
-import { BashCommands } from "../../../../types/bashCommands";
+import { BashCommands } from "../../../../types/bashCommands.js";
 import logger from "../../logger.js";
 
 export const command: BashCommands = {

@@ -21,8 +21,8 @@
 
 import { PermissionsBitField, Client, GuildMember } from 'discord.js';
 
-import { BotEvent } from '../../../types/event';
-import { LanguageData } from '../../../types/languageData';
+import { BotEvent } from '../../../types/event.js';
+import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
     name: "guildMemberRemove",

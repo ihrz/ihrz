@@ -32,13 +32,11 @@ import {
     time,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 import maskLink from '../../../core/functions/maskLink.js';
-import { Command } from '../../../../types/command';
 
-import { SearchResult } from 'lavalink-client/dist/types';
-
-import { SubCommand } from '../../../../types/command';
+import { SearchResult } from 'lavalink-client';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -51,7 +49,7 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var query = interaction.options.getString("title")!;
         } else {
-            
+
             var query = client.method.longString(args!, 0)!
         }
 
@@ -59,6 +57,14 @@ export const subCommand: SubCommand = {
             await client.method.interactionSend(interaction, { content: lang.p_not_in_voice_channel });
             return;
         };
+
+        // Check if the member is in the same voice channel as the bot
+        if (interaction.guild.members.me?.voice.channelId && (interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
+            await client.method.interactionSend(interaction, {
+                content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+            });
+            return;
+        }
 
         if (!client.func.isAllowedLinks(query)) {
             return client.method.interactionSend(interaction, { content: lang.p_not_allowed })

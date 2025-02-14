@@ -26,10 +26,10 @@ import {
     GuildMember,
     Message,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
-import { SubCommand } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommand } from '../../../../types/command.js';
 
-import { DatabaseStructure } from '../../../../types/database_structure';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 import {
     calculateMessageTime,

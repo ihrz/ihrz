@@ -473,7 +473,7 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay - и мой с
 andru_message: "Andru - сотрудник и разработчик. \"Мастер на все руки\", он управляет маркетингом, сообществом..."
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether - контрибьютор iHorizon. Он готов найти любую опечатку в боте и импровизирует в качестве помощника по поддержке бота iHorizon."
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether - автор проекта iHorizon. Он увлекается Linux и кибербезопасностью, а также импровизирует в качестве помощника для бота iHorizon."
 
 # /nayaweb
 nayaweb_message: "😼NayaWeb - мой второй разработчик/соавтор , NayaWeb и Kisakay ❤️"
@@ -485,7 +485,7 @@ pong_message: "【:ballot_box_with_check:】__**Понг**__ : "
 status_be_bot_dev: ":x: | **Вы должны быть разработчиком бота, чтобы выполнить это!**"
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ Меню помощи```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** доступные категории команд\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** доступные слэш-команды\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Создано** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Знаете ли вы? ・ Подсказки```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} **100% многоязычный**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ Меню помощи```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** доступные категории команд\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** доступные слэш-команды\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Создано** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Знаете ли вы? ・ Подсказки```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} **100% многоязычный**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setlang language:Japanese`"
 help_mod_fields: "Модерация"
 help_ranks_fields: "Ранги"
 help_fun_fields: "Развлечения"
@@ -746,6 +746,31 @@ profil_embed_fields_xplevels_value: " Уровней опыта"
 profil_embed_fields_age: "🎂 ・ __Возраст__"
 profil_embed_fields_age_value: " лет"
 profil_embed_fields_gender: "👤 ・ __Пол__"
+profil_embed_fields_pronouns: "📌 ・ __Местоимение__"
+profil_embed_fields_birthdate: "🎂 ・ __Дата дня рождения__"
+
+# /профиль установить-день-рождения
+profil_birthday_month_button_label: "Установить месяц"
+profil_birthday_day_button_label: "Установить день"
+profil_birthday_year_button_label: "Установить год"
+profil_birthday_embed_title: "🎂 ・ Установите свой день рождения!"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **Как у каждого человека, у вас есть день рождения!**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ Привет, ${interaction.member?.toString()}\n:tada: ・ Чтобы отпраздновать его, пора его установить!\n"
+profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.icon.Pin} ・ **Текущий день рождения**: `${birthday.month}/${birthday.day}/${birthday.year}` (в формате ММ/ДД/ГГГГ)"
+profil_birthday_modal1_title: "Введите год рождения"
+profil_birthday_modal1_fields1_label: "Год"
+profil_birthday_invalid_year: "Неверный год! Пожалуйста, введите правильный год."
+profil_birthday_year_already_set: "Ваш год уже установлен."
+profil_birthday_year_set: "Ваш год установлен!"
+profil_birthday_modal2_title: "Введите месяц рождения"
+profil_birthday_modal2_fields1_label: "Месяц"
+profil_birthday_invalid_month: "Неверный месяц! Пожалуйста, введите правильный месяц."
+profil_birthday_month_already_set: "Ваш месяц уже установлен."
+profil_birthday_month_set: "Ваш месяц установлен!"
+profil_birthday_modal3_title: "Введите день рождения"
+profil_birthday_modal3_fields1_label: "День"
+profil_birthday_invalid_day: "Неверный день! Пожалуйста, введите правильный день."
+profil_birthday_day_already_set: "Ваш день уже установлен."
+profil_birthday_day_set: "Ваш день установлен!"
 
 
 # Utils commands
@@ -958,6 +983,18 @@ util_where_mute: "Самозаглушение микрофона"
 var_video: "Видео"
 var_whereis: "Где находится"
 util_not_in_vc: "Участники не находятся в голосовом канале"
+
+# /util allwebhooks
+util_no_webhooks: "В этом сервере нет webhooks."
+util_allwebhooks_embed_title: "Все webhooks"
+util_allwebhooks_deleting: "Удаление всех webhooks..."
+util_allwebhooks_deleted: "**`${u}`** webhook(ов) удалено!"
+
+# /util unzip-emojis
+util_unzip_emojis_command_work: "🎉 Распаковка завершена за ${calcTime} мс! Я создал ${emojiCount} эмодзи в гильдии."
+util_unzip_emojis_command_error: "Произошла ошибка при распаковке эмодзи."
+util_unzip_emojis_command_no_file: "Пожалуйста, прикрепите zip-файл, содержащий эмодзи."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1229,6 +1266,7 @@ guildconfig_setbot_prefix_prefix_is_good: "Префикс бота успешн�
 # /guildconfig config save
 guildconfig_config_save_check_dm: "Пожалуйста, проверьте свои личные сообщения. Если вы не получили сообщение, убедитесь, что принимаете личные сообщения."
 guildconfig_config_save_user_msg: "Это резервная копия настроек `${interaction.guild.name}`!"
+guildconfig_config_save_user_msg_2: "Вот ссылка для загрузки резервной копии сервера!\n"
 
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "Произошла ошибка при загрузке файла."
@@ -1320,6 +1358,8 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> у�
 
 # Команды музыки
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
+
+music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} Вы должны находиться в том же голосовом канале, что и я, чтобы использовать эту команду!"
 
 # /p
 p_not_in_voice_channel: "Вы должны находиться в голосовом канале, чтобы использовать эту команду!"
@@ -1551,6 +1591,8 @@ baninfo_user_not_found: "Пользователь не найден"
 var_banned_by: "Заблокирован"
 var_ban_date: "Дата блокировки"
 
+# /очистить-предупреждения
+clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}, **`${allWarns.length}`** предупреждение(-я) участника ${member?.toString()} удалено(-ы)."
 
 # Команды резервного копирования
 # /backup
@@ -2178,7 +2220,7 @@ confession_module_modal_components2_label: "Это приватно?"
 
 # События проигрывателя музыки
 
-event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Сейчас играет `${track.title}` в **${queue.channel.name}** ..."
+event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Сейчас играет [`${track.title}`](${url}) в **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} добавлена в очередь!"
 event_mp_playerError: "У меня возникли проблемы с подключением => ${error.message}"
 event_mp_error: "Возникла проблема с очередью песен => ${error.message}"
@@ -2200,6 +2242,7 @@ event_goodbye_default: "{memberUsername} (аккаунт создан {accountCr
 
 # События уровня XP
 event_xp_level_earn: "**GG**, {memberMention}, вы получили +1 уровень, ваш текущий уровень: **{xpLevel}**"
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.vc.OpenChat} Вам мешает это сообщение? Вы можете отключить его, отключив систему уровней с помощью команды `/ranks disable`"
 
 # События модуля билетов:
 event_ticket_embed_description: "Привет, ${user.username}, добро пожаловать в ваш бил"
@@ -2303,7 +2346,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **только что убрал(а
 economy_disable_msg: "<@${interaction.user.id}>, `Модуль Экономики` на этом сервере **отключен**. Теперь вы не можете использовать модуль экономики!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, вам не разрешено использовать эту команду! Необходимое разрешение: **`${neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, вам не разрешено использовать эту команду! Необходимое разрешение: ${neededPerm}"
 
 # Модуль TempVoice
 # Все компоненты, глобальные переменные...

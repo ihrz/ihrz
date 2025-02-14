@@ -28,9 +28,9 @@ import {
     Message,
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
+import { Command } from '../../../../types/command.js';
 import ping from 'ping';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
     name: 'ping',

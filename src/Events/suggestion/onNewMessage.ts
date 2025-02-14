@@ -22,7 +22,7 @@
 import { Client, EmbedBuilder, Message, SnowflakeUtil } from 'discord.js';
 import { generatePassword } from '../../core/functions/random.js';
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {

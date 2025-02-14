@@ -471,7 +471,7 @@ kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay هي المب�
 andru_message: "أندرو هو متعاون ومطور. \"الرجل المتعدد المهام\"، يدير التسويق والمجتمع..."
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} إيثر هو مساهم في آي هورايزون. يكتشف كل خطأ مطبعي في البوت ويعمل كمساعد دعم لبوت آي هورايزون."
+ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether هو أحد المساهمين في iHorizon. وهو مفتون بنظام لينكس والأمن السيبراني، وهو يرتجل نفسه كمساعد دعم لروبوت iHorizon."
 
 # /nayaweb
 nayaweb_message: "😼 NayaWeb هو مطور/مساهم الثاني لي، NayaWeb x Kisakay ❤️"
@@ -483,7 +483,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: ":x: | **يجب أن تكون مطور البوت للقيام بذلك!**"
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ قائمة المساعدة```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** فئة أوامر متاحة\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** أوامر سلاش متاحة\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **أنشأه** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```هل تعلم؟ ・ نصائح```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} هو **100% متعدد اللغات**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setserverlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ قائمة المساعدة```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** فئة أوامر متاحة\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** أوامر سلاش متاحة\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **أنشأه** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```هل تعلم؟ ・ نصائح```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} هو **100% متعدد اللغات**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setlang language:Japanese`"
 help_mod_fields: "إدارة"
 help_ranks_fields: "الرتب"
 help_fun_fields: "متعة"
@@ -745,6 +745,32 @@ profil_embed_fields_xplevels_value: " مستويات XP"
 profil_embed_fields_age: "🎂 ・ __العمر__"
 profil_embed_fields_age_value: " سنوات"
 profil_embed_fields_gender: "👤 ・ __الجنس__"
+profil_embed_fields_pronouns: "📌 ・ __الضمائر__"
+profil_embed_fields_birthdate: "🎂 ・ __تاريخ عيد الميلاد__"
+
+# /تعيين-تاريخ-الميلاد 
+profil_birthday_month_button_label: "تعيين الشهر"
+profil_birthday_day_button_label: "تعيين اليوم"
+profil_birthday_year_button_label: "تعيين السنة"
+profil_birthday_embed_title: "🎂 ・ تعيين تاريخ ميلادك!"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **مثل كل البشر، لديك عيد ميلاد!**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ مرحباً، ${interaction.member?.toString()}\n:tada: ・ من أجل الاحتفال به، حان الوقت لتعيينه!\n"
+profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.icon.Pin} ・ **تاريخ الميلاد الحالي**: `${birthday.month}/${birthday.day}/${birthday.year}` (بتنسيق شهر/يوم/سنة)"
+profil_birthday_modal1_title: "أدخل سنة ميلادك"
+profil_birthday_modal1_fields1_label: "السنة"
+profil_birthday_invalid_year: "سنة غير صالحة! الرجاء إدخال سنة صالحة."
+profil_birthday_year_already_set: "تم تعيين السنة مسبقاً."
+profil_birthday_year_set: "تم تعيين السنة!"
+profil_birthday_modal2_title: "أدخل شهر ميلادك"
+profil_birthday_modal2_fields1_label: "الشهر"
+profil_birthday_invalid_month: "شهر غير صالح! الرجاء إدخال شهر صالح."
+profil_birthday_month_already_set: "تم تعيين الشهر مسبقاً."
+profil_birthday_month_set: "تم تعيين الشهر!"
+profil_birthday_modal3_title: "أدخل يوم ميلادك"
+profil_birthday_modal3_fields1_label: "اليوم"
+profil_birthday_invalid_day: "يوم غير صالح! الرجاء إدخال يوم صالح."
+profil_birthday_day_already_set: "تم تعيين اليوم مسبقاً."
+profil_birthday_day_set: "تم تعيين اليوم!"
+
 
 # Utils commands
 # /serverinfo, /snipe, /userinfo, /renew
@@ -957,6 +983,18 @@ util_where_mute: "صامت"
 var_video: "فيديو"
 var_whereis: "أين هو"
 util_not_in_vc: "الأعضاء ليسوا في قناة صوتية"
+
+# /util allwebhooks
+util_no_webhooks: "لا توجد webhooks في هذه الخادم."
+util_allwebhooks_embed_title: "جميع الويب هوكس"
+util_allwebhooks_deleting: "جاري حذف جميع الويب هوكس..."
+util_allwebhooks_deleted: "**`${u}`** ويب هوك تم حذفه!"
+
+# /util unzip-emojis
+util_unzip_emojis_command_work: "🎉 اكتمل فك الضغط في ${calcTime} ملي ثانية! لقد قمت بإنشاء ${emojiCount} رمز تعبيري في السيرفر."
+util_unzip_emojis_command_error: "حدث خطأ أثناء فك ضغط الرموز التعبيرية."
+util_unzip_emojis_command_no_file: "يرجى إرفاق ملف مضغوط يحتوي على رموز تعبيرية."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1231,6 +1269,7 @@ guildconfig_setbot_prefix_prefix_is_good: "تم تغيير رمز التميز �
 # /guildconfig config save
 guildconfig_config_save_check_dm: "يرجى التحقق من الرسائل المباشرة الخاصة بك. إذا لم تستلم الرسالة، حاول التحقق مما إذا كنت تقبل الرسائل المباشرة."
 guildconfig_config_save_user_msg: "هذه نسخة احتياطية من إعدادات `${interaction.guild.name}`!"
+guildconfig_config_save_user_msg_2: "إليك الرابط لتنزيل نسخة احتياطية من الخادم!\n"
 
 # /guildconfig config restore
 guildconfig_config_restore_err_msg: "حدث خطأ أثناء تنزيل الملف."
@@ -1321,6 +1360,8 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> ق�
 
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
+
+music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} يجب أن تكون في نفس القناة الصوتية معي لاستخدام هذا الأمر!"
 
 # /p
 p_not_in_voice_channel: "يجب أن تكون متصلاً بقناة صوتية لاستخدام هذا الأمر!"
@@ -1550,6 +1591,9 @@ baninfo_ban_info: "معلومات الحظر"
 baninfo_user_not_found: "المستخدم غير موجود"
 var_banned_by: "محظور من قبل"
 var_ban_date: "تاريخ الحظر"
+
+# /مسح_التحذيرات
+clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}, تم مسح **`${allWarns.length}`** تحذير(ات) من ${member?.toString()}"
 
 
 # Backup commands
@@ -2174,7 +2218,7 @@ confession_module_modal_components2_label: "هل هذا خاص؟"
 
 
 # أحداث مشغل الموسيقى
-event_mp_playerStart: "🎵 - الآن يتم تشغيل `${track.title}` في **${queue.channel.name}** ..."
+event_mp_playerStart: "🎵 - الآن يتم تشغيل [`${track.title}`](${url}) في **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "🎵 - تم إضافة ${track.title} إلى قائمة الانتظار!"
 event_mp_playerError: "توجد مشكلة في الاتصال => ${error.message}"
 event_mp_error: "حدثت مشكلة في قائمة الأغاني => ${error.message}"
@@ -2196,6 +2240,7 @@ event_goodbye_default: "{memberUsername} (تم إنشاء الحساب في {acc
 
 # أحداث مستوى XP
 event_xp_level_earn: "**تهانينا**، {memberMention} لقد ارتفعت بمستوى واحد في XP (المستوى: **{xpLevel}**)"
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.vc.OpenChat} هل تجد هذه الرسالة مزعجة؟ يمكنك تعطيل هذه الرسالة عن طريق تعطيل نظام المستويات باستخدام الأمر `/ranks disable`"
 
 # أحداث وحدة التذاكر
 event_ticket_embed_description: "مرحبًا ${user.username}، مرحبًا بك في تذكرتك! يرجى التحلي بالصبر، وسنكون معك قريبًا. إذا كنت ترغب في إغلاق هذه التذكرة، يرجى تشغيل الأمر `/ticket close`"
@@ -2299,7 +2344,7 @@ event_boostlog_sub: "<@${newMember.user.id}> **أزال تعزيزهم** من ا
 economy_disable_msg: "<@${interaction.user.id}>, وحدة `الاقتصاد` في هذا الخادم **معطلة**. لا يمكنك استخدام وحدة الاقتصاد بعد الآن!"
 
 # Permission Event
-event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: **`${neededPerm}`**"
+event_permission_wrong: "${interaction.member?.user.toString()}, مش مسموحلك تستخدم الأمر ده! محتاج صلاحية: ${neededPerm}"
 
 # وحدة الصوت المؤقت
 temporary_voice_title_embec: "## التعديلات على قناتك الصوتية المؤقتة"

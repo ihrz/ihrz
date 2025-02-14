@@ -595,14 +595,14 @@ export const command: Command = {
             permission: PermissionFlagsBits.Administrator
         },
         {
-            name: 'guildinfo',
+            name: 'serverinfo',
 
             description: 'Get information about the server!',
             description_localizations: {
                 "fr": "Obtenir des informations sur le serveur"
             },
 
-            aliases: ["si", "gi", "serverinfo"],
+            aliases: ["si", "gi"],
 
             type: ApplicationCommandOptionType.Subcommand,
 

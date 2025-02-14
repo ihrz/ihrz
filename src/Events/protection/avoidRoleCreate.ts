@@ -21,7 +21,7 @@
 
 import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "roleCreate",
@@ -56,7 +56,7 @@ export const event: BotEvent = {
                 let member = role.guild.members.cache.get(relevantLog?.executorId as string);
                 await client.method.punish(data, member);
 
-                role.delete('Protect!');
+                await role.delete('Protect!');
             };
         }
     },

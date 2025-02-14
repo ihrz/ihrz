@@ -38,10 +38,9 @@ function generateTypeScriptType(json: any, name: string = "Root"): string {
     if (Array.isArray(json)) {
         if (json.length === 0) {
             return `${name}[]`;
-        } else {
-            const arrayType = generateTypeScriptType(json[0], `${name}Item`);
-            return `${arrayType}[]`;
         }
+        const arrayType = generateTypeScriptType(json[0], `${name}Item`);
+        return `${arrayType}[]`;
     } else if (typeof json === 'object' && json !== null) {
         let typeString = `{\n`;
         for (const key in json) {
@@ -53,9 +52,8 @@ function generateTypeScriptType(json: any, name: string = "Root"): string {
         }
         typeString += `}`;
         return typeString;
-    } else {
-        return getPrimitiveType(json);
     }
+    return getPrimitiveType(json);
 }
 
 function getPrimitiveType(value: any): string {
@@ -162,6 +160,7 @@ function promptUser(): Promise<number> {
 }
 
 async function main() {
+    const outputPath = path.join(process.cwd(), 'types', 'languageData.d.ts');
     const langsPath = path.join(process.cwd(), 'src', 'lang');
     const langsContent = readdirSync(langsPath).filter(x => x.endsWith(".yml"));
 
@@ -212,10 +211,32 @@ async function main() {
             mergedType = mergeTypes(mergedType, currentType);
         }
 
-        const outputFilePath = path.join(langsPath, `LanguageData.d.ts`);
-        const interfaceContent = `export interface LanguageData ${mergedType}`;
-        writeFileSync(outputFilePath, interfaceContent, 'utf-8');
-        logger.log(`[+] TypeScript definition file created: ${outputFilePath}`);
+        var interfaceContent = `/*
+・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+    ・   Under the following terms:
+
+        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+        ・ NonCommercial — You may not use the material for commercial purposes.
+
+        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
+・ Copyright © 2020-2025 iHorizon
+*/
+
+`
+
+        interfaceContent += `export interface LanguageData ${mergedType}`;
+        writeFileSync(outputPath, interfaceContent, 'utf-8');
+        logger.log(`[+] TypeScript definition file created: ${outputPath}`);
     }
 }
 

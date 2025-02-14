@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Logger } from "../../types/logger";
+import { Logger } from "../../types/logger.js";
 import { log as _ } from 'console';
 import "./functions/colors.js";
 

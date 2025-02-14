@@ -31,8 +31,8 @@ import {
     PermissionsBitField
 } from 'discord.js';
 import archiver from 'archiver';
-import { LanguageData } from '../../../../types/languageData';
-import { SubCommand } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommand } from '../../../../types/command.js';
 
 import { axios } from '../../../core/functions/axios.js';
 
@@ -44,13 +44,6 @@ export const subCommand: SubCommand = {
         args?: string[]
     ) => {
         let time = Date.now();
-
-        if (!interaction.member?.permissions.has(PermissionsBitField.Flags.ManageGuildExpressions)) {
-            return interaction.reply({
-                content: lang.zip_emojis_doesnt_have_perm,
-                ephemeral: true
-            });
-        }
 
         if (!interaction.guild) return;
 

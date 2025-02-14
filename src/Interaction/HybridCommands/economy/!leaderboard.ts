@@ -31,9 +31,9 @@ import {
     ComponentType,
     AttachmentBuilder,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
-import { DatabaseStructure } from '../../../../types/database_structure';
-import { Command, SubCommand } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { Command, SubCommand } from '../../../../types/command.js';
 import { formatNumber } from '../../../core/functions/numberBeautifuer.js';
 
 export const subCommand: SubCommand = {

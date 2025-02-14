@@ -35,7 +35,7 @@ import {
 } from 'discord.js';
 
 import { axios } from '../../../core/functions/axios.js';
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { Oauth2_Link, oauth2Member } from '../../../core/functions/restoreCordHelper.js';
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";

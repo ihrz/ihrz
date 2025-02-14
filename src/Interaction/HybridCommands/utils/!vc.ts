@@ -30,10 +30,10 @@ import {
     VoiceState,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const subCommand = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData) => {
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         const guild = interaction.guild;
@@ -45,8 +45,8 @@ export const subCommand = {
         const voiceChannelSize = guild.channels.cache.filter(c => c.type === ChannelType.GuildVoice).size;
 
         const mode = interaction instanceof ChatInputCommandInteraction
-            ? interaction.options.getString("show-mode") || "short"
-            : "short";
+            ? (interaction.options.getString("show-mode") || "short")
+            : (client.method.string(args!, 0) || "short");
 
         const memberStats = calculateMemberStats(guild.members.cache);
         const voiceStats = calculateVoiceStats(voiceStates.filter(x => x.channelId !== null));
@@ -130,13 +130,10 @@ export const subCommand = {
                 )
                 .setThumbnail("attachment://guild_icon.png")
 
-            const guildIconAttachment = await client.func.image64(guild.iconURL() || client.user.displayAvatarURL());
-            if (guildIconAttachment) {
-                files.push({
-                    name: "guild_icon.png",
-                    attachment: guildIconAttachment
-                });
-            }
+            files.push({
+                name: "guild_icon.png",
+                attachment: guild.iconURL({ size: 4096 })!
+            });
         }
 
         await client.method.interactionSend(interaction, {

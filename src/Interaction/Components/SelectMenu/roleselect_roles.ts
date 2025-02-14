@@ -29,7 +29,7 @@ export default async function (interaction: StringSelectMenuInteraction<"cached"
 
     const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
-    let fetched_role = interaction.guild.roles.cache.get(role);
+    let fetched_role = interaction.guild.roles.cache.get(role) || await interaction.guild.roles.fetch(role).catch(() => null);
 
     if (!fetched_role) {
         await interaction.reply({

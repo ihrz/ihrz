@@ -43,6 +43,19 @@ export const command: Command = {
 
     options: [
         {
+            name: "allwebhooks",
+
+            description: "List all registered webhook on the server",
+            description_localizations: {
+                'fr': "Afficher toute les webhooks enregistrer sur le serveur"
+            },
+
+            aliases: ["webhooks", "webhook"],
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.Administrator
+        },
+        {
             name: "nick-kicker",
 
             description: "Kick a user if their nickname contains a specific word",
@@ -184,7 +197,38 @@ export const command: Command = {
             type: ApplicationCommandOptionType.Subcommand,
 
             permission: PermissionFlagsBits.ModerateMembers,
-        }
+        },
+        {
+            name: 'unzip-emojis',
+
+            description: 'Recreate all emojis from a zip file',
+            description_localizations: {
+                "fr": "Recreer tout les emojis depuis un fichier zip"
+            },
+
+            aliases: ["unzipemojis", "unzip1"],
+
+            options: [
+                {
+                    name: "zip_file",
+
+                    description: "The zip file to recreate emojis",
+                    description_localizations: {
+                        "fr": "Le fichier zip pour recréer les emojis"
+                    },
+
+                    type: ApplicationCommandOptionType.Attachment,
+
+                    required: true,
+                    permission: null
+                }
+            ],
+
+            type: ApplicationCommandOptionType.Subcommand,
+            thinking: true,
+
+            permission: PermissionFlagsBits.ManageGuildExpressions
+        },
     ],
 
     category: 'utils',

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Emojis } from '../../../types/emojis';
+import { Emojis } from '../../../types/emojis.js';
 import fs from 'node:fs';
 import toml from 'toml';
 
@@ -29,7 +29,11 @@ function emojis_(): Emojis {
 
 let emojis: Emojis;
 
-export default function generateProgressBar(currentTimeMs: number, totalTimeMs: number): string {
+export default function generateProgressBar(currentTimeMs: number, totalTimeMs: number): {
+    bar: string;
+    currentTime: string;
+    totalTime: string;
+} {
     let currentTimeInSeconds = Math.floor(currentTimeMs / 1000);
     let totalTimeInSeconds = Math.floor(totalTimeMs / 1000);
 
@@ -49,7 +53,11 @@ export default function generateProgressBar(currentTimeMs: number, totalTimeMs: 
 
     let progressBar = `${currentTimeFormatted} ┃ ${`${emojis.icon.iHorizon_Bar}`.repeat(dashesBefore)}${emojis.icon.iHorizon_Pointer}${`${emojis.icon.iHorizon_Bar}`.repeat(dashesAfter)} ┃ ${totalTimeFormatted}`;
 
-    return progressBar;
+    return {
+        bar: progressBar,
+        currentTime: currentTimeFormatted,
+        totalTime: totalTimeFormatted
+    };
 }
 
 function formatTime(seconds: number): string {

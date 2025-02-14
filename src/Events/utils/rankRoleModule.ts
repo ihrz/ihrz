@@ -20,9 +20,8 @@
 */
 
 import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser, SnowflakeUtil } from 'discord.js';
-import { BotEvent } from '../../../types/event';
-import { DatabaseStructure } from '../../../types/database_structure';
-import { LanguageData } from '../../../types/languageData';
+import { BotEvent } from '../../../types/event.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 import { guildPrefix } from '../../core/functions/prefix.js';
 
 export const event: BotEvent = {

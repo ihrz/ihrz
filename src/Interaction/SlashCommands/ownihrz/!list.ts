@@ -26,8 +26,8 @@ import {
     AttachmentBuilder
 } from 'discord.js';
 import { format } from '../../../core/functions/date_and_time.js';
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 
 import { Custom_iHorizon } from '../../../../types/ownihrz.js';
 
@@ -39,9 +39,10 @@ async function generateBotHTML(
 ): Promise<string> {
     let htmlContent = client.htmlfiles['botProfileCard'];
 
-    const accentColor = data.PowerOff === false ? '#23a559' : '#f23f43';
-    const statusColor = data.PowerOff === false ? '#23a559' : '#f23f43';
-    const statusText = data.PowerOff === undefined || data.PowerOff === true ? 'Offline' : 'Online';
+    const PowerOff = data.PowerOff ? false : true;
+    const accentColor = PowerOff ? '#23a559' : '#f23f43';
+    const statusColor = PowerOff ? '#23a559' : '#f23f43';
+    const statusText = PowerOff ? 'Online' : 'Offline';
 
     return htmlContent
         .replaceAll('AVATAR_URL', `https://cdn.discordapp.com/avatars/${data.Bot.Id}/${bot?.bot?.avatar}.png`)
@@ -90,7 +91,7 @@ async function buildEmbed(
     return { embed, attachment };
 }
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {

@@ -22,8 +22,8 @@
 import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChannel, ClientUser, SnowflakeUtil } from 'discord.js';
 
 import { parseMessageCommand } from '../interaction/messageCommandHandler.js';
-import { LanguageData } from '../../../types/languageData';
-import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData.js';
+import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { getMemberBoost } from '../../Interaction/HybridCommands/economy/economy.js';
 
@@ -39,7 +39,7 @@ export const event: BotEvent = {
 
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        let data = await client.func.getLanguageData(message.guild.id);
+        let lang = await client.func.getLanguageData(message.guild.id);
         let guildLocal = await client.db.get(`${message.guild.id}.GUILD.LANG.lang`) || "en-US";
 
         if ((await parseMessageCommand(client, message)).success) return;
@@ -91,7 +91,7 @@ export const event: BotEvent = {
             let xpChan = ranksConfig?.xpchannels!;
             let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel | null;
 
-            let msg = client.method.generateCustomMessagePreview(ranksConfig?.message || data.event_xp_level_earn,
+            let msg = client.method.generateCustomMessagePreview(ranksConfig?.message || lang.event_xp_level_earn,
                 {
                     user: message.author,
                     guild: message.guild,
@@ -103,6 +103,17 @@ export const event: BotEvent = {
             );
 
             if (!xpChan) {
+                // if newLevel is 1, then it's a new user
+                // so we inform them about the leveling system and how it works
+                // and we also inform them about the rank roles
+                // and how the ranks module is disableable
+                // do it only 1/2 times
+
+                if (newLevel === 1 && Math.random() < 0.5) {
+                    msg += lang.event_xp_level_additional_info
+                        .replace("${client.iHorizon_Emojis.vc.OpenChat}", client.iHorizon_Emojis.vc.OpenChat)
+                }
+
                 client.method.channelSend(message, {
                     content: msg,
                     enforceNonce: true,

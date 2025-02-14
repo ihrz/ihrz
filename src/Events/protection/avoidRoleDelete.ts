@@ -21,7 +21,7 @@
 
 import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "roleDelete",
@@ -60,7 +60,7 @@ export const event: BotEvent = {
                     ...role, reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
                 });
 
-                newRole.setPosition(role.rawPosition);
+                await newRole.setPosition(role.rawPosition);
             };
         }
     },

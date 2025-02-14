@@ -29,9 +29,9 @@ import {
     BaseGuildTextChannel,
     ComponentType
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
-import { CategoryData } from '../../../../types/category';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
+import { CategoryData } from '../../../../types/category.js';
 import { guildPrefix } from '../../../core/functions/prefix.js';
 
 export function setupHelpCategoryCollector(

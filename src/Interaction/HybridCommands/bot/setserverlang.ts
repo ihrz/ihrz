@@ -31,17 +31,17 @@ import {
     PermissionFlagsBits
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
+import { Command } from '../../../../types/command.js';
 import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
-    name: 'setserverlang',
+    name: 'setlang',
     name_localizations: {
-        "fr": "setserveurlang"
+        "fr": "setlangue"
     },
 
-    aliases: ["setsrvlang", "lang", "setlang"],
+    aliases: ["setsrvlang", "lang"],
 
     description: 'Set the server language!',
     description_localizations: {

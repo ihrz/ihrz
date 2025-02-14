@@ -2,9 +2,9 @@
   "compilerOptions": {
     "strict": true,
     "outDir": "dist",
-    "module": "esnext",
-    "target": "es2022",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "target": "ESNext",
+    "moduleResolution": "node16",
     "resolveJsonModule": true,
     "useUnknownInCatchVariables": true,
     "allowUnreachableCode": false,

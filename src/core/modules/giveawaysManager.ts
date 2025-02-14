@@ -37,7 +37,7 @@ import {
     GuildMember,
 } from 'discord.js';
 
-import { GiveawayCreateOptions, GiveawayFetch } from '../../../types/giveaways';
+import { GiveawayCreateOptions, GiveawayFetch } from '../../../types/giveaways.js';
 import getLanguageData from '../functions/getLanguageData.js';
 import db from './giveawaysDatabaseManager.js';
 

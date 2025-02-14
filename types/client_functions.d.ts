@@ -10,7 +10,15 @@ import { RestoreCord_EntryType, RestoreCord_ResponseType, GuildRestoreCord, Rest
 import { Command } from './command.js';
 import { Option } from './option.js';
 
+import type { Promise } from 'typescript/lib/lib.es5';
+import type { Buffer } from '@types/node/ts5.6/buffer.buffer';
+import type { PermLevel, PermNone, StatsMessage, StatsVoice } from '../../../types/database_structure.d';
+
 declare namespace Client_Functions {
+
+  // From encryptDecryptMethod.ts
+  export namespace encryptDecryptMethod {
+  }
 
   // From colors.ts
   export namespace colors {
@@ -18,10 +26,6 @@ declare namespace Client_Functions {
 
   // From axios.ts
   export namespace axios {
-  }
-
-  // From encryptDecryptMethod.ts
-  export namespace encryptDecryptMethod {
   }
 
   // From getToken.ts
@@ -43,12 +47,12 @@ declare namespace Client_Functions {
     export function assetsFinder(body: Assets, type: string): string;
     export function OwnIhrzCluster(
       options: {
-        cluster_number: number
-        cluster_method: ClusterMethod,
-        bot_id?: string;
-        discord_bot_token?: string;
-        forceDatabaseSet?: boolean;
-      }
+    cluster_number: number
+    cluster_method: ClusterMethod,
+    bot_id?: string;
+    discord_bot_token?: string;
+    forceDatabaseSet?: boolean;
+}
     ): string;
     export function HorizonGateway(gateway_method: GatewayMethod): string;
   }
@@ -104,14 +108,14 @@ declare namespace Client_Functions {
   // From permissonsCalculator.ts
   export namespace permissonsCalculator {
     export function checkCommandPermission(interaction: ChatInputCommandInteraction<"cached"> | Message, command: string): Promise<{
-      allowed: boolean;
-      neededPerm: DatabaseStructure.PermLevel | DatabaseStructure.PermNone;
-    }>;
+    allowed: boolean;
+    permissionData: command;
+}>;
     export function checkUserPermissions(member: GuildMember): Promise<DatabaseStructure.PermLevel | DatabaseStructure.PermNone>;
     export function sendErrorMessage(
       interaction: ChatInputCommandInteraction<"cached"> | Message,
       lang: LanguageData,
-      neededPerm: DatabaseStructure.PermLevel | DatabaseStructure.PermNone
+      permissionData: command
     ): any;
   }
 
@@ -140,10 +144,10 @@ declare namespace Client_Functions {
       weeklyMessages: DatabaseStructure.StatsMessage[],
       monthlyMessages: DatabaseStructure.StatsMessage[]
     ): {
-      dailyMessages: DatabaseStructure.StatsMessage[],
-      weeklyMessages: DatabaseStructure.StatsMessage[],
-      monthlyMessages: DatabaseStructure.StatsMessage[],
-    };
+    dailyMessages: DatabaseStructure.StatsMessage[],
+    weeklyMessages: DatabaseStructure.StatsMessage[],
+    monthlyMessages: DatabaseStructure.StatsMessage[],
+};
     export function calculateVoiceActivity(
       voice: DatabaseStructure.StatsVoice,
       nowTimestamp: number,
@@ -154,33 +158,33 @@ declare namespace Client_Functions {
       weeklyVoiceActivity: number,
       monthlyVoiceActivity: number
     ): {
-      dailyVoiceActivity: number,
-      weeklyVoiceActivity: number,
-      monthlyVoiceActivity: number,
-    };
+    dailyVoiceActivity: number,
+    weeklyVoiceActivity: number,
+    monthlyVoiceActivity: number,
+};
     export function calculateActiveChannels(messages: DatabaseStructure.StatsMessage[]): {
-      firstActiveChannel: string,
-      secondActiveChannel: string,
-      thirdActiveChannel: string,
-    };
+    firstActiveChannel: string,
+    secondActiveChannel: string,
+    thirdActiveChannel: string,
+};
     export function calculateActiveVoiceChannels(voices: DatabaseStructure.StatsVoice[]): {
-      firstActiveVoiceChannel: string,
-      secondActiveVoiceChannel: string,
-      thirdActiveVoiceChannel: string,
-    };
+    firstActiveVoiceChannel: string,
+    secondActiveVoiceChannel: string,
+    thirdActiveVoiceChannel: string,
+};
     export function getChannelName(guild: Guild, channelId: string): string;
     export function getChannelMessagesCount(channelId: string, messages: DatabaseStructure.StatsMessage[]): number;
     export function getChannelMinutesCount(channelId: string, voices: DatabaseStructure.StatsVoice[]): number;
     export function getStatsLeaderboard(
       data: {
-        member: User | undefined,
-        dailyMessages: number,
-        weeklyMessages: number,
-        monthlyMessages: number,
-        dailyVoiceActivity: number,
-        weeklyVoiceActivity: number,
-        monthlyVoiceActivity: number
-      }[]
+    member: User | undefined,
+    dailyMessages: number,
+    weeklyMessages: number,
+    monthlyMessages: number,
+    dailyVoiceActivity: number,
+    weeklyVoiceActivity: number,
+    monthlyVoiceActivity: number
+}[]
     ): any;
   }
 
@@ -213,7 +217,11 @@ declare namespace Client_Functions {
   }
 
   // From generateProgressBar.ts
-  export function generateProgressBar(currentTimeMs: number, totalTimeMs: number): string;
+  export function generateProgressBar(currentTimeMs: number, totalTimeMs: number): {
+    bar: string;
+    currentTime: string;
+    totalTime: string;
+};
 
   // From helper.ts
   export namespace helper {
@@ -225,12 +233,12 @@ declare namespace Client_Functions {
   export function html2png(
     code: string,
     options: {
-      width?: number;
-      height?: number;
-      scaleSize?: number;
-      elementSelector?: string;
-      omitBackground: boolean;
-      selectElement: boolean;
+        width?: number;
+        height?: number;
+        scaleSize?: number;
+        elementSelector?: string;
+        omitBackground: boolean;
+        selectElement: boolean;
     }
   ): Promise<Buffer>;
 
@@ -238,8 +246,8 @@ declare namespace Client_Functions {
   export function ihorizon_logs(
     interaction: ChatInputCommandInteraction<"cached"> | Message,
     embed: {
-      title: string;
-      description: string;
+        title: string;
+        description: string;
     }
   ): any;
 
@@ -252,7 +260,7 @@ declare namespace Client_Functions {
   // From method.ts
   export namespace method {
     export function isNumber(str: string): boolean;
-    export function user(interaction: Message, args: string[], argsNumber: number): User | null;
+    export function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null>;
     export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | null;
     export function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null>;
     export function channel(interaction: Message, args: string[], argsNumber: number): Promise<Channel | null>;
@@ -286,30 +294,30 @@ declare namespace Client_Functions {
         user: User;
         guildLocal: string;
         inviter?: {
-          user: {
-            username: string;
-            mention: string;
-          }
-          invitesAmount: string;
+            user: {
+                username: string;
+                mention: string;
+            }
+            invitesAmount: string;
         },
         ranks?: {
-          level: string;
+            level: string;
         },
         notifier?: {
-          artistAuthor: string;
-          artistLink: string;
-          mediaURL: string;
+            artistAuthor: string;
+            artistLink: string;
+            mediaURL: string;
         }
-      }
+    }
     ): string;
     export function buttonReact(msg: Message, button: ButtonBuilder): Promise<Message>;
     export function buttonUnreact(msg: Message, buttonEmoji: string): Promise<Message>;
     export function isAnimated(attachmentUrl: string): boolean;
     export function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string>;
     export function getDangerousPermissions(lang: LanguageData): {
-      flag: bigint;
-      name: string;
-    }[];
+    flag: bigint;
+    name: string;
+}[];
     export function addCoins(member: GuildMember, coins: number): Promise<void>;
     export function subCoins(member: GuildMember, coins: number): Promise<void>;
     export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;

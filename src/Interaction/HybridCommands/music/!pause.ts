@@ -34,7 +34,7 @@ import logger from '../../../core/logger.js';
 import { Command } from '../../../../types/command.js';
 
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -57,6 +57,14 @@ export const subCommand: SubCommand = {
                 await client.method.interactionSend(interaction, { content: lang.pause_nothing_playing });
                 return;
             };
+
+            // Check if the member is in the same voice channel as the bot
+            if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
+                await client.method.interactionSend(interaction, {
+                    content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+                });
+                return;
+            }
 
             player.pause();
 

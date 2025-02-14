@@ -45,8 +45,6 @@ import {
     ModalSubmitInteraction,
 } from 'discord.js';
 
-import { LanguageData } from '../../../types/languageData';
-
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
 import { iHorizonModalResolve } from '../functions/modalHelper.js';
 import * as discordTranscripts from 'discord-html-transcripts';
@@ -940,6 +938,8 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
     let data = await interaction.client.func.getLanguageData(interaction.guildId);
     let interactionChannel = interaction.channel;
 
+    if (interactionChannel?.type !== ChannelType.GuildText) return;
+
     let fetch = await database.get(
         `${interaction.guildId}.TICKET_ALL`
     );
@@ -948,6 +948,8 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
         for (let channel in fetch[user]) {
 
             if (channel === interaction.channel?.id) {
+                
+                //@ts-ignore
                 let attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
                     limit: -1,
                     filename: `${interaction.guildId}-transcript.html`,

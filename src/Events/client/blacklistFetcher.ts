@@ -21,7 +21,7 @@
 
 import { Client, GuildMember } from 'discord.js';
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
@@ -31,8 +31,7 @@ export const event: BotEvent = {
             let table = client.db.table('BLACKLIST')
 
             let data = await table.get(`${member.user.id}`);
-
-            if (data.blacklisted === true && member.guild.memberCount <= 500) {
+            if (data.blacklisted === true && !((member.guild.memberCount < 500 && client.version.env === 'production'))) {
                 member.send({ content: "You've been banned, because you are blacklisted ! \nReason: \`" + data.reason + '\`' })
                     .catch(() => { })
                     .then(() => { });

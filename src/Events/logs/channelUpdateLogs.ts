@@ -20,8 +20,8 @@
 */
 
 import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, Message, PermissionFlagsBits } from 'discord.js';
-import { BotEvent } from '../../../types/event';
-import { LanguageData } from '../../../types/languageData';
+import { BotEvent } from '../../../types/event.js';
+import { LanguageData } from '../../../types/languageData.js';
 
 function getDiff(
     oldChannel: GuildChannel,
@@ -109,6 +109,9 @@ export const event: BotEvent = {
         if (oldChannel.position !== newChannel.position) return;
 
         var firstEntry = fetchedLogs.entries.first();
+
+        // check if the author is the bot
+        if (firstEntry?.executor?.id === client.user?.id) return;
 
         let someinfo = await client.db.get(`${oldChannel.guildId}.GUILD.SERVER_LOGS.channel`);
         if (!someinfo) return;

@@ -22,7 +22,7 @@
 import { Attachment, AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
 import { AxiosResponse, axios } from '../../core/functions/axios.js';
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {

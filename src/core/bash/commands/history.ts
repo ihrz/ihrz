@@ -24,7 +24,7 @@ import fs from 'node:fs';
 
 let filePath = `${process.cwd()}/src/files/.bash_history`
 
-import { BashCommands } from "../../../../types/bashCommands";
+import { BashCommands } from "../../../../types/bashCommands.js";
 
 export const command: BashCommands = {
   command_name: "history",

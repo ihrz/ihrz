@@ -27,8 +27,8 @@ import {
 
 import path from 'path';
 
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 
 import { axios } from '../../../core/functions/axios.js';
 import { convertToPng, resizeImage, tempDir } from '../../../core/functions/mediaManipulation.js';

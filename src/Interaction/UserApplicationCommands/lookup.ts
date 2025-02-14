@@ -20,7 +20,7 @@
 */
 
 import { Client, ApplicationCommandType, UserContextMenuCommandInteraction, PermissionFlagsBits } from 'discord.js';
-import { AnotherCommand } from '../../../types/anotherCommand';
+import { AnotherCommand } from '../../../types/anotherCommand.js';
 
 import { subCommand } from '../HybridCommands/utils/!userinfo.js';
 import getLanguageData from '../../core/functions/getLanguageData.js';

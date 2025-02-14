@@ -25,12 +25,13 @@ import {
     EmbedBuilder,
     GuildMember,
     Message,
+    time,
     User,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -38,7 +39,7 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getUser("user") as User || interaction.user;
         } else {
-            
+
             var member = await client.method.user(interaction, args!, 0) || interaction.author;
         };
 
@@ -59,6 +60,15 @@ export const subCommand: SubCommand = {
         var gender = await tableProfil.get(`${member.id}.gender`);
         if (!gender) gender = lang.profil_unknown;
 
+        var pronoun = await tableProfil.get(`${member.id}.pronoun`);
+        if (!pronoun) pronoun = lang.profil_unknown;
+
+        var birthday = await tableProfil.get(`${member.id}.birthday`);
+        if (!birthday) birthday = lang.profil_unknown;
+
+        // convert birthday to timestamp and transform timestamp to discord timestamp
+        birthday = time(new Date(new Date().getFullYear(), parseInt(birthday.month) - 1, parseInt(birthday.day)), 'R');
+
         let profil = new EmbedBuilder()
             .setTitle(lang.profil_embed_title
                 .replace(/\${member\.tag}/g, member.username)
@@ -70,9 +80,12 @@ export const subCommand: SubCommand = {
                 { name: lang.profil_embed_fields_money, value: balance + lang.profil_embed_fields_money_value, inline: false },
                 { name: lang.profil_embed_fields_xplevels, value: level + lang.profil_embed_fields_xplevels_value, inline: false },
                 { name: lang.profil_embed_fields_age, value: age + lang.profil_embed_fields_age_value, inline: false },
-                { name: lang.profil_embed_fields_gender, value: `${gender}`, inline: false })
+                { name: lang.profil_embed_fields_gender, value: gender, inline: false },
+                { name: lang.profil_embed_fields_pronouns, value: pronoun.replace("-", "/"), inline: false },
+                { name: lang.profil_embed_fields_birthdate, value: birthday, inline: false },
+            )
             .setColor("#ffa550")
-            .setThumbnail(member.displayAvatarURL({ extension: 'png', size: 512 }))
+            .setThumbnail(member.displayAvatarURL({ extension: 'png', size: 1024 }))
             .setTimestamp()
             .setFooter(await client.method.bot.footerBuilder(interaction))
 

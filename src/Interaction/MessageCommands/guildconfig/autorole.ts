@@ -33,8 +33,8 @@ import {
     PermissionsBitField,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 
 import { subCommand } from "../../SlashCommands/guildconfig/!join-role.js"
 

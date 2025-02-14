@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 import { Client } from 'discord.js';
 
 export const event: BotEvent = {

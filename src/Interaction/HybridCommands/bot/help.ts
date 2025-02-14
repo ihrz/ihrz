@@ -37,10 +37,10 @@ import {
     ButtonBuilder,
 } from 'discord.js'
 
-import { LanguageData } from '../../../../types/languageData';
-import { CategoryData } from '../../../../types/category';
-import { Command } from '../../../../types/command';
-import { DatabaseStructure } from '../../../../types/database_structure';
+import { LanguageData } from '../../../../types/languageData.js';
+import { CategoryData } from '../../../../types/category.js';
+import { Command } from '../../../../types/command.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 function createNavigationRow(currentPage: number, totalPages: number): ActionRowBuilder<ButtonBuilder> {
     const row = new ActionRowBuilder<ButtonBuilder>()
@@ -163,9 +163,26 @@ async function handleCategorySelect(
             }
         }
 
-        states += commandStates
-            ? `${client.iHorizon_Emojis.icon.iHorizon_Lock} ${commandStates.level}`
-            : client.iHorizon_Emojis.icon.iHorizon_Unlock;
+        if (commandStates) {
+            if (commandStates.level > 0) {
+                states = `${client.iHorizon_Emojis.icon.iHorizon_Lock} ${commandStates.level}`;
+            } else {
+                states = `${client.iHorizon_Emojis.icon.iHorizon_Unlock}`;
+            }
+
+            const hasRoles = commandStates.roles.length > 0;
+            const hasUsers = commandStates.users.length > 0;
+
+            if (hasRoles && hasUsers) {
+                states = ` ${client.iHorizon_Emojis.icon.iHorizon_Lock} (${commandStates.roles.length} ${lang.var_roles}) (${commandStates.users.length} ${lang.var_member})`;
+            } else if (hasRoles) {
+                states = ` ${client.iHorizon_Emojis.icon.iHorizon_Lock} (${commandStates.roles.length} ${lang.var_roles})`;
+            } else if (hasUsers) {
+                states = ` ${client.iHorizon_Emojis.icon.iHorizon_Lock} (${commandStates.users.length} ${lang.var_member})`;
+            }
+        } else {
+            states = `${client.iHorizon_Emojis.icon.iHorizon_Unlock}`;
+        }
 
         var cleanedPrefixCommandName = element.prefixCmd || element.cmd;
         var prefixOrNot = `${client.iHorizon_Emojis.icon.Prefix_Command} ${bot_prefix.string}${cleanedPrefixCommandName} \n`;
@@ -395,7 +412,7 @@ export const command: Command = {
                     .replaceAll('${client.content.filter(c => c.messageCmd === false).length}', client.content.length.toString())
                     .replaceAll('${client.iHorizon_Emojis.icon.Crown_Logo}', client.iHorizon_Emojis.icon.Crown_Logo)
                     .replaceAll('${config.owner.ownerid1}', client.owners[0])
-                    .replaceAll('${config.owner.ownerid2}', client.owners[1] ?? client.owners[0])
+                    .replaceAll('${config.owner.ownerid2}', client.owners[1] ?? "")
                     .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
                     .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
                 )
