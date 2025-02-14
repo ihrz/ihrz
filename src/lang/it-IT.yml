@@ -1359,6 +1359,8 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> ha 
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} Devi essere nello stesso canale vocale con me per usare questo comando!"
+
 # /p
 p_not_in_voice_channel: "Devi essere connesso a un canale vocale per utilizzare questo comando!"
 p_embed_title: "Nessun risultato"
@@ -2219,7 +2221,7 @@ confession_module_modal_components2_label: "È privata?"
 
 # Music Player Events
 
-event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Riproduzione in corso di `${track.title}` in `${queue.channel.name}` ..."
+event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Riproduzione in corso di [`${track.title}`](${url}) in `${queue.channel.name}` ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} è stato aggiunto alla coda di riproduzione!"
 event_mp_playerError: "Sto avendo problemi di connessione => ${error.message}"
 event_mp_error: "Si è verificato un problema con la coda di riproduzione della canzone => ${error.message}"

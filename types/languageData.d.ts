@@ -1051,6 +1051,7 @@ export interface LanguageData {
   setmembercount_command_work_on_disable: string;
   setmembercount_logs_embed_title_on_disable: string;
   setmembercount_logs_embed_description_on_disable: string;
+  music_cannot: string;
   p_not_in_voice_channel: string;
   p_embed_title: string;
   p_loading_message: string;

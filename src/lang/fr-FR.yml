@@ -1359,6 +1359,8 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> a s
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} Vous devez être dans le même canal vocal que moi pour utiliser cette commande !"
+
 # /p
 p_not_in_voice_channel: "Vous devez être connecté à un canal vocal pour utiliser cette commande !"
 p_embed_title: "Aucun résultat"
@@ -2219,7 +2221,7 @@ confession_module_modal_components2_label: "Est-ce privé?"
 
 # Music Player Events
 
-event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Lecture de `${track.title}` en cours dans **${queue.channel.name}** ..."
+event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Lecture de [`${track.title}`](${url}) en cours dans **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} a été ajouté à la file d'attente !"
 event_mp_playerError: "Je rencontre des problèmes de connexion => ${error.message}"
 event_mp_error: "Il y a un problème avec la file d'attente de la chanson => ${error.message}"
