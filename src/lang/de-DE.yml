@@ -1359,6 +1359,8 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> hat
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} Du musst im selben Sprachkanal wie ich sein, um diesen Befehl zu verwenden!"
+
 # /p
 p_not_in_voice_channel: "Sie müssen mit einem Sprachkanal verbunden sein, um diesen Befehl zu verwenden!"
 p_embed_title: "Keine Ergebnisse"
@@ -2219,7 +2221,7 @@ confession_module_modal_components2_label: "Ist das privat?"
 
 # Music Player Events
 
-event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Wiedergabe von `${track.title}` in **${queue.channel.name}** gestartet ..."
+event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Wiedergabe von [`${track.title}`](${url}) in **${queue.channel.name}** gestartet ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} wurde zur Warteschlange hinzugefügt !"
 event_mp_playerError: "Ich habe Probleme beim Verbinden => ${error.message}"
 event_mp_error: "Es gab ein Problem mit der Song-Warteschlange => ${error.message}"

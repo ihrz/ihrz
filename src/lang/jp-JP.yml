@@ -1359,6 +1359,8 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}>さ�
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} このコマンドを使用するには、私と同じボイスチャンネルにいる必要があります！"
+
 # /p
 p_not_in_voice_channel: "このコマンドを使用するには、ボイスチャンネルに接続する必要があります！"
 p_embed_title: "検索結果がありません"
@@ -2219,7 +2221,7 @@ confession_module_modal_components2_label: "これはプライベートですか
 
 # Music Player Events
 
-event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - 現在 **${queue.channel.name}** で `${track.title}` を再生中..."
+event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - 現在 **${queue.channel.name}** で [`${track.title}`](${url}) を再生中..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} をキューに追加しました！"
 event_mp_playerError: "接続に問題があります => ${error.message}"
 event_mp_error: "曲のキューに問題があります => ${error.message}"

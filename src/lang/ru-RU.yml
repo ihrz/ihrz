@@ -1359,6 +1359,8 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> у�
 # Команды музыки
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} Вы должны находиться в том же голосовом канале, что и я, чтобы использовать эту команду!"
+
 # /p
 p_not_in_voice_channel: "Вы должны находиться в голосовом канале, чтобы использовать эту команду!"
 p_embed_title: "Нет результатов"
@@ -2218,7 +2220,7 @@ confession_module_modal_components2_label: "Это приватно?"
 
 # События проигрывателя музыки
 
-event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Сейчас играет `${track.title}` в **${queue.channel.name}** ..."
+event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Сейчас играет [`${track.title}`](${url}) в **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} добавлена в очередь!"
 event_mp_playerError: "У меня возникли проблемы с подключением => ${error.message}"
 event_mp_error: "Возникла проблема с очередью песен => ${error.message}"

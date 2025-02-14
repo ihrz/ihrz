@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
+import { AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
 import { LanguageData } from '../../../types/languageData.js';
@@ -60,6 +60,22 @@ export default async (client: Client) => {
 
         const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
 
+        var htmlContent = client.htmlfiles["musicBanner"];
+
+        htmlContent = htmlContent
+            .replace("{song_title}", track?.info.title as string)
+            .replace("{song_artist}", track?.info.author as string)
+            .replace("{song_thumbnail}", track?.info.artworkUrl as string)
+            ;
+
+        const image = await client.method.imageManipulation.html2Png(htmlContent, {
+            omitBackground: true,
+            selectElement: true,
+            elementSelector: ".spotify-banner",
+        });
+
+        const attachment = new AttachmentBuilder(image, { name: 'music_banner.png' });
+
         (channel as BaseGuildTextChannel).send({
             embeds: [
                 new EmbedBuilder()
@@ -68,8 +84,11 @@ export default async (client: Client) => {
                         .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
                         .replace("${track.title}", String(track?.info.title))
                         .replace("${queue.channel.name}", `<#${player.voiceChannelId}>`)
+                        .replace("${url}", track?.info.uri)
                     )
-            ]
+                    .setImage('attachment://music_banner.png')
+            ],
+            files: [attachment]
         });
 
     });
