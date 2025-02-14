@@ -20,7 +20,7 @@
 */
 
 import { Guild, User } from 'discord.js';
-import { DatabaseStructure } from '../../../types/database_structure';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 
 export function calculateMessageTime(
     msg: DatabaseStructure.StatsMessage,

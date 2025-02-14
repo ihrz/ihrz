@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BotContent } from "./botContent";
+import { BotContent } from "./botContent.d.ts";
 
 export interface Category {
     categoryName: string;

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Giveaway } from '../../../types/giveaways';
+import { Giveaway } from '../../../types/giveaways.js';
 
 import {
     existsSync,

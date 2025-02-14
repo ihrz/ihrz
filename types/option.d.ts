@@ -20,8 +20,12 @@
 */
 
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
-import { DescriptionLocalizations, NameLocalizations } from './command';
-import { Choice } from "./choice";
+import { DescriptionLocalizations, NameLocalizations } from './command.d.ts';
+
+export interface Choice {
+    name: string,
+    value: string | boolean
+}
 
 export interface Choice {
     name: string,

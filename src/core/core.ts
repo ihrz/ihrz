@@ -28,7 +28,7 @@ import playerManager from "./modules/playerManager.js";
 import { OwnIHRZ } from './modules/ownihrzManager.js';
 import emojis from './modules/emojisManager.js';
 
-import { VanityInviteData } from '../../types/vanityUrlData';
+import { VanityInviteData } from '../../types/vanityUrlData.js';
 import { ConfigData } from '../../types/configDatad.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';

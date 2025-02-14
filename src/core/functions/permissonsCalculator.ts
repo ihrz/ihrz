@@ -24,8 +24,8 @@ import {
     GuildMember,
     Message
 } from "discord.js";
-import { DatabaseStructure } from "../../../types/database_structure";
-import { LanguageData } from "../../../types/languageData";
+import { DatabaseStructure } from "../../../types/database_structure.js";
+import { LanguageData } from "../../../types/languageData.js";
 
 type command = {
     users: string[];

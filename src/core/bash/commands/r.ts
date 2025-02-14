@@ -20,7 +20,7 @@
 */
 
 
-import { BashCommands } from "../../../../types/bashCommands";
+import { BashCommands } from "../../../../types/bashCommands.js";
 import { execSync } from 'child_process';
 import { Client } from 'discord.js';
 

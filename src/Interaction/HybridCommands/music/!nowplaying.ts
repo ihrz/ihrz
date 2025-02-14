@@ -38,11 +38,11 @@ import {
     AttachmentBuilder,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 import getTopTwoColors from '../../../core/functions/image_dominant_color.js';
 
 export const subCommand: SubCommand = {
