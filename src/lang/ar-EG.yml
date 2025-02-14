@@ -1361,6 +1361,8 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> ق�
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} يجب أن تكون في نفس القناة الصوتية معي لاستخدام هذا الأمر!"
+
 # /p
 p_not_in_voice_channel: "يجب أن تكون متصلاً بقناة صوتية لاستخدام هذا الأمر!"
 p_embed_title: "لا توجد نتائج"
@@ -2216,7 +2218,7 @@ confession_module_modal_components2_label: "هل هذا خاص؟"
 
 
 # أحداث مشغل الموسيقى
-event_mp_playerStart: "🎵 - الآن يتم تشغيل `${track.title}` في **${queue.channel.name}** ..."
+event_mp_playerStart: "🎵 - الآن يتم تشغيل [`${track.title}`](${url}) في **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "🎵 - تم إضافة ${track.title} إلى قائمة الانتظار!"
 event_mp_playerError: "توجد مشكلة في الاتصال => ${error.message}"
 event_mp_error: "حدثت مشكلة في قائمة الأغاني => ${error.message}"

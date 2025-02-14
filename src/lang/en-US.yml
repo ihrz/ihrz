@@ -1358,6 +1358,8 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> rem
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
+music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} You need to be in the same voice channel as me to use this command!"
+
 # /p
 p_not_in_voice_channel: "You must be connected to a voice channel to use this command!"
 p_embed_title: "No results"
@@ -2218,7 +2220,7 @@ confession_module_modal_components2_label: "Is this private ?"
 
 # Music Player Events
 
-event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Now playing `${track.title}` into **${queue.channel.name}** ..."
+event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Now playing [`${track.title}`](${url}) into **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} has been added to the queue !"
 event_mp_playerError: "I'm having trouble connecting => ${error.message}"
 event_mp_error: "There was a problem with the song queue => ${error.message}"

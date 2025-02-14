@@ -58,6 +58,14 @@ export const subCommand: SubCommand = {
                 return;
             };
 
+            // Check if the member is in the same voice channel as the bot
+            if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
+                await client.method.interactionSend(interaction, {
+                    content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+                });
+                return;
+            }
+
             player.pause();
 
             await client.method.interactionSend(interaction, { content: player.paused ? lang.pause_var_paused : lang.pause_var_err });
