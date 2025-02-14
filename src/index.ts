@@ -15,23 +15,54 @@
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
+
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import './core/functions/colors.js';
+import { Client, Partials, GatewayIntentBits } from 'discord.js';
+import { initializeDatabase } from './core/database.js';
 
-import { getToken } from './core/functions/getToken.js';
-import logger from './core/logger.js';
+import * as ClientVersion from "./version.js";
+import * as core from './core/core.js';
 
-import { ShardingManager } from 'discord.js';
-import config from './files/config.js';
+import config from "./files/config.js";
 
-const _token = await getToken();
+const client = new Client({
+    intents: [
+        GatewayIntentBits.AutoModerationConfiguration,
+        GatewayIntentBits.AutoModerationExecution,
+        GatewayIntentBits.DirectMessageReactions,
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.DirectMessageTyping,
+        GatewayIntentBits.GuildEmojisAndStickers,
+        GatewayIntentBits.GuildIntegrations,
+        GatewayIntentBits.GuildInvites,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageTyping,
+        GatewayIntentBits.GuildModeration,
+        GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.GuildScheduledEvents,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildWebhooks,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMessagePolls,
+        GatewayIntentBits.DirectMessagePolls
+    ],
+    partials: [
+        Partials.Channel,
+        Partials.Message,
+        Partials.GuildMember,
+        Partials.GuildScheduledEvent,
+        Partials.User,
+        Partials.Reaction,
+        Partials.ThreadMember
+    ]
+})
 
-logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
-logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
-logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
-
-let manager = new ShardingManager('./dist/src/core/bot.js', { totalShards: "auto", token: _token || process.env.BOT_TOKEN || config.discord.token });
-manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is now launched :) !`.green));
-manager.spawn();
+client.db = await initializeDatabase(config);
+client.version = ClientVersion
+client.config = config;
+core.main(client);

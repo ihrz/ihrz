@@ -23,9 +23,9 @@ import { readFileSync } from "fs";
 
 let pkg = JSON.parse(readFileSync(process.cwd() + "/package.json", 'utf-8'));
 
-type Env = "ownihrz" | "dev" | "production";
+type Env = "ownihrz" | "dev" | "production" | "music-based-dev";
 
-const env: Env = "dev";
+const env: Env = "music-based-dev";
 const version = pkg.version;
 const djs = pkg.dependencies['discord.js'];
 

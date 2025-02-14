@@ -38,13 +38,6 @@ export default async (client: Client) => {
     client.buttons = new Collection<string, Function>();
     client.func = {} as typeof Client_Functions;
 
-    (await readdir(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons')))
-        .filter(file => file.endsWith(".js"))
-        .forEach(async file => {
-            const buttons = await import(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons', file));
-            client.buttons.set(file.split('.js')[0], buttons.default || buttons);
-        });
-
     const functionsDir = path.join(__dirname, '..', '..', 'core', 'functions');
     const functionFiles = (await readdir(functionsDir)).filter(file => file.endsWith(".js"));
 
@@ -55,11 +48,4 @@ export default async (client: Client) => {
 
         (client.func as FunctionModule)[functionName] = functionImplementation;
     }
-
-    (await readdir(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'SelectMenu')))
-        .filter(file => file.endsWith(".js"))
-        .forEach(async file => {
-            const selectmenu = await import(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'SelectMenu', file));
-            client.selectmenu.set(file.split('.js')[0], selectmenu.default || selectmenu);
-        });
 };
