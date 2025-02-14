@@ -78,10 +78,10 @@ async function updatePage(
     message: Message,
     embeds: EmbedBuilder[],
     currentPage: number,
-    menuRows: ActionRowBuilder<any>[],
+    menuRows: ActionRowBuilder<any>,
     navigationRow: ActionRowBuilder<ButtonBuilder>
 ) {
-    const components = [...menuRows];
+    const components = [menuRows];
     if (embeds.length > 1) {
         components.push(navigationRow);
     }
@@ -96,7 +96,7 @@ async function handleCategorySelect(
     i: StringSelectMenuInteraction,
     response: Message,
     categories: CategoryData[],
-    menuRows: ActionRowBuilder<any>[],
+    menuRows: ActionRowBuilder<any>,
     client: Client,
     lang: LanguageData,
     bot_prefix: { type: 'prefix' | 'mention'; string: string; },
@@ -128,7 +128,7 @@ async function handleCategorySelect(
             .setTimestamp();
         await response.edit({
             embeds: [og_embed],
-            components: menuRows
+            components: [menuRows]
         });
         return;
     }
@@ -246,7 +246,7 @@ async function handleCategorySelect(
 
     await response.edit({
         embeds: [embeds[currentPage]],
-        components: [...menuRows, navigationRow]
+        components: [menuRows, navigationRow]
     });
 
     const buttonCollector = response.createMessageComponentCollector({
@@ -291,7 +291,7 @@ async function handleCategorySelect(
         disabledNavigationRow.components.forEach(button => button.setDisabled(true));
 
         await response.edit({
-            components: [...menuRows, disabledNavigationRow]
+            components: [menuRows, disabledNavigationRow]
         });
     });
 }
@@ -360,47 +360,38 @@ export const command: Command = {
 
             categories.sort((a, b) => a.name.localeCompare(b.name));
 
-            const selectMenus = [];
-            const categoriesPerMenu = Math.ceil(categories.length / 2);
             const Commands = await client.db.get(`${interaction.guildId}.UTILS.PERMS`) as DatabaseStructure.UtilsPermsData | undefined;
             let index = 0;
 
-            for (let i = 0; i < 2; i++) {
-                const selectMenu = new StringSelectMenuBuilder()
-                    .setCustomId(`help-menu-${i + 1}`)
-                    .setPlaceholder(lang.help_select_menu);
+            const selectMenu = new StringSelectMenuBuilder()
+                .setCustomId(`help-menu`)
+                .setPlaceholder(lang.help_select_menu);
 
+            selectMenu.addOptions(
+                new StringSelectMenuOptionBuilder()
+                    .setLabel(lang.help_back_to_menu)
+                    .setDescription(lang.help_back_to_menu_desc)
+                    .setValue("back")
+                    .setEmoji("⬅️")
+            );
+
+            categories.forEach((category) => {
                 selectMenu.addOptions(
                     new StringSelectMenuOptionBuilder()
-                        .setLabel(lang.help_back_to_menu)
-                        .setDescription(lang.help_back_to_menu_desc)
-                        .setValue("back")
-                        .setEmoji("⬅️")
-                );
-
-                const categoriesCalc = categories.slice(i * categoriesPerMenu, (i + 1) * categoriesPerMenu);
-                categoriesCalc.forEach((category) => {
-                    selectMenu.addOptions(
-                        new StringSelectMenuOptionBuilder()
-                            .setLabel(category.name)
-                            .setDescription(
-                                lang.help_select_menu_fields_desc.replace(
-                                    "${categories[index].value.length}",
-                                    category.value.length.toString()
-                                )
+                        .setLabel(category.name)
+                        .setDescription(
+                            lang.help_select_menu_fields_desc.replace(
+                                "${categories[index].value.length}",
+                                category.value.length.toString()
                             )
-                            .setValue(index.toString())
-                            .setEmoji(category.emoji)
-                    );
-                    index++;
-                });
-
-                selectMenus.push(selectMenu);
-            }
-
-            const rows = selectMenus.map((selectMenu, index) => {
-                return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
+                        )
+                        .setValue(index.toString())
+                        .setEmoji(category.emoji)
+                );
+                index++;
             });
+
+            const rows = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
 
             let og_embed = new EmbedBuilder()
                 .setColor('#001eff')
@@ -423,7 +414,7 @@ export const command: Command = {
 
             let response = await client.method.interactionSend(interaction, {
                 embeds: [og_embed],
-                components: rows,
+                components: [rows],
                 files: [await client.method.bot.footerAttachmentBuilder(interaction)]
             });
 
@@ -451,13 +442,10 @@ export const command: Command = {
             });
 
             collector.on('end', async (i) => {
-                rows.forEach((comp, i) => {
-                    comp.components.forEach((component) => {
-                        component.setDisabled(true);
-                    });
-                });
 
-                await response.edit({ components: rows });
+                rows.components.forEach(button => button.setDisabled(true));
+
+                await response.edit({ components: [rows] });
                 return;
             });
         } else {
