@@ -102,6 +102,12 @@ iHorizon_Folder = "<a:iHorizon_Pages:1304767746352873502>"
 
 iHorizon_Pages = "<a:iHorizon_Folder:1304767744885129267>"
 
+iHorizon_Pause = "<a:iHorizon_Pause:1340079600948088873>"
+
+iHorizon_Paper = "<a:iHorizon_Paper:1340079598674772048>"
+
+iHorizon_Stop = "<a:iHorizon_Stop:1340079599907897474>"
+
 [vc]
 
 Name = "<:iHorizon_VC_Name:1210204645859922010>"
