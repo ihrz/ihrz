@@ -35,6 +35,7 @@ import {
     MessagePayload,
     InteractionEditReplyOptions,
     MessageReplyOptions,
+    AttachmentBuilder,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData';
@@ -42,6 +43,7 @@ import { Command } from '../../../../types/command';
 
 
 import { SubCommand } from '../../../../types/command';
+import getTopTwoColors from '../../../core/functions/image_dominant_color.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -52,12 +54,12 @@ export const subCommand: SubCommand = {
         let pause = new ButtonBuilder()
             .setCustomId('pause')
             .setLabel('⏯')
-            .setStyle(ButtonStyle.Success);
+            .setStyle(ButtonStyle.Secondary);
 
         let stop = new ButtonBuilder()
             .setCustomId('stop')
             .setLabel('⏹️')
-            .setStyle(ButtonStyle.Primary);
+            .setStyle(ButtonStyle.Secondary);
 
         let lyricsButton = new ButtonBuilder()
             .setCustomId('lyrics')
@@ -77,22 +79,43 @@ export const subCommand: SubCommand = {
 
         let progress = client.func.generateProgressBar(player.position, player.queue.current?.info.duration!)
 
-        let embed = new EmbedBuilder()
-            .setTitle(lang.nowplaying_message_embed_title)
-            .setDescription(`by: ${(player.queue.current?.requester as User).toString()}\n**[${player.queue.current?.info.title}](${player.queue.current?.info?.uri})**, ${player.queue.current?.info?.author}`)
-            .addFields(
-                { name: '  ', value: progress?.replace(/ 0:00/g, 'LIVE')! }
-            );
+        var htmlContent = client.htmlfiles["nowPlaying"];
+        var dominant_color = (await getTopTwoColors(player.queue.current?.info.artworkUrl as string)).split(" ");
 
-        if (player.queue.current?.info?.artworkUrl) embed.setThumbnail(player.queue.current?.info?.artworkUrl);
+        htmlContent = htmlContent.replace("{album_cover}", player.queue.current?.info.artworkUrl as string)
+            .replace("{song_title}", player.queue.current?.info.title as string)
+            .replace("{song_author}", player.queue.current?.info.author as string)
+            .replace("{color1}", dominant_color[0])
+            .replace("{color2}", dominant_color[1])
+            .replace("{time0}", String((player.position / player.queue.current?.info.duration!) * 100))
+            .replace("{time1}", progress.currentTime)
+            .replace("{time2}", progress.totalTime);
+
+        const image = await client.method.imageManipulation.html2Png(htmlContent, {
+            omitBackground: true,
+            selectElement: false,
+        });
+
+        const attachment = new AttachmentBuilder(image, { name: 'nowplaying.png' });
+
+        let embed = new EmbedBuilder()
+            .setTitle(`**${player.queue.current?.info.title}**, ${player.queue.current?.info?.author}`)
+            .setURL(player.queue.current?.info?.uri || "")
+            .setDescription(`by: ${(player.queue.current?.requester as User).toString()}`)
+            .setColor("#6fa8dc")
+            .setImage("attachment://nowplaying.png")
 
         let response = await client.method.interactionSend(interaction, {
             embeds: [embed],
             components: [btn],
+            files: [attachment]
         });
 
         var paused: boolean = false;
-        let collector = response.createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
+        const collector = response.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            time: player.queue.current?.info.duration! - player.position
+        });
 
         try {
 
