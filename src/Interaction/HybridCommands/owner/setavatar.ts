@@ -30,11 +30,11 @@ import {
     Message
 } from 'discord.js'
 
-import { Command } from '../../../../types/command';
+import { Command } from '../../../../types/command.js';
 import logger from '../../../core/logger.js';
 
 import { axios } from '../../../core/functions/axios.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
 async function isImageUrl(url: string): Promise<boolean> {
     try {
