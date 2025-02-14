@@ -27,7 +27,7 @@ import {
     PermissionFlagsBits,
 } from 'discord.js';
 
-import { Command } from '../../../../types/command';
+import { Command } from '../../../../types/command.js';
 
 export const rules = [
     {

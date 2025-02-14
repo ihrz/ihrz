@@ -29,14 +29,14 @@ import {
     EmbedBuilder,
     PermissionsBitField,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 
 import { getGuildDataPerSecretCode, SavedMembersRestoreCord, securityCodeUpdate } from '../../../core/functions/restoreCordHelper.js';
 import { discordLocales } from '../../../files/locales.js';
 import { format } from '../../../core/functions/date_and_time.js';
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {

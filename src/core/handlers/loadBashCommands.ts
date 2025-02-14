@@ -23,7 +23,7 @@ import { Client } from 'discord.js';
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
-import { EltType } from "../../../types/eltType";
+import { EltType } from "../../../types/eltType.js";
 
 import { fileURLToPath } from 'url';
 import path from 'path';

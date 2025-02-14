@@ -33,7 +33,7 @@ import {
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import logger from '../../../core/logger.js';
 
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
 
 
@@ -46,7 +46,7 @@ async function isImageUrl(url: string): Promise<boolean> {
         return false;
     }
 };
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {

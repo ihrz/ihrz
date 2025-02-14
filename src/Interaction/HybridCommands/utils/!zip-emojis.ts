@@ -31,8 +31,8 @@ import {
     PermissionsBitField
 } from 'discord.js';
 import archiver from 'archiver';
-import { LanguageData } from '../../../../types/languageData';
-import { SubCommand } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommand } from '../../../../types/command.js';
 
 import { axios } from '../../../core/functions/axios.js';
 

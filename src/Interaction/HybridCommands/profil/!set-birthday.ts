@@ -32,9 +32,9 @@ import {
     Message,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 
 export const subCommand: SubCommand = {

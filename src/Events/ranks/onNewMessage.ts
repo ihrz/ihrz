@@ -22,8 +22,8 @@
 import { Client, PermissionsBitField, ChannelType, Message, GuildTextBasedChannel, ClientUser, SnowflakeUtil } from 'discord.js';
 
 import { parseMessageCommand } from '../interaction/messageCommandHandler.js';
-import { LanguageData } from '../../../types/languageData';
-import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData.js';
+import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { getMemberBoost } from '../../Interaction/HybridCommands/economy/economy.js';
 

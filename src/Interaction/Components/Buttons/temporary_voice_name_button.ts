@@ -20,7 +20,7 @@
 */
 
 import { ActionRowBuilder, ButtonInteraction, CacheType, EmbedBuilder, GuildMember, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {

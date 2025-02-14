@@ -23,7 +23,7 @@ import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextI
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js'
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 import maskLink from '../../../core/functions/maskLink.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {

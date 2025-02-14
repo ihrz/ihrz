@@ -26,7 +26,7 @@ import {
     CommandInteractionOptionResolver,
     PermissionFlagsBits
 } from 'discord.js';
-import { Option } from "./option";
+import { Option } from "./option.d.ts";
 
 export interface AnotherCommand {
     name: string,

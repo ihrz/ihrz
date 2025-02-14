@@ -20,8 +20,8 @@
 */
 
 import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, Message, PermissionFlagsBits } from 'discord.js';
-import { BotEvent } from '../../../types/event';
-import { LanguageData } from '../../../types/languageData';
+import { BotEvent } from '../../../types/event.js';
+import { LanguageData } from '../../../types/languageData.js';
 
 function getDiff(
     oldChannel: GuildChannel,

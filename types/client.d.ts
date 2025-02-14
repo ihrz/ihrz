@@ -27,17 +27,17 @@ import { GiveawayManager } from "../src/core/modules/giveawaysManager.js";
 import { Collection, Snowflake } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
-import { clientFunction } from "./clientFunction";
-import { AnotherCommand } from "./anotherCommand";
-import { BotContent } from './botContent'
-import { Category } from "./category";
+import { clientFunction } from "./client_functions.d.ts";
+import { AnotherCommand } from "./anotherCommand.d.ts";
+import { BotContent } from './botContent.d.ts'
+import { Category } from "./category.d.ts";
 
 import { VanityInviteData } from "./vanityUrlData";
-import { Command } from "./command";
-import { Emojis } from "./emojis";
+import { Command } from "./command.d.ts";
+import { Emojis } from "./emojis.d.ts";
 
 import * as ClientVersion from "../src/version.js";
-import { Assets } from "./assets";
+import { Assets } from "./assets.d.ts";
 import { ConfigData } from "./configDatad.js";
 import { BashCommands } from "./bashCommands.js";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";

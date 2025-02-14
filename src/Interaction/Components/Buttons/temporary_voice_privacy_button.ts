@@ -20,7 +20,7 @@
 */
 
 import { ActionRowBuilder, ButtonInteraction, CacheType, ComponentType, EmbedBuilder, GuildMember, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export default async function handleButtonInteraction(interaction: ButtonInteraction<"cached">) {
     let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);

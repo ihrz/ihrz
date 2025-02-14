@@ -20,10 +20,10 @@
 */
 
 import { ApplicationCommandOptionType, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, GuildMember, Message, PermissionFlagsBits, PermissionsBitField } from 'discord.js';
-import { LanguageData } from '../../../types/languageData';
-import { Command } from '../../../types/command';
-import { BotEvent } from '../../../types/event';
-import { Option } from '../../../types/option';
+import { LanguageData } from '../../../types/languageData.js';
+import { Command } from '../../../types/command.js';
+import { BotEvent } from '../../../types/event.js';
+import { Option } from '../../../types/option.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 
 type MessageCommandResponse = {

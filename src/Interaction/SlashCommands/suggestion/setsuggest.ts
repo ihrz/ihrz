@@ -28,8 +28,8 @@ import {
     PermissionFlagsBits,
 } from 'discord.js';
 
-import { Command } from '../../../../types/command';
-import { LanguageData } from '../../../../types/languageData';
+import { Command } from '../../../../types/command.js';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
     name: "setsuggest",

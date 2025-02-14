@@ -20,8 +20,8 @@
 */
 
 import { Client, GuildMember, PermissionsBitField } from 'discord.js';
-import { BotEvent } from '../../../types/event';
-import { DatabaseStructure } from '../../../types/database_structure';
+import { BotEvent } from '../../../types/event.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",

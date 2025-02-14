@@ -21,7 +21,7 @@
 
 import { Client, Invite } from 'discord.js';
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "inviteDelete",

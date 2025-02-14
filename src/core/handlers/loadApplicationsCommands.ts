@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { AnotherCommand } from '../../../types/anotherCommand';
+import { AnotherCommand } from '../../../types/anotherCommand.js';
 import { Client, Collection } from 'discord.js';
 
 import { fileURLToPath } from 'url';

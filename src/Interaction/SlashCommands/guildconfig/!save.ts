@@ -25,11 +25,11 @@ import {
     ChatInputCommandInteraction,
     AttachmentBuilder,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { encrypt } from '../../../core/functions/encryptDecryptMethod.js';
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 import { env } from '../../../version.js';
 
 export const subCommand: SubCommand = {

@@ -20,8 +20,8 @@
 */
 
 import { BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
-import { BotEvent } from '../../../types/event';
-import { LanguageData } from '../../../types/languageData';
+import { BotEvent } from '../../../types/event.js';
+import { LanguageData } from '../../../types/languageData.js';
 
 export function getDetailedDiff(oldText: string, newText: string): string {
     const oldLines = oldText.trim().split('\n');

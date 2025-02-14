@@ -40,7 +40,7 @@ import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js';
 import { format } from '../../../core/functions/date_and_time.js';
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {

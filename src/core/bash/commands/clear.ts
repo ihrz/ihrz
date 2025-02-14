@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BashCommands } from "../../../../types/bashCommands";
+import { BashCommands } from "../../../../types/bashCommands.js";
 
 export const command: BashCommands = {
     command_name: "clear",

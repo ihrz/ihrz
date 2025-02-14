@@ -30,7 +30,7 @@ import {
     time,
 } from 'discord.js';
 
-import { SearchResult, UnresolvedSearchResult } from 'lavalink-client/dist/types/index.js';
+import { SearchResult, UnresolvedSearchResult } from 'lavalink-client';
 import { AnotherCommand } from '../../../types/anotherCommand.js';
 import { LanguageData } from '../../../types/languageData.js';
 

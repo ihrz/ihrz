@@ -30,7 +30,7 @@ import {
     VoiceState,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export const subCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {

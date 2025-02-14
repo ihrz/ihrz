@@ -396,10 +396,16 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
     });
 }
 
-export async function interactionSend(interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message, options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions): Promise<Message> {
+export async function interactionSend(
+    interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message,
+    options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
+): Promise<Message> {
     const nonce = SnowflakeUtil.generate().toString();
+
     if (interaction instanceof ChatInputCommandInteraction) {
-        const editOptions: InteractionEditReplyOptions | InteractionDeferReplyOptions | InteractionReplyOptions = typeof options === 'string' ? { content: options } : options;
+        const editOptions: InteractionReplyOptions = typeof options === 'string'
+            ? { content: options }
+            : { ...options as InteractionReplyOptions };
 
         if (interaction.replied) {
             return await interaction.editReply(editOptions as InteractionEditReplyOptions);
@@ -407,22 +413,23 @@ export async function interactionSend(interaction: ChatInputCommandInteraction<"
             await interaction.editReply(editOptions as InteractionEditReplyOptions);
             return await interaction.fetchReply();
         } else {
-            const reply = await interaction.reply({ ...editOptions as InteractionReplyOptions, fetchReply: true });
-            return reply;
+            return await interaction.reply({ ...editOptions, fetchReply: true });
         }
     } else {
         let replyOptions: MessageReplyOptions;
-
         if (typeof options === 'string') {
-            replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+            replyOptions = {
+                content: options,
+                allowedMentions: { repliedUser: false }
+            };
         } else {
             replyOptions = {
-                ...options,
+                ...options as MessageReplyOptions,
                 allowedMentions: { repliedUser: false, roles: [], users: [] },
                 content: options.content ?? undefined,
                 nonce: nonce,
                 enforceNonce: true
-            } as MessageReplyOptions;
+            };
         }
 
         try {

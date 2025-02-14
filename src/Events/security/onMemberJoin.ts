@@ -24,7 +24,7 @@ import { SnowflakeUtil, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel
 import logger from "../../core/logger.js";
 import captcha from "../../core/captcha.js";
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {

@@ -26,8 +26,8 @@ import {
     ApplicationCommandType,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 import { getConfig } from '../../../core/core.js';
 
 export const command: Command = {
