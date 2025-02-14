@@ -32,8 +32,8 @@ import {
     PermissionsBitField
 } from 'discord.js';
 import JSZip from 'jszip';
-import { LanguageData } from '../../../../types/languageData';
-import { SubCommand } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (

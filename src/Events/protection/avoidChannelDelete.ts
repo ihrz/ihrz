@@ -20,7 +20,7 @@
 */
 
 import { Client, AuditLogEvent, GuildChannel, ChannelType, CategoryChannel, TextChannel, PermissionFlagsBits } from 'discord.js';
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 import { protectionCache } from './ready.js';
 import wait from '../../core/functions/wait.js';
 

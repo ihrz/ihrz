@@ -30,10 +30,10 @@ import {
     EmbedBuilder,
     Message,
 } from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData';
-import { Command, SubCommand } from '../../../../../types/command';
+import { LanguageData } from '../../../../../types/languageData.js';
+import { Command, SubCommand } from '../../../../../types/command.js';
 
-import { DatabaseStructure } from '../../../../../types/database_structure';
+import { DatabaseStructure } from '../../../../../types/database_structure.js';
 import { Option } from '../../../../../types/option.js';
 
 export const subCommand: SubCommand = {

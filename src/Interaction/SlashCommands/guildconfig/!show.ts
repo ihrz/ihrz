@@ -30,14 +30,14 @@ import {
     GuildMember,
     PermissionsBitField,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
-import { DatabaseStructure } from '../../../../types/database_structure';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { Command } from '../../../../types/command.js';
 
 import { iHorizonTimeCalculator } from '../../../core/functions/ms.js';
 import { AntiSpam } from '../../../../types/antispam.js';
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {

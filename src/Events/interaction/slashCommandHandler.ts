@@ -20,9 +20,9 @@
 */
 
 import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, ChannelType, ChatInputCommandInteraction, Client, CommandInteractionOptionResolver, EmbedBuilder, GuildMember, Interaction, PermissionFlagsBits } from 'discord.js';
-import { LanguageData } from '../../../types/languageData';
-import { BotEvent } from '../../../types/event';
-import { Command } from '../../../types/command';
+import { LanguageData } from '../../../types/languageData.js';
+import { BotEvent } from '../../../types/event.js';
+import { Command } from '../../../types/command.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 
 var timeout: number = 1000;

@@ -24,7 +24,7 @@ import { Client, CommandInteractionOptionResolver, GuildChannel, Interaction } f
 import logger from '../../core/logger.js';
 import fs from 'node:fs';
 
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "interactionCreate",

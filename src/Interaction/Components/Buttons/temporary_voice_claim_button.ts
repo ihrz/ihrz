@@ -20,7 +20,7 @@
 */
 
 import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, Client, ComponentType, Embed, EmbedBuilder, Guild, GuildMember, UserSelectMenuBuilder } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 

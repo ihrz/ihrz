@@ -20,9 +20,9 @@
 */
 
 import { Client, Message, PermissionFlagsBits } from 'discord.js';
-import { BotEvent } from '../../../types/event';
-import { DatabaseStructure } from '../../../types/database_structure';
-import { LanguageData } from '../../../types/languageData';
+import { BotEvent } from '../../../types/event.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
+import { LanguageData } from '../../../types/languageData.js';
 
 const warnings = new Map<string, number[]>();
 

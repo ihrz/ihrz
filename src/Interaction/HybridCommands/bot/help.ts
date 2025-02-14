@@ -37,10 +37,10 @@ import {
     ButtonBuilder,
 } from 'discord.js'
 
-import { LanguageData } from '../../../../types/languageData';
-import { CategoryData } from '../../../../types/category';
-import { Command } from '../../../../types/command';
-import { DatabaseStructure } from '../../../../types/database_structure';
+import { LanguageData } from '../../../../types/languageData.js';
+import { CategoryData } from '../../../../types/category.js';
+import { Command } from '../../../../types/command.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 function createNavigationRow(currentPage: number, totalPages: number): ActionRowBuilder<ButtonBuilder> {
     const row = new ActionRowBuilder<ButtonBuilder>()

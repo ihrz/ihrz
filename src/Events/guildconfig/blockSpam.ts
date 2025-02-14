@@ -20,8 +20,8 @@
 */
 
 import { Client, PermissionsBitField, ChannelType, Message } from 'discord.js';
-import { BotEvent } from '../../../types/event';
-import { DatabaseStructure } from '../../../types/database_structure';
+import { BotEvent } from '../../../types/event.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 import { axios } from '../../core/functions/axios.js';
 
 export const event: BotEvent = {

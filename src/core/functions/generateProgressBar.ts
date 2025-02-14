@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Emojis } from '../../../types/emojis';
+import { Emojis } from '../../../types/emojis.js';
 import fs from 'node:fs';
 import toml from 'toml';
 

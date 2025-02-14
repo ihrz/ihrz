@@ -25,7 +25,7 @@ import logger from "./logger.js";
 import * as errorManager from './modules/errorManager.js';
 import emojis from './modules/emojisManager.js';
 
-import { VanityInviteData } from '../../types/vanityUrlData';
+import { VanityInviteData } from '../../types/vanityUrlData.js';
 import { ConfigData } from '../../types/configDatad.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';

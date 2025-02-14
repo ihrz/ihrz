@@ -20,7 +20,7 @@
 */
 
 import { Client, AuditLogEvent, GuildBan, PermissionsBitField } from 'discord.js'
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "guildBanAdd",

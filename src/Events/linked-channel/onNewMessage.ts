@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Command } from '../../../types/command';
-import { BotEvent } from '../../../types/event';
+import { Command } from '../../../types/command.js';
+import { BotEvent } from '../../../types/event.js';
 import { Client, Message, TextChannel } from 'discord.js';
 
 interface LinkedChannelStructure {

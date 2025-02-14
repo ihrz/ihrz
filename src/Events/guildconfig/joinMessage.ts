@@ -20,9 +20,9 @@
 */
 
 import { AttachmentBuilder, BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, time } from 'discord.js';
-import { BotEvent } from '../../../types/event';
-import { LanguageData } from '../../../types/languageData';
-import { DatabaseStructure } from '../../../types/database_structure';
+import { BotEvent } from '../../../types/event.js';
+import { LanguageData } from '../../../types/languageData.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 
 export async function generateJoinImage(member: GuildMember, optionalOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
     var htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];

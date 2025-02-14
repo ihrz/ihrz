@@ -35,7 +35,7 @@ import {
     TextInputStyle
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
-import { LanguageData } from '../../../../types/languageData';
+import { LanguageData } from '../../../../types/languageData.js';
 import { generateJoinImage } from '../../../Events/guildconfig/joinMessage.js';
 import logger from '../../../core/logger.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
@@ -44,10 +44,10 @@ function isValidColor(color: string): boolean {
     return /^#([0-9a-f]{3}){1,2}$/i.test(color);
 }
 
-import { Command } from '../../../../types/command';
+import { Command } from '../../../../types/command.js';
 
 
-import { SubCommand } from '../../../../types/command';
+import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {

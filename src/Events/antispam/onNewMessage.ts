@@ -30,11 +30,11 @@ import {
     EmbedBuilder
 } from 'discord.js';
 
-import { DatabaseStructure } from '../../../types/database_structure';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 
-import { AntiSpam } from '../../../types/antispam';
-import { BotEvent } from '../../../types/event';
-import { LanguageData } from '../../../types/languageData';
+import { AntiSpam } from '../../../types/antispam.js';
+import { BotEvent } from '../../../types/event.js';
+import { LanguageData } from '../../../types/languageData.js';
 import { time } from 'node:console';
 
 export const cache: AntiSpam.AntiSpamCache = {

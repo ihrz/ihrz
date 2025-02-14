@@ -28,8 +28,8 @@ import {
     ButtonBuilder,
     ButtonStyle,
 } from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData';
-import { DatabaseStructure } from '../../../../../types/database_structure';
+import { LanguageData } from '../../../../../types/languageData.js';
+import { DatabaseStructure } from '../../../../../types/database_structure.js';
 import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {

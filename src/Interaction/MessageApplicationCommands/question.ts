@@ -25,8 +25,7 @@ import {
     ApplicationCommandType,
     MessageContextMenuCommandInteraction,
 } from 'discord.js';
-import { AnotherCommand } from '../../../types/anotherCommand';
-import { LanguageData } from '../../../types/languageData';
+import { AnotherCommand } from '../../../types/anotherCommand.js';
 
 export const command: AnotherCommand = {
     name: "Pose a question!",

@@ -20,7 +20,7 @@
 */
 
 import { Client, AuditLogEvent, GuildChannel, PermissionFlagsBits } from 'discord.js'
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "channelCreate",

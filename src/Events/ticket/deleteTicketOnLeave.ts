@@ -21,8 +21,8 @@
 
 import { Client, EmbedBuilder, GuildMember, TextChannel } from 'discord.js'
 
-import { LanguageData } from '../../../types/languageData';
-import { BotEvent } from '../../../types/event';
+import { LanguageData } from '../../../types/languageData.js';
+import { BotEvent } from '../../../types/event.js';
 import { createTranscript } from 'discord-html-transcripts';
 
 export const event: BotEvent = {

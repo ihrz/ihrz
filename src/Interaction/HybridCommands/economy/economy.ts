@@ -29,8 +29,8 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 
-import { LanguageData } from "../../../../types/languageData";
-import { Command } from "../../../../types/command";
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 export function generateRoleFields(

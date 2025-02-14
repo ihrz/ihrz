@@ -33,8 +33,8 @@ import {
 } from 'discord.js';
 
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
-import { LanguageData } from '../../../../types/languageData';
-import { Command } from '../../../../types/command';
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 
 
 export const command: Command = {

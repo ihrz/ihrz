@@ -20,7 +20,7 @@
 */
 
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, GuildMember, SnowflakeUtil } from 'discord.js';
-import { BotEvent } from '../../../types/event';
+import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
