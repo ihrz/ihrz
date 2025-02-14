@@ -16,16 +16,16 @@ import type { PermLevel, PermNone, StatsMessage, StatsVoice } from '../../../typ
 
 declare namespace Client_Functions {
 
-  // From encryptDecryptMethod.ts
-  export namespace encryptDecryptMethod {
-  }
-
   // From colors.ts
   export namespace colors {
   }
 
   // From axios.ts
   export namespace axios {
+  }
+
+  // From encryptDecryptMethod.ts
+  export namespace encryptDecryptMethod {
   }
 
   // From getToken.ts
@@ -220,6 +220,10 @@ declare namespace Client_Functions {
 
   // From image64.ts
   export function image64(arg: string): Promise<Buffer | undefined>;
+
+  // From image_dominant_color.ts
+  export namespace image_dominant_color {
+  }
 
   // From isAllowedLinks.ts
   export function isAllowedLinks(link: string): boolean;
