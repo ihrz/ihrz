@@ -44,9 +44,9 @@ export const subCommand: SubCommand = {
 
         var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`) as DatabaseStructure.SnipeData[""];
 
-        var message_content = based.snipe;
+        var message_content = based?.snipe;
 
-        if (!based) {
+        if (!based || !message_content) {
             await client.method.interactionSend(interaction, { content: lang.snipe_no_previous_message_deleted });
             return;
         };

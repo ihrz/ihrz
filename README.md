@@ -87,15 +87,15 @@ Your bot will be faster than most popular bots and you can do what you want with
 
 # About the bot
 
-IHorizon is trusted by more than **320 000** users!<br>
-Used by more than 910 servers!
+IHorizon is trusted by more than **330 000** users!<br>
+Used by more than 1000 servers! 🎉
 <br>
 Certified by Discord and had even more than 75 servers before starting the verification process!
 
 To join the official iHorizon Discord support server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).
 To invite the official Discord bot to your server, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).
 
-If you have any questions or concerns, you can contact the owner via Discord at 2h0.
+If you have any questions or concerns, you can contact the owner via Discord at `2h0`.
 
 # About the Owner
 
