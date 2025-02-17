@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ConfigData } from '../../types/configDatad';
+import { ConfigData } from '../../types/configDatad.js';
 
 const config: ConfigData = {
 
