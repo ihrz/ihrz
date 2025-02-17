@@ -84,6 +84,36 @@ export const command: Command = {
             permission: PermissionFlagsBits.ManageGuildExpressions
         },
         {
+            name: "vkick",
+
+            description: "Disconnect a member from a voice channel",
+            description_localizations: {
+                fr: "Déconnecter un membre d'un salon vocal",
+            },
+
+            options: [
+                {
+                    name: "member",
+
+                    description: "The member you want to disconnect",
+                    description_localizations: {
+                        fr: "Le membre que vous voulez déconnecter",
+                    },
+
+                    type: ApplicationCommandOptionType.User,
+
+                    permission: null,
+
+                    required: true,
+                },
+            ],
+
+            thinking: false,
+            type: ApplicationCommandOptionType.Subcommand,
+
+            permission: PermissionFlagsBits.ModerateMembers,
+        },
+        {
             name: 'wakeup',
 
             description: 'Wake up an user with mass mooving randomly in voice channel',

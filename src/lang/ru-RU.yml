@@ -995,6 +995,14 @@ util_unzip_emojis_command_work: "🎉 Распаковка завершена з
 util_unzip_emojis_command_error: "Произошла ошибка при распаковке эмодзи."
 util_unzip_emojis_command_no_file: "Пожалуйста, прикрепите zip-файл, содержащий эмодзи."
 
+# /util vkick
+vkick_member_not_in_guild: "Участник не в гильдии."
+vkick_not_in_vc: "Участник не в голосовом канале."
+vkick_not_admin_kick: "Вы не можете отключить администратора от голосового канала."
+vkick_logEmbed_title: "Голосовой Кик"
+vkick_logEmbed_desc: "${interaction.member.user.toString()} отключил ${member.toString()} от голосового канала ${voiceChannel?.toString()}."
+vkick_command_work: "${interaction.member.user.toString()}, вы успешно отключили ${member.toString()} от ${voiceChannel?.toString()}."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1224,6 +1232,7 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} удалил ${channe
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, вы отключили `Правило автоматической модерации упоминаний` и теперь пользователи могут отправлять упоминания в своих сообщениях.\nAutoMod x iHorizon отключен на вашем сервере!"
 automod_block_massmention_command_on: "${interaction.user}, вы включили `Правило автоматической модерации упоминаний` и теперь пользователи не могут отправлять более **${max_mention}** упоминаний в своих сообщениях.\nAutoMod отправляет журналы в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
+automod_block_massmention_command_error404: Не оставили ли вы включенной функцию Block Mention Spam (по умолчанию включена Discord) в настройках AutoMod, так как она, несомненно, ответственна за эту ошибку, пожалуйста, отключите ее и запустите команду снова.
 
 # /automod block links
 automod_block_link_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять ссылки в своих сообщениях.\nAutoMod __отправляет логи__ в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
