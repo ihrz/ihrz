@@ -410,18 +410,24 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
 
     if (interaction instanceof ButtonInteraction) {
         let result = await database.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
-        let userTickets = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData;
+        let userTickets = await database.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData | null;
 
         if (!result || result.channel !== interaction.message.channelId
             || result.messageID !== interaction.message.id) return;
 
         let channelId = userTickets && Object.values(userTickets)[0]?.channel;
+        let channel = channelId ? interaction.guild?.channels.cache.get(channelId) || await interaction.guild.channels.fetch(channelId).catch(() => null) : null;
+
+        if (userTickets && !channel) {
+            await database.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+            userTickets = null;
+        }
 
         if (userTickets) {
             await interaction.reply({
                 ephemeral: true,
                 content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
-                    .replace('${channelId}', channelId)
+                    .replace('${channelId}', channelId!)
             });
             return;
         } else {
@@ -948,7 +954,7 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
         for (let channel in fetch[user]) {
 
             if (channel === interaction.channel?.id) {
-                
+
                 //@ts-ignore
                 let attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
                     limit: -1,
