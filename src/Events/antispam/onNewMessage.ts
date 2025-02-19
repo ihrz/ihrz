@@ -44,14 +44,25 @@ export const cache: AntiSpam.AntiSpamCache = {
     membersFlags: new Map<string, Map<string, number>>()
 };
 
-let timeout: Record<string, NodeJS.Timeout | undefined> = {};
+const timeouts: Record<string, Map<string, NodeJS.Timeout>> = {};
 
-async function waitForFinish(guildId: string): Promise<void> {
+async function waitForFinish(guildId: string, authorId: string): Promise<void> {
+    if (!timeouts[guildId]) timeouts[guildId] = new Map();
+
     return new Promise((resolve) => {
-        if (timeout[guildId]) clearTimeout(timeout[guildId]);
-        timeout[guildId] = setTimeout(() => {
+        if (timeouts[guildId].has(authorId)) {
+            clearTimeout(timeouts[guildId].get(authorId));
+        }
+
+        const newTimeout = setTimeout(() => {
+            timeouts[guildId].delete(authorId);
+            if (timeouts[guildId].size === 0) {
+                delete timeouts[guildId];
+            }
             resolve();
         }, 5000);
+
+        timeouts[guildId].set(authorId, newTimeout);
     });
 }
 
@@ -175,14 +186,22 @@ async function PunishUsers(
                 }
                 break;
             case 'ban':
-                const userCanBeBanned = options.Enabled && member.bannable;
+                const userCanBeBanned =
+                    member.guild.members.me?.permissions.has(PermissionFlagsBits.BanMembers) &&
+                    member.guild.members.me.roles.highest.position > member.roles.highest.position &&
+                    member.id !== member.guild.ownerId &&
+                    member.bannable;
 
                 if (userCanBeBanned) {
                     await member.ban({ reason: 'Spamming!' }).catch(() => { });
                 }
                 break;
             case 'kick':
-                const userCanBeKicked = options.Enabled && member.kickable;
+                const userCanBeKicked =
+                    member.guild.members.me?.permissions.has(PermissionFlagsBits.KickMembers) &&
+                    member.guild.members.me.roles.highest.position > member.roles.highest.position &&
+                    member.id !== member.guild.ownerId &&
+                    member.kickable;
 
                 if (userCanBeKicked) {
                     await member.kick('Spamming!').catch(() => { });
@@ -296,7 +315,7 @@ export const event: BotEvent = {
             }
 
             if (timeout < currentTime) {
-                await waitForFinish(message.guildId!);
+                await waitForFinish(message.guildId!, message.author.id);
                 await PunishUsers(message.guild.id, membersToPunish!, options);
                 await clearSpamMessages(message, cache.messages.get(message.guild.id)!);
                 await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options);
