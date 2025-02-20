@@ -475,8 +475,8 @@ andru_message: "Andru ist ein Mitarbeiter und Entwickler. \"Das Mädchen für al
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether ist ein Mitarbeiter von iHorizon. Er ist fasziniert von Linux und Cybersicherheit, und er improvisiert selbst als Support-Helfer für den iHorizon-Bot."
 
-# /nayaweb
-nayaweb_message: "😼NayaWeb ist meine zweite Entwicklerin/Zuträgerin , NayaWeb x Kisakay ❤️"
+# /Irisweb
+irisweb_message: "😼IrisWeb ist meine zweite Entwicklerin/Zuträgerin , IrisWeb x Kisakay ❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "

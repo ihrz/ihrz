@@ -32,9 +32,7 @@ export const event: BotEvent = {
         try {
             let i: string = '';
 
-            if (guild.name === undefined || null) {
-                return;
-            }
+            if (guild.name === undefined) return;
 
             let owner1 = client.config.owner.ownerid1;
             let owner2 = client.config.owner.ownerid2;

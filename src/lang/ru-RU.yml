@@ -475,8 +475,8 @@ andru_message: "Andru - сотрудник и разработчик. \"Маст
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether - автор проекта iHorizon. Он увлекается Linux и кибербезопасностью, а также импровизирует в качестве помощника для бота iHorizon."
 
-# /nayaweb
-nayaweb_message: "😼NayaWeb - мой второй разработчик/соавтор , NayaWeb и Kisakay ❤️"
+# /Irisweb
+irisweb_message: "😼IrisWeb - мой второй разработчик/соавтор , IrisWeb и Kisakay ❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Понг**__ : "
