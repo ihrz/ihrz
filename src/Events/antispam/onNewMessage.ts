@@ -88,7 +88,6 @@ async function logsAction(lang: LanguageData, message: Message, users: Set<Guild
         )
 
     await (channel as BaseGuildTextChannel).send({ embeds: [embed] });
-    return;
 }
 
 async function sendWarningMessage(
@@ -99,9 +98,7 @@ async function sendWarningMessage(
 ): Promise<void> {
     const membersToWarn = [...members];
 
-    if (membersToWarn.length === 0) {
-        return;
-    }
+    if (membersToWarn.length === 0) return;
 
     const mentionedMembers = membersToWarn.map(member => member.toString()).join(', ');
     let warningMessage = lang.antispam_base_warn_message.replace("${mentionedMembers}", mentionedMembers);
@@ -155,8 +152,7 @@ async function clearSpamMessages(message: Message, messages: Set<AntiSpam.Cached
                 }
             }
         }));
-    } catch (error) {
-    }
+    } catch { }
 }
 
 async function PunishUsers(
@@ -221,12 +217,10 @@ export const event: BotEvent = {
 
         if (!options) return;
 
-        let cancelAnalyze = false;
-        // Check if the member have roles to bypass antispam
+        // Check if the member have roles to bypass antispam 
         for (let role in options.BYPASS_ROLES) {
-            if (message.member?.roles.cache.has(options.BYPASS_ROLES[parseInt(role)])) {
-                cancelAnalyze = true;
-            }
+            if (message.member?.roles.cache.has(options.BYPASS_ROLES[parseInt(role)]))
+                return false; // yes -> cancels the analysation
         };
 
         // Basic checks (if is in guild, if the antispam are configured etc)
@@ -237,7 +231,6 @@ export const event: BotEvent = {
             message.guild.ownerId === message.author.id ||
             message.member?.permissions.has(PermissionFlagsBits.Administrator) ||
             (options.ignoreBots && message.author.bot) ||
-            cancelAnalyze ||
             options.BYPASS_CHANNELS?.includes(message.channelId)
         ) {
             return false;

@@ -32,9 +32,7 @@ export const event: BotEvent = {
         try {
             let i: string = '';
 
-            if (guild.name === undefined || null) {
-                return;
-            }
+            if (guild.name === undefined) return;
 
             if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 

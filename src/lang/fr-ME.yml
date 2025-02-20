@@ -475,8 +475,8 @@ andru_message: "Andru est un collaborateur et développeur. \"L'homme à tout fa
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Eh we Ether le gros bg modo discord puant qui passe son temps sur VSCode et Discord 24/24h mais oklm c un gars chill W'Allah, lvdm il suce trop linux et vencord :rofl:"
 
-# /nayaweb
-nayaweb_message: "😼Naya c ma seconde dev , jladore surtout sa chatte la miam , elle ma crée en version comme ca et pour ca je me soumet a elle❤️"
+# /Irisweb
+irisweb_message: "😼Iris c ma seconde dev , jladore surtout sa chatte la miam , elle ma crée en version comme ca et pour ca je me soumet a elle❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "

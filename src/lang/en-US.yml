@@ -474,8 +474,8 @@ andru_message: "Andru is a Collaborator and developer. \"L'homme à tout faire\"
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether is a contributor to iHorizon. He is fascinated about Linux and cybersecurity, and he improvises himself as a support helper for the iHorizon bot."
 
-# /nayaweb
-nayaweb_message: "😼NayaWeb is my second developer/contributor , NayaWeb x Kisakay ❤️"
+# /Irisweb
+irisweb_message: "😼IrisWeb is my second developer/contributor , IrisWeb x Kisakay ❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "

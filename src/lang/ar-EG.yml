@@ -473,8 +473,8 @@ andru_message: "أندرو هو متعاون ومطور. \"الرجل المتع
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether هو أحد المساهمين في iHorizon. وهو مفتون بنظام لينكس والأمن السيبراني، وهو يرتجل نفسه كمساعد دعم لروبوت iHorizon."
 
-# /nayaweb
-nayaweb_message: "😼 NayaWeb هو مطور/مساهم الثاني لي، NayaWeb x Kisakay ❤️"
+# /Irisweb
+irisweb_message: "😼 IrisWeb هو مطور/مساهم الثاني لي، IrisWeb x Kisakay ❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "

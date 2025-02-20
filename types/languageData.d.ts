@@ -400,7 +400,7 @@ export interface LanguageData {
   kisakay_message: string;
   andru_message: string;
   ether_message: string;
-  nayaweb_message: string;
+  irisweb_message: string;
   pong_message: string;
   status_be_bot_dev: string;
   help_tip_embed: string;

@@ -32,7 +32,7 @@ export const event: BotEvent = {
 
             let data = await table.get(`${member.user.id}`);
             if (data.blacklisted === true && !((member.guild.memberCount < 500 && client.version.env === 'production'))) {
-                member.send({ content: "You've been banned, because you are blacklisted ! \nReason: \`" + data.reason + '\`' })
+                member.send({ content: "You have been banned, because you are blacklisted from iHorizon. \nReason: \`" + data.reason + '\`' })
                     .catch(() => { })
                     .then(() => { });
                 member.ban({ reason: `iHorizon Project Punishement - Blacklist | Reason: ${data.reason}` })
@@ -40,8 +40,6 @@ export const event: BotEvent = {
                     .then(() => { });
             }
 
-        } catch (error) {
-            return;
-        }
+        } catch { }
     },
 };
