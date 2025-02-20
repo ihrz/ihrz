@@ -22,7 +22,7 @@ iHorizon have a large variety of features, including moderation, invite manageme
 ## Contributor's Wall
 
 - [Kisakay](https://github.com/Kisakay) (She/Her)
-- [NayaWeb](https://github.com/plumeihrz) (She/Her)
+- [IrisWeb](https://github.com/irisihrz) (She/Her)
 - [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
 - [Maxine](https://github.com/mxi1n) (She/Her)
 - [Wyene](https://github.com/tryedandcatched) (He/Him)
