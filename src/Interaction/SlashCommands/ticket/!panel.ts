@@ -206,6 +206,8 @@ export const subCommand: SubCommand = {
             components
         });
 
+        await interaction.followUp({ content: "https://youtu.be/TehLPQ_WCwQ", ephemeral: true });
+
         function stringifyTicketPanelOption(fields: TicketPanel["config"]["optionFields"]): string | undefined {
             if (!fields || fields?.length === 0) return undefined;
             let i = 0;
