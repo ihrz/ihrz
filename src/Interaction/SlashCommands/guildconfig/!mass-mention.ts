@@ -106,7 +106,7 @@ export const subCommand: SubCommand = {
                 });
                 return;
             } catch (error) {
-                await interaction.editReply({ content: 'Error 404' });
+                await interaction.editReply({ content: 'Error 404. ' + lang.automod_block_massmention_command_error404 });
             }
         } else if (turn === "off") {
 

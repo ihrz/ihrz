@@ -44,14 +44,25 @@ export const cache: AntiSpam.AntiSpamCache = {
     membersFlags: new Map<string, Map<string, number>>()
 };
 
-let timeout: Record<string, NodeJS.Timeout | undefined> = {};
+const timeouts: Record<string, Map<string, NodeJS.Timeout>> = {};
 
-async function waitForFinish(guildId: string): Promise<void> {
+async function waitForFinish(guildId: string, authorId: string): Promise<void> {
+    if (!timeouts[guildId]) timeouts[guildId] = new Map();
+
     return new Promise((resolve) => {
-        if (timeout[guildId]) clearTimeout(timeout[guildId]);
-        timeout[guildId] = setTimeout(() => {
+        if (timeouts[guildId].has(authorId)) {
+            clearTimeout(timeouts[guildId].get(authorId));
+        }
+
+        const newTimeout = setTimeout(() => {
+            timeouts[guildId].delete(authorId);
+            if (timeouts[guildId].size === 0) {
+                delete timeouts[guildId];
+            }
             resolve();
         }, 5000);
+
+        timeouts[guildId].set(authorId, newTimeout);
     });
 }
 
@@ -77,7 +88,6 @@ async function logsAction(lang: LanguageData, message: Message, users: Set<Guild
         )
 
     await (channel as BaseGuildTextChannel).send({ embeds: [embed] });
-    return;
 }
 
 async function sendWarningMessage(
@@ -88,9 +98,7 @@ async function sendWarningMessage(
 ): Promise<void> {
     const membersToWarn = [...members];
 
-    if (membersToWarn.length === 0) {
-        return;
-    }
+    if (membersToWarn.length === 0) return;
 
     const mentionedMembers = membersToWarn.map(member => member.toString()).join(', ');
     let warningMessage = lang.antispam_base_warn_message.replace("${mentionedMembers}", mentionedMembers);
@@ -144,8 +152,7 @@ async function clearSpamMessages(message: Message, messages: Set<AntiSpam.Cached
                 }
             }
         }));
-    } catch (error) {
-    }
+    } catch { }
 }
 
 async function PunishUsers(
@@ -175,14 +182,22 @@ async function PunishUsers(
                 }
                 break;
             case 'ban':
-                const userCanBeBanned = options.Enabled && member.bannable;
+                const userCanBeBanned =
+                    member.guild.members.me?.permissions.has(PermissionFlagsBits.BanMembers) &&
+                    member.guild.members.me.roles.highest.position > member.roles.highest.position &&
+                    member.id !== member.guild.ownerId &&
+                    member.bannable;
 
                 if (userCanBeBanned) {
                     await member.ban({ reason: 'Spamming!' }).catch(() => { });
                 }
                 break;
             case 'kick':
-                const userCanBeKicked = options.Enabled && member.kickable;
+                const userCanBeKicked =
+                    member.guild.members.me?.permissions.has(PermissionFlagsBits.KickMembers) &&
+                    member.guild.members.me.roles.highest.position > member.roles.highest.position &&
+                    member.id !== member.guild.ownerId &&
+                    member.kickable;
 
                 if (userCanBeKicked) {
                     await member.kick('Spamming!').catch(() => { });
@@ -202,12 +217,10 @@ export const event: BotEvent = {
 
         if (!options) return;
 
-        let cancelAnalyze = false;
-        // Check if the member have roles to bypass antispam
+        // Check if the member have roles to bypass antispam 
         for (let role in options.BYPASS_ROLES) {
-            if (message.member?.roles.cache.has(options.BYPASS_ROLES[parseInt(role)])) {
-                cancelAnalyze = true;
-            }
+            if (message.member?.roles.cache.has(options.BYPASS_ROLES[parseInt(role)]))
+                return false; // yes -> cancels the analysation
         };
 
         // Basic checks (if is in guild, if the antispam are configured etc)
@@ -218,7 +231,6 @@ export const event: BotEvent = {
             message.guild.ownerId === message.author.id ||
             message.member?.permissions.has(PermissionFlagsBits.Administrator) ||
             (options.ignoreBots && message.author.bot) ||
-            cancelAnalyze ||
             options.BYPASS_CHANNELS?.includes(message.channelId)
         ) {
             return false;
@@ -296,7 +308,7 @@ export const event: BotEvent = {
             }
 
             if (timeout < currentTime) {
-                await waitForFinish(message.guildId!);
+                await waitForFinish(message.guildId!, message.author.id);
                 await PunishUsers(message.guild.id, membersToPunish!, options);
                 await clearSpamMessages(message, cache.messages.get(message.guild.id)!);
                 await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options);

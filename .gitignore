@@ -159,3 +159,4 @@ tools/test.ts
 src/files/.ihrz-cache
 src/files/db.json
 draft
+bun.lock

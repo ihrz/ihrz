@@ -20,44 +20,35 @@
 */
 
 import {
-    ApplicationCommandType,
-    ChatInputCommandInteraction,
-    Client,
-    EmbedBuilder,
+    Client, ChatInputCommandInteraction, ApplicationCommandType,
     Message,
+    CommandInteractionOptionResolver,
 } from 'discord.js'
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
+export const command: Command = {
+    name: 'iris',
 
+    description: 'Get unnecessary information about my developper Iris',
+    description_localizations: {
+        "fr": "Obtenir des informations non nécessaires sur ma développeuse Iris!"
+    },
 
-import { SubCommand } from '../../../../types/command.js';
-
-export const subCommand: SubCommand = {
+    category: 'bot',
+    thinking: false,
+    type: ApplicationCommandType.ChatInput,
+    permission: null,
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`) as DatabaseStructure.SnipeData[""];
-
-        var message_content = based?.snipe;
-
-        if (!based || !message_content) {
-            await client.method.interactionSend(interaction, { content: lang.snipe_no_previous_message_deleted });
-            return;
-        };
-
-        let embed = new EmbedBuilder()
-            .setColor("#474749")
-            .setAuthor({ name: based.snipeUserInfoTag, iconURL: based.snipeUserInfoPp })
-            .setDescription(message_content)
-            .setTimestamp(based.snipeTimestamp);
-
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.method.interactionSend(interaction, {
+            content: lang.irisweb_message
+        });
         return;
     },
 };

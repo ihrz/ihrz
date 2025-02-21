@@ -475,8 +475,8 @@ andru_message: "Andru est un collaborateur et développeur. \"L'homme à tout fa
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Eh we Ether le gros bg modo discord puant qui passe son temps sur VSCode et Discord 24/24h mais oklm c un gars chill W'Allah, lvdm il suce trop linux et vencord :rofl:"
 
-# /nayaweb
-nayaweb_message: "😼Naya c ma seconde dev , jladore surtout sa chatte la miam , elle ma crée en version comme ca et pour ca je me soumet a elle❤️"
+# /Irisweb
+irisweb_message: "😼Iris c ma seconde dev , jladore surtout sa chatte la miam , elle ma crée en version comme ca et pour ca je me soumet a elle❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
@@ -995,6 +995,14 @@ util_unzip_emojis_command_work: "🎉 Décompression terminée en ${calcTime}ms 
 util_unzip_emojis_command_error: "Une erreur s'est produite lors de la décompression des emojis."
 util_unzip_emojis_command_no_file: "Veuille joindre un fichier zip contenant des emojis."
 
+# /util vkick
+vkick_member_not_in_guild: "Le membre n'est pas dans la guilde."
+vkick_not_in_vc: "Le membre n'est pas dans un canal vocal."
+vkick_not_admin_kick: "Vous ne pouvez pas déconnecter un administrateur d'un canal vocal."
+vkick_logEmbed_title: "Déconnexion Vocale"
+vkick_logEmbed_desc: "${interaction.member.user.toString()} a déconnecté ${member.toString()} du canal vocal ${voiceChannel?.toString()}."
+vkick_command_work: "${interaction.member.user.toString()}, vous avez déconnecté avec succès ${member.toString()} de ${voiceChannel?.toString()}."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1224,6 +1232,7 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} a supprimé ${channel
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, tu as désactivé la règle `AutoModération de Mention Massive` à **false**.\nMaintenant, les utilisateurs peuvent envoyer des mentions dans leurs messages.\nAutoMod x iHorizon a été désactivé sur ton serveur !"
 automod_block_massmention_command_on: "${interaction.user}, tu as activé la règle `AutoModération de Mention Massive` à **true**.\nMaintenant, les utilisateurs ne peuvent pas envoyer plus de **${max_mention}** mention(s) dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège ton serveur !"
+automod_block_massmention_command_error404: Trou du cul, désactive Block Mass Mention car ce connard entre en conflit avec MON propre système, DÉSACTIVE MOI ÇA J'AI DIT et relance la commande, c'est bon ???
 
 # /automod block links
 automod_block_link_command_on: "${interaction.user}, vous avez activé la `Règle AutoMod Pub` sur **true**.\nLes utilisateurs ne peuvent plus envoyer de liens dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur!"

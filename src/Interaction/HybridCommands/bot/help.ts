@@ -190,27 +190,26 @@ async function handleCategorySelect(
         switch (element.messageCmd) {
             // Slash command
             case 0:
-                cmdPrefix = `${states}\n${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
+                cmdPrefix = `${states}\n・${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
                 break;
             // Message command
             case 1:
                 cmdPrefix = bot_prefix.type === 'mention'
-                    ? `${states}\n${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${cleanedPrefixCommandName}**`
-                    : `${states}\n${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${cleanedPrefixCommandName}**`;
+                    ? `${states}\n・${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${cleanedPrefixCommandName}**`
+                    : `${states}\n・${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${cleanedPrefixCommandName}**`;
                 break;
             // Hybrid command
             case 2:
                 cmdPrefix = bot_prefix.type === 'mention'
-                    ? `${states} ${client.iHorizon_Emojis.icon.Prefix_Command} (@Ping-Me) ${element.prefixCmd}\n≠${client.iHorizon_Emojis.badge.Slash_Bot} **${element.prefixCmd}**`
-                    : `${states}\n${prefixOrNot}${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`;
+                    ? `${states}\n・${client.iHorizon_Emojis.icon.Prefix_Command} (@Ping-Me) ${element.prefixCmd}\n≠${client.iHorizon_Emojis.badge.Slash_Bot} **${element.prefixCmd}**`
+                    : `${states}\n・${prefixOrNot}・${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`;
                 break;
             default:
-                cmdPrefix = `${states}\n**${element.cmd}**`;
+                cmdPrefix = `${states}\n・**${element.cmd}**`;
         }
 
         const descValue = (guildData === "fr-ME" || guildData === "fr-FR")
-            ? `\`${element.desc_localized["fr"]}\``
-            : `\`${element.desc}\``;
+            ? element.desc_localized["fr"] : element.desc
 
         const newFieldLength = cmdPrefix.length + descValue.length;
 
@@ -229,7 +228,7 @@ async function handleCategorySelect(
 
         currentEmbed.addFields({
             name: cmdPrefix,
-            value: descValue,
+            value: `-# **┖ ${descValue}**`,
             inline: false
         });
 

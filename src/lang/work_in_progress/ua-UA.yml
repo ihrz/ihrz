@@ -213,8 +213,8 @@ invite_embed_description: "Я вас люблю, покажіть мені св�
 # /kisakay
 kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay - і мій творець і розробник. Завдяки їй та її клавіатурі я з'явився в цьому світі. Я глибоко вдячний їй!✨ ❤️❤️"
 
-# /nayaweb
-nayaweb_message: "😼NayaWeb - мій другий розробник/співавтор , NayaWeb и Kisakay ❤️"
+# /Irisweb
+irisweb_message: "😼IrisWeb - мій другий розробник/співавтор , IrisWeb и Kisakay ❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Понг**__ : "

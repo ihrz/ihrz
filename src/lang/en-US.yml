@@ -474,8 +474,8 @@ andru_message: "Andru is a Collaborator and developer. \"L'homme à tout faire\"
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether is a contributor to iHorizon. He is fascinated about Linux and cybersecurity, and he improvises himself as a support helper for the iHorizon bot."
 
-# /nayaweb
-nayaweb_message: "😼NayaWeb is my second developer/contributor , NayaWeb x Kisakay ❤️"
+# /Irisweb
+irisweb_message: "😼IrisWeb is my second developer/contributor , IrisWeb x Kisakay ❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
@@ -994,6 +994,14 @@ util_unzip_emojis_command_work: "🎉 Unzip completed in **${calcTime}**ms! I ha
 util_unzip_emojis_command_error: "An error occurred while unzipping emojis."
 util_unzip_emojis_command_no_file: "Please attach a zip file containing emojis."
 
+# /util vkick
+vkick_member_not_in_guild: "The member is not in the guild."
+vkick_not_in_vc: "The member is not in a voice channel."
+vkick_not_admin_kick: "You cannot disconnect an administrator from a voice channel."
+vkick_logEmbed_title: "Voice Kick"
+vkick_logEmbed_desc: "${interaction.member.user.toString()} has disconnected ${member.toString()} from the ${voiceChannel?.toString()} voice channel."
+vkick_command_work: "${interaction.member.user.toString()}, you has succesfuly disconnected ${member.toString()} from ${voiceChannel?.toString()}"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1223,6 +1231,7 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} have delete ${channel
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **false**.\nNow user can send mentions in their message.\nAutoMod x iHorizon have been disabled on your server!"
 automod_block_massmention_command_on: "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **true**.\nNow user can't send more than **${max_mention}** mention(s) in their message.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
+automod_block_massmention_command_error404: Did you leave Block Mention Spam enabled (enabled by default by Discord) in AutoMod settings, indeed it is surely responsible for this error, please disable it and run the command again. 
 
 # /automod block links
 automod_block_link_command_on: "${interaction.user}, you have set the `Pub AutoMod Rule` to **true**.\nNow users can't send links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server! "

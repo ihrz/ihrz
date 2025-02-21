@@ -475,8 +475,8 @@ andru_message: "Andruはコラボレーターであり開発者です。\"何で
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} EtherはiHorizonのコントリビューターです。Linuxとサイバーセキュリティに魅了され、iHorizonボットのサポートヘルパーとして即興で活動している。"
 
-# /nayaweb
-nayaweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
+# /Irisweb
+irisweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
@@ -995,6 +995,14 @@ util_unzip_emojis_command_work: "🎉 ${calcTime}ミリ秒で解凍が完了し�
 util_unzip_emojis_command_error: "絵文字の解凍中にエラーが発生しました。"
 util_unzip_emojis_command_no_file: "絵文字を含むZIPファイルを添付してください。"
 
+# /util vkick
+vkick_member_not_in_guild: "メンバーはギルドにいません。"
+vkick_not_in_vc: "メンバーはボイスチャンネルにいません。"
+vkick_not_admin_kick: "管理者をボイスチャンネルから切断することはできません。"
+vkick_logEmbed_title: "ボイスキック"
+vkick_logEmbed_desc: "${interaction.member.user.toString()} は ${member.toString()} をボイスチャンネル ${voiceChannel?.toString()} から切断しました。"
+vkick_command_work: "${interaction.member.user.toString()}、${member.toString()} を ${voiceChannel?.toString()} から正常に切断しました。"
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1224,6 +1232,7 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} が Join GhostPing �
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**false**に設定しました。\n今、ユーザーはメッセージにメンションを送信できます。\nAutoMod x iHorizonはサーバーで無効になっています！"
 automod_block_massmention_command_on: "${interaction.user}, あなたは`Mass-Mention AutoModルール`を**true**に設定しました。\n今、ユーザーはメッセージに**${max_mention}**回以上のメンションを送信できません。\nAutoModは${logs_channel}にログを送信しています。\nAutoMod x iHorizonがサーバーを保護しています！"
+automod_block_massmention_command_error404: AutoMod設定でBlock Mention Spamを有効にしたままにしていませんか（Discordではデフォルトで有効になっています）。
 
 # /automod block links
 automod_block_link_command_on: "${interaction.user}、`Pub AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにリンクを送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
