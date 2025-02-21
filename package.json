@@ -45,7 +45,7 @@
     "stegano.db": "^3.5.0",
     "toml": "^3.0.0",
     "write-file-atomic": "^5.0.1",
-    "ws": "^8.18.0"
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "@types/archiver": "^6.0.3",
