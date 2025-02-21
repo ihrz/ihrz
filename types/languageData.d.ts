@@ -497,6 +497,13 @@ export interface LanguageData {
   dogs_embed_title: string;
   love_embed_description: string;
   love_command_error: string;
+  tictactoe_no_opponent: string;
+  tictactoe_cant_play_against_bot: string;
+  tictactoe_against_yourself: string;
+  tictactoe_turn: string;
+  tictactoe_game_over_win: string;
+  tictactoe_game_over_draw: string;
+  tictactoe_game_over_inactivity: string;
   fun_disable_command_msg: string;
   fun_category_disable: string;
   economy_cooldown_error: string;
@@ -969,13 +976,13 @@ export interface LanguageData {
   joinghostping_remove_logs_embed_desc: string;
   automod_block_massmention_command_off: string;
   automod_block_massmention_command_on: string;
+  automod_block_massmention_command_error404: string;
   automod_block_link_command_on: string;
   automod_block_link_command_off: string;
   automod_block_pub_command_on: string;
   automod_block_pub_command_off: string;
   automod_block_spam_command_on: string;
   automod_block_spam_command_off: string;
-  automod_block_massmention_command_error404: string;
   too_new_account_dont_specified_time_on_enable: string;
   too_new_account_invalid_time_on_enable: string;
   too_new_account_logEmbed_title: string;

@@ -610,6 +610,15 @@ dogs_embed_title: "🐶 au-au."
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ de amor 💗"
 love_command_error: "Ocorreu um erro ao tentar criar a imagem"
 
+# /morpion
+tictactoe_no_opponent: "Você não pode jogar contra ninguém!"
+tictactoe_cant_play_against_bot: "Você não pode jogar contra um bot!"
+tictactoe_against_yourself: "Você não pode jogar contra si mesmo!"
+tictactoe_turn: "Jogo da Velha: {user} (X) vs {opponent} (O)\nÉ a vez de {currentPlayer}!"
+tictactoe_game_over_win: "Vitória: {user}!"
+tictactoe_game_over_draw: "Empate!"
+tictactoe_game_over_inactivity: "Jogo terminado por inatividade!"
+
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}, você ${action_type} a categoria de diversão!"
 fun_category_disable: "Você não pode usar este comando, a categoria de comandos de diversão está desativada."

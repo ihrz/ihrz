@@ -610,6 +610,15 @@ dogs_embed_title: "🐶 Гав-гав."
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ любви 💗"
 love_command_error: "Произошла ошибка при создании изображения"
 
+# /morpion
+tictactoe_no_opponent: "Você não pode jogar contra ninguém!"
+tictactoe_cant_play_against_bot: "Você não pode jogar contra um bot!"
+tictactoe_against_yourself: "Você não pode jogar contra si mesmo!"
+tictactoe_turn: "Крестики-нолики: {user} (X) против {opponent} (O)\nХод {currentPlayer}!"
+tictactoe_game_over_win: "Победа: {user}!"
+tictactoe_game_over_draw: "Ничья!"
+tictactoe_game_over_inactivity: "Игра окончена из-за бездействия!"
+
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}, вы ${action_type} категорию развлечений!"
 fun_category_disable: "Вы не можете использовать эту команду, категория команд развлечений отключена."

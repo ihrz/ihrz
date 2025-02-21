@@ -609,6 +609,15 @@ dogs_embed_title: "🐶 woof-woof."
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ of love 💗"
 love_command_error: "An error occurred while trying to create the image"
 
+# /tictactoe
+tictactoe_no_opponent: "You can't play against no one!"
+tictactoe_cant_play_against_bot: "You can't play against a bot!"
+tictactoe_against_yourself: "You can't play against yourself!"
+tictactoe_turn: "Tic Tac Toe: {user} (X) vs {opponent} (O)\nIt's {currentPlayer}'s turn!"
+tictactoe_game_over_win: "Victory: {user}!"
+tictactoe_game_over_draw: "Draw!"
+tictactoe_game_over_inactivity: "Game over due to inactivity!"
+
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}, you have ${action_type} the fun category!"
 fun_category_disable: "You cannot use this command as the fun commands category is disabled in this server."

@@ -610,6 +610,15 @@ dogs_embed_title: "🐶 ouaf-ouaf."
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ d'amour 💗"
 love_command_error: "Ya eu une erreur lors dla création dlimage, ressaie plus tard ou debrouille toi!"
 
+# /morpion
+tictactoe_no_opponent: "Tu crois vraiment que tu peux jouer contre personne ?!"
+tictactoe_cant_play_against_bot: "T'es trop nul pour jouer contre un bot !"
+tictactoe_against_yourself: "T'es si désespéré que tu veux jouer contre toi-même ?!"
+tictactoe_turn: "Tic Tac Toe : {user} (X) contre {opponent} (O)\nC'est à {currentPlayer} de jouer, espèce de loser !"
+tictactoe_game_over_win: "Victoire: {user} gg mgl!"
+tictactoe_game_over_draw: "Match nul! BOOH NULLOS"
+tictactoe_game_over_inactivity: "Jeu terminé à cause de ton inactivité, espèce de loser !"
+
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}, tu as ${action_type} la catégorie fun!"
 fun_category_disable: "Tu ne peux pas utiliser cette commande, la catégorie des commandes fun est désactivée."

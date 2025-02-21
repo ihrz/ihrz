@@ -608,6 +608,15 @@ dogs_embed_title: "🐶 عواء."
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ من الحب 💗"
 love_command_error: "حدث خطأ أثناء محاولة إنشاء الصورة."
 
+# /tictactoe
+tictactoe_no_opponent: "You can't play against no one!"
+tictactoe_cant_play_against_bot: "You can't play against a bot!"
+tictactoe_against_yourself: "You can't play against yourself!"
+tictactoe_turn: "تيك تاك تو: {user} (X) ضد {opponent} (O)\nإنه دور {currentPlayer}!"
+tictactoe_game_over_win: "فوز: {user}!"
+tictactoe_game_over_draw: "تعادل!"
+tictactoe_game_over_inactivity: "انتهت اللعبة بسبب عدم النشاط!"
+
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}، انت ${action_type} فئة الترفيه!"
 fun_category_disable: "مش مسموحلك تستخدم الأمر ده، فئة الأوامر الترفيهية معطلة."

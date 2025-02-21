@@ -610,6 +610,15 @@ dogs_embed_title: "🐶 わんわん。"
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ の愛 💗"
 love_command_error: "画像を作成しようとしてエラーが発生しました"
 
+# /morpion
+tictactoe_no_opponent: "誰とも対戦できません！"
+tictactoe_cant_play_against_bot: "ボットと対戦することはできません！"
+tictactoe_against_yourself: "自分自身と対戦することはできません！"
+tictactoe_turn: "三目並べ: {user} (X) 対 {opponent} (O)\n{currentPlayer}のターンです！"
+tictactoe_game_over_win: "{user}の勝ち！"
+tictactoe_game_over_draw: "引き分け！"
+tictactoe_game_over_inactivity: "ゲームは非活動のため終了しました！"
+
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}さん、${action_type}でファンカテゴリーを操作しました！"
 fun_category_disable: "このコマンドを使用できません。ファンコマンドカテゴリーは無効です。"

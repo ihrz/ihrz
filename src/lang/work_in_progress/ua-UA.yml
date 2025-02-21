@@ -334,6 +334,14 @@ dogs_embed_title: "🐶 Гав-гав."
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ любові 💗"
 love_command_error: "Сталася помилка під час створення зображення"
 
+# /tictactoe
+tictactoe_no_opponent: "Ви не можете зіграти з ніким!"
+tictactoe_cant_play_against_bot: "Ви не можете зіграти з ботом!"
+tictactoe_against_yourself: "Ви не можете зіграти з собої!"
+tictactoe_turn: "Тік Так То: {user} (X) проти {opponent} (O)\nЦе хід {currentPlayer}!"
+tictactoe_game_over_win: "Виграш: {user}!"
+tictactoe_game_over_draw: "Нічия!"
+tictactoe_game_over_inactivity: "Гра закінчена через бездіяльність!"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
