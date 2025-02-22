@@ -19,15 +19,13 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client } from "discord.js";
 import { BashCommands } from "../../../../types/bashCommands.js";
-import logger from "../../logger.js";
 
 export const command: BashCommands = {
     command_name: "help",
     command_description: "Show this message",
-    run: function (client: Client, args: string) {
-        let string = `iHorizon bash,\nThese shell commands are defined internally.    Type 'help' to see this list.\n\n`;
+    run: async function (client, stream, args) {
+        let string = `iHorizon bash,\n\rThese shell commands are defined internally.    Type 'help' to see this list.\n\r\n\r`;
 
         let commands = client.bash.map(index => ({
             command_name: index.command_name,
@@ -46,6 +44,6 @@ export const command: BashCommands = {
             string += ` ${command.command_name}${padding}${command.command_description}\r\n`;
         });
 
-        logger.legacy(string);
+        stream.write(string);
     }
 };

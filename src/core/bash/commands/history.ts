@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import logger from '../../logger.js';
 import fs from 'node:fs';
 
 let filePath = `${process.cwd()}/src/files/.bash_history`
@@ -29,19 +28,19 @@ import { BashCommands } from "../../../../types/bashCommands.js";
 export const command: BashCommands = {
   command_name: "history",
   command_description: "Show the bash history",
-  run: function () {
+  run: async function (client, stream, args) {
     fs.readFile(filePath, 'utf-8', (err, data) => {
       if (err) throw err;
 
-      let lines = data.trim().split('\n');
+      let lines = data.trim().split('\n\r');
       let maxNumberLength = lines.length.toString().length;
 
       let formattedHistory = lines.map((line, index) => {
         let number = (index + 1).toString().padStart(maxNumberLength, ' ');
         return `${number}  ${line.trim()}`;
-      }).join('\n');
+      }).join('\n\r');
 
-      logger.legacy("\n" + formattedHistory + "\n[Press Enter]");
+      stream.write("\n\r" + formattedHistory + "\n\r[Press Enter]");
     });
   }
 };

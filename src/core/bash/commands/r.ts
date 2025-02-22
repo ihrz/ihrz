@@ -19,19 +19,71 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-
 import { BashCommands } from "../../../../types/bashCommands.js";
-import { execSync } from 'child_process';
-import { Client } from 'discord.js';
+import { spawn } from "child_process";
 
 export const command: BashCommands = {
     command_name: "r",
-    command_description: "Run an bash command",
-    run: function (client: Client, args: string) {
-        try {
-            execSync(args, { stdio: [0, 1, 2], cwd: process.cwd() });
-        } catch (error) {
-            console.error((error as any).message);
+    command_description: "Run a bash command",
+    run: async function (client, stream, args) {
+        if (!args.length) {
+            stream.write("Usage: r <command> [args...]\n");
+            return;
+        }
+
+        const rl = (stream as any)._rl;
+        const originalPrompt = rl?.getPrompt();
+        let isCleanedUp = false;
+
+        const cmd = spawn(args[0], args.slice(1), {
+            cwd: process.cwd(),
+            shell: true,
+            env: process.env,
+            stdio: ['pipe', 'pipe', 'pipe']
+        });
+
+        cmd.stdout.pipe(stream as any, { end: false });
+        cmd.stderr.pipe(stream as any, { end: false });
+
+        function handleInput(data: Buffer) {
+            const input = data.toString();
+            if (input === '\x03') {
+                cmd.kill('SIGINT');
+                stream.write('^C\n');
+                cleanup();
+                return;
+            }
+
+            if (!cmd.killed && cmd.stdin.writable) {
+                cmd.stdin.write(data);
+            }
+        }
+
+        stream.on('data', handleInput);
+
+        async function cleanup() {
+            if (isCleanedUp) {
+                return;
+            }
+
+            isCleanedUp = true;
+
+            if (!cmd.killed) {
+                cmd.kill('SIGINT');
+            }
+            cmd.stdout.unpipe(stream as any);
+            cmd.stderr.unpipe(stream as any);
+            cmd.stdin.end();
+            stream.removeListener('data', handleInput);
+
+            await new Promise(resolve => setTimeout(resolve, 50));
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            if (rl) {
+                rl.setPrompt(originalPrompt || '');
+                stream.write('\r\n');
+                rl.prompt(true);
+            }
         }
     }
 };
