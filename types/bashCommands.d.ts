@@ -19,9 +19,12 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { Client } from "discord.js";
+import { ServerChannel } from "ssh2";
+
 export interface BashCommands {
     command_name: string;
     command_description: string;
     aliases?: string[];
-    run: any
+    async run(client: Client, stream: ServerChannel, args: string[]): Promise<void>;
 }
