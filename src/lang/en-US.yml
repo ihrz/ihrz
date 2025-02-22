@@ -1247,7 +1247,7 @@ automod_block_spam_command_off: "${interaction.user}, you have set the `Spam Aut
 
 # /guildconfig block too-new-account
 too_new_account_dont_specified_time_on_enable: "You did not specify a time. To enable this module, a minimum account age is required!"
-too_new_account_invalid_time_on_enable: "The time you entered is not valid! **Example of valid time**: `3h; 30m; 4w; 4y` -> 3 hours; 30 minutes; 4 weeks; 4 years"
+too_new_account_invalid_time_on_enable: "The time you entered is not valid! **Example of valid time**: `3h; 30m; 4mo; 4w; 4y` -> 3 hours; 30 minutes; 4month(s); 4 weeks; 4 years"
 too_new_account_logEmbed_title: "TooNewAccount Module"
 too_new_account_logEmbed_desc_on_enable: "${interaction.user} has enabled the TooNewAccount module. Accounts now require a minimum of ${beautifulTime} age!"
 too_new_account_command_work_on_enable: "${interaction.user}, new members joining **${interaction.guild?.name}** with accounts younger than `${beautifulTime}` will now be kicked."
