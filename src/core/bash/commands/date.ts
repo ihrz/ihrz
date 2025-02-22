@@ -20,15 +20,14 @@
 */
 
 import { BashCommands } from "../../../../types/bashCommands.js";
-import logger from "../../logger.js";
 
 export const command: BashCommands = {
     command_name: "date",
     command_description: "Show the internal clock",
-    run: function () {
+    run: async function (client, stream, args) {
         let _now2 = new Date();
         let _dateStr = `${_now2.toLocaleString('default', { day: '2-digit' })} ${_now2.toLocaleString('default', { month: 'short' })} ${_now2.getFullYear().toString().substr(-2)} ${_now2.toLocaleTimeString('en-US', { hour12: false })} 2023`;
 
-        logger.legacy(`The clock are on ${_dateStr}`)
+        stream.write(`The clock are on ${_dateStr}`)
     }
 };

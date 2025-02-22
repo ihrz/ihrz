@@ -1,114 +1,137 @@
-# Official iHorizon Repo
+# 🌐 Official iHorizon Repo  
 
-iHorizon is a Discord bot written in [TypeScript](https://www.typescriptlang.org/) that uses [discord.js](https://npmjs.com/discord.js)!
-iHorizon have a large variety of features, including moderation, invite management, guild configuration, fun commands, music playback, giveaways, backups and a lot more!
+**iHorizon** is a powerful **Discord bot** written in [TypeScript](https://www.typescriptlang.org/) using [discord.js](https://npmjs.com/discord.js)!  
+It offers a **large variety of features**, including:  
 
-![GitHub Release](https://img.shields.io/github/v/release/ihrz/ihrz)
-![GitHub Repo stars](https://img.shields.io/github/stars/ihrz/ihrz)
+✅ Moderation  
+✅ Invite management  
+✅ Guild configuration  
+✅ Fun commands  
+✅ Music playback  
+✅ Giveaways  
+✅ Backups  
+... and much more!  
 
-## Languages
+![GitHub Release](https://img.shields.io/github/v/release/ihrz/ihrz)  
+![GitHub Repo stars](https://img.shields.io/github/stars/ihrz/ihrz)  
 
-* Arabic Egyptian
-* English
-* French
-* Rude French (Troll)
-* Italian
-* German
-* Japanese
-* Spanish
-* Russian
-* Portuguese
+---  
 
-## Contributor's Wall
+## 🌍 Supported Languages  
 
-- [Kisakay](https://github.com/Kisakay) (She/Her)
-- [NayaWeb](https://github.com/belugafr) (She/Her)
-- [Noémie](https://github.com/name-shitty-github-profile) (She/Her)
-- [Maxine](https://github.com/mxi1n) (She/Her)
-- [Wyene](https://github.com/tryedandcatched) (He/Him)
+- 🇪🇬 Arabic Egyptian  
+- 🇬🇧 English  
+- 🇫🇷 French  
+- 🤬 Rude French (Troll)  
+- 🇮🇹 Italian  
+- 🇩🇪 German  
+- 🇯🇵 Japanese  
+- 🇪🇸 Spanish  
+- 🇷🇺 Russian  
+- 🇵🇹 Portuguese  
 
-## Origin
+---  
 
-The bot was primarily developed by Kisakay and was first released in **September 2020** using `discord.js` v12 and now uses `discord.js` latest version, yeah !
-Now, It has a strong architecture with separated modules, each with their own owner directory.
+## 🏆 Contributor's Wall  
 
-## Is it Free ?
+| Contributor | GitHub | Pronouns |
+|------------|--------|----------|
+| **Kisakay** | [GitHub](https://github.com/Kisakay) | She/Her |
+| **IrisWeb** | [GitHub](https://github.com/irisihrz) | She/Her |
+| **Noémie** | [GitHub](https://github.com/name-shitty-github-profile) | She/Her |
+| **Wyene** | [GitHub](https://github.com/tryedandcatched) | He/Him |
 
-The iHorizon project is licensed under the  [`CC BY-NC-SA 4.0`](https://creativecommons.org/licenses/by-nc-sa/4.0/) license.
+---  
 
-**Is allowed to :**
+## 📜 Origin  
 
-- **Share** — copy and redistribute the material in any medium or format
-- **Adapt** — remix, transform, and build upon the material
+🚀 The bot was **developed by Kisakay** and was first released in **September 2020** using `discord.js` v12.  
+🎉 It now runs on the **latest version** of `discord.js`, featuring a strong, modular architecture!  
 
-**Is unallowed to :**
+---  
 
-- **Attribution** — You must give [appropriate credit](https://creativecommons.org/licenses/by-nc-sa/4.0/), provide a link to the license, and [indicate if changes were made](https://creativecommons.org/licenses/by-nc-sa/4.0/). You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-- **NonCommercial** — You may not use the material for [commercial purposes](https://creativecommons.org/licenses/by-nc-sa/4.0/).
-- **ShareAlike** — If you remix, transform, or build upon the material, you must distribute your contributions under the [same license](https://creativecommons.org/licenses/by-nc-sa/4.0/) as the original.
-- **No additional restrictions** — You may not apply legal terms or [technological measures](https://creativecommons.org/licenses/by-nc-sa/4.0/) that legally restrict others from doing anything the license permits.
+## 🆓 Is it Free?  
 
-# How to Self-Host ?
+**iHorizon** is licensed under [`CC BY-NC-SA 4.0`](https://creativecommons.org/licenses/by-nc-sa/4.0/).  
 
-_There are only some few software needed :_
+### ✅ Allowed:  
+✔ **Share** — Copy and redistribute in any medium or format  
+✔ **Adapt** — Remix, transform, and build upon it  
 
-- [NodeJS](https://nodejs.org) (**20 or higher required**)
-- [Npm](https://npmjs.com) (**With NodeJS**)
+### ❌ Not Allowed:  
+❌ **Attribution** — You must give proper credit & indicate changes  
+❌ **NonCommercial** — No commercial use allowed  
+❌ **ShareAlike** — Derivatives must keep the same license  
+❌ **No additional restrictions** — No legal or technological barriers  
 
-⚠️ You cannot host iHorizon directly on Windows 10/11 but you can use [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) (Windows Subsystem for Linux) to emulate a Linux system.
+---  
 
-### How to configure the bot ?
+## 🛠 How to Self-Host?  
 
-* Open [config.example.ts](https://github.com/ihrz/ihrz/blob/dev/src/files/config.example.ts) in a file Editor (Notepad, VSCode...), enter your informations, and rename to config.ts.
+### 📌 Requirements  
+- [NodeJS](https://nodejs.org) (**20+ required**)  
+- [Npm](https://npmjs.com) (**Included with NodeJS**)  
 
-After your configuration in the config.ts :
+⚠ **Windows users**: iHorizon **cannot be hosted directly** on Windows 10/11.  
+👉 Use **[WSL](https://learn.microsoft.com/en-us/windows/wsl/install)** (Windows Subsystem for Linux) instead!  
 
-## Linux & macOS
+### ⚙ Bot Configuration  
+1️⃣ Open [`config.example.ts`](https://github.com/ihrz/ihrz/blob/dev/src/files/config.example.ts)  
+2️⃣ Enter your details  
+3️⃣ Rename the file to `config.ts`  
+
+### 🚀 Running on Linux & macOS  
 
 ```bash
-node -v  &&  npm -v
+bun -i
+
+# If you see an error, install bun and resource your terminal.
+
+bun build && bun .
 ```
 
-If it shows an error, please install `npm` and `node.js`.
+## 🐳 Docker Method  
 
-```bash
-npm build && npm start
-```
+🚧 Coming soon! [See more](https://hub.docker.com/r/kisakay/ihorizon)  
 
-## Docker Method
+# 💸 Need Cheap Hosting?  
 
-[Soon!](https://hub.docker.com/r/kisakay/ihorizon "See more")
+🎉 iHorizon offers ultra-cheap hosting for an ownihrz instance!  
+💰 Only 2.00€/month (+0.50€ activation fee)  
+⚡ Your bot will be faster than most bots on the market!  
 
-# Is a host too expensive?
+🤖 You can even make it public and earn money with it!  
 
-Well iHorizon is happy to offer really cheap hosting of an iHorizon instance (ownihrz), it's actually way cheaper than most hosts and offers an intense quality!<br>
-Only 2.00 euros per month! (0.50 euros for the activation)<br>
-Your bot will be faster than most popular bots and you can do what you want with it, even making a public bot out of it that can make you money! :)
+# 🔥 About the Bot  
 
-# About the bot
-
-IHorizon is trusted by more than **320 000** users!<br>
-Used by more than 910 servers!
+🔹 Trusted by more than 330,000 users  
+🔹 Used in 1,000+ servers 🎉  
 <br>
-Certified by Discord and had even more than 75 servers before starting the verification process!
+🔹 Certified by Discord and growing fast!  
 
-To join the official iHorizon Discord support server, please visit our website at [Official Server Link](http://discord.ihorizon.me/) or click on this link: [Other Link](https://discord.gg/ZpBPGNsAsu).
-To invite the official Discord bot to your server, please click on this link: [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot).
+📌 Join the official iHorizon Discord support server:  
+🌍 [Official Server](http://discord.ihorizon.me/) | 🔗 [Backup Link](https://discord.gg/ZpBPGNsAsu)  
 
-If you have any questions or concerns, you can contact the owner via Discord at 2h0.
+📌 Invite iHorizon to your server:  
+🤖 [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)  
 
-# About the Owner
+📌 Need help? Contact the owner via Discord:  
+👤 `kisakay` and `irisbylolirock`
 
-**Kisakay** has not changed their identity, but has simply embraced who they truly are as a person. She now goes by she/her pronouns.
+# 👤 About the Owner  
 
-In the `LICENSE` files, the name `Anaïs Saraiva` is the name of the owner.
+💖 **Kisakay** has not changed their identity but embraced who they truly are.  
+💜 She now goes by she/her pronouns.  
 
+📜 In the `LICENSE` files, the name `Anaïs Saraiva` appears as the owner.  
 <br>
-Noémie : She is even prettier than most :D
+🇨🇦 Noémie : She is even prettier than most :D
 
-Camille : Real she is really pretty.
+🎀 Camille : Real she is really pretty.
 
-## Remarks
+## ❗ Remarks  
 
-Any sorts of hate trowards any contributor will not be tolerated.<br>
-Regardless of the type and the level of hate.
+🚨 Any form of hate towards contributors will not be tolerated.<br>
+🚨 Regardless of the type or level of hate.  
+
+✨ Thank you for using iHorizon!🚀  

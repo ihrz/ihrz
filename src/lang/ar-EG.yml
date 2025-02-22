@@ -473,8 +473,8 @@ andru_message: "أندرو هو متعاون ومطور. \"الرجل المتع
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether هو أحد المساهمين في iHorizon. وهو مفتون بنظام لينكس والأمن السيبراني، وهو يرتجل نفسه كمساعد دعم لروبوت iHorizon."
 
-# /nayaweb
-nayaweb_message: "😼 NayaWeb هو مطور/مساهم الثاني لي، NayaWeb x Kisakay ❤️"
+# /Irisweb
+irisweb_message: "😼 IrisWeb هو مطور/مساهم الثاني لي، IrisWeb x Kisakay ❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
@@ -995,6 +995,14 @@ util_unzip_emojis_command_work: "🎉 اكتمل فك الضغط في ${calcTime
 util_unzip_emojis_command_error: "حدث خطأ أثناء فك ضغط الرموز التعبيرية."
 util_unzip_emojis_command_no_file: "يرجى إرفاق ملف مضغوط يحتوي على رموز تعبيرية."
 
+# /util vkick
+vkick_member_not_in_guild: "العضو ليس في النقابة."
+vkick_not_in_vc: "العضو ليس في قناة صوتية."
+vkick_not_admin_kick: "لا يمكنك فصل مسؤول من قناة صوتية."
+vkick_logEmbed_title: "طرد صوتي"
+vkick_logEmbed_desc: "${interaction.member.user.toString()} قام بفصل ${member.toString()} من القناة الصوتية ${voiceChannel?.toString()}."
+vkick_command_work: "${interaction.member.user.toString()}، لقد نجحت في فصل ${member.toString()} من ${voiceChannel?.toString()}."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1226,7 +1234,7 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} قام بحذف ${cha
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, لقد قمت بتعيين قاعدة AutoMod للـ `Mass-Mention` إلى **false**.\nالآن يمكن للمستخدمين إرسال الإشعارات في رسائلهم.\nAutoMod x iHorizon تم تعطيله في خادمك!"
 automod_block_massmention_command_on: "${interaction.user}, لقد قمت بتعيين قاعدة AutoMod للـ `Mass-Mention` إلى **true**.\nالآن لا يمكن للمستخدمين إرسال أكثر من **${max_mention}** إشعار في رسائلهم.\nAutoMod __يتم إرسال السجلات__ إلى ${logs_channel}.\nAutoMod x iHorizon يحمي خادمك!"
-
+automod_block_massmention_command_error404: هل تركت أمر حظر الإشارات المزعجة (ممكّن افتراضيًا بواسطة Discord) في إعدادات التعديل التلقائي، حيث إنه بالتأكيد مسؤول عن هذا الخطأ، يرجى تعطيله وتشغيل الأمر مرة أخرى. 
 
 # /automod block links
 automod_block_link_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الروابط**. الآن، لا يمكن للمستخدمين إرسال روابط في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"

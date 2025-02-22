@@ -19,12 +19,33 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BashCommands } from "../../../../types/bashCommands.js";
+import { BashCommands } from '../../../../types/bashCommands.js';
 
 export const command: BashCommands = {
-    command_name: "clear",
-    command_description: "Clear the console",
+    command_name: "kick",
+    command_description: "Kick a member from the guild",
+    aliases: [],
     run: async function (client, stream, args) {
-        stream.write('\x1Bc');
+        let guild = client.guilds.cache.get(args[0]);
+        if (!guild) {
+            stream.write(`* Guild not found \n\r`.red.bgBlack);
+            return
+        }
+
+        let member = guild.members.cache.get(args[1]);
+        if (!member) {
+            stream.write(`* Member not found \n\r`.red.bgBlack);
+            return
+        }
+
+        // Verify if the bot has permission to kick the member
+        if (!member.kickable) {
+            stream.write(`* I don't have permission to kick this member \n\r`.red.bgBlack);
+            return
+        }
+
+        // Kick the member
+        member.kick(args.slice(2).join(" "));
+        stream.write(`* Successfully kicked ${member.user.tag} \n\r`.green.bgBlack);
     }
 };

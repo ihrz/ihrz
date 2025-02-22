@@ -20,7 +20,7 @@
 */
 
 import { Message } from "discord.js";
-import { QuickDB } from "quick.db";
+import { db } from "../database.js";
 
 export async function coolDown(message: Message, method: string, ms: number) {
     let tn = Date.now();
@@ -32,7 +32,7 @@ export async function coolDown(message: Message, method: string, ms: number) {
     return false;
 };
 
-export async function hardCooldown(database: QuickDB<any>, method: string, ms: number) {
+export async function hardCooldown(database: db, method: string, ms: number) {
     let tn = Date.now();
     let table = database.table("TEMP");
     var fetch = await table.get(`COOLDOWN.${method}`);

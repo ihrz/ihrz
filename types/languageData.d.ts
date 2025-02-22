@@ -400,7 +400,7 @@ export interface LanguageData {
   kisakay_message: string;
   andru_message: string;
   ether_message: string;
-  nayaweb_message: string;
+  irisweb_message: string;
   pong_message: string;
   status_be_bot_dev: string;
   help_tip_embed: string;
@@ -761,6 +761,12 @@ export interface LanguageData {
   util_unzip_emojis_command_work: string;
   util_unzip_emojis_command_error: string;
   util_unzip_emojis_command_no_file: string;
+  vkick_member_not_in_guild: string;
+  vkick_not_in_vc: string;
+  vkick_not_admin_kick: string;
+  vkick_logEmbed_title: string;
+  vkick_logEmbed_desc: string;
+  vkick_command_work: string;
   blockpub_not_admin: string;
   blockpub_now_enable: string;
   blockpub_now_disable: string;
@@ -969,6 +975,7 @@ export interface LanguageData {
   automod_block_pub_command_off: string;
   automod_block_spam_command_on: string;
   automod_block_spam_command_off: string;
+  automod_block_massmention_command_error404: string;
   too_new_account_dont_specified_time_on_enable: string;
   too_new_account_invalid_time_on_enable: string;
   too_new_account_logEmbed_title: string;

@@ -20,13 +20,17 @@
 */
 
 import { BashCommands } from "../../../../types/bashCommands.js";
-import logger from "../../logger.js";
-import { Client } from "discord.js";
 
 export const command: BashCommands = {
     command_name: "echo",
     command_description: "Echoing back to the console",
-    run: function (client: Client, args: string) {
-        logger.legacy(args)
+    run: async function (client, stream, args) {
+
+        if (args.length === 0) {
+            stream.write("echo: missing arguments\n");
+            return;
+        }
+
+        stream.write(args.join(" ") + "\n");
     }
 };

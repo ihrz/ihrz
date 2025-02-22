@@ -475,8 +475,8 @@ andru_message: "Andru ist ein Mitarbeiter und Entwickler. \"Das Mädchen für al
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether ist ein Mitarbeiter von iHorizon. Er ist fasziniert von Linux und Cybersicherheit, und er improvisiert selbst als Support-Helfer für den iHorizon-Bot."
 
-# /nayaweb
-nayaweb_message: "😼NayaWeb ist meine zweite Entwicklerin/Zuträgerin , NayaWeb x Kisakay ❤️"
+# /Irisweb
+irisweb_message: "😼IrisWeb ist meine zweite Entwicklerin/Zuträgerin , IrisWeb x Kisakay ❤️"
 
 # /ping
 pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
@@ -995,6 +995,14 @@ util_unzip_emojis_command_work: "🎉 Entpacken abgeschlossen in ${calcTime}ms! 
 util_unzip_emojis_command_error: "Beim Entpacken der Emojis ist ein Fehler aufgetreten."
 util_unzip_emojis_command_no_file: "Bitte fügen Sie eine ZIP-Datei mit Emojis bei."
 
+# /util vkick
+vkick_member_not_in_guild: "Das Mitglied ist nicht in der Gilde."
+vkick_not_in_vc: "Das Mitglied ist nicht in einem Sprachkanal."
+vkick_not_admin_kick: "Sie können keinen Administrator von einem Sprachkanal trennen."
+vkick_logEmbed_title: "Sprachkick"
+vkick_logEmbed_desc: "${interaction.member.user.toString()} hat ${member.toString()} vom Sprachkanal ${voiceChannel?.toString()} getrennt."
+vkick_command_work: "${interaction.member.user.toString()}, Sie haben ${member.toString()} erfolgreich von ${voiceChannel?.toString()} getrennt."
+
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1224,6 +1232,7 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} hat ${channel} aus de
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **false** gesetzt.\nJetzt können Benutzer Erwähnungen in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf deinem Server deaktiviert!"
 automod_block_massmention_command_on: "${interaction.user}, du hast die `Massen-Erwähnungs-AutoMod-Regel` auf **true** gesetzt.\nJetzt können Benutzer nicht mehr als **${max_mention}** Erwähnungen in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt deinen Server!"
+automod_block_massmention_command_error404: Haben Sie Block Mention Spam (standardmäßig von Discord aktiviert) in den AutoMod-Einstellungen aktiviert gelassen, da dies wahrscheinlich für diesen Fehler verantwortlich ist, deaktivieren Sie es bitte und starten Sie die Bestellung erneut.
 
 # /automod block links
 automod_block_link_command_on: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **true** gesetzt.\nNun können Benutzer keine Links in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt Ihren Server!"

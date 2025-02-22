@@ -19,25 +19,23 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client } from 'discord.js';
 import { BashCommands } from '../../../../types/bashCommands.js';
 import wait from '../../functions/wait.js';
-import logger from '../../logger.js';
 
 export const command: BashCommands = {
     command_name: "shutdown",
     command_description: "Shutdown the bot",
-    aliases: ["exit", "poweroff"],
-    run: async function (client: Client, args: string) {
-        logger.legacy(`* Closed session...`.gray.bgBlack);
+    aliases: ["poweroff"],
+    run: async function (client, stream, args) {
+        stream.write(`* Closed session...`.gray.bgBlack);
 
         await wait(1000);
-        logger.legacy(`\n* Unload all script...`.gray.bgBlack);
+        stream.write(`\n\r* Unload all script...`.gray.bgBlack);
 
         await wait(1000);
-        logger.legacy(`* All are successfully unloaded`.gray.bgBlack);
+        stream.write(`* All are successfully unloaded`.gray.bgBlack);
 
-        logger.legacy(`* Power off...`.red.bgBlack);
+        stream.write(`* Power off...`.red.bgBlack);
 
         client.shard?.send("shutdown");
         await client.destroy();

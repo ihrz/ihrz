@@ -20,23 +20,22 @@
 */
 
 import { BashCommands } from '../../../../types/bashCommands.js';
-import logger from "../../logger.js";
-import { Client } from 'discord.js';
 
 export const command: BashCommands = {
     command_name: "leave",
     command_description: "Leave a guild with them id",
-    run: function (client: Client, args: string) {
+    run: async function (client, stream, args) {
         if (!args) {
-            return logger.legacy(`[*] I have not received the Guild's ID on the command.`.gray.bgBlack);
+            stream.write(`[*] I have not received the Guild's ID on the command.`.gray.bgBlack);
+            return;
         };
 
-        let guild = client.guilds.cache.get(args);
+        let guild = client.guilds.cache.get(args[0]);
 
         guild?.leave().catch(() => {
-            logger.legacy(`* The guild doesn't exist on bot's database.`.gray.bgBlack);
+            stream.write(`* The guild doesn't exist on bot's database.`.gray.bgBlack);
         });
 
-        logger.legacy(`* I have successfully leave the server.`.gray.bgBlack);
+        stream.write(`* I have successfully leave the server.`.gray.bgBlack);
     }
 };

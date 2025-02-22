@@ -19,20 +19,18 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
-import logger from "../../logger.js";
+import { BaseGuildTextChannel, EmbedBuilder } from 'discord.js';
 import { BashCommands } from '../../../../types/bashCommands.js';
 
 export const command: BashCommands = {
     command_name: "broadcast",
     command_description: "Send a message to all of iHorizon guild",
     aliases: ["bc", "announce", "sendall", "send"],
-    run: async function (client: Client, args: string) {
-        let args2 = args.split(" ");
+    run: async function (client, stream, args) {
         let embed = new EmbedBuilder()
             .setColor('#4dff00')
             .setTitle('@Broadcast message')
-            .setDescription(`\`${args2.slice(0).join(" ")}\``)
+            .setDescription(`\`${args.join(" ")}\``)
             .setFooter({ text: `Kisakay - iHorizon`, iconURL: "attachment://footer_icon.png" });
 
         let i = 0;
@@ -51,6 +49,6 @@ export const command: BashCommands = {
             } catch { }
         };
 
-        logger.legacy(`* All are successfully sended to ${i} guild(s)`.gray.bgBlack);
+        stream.write(`* All are successfully sended to ${i} guild(s)`.gray.bgBlack);
     }
-}
+};
