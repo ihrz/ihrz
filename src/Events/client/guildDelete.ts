@@ -43,8 +43,7 @@ export const event: BotEvent = {
                     return;
                 }
 
-                let owner1 = client.config.owner.ownerid1;
-                let owner2 = client.config.owner.ownerid2;
+                let owners = new Set(client.owners);
 
                 if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
@@ -62,15 +61,12 @@ export const event: BotEvent = {
                     .setThumbnail(guild.iconURL())
                     .setFooter({ text: client.user?.username!, iconURL: "attachment://footer_icon.png" });
 
-                await (client.users.cache.get(owner1))?.send({
-                    embeds: [embed],
-                    files: [await client.method.bot.footerAttachmentBuilder(guild)]
-                });
-
-                await (client.users.cache.get(owner2))?.send({
-                    embeds: [embed],
-                    files: [await client.method.bot.footerAttachmentBuilder(guild)]
-                });
+                for (let owner of owners) {
+                    await (client.users.cache.get(owner))?.send({
+                        embeds: [embed],
+                        files: [await client.method.bot.footerAttachmentBuilder(guild)]
+                    });
+                }
             } catch (error: any) {
                 logger.err(error);
             }

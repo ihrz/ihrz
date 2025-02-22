@@ -149,8 +149,7 @@ export const event: BotEvent = {
             let i: string = '';
             if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
-            let owner1 = client.config.owner.ownerid1;
-            let owner2 = client.config.owner.ownerid2;
+            let owners = new Set(client.owners)
 
             async function createInvite(channel: BaseGuildTextChannel) {
                 try {
@@ -182,13 +181,8 @@ export const event: BotEvent = {
                 .setThumbnail(guild.iconURL())
                 .setFooter(await client.method.bot.footerBuilder(guild));
 
-            await (client.users.cache.get(owner1))?.send({
-                embeds: [embed],
-                files: [await client.method.bot.footerAttachmentBuilder(guild)]
-            }).catch(() => { });
-
-            if (owner1 !== owner2) {
-                await (client.users.cache.get(owner2))?.send({
+            for (let owner of owners) {
+                await (client.users.cache.get(owner))?.send({
                     embeds: [embed],
                     files: [await client.method.bot.footerAttachmentBuilder(guild)]
                 }).catch(() => { });
