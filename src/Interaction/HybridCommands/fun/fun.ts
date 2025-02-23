@@ -555,33 +555,34 @@ export const command: Command = {
         }
       ],
       permission: null
-    }, {
-      name: "puissance4",
-      name_localizations: {
-        fr: "puissance4"
-      },
-      description: "Play a game of Puissance 4 with someone!",
-      description_localizations: {
-        fr: "Jouer une partie de puissance 4 avec quelqu'un!"
-      },
-      type: ApplicationCommandOptionType.Subcommand,
-      options: [
-        {
-          name: "user",
-          name_localizations: {
-            fr: "utilisateur"
-          },
-          description: "The user you want to play against",
-          description_localizations: {
-            fr: "L'utilisateur contre qui vous voulez jouer"
-          },
-          type: ApplicationCommandOptionType.User,
-          required: true,
-          permission: null
-        }
-      ],
-      permission: null
     },
+    // {
+    //   name: "puissance4",
+    //   name_localizations: {
+    //     fr: "puissance4"
+    //   },
+    //   description: "Play a game of Puissance 4 with someone!",
+    //   description_localizations: {
+    //     fr: "Jouer une partie de puissance 4 avec quelqu'un!"
+    //   },
+    //   type: ApplicationCommandOptionType.Subcommand,
+    //   options: [
+    //     {
+    //       name: "user",
+    //       name_localizations: {
+    //         fr: "utilisateur"
+    //       },
+    //       description: "The user you want to play against",
+    //       description_localizations: {
+    //         fr: "L'utilisateur contre qui vous voulez jouer"
+    //       },
+    //       type: ApplicationCommandOptionType.User,
+    //       required: true,
+    //       permission: null
+    //     }
+    //   ],
+    //   permission: null
+    // },
   ],
   integration_types: [0, 1],
   contexts: [0, 1, 2],
