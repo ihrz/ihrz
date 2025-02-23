@@ -1812,7 +1812,7 @@ suggest_accept_not_found_db: "The suggestion is not found in my DB!"
 suggest_accept_already_replied: "This suggestion has already been replied!"
 suggest_accept_embed_fields_to_put: "Response of ${interaction.user.username} (Accepting)"
 suggest_acceptembed_title_to_put: "[Accepting] ${msg.embeds[0].data?.title}"
-suggest_accept_command_work: "You have been accepting the suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_accept_command_work: "You have accepting the sugge stion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
 suggest_accept_command_error: "The suggestion are not found in the Discord channel!"
 
 # /suggest deny
@@ -1844,8 +1844,8 @@ suggest_delete_command_error: "The suggestion is not found in this Discord chann
 
 # /setsuggest disable
 setsuggest_disable_not_admin: "You are not an admin!"
-setsuggest_disable_pw_on: "${interaction.user}, you have been enable the Suggestion Module!"
-setsuggest_disable_pw_off: "${interaction.user}, you have been disable the Suggestion Module!"
+setsuggest_disable_pw_on: "${interaction.user}, you have enabled the Suggestion Module!"
+setsuggest_disable_pw_off: "${interaction.user}, you have disabled the Suggestion Module!"
 
 # /setsuggest channel
 setsuggest_channel_not_admin: "You are not an admin!"

@@ -42,7 +42,7 @@ export const subCommand: SubCommand = {
                     content: lang.tictactoe_no_opponent,
                     ephemeral: true
                 } as const;
-                return interaction.deferred ? interaction.editReply(response) : interaction.reply(response);
+                return interaction.deferred ? interaction.editReply(response) : interaction.reply({ withResponse: true, ...response });
             }
 
             if (opponent.id === interaction.user.id) {
@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
                     content: lang.tictactoe_against_yourself,
                     ephemeral: true
                 } as const;
-                return interaction.deferred ? interaction.editReply(response) : interaction.reply(response);
+                return interaction.deferred ? interaction.editReply(response) : interaction.reply({ withResponse: true, ...response });
             }
 
             if (opponent.bot) {
@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
                     content: lang.tictactoe_cant_play_against_bot,
                     ephemeral: true
                 } as const;
-                return interaction.deferred ? interaction.editReply(response) : interaction.reply(response);
+                return interaction.deferred ? interaction.editReply(response) : interaction.reply({ withResponse: true, ...response });
             }
 
             const response = {
@@ -79,7 +79,7 @@ export const subCommand: SubCommand = {
                 ephemeral: true
             } as const;
 
-            const message = await (interaction.deferred ? interaction.editReply(response) : interaction.reply(response));
+            const message = await (interaction.deferred ? interaction.editReply(response) : interaction.reply({ withResponse: true, ...response })) as Message<boolean>;
 
             const filter = (i: any) => i.user.id === opponent.id;
             const collector = message.createMessageComponentCollector({ filter, time: 30 * 1000 });
@@ -109,7 +109,7 @@ export const subCommand: SubCommand = {
                     const gameResponse = {
                         content: lang.tictactoe_turn.replace('{user}', `<@${interaction.user.id}>`).replace('{opponent}', `<@${opponent.id}>`).replace('{currentPlayer}', currentPlayer === interaction.user.id ? `<@${interaction.user.id}>` : `<@${opponent.id}>`),
                         components: client.func.tictactoe.createBoard(board),
-                        fetchReply: true
+                        withResponse: true
                     };
 
                     const gameMessage = await i.reply(gameResponse);
