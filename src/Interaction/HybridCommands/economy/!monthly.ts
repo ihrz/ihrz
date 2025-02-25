@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
         };
 
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly), lang);
 
             await client.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
             return;

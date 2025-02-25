@@ -188,7 +188,7 @@ export const subCommand: SubCommand = {
                         if (content.wantedValueType === 'number') {
                             value = inDb.toString()
                         } else if (content.wantedValueType === 'time') {
-                            let beautifulTime = client.timeCalculator.to_beautiful_string(inDb.toString() + 'ms');
+                            let beautifulTime = client.timeCalculator.to_beautiful_string(inDb.toString() + 'ms', lang);
 
                             if (!beautifulTime) {
                                 value = '⏲️ ' + lang.setjoinroles_var_none
@@ -221,7 +221,7 @@ export const subCommand: SubCommand = {
                 case 'punishTime':
                 case 'maxDuplicatesInterval':
                 case 'maxInterval':
-                    return client.timeCalculator.to_beautiful_string(value.toString() + 'ms') ? `\`${client.timeCalculator.to_beautiful_string(value.toString() + 'ms')}\`` : `\`⏲️ ${lang.setjoinroles_var_none}\``;
+                    return client.timeCalculator.to_beautiful_string(value.toString() + 'ms', lang) ? `\`${client.timeCalculator.to_beautiful_string(value.toString() + 'ms', lang)}\`` : `\`⏲️ ${lang.setjoinroles_var_none}\``;
                 default:
                     return `\`${value.toString()}\``;
             }

@@ -75,7 +75,7 @@ export const subCommand: SubCommand = {
                 content: lang.util_autorenew_command_ok
                     .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                     .replace("${channel.toString()}", channel.toString())
-                    .replace("${time}", client.timeCalculator.to_beautiful_string(parseTime))
+                    .replace("${time}", client.timeCalculator.to_beautiful_string(parseTime, lang))
             })
         }
     },

@@ -40,7 +40,6 @@ export const event: BotEvent = {
                     if (role) await member.roles.add(role).catch(() => null);
                 }
             });
-        } catch {
-        }
+        } catch {}
     }
 };

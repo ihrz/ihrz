@@ -31,7 +31,7 @@ import { Command } from '../../../../../types/command.js';
 import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {        
+    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 
         // Guard's Typing
@@ -42,17 +42,16 @@ export const subCommand: SubCommand = {
         let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
 
         if (!baseData) {
+            let datas = {
+                enable: false,
+                list: {
+                    [`${interaction.guild?.ownerId}`]: { allowed: true },
+                },
+            };
 
-            await client.db.set(`${interaction.guildId}.ALLOWLIST`,
-                {
-                    enable: false,
-                    list: {
-                        [`${interaction.guild?.ownerId}`]: { allowed: true },
-                    },
-                }
-            );
+            await client.db.set(`${interaction.guildId}.ALLOWLIST`, datas);
 
-            baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
+            baseData = datas;
         };
 
         for (var i in baseData.list) {

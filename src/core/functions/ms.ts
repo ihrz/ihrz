@@ -110,7 +110,7 @@ class iHorizonTimeCalculator {
         return totalMilliseconds === 0 ? undefined : totalMilliseconds;
     };
 
-    to_beautiful_string(timeStringOrMs: string | number, options?: { long?: boolean }, lang?: LanguageData): string {
+    to_beautiful_string(timeStringOrMs: string | number, lang: LanguageData, options?: { long?: boolean }): string {
         let milliseconds: number;
 
         if (typeof timeStringOrMs === 'string') {

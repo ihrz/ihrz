@@ -26,8 +26,6 @@ import { BotEvent } from '../../../types/event.js';
 export const event: BotEvent = {
     name: "messageCreate",
     run: async (client: Client, message: Message) => {
-        if (!message.guild || message.author.bot || !message.channel) return;
-
         if (!message.guild
             || message.author.bot
             || !message.channel
@@ -50,6 +48,5 @@ export const event: BotEvent = {
         if (firstWord && recognizeItems.some(item => firstWord.startsWith(item.toLowerCase()))) {
             await message.react('👋').catch(() => { });
         }
-        return;
     },
 };

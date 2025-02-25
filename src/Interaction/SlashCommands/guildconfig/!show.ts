@@ -321,7 +321,7 @@ function picOnlyChannelsToString(picOnly: DatabaseStructure.UtilsData["picOnly"]
 }
 
 function picOnlyConfigToString(picOnlyConfig: DatabaseStructure.PicOnlyConfig | undefined, lang: LanguageData): string {
-    return picOnlyConfig === undefined ? lang.var_none : `\- ${lang.utils_piconly_embed_fields_3_name}: ${new iHorizonTimeCalculator().to_beautiful_string(picOnlyConfig.muteTime || 0)}\n\- ${lang.utils_piconly_modal2_fields1_label}: ${picOnlyConfig.threshold}`
+    return picOnlyConfig === undefined ? lang.var_none : `\- ${lang.utils_piconly_embed_fields_3_name}: ${new iHorizonTimeCalculator().to_beautiful_string(picOnlyConfig.muteTime || 0, lang)}\n\- ${lang.utils_piconly_modal2_fields1_label}: ${picOnlyConfig.threshold}`
 }
 
 function wlRolesToString(wlRoles: DatabaseStructure.UtilsData["wlRoles"] | undefined, lang: LanguageData): string {
@@ -338,15 +338,15 @@ function antispamToString(antispamConfig: AntiSpam.AntiSpamOptions | undefined, 
 \- ${lang.antispam_manage_choices_1_label}: \`${antispamConfig.Enabled ? "🟢" : "🔴"}\`
 \- ${lang.antispam_manage_choices_6_desc}: \`${antispamConfig.removeMessages ? lang.var_yes : lang.var_no}\`
 \- ${lang.antispam_manage_choices_3_label}: \`${antispamConfig.punishment_type}\`
-\- ${lang.antispam_manage_choices_4_label}: \`${new iHorizonTimeCalculator().to_beautiful_string(antispamConfig.punishTime || 0)}\`
-\- ${lang.antispam_manage_choices_7_label}: \`${new iHorizonTimeCalculator().to_beautiful_string(antispamConfig.maxInterval || 0)}\`
+\- ${lang.antispam_manage_choices_4_label}: \`${new iHorizonTimeCalculator().to_beautiful_string(antispamConfig.punishTime || 0, lang)}\`
+\- ${lang.antispam_manage_choices_7_label}: \`${new iHorizonTimeCalculator().to_beautiful_string(antispamConfig.maxInterval || 0, lang)}\`
 `
 }
 
 function tooNewAccountToString(user: GuildMember, tooNewConfig: DatabaseStructure.BlockNewAccountSchema | undefined, lang: LanguageData): string {
     return (tooNewConfig?.state === true) ? lang.too_new_account_logEmbed_desc_on_enable
         .replace('${interaction.user}', user.toString())
-        .replace('${beautifulTime}', new iHorizonTimeCalculator().to_beautiful_string(tooNewConfig?.req || 0)) : lang.var_no_set;
+        .replace('${beautifulTime}', new iHorizonTimeCalculator().to_beautiful_string(tooNewConfig?.req || 0, lang)) : lang.var_no_set;
 }
 
 function roleSaverToString(rs: DatabaseStructure.RoleSaverSchema | undefined, lang: LanguageData): string {
@@ -354,7 +354,7 @@ function roleSaverToString(rs: DatabaseStructure.RoleSaverSchema | undefined, la
         `
 \- ${lang.rolesaver_embed_fields_1_name}: \`${rs.enable ? "🟢" : "🔴"}\`
 \- ${lang.rolesaver_embed_fields_2_name}: \`${rs.admin ? lang.var_yes : lang.var_no}\`
-\- ${lang.rolesaver_embed_fields_3_name}: \`${new iHorizonTimeCalculator().to_beautiful_string(rs.timeout || 0)}\`
+\- ${lang.rolesaver_embed_fields_3_name}: \`${new iHorizonTimeCalculator().to_beautiful_string(rs.timeout || 0, lang)}\`
 `
 }
 

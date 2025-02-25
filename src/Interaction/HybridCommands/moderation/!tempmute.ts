@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
             return;
         }
 
-        let mutetimeString = client.timeCalculator.to_beautiful_string(mutetime);
+        let mutetimeString = client.timeCalculator.to_beautiful_string(mutetime, lang);
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
             await client.method.interactionSend(interaction, {

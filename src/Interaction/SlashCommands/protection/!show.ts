@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
 
         let baseData4Protection = await client.db.get(`${interaction.guild.id}.PROTECTION`);
 
-        if (!baseData || !baseData4Protection) {
+        if (!baseData || !baseData4Protection || Object.keys(baseData.list).length === 0 || Object.keys(baseData4Protection).length === 0) {
             await interaction.editReply({ content: lang.authorization_configshow_not_anything_setup });
             return;
         };

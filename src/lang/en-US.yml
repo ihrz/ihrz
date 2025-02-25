@@ -125,15 +125,15 @@ perm_useexternalapps_name: "Use External Apps"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
-ticket_disabled_command: "You can't use this command because an Administrator disabled the ticket commands !"
+ticket_disabled_command: "You cannot use this command because an administrator has disabled it"
 
 # /add
-add_disabled_command: "You can't use this command because an Administrator disabled the ticket commands !"
+add_disabled_command: "You cannot use this command because an administrator has disabled it"
 add_command_work: "Successfully added ${member.tag} to your ticket!"
 add_command_error: "Error occurred, please try again"
 
 # /close
-close_disabled_command: "You can't use this command because an Administrator disabled the ticket commands !"
+close_disabled_command: "You cannot use this command because an administrator has disabled it"
 close_title_sourcebin: "Ticket transcripted by iHorizon"
 close_description_sourcebin: " "
 close_error_command: "Error occurred, please try again!"
@@ -143,11 +143,11 @@ close_command_error: "Error occurred, please try again!"
 close_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 
 # /delete
-delete_disabled_command: "You can't use this command because an Administrator disabled the ticket commands !"
+delete_disabled_command: "You cannot use this command because an administrator has disabled it"
 delete_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 
 # /sethereticket
-sethereticket_disabled_command: "You can't use this command because an Administrator disabled the ticket commands !"
+sethereticket_disabled_command: "You cannot use this command because an administrator has disabled it"
 sethereticket_not_admin: ":x: | You must be an administrator of this server in order to use this command!"
 sethereticket_description_embed: "To create a new ticket, please react with 📩"
 sethereticket_command_work: "Ticket panel has been set successfully!"
@@ -172,13 +172,13 @@ sethereticket_modal_2_fields_2_title: "Embed's Description"
 sethereticket_panel_select_embed_desc: "# Panel Name\n```${result.panelName}```\n{msg}\n\n## Category\n```{category}```\n"
 
 # /open
-open_disabled_command: "You can't use this command because an Administrator disabled the ticket commands !"
+open_disabled_command: "You cannot use this command because an administrator has disabled it"
 open_command_work: "Successfully re-opened ${interaction.channel}"
 open_command_error: "Error occurred, please try again!"
 open_not_in_ticket: "You cannot use this command outside of a ticket channel!"
 
 # /remove
-remove_disabled_command: "You can't use this command because an Administrator disabled the ticket commands !"
+remove_disabled_command: "You cannot use this command because an administrator has disabled it"
 remove_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 remove_command_error: "Error occurred, please try again"
 remove_command_work: "Successfully removed ${member.tag} from your ticket!"

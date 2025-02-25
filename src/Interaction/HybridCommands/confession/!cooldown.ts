@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var action = interaction.options.getString("time") as string;
         } else {
-            
+
             var action = (client.method.string(args!, 0) || "0s") as string
         };
 
@@ -61,14 +61,14 @@ export const subCommand: SubCommand = {
         await client.method.interactionSend(interaction, {
             content: lang.confession_coolodwn_command_work
                 .replace('${interaction.user.toString()}', interaction.member.user.toString())
-                .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time))
+                .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time, lang))
         });
 
         await client.method.iHorizonLogs.send(interaction, {
             title: lang.confession_cooldown_log_embed_title,
             description: lang.confession_cooldown_log_embed_desc
                 .replace('${interaction.user}', interaction.member.user.toString())
-                .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time))
+                .replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time, lang))
         });
 
         return;

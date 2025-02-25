@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
         };
 
         if (weekly !== null && timeout - (Date.now() - weekly) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - weekly));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - weekly), lang);
 
             await client.method.interactionSend(interaction, {
                 content: lang.weekly_cooldown_error

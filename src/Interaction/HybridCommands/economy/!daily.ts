@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 
 
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - daily));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - daily), lang);
 
             await client.method.interactionSend(interaction, { content: lang.daily_cooldown_error.replace(/\${time}/g, time) });
             return;

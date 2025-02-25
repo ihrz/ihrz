@@ -79,7 +79,7 @@ export const subCommand: SubCommand = {
                 },
                 {
                     name: lang.utils_piconly_embed_fields_3_name,
-                    value: String(client.timeCalculator.to_beautiful_string(baseData.muteTime!) || client.timeCalculator.to_beautiful_string("10m")),
+                    value: String(client.timeCalculator.to_beautiful_string(baseData.muteTime!, lang) || client.timeCalculator.to_beautiful_string("10m", lang)),
                     inline: true
                 },
             );
@@ -259,7 +259,7 @@ export const subCommand: SubCommand = {
                 },
                 {
                     name: lang.utils_piconly_embed_fields_3_name,
-                    value: String(client.timeCalculator.to_beautiful_string(baseData.muteTime!) || client.timeCalculator.to_beautiful_string("10m")),
+                    value: String(client.timeCalculator.to_beautiful_string(baseData.muteTime!, lang) || client.timeCalculator.to_beautiful_string("10m", lang)),
                     inline: true
                 }
             );
