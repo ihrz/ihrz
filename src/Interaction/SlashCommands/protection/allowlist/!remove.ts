@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
             return;
         };
 
-        if (interaction.user.id !== interaction.guild.ownerId && baseData.list[interaction.user.id]?.allowed !== true) {
+        if (interaction.user.id !== interaction.guild.ownerId && baseData?.list[interaction.user.id]?.allowed !== true) {
             await interaction.reply({ content: lang.allowlist_delete_not_permited });
             return;
         };
