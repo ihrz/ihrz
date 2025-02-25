@@ -68,7 +68,7 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var action_2 = interaction.options.getString("name")!;
         } else {
-            var action_2 = client.method.string(args!, 0)!;
+            var action_2 = client.method.longString(args!, 0)!;
         };
 
         let table = client.db.table('OWNER');
