@@ -38,7 +38,5 @@ export const event: BotEvent = {
                 }
             );
         };
-
-        return;
     },
 };

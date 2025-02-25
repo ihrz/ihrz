@@ -48,7 +48,7 @@ export const subCommand: SubCommand = {
 
         if (
             interaction.user.id !== interaction.guild.ownerId
-            && baseData.list[interaction.user.id]?.allowed !== true
+            && baseData?.list[interaction.user.id]?.allowed !== true
             && !client.owners.includes(interaction.user.id)
         ) {
             await interaction.reply({ content: lang.allowlist_add_not_permited });
