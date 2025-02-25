@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
         };
 
         if (work !== null && timeout - (Date.now() - work) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work), lang);
 
             await client.method.interactionSend(interaction, {
                 content: lang.economy_cooldown_error

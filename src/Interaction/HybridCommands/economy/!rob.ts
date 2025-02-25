@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
         };
 
         if (rob !== null && timeout - (Date.now() - rob) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - rob));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - rob), lang);
 
             await client.method.interactionSend(interaction, {
                 content: lang.work_cooldown_error

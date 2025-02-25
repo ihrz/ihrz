@@ -35,16 +35,14 @@ type MessageCommandResponse = {
 
 export async function parseMessageCommand(client: Client, message: Message): Promise<MessageCommandResponse> {
     const prefix = await client.func.prefix.guildPrefix(client, message.guildId!);
-    if (!message.content.startsWith(prefix.string)) {
+    if (!message.content.startsWith(prefix.string))
         return { success: false };
-    }
 
     const args = message.content.slice(prefix.string.length).trim().split(/ +/g);
     const commandName = args.shift()?.toLowerCase();
 
-    if (!commandName) {
+    if (!commandName)
         return { success: false };
-    }
 
     if (message.reference && message.reference.messageId) {
         const referencedMessage = await message.channel.messages.fetch(message.reference.messageId);

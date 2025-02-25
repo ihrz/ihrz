@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
             var user = interaction.user;
         } else {
             
-            var pollMessage = client.method.string(args!, 0);
+            var pollMessage = client.method.longString(args!, 0);
             var user = interaction.author;
         }
 

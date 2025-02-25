@@ -62,6 +62,6 @@ export const event: BotEvent = {
             })
                 .catch(() => { })
                 .then(() => { });
-        } catch { return; };
+        } catch {};
     },
 };

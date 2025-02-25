@@ -47,7 +47,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
     let panel = allDataConfession.panel;
 
     if (confessionTime !== null && timeout - (Date.now() - confessionTime) > 0) {
-        let time = interaction.client.timeCalculator.to_beautiful_string(timeout - (Date.now() - confessionTime));
+        let time = interaction.client.timeCalculator.to_beautiful_string(timeout - (Date.now() - confessionTime), lang);
 
         await interaction.reply({
             content: lang.monthly_cooldown_error.replace(/\${time}/g, time),

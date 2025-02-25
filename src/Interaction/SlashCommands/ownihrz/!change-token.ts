@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
         let executingBefore = await tempTable.get(`OWNIHRZ_CHANGE_TOKEN.${interaction.user.id}.timeout`);
 
         if (executingBefore !== null && timeout - (Date.now() - executingBefore) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - executingBefore));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - executingBefore), lang);
 
             await client.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
             return;

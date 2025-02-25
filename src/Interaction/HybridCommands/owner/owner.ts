@@ -106,6 +106,9 @@ export const command: Command = {
         };
 
         await tableOwner.set(`${member.id}`, { owner: true });
+        client.owners.push(member.id);
+        client.owners = [...new Set(client.owners)];
+
         await client.method.interactionSend(interaction, { content: lang.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
         return;
     },

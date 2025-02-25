@@ -61,7 +61,7 @@ export const subCommand: SubCommand = {
                 return;
             }
 
-            let beautifulTime = client.timeCalculator.to_beautiful_string(calculatedTime);
+            let beautifulTime = client.timeCalculator.to_beautiful_string(calculatedTime, lang);
 
             await client.method.iHorizonLogs.send(interaction, {
                 title: lang.too_new_account_logEmbed_title,

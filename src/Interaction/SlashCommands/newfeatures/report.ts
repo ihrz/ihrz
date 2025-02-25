@@ -69,7 +69,7 @@ export const command: Command = {
         let cooldown = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.REPORT.cooldown`);
 
         if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - cooldown));
+            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - cooldown), lang);
 
             await interaction.editReply({
                 content: lang.report_cooldown_command

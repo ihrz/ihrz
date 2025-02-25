@@ -38,9 +38,7 @@ export const event: BotEvent = {
 
         let type = await client.db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`) as DatabaseStructure.GuildConfigSchema['antipub'];
 
-        if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return;
-        }
+        if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
 
         let member = message.guild.members.cache.get(message.author.id);
 
@@ -121,9 +119,7 @@ export const event: BotEvent = {
                     const hasOnlyValidMedia = mediaChecks.every(Boolean);
                     const isValidWhitelisted = whitelistChecks.some(Boolean);
 
-                    if (hasOnlyValidMedia || isValidWhitelisted) {
-                        return;
-                    }
+                    if (hasOnlyValidMedia || isValidWhitelisted) return;
                 }
 
                 for (let word of blacklist) {
