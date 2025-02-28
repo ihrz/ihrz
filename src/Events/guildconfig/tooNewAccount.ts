@@ -46,7 +46,7 @@ export const event: BotEvent = {
 
         if (accountAge < baseData.req) {
             try {
-                member.kick("Account is too new")
+                member.kick("[TooNewAccount] Account is too new")
                     .catch(() => { })
                     .then(() => { });
             } catch { }
