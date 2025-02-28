@@ -44,25 +44,14 @@ export const cache: AntiSpam.AntiSpamCache = {
     membersFlags: new Map<string, Map<string, number>>()
 };
 
-const timeouts: Record<string, Map<string, NodeJS.Timeout>> = {};
+const timeouts: Record<string, NodeJS.Timeout> = {};
 
-async function waitForFinish(guildId: string, authorId: string): Promise<void> {
-    if (!timeouts[guildId]) timeouts[guildId] = new Map();
-
+async function waitForFinish(guildId: string): Promise<void> {
     return new Promise((resolve) => {
-        if (timeouts[guildId].has(authorId)) {
-            clearTimeout(timeouts[guildId].get(authorId));
-        }
-
-        const newTimeout = setTimeout(() => {
-            timeouts[guildId].delete(authorId);
-            if (timeouts[guildId].size === 0) {
-                delete timeouts[guildId];
-            }
+        if (timeouts[guildId]) clearTimeout(timeouts[guildId]);
+        timeouts[guildId] = setTimeout(() => {
             resolve();
         }, 5000);
-
-        timeouts[guildId].set(authorId, newTimeout);
     });
 }
 
@@ -308,7 +297,7 @@ export const event: BotEvent = {
             }
 
             if (timeout < currentTime) {
-                await waitForFinish(message.guildId!, message.author.id);
+                await waitForFinish(message.guildId!);
                 await PunishUsers(message.guild.id, membersToPunish!, options);
                 await clearSpamMessages(message, cache.messages.get(message.guild.id)!);
                 await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options);
