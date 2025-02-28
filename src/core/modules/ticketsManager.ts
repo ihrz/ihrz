@@ -43,6 +43,7 @@ import {
     StringSelectMenuOptionBuilder,
     ChannelSelectMenuBuilder,
     ModalSubmitInteraction,
+    APIEmbed,
 } from 'discord.js';
 
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
@@ -791,17 +792,29 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
         // find the category name from the values of the select menu
         let categoryName = result.config.optionFields?.find(item => item.value === interaction.values[0]);
 
-        embeds.push(
-            new EmbedBuilder()
-                .setColor(2829617)
-                .setDescription(
-                    lang.sethereticket_panel_select_embed_desc
-                        .replace('${result.panelName}', result.placeholder)
-                        .replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
-                        .replace('{category}', categoryName?.name!)
-                )
-                .setFooter(await interaction.client.method.bot.footerBuilder(interaction))
-        );
+        let og_embed = new EmbedBuilder()
+            .setColor(2829617)
+            .setDescription(
+                lang.sethereticket_panel_select_embed_desc
+                    .replace('${result.panelName}', result.placeholder)
+                    .replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
+                    .replace('{category}', categoryName?.name!)
+            )
+            .setFooter(await interaction.client.method.bot.footerBuilder(interaction));
+
+        if (result.ticketChannelPanel) {
+            let embed_from_db = (await interaction.client.db.get(`EMBED.${result.ticketChannelPanel}.embedSource`) as APIEmbed | null);
+
+            if (embed_from_db) {
+                embeds.push(
+                    EmbedBuilder.from(embed_from_db)
+                );
+            } else {
+                embeds.push(og_embed);
+            }
+        } else {
+            embeds.push(og_embed);
+        }
 
         if (values.length > 0) {
             let desc = "";

@@ -261,6 +261,8 @@ export interface LanguageData {
   ticket_panel_preview_message: string;
   ticket_panel_option_change_category: string;
   ticket_panel_panel_10_label: string;
+  ticket_panel_channel_panel_embed_id: string;
+  ticket_panel_panel_11_label: string;
   ticket_rename_ok: string;
   ticket_rename_error: string;
   disablexp_not_admin: string;
@@ -969,13 +971,13 @@ export interface LanguageData {
   joinghostping_remove_logs_embed_desc: string;
   automod_block_massmention_command_off: string;
   automod_block_massmention_command_on: string;
+  automod_block_massmention_command_error404: string;
   automod_block_link_command_on: string;
   automod_block_link_command_off: string;
   automod_block_pub_command_on: string;
   automod_block_pub_command_off: string;
   automod_block_spam_command_on: string;
   automod_block_spam_command_off: string;
-  automod_block_massmention_command_error404: string;
   too_new_account_dont_specified_time_on_enable: string;
   too_new_account_invalid_time_on_enable: string;
   too_new_account_logEmbed_title: string;
@@ -1018,6 +1020,13 @@ export interface LanguageData {
   perm_rmv_usr: string;
   perm_set_command_reset: string;
   perm_set_no_modified: string;
+  perm_command_delete_dont_exist: string;
+  perm_command_delete_command_deleted: string;
+  perm_command_delete_specify_command: string;
+  perm_command_delete_all_one: string;
+  perm_command_delete_all_one_option: string;
+  perm_command_delete_all_zero_change: string;
+  perm_command_delete_all_command_ok: string;
   perm_roles_created_role: string;
   perm_roles_already_upate: string;
   perm_roles_error: string;

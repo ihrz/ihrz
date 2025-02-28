@@ -270,6 +270,8 @@ ticket_panel_add_form_modal_field2_label: "Question Placeholder"
 ticket_panel_preview_message: "Preview of the ticket panel"
 ticket_panel_option_change_category: "Select an option to change category"
 ticket_panel_panel_10_label: "Change category for one specific option"
+ticket_panel_channel_panel_embed_id: "Ticket Channel Embed ID"
+ticket_panel_panel_11_label: "Change ticket channel embed panel"
 
 # /ticket rename
 ticket_rename_ok: "Ticket channel has been renamed !"
@@ -1307,6 +1309,13 @@ perm_rmv_role: "Removed Role"
 perm_rmv_usr: "Removed user"
 perm_set_command_reset: "This command has been reset"
 perm_set_no_modified: "No permission modified"
+perm_command_delete_dont_exist: "The specified command does not have any permissions set."
+perm_command_delete_command_deleted: "Deleted permissions for command: `${commands}`"
+perm_command_delete_specify_command: "You need to specify a command to delete its permissions."
+perm_command_delete_all_one: "You need to specify one options to delete a permission."
+perm_command_delete_all_one_option: "You can only specify one option to delete a permission."
+perm_command_delete_all_zero_change: "The permission type you specified was not used in any command."
+perm_command_delete_all_command_ok: "\nSuccessfully deleted **${changes.length}** nested `${type}` (${value}) permissions from the database."
 
 # /perm roles
 perm_roles_created_role: "The following roles have been created: ${createdRoles.join(', ')}"

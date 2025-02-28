@@ -51,6 +51,7 @@ export interface TicketPanel {
     relatedEmbedId: string;
     placeholder: string;
     category?: string;
+    ticketChannelPanel?: string;
 
     config: {
         rolesToPing: string[];
@@ -120,6 +121,11 @@ export const subCommand: SubCommand = {
                     inline: true
                 },
                 {
+                    name: lang.ticket_panel_channel_panel_embed_id,
+                    value: baseData.ticketChannelPanel || lang.var_no_set,
+                    inline: true
+                },
+                {
                     name: lang.ticket_panel_role_to_ping,
                     value: baseData.config.rolesToPing.length >= 1 ? baseData.config.rolesToPing.map(x => `<@&${x}>`).join("") : lang.var_no_set,
                     inline: true
@@ -185,7 +191,10 @@ export const subCommand: SubCommand = {
                     .setValue("change_option"),
                 new StringSelectMenuOptionBuilder()
                     .setLabel(lang.ticket_panel_panel_9_label)
-                    .setValue("change_form")
+                    .setValue("change_form"),
+                new StringSelectMenuOptionBuilder()
+                    .setLabel(lang.ticket_panel_panel_11_label)
+                    .setValue("change_ticket_channel_panel"),
             );
 
         let panelButton = [
@@ -309,6 +318,10 @@ export const subCommand: SubCommand = {
                     i.deferUpdate();
                     await change_category();
                     break;
+                case "change_ticket_channel_panel":
+                    i.deferUpdate();
+                    await change_ticket_channel_panel(i);
+                    break;
             }
         });
 
@@ -389,7 +402,7 @@ export const subCommand: SubCommand = {
                     is_saved = false;
                     panelEmbed.data.fields![0].value = "🔴";
 
-                    panelEmbed.data.fields![6].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
+                    panelEmbed.data.fields![8].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
 
                     await originalResponse.edit({
                         embeds: [panelEmbed],
@@ -438,7 +451,7 @@ export const subCommand: SubCommand = {
                 is_saved = false;
                 panelEmbed.data.fields![0].value = "🔴";
 
-                panelEmbed.data.fields![5].value = fetchChannel!.toString();
+                panelEmbed.data.fields![6].value = fetchChannel!.toString();
 
                 await originalResponse.edit({
                     embeds: [panelEmbed],
@@ -474,7 +487,7 @@ export const subCommand: SubCommand = {
             is_saved = false;
             panelEmbed.data.fields![0].value = "🔴";
 
-            panelEmbed.data.fields![4].value = baseData.placeholder;
+            panelEmbed.data.fields![5].value = baseData.placeholder;
 
             modal.deferUpdate();
 
@@ -649,7 +662,7 @@ export const subCommand: SubCommand = {
                 panelEmbed.data.fields![0].value = "🔴";
 
                 // modify the panelEmbed to show the new role
-                panelEmbed.data.fields![2].value = baseData.config.rolesToPing.length >= 1 ? baseData.config.rolesToPing.map(x => `<@&${x}>`).join("") : lang.var_no_set;
+                panelEmbed.data.fields![4].value = baseData.config.rolesToPing.length >= 1 ? baseData.config.rolesToPing.map(x => `<@&${x}>`).join("") : lang.var_no_set;
 
                 // send the new panelEmbed
                 originalResponse.edit({
@@ -677,7 +690,7 @@ export const subCommand: SubCommand = {
             is_saved = false;
             panelEmbed.data.fields![0].value = "🔴";
 
-            panelEmbed.data.fields![3].value = baseData.config.pingUser ? "🟢" : "🔴";
+            panelEmbed.data.fields![4].value = baseData.config.pingUser ? "🟢" : "🔴";
 
             await originalResponse.edit({
                 embeds: [panelEmbed],
@@ -726,6 +739,48 @@ export const subCommand: SubCommand = {
                 components,
             });
 
+        }
+
+        async function change_ticket_channel_panel(i: StringSelectMenuInteraction<CacheType>) {
+            let modal = await iHorizonModalResolve({
+                customId: "change_embed2",
+                deferUpdate: false,
+                title: lang.ticket_panel_change_embed_modal_placeholder,
+                fields: [
+                    {
+                        customId: "embed_id",
+                        label: lang.ticket_panel_change_embed_modal_placeholder,
+                        style: TextInputStyle.Short,
+                        required: true,
+                        maxLength: 20,
+                        minLength: 0
+                    }
+                ]
+            }, i);
+
+            if (!modal) return;
+
+            // get the embed id
+            let embed_id = modal.fields.getTextInputValue("embed_id");
+
+            // check if the embed exists
+            let embed = await client.db.get(`EMBED.${embed_id}`);
+
+            if (!embed) {
+                return modal.reply({ ephemeral: true, content: lang.ticket_panel_change_embed_dont_exist });
+            }
+
+            baseData.ticketChannelPanel = embed_id;
+            is_saved = false;
+            panelEmbed.data.fields![0].value = "🔴";
+
+            panelEmbed.data.fields![2].value = baseData.ticketChannelPanel;
+            modal.deferUpdate();
+
+            await originalResponse.edit({
+                embeds: [panelEmbed],
+                components,
+            });
         }
 
         async function change_option() {
@@ -844,7 +899,7 @@ export const subCommand: SubCommand = {
             is_saved = false;
             panelEmbed.data.fields![0].value = "🔴";
 
-            panelEmbed.data.fields![6].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
+            panelEmbed.data.fields![7].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
 
             modal.deferUpdate();
 
@@ -899,7 +954,7 @@ export const subCommand: SubCommand = {
                 is_saved = false;
                 panelEmbed.data.fields![0].value = "🔴";
 
-                panelEmbed.data.fields![6].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
+                panelEmbed.data.fields![7].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
 
                 await i.deferUpdate();
 
@@ -1028,7 +1083,7 @@ export const subCommand: SubCommand = {
             is_saved = false;
             panelEmbed.data.fields![0].value = "🔴";
 
-            panelEmbed.data.fields![7].value = stringifyTicketPanelForm(baseData.config.form) || lang.var_no_set;
+            panelEmbed.data.fields![8].value = stringifyTicketPanelForm(baseData.config.form) || lang.var_no_set;
 
             modal.deferUpdate();
 
@@ -1087,7 +1142,7 @@ export const subCommand: SubCommand = {
                 is_saved = false;
                 panelEmbed.data.fields![0].value = "🔴";
 
-                panelEmbed.data.fields![7].value = stringifyTicketPanelForm(baseData.config.form) || lang.var_no_set;
+                panelEmbed.data.fields![8].value = stringifyTicketPanelForm(baseData.config.form) || lang.var_no_set;
 
                 await i.deferUpdate();
 

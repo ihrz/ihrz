@@ -271,6 +271,8 @@ ticket_panel_add_form_modal_field2_label: "Marcador da Pergunta"
 ticket_panel_preview_message: "Pré-visualização do painel de tickets"
 ticket_panel_option_change_category: "Selecione uma opção para alterar a categoria"
 ticket_panel_panel_10_label: "Alterar categoria para uma opção específica"
+ticket_panel_channel_panel_embed_id: "ID de incorporação do canal de tickets"
+ticket_panel_panel_11_label: "Alterar painel de incorporação do canal de tickets"
 
 # /ticket rename
 ticket_rename_ok: "O canal do ticket foi renomeado!"
@@ -1305,6 +1307,13 @@ perm_rmv_role: "Papel removido"
 perm_rmv_usr: "Usuário removido"
 perm_set_command_reset: "Este comando foi redefinido"
 perm_set_no_modified: "Nenhuma permissão modificada"
+perm_command_delete_dont_exist: "O comando especificado não tem nenhuma permissão definida."
+perm_command_delete_command_deleted: "Permissões eliminadas para o comando: `${commands}`"
+perm_command_delete_specify_command: "Precisa de especificar um comando para eliminar as suas permissões."
+perm_command_delete_all_one: "Precisa de especificar uma opção para eliminar uma permissão."
+perm_command_delete_all_one_option: "Só pode especificar uma opção para eliminar uma permissão."
+perm_command_delete_all_zero_change: "O tipo de permissão que especificou não foi utilizado em nenhum comando."
+perm_command_delete_all_command_ok: "\nForam eliminadas com sucesso **${changes.length}** permissões aninhadas do tipo `${type}` (${value}) da base de dados."
 
 # /perm roles
 perm_roles_created_role: "Созданы следующие роли: ${createdRoles.join(', ')}"

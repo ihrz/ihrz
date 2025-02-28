@@ -271,6 +271,8 @@ ticket_panel_add_form_modal_field2_label: "質問プレースホルダー"
 ticket_panel_preview_message: "チケットパネルのプレビュー"
 ticket_panel_option_change_category: "カテゴリを変更するオプションを選択してください"
 ticket_panel_panel_10_label: "特定のオプションのカテゴリを変更する"
+ticket_panel_channel_panel_embed_id: "チケットチャンネル埋め込みID"
+ticket_panel_panel_11_label: "チケットチャンネル埋め込みパネルを変更"
 
 # /ticket rename
 ticket_rename_ok: "チケットチャンネルの名前が変更されました！"
@@ -1305,6 +1307,13 @@ perm_rmv_role: "ロールを削除しました"
 perm_rmv_usr: "ユーザーを削除しました"
 perm_set_command_reset: "このコマンドはリセットされました"
 perm_set_no_modified: "権限が変更されませんでした"
+perm_command_delete_dont_exist: "指定されたコマンドには権限が設定されていません。"
+perm_command_delete_command_deleted: "コマンドの権限を削除しました：`${commands}`"
+perm_command_delete_specify_command: "権限を削除するコマンドを指定する必要があります。"
+perm_command_delete_all_one: "権限を削除するには1つのオプションを指定する必要があります。"
+perm_command_delete_all_one_option: "権限を削除するには1つのオプションのみ指定できます。"
+perm_command_delete_all_zero_change: "指定した権限タイプはどのコマンドでも使用されていませんでした。"
+perm_command_delete_all_command_ok: "\nデータベースから**${changes.length}**個のネストされた`${type}`タイプ（${value}）の権限を正常に削除しました。"
 
 # /perm roles
 perm_roles_created_role: "以下の役割が作成されました：${createdRoles.join('、')}"

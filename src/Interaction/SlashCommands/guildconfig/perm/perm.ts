@@ -142,15 +142,23 @@ export const command: Command = {
                     required: true,
                     choices: [
                         {
-                            name: 'Change commands permission',
+                            name: 'Change command permission',
                             value: "change"
+                        },
+                        {
+                            name: 'Delete command permission',
+                            value: "delete"
+                        },
+                        {
+                            name: 'Delete permission (role/user/level)',
+                            value: "delete-all"
                         },
                         {
                             name: "List all commands permission set",
                             value: "list"
                         }
                     ],
-                    
+
                     permission: null
                 },
                 {

@@ -271,6 +271,8 @@ ticket_panel_add_form_modal_field2_label: "النص التوضيحي للسؤا�
 ticket_panel_preview_message: "معاينة لوحة التذاكر"
 ticket_panel_option_change_category: "اختر خيارًا لتغيير الفئة"
 ticket_panel_panel_10_label: "تغيير الفئة لخيار واحد محدد"
+ticket_panel_channel_panel_embed_id: "معرف تضمين قناة التذاكر"
+ticket_panel_panel_11_label: "تغيير لوحة تضمين قناة التذاكر"
 
 # /ticket rename
 ticket_rename_ok: "تم تغيير اسم قناة التذكرة!"
@@ -1307,6 +1309,13 @@ perm_rmv_role: "تم إزالة الدور"
 perm_rmv_usr: "تم إزالة المستخدم"
 perm_set_command_reset: "تم إعادة تعيين هذا الأمر"
 perm_set_no_modified: "لم يتم تعديل أي صلاحية"
+perm_command_delete_dont_exist: "الأمر المحدد ليس له أي صلاحيات مضبوطة."
+perm_command_delete_command_deleted: "تم حذف صلاحيات الأمر: `${commands}`"
+perm_command_delete_specify_command: "تحتاج إلى تحديد أمر لحذف صلاحياته."
+perm_command_delete_all_one: "تحتاج إلى تحديد خيار واحد لحذف صلاحية."
+perm_command_delete_all_one_option: "يمكنك تحديد خيار واحد فقط لحذف صلاحية."
+perm_command_delete_all_zero_change: "نوع الصلاحية الذي حددته لم يتم استخدامه في أي أمر."
+perm_command_delete_all_command_ok: "\nتم حذف **${changes.length}** صلاحية متداخلة من نوع `${type}` (${value}) من قاعدة البيانات بنجاح."
 
 # /perm roles
 perm_roles_created_role: "الأدوار اللي اتعملت: ${createdRoles.join(', ')}"

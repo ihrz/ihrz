@@ -271,6 +271,8 @@ ticket_panel_add_form_modal_field2_label: "Fragen-Platzhalter"
 ticket_panel_preview_message: "Vorschau des Ticket-Panels"
 ticket_panel_option_change_category: "Wählen Sie eine Option, um die Kategorie zu ändern"
 ticket_panel_panel_10_label: "Kategorie für eine spezifische Option ändern"
+ticket_panel_channel_panel_embed_id: "Ticket-Kanal-Embed-ID"
+ticket_panel_panel_11_label: "Ticket-Kanal-Embed-Panel ändern"
 
 # /ticket rename
 ticket_rename_ok: "Ticket-Kanal wurde umbenannt!"
@@ -1305,6 +1307,13 @@ perm_rmv_role: "Rolle entfernt"
 perm_rmv_usr: "Benutzer entfernt"
 perm_set_command_reset: "Dieser Befehl wurde zurückgesetzt"
 perm_set_no_modified: "Keine Berechtigung geändert"
+perm_command_delete_dont_exist: "Für den angegebenen Befehl sind keine Berechtigungen festgelegt."
+perm_command_delete_command_deleted: "Berechtigungen für Befehl gelöscht: `${commands}`"
+perm_command_delete_specify_command: "Sie müssen einen Befehl angeben, um dessen Berechtigungen zu löschen."
+perm_command_delete_all_one: "Sie müssen eine Option angeben, um eine Berechtigung zu löschen."
+perm_command_delete_all_one_option: "Sie können nur eine Option angeben, um eine Berechtigung zu löschen."
+perm_command_delete_all_zero_change: "Der von Ihnen angegebene Berechtigungstyp wurde in keinem Befehl verwendet."
+perm_command_delete_all_command_ok: "\nErfolgreich **${changes.length}** verschachtelte `${type}`-Berechtigungen (${value}) aus der Datenbank gelöscht."
 
 # /perm roles
 perm_roles_created_role: "Folgende Rollen wurden erstellt: ${createdRoles.join(', ')}"

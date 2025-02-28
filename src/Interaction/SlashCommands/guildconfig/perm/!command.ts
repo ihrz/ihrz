@@ -316,6 +316,117 @@ export const subCommand: SubCommand = {
                     components: []
                 }).catch(() => { });
             });
+        } else if (choice === "delete") {
+            const commands = interaction.options.getString("command");
+
+            // If command is specified, delete permissions for that command only
+            if (commands) {
+                const existingPerms = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${commands}`) as DatabaseStructure.PermCommandData | DatabaseStructure.PermLevel | undefined;
+
+                if (!existingPerms) {
+                    await client.method.interactionSend(interaction, { content: lang.perm_command_delete_dont_exist });
+                    return;
+                }
+
+                await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${commands}`);
+                await client.method.interactionSend(interaction, {
+                    content: lang.perm_command_delete_command_deleted
+                        .replace("${commands}", commands)
+                });
+                return;
+            } else {
+                await client.method.interactionSend(interaction, { content: lang.perm_command_delete_specify_command });
+                return;
+            }
+        } else if (choice === "delete-all") {
+            const perms = interaction.options.getString("permission");
+            const customRole = interaction.options.getRole("custom-role");
+            const customUser = interaction.options.getMember("custom-user");
+
+            let changes = [];
+
+            // We need at least one of the options to proceed
+            if (!perms && !customRole && !customUser) {
+                await client.method.interactionSend(interaction, {
+                    content: lang.perm_command_delete_all_one
+                });
+                return;
+            }
+
+            // only one of the options can be specified
+            if ((perms && customRole) || (perms && customUser) || (customRole && customUser)) {
+                await client.method.interactionSend(interaction, {
+                    content: lang.perm_command_delete_all_one_option
+                });
+                return;
+            }
+
+            // Get existing permissions
+            const existingPerms = await client.db.get(`${interaction.guildId}.UTILS.PERMS`) as DatabaseStructure.UtilsPermsData;
+
+            if (!existingPerms || Object.keys(existingPerms).length === 0) {
+                await client.method.interactionSend(interaction, { content: lang.perm_list_no_command_set });
+                return;
+            }
+
+            // Delete all permissions according to the specified option accross all commands
+            if (perms) {
+                for (const [commandName, permData] of Object.entries(existingPerms)) {
+                    if (typeof permData === 'number') {
+                        if (permData === parseInt(perms)) {
+                            await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${commandName}`);
+                            changes.push(`- ${commandName} (${lang.var_level}: ${permData})\n`);
+                        }
+                    } else {
+                        if (permData.level === parseInt(perms)) {
+                            await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${commandName}`);
+                            changes.push(`- ${commandName} (${lang.var_level}: ${permData.level})\n`);
+                        }
+                    }
+                }
+            }
+
+            if (customRole) {
+                for (const [commandName, permData] of Object.entries(existingPerms)) {
+                    if (typeof permData !== 'number') {
+                        const roleIndex = permData.roles.indexOf(customRole.id);
+                        if (roleIndex !== -1) {
+                            permData.roles.splice(roleIndex, 1);
+                            await client.db.set(`${interaction.guildId}.UTILS.PERMS.${commandName}`, permData);
+                            changes.push(`- ${commandName} (${lang.var_roles}: @${customRole.name})\n`);
+                        }
+                    }
+                }
+            }
+
+            if (customUser) {
+                for (const [commandName, permData] of Object.entries(existingPerms)) {
+                    if (typeof permData !== 'number') {
+                        const userIndex = permData.users.indexOf(customUser.id);
+                        if (userIndex !== -1) {
+                            permData.users.splice(userIndex, 1);
+                            await client.db.set(`${interaction.guildId}.UTILS.PERMS.${commandName}`, permData);
+                            changes.push(`- ${commandName} (${lang.var_user}: ${customUser.id})\n`);
+                        }
+                    }
+                }
+            }
+
+            if (changes.length === 0) {
+                await client.method.interactionSend(interaction, { content: lang.perm_command_delete_all_zero_change });
+                return;
+            } else {
+                let msg = `\`\`\`diff\n${changes.join('')}\`\`\``;
+                let type = perms ? lang.var_permission : customRole ? lang.var_roles : lang.var_user;
+                let value = perms ? perms : customRole ? customRole.toString() : customUser ? customUser.toString() : '';
+
+                msg += lang.perm_command_delete_all_command_ok
+                    .replace("${changes.length}", changes.length.toString())
+                    .replace("${type}", type)
+                    .replace("${value}", value);
+                await client.method.interactionSend(interaction, { content: msg });
+                return;
+            }
         }
     }
 };
