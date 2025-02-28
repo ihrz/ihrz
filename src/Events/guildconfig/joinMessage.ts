@@ -223,7 +223,7 @@ export const event: BotEvent = {
                                 username: '.gg/' + VanityURL.code,
                                 mention: VanityURL.code!
                             },
-                            invitesAmount: VanityURL.uses.toString()!
+                            invitesAmount: VanityURL.uses
                         }
                     }
                 );

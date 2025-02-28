@@ -515,10 +515,10 @@ export function generateCustomMessagePreview(
                 username: string;
                 mention: string;
             }
-            invitesAmount: string;
+            invitesAmount: number;
         },
         ranks?: {
-            level: string;
+            level: number;
         },
         notifier?: {
             artistAuthor: string;
@@ -536,8 +536,8 @@ export function generateCustomMessagePreview(
         .replaceAll('{guildName}', input.guild.name)
         .replaceAll('{inviterUsername}', input.inviter?.user.username || `unknow_user`)
         .replaceAll('{inviterMention}', input.inviter?.user.mention || `@unknow_user`)
-        .replaceAll('{invitesCount}', input.inviter?.invitesAmount || '1337')
-        .replaceAll('{xpLevel}', input.ranks?.level || "1337")
+        .replaceAll('{invitesCount}', input.inviter?.invitesAmount.toString() || '1337')
+        .replaceAll('{xpLevel}', input.ranks?.level.toString() || "1337")
         .replaceAll("\\n", '\n')
         .replaceAll('{artistAuthor}', input.notifier?.artistAuthor || "Ninja")
         .replaceAll('{artistLink}', input.notifier?.artistLink || "https://twitch.tv/Ninja")
