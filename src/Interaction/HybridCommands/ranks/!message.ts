@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
                             guild: interaction.guild!,
                             guildLocal: guildLocal,
                             ranks: {
-                                level: "4"
+                                level: 4
                             }
                         },
                     )}` : lang.ranksSetMessage_help_embed_fields_custom_name_empy
@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
                             guild: interaction.guild!,
                             guildLocal: guildLocal,
                             ranks: {
-                                level: "4"
+                                level: 4
                             }
                         },
                     )}`
@@ -142,7 +142,7 @@ export const subCommand: SubCommand = {
                                     guild: interaction.guild!,
                                     guildLocal: guildLocal,
                                     ranks: {
-                                        level: "4"
+                                        level: 4
                                     }
                                 })}` : lang.ranksSetMessage_help_embed_fields_custom_name_empy
                         },

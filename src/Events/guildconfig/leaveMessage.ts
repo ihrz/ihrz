@@ -64,7 +64,7 @@ export const event: BotEvent = {
                                 username: inviter.username,
                                 mention: inviter.toString()
                             },
-                            invitesAmount: invitesAmount
+                            invitesAmount
                         }
                     }
                 );
@@ -73,7 +73,8 @@ export const event: BotEvent = {
                     content: messageContent,
                     enforceNonce: true,
                     nonce: nonce
-                }).catch(() => { });
+                }).catch(() => false);
+                return;
             } else {
                 await lChanManager.send({
                     content: client.method.generateCustomMessagePreview(
