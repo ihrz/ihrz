@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
         };
 
         (interaction.channel as BaseGuildTextChannel).permissionOverwrites
-            .create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: false }).then(async () => {
+            .create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: false, CreatePublicThreads: false, CreatePrivateThreads: false }).then(async () => {
                 await client.method.interactionSend(interaction, {
                     content: lang.lock_embed_message_description
                         .replace(/\${interaction\.user\.id}/g, interaction.member!.user.id)
