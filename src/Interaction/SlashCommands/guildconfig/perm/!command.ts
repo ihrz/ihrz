@@ -341,7 +341,7 @@ export const subCommand: SubCommand = {
         } else if (choice === "delete-all") {
             const perms = interaction.options.getString("permission");
             const customRole = interaction.options.getRole("custom-role");
-            const customUser = interaction.options.getMember("custom-user");
+            const customUser = interaction.options.getUser("custom-user");
 
             let changes = [];
 
