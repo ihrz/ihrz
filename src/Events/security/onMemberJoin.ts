@@ -64,7 +64,7 @@ export const event: BotEvent = {
         }).then(async (msg) => {
             let collector = msg.channel.createMessageCollector({
                 filter: (m) => m.author.id === member.id,
-                time: 30_000
+                time: (60_00 * 2 + 30_000)
             });
 
             let passedtest = false;
