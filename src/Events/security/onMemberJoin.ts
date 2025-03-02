@@ -30,7 +30,6 @@ import { LanguageData } from '../../../types/languageData.js';
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
-
         let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
         if (!baseData || baseData?.disable === true) return;
 
@@ -77,35 +76,27 @@ export const event: BotEvent = {
                     .then(() => { });
 
                 if (generatedCaptcha.code === m.content) {
-                    member.roles.add(baseData?.role)
-                        .catch(() => { })
-                        .then(() => { });
-                    msg.delete()
-                        .catch(() => { })
-                        .then(() => { });
+                    await member.roles.add(baseData?.role).catch(() => { })
+                    await member.roles.remove(baseData?.role2).catch(() => { })
+                    await msg.delete().catch(() => { })
+
                     passedtest = true;
                     return;
                 } else {
-                    msg.delete()
-                        .catch(() => { })
-                        .then(() => { });
-                    member.kick()
-                        .catch(() => { })
-                        .then(() => { });
+                    await msg.delete().catch(() => { })
+                    await member.kick().catch(() => { })
                     return;
                 }
             });
 
-            collector.on('end', () => {
+            collector.on('end', async () => {
                 if (passedtest) return;
 
                 if (!member.joinedAt && memberJoinDate === member.joinedAt) {
-                    member.kick();
+                    await member.kick().catch(() => { })
                 }
 
-                msg.delete()
-                    .catch(() => { })
-                    .then(() => { });
+                await msg.delete().catch(() => { })
             });
 
         }).catch((error: any) => {
