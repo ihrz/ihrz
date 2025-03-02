@@ -20,9 +20,11 @@
 */
 
 import { handlerCache } from "./handlerCache.js";
+import { Client } from "discord.js";
 
 declare global {
     var cache: typeof handlerCache;
+    var client: Client;
 }
 
-export {};
+export { };
