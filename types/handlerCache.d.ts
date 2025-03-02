@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { Client } from "discord.js";
+
 export namespace handlerCache {
     export const components_button: Record<string, any>;
     export const core_functions: Record<string, any>;

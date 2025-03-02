@@ -103,7 +103,7 @@ function getVibrancyScore(hsl: HSL): number {
 /**
  * Extrait une couleur vive et une couleur sombre dominantes d'une image
  */
-async function getVibrantAndDarkColors(input: string | Buffer): Promise<string> {
+export default async function getVibrantAndDarkColors(input: string | Buffer): Promise<string> {
     try {
         // Gestion des différents types d'entrée
         let imageBuffer: Buffer;
@@ -191,5 +191,3 @@ async function getVibrantAndDarkColors(input: string | Buffer): Promise<string> 
         throw error;
     }
 }
-
-export default getVibrantAndDarkColors;

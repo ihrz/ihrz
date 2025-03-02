@@ -25,7 +25,6 @@ import logger from "../../core/logger.js";
 import captcha from "../../core/captcha.js";
 
 import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
@@ -36,9 +35,9 @@ export const event: BotEvent = {
         let data = await client.func.getLanguageData(member.guild.id);
         let channel = member.guild.channels.cache.get(baseData?.channel);
         if (!channel) return;
-        let generatedCaptcha = await captcha(280, 100)
+        const { code, image } = await captcha(280, 100)
 
-        let sfbuff = Buffer.from((generatedCaptcha?.image).split(",")[1], "base64");
+        let sfbuff = Buffer.from((image).split(",")[1], "base64");
         const memberJoinDate = member.joinedAt;
 
         let embed = new EmbedBuilder()
@@ -71,11 +70,9 @@ export const event: BotEvent = {
 
             collector.on('collect', async (m) => {
                 collector.stop();
-                m.delete()
-                    .catch(() => { })
-                    .then(() => { });
+                await m.delete();
 
-                if (generatedCaptcha.code === m.content) {
+                if (code === m.content) {
                     await member.roles.add(baseData?.role).catch(() => { })
                     await member.roles.remove(baseData?.role2).catch(() => { })
                     await msg.delete().catch(() => { })

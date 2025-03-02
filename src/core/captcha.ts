@@ -24,6 +24,8 @@ import { randomInt } from 'crypto';
 
 async function captcha(width: number, height: number): Promise<{ code: string; image: string }> {
     let captchaCode = generateRandomCode();
+    captchaCode = captchaCode.toUpperCase();
+
     let image = new Jimp(width, height, '#ffffff');
 
     for (let i = 0; i < captchaCode.length; i++) {
@@ -59,7 +61,7 @@ function generateRandomCode(): string {
 }
 
 async function createLetterImage(letter: string): Promise<Jimp> {
-    let image =  new Jimp(30, 50, '#ffffff');
+    let image = new Jimp(30, 50, '#ffffff');
     let font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
     return image.print(font, 0, 0, letter);
 }

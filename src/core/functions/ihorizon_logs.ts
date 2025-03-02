@@ -21,7 +21,7 @@
 
 import { BaseGuildTextChannel, ChatInputCommandInteraction, EmbedBuilder, GuildMember, Message } from "discord.js";
 
-export async function send(
+export default async function send(
     interaction: ChatInputCommandInteraction<"cached"> | Message,
     embed: {
         title: string;

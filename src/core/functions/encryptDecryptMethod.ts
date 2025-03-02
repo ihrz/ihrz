@@ -29,7 +29,7 @@ const IV_LENGTH = 16;
  * @param text - The string to encrypt
  * @returns The encrypted string
  */
-function encrypt(k: string, text: string): string {
+export function encrypt(k: string, text: string): string {
     let key = crypto.createHash('sha256').update(k).digest();
 
     let iv = crypto.randomBytes(IV_LENGTH);
@@ -44,7 +44,7 @@ function encrypt(k: string, text: string): string {
  * @param text - The string to decrypt
  * @returns The decrypted string
  */
-function decrypt(k: string, text: string): string | undefined {
+export function decrypt(k: string, text: string): string | undefined {
     try {
         let key = crypto.createHash('sha256').update(k).digest();
 
@@ -59,5 +59,3 @@ function decrypt(k: string, text: string): string | undefined {
         return undefined;
     }
 }
-
-export { decrypt, encrypt }

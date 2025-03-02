@@ -23,7 +23,7 @@ import { Emojis } from '../../../types/emojis.js';
 import fs from 'node:fs';
 import toml from 'toml';
 
-function emojis_(): Emojis {
+function _emojis(): Emojis {
     return toml.parse(fs.readFileSync(process.cwd() + "/src/files/emojis.toml", 'utf-8')) as Emojis
 };
 
@@ -38,7 +38,7 @@ export default function generateProgressBar(currentTimeMs: number, totalTimeMs: 
     let totalTimeInSeconds = Math.floor(totalTimeMs / 1000);
 
     if (!emojis) {
-        emojis = emojis_();
+        emojis = _emojis();
     }
 
     let progress = (currentTimeInSeconds / totalTimeInSeconds) * 100;

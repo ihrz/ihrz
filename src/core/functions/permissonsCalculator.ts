@@ -415,7 +415,7 @@ export const PERMISSION_MAPPING = {
     }
 } as const;
 
-export const getPermissionByValue = (value: bigint) => {
+export function getPermissionByValue(value: bigint) {
     const key = Object.keys(PERMISSION_MAPPING).find(
         k => PERMISSION_MAPPING[k as keyof typeof PERMISSION_MAPPING].value === value
     );

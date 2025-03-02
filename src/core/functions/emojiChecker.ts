@@ -19,12 +19,12 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-export const isSingleEmoji = (text: string): boolean => {
+export function isSingleEmoji(text: string): boolean {
     let regex = /^[\p{Emoji}][\uFE0E\uFE0F\u{1F3FB}-\u{1F3FF}]?$/u;
     return regex.test(text);
 };
 
-export const isDiscordEmoji = (text: string): boolean => {
+export function isDiscordEmoji(text: string): boolean {
     let emojiRegex = /:(\w+):(\d+)>/;
     return emojiRegex.test(text);
 };

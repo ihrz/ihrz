@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-export function formatNumber(num: number): string {
+export default function formatNumber(num: number): string {
     const isNegative = num < 0;
     const absNum = Math.abs(num);
 

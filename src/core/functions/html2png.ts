@@ -25,7 +25,7 @@ let browser: Browser | null = await puppeteer.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox']
 });
 
-export async function html2Png(
+export default async function html2Png(
     code: string,
     options: {
         width?: number;

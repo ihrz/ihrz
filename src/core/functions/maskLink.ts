@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-function maskLink(input: string): string {
+export default function maskLink(input: string): string {
     let blacklistContent = [
         "http://",
         "https://",
@@ -31,5 +31,3 @@ function maskLink(input: string): string {
     };
     return input;
 };
-
-export default maskLink;
