@@ -65,19 +65,21 @@ backup.setStorageFolder(backups_folder);
 export async function main(client: Client) {
     dataInitializer();
 
-    client.owners = [];
+    process.on('SIGINT', async () => {
+        await client.destroy();
+        process.exit(0);
+    });
 
+    client.owners = [];
     client.config.owner.owners?.forEach(owner => {
         if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
     });
     if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
     if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
 
+    setMaxListeners(0);
     errorManager.uncaughtExceptionHandler(client);
-
-    assetsCalc(client);
-    emojis(client);
-
+    client.db = DatabaseModel;
     global.client = client;
     client.bash = new Collection<string, BashCommands>();
     client.commands = new Collection<string, Command>();
@@ -85,7 +87,6 @@ export async function main(client: Client) {
     client.message_commands = new Collection<string, Command>();
     client.memberCountManager = new MemberCountModule(client);
     client.autoRenewManager = new AutoRenew(client);
-    client.owners = [];
     client.content = [];
     client.category = [];
     client.invites = new Collection();
@@ -96,46 +97,6 @@ export async function main(client: Client) {
     client.func = {} as typeof Client_Functions;
     client.htmlfiles = {};
     client.applicationsCommands = new Collection<string, AnotherCommand>();
-
-    let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-    let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
-
-    setMaxListeners(0)
-    for (const file of handlerFiles) {
-        const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
-        if (handlerFunction && typeof handlerFunction === 'function') {
-            await handlerFunction(client);
-        }
-    }
-
-    if (client.config.discord.phonePresence) {
-
-        const { identifyProperties } = DefaultWebSocketManagerOptions;
-
-        Object.defineProperty(identifyProperties, 'browser', {
-            value: "Discord Android",
-            writable: true,
-            enumerable: true,
-            configurable: true
-        });
-    };
-
-    setMaxListeners(0)
-
-    process.on('SIGINT', async () => {
-        if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
-        await client.destroy();
-        process.exit(0);
-    });
-
-    client.config.owner.owners?.forEach(owner => {
-        if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
-    });
-    if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
-    if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
-
-    errorManager.uncaughtExceptionHandler(client);
-    client.db = DatabaseModel;
 
     assetsCalc(client);
     emojis(client);
