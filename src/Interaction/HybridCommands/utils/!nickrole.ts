@@ -93,7 +93,7 @@ export const subCommand: SubCommand = {
             } catch (error) { }
 
             let embed = new EmbedBuilder()
-                .setFooter(await client.method.bot.footerBuilder(interaction))
+                .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())
@@ -142,7 +142,7 @@ export const subCommand: SubCommand = {
             } catch (error) { }
 
             let embed = new EmbedBuilder()
-                .setFooter(await client.method.bot.footerBuilder(interaction))
+                .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
                 .setTimestamp()
                 .setThumbnail(interaction.guild.iconURL())

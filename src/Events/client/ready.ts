@@ -182,7 +182,7 @@ export const event: BotEvent = {
         await recoverActiveSessions(client);
         await client.memberCountManager.init();
         await client.autoRenewManager.init();
-        let initData = client.method.core.getCacheStorage();
+        let initData = getCacheStorage();
 
         let oldV = initData?._cache.version;
         let newV = client.version.version;

@@ -179,12 +179,12 @@ export const event: BotEvent = {
 
                 )
                 .setThumbnail(guild.iconURL())
-                .setFooter(await client.method.bot.footerBuilder(guild));
+                .setFooter(await client.func.displayBotName.footerBuilder(guild));
 
             for (let owner of owners) {
                 await (client.users.cache.get(owner))?.send({
                     embeds: [embed],
-                    files: [await client.func.footerAttachmentBuilder(guild)]
+                    files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
                 }).catch(() => { });
             }
         };

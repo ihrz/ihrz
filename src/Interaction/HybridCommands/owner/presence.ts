@@ -121,16 +121,16 @@ export const command: Command = {
             var action_2 = interaction.options.getString("name")!;
             var action_3 = interaction.options.getString("twitch_username") || "anaissaraiva";
         } else {
-            var action_1 = client.method.string(args!, 0)!;
-            var action_2 = client.method.string(args!, 1)!;
-            var action_3 = client.method.longString(args!, 2) || "anaissaraiva"
+            var action_1 = client.func.method.string(args!, 0)!;
+            var action_2 = client.func.method.string(args!, 1)!;
+            var action_3 = client.func.method.longString(args!, 2) || "anaissaraiva"
         };
 
         let table = client.db.table('OWNER');
 
         if (await table.get(`${interaction.member.user.id}.owner`)
             !== true) {
-            await client.method.interactionSend(interaction, { content: lang.owner_not_owner });
+            await client.func.method.interactionSend(interaction, { content: lang.owner_not_owner });
             return;
         };
 
@@ -218,7 +218,7 @@ export const command: Command = {
                 break;
         };
 
-        await client.method.interactionSend(interaction, { content: `✅` });
+        await client.func.method.interactionSend(interaction, { content: `✅` });
         return;
     },
 };

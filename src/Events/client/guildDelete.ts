@@ -64,7 +64,7 @@ export const event: BotEvent = {
                 for (let owner of owners) {
                     await (client.users.cache.get(owner))?.send({
                         embeds: [embed],
-                        files: [await client.method.bot.footerAttachmentBuilder(guild)]
+                        files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
                     });
                 }
             } catch (error: any) {

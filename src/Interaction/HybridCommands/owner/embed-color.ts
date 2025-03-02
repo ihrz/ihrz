@@ -126,8 +126,8 @@ export const command: Command = {
             var choices = interaction.options.getString("action");
             var hex_color = interaction.options.getString("hex-color");
         } else {
-            var choices = client.method.string(args!, 0);
-            var hex_color = client.method.string(args!, 1);
+            var choices = client.func.method.string(args!, 0);
+            var hex_color = client.func.method.string(args!, 1);
         };
 
         var reg = /^#([0-9a-f]{3}){1,2}$/i;
@@ -135,7 +135,7 @@ export const command: Command = {
         if (choices === 'reset') {
             await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: `${interaction.member.user.toString()}, now the color of all embeds are deleted!`
             });
 
@@ -146,13 +146,13 @@ export const command: Command = {
 
             await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.${choices}`, hex_color);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: `${interaction.member.user.toString()}, now the embed color is \`${hex_color}\` for ${choices} !`
             });
 
             return;
         } else {
-            await client.method.interactionSend(interaction, { content: `${interaction.member.user.toString()}, color is not in the right format.\nPlease refer to **www.color-hex.com**` });
+            await client.func.method.interactionSend(interaction, { content: `${interaction.member.user.toString()}, color is not in the right format.\nPlease refer to **www.color-hex.com**` });
             return;
         };
     },

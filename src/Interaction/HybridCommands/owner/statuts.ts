@@ -84,14 +84,14 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var action_1 = interaction.options.getString("type")!;
         } else {
-            var action_1 = client.method.string(args!, 0)!;
+            var action_1 = client.func.method.string(args!, 0)!;
         };
 
         let table = client.db.table('OWNER');
 
         if (await table.get(`${interaction.member.user.id}.owner`)
             !== true) {
-            await client.method.interactionSend(interaction, { content: lang.owner_not_owner });
+            await client.func.method.interactionSend(interaction, { content: lang.owner_not_owner });
             return;
         };
 
@@ -110,7 +110,7 @@ export const command: Command = {
             ],
         });
 
-        await client.method.interactionSend(interaction, { content: `✅` });
+        await client.func.method.interactionSend(interaction, { content: `✅` });
         return;
     },
 };

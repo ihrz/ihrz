@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
         await client.db.set(`${interaction.guildId}.GUILD.TICKET.category`, category.id);
 
         let embed = new EmbedBuilder()
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#00FFFF')
             .setDescription(lang.setticketcategory_command_work
                 .replace('${category.name}', category.name)

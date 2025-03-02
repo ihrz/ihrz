@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 
             await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
             await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.weekly`, Date.now());
-            await client.method.interactionSend(interaction, { embeds: [embed] });
+            await client.func.method.interactionSend(interaction, { embeds: [embed] });
             return;
         };
     },

@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
             var member = interaction.options.getMember("user") as GuildMember | null;
         } else {
 
-            var member = client.method.member(interaction, args!, 0) as GuildMember | null;
+            var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
         };
 
         let mentionedUser = member || interaction.member.user as User;

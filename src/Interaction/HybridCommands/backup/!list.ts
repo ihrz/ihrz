@@ -118,7 +118,7 @@ export const subCommand: SubCommand = {
                 );
         };
 
-        const originalResponse = await client.method.interactionSend(interaction, {
+        const originalResponse = await client.func.method.interactionSend(interaction, {
             embeds: [await generateEmbed(currentPage)],
             components: [generateButtons(currentPage)],
             files: [

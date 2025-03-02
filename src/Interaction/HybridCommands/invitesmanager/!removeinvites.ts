@@ -49,8 +49,8 @@ export const subCommand: SubCommand = {
             var amount = interaction.options.getNumber("amount")!;
         } else {
 
-            var user = client.method.member(interaction, args!, 0) || interaction.member;
-            var amount = client.method.number(args!, 1);
+            var user = client.func.method.member(interaction, args!, 0) || interaction.member;
+            var amount = client.func.method.number(args!, 1);
         };
 
         let a = new EmbedBuilder()

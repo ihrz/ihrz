@@ -125,7 +125,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 
 async function handleCommandError(client: Client, interaction: ChatInputCommandInteraction, command: Command, error: any) {
     const block = `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${command.name}\nError: ${error}\`\`\`\n`;
-    await client.method.interactionSend(interaction, {
+    await client.func.method.interactionSend(interaction, {
         content: "**Let me suggest you to report this issue with `/report`.**"
     });
 }

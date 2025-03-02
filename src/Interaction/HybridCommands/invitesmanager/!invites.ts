@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
             var member = interaction.options.getMember("member") as GuildMember || interaction.member;
         } else {
 
-            var member = client.method.member(interaction, args!, 0) || interaction.member;
+            var member = client.func.method.member(interaction, args!, 0) || interaction.member;
         };
 
         let baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);

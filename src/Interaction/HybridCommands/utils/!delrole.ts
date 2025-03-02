@@ -54,8 +54,8 @@ export const subCommand: SubCommand = {
             var author = interaction.member as GuildMember;
         } else {
 
-            var user = client.method.member(interaction, args!, 0)! as GuildMember;
-            var role = client.method.role(interaction, args!, 1);
+            var user = client.func.method.member(interaction, args!, 0)! as GuildMember;
+            var role = client.func.method.role(interaction, args!, 1);
             var author = interaction.member as GuildMember;
         };
 

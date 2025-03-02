@@ -218,7 +218,7 @@ export const command: Command = {
                         )
                         .setThumbnail(interaction.guild?.iconURL() as string)
                         .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#ff0a0a')
-                        .setFooter(await client.method.bot.footerBuilder(interaction))
+                        .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                         .setTimestamp();
 
                     await table.delete(`${interaction.member?.user.id}.${arg0}`);
@@ -308,7 +308,7 @@ export const command: Command = {
                     .setTitle(lang.schedule_create_title_embed)
                     .setThumbnail(interaction.guild?.iconURL() as string)
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#00549f')
-                    .setFooter(await client.method.bot.footerBuilder(interaction))
+                    .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                     .setTimestamp();
 
                 await original_interaction.edit({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });

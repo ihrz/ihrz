@@ -68,18 +68,18 @@ export const command: Command = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var action_2 = interaction.options.getString("name")!;
         } else {
-            var action_2 = client.method.longString(args!, 0)!;
+            var action_2 = client.func.method.longString(args!, 0)!;
         };
 
         let table = client.db.table('OWNER');
 
         if (await table.get(`${interaction.member.user.id}.owner`)
             !== true) {
-            await client.method.interactionSend(interaction, { content: lang.owner_not_owner, ephemeral: true });
+            await client.func.method.interactionSend(interaction, { content: lang.owner_not_owner, ephemeral: true });
             return;
         };
 
-        if (await client.method.helper.hardCooldown(client.db, "setname", 1_800_000)) {
+        if (await client.func.helper.hardCooldown(client.db, "setname", 1_800_000)) {
             let time = client.timeCalculator.to_beautiful_string(1_800_000 - (Date.now() -
                 await (client.db.table("TEMP")).get(`COOLDOWN.setname`)!), lang);
 

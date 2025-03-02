@@ -168,7 +168,7 @@ export const subCommand: SubCommand = {
 
         let currentPage = 0;
 
-        const message = await client.method.interactionSend(interaction, {
+        const message = await client.func.method.interactionSend(interaction, {
             embeds: [await createEmbed(currentPage)],
             components: [createButtons(currentPage)],
             files: [await client.func.displayBotName.footerAttachmentBuilder(interaction), attachment]
