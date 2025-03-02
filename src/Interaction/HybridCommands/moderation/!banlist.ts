@@ -41,7 +41,7 @@ export const subCommand: SubCommand = {
         let bansArray = fetchedBan?.map(ban => ban);
 
         if (!bansArray || bansArray?.length == 0) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.var_no_one_banned
             })
             return;
@@ -87,7 +87,7 @@ export const subCommand: SubCommand = {
         )
 
 
-        let message = await client.method.interactionSend(interaction, {
+        let message = await client.func.method.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [row]
         });

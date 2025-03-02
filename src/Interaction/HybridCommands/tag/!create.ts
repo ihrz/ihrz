@@ -49,8 +49,8 @@ export const subCommand: SubCommand = {
             var tag_name = interaction.options.getString("tag_name", true);
             var embed_id = interaction.options.getString("embed_id", true);
         } else {
-            var tag_name = client.method.string(args!, 0)!;
-            var embed_id = client.method.string(args!, 1)!;
+            var tag_name = client.func.method.string(args!, 0)!;
+            var embed_id = client.func.method.string(args!, 1)!;
         }
 
         tag_name = tag_name.trim();
@@ -58,21 +58,21 @@ export const subCommand: SubCommand = {
         let is_in_wl = interaction.member.roles.cache.some(role => baseData?.whitelist_create?.includes(role.id))
 
         if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator) && !is_in_wl) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tag_create_not_permited
             });
             return;
         }
 
         if (tag_name.length > 16 || tag_name.includes(" ")) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tag_create_not_good_name
             });
             return;
         }
 
         if (baseData?.storedTags?.[tag_name]) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tag_create_already_exist
             });
             return;
@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
         let embed = await client.db.get(`EMBED.${embed_id}`);
 
         if (!embed) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tag_create_embed_doesnt_exist
             });
             return;
@@ -97,7 +97,7 @@ export const subCommand: SubCommand = {
             lastUseBy: null,
         });
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.tag_create_command_work
                 .replace("${tag_name}", tag_name)
         });

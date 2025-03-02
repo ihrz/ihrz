@@ -100,12 +100,12 @@ export const subCommand: SubCommand = {
                     .replace("${OwnerOne}", OwnerOne)
                     .replace("${OwnerTwo}", OwnerTwo)
                 )
-                .setFooter(await client.method.bot.footerBuilder(interaction));
+                .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
             await interaction.reply({
                 embeds: [embed],
                 ephemeral: false,
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
 
             try {

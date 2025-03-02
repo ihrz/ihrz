@@ -84,11 +84,11 @@ export const subCommand: SubCommand = {
                         .replace('${code}', code)
                         .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter(await client.method.bot.footerBuilder(interaction));
+                .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
             await interaction.editReply({
                 embeds: [embed],
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
             return;
         };

@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
         const table = client.db.table("RESTORECORD");
         const data = getGuildDataPerSecretCode(await table.all(), secretCode);
 
-        if (!data) return client.method.interactionSend(interaction, {
+        if (!data) return client.func.method.interactionSend(interaction, {
             content: lang.rc_key_doesnt_exist
                 .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 .replace("${secretCode}", secretCode),
@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 
         await changeRoleRestoreCord({ guildId: interaction.guildId!, apiToken: client.config.api.apiToken, roleId: role.id });
 
-        let footer = await client.method.bot.footerBuilder(interaction);
+        let footer = await client.func.displayBotName.footerBuilder(interaction);
 
         const mainEmbed = new EmbedBuilder()
             .setColor(2829617)
@@ -66,9 +66,9 @@ export const subCommand: SubCommand = {
             )
             .setFooter(footer);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [mainEmbed],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
         return;
     }

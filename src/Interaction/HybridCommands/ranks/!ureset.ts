@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
             var user = interaction.options.getMember("user") as GuildMember || interaction.member;
         } else {
 
-            var user = client.method.member(interaction, args!, 0) || interaction.member;
+            var user = client.func.method.member(interaction, args!, 0) || interaction.member;
         };
 
         let a = new EmbedBuilder()
@@ -65,9 +65,9 @@ export const subCommand: SubCommand = {
 
         if (response) {
             await client.db.delete(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
-            await client.method.interactionSend(interaction, { content: lang.resetallinvites_succes_on_delete, components: [] });
+            await client.func.method.interactionSend(interaction, { content: lang.resetallinvites_succes_on_delete, components: [] });
 
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.resetallinvites_logs_embed_title,
                 description: lang.reset_uranks_logs_embed_desc
                     .replace("${interaction.member.user.toString()}", interaction.member.user.toString())
@@ -75,7 +75,7 @@ export const subCommand: SubCommand = {
             });
 
         } else {
-            await client.method.interactionSend(interaction, { content: lang.setjoinroles_action_canceled, components: [] });
+            await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_action_canceled, components: [] });
         }
     },
 };

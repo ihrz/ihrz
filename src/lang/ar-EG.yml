@@ -1321,6 +1321,7 @@ perm_command_delete_all_command_ok: "\nتم حذف **${changes.length}** صلا�
 perm_roles_created_role: "الأدوار اللي اتعملت: ${createdRoles.join(', ')}"
 perm_roles_already_upate: "كل الأدوار موجودة وحديثة."
 perm_roles_error: "حصل خطأ أثناء إنشاء أو تحديث الأدوار."
+perm_roles_not_owner: "مالك الخادم فقط يمكنه إضافة أدوار مستوى الإذن."
 
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, الآن عندما يرسل أحد الأعضاء رسالة ترحيب، البوت **{activeMsg}**"

@@ -73,7 +73,7 @@ export const subCommand: SubCommand = {
         let voiceChannel = (interaction.member as GuildMember).voice.channel;
 
         if (!player || !player.playing || !voiceChannel) {
-            await client.method.interactionSend(interaction, { content: lang.nowplaying_no_queue });
+            await client.func.method.interactionSend(interaction, { content: lang.nowplaying_no_queue });
             return;
         };
 
@@ -91,7 +91,7 @@ export const subCommand: SubCommand = {
             .replace("{time1}", progress.currentTime)
             .replace("{time2}", progress.totalTime);
 
-        const image = await client.method.imageManipulation.html2Png(htmlContent, {
+        const image = await client.func.html2png(htmlContent, {
             omitBackground: true,
             selectElement: false,
         });
@@ -105,7 +105,7 @@ export const subCommand: SubCommand = {
             .setColor("#6fa8dc")
             .setImage("attachment://nowplaying.png")
 
-        let response = await client.method.interactionSend(interaction, {
+        let response = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: [btn],
             files: [attachment]
@@ -133,7 +133,7 @@ export const subCommand: SubCommand = {
                     .replace("{time1}", progress.currentTime)
                     .replace("{time2}", progress.totalTime);
 
-                const image = await client.method.imageManipulation.html2Png(htmlContent, {
+                const image = await client.func.html2png(htmlContent, {
                     omitBackground: true,
                     selectElement: false,
                 });
@@ -207,10 +207,10 @@ export const subCommand: SubCommand = {
                                         })
                                         .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
                                         .setColor('#cd703a')
-                                        .setFooter(await client.method.bot.footerBuilder(interaction));
+                                        .setFooter(await client.func.displayBotName.footerBuilder(interaction));
                                     i.editReply({
                                         embeds: [embed],
-                                        files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+                                        files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
                                     });
                                 };
                                 break;
@@ -239,7 +239,7 @@ export const subCommand: SubCommand = {
                 await response.edit({ components: [] });
             });
         } catch {
-            await client.method.channelSend(interaction, client.iHorizon_Emojis.icon.Timer);
+            await client.func.method.channelSend(interaction, client.iHorizon_Emojis.icon.Timer);
             return;
         };
     }

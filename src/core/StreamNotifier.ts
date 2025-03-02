@@ -325,7 +325,7 @@ export class StreamNotifier {
 
             for (let media of medias) {
                 if (!await this.mediaHaveAlreadyBeNotified(entry.guildId, media)) {
-                    let message = this.client.method.generateCustomMessagePreview(
+                    let message = this.client.func.method.generateCustomMessagePreview(
                         entry.value.message || lang.notifier_on_new_media_default_message,
                         {
                             guild: guild!,

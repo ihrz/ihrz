@@ -59,7 +59,7 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
             logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`.white);
             logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`.white);
 
-            let appCmds = (client.applicationsCommands || []).map((command) => ({
+            let appCmds = client.applicationsCommands.map((command) => ({
                 name: command.name,
                 type: command.type,
             }));
@@ -70,7 +70,7 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
                     type: command.type,
                     description: command.description,
                     description_localizations: command.description_localizations,
-                    options: removePermissionProperties(command.options),
+                    options: removePermissionProperties(command.options) || [],
                     integration_types: command.integration_types || [0],
                     contexts: command.contexts || [0]
                 };

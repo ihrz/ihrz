@@ -67,12 +67,12 @@ export const subCommand: SubCommand = {
             .setColor("#000000")
             .setAuthor({ name: lang.allowlist_show_embed_author })
             .setDescription(`${text}`)
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setTimestamp();
 
         await interaction.reply({
             embeds: [embed],
-            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
         return;
     },

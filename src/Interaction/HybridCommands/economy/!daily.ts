@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
         let daily = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.member.user.od}', interaction.member.user.id)
             });
@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
         if (daily !== null && timeout - (Date.now() - daily) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - daily), lang);
 
-            await client.method.interactionSend(interaction, { content: lang.daily_cooldown_error.replace(/\${time}/g, time) });
+            await client.func.method.interactionSend(interaction, { content: lang.daily_cooldown_error.replace(/\${time}/g, time) });
             return;
         } else {
             let embed = new EmbedBuilder()
@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
                 .setDescription(lang.daily_embed_description)
                 .addFields({ name: lang.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
 
-            await client.method.interactionSend(interaction, { embeds: [embed] });
+            await client.func.method.interactionSend(interaction, { embeds: [embed] });
             await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
             await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`, Date.now());
             return;

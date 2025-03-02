@@ -68,7 +68,7 @@ export default async (client: Client) => {
             .replace("{song_thumbnail}", track?.info.artworkUrl as string)
             ;
 
-        const image = await client.method.imageManipulation.html2Png(htmlContent, {
+        const image = await client.func.html2png(htmlContent, {
             omitBackground: true,
             selectElement: true,
             elementSelector: ".spotify-banner",
@@ -84,7 +84,7 @@ export default async (client: Client) => {
                         .replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
                         .replace("${track.title}", String(track?.info.title))
                         .replace("${queue.channel.name}", `<#${player.voiceChannelId}>`)
-                        .replace("${url}", track?.info.uri)
+                        .replace("${url}", track?.info.uri!)
                     )
                     .setImage('attachment://music_banner.png')
             ],

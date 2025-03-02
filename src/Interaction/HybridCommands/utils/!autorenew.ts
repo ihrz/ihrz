@@ -47,19 +47,19 @@ export const subCommand: SubCommand = {
             var channel = interaction.options.getChannel("channel") as Channel;
             var time = interaction.options.getString("time")
         } else {
-            var channel = await client.method.channel(interaction, args!, 0) as Channel;
-            var time = client.method.string(args!, 1);
+            var channel = await client.func.method.channel(interaction, args!, 0) as Channel;
+            var time = client.func.method.string(args!, 1);
         };
 
         let parseTime = client.timeCalculator.to_ms(time || "");
 
         if (parseTime && parseTime < 60_000) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.util_autorenew_time_too_short
             })
             return;
         } else if (parseTime && parseTime > 60_000 * 60 * 24) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.util_autorenew_time_too_long
             })
             return;
@@ -71,7 +71,7 @@ export const subCommand: SubCommand = {
                 maxTime: parseTime
             });
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.util_autorenew_command_ok
                     .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                     .replace("${channel.toString()}", channel.toString())

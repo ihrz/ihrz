@@ -57,7 +57,7 @@ export const subCommand: SubCommand = {
             .setFields(
                 {
                     name: lang.setjoinmessage_help_embed_fields_custom_name,
-                    value: joinDm ? `\`\`\`${client.method.generateCustomMessagePreview(joinDm, {
+                    value: joinDm ? `\`\`\`${client.func.method.generateCustomMessagePreview(joinDm, {
                         user: interaction.user,
                         guild: interaction.guild,
                         guildLocal: guildLocal,
@@ -104,7 +104,7 @@ export const subCommand: SubCommand = {
                 questionReply?.on('collect', async collected => {
                     let response = collected.content.substring(0, 1010);
 
-                    await client.method.iHorizonLogs.send(interaction, {
+                    await client.func.ihorizon_logs(interaction, {
                         title: lang.setjoindm_logs_embed_title_on_enable,
                         description: lang.setjoindm_logs_embed_description_on_enable
                             .replace(/\${interaction\.user\.id}/g, interaction.user.id)
@@ -124,7 +124,7 @@ export const subCommand: SubCommand = {
                 });
             } else if (collectInteraction.customId === "joinMessage-default-message") {
                 await collectInteraction.deferUpdate();
-                await client.method.iHorizonLogs.send(interaction, {
+                await client.func.ihorizon_logs(interaction, {
                     title: lang.setjoindm_logs_embed_title_on_disable,
                     description: lang.setjoindm_logs_embed_description_on_disable
                         .replace(/\${interaction\.user\.id}/g, interaction.user.id)

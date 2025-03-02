@@ -38,7 +38,7 @@ export const subCommand: SubCommand = {
     run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
             return;
         };
         if (interaction instanceof ChatInputCommandInteraction) {
@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
             var user = interaction.user;
         } else {
             
-            var pollMessage = client.method.longString(args!, 0);
+            var pollMessage = client.func.method.longString(args!, 0);
             var user = interaction.author;
         }
 
@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
             .setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")
             .setTimestamp()
 
-        let msg = await client.method.interactionSend(interaction, { embeds: [pollEmbed] });
+        let msg = await client.func.method.interactionSend(interaction, { embeds: [pollEmbed] });
 
         await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);
         await msg.react(client.iHorizon_Emojis.icon.No_Logo);

@@ -52,9 +52,9 @@ export const subCommand: SubCommand = {
             var mutetime = interaction.options.getString("time");
             var reason = interaction.options.getString("reason");
         } else {
-            var tomute = client.method.member(interaction, args!, 0) as GuildMember | null;
-            var mutetime = client.method.string(args!, 1) as string | null;
-            var reason = client.method.longString(args!, 2);
+            var tomute = client.func.method.member(interaction, args!, 0) as GuildMember | null;
+            var mutetime = client.func.method.string(args!, 1) as string | null;
+            var reason = client.func.method.longString(args!, 2);
         };
 
         if (!mutetime || !tomute || !mutetime) { return; };
@@ -62,46 +62,46 @@ export const subCommand: SubCommand = {
         let mutetimeMS = client.timeCalculator.to_ms(mutetime);
 
         if (!mutetimeMS) {
-            await client.method.interactionSend(interaction, { content: lang.too_new_account_invalid_time_on_enable });
+            await client.func.method.interactionSend(interaction, { content: lang.too_new_account_invalid_time_on_enable });
             return;
         }
 
         let mutetimeString = client.timeCalculator.to_beautiful_string(mutetime, lang);
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tempmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if (tomute.id === interaction.member.user.id) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tempmute_cannot_mute_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         }
 
         if (tomute.isCommunicationDisabled() === true) {
-            await client.method.interactionSend(interaction, { content: lang.tempmute_already_muted });
+            await client.func.method.interactionSend(interaction, { content: lang.tempmute_already_muted });
             return;
         };
 
         await (tomute.timeout(mutetimeMS, lang.tempmute_logs_embed_title)).catch(() => { });
 
-        await client.method.interactionSend(interaction, lang.tempmute_command_work
+        await client.func.method.interactionSend(interaction, lang.tempmute_command_work
             .replace("${tomute.id}", tomute.id)
             .replace("${ms(ms(mutetime))}", mutetimeString)
             .replace("${reason}", reason || lang.var_no_set)
         );
 
         setTimeout(async () => {
-            await client.method.channelSend(interaction, {
+            await client.func.method.channelSend(interaction, {
                 content: lang.tempmute_unmuted_by_time.replace("${tomute.id}", tomute?.id!),
             });
         }, mutetimeMS);
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.tempmute_logs_embed_title,
             description: lang.tempmute_logs_embed_description
                 .replace("${interaction.user.id}", interaction.member.user.id)
@@ -110,7 +110,7 @@ export const subCommand: SubCommand = {
                 .replace("${reason}", reason || lang.var_no_set)
         });
 
-        await client.method.warnMember(
+        await client.func.method.warnMember(
             interaction.member!,
             tomute!,
             lang.tempmute_logs_embed_description

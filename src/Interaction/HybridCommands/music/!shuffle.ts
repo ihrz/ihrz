@@ -44,26 +44,26 @@ export const subCommand: SubCommand = {
         let player = client.player.getPlayer(interaction.guildId as string);
 
         if (!player || !player.playing || !voiceChannel) {
-            await client.method.interactionSend(interaction, { content: lang.shuffle_no_queue });
+            await client.func.method.interactionSend(interaction, { content: lang.shuffle_no_queue });
             return;
         };
 
         // Check if the member is in the same voice channel as the bot
         if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
             });
             return;
         }
 
         if (player.queue.tracks.length < 2) {
-            await client.method.interactionSend(interaction, { content: lang.shuffle_no_enought });
+            await client.func.method.interactionSend(interaction, { content: lang.shuffle_no_enought });
             return;
         };
 
         await player.queue.shuffle();
 
-        await client.method.interactionSend(interaction, { content: lang.shuffle_command_work });
+        await client.func.method.interactionSend(interaction, { content: lang.shuffle_command_work });
         return;
     },
 };

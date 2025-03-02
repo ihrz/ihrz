@@ -46,7 +46,7 @@ export const command: Command = {
         // Guard's Typing
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.andru_message
         });
         return;

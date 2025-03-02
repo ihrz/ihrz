@@ -57,7 +57,7 @@ export const event: BotEvent = {
                         break;
                     case 'mute':
                         await member?.timeout(40000, 'Timeout by PunishPUB');
-                        await client.method.warnMember(
+                        await client.func.method.warnMember(
                             message.guild?.members.me!,
                             message.member!,
                             "Timeout by PunishPUB"

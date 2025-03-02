@@ -58,12 +58,12 @@ export const subCommand: SubCommand = {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var user = interaction.options.getMember("member")!;
 		} else {
-			var user = client.method.member(interaction, args!, 0)!;
+			var user = client.func.method.member(interaction, args!, 0)!;
 		}
 
 		// Check if member is in the guild
 		if (!interaction.guild.members.cache.get(user.id)) {
-			await client.method.interactionSend(interaction, {
+			await client.func.method.interactionSend(interaction, {
 				content: lang.vkick_member_not_in_guild,
 			});
 		}
@@ -73,14 +73,14 @@ export const subCommand: SubCommand = {
 
 		// Check if member is in a voice channel
 		if (member.voice.channelId === null) {
-			await client.method.interactionSend(interaction, {
+			await client.func.method.interactionSend(interaction, {
 				content: lang.vkick_not_in_vc, // draft
 			});
 		}
 
 		// Check if the member is an admin
 		if (member.permissions.has(PermissionFlagsBits.Administrator)) {
-			await client.method.interactionSend(interaction, {
+			await client.func.method.interactionSend(interaction, {
 				content: lang.vkick_not_admin_kick, // draft
 			});
 		}
@@ -93,7 +93,7 @@ export const subCommand: SubCommand = {
 
 		// Emit a logs in the ihorizon-logs
 
-		await client.method.iHorizonLogs.send(interaction, {
+		await client.func.ihorizon_logs(interaction, {
 			title: lang.vkick_logEmbed_title,
 			description: lang.vkick_logEmbed_desc
 				.replace("${interaction.member.user.toString()}", interaction.member.user.toString())
@@ -101,7 +101,7 @@ export const subCommand: SubCommand = {
 				.replace("${voiceChannel?.toString()}", voiceChannel?.toString()!),
 		});
 
-		await client.method.interactionSend(interaction, {
+		await client.func.method.interactionSend(interaction, {
 			content: lang.vkick_command_work
 				.replace("${member.toString()}", member.toString())
 				.replace("${interaction.member.user.toString()}", interaction.member.user.toString())

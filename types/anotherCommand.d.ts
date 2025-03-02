@@ -21,17 +21,19 @@
 
 import {
     ApplicationCommandType,
+    CacheType,
     Client,
     CommandInteraction,
     CommandInteractionOptionResolver,
-    PermissionFlagsBits
+    MessageContextMenuCommandInteraction,
+    PermissionFlagsBits,
+    UserContextMenuCommandInteraction
 } from 'discord.js';
-import { Option } from "./option.d.ts";
 
 export interface AnotherCommand {
     name: string,
     type: ApplicationCommandType,
     thinking: boolean,
     permission: bigint | bigint[] | null,
-    async run(client: Client, interaction: UserContextMenuCommandInteraction<"cached">): Promise<any>
+    run(client: Client, interaction: MessageContextMenuCommandInteraction<CacheType> | UserContextMenuCommandInteraction<CacheType>): Promise<any>
 }

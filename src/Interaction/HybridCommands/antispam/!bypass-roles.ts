@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
                     ? all_roles.map(x => `<@&${x}>`).join(', ')
                     : lang.setjoinroles_var_none
             })
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
         const select = new RoleSelectMenuBuilder()
             .setCustomId('antispam-select-config')
@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
             .setCustomId("antispam-manage-save-button")
             .setLabel(lang.antispam_manage_button_label);
 
-        const originalResponse = await client.method.interactionSend(interaction, {
+        const originalResponse = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select),
@@ -127,11 +127,11 @@ export const subCommand: SubCommand = {
             })
 
             allroles = i.values;
-            await client.method.interactionSend(originalResponse as Message, { embeds: [embed] });
+            await client.func.method.interactionSend(originalResponse as Message, { embeds: [embed] });
         });
 
         collector.on('end', async () => {
-            await client.method.interactionSend(originalResponse as Message, { components: [] });
+            await client.func.method.interactionSend(originalResponse as Message, { components: [] });
         })
     },
 };

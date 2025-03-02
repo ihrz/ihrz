@@ -45,11 +45,11 @@ export const subCommand: SubCommand = {
             var toWithdraw = interaction.options.getString('how-much') as string;
         } else {
             
-            var toWithdraw = client.method.string(args!, 0) as string;
+            var toWithdraw = client.func.method.string(args!, 0) as string;
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
         if (toWithdraw === "all") toWithdraw = dataAccount.bank?.toString()!;
 
         if (isNaN(Number(toWithdraw))) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.temporary_voice_limit_button_not_integer
                     .replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             })
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
         var clean_to_withdraw = parseInt(toWithdraw)
 
         if (toWithdraw && clean_to_withdraw > dataAccount?.bank!) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.withdraw_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -88,12 +88,12 @@ export const subCommand: SubCommand = {
                 .replace('${toWithdraw}', toWithdraw.toString())
             )
             .addFields({ name: lang.withdraw_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setTimestamp();
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
         return;
     },

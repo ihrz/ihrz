@@ -41,7 +41,7 @@ export const subCommand: SubCommand = {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
             var member: GuildMember = interaction.options.getMember('user') as GuildMember || interaction.member;
         } else {
 
-            var member: GuildMember = client.method.member(interaction, args!, 0) || interaction.member;
+            var member: GuildMember = client.func.method.member(interaction, args!, 0) || interaction.member;
         };
 
         var baseData: DatabaseStructure.EconomyUserSchema = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY`) || { money: 0, bank: 0, ownedRoles: [] };
@@ -74,12 +74,12 @@ export const subCommand: SubCommand = {
                 { name: lang.balance_embed_fields2_name, value: `${baseData.money || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
                 { name: lang.var_boost, value: `${possibleBoost}x`, inline: true }
             )
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setTimestamp()
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
         return;
     },

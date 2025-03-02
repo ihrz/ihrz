@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (!(interaction.member as GuildMember)?.voice.channel) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.pause_no_queue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
             });
             return;
@@ -54,13 +54,13 @@ export const subCommand: SubCommand = {
             let player = client.player.getPlayer(interaction.guildId as string);
 
             if (!player || !player.playing || !voiceChannel) {
-                await client.method.interactionSend(interaction, { content: lang.pause_nothing_playing });
+                await client.func.method.interactionSend(interaction, { content: lang.pause_nothing_playing });
                 return;
             };
 
             // Check if the member is in the same voice channel as the bot
             if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
                 });
                 return;
@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 
             player.pause();
 
-            await client.method.interactionSend(interaction, { content: player.paused ? lang.pause_var_paused : lang.pause_var_err });
+            await client.func.method.interactionSend(interaction, { content: player.paused ? lang.pause_var_paused : lang.pause_var_err });
             return;
         } catch (error: any) {
             logger.err(error);

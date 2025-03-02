@@ -61,14 +61,14 @@ export const subCommand: SubCommand = {
 
             await client.db.set(`${interaction.guildId}.NOTIFIER.users`, filteredArray);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 embeds: [
                     await client.notifier.generateAuthorsEmbed(interaction.guild),
                     await client.notifier.generateConfigurationEmbed(interaction.guild)
                 ]
             });
         } else {
-            return client.method.interactionSend(interaction, { content: lang.notifier_author_add_author_doesnt_exist });
+            return client.func.method.interactionSend(interaction, { content: lang.notifier_author_add_author_doesnt_exist });
         }
     },
 };

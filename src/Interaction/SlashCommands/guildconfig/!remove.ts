@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
                     : lang.var_no_set
             });
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.joinghostping_add_logs_embed_title,
             description: lang.joinghostping_remove_logs_embed_desc
                 .replace('${interaction.user}', interaction.user.toString())

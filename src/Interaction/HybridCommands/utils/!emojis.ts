@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
                     attachment: `https://cdn.discordapp.com/emojis/${match[2]}.${isAnimated ? 'gif' : 'png'}`,
                     name: match[1]
                 }).then((emoji) => {
-                    client.method.channelSend(interaction, lang.emoji_send_new_emoji
+                    client.func.method.channelSend(interaction, lang.emoji_send_new_emoji
                         .replace('${emoji.name}', emoji.name!)
                         .replace('${emoji}', emoji.toString())
                     );
@@ -73,7 +73,7 @@ export const subCommand: SubCommand = {
                     cnt++;
                     nemj += `<${isAnimated ? 'a:' : ':'}${emoji.name}:${emoji.id}>`
                 }).catch(() => {
-                    client.method.channelSend(interaction, lang.emoji_send_err_emoji
+                    client.func.method.channelSend(interaction, lang.emoji_send_err_emoji
                         .replace('${emoji.name}', emoji)
                     );
                 });
@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 
         let embed = new EmbedBuilder()
             .setColor('#bea9de')
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setTimestamp()
             .setDescription(lang.emoji_embed_desc_work
                 .replace('${cnt}', cnt.toString())
@@ -90,9 +90,9 @@ export const subCommand: SubCommand = {
                 .replace('${nemj}', nemj)
             )
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
         return;
     },

@@ -29,7 +29,7 @@ export interface LangForPrompt {
 }
 
 export async function promptYesOrNo(interaction: ChatInputCommandInteraction<"cached"> | Message, opt: LangForPrompt) {
-    const sent = await interaction.client.method.interactionSend(interaction, {
+    const sent = await interaction.client.func.method.interactionSend(interaction, {
         content: opt.content,
         components: [
             new ActionRowBuilder<ButtonBuilder>()

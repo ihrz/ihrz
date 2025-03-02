@@ -54,7 +54,7 @@ export const event: BotEvent = {
 
             if (!baseData) {
                 let member = channel.guild.members.cache.get(relevantLog?.executorId!);
-                await client.method.punish(data, member);
+                await client.func.method.punish(data, member);
 
                 await channel.delete();
             }

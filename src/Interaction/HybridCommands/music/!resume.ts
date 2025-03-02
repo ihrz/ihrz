@@ -45,13 +45,13 @@ export const subCommand: SubCommand = {
             let player = client.player.getPlayer(interaction.guildId as string);
 
             if (!player || !player.playing || !voiceChannel) {
-                await client.method.interactionSend(interaction, { content: lang.resume_nothing_playing });
+                await client.func.method.interactionSend(interaction, { content: lang.resume_nothing_playing });
                 return;
             };
 
             // Check if the member is in the same voice channel as the bot
             if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
                 });
                 return;
@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 
             player.resume();
 
-            await client.method.interactionSend(interaction, { content: lang.resume_command_work });
+            await client.func.method.interactionSend(interaction, { content: lang.resume_command_work });
             return;
         } catch (error: any) {
             logger.err(error);

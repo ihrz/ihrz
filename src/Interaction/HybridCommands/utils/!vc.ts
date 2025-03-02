@@ -46,7 +46,7 @@ export const subCommand = {
 
         const mode = interaction instanceof ChatInputCommandInteraction
             ? (interaction.options.getString("show-mode") || "short")
-            : (client.method.string(args!, 0) || "short");
+            : (client.func.method.string(args!, 0) || "short");
 
         const memberStats = calculateMemberStats(guild.members.cache);
         const voiceStats = calculateVoiceStats(voiceStates.filter(x => x.channelId !== null));
@@ -136,7 +136,7 @@ export const subCommand = {
             });
         }
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             files: files
         });

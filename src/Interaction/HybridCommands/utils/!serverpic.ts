@@ -42,7 +42,7 @@ export const subCommand: SubCommand = {
             .setColor("#add5ff")
             .setTitle(interaction.guild.name);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<ButtonBuilder>()

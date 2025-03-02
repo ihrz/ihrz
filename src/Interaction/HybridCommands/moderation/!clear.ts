@@ -46,12 +46,12 @@ export const subCommand: SubCommand = {
             var numberx = interaction.options.getNumber("number")!;
             var member = interaction.options.getMember("member");
         } else {
-            var numberx = client.method.number(args!, 0);
-            var member = client.method.member(interaction, args!, 1);
+            var numberx = client.func.method.number(args!, 0);
+            var member = client.func.method.member(interaction, args!, 1);
         };
 
         if (numberx && numberx > 100) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.clear_max_message_limit.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -71,7 +71,7 @@ export const subCommand: SubCommand = {
             }
 
             if (messages.length === 0) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: "lang.clear_no_messages_found"
                 });
                 return;
@@ -79,12 +79,12 @@ export const subCommand: SubCommand = {
 
             (interaction.channel as BaseGuildTextChannel).bulkDelete(messages, true)
                 .then(async (messages) => {
-                    client.method.channelSend(interaction, {
+                    client.func.method.channelSend(interaction, {
                         content: lang.clear_confirmation_message
                             .replace(/\${messages\.size}/g, messages.size.toString())
                     });
 
-                    await client.method.iHorizonLogs.send(interaction, {
+                    await client.func.ihorizon_logs(interaction, {
                         title: lang.clear_logs_embed_title,
                         description: lang.clear_logs_embed_description
                             .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
@@ -97,12 +97,12 @@ export const subCommand: SubCommand = {
         } else {
             (interaction.channel as BaseGuildTextChannel).bulkDelete(numberx, true)
                 .then(async (messages) => {
-                    client.method.channelSend(interaction, {
+                    client.func.method.channelSend(interaction, {
                         content: lang.clear_confirmation_message
                             .replace(/\${messages\.size}/g, messages.size.toString())
                     });
 
-                    await client.method.iHorizonLogs.send(interaction, {
+                    await client.func.ihorizon_logs(interaction, {
                         title: lang.clear_logs_embed_title,
                         description: lang.clear_logs_embed_description
                             .replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)

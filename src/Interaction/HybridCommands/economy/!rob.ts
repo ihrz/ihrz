@@ -39,7 +39,7 @@ export const subCommand: SubCommand = {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -52,13 +52,13 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getMember("member") as GuildMember;
         } else {
-            var user = client.method.member(interaction, args!, 0) as GuildMember;
+            var user = client.func.method.member(interaction, args!, 0) as GuildMember;
         };
 
         if (rob !== null && timeout - (Date.now() - rob) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - rob), lang);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.work_cooldown_error
                     .replace('${interaction.user.id}', interaction.member.user.id)
                     .replace('${time}', time),
@@ -71,12 +71,12 @@ export const subCommand: SubCommand = {
         let author = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
 
         if (author < 250) {
-            await client.method.interactionSend(interaction, { content: lang.rob_dont_enought_error });
+            await client.func.method.interactionSend(interaction, { content: lang.rob_dont_enought_error });
             return;
         };
 
         if (targetuser < 250) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.rob_him_dont_enought_error
                     .replace(/\${user\.user\.username}/g, user.user.globalName as string)
             });
@@ -94,7 +94,7 @@ export const subCommand: SubCommand = {
             .setColor("#a4cb80")
             .setTimestamp()
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.func.method.interactionSend(interaction, { embeds: [embed] });
 
         await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, random);
         await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, random);

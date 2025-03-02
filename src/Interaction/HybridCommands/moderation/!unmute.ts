@@ -46,38 +46,38 @@ export const subCommand: SubCommand = {
             var tomute = interaction.options.getMember("user") as GuildMember | null;
         } else {
             
-            var tomute = client.method.member(interaction, args!, 0) as GuildMember | null;
+            var tomute = client.func.method.member(interaction, args!, 0) as GuildMember | null;
         };
 
         if (!tomute) return;
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.unmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;;
         };
 
         if (tomute?.id === interaction.member.user.id) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.unmute_attempt_mute_your_self.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;;
         };
 
         if (!tomute?.isCommunicationDisabled() === true) {
-            await client.method.interactionSend(interaction, { content: lang.unmute_not_muted });
+            await client.func.method.interactionSend(interaction, { content: lang.unmute_not_muted });
             return;;
         };
 
         tomute.disableCommunicationUntil(Date.now());
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.unmute_command_work
                 .replace("${tomute.id}", tomute.id)
         });
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.unmute_logs_embed_title,
             description: lang.unmute_logs_embed_description
                 .replace("${interaction.user.id}", interaction.member.user.id)

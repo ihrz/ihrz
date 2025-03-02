@@ -56,12 +56,12 @@ export const event: BotEvent = {
                         .replace('${interaction.user}', member.user.toString())
                         .replace('${interaction.channel.name}', channel?.name!)
                     )
-                    .setFooter(await client.method.bot.footerBuilder(member))
+                    .setFooter(await client.func.displayBotName.footerBuilder(member))
                     .setTimestamp();
 
                 TicketLogsChannel.send({
                     embeds: [embed],
-                    files: [await client.method.bot.footerAttachmentBuilder(member), attachment]
+                    files: [await client.func.displayBotName.footerAttachmentBuilder(member), attachment]
                 });
 
                 await channel?.delete().catch(() => { });

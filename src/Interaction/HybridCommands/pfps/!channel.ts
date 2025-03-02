@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
             var channel = interaction.options.getChannel('channel') as BaseGuildTextChannel | null;
         } else {
 
-            var channel = await client.method.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
+            var channel = await client.func.method.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
         }
 
         let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);
@@ -59,17 +59,17 @@ export const subCommand: SubCommand = {
                 )
                 .setTimestamp();
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.pfps_channel_command_work
                     .replace('${interaction.user}', interaction.member.user.toString())
                     .replace('${channel}', channel.toString())
             });
 
-            client.method.channelSend(channel, { embeds: [embed] });
+            client.func.method.channelSend(channel, { embeds: [embed] });
             return;
 
         } else {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.pfps_channel_command_error
                     .replace('${interaction.user}', interaction.member.user.toString())
             });

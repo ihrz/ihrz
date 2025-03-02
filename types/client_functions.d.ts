@@ -1,24 +1,18 @@
-import type { DatabaseStructure } from './database_structure';
-import type { LanguageData } from './languageData.js';
-import { ClusterMethod, GatewayMethod } from '../src/core/functions/apiUrlParser.js';
+import type { DatabaseStructure } from './database_structure.d.ts';
+import type { LanguageData } from './languageData.d.ts';
+import type { ClusterMethod, GatewayMethod } from '../src/core/functions/apiUrlParser.js';
 import { ModalOptionsBuilder } from '../src/core/functions/modalHelper.js';
 import { AnySelectMenuInteraction, APIModalInteractionResponseCallbackData, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, Role, StringSelectMenuInteraction, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
 import { Assets } from './assets.js';
-import { QuickDB } from 'quick.db';
 import { LangForPrompt } from '../src/core/functions/awaitingResponse.js';
 import { RestoreCord_EntryType, RestoreCord_ResponseType, GuildRestoreCord, RestoreCord_ForceJoin_EntryType, RestoreCord_ForceJoin_ResponseType, RestoreCord_KeyUpdate_EntryType, RestoreCord_RoleUpdate_EntryType } from '../src/core/functions/restoreCordHelper.js';
 import { Command } from './command.js';
 import { Option } from './option.js';
-
-import type { Promise } from 'typescript/lib/lib.es5';
-import type { Buffer } from '@types/node/ts5.6/buffer.buffer';
-import type { PermLevel, PermNone, StatsMessage, StatsVoice } from '../../../types/database_structure.d';
+import { db } from '../src/core/database.ts';
+import { PasswordOptions } from '../src/core/functions/random.ts';
+import { command } from '../src/core/functions/permissonsCalculator.ts';
 
 declare namespace Client_Functions {
-
-  // From encryptDecryptMethod.ts
-  export namespace encryptDecryptMethod {
-  }
 
   // From colors.ts
   export namespace colors {
@@ -28,15 +22,15 @@ declare namespace Client_Functions {
   export namespace axios {
   }
 
+  // From encryptDecryptMethod.ts
+  export namespace encryptDecryptMethod {
+  }
+
   // From getToken.ts
   export function getToken(): Promise<string | undefined>;
 
   // From getIp.ts
-  export function getIp({ useIPv6 = false }: { useIPv6?: boolean }): any;
-
-  // From wait.ts
-  export namespace wait {
-  }
+  export function getIp(useIPv6?: boolean): Promise<string>;
 
   // From date_and_time.ts
   export namespace date_and_time {
@@ -105,6 +99,19 @@ declare namespace Client_Functions {
   // From numberBeautifuer.ts
   export function numberBeautifuer(num: number): string;
 
+  // From awaitingResponse.ts
+  export function awaitingResponse(interaction: ChatInputCommandInteraction<"cached"> | Message, opt: LangForPrompt): any;
+
+  // From restoreCordHelper.ts
+  export namespace restoreCordHelper {
+    export function createRestoreCordLink(data: RestoreCord_EntryType): string;
+    export function createRestoreCord(data: RestoreCord_EntryType): Promise<RestoreCord_ResponseType>;
+    export function getGuildDataPerSecretCode(data: { id: string; value: any }[], secretCode: string): { id: string, data: GuildRestoreCord } | null;
+    export function forceJoinRestoreCord(data: RestoreCord_ForceJoin_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
+    export function securityCodeUpdate(data: RestoreCord_KeyUpdate_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
+    export function changeRoleRestoreCord(data: RestoreCord_RoleUpdate_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
+  }
+
   // From permissonsCalculator.ts
   export namespace permissonsCalculator {
     export function checkCommandPermission(interaction: ChatInputCommandInteraction<"cached"> | Message, command: string): Promise<{
@@ -119,6 +126,10 @@ declare namespace Client_Functions {
     ): any;
   }
 
+  // From wait.ts
+  export namespace wait {
+  }
+
   // From prefix.ts
   export namespace prefix {
     export function guildPrefix(client: Client, guildId: string): Promise<{ type: 'prefix' | 'mention'; string: string; }>;
@@ -129,8 +140,9 @@ declare namespace Client_Functions {
   export namespace maskLink {
   }
 
-  // From awaitingResponse.ts
-  export function awaitingResponse(interaction: ChatInputCommandInteraction<"cached"> | Message, opt: LangForPrompt): any;
+  // From image_dominant_color.ts
+  export namespace image_dominant_color {
+  }
 
   // From userStatsUtils.ts
   export namespace userStatsUtils {
@@ -194,16 +206,6 @@ declare namespace Client_Functions {
     export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
   }
 
-  // From restoreCordHelper.ts
-  export namespace restoreCordHelper {
-    export function createRestoreCordLink(data: RestoreCord_EntryType): string;
-    export function createRestoreCord(data: RestoreCord_EntryType): Promise<RestoreCord_ResponseType>;
-    export function getGuildDataPerSecretCode(data: { id: string; value: any }[], secretCode: string): { id: string, data: GuildRestoreCord } | null;
-    export function forceJoinRestoreCord(data: RestoreCord_ForceJoin_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
-    export function securityCodeUpdate(data: RestoreCord_KeyUpdate_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
-    export function changeRoleRestoreCord(data: RestoreCord_RoleUpdate_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
-  }
-
   // From displayBotName.ts
   export namespace displayBotName {
     export function footerBuilder(
@@ -213,7 +215,7 @@ declare namespace Client_Functions {
       interaction: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client
     ): any;
     export function displayBotPP(client: Client, guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
-    export function displayBotName(guildId: string): Promise<string>;
+    export function displayBotName(guild: Guild): Promise<string>;
   }
 
   // From generateProgressBar.ts
@@ -226,7 +228,7 @@ declare namespace Client_Functions {
   // From helper.ts
   export namespace helper {
     export function coolDown(message: Message, method: string, ms: number): any;
-    export function hardCooldown(database: QuickDB<any>, method: string, ms: number): any;
+    export function hardCooldown(database: db, method: string, ms: number): any;
   }
 
   // From html2png.ts
@@ -265,9 +267,9 @@ declare namespace Client_Functions {
     export function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null>;
     export function channel(interaction: Message, args: string[], argsNumber: number): Promise<Channel | null>;
     export function role(interaction: Message, args: string[], argsNumber: number): Role | null;
-    export function _string(args: string[], argsNumber: number): string | null;
+    export function string(args: string[], argsNumber: number): string | null;
     export function longString(args: string[], argsNumber: number): string | null;
-    export function _number(args: string[], argsNumber: number): number;
+    export function number(args: string[], argsNumber: number): number;
     export function createAwesomeEmbed(
       lang: LanguageData,
       command: Command,
@@ -298,10 +300,10 @@ declare namespace Client_Functions {
                 username: string;
                 mention: string;
             }
-            invitesAmount: string;
+            invitesAmount: number;
         },
         ranks?: {
-            level: string;
+            level: number;
         },
         notifier?: {
             artistAuthor: string;

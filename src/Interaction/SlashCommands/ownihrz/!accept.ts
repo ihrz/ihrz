@@ -96,13 +96,13 @@ export const subCommand: SubCommand = {
                 .setDescription(lang.mybot_manage_accept_embed_desc
                     .replace('${utils_msg}', utils_msg)
                 )
-                .setFooter(await client.method.bot.footerBuilder(interaction));
+                .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
             await interaction.reply({
                 content: `${interaction.user.toString()}, <@${id_2.OwnerOne}>\n\`[Administrator Invite Link]\` **>>** https://discord.com/oauth2/authorize?client_id=${id_2.Bot.Id}&scope=bot&permissions=8\n\`[Normal Invite Link]\` **>>** https://discord.com/oauth2/authorize?client_id=${id_2.Bot.Id}&scope=bot&permissions=0`,
                 embeds: [embed],
                 ephemeral: false,
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
 
             try {

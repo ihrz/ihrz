@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
         let setupEmbed = new EmbedBuilder()
             .setColor('#000000')
             .setTitle(lang.setsuggest_channel_embed_title)
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setDescription(lang.setsuggest_channel_embed_desc);
 
         await client.db.set(`${interaction.guild.id}.SUGGEST.channel`, channel?.id);
@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
 
         (channel as BaseGuildTextChannel).send({
             embeds: [setupEmbed],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
         return;
     },

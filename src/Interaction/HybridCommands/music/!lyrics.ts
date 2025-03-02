@@ -64,16 +64,16 @@ export const subCommand: SubCommand = {
                         })
                         .setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
                         .setColor('#cd703a')
-                        .setFooter(await client.method.bot.footerBuilder(interaction));
+                        .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
-                    await client.method.interactionSend(interaction, {
+                    await client.func.method.interactionSend(interaction, {
                         embeds: [embed],
-                        files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+                        files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
                     });
                     return;
                 })
                 .catch(async err => {
-                    await client.method.interactionSend(interaction, { content: lang.lyrics_not_found });
+                    await client.func.method.interactionSend(interaction, { content: lang.lyrics_not_found });
                     return;
                 });
 

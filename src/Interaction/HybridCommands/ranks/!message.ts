@@ -57,7 +57,7 @@ export const subCommand: SubCommand = {
             .addFields(
                 {
                     name: lang.ranksSetMessage_help_embed_fields_custom_name,
-                    value: xpMessage ? `\`\`\`${xpMessage}\`\`\`\n${client.method.generateCustomMessagePreview(xpMessage,
+                    value: xpMessage ? `\`\`\`${xpMessage}\`\`\`\n${client.func.method.generateCustomMessagePreview(xpMessage,
                         {
                             user: interaction.member.user,
                             guild: interaction.guild!,
@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
                 },
                 {
                     name: lang.ranksSetMessage_help_embed_fields_default_name_empy,
-                    value: `\`\`\`${lang.event_xp_level_earn}\`\`\`\n${client.method.generateCustomMessagePreview(lang.event_xp_level_earn,
+                    value: `\`\`\`${lang.event_xp_level_earn}\`\`\`\n${client.func.method.generateCustomMessagePreview(lang.event_xp_level_earn,
                         {
                             user: interaction.member.user,
                             guild: interaction.guild!,
@@ -95,7 +95,7 @@ export const subCommand: SubCommand = {
                     .setStyle(ButtonStyle.Danger),
             );
 
-        const message = await client.method.interactionSend(interaction, {
+        const message = await client.func.method.interactionSend(interaction, {
             embeds: [helpEmbed],
             components: [buttons]
         });
@@ -136,7 +136,7 @@ export const subCommand: SubCommand = {
                     const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
                         {
                             name: lang.ranksSetMessage_help_embed_fields_custom_name,
-                            value: response ? `\`\`\`${response}\`\`\`\n${client.method.generateCustomMessagePreview(response,
+                            value: response ? `\`\`\`${response}\`\`\`\n${client.func.method.generateCustomMessagePreview(response,
                                 {
                                     user: interaction.member.user,
                                     guild: interaction.guild!,
@@ -157,7 +157,7 @@ export const subCommand: SubCommand = {
                     newEmbed.addFields(helpEmbed.data.fields![1]);
                     await message.edit({ embeds: [newEmbed] });
 
-                    await client.method.iHorizonLogs.send(interaction, {
+                    await client.func.ihorizon_logs(interaction, {
                         title: lang.ranksSetMessage_logs_embed_title_on_enable,
                         description: lang.ranksSetMessage_logs_embed_description_on_enable
                             .replace("${interaction.user.id}", interaction.member.user.id)
@@ -183,7 +183,7 @@ export const subCommand: SubCommand = {
                 newEmbed.addFields(helpEmbed.data.fields![1]);
                 await message.edit({ embeds: [newEmbed] });
 
-                await client.method.iHorizonLogs.send(interaction, {
+                await client.func.ihorizon_logs(interaction, {
                     title: lang.ranksSetMessage_logs_embed_title_on_disable,
                     description: lang.ranksSetMessage_logs_embed_description_on_disable
                         .replace("${interaction.user.id}", interaction.member.user.id)

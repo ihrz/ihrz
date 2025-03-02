@@ -67,7 +67,7 @@ export const command: Command = {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (!client.owners.includes(interaction.member.user.id)) {
-            await client.method.interactionSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
+            await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         };
 
@@ -106,10 +106,10 @@ export const command: Command = {
                 .setDescription(`\`\`\`JS\n${code || "None"}\n\`\`\``)
                 .setAuthor({ name: ((interaction.member as GuildMember).user.globalName || interaction.member.user.username) as string, iconURL: interaction.client.user.displayAvatarURL() });
 
-            await client.method.interactionSend(interaction, { embeds: [embed], ephemeral: true });
+            await client.func.method.interactionSend(interaction, { embeds: [embed], ephemeral: true });
             return;
         } catch (err: any) {
-            await client.method.interactionSend(interaction, { content: err.toString(), ephemeral: true });
+            await client.func.method.interactionSend(interaction, { content: err.toString(), ephemeral: true });
             return;
         };
     }

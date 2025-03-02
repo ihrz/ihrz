@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
         let monthly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
         if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly), lang);
 
-            await client.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
+            await client.func.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
             return;
         } else {
             let embed = new EmbedBuilder()
@@ -63,8 +63,8 @@ export const subCommand: SubCommand = {
                 .setColor("#a4cb80")
                 .setDescription(lang.monthly_embed_description)
                 .addFields({ name: lang.monthly_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` });
-            await client.method.interactionSend(interaction, { embeds: [embed] });
-            await client.method.addCoins(interaction.member, amount);
+            await client.func.method.interactionSend(interaction, { embeds: [embed] });
+            await client.func.method.addCoins(interaction.member, amount);
             await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`, Date.now());
             return;
         };

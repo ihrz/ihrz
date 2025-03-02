@@ -80,7 +80,7 @@ export const subCommand: SubCommand = {
         let comp = new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelectMenu);
         let comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
 
-        let og_response = await client.method.interactionSend(interaction, {
+        let og_response = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: [comp, comp_2]
         });
@@ -120,7 +120,7 @@ export const subCommand: SubCommand = {
                 const rolePermissions = new PermissionsBitField((role[1] as Role).permissions);
                 let roleDangerousPermissions: string[] = [];
 
-                for (const perm of client.method.getDangerousPermissions(lang)) {
+                for (const perm of client.func.method.getDangerousPermissions(lang)) {
                     if (rolePermissions.has(perm.flag)) {
                         roleDangerousPermissions.push(perm.name);
                     }
@@ -163,7 +163,7 @@ export const subCommand: SubCommand = {
 
                 await og_response.edit({ components: [newComp_2] })
 
-                await client.method.iHorizonLogs.send(interaction, {
+                await client.func.ihorizon_logs(interaction, {
                     title: lang.setjoinroles_logs_embed_title_on_enable,
                     description: lang.setjoinroles_logs_embed_description_on_enable
                         .replace("${interaction.user.id}", interaction.member?.user.id!)

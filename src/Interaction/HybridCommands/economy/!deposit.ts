@@ -44,11 +44,11 @@ export const subCommand: SubCommand = {
             var toDeposit = interaction.options.getString('how-much') as string;
         } else {
             
-            var toDeposit = client.method.string(args!, 0) as string;
+            var toDeposit = client.func.method.string(args!, 0) as string;
         };
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
         if (toDeposit === "all") toDeposit = balance;
 
         if (isNaN(Number(toDeposit))) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.temporary_voice_limit_button_not_integer
                     .replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             })
@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
         }
 
         if (toDeposit && toDeposit > balance) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -85,12 +85,12 @@ export const subCommand: SubCommand = {
                 .replace('${toDeposit}', toDeposit.toString())
             )
             .addFields({ name: lang.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setTimestamp();
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
         return;
     },

@@ -21,23 +21,21 @@
 
 import { LyricsManager } from "../src/core/functions/lyrics_fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
-import * as argsHelper from '../src/core/functions/method.js'
 
 import { GiveawayManager } from "../src/core/modules/giveawaysManager.js";
 import { Collection, Snowflake } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
-import { clientFunction } from "./client_functions.d.ts";
-import { AnotherCommand } from "./anotherCommand.d.ts";
-import { BotContent } from './botContent.d.ts'
-import { Category } from "./category.d.ts";
+import { AnotherCommand } from "./anotherCommand.js";
+import { BotContent } from './botContent.js'
+import { Category } from "./category.js";
 
-import { VanityInviteData } from "./vanityUrlData";
-import { Command } from "./command.d.ts";
-import { Emojis } from "./emojis.d.ts";
+import type { VanityInviteData } from "./vanityUrlData.d.ts";
+import { Command } from "./command.js";
+import { Emojis } from "./emojis.js";
 
 import * as ClientVersion from "../src/version.js";
-import { Assets } from "./assets.d.ts";
+import { Assets } from "./assets.js";
 import { ConfigData } from "./configDatad.js";
 import { BashCommands } from "./bashCommands.js";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";
@@ -45,7 +43,7 @@ import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
 import { db } from "../src/core/database.js";
 import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
 import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
-import { Client_Functions } from "./client_functions.js";
+import type { Client_Functions } from "./client_functions.d.ts";
 import { AutoRenew } from "../src/core/modules/autorenewManager.js";
 
 declare module 'discord.js' {
@@ -72,7 +70,6 @@ declare module 'discord.js' {
         config: ConfigData,
         isModuled?: boolean,
         owners: string[],
-        method: typeof argsHelper,
         bash: Collection<string, BashCommands>,
         notifier: StreamNotifier,
         ownihrz: OwnIHRZ,
@@ -81,4 +78,4 @@ declare module 'discord.js' {
         memberCountManager: MemberCountModule,
         autoRenewManager: AutoRenew
     }
-};
+}

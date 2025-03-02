@@ -30,7 +30,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default async (client: Client) => {
-    client.applicationsCommands = new Collection<string, AnotherCommand>();
 
     let loadCommands = async (commandType: string) => {
         let commandPath = path.join(__dirname, '..', '..', 'Interaction', commandType + 'ApplicationCommands');

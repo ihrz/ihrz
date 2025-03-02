@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 
 
         if (buyableRolesArray.length === 0) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_shop_not_set
             });
             return;
@@ -83,7 +83,7 @@ export const subCommand: SubCommand = {
             )
             .setColor("#45f712")
             .setDescription(lang.economy_shop_embed_desc)
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setFields(
                 { name: lang.balance_embed_fields1_name, value: `${baseData.bank || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
                 { name: lang.balance_embed_fields2_name, value: `${baseData.money || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
@@ -107,7 +107,7 @@ export const subCommand: SubCommand = {
                 }
             }
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_shop_not_set
             });
             return;
@@ -122,9 +122,9 @@ export const subCommand: SubCommand = {
         const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>()
             .addComponents(selectMenu);
 
-        let og_interaction = await client.method.interactionSend(interaction, {
+        let og_interaction = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)],
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)],
             components: [actionRow]
         });
 

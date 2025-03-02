@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
         let embed = new EmbedBuilder()
             .setTitle(lang.util_nick_kicker_embed_title)
             .setDescription(lang.util_nick_kicker_embed_desc)
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setFields(
                 {
                     name: lang.var_enabled,
@@ -111,10 +111,10 @@ export const subCommand: SubCommand = {
 
         const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
 
-        const ogInteraction = await client.method.interactionSend(interaction, {
+        const ogInteraction = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: [row],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         const collector = ogInteraction.createMessageComponentCollector({
@@ -147,7 +147,7 @@ export const subCommand: SubCommand = {
                     content: null,
                     embeds: [embed],
                     components: [row],
-                    files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                    files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
                 });
             }
         });
@@ -161,7 +161,7 @@ export const subCommand: SubCommand = {
             await ogInteraction.edit({
                 embeds: [embed],
                 components: [row],
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
         }
 
@@ -173,7 +173,7 @@ export const subCommand: SubCommand = {
             await ogInteraction.edit({
                 embeds: [embed],
                 components: [row],
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
         }
 
@@ -212,7 +212,7 @@ export const subCommand: SubCommand = {
             await ogInteraction.edit({
                 embeds: [embed],
                 components: [row],
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
         }
 

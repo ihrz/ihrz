@@ -210,7 +210,7 @@ export const subCommand: SubCommand = {
             new ActionRowBuilder<ButtonBuilder>().addComponents(panelButton)
         ];
 
-        const originalResponse = await client.method.interactionSend(interaction, {
+        const originalResponse = await client.func.method.interactionSend(interaction, {
             embeds: [panelEmbed],
             components
         });

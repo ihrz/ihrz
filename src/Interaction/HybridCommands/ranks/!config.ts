@@ -151,7 +151,7 @@ export const subCommand: SubCommand = {
                 );
         };
 
-        const message = await client.method.interactionSend(interaction, {
+        const message = await client.func.method.interactionSend(interaction, {
             embeds: [createRankRolesEmbed(currentPage)],
             components: [createActionRow()]
         });
@@ -242,7 +242,7 @@ export const subCommand: SubCommand = {
                 let rolePermissions = new PermissionsBitField((selectedRole as Role).permissions);
                 let roleDangerousPermissions: string[] = [];
 
-                for (const perm of client.method.getDangerousPermissions(lang)) {
+                for (const perm of client.func.method.getDangerousPermissions(lang)) {
                     if (rolePermissions.has(perm.flag)) {
                         roleDangerousPermissions.push(perm.name);
                     }

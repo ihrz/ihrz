@@ -29,7 +29,6 @@ import { OwnIHRZ } from './modules/ownihrzManager.js';
 import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData.js';
-import { ConfigData } from '../../types/configDatad.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
 import backup from 'discord-rebackup';
@@ -53,13 +52,15 @@ import { BashCommands } from '../../types/bashCommands.js';
 import { mkdir, readdir } from 'node:fs/promises';
 import { MemberCountModule } from './modules/memberCountManager.js';
 import { AutoRenew } from './modules/autorenewManager.js';
+import config from '../files/config.js';
+import { Client_Functions } from '../../types/client_functions.js';
+import { AnotherCommand } from '../../types/anotherCommand.js';
+import { load_cache } from '../load_cache.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const backups_folder = `${process.cwd()}/src/files/backups`;
-
-let global_config: ConfigData;
 
 if (!fs.existsSync(backups_folder)) {
     await mkdir(backups_folder, { recursive: true });
@@ -68,7 +69,6 @@ if (!fs.existsSync(backups_folder)) {
 backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
-    initConfig(client.config);
     dataInitializer();
 
     if (client.config.discord.phonePresence) {
@@ -100,6 +100,11 @@ export async function main(client: Client) {
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
     client.ownihrz = new OwnIHRZ(client)
     client.kdenlive = new KdenLive();
+    client.selectmenu = new Collection<string, Function>();
+    client.buttons = new Collection<string, Function>();
+    client.func = {} as typeof Client_Functions;
+    client.htmlfiles = {};
+    client.applicationsCommands = new Collection<string, AnotherCommand>();
 
     process.on('SIGINT', async () => {
         if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
@@ -125,13 +130,18 @@ export async function main(client: Client) {
     playerManager(client);
     bash(client);
     emojis(client);
-    let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-    let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.js'));
+    if (process.env.CACHE === "true") {
+        logger.log(`[${config.console.emojis.LOAD}] Cache is enabled, initializing cache storage...`.bgBlack.gray.boldText);
+        await load_cache(client);
+    } else {
+        let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
+        let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.js'));
 
-    for (const file of handlerFiles) {
-        const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
-        if (handlerFunction && typeof handlerFunction === 'function') {
-            await handlerFunction(client);
+        for (const file of handlerFiles) {
+            const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
+            if (handlerFunction && typeof handlerFunction === 'function') {
+                await handlerFunction(client);
+            }
         }
     }
 
@@ -154,17 +164,6 @@ export async function main(client: Client) {
     });
 };
 
-export const initConfig = (config: ConfigData) => {
-    global_config = config
-};
-
-export const getConfig = (): ConfigData => {
-    if (!global_config) {
-        throw new Error('Configuration file has not been initialized. Call initConfig first.');
-    }
-    return global_config;
-};
-
 export function dataInitializer() {
     let baseData: InitData = {
         initialized_timestamp: Date.now(),
@@ -174,7 +173,7 @@ export function dataInitializer() {
         }
     }
     CacheStorage.set("stored_data", baseData)
-    logger.log(`${global_config.console.emojis.OK} >> Timestamp Generated in .uptime`);
+    logger.log(`${config.console.emojis.OK} >> Timestamp Generated in .uptime`);
 }
 
 export function getCacheStorage(): InitData | undefined {

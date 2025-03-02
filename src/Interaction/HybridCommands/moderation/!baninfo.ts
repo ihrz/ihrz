@@ -36,11 +36,11 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getUser("user")
         } else {
-            var user = await client.method.user(interaction, args!, 0);
+            var user = await client.func.method.user(interaction, args!, 0);
         }
 
         if (!user) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.baninfo_user_not_found
             })
             return;
@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
         }
 
         if (!ban_info) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.baninfo_not_banned
             })
             return;
@@ -80,7 +80,7 @@ export const subCommand: SubCommand = {
             )
             .setThumbnail(user.displayAvatarURL({ extension: "gif", forceStatic: false, size: 4096 }));
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [embed]
         });
         return;

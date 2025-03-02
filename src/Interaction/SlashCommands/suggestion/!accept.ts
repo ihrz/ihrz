@@ -80,12 +80,12 @@ export const subCommand: SubCommand = {
                 value: message as string
             });
 
-            embed.setFooter(await client.method.bot.footerBuilder(interaction));
+            embed.setFooter(await client.func.displayBotName.footerBuilder(interaction));
             embed.setColor('#21744c');
             embed.setTitle(lang.suggest_acceptembed_title_to_put
                 .replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string));
 
-            await msg.edit({ embeds: [embed], files: [await client.method.bot.footerAttachmentBuilder(interaction)] });
+            await msg.edit({ embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)] });
             await client.db.set(`${interaction.guildId}.SUGGESTION.${id}.replied`, true);
 
             await interaction.deleteReply();

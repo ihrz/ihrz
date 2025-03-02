@@ -109,7 +109,7 @@ export default async (client: Client) => {
 
                     stream.write(`Welcome to iHorizon Bash\n\r\n\r`);
                     stream.write(`Memory usage: ${niceBytes(os.totalmem() - os.freemem())}/${niceBytes(os.totalmem())}\n\r`);
-                    stream.write(`IPv4 address: ${await getIP({ useIPv6: false })}\n\r\n\r`);
+                    stream.write(`IPv4 address: ${await getIP(false)}\n\r\n\r`);
                     stream.write(`Last login: ${LoadFiles} from ${LoadFiles2}\n\r\n\r`);
 
                     rl.setPrompt((user.username + '@ihorizon').green.boldText + ":".white.boldText + `~${process.cwd()}`.blue.boldText + "$ ".white.boldText);

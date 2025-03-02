@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
                     ? all_channels.map(x => `<#${x}>`).join(', ')
                     : lang.setjoinroles_var_none
             })
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
         const select = new ChannelSelectMenuBuilder()
             .setCustomId('ranks-select-config')
@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
             .setCustomId("ranks-manage-save-config")
             .setLabel(lang.antispam_manage_button_label);
 
-        const originalResponse = await client.method.interactionSend(interaction, {
+        const originalResponse = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(select),

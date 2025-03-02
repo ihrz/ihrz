@@ -57,7 +57,7 @@ export const event: BotEvent = {
                 let user = ban.guild.members.cache.get(relevantLog?.executorId!);
                 await ban.guild.bans.remove(ban.user.id);
 
-                await client.method.punish(data, user);
+                await client.func.method.punish(data, user);
             }
         }
     },

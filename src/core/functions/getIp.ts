@@ -32,7 +32,8 @@ const CacheValue: CacheValueTyping = {
     ipv6: ''
 }
 
-export default async function getIP({ useIPv6 = false }: { useIPv6?: boolean } = {}) {
+export default async function getIP(useIPv6?: boolean): Promise<string> {
+    if (!useIPv6) useIPv6 = false;
     const endpoint = useIPv6 ? endpoint_v6 : endpoint_v4;
 
     if (useIPv6 && CacheValue.ipv6 !== '') {

@@ -114,14 +114,14 @@ async function executeCommand(
 
     let fetchFullCommandName = message.client.content.find(c => c.desc === command.description);
 
-    let permCheck = await message.client.method.permission.checkCommandPermission(message, fetchFullCommandName?.cmd!);
-    if (!permCheck.allowed && permCheck.permissionData.level !== 0) return message.client.method.permission.sendErrorMessage(message, lang, permCheck.permissionData);
+    let permCheck = await message.client.func.permissonsCalculator.checkCommandPermission(message, fetchFullCommandName?.cmd!);
+    if (!permCheck.allowed && permCheck.permissionData.level !== 0) return message.client.func.permissonsCalculator.sendErrorMessage(message, lang, permCheck.permissionData);
 
     // for format like: "+utils" without subcommand behind
     if (!command?.run) {
-        await message.client.method.interactionSend(message, {
-            embeds: [await message.client.method.createAwesomeEmbed(lang, command, message.client, message)],
-            files: [await message.client.method.bot.footerAttachmentBuilder(message)]
+        await message.client.func.method.interactionSend(message, {
+            embeds: [await message.client.func.method.createAwesomeEmbed(lang, command, message.client, message)],
+            files: [await message.client.func.displayBotName.footerAttachmentBuilder(message)]
         });
         return;
     }
@@ -138,7 +138,7 @@ async function executeCommand(
         }
     }
 
-    var _ = await message.client.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
+    var _ = await message.client.func.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
     await command.run(message.client, message, lang, args);
 }
 
@@ -177,7 +177,7 @@ export const event: BotEvent = {
     run: async (client: Client, message: Message) => {
         if (!message.guild || message.author.bot || !message.channel) return;
 
-        if (await client.method.helper.coolDown(message, "msg_commands", 1000)) {
+        if (await client.func.helper.coolDown(message, "msg_commands", 1000)) {
             return;
         }
 

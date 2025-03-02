@@ -60,7 +60,7 @@ export const event: BotEvent = {
 
         if ((level * 500) < baseData?.xp!) {
             await client.db.add(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`, 1);
-            await client.method.addCoins(message.member!, randomNumber * await getMemberBoost(message.member!))
+            await client.func.method.addCoins(message.member!, randomNumber * await getMemberBoost(message.member!))
             await client.db.sub(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.xp`, (level * 500));
 
             let newLevel = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`);
@@ -91,7 +91,7 @@ export const event: BotEvent = {
             let xpChan = ranksConfig?.xpchannels!;
             let MsgChannel = message.guild.channels.cache.get(xpChan) as GuildTextBasedChannel | null;
 
-            let msg = client.method.generateCustomMessagePreview(ranksConfig?.message || lang.event_xp_level_earn,
+            let msg = client.func.method.generateCustomMessagePreview(ranksConfig?.message || lang.event_xp_level_earn,
                 {
                     user: message.author,
                     guild: message.guild,
@@ -114,7 +114,7 @@ export const event: BotEvent = {
                         .replace("${client.iHorizon_Emojis.vc.OpenChat}", client.iHorizon_Emojis.vc.OpenChat)
                 }
 
-                client.method.channelSend(message, {
+                client.func.method.channelSend(message, {
                     content: msg,
                     enforceNonce: true,
                     nonce: nonce

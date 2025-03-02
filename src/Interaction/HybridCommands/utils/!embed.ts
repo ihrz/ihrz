@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
             var arg = interaction.options.getString("id");
         } else {
 
-            var arg = client.method.string(args!, 0);
+            var arg = client.func.method.string(args!, 0);
         };
 
         let potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
@@ -115,7 +115,7 @@ export const subCommand: SubCommand = {
             .setLabel(lang.embed_btn_replace)
             .setStyle(ButtonStyle.Secondary);
 
-        let response = await client.method.interactionSend(interaction, {
+        let response = await client.func.method.interactionSend(interaction, {
             content: lang.embed_first_message,
             embeds: [__tempEmbed],
             components: [
@@ -256,7 +256,7 @@ export const subCommand: SubCommand = {
                         } else if (message.attachments.first()?.contentType?.startsWith("image/")) {
                             let name = "image.png";
 
-                            if (client.method.isAnimated(message.attachments.first()?.url!)) {
+                            if (client.func.method.isAnimated(message.attachments.first()?.url!)) {
                                 name = "image.gif"
                             }
 
@@ -289,7 +289,7 @@ export const subCommand: SubCommand = {
                             __tempEmbed.setColor(message.content as ColorResolvable);
                             response.edit({ embeds: [__tempEmbed] });
                         } else {
-                            await client.method.channelSend(interaction, { content: lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
+                            await client.func.method.channelSend(interaction, { content: lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
                         }
                     });
                     break;

@@ -57,7 +57,7 @@ export const subCommand: SubCommand = {
             .addFields(
                 {
                     name: lang.setjoinmessage_help_embed_fields_custom_name,
-                    value: leaveMessage ? `\`\`\`${leaveMessage}\`\`\`\n${client.method.generateCustomMessagePreview(leaveMessage, {
+                    value: leaveMessage ? `\`\`\`${leaveMessage}\`\`\`\n${client.func.method.generateCustomMessagePreview(leaveMessage, {
                         user: interaction.user,
                         guild: interaction.guild!,
                         guildLocal: guildLocal,
@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
                 },
                 {
                     name: lang.setjoinmessage_help_embed_fields_default_name_empy,
-                    value: `\`\`\`${lang.event_goodbye_inviter}\`\`\`\n${client.method.generateCustomMessagePreview(lang.event_goodbye_inviter, {
+                    value: `\`\`\`${lang.event_goodbye_inviter}\`\`\`\n${client.func.method.generateCustomMessagePreview(lang.event_goodbye_inviter, {
                         user: interaction.user,
                         guild: interaction.guild!,
                         guildLocal: guildLocal,
@@ -127,7 +127,7 @@ export const subCommand: SubCommand = {
                 const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
                     {
                         name: lang.setjoinmessage_help_embed_fields_custom_name,
-                        value: response ? `\`\`\`${response}\`\`\`\n${client.method.generateCustomMessagePreview(response, {
+                        value: response ? `\`\`\`${response}\`\`\`\n${client.func.method.generateCustomMessagePreview(response, {
                             user: interaction.user,
                             guild: interaction.guild!,
                             guildLocal: guildLocal,
@@ -143,7 +143,7 @@ export const subCommand: SubCommand = {
                 });
                 newEmbed.addFields(helpEmbed.data.fields![1]);
                 await originalResponse.edit({ embeds: [newEmbed] });
-                await client.method.iHorizonLogs.send(interaction, {
+                await client.func.ihorizon_logs(interaction, {
                     title: lang.setleavemessage_logs_embed_title_on_enable,
                     description: lang.setleavemessage_logs_embed_description_on_enable
                         .replace("${interaction.user.id}", interaction.user.id)
@@ -167,7 +167,7 @@ export const subCommand: SubCommand = {
                 newEmbed.addFields(helpEmbed.data.fields![1]);
                 await originalResponse.edit({ embeds: [newEmbed] });
 
-                await client.method.iHorizonLogs.send(interaction, {
+                await client.func.ihorizon_logs(interaction, {
                     title: lang.setleavemessage_logs_embed_title_on_disable,
                     description: lang.setleavemessage_logs_embed_description_on_disable
                         .replace("${interaction.user.id}", interaction.user.id)

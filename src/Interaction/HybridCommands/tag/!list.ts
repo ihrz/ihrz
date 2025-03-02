@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 
         // Check if there are no tags
         if (!baseData || Object.entries(baseData).length === 0) {
-            await client.method.interactionSend(interaction, { content: lang.tag_list_no_anything });
+            await client.func.method.interactionSend(interaction, { content: lang.tag_list_no_anything });
             return;
         }
 
@@ -106,7 +106,7 @@ export const subCommand: SubCommand = {
         };
 
         // Initial message
-        const response = await client.method.interactionSend(interaction, {
+        const response = await client.func.method.interactionSend(interaction, {
             embeds: arrayEmbeds[currentPage],
             components: [getButtons(currentPage)]
         });

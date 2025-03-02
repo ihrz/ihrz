@@ -43,14 +43,14 @@ export const subCommand: SubCommand = {
             var action = interaction.options.getString("action");
         } else {
             
-            var action = client.method.string(args!, 0);
+            var action = client.func.method.string(args!, 0);
         }
 
         await client.db.set(`${interaction.guildId}.GUILD.FUN.states`, action);
 
         let action_type = action === "off" ? lang.var_disabled : lang.var_enabled;
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.fun_disable_command_msg
                 .replace("${action_type}", action_type)
                 .replace("${interaction.member?.user.toString()}", String(interaction.member?.user.toString()))

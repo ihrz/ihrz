@@ -122,7 +122,7 @@ async function handleCategorySelect(
                 .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
                 .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
             )
-            .setFooter(await client.method.bot.footerBuilder(i))
+            .setFooter(await client.func.displayBotName.footerBuilder(i))
             .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${i.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
             .setThumbnail("attachment://footer_icon.png")
             .setTimestamp();
@@ -142,7 +142,7 @@ async function handleCategorySelect(
         .setTitle(`${category.emoji}・${category.name}`)
         .setDescription(category.description)
         .setColor(category.color as ColorResolvable)
-        .setFooter(await client.method.bot.footerBuilder(i))
+        .setFooter(await client.func.displayBotName.footerBuilder(i))
         .setThumbnail("attachment://footer_icon.png")
         .setTimestamp();
 
@@ -219,7 +219,7 @@ async function handleCategorySelect(
                 .setTitle(`${category.emoji}・${category.name}`)
                 .setDescription(category.description)
                 .setColor(category.color as ColorResolvable)
-                .setFooter(await client.method.bot.footerBuilder(i))
+                .setFooter(await client.func.displayBotName.footerBuilder(i))
                 .setThumbnail("attachment://footer_icon.png")
                 .setTimestamp();
             currentFieldsLength = 0;
@@ -332,7 +332,7 @@ export const command: Command = {
             var targetCommand = interaction.options.getString('command-name');
         } else {
 
-            var targetCommand = client.method.string(args!, 0);
+            var targetCommand = client.func.method.string(args!, 0);
         };
 
         if (!targetCommand) {
@@ -415,15 +415,15 @@ export const command: Command = {
                     .replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
                     .replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
                 )
-                .setFooter(await client.method.bot.footerBuilder(interaction))
+                .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                 .setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
                 .setThumbnail("attachment://footer_icon.png")
                 .setTimestamp();
 
-            let response = await client.method.interactionSend(interaction, {
+            let response = await client.func.method.interactionSend(interaction, {
                 embeds: [og_embed],
                 components: rows,
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
 
             let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840000 });
@@ -463,16 +463,16 @@ export const command: Command = {
             let fetchCommand = client.commands.get(targetCommand) || client.message_commands.get(targetCommand);
 
             if (!fetchCommand) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: client.iHorizon_Emojis.icon.No_Logo + " | " + lang.var_unreachable_command,
                 });
                 return;
             }
 
-            await client.method.interactionSend(interaction, {
-                embeds: [await client.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)],
+            await client.func.method.interactionSend(interaction, {
+                embeds: [await client.func.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)],
                 ephemeral: true,
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
         }
     },

@@ -68,7 +68,7 @@ async function buildEmbed(
 
     const htmlContent = await generateBotHTML(client, data, bot, lang);
 
-    const image = await client.method.imageManipulation.html2Png(htmlContent, {
+    const image = await client.func.html2png(htmlContent, {
         elementSelector: '.card',
         omitBackground: true,
         selectElement: true,
@@ -85,7 +85,7 @@ async function buildEmbed(
             .replace('${utils_msg}', ""))
         .setTitle(lang.mybot_list_embed1_title.replace('${data_2[i].bot.username}', bot?.bot?.username || data?.Bot?.Name))
         .setImage(`attachment://bot-${data.Bot.Id}.png`)
-        .setFooter(await client.method.bot.footerBuilder(interaction))
+        .setFooter(await client.func.displayBotName.footerBuilder(interaction))
         .setTimestamp();
 
     return { embed, attachment };
@@ -105,7 +105,7 @@ export const subCommand: SubCommand = {
             new EmbedBuilder()
                 .setTitle(lang.mybot_list_embed0_title)
                 .setColor('#000000')
-                .setFooter(await client.method.bot.footerBuilder(interaction))
+                .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                 .setTimestamp()
         ];
 
@@ -139,7 +139,7 @@ export const subCommand: SubCommand = {
 
         await interaction.editReply({
             embeds: embeds,
-            files: [...attachments, await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [...attachments, await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         return;

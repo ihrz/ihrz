@@ -146,7 +146,7 @@ export const subCommand: SubCommand = {
                     inline: true
                 },
             )
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
         let buttonRows = [
             [

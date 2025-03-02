@@ -48,9 +48,9 @@ export const subCommand: SubCommand = {
             var mention = interaction.options.getMember("mention");
             var message_id = interaction.options.getString("message_id");
         } else {
-            var tag_name = client.method.string(args!, 0)!;
-            var mention = client.method.member(interaction, args!, 1);
-            var message_id = client.method.string(args!, 2);
+            var tag_name = client.func.method.string(args!, 0)!;
+            var mention = client.func.method.member(interaction, args!, 1);
+            var message_id = client.func.method.string(args!, 2);
         }
 
         tag_name = tag_name.trim();
@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
         let baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS`) as DatabaseStructure.GuildTagsStructure | undefined;
 
         if (!baseData?.storedTags?.[tag_name]) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tag_doesnt_exist
                     .replace("${tag_name}", tag_name)
             });
@@ -71,7 +71,7 @@ export const subCommand: SubCommand = {
         let is_in_wl = interaction.member.roles.cache.some(role => baseData.whitelist_use?.includes(role.id))
 
         if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator) && !is_in_wl) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tag_use_not_allowed
                     .replace("${tag_name}", tag_name)
                     .replace("${tag.createBy}", tag.createBy)
@@ -99,7 +99,7 @@ export const subCommand: SubCommand = {
                 });
             }
         }
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.tag_use_command_work
                 .replace("${tag_name}", tag_name)
         });

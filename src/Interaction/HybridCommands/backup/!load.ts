@@ -44,21 +44,21 @@ export const subCommand: SubCommand = {
             var backupID = interaction.options.getString('backup-id')!;
         } else {
 
-            var backupID = client.method.string(args!, 0)!;
+            var backupID = client.func.method.string(args!, 0)!;
         };
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await client.method.interactionSend(interaction, { content: lang.backup_i_dont_have_perm_on_load });
+            await client.func.method.interactionSend(interaction, { content: lang.backup_i_dont_have_perm_on_load });
             return;
         };
 
         if (!backupID) {
-            await client.method.interactionSend(interaction, { content: lang.backup_unvalid_id_on_load });
+            await client.func.method.interactionSend(interaction, { content: lang.backup_unvalid_id_on_load });
             return;
         };
 
         if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -71,12 +71,12 @@ export const subCommand: SubCommand = {
             dangerAction: true
         })
 
-        if (!confirm) return await client.method.interactionSend(interaction, {
+        if (!confirm) return await client.func.method.interactionSend(interaction, {
             content: lang.backup_not_load,
             components: []
         });
 
-        await client.method.channelSend(interaction, {
+        await client.func.method.channelSend(interaction, {
             content: lang.backup_waiting_on_load.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
             components: []
         });
@@ -84,11 +84,11 @@ export const subCommand: SubCommand = {
         backup.fetch(backupID).then(async () => {
             // @ts-ignore
             backup.load(backupID, interaction.guild).then(() => false).catch((err) => {
-                client.method.channelSend(interaction, { content: lang.backup_error_on_load.replace("${backupID}", backupID) });
+                client.func.method.channelSend(interaction, { content: lang.backup_error_on_load.replace("${backupID}", backupID) });
                 return;
             });
         }).catch((err) => {
-            client.method.channelSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo });
+            client.func.method.channelSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo });
             return;
         });
     },

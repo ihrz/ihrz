@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
             var giveawayId = interaction.options.getString("giveaway-id")!;
         } else {
             
-            var giveawayId = client.method.string(args!, 0)!;
+            var giveawayId = client.func.method.string(args!, 0)!;
         };
 
         client.giveawaysManager.getGiveawayData(giveawayId)
@@ -110,9 +110,9 @@ export const subCommand: SubCommand = {
                         }
                     )
                 }
-                await client.method.interactionSend(interaction, { embeds: [embed] });
+                await client.func.method.interactionSend(interaction, { embeds: [embed] });
             }).catch(async () => {
-                await client.method.interactionSend(interaction, { content: lang.gw_doesnt_exit });
+                await client.func.method.interactionSend(interaction, { content: lang.gw_doesnt_exit });
             })
         return;
     },

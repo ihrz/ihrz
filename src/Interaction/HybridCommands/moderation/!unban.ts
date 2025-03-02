@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.unban_bot_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             })
             return;
@@ -56,8 +56,8 @@ export const subCommand: SubCommand = {
             var reason = interaction.options.getString('reason');
         } else {
             
-            var userID = client.method.string(args!, 0);
-            var reason = client.method.longString(args!, 1);
+            var userID = client.func.method.string(args!, 0);
+            var reason = client.func.method.longString(args!, 1);
         };
 
         if (!reason) reason = lang.unban_reason;
@@ -65,28 +65,28 @@ export const subCommand: SubCommand = {
         await interaction.guild.bans.fetch()
             .then(async (bans) => {
                 if (bans.size == 0) {
-                    await client.method.interactionSend(interaction, {
+                    await client.func.method.interactionSend(interaction, {
                         content: lang.unban_there_is_nobody_banned.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
                     return;
                 }
                 let bannedID = bans.find(ban => ban.user.id == userID);
                 if (!bannedID) {
-                    await client.method.interactionSend(interaction, {
+                    await client.func.method.interactionSend(interaction, {
                         content: lang.unban_the_member_is_not_banned.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
                     return;
                 };
 
                 await interaction.guild?.bans.remove(userID as string, reason as string).catch(() => { });
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.unban_is_now_unbanned
                         .replace(/\${userID}/g, userID as string)
                 });
             })
             .catch((err: string) => logger.err(err));
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.unban_logs_embed_title,
             description: lang.unban_logs_embed_description
                 .replace(/\${userID}/g, userID as string)

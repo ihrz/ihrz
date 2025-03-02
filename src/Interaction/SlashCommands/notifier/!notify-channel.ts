@@ -44,13 +44,13 @@ export const subCommand: SubCommand = {
         let fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema;
 
         if (fetched && channel.id === fetched.channelId) {
-            return await client.method.interactionSend(interaction, {
+            return await client.func.method.interactionSend(interaction, {
                 content: lang.joinghostping_add_already_set
                     .replace("${channel}", channel.toString())
             })
         };
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.notifier_config_channel_logsEmbed_title,
             description: lang.notifier_config_channel_logsEmbed_desc
                 .replace('${interaction.user.id}', interaction.member.toString())
@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 
         await client.db.set(`${interaction.guildId}.NOTIFIER.channelId`, channel.id);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.notifier_config_message_command_ok
                 .replace("${channel.toString()}", channel.toString())
         })

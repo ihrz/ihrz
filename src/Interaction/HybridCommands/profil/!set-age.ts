@@ -37,7 +37,7 @@ export const subCommand: SubCommand = {
             var user = interaction.user;
         } else {
             
-            var age = client.method.number(args!, 0);
+            var age = client.func.method.number(args!, 0);
             var user = interaction.author;
         };
 
@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
 
         await tableProfil.set(`${user.id}.age`, age);
 
-        await client.method.interactionSend(interaction,{ content: lang.setprofilage_command_work, ephemeral: true });
+        await client.func.method.interactionSend(interaction,{ content: lang.setprofilage_command_work, ephemeral: true });
         return;
     },
 };

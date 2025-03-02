@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
         if (executingBefore !== null && timeout - (Date.now() - executingBefore) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - executingBefore), lang);
 
-            await client.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
+            await client.func.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
             return;
         };
 
@@ -71,12 +71,12 @@ export const subCommand: SubCommand = {
         let id_2 = getData() as Custom_iHorizon;
 
         if (!id_2) {
-            await client.method.interactionSend(interaction, { content: lang.mybot_manage_accept_not_found });
+            await client.func.method.interactionSend(interaction, { content: lang.mybot_manage_accept_not_found });
             return;
         };
 
         if (!client.owners.includes(interaction.user.id) && (id_2.OwnerOne !== interaction.user.id)) {
-            await client.method.interactionSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
+            await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
             return;
         }
 
@@ -98,12 +98,12 @@ export const subCommand: SubCommand = {
             .setDescription(lang.mybot_manage_accept_embed_desc
                 .replace('${utils_msg}', utils_msg)
             )
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             ephemeral: false,
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         try {

@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
             return;
         };
 
-        if (!await client.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
+        if (!await client.func.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
             await TicketReOpen(interaction);
         } else {
             await interaction.editReply({ content: lang.open_not_in_ticket });

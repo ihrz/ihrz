@@ -42,7 +42,7 @@ export const subCommand: SubCommand = {
         let work = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
         if (work !== null && timeout - (Date.now() - work) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work), lang);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_cooldown_error
                     .replace('${time}', time),
                 ephemeral: true
@@ -74,7 +74,7 @@ export const subCommand: SubCommand = {
             )
             .setColor("#f1d488");
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.func.method.interactionSend(interaction, { embeds: [embed] });
 
         await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
         await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`, Date.now());

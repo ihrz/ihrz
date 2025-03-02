@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
             here.send({ content: lang.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
             return;
         } catch (error) {
-            await client.method.interactionSend(interaction, { content: lang.renew_dont_have_permission });
+            await client.func.method.interactionSend(interaction, { content: lang.renew_dont_have_permission });
             return;
         }
     },

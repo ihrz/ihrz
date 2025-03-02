@@ -59,7 +59,7 @@ export const event: BotEvent = {
             let member = newGuild.members.cache.get(relevantLog?.executorId!);
             if (!member) return;
 
-            await client.method.punish(data, member);
+            await client.func.method.punish(data, member);
 
             if (oldGuild.afkChannel !== newGuild.afkChannel) {
                 await newGuild.setAFKChannel(oldGuild.afkChannel).catch(() => false);

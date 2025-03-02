@@ -31,7 +31,7 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
     var backgroundURL = member.guild.bannerURL({ size: 512 }) || member.user.bannerURL({ size: 512 }) || ""
     var profilePictureRound = member.displayHexColor;
     var textColour = "#aa9999";
-    var textMessage = member.client.method.generateCustomMessagePreview("Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild", {
+    var textMessage = member.client.func.method.generateCustomMessagePreview("Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild", {
         user: member.user,
         guild: member.guild,
         guildLocal: "en-US"
@@ -97,7 +97,7 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
         .replaceAll("#000000", profilePictureRound)
         .replaceAll("BACKGROUNDURL", `url('${backgroundURL}')`)
         .replaceAll("#aa9999", textColour)
-        .replaceAll("MSG", member.client.method.generateCustomMessagePreview(textMessage, {
+        .replaceAll("MSG", member.client.func.method.generateCustomMessagePreview(textMessage, {
             user: member.user,
             guild: member.guild!,
             guildLocal: "fr-FR"
@@ -105,7 +105,10 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
         .replaceAll("40px", textSize)
         .replaceAll("140px", avatarSize)
 
-    var image = await member.client.method.imageManipulation.html2Png(htmlContent);
+    var image = await member.client.func.html2png(htmlContent, {
+        omitBackground: false,
+        selectElement: false
+    });
     return new AttachmentBuilder(image, { name: "image.png" })
 };
 
@@ -181,7 +184,7 @@ export const event: BotEvent = {
                 isCustomVanity = true;
             }
 
-            msg = client.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_inviter,
+            msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_inviter,
                 {
                     user: member.user,
                     guild: member.guild,
@@ -196,7 +199,7 @@ export const event: BotEvent = {
                 }
             );
 
-            await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files: files });
+            await client.func.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files: files });
             return;
 
         } else if (member.guild.features.includes(GuildFeature.VanityURL)) {
@@ -213,7 +216,7 @@ export const event: BotEvent = {
             if (!wChan || !channel) return;
 
             if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
-                msg = client.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
+                msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
                     {
                         user: member.user,
                         guild: member.guild,
@@ -228,7 +231,7 @@ export const event: BotEvent = {
                     }
                 );
 
-                await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files });
+                await client.func.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files });
                 return;
             };
 
@@ -237,7 +240,7 @@ export const event: BotEvent = {
             let msg = '';
             if (!wChan || !channel) return;
 
-            msg = client.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
+            msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
                 {
                     user: member.user,
                     guild: member.guild,
@@ -245,7 +248,7 @@ export const event: BotEvent = {
                 }
             );
 
-            await client.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files });
+            await client.func.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files });
             return;
         };
 

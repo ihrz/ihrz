@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
             var member = interaction.options.getMember("member") as GuildMember || interaction.member;
         } else {
             
-            var member = client.method.member(interaction, args!, 0) || interaction.member;
+            var member = client.func.method.member(interaction, args!, 0) || interaction.member;
         };
 
         let baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);
@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
                     .replace(/\${inv\s*\|\|\s*0}/g, inv || 0)
             );
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.func.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

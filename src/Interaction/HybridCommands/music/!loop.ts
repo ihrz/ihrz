@@ -52,17 +52,17 @@ export const subCommand: SubCommand = {
                 var mode = interaction.options.getString('mode');
             } else {
 
-                var mode = client.method.string(args!, 0);
+                var mode = client.func.method.string(args!, 0);
             };
 
             if (!player || !player.playing || !voiceChannel) {
-                await client.method.interactionSend(interaction, { content: lang.loop_no_queue });
+                await client.func.method.interactionSend(interaction, { content: lang.loop_no_queue });
                 return;
             };
 
             // Check if the member is in the same voice channel as the bot
             if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
                 });
                 return;
@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
 
             await player.setRepeatMode(mode as "off" | "track" | "queue");
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.loop_command_work
                     .replace("{mode}", mode === 'track' ? `🔂` : `▶`)
             });

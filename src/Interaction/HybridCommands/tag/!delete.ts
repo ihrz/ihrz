@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var tag_name = interaction.options.getString("tag_name", true);
         } else {
-            var tag_name = client.method.string(args!, 0)!;
+            var tag_name = client.func.method.string(args!, 0)!;
         }
 
         tag_name = tag_name.trim();
@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
         let baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS`) as DatabaseStructure.GuildTagsStructure | undefined;
 
         if (!baseData?.storedTags) {
-            await client.method.interactionSend(interaction, { content: lang.tag_no_one_found });
+            await client.func.method.interactionSend(interaction, { content: lang.tag_no_one_found });
             return;
         }
 
@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 
         // check if the tag exists
         if (!tags.includes(tag_name)) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tag_delete_dnt_exist.replace("${tag_name}", tag_name)
             });
             return;
@@ -71,7 +71,7 @@ export const subCommand: SubCommand = {
 
         await client.db.set(`${interaction.guildId}.GUILD.TAGS`, baseData);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.tag_delete_command_ok
                 .replace("${tag_name}", tag_name)
         });

@@ -30,8 +30,6 @@ const __dirname = path.dirname(__filename);
 
 export default async (client: Client) => {
 
-    client.htmlfiles = {};
-
     (await readdir(path.join(process.cwd(), "src", "assets"))).filter(file => file.endsWith(".html")).forEach(async file => {
         const htlmContent = await readFile(path.join(process.cwd(), "src", "assets", file), "utf-8");
         client.htmlfiles[file.split('.html')[0]] = htlmContent;

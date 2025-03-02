@@ -81,7 +81,7 @@ export const event: BotEvent = {
 
                     try {
                         await message.member?.timeout((picOnlyConfig.muteTime || 10 * 60 * 1000), lang.piconly_module_timeout_reason);
-                        await client.method.warnMember(
+                        await client.func.method.warnMember(
                             message.guild?.members.me!,
                             message.member!,
                             "Automated Punishment - Pic Only"

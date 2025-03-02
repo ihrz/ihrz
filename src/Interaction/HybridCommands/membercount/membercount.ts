@@ -113,9 +113,9 @@ export const command: Command = {
             var messagei = interaction.options.getString("name");
             var channel = interaction.options.getChannel("channel") as BaseGuildVoiceChannel;
         } else {
-            var type = client.method.string(args!, 0);
-            var channel = await client.method.voiceChannel(interaction, args!, 1) as BaseGuildVoiceChannel;
-            var messagei = client.method.string(args!, 2);
+            var type = client.func.method.string(args!, 0);
+            var channel = await client.func.method.voiceChannel(interaction, args!, 1) as BaseGuildVoiceChannel;
+            var messagei = client.func.method.string(args!, 2);
         }
 
         let help_embed = new EmbedBuilder()
@@ -152,7 +152,7 @@ export const command: Command = {
             });
 
             if (!messagei) {
-                await client.method.interactionSend(interaction, { embeds: [help_embed] });
+                await client.func.method.interactionSend(interaction, { embeds: [help_embed] });
                 return;
             };
 
@@ -194,11 +194,11 @@ export const command: Command = {
                     { name: messagei, enable: true, channel: channel?.id }
                 );
             } else {
-                await client.method.interactionSend(interaction, { embeds: [help_embed] });
+                await client.func.method.interactionSend(interaction, { embeds: [help_embed] });
                 return;
             }
 
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.setmembercount_logs_embed_title_on_enable,
                 description: lang.setmembercount_logs_embed_description_on_enable
                     .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
@@ -209,7 +209,7 @@ export const command: Command = {
             let fetched = interaction.guild?.channels.cache.get(channel?.id as string);
 
             (fetched as BaseGuildTextChannel).edit({ name: joinmsgreplace });
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.setmembercount_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
             });
             return;
@@ -217,21 +217,21 @@ export const command: Command = {
         } else if (type == "off") {
             await client.db.delete(`${interaction.guildId}.GUILD.MCOUNT`);
 
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.setmembercount_logs_embed_title_on_disable,
                 description: lang.setmembercount_logs_embed_description_on_disable
                     .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
             });
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.setmembercount_command_work_on_disable.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)
             });
             return;
         } else if (!type) {
-            await client.method.interactionSend(interaction, { embeds: [help_embed] });
+            await client.func.method.interactionSend(interaction, { embeds: [help_embed] });
             return;
         } else if (!messagei) {
-            await client.method.interactionSend(interaction, { embeds: [help_embed] });
+            await client.func.method.interactionSend(interaction, { embeds: [help_embed] });
             return;
         };
     },

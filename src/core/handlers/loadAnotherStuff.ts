@@ -29,14 +29,11 @@ import { Client_Functions } from '../../../types/client_functions.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-type FunctionModule = {
+export type FunctionModule = {
     [K in keyof typeof Client_Functions]: typeof Client_Functions[K]
 };
 
 export default async (client: Client) => {
-    client.selectmenu = new Collection<string, Function>();
-    client.buttons = new Collection<string, Function>();
-    client.func = {} as typeof Client_Functions;
 
     (await readdir(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons')))
         .filter(file => file.endsWith(".js"))

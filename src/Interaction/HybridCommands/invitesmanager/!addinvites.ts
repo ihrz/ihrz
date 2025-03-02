@@ -49,8 +49,8 @@ export const subCommand: SubCommand = {
             var amount = interaction.options.getNumber("amount")!;
         } else {
             
-            var user = client.method.member(interaction, args!, 0)!;
-            var amount = client.method.number(args!, 1);
+            var user = client.func.method.member(interaction, args!, 0)!;
+            var amount = client.func.method.number(args!, 1);
         };
 
         let a = new EmbedBuilder().setColor("#FF0000").setDescription(lang.addinvites_not_admin_embed_description);
@@ -79,9 +79,9 @@ export const subCommand: SubCommand = {
             .setColor(`#92A8D1`)
             .setFooter({ text: interaction.guild.name as string, iconURL: interaction.guild.iconURL() as string });
 
-        await client.method.interactionSend(interaction, { embeds: [finalEmbed] });
+        await client.func.method.interactionSend(interaction, { embeds: [finalEmbed] });
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.addinvites_logs_embed_title,
             description: lang.addinvites_logs_embed_description
                 .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)

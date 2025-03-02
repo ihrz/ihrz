@@ -49,8 +49,8 @@ export const subCommand: SubCommand = {
             var current_tag_name = interaction.options.getString("current_tag_name", true);
             var new_tag_name = interaction.options.getString("new_tag_name", true);
         } else {
-            var current_tag_name = client.method.string(args!, 0)!;
-            var new_tag_name = client.method.string(args!, 1)!;
+            var current_tag_name = client.func.method.string(args!, 0)!;
+            var new_tag_name = client.func.method.string(args!, 1)!;
         }
 
         let baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS.storedTags.${current_tag_name}`) as DatabaseStructure.TagInfo | undefined;
@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
         // check if there are no tags
 
         if (!baseData) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tag_doesnt_exist
                     .replace("${tag_name}", current_tag_name)
             });
@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
         // check if the member have admin perm of are the tag's owner
 
         if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator) && baseData.createBy !== interaction.member.user.id) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tag_edit_error_perm
             })
         }
@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
         await client.db.delete(`${interaction.guildId}.GUILD.TAGS.storedTags.${current_tag_name}`);
         await client.db.set(`${interaction.guildId}.GUILD.TAGS.storedTags.${new_tag_name}`, baseData);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: `The current tag name are now modified by **\`${current_tag_name}\`** to **\`${new_tag_name}\`**`
         });
         return;

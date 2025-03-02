@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
                 value: all_channels ? Array.from(new Set(all_channels.map(x => `<#${x}>`))).join('\n') : `<#${channel.id}>`
             });
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.joinghostping_add_logs_embed_title,
             description: lang.joinghostping_add_logs_embed_desc
                 .replace('${interaction.user}', interaction.user.toString())

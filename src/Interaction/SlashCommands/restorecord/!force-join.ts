@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
         const table = client.db.table("RESTORECORD");
         const Data = getGuildDataPerSecretCode(await table.all(), secretCode);
 
-        if (!Data) return client.method.interactionSend(interaction, {
+        if (!Data) return client.func.method.interactionSend(interaction, {
             content: lang.rc_key_doesnt_exist
                 .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 .replace("${secretCode}", secretCode),
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
                 { name: lang.rc_forceJoin_embed_field3, value: String(members.length - membersAlreadyHere.length), inline: true },
             );
 
-        const response = await client.method.interactionSend(interaction, {
+        const response = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             ephemeral: false,
             fetchReply: true,

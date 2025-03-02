@@ -54,20 +54,20 @@ export const subCommand: SubCommand = {
             var nickname = interaction.options.getString("part-of-nickname");
         } else {
 
-            var type = client.method.string(args!, 0);
-            var argsid = client.method.role(interaction, args!, 1) as Role | null;
-            var nickname = client.method.longString(args!, 2);
+            var type = client.func.method.string(args!, 0);
+            var argsid = client.func.method.role(interaction, args!, 1) as Role | null;
+            var nickname = client.func.method.longString(args!, 2);
         };
 
         if (type === "on") {
             if (!argsid) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.setrankroles_not_roles_typed.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
                 return;
             };
 
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.setrankroles_logs_embed_title_enable,
                 description: lang.setrankroles_logs_embed_description_enable
                     .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
                 let already = await client.db.get(`${interaction.guildId}.GUILD.RANK_ROLES.roles`);
 
                 if (already === argsid.id) {
-                    await client.method.interactionSend(interaction, {
+                    await client.func.method.interactionSend(interaction, {
                         content: lang.setrankroles_already_this_in_db.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     });
                     return;
@@ -101,18 +101,18 @@ export const subCommand: SubCommand = {
 
                 let e = new EmbedBuilder().setDescription(msg);
 
-                await client.method.interactionSend(interaction, { embeds: [e] });
+                await client.func.method.interactionSend(interaction, { embeds: [e] });
                 return;
 
             } catch (e: any) {
                 logger.err(e);
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
                 return;
             }
         } else if (type == "off") {
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.setrankroles_logs_embed_title_disable,
                 description: lang.setrankroles_logs_embed_description_disable
                     .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
@@ -121,14 +121,14 @@ export const subCommand: SubCommand = {
             try {
                 await client.db.delete(`${interaction.guildId}.GUILD.RANK_ROLES`);
 
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.setrankroles_command_work_disable
                         .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
                 });
                 return;
             } catch (e: any) {
                 logger.err(e)
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
                 return;

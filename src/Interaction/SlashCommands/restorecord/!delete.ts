@@ -45,12 +45,12 @@ export const subCommand: SubCommand = {
 
         let result: DatabaseStructure.RestoreCordSchema | null = await client.db.get(`${interaction.guildId}.GUILD.RESTORECORD`);
 
-        if (!result) return client.method.interactionSend(interaction, { content: lang.rc_delete_config_not_found });
+        if (!result) return client.func.method.interactionSend(interaction, { content: lang.rc_delete_config_not_found });
 
         (interaction.guild.channels.cache.get(result?.channelId!) as GuildTextBasedChannel | undefined)?.messages.fetch(result?.messageId)
             .then(async msg => {
                 if (msg?.author.id !== client.user?.id) {
-                    return await client.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
+                    return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
                 };
 
                 msg.edit({
@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 
                 await client.db.delete(`${interaction.guildId}.GUILD.RESTORECORD`);
 
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.rc_delete_command_ok
                         .replace("${interaction.user.toString()}", interaction.user.toString()),
                     ephemeral: true
@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
             })
             .catch(async (err) => {
                 console.error(err)
-                await client.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
+                await client.func.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
                 return;
             });
         return;

@@ -47,12 +47,12 @@ export const subCommand: SubCommand = {
         var messagei = interaction.options.getString("messageid");
         var role = interaction.options.getRole("role");
 
-        if (!role) { return await client.method.interactionSend(interaction, { content: lang.buttonreaction_roles_not_found }); };
+        if (!role) { return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_roles_not_found }); };
 
         await (channel as GuildTextBasedChannel | null)?.messages.fetch(messagei!)
             .then(async msg => {
                 if (msg?.author.id !== client.user?.id) {
-                    return await client.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
+                    return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
                 }
 
                 let buttonLink = createRestoreCordLink({ guildId: interaction.guildId, clientId: client.user.id });
@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 
                         let msgLink = `https://discord.com/channels/${interaction.guildId}/${channel?.id}/${messagei}`;
 
-                        await client.method.interactionSend(interaction, {
+                        await client.func.method.interactionSend(interaction, {
                             content: lang.rc_command_ok
                                 .replace("${interaction.user.toString()}", interaction.user.toString())
                                 .replace("${res.secretCode}", String(res.secretCode))
@@ -98,13 +98,13 @@ export const subCommand: SubCommand = {
 
                     })
                     .catch(async () => {
-                        await client.method.interactionSend(interaction, { content: lang.rc_command_horizongw_down });
+                        await client.func.method.interactionSend(interaction, { content: lang.rc_command_horizongw_down });
                         return;
                     })
 
             })
             .catch(async (err) => {
-                await client.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
+                await client.func.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
                 return;
             });
         return;

@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 
         let embed = new EmbedBuilder()
             .setColor('#6e819a')
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setTitle(lang.setchannels_title_embed_panel)
             .setThumbnail((interaction.guild.iconURL() as string))
             .setTimestamp()
@@ -95,10 +95,10 @@ export const subCommand: SubCommand = {
                     .setStyle(ButtonStyle.Danger)
             );
 
-        let response = await client.method.interactionSend(interaction, {
+        let response = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: [action_row],
-            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         let collector = response.createMessageComponentCollector({
@@ -147,7 +147,7 @@ export const subCommand: SubCommand = {
                             .replace('${client.iHorizon_Emojis.icon.Warning_Icon}', client.iHorizon_Emojis.icon.Warning_Icon)
                         );
                     } else {
-                        await client.method.iHorizonLogs.send(interaction, {
+                        await client.func.ihorizon_logs(interaction, {
                             title: lang.setchannels_logs_embed_title_on_join,
                             description: lang.setchannels_logs_embed_description_on_join
                                 .replace(/\${argsid\.id}/g, channelId as string)
@@ -226,7 +226,7 @@ export const subCommand: SubCommand = {
                         return;
                     }
 
-                    await client.method.iHorizonLogs.send(interaction, {
+                    await client.func.ihorizon_logs(interaction, {
                         title: lang.setchannels_logs_embed_title_on_leave,
                         description: lang.setchannels_logs_embed_description_on_leave
                             .replace(/\${argsid\.id}/g, channelId as string)
@@ -268,7 +268,7 @@ export const subCommand: SubCommand = {
                 })
 
             } else if (i.customId === 'guildconfig-channel-panel-erase-data') {
-                await client.method.iHorizonLogs.send(interaction, {
+                await client.func.ihorizon_logs(interaction, {
                     title: lang.setchannels_logs_embed_title_on_off,
                     description: lang.setchannels_logs_embed_description_on_off
                         .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)

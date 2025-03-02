@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getMember("member")!;
         } else {
-            var user = client.method.member(interaction, args!, 0)!;
+            var user = client.func.method.member(interaction, args!, 0)!;
         }
 
         let fetchedData: DatabaseStructure.LeashData[] = await client.db.get(`${interaction.guildId}.UTILS.LEASH`);
@@ -61,7 +61,7 @@ export const subCommand: SubCommand = {
         );
 
         if (!pairingToRemove) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: `${client.iHorizon_Emojis.icon.No_Logo} | This user is not on your leash!`
             });
             return;
@@ -73,7 +73,7 @@ export const subCommand: SubCommand = {
 
         await client.db.set(`${interaction.guildId}.UTILS.LEASH`, Array.from(new Set(updatedData)));
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: `${client.iHorizon_Emojis.icon.Yes_Logo} | You have successfully unleashed the user in this guild :)`
         });
     },

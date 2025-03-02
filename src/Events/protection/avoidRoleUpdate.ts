@@ -58,7 +58,7 @@ export const event: BotEvent = {
                 });
 
                 let member = newRole.guild.members.cache.get(relevantLog?.executorId as string);
-                await client.method.punish(data, member);
+                await client.func.method.punish(data, member);
             };
         }
     },

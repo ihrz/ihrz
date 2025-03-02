@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 
             await client.db.set(`${interaction.guildId}.NOTIFIER.users`, uniqueArray);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 embeds: [
                     await client.notifier.generateAuthorsEmbed(interaction.guild),
                     await client.notifier.generateConfigurationEmbed(interaction.guild)

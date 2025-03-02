@@ -163,7 +163,7 @@ export const command: Command = {
                 );
         };
 
-        const message = await client.method.interactionSend(interaction, {
+        const message = await client.func.method.interactionSend(interaction, {
             embeds: [createRankRolesEmbed(currentPage)],
             components: [createActionRow()]
         });

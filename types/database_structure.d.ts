@@ -109,7 +109,7 @@ export namespace DatabaseStructure {
             messageId?: string;
         };
         voice_channel?: string | undefined;
-    };
+    }
 
     export interface GhostPingData {
         channels?: string[];
@@ -368,7 +368,7 @@ export namespace DatabaseStructure {
     export interface NickKickerData {
         enabled: boolean;
         words: string[];
-    };
+    }
 
     type renewChannelStructure = {
         timestamp: number;
@@ -524,7 +524,6 @@ export namespace DatabaseStructure {
             user?: string;
             antispam?: string;
             channel?: string;
-            roles?: string;
         };
         SUPPORT?: {
             input?: string | null;

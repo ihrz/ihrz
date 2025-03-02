@@ -38,7 +38,7 @@ export const event: BotEvent = {
              */
             const nonce = SnowflakeUtil.generate().toString();
 
-            msg_dm = client.method.generateCustomMessagePreview(msg_dm,
+            msg_dm = client.func.method.generateCustomMessagePreview(msg_dm,
                 {
                     user: member.user,
                     guild: member.guild,

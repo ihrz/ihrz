@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
         let type = interaction.options.getString('action');
 
         if (type === "off") {
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.disableticket_logs_embed_title_disable,
                 description: lang.disableticket_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id)
             });
@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
             await interaction.editReply({ content: lang.disableticket_command_work_disable });
             return;
         } else if (type === "on") {
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.disableticket_logs_embed_title_enable,
                 description: lang.disableticket_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id)
             });

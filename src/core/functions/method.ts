@@ -23,14 +23,9 @@ import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGu
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
-import * as perm from './permissonsCalculator.js'
-import * as f from './displayBotName.js';
-import * as  h from './helper.js';
-import * as c from '../core.js';
-import * as html from './html2png.js';
-import * as l from './ihorizon_logs.js';
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { generatePassword } from "./random.js";
+import { getPermissionByValue } from "./permissonsCalculator.js";
 
 export function isNumber(str: string): boolean {
     return !isNaN(Number(str)) && str.trim() !== "";
@@ -196,7 +191,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
         .setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", cleanCommandName))
         .setColor("LightGrey");
 
-    embed.setFooter(await client.method.bot.footerBuilder(interaction));
+    embed.setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
     if (hasSubCommand(command.options)) {
         command.options?.map(x => {
@@ -228,7 +223,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
         let perm: DatabaseStructure.PermLevel | string | undefined | null = "";
 
         if (command.permission) {
-            let perm_cmd = permission.getPermissionByValue(command.permission);
+            let perm_cmd = getPermissionByValue(command.permission);
             if (perm_cmd) perm = lang[perm_cmd.name];
         }
 
@@ -390,9 +385,9 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
             text: lang.hybridcommands_embed_footer_text.replace("${botPrefix}", botPrefix)
         });
 
-    await message.client.method.interactionSend(message, {
+    await message.client.func.method.interactionSend(message, {
         embeds: [embed],
-        files: [await message.client.method.bot.footerAttachmentBuilder(message)]
+        files: [await message.client.func.displayBotName.footerAttachmentBuilder(message)]
     });
 }
 
@@ -687,10 +682,3 @@ export async function isTicketChannel(channel: BaseGuildTextChannel): Promise<bo
     }
     return false;
 }
-
-export const permission = perm;
-export const bot = f;
-export const helper = h;
-export const core = c;
-export const imageManipulation = html;
-export const iHorizonLogs = l;

@@ -55,8 +55,8 @@ export const subCommand: SubCommand = {
             var fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
             var toChannel = interaction.options.getChannel('channel')! as BaseGuildVoiceChannel | null;
         } else {
-            var fromChannel = await client.method.voiceChannel(interaction, args!, 0);
-            var toChannel = await client.method.voiceChannel(interaction, args!, 1);
+            var fromChannel = await client.func.method.voiceChannel(interaction, args!, 0);
+            var toChannel = await client.func.method.voiceChannel(interaction, args!, 1);
         };
 
         if (toChannel === null) return;
@@ -64,7 +64,7 @@ export const subCommand: SubCommand = {
         let movedCount = 0;
         let errorCount = 0;
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
         });
 
@@ -91,7 +91,7 @@ export const subCommand: SubCommand = {
         }
 
         let embed = new EmbedBuilder()
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setColor('#007fff')
             .setTimestamp()
             .setThumbnail(interaction.guild.iconURL())
@@ -103,10 +103,10 @@ export const subCommand: SubCommand = {
                 .replace('${toChannel}', toChannel.toString())
             );
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: null,
             embeds: [embed],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
     },
 };

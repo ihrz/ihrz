@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 
             let beautifulTime = client.timeCalculator.to_beautiful_string(calculatedTime, lang);
 
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.too_new_account_logEmbed_title,
                 description: lang.too_new_account_logEmbed_desc_on_enable
                     .replace('${interaction.user}', interaction.user.toString())
@@ -85,7 +85,7 @@ export const subCommand: SubCommand = {
             return;
 
         } else if (action === 'off') {
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.too_new_account_logEmbed_title,
                 description: lang.too_new_account_logEmbed_desc_on_disable
                     .replace('${interaction.user}', interaction.user.toString())

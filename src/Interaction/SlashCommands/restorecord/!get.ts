@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
         const Data = getGuildDataPerSecretCode(await table.all(), secretCode);
         const AllUsersData = await (client.db.table("RESTORECORD")).get("saved_users") as SavedMembersRestoreCord;
 
-        if (!Data) return client.method.interactionSend(interaction, {
+        if (!Data) return client.func.method.interactionSend(interaction, {
             content: lang.rc_key_doesnt_exist
                 .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 .replace("${secretCode}", secretCode),
@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
         let currentCategory = 0;
         let currentPage = 0;
 
-        let footer = await client.method.bot.footerBuilder(interaction);
+        let footer = await client.func.displayBotName.footerBuilder(interaction);
 
         const mainEmbed = new EmbedBuilder()
             .setColor(2829617)
@@ -153,7 +153,7 @@ export const subCommand: SubCommand = {
             .replaceAll('{registration_over_time}', lang.rc_registration_over_time)
             .replaceAll('{role}', lang.var_roles);
 
-        const image = await client.method.imageManipulation.html2Png(htmlContent, {
+        const image = await client.func.html2png(htmlContent, {
             elementSelector: '.container',
             omitBackground: true,
             selectElement: true,
@@ -240,10 +240,10 @@ export const subCommand: SubCommand = {
                 )
         ];
 
-        const message = await client.method.interactionSend(interaction, {
+        const message = await client.func.method.interactionSend(interaction, {
             embeds: [currentCategory === 0 ? mainEmbed : generateEmbed(currentPage)],
             components: updateComponents(),
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)],
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)],
             fetchReply: true
         });
 

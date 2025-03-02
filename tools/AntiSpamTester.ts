@@ -101,7 +101,7 @@ for (const token of allTokens) {
             const count = parseInt(args[1]) || 1;
             for (let i = 0; i < count; i++) {
                 if (!isSpamming) break;
-                await client.method.channelSend(message, "le code d'anaïs est spé").catch(() => { });
+                await client.func.method.channelSend(message, "le code d'anaïs est spé").catch(() => { });
                 await wait(1000);
             }
         } else if (message.content.startsWith('stop')) {

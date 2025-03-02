@@ -47,7 +47,7 @@ export const command: Command = {
             let msg = await message.channel.messages.fetch(message.reference.messageId || "");
 
             if (msg.stickers.size === 0) {
-                return await client.method.interactionSend(message, {
+                return await client.func.method.interactionSend(message, {
                     content: lang.sticket_no_sticker
                 });
             } else {
@@ -59,17 +59,17 @@ export const command: Command = {
                     description: sticker.description,
                     tags: sticker?.tags || "copied"
                 }).then(async x => {
-                    await client.method.interactionSend(message, {
+                    await client.func.method.interactionSend(message, {
                         content: lang.sticket_command_work.replace("${x.name}", x.name)
                     });
                 }).catch(async err => {
-                    await client.method.interactionSend(message, {
+                    await client.func.method.interactionSend(message, {
                         content: lang.sticker_command_error.replace("${err.message}", err.message)
                     });
                 });
             }
         } else {
-            return await client.method.interactionSend(message, {
+            return await client.func.method.interactionSend(message, {
                 content: lang.sticket_command_error2
             });
         }

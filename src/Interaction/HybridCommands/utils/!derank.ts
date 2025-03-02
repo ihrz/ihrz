@@ -50,11 +50,11 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("member") as GuildMember;
         } else {
-            var member = client.method.member(interaction, args!, 0) || interaction.member;
+            var member = client.func.method.member(interaction, args!, 0) || interaction.member;
         };
 
         if (!member) {
-            await client.method.interactionSend(interaction, { content: lang.perm_list_no_user });
+            await client.func.method.interactionSend(interaction, { content: lang.perm_list_no_user });
             return;
         }
 
@@ -89,15 +89,15 @@ export const subCommand: SubCommand = {
                         .replace('${bad}', bad.toString())
                         .replace('${member.id}', member.id)
                     )
-                    .setFooter(await client.method.bot.footerBuilder(interaction));
+                    .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     embeds: [embed],
-                    files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                    files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
                 });
             })
             .catch(err => {
-                client.method.interactionSend(interaction, { content: lang.derank_msg_failed });
+                client.func.method.interactionSend(interaction, { content: lang.derank_msg_failed });
             });
     },
 };

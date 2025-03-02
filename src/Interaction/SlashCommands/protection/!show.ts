@@ -76,19 +76,19 @@ export const subCommand: SubCommand = {
             .setColor('#000000')
             .setAuthor({ name: lang.authorization_configshow_embed1_author })
             .setDescription(text2)
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setTimestamp();
 
         let embed2 = new EmbedBuilder()
             .setColor("#000000")
             .setAuthor({ name: lang.authorization_configshow_embed2_author })
             .setDescription(text)
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setTimestamp();
 
         await interaction.editReply({
             embeds: [embed1, embed2],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
         return;
     },

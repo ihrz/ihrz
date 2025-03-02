@@ -1319,6 +1319,7 @@ perm_command_delete_all_command_ok: "\nデータベースから**${changes.lengt
 perm_roles_created_role: "以下の役割が作成されました：${createdRoles.join('、')}"
 perm_roles_already_upate: "すべての役割が既に存在し、最新の状態です。"
 perm_roles_error: "役割の作成または更新中にエラーが発生しました。"
+perm_roles_not_owner: "サーバーの所有者のみが権限レベルのロールを追加できます。"
 
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, メンバーが歓迎メッセージを送信すると、ボットは **{activeMsg}**"

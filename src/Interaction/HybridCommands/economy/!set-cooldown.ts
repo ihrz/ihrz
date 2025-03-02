@@ -38,7 +38,7 @@ export const subCommand: SubCommand = {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -49,14 +49,14 @@ export const subCommand: SubCommand = {
             var type = interaction.options.getString("type")!;
             var cooldown = interaction.options.getString("time")!;
         } else {
-            var type = client.method.string(args!, 0)!;
-            var cooldown = client.method.longString(args!, 1)!;
+            var type = client.func.method.string(args!, 0)!;
+            var cooldown = client.func.method.longString(args!, 1)!;
         };
 
         let time = client.timeCalculator.to_ms(cooldown);
 
         if (!time) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: "Invalid time format. Please use a valid time format."
             });
             return;
@@ -64,7 +64,7 @@ export const subCommand: SubCommand = {
 
         await client.db.set(`${interaction.guildId}.ECONOMY.settings.${type}.cooldown`, time);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: `Successfully set the cooldown for ${type} to ${client.timeCalculator.to_beautiful_string(time, lang)}`
         });
     },

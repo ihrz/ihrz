@@ -48,7 +48,7 @@ export const subCommand: SubCommand = {
         let history = await client.db.get(`${interaction.guildId}.MUSIC_HISTORY`);
 
         if (!history || !history.embed || history.embed.length == 0) {
-            await client.method.interactionSend(interaction, { content: lang.history_no_entries });
+            await client.func.method.interactionSend(interaction, { content: lang.history_no_entries });
             return;
         };
 
@@ -97,10 +97,10 @@ export const subCommand: SubCommand = {
                 .setStyle(ButtonStyle.Secondary),
         );
 
-        let messageEmbed = await client.method.interactionSend(interaction, {
+        let messageEmbed = await client.func.method.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [(row as ActionRowBuilder<ButtonBuilder>)],
-            files: [attachment, await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [attachment, await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

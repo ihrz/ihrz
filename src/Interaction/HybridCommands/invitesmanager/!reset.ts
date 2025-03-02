@@ -62,15 +62,15 @@ export const subCommand: SubCommand = {
                 baseData[user].INVITES = {}
             }
             await client.db.set(`${interaction.guildId}.USER`, baseData);
-            await client.method.interactionSend(interaction, { content: lang.resetallinvites_succes_on_delete, components: [] });
+            await client.func.method.interactionSend(interaction, { content: lang.resetallinvites_succes_on_delete, components: [] });
 
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.resetallinvites_logs_embed_title,
                 description: lang.resetallinvites_logs_embed_desc
                     .replace("${interaction.member.user.toString()}", interaction.member.user.toString())
             });
         } else {
-            await client.method.interactionSend(interaction, { content: lang.setjoinroles_action_canceled, components: [] });
+            await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_action_canceled, components: [] });
         }
     },
 };

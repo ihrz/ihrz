@@ -63,7 +63,7 @@ export const command: Command = {
     type: "PREFIX_IHORIZON_COMMAND",
     permission: null,
     run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
-        let role = client.method.role(message, options!, 0);
+        let role = client.func.method.role(message, options!, 0);
 
         let added = 0;
         let skipped = 0;
@@ -88,7 +88,7 @@ export const command: Command = {
                 }
             }
 
-            await client.method.interactionSend(message, {
+            await client.func.method.interactionSend(message, {
                 content: `I have added the role to **${added}** OWNIHRZ's owner(s).\n**${skipped}** member(s) already have the role, skipping...\nI can't give the role to **${errors}** member(s)!`
             });
         }

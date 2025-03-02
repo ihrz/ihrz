@@ -52,8 +52,8 @@ export const subCommand: SubCommand = {
             var reason = interaction.options.getString("reason")
         } else {
 
-            var member = await client.method.user(interaction, args!, 0) as User;
-            var reason = client.method.longString(args!, 1);
+            var member = await client.func.method.user(interaction, args!, 0) as User;
+            var reason = client.func.method.longString(args!, 1);
         };
 
         if (!reason) {
@@ -61,14 +61,14 @@ export const subCommand: SubCommand = {
         };
 
         if (!member) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.ban_dont_found_member
             });
             return;
         };
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.ban_dont_have_perm_myself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
         let guildMember = interaction.guild.members.cache.get(member.id);
 
         if (member.id === interaction.member.user.id) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.ban_try_to_ban_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -86,14 +86,14 @@ export const subCommand: SubCommand = {
         if (guildMember) {
 
             if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= guildMember.roles.highest.position) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
                 });
                 return;
             };
 
             if (!guildMember.bannable) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.ban_cant_ban_member.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
                 return;
@@ -110,7 +110,7 @@ export const subCommand: SubCommand = {
 
         interaction.guild?.bans.create(member?.id!, { reason: `Banned by: ${(interaction.member?.user as User).globalName || interaction.member?.user.username} | Reason: ${reason}` })
             .then(async () => {
-                client.method.interactionSend(interaction, {
+                client.func.method.interactionSend(interaction, {
                     embeds: [
                         new EmbedBuilder()
                             .setTitle(lang.setjoinroles_var_perm_ban_members)
@@ -118,12 +118,12 @@ export const subCommand: SubCommand = {
                                 { name: lang.var_author, value: interaction.member?.toString()!, inline: true },
                                 { name: lang.var_reason, value: reason || lang.var_no_set, inline: true }
                             )
-                            .setFooter(await client.method.bot.footerBuilder(interaction))
+                            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                     ],
-                    files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                    files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
                 }).catch(() => { });
 
-                await client.method.iHorizonLogs.send(interaction, {
+                await client.func.ihorizon_logs(interaction, {
                     title: lang.ban_logs_embed_title,
                     description: lang.ban_logs_embed_description
                         .replace(/\${member\.user\.id}/g, member.id)
@@ -131,7 +131,7 @@ export const subCommand: SubCommand = {
                 });
             })
             .catch(() => {
-                return client.method.interactionSend(interaction, {
+                return client.func.method.interactionSend(interaction, {
                     content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
             });

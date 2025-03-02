@@ -43,7 +43,7 @@ export const event: BotEvent = {
 
             let executor = member.guild.members.cache.get(filteredLog?.executorId!);
 
-            await client.method.punish({ SANCTION: "simply+derank" }, executor, "Attempt to add an discord bot into this guild! -> Derank");
+            await client.func.method.punish({ SANCTION: "simply+derank" }, executor, "Attempt to add an discord bot into this guild! -> Derank");
 
             let owner = member.guild.members.cache.get(member.guild.ownerId);
             let embed = new EmbedBuilder()
@@ -55,9 +55,9 @@ export const event: BotEvent = {
                     { name: "Target bot", value: member.toString(), inline: true },
                 )
                 .setTimestamp()
-                .setFooter(await client.method.bot.footerBuilder(member));
+                .setFooter(await client.func.displayBotName.footerBuilder(member));
 
-            owner?.send({ embeds: [embed], files: [await client.method.bot.footerAttachmentBuilder(member.guild)] })
+            owner?.send({ embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(member.guild)] })
                 .catch(() => { })
                 .then(() => { });
         };

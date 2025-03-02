@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
             var VanityCode = interaction.options.getString('code') as string;
         } else {
             
-            var VanityCode = client.method.string(args!, 0) as string;
+            var VanityCode = client.func.method.string(args!, 0) as string;
         };
 
         let db = client.db.table('API');
@@ -79,23 +79,23 @@ export const subCommand: SubCommand = {
         let guildGet = get?.[`${interaction.guildId}`]?.['code'];
 
         if (!VerifyVanityCode(VanityCode)) {
-            await client.method.interactionSend(interaction, { content: `The URL Vanity code \`${VanityCode}\` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
+            await client.func.method.interactionSend(interaction, { content: `The URL Vanity code \`${VanityCode}\` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
             return;
         };
 
         if (await VanityCodeAlreadyExist(get, VanityCode)) {
-            await client.method.interactionSend(interaction, { content: `The URL Vanity code are already taked! Choose an another one` });
+            await client.func.method.interactionSend(interaction, { content: `The URL Vanity code are already taked! Choose an another one` });
             return;
         };
 
         let guildInvite = await interaction.guild.invites.create((interaction.channel as TextChannel), { temporary: false, reason: "iHorizon - VanityGenerator", maxAge: 0 });
 
         if (guildGet) {
-            await client.method.interactionSend(interaction, { content: `The URL Vanity code \`${guildGet}\` have been overwrited for \`${VanityCode}\`. The guild is now joinable at: https://discord.wf/${VanityCode}` });
+            await client.func.method.interactionSend(interaction, { content: `The URL Vanity code \`${guildGet}\` have been overwrited for \`${VanityCode}\`. The guild is now joinable at: https://discord.wf/${VanityCode}` });
             await db.set(`VANITY.${interaction.guildId}`, { vanity: VanityCode, invite: guildInvite?.code });
             return;
         } else {
-            await client.method.interactionSend(interaction, { content: `The guild is now joinable at: https://discord.wf/${VanityCode}` });
+            await client.func.method.interactionSend(interaction, { content: `The guild is now joinable at: https://discord.wf/${VanityCode}` });
             await db.set(`VANITY.${interaction.guildId}`, { vanity: VanityCode, invite: guildInvite?.code });
             return;
         };

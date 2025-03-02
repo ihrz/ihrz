@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
         var message_content = based?.snipe;
 
         if (!based || !message_content) {
-            await client.method.interactionSend(interaction, { content: lang.snipe_no_previous_message_deleted });
+            await client.func.method.interactionSend(interaction, { content: lang.snipe_no_previous_message_deleted });
             return;
         };
 
@@ -57,7 +57,7 @@ export const subCommand: SubCommand = {
             .setDescription(message_content)
             .setTimestamp(based.snipeTimestamp);
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.func.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

@@ -71,7 +71,7 @@ export const command: Command = {
         let tableBlacklist = client.db.table('BLACKLIST');
 
         if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
-            await client.method.interactionSend(interaction, { content: lang.unblacklist_not_owner });
+            await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_owner });
             return;
         };
 
@@ -79,14 +79,14 @@ export const command: Command = {
             var member = interaction.options.getUser('user');
         } else {
 
-            var member = await client.method.user(interaction, args!, 0);
+            var member = await client.func.method.user(interaction, args!, 0);
         };
 
         let fetched = await tableBlacklist.get(`${member?.id}`);
         let guilds = client.guilds.cache.map(guild => guild.id);
 
         if (!fetched) {
-            await client.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", member?.id!) });
+            await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", member?.id!) });
             return;
         };
 
@@ -94,14 +94,14 @@ export const command: Command = {
             let bannedMember = await client.users.fetch(member?.id as UserResolvable);
 
             if (!bannedMember) {
-                await client.method.interactionSend(interaction, { content: lang.unblacklist_user_is_not_exist });
+                await client.func.method.interactionSend(interaction, { content: lang.unblacklist_user_is_not_exist });
                 return;
             };
 
             await tableBlacklist.delete(`${member?.id}`);
             await interaction.guild.members.unban(bannedMember);
 
-            await client.method.interactionSend(interaction, { content: lang.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
+            await client.func.method.interactionSend(interaction, { content: lang.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
 
             let banPromises = guilds.map(async (guildId) => {
                 let guild = client.guilds.cache.find(guild => guild.id === guildId);
@@ -119,12 +119,12 @@ export const command: Command = {
             let results = await Promise.all(banPromises);
             let successCount = results.filter(result => result).length;
 
-            await client.method.channelSend(interaction, { content: `${bannedMember.username} is now unbanned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
+            await client.func.method.channelSend(interaction, { content: `${bannedMember.username} is now unbanned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
 
             return;
         } catch (e) {
             await tableBlacklist.delete(`${member?.id}`);
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.unblacklist_unblacklisted_but_can_unban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;

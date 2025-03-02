@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
             var user = interaction.options.getMember("user") as GuildMember || interaction.member;
         } else {
 
-            var user = client.method.member(interaction, args!, 0) || interaction.member;
+            var user = client.func.method.member(interaction, args!, 0) || interaction.member;
         };
 
         let baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
             .replace('{needed_xp}', lang.level_xp_needed_for_new_level)
             ;
 
-        const image = await client.method.imageManipulation.html2Png(htmlContent, {
+        const image = await client.func.html2png(htmlContent, {
             elementSelector: '.card',
             omitBackground: true,
             selectElement: true,
@@ -98,12 +98,12 @@ export const subCommand: SubCommand = {
             )
             .setTimestamp()
             .setThumbnail(user.avatarURL({ forceStatic: false, size: 4096 }))
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [nivEmbed],
             allowedMentions: { repliedUser: false },
-            files: [await client.method.bot.footerAttachmentBuilder(interaction), attachment]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction), attachment]
         });
         return;
     },

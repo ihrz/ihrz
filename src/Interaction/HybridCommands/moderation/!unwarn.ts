@@ -47,14 +47,14 @@ export const subCommand: SubCommand = {
             var warnID = interaction.options.getString("warn-id")!;
         } else {
 
-            var member = client.method.member(interaction, args!, 0) as GuildMember | null;
-            var warnID = client.method.longString(args!, 1)!;
+            var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
+            var warnID = client.func.method.longString(args!, 1)!;
         };
 
         let allWarns: DatabaseStructure.WarnsData[] | null = await client.db.get(`${interaction.guildId}.USER.${member?.id}.WARNS`);
 
         if (!allWarns || allWarns.length === 0) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.unwarn_cannot_found
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     .replace("${member?.toString()}", member?.toString()!)
@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
         }
 
         if (!allWarns.find(x => x.id === warnID)) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.unwarn_cannot_found_id
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     .replace("${member?.toString()}", interaction.member?.toString()!)
@@ -75,13 +75,13 @@ export const subCommand: SubCommand = {
             allWarns.filter(x => x.id !== warnID)
         )
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.unwarn_command_ok
                 .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                 .replace("${member?.toString()}", member?.toString()!)
         })
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.unwarn_logEmbed_title,
             description: lang.unwarn_logEmbed_desc
                 .replace("${interaction.member.toString()}", interaction.member.toString())

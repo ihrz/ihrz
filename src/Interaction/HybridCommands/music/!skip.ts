@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
         if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
         if (!(interaction.member as GuildMember).voice.channel) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.skip_not_in_voice_channel.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
             });
             return;
@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
 
         // Check if the member is in the same voice channel as the bot
         if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
             });
             return;
@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
             let channel = interaction.guild.channels.cache.get(player?.textChannelId as string);
 
             if (!player || !player.playing || !voiceChannel) {
-                await client.method.interactionSend(interaction, { content: lang.skip_nothing_playing });
+                await client.func.method.interactionSend(interaction, { content: lang.skip_nothing_playing });
                 return;
             };
 
@@ -87,7 +87,7 @@ export const subCommand: SubCommand = {
                 ]
             });
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.skip_command_work
                     .replace("{queue}", player.queue.current?.info.title as string),
             });
