@@ -76,7 +76,7 @@ export const command: Command = {
             var member = await client.func.method.user(interaction, args!, 0);
         };
 
-        if (client.owners.includes(member?.id!)) {
+        if (client.config.owner.ownerid1 === member?.id || client.config.owner.ownerid2 === member?.id) {
             await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
             return;
         };

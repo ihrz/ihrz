@@ -108,7 +108,7 @@ export async function main(client: Client) {
     client.applicationsCommands = new Collection<string, AnotherCommand>();
 
     process.on('SIGINT', async () => {
-        if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
+        // if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
         await client.destroy();
         process.exit(0);
     });

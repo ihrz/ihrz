@@ -118,11 +118,11 @@ class OwnIHRZ {
 
     // Working
     async QuitProgram() {
-        for (const [index, cluster] of this.client.config.core.cluster.entries()) {
+        for (const cluster_number of this.client.config.core.cluster.keys()) {
             await axios.post(
                 OwnIhrzCluster({
                     cluster_method: ClusterMethod.ShutDownCluster,
-                    cluster_number: index
+                    cluster_number
                 }),
                 { adminKey: this.client.config.api.apiToken }
             );
