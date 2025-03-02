@@ -21,7 +21,6 @@
 
 import { readFile } from 'node:fs/promises';
 import { LanguageData } from '../../../types/languageData.js';
-import database from './DatabaseModel.js';
 
 import yaml from 'js-yaml';
 
@@ -32,7 +31,7 @@ interface LangsData {
 let LangsData: LangsData = {};
 
 export default async function getLanguageData(arg: string | undefined | null): Promise<LanguageData> {
-    let lang = await database.get(`${arg}.GUILD.LANG.lang`) as string;
+    let lang = await global.client.db.get(`${arg}.GUILD.LANG.lang`) as string;
 
     if (!lang) {
         lang = 'fr-FR';
@@ -41,7 +40,7 @@ export default async function getLanguageData(arg: string | undefined | null): P
     let dat = LangsData[lang];
 
     if (!dat) {
-        let cleaned_username = cached_client.user?.username!.replace("\"", "");
+        let cleaned_username = global.client.user?.username!.replace("\"", "");
 
         dat = yaml.load((await readFile(process.cwd() + "/src/lang/" + lang + ".yml", 'utf8'))
             .replaceAll('iHorizon ', cleaned_username + " ")
