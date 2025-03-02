@@ -104,7 +104,7 @@ export const subCommand: SubCommand = {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6666ff")
             .setTitle(lang.antispam_manage_embed_title)
             .setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
         const choices: {
             label: string;
@@ -254,13 +254,13 @@ export const subCommand: SubCommand = {
             .setCustomId("antispam-manage-preset-button")
             .setLabel(lang.antispam_manage_button_preset_label);
 
-        const originalResponse = await client.method.interactionSend(interaction, {
+        const originalResponse = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
                 new ActionRowBuilder<ButtonBuilder>().addComponents(button, button2)
             ],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         const collector = originalResponse.createMessageComponentCollector({

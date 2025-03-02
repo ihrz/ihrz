@@ -52,8 +52,8 @@ export const subCommand: SubCommand = {
             var reason = interaction.options.getString("reason")
         } else {
 
-            var member = client.method.member(interaction, args!, 0) as GuildMember | null;
-            var reason = client.method.longString(args!, 1);
+            var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
+            var reason = client.func.method.longString(args!, 1);
         };
 
         if (!reason) {
@@ -63,21 +63,21 @@ export const subCommand: SubCommand = {
         if (!member) return;
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.KickMembers)) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.kick_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if (member.id === interaction.member.user.id) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.kick_attempt_kick_your_self.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         };
 
         if ((interaction.member.roles as GuildMemberRoleManager).highest.position < member.roles.highest.position) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.kick_attempt_kick_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });
             return;
@@ -91,12 +91,12 @@ export const subCommand: SubCommand = {
 
         await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`)
             .catch((error) => {
-                return client.method.interactionSend(interaction, {
+                return client.func.method.interactionSend(interaction, {
                     content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
             });
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [
                 new EmbedBuilder()
                     .setTitle(lang.setjoinroles_var_perm_kick_members)
@@ -104,12 +104,12 @@ export const subCommand: SubCommand = {
                         { name: lang.var_author, value: interaction.member?.toString()!, inline: true },
                         { name: lang.var_reason, value: reason || lang.var_no_set, inline: true }
                     )
-                    .setFooter(await client.method.bot.footerBuilder(interaction))
+                    .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             ],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.kick_logs_embed_title,
             description: lang.kick_logs_embed_description
                 .replace(/\${member\.user}/g, member.user.toString())

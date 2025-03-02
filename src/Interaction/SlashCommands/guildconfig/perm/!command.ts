@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
             const customUser = interaction.options.getMember("custom-user");
 
             if (!requestedCommand) {
-                await client.method.interactionSend(interaction, { content: lang.perm_add_args_error });
+                await client.func.method.interactionSend(interaction, { content: lang.perm_add_args_error });
                 return;
             }
 
@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
             }
 
             if (!fetchedCommand) {
-                await client.method.interactionSend(interaction, lang.var_unreachable_command);
+                await client.func.method.interactionSend(interaction, lang.var_unreachable_command);
                 return;
             }
 
@@ -136,7 +136,7 @@ export const subCommand: SubCommand = {
                 // If all permissions are cleared, delete the entry from the database
                 await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${requestedCommand}`);
 
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: `${commandType}: ${requestedCommand}\n ${lang.perm_set_command_reset}`
                 });
             } else {
@@ -146,7 +146,7 @@ export const subCommand: SubCommand = {
 
                 await client.db.set(`${interaction.guildId}.UTILS.PERMS.${requestedCommand}`, newPerms);
 
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: `${commandType}: ${requestedCommand}\n\n${changesSummary}`
                 });
             }
@@ -155,7 +155,7 @@ export const subCommand: SubCommand = {
             const res = await client.db.get(`${interaction.guildId}.UTILS.PERMS`) as DatabaseStructure.UtilsPermsData;
 
             if (!res || Object.keys(res).length === 0) {
-                await client.method.interactionSend(interaction, { content: lang.perm_list_no_command_set });
+                await client.func.method.interactionSend(interaction, { content: lang.perm_list_no_command_set });
                 return;
             }
 
@@ -275,12 +275,12 @@ export const subCommand: SubCommand = {
             // Only show pagination if there are more than 15 fields
             if (allFields.length <= fieldsPerPage) {
                 const embed = createEmbed(0);
-                await client.method.interactionSend(interaction, { embeds: [embed] });
+                await client.func.method.interactionSend(interaction, { embeds: [embed] });
                 return;
             }
 
             // Send initial message with buttons
-            const message = await client.method.interactionSend(interaction, {
+            const message = await client.func.method.interactionSend(interaction, {
                 embeds: [createEmbed(currentPage)],
                 components: [createButtons(currentPage)]
             }) as Message;
@@ -324,18 +324,18 @@ export const subCommand: SubCommand = {
                 const existingPerms = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${commands}`) as DatabaseStructure.PermCommandData | DatabaseStructure.PermLevel | undefined;
 
                 if (!existingPerms) {
-                    await client.method.interactionSend(interaction, { content: lang.perm_command_delete_dont_exist });
+                    await client.func.method.interactionSend(interaction, { content: lang.perm_command_delete_dont_exist });
                     return;
                 }
 
                 await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${commands}`);
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.perm_command_delete_command_deleted
                         .replace("${commands}", commands)
                 });
                 return;
             } else {
-                await client.method.interactionSend(interaction, { content: lang.perm_command_delete_specify_command });
+                await client.func.method.interactionSend(interaction, { content: lang.perm_command_delete_specify_command });
                 return;
             }
         } else if (choice === "delete-all") {
@@ -347,7 +347,7 @@ export const subCommand: SubCommand = {
 
             // We need at least one of the options to proceed
             if (!perms && !customRole && !customUser) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.perm_command_delete_all_one
                 });
                 return;
@@ -355,7 +355,7 @@ export const subCommand: SubCommand = {
 
             // only one of the options can be specified
             if ((perms && customRole) || (perms && customUser) || (customRole && customUser)) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.perm_command_delete_all_one_option
                 });
                 return;
@@ -365,7 +365,7 @@ export const subCommand: SubCommand = {
             const existingPerms = await client.db.get(`${interaction.guildId}.UTILS.PERMS`) as DatabaseStructure.UtilsPermsData;
 
             if (!existingPerms || Object.keys(existingPerms).length === 0) {
-                await client.method.interactionSend(interaction, { content: lang.perm_list_no_command_set });
+                await client.func.method.interactionSend(interaction, { content: lang.perm_list_no_command_set });
                 return;
             }
 
@@ -413,7 +413,7 @@ export const subCommand: SubCommand = {
             }
 
             if (changes.length === 0) {
-                await client.method.interactionSend(interaction, { content: lang.perm_command_delete_all_zero_change });
+                await client.func.method.interactionSend(interaction, { content: lang.perm_command_delete_all_zero_change });
                 return;
             } else {
                 let msg = `\`\`\`diff\n${changes.join('')}\`\`\``;
@@ -424,7 +424,7 @@ export const subCommand: SubCommand = {
                     .replace("${changes.length}", changes.length.toString())
                     .replace("${type}", type)
                     .replace("${value}", value);
-                await client.method.interactionSend(interaction, { content: msg });
+                await client.func.method.interactionSend(interaction, { content: msg });
                 return;
             }
         }

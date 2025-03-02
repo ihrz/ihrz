@@ -83,7 +83,7 @@ export const subCommand: SubCommand = {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
             return;
         };
 
@@ -92,7 +92,7 @@ export const subCommand: SubCommand = {
             var user = interaction.user;
         } else {
             
-            var victim = await client.method.user(interaction, args!, 0) || interaction.author;
+            var victim = await client.func.method.user(interaction, args!, 0) || interaction.author;
             var user = interaction.author;
         }
 
@@ -211,7 +211,7 @@ export const subCommand: SubCommand = {
                 { name: "💳", value: `\`${getCreditCards()}\`` })
             .setTimestamp()
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.func.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

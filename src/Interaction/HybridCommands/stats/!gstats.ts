@@ -220,7 +220,7 @@ export const subCommand: SubCommand = {
         </div>
         `);
 
-        const image = await client.method.imageManipulation.html2Png(htmlContent, {
+        const image = await client.func.html2png(htmlContent, {
             width: 1902,
             height: 1080,
             scaleSize: 2,
@@ -231,6 +231,6 @@ export const subCommand: SubCommand = {
 
         const attachment = new AttachmentBuilder(image, { name: 'image.png' });
 
-        await client.method.interactionSend(interaction, { files: [attachment] });
+        await client.func.method.interactionSend(interaction, { files: [attachment] });
     },
 };

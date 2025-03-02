@@ -51,14 +51,14 @@ export const subCommand: SubCommand = {
             var user = interaction.options.getUser("user") || interaction.user;
         } else {
             
-            var user = await client.method.user(interaction, args!, 0) || interaction.member.user;
+            var user = await client.func.method.user(interaction, args!, 0) || interaction.member.user;
         };
 
         var table = client.db.table("PREVNAMES")
         var char: Array<string> = await table.get(`${user.id}`) || [];
 
         if (char.length == 0) {
-            await client.method.interactionSend(interaction, { content: lang.prevnames_undetected });
+            await client.func.method.interactionSend(interaction, { content: lang.prevnames_undetected });
             return;
         };
 
@@ -107,7 +107,7 @@ export const subCommand: SubCommand = {
         let messageEmbed = await client.method.interactionSend(interaction,{
             embeds: [await createEmbed()],
             components: [row],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

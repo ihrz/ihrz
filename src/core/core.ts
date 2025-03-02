@@ -26,7 +26,6 @@ import * as errorManager from './modules/errorManager.js';
 import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData.js';
-import { ConfigData } from '../../types/configDatad.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
 import backup from 'discord-rebackup';
@@ -47,14 +46,15 @@ import { mkdir, readdir } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
 import { MemberCountModule } from './modules/memberCountManager.js';
 import { AutoRenew } from './modules/autorenewManager.js';
+import config from '../files/config.js';
+import { Client_Functions } from '../../types/client_functions.js';
+import { AnotherCommand } from '../../types/anotherCommand.js';
+import { load_cache } from '../load_cache.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const backups_folder = `${process.cwd()}/src/files/backups`;
-
-let global_config: ConfigData;
-let global_client: Client;
 
 if (!fs.existsSync(backups_folder)) {
     await mkdir(backups_folder, { recursive: true });
@@ -63,8 +63,6 @@ if (!fs.existsSync(backups_folder)) {
 backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
-    initConfig(client.config);
-    initClient(client);
     dataInitializer();
 
     client.owners = [];
@@ -80,18 +78,23 @@ export async function main(client: Client) {
     assetsCalc(client);
     emojis(client);
 
-    client.db = DatabaseModel
     client.bash = new Collection<string, BashCommands>();
     client.commands = new Collection<string, Command>();
     client.subCommands = new Collection<string, Command>();
     client.message_commands = new Collection<string, Command>();
     client.memberCountManager = new MemberCountModule(client);
     client.autoRenewManager = new AutoRenew(client);
+    client.owners = [];
     client.content = [];
     client.category = [];
     client.invites = new Collection();
     client.timeCalculator = new iHorizonTimeCalculator();
     client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
+    client.selectmenu = new Collection<string, Function>();
+    client.buttons = new Collection<string, Function>();
+    client.func = {} as typeof Client_Functions;
+    client.htmlfiles = {};
+    client.applicationsCommands = new Collection<string, AnotherCommand>();
 
     let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
     let handlerFiles = readdirSync(handlerPath).filter(file => file.endsWith('.js'));
@@ -116,7 +119,41 @@ export async function main(client: Client) {
         });
     };
 
-    client.login(client.config.discord.token).then(() => {
+    setMaxListeners(0)
+
+    process.on('SIGINT', async () => {
+        if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
+        await client.destroy();
+        process.exit(0);
+    });
+
+    client.config.owner.owners?.forEach(owner => {
+        if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
+    });
+    if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
+    if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
+
+    errorManager.uncaughtExceptionHandler(client);
+    client.db = DatabaseModel;
+
+    assetsCalc(client);
+    emojis(client);
+    if (process.env.CACHE === "true") {
+        logger.log(`[${config.console.emojis.LOAD}] Cache is enabled, initializing cache storage...`.bgBlack.gray.boldText);
+        await load_cache(client);
+    } else {
+        let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
+        let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.js'));
+
+        for (const file of handlerFiles) {
+            const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
+            if (handlerFunction && typeof handlerFunction === 'function') {
+                await handlerFunction(client);
+            }
+        }
+    }
+
+    client.login(client.config.discord.token).then(async () => {
         const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
 
         if (process.platform === 'win32') {
@@ -125,7 +162,6 @@ export async function main(client: Client) {
             process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
         };
 
-        global_client = client;
         commandsSync(client).then(() => {
             logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
             logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
@@ -134,28 +170,6 @@ export async function main(client: Client) {
             logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta);
         });
     });
-};
-
-export const initConfig = (config: ConfigData) => {
-    global_config = config
-};
-
-export const getConfig = (): ConfigData => {
-    if (!global_config) {
-        throw new Error('Configuration file has not been initialized. Call initConfig first.');
-    }
-    return global_config;
-};
-
-export const initClient = (client: Client) => {
-    global_client = client
-};
-
-export const getClient = (): Client => {
-    if (!global_client) {
-        throw new Error('Client has not been initialized. Call initClient first.');
-    }
-    return global_client;
 };
 
 export function dataInitializer() {
@@ -167,7 +181,7 @@ export function dataInitializer() {
         }
     }
     CacheStorage.set("stored_data", baseData)
-    logger.log(`${global_config.console.emojis.OK} >> Timestamp Generated in .uptime`);
+    logger.log(`${config.console.emojis.OK} >> Timestamp Generated in .uptime`);
 }
 
 export function getCacheStorage(): InitData | undefined {

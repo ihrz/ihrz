@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
         let weekly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.weekly`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
         if (weekly !== null && timeout - (Date.now() - weekly) > 0) {
             let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - weekly), lang);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.weekly_cooldown_error
                     .replace(/\${time}/g, time)
             });

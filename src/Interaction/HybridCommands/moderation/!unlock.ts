@@ -48,18 +48,18 @@ export const subCommand: SubCommand = {
             var role = interaction.options.getRole("role");
         } else {
 
-            var role = client.method.role(interaction, args!, 0);
+            var role = client.func.method.role(interaction, args!, 0);
         };
 
         await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: true });
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.unlock_logs_embed_title,
             description: lang.unlock_logs_embed_description
                 .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
                 .replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
         });
 
-        await client.method.interactionSend(interaction, { content: lang.unlock_embed_message_description });
+        await client.func.method.interactionSend(interaction, { content: lang.unlock_embed_message_description });
         return;
     },
 };

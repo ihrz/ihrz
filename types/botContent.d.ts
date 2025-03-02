@@ -20,7 +20,7 @@
 */
 
 
-import { DescriptionLocalizations } from "./command.d.ts"
+import { DescriptionLocalizations } from "./command.js"
 
 export interface BotContent {
     cmd: string;

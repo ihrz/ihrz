@@ -48,7 +48,7 @@ export const subCommand: SubCommand = {
         let char = Array.from(interaction.guild.members.cache.filter(member => member.isCommunicationDisabled()).values()) || [];
 
         if (char.length == 0) {
-            await client.method.interactionSend(interaction, { content: lang.prevnames_undetected });
+            await client.func.method.interactionSend(interaction, { content: lang.prevnames_undetected });
             return;
         };
 
@@ -92,10 +92,10 @@ export const subCommand: SubCommand = {
                 .setStyle(ButtonStyle.Danger)
         );
 
-        let messageEmbed = await client.method.interactionSend(interaction, {
+        let messageEmbed = await client.func.method.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [row],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

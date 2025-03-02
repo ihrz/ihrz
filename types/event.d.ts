@@ -23,5 +23,5 @@ import { Client } from 'discord.js';
 
 export interface BotEvent {
     name: string,
-    async run(client: Client, anything: any, anything: any): Promise<any>
+    run(client: Client, anything: any, anything2: any): Promise<any>
 }

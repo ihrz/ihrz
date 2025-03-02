@@ -43,7 +43,7 @@ export interface Giveaway {
     embedImageURL: string | null;
 
     requirement: GiveawayRequirementBody;
-};
+}
 
 export interface GiveawayCreateOptions {
     duration: number;
@@ -52,7 +52,7 @@ export interface GiveawayCreateOptions {
     hostedBy: string;
     embedImageURL: string | null;
     requirement: GiveawayRequirementBody;
-};
+}
 
 export interface GiveawayData {
     guildId?: string;

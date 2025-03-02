@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
         ) || [];
 
         if (all_admin_members.length == 0) {
-            await client.method.interactionSend(interaction, { content: lang.all_admins_nobody_admins });
+            await client.func.method.interactionSend(interaction, { content: lang.all_admins_nobody_admins });
             return;
         };
 
@@ -101,10 +101,10 @@ export const subCommand: SubCommand = {
                 .setStyle(ButtonStyle.Danger)
         );
 
-        let messageEmbed = await client.method.interactionSend(interaction, {
+        let messageEmbed = await client.func.method.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [row],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({
@@ -151,7 +151,7 @@ export const subCommand: SubCommand = {
                         }
 
                         let embed = new EmbedBuilder()
-                            .setFooter(await client.method.bot.footerBuilder(interaction))
+                            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                             .setColor('#007fff')
                             .setTimestamp()
                             .setThumbnail(interaction.guild?.iconURL()!)

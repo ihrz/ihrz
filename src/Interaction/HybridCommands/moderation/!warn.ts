@@ -49,17 +49,17 @@ export const subCommand: SubCommand = {
             var reason = interaction.options.getString("reason")!;
         } else {
 
-            var member = client.method.member(interaction, args!, 0) as GuildMember | null;
-            var reason = client.method.longString(args!, 1)!;
+            var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
+            var reason = client.func.method.longString(args!, 1)!;
         };
 
-        let warnId = await client.method.warnMember(
+        let warnId = await client.func.method.warnMember(
             interaction.member!,
             member!,
             reason
         );
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.warn_command_work
                 .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                 .replace("${member?.toString()}", member?.toString()!)
@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
                 .replace("${warnId}", warnId)
         })
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.warn_logEmbed_title,
             description: lang.warn_logEmbed_desc
                 .replace("${interaction.member.toString()}", interaction.member.toString())

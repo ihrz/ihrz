@@ -129,21 +129,21 @@ export const command: Command = {
         let already = await client.db.get(`${interaction.guildId}.GUILD.LANG`);
 
         if (already?.lang === type) {
-            await client.method.interactionSend(interaction, { content: lang.setserverlang_already });
+            await client.func.method.interactionSend(interaction, { content: lang.setserverlang_already });
             return;
         }
 
         await client.db.set(`${interaction.guildId}.GUILD.LANG`, { lang: type });
         lang = await client.func.getLanguageData(interaction.guildId);
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.setserverlang_logs_embed_title_on_enable,
             description: lang.setserverlang_logs_embed_description_on_enable
                 .replace(/\${type}/g, type!)
                 .replace(/\${interaction\.user.id}/g, interaction.member.user.id)
         });
 
-        await client.method.interactionSend(interaction, { content: lang.setserverlang_command_work_enable.replace(/\${type}/g, type!) });
+        await client.func.method.interactionSend(interaction, { content: lang.setserverlang_command_work_enable.replace(/\${type}/g, type!) });
         return;
     },
 };

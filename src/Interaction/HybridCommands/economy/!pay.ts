@@ -43,14 +43,14 @@ export const subCommand: SubCommand = {
             var user = interaction.options.getMember("member") as GuildMember;
         } else {
             
-            var amount = client.method.number(args!, 0) as number;
-            var user = client.method.member(interaction, args!, 0) as GuildMember;
+            var amount = client.func.method.number(args!, 0) as number;
+            var user = client.func.method.member(interaction, args!, 0) as GuildMember;
         };
 
         let member = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -58,16 +58,16 @@ export const subCommand: SubCommand = {
         };
 
         if (amount.toString().includes('-')) {
-            await client.method.interactionSend(interaction, { content: lang.pay_negative_number_error });
+            await client.func.method.interactionSend(interaction, { content: lang.pay_negative_number_error });
             return;
         };
 
         if (amount && member < amount) {
-            await client.method.interactionSend(interaction, { content: lang.pay_dont_have_enought_to_give });
+            await client.func.method.interactionSend(interaction, { content: lang.pay_dont_have_enought_to_give });
             return;
         }
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.pay_command_work
                 .replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
                 .replace(/\${user\.user\.username}/g, user.user.globalName!)

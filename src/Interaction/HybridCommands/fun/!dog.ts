@@ -39,7 +39,7 @@ export const subCommand: SubCommand = {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
             return;
         };
         axios.get('https://dog.ceo/api/breeds/image/random')
@@ -47,12 +47,12 @@ export const subCommand: SubCommand = {
                 let emb = new EmbedBuilder()
                     .setImage(res.data.message).setTitle(lang.dogs_embed_title).setTimestamp();
 
-                await client.method.interactionSend(interaction, { embeds: [emb] });
+                await client.func.method.interactionSend(interaction, { embeds: [emb] });
                 return;
             })
             .catch(async err => {
                 logger.err(err);
-                await client.method.interactionSend(interaction, { content: lang.dogs_embed_command_error });
+                await client.func.method.interactionSend(interaction, { content: lang.dogs_embed_command_error });
                 return;
             });
     },

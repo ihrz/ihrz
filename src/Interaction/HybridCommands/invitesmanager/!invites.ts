@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
                     .replace(/\${inv\s*\|\|\s*0}/g, inv || 0)
             );
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.func.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

@@ -95,12 +95,12 @@ export const subCommand: SubCommand = {
                 .setTitle(lang.leaderboard_default_text + " • " + interaction.guild?.name)
                 .setDescription(pageText)
                 .setTimestamp()
-                .setFooter(await client.method.bot.footerBuilder(interaction))
+                .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                 .setThumbnail("attachment://guildIcon.png");
         };
 
         const canFitOnOnePage = arr.length <= itemsPerPage;
-        const embedMessage = await client.method.interactionSend(interaction, {
+        const embedMessage = await client.func.method.interactionSend(interaction, {
             embeds: [await generateEmbed(0)],
             components: canFitOnOnePage ? [] : [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
@@ -115,7 +115,7 @@ export const subCommand: SubCommand = {
                     .setDisabled(arr.length <= itemsPerPage)
             )],
             files: [
-                await interaction.client.method.bot.footerAttachmentBuilder(interaction),
+                await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction),
                 { attachment: (await interaction.client.func.image64(interaction.guild.iconURL({ size: 512 }) || interaction.client.user?.displayAvatarURL())) ?? Buffer.from([]), name: 'guildIcon.png' }
             ]
         });

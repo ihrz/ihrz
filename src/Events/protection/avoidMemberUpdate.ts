@@ -51,7 +51,7 @@ export const event: BotEvent = {
 
             if (!baseData) {
                 let user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
-                await client.method.punish(data, user);
+                await client.func.method.punish(data, user);
 
                 await newMember.roles.set(oldMember.roles.cache).catch(() => false);
             };

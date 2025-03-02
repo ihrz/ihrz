@@ -41,14 +41,14 @@ export const subCommand: SubCommand = {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
             return;
         };
         if (interaction instanceof ChatInputCommandInteraction) {
             var member1 = interaction.options.getUser('user') as User || interaction.user;
         } else {
             
-            var member1 = await client.method.user(interaction, args!, 0) || interaction.author;
+            var member1 = await client.func.method.user(interaction, args!, 0) || interaction.author;
         };
 
         let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
@@ -57,7 +57,7 @@ export const subCommand: SubCommand = {
             .setColor('#000000')
             .setImage('attachment://transgender.png')
             .setTimestamp()
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
         let imgs: AttachmentBuilder | undefined;
 
@@ -65,9 +65,9 @@ export const subCommand: SubCommand = {
         imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'transgender.png' });
         embed.setImage(`attachment://transgender.png`);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [embed],
-            files: [imgs, await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [imgs, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
         return;
     },

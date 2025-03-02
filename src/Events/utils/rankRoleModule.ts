@@ -45,10 +45,10 @@ export const event: BotEvent = {
             ;
 
         if (!dbGet || !dbGet.roles) {
-            if (await client.method.helper.coolDown(message, "ping_bot", 7000)) {
+            if (await client.func.helper.coolDown(message, "ping_bot", 7000)) {
                 return;
             };
-            return await client.method.interactionSend(message, { content: text });
+            return await client.func.method.interactionSend(message, { content: text });
         }
         let fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
 
@@ -75,13 +75,13 @@ export const event: BotEvent = {
                     .replace("${message.author.id}", message.author.id)
                     .replace("${fetch.id}", fetch.id)
                 )
-                .setFooter(await client.method.bot.footerBuilder(message))
+                .setFooter(await client.func.displayBotName.footerBuilder(message))
                 .setTimestamp();
 
             message.member?.roles.add(fetch).catch(() => { });
-            client.method.channelSend(message, {
+            client.func.method.channelSend(message, {
                 embeds: [embed],
-                files: [await client.method.bot.footerAttachmentBuilder(message)],
+                files: [await client.func.displayBotName.footerAttachmentBuilder(message)],
                 enforceNonce: true,
                 nonce
             }).catch(() => { });

@@ -62,28 +62,28 @@ export const subCommand: SubCommand = {
         let allowed_roles: DatabaseStructure.UtilsData["wlRoles"] | null = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`);
 
         if (!allowed_roles?.includes(role?.id!)) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.utils_delrole_not_wl.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             })
             return;
         };
 
         if (!user) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.ban_dont_found_member
             });
             return;
         };
 
         if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.backup_i_dont_have_permission
             });
             return;
         };
 
         if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.utils_delrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
             });
             return;
@@ -91,7 +91,7 @@ export const subCommand: SubCommand = {
 
         await user.roles.remove(role?.id!, `[DelRole] Author: ${author.id}`);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [
                 new EmbedBuilder()
                     .setDescription(lang.utils_delrole_command_ok

@@ -1321,6 +1321,7 @@ perm_command_delete_all_command_ok: "\nSuccessfully deleted **${changes.length}*
 perm_roles_created_role: "The following roles have been created: ${createdRoles.join(', ')}"
 perm_roles_already_upate: "All roles already exist and are up to date."
 perm_roles_error: "An error occurred while creating or updating the roles."
+perm_roles_not_owner: "Only the server owner can add permission level roles."
 
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, now when a member sends a welcome message, the bot will **{activeMsg}**"

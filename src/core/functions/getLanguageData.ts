@@ -25,14 +25,11 @@ import database from './DatabaseModel.js';
 
 import yaml from 'js-yaml';
 
-import { getClient } from '../core.js';
-
 interface LangsData {
     [lang: string]: LanguageData;
 }
 
 let LangsData: LangsData = {};
-let cached_client = getClient();
 
 export default async function getLanguageData(arg: string | undefined | null): Promise<LanguageData> {
     let lang = await database.get(`${arg}.GUILD.LANG.lang`) as string;

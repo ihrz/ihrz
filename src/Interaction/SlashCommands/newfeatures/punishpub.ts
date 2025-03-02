@@ -142,7 +142,7 @@ export const command: Command = {
                 }
             );
 
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.punishpub_logs_embed_title,
                 description: lang.punishpub_logs_embed_description
                     .replace("${interaction.user.id}", interaction.user.id)
@@ -161,7 +161,7 @@ export const command: Command = {
             await client.db.delete(`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`);
             await interaction.reply({ content: lang.punishpub_confirmation_disable })
 
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.punishpub_logs_embed_title_disable,
                 description: lang.punishpub_logs_embed_description_disable
                     .replace("${interaction.user.id}", interaction.user.id)

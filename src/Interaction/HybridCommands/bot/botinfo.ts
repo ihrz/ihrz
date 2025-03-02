@@ -65,10 +65,10 @@ export const command: Command = {
                 { name: lang.botinfo_embed_fields_created_by, value: "<@171356978310938624>", inline: false }
             )
             .setTimestamp()
-            .setFooter(await client.method.bot.footerBuilder(interaction))
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             .setTimestamp();
 
-        await client.method.interactionSend(interaction, { embeds: [clientembed], files: [await client.method.bot.footerAttachmentBuilder(interaction)] });
+        await client.func.method.interactionSend(interaction, { embeds: [clientembed], files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)] });
         return;
     },
     permission: null

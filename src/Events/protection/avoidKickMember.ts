@@ -62,7 +62,7 @@ export const event: BotEvent = {
 
             if (!baseData) {
                 let user = member.guild.members.cache.get(relevantLog?.executorId!);
-                await client.method.punish(data, user);
+                await client.func.method.punish(data, user);
             }
         }
     },

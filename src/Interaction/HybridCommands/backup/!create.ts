@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
             var svMsg = interaction.options.getString('save-message')!;
         } else {
             
-            var svMsg = client.method.string(args!, 0)!;
+            var svMsg = client.func.method.string(args!, 0)!;
         };
 
         // @ts-ignore
@@ -69,14 +69,14 @@ export const subCommand: SubCommand = {
 
             await client.db.set(`BACKUPS.${interaction.member?.user.id}.${backupData.id}`, ellData);
 
-            client.method.channelSend(interaction, { content: lang.backup_command_work_on_creation });
+            client.func.method.channelSend(interaction, { content: lang.backup_command_work_on_creation });
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.backup_command_work_info_on_creation
                     .replace("${backupData.id}", backupData.id)
             });
 
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.backup_logs_embed_title_on_creation,
                 description: lang.backup_logs_embed_description_on_creation
                     .replace('${interaction.user.id}', interaction.member?.user.id!)

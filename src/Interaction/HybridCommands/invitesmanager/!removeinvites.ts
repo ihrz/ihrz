@@ -81,9 +81,9 @@ export const subCommand: SubCommand = {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || `#92A8D1`)
             .setFooter({ text: interaction.guild.name, iconURL: interaction.guild.iconURL()! });
 
-        await client.method.interactionSend(interaction, { embeds: [finalEmbed] });
+        await client.func.method.interactionSend(interaction, { embeds: [finalEmbed] });
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.removeinvites_logs_embed_title,
             description: lang.removeinvites_logs_embed_description
                 .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)

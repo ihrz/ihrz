@@ -80,7 +80,7 @@ export const subCommand: SubCommand = {
         let comp = new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelectMenu);
         let comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
 
-        let og_response = await client.method.interactionSend(interaction, {
+        let og_response = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: [comp, comp_2]
         });
@@ -108,7 +108,7 @@ export const subCommand: SubCommand = {
 
             if (!roleInteraction.guild?.members.me?.permissions.has(PermissionFlagsBits.ManageRoles)) {
                 await roleInteraction.deferUpdate();
-                await client.method.interactionSend(interaction, { content: lang.setjoinroles_var_perm_issue, ephemeral: true });
+                await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_var_perm_issue, ephemeral: true });
                 return;
             }
 
@@ -142,7 +142,7 @@ export const subCommand: SubCommand = {
 
                 await og_response.edit({ components: [newComp_2] })
 
-                // await client.method.iHorizonLogs.send(interaction, {
+                // await client.func.ihorizon_logs(interaction, {
                 //     title: lang.utils_wlRoles_logsEmbed_title,
                 //     description: lang.utils_wlRoles_logsEmbed_desc
                 //         .replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)

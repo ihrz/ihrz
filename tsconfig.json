@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "strict": true,
+    "declaration": false,
     "outDir": "dist",
     "module": "NodeNext",
     "target": "ESNext",
@@ -9,16 +10,18 @@
     "useUnknownInCatchVariables": true,
     "allowUnreachableCode": false,
     "esModuleInterop": true,
-    "skipLibCheck": true,
+    "allowJs": false,
     "importHelpers": true,
     "strictPropertyInitialization": false,
     "typeRoots": [
       "node_modules/@types"
     ],
+    "skipLibCheck": true
   },
   "include": [
     ".",
     "src/**/*.json",
+    "types/**/*.d.ts"
   ],
   "exclude": [
     "/.github",

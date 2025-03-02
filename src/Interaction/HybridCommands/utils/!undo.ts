@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 
         await client.db.set(`${interaction.guildId}.UTILS.unban_members`, []);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [
                 new EmbedBuilder()
                     .setColor(2829617)
@@ -67,9 +67,9 @@ export const subCommand: SubCommand = {
                             .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                             .replace('${cannot_ban}', cannot_ban.toString())
                     )
-                    .setFooter(await client.method.bot.footerBuilder(interaction))
+                    .setFooter(await client.func.displayBotName.footerBuilder(interaction))
             ],
-            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         return;

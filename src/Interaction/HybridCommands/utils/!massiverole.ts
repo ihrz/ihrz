@@ -52,8 +52,8 @@ export const subCommand: SubCommand = {
             var role = interaction.options.getRole("role");
         } else {
 
-            var action = client.method.string(args!, 0);
-            var role = client.method.role(interaction, args!, 1);
+            var action = client.func.method.string(args!, 0);
+            var role = client.func.method.role(interaction, args!, 1);
         };
 
         let a: number = 0;
@@ -61,11 +61,11 @@ export const subCommand: SubCommand = {
         let e: number = 0;
 
         if ((interaction.guild as Guild).memberCount >= 5500) {
-            await client.method.interactionSend(interaction, { content: lang.massiverole_too_much_member });
+            await client.func.method.interactionSend(interaction, { content: lang.massiverole_too_much_member });
             return;
         };
 
-        let ogInteraction = await client.method.interactionSend(interaction, {
+        let ogInteraction = await client.func.method.interactionSend(interaction, {
             content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
         });
 
@@ -109,7 +109,7 @@ export const subCommand: SubCommand = {
             await ogInteraction.edit({
                 content: null,
                 embeds: [embed],
-                files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
             return;
         } else if (action === 'sub') {
@@ -152,7 +152,7 @@ export const subCommand: SubCommand = {
             await ogInteraction.edit({
                 content: null,
                 embeds: [embed],
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
             return;
         };

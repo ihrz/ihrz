@@ -26,5 +26,5 @@ export interface BashCommands {
     command_name: string;
     command_description: string;
     aliases?: string[];
-    async run(client: Client, stream: ServerChannel, args: string[]): Promise<void>;
+    run(client: Client, stream: ServerChannel, args: string[]): Promise<void>;
 }

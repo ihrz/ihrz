@@ -66,8 +66,6 @@ export default async function loadCommands(client: Client, path: string = p): Pr
     let directoryTree = await buildDirectoryTree(path);
     let paths = buildPaths(path, directoryTree);
 
-    if (!client.method) client.method = argsHelper;
-
     var i = 0;
     for (let path of paths) {
         if (!path.endsWith('.js') && !path.endsWith('.json')) continue;
@@ -219,7 +217,7 @@ async function processCommandOptions(
     }
 }
 
-async function processCommand(
+export async function processCommand(
     command: Command,
     path: string,
     client: Client

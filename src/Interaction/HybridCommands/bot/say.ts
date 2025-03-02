@@ -78,7 +78,7 @@ export const command: Command = {
         };
 
         if (interaction instanceof ChatInputCommandInteraction) await interaction.deferReply() && await interaction.deleteReply();
-        await client.method.channelSend(interaction, {
+        await client.func.method.channelSend(interaction, {
             content: '> ' + `${toSay}${lang.say_footer_msg.replace('${interaction.user}', interaction.member.user.toString())}`, allowedMentions: { roles: [], users: [], repliedUser: false }
         });
         return;

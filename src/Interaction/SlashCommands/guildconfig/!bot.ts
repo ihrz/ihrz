@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
             await interaction.editReply({ content: lang.blockbot_not_owner });
             return;
         } else if (action === 'on') {
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.blockbot_logs_enable_title,
                 description: lang.blockbot_logs_enable_description
                     .replace(/\${interaction\.user}/g, interaction.user.toString())
@@ -57,7 +57,7 @@ export const subCommand: SubCommand = {
             await interaction.editReply({ content: lang.blockbot_command_work_on_enable });
             return;
         } else if (action === 'off') {
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.blockbot_logs_disable_commmand_work,
                 description: lang.blockbot_logs_disable_description
                     .replace(/\${interaction\.user}/g, interaction.user.toString())

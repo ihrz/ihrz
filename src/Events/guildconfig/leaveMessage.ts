@@ -48,7 +48,7 @@ export const event: BotEvent = {
             }
 
             const invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
-            messageContent = client.method.generateCustomMessagePreview(
+            messageContent = client.func.method.generateCustomMessagePreview(
                 leaveMessage || data.event_goodbye_inviter,
                 {
                     user: member.user,
@@ -64,7 +64,7 @@ export const event: BotEvent = {
                 }
             );
         } else {
-            messageContent = client.method.generateCustomMessagePreview(
+            messageContent = client.func.method.generateCustomMessagePreview(
                 leaveMessage || data.event_goodbye_default,
                 {
                     user: member.user,
@@ -87,7 +87,7 @@ export const event: BotEvent = {
             try {
                 const lChanManager = member.guild.channels.cache.get(lChan) as BaseGuildTextChannel;
                 await lChanManager.send({
-                    content: client.method.generateCustomMessagePreview(
+                    content: client.func.method.generateCustomMessagePreview(
                         data.event_goodbye_default,
                         {
                             user: member.user,

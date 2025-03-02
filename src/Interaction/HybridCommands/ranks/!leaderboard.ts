@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
         }
 
         if (array.length === 0) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.perm_list_no_user
             });
             return;
@@ -141,7 +141,7 @@ export const subCommand: SubCommand = {
             return embed;
         };
 
-        const image = await client.method.imageManipulation.html2Png(htmlContent, {
+        const image = await client.func.html2png(htmlContent, {
             elementSelector: 'body',
             omitBackground: true,
             selectElement: false,
@@ -186,10 +186,10 @@ export const subCommand: SubCommand = {
 
         let currentPage = 0;
 
-        const message = await client.method.interactionSend(interaction, {
+        const message = await client.func.method.interactionSend(interaction, {
             embeds: [createEmbed(currentPage)],
             components: [createButtons(currentPage)],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction), attachment]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction), attachment]
         });
 
         const collector = message.createMessageComponentCollector({

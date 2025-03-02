@@ -29,7 +29,7 @@
     "better-sqlite3": "^11.8.1",
     "bufferutil": "^4.0.9",
     "discord-html-transcripts": "^3.2.0",
-    "discord-rebackup": "^3.5.0",
+    "discord-rebackup": "^3.6.0",
     "discord.js": "^14.18.0",
     "jimp": "^0.22.12",
     "js-yaml": "^4.1.0",
@@ -51,11 +51,11 @@
   "devDependencies": {
     "@types/archiver": "^6.0.3",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.17.19",
+    "@types/node": "^20.17.22",
     "@types/ping": "^0.4.4",
     "@types/ssh2": "^1.15.4",
     "@types/ws": "^8.5.14",
     "tslib": "^2.8.1",
-    "typescript": "^5.7.3"
+    "typescript": "^5.8.2"
   }
 }

@@ -31,6 +31,7 @@ import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { CacheStorage } from '../../core/cache.js';
 import { recoverActiveSessions } from '../stats/onVoiceUpdate.js';
+import { getCacheStorage } from '../../core/core.js';
 
 export const event: BotEvent = {
     name: "ready",
@@ -120,7 +121,7 @@ export const event: BotEvent = {
                         member?.send({
                             content: member.toString(),
                             embeds: [embed],
-                            files: [await client.method.bot.footerAttachmentBuilder(client)]
+                            files: [await client.func.displayBotName.footerAttachmentBuilder(client)]
                         }).catch(() => { });
 
                         await table.delete(`${array.id}.${ScheduleId}`);

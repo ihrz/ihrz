@@ -51,13 +51,13 @@ export const subCommand: SubCommand = {
             var buttonTitle = interaction.options.getString('button-title')?.substring(0, 32) || '+';
         } else {
             
-            var channel = (await client.method.channel(interaction, args!, 0) || interaction.channel) as TextChannel;
-            var buttonTitle = client.method.string(args!, 1)?.substring(0, 32) || '+';
+            var channel = (await client.func.method.channel(interaction, args!, 0) || interaction.channel) as TextChannel;
+            var buttonTitle = client.func.method.string(args!, 1)?.substring(0, 32) || '+';
         };
 
         await client.db.set(`${interaction.guildId}.CONFESSION.channel`, channel.id);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.confession_channel_command_work
                 .replace('${channel?.toString()}', channel.toString()!)
         });
@@ -80,7 +80,7 @@ export const subCommand: SubCommand = {
 
         let message = await (channel as BaseGuildTextChannel).send({
             embeds: [embed],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)],
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)],
             components: [actionRow],
             enforceNonce: true,
             nonce: nonce
@@ -91,7 +91,7 @@ export const subCommand: SubCommand = {
             messageId: message.id
         });
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.confession_channel_log_embed_title,
             description: lang.confession_channel_log_embed_desc
                 .replace('${interaction.user}', interaction.member.user.toString())

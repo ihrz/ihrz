@@ -43,11 +43,11 @@ export const subCommand: SubCommand = {
             var inputData = interaction.options.getString("giveaway-id") as string;
         } else {
             
-            var inputData = client.method.string(args!, 0) as string;
+            var inputData = client.func.method.string(args!, 0) as string;
         };
 
         if (!await client.giveawaysManager.isValid(inputData)) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.end_not_find_giveaway
                     .replace(/\${gw}/g, inputData)
             });
@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
         };
 
         if (await client.giveawaysManager.isEnded(inputData)) {
-            await client.method.interactionSend(interaction, { content: lang.end_command_error });
+            await client.func.method.interactionSend(interaction, { content: lang.end_command_error });
             return;
         };
 

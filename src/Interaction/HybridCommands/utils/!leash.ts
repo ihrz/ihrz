@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var user = interaction.options.getMember("member")!;
         } else {
-            var user = client.method.member(interaction, args!, 0)!;
+            var user = client.func.method.member(interaction, args!, 0)!;
         };
 
         let baseData = await client.db.get(`${interaction.guildId}.UTILS.LEASH_CONFIG`) || {
@@ -65,13 +65,13 @@ export const subCommand: SubCommand = {
         let filteredData = fetchedData.filter(x => x.dom === interaction.member?.user.id) || [];
 
         if (filteredData.length >= (baseData.maxLeashedByUsers)) {
-            await client.method.interactionSend(interaction, { content: lang.util_leash_too_naugthy });
+            await client.func.method.interactionSend(interaction, { content: lang.util_leash_too_naugthy });
             return;
         }
 
 
         if (filteredData.find(x => x.sub === user.id)) {
-            await client.method.interactionSend(interaction, { content: lang.util_leah_already_owned });
+            await client.func.method.interactionSend(interaction, { content: lang.util_leah_already_owned });
             return;
         }
 
@@ -86,7 +86,7 @@ export const subCommand: SubCommand = {
                 dangerAction: false
             })
             if (!response) {
-                await client.method.interactionSend(interaction, { content: `${client.iHorizon_Emojis.icon.Yes_Logo} | Leash configurations canceled`, components: [] })
+                await client.func.method.interactionSend(interaction, { content: `${client.iHorizon_Emojis.icon.Yes_Logo} | Leash configurations canceled`, components: [] })
                 return;
             }
         }
@@ -94,6 +94,6 @@ export const subCommand: SubCommand = {
         fetchedData!.push({ dom: interaction.member.user.id, sub: user.id, timestamp: Date.now() })
         await client.db.set(`${interaction.guildId}.UTILS.LEASH`, Array.from(new Set(fetchedData)));
 
-        await client.method.interactionSend(interaction, { content: `${client.iHorizon_Emojis.icon.Yes_Logo} | You have sucessfuly leashed the user in this guild :smirk:`, components: [] })
+        await client.func.method.interactionSend(interaction, { content: `${client.iHorizon_Emojis.icon.Yes_Logo} | You have sucessfuly leashed the user in this guild :smirk:`, components: [] })
     },
 };

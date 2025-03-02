@@ -122,10 +122,10 @@ export const subCommand: SubCommand = {
         } else if (interaction instanceof UserContextMenuCommandInteraction) {
             var member = interaction.options.getUser('user') || interaction.user;
         } else {
-            var member = await client.method.user(interaction, args!, 0) || interaction.author;
+            var member = await client.func.method.user(interaction, args!, 0) || interaction.author;
         };
 
-        const originalInteraction = await client.method.interactionSend(interaction as ChatInputCommandInteraction, {
+        const originalInteraction = await client.func.method.interactionSend(interaction as ChatInputCommandInteraction, {
             content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
         });
 
@@ -149,7 +149,7 @@ export const subCommand: SubCommand = {
             let nitro = '';
 
             let embed = new EmbedBuilder()
-                .setFooter(await client.method.bot.footerBuilder(interaction))
+                .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                 .setThumbnail("attachment://user_icon.gif")
                 .setTimestamp()
                 .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#0014a8')
@@ -190,7 +190,7 @@ export const subCommand: SubCommand = {
                 .setImage("attachment://user_banner.gif");
 
             var files: { name: string; attachment: any }[] = [
-                await client.method.bot.footerAttachmentBuilder(interaction),
+                await client.func.displayBotName.footerAttachmentBuilder(interaction),
                 {
                     attachment: user.displayAvatarURL({ size: 512, forceStatic: false }),
                     name: 'user_icon.gif'

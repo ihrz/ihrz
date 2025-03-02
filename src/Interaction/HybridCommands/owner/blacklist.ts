@@ -89,7 +89,7 @@ export const command: Command = {
         let tableBlacklist = client.db.table('BLACKLIST');
 
         if (await tableOwner.get(`${interaction.member.user.id}.owner`) !== true) {
-            await client.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
+            await client.func.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
             return;
         };
 
@@ -100,14 +100,14 @@ export const command: Command = {
             var user = interaction.options.getUser('user');
             var reason = "iHorizon Project Blacklist - " + (interaction.options.getString('reason') || 'blacklisted!');
         } else {
-            var member = client.method.member(interaction, args!, 0) as GuildMember | null;
-            var user = await client.method.user(interaction, args!, 0);
-            var reason = "iHorizon Project Blacklist - " + (client.method.longString(args!, 1) || 'blacklisted!');
+            var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
+            var user = await client.func.method.user(interaction, args!, 0);
+            var reason = "iHorizon Project Blacklist - " + (client.func.method.longString(args!, 1) || 'blacklisted!');
         };
 
         if (!member && !user) {
             if (!blacklistedUsers.length) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.blacklist_no_one_blacklist
                         .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
                     ephemeral: true
@@ -160,7 +160,7 @@ export const command: Command = {
             let messageEmbed = await client.method.interactionSend(interaction, {
                 embeds: [await createEmbed()],
                 components: [row],
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
 
             let collector = messageEmbed.createMessageComponentCollector({
@@ -194,14 +194,14 @@ export const command: Command = {
 
         if (member) {
             if (member.user.id === client.user.id) {
-                await client.method.interactionSend(interaction, { content: lang.blacklist_bot_lol });
+                await client.func.method.interactionSend(interaction, { content: lang.blacklist_bot_lol });
                 return;
             };
 
             let fetched = await tableBlacklist.get(`${member.user.id}`);
 
             if (fetched) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.blacklist_already_blacklisted
                         .replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)
                 });
@@ -216,12 +216,12 @@ export const command: Command = {
             });
 
             await member.ban({ reason }).then(async () => {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.blacklist_command_work
                         .replace(/\${member\.user\.username}/g, String(member?.user.globalName || member?.user.username))
                 });
             }).catch(async () => {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.blacklist_blacklisted_but_can_ban_him
                         .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                 });
@@ -243,18 +243,18 @@ export const command: Command = {
             let results = await Promise.all(banPromises);
             let successCount = results.filter(result => result).length;
 
-            await client.method.channelSend(interaction, { content: `${member.user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
+            await client.func.method.channelSend(interaction, { content: `${member.user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
         } else if (user) {
 
             if (user.id === client.user.id) {
-                await client.method.interactionSend(interaction, { content: lang.blacklist_bot_lol });
+                await client.func.method.interactionSend(interaction, { content: lang.blacklist_bot_lol });
                 return;
             };
 
             let fetched = await tableBlacklist.get(`${user.id}`);
 
             if (fetched) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.blacklist_already_blacklisted
                         .replace(/\${member\.user\.username}/g, user.globalName || user.username)
                 });
@@ -268,7 +268,7 @@ export const command: Command = {
                 createdAt: new Date().getTime()
             });
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.blacklist_command_work
                     .replace(/\${member\.user\.username}/g, user.globalName || user.username)
             });
@@ -289,7 +289,7 @@ export const command: Command = {
             let results = await Promise.all(banPromises);
             let successCount = results.filter(result => result).length;
 
-            await client.method.channelSend(interaction, { content: `${user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
+            await client.func.method.channelSend(interaction, { content: `${user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
         }
     },
     permission: null

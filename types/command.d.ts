@@ -33,7 +33,8 @@ import {
     RESTPostAPIApplicationCommandsJSONBody
 } from 'discord.js';
 
-import { Option } from "./option.d.ts";
+import { Option } from "./option.js";
+import type { LanguageData } from './languageData.js';
 
 export interface NameLocalizations {
     "fr": string;
@@ -59,12 +60,12 @@ export interface Command {
     channel_types?: number[];
     type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND';
     aliases?: string[];
-    async autocomplete?(client: Client, interaction: AutocompleteInteraction): Promise<any>;
-    async run?(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]): Promise<any>;
+    autocomplete?(client: Client, interaction: AutocompleteInteraction): Promise<any>;
+    run?(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]): Promise<any>;
 }
 
 export interface SubCommand {
-    async run(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]): Promise<any>;
+    run(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]): Promise<any>;
 }
 
 export interface SubCommandModule {

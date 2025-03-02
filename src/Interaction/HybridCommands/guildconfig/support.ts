@@ -112,14 +112,14 @@ export const command: Command = {
             var input = interaction.options.getString("input");
         } else {
 
-            var action = client.method.string(args!, 0)
-            var roles = client.method.role(interaction, args!, 1) as Role | null;
-            var input = client.method.longString(args!, 2)
+            var action = client.func.method.string(args!, 0)
+            var roles = client.func.method.role(interaction, args!, 1) as Role | null;
+            var input = client.func.method.longString(args!, 2)
         };
 
         if (action == "on") {
             if (!roles) {
-                await client.method.interactionSend(interaction, { content: lang.support_command_not_role });
+                await client.func.method.interactionSend(interaction, { content: lang.support_command_not_role });
                 return;
             }
 
@@ -131,7 +131,7 @@ export const command: Command = {
                 }
             );
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.support_command_work
                     .replace("${interaction.guild.name}", interaction.guild.name)
                     .replace("${input}", input!)
@@ -140,7 +140,7 @@ export const command: Command = {
         } else {
             await client.db.delete(`${interaction.guildId}.GUILD.SUPPORT`);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.support_command_work_on_disable
                     .replace("${interaction.guild.name}", interaction.guild.name)
             })

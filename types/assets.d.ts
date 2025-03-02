@@ -21,4 +21,4 @@
 
 export interface Assets {
     [key: string]: number;
-};
+}

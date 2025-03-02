@@ -45,14 +45,14 @@ export const subCommand: SubCommand = {
     let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
 
     if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-      await client.method.interactionSend(interaction, { content: "You cannot use this command, the fun commands category is disable." });
+      await client.func.method.interactionSend(interaction, { content: "You cannot use this command, the fun commands category is disable." });
       return;
     };
 
     if (interaction instanceof ChatInputCommandInteraction) {
       var text = interaction.options.getString('text')?.slice(0, 30);
     } else {
-      var text = client.method.longString(args!, 0)?.slice(0, 30);
+      var text = client.func.method.longString(args!, 0)?.slice(0, 30);
     }
 
     let font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
       .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#000000")
       .setImage('attachment://catsay.png')
       .setTimestamp()
-      .setFooter(await client.method.bot.footerBuilder(interaction));
+      .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
     let imgs: AttachmentBuilder | undefined;
 
@@ -78,14 +78,14 @@ export const subCommand: SubCommand = {
       embed.setImage(`attachment://catsay.png`);
 
       if (imgs) {
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
           embeds: [embed],
-          files: [imgs, await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+          files: [imgs, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
       };
 
     } catch {
-      await client.method.interactionSend(interaction, { content: lang.fun_var_down_api });
+      await client.func.method.interactionSend(interaction, { content: lang.fun_var_down_api });
     }
 
     return;

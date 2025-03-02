@@ -41,7 +41,7 @@ export const subCommand: SubCommand = {
         let webhookArray = fetchedWebhooks?.map(webhook => webhook);
 
         if (!webhookArray || webhookArray?.length == 0) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.util_no_webhooks
             })
             return;
@@ -92,7 +92,7 @@ export const subCommand: SubCommand = {
         )
 
 
-        let message = await client.method.interactionSend(interaction, {
+        let message = await client.func.method.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [row]
         });

@@ -106,7 +106,7 @@ class GiveawayManager {
                     .setFooter({ text: this.options.config.botName })
                     .setImage(data.embedImageURL);
 
-                let response = await channel.client.method.channelSend(channel, {
+                let response = await channel.client.func.method.channelSend(channel, {
                     embeds: [gw],
                     components: [
                         new ActionRowBuilder<ButtonBuilder>()

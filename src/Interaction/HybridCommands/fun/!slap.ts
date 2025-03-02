@@ -40,7 +40,7 @@ export const subCommand: SubCommand = {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
             return;
         };
         if (interaction instanceof ChatInputCommandInteraction) {
@@ -48,7 +48,7 @@ export const subCommand: SubCommand = {
             var user = interaction.user;
         } else {
             
-            var slap = await client.method.user(interaction, args!, 0) as User;
+            var slap = await client.func.method.user(interaction, args!, 0) as User;
             var user = interaction.author;
         };
 
@@ -64,10 +64,10 @@ export const subCommand: SubCommand = {
                     )
                     .setImage(url)
                     .setTimestamp()
-                await client.method.interactionSend(interaction, { embeds: [embed] });
+                await client.func.method.interactionSend(interaction, { embeds: [embed] });
                 return;
             }).catch(async (err) => {
-                await client.method.interactionSend(interaction, { content: lang.fun_var_down_api });
+                await client.func.method.interactionSend(interaction, { content: lang.fun_var_down_api });
             });
     },
 };

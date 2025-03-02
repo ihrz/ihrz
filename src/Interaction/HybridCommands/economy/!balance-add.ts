@@ -42,7 +42,7 @@ export const subCommand: SubCommand = {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -54,11 +54,11 @@ export const subCommand: SubCommand = {
             var user = interaction.options.getUser("member");
         } else {
             
-            var amount = client.method.number(args!, 0) as number;
-            var user = await client.method.user(interaction, args!, 0);
+            var amount = client.func.method.number(args!, 0) as number;
+            var user = await client.func.method.user(interaction, args!, 0);
         };
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.addmoney_command_work
                 .replace("${user.user.id}", user?.id!)
                 .replace("${amount.value}", amount.toString())
@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 
         await client.db.add(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount);
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.addmoney_logs_embed_title,
             description: lang.addmoney_logs_embed_description
                 .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)

@@ -57,7 +57,7 @@ export const event: BotEvent = {
                 let user = channel.guild.members.cache.get(relevantLog.executorId!);
                 if (!user) return;
 
-                client.method.punish(data, user);
+                client.func.method.punish(data, user);
 
                 const existingRestoration = restorationInProgress.get(guildId);
                 if (existingRestoration) {

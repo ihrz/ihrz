@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
         ) || [];
 
         if (all_bots.length == 0) {
-            await client.method.interactionSend(interaction, { content: lang.all_admins_nobody_admins });
+            await client.func.method.interactionSend(interaction, { content: lang.all_admins_nobody_admins });
             return;
         };
 
@@ -94,10 +94,10 @@ export const subCommand: SubCommand = {
                 .setStyle(ButtonStyle.Secondary),
         );
 
-        let messageEmbed = await client.method.interactionSend(interaction, {
+        let messageEmbed = await client.func.method.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [row],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

@@ -41,12 +41,12 @@ export const subCommand: SubCommand = {
             var action = interaction.options.getString('action');
         } else {
 
-            var action = client.method.string(args!, 0);
+            var action = client.func.method.string(args!, 0);
         }
 
         if (action === 'on') {
             await client.db.set(`${interaction.guildId}.PFPS.disable`, false);
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.pfps_disable_command_action_on
                     .replace('${interaction.user}', interaction.member.user.toString())
             });
@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
             return;
         } else if (action === 'off') {
             await client.db.set(`${interaction.guildId}.PFPS.disable`, true);
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.pfps_disable_command_action_off
                     .replace('${interaction.user}', interaction.member.user.toString())
             });

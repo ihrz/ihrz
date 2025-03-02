@@ -52,9 +52,9 @@ export const subCommand: SubCommand = {
             var role = interaction.options.getRole('role');
         } else {
             
-            var action_1 = client.method.string(args!, 0);
-            var part_of_nickname = client.method.string(args!, 1)?.toLowerCase();
-            var role = client.method.role(interaction, args!, 2);
+            var action_1 = client.func.method.string(args!, 0);
+            var part_of_nickname = client.func.method.string(args!, 1)?.toLowerCase();
+            var role = client.func.method.role(interaction, args!, 2);
         };
 
         if (!part_of_nickname || !role) return;
@@ -106,9 +106,9 @@ export const subCommand: SubCommand = {
                     .replaceAll('${role}', role?.toString()!)
                 );
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 embeds: [embed],
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
             return;
 
@@ -155,9 +155,9 @@ export const subCommand: SubCommand = {
                     .replaceAll('${role}', role?.toString()!)
                 );
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 embeds: [embed],
-                files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+                files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
             });
             return;
         };

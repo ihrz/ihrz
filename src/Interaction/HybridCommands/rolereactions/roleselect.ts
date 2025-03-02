@@ -120,15 +120,15 @@ export const command: Command = {
 
         const channel = interaction instanceof ChatInputCommandInteraction
             ? interaction.options.getChannel("channel") as Channel
-            : await client.method.channel(interaction, args!, 0) as Channel;
+            : await client.func.method.channel(interaction, args!, 0) as Channel;
 
         const messageId = interaction instanceof ChatInputCommandInteraction
             ? interaction.options.getString("messageid") as string
-            : client.method.string(args!, 1) as string;
+            : client.func.method.string(args!, 1) as string;
 
         // Validate message ID
         if (!messageId || messageId.length < 9) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.roleselect_invalid_message_id
             });
             return;
@@ -137,7 +137,7 @@ export const command: Command = {
         let fetchedMessage = await getMessage(channel as GuildTextBasedChannel, messageId);
 
         if (!fetchedMessage) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.roleselect_message_not_found
             });
             return;
@@ -203,7 +203,7 @@ export const command: Command = {
         }
         updateConfiguration(baseData);
 
-        const configMessage = await client.method.interactionSend(interaction, {
+        const configMessage = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: components
         });

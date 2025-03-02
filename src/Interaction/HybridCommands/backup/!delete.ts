@@ -46,11 +46,11 @@ export const subCommand: SubCommand = {
             var backupID = interaction.options.getString('backup-id') as string;
         } else {
             
-            var backupID = client.method.string(args!, 0) as string;
+            var backupID = client.func.method.string(args!, 0) as string;
         };
 
         if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
         let data_2 = await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`);
 
         if (!data_2) {
-            await client.method.interactionSend(interaction, { content: lang.backup_backup_doesnt_exist });
+            await client.func.method.interactionSend(interaction, { content: lang.backup_backup_doesnt_exist });
             return;
         };
 
@@ -89,7 +89,7 @@ export const subCommand: SubCommand = {
             .setLabel(lang.backup_cancel_button);
 
         var components = new ActionRowBuilder<ButtonBuilder>().addComponents(delete_button).addComponents(cancel_button);
-        let messageEmbed = await client.method.interactionSend(interaction, { embeds: [em], components: [components] });
+        let messageEmbed = await client.func.method.interactionSend(interaction, { embeds: [em], components: [components] });
 
         let collector = messageEmbed.createMessageComponentCollector({
             filter: async (i) => {

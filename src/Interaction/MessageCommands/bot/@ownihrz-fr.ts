@@ -57,6 +57,6 @@ export const command: Command = {
                 break;
         };
 
-        await client.method.interactionSend(interaction, { content });
+        await client.func.method.interactionSend(interaction, { content });
     },
 };

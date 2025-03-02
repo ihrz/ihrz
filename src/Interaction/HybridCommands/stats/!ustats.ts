@@ -66,14 +66,14 @@ export const subCommand: SubCommand = {
             member = (interaction.options.getMember('member') || interaction.member) as GuildMember;
             user = interaction.user;
         } else {
-            member = (client.method.member(interaction, args!, 0) || interaction.member) as GuildMember;
+            member = (client.func.method.member(interaction, args!, 0) || interaction.member) as GuildMember;
             user = interaction.author;
         }
 
         let res = (await client.db.get(`${interaction.guildId}.STATS.USER.${member.user.id}`)) as DatabaseStructure.UserStats | null;
 
         if (!res) {
-            return await client.method.interactionSend(interaction, { content: lang.unblacklist_user_is_not_exist })
+            return await client.func.method.interactionSend(interaction, { content: lang.unblacklist_user_is_not_exist })
         }
 
         let monthlyVoiceActivity = 0
@@ -216,7 +216,7 @@ export const subCommand: SubCommand = {
             .replace('{ timeLabels }', JSON.stringify(timeLabels))
             ;
 
-        const image = await client.method.imageManipulation.html2Png(htmlContent, {
+        const image = await client.func.html2png(htmlContent, {
             elementSelector: '.card',
             omitBackground: true,
             selectElement: true,
@@ -227,6 +227,6 @@ export const subCommand: SubCommand = {
 
         const attachment = new AttachmentBuilder(image, { name: 'image.png' });
 
-        await client.method.interactionSend(interaction, { files: [attachment] });
+        await client.func.method.interactionSend(interaction, { files: [attachment] });
     },
 };

@@ -50,11 +50,11 @@ export const subCommand: SubCommand = {
             var backupID = interaction.options.getString('backup-id');
         } else {
             
-            var backupID = client.method.string(args!, 0);
+            var backupID = client.func.method.string(args!, 0);
         };
 
         if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
@@ -122,7 +122,7 @@ export const subCommand: SubCommand = {
             embeds: [await generateEmbed(currentPage)],
             components: [generateButtons(currentPage)],
             files: [
-                await interaction.client.method.bot.footerAttachmentBuilder(interaction),
+                await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction),
                 { attachment: (await interaction.client.func.image64((interaction.member as GuildMember).user.displayAvatarURL())) ?? Buffer.alloc(0), name: 'user_icon.png' }
             ]
         });

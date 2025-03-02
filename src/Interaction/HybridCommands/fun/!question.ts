@@ -37,7 +37,7 @@ export const subCommand: SubCommand = {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
             return;
         };
         if (interaction instanceof ChatInputCommandInteraction) {
@@ -45,14 +45,14 @@ export const subCommand: SubCommand = {
             var user = interaction.user;
         } else {
             
-            var question = client.method.longString(args!, 0) as string;
+            var question = client.func.method.longString(args!, 0) as string;
             var user = interaction.author;
         };
 
         let text = question?.split(" ");
 
         if (!text[2]) {
-            await client.method.interactionSend(interaction, { content: lang.question_not_full });
+            await client.func.method.interactionSend(interaction, { content: lang.question_not_full });
             return;
         }
 
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
             )
             .setTimestamp();
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.func.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

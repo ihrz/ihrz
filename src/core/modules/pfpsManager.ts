@@ -104,13 +104,13 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
         .setTitle(lang.pfps_embed_user_title.replace('{username}', username!))
         .setImage(user.user.displayAvatarURL({ extension: 'png', forceStatic: false }))
         .setTimestamp()
-        .setFooter(await client.method.bot.footerBuilder(channel.guild))
+        .setFooter(await client.func.displayBotName.footerBuilder(channel.guild))
     );
 
     (channel as BaseGuildTextChannel).send({
         embeds: ebds,
         components: [actRow],
-        files: [await client.method.bot.footerAttachmentBuilder(channel.guild)]
+        files: [await client.func.displayBotName.footerAttachmentBuilder(channel.guild)]
     });
     return;
 }

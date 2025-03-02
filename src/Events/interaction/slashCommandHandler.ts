@@ -47,8 +47,8 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
         const subCmd = client.subCommands.get(stringCommand);
 
         if (subCmd && subCmd.run) {
-            let permCheck = await client.method.permission.checkCommandPermission(interaction, stringCommand);
-            if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.permissionData);
+            let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
+            if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
             if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
                 await interaction.deferReply({ ephemeral: subCmd.ephemeral });
@@ -75,8 +75,8 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
         const subCmd = client.subCommands.get(stringCommand);
 
         if (subCmd && subCmd.run) {
-            let permCheck = await client.method.permission.checkCommandPermission(interaction, stringCommand);
-            if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.permissionData);
+            let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
+            if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
             if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
                 await interaction.deferReply({ ephemeral: subCmd.ephemeral });
@@ -103,8 +103,8 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
         await interaction.deferReply({ ephemeral: command.ephemeral });
     }
 
-    let permCheck = await client.method.permission.checkCommandPermission(interaction, interaction.commandName);
-    if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.method.permission.sendErrorMessage(interaction, lang, permCheck.permissionData);
+    let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, interaction.commandName);
+    if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
     if (command.permission && !interaction.member!.permissions.has(command.permission) && !permCheck.allowed) {
         let perm = getPermissionByValue(command.permission);
@@ -119,7 +119,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
         }
     }
 
-    if (command.run) 
+    if (command.run)
         await command.run(client, interaction, lang, []);
 }
 

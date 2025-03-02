@@ -40,7 +40,7 @@ export const subCommand: SubCommand = {
             "𝟘", "𝟙", "𝟚", "𝟛", "𝟜", "𝟝", "𝟞", "𝟟", "𝟠", "𝟡"]
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
             return;
         };
 
@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
             var nw = interaction.options.getString("nickname") || '';
         } else {
             
-            var nw = client.method.longString(args!, 0) || '';
+            var nw = client.func.method.longString(args!, 0) || '';
         }
 
         let n = [];
@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
             }
         };
 
-        await client.method.interactionSend(interaction, { content: n.join("") || lang.serverinfo_verlvl_NONE });
+        await client.func.method.interactionSend(interaction, { content: n.join("") || lang.serverinfo_verlvl_NONE });
         return;
     },
 };

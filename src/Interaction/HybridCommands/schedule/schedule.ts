@@ -87,7 +87,7 @@ export const command: Command = {
                     .setValue('3'),
             );
 
-        let original_interaction = await client.method.interactionSend(interaction, {
+        let original_interaction = await client.func.method.interactionSend(interaction, {
             content: interaction.member.user.toString(),
             components: [
                 new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
@@ -124,7 +124,7 @@ export const command: Command = {
             });
 
         } catch (e) {
-            return await client.method.interactionSend(interaction, { content: lang.embed_timeout_getbtn });
+            return await client.func.method.interactionSend(interaction, { content: lang.embed_timeout_getbtn });
         };
 
         async function chooseAction(i: StringSelectMenuInteraction) {
@@ -224,7 +224,7 @@ export const command: Command = {
                     await table.delete(`${interaction.member?.user.id}.${arg0}`);
                     await original_interaction.edit({
                         content: lang.schedule_delete_confirm, embeds: [embed],
-                        files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+                        files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
                     });
                     return;
                 };
@@ -240,14 +240,14 @@ export const command: Command = {
                             name: user.globalName || user.username,
                             iconURL: user.displayAvatarURL({ extension: 'png', size: 512 })
                         })
-                        .setFooter(await client.method.bot.footerBuilder(interaction))
+                        .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                         .setTitle(lang.schedule_deleteall_title_embed)
                         .setDescription(lang.schedule_deleteall_desc_embed)
 
                     await original_interaction.edit({
                         content: lang.schedule_deleteall_confirm,
                         embeds: [embed],
-                        files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+                        files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
                     });
                 } else {
                     await original_interaction.edit({
@@ -268,7 +268,7 @@ export const command: Command = {
                 };
 
                 let embed = new EmbedBuilder()
-                    .setFooter(await client.method.bot.footerBuilder(interaction))
+                    .setFooter(await client.func.displayBotName.footerBuilder(interaction))
                     .setTitle(lang.schedule_list_title_embed)
                     .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#60BEE0')
                     .setAuthor({
@@ -290,7 +290,7 @@ export const command: Command = {
                 await original_interaction.edit({
                     content: lang.schedule_list_content_message,
                     embeds: [embed],
-                    files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)]
+                    files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
                 });
             };
 
@@ -311,7 +311,7 @@ export const command: Command = {
                     .setFooter(await client.method.bot.footerBuilder(interaction))
                     .setTimestamp();
 
-                await original_interaction.edit({ embeds: [embed], files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
+                await original_interaction.edit({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
                 let u = await i.reply({ content: lang.schedule_create_when_question });
 
                 let dateCollector = interaction.channel?.createMessageCollector({

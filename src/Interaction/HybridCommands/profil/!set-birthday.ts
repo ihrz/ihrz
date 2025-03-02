@@ -94,12 +94,12 @@ export const subCommand: SubCommand = {
             .setTitle(lang.profil_birthday_embed_title)
             .setThumbnail((interaction.member?.displayAvatarURL() || interaction.member?.user.displayAvatarURL()) as string)
             .setDescription(introduction + getBirthdayString())
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
-        const og_interaction = await client.method.interactionSend(interaction, {
+        const og_interaction = await client.func.method.interactionSend(interaction, {
             embeds: [embed],
             components: [new ActionRowBuilder<ButtonBuilder>().addComponents(buttons)],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         // loop to change the color of the embed every 5 seconds

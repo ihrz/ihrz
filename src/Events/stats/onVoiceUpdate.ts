@@ -77,7 +77,7 @@ export const event: BotEvent = {
             const coinsEarned = Math.floor(voiceSessionDurationInMinutes / 10);
 
             if (coinsEarned > 0 && newState.member) {
-                await client.method.addCoins(
+                await client.func.method.addCoins(
                     newState.member,
                     coinsEarned * await getMemberBoost(newState.member)
                 );

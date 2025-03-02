@@ -163,7 +163,7 @@ async function PunishUsers(
 
                 if (userCanBeMuted) {
                     await member.timeout(time, 'Spamming');
-                    await member.client.method.warnMember(
+                    await member.client.func.method.warnMember(
                         member.guild?.members.me!,
                         member!,
                         "Antispam Punishment"

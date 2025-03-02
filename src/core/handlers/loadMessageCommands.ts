@@ -33,7 +33,7 @@ import { stringifyOption } from '../functions/method.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-interface CommandModule {
+export interface CommandModule {
     command: Command;
 }
 

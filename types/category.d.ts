@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BotContent } from "./botContent.d.ts";
+import type { BotContent } from "./botContent.d.ts";
 
 export interface Category {
     categoryName: string;
@@ -29,7 +29,7 @@ export interface Category {
         emoji: string;
         placeholder: string;
     };
-};
+}
 
 export interface CategoryData {
     name: string;
@@ -38,4 +38,4 @@ export interface CategoryData {
     inline: boolean;
     description: string;
     emoji: string;
-};
+}

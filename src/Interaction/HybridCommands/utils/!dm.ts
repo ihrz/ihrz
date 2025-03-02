@@ -52,9 +52,9 @@ export const subCommand: SubCommand = {
             var targetMember = interaction.options.getMember("member")!;
         } else {
             
-            var isPrivate = client.method.string(args!, 0) === "yes" ? true : false;
-            var targetMember = client.method.member(interaction, args!, 1)!;
-            var msg = client.method.longString(args!, 2)!
+            var isPrivate = client.func.method.string(args!, 0) === "yes" ? true : false;
+            var targetMember = client.func.method.member(interaction, args!, 1)!;
+            var msg = client.func.method.longString(args!, 2)!
         };
 
         let buttons = [new ButtonBuilder()
@@ -82,21 +82,21 @@ export const subCommand: SubCommand = {
                     )
             ]
         }).then(async () => {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.utils_dm
                     .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                     .replace("${targetMember.toString()}", targetMember.toString())
                     .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
             })
         }).catch(async () => {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.utils_dm
                     .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
                     .replace("${targetMember.toString()}", targetMember.toString())
                     .replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
             })
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.utils_dm_cant
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     .replace("${targetMember.toString()}", targetMember.toString())

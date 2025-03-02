@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
             var state = interaction.options.getString("action") as string;
         } else {
 
-            var state = client.method.longString(args!, 0) as string;
+            var state = client.func.method.longString(args!, 0) as string;
         };
 
         let current_state = await client.db.get(`${interaction.guildId}.ECONOMY.disabled`);
@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
         if (state === 'on') {
 
             if (!current_state) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.economy_disable_already_enable
                         .replace('${interaction.user.id}', interaction.member.user.id)
                 });
@@ -61,14 +61,14 @@ export const subCommand: SubCommand = {
 
             await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, false);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_set_enable
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
         } else if (state === 'off') {
 
             if (current_state) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.economy_disable_already_disable
                         .replace('${interaction.user.id}', interaction.member.user.id)
                 });
@@ -77,13 +77,13 @@ export const subCommand: SubCommand = {
 
             await client.db.set(`${interaction.guildId}.ECONOMY.disabled`, true);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_set_disable
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
         };
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.economy_disable_logs_embed_title,
             description: lang.economy_disable_logs_embed_desc
                 .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)

@@ -59,7 +59,7 @@ export const event: BotEvent = {
                 for (let [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 
                 let member = channel.guild.members.cache.get(relevantLog.executorId as string);
-                await client.method.punish(data, member);
+                await client.func.method.punish(data, member);
             };
         }
     },

@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
             await interaction.editReply({ content: lang.ticket_disabled_command });
             return;
         };
-        if (!await client.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
+        if (!await client.func.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
             await interaction.editReply({ content: lang.close_not_in_ticket });
             return;
         } 

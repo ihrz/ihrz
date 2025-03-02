@@ -39,7 +39,7 @@ export const subCommand: SubCommand = {
 
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -50,13 +50,13 @@ export const subCommand: SubCommand = {
             var type = interaction.options.getString("type")!;
             var money = interaction.options.getNumber("how-much")!;
         } else {
-            var type = client.method.string(args!, 0)!;
-            var money = client.method.number(args!, 1)!;
+            var type = client.func.method.string(args!, 0)!;
+            var money = client.func.method.number(args!, 1)!;
         };
 
         await client.db.set(`${interaction.guildId}.ECONOMY.settings.${type}.amount`, money);
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: `Successfully set the money for ${type} to ${money}`
         });
     },

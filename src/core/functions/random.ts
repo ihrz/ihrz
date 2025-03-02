@@ -21,7 +21,7 @@
 
 import crypto from 'crypto';
 
-interface PasswordOptions {
+export interface PasswordOptions {
     length: number;
     numbers?: boolean;
     symbols?: boolean | string;

@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
             return;
         };
 
-        if (!await client.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
+        if (!await client.func.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
             await interaction.editReply({ content: lang.delete_not_in_ticket });
             return;
         }

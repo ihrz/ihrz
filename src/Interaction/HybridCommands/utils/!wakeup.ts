@@ -44,24 +44,24 @@ export const subCommand: SubCommand = {
 
         const user = interaction instanceof ChatInputCommandInteraction
             ? interaction.options.getMember("member")!
-            : client.method.member(interaction, args!, 0)!;
+            : client.func.method.member(interaction, args!, 0)!;
 
         let start = Date.now();
 
         if (user.id === interaction.member.user.id) {
-            await client.method.interactionSend(interaction, { content: lang.util_wakeup_yourself });
+            await client.func.method.interactionSend(interaction, { content: lang.util_wakeup_yourself });
             return;
         }
 
         if (user.voice.channelId === null) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.util_wakeup_not_in_vc
                     .replace("${user.displayName}", user.displayName)
             });
             return;
         }
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.util_wakeup_command_work.replace("${user.toString()}", user.toString())
         });
 

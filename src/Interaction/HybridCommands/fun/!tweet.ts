@@ -40,7 +40,7 @@ export const subCommand: SubCommand = {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
             return;
         };
         if (interaction instanceof ChatInputCommandInteraction) {
@@ -49,13 +49,13 @@ export const subCommand: SubCommand = {
             var messageArgs = entry!.split(' ');
         } else {
 
-            var user: User = await client.method.user(interaction, args!, 0) || interaction.author;
-            var entry = client.method.longString(args!, 1);
+            var user: User = await client.func.method.user(interaction, args!, 0) || interaction.author;
+            var entry = client.func.method.longString(args!, 1);
             var messageArgs = entry!.split(' ');
         };
 
         if (messageArgs.length < 1) {
-            await client.method.interactionSend(interaction, { content: lang.fun_var_good_sentence });
+            await client.func.method.interactionSend(interaction, { content: lang.fun_var_good_sentence });
             return;
         };
 
@@ -80,7 +80,7 @@ export const subCommand: SubCommand = {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#000000")
             .setImage('attachment://tweet.png')
             .setTimestamp()
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
         let imgs: AttachmentBuilder;
 
@@ -89,7 +89,7 @@ export const subCommand: SubCommand = {
             embed.setImage(`attachment://tweet.png`);
         });
 
-        await client.method.interactionSend(interaction, { embeds: [embed], files: [imgs!, await interaction.client.method.bot.footerAttachmentBuilder(interaction)] });
+        await client.func.method.interactionSend(interaction, { embeds: [embed], files: [imgs!, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
         return;
     },
 };

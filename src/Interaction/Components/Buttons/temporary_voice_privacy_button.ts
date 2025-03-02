@@ -99,7 +99,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 
         await i.reply({
             embeds: [embed],
-            files: [await interaction.client.method.bot.footerAttachmentBuilder(interaction)],
+            files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],
             ephemeral: true
         });
     });

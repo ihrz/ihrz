@@ -52,13 +52,13 @@ export const subCommand: SubCommand = {
             var member = interaction.options.getMember("member") as GuildMember | null;
         } else {
 
-            var member = client.method.member(interaction, args!, 0) as GuildMember | null;
+            var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
         };
 
         let allWarns: DatabaseStructure.WarnsData[] | null = await client.db.get(`${interaction.guildId}.USER.${member?.id}.WARNS`);
 
         if (!allWarns || allWarns.length === 0) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.warnlist_no_data
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
                     .replace("${member?.toString()}", member?.toString()!)
@@ -113,10 +113,10 @@ export const subCommand: SubCommand = {
                 .setStyle(ButtonStyle.Secondary),
         );
 
-        let messageEmbed = await client.method.interactionSend(interaction, {
+        let messageEmbed = await client.func.method.interactionSend(interaction, {
             embeds: [createEmbed()],
             components: [row],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
 
         let collector = messageEmbed.createMessageComponentCollector({

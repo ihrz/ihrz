@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 
         await interaction.editReply({
             embeds: [embed],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
         return;
     },

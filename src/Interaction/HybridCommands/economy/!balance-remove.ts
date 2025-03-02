@@ -41,7 +41,7 @@ export const subCommand: SubCommand = {
         if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
             .setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#bc0116")
             .setTimestamp()
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.removemoney_logs_embed_title,
             description: lang.removemoney_logs_embed_description
                 .replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
@@ -75,7 +75,7 @@ export const subCommand: SubCommand = {
                 .replace(/\${user\.user\.id}/g, user.id)
         });
 
-        await client.method.interactionSend(interaction, { embeds: [embed] });
+        await client.func.method.interactionSend(interaction, { embeds: [embed] });
         return;
     },
 };

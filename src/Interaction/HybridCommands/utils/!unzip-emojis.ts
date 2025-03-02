@@ -107,7 +107,7 @@ export const subCommand: SubCommand = {
 
             // Respond with results
             const calcTime = Date.now() - time;
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.util_unzip_emojis_command_work
                     .replace("${calcTime}", String(calcTime))
                     .replace("${emojiCount}", String(createdEmojis.length)),
@@ -115,7 +115,7 @@ export const subCommand: SubCommand = {
             });
 
         } catch (error) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.util_unzip_emojis_command_error,
                 ephemeral: true
             });

@@ -35,11 +35,11 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var member = interaction.options.getMember("member")
         } else {
-            var member = client.method.member(interaction, args!, 0);
+            var member = client.func.method.member(interaction, args!, 0);
         }
 
         if (!member) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.ban_dont_found_member
             })
             return;
@@ -48,7 +48,7 @@ export const subCommand: SubCommand = {
         let member_is_connected = member?.voice.channel ? true : false;
 
         if (!member_is_connected) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.util_not_in_vc
             })
             return;
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
             .setThumbnail(member.user.displayAvatarURL({ extension: "gif", forceStatic: false, size: 4096 }))
 
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             embeds: [embed]
         });
         return;

@@ -38,7 +38,7 @@ export const subCommand: SubCommand = {
 
 
         if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-            await client.method.interactionSend(interaction, { content: lang.fun_category_disable });
+            await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
             return;
         };
         axios.get('http://edgecats.net/random').then(async res => {
@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
                 .setTitle(lang.cats_embed_title)
                 .setTimestamp();
 
-            await client.method.interactionSend(interaction, { embeds: [emb] });
+            await client.func.method.interactionSend(interaction, { embeds: [emb] });
             return;
         });
     },

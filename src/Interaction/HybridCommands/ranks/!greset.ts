@@ -63,16 +63,16 @@ export const subCommand: SubCommand = {
             for (let entries in DbData) {
                 await client.db.delete(`${interaction.guild?.id}.USER.${entries}.XP_LEVELING`)
             }
-            await client.method.interactionSend(interaction, { content: lang.resetallinvites_succes_on_delete, components: [] });
+            await client.func.method.interactionSend(interaction, { content: lang.resetallinvites_succes_on_delete, components: [] });
 
-            await client.method.iHorizonLogs.send(interaction, {
+            await client.func.ihorizon_logs(interaction, {
                 title: lang.reset_uranks_logs_embed_title,
                 description: lang.resetallinvites_logs_embed_desc
                     .replace("${interaction.member.user.toString()}", interaction.member.user.toString())
             });
 
         } else {
-            await client.method.interactionSend(interaction, { content: lang.setjoinroles_action_canceled, components: [] });
+            await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_action_canceled, components: [] });
         }
     },
 };

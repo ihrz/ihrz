@@ -40,7 +40,7 @@ export const subCommand: SubCommand = {
 
 
         if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_disable_msg
                     .replace('${interaction.user.id}', interaction.member.user.id)
             });
@@ -51,8 +51,8 @@ export const subCommand: SubCommand = {
             var role = interaction.options.getRole("role") as Role;
             var boost = parseInt(interaction.options.getString("boost")!);
         } else {
-            var role = client.method.role(interaction, args!, 0) as Role;
-            var boost = client.method.number(args!, 1);
+            var role = client.func.method.role(interaction, args!, 0) as Role;
+            var boost = client.func.method.number(args!, 1);
         }
 
         var roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
@@ -64,7 +64,7 @@ export const subCommand: SubCommand = {
         let rolePermissions = new PermissionsBitField(role.permissions);
         let roleDangerousPermissions: string[] = [];
 
-        for (const perm of client.method.getDangerousPermissions(lang)) {
+        for (const perm of client.func.method.getDangerousPermissions(lang)) {
             if (rolePermissions.has(perm.flag)) {
                 roleDangerousPermissions.push(perm.name);
             }
@@ -72,7 +72,7 @@ export const subCommand: SubCommand = {
 
         // send message if the role doeesnt exist
         if (!roleData?.[role.id]) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.economy_boost_role_not_found
             });
             return;
@@ -88,13 +88,13 @@ export const subCommand: SubCommand = {
             .setFields(generateRoleFields(roleData, lang))
             .setColor("#0097ff")
             .setTimestamp()
-            .setFooter(await client.method.bot.footerBuilder(interaction));
+            .setFooter(await client.func.displayBotName.footerBuilder(interaction));
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: null,
             embeds: [embed],
             components: [],
-            files: [await client.method.bot.footerAttachmentBuilder(interaction)]
+            files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
         });
     },
 };

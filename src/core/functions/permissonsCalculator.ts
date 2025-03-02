@@ -27,7 +27,7 @@ import {
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
 
-type command = {
+export type command = {
     users: string[];
     roles: string[];
     level: number;
@@ -205,7 +205,7 @@ export async function sendErrorMessage(
         neededPerm = "**\`Discord Permission\`**";
     }
 
-    return await interaction.client.method.interactionSend(interaction, {
+    return await interaction.client.func.method.interactionSend(interaction, {
         content: lang.event_permission_wrong
             .replace(
                 "${interaction.member?.user.toString()}",

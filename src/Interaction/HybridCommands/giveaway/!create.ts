@@ -65,43 +65,43 @@ export const subCommand: SubCommand = {
             var giveawayPrize = interaction.options.getString("prize");
         } else {
 
-            var giveawayNumberWinners = client.method.number(args!, 0);
-            var giveawayDuration = client.method.string(args!, 1);
-            var giveawayRequirement = client.method.string(args!, 2) as "none" | "invites" | "messages" | "roles";
-            var giveawayPrize = client.method.string(args!, 3);
-            var giveawayRequirementValue = client.method.string(args!, 4);
+            var giveawayNumberWinners = client.func.method.number(args!, 0);
+            var giveawayDuration = client.func.method.string(args!, 1);
+            var giveawayRequirement = client.func.method.string(args!, 2) as "none" | "invites" | "messages" | "roles";
+            var giveawayPrize = client.func.method.string(args!, 3);
+            var giveawayRequirementValue = client.func.method.string(args!, 4);
             var imageUrl = ""
         };
 
         if (isNaN(giveawayNumberWinners as number) || (parseInt(giveawayNumberWinners.toString()) <= 0)) {
-            await client.method.interactionSend(interaction, { content: lang.start_is_not_valid });
+            await client.func.method.interactionSend(interaction, { content: lang.start_is_not_valid });
             return;
         };
 
         let giveawayDurationFormated = client.timeCalculator.to_ms(giveawayDuration!);
 
         if (!giveawayDurationFormated) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.start_time_not_valid
                     .replace('${interaction.user}', interaction.member.user.toString())
             });
             return;
         };
 
-        if (giveawayRequirement === "invites" && !client.method.isNumber(giveawayRequirementValue || "")) {
-            await client.method.interactionSend(interaction, {
+        if (giveawayRequirement === "invites" && !client.func.method.isNumber(giveawayRequirementValue || "")) {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.start_invalid_invites_req_value
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
-        } else if (giveawayRequirement === 'messages' && !client.method.isNumber(giveawayRequirementValue || "")) {
-            await client.method.interactionSend(interaction, {
+        } else if (giveawayRequirement === 'messages' && !client.func.method.isNumber(giveawayRequirementValue || "")) {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.start_invalid_messages_req_value
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
             return;
         } else if (giveawayRequirement === "roles" && !interaction.guild.roles.cache.has(giveawayRequirementValue || "")) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.start_invalid_roles_req_value
                     .replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
             });
@@ -117,14 +117,14 @@ export const subCommand: SubCommand = {
             requirement: { type: giveawayRequirement, value: giveawayRequirementValue }
         });
 
-        await client.method.iHorizonLogs.send(interaction, {
+        await client.func.ihorizon_logs(interaction, {
             title: lang.reroll_logs_embed_title,
             description: lang.start_logs_embed_description
                 .replace('${interaction.user.id}', interaction.member.user.id)
                 .replace(/\${giveawayChannel}/g, giveawayChannel.toString()!)
         });
 
-        await client.method.interactionSend(interaction, {
+        await client.func.method.interactionSend(interaction, {
             content: lang.start_confirmation_command
                 .replace(/\${giveawayChannel}/g, giveawayChannel.toString())
         });

@@ -72,7 +72,7 @@ export const event: BotEvent = {
                 .setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#FF0000")
                 .setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
                 .setTimestamp()
-                .setFooter(await guild.client.method.bot.footerBuilder(guild))
+                .setFooter(await guild.client.func.displayBotName.footerBuilder(guild))
 
             let table = client.db.table('BLACKLIST')
             let isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
@@ -80,7 +80,7 @@ export const event: BotEvent = {
             if (isBL) {
                 await (channelHr as GuildTextBasedChannel).send({
                     embeds: [tqtmonreuf],
-                    files: [await client.method.bot.footerAttachmentBuilder(guild)]
+                    files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
                 }).catch(() => { });
                 await guild.leave();
                 return false;
@@ -131,7 +131,7 @@ export const event: BotEvent = {
             (channel as TextChannel).send({
                 embeds: [embed],
                 content: 'discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
-                files: [await client.method.bot.footerAttachmentBuilder(guild)],
+                files: [await client.func.displayBotName.footerAttachmentBuilder(guild)],
                 components: [buttons]
             }).catch(() => { });
         }
@@ -184,7 +184,7 @@ export const event: BotEvent = {
             for (let owner of owners) {
                 await (client.users.cache.get(owner))?.send({
                     embeds: [embed],
-                    files: [await client.method.bot.footerAttachmentBuilder(guild)]
+                    files: [await client.func.footerAttachmentBuilder(guild)]
                 }).catch(() => { });
             }
         };

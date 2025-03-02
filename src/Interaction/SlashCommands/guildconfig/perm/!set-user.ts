@@ -46,17 +46,17 @@ export const subCommand: SubCommand = {
         if (perm === "0") {
             await client.db.delete(`${interaction.guildId}.UTILS.USER_PERMS.${user.id}`);
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.perm_set_deleted.replace("${user.toString()}", user.toString())
             });
         } else {
-            let fetchedPerm = await client.method.permission.checkUserPermissions(
+            let fetchedPerm = await client.func.permissonsCalculator.checkUserPermissions(
                 interaction.member,
             );
 
             // @ts-ignore
             if (Array.isArray(fetchedPerm) ? false : fetchedPerm <= parseInt(perm) && interaction.guild.ownerId !== interaction.member.id) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.perm_set_warn_message.replace(
                         "${interaction.member.toString()}",
                         interaction.member.toString(),
@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
 
             await client.db.set(`${interaction.guildId}.UTILS.USER_PERMS.${user.id}`, parseInt(perm));
 
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.perm_set_ok.replace("${user.toString()}", user.toString())
                     .replace("${perm}", perm)
             });

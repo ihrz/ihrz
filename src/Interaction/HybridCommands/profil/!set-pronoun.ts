@@ -35,14 +35,14 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var pronoun = interaction.options.getString("pronoun")!;
         } else {
-            var pronoun = client.method.string(args!, 0) || lang.var_none;
+            var pronoun = client.func.method.string(args!, 0) || lang.var_none;
         };
 
         let tableProfil = client.db.table('USER_PROFIL');
 
         await tableProfil.set(`${interaction.member?.user.id}.pronoun`, pronoun);
 
-        await client.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, ephemeral: true });
+        await client.func.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, ephemeral: true });
         return;
     },
 };

@@ -20,7 +20,7 @@
 */
 
 import { ApplicationCommandOptionType, PermissionFlagsBits } from 'discord.js';
-import { DescriptionLocalizations, NameLocalizations } from './command.d.ts';
+import type { DescriptionLocalizations, NameLocalizations } from './command.d.ts';
 
 export interface Choice {
     name: string,

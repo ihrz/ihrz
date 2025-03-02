@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
         if (interaction instanceof ChatInputCommandInteraction) {
             var tag_name = interaction.options.getString("tag_name", true);
         } else {
-            var tag_name = client.method.string(args!, 0)!;
+            var tag_name = client.func.method.string(args!, 0)!;
         }
 
         let baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS.storedTags.${tag_name}`) as DatabaseStructure.TagInfo | undefined;
@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
         // check if there are no tags
 
         if (!baseData) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.tag_doesnt_exist
                     .replace("${tag_name}", tag_name)
             });
@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 
         let embed2 = await client.db.get(`EMBED.${baseData.embedId}`);
 
-        await client.method.interactionSend(interaction, { embeds: [embed, embed2?.embedSource] });
+        await client.func.method.interactionSend(interaction, { embeds: [embed, embed2?.embedSource] });
         return;
     },
 };

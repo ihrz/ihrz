@@ -40,6 +40,13 @@ export const subCommand: SubCommand = {
         var roles = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8"];
         let existingRoles = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {} as DatabaseStructure.UtilsRoleData;
 
+        if (interaction.member.id !== interaction.guild.ownerId) {
+            await client.func.method.interactionSend(interaction, {
+                content: lang.perm_roles_not_owner
+            });
+            return;
+        }
+
         try {
             let updatedRoles: DatabaseStructure.UtilsRoleData = {};
             let createdRoles: string[] = [];
@@ -65,16 +72,16 @@ export const subCommand: SubCommand = {
 
 
             if (createdRoles.length > 0) {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.perm_roles_created_role.replace("${createdRoles.join(', ')}", createdRoles.join(", "))
                 });
             } else {
-                await client.method.interactionSend(interaction, {
+                await client.func.method.interactionSend(interaction, {
                     content: lang.perm_roles_already_upate
                 });
             }
         } catch (error) {
-            await client.method.interactionSend(interaction, {
+            await client.func.method.interactionSend(interaction, {
                 content: lang.perm_roles_error
             });
         }

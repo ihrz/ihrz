@@ -56,7 +56,7 @@ export const event: BotEvent = {
             if (!baseData) {
                 let member = ban.guild.members.cache.get(relevantLog?.executorId!);
                 await ban.guild.members.ban(ban.user.id);
-                await client.method.punish(data, member);
+                await client.func.method.punish(data, member);
             };
         }
     },
