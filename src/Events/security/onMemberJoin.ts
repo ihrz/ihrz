@@ -25,21 +25,19 @@ import logger from "../../core/logger.js";
 import captcha from "../../core/captcha.js";
 
 import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
     name: "guildMemberAdd",
     run: async (client: Client, member: GuildMember) => {
-
         let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
         if (!baseData || baseData?.disable === true) return;
 
         let data = await client.func.getLanguageData(member.guild.id);
         let channel = member.guild.channels.cache.get(baseData?.channel);
         if (!channel) return;
-        let generatedCaptcha = await captcha(280, 100)
+        const { code, image } = await captcha(280, 100)
 
-        let sfbuff = Buffer.from((generatedCaptcha?.image).split(",")[1], "base64");
+        let sfbuff = Buffer.from((image).split(",")[1], "base64");
         const memberJoinDate = member.joinedAt;
 
         let embed = new EmbedBuilder()
@@ -65,47 +63,37 @@ export const event: BotEvent = {
         }).then(async (msg) => {
             let collector = msg.channel.createMessageCollector({
                 filter: (m) => m.author.id === member.id,
-                time: 30_000
+                time: (60_00 * 2 + 30_000)
             });
 
             let passedtest = false;
 
             collector.on('collect', async (m) => {
                 collector.stop();
-                m.delete()
-                    .catch(() => { })
-                    .then(() => { });
+                await m.delete();
 
-                if (generatedCaptcha.code === m.content) {
-                    member.roles.add(baseData?.role)
-                        .catch(() => { })
-                        .then(() => { });
-                    msg.delete()
-                        .catch(() => { })
-                        .then(() => { });
+                if (code === m.content) {
+                    await member.roles.add(baseData?.role).catch(() => { })
+                    await member.roles.remove(baseData?.role2).catch(() => { })
+                    await msg.delete().catch(() => { })
+
                     passedtest = true;
                     return;
                 } else {
-                    msg.delete()
-                        .catch(() => { })
-                        .then(() => { });
-                    member.kick()
-                        .catch(() => { })
-                        .then(() => { });
+                    await msg.delete().catch(() => { })
+                    await member.kick().catch(() => { })
                     return;
                 }
             });
 
-            collector.on('end', () => {
+            collector.on('end', async () => {
                 if (passedtest) return;
 
                 if (!member.joinedAt && memberJoinDate === member.joinedAt) {
-                    member.kick();
+                    await member.kick().catch(() => { })
                 }
 
-                msg.delete()
-                    .catch(() => { })
-                    .then(() => { });
+                await msg.delete().catch(() => { })
             });
 
         }).catch((error: any) => {

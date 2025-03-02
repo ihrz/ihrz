@@ -38,7 +38,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 
 import { isInVoiceChannel } from '../../../core/functions/leashModuleHelper.js';
-import { promptYesOrNo } from '../../../core/functions/awaitingResponse.js';
+import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { Command } from '../../../../types/command.js';
 

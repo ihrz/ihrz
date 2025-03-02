@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-function format(date: Date | number, formatString: string): string {
+export function format(date: Date | number, formatString: string): string {
     const months: string[] = [
         'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
@@ -57,7 +57,3 @@ function format(date: Date | number, formatString: string): string {
         }
     });
 }
-
-export {
-    format
-};

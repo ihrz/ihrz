@@ -34,7 +34,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { Command, SubCommand } from '../../../../types/command.js';
-import { formatNumber } from '../../../core/functions/numberBeautifuer.js';
+import formatNumber  from '../../../core/functions/numberBeautifuer.js';
 
 export const subCommand: SubCommand = {
     run: async (

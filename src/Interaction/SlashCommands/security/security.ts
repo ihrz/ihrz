@@ -145,6 +145,36 @@ export const command: Command = {
 
             permission: PermissionFlagsBits.Administrator
         },
+        {
+            name: "role-to-remove",
+            name_localizations: {
+                "fr": "role-à-enlever"
+            },
+
+            description: "The role that will be removed to new member(s) when process to the Captcha verification!",
+            description_localizations: {
+                "fr": "Le rôle qui sera enlevé aux nouveaux membre(s) lors du processus de vérification Captcha"
+            },
+
+            type: ApplicationCommandOptionType.Subcommand,
+            options: [
+                {
+                    name: 'role',
+                    type: ApplicationCommandOptionType.Role,
+
+                    description: 'What the the role ?',
+                    description_localizations: {
+                        "fr": "Quel est le rôle ?"
+                    },
+
+                    required: true,
+
+                    permission: null
+                },
+            ],
+
+            permission: PermissionFlagsBits.Administrator
+        },
     ],
     thinking: false,
     category: 'security',

@@ -39,7 +39,7 @@ import fs from 'fs';
 import { LyricsManager } from './functions/lyrics_fetcher.js';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
-import { getToken } from './functions/getToken.js';
+import getToken  from './functions/getToken.js';
 import { StreamNotifier } from './StreamNotifier.js';
 import { setMaxListeners } from 'node:events';
 import { version } from '../version.js';

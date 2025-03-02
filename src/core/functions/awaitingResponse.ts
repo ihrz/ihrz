@@ -28,7 +28,7 @@ export interface LangForPrompt {
     dangerAction: boolean;
 }
 
-export async function promptYesOrNo(interaction: ChatInputCommandInteraction<"cached"> | Message, opt: LangForPrompt) {
+export default async function promptYesOrNo(interaction: ChatInputCommandInteraction<"cached"> | Message, opt: LangForPrompt) {
     const sent = await interaction.client.func.method.interactionSend(interaction, {
         content: opt.content,
         components: [

@@ -21,7 +21,7 @@
 
 import { ChannelType, Client, TextChannel, VoiceBasedChannel } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
-import { formatNumber } from "../functions/numberBeautifuer.js";
+import formatNumber  from "../functions/numberBeautifuer.js";
 import logger from "../logger.js";
 
 type memberCountData = { guildId: string, data: DatabaseStructure.MemberCountSchema | undefined }[];

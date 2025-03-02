@@ -19,10 +19,8 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-function wait(milliseconds: number): Promise<void> {
+export default function wait(milliseconds: number): Promise<void> {
     return new Promise(resolve => {
         setTimeout(resolve, milliseconds);
     });
 };
-
-export default wait;

@@ -173,6 +173,7 @@ export namespace DatabaseStructure {
         channel?: string;
         disable?: boolean;
         role?: string;
+        role2?: string;
     }
 
     export interface ConfessionSchema {

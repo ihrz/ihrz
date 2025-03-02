@@ -127,7 +127,7 @@ export function number(args: string[], argsNumber: number): number {
     return Number.isNaN(parseInt(value)) ? 0 : parseInt(value);
 }
 
-const getArgumentOptionNameWithOptions = (o: Option): string => {
+export function getArgumentOptionNameWithOptions(o: Option): string {
     if (o.choices) {
         return o.choices.map(x => x.value).join("/");
     }
@@ -159,7 +159,7 @@ const getArgumentOptionTypeWithOptions = (o: Option): string => {
     return getArgumentOptionType(o.type);
 };
 
-export const stringifyOption = (option: Option[]): string => {
+export function stringifyOption(option: Option[]): string {
     let _ = "";
     option.forEach((value) => {
         _ += value.required ? "[" : "<";
@@ -169,7 +169,7 @@ export const stringifyOption = (option: Option[]): string => {
     return _.trim();
 }
 
-export const boldStringifyOption = (option: Option[]): string => {
+export function boldStringifyOption(option: Option[]): string {
     let _ = "";
     option.forEach((value) => {
         _ += value.required ? "**`[" : "**`<";
@@ -540,7 +540,7 @@ export function generateCustomMessagePreview(
 
 }
 
-export const findOptionRecursively = (options: Option[], subcommandName: string): Option | undefined => {
+export function findOptionRecursively(options: Option[], subcommandName: string): Option | undefined {
     for (const option of options) {
         if (option.name === subcommandName) {
             return option;
