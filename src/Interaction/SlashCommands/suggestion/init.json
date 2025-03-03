@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "suggestion",
-        "categoryColor": "#990000",
-        "options": {
-            "description": "help_suggestion_dsc",
-            "emoji": "❓",
-            "placeholder": "help_suggestion_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "suggestion",
+		"categoryColor": "#990000",
+		"options": {
+			"description": "help_suggestion_dsc",
+			"emoji": "❓",
+			"placeholder": "help_suggestion_fields"
+		}
+	}
 }

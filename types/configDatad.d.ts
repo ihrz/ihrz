@@ -3,15 +3,15 @@
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-    ・   Under the following terms:
+	・   Under the following terms:
 
-        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-        ・ NonCommercial — You may not use the material for commercial purposes.
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
-        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
@@ -20,88 +20,88 @@
 */
 
 interface LavalinkNodeOptions {
-    retryAmount?: number;
-    retryDelay?: number;
-    id: string;
-    host: string;
-    port: number;
-    authorization: string;
-    secure: boolean;
+	retryAmount?: number;
+	retryDelay?: number;
+	id: string;
+	host: string;
+	port: number;
+	authorization: string;
+	secure: boolean;
 }
 
 export interface ConfigData {
-    discord: {
-        token: string;
-        phonePresence: boolean;
-        messageCommandsMention?: boolean;
-        defaultMessageCommandsPrefix?: string;
-    };
+	discord: {
+		token: string;
+		phonePresence: boolean;
+		messageCommandsMention?: boolean;
+		defaultMessageCommandsPrefix?: string;
+	};
 
-    lavalink: {
-        nodes: LavalinkNodeOptions[];
-    };
+	lavalink: {
+		nodes: LavalinkNodeOptions[];
+	};
 
-    core: {
-        devMode: boolean;
-        bash: boolean;
-        blacklistPictureInEmbed: string;
-        guildLogsChannelID: string;
-        reportChannelID: string;
+	core: {
+		devMode: boolean;
+		bash: boolean;
+		blacklistPictureInEmbed: string;
+		guildLogsChannelID: string;
+		reportChannelID: string;
 
-        cluster: string[];
+		cluster: string[];
 
-        shutdownClusterWhenStop: boolean;
-    };
+		shutdownClusterWhenStop: boolean;
+	};
 
-    command: {
-        alway100: string[]
-    };
+	command: {
+		alway100: string[]
+	};
 
-    owner: {
-        ownerid1: string
-        ownerid2: string;
-        owners?: string[];
-    };
+	owner: {
+		ownerid1: string
+		ownerid2: string;
+		owners?: string[];
+	};
 
-    api: {
-        HorizonGateway?: string; // only for the production phase (private source code)
-        useHttps?: boolean;
-        domain?: string;
-        port?: string;
-        useProxy?: boolean;
-        proxyUrl?: string;
-        apiToken: string;
-        clientID: string;
-    };
+	api: {
+		HorizonGateway?: string; // only for the production phase (private source code)
+		useHttps?: boolean;
+		domain?: string;
+		port?: string;
+		useProxy?: boolean;
+		proxyUrl?: string;
+		apiToken: string;
+		clientID: string;
+	};
 
-    console: {
-        emojis: {
-            OK: string;
-            ERROR: string;
-            HOST: string;
-            KISA: string;
-            LOAD: string
-        }
-    };
+	console: {
+		emojis: {
+			OK: string;
+			ERROR: string;
+			HOST: string;
+			KISA: string;
+			LOAD: string
+		}
+	};
 
-    database?: {
-        method:
-        'JSON' | // Quick.DB with JSON Driver
-        'MYSQL' | // PallasDB for MySQL/MariaDB
-        'SQLITE' | // Sqlite for PallasDB
-        "POSTGRES2" | // PallasDB for postgres
-        "CACHED_POSTGRES2" // Quick.DB Memory Cached with PallasDB postgres 
+	database?: {
+		method:
+		'JSON' | // Quick.DB with JSON Driver
+		'MYSQL' | // PallasDB for MySQL/MariaDB
+		'SQLITE' | // Sqlite for PallasDB
+		"POSTGRES2" | // PallasDB for postgres
+		"CACHED_POSTGRES2" // Quick.DB Memory Cached with PallasDB postgres 
 
-        mongoDb?: string;
+		mongoDb?: string;
 
-        mySQL?: {
-            host?: string;
-            hostname?: string;
-            user: string;
-            password: string;
-            database: string;
-            port?: number;
-        };
-    };
+		mySQL?: {
+			host?: string;
+			hostname?: string;
+			user: string;
+			password: string;
+			database: string;
+			port?: number;
+		};
+	};
 
 }

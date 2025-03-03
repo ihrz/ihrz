@@ -3,15 +3,15 @@
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-    ・   Under the following terms:
+	・   Under the following terms:
 
-        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-        ・ NonCommercial — You may not use the material for commercial purposes.
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
-        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
@@ -20,12 +20,12 @@
 */
 
 import {
-    Client,
-    EmbedBuilder,
-    ApplicationCommandOptionType,
-    ChatInputCommandInteraction,
-    BaseGuildTextChannel,
-    ApplicationCommandType,
+	Client,
+	EmbedBuilder,
+	ApplicationCommandOptionType,
+	ChatInputCommandInteraction,
+	BaseGuildTextChannel,
+	ApplicationCommandType,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -33,69 +33,69 @@ import { Command } from '../../../../types/command.js';
 
 
 export const command: Command = {
-    name: 'report',
+	name: 'report',
 
-    description: 'Report a bug, error, spell error to the iHorizon\'s dev!',
-    description_localizations: {
-        "fr": "Signaler un bug, une erreur, une faute d'orthographe au développeur d'iHorizon"
-    },
+	description: 'Report a bug, error, spell error to the iHorizon\'s dev!',
+	description_localizations: {
+		"fr": "Signaler un bug, une erreur, une faute d'orthographe au développeur d'iHorizon"
+	},
 
-    options: [
-        {
-            name: 'message-to-dev',
-            type: ApplicationCommandOptionType.String,
+	options: [
+		{
+			name: 'message-to-dev',
+			type: ApplicationCommandOptionType.String,
 
-            description: 'What is the problem? Please make a good sentences',
-            description_localizations: {
-                "fr": "Quelle est le problème? S'il vous plaît expliquer le problème."
-            },
+			description: 'What is the problem? Please make a good sentences',
+			description_localizations: {
+				"fr": "Quelle est le problème? S'il vous plaît expliquer le problème."
+			},
 
-            required: true,
+			required: true,
 
-            permission: null
-        }
-    ],
-    thinking: true,
-    category: 'newfeatures',
-    type: ApplicationCommandType.ChatInput,
-    permission: null,
-    run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+			permission: null
+		}
+	],
+	thinking: true,
+	category: 'newfeatures',
+	type: ApplicationCommandType.ChatInput,
+	permission: null,
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
-        // Guard's Typing
-        if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		// Guard's Typing
+		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-        var sentences = interaction.options.getString("message-to-dev")
-        let timeout = 18000000
-        let cooldown = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.REPORT.cooldown`);
+		var sentences = interaction.options.getString("message-to-dev")
+		let timeout = 18000000
+		let cooldown = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.REPORT.cooldown`);
 
-        if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {
-            let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - cooldown), lang);
+		if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {
+			let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - cooldown), lang);
 
-            await interaction.editReply({
-                content: lang.report_cooldown_command
-                    .replace("${time}", time)
-            });
-            return;
-        } else {
-            if (interaction.guild.ownerId != interaction.user.id) {
-                await interaction.editReply({ content: lang.report_owner_need });
-                return;
-            };
+			await interaction.editReply({
+				content: lang.report_cooldown_command
+					.replace("${time}", time)
+			});
+			return;
+		} else {
+			if (interaction.guild.ownerId != interaction.user.id) {
+				await interaction.editReply({ content: lang.report_owner_need });
+				return;
+			};
 
-            if (sentences && sentences.split(' ').length < 8) {
-                await interaction.editReply({ content: lang.report_specify });
-                return;
-            };
+			if (sentences && sentences.split(' ').length < 8) {
+				await interaction.editReply({ content: lang.report_specify });
+				return;
+			};
 
-            interaction.editReply({ content: lang.report_command_work });
-            var embed = new EmbedBuilder()
-                .setColor("#ff0000")
-                .setDescription(`**${interaction.user.globalName || interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
+			interaction.editReply({ content: lang.report_command_work });
+			var embed = new EmbedBuilder()
+				.setColor("#ff0000")
+				.setDescription(`**${interaction.user.globalName || interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
 
-            await (client.channels.cache.get(client.config.core.reportChannelID) as BaseGuildTextChannel).send({ embeds: [embed] });
+			await (client.channels.cache.get(client.config.core.reportChannelID) as BaseGuildTextChannel).send({ embeds: [embed] });
 
-            await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`, Date.now());
-            return;
-        }
-    },
+			await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`, Date.now());
+			return;
+		}
+	},
 };

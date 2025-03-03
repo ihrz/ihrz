@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "newfeatures",
-        "categoryColor": "#b4a7d6",
-        "options": {
-            "description": "help_newftrs_dsc",
-            "emoji": "🆕",
-            "placeholder": "help_newftrs_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "newfeatures",
+		"categoryColor": "#b4a7d6",
+		"options": {
+			"description": "help_newftrs_dsc",
+			"emoji": "🆕",
+			"placeholder": "help_newftrs_fields"
+		}
+	}
 }

@@ -3,15 +3,15 @@
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-    ・   Under the following terms:
+	・   Under the following terms:
 
-        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-        ・ NonCommercial — You may not use the material for commercial purposes.
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
-        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
@@ -20,73 +20,73 @@
 */
 
 const Color = {
-    Black: "\x1b[30m",
-    Red: "\x1b[31m",
-    Green: "\x1b[32m",
-    Yellow: "\x1b[33m",
-    Blue: "\x1b[34m",
-    Magenta: "\x1b[35m",
-    Cyan: "\x1b[36m",
-    White: "\x1b[37m",
-    BGBlack: "\x1b[40m",
-    BGRed: "\x1b[41m",
-    BGGreen: "\x1b[42m",
-    BGYellow: "\x1b[43m",
-    BGBlue: "\x1b[44m",
-    BGMagenta: "\x1b[45m",
-    BGCyan: "\x1b[46m",
-    BGWhite: "\x1b[47m",
-    Dim: "\x1b[2m",
-    Italic: "\x1b[3m",
-    Underscore: "\x1b[4m",
-    Reverse: "\x1b[7m",
-    Hidden: "\x1b[8m",
-    Strikethrough: "\x1b[9m",
-    Gray: "\x1b[90m",
-    Bold: "\x1b[1m",
-    Reset: "\x1b[0m"
+	Black: "\x1b[30m",
+	Red: "\x1b[31m",
+	Green: "\x1b[32m",
+	Yellow: "\x1b[33m",
+	Blue: "\x1b[34m",
+	Magenta: "\x1b[35m",
+	Cyan: "\x1b[36m",
+	White: "\x1b[37m",
+	BGBlack: "\x1b[40m",
+	BGRed: "\x1b[41m",
+	BGGreen: "\x1b[42m",
+	BGYellow: "\x1b[43m",
+	BGBlue: "\x1b[44m",
+	BGMagenta: "\x1b[45m",
+	BGCyan: "\x1b[46m",
+	BGWhite: "\x1b[47m",
+	Dim: "\x1b[2m",
+	Italic: "\x1b[3m",
+	Underscore: "\x1b[4m",
+	Reverse: "\x1b[7m",
+	Hidden: "\x1b[8m",
+	Strikethrough: "\x1b[9m",
+	Gray: "\x1b[90m",
+	Bold: "\x1b[1m",
+	Reset: "\x1b[0m"
 };
 
 export { };
 
 declare global {
-    interface String {
-        black: string;
-        red: string;
-        green: string;
-        yellow: string;
-        blue: string;
-        magenta: string;
-        cyan: string;
-        white: string;
-        bgBlack: string;
-        bgRed: string;
-        bgGreen: string;
-        bgYellow: string;
-        bgBlue: string;
-        bgMagenta: string;
-        bgCyan: string;
-        bgWhite: string;
-        dim: string;
-        italic: string;
-        underline: string;
-        inverse: string;
-        hidden: string;
-        strikethrough: string;
-        gray: string;
-        boldText: string;
-    }
+	interface String {
+		black: string;
+		red: string;
+		green: string;
+		yellow: string;
+		blue: string;
+		magenta: string;
+		cyan: string;
+		white: string;
+		bgBlack: string;
+		bgRed: string;
+		bgGreen: string;
+		bgYellow: string;
+		bgBlue: string;
+		bgMagenta: string;
+		bgCyan: string;
+		bgWhite: string;
+		dim: string;
+		italic: string;
+		underline: string;
+		inverse: string;
+		hidden: string;
+		strikethrough: string;
+		gray: string;
+		boldText: string;
+	}
 }
 
 
 function addStringPrototypeGetter(name: string, colorCode: string) {
-    Object.defineProperty(String.prototype, name, {
-        get: function () {
-            return colorCode + this + Color.Reset;
-        },
-        configurable: true,
-        enumerable: false
-    });
+	Object.defineProperty(String.prototype, name, {
+		get: function () {
+			return colorCode + this + Color.Reset;
+		},
+		configurable: true,
+		enumerable: false
+	});
 }
 
 addStringPrototypeGetter('black', Color.Black);

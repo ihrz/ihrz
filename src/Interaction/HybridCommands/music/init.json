@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "music",
-        "categoryColor": "#c90076",
-        "options": {
-            "description": "help_music_dsc",
-            "emoji": "🎵",
-            "placeholder": "help_music_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "music",
+		"categoryColor": "#c90076",
+		"options": {
+			"description": "help_music_dsc",
+			"emoji": "🎵",
+			"placeholder": "help_music_fields"
+		}
+	}
 }

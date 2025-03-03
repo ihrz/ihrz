@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "notifier",
-        "categoryColor": "#6a329f",
-        "options": {
-            "description": "help_notifier_dsc",
-            "emoji": "📹",
-            "placeholder": "help_notifier_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "notifier",
+		"categoryColor": "#6a329f",
+		"options": {
+			"description": "help_notifier_dsc",
+			"emoji": "📹",
+			"placeholder": "help_notifier_fields"
+		}
+	}
 }

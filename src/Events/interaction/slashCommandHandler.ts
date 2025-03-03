@@ -3,15 +3,15 @@
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-    ・   Under the following terms:
+	・   Under the following terms:
 
-        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-        ・ NonCommercial — You may not use the material for commercial purposes.
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
-        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
@@ -28,210 +28,210 @@ import { getPermissionByValue } from '../../core/functions/permissonsCalculator.
 var timeout: number = 1000;
 
 async function cooldDown(client: Client, interaction: Interaction) {
-    let tn = Date.now();
-    let table = client.db.table("TEMP");
-    var fetch = await table.get(`COOLDOWN.${interaction.user.id}`);
-    if (fetch !== null && timeout - (tn - fetch) > 0) return true;
+	let tn = Date.now();
+	let table = client.db.table("TEMP");
+	var fetch = await table.get(`COOLDOWN.${interaction.user.id}`);
+	if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
-    await table.set(`COOLDOWN.${interaction.user.id}`, tn);
-    return false;
+	await table.set(`COOLDOWN.${interaction.user.id}`, tn);
+	return false;
 };
 
 async function handleCommandExecution(client: Client, interaction: ChatInputCommandInteraction<"cached">, command: Command, lang: LanguageData, thinking: boolean) {
-    const options = interaction.options as CommandInteractionOptionResolver;
-    const group = options.getSubcommandGroup(false);
-    const subCommand = options.getSubcommand(false);
+	const options = interaction.options as CommandInteractionOptionResolver;
+	const group = options.getSubcommandGroup(false);
+	const subCommand = options.getSubcommand(false);
 
-    if (group && subCommand) {
-        let stringCommand = interaction.commandName + " " + group + " " + subCommand;
-        const subCmd = client.subCommands.get(stringCommand);
+	if (group && subCommand) {
+		let stringCommand = interaction.commandName + " " + group + " " + subCommand;
+		const subCmd = client.subCommands.get(stringCommand);
 
-        if (subCmd && subCmd.run) {
-            let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
-            if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
+		if (subCmd && subCmd.run) {
+			let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
+			if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
-            if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
-                await interaction.deferReply({ ephemeral: subCmd.ephemeral });
-            }
+			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
+				await interaction.deferReply({ ephemeral: subCmd.ephemeral });
+			}
 
-            if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
-                let perm = getPermissionByValue(subCmd.permission);
+			if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
+				let perm = getPermissionByValue(subCmd.permission);
 
-                if (perm) {
-                    const permName = lang[perm.name] || perm.name;
-                    const body = {
-                        content: lang.var_dont_have_perm
-                            .replace("{perm}", permName)
-                    }
-                    return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
-                }
-            }
+				if (perm) {
+					const permName = lang[perm.name] || perm.name;
+					const body = {
+						content: lang.var_dont_have_perm
+							.replace("{perm}", permName)
+					}
+					return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
+				}
+			}
 
-            return await subCmd.run(client, interaction, lang, []);
-        }
-    }
-    else if (subCommand) {
-        let stringCommand = interaction.commandName + " " + subCommand;
-        const subCmd = client.subCommands.get(stringCommand);
+			return await subCmd.run(client, interaction, lang, []);
+		}
+	}
+	else if (subCommand) {
+		let stringCommand = interaction.commandName + " " + subCommand;
+		const subCmd = client.subCommands.get(stringCommand);
 
-        if (subCmd && subCmd.run) {
-            let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
-            if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
+		if (subCmd && subCmd.run) {
+			let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
+			if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
-            if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
-                await interaction.deferReply({ ephemeral: subCmd.ephemeral });
-            }
+			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
+				await interaction.deferReply({ ephemeral: subCmd.ephemeral });
+			}
 
-            if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
-                let perm = getPermissionByValue(subCmd.permission);
+			if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
+				let perm = getPermissionByValue(subCmd.permission);
 
-                if (perm) {
-                    const permName = lang[perm.name] || perm.name;
-                    const body = {
-                        content: lang.var_dont_have_perm
-                            .replace("{perm}", permName)
-                    }
-                    return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
-                }
-            }
+				if (perm) {
+					const permName = lang[perm.name] || perm.name;
+					const body = {
+						content: lang.var_dont_have_perm
+							.replace("{perm}", permName)
+					}
+					return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
+				}
+			}
 
-            return await subCmd.run(client, interaction, lang, []);
-        }
-    }
+			return await subCmd.run(client, interaction, lang, []);
+		}
+	}
 
-    if (command.thinking || command.ephemeral) {
-        await interaction.deferReply({ ephemeral: command.ephemeral });
-    }
+	if (command.thinking || command.ephemeral) {
+		await interaction.deferReply({ ephemeral: command.ephemeral });
+	}
 
-    let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, interaction.commandName);
-    if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
+	let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, interaction.commandName);
+	if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
-    if (command.permission && !interaction.member!.permissions.has(command.permission) && !permCheck.allowed) {
-        let perm = getPermissionByValue(command.permission);
+	if (command.permission && !interaction.member!.permissions.has(command.permission) && !permCheck.allowed) {
+		let perm = getPermissionByValue(command.permission);
 
-        if (perm) {
-            const permName = lang[perm.name] || perm.name;
-            const body = {
-                content: lang.var_dont_have_perm
-                    .replace("{perm}", permName)
-            }
-            return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
-        }
-    }
+		if (perm) {
+			const permName = lang[perm.name] || perm.name;
+			const body = {
+				content: lang.var_dont_have_perm
+					.replace("{perm}", permName)
+			}
+			return interaction.deferred ? await interaction.editReply(body) : await interaction.reply(body);
+		}
+	}
 
-    if (command.run)
-        await command.run(client, interaction, lang, []);
+	if (command.run)
+		await command.run(client, interaction, lang, []);
 }
 
 async function handleCommandError(client: Client, interaction: ChatInputCommandInteraction, command: Command, error: any) {
-    const block = `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${command.name}\nError: ${error}\`\`\`\n`;
-    await client.func.method.interactionSend(interaction, {
-        content: block + "**Let me suggest you to report this issue with `/report`.**"
-    });
+	const block = `\`\`\`TS\nMessage: The command ran into a problem!\nCommand Name: ${command.name}\nError: ${error}\`\`\`\n`;
+	await client.func.method.interactionSend(interaction, {
+		content: block + "**Let me suggest you to report this issue with `/report`.**"
+	});
 
-    const channel = client.channels.cache.get(client.config.core.reportChannelID);
-    if (!channel) return;
+	const channel = client.channels.cache.get(client.config.core.reportChannelID);
+	if (!channel) return;
 
-    const options = interaction.options as CommandInteractionOptionResolver;
-    const optionsList = options["_hoistedOptions"].map(element => `${element.name}:${element.value}`);
+	const options = interaction.options as CommandInteractionOptionResolver;
+	const optionsList = options["_hoistedOptions"].map(element => `${element.name}:${element.value}`);
 
-    let commandPath = interaction.commandName;
-    const group = options.getSubcommandGroup(false);
-    const subCommand = options.getSubcommand(false);
+	let commandPath = interaction.commandName;
+	const group = options.getSubcommandGroup(false);
+	const subCommand = options.getSubcommand(false);
 
-    if (group) commandPath += ` ${group}`;
-    if (subCommand) commandPath += ` ${subCommand}`;
-    if (optionsList.length) commandPath += ` ${optionsList.join(' ')}`;
+	if (group) commandPath += ` ${group}`;
+	if (subCommand) commandPath += ` ${subCommand}`;
+	if (optionsList.length) commandPath += ` ${optionsList.join(' ')}`;
 
-    await (channel as BaseGuildTextChannel).send({
-        embeds: [
-            new EmbedBuilder()
-                .setTitle(`SLASH_CMD_CRASH_NOT_HANDLE`)
-                .setDescription(block)
-                .setTimestamp()
-                .setFields(
-                    {
-                        name: "🛡️ Bot Admin",
-                        value: interaction.guild?.members.me?.permissions.has(PermissionFlagsBits.Administrator) ? "yes" : "no"
-                    },
-                    {
-                        name: "📝 User Admin",
-                        value: (interaction.member as GuildMember)?.permissions.has(PermissionFlagsBits.Administrator) ? "yes" : "no"
-                    },
-                    {
-                        name: "** **",
-                        value: `/${commandPath}\n\n`
-                    },
-                )
-        ]
-    });
+	await (channel as BaseGuildTextChannel).send({
+		embeds: [
+			new EmbedBuilder()
+				.setTitle(`SLASH_CMD_CRASH_NOT_HANDLE`)
+				.setDescription(block)
+				.setTimestamp()
+				.setFields(
+					{
+						name: "🛡️ Bot Admin",
+						value: interaction.guild?.members.me?.permissions.has(PermissionFlagsBits.Administrator) ? "yes" : "no"
+					},
+					{
+						name: "📝 User Admin",
+						value: (interaction.member as GuildMember)?.permissions.has(PermissionFlagsBits.Administrator) ? "yes" : "no"
+					},
+					{
+						name: "** **",
+						value: `/${commandPath}\n\n`
+					},
+				)
+		]
+	});
 }
 
 export const event: BotEvent = {
-    name: "interactionCreate",
-    run: async (client: Client, interaction: Interaction) => {
-        if (interaction.isAutocomplete()) {
-            const cmd = client.commands.get(interaction.commandName);
-            if (cmd?.autocomplete) await cmd.autocomplete(client, interaction);
-            return;
-        }
+	name: "interactionCreate",
+	run: async (client: Client, interaction: Interaction) => {
+		if (interaction.isAutocomplete()) {
+			const cmd = client.commands.get(interaction.commandName);
+			if (cmd?.autocomplete) await cmd.autocomplete(client, interaction);
+			return;
+		}
 
-        if (!interaction.isChatInputCommand() || interaction.user.bot) return;
+		if (!interaction.isChatInputCommand() || interaction.user.bot) return;
 
-        const command = client.commands?.get(interaction.commandName);
-        if (!command) {
-            return interaction.reply({ content: 'Connection error.', ephemeral: true });
-        }
+		const command = client.commands?.get(interaction.commandName);
+		if (!command) {
+			return interaction.reply({ content: 'Connection error.', ephemeral: true });
+		}
 
-        if (interaction.channel?.type === ChannelType.DM && !command?.integration_types?.includes(1)) {
-            return await interaction.reply({
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor(2829617)
-                        .setImage('https://ihorizon.me/assets/img/banner/ihrz_en-US.png')
-                        .setDescription(`# Uhh Oh!!\n\nIt seems you are using iHorizon in a private conversation.\nI want to clarify that iHorizon can only be used in a Discord server!\n\nTo unleash my full potential, add me!`)
-                ],
-                components: [
-                    new ActionRowBuilder<ButtonBuilder>()
-                        .addComponents(
-                            new ButtonBuilder()
-                                .setEmoji(client.iHorizon_Emojis.icon.Crown_Logo)
-                                .setLabel('Invite iHorizon')
-                                .setStyle(ButtonStyle.Link)
-                                .setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
-                            new ButtonBuilder()
-                                .setEmoji(client.iHorizon_Emojis.icon.Sparkles)
-                                .setLabel('iHorizon Website')
-                                .setStyle(ButtonStyle.Link)
-                                .setURL('https://ihorizon.me'),
-                        )
-                ]
-            });
-        }
+		if (interaction.channel?.type === ChannelType.DM && !command?.integration_types?.includes(1)) {
+			return await interaction.reply({
+				embeds: [
+					new EmbedBuilder()
+						.setColor(2829617)
+						.setImage('https://ihorizon.me/assets/img/banner/ihrz_en-US.png')
+						.setDescription(`# Uhh Oh!!\n\nIt seems you are using iHorizon in a private conversation.\nI want to clarify that iHorizon can only be used in a Discord server!\n\nTo unleash my full potential, add me!`)
+				],
+				components: [
+					new ActionRowBuilder<ButtonBuilder>()
+						.addComponents(
+							new ButtonBuilder()
+								.setEmoji(client.iHorizon_Emojis.icon.Crown_Logo)
+								.setLabel('Invite iHorizon')
+								.setStyle(ButtonStyle.Link)
+								.setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
+							new ButtonBuilder()
+								.setEmoji(client.iHorizon_Emojis.icon.Sparkles)
+								.setLabel('iHorizon Website')
+								.setStyle(ButtonStyle.Link)
+								.setURL('https://ihorizon.me'),
+						)
+				]
+			});
+		}
 
-        if (await cooldDown(client, interaction)) {
-            const data = await client.func.getLanguageData(interaction.guild?.id);
-            return await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
-        }
+		if (await cooldDown(client, interaction)) {
+			const data = await client.func.getLanguageData(interaction.guild?.id);
+			return await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
+		}
 
-        if (await client.db.table('BLACKLIST').get(`${interaction.user.id}.blacklisted`)) {
-            return await interaction.reply({
-                embeds: [
-                    new EmbedBuilder()
-                        .setColor("#0827F5")
-                        .setTitle(":(")
-                        .setImage(client.config.core.blacklistPictureInEmbed)
-                ],
-                ephemeral: true
-            });
-        }
+		if (await client.db.table('BLACKLIST').get(`${interaction.user.id}.blacklisted`)) {
+			return await interaction.reply({
+				embeds: [
+					new EmbedBuilder()
+						.setColor("#0827F5")
+						.setTitle(":(")
+						.setImage(client.config.core.blacklistPictureInEmbed)
+				],
+				ephemeral: true
+			});
+		}
 
-        try {
-            const lang = await client.func.getLanguageData(interaction.guildId);
-            await handleCommandExecution(client, (interaction as ChatInputCommandInteraction<"cached">), command, lang, command.thinking);
-        } catch (error) {
-            console.error(error);
-            await handleCommandError(client, interaction, command, error);
-        }
-    },
+		try {
+			const lang = await client.func.getLanguageData(interaction.guildId);
+			await handleCommandExecution(client, (interaction as ChatInputCommandInteraction<"cached">), command, lang, command.thinking);
+		} catch (error) {
+			console.error(error);
+			await handleCommandError(client, interaction, command, error);
+		}
+	},
 };

@@ -1,61 +1,61 @@
 {
-  "name": "ihrz",
-  "version": "2025.2.0",
-  "description": "iHrz in ts!",
-  "main": "./dist/src/index.js",
-  "scripts": {
-    "start": "node ./dist/src/index.js",
-    "auto-build": "npx tsc -w",
-    "build": "npx tsc",
-    "clean-auto-build": "rm -r dist; npx tsc -w",
-    "clean-build": "rm -r dist; npx tsc"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ihrz/ihrz.git"
-  },
-  "keywords": [
-    "discordbot"
-  ],
-  "type": "module",
-  "author": "Kisakay",
-  "license": "CC-BY-NC-SA-4.0",
-  "bugs": {
-    "url": "https://github.com/ihrz/ihrz/issues"
-  },
-  "homepage": "https://github.com/ihrz/ihrz#readme",
-  "dependencies": {
-    "archiver": "^7.0.1",
-    "better-sqlite3": "^11.8.1",
-    "bufferutil": "^4.0.9",
-    "discord-html-transcripts": "^3.2.0",
-    "discord-rebackup": "^3.6.0",
-    "discord.js": "^14.18.0",
-    "jimp": "^0.22.12",
-    "js-yaml": "^4.1.0",
-    "jszip": "^3.10.1",
-    "lavalink-client": "^2.4.7",
-    "mysql2": "3.10.0",
-    "pallas-db": "^1.0.14",
-    "pg": "^8.13.3",
-    "ping": "^0.4.4",
-    "puppeteer": "^23.11.1",
-    "quick.db": "^9.1.7",
-    "sharp": "^0.33.5",
-    "ssh2": "^1.16.0",
-    "stegano.db": "^3.5.0",
-    "toml": "^3.0.0",
-    "write-file-atomic": "^5.0.1",
-    "ws": "^8.18.1"
-  },
-  "devDependencies": {
-    "@types/archiver": "^6.0.3",
-    "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.17.22",
-    "@types/ping": "^0.4.4",
-    "@types/ssh2": "^1.15.4",
-    "@types/ws": "^8.5.14",
-    "tslib": "^2.8.1",
-    "typescript": "^5.8.2"
-  }
+	"name": "ihrz",
+	"version": "2025.2.0",
+	"description": "iHrz in ts!",
+	"main": "./dist/src/index.js",
+	"scripts": {
+		"start": "node ./dist/src/index.js",
+		"auto-build": "npx tsc -w",
+		"build": "npx tsc",
+		"clean-auto-build": "rm -r dist; npx tsc -w",
+		"clean-build": "rm -r dist; npx tsc"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ihrz/ihrz.git"
+	},
+	"keywords": [
+		"discordbot"
+	],
+	"type": "module",
+	"author": "Kisakay",
+	"license": "CC-BY-NC-SA-4.0",
+	"bugs": {
+		"url": "https://github.com/ihrz/ihrz/issues"
+	},
+	"homepage": "https://github.com/ihrz/ihrz#readme",
+	"dependencies": {
+		"archiver": "^7.0.1",
+		"better-sqlite3": "^11.8.1",
+		"bufferutil": "^4.0.9",
+		"discord-html-transcripts": "^3.2.0",
+		"discord-rebackup": "^3.6.0",
+		"discord.js": "^14.18.0",
+		"jimp": "^0.22.12",
+		"js-yaml": "^4.1.0",
+		"jszip": "^3.10.1",
+		"lavalink-client": "^2.4.7",
+		"mysql2": "3.10.0",
+		"pallas-db": "^1.0.14",
+		"pg": "^8.13.3",
+		"ping": "^0.4.4",
+		"puppeteer": "^23.11.1",
+		"quick.db": "^9.1.7",
+		"sharp": "^0.33.5",
+		"ssh2": "^1.16.0",
+		"stegano.db": "^3.5.0",
+		"toml": "^3.0.0",
+		"write-file-atomic": "^5.0.1",
+		"ws": "^8.18.1"
+	},
+	"devDependencies": {
+		"@types/archiver": "^6.0.3",
+		"@types/js-yaml": "^4.0.9",
+		"@types/node": "^20.17.22",
+		"@types/ping": "^0.4.4",
+		"@types/ssh2": "^1.15.4",
+		"@types/ws": "^8.5.14",
+		"tslib": "^2.8.1",
+		"typescript": "^5.8.2"
+	}
 }

@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "tags",
-        "categoryColor": "#fccc39",
-        "options": {
-            "description": "help_tags_dsc",
-            "emoji": "🪧",
-            "placeholder": "help_tags_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "tags",
+		"categoryColor": "#fccc39",
+		"options": {
+			"description": "help_tags_dsc",
+			"emoji": "🪧",
+			"placeholder": "help_tags_fields"
+		}
+	}
 }

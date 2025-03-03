@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "stats",
-        "categoryColor": "#258bd9",
-        "options": {
-            "description": "help_stats_dsc",
-            "emoji": "📊",
-            "placeholder": "help_stats_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "stats",
+		"categoryColor": "#258bd9",
+		"options": {
+			"description": "help_stats_dsc",
+			"emoji": "📊",
+			"placeholder": "help_stats_fields"
+		}
+	}
 }

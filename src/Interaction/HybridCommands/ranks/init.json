@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "ranks",
-        "categoryColor": "#fccc39",
-        "options": {
-            "description": "help_ranks_dsc",
-            "emoji": "🌟",
-            "placeholder": "help_ranks_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "ranks",
+		"categoryColor": "#fccc39",
+		"options": {
+			"description": "help_ranks_dsc",
+			"emoji": "🌟",
+			"placeholder": "help_ranks_fields"
+		}
+	}
 }

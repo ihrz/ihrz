@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "restorecord",
-        "categoryColor": "#a9e1e6",
-        "options": {
-            "description": "help_restorecord_dsc",
-            "emoji": "😍",
-            "placeholder": "help_restorecord_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "restorecord",
+		"categoryColor": "#a9e1e6",
+		"options": {
+			"description": "help_restorecord_dsc",
+			"emoji": "😍",
+			"placeholder": "help_restorecord_fields"
+		}
+	}
 }

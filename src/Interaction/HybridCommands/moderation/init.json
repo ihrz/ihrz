@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "moderation",
-        "categoryColor": "#cc0000",
-        "options": {
-            "description": "help_mod_dsc",
-            "emoji": "👮‍♀️",
-            "placeholder": "help_mod_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "moderation",
+		"categoryColor": "#cc0000",
+		"options": {
+			"description": "help_mod_dsc",
+			"emoji": "👮‍♀️",
+			"placeholder": "help_mod_fields"
+		}
+	}
 }

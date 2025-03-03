@@ -3,15 +3,15 @@
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-    ・   Under the following terms:
+	・   Under the following terms:
 
-        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-        ・ NonCommercial — You may not use the material for commercial purposes.
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
-        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
@@ -47,35 +47,35 @@ import type { Client_Functions } from "./client_functions.d.ts";
 import { AutoRenew } from "../src/core/modules/autorenewManager.js";
 
 declare module 'discord.js' {
-    export interface Client {
-        func: typeof Client_Functions,
-        commands: Collection<string, Command>,
-        subCommands: Collection<string, Command>,
-        category: Category[]
-        message_commands: Collection<string, Command>,
-        player: LavalinkManager,
-        invites: Collection<string, Collection<string, number | null>>,
-        vanityInvites: Collection<Snowflake, VanityInviteData>,
-        buttons: Collection<string, Function>,
-        selectmenu: Collection<string, Function>,
-        db: db,
-        applicationsCommands: Collection<string, AnotherCommand>,
-        iHorizon_Emojis: Emojis,
-        giveawaysManager: GiveawayManager,
-        content: BotContent[],
-        timeCalculator: iHorizonTimeCalculator,
-        lyricsSearcher: LyricsManager,
-        version: typeof ClientVersion,
-        assets: Assets,
-        config: ConfigData,
-        isModuled?: boolean,
-        owners: string[],
-        bash: Collection<string, BashCommands>,
-        notifier: StreamNotifier,
-        ownihrz: OwnIHRZ,
-        kdenlive: KdenLive,
-        htmlfiles: Record<string, string>,
-        memberCountManager: MemberCountModule,
-        autoRenewManager: AutoRenew
-    }
+	export interface Client {
+		func: typeof Client_Functions,
+		commands: Collection<string, Command>,
+		subCommands: Collection<string, Command>,
+		category: Category[]
+		message_commands: Collection<string, Command>,
+		player: LavalinkManager,
+		invites: Collection<string, Collection<string, number | null>>,
+		vanityInvites: Collection<Snowflake, VanityInviteData>,
+		buttons: Collection<string, Function>,
+		selectmenu: Collection<string, Function>,
+		db: db,
+		applicationsCommands: Collection<string, AnotherCommand>,
+		iHorizon_Emojis: Emojis,
+		giveawaysManager: GiveawayManager,
+		content: BotContent[],
+		timeCalculator: iHorizonTimeCalculator,
+		lyricsSearcher: LyricsManager,
+		version: typeof ClientVersion,
+		assets: Assets,
+		config: ConfigData,
+		isModuled?: boolean,
+		owners: string[],
+		bash: Collection<string, BashCommands>,
+		notifier: StreamNotifier,
+		ownihrz: OwnIHRZ,
+		kdenlive: KdenLive,
+		htmlfiles: Record<string, string>,
+		memberCountManager: MemberCountModule,
+		autoRenewManager: AutoRenew
+	}
 }
