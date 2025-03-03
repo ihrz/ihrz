@@ -179,7 +179,7 @@ export const event: BotEvent = {
         await recoverActiveSessions(client);
         await client.memberCountManager.init();
         await client.autoRenewManager.init();
-        await client.ownihrz.Startup_Cluster();
+        // await client.ownihrz.Startup_Cluster();
         await client.notifier.start();
 
         setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000), setInterval(refreshBotData, 45_000);
