@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "membercount",
-        "categoryColor": "#56d91e",
-        "options": {
-            "description": "help_memberc_dsc",
-            "emoji": "👥",
-            "placeholder": "help_memberc_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "membercount",
+		"categoryColor": "#56d91e",
+		"options": {
+			"description": "help_memberc_dsc",
+			"emoji": "👥",
+			"placeholder": "help_memberc_fields"
+		}
+	}
 }

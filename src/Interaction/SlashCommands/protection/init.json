@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "protection",
-        "categoryColor": "#3b9614",
-        "options": {
-            "description": "help_protection_dsc",
-            "emoji": "🛡️",
-            "placeholder": "help_protection_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "protection",
+		"categoryColor": "#3b9614",
+		"options": {
+			"description": "help_protection_dsc",
+			"emoji": "🛡️",
+			"placeholder": "help_protection_fields"
+		}
+	}
 }

@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "invitemanager",
-        "categoryColor": "#ce7e00",
-        "options": {
-            "description": "help_invitem_dsc",
-            "emoji": "💾",
-            "placeholder": "help_invitem_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "invitemanager",
+		"categoryColor": "#ce7e00",
+		"options": {
+			"description": "help_invitem_dsc",
+			"emoji": "💾",
+			"placeholder": "help_invitem_fields"
+		}
+	}
 }

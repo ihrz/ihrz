@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "security",
-        "categoryColor": "#27d9ff",
-        "options": {
-            "description": "help_security_dsc",
-            "emoji": "🔐",
-            "placeholder": "help_security_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "security",
+		"categoryColor": "#27d9ff",
+		"options": {
+			"description": "help_security_dsc",
+			"emoji": "🔐",
+			"placeholder": "help_security_fields"
+		}
+	}
 }

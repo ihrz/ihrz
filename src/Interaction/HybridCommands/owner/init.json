@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "owner",
-        "categoryColor": "#660000",
-        "options": {
-            "description": "help_owner_dsc",
-            "emoji": "👩‍✈️",
-            "placeholder": "help_owner_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "owner",
+		"categoryColor": "#660000",
+		"options": {
+			"description": "help_owner_dsc",
+			"emoji": "👩‍✈️",
+			"placeholder": "help_owner_fields"
+		}
+	}
 }

@@ -1,33 +1,33 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "declaration": false,
-    "outDir": "dist",
-    "module": "NodeNext",
-    "target": "ESNext",
-    "moduleResolution": "node16",
-    "resolveJsonModule": true,
-    "useUnknownInCatchVariables": true,
-    "allowUnreachableCode": false,
-    "esModuleInterop": true,
-    "allowJs": false,
-    "importHelpers": true,
-    "strictPropertyInitialization": false,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "skipLibCheck": true
-  },
-  "include": [
-    ".",
-    "src/**/*.json",
-    "types/**/*.d.ts"
-  ],
-  "exclude": [
-    "/.github",
-    "./dist",
-    "./node_modules",
-    "./src/files/config.example.ts",
-    "./ownihrz"
-  ]
+	"compilerOptions": {
+		"strict": true,
+		"declaration": false,
+		"outDir": "dist",
+		"module": "NodeNext",
+		"target": "ESNext",
+		"moduleResolution": "node16",
+		"resolveJsonModule": true,
+		"useUnknownInCatchVariables": true,
+		"allowUnreachableCode": false,
+		"esModuleInterop": true,
+		"allowJs": false,
+		"importHelpers": true,
+		"strictPropertyInitialization": false,
+		"typeRoots": [
+			"node_modules/@types"
+		],
+		"skipLibCheck": true
+	},
+	"include": [
+		".",
+		"src/**/*.json",
+		"types/**/*.d.ts"
+	],
+	"exclude": [
+		"/.github",
+		"./dist",
+		"./node_modules",
+		"./src/files/config.example.ts",
+		"./ownihrz"
+	]
 }

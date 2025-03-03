@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "guildconfig",
-        "categoryColor": "#999999",
-        "options": {
-            "description": "help_guildconf_dsc",
-            "emoji": "⚙",
-            "placeholder": "help_guildconf_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "guildconfig",
+		"categoryColor": "#999999",
+		"options": {
+			"description": "help_guildconf_dsc",
+			"emoji": "⚙",
+			"placeholder": "help_guildconf_fields"
+		}
+	}
 }

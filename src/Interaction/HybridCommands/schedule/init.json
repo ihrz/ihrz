@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "schedule",
-        "categoryColor": "#744700",
-        "options": {
-            "description": "help_schedule_dsc",
-            "emoji": "🗒",
-            "placeholder": "help_schedule_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "schedule",
+		"categoryColor": "#744700",
+		"options": {
+			"description": "help_schedule_dsc",
+			"emoji": "🗒",
+			"placeholder": "help_schedule_fields"
+		}
+	}
 }

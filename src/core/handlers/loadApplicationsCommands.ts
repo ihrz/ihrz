@@ -3,15 +3,15 @@
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-    ・   Under the following terms:
+	・   Under the following terms:
 
-        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-        ・ NonCommercial — You may not use the material for commercial purposes.
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
-        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
@@ -31,27 +31,27 @@ const __dirname = path.dirname(__filename);
 
 export default async (client: Client) => {
 
-    let loadCommands = async (commandType: string) => {
-        let commandPath = path.join(__dirname, '..', '..', 'Interaction', commandType + 'ApplicationCommands');
+	let loadCommands = async (commandType: string) => {
+		let commandPath = path.join(__dirname, '..', '..', 'Interaction', commandType + 'ApplicationCommands');
 
-        let files = await readdir(commandPath);
+		let files = await readdir(commandPath);
 
-        for (let file of files.filter((file: string) => file.endsWith('.js'))) {
-            let { command } = await import(`${commandPath}/${file}`);
+		for (let file of files.filter((file: string) => file.endsWith('.js'))) {
+			let { command } = await import(`${commandPath}/${file}`);
 
-            client.applicationsCommands.set(command.name, {
-                type: command.type,
-                run: command.run,
-                name: command.name,
-                thinking: command.thinking,
-                permission: command.permission
-            });
-        }
-    };
+			client.applicationsCommands.set(command.name, {
+				type: command.type,
+				run: command.run,
+				name: command.name,
+				thinking: command.thinking,
+				permission: command.permission
+			});
+		}
+	};
 
-    /**  Load MessageApplicationCommands */
-    await loadCommands('Message');
+	/**  Load MessageApplicationCommands */
+	await loadCommands('Message');
 
-    /**  Load UserApplicationCommands */
-    await loadCommands('User');
+	/**  Load UserApplicationCommands */
+	await loadCommands('User');
 };

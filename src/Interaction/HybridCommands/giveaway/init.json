@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "giveaway",
-        "categoryColor": "#2986cc",
-        "options": {
-            "description": "help_giveaway_dsc",
-            "emoji": "🎉",
-            "placeholder": "help_giveaway_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "giveaway",
+		"categoryColor": "#2986cc",
+		"options": {
+			"description": "help_giveaway_dsc",
+			"emoji": "🎉",
+			"placeholder": "help_giveaway_fields"
+		}
+	}
 }

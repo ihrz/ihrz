@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "rolereactions",
-        "categoryColor": "#d9d2e9",
-        "options": {
-            "description": "help_roler_dsc",
-            "emoji": "📇",
-            "placeholder": "help_roler_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "rolereactions",
+		"categoryColor": "#d9d2e9",
+		"options": {
+			"description": "help_roler_dsc",
+			"emoji": "📇",
+			"placeholder": "help_roler_fields"
+		}
+	}
 }

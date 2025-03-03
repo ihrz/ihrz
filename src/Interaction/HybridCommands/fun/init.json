@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "fun",
-        "categoryColor": "#e69138",
-        "options": {
-            "description": "help_fun_dsc",
-            "emoji": "🆒",
-            "placeholder": "help_fun_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "fun",
+		"categoryColor": "#e69138",
+		"options": {
+			"description": "help_fun_dsc",
+			"emoji": "🆒",
+			"placeholder": "help_fun_fields"
+		}
+	}
 }

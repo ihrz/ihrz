@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "backup",
-        "categoryColor": "#11304c",
-        "options": {
-            "description": "help_backup_dsc",
-            "emoji": "🔁",
-            "placeholder": "help_backup_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "backup",
+		"categoryColor": "#11304c",
+		"options": {
+			"description": "help_backup_dsc",
+			"emoji": "🔁",
+			"placeholder": "help_backup_fields"
+		}
+	}
 }

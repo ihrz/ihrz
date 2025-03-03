@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "pfps",
-        "categoryColor": "#25cf93",
-        "options": {
-            "description": "help_pfps_dsc",
-            "emoji": "🕵️‍♀️",
-            "placeholder": "help_pfps_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "pfps",
+		"categoryColor": "#25cf93",
+		"options": {
+			"description": "help_pfps_dsc",
+			"emoji": "🕵️‍♀️",
+			"placeholder": "help_pfps_fields"
+		}
+	}
 }

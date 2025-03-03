@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "profil",
-        "categoryColor": "#158ce6",
-        "options": {
-            "description": "help_prof_dsc",
-            "emoji": "👩",
-            "placeholder": "help_prof_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "profil",
+		"categoryColor": "#158ce6",
+		"options": {
+			"description": "help_prof_dsc",
+			"emoji": "👩",
+			"placeholder": "help_prof_fields"
+		}
+	}
 }
