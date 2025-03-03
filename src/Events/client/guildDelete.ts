@@ -3,15 +3,15 @@
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-    ・   Under the following terms:
+	・   Under the following terms:
 
-        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-        ・ NonCommercial — You may not use the material for commercial purposes.
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
-        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
@@ -26,52 +26,52 @@ import logger from "../../core/logger.js";
 import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
-    name: "guildDelete",
-    run: async (client: Client, guild: Guild) => {
+	name: "guildDelete",
+	run: async (client: Client, guild: Guild) => {
 
-        async function inviteManager() {
-            await client.db.delete(`${guild.id}`);
+		async function inviteManager() {
+			await client.db.delete(`${guild.id}`);
 
-            return client.invites.delete(guild.id);
-        }
+			return client.invites.delete(guild.id);
+		}
 
-        async function ownerLogs() {
-            try {
-                let i: string = '';
+		async function ownerLogs() {
+			try {
+				let i: string = '';
 
-                if (guild.name === undefined || null) {
-                    return;
-                }
+				if (guild.name === undefined || null) {
+					return;
+				}
 
-                let owners = new Set(client.owners);
+				let owners = new Set(client.owners);
 
-                if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
+				if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
-                let embed = new EmbedBuilder()
-                    .setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#ff0505")
-                    .setTimestamp(guild.joinedTimestamp)
-                    .setDescription(`**A guild removed your bot !**`)
-                    .addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
-                        { name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
-                        { name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-                        { name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-                        { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
-                        { name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
-                    )
-                    .setThumbnail(guild.iconURL())
-                    .setFooter({ text: client.user?.username!, iconURL: "attachment://footer_icon.png" });
+				let embed = new EmbedBuilder()
+					.setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#ff0505")
+					.setTimestamp(guild.joinedTimestamp)
+					.setDescription(`**A guild removed your bot !**`)
+					.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
+						{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
+						{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
+						{ name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
+						{ name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
+						{ name: "🍻 new guilds total", value: client.guilds.cache.size.toString(), inline: true }
+					)
+					.setThumbnail(guild.iconURL())
+					.setFooter({ text: client.user?.username!, iconURL: "attachment://footer_icon.png" });
 
-                for (let owner of owners) {
-                    await (client.users.cache.get(owner))?.send({
-                        embeds: [embed],
-                        files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-                    });
-                }
-            } catch (error: any) {
-                logger.err(error);
-            }
-        }
+				for (let owner of owners) {
+					await (client.users.cache.get(owner))?.send({
+						embeds: [embed],
+						files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
+					});
+				}
+			} catch (error: any) {
+				logger.err(error);
+			}
+		}
 
-        ownerLogs(), inviteManager();
-    },
+		ownerLogs(), inviteManager();
+	},
 };

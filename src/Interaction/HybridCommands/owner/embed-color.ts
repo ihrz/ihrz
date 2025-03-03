@@ -3,15 +3,15 @@
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-    ・   Under the following terms:
+	・   Under the following terms:
 
-        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-        ・ NonCommercial — You may not use the material for commercial purposes.
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
-        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
@@ -20,140 +20,140 @@
 */
 
 import {
-    Client,
-    EmbedBuilder,
-    PermissionsBitField,
-    ApplicationCommandOptionType,
-    ApplicationCommandType,
-    ChatInputCommandInteraction,
-    Message,
-    PermissionFlagsBits
+	Client,
+	EmbedBuilder,
+	PermissionsBitField,
+	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	ChatInputCommandInteraction,
+	Message,
+	PermissionFlagsBits
 } from 'discord.js';
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
-    name: 'embed-color',
+	name: 'embed-color',
 
-    description: 'Set the embed color !',
-    description_localizations: {
-        "fr": "Changer les couleurs dans les embed de votre bot"
-    },
+	description: 'Set the embed color !',
+	description_localizations: {
+		"fr": "Changer les couleurs dans les embed de votre bot"
+	},
 
-    options: [
-        {
-            name: 'action',
-            type: ApplicationCommandOptionType.String,
+	options: [
+		{
+			name: 'action',
+			type: ApplicationCommandOptionType.String,
 
-            description: `What do you want to do ?`,
-            description_localizations: {
-                "fr": "Quelle sont les embed concerné ?"
-            },
+			description: `What do you want to do ?`,
+			description_localizations: {
+				"fr": "Quelle sont les embed concerné ?"
+			},
 
-            required: true,
-            choices: [
-                {
-                    name: 'Reset All Settings',
-                    value: 'reset'
-                },
-                {
-                    name: 'Set for iHorizon-Logs (#ihorizon-logs) Embed!',
-                    value: 'ihrz-logs'
-                },
-                {
-                    name: 'Set for Owner Module Embed!',
-                    value: 'owner'
-                },
-                {
-                    name: 'Set for Giveaway Embed!',
-                    value: 'gw'
-                },
-                {
-                    name: 'Set for Economy Embed!',
-                    value: 'economy'
-                },
-                {
-                    name: 'Set for Audits-Logs Embed!',
-                    value: 'audits-logs'
-                },
-                {
-                    name: 'Set for Fun Command Embed!',
-                    value: 'fun-cmd'
-                },
-                {
-                    name: 'Set for Utils Command Embed!',
-                    value: 'utils-cmd'
-                },
-                {
-                    name: 'Set for Mod Command Embed!',
-                    value: 'mod-cmd'
-                },
-                {
-                    name: 'Set for Music Command Embed!',
-                    value: 'music-cmd'
-                },
-                {
-                    name: 'All others Embed!',
-                    value: 'all'
-                },
-            ],
-            permission: null
-        },
-        {
-            name: 'hex-color',
-            type: ApplicationCommandOptionType.String,
+			required: true,
+			choices: [
+				{
+					name: 'Reset All Settings',
+					value: 'reset'
+				},
+				{
+					name: 'Set for iHorizon-Logs (#ihorizon-logs) Embed!',
+					value: 'ihrz-logs'
+				},
+				{
+					name: 'Set for Owner Module Embed!',
+					value: 'owner'
+				},
+				{
+					name: 'Set for Giveaway Embed!',
+					value: 'gw'
+				},
+				{
+					name: 'Set for Economy Embed!',
+					value: 'economy'
+				},
+				{
+					name: 'Set for Audits-Logs Embed!',
+					value: 'audits-logs'
+				},
+				{
+					name: 'Set for Fun Command Embed!',
+					value: 'fun-cmd'
+				},
+				{
+					name: 'Set for Utils Command Embed!',
+					value: 'utils-cmd'
+				},
+				{
+					name: 'Set for Mod Command Embed!',
+					value: 'mod-cmd'
+				},
+				{
+					name: 'Set for Music Command Embed!',
+					value: 'music-cmd'
+				},
+				{
+					name: 'All others Embed!',
+					value: 'all'
+				},
+			],
+			permission: null
+		},
+		{
+			name: 'hex-color',
+			type: ApplicationCommandOptionType.String,
 
-            description: `Use www.color-hex.com`,
-            description_localizations: {
-                "fr": "Veuillez utilisé www.color-hex.com"
-            },
+			description: `Use www.color-hex.com`,
+			description_localizations: {
+				"fr": "Veuillez utilisé www.color-hex.com"
+			},
 
-            required: false,
-            permission: null
-        },
-    ],
-    category: 'owner',
-    thinking: true,
-    permission: PermissionFlagsBits.Administrator,
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client<boolean>, interaction: any, lang: LanguageData, args?: string[]): Promise<any> => {
+			required: false,
+			permission: null
+		},
+	],
+	category: 'owner',
+	thinking: true,
+	permission: PermissionFlagsBits.Administrator,
+	type: ApplicationCommandType.ChatInput,
+	run: async (client: Client<boolean>, interaction: any, lang: LanguageData, args?: string[]): Promise<any> => {
 
-        // Guard's Typing
-        if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		// Guard's Typing
+		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-        if (interaction instanceof ChatInputCommandInteraction) {
-            var choices = interaction.options.getString("action");
-            var hex_color = interaction.options.getString("hex-color");
-        } else {
-            var choices = client.func.method.string(args!, 0);
-            var hex_color = client.func.method.string(args!, 1);
-        };
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var choices = interaction.options.getString("action");
+			var hex_color = interaction.options.getString("hex-color");
+		} else {
+			var choices = client.func.method.string(args!, 0);
+			var hex_color = client.func.method.string(args!, 1);
+		};
 
-        var reg = /^#([0-9a-f]{3}){1,2}$/i;
+		var reg = /^#([0-9a-f]{3}){1,2}$/i;
 
-        if (choices === 'reset') {
-            await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`);
+		if (choices === 'reset') {
+			await client.db.delete(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`);
 
-            await client.func.method.interactionSend(interaction, {
-                content: `${interaction.member.user.toString()}, now the color of all embeds are deleted!`
-            });
+			await client.func.method.interactionSend(interaction, {
+				content: `${interaction.member.user.toString()}, now the color of all embeds are deleted!`
+			});
 
-            return;
-        };
+			return;
+		};
 
-        if (hex_color && reg.test(hex_color)) {
+		if (hex_color && reg.test(hex_color)) {
 
-            await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.${choices}`, hex_color);
+			await client.db.set(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.${choices}`, hex_color);
 
-            await client.func.method.interactionSend(interaction, {
-                content: `${interaction.member.user.toString()}, now the embed color is \`${hex_color}\` for ${choices} !`
-            });
+			await client.func.method.interactionSend(interaction, {
+				content: `${interaction.member.user.toString()}, now the embed color is \`${hex_color}\` for ${choices} !`
+			});
 
-            return;
-        } else {
-            await client.func.method.interactionSend(interaction, { content: `${interaction.member.user.toString()}, color is not in the right format.\nPlease refer to **www.color-hex.com**` });
-            return;
-        };
-    },
+			return;
+		} else {
+			await client.func.method.interactionSend(interaction, { content: `${interaction.member.user.toString()}, color is not in the right format.\nPlease refer to **www.color-hex.com**` });
+			return;
+		};
+	},
 };
