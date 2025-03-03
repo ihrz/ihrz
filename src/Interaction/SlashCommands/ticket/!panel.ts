@@ -662,7 +662,7 @@ export const subCommand: SubCommand = {
                 panelEmbed.data.fields![0].value = "🔴";
 
                 // modify the panelEmbed to show the new role
-                panelEmbed.data.fields![4].value = baseData.config.rolesToPing.length >= 1 ? baseData.config.rolesToPing.map(x => `<@&${x}>`).join("") : lang.var_no_set;
+                panelEmbed.data.fields![3].value = baseData.config.rolesToPing.length >= 1 ? baseData.config.rolesToPing.map(x => `<@&${x}>`).join("") : lang.var_no_set;
 
                 // send the new panelEmbed
                 originalResponse.edit({

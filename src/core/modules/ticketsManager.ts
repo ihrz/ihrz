@@ -784,6 +784,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
         }
 
         let embeds: EmbedBuilder[] = []
+        let files: any[] = [];
 
         // get categoryName from the values of the select menu
         // find the category name from the values of the select menu
@@ -807,9 +808,11 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
                     EmbedBuilder.from(embed_from_db)
                 );
             } else {
+                files.push(await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction));
                 embeds.push(og_embed);
             }
         } else {
+            files.push(await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction));
             embeds.push(og_embed);
         }
 
@@ -874,7 +877,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
                     .addComponents(transcript_ticket_button)
                     .addComponents(delete_ticket_button)
             ],
-            files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+            files: files
         }).then(async (msg) => {
             await msg.pin("Ticket Panel").catch(() => { })
         }).catch((err: any) => {
