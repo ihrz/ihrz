@@ -129,7 +129,7 @@ class db {
 
 	public async AvoidDoubleEntries(giveawayId: string) {
 		const giveaway = (await this.readGiveawayFile(giveawayId))!;
-		const uniqueEntries = Array.from(new Set(giveaway.entries));
+		const uniqueEntries = Array.from(new Set(giveaway.entries || []));
 
 		giveaway.entries = uniqueEntries;
 

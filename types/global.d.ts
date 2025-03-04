@@ -27,4 +27,4 @@ declare global {
 	var client: Client;
 }
 
-export { };
+export { }

@@ -24,7 +24,7 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import db from "./DatabaseModel.js";
 
 export async function footerBuilder(message: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild) {
-	let name = await displayBotName(message instanceof Guild ? message : message.guild!);
+	let name = await displayBotName(message.id);
 	return { text: name, iconURL: "attachment://footer_icon.png" }
 }
 
@@ -74,8 +74,8 @@ export async function displayBotPP(client: Client, guildId?: string): Promise<{ 
 	}
 };
 
-export async function displayBotName(guild: Guild): Promise<string> {
-	let botName = await guild.client.db.get(`${guild.id}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
+export async function displayBotName(guildId: string): Promise<string> {
+	let botName = await global.client.db.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
 
 	if (!botName) {
 		botName = guild.client.user?.username!;
