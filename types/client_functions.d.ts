@@ -5,7 +5,7 @@ import { ModalOptionsBuilder } from '../src/core/functions/modalHelper.js';
 import { AnySelectMenuInteraction, APIModalInteractionResponseCallbackData, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, Role, StringSelectMenuInteraction, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
 import { Assets } from './assets.js';
 import { LangForPrompt } from '../src/core/functions/awaitingResponse.js';
-import { RestoreCord_EntryType, RestoreCord_ResponseType, GuildRestoreCord, RestoreCord_ForceJoin_EntryType, RestoreCord_ForceJoin_ResponseType, RestoreCord_KeyUpdate_EntryType, RestoreCord_RoleUpdate_EntryType } from '../src/core/functions/restoreCordHelper.js';
+import { AuthRestore_EntryType, AuthRestore_ResponseType, GuildAuthRestore, AuthRestore_ForceJoin_EntryType, AuthRestore_ForceJoin_ResponseType, AuthRestore_KeyUpdate_EntryType, AuthRestore_RoleUpdate_EntryType } from '../src/core/functions/authRestoreHelper.ts';
 import { Command } from './command.js';
 import { Option } from './option.js';
 import { db } from '../src/core/database.ts';
@@ -105,14 +105,14 @@ declare namespace Client_Functions {
 	// From awaitingResponse.ts
 	export function awaitingResponse(interaction: ChatInputCommandInteraction<"cached"> | Message, opt: LangForPrompt): any;
 
-	// From restoreCordHelper.ts
-	export namespace restoreCordHelper {
-		export function createRestoreCordLink(data: RestoreCord_EntryType): string;
-		export function createRestoreCord(data: RestoreCord_EntryType): Promise<RestoreCord_ResponseType>;
-		export function getGuildDataPerSecretCode(data: { id: string; value: any }[], secretCode: string): { id: string, data: GuildRestoreCord } | null;
-		export function forceJoinRestoreCord(data: RestoreCord_ForceJoin_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
-		export function securityCodeUpdate(data: RestoreCord_KeyUpdate_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
-		export function changeRoleRestoreCord(data: RestoreCord_RoleUpdate_EntryType): Promise<RestoreCord_ForceJoin_ResponseType>;
+	// From authRestoreHelper.ts
+	export namespace authRestoreHelper {
+		export function createAuthRestoreLink(data: AuthRestore_EntryType): string;
+		export function createAuthRestore(data: AuthRestore_EntryType): Promise<AuthRestore_ResponseType>;
+		export function getGuildDataPerSecretCode(data: { id: string; value: any }[], secretCode: string): { id: string, data: GuildAuthRestore } | null;
+		export function forceJoinAuthRestore(data: AuthRestore_ForceJoin_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
+		export function securityCodeUpdate(data: AuthRestore_KeyUpdate_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
+		export function changeRoleAuthRestore(data: AuthRestore_RoleUpdate_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
 	}
 
 	// From permissonsCalculator.ts
@@ -286,7 +286,7 @@ declare namespace Client_Functions {
 			interaction: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client
 		): any;
 		export function displayBotPP(client: Client, guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
-		export function displayBotName(guild: Guild): Promise<string>;
+		export function displayBotName(guildId: string): Promise<string>;
 	}
 
 	// From generateProgressBar.ts

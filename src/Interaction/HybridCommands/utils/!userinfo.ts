@@ -37,7 +37,7 @@ import {
 import { axios } from '../../../core/functions/axios.js';
 import { SubCommand } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Oauth2_Link, oauth2Member } from '../../../core/functions/restoreCordHelper.js';
+import { Oauth2_Link, oauth2Member } from '../../../core/functions/authRestoreHelper.js';
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 
 function createOauth2Link(client_id: string): string {
@@ -230,7 +230,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let table = client.db.table("RESTORECORD");
+		let table = client.db.table("AUTHRESTORE");
 		let savedUsers: oauth2Member[] = await table.get("saved_users") || [];
 		let fetchedUser = savedUsers.find((x) => x.id === member.id);
 

@@ -29,7 +29,7 @@ import {
 	EmbedBuilder,
 	PermissionsBitField,
 } from 'discord.js';
-import { changeRoleRestoreCord, getGuildDataPerSecretCode } from '../../../core/functions/restoreCordHelper.js';
+import { changeRoleAuthRestore, getGuildDataPerSecretCode } from '../../../core/functions/authRestoreHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 import { Command } from '../../../../types/command.js';
@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 		const secretCode = interaction.options.getString("key")!;
 		const role = interaction.options.getRole("roles")!;
 
-		const table = client.db.table("RESTORECORD");
+		const table = client.db.table("AUTHRESTORE");
 		const data = getGuildDataPerSecretCode(await table.all(), secretCode);
 
 		if (!data) return client.func.method.interactionSend(interaction, {
@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 			ephemeral: true
 		});
 
-		await changeRoleRestoreCord({ guildId: interaction.guildId!, apiToken: client.config.api.apiToken, roleId: role.id });
+		await changeRoleAuthRestore({ guildId: interaction.guildId!, apiToken: client.config.api.apiToken, roleId: role.id });
 
 		let footer = await client.func.displayBotName.footerBuilder(interaction);
 

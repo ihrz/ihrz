@@ -1,11 +1,11 @@
 {
 	"categoryInitializer": {
-		"categoryName": "restorecord",
+		"categoryName": "authrestore",
 		"categoryColor": "#a9e1e6",
 		"options": {
-			"description": "help_restorecord_dsc",
+			"description": "help_authrestore_dsc",
 			"emoji": "😍",
-			"placeholder": "help_restorecord_fields"
+			"placeholder": "help_authrestore_fields"
 		}
 	}
 }

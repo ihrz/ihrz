@@ -32,7 +32,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
 
-import { createRestoreCord, createRestoreCordLink } from '../../../core/functions/restoreCordHelper.js';
+import { createAuthRestore, createAuthRestoreLink } from '../../../core/functions/authRestoreHelper.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -55,9 +55,9 @@ export const subCommand: SubCommand = {
 					return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
 				}
 
-				let buttonLink = createRestoreCordLink({ guildId: interaction.guildId, clientId: client.user.id });
+				let buttonLink = createAuthRestoreLink({ guildId: interaction.guildId, clientId: client.user.id });
 
-				createRestoreCord({
+				createAuthRestore({
 					guildId: interaction.guildId,
 					apiToken: client.config.api.apiToken,
 					roleId: role?.id,
@@ -104,7 +104,7 @@ export const subCommand: SubCommand = {
 
 			})
 			.catch(async (err) => {
-				await client.func.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
+				await client.func.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove + "\n" + err })
 				return;
 			});
 		return;

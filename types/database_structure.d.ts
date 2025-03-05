@@ -467,7 +467,7 @@ export namespace DatabaseStructure {
 		ranksRoles?: Record<string, string>;
 	}
 
-	export interface RestoreCordSchema {
+	export interface AuthRestoreSchema {
 		channelId: string;
 		messageId: string;
 	}
@@ -544,7 +544,7 @@ export namespace DatabaseStructure {
 		};
 		BLOCK_NEW_ACCOUNT?: BlockNewAccountSchema;
 		ANTISPAM?: AntiSpam.AntiSpamOptions;
-		RESTORECORD?: RestoreCordSchema;
+		RESTORECORD?: AuthRestoreSchema;
 		ROLE_SELECT?: RoleReactData;
 	}
 

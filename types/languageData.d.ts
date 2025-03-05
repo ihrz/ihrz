@@ -467,8 +467,8 @@ export interface LanguageData {
 	help_ownihrz_fields: string;
 	help_notifier_dsc: string;
 	help_notifier_fields: string;
-	help_restorecord_fields: string;
-	help_restorecord_dsc: string;
+	help_authrestore_fields: string;
+	help_authrestore_dsc: string;
 	help_tags_fields: string;
 	help_tags_dsc: string;
 	h_suite: string;

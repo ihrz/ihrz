@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let result: DatabaseStructure.RestoreCordSchema | null = await client.db.get(`${interaction.guildId}.GUILD.RESTORECORD`);
+		let result: DatabaseStructure.AuthRestoreSchema | null = await client.db.get(`${interaction.guildId}.GUILD.RESTORECORD`);
 
 		if (!result) return client.func.method.interactionSend(interaction, { content: lang.rc_delete_config_not_found });
 

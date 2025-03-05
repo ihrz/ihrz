@@ -37,8 +37,8 @@ export enum ClusterMethod {
 
 export enum GatewayMethod {
 	GenerateOauthLink = 0,
-	CreateRestoreCordGuild = 1,
-	ForceJoinRestoreCord = 2,
+	CreateAuthRestoreGuild = 1,
+	ForceJoinAuthRestore = 2,
 	AddSecurityCodeAmount = 3,
 	ChangeRole = 4,
 	UserInfo = 5,

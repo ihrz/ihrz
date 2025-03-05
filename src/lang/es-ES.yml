@@ -123,7 +123,6 @@ perm_sendvoicemessages_name: "Enviar mensajes de voz"
 perm_sendpolls_name: "Enviar encuestas"
 perm_useexternalapps_name: "Usar aplicaciones externas"
 
-
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
 ticket_disabled_command: "¡No puedes usar este comando porque un administrador ha deshabilitado los comandos de tickets!"
@@ -160,7 +159,7 @@ sethereticket_panelforcreate_embed_desc: "## Creando un panel de tickets con sel
 sethereticket_panelforcreate_button_add_label: "Agregar nuevo caso"
 sethereticket_panelforcreate_button_sub_label: "Eliminar último caso"
 sethereticket_panelforcreate_button_save_label: "Enviar incrustación"
-sethereticket_modal_1_title : "Agregar nuevo caso al panel"
+sethereticket_modal_1_title: "Agregar nuevo caso al panel"
 sethereticket_modal_1_fields_1_placeholder: "Nombre del caso para la selección"
 sethereticket_modal_1_fields_1_label: "Nombre"
 sethereticket_modal_1_fields_2_placeholder: "Emojis del caso para la selección"
@@ -278,7 +277,6 @@ ticket_panel_panel_11_label: "Cambiar panel de embed del canal de tickets"
 ticket_rename_ok: "¡El canal del ticket ha sido renombrado!"
 ticket_rename_error: "Error al renombrar el canal de texto."
 
-
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 
@@ -380,7 +378,6 @@ ranks_config_remove_string_menu1_placeholder: "Seleccionar un rol para eliminar"
 ranks_config_remove_awaiting_response: "Selecciona el rol que quieres eliminar."
 ranks_config_remove_command_work: "¡Rol para el nivel ${levelToRemove} eliminado!"
 
-
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
 
@@ -410,7 +407,6 @@ unblacklist_command_work: "<@${member.id}> ya no está en la lista negra"
 unblacklist_not_blacklisted: "<@${member.id}> no estaba en la lista negra"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} Ahora no está en la lista negra, no se puede desbanear a este miembro aquí, ¿faltan permisos o ya está desbaned?"
 unblacklist_user_is_not_exist: "No pude encontrar al usuario"
-
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites
@@ -446,7 +442,6 @@ resetallinvites_succes_on_delete: "¡Eliminado con éxito!"
 resetallinvites_logs_embed_title: "Registros del Invite Manager (ACCIÓN PELIGROSA)"
 resetallinvites_logs_embed_desc: "¡${interaction.member.user.toString()} ha eliminado todos los datos del Invite Manager!"
 
-
 # Bot commands
 # /botinfo, /invite, /kisakay, /ping, /status
 
@@ -472,7 +467,7 @@ invite_embed_description: "¡Te quiero, demuéstrame tu amor por mí! ¡Invítam
 kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay es tanto mi creadora como mi desarrolladora. Es gracias a ella y a su teclado que vine al mundo. ¡Le estoy profundamente agradecida!✨ ❤️❤️"
 
 # /andru
-andru_message: "Andru es un colaborador y desarrollador. \"El todoterreno\", gestiona el marketing, la comunidad..."
+andru_message: 'Andru es un colaborador y desarrollador. "El todoterreno", gestiona el marketing, la comunidad...'
 
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether es colaborador de iHorizon. Le fascinan Linux y la ciberseguridad, y se improvisa a sí mismo como ayudante de soporte para el bot iHorizon."
@@ -549,8 +544,8 @@ help_ownihrz_dsc: "¡Hospeda y gestiona tu propio bot personalizado de iHorizon!
 help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "¡Recibe una notificación cuando un Youtuber o Streamer publique un video!"
 help_notifier_fields: "Notificador"
-help_restorecord_fields: "RestoreCord"
-help_restorecord_dsc: "Verificación del servidor con oAuth2. Si tu servidor ha sido atacado o eliminado, ¡puedes recuperar a tus antiguos miembros con oAuth2!"
+help_authrestore_fields: "AuthRestore"
+help_authrestore_dsc: "Verificación del servidor con oAuth2. Si tu servidor ha sido atacado o eliminado, ¡puedes recuperar a tus antiguos miembros con oAuth2!"
 help_tags_fields: "Etiquetas personalizadas"
 help_tags_dsc: "Crea mensajes de etiquetas para tu servidor y úsalos en tu servidor."
 
@@ -564,7 +559,6 @@ say_footer_msg: "\n\nEnviado desde `/say` por ${interaction.user}"
 # /ping
 ping_down_msg: "**INACTIVO**"
 ping_embed_desc: "# ¡Pong! Estadísticas de red de ${interaction.client.user.username}:\n\n**[Ping del sitio web de Discord]** >> `${_net03}` ms.\n**[Ping de Cloudflare]** >> `${_net02}` ms.\n**[Ping de Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Ping del sitio web de iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Ping del websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[Promedio]** >> (prom)`${averagePing}` ms."
-
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -596,7 +590,17 @@ poll_embed_fields_choice: ":white_check_mark: **Sí**\n :x: **No** "
 
 # /question
 question_not_full: "¡Ingresa una pregunta completa con 3 o más palabras!"
-question_s: ["Sí.","No.","No lo sé.","¡No estoy seguro!","¡Estás loco!","No, gracias.","No.","Sí."]
+question_s:
+  [
+    "Sí.",
+    "No.",
+    "No lo sé.",
+    "¡No estoy seguro!",
+    "¡Estás loco!",
+    "No, gracias.",
+    "No.",
+    "Sí.",
+  ]
 question_fields_input_embed: ":question: **Pregunta**"
 question_fields_output_embed: ":grey_exclamation: **Respuesta**:"
 question_embed_title: "__**Pregunta**__: ${interaction.user.username}"
@@ -615,7 +619,6 @@ love_command_error: "Se produjo un error al intentar crear la imagen"
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}, has ${action_type} la categoría de diversión!"
 fun_category_disable: "No puedes usar este comando, la categoría de comandos de diversión está deshabilitada."
-
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -726,7 +729,6 @@ economy_shop_not_set: "No hay roles disponibles para comprar en este servidor. P
 economy_shop_already_owned: "Ya poseído"
 economy_shop_menu_placeholder: "Selecciona un rol para comprar"
 
-
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -773,7 +775,6 @@ profil_birthday_modal3_fields1_label: "Día"
 profil_birthday_invalid_day: "¡Día inválido! Por favor ingresa un día válido."
 profil_birthday_day_already_set: "Tu día ya está establecido."
 profil_birthday_day_set: "¡Tu día ha sido establecido!"
-
 
 # Utils commands
 # /serverinfo, /snipe, /userinfo, /renew
@@ -940,11 +941,11 @@ zip_stickers_doesnt_have_perm: "No tienes permiso para gestionar stickers."
 zip_stickers_command_work: "🎉 ¡Exportación completada en **${calcTime}**ms! Aquí está el archivo que contiene ${stickers.size} stickers."
 zip_stickers_command_error: "Ocurrió un error mientras se exportaban los stickers."
 
-# +sticker  
-sticket_no_sticker: "No se encontró ningún sticker en el mensaje respondido."  
-sticket_command_work: "El sticker `${x.name}` se ha creado con éxito."  
-sticker_command_error: "No se pudo crear el sticker. Ocurrió un error: `${err.message}`."  
-sticket_command_error2: "Por favor, responde a un mensaje que contenga un sticker."  
+# +sticker
+sticket_no_sticker: "No se encontró ningún sticker en el mensaje respondido."
+sticket_command_work: "El sticker `${x.name}` se ha creado con éxito."
+sticker_command_error: "No se pudo crear el sticker. Ocurrió un error: `${err.message}`."
+sticket_command_error2: "Por favor, responde a un mensaje que contenga un sticker."
 
 # /util nick-kicker
 util_nick_kicker_embed_title: "Expulsor de Apodos"
@@ -1004,7 +1005,6 @@ vkick_not_admin_kick: "No puedes desconectar a un administrador de un canal de v
 vkick_logEmbed_title: "Expulsión de Voz"
 vkick_logEmbed_desc: "${interaction.member.user.toString()} ha desconectado a ${member.toString()} del canal de voz ${voiceChannel?.toString()}."
 vkick_command_work: "${interaction.member.user.toString()}, has desconectado exitosamente a ${member.toString()} de ${voiceChannel?.toString()}."
-
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1196,7 +1196,7 @@ setup_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} | Configuración de
 setup_command_error: "¡El bot ya ha configurado los canales de registro! O el bot no tiene permiso..."
 
 # /setlogschannel
-setlogschannel_not_admin:  ":x: | ¡Debes ser administrador de este servidor para usar este comando!"
+setlogschannel_not_admin: ":x: | ¡Debes ser administrador de este servidor para usar este comando!"
 setlogschannel_not_specified_args: "Debes especificar un canal válido para tu módulo."
 setlogschannel_confirmation_message: "${client.iHorizon_Emojis.icon.Yes_Logo} | ¡Ahora está configurado el `${typeOfLogs}` por <@${interaction.user.id}> !"
 setlogschannel_already_this_channel: "¡Este servidor ya tiene este canal para los registros de eventos!"
@@ -1357,7 +1357,6 @@ autoreact_menu_remove_place: "Selecciona un canal para eliminar"
 autoreact_awaiting_remove_msg: "Por favor, selecciona un canal para eliminar del módulo de reacciones automáticas."
 autoreact_remove_command_ok: "La configuración de reacción automática para este canal ha sido eliminada."
 
-
 # Member Count commands
 # /setmembercount
 
@@ -1373,7 +1372,6 @@ setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} 
 setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Recuento de miembros eliminado correctamente."
 setmembercount_logs_embed_title_on_disable: "Registros de configuración de recuento de miembros"
 setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> ¡eliminó el recuento de miembros de este servidor!"
-
 
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
@@ -1441,7 +1439,6 @@ lyrics_embed_title_unknown: "Título desconocido"
 lyrics_embed_author_name_unknown: "Autor desconocido"
 lyrics_not_found: "No se encontraron letras"
 
-
 # Giveaway commands
 # /end, /start, /reroll
 
@@ -1494,7 +1491,6 @@ gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as strin
 gw_getdata_yes: "`Sí`"
 gw_getdata_no: "`No`"
 gw_doesnt_exit: "Los sorteos no son alcanzables o no existen."
-
 
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
@@ -1613,7 +1609,6 @@ var_ban_date: "Fecha del baneo"
 # /borrar-advertencias
 clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}, se ha(n) eliminado **`${allWarns.length}`** advertencia(s) de ${member?.toString()}"
 
-
 # Backup commands
 # /backup
 
@@ -1646,7 +1641,6 @@ backup_cancel_button: "Cancelar acción"
 backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} ¡La copia de seguridad se eliminó correctamente!"
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} ¡La copia de seguridad se mantuvo!"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} Se acabó el tiempo. ¡La copia de seguridad se mantuvo!"
-
 
 # Role Reactions
 # /reactionroles
@@ -1705,7 +1699,6 @@ roleselect_canceled_command_ok: "Configuración de selección de roles cancelada
 roleselect_modal2_title: "Marcador de posición del menú"
 roleselect_modal2_label: "Marcador de posición"
 roleselect_modal2_placeholder: "Marcador de posición del menú de selección"
-
 
 # New feature commands
 # /punishpub, /report, /support
@@ -1788,9 +1781,9 @@ embed_copy_bad_channel_msg: "¡El canal donde está el mensaje es inalcanzable!"
 embed_copy_bad_message_msg: "¡El mensaje es inalcanzable!"
 embed_copy_bad_embed_message_msg: "¡El mensaje no tiene un embed!"
 embed_copy_bad_url_msg: "URL inválida, por favor intente nuevamente. El formato correcto es: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
-embed_btn_replace: "Reemplazar embed"  
-embed_replace_question_msg: "¿Cuál es la nueva URL del mensaje donde se debe reemplazar el embed?"  
-embed_replace_message: "{user}, el nuevo embed ha reemplazado el embed de {messageUrl}"  
+embed_btn_replace: "Reemplazar embed"
+embed_replace_question_msg: "¿Cuál es la nueva URL del mensaje donde se debe reemplazar el embed?"
+embed_replace_message: "{user}, el nuevo embed ha reemplazado el embed de {messageUrl}"
 
 # /rolesaver
 rolesaver_embed_title: "Módulo RoleSaver"
@@ -1802,7 +1795,6 @@ rolesaver_on_off_already_set: "¡El módulo ya está deshabilitado!"
 rolesaver_on_off_embed_title: "Módulo RoleSaver"
 rolesaver_on_off_embed_desc: "Cuando los miembros de la guild abandonan el servidor, sus roles no se guardan en la base de datos. Ahora, iHorizon ya no restaura los roles antiguos a los miembros cuando regresan al servidor."
 rolesaver_on_off_embed_fields_1_name: "Habilitar"
-
 
 # Comandos de sugerencia
 # /configurarsugerencia, /sugerir
@@ -1856,7 +1848,6 @@ setsuggest_channel_embed_title: "Se ha establecido el módulo de sugerencias aqu
 setsuggest_channel_embed_desc: "Ahora, todos los usuarios que tienen permiso para enviar mensajes aquí pueden sugerir simplemente enviando un mensaje."
 setsuggest_channel_command_work: "${interaction.user}, has establecido el canal del módulo de sugerencias en ${channel}."
 
-
 # Comando de seguridad
 # /seguridad
 
@@ -1872,7 +1863,6 @@ security_role_to_give_command_work: "${interaction.user}, has establecido el rol
 # /seguridad canal
 security_channel_not_admin: "¡No eres administrador!"
 security_channel_command_work: "${interaction.user}, has establecido el canal ${channel} para el módulo de seguridad."
-
 
 # Comando de Programación
 # /programar
@@ -1906,7 +1896,6 @@ schedule_create_embed_fields_name_confirm: "Fecha de Notificación"
 schedule_create_embed_title_confirm: "#${scheduleCode} ¡Programación Creada!"
 schedule_create_confirm_msg: "${interaction.user}, ¡tu programación ha sido creada!\nCódigo: `${scheduleCode}`"
 
-
 # Comando PFPS
 # /pfps channel, /pfps disable
 
@@ -1921,7 +1910,6 @@ pfps_channel_embed_title: "¡Módulo PFPS configurado aquí!"
 pfps_channel_embed_desc: "${interaction.user} ha configurado el módulo PFPS aquí.\n¡Ahora, cada 30 segundos, iHorizon enviará el avatar de un usuario al azar en esta hermandad!\n¡Haré lo mejor que pueda!"
 pfps_channel_command_work: "${interaction.user}, has configurado con éxito el módulo PFPS en el canal ${channel} !"
 pfps_channel_command_error: "${interaction.user}, el comando ha devuelto un error. ¡Verifica que el canal que especificaste existe y que el módulo PFPP está habilitado!"
-
 
 # Módulo de Protección
 # /acciones de autorización, ... sanciones, ... mostrar configuración, /lista blanca mostrar, ... agregar, ... eliminar
@@ -1969,7 +1957,6 @@ allowlist_delete_cant_remove_owner: "¡No es posible eliminar al propietario del
 allowlist_delete_isnt_in: "¡El miembro que deseas eliminar de la lista blanca no está en ella!"
 allowlist_delete_command_work: "¡${member.user} ha sido eliminado de la lista blanca!"
 
-
 # Custom Tag Module
 # /tag create, ... delete, ... edit, ... list, ... info
 
@@ -2011,7 +1998,6 @@ tag_use_command_work: "La etiqueta `${tag_name}` ha sido enviada."
 # /tag edit
 tag_edit_error_perm: "Para modificar la etiqueta, necesitas tener permisos de administrador o ser el propietario de la etiqueta."
 
-
 # Módulo OWNIHRZ
 # /mybot enviar, ... lista, /mybot gestionar aceptar, ... rechazar, ... instancia
 
@@ -2052,7 +2038,6 @@ mybot_instance_deny_utils_msg_no: "No"
 mybot_instance_deny_embed_title: "Aloja tu propio iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_instance_deny_embed_desc: "El bot ha sido rechazado\n\n${utils_msg}"
 
-
 # Módulo TempVoice
 # /texto, /voz, /estado, /personal
 
@@ -2078,7 +2063,6 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, ¡no estás autorizado para 
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, ¡no estás autorizado para usar este comando!"
 tempvoice_staff_desc_embed: "## Rol de Personal TempVoice\n¡El <@&${targetedRole?.id}> ahora puede moderar el canal!\n"
 
-
 # Módulo de Confesión
 # /cooldown, /disable, /channel
 
@@ -2099,7 +2083,6 @@ confession_disable_command_work_off: "El módulo de confesión ahora está desha
 confession_log_embed_title_on_enable: "Habilitar/Deshabilitar Confesión"
 confession_log_embed_desc_on_enable: "${interaction.user} ha habilitado el módulo de confesión!"
 confession_log_embed_desc_on_disabled: "${interaction.user} ha deshabilitado el módulo de confesión!"
-
 
 # Módulo AntiSpam
 # /antispam manage
@@ -2143,7 +2126,6 @@ antispan_bypassroles_embed_desc: "Todos los roles a continuación pueden omitir 
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "Todos los mensajes enviados en uno de los canales a continuación pueden omitir el módulo antispam."
 
-
 # Stats Module
 # /stats ustats
 
@@ -2154,7 +2136,6 @@ voice_activity: "Actividad de voz"
 minutes_word: "Minutos"
 top_voice: "Principales canales de voz"
 top_message: "Principales canales de mensajes"
-
 
 # Módulo de Notificaciones
 # autor de la notificación, configuración de la notificación
@@ -2174,30 +2155,29 @@ notifier_config_message_embed_fields_notifyMessage: "Mensaje de Notificación"
 notifier_config_message_awaiting_response: "Escribe el mensaje de notificación."
 notifier_config_message_command_work_on_enable: "Habilitando el trabajo en el mensaje de notificación."
 
-
-# Module RestoreCord
+# Module AuthRestore
 # role, set, delete, get, force-join
 
-rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} ¡El módulo RestoreCord con la clave: **${secretCode}** no existe!"
+rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} ¡El módulo AuthRestore con la clave: **${secretCode}** no existe!"
 rc_verify: "Verificar"
 
-# /restorecord role
-rc_role_embed_title: "Nueva Modificación de RestoreCord"
+# /authrestore role
+rc_role_embed_title: "Nueva Modificación de AuthRestore"
 rc_role_embed_field1_name: "Nuevo rol otorgado después de verificar"
 
-# /restorecord set
-rc_command_ok: "${interaction.user.toString()}, acabas de configurar el módulo \"RestoreCord\". Ahora, cuando un miembro del servidor de Discord haga clic en el botón y se conecte a través de OAuth2, será agregado a la base de datos. Eventualmente podrá unirse automáticamente al servidor con OAuth2.\n# LEER CUIDADOSAMENTE\nEl mensaje ${msgLink} ahora tiene un botón que servirá como verificación.\nAQUÍ ESTÁ EL CÓDIGO PRIVADO QUE NO DEBE SER REVELADO A NADIE. UNA PERSONA CON ESTE CÓDIGO PODRÍA ELIMINARLO, AGREGAR MIEMBROS A SU SERVIDOR... GUÁRDELO EN UN LUGAR SEGURO. iHorizon NUNCA SE LO DARÁ DE NUEVO:\n```${res.secretCode}```"
-rc_command_ok_dm: "# El código RestoreCord para ${interaction.guild.name}\n```${res.secretCode}```"
+# /authrestore set
+rc_command_ok: "${interaction.user.toString()}, acabas de configurar el módulo \"AuthRestore\". Ahora, cuando un miembro del servidor de Discord haga clic en el botón y se conecte a través de OAuth2, será agregado a la base de datos. Eventualmente podrá unirse automáticamente al servidor con OAuth2.\n# LEER CUIDADOSAMENTE\nEl mensaje ${msgLink} ahora tiene un botón que servirá como verificación.\nAQUÍ ESTÁ EL CÓDIGO PRIVADO QUE NO DEBE SER REVELADO A NADIE. UNA PERSONA CON ESTE CÓDIGO PODRÍA ELIMINARLO, AGREGAR MIEMBROS A SU SERVIDOR... GUÁRDELO EN UN LUGAR SEGURO. iHorizon NUNCA SE LO DARÁ DE NUEVO:\n```${res.secretCode}```"
+rc_command_ok_dm: "# El código AuthRestore para ${interaction.guild.name}\n```${res.secretCode}```"
 rc_command_dm_failed: "Intenté enviarte el código por mensaje privado, pero tienes bloqueados los DMs :/"
 rc_command_dm_ok: "¡En caso de que lo hayas perdido, te envié el código por mensaje privado!"
 rc_command_horizongw_down: "Error: HorizonGateway puede estar caído"
 
-# /restorecord delete
+# /authrestore delete
 rc_delete_config_not_found: "¡No se pudo encontrar la configuración del módulo en este servidor!"
-rc_delete_command_ok: "${interaction.user.toString()}, acabas de eliminar la configuración del módulo \"RestoreCord\". Por razones de seguridad (datos), solo eliminaré el botón, ¡pero los datos oauth2 y el código secreto se eliminarán en 48 horas!"
+rc_delete_command_ok: '${interaction.user.toString()}, acabas de eliminar la configuración del módulo "AuthRestore". Por razones de seguridad (datos), solo eliminaré el botón, ¡pero los datos oauth2 y el código secreto se eliminarán en 48 horas!'
 
-# /restorecord get
-rc_get_mainEmbed_title: "Información General de RestoreCord"
+# /authrestore get
+rc_get_mainEmbed_title: "Información General de AuthRestore"
 rc_get_mainEmbed_field1_name: "ID del Servidor"
 rc_get_mainEmbed_field2_name: "Rol otorgado después de verificar"
 rc_get_mainEmbed_field3_name: "Creado el"
@@ -2210,8 +2190,8 @@ rc_get_locale: "Idioma"
 rc_get_username: "Nombre de usuario"
 rc_get_unkwnon_user: "Usuario desconocido (${Data.data.config.author.id})"
 
-# /restorecord force-join
-rc_forceJoin_embed_title: "RestoreCord - Unión Forzada"
+# /authrestore force-join
+rc_forceJoin_embed_title: "AuthRestore - Unión Forzada"
 rc_forceJoin_embed_desc: "## ¿Estás seguro de forzar la unión de miembros en este servidor?\n### LEER CUIDADOSAMENTE:\nSI CONFIRMAS ESTA ACCIÓN, LA CLAVE PRIVADA ACTUAL SERÁ DESTRUIDA. SE TE PROPORCIONARÁ UNA NUEVA CLAVE.\n\n\n"
 rc_forceJoin_embed_field1: "Miembros encontrados"
 rc_forceJoin_embed_field2: "Miembros ya presentes"
@@ -2222,7 +2202,6 @@ rc_forceJoin_ws_size: "# Preparando para agregar **${value2}** miembros al servi
 rc_forceJoin_ws_start: "# Proceso de unión forzada en curso..."
 rc_forceJoin_ws_end: "# Proceso de unión forzada completado."
 rc_forceJoin_ws_end_renew_msg: "# LEER CUIDADOSAMENTE\nAQUÍ ESTÁ EL CÓDIGO PRIVADO QUE NO DEBE SER REVELADO A NADIE. UNA PERSONA CON ESTE CÓDIGO PODRÍA ELIMINARLO, AGREGAR MIEMBROS A SU SERVIDOR... GUÁRDELO EN UN LUGAR SEGURO. iHorizon NUNCA SE LO DARÁ DE NUEVO:\n```${value2}```"
-
 
 # Misc category
 # media manipulation
@@ -2469,7 +2448,7 @@ buttonreaction_role_too_high: "¡El rol es demasiado alto, no puedo dar/quitar e
 buttonreaction_role_add: "Ya no tienes el rol ${fetched_role.toString()} ✅"
 buttonreaction_role_remove: "Ahora tienes el rol ${fetched_role.toString()} :tada:"
 
-# RestoreCord HTML
+# AuthRestore HTML
 rc_created_by: "Creado por:"
 rc_created_on: "Creado el:"
 rc_total_membres: "Total de Miembros"
@@ -2493,5 +2472,4 @@ pfps_embed_user_title: "Avatar de **usuario** de ${username}"
 pfps_embed_guild_title: "Avatar del **servidor** de ${username}"
 pfps_download_user_button: "Descargar avatar de usuario"
 pfps_download_guild_button: "Descargar avatar del servidor"
-
 # -----------------------------\ /-----------------------------

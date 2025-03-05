@@ -30,7 +30,7 @@ import {
 	PermissionsBitField,
 } from 'discord.js';
 import WebSocket from 'ws';
-import { forceJoinRestoreCord, getGuildDataPerSecretCode, SavedMembersRestoreCord } from '../../../core/functions/restoreCordHelper.js';
+import { forceJoinAuthRestore, getGuildDataPerSecretCode, SavedMembersAuthRestore } from '../../../core/functions/authRestoreHelper.js';
 import { Command } from '../../../../types/command.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		const secretCode = interaction.options.getString("key")!;
-		const table = client.db.table("RESTORECORD");
+		const table = client.db.table("AUTHRESTORE");
 		const Data = getGuildDataPerSecretCode(await table.all(), secretCode);
 
 		if (!Data) return client.func.method.interactionSend(interaction, {
@@ -121,7 +121,7 @@ export const subCommand: SubCommand = {
 				const updateInterval = 5;
 				const maxUpdateInterval = 10000;
 
-				forceJoinRestoreCord({
+				forceJoinAuthRestore({
 					membersToForceJoin: forceJoinMembers,
 					apiToken: client.config.api.apiToken,
 					targetGuildId: interaction.guildId,

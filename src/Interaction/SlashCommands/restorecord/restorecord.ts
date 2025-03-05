@@ -41,11 +41,11 @@ import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
-	name: 'restorecord',
+	name: 'authrestore',
 
-	description: 'Do the same thing as restorecord with link verification button under iHorizon message',
+	description: 'Do the same thing as authrestore with link verification button under iHorizon message',
 	description_localizations: {
-		"fr": "Faites la même chose que restorecord avec le bouton de vérification du lien sous le message iHorizon"
+		"fr": "Faites la même chose que authrestore avec le bouton de vérification du lien sous le message iHorizon"
 	},
 
 	aliases: [],
@@ -53,9 +53,9 @@ export const command: Command = {
 		{
 			name: "set",
 
-			description: "Set the current message for RestoreCord button",
+			description: "Set the current message for AuthRestore button",
 			description_localizations: {
-				"fr": "Définir le message actuel pour le bouton de RestoreCord"
+				"fr": "Définir le message actuel pour le bouton de AuthRestore"
 			},
 
 			options: [
@@ -112,9 +112,9 @@ export const command: Command = {
 		{
 			name: "delete",
 
-			description: "Delete the RestoreCord module button",
+			description: "Delete the AuthRestore module button",
 			description_localizations: {
-				"fr": "Supprimer le bouton du module de RestoreCord"
+				"fr": "Supprimer le bouton du module de AuthRestore"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -124,9 +124,9 @@ export const command: Command = {
 		{
 			name: "get",
 
-			description: "Get all informations about the RestoreCord module of the guild",
+			description: "Get all informations about the AuthRestore module of the guild",
 			description_localizations: {
-				"fr": "Obtenez toutes les informations sur le module RestoreCord de votre guilde"
+				"fr": "Obtenez toutes les informations sur le module AuthRestore de votre guilde"
 			},
 
 			options: [
@@ -134,9 +134,9 @@ export const command: Command = {
 					name: 'key',
 					type: ApplicationCommandOptionType.String,
 
-					description: "The private key of your RestoreCord config",
+					description: "The private key of your AuthRestore config",
 					description_localizations: {
-						"fr": "La clé privée de votre configuration RestoreCord"
+						"fr": "La clé privée de votre configuration AuthRestore"
 					},
 
 					required: true,
@@ -151,9 +151,9 @@ export const command: Command = {
 		{
 			name: "force-join",
 
-			description: "Force all members of your RestoreCord module to join the guild",
+			description: "Force all members of your AuthRestore module to join the guild",
 			description_localizations: {
-				"fr": "Forcer tous les membres de votre module RestoreCord à rejoindre la guilde"
+				"fr": "Forcer tous les membres de votre module AuthRestore à rejoindre la guilde"
 			},
 
 			options: [
@@ -161,9 +161,9 @@ export const command: Command = {
 					name: 'key',
 					type: ApplicationCommandOptionType.String,
 
-					description: "The private key of your RestoreCord config",
+					description: "The private key of your AuthRestore config",
 					description_localizations: {
-						"fr": "La clé privée de votre configuration RestoreCord"
+						"fr": "La clé privée de votre configuration AuthRestore"
 					},
 
 					required: true,
@@ -178,9 +178,9 @@ export const command: Command = {
 		{
 			name: "roles",
 
-			description: "Set new roles for the RestoreCord module",
+			description: "Set new roles for the AuthRestore module",
 			description_localizations: {
-				"fr": "Définir un nouveau rôle pour le module RestoreCord"
+				"fr": "Définir un nouveau rôle pour le module AuthRestore"
 			},
 
 			options: [
@@ -188,9 +188,9 @@ export const command: Command = {
 					name: 'key',
 					type: ApplicationCommandOptionType.String,
 
-					description: "The private key of your RestoreCord config",
+					description: "The private key of your AuthRestore config",
 					description_localizations: {
-						"fr": "La clé privée de votre configuration RestoreCord"
+						"fr": "La clé privée de votre configuration AuthRestore"
 					},
 
 					required: true,
@@ -201,9 +201,9 @@ export const command: Command = {
 					name: 'roles',
 					type: ApplicationCommandOptionType.Role,
 
-					description: "The new roles for your RestoreCord config",
+					description: "The new roles for your AuthRestore config",
 					description_localizations: {
-						"fr": "Le nouveau rôle pour votre configuration RestoreCord"
+						"fr": "Le nouveau rôle pour votre configuration AuthRestore"
 					},
 
 					required: true,
@@ -217,7 +217,7 @@ export const command: Command = {
 		},
 
 	],
-	category: 'restorecord',
+	category: 'authrestore',
 	thinking: true,
 	type: ApplicationCommandType.ChatInput,
 
