@@ -123,7 +123,6 @@ perm_sendvoicemessages_name: "إرسال الرسائل الصوتية"
 perm_sendpolls_name: "إرسال الاستطلاعات"
 perm_useexternalapps_name: "استخدام التطبيقات الخارجية"
 
-
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
 ticket_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
@@ -160,7 +159,7 @@ sethereticket_panelforcreate_embed_desc: "## إنشاء لوحة تذاكر با
 sethereticket_panelforcreate_button_add_label: "إضافة قضية جديدة"
 sethereticket_panelforcreate_button_sub_label: "إزالة آخر قضية"
 sethereticket_panelforcreate_button_save_label: "إرسال المرفق"
-sethereticket_modal_1_title : "إضافة قضية جديدة إلى اللوحة"
+sethereticket_modal_1_title: "إضافة قضية جديدة إلى اللوحة"
 sethereticket_modal_1_fields_1_placeholder: "اسم القضية للاختيار"
 sethereticket_modal_1_fields_1_label: "الاسم"
 sethereticket_modal_1_fields_2_placeholder: "رموز الإيموجي للقضية للاختيار"
@@ -278,7 +277,6 @@ ticket_panel_panel_11_label: "تغيير لوحة تضمين قناة التذا
 ticket_rename_ok: "تم تغيير اسم قناة التذكرة!"
 ticket_rename_error: "حدث خطأ أثناء إعادة تسمية القناة النصية."
 
-
 # Ranks commands
 # /level, /setxpchannels, /disablexp
 
@@ -380,7 +378,6 @@ ranks_config_remove_string_menu1_placeholder: "اختر دورًا لإزالت�
 ranks_config_remove_awaiting_response: "اختر الدور الذي تريد إزالته."
 ranks_config_remove_command_work: "تمت إزالة الدور عند المستوى ${levelToRemove}!"
 
-
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
 
@@ -470,7 +467,7 @@ invite_embed_description: "أحبك، أظهر لي محبتك بالمقابل!
 kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay هي المبدعة والمطورة الخاصة بي. بفضلها وبفضل لوحة مفاتيحها، جئت إلى الحياة. أنا ممتن لها بشدة!✨ ❤️❤️"
 
 # /andru
-andru_message: "أندرو هو متعاون ومطور. \"الرجل المتعدد المهام\"، يدير التسويق والمجتمع..."
+andru_message: 'أندرو هو متعاون ومطور. "الرجل المتعدد المهام"، يدير التسويق والمجتمع...'
 
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether هو أحد المساهمين في iHorizon. وهو مفتون بنظام لينكس والأمن السيبراني، وهو يرتجل نفسه كمساعد دعم لروبوت iHorizon."
@@ -547,8 +544,8 @@ help_ownihrz_dsc: "استضيف وادير بوت iHorizon المخصص بتاع
 help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "خليك متبلغ لما يوتيوبر أو ستريمر ينشر فيديو!"
 help_notifier_fields: "المُبلغ"
-help_restorecord_fields: "استعادة كورد"
-help_restorecord_dsc: "التحقق من الخادم باستخدام oAuth2. عندما يتعرض خادمك لهجوم أو يُلغى، يمكنك استعادة الأعضاء القدامى باستخدام oAuth2!"
+help_authrestore_fields: "استعادة كورد"
+help_authrestore_dsc: "التحقق من الخادم باستخدام oAuth2. عندما يتعرض خادمك لهجوم أو يُلغى، يمكنك استعادة الأعضاء القدامى باستخدام oAuth2!"
 help_tags_fields: "العلامات المخصصة"
 help_tags_dsc: "قم بإنشاء رسائل علامات لخادمك واستخدمها في خادمك!"
 
@@ -585,7 +582,6 @@ hug_embed_title: "<@${interaction.user.id}> قدم عناقاً إلى <@${hug.i
 # /kiss
 kiss_embed_description: "<@${interaction.user.id}> قبلة لـ <@${kiss.id}> 💏"
 
-
 # /poll
 poll_not_admin: "ليس لديك الصلاحيات لتنفيذ هذا الأمر!"
 poll_embed_title: "__**استطلاع**__: `${interaction.user.username}`"
@@ -594,7 +590,17 @@ poll_embed_fields_choice: ":white_check_mark: **نعم**\n :x: **لا** "
 
 # /question
 question_not_full: "يرجى إدخال سؤال كامل يتكون من 3 كلمات أو أكثر!"
-question_s: ["نعم.","لا.","لا أعلم.","لست متأكدًا!","أنت مجنون!","لا شكرًا.","لا.","نعم."]
+question_s:
+  [
+    "نعم.",
+    "لا.",
+    "لا أعلم.",
+    "لست متأكدًا!",
+    "أنت مجنون!",
+    "لا شكرًا.",
+    "لا.",
+    "نعم.",
+  ]
 question_fields_input_embed: ":question:__**السؤال**__"
 question_fields_output_embed: ":grey_exclamation:__**الإجابة:**__"
 question_embed_title: "__**السؤال**__: `${interaction.user.username}`"
@@ -613,7 +619,6 @@ love_command_error: "حدث خطأ أثناء محاولة إنشاء الصور
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}، انت ${action_type} فئة الترفيه!"
 fun_category_disable: "مش مسموحلك تستخدم الأمر ده، فئة الأوامر الترفيهية معطلة."
-
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -645,7 +650,6 @@ monthly_cooldown_error: "عذرًا، يجب عليك الانتظار **${time}
 monthly_embed_title: "شهري"
 monthly_embed_description: "**مكافأة شهرية**"
 monthly_embed_fields: "تم جمعه"
-
 
 # /pay
 pay_negative_number_error: "لا يمكن دفع مبلغ سلبي."
@@ -725,7 +729,6 @@ economy_shop_not_set: "لا توجد أدوار متاحة للشراء في ه�
 economy_shop_already_owned: "تمتلكه بالفعل"
 economy_shop_menu_placeholder: "اختر دورًا للشراء"
 
-
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -750,7 +753,7 @@ profil_embed_fields_gender: "👤 ・ __الجنس__"
 profil_embed_fields_pronouns: "📌 ・ __الضمائر__"
 profil_embed_fields_birthdate: "🎂 ・ __تاريخ عيد الميلاد__"
 
-# /تعيين-تاريخ-الميلاد 
+# /تعيين-تاريخ-الميلاد
 profil_birthday_month_button_label: "تعيين الشهر"
 profil_birthday_day_button_label: "تعيين اليوم"
 profil_birthday_year_button_label: "تعيين السنة"
@@ -772,7 +775,6 @@ profil_birthday_modal3_fields1_label: "اليوم"
 profil_birthday_invalid_day: "يوم غير صالح! الرجاء إدخال يوم صالح."
 profil_birthday_day_already_set: "تم تعيين اليوم مسبقاً."
 profil_birthday_day_set: "تم تعيين اليوم!"
-
 
 # Utils commands
 # /serverinfo, /snipe, /userinfo, /renew
@@ -940,11 +942,11 @@ zip_stickers_doesnt_have_perm: "ليس لديك إذن لإدارة الملصق
 zip_stickers_command_work: "🎉 تم التصدير في **${calcTime}** مللي ثانية! إليك الأرشيف الذي يحتوي على ${stickers.size} ملصقات."
 zip_stickers_command_error: "حدث خطأ أثناء تصدير الملصقات."
 
-# +sticker  
-sticket_no_sticker: "لم يتم العثور على ملصق في الرسالة التي تم الرد عليها."  
-sticket_command_work: "تم إنشاء الملصق `${x.name}` بنجاح."  
-sticker_command_error: "تعذر إنشاء الملصق. حدث خطأ: `${err.message}`."  
-sticket_command_error2: "يرجى الرد على رسالة تحتوي على ملصق."  
+# +sticker
+sticket_no_sticker: "لم يتم العثور على ملصق في الرسالة التي تم الرد عليها."
+sticket_command_work: "تم إنشاء الملصق `${x.name}` بنجاح."
+sticker_command_error: "تعذر إنشاء الملصق. حدث خطأ: `${err.message}`."
+sticket_command_error2: "يرجى الرد على رسالة تحتوي على ملصق."
 
 # /util nick-kicker
 util_nick_kicker_embed_title: "طارد الألقاب"
@@ -1005,7 +1007,6 @@ vkick_logEmbed_title: "طرد صوتي"
 vkick_logEmbed_desc: "${interaction.member.user.toString()} قام بفصل ${member.toString()} من القناة الصوتية ${voiceChannel?.toString()}."
 vkick_command_work: "${interaction.member.user.toString()}، لقد نجحت في فصل ${member.toString()} من ${voiceChannel?.toString()}."
 
-
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1059,7 +1060,6 @@ guildprofil_another_enable_xp: "تفعيل الرسائل المرسلة في <#
 guildprofil_embed_fields_blockbot: "حظر البوت"
 guildprofil_embed_fields_logs: "السجلات"
 guildprofil_embed_fields_ranks: "الرتب"
-
 
 # /setchannels
 setchannels_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم لطلب هذه الأوامر!"
@@ -1149,7 +1149,6 @@ setjoinmessage_modal_fields_message: "الرسالة التي تريدها"
 setjoinmessage_var_text_size: "حجم النص: "
 setjoinmessage_var_avatar_size: "حجم الصورة الرمزية: "
 
-
 # /setjoinroles
 setjoinroles_var_none: "لا شيء"
 setjoinroles_var_perm_admin: "مشرف"
@@ -1236,7 +1235,7 @@ joinghostping_remove_logs_embed_desc: "${interaction.user} قام بحذف ${cha
 # /automod block mass-mention
 automod_block_massmention_command_off: "${interaction.user}, لقد قمت بتعيين قاعدة AutoMod للـ `Mass-Mention` إلى **false**.\nالآن يمكن للمستخدمين إرسال الإشعارات في رسائلهم.\nAutoMod x iHorizon تم تعطيله في خادمك!"
 automod_block_massmention_command_on: "${interaction.user}, لقد قمت بتعيين قاعدة AutoMod للـ `Mass-Mention` إلى **true**.\nالآن لا يمكن للمستخدمين إرسال أكثر من **${max_mention}** إشعار في رسائلهم.\nAutoMod __يتم إرسال السجلات__ إلى ${logs_channel}.\nAutoMod x iHorizon يحمي خادمك!"
-automod_block_massmention_command_error404: هل تركت أمر حظر الإشارات المزعجة (ممكّن افتراضيًا بواسطة Discord) في إعدادات التعديل التلقائي، حيث إنه بالتأكيد مسؤول عن هذا الخطأ، يرجى تعطيله وتشغيل الأمر مرة أخرى. 
+automod_block_massmention_command_error404: هل تركت أمر حظر الإشارات المزعجة (ممكّن افتراضيًا بواسطة Discord) في إعدادات التعديل التلقائي، حيث إنه بالتأكيد مسؤول عن هذا الخطأ، يرجى تعطيله وتشغيل الأمر مرة أخرى.
 
 # /automod block links
 automod_block_link_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الروابط**. الآن، لا يمكن للمستخدمين إرسال روابط في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
@@ -1358,7 +1357,6 @@ autoreact_remove_not_found: "لم يتم إعداد أي تكوين للتفاع
 autoreact_menu_remove_place: "اختر قناة للإزالة"
 autoreact_awaiting_remove_msg: "يرجى اختيار قناة لإزالتها من وحدة التفاعل التلقائي."
 autoreact_remove_command_ok: "تمت إزالة تكوين التفاعل التلقائي لهذه القناة."
-
 
 # Member Count commands
 # /setmembercount
@@ -1495,8 +1493,6 @@ gw_getdata_yes: "`نعم`"
 gw_getdata_no: "`لا`"
 gw_doesnt_exit: "المسابقة غير قابلة للوصول، أو لا توجد."
 
-
-
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
 # /unban, /tempmute, /unmute
@@ -1613,7 +1609,6 @@ var_ban_date: "تاريخ الحظر"
 # /مسح_التحذيرات
 clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}, تم مسح **`${allWarns.length}`** تحذير(ات) من ${member?.toString()}"
 
-
 # Backup commands
 # /backup
 
@@ -1705,7 +1700,6 @@ roleselect_modal2_title: "عنصر نائب للقائمة المنسدلة"
 roleselect_modal2_label: "عنصر نائب"
 roleselect_modal2_placeholder: "عنصر نائب للقائمة المنسدلة"
 
-
 # New feature commands
 # /punishpub, /report, /support
 
@@ -1787,9 +1781,9 @@ embed_copy_bad_channel_msg: "القناة التي توجد فيها الرسا�
 embed_copy_bad_message_msg: "الرسالة غير متاحة!"
 embed_copy_bad_embed_message_msg: "الرسالة لا تحتوي على إيمبد!"
 embed_copy_bad_url_msg: "رابط غير صالح، يرجى المحاولة مرة أخرى. التنسيق الصحيح هو: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
-embed_btn_replace: "استبدال التضمين"  
-embed_replace_question_msg: "ما هو عنوان URL الجديد للرسالة التي تحتاج إلى استبدال التضمين فيها؟"  
-embed_replace_message: "{user}، تم استبدال التضمين الجديد بالتضمين الخاص بـ {messageUrl}"  
+embed_btn_replace: "استبدال التضمين"
+embed_replace_question_msg: "ما هو عنوان URL الجديد للرسالة التي تحتاج إلى استبدال التضمين فيها؟"
+embed_replace_message: "{user}، تم استبدال التضمين الجديد بالتضمين الخاص بـ {messageUrl}"
 
 # /rolesaver
 rolesaver_embed_title: "وحدة حفظ الأدوار"
@@ -1825,7 +1819,6 @@ suggest_deny_embed_title_to_put: "[رفض] ${msg.embeds[0].data?.title}"
 suggest_deny_command_work: "لقد قمت برفض الاقتراح!\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
 suggest_deny_command_error: "لم يتم العثور على الاقتراح في قناة Discord!"
 
-
 # /suggest reply
 suggest_reply_not_admin: "أنت لست مشرفاً!"
 suggest_reply_not_good_channel: "يجب تشغيل هذا الأمر في قناة وحدة الاقتراحات (<#${baseData?.channel}>)!\nيرجى التحقق من عدم تعطيل وحدة الاقتراحات!"
@@ -1854,8 +1847,6 @@ setsuggest_channel_already_set_with_that: "${interaction.user}, قناة وحد�
 setsuggest_channel_embed_title: "تم تعيين قناة وحدة الاقتراحات هنا!"
 setsuggest_channel_embed_desc: "الآن، جميع المستخدمين المسموح لهم بإرسال الرسائل هنا يمكنهم تقديم اقتراحات عن طريق إرسال رسالة فقط!"
 setsuggest_channel_command_work: "${interaction.user}, لقد قمت بتعيين قناة وحدة الاقتراحات إلى ${channel}!"
-
-
 
 # Security Command
 # /security
@@ -1920,8 +1911,6 @@ pfps_channel_embed_desc: "${interaction.user} قد قام بتعيين وحدة 
 pfps_channel_command_work: "${interaction.user}, لقد قمت بنجاح بتعيين وحدة PFPS إلى القناة ${channel}!"
 pfps_channel_command_error: "${interaction.user}, الأمر أرجع خطأ. يرجى التحقق من أن القناة التي حددتها موجودة، وتحقق من تمكين وحدة PFPS!"
 
-
-
 # Protection Module
 # /authorization actions, ... sanction, ... config-show, /allowlist show, ... add, ... delete
 
@@ -1968,7 +1957,6 @@ allowlist_delete_cant_remove_owner: "لا يمكن حذف مالك الخادم 
 allowlist_delete_isnt_in: "العضو الذي تريد إزالته من القائمة المسموحة ليس موجوداً فيها!"
 allowlist_delete_command_work: "${member.user} تم إزالته من القائمة المسموحة!"
 
-
 # Custom Tag Module
 # /tag create, ... delete, ... edit, ... list, ... info
 
@@ -2010,7 +1998,6 @@ tag_use_command_work: "تم إرسال الوسم `${tag_name}`."
 # /tag edit
 tag_edit_error_perm: "لتعديل الوسم، تحتاج إلى الحصول على أذونات المدير أو أن تكون مالك الوسم."
 
-
 # OWNIHRZ Module
 # /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
 
@@ -2038,7 +2025,6 @@ mybot_manage_accept_utiis_yes: "نعم"
 mybot_manage_accept_utils_no: "لا"
 mybot_manage_accept_embed_title: "استضاف بوت iHorizon الخاص بك: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_manage_accept_embed_desc: "تم قبول البوت\n\n${utils_msg}"
-
 
 # /mybot change-owner
 mybot_change_owner: "الـ OWNIHRZ الآن له مالك جديد: <@${OwnerOne}>, <@${OwnerTwo}>"
@@ -2151,7 +2137,6 @@ minutes_word: "دقائق"
 top_voice: "أفضل قنوات الصوت"
 top_message: "أفضل قنوات الرسائل"
 
-
 # وحدة التنبيه
 # مؤلف المنبه, إعدادات المنبه
 
@@ -2170,30 +2155,29 @@ notifier_config_message_embed_fields_notifyMessage: "رسالة التنبيه"
 notifier_config_message_awaiting_response: "اكتب رسالة التنبيه."
 notifier_config_message_command_work_on_enable: "تمكين العمل على رسالة التنبيه."
 
-
-# وحدة RestoreCord
+# وحدة AuthRestore
 # دور، إعداد، حذف، الحصول على، الانضمام القسري
 
-rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} وحدة RestoreCord بمفتاح: **${secretCode}** مش موجودة!"
+rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} وحدة AuthRestore بمفتاح: **${secretCode}** مش موجودة!"
 rc_verify: "تحقق"
 
-# /restorecord دور
-rc_role_embed_title: "تعديل جديد في RestoreCord"
+# /authrestore دور
+rc_role_embed_title: "تعديل جديد في AuthRestore"
 rc_role_embed_field1_name: "الدور الجديد المعطى بعد التحقق"
 
-# /restorecord إعداد
-rc_command_ok: "${interaction.user.toString()}، تم إعداد وحدة \"RestoreCord\". دلوقتي، لما عضو في السيرفر يضغط على الزر ويسجل الدخول عن طريق OAuth2، هيضاف لقاعدة البيانات. بعدين هيقدر يدخل السيرفر أوتوماتيكياً باستخدام OAuth2.\n# اقرأ بعناية\nالرسالة ${msgLink} دلوقتي فيها زر بيستخدم كتحقق.\nده الكود الخاص اللي لازم تحتفظ بيه. أي شخص معاه الكود ده ممكن يحذف الوحدة أو يضيف أعضاء لسيرفره... احتفظ بيه في مكان آمن. iHorizon مش هيقدمه ليك تاني:\n```${res.secretCode}```"
-rc_command_ok_dm: "# كود RestoreCord للسيرفر ${interaction.guild.name}\n```${res.secretCode}```"
+# /authrestore إعداد
+rc_command_ok: "${interaction.user.toString()}، تم إعداد وحدة \"AuthRestore\". دلوقتي، لما عضو في السيرفر يضغط على الزر ويسجل الدخول عن طريق OAuth2، هيضاف لقاعدة البيانات. بعدين هيقدر يدخل السيرفر أوتوماتيكياً باستخدام OAuth2.\n# اقرأ بعناية\nالرسالة ${msgLink} دلوقتي فيها زر بيستخدم كتحقق.\nده الكود الخاص اللي لازم تحتفظ بيه. أي شخص معاه الكود ده ممكن يحذف الوحدة أو يضيف أعضاء لسيرفره... احتفظ بيه في مكان آمن. iHorizon مش هيقدمه ليك تاني:\n```${res.secretCode}```"
+rc_command_ok_dm: "# كود AuthRestore للسيرفر ${interaction.guild.name}\n```${res.secretCode}```"
 rc_command_dm_failed: "حاولت أبعتهولك في رسالة خاصة، بس انت مقفل الرسائل :/"
 rc_command_dm_ok: "لو ما أخدتش بالك، بعتلك الكود في رسالة خاصة!"
 rc_command_horizongw_down: "خطأ: ممكن HorizonGateway تكون مش شغالة"
 
-# /restorecord حذف
+# /authrestore حذف
 rc_delete_config_not_found: "إعداد الوحدة في السيرفر ده مش موجود!"
-rc_delete_command_ok: "${interaction.user.toString()}، لقد قمت بحذف إعداد وحدة \"RestoreCord\". لأسباب أمنية (البيانات)، هحذف الزر فقط، بس بيانات oauth2 والكود السري هيتم حذفهم بعد 48 ساعة!"
+rc_delete_command_ok: '${interaction.user.toString()}، لقد قمت بحذف إعداد وحدة "AuthRestore". لأسباب أمنية (البيانات)، هحذف الزر فقط، بس بيانات oauth2 والكود السري هيتم حذفهم بعد 48 ساعة!'
 
-# /restorecord الحصول على
-rc_get_mainEmbed_title: "معلومات عامة عن RestoreCord"
+# /authrestore الحصول على
+rc_get_mainEmbed_title: "معلومات عامة عن AuthRestore"
 rc_get_mainEmbed_field1_name: "رقم السيرفر"
 rc_get_mainEmbed_field2_name: "الدور المعطى بعد التحقق"
 rc_get_mainEmbed_field3_name: "تاريخ الإنشاء"
@@ -2206,8 +2190,8 @@ rc_get_locale: "الإعدادات المحلية"
 rc_get_username: "اسم المستخدم"
 rc_get_unkwnon_user: "مستخدم غير معروف (${Data.data.config.author.id})"
 
-# /restorecord انضمام قسري
-rc_forceJoin_embed_title: "RestoreCord - انضمام قسري"
+# /authrestore انضمام قسري
+rc_forceJoin_embed_title: "AuthRestore - انضمام قسري"
 rc_forceJoin_embed_desc: "## هل أنت متأكد من ضم الأعضاء إلى السيرفر؟\n### اقرأ بعناية:\nإذا أكدت هذا، الكود الحالي سيتم تدميره، وهيتم تزويدك بكود جديد.\n\n\n"
 rc_forceJoin_embed_field1: "الأعضاء الموجودين"
 rc_forceJoin_embed_field2: "الأعضاء الحاليين"
@@ -2218,7 +2202,6 @@ rc_forceJoin_ws_size: "# جاهزين لإضافة **${value2}** عضو للسي
 rc_forceJoin_ws_start: "# عملية الانضمام القسري بدأت..."
 rc_forceJoin_ws_end: "# عملية الانضمام القسري انتهت."
 rc_forceJoin_ws_end_renew_msg: "# اقرأ بعناية\nده الكود الخاص اللي لازم تحتفظ بيه. أي شخص معاه الكود ده ممكن يحذف الوحدة أو يضيف أعضاء لسيرفره... احتفظ بيه في مكان آمن. iHorizon مش هيقدمه ليك تاني:\n```${value2}```"
-
 
 # Misc category
 # media manipulation
@@ -2233,7 +2216,6 @@ confession_module_modal_title: "أرسل اعترافاً"
 confession_module_modal_components1_label: "ماذا تريد أن تعترف؟"
 confession_module_modal_components1_placeholder: "ممم"
 confession_module_modal_components2_label: "هل هذا خاص؟"
-
 
 # أحداث مشغل الموسيقى
 event_mp_playerStart: "🎵 - الآن يتم تشغيل [`${track.title}`](${url}) في **${queue.channel.name}** ..."
@@ -2459,7 +2441,7 @@ buttonreaction_role_too_high: "الدور مرتفع جدًا، لا أستطي�
 buttonreaction_role_add: "لم تعد لديك دور ${fetched_role.toString()} ✅"
 buttonreaction_role_remove: "لديك الآن دور ${fetched_role.toString()} :tada:"
 
-# RestoreCord HTML
+# AuthRestore HTML
 rc_created_by: "تم الإنشاء بواسطة:"
 rc_created_on: "تاريخ الإنشاء:"
 rc_total_membres: "إجمالي الأعضاء"
@@ -2469,7 +2451,7 @@ rc_recent_locales_distribution: "توزيع مواقع الأعضاء"
 rc_recent_verifications: "عمليات التحقق الأخيرة"
 rc_registration_over_time: "التسجيلات عبر الزمن"
 
-# وحدة الصور فقط 
+# وحدة الصور فقط
 piconly_module_punish_msg: "${message.author}, تم إيقافك مؤقتًا لمدة 10 دقائق لإرسال الكثير من الرسائل بدون صور في قناة مخصصة للصور."
 piconly_module_warn_msg: "${message.author}, هذه القناة تقبل فقط الرسائل التي تحتوي على صور (التنسيقات المقبولة: JPG, PNG, GIF, WEBP, BMP, TIFF). تحذير ${userWarnings.length}/${threshold}"
 piconly_module_timeout_reason: "إرسال رسائل متكررة بدون صور في قناة مخصصة للصور فقط"
@@ -2483,5 +2465,4 @@ pfps_embed_user_title: "صورة ${username} **الشخصية**"
 pfps_embed_guild_title: "صورة ${username} **للسيرفر**"
 pfps_download_user_button: "تحميل الصورة الشخصية"
 pfps_download_guild_button: "تحميل صورة السيرفر"
-
 # -----------------------------\ /-----------------------------

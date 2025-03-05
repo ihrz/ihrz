@@ -544,8 +544,8 @@ help_ownihrz_dsc: "Host and manage your custom iHorizon bot ! (OWNIHRZ)"
 help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "Be notified when a Youtuber, Streamer publish a video!"
 help_notifier_fields: "Notifier"
-help_restorecord_fields: "RestoreCord"
-help_restorecord_dsc: "Made server verification with oAuth2. When you server got raided/termed, with this oAuth2, you can recover your old members !"
+help_authrestore_fields: "AuthRestore"
+help_authrestore_dsc: "Made server verification with oAuth2. When you server got raided/termed, with this oAuth2, you can recover your old members !"
 help_tags_fields: "Custom Tags"
 help_tags_dsc: "Create tag messages for your server, and use them in your server!"
 
@@ -2157,29 +2157,29 @@ notifier_config_message_embed_fields_notifyMessage: "Notify Message"
 notifier_config_message_awaiting_response: "Wrote the notify message."
 notifier_config_message_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo} | Successfully set notify message."
 
-# RestoreCord Module
+# AuthRestore Module
 # role, set, delete, get, force-join
 
-rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} The RestoreCord module with the following key: **${secretCode}** doesn't exist!"
+rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} The AuthRestore module with the following key: **${secretCode}** doesn't exist!"
 rc_verify: "Verify"
 
-# /restorecord role
-rc_role_embed_title: "RestoreCord New Modifiication"
+# /authrestore role
+rc_role_embed_title: "AuthRestore New Modifiication"
 rc_role_embed_field1_name: "New Given role after verify"
 
-# /restorecord set
-rc_command_ok: "${interaction.user.toString()}, you have just set up the \"RestoreCord\" module. Now, when a member of the Discord server clicks on the button and logs in via OAuth2, they will be added to the database. They will eventually be able to automatically join the server with OAuth2.\n# READ CAREFULLY\nThe message ${msgLink} now has a button that will serve as a verification.\nHERE IS THE PRIVATE CODE THAT MUST NOT BE DISCLOSED TO ANYONE. A PERSON WITH THIS CODE COULD DELETE IT, ADD MEMBERS TO THEIR SERVER... KEEP IT SOMEWHERE SAFE. iHorizon WILL NEVER GIVE IT TO YOU AGAIN:\n```${res.secretCode}```"
-rc_command_ok_dm: "# The RestoreCord code for ${interaction.guild.name}\n```${res.secretCode}```"
+# /authrestore set
+rc_command_ok: "${interaction.user.toString()}, you have just set up the \"AuthRestore\" module. Now, when a member of the Discord server clicks on the button and logs in via OAuth2, they will be added to the database. They will eventually be able to automatically join the server with OAuth2.\n# READ CAREFULLY\nThe message ${msgLink} now has a button that will serve as a verification.\nHERE IS THE PRIVATE CODE THAT MUST NOT BE DISCLOSED TO ANYONE. A PERSON WITH THIS CODE COULD DELETE IT, ADD MEMBERS TO THEIR SERVER... KEEP IT SOMEWHERE SAFE. iHorizon WILL NEVER GIVE IT TO YOU AGAIN:\n```${res.secretCode}```"
+rc_command_ok_dm: "# The AuthRestore code for ${interaction.guild.name}\n```${res.secretCode}```"
 rc_command_dm_failed: "I tried to send you the code in a private message, but you have blocked your DMs :/"
 rc_command_dm_ok: "In case you missed it, I sent you the code in a private message!"
 rc_command_horizongw_down: "Error: HorizonGateway maybe down"
 
-# /restorecord delete
+# /authrestore delete
 rc_delete_config_not_found: "The module configuration on this server could not be found!"
-rc_delete_command_ok: '${interaction.user.toString()}, you have just deleted the configuration of the "RestoreCord" module. For security (data) reasons, I will only delete the button, but the oauth2 data and the secret code will be deleted in 48 hours!'
+rc_delete_command_ok: '${interaction.user.toString()}, you have just deleted the configuration of the "AuthRestore" module. For security (data) reasons, I will only delete the button, but the oauth2 data and the secret code will be deleted in 48 hours!'
 
-# /restorecord get
-rc_get_mainEmbed_title: "RestoreCord General Infos"
+# /authrestore get
+rc_get_mainEmbed_title: "AuthRestore General Infos"
 rc_get_mainEmbed_field1_name: "Server ID"
 rc_get_mainEmbed_field2_name: "Given role after verify"
 rc_get_mainEmbed_field3_name: "Create at"
@@ -2192,8 +2192,8 @@ rc_get_locale: "Locale"
 rc_get_username: "Username"
 rc_get_unkwnon_user: "Unknown user (${Data.data.config.author.id})"
 
-# /restorecord force-join
-rc_forceJoin_embed_title: "RestoreCord - Force Join"
+# /authrestore force-join
+rc_forceJoin_embed_title: "AuthRestore - Force Join"
 rc_forceJoin_embed_desc: "## Are you sure to force-join member in this guild ?\n### READ CAREFULLY:\nIF YOU CONFIRM THIS ACTION, THE CURRENT PRIVATE KEY WILL BE DESTROYED. A NEW KEY WILL BE PROVIDED TO YOU.\n\n\n"
 rc_forceJoin_embed_field1: "Members found"
 rc_forceJoin_embed_field2: "Members already here"
@@ -2450,7 +2450,7 @@ buttonreaction_role_too_high: "The role is too high, I can't give/remove the rol
 buttonreaction_role_add: "You don't have anymore the ${fetched_role.toString()} role ✅"
 buttonreaction_role_remove: "You now have the ${fetched_role.toString()} role :tada:"
 
-# RestoreCord HTML
+# AuthRestore HTML
 rc_created_by: "Created by:"
 rc_created_on: "Created on:"
 rc_total_membres: "Total Members"

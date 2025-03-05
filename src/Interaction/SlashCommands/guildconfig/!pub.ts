@@ -33,7 +33,7 @@ interface Action {
 };
 
 const regexPatterns = [
-	'(discord\\.gg\\/|\\.gg\\/|gg\\/|https?:\\/\\/|http?:\\/\\/)',
+	'(discord\\.gg\\/|\\.gg\\/|gg\\/)',
 	'[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
 ];
 

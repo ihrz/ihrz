@@ -123,7 +123,6 @@ perm_sendvoicemessages_name: "音声メッセージを送信"
 perm_sendpolls_name: "投票を送信"
 perm_useexternalapps_name: "外部アプリを使用"
 
-
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
 ticket_disabled_command: "このコマンドは管理者によって無効化されています！"
@@ -160,7 +159,7 @@ sethereticket_panelforcreate_embed_desc: "## 選択肢付きチケットパネ�
 sethereticket_panelforcreate_button_add_label: "新しいケースを追加"
 sethereticket_panelforcreate_button_sub_label: "最後のケースを削除"
 sethereticket_panelforcreate_button_save_label: "埋め込みを送信"
-sethereticket_modal_1_title : "パネルに新しいケースを追加"
+sethereticket_modal_1_title: "パネルに新しいケースを追加"
 sethereticket_modal_1_fields_1_placeholder: "選択肢の名前"
 sethereticket_modal_1_fields_1_label: "名前"
 sethereticket_modal_1_fields_2_placeholder: "選択肢の絵文字"
@@ -278,7 +277,6 @@ ticket_panel_panel_11_label: "チケットチャンネル埋め込みパネル�
 ticket_rename_ok: "チケットチャンネルの名前が変更されました！"
 ticket_rename_error: "テキストチャンネルの名前を変更中にエラーが発生しました。"
 
-
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 
@@ -380,7 +378,6 @@ ranks_config_remove_string_menu1_placeholder: "削除するロールを選択"
 ranks_config_remove_awaiting_response: "削除したいロールを選択してください。"
 ranks_config_remove_command_work: "レベル ${levelToRemove} のロールが削除されました！"
 
-
 # Owner commands
 # /owner, /unowner, /blacklist, /unblacklist
 
@@ -410,7 +407,6 @@ unblacklist_command_work: "<@${member.id}>はもうブラックリストに登�
 unblacklist_not_blacklisted: "<@${member.id}>はブラックリストに登録されていませんでした。"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} 現在ブラックリストから削除されています。このメンバーをここでアンバンすることはできません。パーミッションが足りませんか？またはすでにアンバンされていますか？"
 unblacklist_user_is_not_exist: "ユーザーを見つけることができませんでした。"
-
 
 # Invite Managerコマンド
 # /addinvites、/invites、/leaderboard、/removeinvites
@@ -446,7 +442,6 @@ resetallinvites_succes_on_delete: "正常に削除されました!"
 resetallinvites_logs_embed_title: "Invite Manager ログ (危険な操作)"
 resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} がInvite Managerのすべてのデータを削除しました！"
 
-
 # Bot commands
 # /botinfo, /invite, /kisakay, /ping, /status
 
@@ -472,7 +467,7 @@ invite_embed_description: "私はあなたを愛しています、私に対す�
 kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakayは私の創造者であり開発者です。彼女と彼女のキーボードのおかげで生まれました。彼女には深く感謝しています！✨ ❤️❤️"
 
 # /andru
-andru_message: "Andruはコラボレーターであり開発者です。\"何でも屋\"として、マーケティング、コミュニティを管理しています..."
+andru_message: 'Andruはコラボレーターであり開発者です。"何でも屋"として、マーケティング、コミュニティを管理しています...'
 
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} EtherはiHorizonのコントリビューターです。Linuxとサイバーセキュリティに魅了され、iHorizonボットのサポートヘルパーとして即興で活動している。"
@@ -549,8 +544,8 @@ help_ownihrz_dsc: "カスタムiHorizonボットをホストして管理しよ�
 help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "YouTuberやストリーマーが動画を公開したら通知を受け取ろう！"
 help_notifier_fields: "通知機能"
-help_restorecord_fields: "RestoreCord"
-help_restorecord_dsc: "oAuth2を使用したサーバー検証。サーバーが攻撃されたり削除された場合でも、oAuth2を使用して古いメンバーを復元できます！"
+help_authrestore_fields: "AuthRestore"
+help_authrestore_dsc: "oAuth2を使用したサーバー検証。サーバーが攻撃されたり削除された場合でも、oAuth2を使用して古いメンバーを復元できます！"
 help_tags_fields: "カスタムタグ"
 help_tags_dsc: "サーバー用のタグメッセージを作成し、それをサーバー内で使用しましょう！"
 
@@ -564,7 +559,6 @@ say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
 # /ping
 ping_down_msg: "**ダウン**"
 ping_embed_desc: "# Pong！${interaction.client.user.username}のネットワーク統計:\n\n**[Discord ウェブサイトの Ping]** >> `${_net03}` ms\n**[Cloudflare の Ping]** >> `${_net02}` ms\n**[Google の Ping]** >> `${_net01}` ms\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[iHorizon ウェブサイトの Ping]** >> `${_net04}` ms\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Websocket の Ping]** `${client.ws.ping}` ms\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[平均]** >> (平均)`${averagePing}` ms"
-
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -586,7 +580,7 @@ hack_embed_fields_password: "パスワード："
 hug_embed_title: "<@${interaction.user.id}> が <@${hug.id}> にハグ❤️"
 
 # /kiss
-kiss_embed_description: "<@${interaction.user.id}> が <@${kiss.id}> にキス💏" 
+kiss_embed_description: "<@${interaction.user.id}> が <@${kiss.id}> にキス💏"
 
 # /poll
 poll_not_admin: "権限がありません！"
@@ -596,7 +590,17 @@ poll_embed_fields_choice: ":white_check_mark: **はい**\n :x: **いいえ **"
 
 # /question
 question_not_full: "3つ以上の単語で質問を入力してください！"
-question_s: ["はい。","いいえ。","わかりません。","自信がありません。","バカじゃない？","いいえ、結構です。","いいえ。","はい。"]
+question_s:
+  [
+    "はい。",
+    "いいえ。",
+    "わかりません。",
+    "自信がありません。",
+    "バカじゃない？",
+    "いいえ、結構です。",
+    "いいえ。",
+    "はい。",
+  ]
 question_fields_input_embed: ":question:質問"
 question_fields_output_embed: ":grey_exclamation:**回答**:"
 question_embed_title: "**質問**: `${interaction.user.username}`"
@@ -615,7 +619,6 @@ love_command_error: "画像を作成しようとしてエラーが発生しま�
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}さん、${action_type}でファンカテゴリーを操作しました！"
 fun_category_disable: "このコマンドを使用できません。ファンコマンドカテゴリーは無効です。"
-
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -726,7 +729,6 @@ economy_shop_not_set: "このサーバーでは購入可能なロールがあり
 economy_shop_already_owned: "すでに所有しています"
 economy_shop_menu_placeholder: "購入するロールを選択してください"
 
-
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -773,7 +775,6 @@ profil_birthday_modal3_fields1_label: "日"
 profil_birthday_invalid_day: "無効な日です！有効な日を入力してください。"
 profil_birthday_day_already_set: "日は既に設定されています。"
 profil_birthday_day_set: "日が設定されました！"
-
 
 # Utils commands
 # /serverinfo, /snipe, /userinfo, /renew
@@ -940,11 +941,11 @@ zip_stickers_doesnt_have_perm: "ステッカーを管理する権限がありま
 zip_stickers_command_work: "🎉 **${calcTime}**ミリ秒でエクスポートが完了しました！ ${stickers.size}枚のステッカーが含まれるアーカイブです。"
 zip_stickers_command_error: "ステッカーをエクスポート中にエラーが発生しました。"
 
-# +sticker  
-sticket_no_sticker: "返信されたメッセージにスタンプが見つかりませんでした。"  
-sticket_command_work: "スタンプ `${x.name}` が正常に作成されました。"  
-sticker_command_error: "スタンプを作成できませんでした。エラーが発生しました: `${err.message}`。"  
-sticket_command_error2: "スタンプを含むメッセージに返信してください。"  
+# +sticker
+sticket_no_sticker: "返信されたメッセージにスタンプが見つかりませんでした。"
+sticket_command_work: "スタンプ `${x.name}` が正常に作成されました。"
+sticker_command_error: "スタンプを作成できませんでした。エラーが発生しました: `${err.message}`。"
+sticket_command_error2: "スタンプを含むメッセージに返信してください。"
 
 # /util nick-kicker
 util_nick_kicker_embed_title: "ニックネームキッカー"
@@ -1004,7 +1005,6 @@ vkick_not_admin_kick: "管理者をボイスチャンネルから切断するこ
 vkick_logEmbed_title: "ボイスキック"
 vkick_logEmbed_desc: "${interaction.member.user.toString()} は ${member.toString()} をボイスチャンネル ${voiceChannel?.toString()} から切断しました。"
 vkick_command_work: "${interaction.member.user.toString()}、${member.toString()} を ${voiceChannel?.toString()} から正常に切断しました。"
-
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1196,7 +1196,7 @@ setup_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} | チャンネル�
 setup_command_error: "ボットは既にログチャンネルを設定しています！またはボットに権限がありません..."
 
 # /setlogschannel
-setlogschannel_not_admin:  ":x: | このコマンドを実行するには、サーバーの管理者である必要があります！"
+setlogschannel_not_admin: ":x: | このコマンドを実行するには、サーバーの管理者である必要があります！"
 setlogschannel_not_specified_args: "モジュールに有効なチャンネルを指定する必要があります。"
 setlogschannel_confirmation_message: "${client.iHorizon_Emojis.icon.Yes_Logo} | `${typeOfLogs}` は <@${interaction.user.id}> によって設定されました！"
 setlogschannel_already_this_channel: "このサーバーは既にログのためのこのチャンネルを持っています！"
@@ -1357,7 +1357,6 @@ autoreact_menu_remove_place: "削除するチャンネルを選択"
 autoreact_awaiting_remove_msg: "オートリアクトモジュールから削除するチャンネルを選択してください。"
 autoreact_remove_command_ok: "このチャンネルのオートリアクト設定が削除されました。"
 
-
 # Member Count commands
 # /setmembercount
 
@@ -1373,7 +1372,6 @@ setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} 
 setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | メンバーカウントを削除しました。"
 setmembercount_logs_embed_title_on_disable: "メンバーカウントの設定ログ"
 setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}>さんがこのサーバーのメンバーカウントを削除しました！"
-
 
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
@@ -1441,7 +1439,6 @@ lyrics_embed_title_unknown: "不明なタイトル"
 lyrics_embed_author_name_unknown: "不明な著者"
 lyrics_not_found: "歌詞が見つかりません"
 
-
 # Giveaway commands
 # /end, /start, /reroll
 
@@ -1494,7 +1491,6 @@ gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as strin
 gw_getdata_yes: "`はい`"
 gw_getdata_no: "`いいえ`"
 gw_doesnt_exit: "景品は到達できないか、存在しません。"
-
 
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
@@ -1613,7 +1609,6 @@ var_ban_date: "BAN日時"
 # /警告クリア
 clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}、${member?.toString()} の **`${allWarns.length}`** 件の警告が削除されました。"
 
-
 # Backup commands
 # /backup
 
@@ -1646,7 +1641,6 @@ backup_cancel_button: "アクションをキャンセル"
 backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} バックアップは正常に削除されました！"
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} バックアップは保持されました！"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} 時間切れです。バックアップは保持されました！"
-
 
 # Role Reactions
 # /reactionroles
@@ -1705,7 +1699,6 @@ roleselect_canceled_command_ok: "ロール選択の設定がキャンセルさ�
 roleselect_modal2_title: "メニュープレースホルダー"
 roleselect_modal2_label: "プレースホルダー"
 roleselect_modal2_placeholder: "選択メニューのプレースホルダー"
-
 
 # New feature commands
 # /punishpub, /report, /support
@@ -1788,9 +1781,9 @@ embed_copy_bad_channel_msg: "メッセージがあるチャンネルにアクセ
 embed_copy_bad_message_msg: "メッセージにアクセスできません！"
 embed_copy_bad_embed_message_msg: "メッセージに埋め込みがありません！"
 embed_copy_bad_url_msg: "無効なURLです。再試行してください。正しい形式は次のとおりです: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
-embed_btn_replace: "埋め込みを置き換える"  
-embed_replace_question_msg: "埋め込みを置き換える必要があるメッセージの新しいURLは何ですか？"  
-embed_replace_message: "{user}、新しい埋め込みが {messageUrl} の埋め込みに置き換えられました。"  
+embed_btn_replace: "埋め込みを置き換える"
+embed_replace_question_msg: "埋め込みを置き換える必要があるメッセージの新しいURLは何ですか？"
+embed_replace_message: "{user}、新しい埋め込みが {messageUrl} の埋め込みに置き換えられました。"
 
 # /rolesaver
 rolesaver_embed_title: "RoleSaverモジュール"
@@ -1802,7 +1795,6 @@ rolesaver_on_off_already_set: "モジュールはすでに無効です！"
 rolesaver_on_off_embed_title: "RoleSaverモジュール"
 rolesaver_on_off_embed_desc: "ギルドメンバーがサーバーを離れると、その役割はデータベースに保存されません。iHorizonは、メンバーがサーバーに戻ってきたときに古い役割を復元しなくなります。"
 rolesaver_on_off_embed_fields_1_name: "有効にする"
-
 
 # 提案コマンド
 # /setsuggest, /suggest
@@ -1856,7 +1848,6 @@ setsuggest_channel_embed_title: "提案モジュールがここに設定され�
 setsuggest_channel_embed_desc: "これで、ここにメッセージを送信する許可があるすべてのユーザーは、メッセージを送信するだけで提案できます！"
 setsuggest_channel_command_work: "${interaction.user}、提案モジュールのチャンネルを ${channel} に設定しました！"
 
-
 # セキュリティコマンド
 # /セキュリティ
 
@@ -1872,7 +1863,6 @@ security_role_to_give_command_work: "${interaction.user} さん、セキュリ�
 # /セキュリティ チャンネル
 security_channel_not_admin: "管理者ではありません！"
 security_channel_command_work: "${interaction.user} さん、セキュリティモジュールのチャンネルを ${channel} に設定しました！"
-
 
 # スケジュールコマンド
 # /schedule
@@ -1906,7 +1896,6 @@ schedule_create_embed_fields_name_confirm: "通知日時"
 schedule_create_embed_title_confirm: "#${scheduleCode} スケジュールが作成されました！"
 schedule_create_confirm_msg: "${interaction.user}、スケジュールが作成されました！\nコード: `${scheduleCode}`"
 
-
 # PFPSコマンド
 # /pfps channel, /pfps disable
 
@@ -1921,7 +1910,6 @@ pfps_channel_embed_title: "ここにPFPSモジュールが設定されていま�
 pfps_channel_embed_desc: "${interaction.user} がPFPSモジュールをここに設定しました！\nこれから30秒ごとに、iHorizonがこのギルドのランダムなユーザーのアバターを送信します！\n最善を尽くします！"
 pfps_channel_command_work: "${interaction.user}、チャンネル${channel} にPFPSモジュールを正常に設定しました！"
 pfps_channel_command_error: "${interaction.user}、コマンドがエラーを返しました。指定したチャンネルが存在し、PFPPモジュールが有効であることを確認してください！"
-
 
 # 保護モジュール
 # /認証アクション、...罰則、...設定表示、/許可リスト表示、...追加、...削除
@@ -1969,7 +1957,6 @@ allowlist_delete_cant_remove_owner: "サーバーのオーナーを許可リス�
 allowlist_delete_isnt_in: "許可リストから削除しようとするメンバーは含まれていません！"
 allowlist_delete_command_work: "${member.user} が許可リストから削除されました！"
 
-
 # Custom Tag Module
 # /tag create, ... delete, ... edit, ... list, ... info
 
@@ -2011,7 +1998,6 @@ tag_use_command_work: "タグ `${tag_name}` が送信されました。"
 # /tag edit
 tag_edit_error_perm: "タグを編集するには、管理者権限を持っているか、タグの所有者である必要があります。"
 
-
 # モジュール OWNHRZ
 # /mybot 提出、... 一覧、/mybot 管理 承認、... 拒否、... インスタンス
 
@@ -2052,7 +2038,6 @@ mybot_instance_deny_utils_msg_no: "いいえ"
 mybot_instance_deny_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_instance_deny_embed_desc: "ボットは拒否されました\n\n${utils_msg}"
 
-
 # TempVoiceモジュール
 # /text, /voice, /status, /staff
 
@@ -2078,7 +2063,6 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, このコマンドを使用�
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, このコマンドを使用する権限がありません！"
 tempvoice_staff_desc_embed: "## TempVoice スタッフロール\n<@&${targetedRole?.id}>は今後、チャンネルをモデレートできます！\n"
 
-
 # 告白モジュール
 # /cooldown, /disable, /channel
 
@@ -2099,7 +2083,6 @@ confession_disable_command_work_off: "告白モジュールが無効になりま
 confession_log_embed_title_on_enable: "告白の有効化/無効化"
 confession_log_embed_desc_on_enable: "${interaction.user}が告白モジュールを有効にしました！"
 confession_log_embed_desc_on_disabled: "${interaction.user}が告白モジュールを無効にしました！"
-
 
 # アンチスパムモジュール
 # /antispam manage
@@ -2143,7 +2126,6 @@ antispan_bypassroles_embed_desc: "以下のすべてのロールはアンチス�
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "以下のチャネルのいずれかに送信されたすべてのメッセージは、アンチスパムモジュールをバイパスできます。"
 
-
 # Stats Module
 # /stats ustats
 
@@ -2154,7 +2136,6 @@ voice_activity: "音声活動"
 minutes_word: "分"
 top_voice: "トップ音声チャンネル"
 top_message: "トップメッセージチャンネル"
-
 
 # 通知モジュール
 # 通知の作成者, 通知の設定
@@ -2174,30 +2155,29 @@ notifier_config_message_embed_fields_notifyMessage: "通知メッセージ"
 notifier_config_message_awaiting_response: "通知メッセージを書いてください。"
 notifier_config_message_command_work_on_enable: "通知メッセージの有効化作業中。"
 
-
-# RestoreCord モジュール
+# AuthRestore モジュール
 # ロール、設定、削除、取得、強制参加
 
-rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} キー：**${secretCode}** による RestoreCord モジュールは存在しません！"
+rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} キー：**${secretCode}** による AuthRestore モジュールは存在しません！"
 rc_verify: "確認する"
 
-# /restorecord ロール
-rc_role_embed_title: "RestoreCord 新しい変更"
+# /authrestore ロール
+rc_role_embed_title: "AuthRestore 新しい変更"
 rc_role_embed_field1_name: "確認後に付与される新しいロール"
 
-# /restorecord 設定
-rc_command_ok: "${interaction.user.toString()}、\"RestoreCord\" モジュールを設定しました。サーバーメンバーがボタンをクリックし、OAuth2でログインすると、データベースに追加されます。OAuth2を通じてサーバーに自動的に参加できるようになります。\n# よく読んでください\nメッセージ ${msgLink} には確認用のボタンがあります。\nこのコードは非常に重要です。他の誰にも公開しないでください。このコードを持っている人は、削除やメンバー追加ができてしまいます。安全な場所に保管してください。iHorizonは再発行しません:\n```${res.secretCode}```"
-rc_command_ok_dm: "# ${interaction.guild.name} 用の RestoreCord コード\n```${res.secretCode}```"
+# /authrestore 設定
+rc_command_ok: "${interaction.user.toString()}、\"AuthRestore\" モジュールを設定しました。サーバーメンバーがボタンをクリックし、OAuth2でログインすると、データベースに追加されます。OAuth2を通じてサーバーに自動的に参加できるようになります。\n# よく読んでください\nメッセージ ${msgLink} には確認用のボタンがあります。\nこのコードは非常に重要です。他の誰にも公開しないでください。このコードを持っている人は、削除やメンバー追加ができてしまいます。安全な場所に保管してください。iHorizonは再発行しません:\n```${res.secretCode}```"
+rc_command_ok_dm: "# ${interaction.guild.name} 用の AuthRestore コード\n```${res.secretCode}```"
 rc_command_dm_failed: "DMを送信しようとしましたが、ブロックされています :/"
 rc_command_dm_ok: "念のため、DMでもコードを送信しました！"
 rc_command_horizongw_down: "エラー: HorizonGatewayがダウンしている可能性があります"
 
-# /restorecord 削除
+# /authrestore 削除
 rc_delete_config_not_found: "このサーバーでのモジュール設定が見つかりません！"
-rc_delete_command_ok: "${interaction.user.toString()}、\"RestoreCord\" モジュールの設定を削除しました。セキュリティ上（データ保護）、ボタンのみ削除し、OAuth2データとシークレットコードは48時間以内に削除されます。"
+rc_delete_command_ok: '${interaction.user.toString()}、"AuthRestore" モジュールの設定を削除しました。セキュリティ上（データ保護）、ボタンのみ削除し、OAuth2データとシークレットコードは48時間以内に削除されます。'
 
-# /restorecord 取得
-rc_get_mainEmbed_title: "RestoreCord 一般情報"
+# /authrestore 取得
+rc_get_mainEmbed_title: "AuthRestore 一般情報"
 rc_get_mainEmbed_field1_name: "サーバーID"
 rc_get_mainEmbed_field2_name: "確認後に付与されるロール"
 rc_get_mainEmbed_field3_name: "作成日時"
@@ -2210,8 +2190,8 @@ rc_get_locale: "ロケール"
 rc_get_username: "ユーザー名"
 rc_get_unkwnon_user: "不明なユーザー (${Data.data.config.author.id})"
 
-# /restorecord 強制参加
-rc_forceJoin_embed_title: "RestoreCord - 強制参加"
+# /authrestore 強制参加
+rc_forceJoin_embed_title: "AuthRestore - 強制参加"
 rc_forceJoin_embed_desc: "## このサーバーにメンバーを強制参加させますか？\n### 注意:\nこの操作を実行すると、現在のプライベートキーは破棄され、新しいキーが提供されます。\n\n\n"
 rc_forceJoin_embed_field1: "見つかったメンバー"
 rc_forceJoin_embed_field2: "既存のメンバー"
@@ -2222,7 +2202,6 @@ rc_forceJoin_ws_size: "# **${value2}** 人のメンバーをサーバーに追�
 rc_forceJoin_ws_start: "# 強制参加プロセスを開始しています..."
 rc_forceJoin_ws_end: "# 強制参加プロセスが完了しました。"
 rc_forceJoin_ws_end_renew_msg: "# 注意\nこのコードは非常に重要です。他の誰にも公開しないでください。このコードを持っている人は、削除やメンバー追加ができてしまいます。安全な場所に保管してください。iHorizonは再発行しません:\n```${value2}```"
-
 
 # ミスカテゴリ
 # メディア操作
@@ -2469,7 +2448,7 @@ buttonreaction_role_too_high: "役割が高すぎるため、役割を与えた�
 buttonreaction_role_add: "${fetched_role.toString()} の役割はもうありません ✅"
 buttonreaction_role_remove: "あなたは今、${fetched_role.toString()} の役割を持っています :tada:"
 
-# RestoreCord HTML
+# AuthRestore HTML
 rc_created_by: "作成者:"
 rc_created_on: "作成日:"
 rc_total_membres: "メンバー総数"
@@ -2493,5 +2472,4 @@ pfps_embed_user_title: "${username}の**ユーザー**アバター"
 pfps_embed_guild_title: "${username}の**サーバー**アバター"
 pfps_download_user_button: "ユーザーアバターをダウンロード"
 pfps_download_guild_button: "サーバーアバターをダウンロード"
-
 # -----------------------------\ /-----------------------------
