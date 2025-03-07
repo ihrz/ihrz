@@ -93,6 +93,45 @@ export const subCommand: SubCommand = {
 			node
 		});
 
+		player.filterManager.setEQ([
+			{
+				band: 10,
+				gain: 0.7
+			},
+			{
+				band: 11,
+				gain: 0.7
+			},
+			{
+				band: 12,
+				gain: 0.7
+			},
+			{
+				band: 13,
+				gain: 0.7
+			},
+			{
+				band: 14,
+				gain: 0.7
+			},
+			{
+				band: 0,
+				gain: 0.6
+			},
+			{
+				band: 1,
+				gain: 0.5
+			},
+			{
+				band: 2,
+				gain: 0.4
+			},
+		]);
+		// player.filterManager.lavalinkFilterPlugin.toggleReverb([0.8, 0.5, 1.0], [])
+		player.filterManager.setRate(0.2);
+		player.filterManager.applyPlayerFilters();
+		player.setVolume(75);
+
 		if (!res || res.tracks.length === 0) {
 			let results = new EmbedBuilder()
 				.setTitle(lang.p_embed_title)

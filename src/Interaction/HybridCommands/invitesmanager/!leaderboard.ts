@@ -116,7 +116,7 @@ export const subCommand: SubCommand = {
 			)],
 			files: [
 				await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction),
-				{ attachment: (await interaction.client.func.image64(interaction.guild.iconURL({ size: 512 }) || interaction.client.user?.displayAvatarURL())) ?? Buffer.from([]), name: 'guildIcon.png' }
+				{ attachment: (await interaction.client.func.image64.image64(interaction.guild.iconURL({ size: 512 }) || interaction.client.user?.displayAvatarURL())) ?? Buffer.from([]), name: 'guildIcon.png' }
 			]
 		});
 

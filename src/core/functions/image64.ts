@@ -21,7 +21,7 @@
 
 import { axios, AxiosResponse } from "./axios.js";
 
-async function isImageUrl(url: string): Promise<boolean> {
+export async function isImageUrl(url: string): Promise<boolean> {
 	try {
 		let response = await axios.head(url);
 		let contentType = response.headers.get("content-type");
@@ -31,7 +31,7 @@ async function isImageUrl(url: string): Promise<boolean> {
 	}
 };
 
-export default async function image64(arg: string): Promise<Buffer | undefined> {
+export async function image64(arg: string): Promise<Buffer | undefined> {
 	try {
 		const response: AxiosResponse<ArrayBuffer> = await axios.get(arg, { responseType: 'arrayBuffer' });
 

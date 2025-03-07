@@ -292,10 +292,22 @@ export const subCommand: SubCommand = {
 							]
 						}, i1);
 
-						backgroundURL = res?.fields.getTextInputValue("url")!;
+						let choice = res?.fields.getTextInputValue("url")!;
 
-						let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
-						await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] })
+						if (await interaction.client.func.image64.isImageUrl(res?.fields.getTextInputValue("url")!)) {
+							let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL: choice, profilePictureRound, textColour, message, textSize, avatarSize }))!;
+							backgroundURL = choice;
+							await interaction.editReply({ embeds: [helpEmbed, helpEmbed2], files: [attachment], components: [buttons, buttons2] })
+						} else {
+							let attachment = (await generateJoinImage(interaction.member as GuildMember, { backgroundURL, profilePictureRound, textColour, message, textSize, avatarSize }))!;
+
+							await interaction.editReply({
+								embeds: [helpEmbed, helpEmbed2],
+								content: "",
+								components: [buttons, buttons2],
+								files: [attachment]
+							})
+						}
 						i1_collector.stop();
 					} else if (i1.values[0] === "change_frame") {
 						await i1.deferUpdate();

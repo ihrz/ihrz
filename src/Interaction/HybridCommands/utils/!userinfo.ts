@@ -208,7 +208,7 @@ export const subCommand: SubCommand = {
 			];
 
 			if (banner) files.push({
-				attachment: await interaction.client.func.image64(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`),
+				attachment: await interaction.client.func.image64.image64(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`),
 				name: 'user_banner.gif'
 			});
 

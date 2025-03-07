@@ -79,7 +79,7 @@ export const subCommand: SubCommand = {
 				embeds: [embed],
 				files: [
 					{
-						attachment: (await interaction.client.func.image64(interaction.guild.iconURL() || client.user.displayAvatarURL())) ?? Buffer.from([]),
+						attachment: (await interaction.client.func.image64.image64(interaction.guild.iconURL() || client.user.displayAvatarURL())) ?? Buffer.from([]),
 						name: 'guild_icon.png'
 					}, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)
 				],

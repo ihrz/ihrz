@@ -1147,6 +1147,7 @@ setjoinmessage_modal_fields_hex_color: "цвет www.color-hex.com"
 setjoinmessage_modal_fields_message: "сообщение, которое вы хотите"
 setjoinmessage_var_text_size: "Размер текста: "
 setjoinmessage_var_avatar_size: "Размер аватара: "
+setjoinmessage_change_image_invalid_url: "Недействительный URL-адрес изображения. Попробуйте другой источник изображений."
 
 # /setjoinroles
 setjoinroles_var_none: "Нет"

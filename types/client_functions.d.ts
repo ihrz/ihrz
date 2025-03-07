@@ -325,7 +325,10 @@ declare namespace Client_Functions {
 	): any;
 
 	// From image64.ts
-	export function image64(arg: string): Promise<Buffer | undefined>;
+	export namespace image64 {
+		export function isImageUrl(url: string): Promise<boolean>;
+		export function image64(arg: string): Promise<Buffer | undefined>;
+	}
 
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
