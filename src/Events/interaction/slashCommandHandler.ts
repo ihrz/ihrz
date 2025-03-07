@@ -166,7 +166,7 @@ export const event: BotEvent = {
 								.setEmoji(client.iHorizon_Emojis.icon.Sparkles)
 								.setLabel('Main Website')
 								.setStyle(ButtonStyle.Link)
-								.setURL('https://ihorizon.me'),
+								.setURL('https://ihorizon.org'),
 						)
 				]
 			});

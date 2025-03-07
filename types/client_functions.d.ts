@@ -302,7 +302,10 @@ declare namespace Client_Functions {
 	): any;
 
 	// From image64.ts
-	export function image64(arg: string): Promise<Buffer | undefined>;
+	export namespace image64 {
+		export function isImageUrl(url: string): Promise<boolean>;
+		export function image64(arg: string): Promise<Buffer | undefined>;
+	}
 
 	// From image_dominant_color.ts
 	export namespace image_dominant_color {

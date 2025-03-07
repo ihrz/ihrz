@@ -1148,6 +1148,7 @@ setjoinmessage_modal_fields_hex_color: "لون www.color-hex.com"
 setjoinmessage_modal_fields_message: "الرسالة التي تريدها"
 setjoinmessage_var_text_size: "حجم النص: "
 setjoinmessage_var_avatar_size: "حجم الصورة الرمزية: "
+setjoinmessage_change_image_invalid_url: "عنوان URL للصورة غير صالح. يرجى المحاولة باستخدام مزود صور آخر."
 
 # /setjoinroles
 setjoinroles_var_none: "لا شيء"
