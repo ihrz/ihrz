@@ -78,7 +78,7 @@ export async function displayBotName(guildId: string): Promise<string> {
 	let botName = await global.client.db.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
 
 	if (!botName) {
-		botName = guild.client.user?.username!;
+		botName = global.client.user?.username!;
 	};
 
 	return botName;

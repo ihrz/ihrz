@@ -57,10 +57,6 @@ export const subCommand: SubCommand = {
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#FF0000")
 			.setDescription(lang.removeinvites_not_admin_embed_description);
 
-		let a = new EmbedBuilder()
-			.setColor("#FF0000")
-			.setDescription(lang.removeinvites_not_admin_embed_description);
-
 		let check = await client.db.get(`${interaction?.guild?.id}.USER.${user.id}.INVITES`);
 
 		if (check) {

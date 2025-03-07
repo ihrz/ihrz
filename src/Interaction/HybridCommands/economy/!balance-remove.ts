@@ -57,6 +57,8 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0) as GuildMember;
 		};
 
+		await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount!);
+		let bal = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
 
 		let embed = new EmbedBuilder()
 			.setAuthor({ name: lang.removemoney_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
