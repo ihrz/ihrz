@@ -110,7 +110,7 @@ bun build && bun .
 🔹 Certified by Discord and growing fast!  
 
 📌 Join the official iHorizon Discord support server:  
-🌍 [Official Server](http://discord.ihorizon.me/) | 🔗 [Backup Link](https://discord.gg/ZpBPGNsAsu)  
+🌍 [Official Server](http://discord.ihorizon.org/) | 🔗 [Backup Link](https://discord.gg/ZpBPGNsAsu)  
 
 📌 Invite iHorizon to your server:  
 🤖 [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)  

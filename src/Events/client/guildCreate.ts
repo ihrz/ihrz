@@ -109,7 +109,7 @@ export const event: BotEvent = {
 					`I'm here to make your experience on this server the best it can be.\n` +
 					`Thanks for choosing me and let's have some fun together!\n`
 				)
-				.setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`);
+				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`);
 
 			let buttons = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents(
@@ -122,7 +122,7 @@ export const event: BotEvent = {
 						.setEmoji(client.iHorizon_Emojis.icon.Sparkles)
 						.setLabel('iHorizon Website')
 						.setStyle(ButtonStyle.Link)
-						.setURL('https://ihorizon.me'),
+						.setURL('https://ihorizon.org'),
 				)
 				;
 

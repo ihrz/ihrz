@@ -90,9 +90,9 @@ export const subCommand: SubCommand = {
 			.replaceAll('{1_wealth}', formatNumber(array[0]?.totalWealth || 0))
 			.replaceAll('{2_wealth}', formatNumber(array[1]?.totalWealth || 0))
 			.replaceAll('{3_wealth}', formatNumber(array[2]?.totalWealth || 0))
-			.replaceAll('{1_avatar}', array[0]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.me/assets/img/unknown-user.png")
-			.replaceAll('{2_avatar}', array[1]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.me/assets/img/unknown-user.png")
-			.replaceAll('{3_avatar}', array[2]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.me/assets/img/unknown-user.png")
+			.replaceAll('{1_avatar}', array[0]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.org/assets/img/unknown-user.png")
+			.replaceAll('{2_avatar}', array[1]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.org/assets/img/unknown-user.png")
+			.replaceAll('{3_avatar}', array[2]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.org/assets/img/unknown-user.png")
 			.replaceAll('{coin_emoji}', client.iHorizon_Emojis.icon.Coin);
 
 		const createEmbed = (page: number) => {

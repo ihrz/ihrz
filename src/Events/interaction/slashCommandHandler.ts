@@ -188,7 +188,7 @@ export const event: BotEvent = {
 				embeds: [
 					new EmbedBuilder()
 						.setColor(2829617)
-						.setImage('https://ihorizon.me/assets/img/banner/ihrz_en-US.png')
+						.setImage('https://ihorizon.org/assets/img/banner/ihrz_en-US.png')
 						.setDescription(`# Uhh Oh!!\n\nIt seems you are using iHorizon in a private conversation.\nI want to clarify that iHorizon can only be used in a Discord server!\n\nTo unleash my full potential, add me!`)
 				],
 				components: [
@@ -203,7 +203,7 @@ export const event: BotEvent = {
 								.setEmoji(client.iHorizon_Emojis.icon.Sparkles)
 								.setLabel('iHorizon Website')
 								.setStyle(ButtonStyle.Link)
-								.setURL('https://ihorizon.me'),
+								.setURL('https://ihorizon.org'),
 						)
 				]
 			});

@@ -62,7 +62,7 @@ export const command: Command = {
 		await ping.promise.probe("google.com").then(result => { _net01 = Number(result.time) }).catch(() => { _net01 = lang.ping_down_msg });
 		await ping.promise.probe("cloudflare.com").then(result => { _net02 = Number(result.time) }).catch(() => { _net02 = lang.ping_down_msg });
 		await ping.promise.probe("discord.com").then(result => { _net03 = Number(result.time) }).catch(() => { _net03 = lang.ping_down_msg });
-		await ping.promise.probe("ihorizon.me").then(result => { _net04 = Number(result.time) }).catch(() => { _net04 = lang.ping_down_msg });
+		await ping.promise.probe("ihorizon.org").then(result => { _net04 = Number(result.time) }).catch(() => { _net04 = lang.ping_down_msg });
 
 		let averagePing = (parseInt(_net01) + parseInt(_net02) + parseInt(_net03) + parseInt(_net04)) / 4;
 

@@ -95,9 +95,9 @@ export const subCommand: SubCommand = {
 				.replace("{level}", array[2]?.level.toString() || lang.var_none)
 			)
 			// avatar
-			.replaceAll('{1_avatar}', array[0]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.me/assets/img/unknown-user.png")
-			.replaceAll('{2_avatar}', array[1]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.me/assets/img/unknown-user.png")
-			.replaceAll('{3_avatar}', array[2]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.me/assets/img/unknown-user.png")
+			.replaceAll('{1_avatar}', array[0]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.org/assets/img/unknown-user.png")
+			.replaceAll('{2_avatar}', array[1]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.org/assets/img/unknown-user.png")
+			.replaceAll('{3_avatar}', array[2]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.org/assets/img/unknown-user.png")
 			// xp
 			.replaceAll('{1_xp}', formatNumber(array[0]?.xptotal).toString())
 			.replaceAll('{2_xp}', formatNumber(array[1]?.xptotal).toString())

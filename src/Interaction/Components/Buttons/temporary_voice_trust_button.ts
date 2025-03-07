@@ -121,7 +121,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 								value: addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || lang.temporary_voice_no_one
 							},
 						)
-						.setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+						.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
 						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
 				],
 				files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],

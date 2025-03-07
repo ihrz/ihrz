@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 						new ButtonBuilder()
 							.setStyle(ButtonStyle.Link)
 							.setLabel(lang.pfps_download_guild_button)
-							.setURL(interaction.guild.iconURL({ extension: "webp", size: 4096 }) || "https://ihorizon.me/assets/img/unknown-user.png")
+							.setURL(interaction.guild.iconURL({ extension: "webp", size: 4096 }) || "https://ihorizon.org/assets/img/unknown-user.png")
 					)
 			]
 		});

@@ -123,7 +123,7 @@ async function handleCategorySelect(
 				.replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(i))
-			.setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${i.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+			.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${i.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
 			.setThumbnail("attachment://footer_icon.png")
 			.setTimestamp();
 		await response.edit({
@@ -416,7 +416,7 @@ export const command: Command = {
 					.replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
 				)
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction))
-				.setImage(`https://ihorizon.me/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
 				.setThumbnail("attachment://footer_icon.png")
 				.setTimestamp();
 
