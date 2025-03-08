@@ -123,7 +123,6 @@ perm_sendvoicemessages_name: "Отправлять голосовые сообщ
 perm_sendpolls_name: "Отправлять опросы"
 perm_useexternalapps_name: "Использовать внешние приложения"
 
-
 # Команды для тикетов
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
 ticket_disabled_command: "Вы не можете использовать эту команду, потому что администратор отключил команды для тикетов!"
@@ -160,7 +159,7 @@ sethereticket_panelforcreate_embed_desc: "## Создание панели би�
 sethereticket_panelforcreate_button_add_label: "Добавить новый случай"
 sethereticket_panelforcreate_button_sub_label: "Удалить последний случай"
 sethereticket_panelforcreate_button_save_label: "Отправить встраивание"
-sethereticket_modal_1_title : "Добавить новый случай в панель"
+sethereticket_modal_1_title: "Добавить новый случай в панель"
 sethereticket_modal_1_fields_1_placeholder: "Название случая для выбора"
 sethereticket_modal_1_fields_1_label: "Имя"
 sethereticket_modal_1_fields_2_placeholder: "Эмодзи для случая выбора"
@@ -222,7 +221,7 @@ ticket_panel_ping_user: "📎 Упоминать пользователя"
 ticket_panel_placeholder: "🏷️ Заполнитель"
 ticket_panel_category: "📤 Категория"
 ticket_panel_option_fields: "📔 Поля опций"
-ticket_panel_form: '📝 Форма'
+ticket_panel_form: "📝 Форма"
 ticket_panel_panel_placeholder: "Выберите опции"
 ticket_panel_panel_1_label: "Сохранить текущую конфигурацию"
 ticket_panel_panel_2_label: "Показать предварительный просмотр"
@@ -271,11 +270,12 @@ ticket_panel_add_form_modal_field2_label: "Заполнитель вопроса
 ticket_panel_preview_message: "Предварительный просмотр панели тикетов"
 ticket_panel_option_change_category: "Выберите вариант для изменения категории"
 ticket_panel_panel_10_label: "Изменить категорию для одной конкретной опции"
+ticket_panel_channel_panel_embed_id: "ID встраивания канала тикетов"
+ticket_panel_panel_11_label: "Изменить панель встраивания канала тикетов"
 
 # /ticket rename
 ticket_rename_ok: "Канал тикета был переименован!"
 ticket_rename_error: "Ошибка при переименовании текстового канала."
-
 
 # Команды для рангов
 # /level, /setxpchannels, /disablexp
@@ -378,7 +378,6 @@ ranks_config_remove_string_menu1_placeholder: "Выберите роль для 
 ranks_config_remove_awaiting_response: "Выберите роль, которую вы хотите удалить."
 ranks_config_remove_command_work: "Роль на уровне ${levelToRemove} была удалена!"
 
-
 # Команды владельца
 # /owner, /unowner, /blacklist, /unblacklist
 
@@ -408,7 +407,6 @@ unblacklist_command_work: "<@${member.id}> больше не в черном с�
 unblacklist_not_blacklisted: "<@${member.id}> не был в черном списке"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} Теперь не в черном списке, нельзя разблокировать этого участника здесь, отсутствуют разрешения или он уже разблокирован?"
 unblacklist_user_is_not_exist: "Я не могу найти этого пользователя"
-
 
 # Команды менеджера приглашений
 # /addinvites, /invites, /leaderboard, /removeinvites
@@ -444,7 +442,6 @@ resetallinvites_succes_on_delete: "Успешно удалено!"
 resetallinvites_logs_embed_title: "Журналы Invite Manager (ОПАСНОЕ ДЕЙСТВИЕ)"
 resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} удалил все данные Invite Manager!"
 
-
 # Команды бота
 # /botinfo, /invite, /kisakay, /ping, /status
 
@@ -470,7 +467,7 @@ invite_embed_description: "Я вас люблю, покажите мне сво�
 kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay - и мой создатель и разработчик. Благодаря ей и её клавиатуре я появился в этом мире. Я глубоко благодарен ей!✨ ❤️❤️"
 
 # /andru
-andru_message: "Andru - сотрудник и разработчик. \"Мастер на все руки\", он управляет маркетингом, сообществом..."
+andru_message: 'Andru - сотрудник и разработчик. "Мастер на все руки", он управляет маркетингом, сообществом...'
 
 # /ether
 ether_message: "${client.iHorizon_Emojis.icon.Sparkles} Ether - автор проекта iHorizon. Он увлекается Linux и кибербезопасностью, а также импровизирует в качестве помощника для бота iHorizon."
@@ -547,8 +544,8 @@ help_ownihrz_dsc: "Хостите и управляйте своим собст�
 help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "Получайте уведомления, когда ютубер или стример публикует видео!"
 help_notifier_fields: "Уведомитель"
-help_restorecord_fields: "RestoreCord"
-help_restorecord_dsc: "Проверка сервера с помощью oAuth2. Если ваш сервер был атакован или удален, вы можете восстановить своих старых участников с помощью oAuth2!"
+help_authrestore_fields: "AuthRestore"
+help_authrestore_dsc: "Проверка сервера с помощью oAuth2. Если ваш сервер был атакован или удален, вы можете восстановить своих старых участников с помощью oAuth2!"
 help_tags_fields: "Пользовательские теги"
 help_tags_dsc: "Создайте сообщения с тегами для вашего сервера и используйте их на своем сервере!"
 
@@ -562,7 +559,6 @@ say_footer_msg: "\n\nОтправлено из `/говорить` от ${intera
 # /ping
 ping_down_msg: "**НЕДОСТУПНО**"
 ping_embed_desc: "# Понг! Статистика сети ${interaction.client.user.username}:\n\n**[Пинг веб-сайта Discord]** >> `${_net03}` мс.\n**[Пинг Cloudflare]** >> `${_net02}` мс.\n**[Пинг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Пинг веб-сайта iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Пинг веб-сокета]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[Среднее]** >> (ср)`${averagePing}` мс."
-
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -594,7 +590,17 @@ poll_embed_fields_choice: ":white_check_mark: **Да**\n :x: **Нет** "
 
 # /question
 question_not_full: "Введите полный вопрос с 3 или более словами!"
-question_s: ["Да.","Нет.","Я не знаю.","Я не уверен!","Ты сумасшедший!", "Нет, спасибо.", "Нет.", "Да."]
+question_s:
+  [
+    "Да.",
+    "Нет.",
+    "Я не знаю.",
+    "Я не уверен!",
+    "Ты сумасшедший!",
+    "Нет, спасибо.",
+    "Нет.",
+    "Да.",
+  ]
 question_fields_input_embed: ":question:__**Вопрос**__"
 question_fields_output_embed: ":grey_exclamation:__**Ответ:**__"
 question_embed_title: "__**Вопрос**__: `${interaction.user.username}`"
@@ -613,7 +619,6 @@ love_command_error: "Произошла ошибка при создании и�
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}, вы ${action_type} категорию развлечений!"
 fun_category_disable: "Вы не можете использовать эту команду, категория команд развлечений отключена."
-
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -724,7 +729,6 @@ economy_shop_not_set: "Нет ролей, доступных для покупк
 economy_shop_already_owned: "Уже есть"
 economy_shop_menu_placeholder: "Выберите роль для покупки"
 
-
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -771,7 +775,6 @@ profil_birthday_modal3_fields1_label: "День"
 profil_birthday_invalid_day: "Неверный день! Пожалуйста, введите правильный день."
 profil_birthday_day_already_set: "Ваш день уже установлен."
 profil_birthday_day_set: "Ваш день установлен!"
-
 
 # Utils commands
 # /serverinfo, /snipe, /userinfo, /renew
@@ -938,11 +941,11 @@ zip_stickers_doesnt_have_perm: "У вас нет разрешения на уп�
 zip_stickers_command_work: "🎉 Экспорт завершен за **${calcTime}**мс! Вот архив, содержащий ${stickers.size} стикеров."
 zip_stickers_command_error: "Произошла ошибка при экспорте стикеров."
 
-# +sticker  
-sticket_no_sticker: "Стикер не найден в ответном сообщении."  
-sticket_command_work: "Стикер `${x.name}` успешно создан."  
-sticker_command_error: "Не удалось создать стикер. Произошла ошибка: `${err.message}`."  
-sticket_command_error2: "Пожалуйста, ответьте на сообщение, содержащее стикер."  
+# +sticker
+sticket_no_sticker: "Стикер не найден в ответном сообщении."
+sticket_command_work: "Стикер `${x.name}` успешно создан."
+sticker_command_error: "Не удалось создать стикер. Произошла ошибка: `${err.message}`."
+sticket_command_error2: "Пожалуйста, ответьте на сообщение, содержащее стикер."
 
 # /util nick-kicker
 util_nick_kicker_embed_title: "Кикер никнеймов"
@@ -1002,7 +1005,6 @@ vkick_not_admin_kick: "Вы не можете отключить админис�
 vkick_logEmbed_title: "Голосовой Кик"
 vkick_logEmbed_desc: "${interaction.member.user.toString()} отключил ${member.toString()} от голосового канала ${voiceChannel?.toString()}."
 vkick_command_work: "${interaction.member.user.toString()}, вы успешно отключили ${member.toString()} от ${voiceChannel?.toString()}."
-
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1108,7 +1110,7 @@ setjoindm_awaiting_response: "Напишите новое пользовател
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"
-setjoinmessage_help_embed_title: "Помощь по команде setjoinmessage!" 
+setjoinmessage_help_embed_title: "Помощь по команде setjoinmessage!"
 setjoinmessage_help_embed_description: "/setjoinmessage <Включить / Выключить / Показать установленное сообщение> <сообщение при входе>"
 setjoinmessage_help_embed_fields_name: "Как использовать?"
 setjoinmessage_help_embed_fields_value: "Используйте ```/setjoinmessage <Включить / Выключить / Показать установленное сообщение> <сообщение>```\n{user} = Имя участника\n{membercount} = Количество участников сервера\n{createdat} = Дата создания аккаунта участника\n{guild} = Название сервера\n{inviter} = Имя и дискриминатор пригласившего пользователя\n{invites} = Количество приглашений пользователя"
@@ -1145,6 +1147,7 @@ setjoinmessage_modal_fields_hex_color: "цвет www.color-hex.com"
 setjoinmessage_modal_fields_message: "сообщение, которое вы хотите"
 setjoinmessage_var_text_size: "Размер текста: "
 setjoinmessage_var_avatar_size: "Размер аватара: "
+setjoinmessage_change_image_invalid_url: "Недействительный URL-адрес изображения. Попробуйте другой источник изображений."
 
 # /setjoinroles
 setjoinroles_var_none: "Нет"
@@ -1194,7 +1197,7 @@ setup_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} | Настройк�
 setup_command_error: "Бот уже настроил каналы для журналов! Или у бота нет разрешения..."
 
 # /setlogschannel
-setlogschannel_not_admin:  ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"
+setlogschannel_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"
 setlogschannel_not_specified_args: "Вы должны указать допустимый канал для вашего модуля."
 setlogschannel_confirmation_message: "${client.iHorizon_Emojis.icon.Yes_Logo} | Теперь `${typeOfLogs}` настроен, установлено пользователем <@${interaction.user.id}> !"
 setlogschannel_already_this_channel: "На этом сервере уже есть этот канал для журналов!"
@@ -1305,11 +1308,19 @@ perm_rmv_role: "Роль удалена"
 perm_rmv_usr: "Пользователь удален"
 perm_set_command_reset: "Эта команда была сброшена"
 perm_set_no_modified: "Разрешения не изменены"
+perm_command_delete_dont_exist: "Для указанной команды не установлены права доступа."
+perm_command_delete_command_deleted: "Удалены права доступа для команды: `${commands}`"
+perm_command_delete_specify_command: "Вам необходимо указать команду для удаления её прав доступа."
+perm_command_delete_all_one: "Вам необходимо указать один параметр для удаления права доступа."
+perm_command_delete_all_one_option: "Вы можете указать только один параметр для удаления права доступа."
+perm_command_delete_all_zero_change: "Указанный вами тип прав доступа не использовался ни в одной команде."
+perm_command_delete_all_command_ok: "\nУспешно удалено **${changes.length}** вложенных прав доступа типа `${type}` (${value}) из базы данных."
 
 # /perm roles
 perm_roles_created_role: "Созданы следующие роли: ${createdRoles.join(', ')}"
 perm_roles_already_upate: "Все роли уже существуют и актуальны."
 perm_roles_error: "Произошла ошибка при создании или обновлении ролей."
+perm_roles_not_owner: "Только владелец сервера может добавлять роли уровня разрешений."
 
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, теперь, когда участник отправляет приветственное сообщение, бот **{activeMsg}**"
@@ -1347,7 +1358,6 @@ autoreact_menu_remove_place: "Выберите канал для удалени�
 autoreact_awaiting_remove_msg: "Выберите канал для удаления из модуля авто-реакции."
 autoreact_remove_command_ok: "Настройка авто-реакции для этого канала была удалена."
 
-
 # Commandes de décompte des membres
 # /setmembercount
 
@@ -1364,7 +1374,6 @@ setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo}
 setmembercount_logs_embed_title_on_disable: "Журнал удаления счетчика участников"
 setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> удалил счетчик участников с этого сервера!"
 
-
 # Команды музыки
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
@@ -1373,7 +1382,7 @@ music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} Вы должны нахо
 # /p
 p_not_in_voice_channel: "Вы должны находиться в голосовом канале, чтобы использовать эту команду!"
 p_embed_title: "Нет результатов"
-p_loading_message:  "${client.iHorizon_Emojis.icon.Timer} Загружается : **{result}** !"
+p_loading_message: "${client.iHorizon_Emojis.icon.Timer} Загружается : **{result}** !"
 p_duration: "Продолжительность: "
 p_not_allowed: "Ссылка, которую вы отправили, не поддерживается этим ботом. Пожалуйста, используйте авторизованные музыкальные сервисы, такие как Deezer, Spotify, Youtube и т. д."
 
@@ -1431,7 +1440,6 @@ lyrics_embed_title_unknown: "Неизвестный заголовок"
 lyrics_embed_author_name_unknown: "Неизвестный автор"
 lyrics_not_found: "Тексты не найдены"
 
-
 # Команды раздачи призов
 # /end, /start, /reroll
 
@@ -1484,7 +1492,6 @@ gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as strin
 gw_getdata_yes: "`Да`"
 gw_getdata_no: "`Нет`"
 gw_doesnt_exit: "Подарки недоступны или не существуют."
-
 
 # Команды модерации
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
@@ -1636,7 +1643,6 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} 
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} Бэкап сохранен!"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} Время вышло. Бэкап сохранен!"
 
-
 # Реакции ролей
 # /reactionroles
 
@@ -1694,7 +1700,6 @@ roleselect_canceled_command_ok: "Настройка выбора роли отм
 roleselect_modal2_title: "Текст-заполнитель меню"
 roleselect_modal2_label: "Текст-заполнитель"
 roleselect_modal2_placeholder: "Текст-заполнитель меню выбора"
-
 
 # Команды новых функций
 # /punishpub, /report, /support
@@ -1777,9 +1782,9 @@ embed_copy_bad_channel_msg: "Канал, где находится сообще�
 embed_copy_bad_message_msg: "Сообщение недоступно!"
 embed_copy_bad_embed_message_msg: "Сообщение не содержит встроенных данных!"
 embed_copy_bad_url_msg: "Неверный URL, пожалуйста, попробуйте снова. Правильный формат: https://discord.com/channels/${message.guildId}/${interaction.channelId}/${interaction.id}"
-embed_btn_replace: "Заменить встраивание"  
-embed_replace_question_msg: "Какой новый URL сообщения, в котором нужно заменить встраивание?"  
-embed_replace_message: "{user}, новое встраивание заменило встраивание для {messageUrl}"  
+embed_btn_replace: "Заменить встраивание"
+embed_replace_question_msg: "Какой новый URL сообщения, в котором нужно заменить встраивание?"
+embed_replace_message: "{user}, новое встраивание заменило встраивание для {messageUrl}"
 
 # /rolesaver
 rolesaver_embed_title: "Модуль RoleSaver"
@@ -1791,7 +1796,6 @@ rolesaver_on_off_already_set: "Модуль уже отключен!"
 rolesaver_on_off_embed_title: "Модуль RoleSaver"
 rolesaver_on_off_embed_desc: "Когда участники покидают сервер, их роли не сохраняются в базе данных. Теперь iHorizon больше не восстанавливает старые роли участникам при их возвращении на сервер."
 rolesaver_on_off_embed_fields_1_name: "Включить"
-
 
 # Команды предложений
 # /setsuggest, /suggest
@@ -1845,7 +1849,6 @@ setsuggest_channel_embed_title: "Модуль предложений устан�
 setsuggest_channel_embed_desc: "Теперь все пользователи, которым разрешено отправлять сообщения здесь, могут предлагать свои идеи, отправляя сообщение!"
 setsuggest_channel_command_work: "${interaction.user}, вы установили канал модуля предложений в ${channel}!"
 
-
 # Команда безопасности
 # /security
 
@@ -1861,7 +1864,6 @@ security_role_to_give_command_work: "${interaction.user}, вы установи�
 # /security channel
 security_channel_not_admin: "Вы не являетесь администратором!"
 security_channel_command_work: "${interaction.user}, вы установили канал ${channel} для модуля безопасности!"
-
 
 # Команда расписания
 # /schedule
@@ -1895,7 +1897,6 @@ schedule_create_embed_fields_name_confirm: "Дата уведомления"
 schedule_create_embed_title_confirm: "Расписание #${scheduleCode} создано!"
 schedule_create_confirm_msg: "${interaction.user}, ваше расписание было создано!\nКод: `${scheduleCode}`"
 
-
 # Команда PFPS
 # /pfps channel, /pfps disable
 
@@ -1910,7 +1911,6 @@ pfps_channel_embed_title: "Модуль PFPS настроен здесь!"
 pfps_channel_embed_desc: "${interaction.user} настроил модуль PFPS здесь!\nТеперь каждые 30 секунд iHorizon будет отправлять аватар случайного пользователя в этой гильдии!\nЯ постараюсь сделать все возможное!"
 pfps_channel_command_work: "${interaction.user}, вы успешно настроили модуль PFPS для канала ${channel} !"
 pfps_channel_command_error: "${interaction.user}, команда вернула ошибку. Пожалуйста, проверьте, существует ли указанный канал, и включен ли модуль PFPP!"
-
 
 # Модуль защиты
 # /действия авторизации, ... санкции, ... показать настройки, /список разрешений показать, ... добавить, ... удалить
@@ -1958,7 +1958,6 @@ allowlist_delete_cant_remove_owner: "Нельзя удалить владель�
 allowlist_delete_isnt_in: "Участник, которого вы хотите удалить из списка разрешений, не находится там!"
 allowlist_delete_command_work: "${member.user} был удален из списка разрешений!"
 
-
 # Custom Tag Module
 # /tag create, ... delete, ... edit, ... list, ... info
 
@@ -2000,7 +1999,6 @@ tag_use_command_work: "Тег `${tag_name}` был отправлен."
 # /tag edit
 tag_edit_error_perm: "Чтобы изменить тег, вам нужны права администратора или вы должны быть владельцем тега."
 
-
 # Модуль OWNIHRZ
 # /mybot отправить, ... список, /mybot управление принять, ... отказать, ... экземпляр
 
@@ -2041,7 +2039,6 @@ mybot_instance_deny_utils_msg_no: "Нет"
 mybot_instance_deny_embed_title: "Разместите свой собственный iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_instance_deny_embed_desc: "Бот был отклонен\n\n${utils_msg}"
 
-
 # Модуль временного голосового канала
 # /текст, /голос, /статус, /персонал
 
@@ -2067,7 +2064,6 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, у вас нет прав н
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, у вас нет прав на использование этой команды!"
 tempvoice_staff_desc_embed: "## Роль персонала временного голосового канала\nТеперь <@&${targetedRole?.id}> может войти в канал в режиме модератора!\n"
 
-
 # Модуль Исповедей
 # /cooldown, /disable, /channel
 
@@ -2088,7 +2084,6 @@ confession_disable_command_work_off: "Модуль исповедей тепер
 confession_log_embed_title_on_enable: "Включение/Отключение Исповеди"
 confession_log_embed_desc_on_enable: "${interaction.user} включил модуль исповедей!"
 confession_log_embed_desc_on_disabled: "${interaction.user} отключил модуль исповедей!"
-
 
 # Модуль AntiSpam
 # /antispam manage
@@ -2132,7 +2127,6 @@ antispan_bypassroles_embed_desc: "Все роли ниже могут обойт
 # /antispam bypass-roles
 antispam_ignorechannels_embed_desc: "Все сообщения, отправленные в один из указанных ниже каналов, могут обходить модуль антиспама."
 
-
 # Stats Module
 # /stats ustats
 
@@ -2143,7 +2137,6 @@ minutes_word: "Минуты"
 top_voice: "Лучшие голосовые каналы"
 top_message: "Лучшие каналы сообщений"
 voice_activity: "Активность в голосовых каналах"
-
 
 # Модуль уведомлений
 # автор уведомлений, настройка уведомлений
@@ -2163,30 +2156,29 @@ notifier_config_message_embed_fields_notifyMessage: "Сообщение Увед
 notifier_config_message_awaiting_response: "Напишите сообщение уведомления."
 notifier_config_message_command_work_on_enable: "Работа над включением сообщения уведомления."
 
-
-# Модуль RestoreCord
+# Модуль AuthRestore
 # роль, установить, удалить, получить, принудительное присоединение
 
-rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} Модуль RestoreCord с ключом: **${secretCode}** не существует!"
+rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} Модуль AuthRestore с ключом: **${secretCode}** не существует!"
 rc_verify: "Проверить"
 
-# /restorecord роль
-rc_role_embed_title: "Новое изменение в RestoreCord"
+# /authrestore роль
+rc_role_embed_title: "Новое изменение в AuthRestore"
 rc_role_embed_field1_name: "Новая роль после проверки"
 
-# /restorecord установить
-rc_command_ok: "${interaction.user.toString()}, вы только что настроили модуль \"RestoreCord\". Теперь, когда участник сервера нажимает на кнопку и входит через OAuth2, он добавляется в базу данных. Впоследствии он сможет автоматически присоединиться к серверу через OAuth2.\n# ВНИМАНИЕ\nСообщение ${msgLink} теперь имеет кнопку, служащую для проверки.\nЭТО ПРИВАТНЫЙ КОД, КОТОРЫЙ НЕ СЛЕДУЕТ ПЕРЕДАВАТЬ НИКОМУ. ЧЕЛОВЕК С ЭТИМ КОДОМ СМОЖЕТ УДАЛЯТЬ И ДОБАВЛЯТЬ УЧАСТНИКОВ НА СВОЙ СЕРВЕР... ХРАНИТЕ ЕГО В БЕЗОПАСНОСТИ. iHorizon НЕ ПРЕДОСТАВИТ ЕГО СНОВА:\n```${res.secretCode}```"
-rc_command_ok_dm: "# Код RestoreCord для ${interaction.guild.name}\n```${res.secretCode}```"
+# /authrestore установить
+rc_command_ok: "${interaction.user.toString()}, вы только что настроили модуль \"AuthRestore\". Теперь, когда участник сервера нажимает на кнопку и входит через OAuth2, он добавляется в базу данных. Впоследствии он сможет автоматически присоединиться к серверу через OAuth2.\n# ВНИМАНИЕ\nСообщение ${msgLink} теперь имеет кнопку, служащую для проверки.\nЭТО ПРИВАТНЫЙ КОД, КОТОРЫЙ НЕ СЛЕДУЕТ ПЕРЕДАВАТЬ НИКОМУ. ЧЕЛОВЕК С ЭТИМ КОДОМ СМОЖЕТ УДАЛЯТЬ И ДОБАВЛЯТЬ УЧАСТНИКОВ НА СВОЙ СЕРВЕР... ХРАНИТЕ ЕГО В БЕЗОПАСНОСТИ. iHorizon НЕ ПРЕДОСТАВИТ ЕГО СНОВА:\n```${res.secretCode}```"
+rc_command_ok_dm: "# Код AuthRestore для ${interaction.guild.name}\n```${res.secretCode}```"
 rc_command_dm_failed: "Я попытался отправить вам код в личное сообщение, но вы заблокировали ЛС :/"
 rc_command_dm_ok: "На случай, если вы не заметили, я отправил вам код в личное сообщение!"
 rc_command_horizongw_down: "Ошибка: HorizonGateway может быть недоступен"
 
-# /restorecord удалить
+# /authrestore удалить
 rc_delete_config_not_found: "Настройка модуля на этом сервере не найдена!"
-rc_delete_command_ok: "${interaction.user.toString()}, вы удалили настройку модуля \"RestoreCord\". По соображениям безопасности (данные) я удалю только кнопку, но данные OAuth2 и секретный код будут удалены через 48 часов!"
+rc_delete_command_ok: '${interaction.user.toString()}, вы удалили настройку модуля "AuthRestore". По соображениям безопасности (данные) я удалю только кнопку, но данные OAuth2 и секретный код будут удалены через 48 часов!'
 
-# /restorecord получить
-rc_get_mainEmbed_title: "Общая информация о RestoreCord"
+# /authrestore получить
+rc_get_mainEmbed_title: "Общая информация о AuthRestore"
 rc_get_mainEmbed_field1_name: "ID сервера"
 rc_get_mainEmbed_field2_name: "Роль после проверки"
 rc_get_mainEmbed_field3_name: "Дата создания"
@@ -2199,8 +2191,8 @@ rc_get_locale: "Локализация"
 rc_get_username: "Имя пользователя"
 rc_get_unkwnon_user: "Неизвестный пользователь (${Data.data.config.author.id})"
 
-# /restorecord принудительное присоединение
-rc_forceJoin_embed_title: "RestoreCord - Принудительное присоединение"
+# /authrestore принудительное присоединение
+rc_forceJoin_embed_title: "AuthRestore - Принудительное присоединение"
 rc_forceJoin_embed_desc: "## Вы уверены, что хотите принудительно присоединить участников к этому серверу?\n### ВНИМАНИЕ:\nПОДТВЕРЖДЕНИЕ УНИЧТОЖИТ ТЕКУЩИЙ ПРИВАТНЫЙ КЛЮЧ, И ВАМ БУДЕТ ПРЕДОСТАВЛЕН НОВЫЙ.\n\n\n"
 rc_forceJoin_embed_field1: "Найденные участники"
 rc_forceJoin_embed_field2: "Текущие участники"
@@ -2211,7 +2203,6 @@ rc_forceJoin_ws_size: "# Подготовка к добавлению **${value2
 rc_forceJoin_ws_start: "# Процесс принудительного присоединения начался..."
 rc_forceJoin_ws_end: "# Процесс принудительного присоединения завершен."
 rc_forceJoin_ws_end_renew_msg: "# ВНИМАНИЕ\nЭТО ПРИВАТНЫЙ КОД, КОТОРЫЙ НЕ СЛЕДУЕТ ПЕРЕДАВАТЬ НИКОМУ. ЧЕЛОВЕК С ЭТИМ КОДОМ СМОЖЕТ УДАЛЯТЬ И ДОБАВЛЯТЬ УЧАСТНИКОВ НА СВОЙ СЕРВЕР... ХРАНИТЕ ЕГО В БЕЗОПАСНОСТИ. iHorizon НЕ ПРЕДОСТАВИТ ЕГО СНОВА:\n```${value2}```"
-
 
 # Разное
 # манипуляция медиа
@@ -2458,7 +2449,7 @@ buttonreaction_role_too_high: "Роль слишком высокая, я не �
 buttonreaction_role_add: "У вас больше нет роли ${fetched_role.toString()} ✅"
 buttonreaction_role_remove: "Теперь у вас есть роль ${fetched_role.toString()} :tada:"
 
-# RestoreCord HTML
+# AuthRestore HTML
 rc_created_by: "Создано пользователем:"
 rc_created_on: "Создано на:"
 rc_total_membres: "Всего участников"
@@ -2482,5 +2473,4 @@ pfps_embed_user_title: "**Пользовательский** аватар ${user
 pfps_embed_guild_title: "**Серверный** аватар ${username}"
 pfps_download_user_button: "Скачать аватар пользователя"
 pfps_download_guild_button: "Скачать аватар сервера"
-
 # -----------------------------/ \-----------------------------

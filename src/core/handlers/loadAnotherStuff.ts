@@ -3,15 +3,15 @@
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-    ・   Under the following terms:
+	・   Under the following terms:
 
-        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-        ・ NonCommercial — You may not use the material for commercial purposes.
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
-        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
 ・ Mainly developed by Kisakay (https://github.com/Kisakay)
@@ -29,23 +29,20 @@ import { Client_Functions } from '../../../types/client_functions.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-type FunctionModule = {
-    [K in keyof typeof Client_Functions]: typeof Client_Functions[K]
+export type FunctionModule = {
+	[K in keyof typeof Client_Functions]: typeof Client_Functions[K]
 };
 
 export default async (client: Client) => {
-    client.selectmenu = new Collection<string, Function>();
-    client.buttons = new Collection<string, Function>();
-    client.func = {} as typeof Client_Functions;
 
-    const functionsDir = path.join(__dirname, '..', '..', 'core', 'functions');
-    const functionFiles = (await readdir(functionsDir)).filter(file => file.endsWith(".js"));
+	const functionsDir = path.join(__dirname, '..', '..', 'core', 'functions');
+	const functionFiles = (await readdir(functionsDir)).filter(file => file.endsWith(".js"));
 
-    for (const file of functionFiles) {
-        const functionName = file.split('.js')[0] as keyof typeof Client_Functions;
-        const functionModule = await import(path.join(functionsDir, file));
-        const functionImplementation = functionModule.default || functionModule;
+	for (const file of functionFiles) {
+		const functionName = file.split('.js')[0] as keyof typeof Client_Functions;
+		const functionModule = await import(path.join(functionsDir, file));
+		const functionImplementation = functionModule.default || functionModule;
 
-        (client.func as FunctionModule)[functionName] = functionImplementation;
-    }
+		(client.func as FunctionModule)[functionName] = functionImplementation;
+	}
 };

@@ -1,11 +1,11 @@
 {
-    "categoryInitializer": {
-        "categoryName": "bot",
-        "categoryColor": "#6a52fb",
-        "options": {
-            "description": "help_bot_dsc",
-            "emoji": "🤖",
-            "placeholder": "help_bot_fields"
-        }
-    }
+	"categoryInitializer": {
+		"categoryName": "bot",
+		"categoryColor": "#6a52fb",
+		"options": {
+			"description": "help_bot_dsc",
+			"emoji": "🤖",
+			"placeholder": "help_bot_fields"
+		}
+	}
 }
