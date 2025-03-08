@@ -338,6 +338,41 @@ export const subCommand: SubCommand = {
 					}
 				}
 			};
+		} else if (action_to_do === 'get') {
+			for (let userId in ownihrzClusterData as any) {
+				for (let botId in ownihrzClusterData[userId]) {
+					if (botId === id_to_bot) {
+						let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						let expire: string | null = null;
+
+						if (fetch.ExpireIn) {
+							expire = format(new Date(fetch.ExpireIn), 'ddd, MMM DD YYYY');
+						}
+
+						let embed = new EmbedBuilder()
+							.setColor('#2B2D31')
+							.setTitle('🤖 OwnIHRZ Bot Informations')
+							.setDescription("```json\n" + JSON.stringify({
+								Expire: expire,
+								PowerOff: fetch.PowerOff,
+								Cluster: fetch.Cluster,
+								Owner: fetch.Owner,
+								Path: fetch.Path,
+								Owners: [fetch.OwnerOne, fetch.OwnerTwo],
+								Bot: {
+									Id: fetch.Bot.Id,
+									Name: fetch.Bot.Name,
+									Public: fetch.Bot.Public
+								},
+								Code: fetch.Code
+							}, null, 2) + "```")
+							.setTimestamp();
+
+						await interaction.editReply({ embeds: [embed] });
+						return;
+					}
+				}
+			}
 		}
 
 		return;

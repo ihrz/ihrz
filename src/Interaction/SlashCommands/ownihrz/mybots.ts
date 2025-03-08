@@ -313,6 +313,10 @@ export const command: Command = {
 									value: 'delete'
 								},
 								{
+									name: 'Get Bot',
+									value: 'get'
+								},
+								{
 									name: 'Add time (Expire Date)',
 									value: 'add-expire'
 								},
