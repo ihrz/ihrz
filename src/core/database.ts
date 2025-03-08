@@ -63,16 +63,16 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 		return dbInstance;
 	}
 
-	let dbPromise: Promise<SteganoDB> | PallasDB | Promise<PallasDB>;
+	let dbPromise: Promise<QuickDB> | PallasDB | Promise<PallasDB>;
 	let databasePath = `${process.cwd()}/src/files`;
 
 	if (!fs.existsSync(databasePath)) {
 		await mkdir(databasePath, { recursive: true });
 	}
 
-	dbPromise = new Promise<SteganoDB>((resolve, reject) => {
+	dbPromise = new Promise<QuickDB>((resolve, reject) => {
 		logger.log(`${config.console.emojis.HOST} >> Connected to the database (JSON) !`.green);
-		resolve(new SteganoDB({ driver: "json", filePath: `${databasePath}/database.json` }));
+		resolve(new QuickDB({ driver: new JSONDriver(`${databasePath}/database.json`) }));
 	});
 
 	dbInstance = await dbPromise
