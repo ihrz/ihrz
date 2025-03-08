@@ -71,7 +71,7 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 	}
 
 	dbPromise = new Promise<SteganoDB>((resolve, reject) => {
-		logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
+		logger.log(`${config.console.emojis.HOST} >> Connected to the database (JSON) !`.green);
 		resolve(new SteganoDB({ driver: "json", filePath: `${databasePath}/database.json` }));
 	});
 
