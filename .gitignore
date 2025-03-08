@@ -162,3 +162,4 @@ draft
 bun.lock
 src/files/host.key.pub
 src/files/host.key
+src/files/database.json
