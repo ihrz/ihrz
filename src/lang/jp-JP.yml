@@ -1508,7 +1508,7 @@ ban_dont_have_perm_myself: "${client.iHorizon_Emojis.icon.No_Logo} | 私には�
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | 自分自身をBANすることはできません！"
 ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたよりも高い役職のユーザーをBANすることはできません..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.icon.No_Logo} | そのメンバーをBANすることができません"
-ban_message_to_the_banned_member: "あなたはこのサーバーからBANされました： `${interaction.member.user.username}`"
+ban_message_to_the_banned_member: "あなたはこのサーバー `${interaction.guild.name}` からBANされました。理由: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> が <@${interaction.member.id}> によってBANされました。"
 ban_logs_embed_title: "BANログ"
 ban_logs_embed_description: "<@${interaction.member.id}> によって <@${member.user.id}> がBANされました。"

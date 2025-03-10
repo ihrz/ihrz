@@ -1508,7 +1508,7 @@ ban_dont_have_perm_myself: "${client.iHorizon_Emojis.icon.No_Logo} | Ich habe ke
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Sie können sich nicht selbst bannen!"
 ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} Sie können Benutzer mit höherer Rolle als Sie nicht bannen..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.icon.No_Logo} | Ich kann dieses Mitglied nicht bannen"
-ban_message_to_the_banned_member: "Sie wurden von diesem Server gebannt: **${interaction.guild.name}** von `${interaction.member.user.username}`"
+ban_message_to_the_banned_member: "Du wurdest von diesem Server gebannt: `${interaction.guild.name}` aus folgendem Grund: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> gebannt von <@${interaction.member.id}>"
 ban_logs_embed_title: "Ban-Logs"
 ban_logs_embed_description: "<@${member.user.id}> gebannt von <@${interaction.member.id}>"

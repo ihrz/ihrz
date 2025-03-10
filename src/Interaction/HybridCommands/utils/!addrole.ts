@@ -61,7 +61,7 @@ export const subCommand: SubCommand = {
 
 		let allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`) || [];
 
-		if (!allowed_roles?.includes(role?.id!)) {
+		if (!allowed_roles?.includes(role?.id!) && allowed_roles!.length > 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.utils_addrole_not_wl.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
 			})

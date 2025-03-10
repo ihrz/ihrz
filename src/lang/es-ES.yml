@@ -1508,7 +1508,7 @@ ban_dont_have_perm_myself: "${client.iHorizon_Emojis.icon.No_Logo} | No tengo pe
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | No puedes banearte a ti mismo."
 ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} No puedes banear a un usuario que tiene un rol más alto que tú..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.icon.No_Logo} | No puedo banear a ese miembro."
-ban_message_to_the_banned_member: "Has sido baneado de este servidor: **${interaction.guild.name}** por `${interaction.member.user.username}`"
+ban_message_to_the_banned_member: "Has sido baneado de este servidor: `${interaction.guild.name}` por la razón: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> ha sido baneado por <@${interaction.member.id}>"
 ban_logs_embed_title: "Registros de baneo"
 ban_logs_embed_description: "<@${member.user.id}> ha sido baneado por <@${interaction.member.id}>"

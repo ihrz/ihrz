@@ -102,8 +102,8 @@ export const subCommand: SubCommand = {
 
 		member.send({
 			content: lang.ban_message_to_the_banned_member
-				.replace(/\${interaction\.guild\.name}/g, interaction.guild.name)
-				.replace(/\${interaction\.member\.user\.username}/g, interaction.member.user.username)
+				.replace("${interaction.guild.name}", interaction.guild.name)
+				.replace("${reason}", reason)
 		})
 			.catch(() => false)
 			.then(() => false);
