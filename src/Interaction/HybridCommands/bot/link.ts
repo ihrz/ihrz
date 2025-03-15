@@ -55,7 +55,7 @@ export const command: Command = {
 		let websitebutton = new ButtonBuilder()
 			.setLabel(lang.links_website)
 			.setStyle(ButtonStyle.Link)
-			.setURL('https://ihrz.github.io');
+			.setURL('https://ihorizon.org');
 
 		let githubbutton = new ButtonBuilder()
 			.setLabel(lang.links_github)

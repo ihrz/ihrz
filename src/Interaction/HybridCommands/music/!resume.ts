@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 			let voiceChannel = (interaction.member as GuildMember).voice.channel;
 			let player = client.player.getPlayer(interaction.guildId as string);
 
-			if (!player || !player.playing || !voiceChannel) {
+			if (!player || !voiceChannel) {
 				await client.func.method.interactionSend(interaction, { content: lang.resume_nothing_playing });
 				return;
 			};

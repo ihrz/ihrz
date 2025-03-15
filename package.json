@@ -1,6 +1,6 @@
 {
 	"name": "ihrz",
-	"version": "2025.2.0",
+	"version": "2025.3.0",
 	"description": "iHrz in ts!",
 	"main": "./dist/src/index.js",
 	"scripts": {

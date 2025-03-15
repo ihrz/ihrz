@@ -1508,7 +1508,7 @@ ban_dont_have_perm_myself: "${client.iHorizon_Emojis.icon.No_Logo} | У меня
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Вы не можете забанить сами себя!"
 ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} Вы не можете забанить пользователя с более высокой ролью, чем у вас..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.icon.No_Logo} | Я не могу забанить этого участника"
-ban_message_to_the_banned_member: "Вы были забанены на этом сервере: **${interaction.guild.name}** пользователем `${interaction.member.user.username}`"
+ban_message_to_the_banned_member: "Вы были забанены на этом сервере: `${interaction.guild.name}` по причине: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> забанен пользователем <@${interaction.member.id}>"
 ban_logs_embed_title: "Логи банов"
 ban_logs_embed_description: "<@${member.user.id}> забанен пользователем <@${interaction.member.id}>"

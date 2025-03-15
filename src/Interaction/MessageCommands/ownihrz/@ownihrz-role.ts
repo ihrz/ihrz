@@ -78,7 +78,7 @@ export const command: Command = {
 			for (const member of ownersInGuild.values()) {
 				try {
 					if (!member.roles.cache.has(role?.id!)) {
-						await member.roles.add(role!);
+						await member.roles.add(role!, "[ownihrzroles] Module");
 						added++;
 					} else {
 						skipped++;

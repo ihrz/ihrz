@@ -44,7 +44,7 @@ export const event: BotEvent = {
 		};
 
 		if (!bio.state) {
-			if (fetchedUser?.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId);
+			if (fetchedUser?.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId, "[Support] Module");
 			return;
 		};
 
@@ -52,9 +52,9 @@ export const event: BotEvent = {
 			bio.state?.toString().toLowerCase().includes(someinfo.input.toString().toLowerCase())
 			|| bio.state?.toString().toLowerCase().includes(vanity.toString().toLowerCase())
 		) {
-			return fetchedUser?.roles.add(someinfo.rolesId).catch(() => { });
+			return fetchedUser?.roles.add(someinfo.rolesId, "[Support] Module").catch(() => { });
 		} else {
-			return fetchedUser?.roles.remove(someinfo.rolesId).catch(() => { });
+			return fetchedUser?.roles.remove(someinfo.rolesId, "[Support] Module").catch(() => { });
 		};
 	},
 };

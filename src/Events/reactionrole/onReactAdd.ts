@@ -40,7 +40,7 @@ export const event: BotEvent = {
 				if (!role) return;
 
 				let member = reaction.message.guild.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
-				await member?.roles.add(role.id).catch(() => { });
+				await member?.roles.add(role.id, "[ReactionRoles] Module").catch(() => { });
 				return;
 			};
 
@@ -51,7 +51,7 @@ export const event: BotEvent = {
 				if (!role) return;
 
 				let member = reaction.message.guild.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
-				await member?.roles.add(role.id).catch(() => { });
+				await member?.roles.add(role.id, "[ReactionRoles] Module").catch(() => { });
 				return;
 			};
 		} catch { return; };
