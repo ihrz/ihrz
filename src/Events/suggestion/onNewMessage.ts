@@ -72,6 +72,11 @@ export const event: BotEvent = {
 			enforceNonce: true, nonce: nonce
 		});
 
+		msg.startThread({
+			name: `#${suggestCode}`,
+			reason: "[Suggestion] Module"
+		})
+
 		await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);
 		await msg.react(client.iHorizon_Emojis.icon.No_Logo);
 

@@ -73,8 +73,8 @@ export const event: BotEvent = {
 				await m.delete();
 
 				if (code === m.content) {
-					await member.roles.add(baseData?.role).catch(() => { })
-					await member.roles.remove(baseData?.role2).catch(() => { })
+					await member.roles.add(baseData?.role, "[Security] Module").catch(() => { })
+					await member.roles.remove(baseData?.role2, "[Security] Module").catch(() => { })
 					await msg.delete().catch(() => { })
 
 					passedtest = true;

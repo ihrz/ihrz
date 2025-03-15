@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
 
 				for (let [memberID, member] of members!) {
 					if (!member.roles.cache.has(role?.id!)) {
-						let promise = await member.roles.add(role as Role)
+						let promise = await member.roles.add(role as Role, "[Massrole] Module")
 							.then(() => {
 								a++;
 							})
@@ -120,7 +120,7 @@ export const subCommand: SubCommand = {
 
 				for (let [memberID, member] of members!) {
 					if (member.roles.cache.has(role?.id!)) {
-						let promise = await member.roles.remove(role as Role)
+						let promise = await member.roles.remove(role as Role, "[MassiveRole] Command")
 							.then(() => {
 								a++;
 							})

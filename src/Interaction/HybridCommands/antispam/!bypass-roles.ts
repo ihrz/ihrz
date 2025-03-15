@@ -127,11 +127,11 @@ export const subCommand: SubCommand = {
 			})
 
 			allroles = i.values;
-			await client.func.method.interactionSend(originalResponse as Message, { embeds: [embed] });
+			await originalResponse.edit({ embeds: [embed] });
 		});
 
 		collector.on('end', async () => {
-			await client.func.method.interactionSend(originalResponse as Message, { components: [] });
+			await originalResponse.edit({ components: [] });
 		})
 	},
 };

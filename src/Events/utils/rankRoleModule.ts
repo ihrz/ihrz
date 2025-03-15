@@ -78,7 +78,7 @@ export const event: BotEvent = {
 				.setFooter(await client.func.displayBotName.footerBuilder(message))
 				.setTimestamp();
 
-			message.member?.roles.add(fetch).catch(() => { });
+			message.member?.roles.add(fetch, "[RankRole] Module").catch(() => { });
 			client.func.method.channelSend(message, {
 				embeds: [embed],
 				files: [await client.func.displayBotName.footerAttachmentBuilder(message)],

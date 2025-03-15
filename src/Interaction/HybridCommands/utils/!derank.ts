@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
 		rolesToRemove.forEach(role => {
 			if (role.id === role.guild.roles.everyone.id) return;
 			promises.push(
-				member.roles.remove(role?.id)
+				member.roles.remove(role?.id, "[Derank] Module")
 					.then(() => {
 						good++;
 						return;

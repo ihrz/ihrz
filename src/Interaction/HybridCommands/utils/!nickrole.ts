@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
 						)
 						&& !member.roles.cache.has(role?.id!)
 					) {
-						let promise = member.roles.add(role as Role)
+						let promise = member.roles.add(role as Role, "[NickRole] Module")
 							.then(() => {
 								a++;
 							})
@@ -125,7 +125,7 @@ export const subCommand: SubCommand = {
 						)
 						&& member.roles.cache.has(role?.id!)
 					) {
-						let promise = member.roles.remove(role as Role)
+						let promise = member.roles.remove(role.id, "[NickRole] Module")
 							.then(() => {
 								a++;
 							})

@@ -41,11 +41,11 @@ export const event: BotEvent = {
 
 					if (!includeUsername && !includeGlobalname) {
 						if (member.roles.cache.has(rankRoles)) {
-							member.roles.remove(rankRoles);
+							member.roles.remove(rankRoles, "[Rank] Module");
 						}
 					} else if (includeUsername || includeGlobalname) {
 						if (!member.roles.cache.has(rankRoles)) {
-							member.roles.add(rankRoles);
+							member.roles.add(rankRoles, "[Rank] Module");
 						}
 					}
 				} else return;

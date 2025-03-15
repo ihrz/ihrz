@@ -28,6 +28,7 @@
 		"./dist",
 		"./node_modules",
 		"./src/files/config.example.ts",
-		"./ownihrz"
+		"./ownihrz",
+		"./draft"
 	]
 }

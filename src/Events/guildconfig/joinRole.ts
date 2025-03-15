@@ -19,27 +19,39 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, GuildMember, PermissionsBitField } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
+import { Client, GuildMember, PermissionsBitField } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 
 export const event: BotEvent = {
-	name: "guildMemberAdd",
-	run: async (client: Client, member: GuildMember) => {
-		try {
-			if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageRoles)) return;
+    name: "guildMemberAdd",
+    run: async (client: Client, member: GuildMember) => {
+        try {
+            if (
+                !member.guild.members.me?.permissions.has(
+                    PermissionsBitField.Flags.ManageRoles,
+                )
+            )
+                return;
 
-			const roleid = await Promise.resolve(client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`)) as DatabaseStructure.GuildConfigSchema['joinroles'];
-			if (!roleid) return;
+            const roleid = (await Promise.resolve(
+                client.db.get(
+                    `${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`,
+                ),
+            )) as DatabaseStructure.GuildConfigSchema["joinroles"];
+            if (!roleid) return;
 
-			await Promise.resolve().then(async () => {
-				if (Array.isArray(roleid)) {
-					await member.roles.set(roleid).catch(() => null);
-				} else {
-					const role = member.guild.roles.cache.get(roleid);
-					if (role) await member.roles.add(role).catch(() => null);
-				}
-			});
-		} catch { }
-	}
+            await Promise.resolve().then(async () => {
+                if (Array.isArray(roleid)) {
+                    await member.roles.set(roleid).catch(() => null);
+                } else {
+                    const role = member.guild.roles.cache.get(roleid);
+                    if (role)
+                        await member.roles
+                            .add(role, "[JoinRole]")
+                            .catch(() => null);
+                }
+            });
+        } catch {}
+    },
 };
