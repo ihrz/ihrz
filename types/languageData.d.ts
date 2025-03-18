@@ -192,9 +192,9 @@ export interface LanguageData {
 	disableticket_not_admin: string;
 	disableticket_logs_embed_title_disable: string;
 	disableticket_logs_embed_description_disable: string;
-	disableticket_command_work_disable: string;
 	disableticket_logs_embed_title_enable: string;
 	disableticket_logs_embed_description_enable: string;
+	disableticket_command_work_disable: string;
 	disableticket_command_work_enable: string;
 	setticketcategory_not_admin: string;
 	setticketcategory_disabled_command: string;
@@ -898,6 +898,7 @@ export interface LanguageData {
 	setjoinmessage_modal_fields_message: string;
 	setjoinmessage_var_text_size: string;
 	setjoinmessage_var_avatar_size: string;
+	setjoinmessage_change_image_invalid_url: string;
 	setjoinroles_var_none: string;
 	setjoinroles_var_perm_admin: string;
 	setjoinroles_var_perm_manage_guild: string;
@@ -959,6 +960,7 @@ export interface LanguageData {
 	setlogschannel_var_boost: string;
 	setlogschannel_var_tickets: string;
 	setlogschannel_var_antispam: string;
+	setlogschannel_var_channel: string;
 	joinghostping_add_already_set: string;
 	joinghostping_add_sent_to_channel: string;
 	joinghostping_add_ok_embed_title: string;
@@ -1608,10 +1610,10 @@ export interface LanguageData {
 	antispam_ignorechannels_embed_desc: string;
 	header_h1_value: string;
 	messages_word: string;
-	voice_activity: string;
 	minutes_word: string;
 	top_voice: string;
 	top_message: string;
+	voice_activity: string;
 	notifier_author_add_author_doesnt_exist: string;
 	notifier_config_channel_logsEmbed_title: string;
 	notifier_config_channel_logsEmbed_desc: string;
