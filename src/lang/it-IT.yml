@@ -1217,6 +1217,7 @@ setlogschannel_var_msg: "Log dei messaggi"
 setlogschannel_var_boost: "Log degli Boost"
 setlogschannel_var_tickets: "Log dei Ticket"
 setlogschannel_var_antispam: "Registri AntiSpam"
+setlogschannel_var_channel: "Registri del canale"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Il canale ${channel} è già impostato!"

@@ -1218,6 +1218,7 @@ setlogschannel_var_msg: "سجلات الرسائل"
 setlogschannel_var_boost: "سجلات التعزيز"
 setlogschannel_var_tickets: "سجلات التذاكر"
 setlogschannel_var_antispam: "سجلات مكافحة الرسائل المزعجة"
+setlogschannel_var_channel: "سجلات القناة"
 
 # /join-ghostping add
 joinghostping_add_already_set: "القناة ${channel} تم إعدادها بالفعل!"

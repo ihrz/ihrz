@@ -105,7 +105,7 @@ export const command: Command = {
 			{ id: "roles", value: lang.setlogschannel_var_roles },
 			{ id: "ticket-log-channel", value: lang.setlogschannel_var_tickets },
 			{ id: "antispam", value: lang.setlogschannel_var_antispam },
-			{ id: "channel", value: lang.var_text_channel }
+			{ id: "channel", value: lang.setlogschannel_var_channel }
 		];
 
 		if (interaction instanceof ChatInputCommandInteraction) {
@@ -257,7 +257,7 @@ export const command: Command = {
 			"boost": lang.setlogschannel_var_boost,
 			"ticket": lang.setlogschannel_var_tickets,
 			"antispam": lang.setlogschannel_var_antispam,
-			"channel": lang.var_text_channel,
+			"channel": lang.setlogschannel_var_channel,
 		};
 
 		if (type && type in typeOfLogsMap) {

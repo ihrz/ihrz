@@ -1217,6 +1217,7 @@ setlogschannel_var_msg: "Registros de mensajes"
 setlogschannel_var_boost: "Registros de Impulso"
 setlogschannel_var_tickets: "Registros de Tickets"
 setlogschannel_var_antispam: "Registros AntiSpam"
+setlogschannel_var_channel: "Registros del canal"
 
 # /join-ghostping add
 joinghostping_add_already_set: "¡El canal ${channel} ya está configurado!"

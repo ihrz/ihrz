@@ -1217,7 +1217,8 @@ setlogschannel_var_voice: "Logs vocaux"
 setlogschannel_var_msg: "Logs des messages"
 setlogschannel_var_boost: "Logs de Boost"
 setlogschannel_var_tickets: "Logs des Tickets"
-setlogschannel_var_antispam: "Journaux AntiSpam"
+setlogschannel_var_antispam: "Logs AntiSpam"
+setlogschannel_var_channel: "Logs du canal"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Le salon ${channel} est déjà défini Mtn je vais pouvoir ping ptdr!"
