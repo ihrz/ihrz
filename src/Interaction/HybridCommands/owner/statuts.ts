@@ -95,22 +95,38 @@ export const command: Command = {
 			return;
 		};
 
-		let baseData = await client.db.get("BOT.PRESENCE");
+		if (action_1 === "reset") {
+			await client.db.delete(`BOT.PRESENCE`);
 
-		await client.db.set(`BOT.PRESENCE.status`, action_1);
+			client.user?.setPresence({
+				status: "online",
+				activities: [
+					{
+						type: ActivityType.Custom,
+						name: "Custom this Presence with /presence",
+					}
+				],
+			});
 
+			await client.func.method.interactionSend(interaction, { content: `✅` });
+			return;
+		} else {
+			let baseData = await client.db.get("BOT.PRESENCE");
 
-		client.user?.setPresence({
-			status: (action_1 || "online") as PresenceStatusData,
-			activities: [
-				{
-					type: baseData?.type || ActivityType.Custom,
-					name: baseData?.name || "Custom this Presence with /presence",
-				}
-			],
-		});
+			await client.db.set(`BOT.PRESENCE.status`, action_1);
 
-		await client.func.method.interactionSend(interaction, { content: `✅` });
-		return;
-	},
+			client.user?.setPresence({
+				status: (action_1 || "online") as PresenceStatusData,
+				activities: [
+					{
+						type: baseData?.type || ActivityType.Custom,
+						name: baseData?.name || "Custom this Presence with /presence",
+					}
+				],
+			});
+
+			await client.func.method.interactionSend(interaction, { content: `✅` });
+			return;
+		}
+	}
 };
