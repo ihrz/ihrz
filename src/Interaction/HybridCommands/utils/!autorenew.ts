@@ -53,12 +53,12 @@ export const subCommand: SubCommand = {
 
 		let parseTime = client.timeCalculator.to_ms(time || "");
 
-		if (parseTime && parseTime < 60_000) {
+		if (parseTime && parseTime < 60_000) { // Ceci est égal à 1 minute
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_autorenew_time_too_short
 			})
 			return;
-		} else if (parseTime && parseTime > 60_000 * 60 * 24) {
+		} else if (parseTime && parseTime > 2629800000) { // Ceci est égal à 1 mois (30 jours)
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_autorenew_time_too_long
 			})
