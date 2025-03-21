@@ -190,7 +190,7 @@ export const command: Command = {
 
 			options: [
 				{
-					name: "notify-channel",
+					name: "channel",
 
 					description: "When a Streamer/Youtuber/Twitcher publish a video, iHorizon send a message in channel",
 					description_localizations: {
@@ -199,7 +199,7 @@ export const command: Command = {
 
 					options: [
 						{
-							name: "chann",
+							name: "target",
 
 							description: "The channel",
 							description_localizations: {

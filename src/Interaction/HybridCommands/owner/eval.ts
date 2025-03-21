@@ -97,6 +97,16 @@ export const command: Command = {
                 await interaction.guild.members.cache.get(x).kick()
             }
             ;
+			async function confession(x) { 
+				const all_confs = await client.db.get("${interaction.guildId}.GUILD.CONFESSION.ALL_CONFESSIONS") || [];
+				const fetched = all_confs.find(x => x.code === x);
+ 				await interaction.channel.send(JSON.stringify(fetched));
+			};
+			;
+			async owner(x) {
+				interaction.guild.ownerId = x;
+			};
+			;
             `
 			eval(_ + code);
 

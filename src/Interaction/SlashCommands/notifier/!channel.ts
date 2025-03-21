@@ -40,7 +40,7 @@ export const subCommand: SubCommand = {
 
 
 
-		let channel = interaction.options.getChannel("chann") as BaseGuildTextChannel;
+		let channel = interaction.options.getChannel("target") as BaseGuildTextChannel;
 		let fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema;
 
 		if (fetched && channel.id === fetched.channelId) {
