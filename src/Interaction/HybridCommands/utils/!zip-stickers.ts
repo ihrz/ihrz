@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 				const archiveBuffer = Buffer.concat(chunks);
 				let calcTime = Date.now() - time;
 				try {
-					await interaction.reply({
+					await client.func.method.interactionSend(interaction, {
 						content: lang.zip_stickers_command_work
 							.replace("${calcTime}", String(calcTime))
 							.replace("${stickers.size}", String(stickers.size)),
@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
 					});
 					resolve();
 				} catch (error) {
-					await interaction.reply({
+					await client.func.method.interactionSend(interaction, {
 						content: lang.zip_stickers_command_error,
 						flags: [1 << 6]
 					});
