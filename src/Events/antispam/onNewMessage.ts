@@ -35,7 +35,6 @@ import { DatabaseStructure } from '../../../types/database_structure.js';
 import { AntiSpam } from '../../../types/antispam.js';
 import { BotEvent } from '../../../types/event.js';
 import { LanguageData } from '../../../types/languageData.js';
-import { time } from 'node:console';
 
 export const cache: AntiSpam.AntiSpamCache = {
 	raidInfo: new Map<string, Map<string, number | boolean>>(),
@@ -44,14 +43,22 @@ export const cache: AntiSpam.AntiSpamCache = {
 	membersFlags: new Map<string, Map<string, number>>()
 };
 
-const timeouts: Record<string, NodeJS.Timeout> = {};
+const timeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 async function waitForFinish(guildId: string): Promise<void> {
 	return new Promise((resolve) => {
-		if (timeouts[guildId]) clearTimeout(timeouts[guildId]);
-		timeouts[guildId] = setTimeout(() => {
+		const existingTimeout = timeouts.get(guildId);
+		if (existingTimeout) {
+			clearTimeout(existingTimeout);
+			timeouts.delete(guildId);
+		}
+
+		const newTimeout = setTimeout(() => {
+			timeouts.delete(guildId);
 			resolve();
 		}, 5000);
+
+		timeouts.set(guildId, newTimeout);
 	});
 }
 
