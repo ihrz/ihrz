@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
 		};
 
 		if (!client.owners.includes(interaction.user.id) && (id_2.OwnerOne !== interaction.user.id)) {
-			await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
+			await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo, flags: [1 << 6] });
 			return;
 		}
 

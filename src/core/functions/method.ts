@@ -408,7 +408,8 @@ export async function interactionSend(
 			await interaction.editReply(editOptions as InteractionEditReplyOptions);
 			return await interaction.fetchReply();
 		} else {
-			return await interaction.reply({ ...editOptions, fetchReply: true });
+			await interaction.reply({ ...editOptions });
+			return await interaction.fetchReply();
 		}
 	} else {
 		let replyOptions: MessageReplyOptions;

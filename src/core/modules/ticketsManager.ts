@@ -423,7 +423,7 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
 
 		if (userTickets) {
 			await interaction.reply({
-				ephemeral: true,
+				flags: [1 << 6],
 				content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
 					.replace('${channelId}', channelId!)
 			});
@@ -452,7 +452,7 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
 
 		if (userTickets) {
 			await interaction.reply({
-				ephemeral: true,
+				flags: [1 << 6],
 				content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
 					.replace('${channelId}', channelId!)
 			});
@@ -486,7 +486,7 @@ async function CreateTicketChannelV2(interaction: StringSelectMenuInteraction<"c
 
 	if (userTickets) {
 		await interaction.reply({
-			ephemeral: true,
+			flags: [1 << 6],
 			content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
 				.replace('${channelId}', channelId!)
 		});
@@ -542,7 +542,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 			return;
 		}
 	} else {
-		await interaction.deferReply({ ephemeral: true });
+		await interaction.deferReply({ flags: [1 << 6] });
 	};
 
 	await interaction.guild?.channels.create({
@@ -586,7 +586,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 					content: lang.event_ticket_whenCreated_msg
 						.replace('${interaction.user}', interaction.user.toString())
 						.replace('${channel.id}', channel.id),
-					ephemeral: true
+					flags: [1 << 6]
 				});
 			} else {
 				await interaction.editReply({
@@ -772,14 +772,14 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 				content: lang.event_ticket_whenCreated_msg
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${channel.id}', channel.id),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 		} else {
 			await interaction.reply({
 				content: lang.event_ticket_whenCreated_msg
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${channel.id}', channel.id),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 		}
 
@@ -999,11 +999,11 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 				if (interaction.deferred) {
 					await interaction.editReply({ content: data.guildconfig_config_save_check_dm });
 				} else {
-					await interaction.reply({ content: data.guildconfig_config_save_check_dm, ephemeral: true });
+					await interaction.reply({ content: data.guildconfig_config_save_check_dm, flags: [1 << 6] });
 				};
 
 				await interaction.user.send({ embeds: [embed], content: data.transript_command_work, files: [attachment] })
-					.catch(() => interaction.followUp({ content: data.ticket_transcript_failed_to_send, ephemeral: true }))
+					.catch(() => interaction.followUp({ content: data.ticket_transcript_failed_to_send, flags: [1 << 6] }))
 
 				return;
 			}

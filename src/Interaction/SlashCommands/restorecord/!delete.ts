@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.rc_delete_command_ok
 						.replace("${interaction.user.toString()}", interaction.user.toString()),
-					ephemeral: true
+					flags: [1 << 6]
 				});
 			})
 			.catch(async (err) => {

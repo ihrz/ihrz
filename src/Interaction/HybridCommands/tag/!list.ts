@@ -120,7 +120,7 @@ export const subCommand: SubCommand = {
 		collector.on('collect', async (i: ButtonInteraction) => {
 			// Verify interaction user
 			if (i.user.id !== (interaction instanceof Message ? interaction.author.id : interaction.user.id)) {
-				await i.reply({ content: lang.embed_interaction_not_for_you, ephemeral: true });
+				await i.reply({ content: lang.embed_interaction_not_for_you, flags: [1 << 6] });
 				return;
 			}
 

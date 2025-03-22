@@ -215,7 +215,7 @@ export const subCommand: SubCommand = {
 			components
 		});
 
-		await interaction.followUp({ content: "https://youtu.be/TehLPQ_WCwQ", ephemeral: true });
+		await interaction.followUp({ content: "https://youtu.be/TehLPQ_WCwQ", flags: [1 << 6] });
 
 		function stringifyTicketPanelOption(fields: TicketPanel["config"]["optionFields"]): string | undefined {
 			if (!fields || fields?.length === 0) return undefined;
@@ -259,7 +259,7 @@ export const subCommand: SubCommand = {
 
 		button_collector.on("collect", async (i) => {
 			if (i.user.id !== interaction.user.id) {
-				return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 			};
 
 			let choice = i.customId;
@@ -274,7 +274,7 @@ export const subCommand: SubCommand = {
 
 		og_select_collector.on("collect", async (i) => {
 			if (i.user.id !== interaction.user.id) {
-				return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 			};
 
 			let choice = i.values[0];
@@ -362,7 +362,7 @@ export const subCommand: SubCommand = {
 
 			select_collector.on("collect", async (i) => {
 				if (i.user.id !== interaction.user.id) {
-					return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
 				let choice = i.values[0];
@@ -392,7 +392,7 @@ export const subCommand: SubCommand = {
 
 				channelCollector.on("collect", async (i) => {
 					if (i.user.id !== interaction.user.id) {
-						return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+						return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 					};
 
 					let category = i.values[0];
@@ -439,7 +439,7 @@ export const subCommand: SubCommand = {
 
 			channelCollector.on("collect", async (i) => {
 				if (i.user.id !== interaction.user.id) {
-					return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
 				let category = i.values[0];
@@ -535,14 +535,14 @@ export const subCommand: SubCommand = {
 
 			channelCollector.on("collect", async (i) => {
 				if (i.user.id !== interaction.user.id) {
-					return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
 				let channel = i.values[0];
 				let relatedEmbed = await client.db.get(`EMBED.${baseData.relatedEmbedId}`);
 
 				if (!relatedEmbed || !relatedEmbed.embedSource) {
-					return i.reply({ ephemeral: true, content: lang.ticket_panel_related_embed_dont_exist });
+					return i.reply({ flags: [1 << 6], content: lang.ticket_panel_related_embed_dont_exist });
 				}
 
 				let embed = EmbedBuilder.from(relatedEmbed.embedSource);
@@ -571,7 +571,7 @@ export const subCommand: SubCommand = {
 				let fetchChannel = await i.guild?.channels.fetch(channel);
 
 				if (!fetchChannel || !fetchChannel.isSendable()) {
-					return i.reply({ ephemeral: true, content: lang.ticket_panel_channel_error });
+					return i.reply({ flags: [1 << 6], content: lang.ticket_panel_channel_error });
 				}
 
 				i.deferUpdate();
@@ -654,7 +654,7 @@ export const subCommand: SubCommand = {
 
 			roleCollector.on("collect", async (i) => {
 				if (i.user.id !== interaction.user.id) {
-					return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
 				baseData.config.rolesToPing = i.values;
@@ -724,7 +724,7 @@ export const subCommand: SubCommand = {
 			let embed = await client.db.get(`EMBED.${embed_id}`);
 
 			if (!embed) {
-				return modal.reply({ ephemeral: true, content: lang.ticket_panel_change_embed_dont_exist });
+				return modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
 			}
 
 			baseData.relatedEmbedId = embed_id;
@@ -767,7 +767,7 @@ export const subCommand: SubCommand = {
 			let embed = await client.db.get(`EMBED.${embed_id}`);
 
 			if (!embed) {
-				return modal.reply({ ephemeral: true, content: lang.ticket_panel_change_embed_dont_exist });
+				return modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
 			}
 
 			baseData.ticketChannelPanel = embed_id;
@@ -812,7 +812,7 @@ export const subCommand: SubCommand = {
 
 			select_collector.on("collect", async (i) => {
 				if (i.user.id !== interaction.user.id) {
-					return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
 				let choice = i.values[0];
@@ -848,7 +848,7 @@ export const subCommand: SubCommand = {
 					components
 				});
 
-				return i.reply({ ephemeral: true, content: lang.ticket_panel_add_option_max_10 });
+				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_add_option_max_10 });
 			}
 
 			let modal = await iHorizonModalResolve({
@@ -945,7 +945,7 @@ export const subCommand: SubCommand = {
 
 			select_collector.on("collect", async (i) => {
 				if (i.user.id !== interaction.user.id) {
-					return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
 				let choice = i.values[0];
@@ -1006,7 +1006,7 @@ export const subCommand: SubCommand = {
 
 			select_collector.on("collect", async (i) => {
 				if (i.user.id !== interaction.user.id) {
-					return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
 				let choice = i.values[0];
@@ -1042,7 +1042,7 @@ export const subCommand: SubCommand = {
 					components
 				});
 
-				return i.reply({ ephemeral: true, content: lang.ticket_panel_add_form_max_3 });
+				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_add_form_max_3 });
 			}
 
 			let modal = await iHorizonModalResolve({
@@ -1133,7 +1133,7 @@ export const subCommand: SubCommand = {
 
 			select_collector.on("collect", async (i) => {
 				if (i.user.id !== interaction.user.id) {
-					return i.reply({ ephemeral: true, content: lang.help_not_for_you });
+					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
 				let choice = i.values[0];
@@ -1175,12 +1175,12 @@ export const subCommand: SubCommand = {
 					embeds: [panelEmbed]
 				});
 
-				return i.reply({ ephemeral: true, content: lang.ticket_panel_related_embed_dont_exist });
+				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_related_embed_dont_exist });
 			}
 
 			// if 0 option fields
 			if (baseData.config.optionFields.length === 0) {
-				return i.reply({ ephemeral: true, content: lang.ticket_panel_need_1_option });
+				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_need_1_option });
 			}
 
 			let embed = EmbedBuilder.from(relatedEmbed.embedSource);
@@ -1212,7 +1212,7 @@ export const subCommand: SubCommand = {
 				components: [
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)
 				],
-				ephemeral: true
+				flags: [1 << 6]
 			})
 		}
 

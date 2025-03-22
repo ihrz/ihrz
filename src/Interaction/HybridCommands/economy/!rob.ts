@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 				content: lang.work_cooldown_error
 					.replace('${interaction.user.id}', interaction.member.user.id)
 					.replace('${time}', time),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 			return;
 		};

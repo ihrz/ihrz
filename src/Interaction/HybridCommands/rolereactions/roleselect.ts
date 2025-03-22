@@ -224,7 +224,7 @@ export const command: Command = {
 			if (interaction2.user.id !== interaction.member?.user.id) {
 				await interaction2.reply({
 					content: lang.help_not_for_you,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}
@@ -298,7 +298,7 @@ export const command: Command = {
 							.setMaxValues(1)
 					)
 				],
-				ephemeral: true
+				flags: [1 << 6]
 			});
 
 			const roleResponse = await modal?.channel?.awaitMessageComponent({
@@ -310,7 +310,7 @@ export const command: Command = {
 				if (baseData.find(x => x.roleId === roleResponse.values[0])) {
 					await roleResponse.reply({
 						content: lang.roleselect_role_already_exist,
-						ephemeral: true
+						flags: [1 << 6]
 					});
 					roleSelectResponse?.delete();
 					updateConfiguration(baseData);
@@ -344,7 +344,7 @@ export const command: Command = {
 			if (baseData.length === 0) {
 				await interaction2.reply({
 					content: lang.roleselect_no_role_found,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}
@@ -359,7 +359,7 @@ export const command: Command = {
 
 				await interaction2.followUp({
 					content: lang.roleselect_all_role_removed,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}
@@ -373,7 +373,7 @@ export const command: Command = {
 
 			await interaction2.followUp({
 				content: lang.roleselect_last_role_removed,
-				ephemeral: true
+				flags: [1 << 6]
 			});
 		}
 
@@ -396,12 +396,12 @@ export const command: Command = {
 
 				await interaction2.reply({
 					content: lang.roleselect_save_command_ok,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 			} catch (error) {
 				await interaction2.reply({
 					content: lang.roleselect_failed_to_save_config,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 			}
 		}
@@ -409,7 +409,7 @@ export const command: Command = {
 		async function handleCancelConfiguration(interaction2: StringSelectMenuInteraction<CacheType>) {
 			await interaction2.reply({
 				content: lang.roleselect_canceled_command_ok,
-				ephemeral: true
+				flags: [1 << 6]
 			});
 			collector.stop();
 		}

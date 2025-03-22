@@ -131,7 +131,7 @@ export const subCommand: SubCommand = {
 
 		collector.on('collect', async (i: StringSelectMenuInteraction<"cached">) => {
 			if (i.user.id !== interaction.member?.user.id!) {
-				await i.reply({ content: lang.embed_interaction_not_for_you, ephemeral: true });
+				await i.reply({ content: lang.embed_interaction_not_for_you, flags: [1 << 6] });
 				return;
 			}
 			await chooseAction(i);
@@ -151,28 +151,28 @@ export const subCommand: SubCommand = {
 							const parts = extractDiscordUrlParts(message.content || 'none');
 
 							if (parts.userIdOrGuildId !== interaction.guildId) {
-								i.followUp({ content: lang.embed_copy_bad_guild_msg.replace("${interaction.guild?.name}", interaction.guild?.name!), ephemeral: true })
+								i.followUp({ content: lang.embed_copy_bad_guild_msg.replace("${interaction.guild?.name}", interaction.guild?.name!), flags: [1 << 6] })
 								return;
 							}
 
 							const channel: TextChannel | null = interaction.guild?.channels.cache.get(parts.channelId) as TextChannel;
 
 							if (!channel) {
-								i.followUp({ content: lang.embed_copy_bad_channel_msg, ephemeral: true })
+								i.followUp({ content: lang.embed_copy_bad_channel_msg, flags: [1 << 6] })
 								return;
 							};
 
 							const targetMessage = await channel?.messages.fetch(parts.messageId);
 
 							if (!targetMessage) {
-								i.followUp({ content: lang.embed_copy_bad_message_msg, ephemeral: true })
+								i.followUp({ content: lang.embed_copy_bad_message_msg, flags: [1 << 6] })
 								return;
 							};
 
 							const targetMessageEmbedsSize = targetMessage.embeds.length;
 
 							if (targetMessageEmbedsSize === 0) {
-								i.followUp({ content: lang.embed_copy_bad_embed_message_msg, ephemeral: true })
+								i.followUp({ content: lang.embed_copy_bad_embed_message_msg, flags: [1 << 6] })
 								return;
 							};
 
@@ -187,7 +187,7 @@ export const subCommand: SubCommand = {
 									.replace("${message.guildId}", message.guildId!)
 									.replace("${interaction.channelId}", interaction.channelId!)
 									.replace("${interaction.id}", interaction.id!),
-								ephemeral: true
+								flags: [1 << 6]
 							});
 							return;
 						}
@@ -202,7 +202,7 @@ export const subCommand: SubCommand = {
 				case '2':
 					__tempEmbed.setTitle(null);
 					response.edit({ embeds: [__tempEmbed] });
-					await i.reply({ content: lang.embed_choose_2, ephemeral: true });
+					await i.reply({ content: lang.embed_choose_2, flags: [1 << 6] });
 					break;
 				case '3':
 					await handleCollector(i, 'embed_choose_3', (message) => {
@@ -213,7 +213,7 @@ export const subCommand: SubCommand = {
 				case '4':
 					__tempEmbed.setDescription("** **");
 					response.edit({ embeds: [__tempEmbed] });
-					await i.reply({ content: lang.embed_choose_4, ephemeral: true });
+					await i.reply({ content: lang.embed_choose_4, flags: [1 << 6] });
 					break;
 				case '5':
 					await handleCollector(i, 'embed_choose_5', (message) => {
@@ -224,7 +224,7 @@ export const subCommand: SubCommand = {
 				case '6':
 					__tempEmbed.setAuthor(null);
 					response.edit({ embeds: [__tempEmbed] });
-					await i.reply({ content: lang.embed_choose_6, ephemeral: true });
+					await i.reply({ content: lang.embed_choose_6, flags: [1 << 6] });
 					break;
 				case '7':
 					await handleCollector(i, 'embed_choose_7', (message) => {
@@ -235,7 +235,7 @@ export const subCommand: SubCommand = {
 				case '8':
 					__tempEmbed.setFooter(null);
 					response.edit({ embeds: [__tempEmbed] });
-					await i.reply({ content: lang.embed_choose_8, ephemeral: true });
+					await i.reply({ content: lang.embed_choose_8, flags: [1 << 6] });
 					break;
 				case '9':
 					await handleCollector(i, 'embed_choose_9', (message) => {
@@ -296,7 +296,7 @@ export const subCommand: SubCommand = {
 				case '13':
 					__tempEmbed.setColor(null);
 					response.edit({ embeds: [__tempEmbed] });
-					await i.reply({ content: lang.embed_choose_13, ephemeral: true });
+					await i.reply({ content: lang.embed_choose_13, flags: [1 << 6] });
 					break;
 				default:
 					break;
@@ -305,7 +305,7 @@ export const subCommand: SubCommand = {
 
 		async function handleCollector(i: StringSelectMenuInteraction<"cached">, replyContent: LanguageDataKeys, onCollect: (message: Message) => void) {
 			const replyMessage = Array.isArray(lang[replyContent]) ? (lang[replyContent] as string[]).join(' ') : lang[replyContent];
-			let reply = await i.reply({ content: replyMessage.toString(), ephemeral: true });
+			let reply = await i.reply({ content: replyMessage.toString(), flags: [1 << 6] });
 			let messageCollector = (interaction.channel as BaseGuildTextChannel)?.createMessageCollector({ filter: (m) => m.author.id === interaction.member?.user.id!, max: 1, time: 300_000 });
 			messageCollector?.on('collect', async (message) => {
 				onCollect(message);
@@ -336,7 +336,7 @@ export const subCommand: SubCommand = {
 				if (parts.userIdOrGuildId !== interaction.guildId) {
 					await confirmation.followUp({
 						content: lang.embed_copy_bad_guild_msg.replace("${interaction.guild?.name}", interaction.guild?.name!),
-						ephemeral: true
+						flags: [1 << 6]
 					});
 
 					await response.edit({
@@ -354,7 +354,7 @@ export const subCommand: SubCommand = {
 				const channel: TextChannel | null = interaction.guild?.channels.cache.get(parts.channelId) as TextChannel;
 
 				if (!channel) {
-					await confirmation.followUp({ content: lang.embed_copy_bad_channel_msg, ephemeral: true });
+					await confirmation.followUp({ content: lang.embed_copy_bad_channel_msg, flags: [1 << 6] });
 
 					await response.edit({
 						content: lang.embed_first_message,
@@ -371,7 +371,7 @@ export const subCommand: SubCommand = {
 				const targetMessage = await channel?.messages.fetch(parts.messageId);
 
 				if (!targetMessage) {
-					await confirmation.followUp({ content: lang.embed_copy_bad_message_msg, ephemeral: true });
+					await confirmation.followUp({ content: lang.embed_copy_bad_message_msg, flags: [1 << 6] });
 
 					await response.edit({
 						content: lang.embed_first_message,
@@ -388,7 +388,7 @@ export const subCommand: SubCommand = {
 				const targetMessageEmbedsSize = targetMessage.embeds.length;
 
 				if (targetMessageEmbedsSize === 0) {
-					await confirmation.followUp({ content: lang.embed_copy_bad_embed_message_msg, ephemeral: true });
+					await confirmation.followUp({ content: lang.embed_copy_bad_embed_message_msg, flags: [1 << 6] });
 
 					await response.edit({
 						content: lang.embed_first_message,
@@ -418,7 +418,7 @@ export const subCommand: SubCommand = {
 						.replace("${message.guildId}", interaction.guildId!)
 						.replace("${interaction.channelId}", interaction.channelId!)
 						.replace("${interaction.id}", interaction.id!),
-					ephemeral: true
+					flags: [1 << 6]
 				});
 
 				await response.edit({
@@ -504,7 +504,7 @@ export const subCommand: SubCommand = {
 
 		buttonCollector.on('collect', async (confirmation: ButtonInteraction<"cached">) => {
 			if (confirmation.user.id !== interaction.member?.user.id!) {
-				await confirmation.reply({ content: lang.embed_interaction_not_for_you, ephemeral: true });
+				await confirmation.reply({ content: lang.embed_interaction_not_for_you, flags: [1 << 6] });
 				return;
 			}
 

@@ -259,7 +259,7 @@ async function handleCategorySelect(
 		if (interaction.user.id !== i.user.id) {
 			await interaction.reply({
 				content: lang.help_not_for_you,
-				ephemeral: true
+				flags: [1 << 6]
 			});
 			return;
 		}
@@ -431,7 +431,7 @@ export const command: Command = {
 
 			collector.on('collect', async (i: StringSelectMenuInteraction) => {
 				if (i.user.id !== interaction.member?.user.id) {
-					await i.reply({ content: lang.help_not_for_you, ephemeral: true });
+					await i.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
 					return;
 				}
 
@@ -471,7 +471,7 @@ export const command: Command = {
 
 			await client.func.method.interactionSend(interaction, {
 				embeds: [await client.func.method.createAwesomeEmbed(lang, fetchCommand, client, interaction)],
-				ephemeral: true,
+				flags: [1 << 6],
 				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 			});
 		}

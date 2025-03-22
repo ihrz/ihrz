@@ -51,7 +51,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 			if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
 			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
-				await interaction.deferReply({ ephemeral: subCmd.ephemeral });
+				await interaction.deferReply({ flags: [1 << 6] });
 			}
 
 			if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
@@ -79,7 +79,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 			if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
 			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
-				await interaction.deferReply({ ephemeral: subCmd.ephemeral });
+				await interaction.deferReply({ flags: [1 << 6] });
 			}
 
 			if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
@@ -180,7 +180,7 @@ export const event: BotEvent = {
 
 		const command = client.commands?.get(interaction.commandName);
 		if (!command) {
-			return interaction.reply({ content: 'Connection error.', ephemeral: true });
+			return interaction.reply({ content: 'Connection error.', flags: [1 << 6] });
 		}
 
 		if (interaction.channel?.type === ChannelType.DM && !command?.integration_types?.includes(1)) {
@@ -211,7 +211,7 @@ export const event: BotEvent = {
 
 		if (await cooldDown(client, interaction)) {
 			const data = await client.func.getLanguageData(interaction.guild?.id);
-			return await interaction.reply({ content: data.Msg_cooldown, ephemeral: true });
+			return await interaction.reply({ content: data.Msg_cooldown, flags: [1 << 6] });
 		}
 
 		if (await client.db.table('BLACKLIST').get(`${interaction.user.id}.blacklisted`)) {
@@ -222,7 +222,7 @@ export const event: BotEvent = {
 						.setTitle(":(")
 						.setImage(client.config.core.blacklistPictureInEmbed)
 				],
-				ephemeral: true
+				flags: [1 << 6]
 			});
 		}
 

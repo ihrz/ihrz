@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 			content: lang.rc_key_doesnt_exist
 				.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
 				.replace("${secretCode}", secretCode),
-			ephemeral: true
+			flags: [1 << 6]
 		});
 
 		const members = Data.data.members || [];
@@ -72,7 +72,7 @@ export const subCommand: SubCommand = {
 		const response = await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
 			ephemeral: false,
-			fetchReply: true,
+			withResponse: true,
 			components: [
 				new ActionRowBuilder<ButtonBuilder>()
 					.addComponents(
@@ -95,7 +95,7 @@ export const subCommand: SubCommand = {
 
 		collector.on("collect", async i => {
 			if (i.user.id !== interaction.member?.user.id) {
-				await i.reply({ content: lang.help_not_for_you, ephemeral: true });
+				await i.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
 				return;
 			}
 
@@ -161,12 +161,12 @@ export const subCommand: SubCommand = {
 								await interaction.followUp({
 									content: lang.rc_forceJoin_ws_end_renew_msg
 										.replace("${value2}", value2),
-									ephemeral: true
+									flags: [1 << 6]
 								});
 
 								await interaction.user.send(lang.rc_command_ok_dm.replace("${interaction.guild.name}", interaction.guild.name).replace("${res.secretCode}", value2))
-									.catch(() => interaction.followUp({ content: lang.rc_command_dm_failed, ephemeral: true }))
-									.then(() => interaction.followUp({ content: lang.rc_command_dm_ok, ephemeral: true }))
+									.catch(() => interaction.followUp({ content: lang.rc_command_dm_failed, flags: [1 << 6] }))
+									.then(() => interaction.followUp({ content: lang.rc_command_dm_ok, flags: [1 << 6] }))
 									;
 								break;
 						}

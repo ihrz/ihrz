@@ -184,7 +184,7 @@ export const subCommand: SubCommand = {
 								}
 								break;
 							case "lyrics":
-								await i.deferReply({ ephemeral: true });
+								await i.deferReply({ flags: [1 << 6] });
 
 								var lyrics = await client.lyricsSearcher.search(
 									player.queue.current?.info?.title as string +
@@ -216,7 +216,7 @@ export const subCommand: SubCommand = {
 								break;
 							case "stop":
 								if (!player || !player.playing || !voiceChannel) {
-									await i.reply({ content: lang.nowplaying_no_queue, ephemeral: true });
+									await i.reply({ content: lang.nowplaying_no_queue, flags: [1 << 6] });
 									return;
 								};
 
@@ -227,7 +227,7 @@ export const subCommand: SubCommand = {
 						}
 
 					} else {
-						await i.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
+						await i.reply({ content: client.iHorizon_Emojis.icon.No_Logo, flags: [1 << 6] });
 					}
 				}
 			});

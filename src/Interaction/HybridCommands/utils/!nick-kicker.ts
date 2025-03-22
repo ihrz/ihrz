@@ -182,7 +182,7 @@ export const subCommand: SubCommand = {
 			if (baseData.words.length >= 15) {
 				await i.reply({
 					content: lang.util_nick_kicker_words_max_15,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}

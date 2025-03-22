@@ -51,7 +51,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
 		await interaction.reply({
 			content: lang.monthly_cooldown_error.replace(/\${time}/g, time),
-			ephemeral: true
+			flags: [1 << 6]
 		});
 		return;
 	};

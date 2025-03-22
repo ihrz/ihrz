@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 			content: lang.rc_key_doesnt_exist
 				.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
 				.replace("${secretCode}", secretCode),
-			ephemeral: true
+			flags: [1 << 6]
 		});
 
 		await changeRoleAuthRestore({ guildId: interaction.guildId!, apiToken: client.config.api.apiToken, roleId: role.id });

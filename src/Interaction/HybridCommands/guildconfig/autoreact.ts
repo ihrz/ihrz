@@ -177,7 +177,7 @@ export const command: Command = {
 			if (interaction2.user.id !== interaction.member?.user.id) {
 				await interaction2.reply({
 					content: lang.help_not_for_you,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}
@@ -216,7 +216,7 @@ export const command: Command = {
 				if (currentValues.length >= 25) {
 					await interaction2.reply({
 						content: lang.autoreact_max_25,
-						ephemeral: true
+						flags: [1 << 6]
 					});
 					return;
 				}
@@ -274,7 +274,7 @@ export const command: Command = {
 					if (!isSingleEmoji(reactInput) && !isDiscordEmoji(reactInput)) {
 						await response2?.reply({
 							content: lang.autoreact_invalid_emoji,
-							ephemeral: true
+							flags: [1 << 6]
 						});
 
 						await message.edit({
@@ -304,7 +304,7 @@ export const command: Command = {
 
 					await response2?.reply({
 						content: lang.autoreact_add_command_ok,
-						ephemeral: true
+						flags: [1 << 6]
 					});
 				}
 				return;
@@ -317,7 +317,7 @@ export const command: Command = {
 				if (channelEntries.length === 0) {
 					await interaction2.reply({
 						content: lang.autoreact_remove_not_found,
-						ephemeral: true
+						flags: [1 << 6]
 					});
 
 					await message.edit({
@@ -375,7 +375,7 @@ export const command: Command = {
 
 				await response1.reply({
 					content: lang.autoreact_remove_command_ok,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}

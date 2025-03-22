@@ -120,7 +120,7 @@ export const subCommand: SubCommand = {
 		collector.on('collect', async (buttonInteraction) => {
 			// check if the user is the same as the one who initiated the command
 			if (buttonInteraction.user.id !== interaction.member?.user.id) {
-				await buttonInteraction.reply({ content: lang.help_not_for_you, ephemeral: true });
+				await buttonInteraction.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
 				return;
 			};
 
@@ -139,7 +139,7 @@ export const subCommand: SubCommand = {
 					break;
 				case "confirm":
 					// send a confirmation message
-					await buttonInteraction.reply({ content: lang.ticket_panel_saved_conf, ephemeral: true });
+					await buttonInteraction.reply({ content: lang.ticket_panel_saved_conf, flags: [1 << 6] });
 					// stop the collector
 					collector.stop();
 					break;
@@ -187,13 +187,13 @@ export const subCommand: SubCommand = {
 			if (Number.isNaN(parseInt(year))
 				|| parseInt(year) > new Date().getFullYear()
 				|| parseInt(year) < 1900) {
-				await modal.reply({ content: lang.profil_birthday_invalid_year, ephemeral: true });
+				await modal.reply({ content: lang.profil_birthday_invalid_year, flags: [1 << 6] });
 				return;
 			};
 
 			// check if the year is already set
 			if (birthday.year === year) {
-				await modal.reply({ content: lang.profil_birthday_year_already_set, ephemeral: true });
+				await modal.reply({ content: lang.profil_birthday_year_already_set, flags: [1 << 6] });
 				return;
 			};
 
@@ -202,7 +202,7 @@ export const subCommand: SubCommand = {
 			birthday.year = year;
 
 			// send a confirmation message
-			await modal.reply({ content: lang.profil_birthday_year_set, ephemeral: true });
+			await modal.reply({ content: lang.profil_birthday_year_set, flags: [1 << 6] });
 
 			// update the embed
 			embed.setDescription(introduction + getBirthdayString())
@@ -240,13 +240,13 @@ export const subCommand: SubCommand = {
 				|| parseInt(month) > 12
 				|| parseInt(month) < 1
 			) {
-				await modal.reply({ content: lang.profil_birthday_invalid_month, ephemeral: true });
+				await modal.reply({ content: lang.profil_birthday_invalid_month, flags: [1 << 6] });
 				return;
 			};
 
 			// check if the month is already set
 			if (birthday.month === month) {
-				await modal.reply({ content: lang.profil_birthday_month_already_set, ephemeral: true });
+				await modal.reply({ content: lang.profil_birthday_month_already_set, flags: [1 << 6] });
 				return;
 			};
 
@@ -255,7 +255,7 @@ export const subCommand: SubCommand = {
 			birthday.month = month;
 
 			// send a confirmation message
-			await modal.reply({ content: lang.profil_birthday_month_set, ephemeral: true });
+			await modal.reply({ content: lang.profil_birthday_month_set, flags: [1 << 6] });
 
 			// update the embed
 			embed.setDescription(introduction + getBirthdayString())
@@ -292,13 +292,13 @@ export const subCommand: SubCommand = {
 			if (Number.isNaN(parseInt(day))
 				|| parseInt(day) > 31
 				|| parseInt(day) < 1) {
-				await modal.reply({ content: lang.profil_birthday_invalid_day, ephemeral: true });
+				await modal.reply({ content: lang.profil_birthday_invalid_day, flags: [1 << 6] });
 				return;
 			};
 
 			// check if the day is already set
 			if (birthday.day === day) {
-				await modal.reply({ content: lang.profil_birthday_day_already_set, ephemeral: true });
+				await modal.reply({ content: lang.profil_birthday_day_already_set, flags: [1 << 6] });
 				return;
 			};
 
@@ -307,7 +307,7 @@ export const subCommand: SubCommand = {
 			birthday.day = day;
 
 			// send a confirmation message
-			await modal.reply({ content: lang.profil_birthday_day_set, ephemeral: true });
+			await modal.reply({ content: lang.profil_birthday_day_set, flags: [1 << 6] });
 
 			// update the embed
 			embed.setDescription(introduction + getBirthdayString())

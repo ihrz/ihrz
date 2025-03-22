@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_cooldown_error
 					.replace('${time}', time),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 			return;
 		};

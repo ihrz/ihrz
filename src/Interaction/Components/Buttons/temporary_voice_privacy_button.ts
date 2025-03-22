@@ -53,7 +53,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 		);
 
 	let response = await interaction.reply({
-		ephemeral: true,
+		flags: [1 << 6],
 		components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)]
 	});
 
@@ -100,7 +100,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 		await i.reply({
 			embeds: [embed],
 			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],
-			ephemeral: true
+			flags: [1 << 6]
 		});
 	});
 

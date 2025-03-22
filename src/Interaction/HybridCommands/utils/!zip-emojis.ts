@@ -69,13 +69,13 @@ export const subCommand: SubCommand = {
 							attachment: archiveBuffer,
 							name: 'server_emojis.zip'
 						}],
-						ephemeral: true
+						flags: [1 << 6]
 					});
 					resolve();
 				} catch (error) {
 					await interaction.reply({
 						content: lang.zip_emojis_command_error,
-						ephemeral: true
+						flags: [1 << 6]
 					});
 					reject(error);
 				}

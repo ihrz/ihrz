@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
 		};
 
 		if (!client.owners.includes(interaction.user.id)) {
-			await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, ephemeral: true });
+			await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, flags: [1 << 6] });
 			return;
 		};
 

@@ -237,7 +237,7 @@ export const subCommand: SubCommand = {
 				if (i.user.id !== interaction.user.id) {
 					await i.reply({
 						content: "You cannot use these buttons.",
-						ephemeral: true
+						flags: [1 << 6]
 					});
 					return;
 				}

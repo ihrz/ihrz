@@ -107,7 +107,7 @@ export const subCommand: SubCommand = {
 
 		collector.on('collect', async (buttonInteraction) => {
 			if (buttonInteraction.user.id !== interaction.member?.user.id) {
-				await buttonInteraction.reply({ content: lang.help_not_for_you, ephemeral: true });
+				await buttonInteraction.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
 				return;
 			};
 
@@ -152,7 +152,7 @@ export const subCommand: SubCommand = {
 					await modalInteraction.reply({
 						content: lang.ranksSetMessage_command_work_on_enable
 							.replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
-						ephemeral: true
+						flags: [1 << 6]
 					});
 					newEmbed.addFields(helpEmbed.data.fields![1]);
 					await message.edit({ embeds: [newEmbed] });
@@ -177,7 +177,7 @@ export const subCommand: SubCommand = {
 				await buttonInteraction.reply({
 					content: lang.ranksSetMessage_command_work_on_enable
 						.replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
-					ephemeral: true
+					flags: [1 << 6]
 				});
 
 				newEmbed.addFields(helpEmbed.data.fields![1]);

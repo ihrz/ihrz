@@ -63,13 +63,13 @@ export const subCommand: SubCommand = {
 							attachment: archiveBuffer,
 							name: 'server_stickers.zip'
 						}],
-						ephemeral: true
+						flags: [1 << 6]
 					});
 					resolve();
 				} catch (error) {
 					await interaction.reply({
 						content: lang.zip_stickers_command_error,
-						ephemeral: true
+						flags: [1 << 6]
 					});
 					reject(error);
 				}

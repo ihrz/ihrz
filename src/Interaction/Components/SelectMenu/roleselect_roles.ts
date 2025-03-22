@@ -34,12 +34,12 @@ export default async function (interaction: StringSelectMenuInteraction<"cached"
 	if (!fetched_role) {
 		await interaction.reply({
 			content: lang.buttonreaction_role_doesnt_exit,
-			ephemeral: true
+			flags: [1 << 6]
 		})
 	} else if (fetched_role.rawPosition >= Number(interaction.guild.members.me?.roles.highest.rawPosition)) {
 		await interaction.reply({
 			content: lang.buttonreaction_role_too_high,
-			ephemeral: true
+			flags: [1 << 6]
 		})
 	} else {
 		if (interaction.member.roles.cache.has(fetched_role.id)) {
@@ -47,14 +47,14 @@ export default async function (interaction: StringSelectMenuInteraction<"cached"
 			await interaction.reply({
 				content: lang.buttonreaction_role_add
 					.replace("${fetched_role.toString()}", fetched_role.toString()),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 		} else {
 			await interaction.member.roles.add(fetched_role.id, "[RoleSelect] Module");
 			await interaction.reply({
 				content: lang.buttonreaction_role_remove
 					.replace("${fetched_role.toString()}", fetched_role.toString()),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 		}
 	}

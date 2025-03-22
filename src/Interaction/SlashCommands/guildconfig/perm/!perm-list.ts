@@ -113,7 +113,7 @@ export const subCommand: SubCommand = {
 		let message = await client.func.method.interactionSend(interaction, {
 			embeds: [generateEmbed(currentPage)],
 			components: [generateButtons(currentPage)],
-			fetchReply: true,
+			withResponse: true,
 		});
 
 		const collector = message.createMessageComponentCollector({

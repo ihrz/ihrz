@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
 			await interaction.followUp({
 				content: lang.suggest_acceptnot_good_channel
 					.replace('${baseData?.channel}', baseData?.channel),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 
 			return;
@@ -60,11 +60,11 @@ export const subCommand: SubCommand = {
 
 		if (!fetchId) {
 			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_accept_not_found_db, ephemeral: true });
+			await interaction.followUp({ content: lang.suggest_accept_not_found_db, flags: [1 << 6] });
 			return;
 		} else if (fetchId.replied) {
 			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_accept_already_replied, ephemeral: true });
+			await interaction.followUp({ content: lang.suggest_accept_already_replied, flags: [1 << 6] });
 			return;
 		};
 
@@ -94,12 +94,12 @@ export const subCommand: SubCommand = {
 					.replace('${interaction.guild.id}', interaction.guildId as string)
 					.replace('${interaction.channel.id}', interaction.channel?.id as string)
 					.replace('${fetchId?.msgId}', fetchId?.msgId),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 			return;
 		}).catch(async () => {
 			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_accept_command_error, ephemeral: true });
+			await interaction.followUp({ content: lang.suggest_accept_command_error, flags: [1 << 6] });
 			return;
 		});
 	},

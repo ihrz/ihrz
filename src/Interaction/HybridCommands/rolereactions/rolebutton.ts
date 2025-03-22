@@ -200,7 +200,7 @@ export const command: Command = {
 									.replace("${messagei}", messagei!)
 									.replace("${reaction}", reaction)
 									.replace("${role}", role?.toString()!)
-								, ephemeral: true
+								, flags: [1 << 6]
 							});
 						})
 						.catch(async () => {
@@ -252,7 +252,7 @@ export const command: Command = {
 						content: lang.reactionroles_command_work_remove
 							.replace("${reaction}", reaction!)
 							.replace("${messagei}", messagei!)
-						, ephemeral: true
+						, flags: [1 << 6]
 					});
 					return;
 

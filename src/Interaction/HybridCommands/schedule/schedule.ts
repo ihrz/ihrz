@@ -106,7 +106,7 @@ export const command: Command = {
 
 			collector.on('collect', async i => {
 				if (i.member?.user.id !== interaction.member?.user.id) {
-					await i.reply({ content: lang.embed_interaction_not_for_you, ephemeral: true })
+					await i.reply({ content: lang.embed_interaction_not_for_you, flags: [1 << 6] })
 					return;
 				}
 				await chooseAction(i);

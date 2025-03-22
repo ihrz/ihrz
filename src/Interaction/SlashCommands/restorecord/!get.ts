@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
 			content: lang.rc_key_doesnt_exist
 				.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
 				.replace("${secretCode}", secretCode),
-			ephemeral: true
+			flags: [1 << 6]
 		});
 
 		await securityCodeUpdate({ guildId: Data.id, apiToken: client.config.api.apiToken, secretCode });
@@ -244,7 +244,7 @@ export const subCommand: SubCommand = {
 			embeds: [currentCategory === 0 ? mainEmbed : generateEmbed(currentPage)],
 			components: updateComponents(),
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)],
-			fetchReply: true
+			withResponse: true
 		});
 
 		const collector = message.createMessageComponentCollector({ time: 60000 });

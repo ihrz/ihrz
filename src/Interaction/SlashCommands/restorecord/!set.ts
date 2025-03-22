@@ -83,12 +83,12 @@ export const subCommand: SubCommand = {
 								.replace("${interaction.user.toString()}", interaction.user.toString())
 								.replace("${res.secretCode}", String(res.secretCode))
 								.replace("${msgLink}", msgLink),
-							ephemeral: true
+							flags: [1 << 6]
 						});
 
 						await interaction.user.send(lang.rc_command_ok_dm.replace("${interaction.guild.name}", interaction.guild.name).replace("${res.secretCode}", res.secretCode!))
-							.catch(() => interaction.followUp({ content: lang.rc_command_dm_failed, ephemeral: true }))
-							.then(() => interaction.followUp({ content: lang.rc_command_dm_ok, ephemeral: true }))
+							.catch(() => interaction.followUp({ content: lang.rc_command_dm_failed, flags: [1 << 6] }))
+							.then(() => interaction.followUp({ content: lang.rc_command_dm_ok, flags: [1 << 6] }))
 							;
 
 						await client.db.set(`${interaction.guildId}.GUILD.RESTORECORD`, {

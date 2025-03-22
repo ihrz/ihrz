@@ -106,7 +106,7 @@ export const subCommand: SubCommand = {
 
 		collector.on('collect', async (interaction_2) => {
 			if (interaction_2.user.id !== interaction.member?.user.id) {
-				await interaction_2.reply({ content: lang.help_not_for_you, ephemeral: true });
+				await interaction_2.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
 				return;
 			};
 
