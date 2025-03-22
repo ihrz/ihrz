@@ -23,7 +23,7 @@ import { LanguageData } from "../../../types/languageData.js";
 
 class iHorizonTimeCalculator {
 
-	to_ms(timeString: string): number | undefined {
+	to_ms(timeString: string): number {
 		timeString = timeString.replace(" ", "");
 		const regex = /(-?\d*\.?\d+)([a-zA-Z]+)/g;
 		let totalMilliseconds = 0;
@@ -107,7 +107,7 @@ class iHorizonTimeCalculator {
 			totalMilliseconds += value * multiplier;
 		};
 
-		return totalMilliseconds === 0 ? undefined : totalMilliseconds;
+		return totalMilliseconds;
 	};
 
 	to_beautiful_string(timeStringOrMs: string | number, lang: LanguageData, options?: { long?: boolean }): string {

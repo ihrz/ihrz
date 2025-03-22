@@ -99,7 +99,7 @@ export async function main(client: Client) {
 	client.timeCalculator = new iHorizonTimeCalculator();
 	client.lyricsSearcher = new LyricsManager();
 	client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
-	client.ownihrz = new OwnIHRZ(client)
+	client.ownihrz = new OwnIHRZ(client, client.config.core.devMode);
 	client.kdenlive = new KdenLive();
 	client.selectmenu = new Collection<string, Function>();
 	client.buttons = new Collection<string, Function>();
