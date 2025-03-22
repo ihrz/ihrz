@@ -51,7 +51,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 			if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
 			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
-				await interaction.deferReply({ flags: [1 << 6] });
+				await interaction.deferReply({ flags: subCmd.ephemeral ? [1 << 6] : [0] });
 			}
 
 			if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
@@ -79,7 +79,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 			if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
 			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
-				await interaction.deferReply({ flags: [1 << 6] });
+				await interaction.deferReply({ flags: subCmd.ephemeral ? [1 << 6] : [0] });
 			}
 
 			if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
