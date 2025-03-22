@@ -61,7 +61,7 @@ export const subCommand: SubCommand = {
 				const archiveBuffer = Buffer.concat(chunks);
 				let calcTime = Date.now() - time;
 				try {
-					await interaction.reply({
+					await client.func.method.interactionSend(interaction, {
 						content: lang.zip_emojis_command_work
 							.replace("${calcTime}", String(calcTime))
 							.replace("${emojis.size}", String(emojis.size)),
@@ -73,7 +73,7 @@ export const subCommand: SubCommand = {
 					});
 					resolve();
 				} catch (error) {
-					await interaction.reply({
+					await client.func.method.interactionSend(interaction, {
 						content: lang.zip_emojis_command_error,
 						flags: [1 << 6]
 					});

@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 		}
 
 		if (!zipAttachment) {
-			await interaction.reply({
+			await client.func.method.interactionSend(interaction, {
 				content: lang.util_unzip_emojis_command_no_file,
 				flags: [1 << 6]
 			});

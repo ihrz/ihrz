@@ -81,7 +81,9 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.ManageGuildExpressions
+			permission: PermissionFlagsBits.ManageGuildExpressions,
+
+			thinking: true
 		},
 		{
 			name: "vkick",
