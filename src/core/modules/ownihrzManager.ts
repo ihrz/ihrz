@@ -62,7 +62,7 @@ class OwnIHRZ {
 > Bot: <@${botId}>
 > Expire in: **${time(new Date(expireTime), "R")}**
 
-❓ __**How renew your bot?**__
+❓ __**How to renew your bot?**__
 
 > Open a ticket in the [iHorizon Support Server](https://discord.gg/ihorizon)
 > The bot price is **\`2€\`** a month`;
