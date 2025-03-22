@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 			await interaction.followUp({
 				content: lang.suggest_delete_not_good_channel
 					.replace('${baseData?.channel}', baseData?.channel),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 
 			return;
@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 
 		if (!fetchId) {
 			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_delete_not_found_db, ephemeral: true });
+			await interaction.followUp({ content: lang.suggest_delete_not_found_db, flags: [1 << 6] });
 			return;
 		};
 
@@ -70,11 +70,11 @@ export const subCommand: SubCommand = {
 			await client.db.delete(`${interaction.guildId}.SUGGESTION.${id}`);
 
 			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_delete_command_work, ephemeral: true });
+			await interaction.followUp({ content: lang.suggest_delete_command_work, flags: [1 << 6] });
 			return;
 		}).catch(async () => {
 			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_delete_command_error, ephemeral: true });
+			await interaction.followUp({ content: lang.suggest_delete_command_error, flags: [1 << 6] });
 			return;
 		});
 	},

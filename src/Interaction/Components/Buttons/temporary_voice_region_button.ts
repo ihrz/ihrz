@@ -91,7 +91,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			);
 
 		let response = await interaction.reply({
-			ephemeral: true,
+			flags: [1 << 6],
 			components: [
 				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
 			]
@@ -125,7 +125,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
 				],
 				files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],
-				ephemeral: true
+				flags: [1 << 6]
 			});
 
 			collector?.stop();

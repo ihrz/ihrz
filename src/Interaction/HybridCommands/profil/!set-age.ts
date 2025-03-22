@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
 
 		await tableProfil.set(`${user.id}.age`, age);
 
-		await client.func.method.interactionSend(interaction, { content: lang.setprofilage_command_work, ephemeral: true });
+		await client.func.method.interactionSend(interaction, { content: lang.setprofilage_command_work, flags: [1 << 6] });
 		return;
 	},
 };

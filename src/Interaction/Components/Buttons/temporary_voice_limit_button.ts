@@ -69,7 +69,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 				content: lang.temporary_voice_limit_button_not_integer
 					.replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", interaction.client.iHorizon_Emojis.icon.No_Logo)
 				,
-				ephemeral: true
+				flags: [1 << 6]
 			});
 
 			return;
@@ -93,7 +93,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
 			],
 			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],
-			ephemeral: true
+			flags: [1 << 6]
 		});
 	}
 };

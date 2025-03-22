@@ -175,7 +175,7 @@ class GiveawayManager {
 								.replace("${giveawayData?.requirement.value}", String(giveawayData?.requirement.value))
 								.replace("${giveawayData?.requirement.type}", String(giveawayData?.requirement.type))
 								.replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", interaction.client.iHorizon_Emojis.icon.No_Logo)
-						, ephemeral: true
+						, flags: [1 << 6]
 					})
 				}
 			};
@@ -211,7 +211,7 @@ class GiveawayManager {
 							.setLabel(lang.event_gw_leave_button_placeholder)
 					)
 			],
-			ephemeral: true
+			flags: [1 << 6]
 		});
 
 		let collector = interaction.channel!.createMessageComponentCollector({

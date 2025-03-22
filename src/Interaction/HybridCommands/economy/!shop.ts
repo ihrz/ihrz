@@ -138,7 +138,7 @@ export const subCommand: SubCommand = {
 			if (i.user.id !== interaction.member?.user.id) {
 				await i.reply({
 					content: lang.help_not_for_you,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}
@@ -147,7 +147,7 @@ export const subCommand: SubCommand = {
 			if (!role) {
 				await i.reply({
 					content: lang.economy_shop_not_available,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}
@@ -156,7 +156,7 @@ export const subCommand: SubCommand = {
 			if (baseData.ownedRoles?.includes(role.roleId)) {
 				await i.reply({
 					content: lang.economy_shop_already_own_role,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}
@@ -165,7 +165,7 @@ export const subCommand: SubCommand = {
 			if (baseData.money! < role.price) {
 				await i.reply({
 					content: lang.economy_shop_not_enough_money,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}
@@ -181,7 +181,7 @@ export const subCommand: SubCommand = {
 				content: lang.economy_shop_role_purchased
 					.replace("{roleName}", string_role_name)
 					.replace("${role.price}", role.price.toString()),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 		});
 

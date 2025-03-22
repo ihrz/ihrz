@@ -165,7 +165,7 @@ export const subCommand: SubCommand = {
 			if (interaction2.user.id !== interaction.member?.user.id) {
 				await interaction2.reply({
 					content: lang.help_not_for_you,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}
@@ -204,7 +204,7 @@ export const subCommand: SubCommand = {
 				if (currentRoles.length >= 25) {
 					await interaction2.reply({
 						content: lang.ranks_config_add_max_roles,
-						ephemeral: true
+						flags: [1 << 6]
 					});
 					return;
 				}
@@ -270,7 +270,7 @@ export const subCommand: SubCommand = {
 				if (isNaN(level) || level <= 0) {
 					await response2?.reply({
 						content: lang.ranks_config_add_invalid_level,
-						ephemeral: true
+						flags: [1 << 6]
 					});
 
 					await message.edit({
@@ -284,7 +284,7 @@ export const subCommand: SubCommand = {
 				if (currentRoles.find((r) => r === selectedRole.id)) {
 					await response2?.reply({
 						content: lang.ranks_config_add_invalid_role.replace("{role}", selectedRole.toString()),
-						ephemeral: true
+						flags: [1 << 6]
 					});
 					await message.edit({
 						content: null,
@@ -308,7 +308,7 @@ export const subCommand: SubCommand = {
 						content: lang.ranks_config_add_command_work
 							.replace("${selectedRole}", selectedRole.toString())
 							.replace("${level}", level.toString()),
-						ephemeral: true
+						flags: [1 << 6]
 					});
 
 					if (roleDangerousPermissions.length > 0) {
@@ -317,7 +317,7 @@ export const subCommand: SubCommand = {
 							content: lang.ranks_config_add_command_warn
 								.replace("${selectedRole}", selectedRole.toString())
 								.replace("${_}", _),
-							ephemeral: true
+							flags: [1 << 6]
 						});
 					}
 				}
@@ -331,7 +331,7 @@ export const subCommand: SubCommand = {
 				if (roleEntries.length === 0) {
 					await interaction2.reply({
 						content: lang.ranks_config_remove_no_rank,
-						ephemeral: true
+						flags: [1 << 6]
 					});
 
 					await message.edit({
@@ -390,7 +390,7 @@ export const subCommand: SubCommand = {
 
 				await response1.reply({
 					content: lang.ranks_config_remove_command_work.replace("${levelToRemove}", levelToRemove),
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}

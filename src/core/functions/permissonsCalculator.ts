@@ -212,7 +212,7 @@ export async function sendErrorMessage(
 				interaction.member?.user.toString()!
 			)
 			.replace("${neededPerm}", neededPerm),
-		ephemeral: true
+		flags: [1 << 6]
 	});
 }
 

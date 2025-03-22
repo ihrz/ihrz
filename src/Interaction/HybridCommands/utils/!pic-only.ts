@@ -143,7 +143,7 @@ export const subCommand: SubCommand = {
 
 			if (!channelInteraction.guild?.members.me?.permissions.has(PermissionFlagsBits.ManageRoles)) {
 				await channelInteraction.deferUpdate();
-				await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_var_perm_issue, ephemeral: true });
+				await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_var_perm_issue, flags: [1 << 6] });
 				return;
 			}
 

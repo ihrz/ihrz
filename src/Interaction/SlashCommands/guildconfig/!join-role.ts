@@ -111,7 +111,7 @@ export const subCommand: SubCommand = {
 			let too_highter_roles: { id: string, name: string, position: string }[] = [];
 
 			if (!roleInteraction.guild?.members.me?.permissions.has(PermissionFlagsBits.ManageRoles)) {
-				await roleInteraction.followUp({ content: lang.setjoinroles_var_perm_issue, ephemeral: true });
+				await roleInteraction.followUp({ content: lang.setjoinroles_var_perm_issue, flags: [1 << 6] });
 				return;
 			}
 
@@ -225,7 +225,7 @@ export const subCommand: SubCommand = {
 						.setLabel(lang.mybot_submit_utils_msg_no)
 				);
 
-			let warn_msg = await roleInteraction.reply({ embeds: [dangerous_embed], components: [confirm_buttons], ephemeral: true });
+			let warn_msg = await roleInteraction.reply({ embeds: [dangerous_embed], components: [confirm_buttons], flags: [1 << 6] });
 
 			try {
 				let buttonInteraction = await (interaction.channel as BaseGuildTextChannel)?.awaitMessageComponent({
@@ -287,7 +287,7 @@ export const subCommand: SubCommand = {
 
 			await roleInteraction.reply({
 				embeds: [too_highter_embed],
-				ephemeral: true
+				flags: [1 << 6]
 			});
 		}
 	},

@@ -106,7 +106,7 @@ export const subCommand: SubCommand = {
 			if (i.user.id !== interaction.member?.user.id) {
 				await i.reply({
 					content: lang.help_not_for_you,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			}

@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
 		if (!zipAttachment) {
 			await interaction.reply({
 				content: lang.util_unzip_emojis_command_no_file,
-				ephemeral: true
+				flags: [1 << 6]
 			});
 			return;
 		}
@@ -111,13 +111,13 @@ export const subCommand: SubCommand = {
 				content: lang.util_unzip_emojis_command_work
 					.replace("${calcTime}", String(calcTime))
 					.replace("${emojiCount}", String(createdEmojis.length)),
-				ephemeral: true
+				flags: [1 << 6]
 			});
 
 		} catch (error) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_unzip_emojis_command_error,
-				ephemeral: true
+				flags: [1 << 6]
 			});
 		}
 	}

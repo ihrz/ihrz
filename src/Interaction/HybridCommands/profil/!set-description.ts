@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
 
 		await tableProfil.set(`${user.id}.desc`, desc);
 
-		await client.func.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, ephemeral: true });
+		await client.func.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, flags: [1 << 6] });
 		return;
 	},
 };

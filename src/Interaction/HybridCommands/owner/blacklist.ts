@@ -110,7 +110,7 @@ export const command: Command = {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.blacklist_no_one_blacklist
 						.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				return;
 			};

@@ -92,7 +92,7 @@ export const subCommand: SubCommand = {
 			if (collectInteraction.customId === "joinMessage-set-message") {
 				await collectInteraction.reply({
 					content: lang.setjoindm_awaiting_response,
-					ephemeral: true
+					flags: [1 << 6]
 				});
 
 				let questionReply = interaction.channel?.createMessageCollector({

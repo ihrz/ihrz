@@ -51,7 +51,7 @@ export function setupHelpCategoryCollector(
 		if (interaction.user.id !== authorId) {
 			await interaction.reply({
 				content: lang.help_not_for_you,
-				ephemeral: true
+				flags: [1 << 6]
 			});
 			return;
 		};

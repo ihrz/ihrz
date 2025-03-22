@@ -99,7 +99,7 @@ export const subCommand: SubCommand = {
 		collector.on('collect', async (buttonInteraction) => {
 
 			if (buttonInteraction.user.id !== interaction.user.id) {
-				await buttonInteraction.reply({ content: lang.help_not_for_you, ephemeral: true });
+				await buttonInteraction.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
 				return;
 			};
 
@@ -139,7 +139,7 @@ export const subCommand: SubCommand = {
 				await modalInteraction.reply({
 					content: lang.setleavemessage_command_work_on_enable
 						.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
-					ephemeral: true
+					flags: [1 << 6]
 				});
 				newEmbed.addFields(helpEmbed.data.fields![1]);
 				await originalResponse.edit({ embeds: [newEmbed] });
@@ -161,7 +161,7 @@ export const subCommand: SubCommand = {
 				await buttonInteraction.reply({
 					content: lang.setleavemessage_command_work_on_enable
 						.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
-					ephemeral: true
+					flags: [1 << 6]
 				});
 
 				newEmbed.addFields(helpEmbed.data.fields![1]);

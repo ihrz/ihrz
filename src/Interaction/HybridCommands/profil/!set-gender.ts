@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 				break;
 		}
 
-		await client.func.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, ephemeral: true });
+		await client.func.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, flags: [1 << 6] });
 		return;
 	},
 };

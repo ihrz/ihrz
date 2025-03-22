@@ -79,7 +79,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		});
 
 		await interaction.reply({
-			ephemeral: true,
+			flags: [1 << 6],
 			embeds: [new EmbedBuilder()
 				.setDescription(lang.temporary_voice_title_embec)
 				.setColor(2829617)

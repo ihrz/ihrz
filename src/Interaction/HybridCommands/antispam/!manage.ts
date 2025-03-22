@@ -276,7 +276,7 @@ export const subCommand: SubCommand = {
 
 		buttonCollector.on('collect', async (i: ButtonInteraction<"cached">) => {
 			if (i.user.id !== interaction.member?.user.id) {
-				await i.reply({ content: lang.help_not_for_you, ephemeral: true });
+				await i.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
 				return;
 			};
 
@@ -343,7 +343,7 @@ export const subCommand: SubCommand = {
 
 		collector.on('collect', async (i: StringSelectMenuInteraction<"cached">) => {
 			if (i.user.id !== interaction.member?.user.id) {
-				await i.reply({ content: lang.help_not_for_you, ephemeral: true });
+				await i.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
 				return;
 			};
 
@@ -376,7 +376,7 @@ export const subCommand: SubCommand = {
 					const formatedTime = client.timeCalculator.to_ms(resultModal);
 
 					if (!formatedTime) {
-						await result.reply({ content: lang.too_new_account_invalid_time_on_enable, ephemeral: true })
+						await result.reply({ content: lang.too_new_account_invalid_time_on_enable, flags: [1 << 6] })
 						return;
 					}
 
@@ -396,7 +396,7 @@ export const subCommand: SubCommand = {
 						await result.reply({
 							content: lang.temporary_voice_limit_button_not_integer
 								.replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
-							ephemeral: true
+							flags: [1 << 6]
 						});
 						return;
 					};
