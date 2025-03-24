@@ -1,5 +1,5 @@
 /*
-・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
@@ -14,7 +14,7 @@
 		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
-・ Mainly developed by Kisakay (https://github.com/Kisakay)
+・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
 ・ Copyright © 2020-2024 iHorizon
 */
