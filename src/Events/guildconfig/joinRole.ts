@@ -1,5 +1,5 @@
 /*
-・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
@@ -14,7 +14,7 @@
 		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
-・ Mainly developed by Kisakay (https://github.com/Kisakay)
+・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
 ・ Copyright © 2020-2025 iHorizon
 */
@@ -24,34 +24,34 @@ import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 export const event: BotEvent = {
-    name: "guildMemberAdd",
-    run: async (client: Client, member: GuildMember) => {
-        try {
-            if (
-                !member.guild.members.me?.permissions.has(
-                    PermissionsBitField.Flags.ManageRoles,
-                )
-            )
-                return;
+	name: "guildMemberAdd",
+	run: async (client: Client, member: GuildMember) => {
+		try {
+			if (
+				!member.guild.members.me?.permissions.has(
+					PermissionsBitField.Flags.ManageRoles,
+				)
+			)
+				return;
 
-            const roleid = (await Promise.resolve(
-                client.db.get(
-                    `${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`,
-                ),
-            )) as DatabaseStructure.GuildConfigSchema["joinroles"];
-            if (!roleid) return;
+			const roleid = (await Promise.resolve(
+				client.db.get(
+					`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`,
+				),
+			)) as DatabaseStructure.GuildConfigSchema["joinroles"];
+			if (!roleid) return;
 
-            await Promise.resolve().then(async () => {
-                if (Array.isArray(roleid)) {
-                    await member.roles.set(roleid).catch(() => null);
-                } else {
-                    const role = member.guild.roles.cache.get(roleid);
-                    if (role)
-                        await member.roles
-                            .add(role, "[JoinRole]")
-                            .catch(() => null);
-                }
-            });
-        } catch {}
-    },
+			await Promise.resolve().then(async () => {
+				if (Array.isArray(roleid)) {
+					await member.roles.set(roleid).catch(() => null);
+				} else {
+					const role = member.guild.roles.cache.get(roleid);
+					if (role)
+						await member.roles
+							.add(role, "[JoinRole]")
+							.catch(() => null);
+				}
+			});
+		} catch { }
+	},
 };
