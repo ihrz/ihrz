@@ -1,5 +1,5 @@
 /*
-・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
@@ -14,7 +14,7 @@
 		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
-・ Mainly developed by Kisakay (https://github.com/Kisakay)
+・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
 ・ Copyright © 2020-2025 iHorizon
 */
@@ -45,7 +45,6 @@ export enum GatewayMethod {
 	ServerBackup = 6
 };
 
-
 export function assetsFinder(body: Assets, type: string): string {
-	return `https://raw.githubusercontent.com/ihrz/assets/main/${type}/${Math.floor(Math.random() * body[type])}.gif`;
+	return `https://gitlab.com/ihrz/assets/-/raw/main/${type}/${Math.floor(Math.random() * body[type])}?ref_type=heads`;
 };

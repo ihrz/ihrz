@@ -36,7 +36,7 @@ It offers a **large variety of features**, including:
 
 | Contributor | GitHub | Pronouns |
 |------------|--------|----------|
-| **Kisakay** | [GitHub](https://github.com/Kisakay) | She/Her |
+| **Kisakay** | [GitHub](https://gitlab.com/Kisakay) | She/Her |
 | **IrisWeb** | [GitHub](https://github.com/irisihrz) | She/Her |
 | **Noémie** | [GitHub](https://github.com/name-shitty-github-profile) | She/Her |
 | **Wyene** | [GitHub](https://github.com/tryedandcatched) | He/Him |
@@ -76,7 +76,7 @@ It offers a **large variety of features**, including:
 👉 Use **[WSL](https://learn.microsoft.com/en-us/windows/wsl/install)** (Windows Subsystem for Linux) instead!  
 
 ### ⚙ Bot Configuration  
-1️⃣ Open [`config.example.ts`](https://github.com/ihrz/ihrz/blob/dev/src/files/config.example.ts)  
+1️⃣ Open [`config.example.ts`](https://gitlab.com/ihrz/ihrz/blob/dev/src/files/config.example.ts)  
 2️⃣ Enter your details  
 3️⃣ Rename the file to `config.ts`  
 

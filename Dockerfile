@@ -1,8 +1,8 @@
 # Params for this image:
 
-# BOT_TOKEN=<bot_token> 
-# OWNER_ONE=<owner_id> 
-# CLIENT_ID=<client_id> 
+# BOT_TOKEN=<bot_token>
+# OWNER_ONE=<owner_id>
+# CLIENT_ID=<client_id>
 # HOST=<ip> PORT=<port>
 
 # Use NodeJS 20
@@ -13,7 +13,7 @@ FROM node:20
 WORKDIR /app
 
 # Clone the Github repo
-RUN git clone https://github.com/ihrz/ihrz ./
+RUN git clone https://gitlab.com/ihrz/ihrz ./
 
 # Install ffmpeg for Music Module
 RUN apt update && apt install -y ffmpeg
@@ -29,4 +29,3 @@ RUN npx tsc
 
 # Running command
 CMD ["npm", "t"]
-#
