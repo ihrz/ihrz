@@ -1,5 +1,5 @@
 /*
-・ iHorizon Discord Bot (https://github.com/ihrz/ihrz)
+・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
@@ -14,7 +14,7 @@
 		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
-・ Mainly developed by Kisakay (https://github.com/Kisakay)
+・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 ・ Copyright © 2020-2025 iHorizon
 */
 
@@ -28,7 +28,7 @@ import config from './files/config.js';
 
 const _token = await getToken();
 
-logger.legacy("[*] iHorizon Discord Bot (https://github.com/ihrz/ihrz).".gray);
+logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
 logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
 logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
 
