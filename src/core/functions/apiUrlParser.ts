@@ -45,9 +45,8 @@ export enum GatewayMethod {
 	ServerBackup = 6
 };
 
-
 export function assetsFinder(body: Assets, type: string): string {
-	return `https://raw.githubusercontent.com/ihrz/assets/main/${type}/${Math.floor(Math.random() * body[type])}.gif`;
+	return `https://gitlab.com/ihrz/assets/-/raw/main/${type}/${Math.floor(Math.random() * body[type])}?ref_type=heads`;
 };
 
 export function OwnIhrzCluster(options: {

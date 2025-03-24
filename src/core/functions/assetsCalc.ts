@@ -26,7 +26,7 @@ import { Assets } from "../../../types/assets.js";
 
 export default async function assetsCalc(client: Client): Promise<void> {
 
-	let assets = await axios.get(`https://raw.githubusercontent.com/ihrz/assets/main/length.json`);
+	let assets = await axios.get(`https://gitlab.com/ihrz/assets/-/raw/main/length.json?ref_type=heads`);
 	let data = JSON.parse(assets.data) as Assets;
 
 	client.assets = data;
