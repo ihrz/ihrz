@@ -64,6 +64,6 @@ let client = new Client({
 	]
 });
 
-client.version = ClientVersion
+client.version = ClientVersion;
 client.config = config;
 core.main(client);
