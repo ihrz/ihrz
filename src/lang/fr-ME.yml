@@ -18,7 +18,7 @@ var_text_channel: "salon"
 var_voice_channel: "voc"
 var_ownihrz: "OWNIHRZ"
 var_creator: "Chef"
-var_doesnt_have_permissions: "Aya mec, ta pa la perm dsl. Vas becter ailleurs, te faut la pem {permission}."
+var_doesnt_have_permissions: "Ta pas les perms gros. (Y te faut la perm {perm} gros, déso)"
 var_ihorizon: "iHorizon"
 var_developer: "Dev"
 var_chance: "Chance"
@@ -52,7 +52,7 @@ var_page: "Page"
 var_permission: "Permission"
 var_usage: "Utilisation"
 var_aliases: "Alias"
-var_dont_have_perm: "Ta pas les perms gros. (Y te faut la perm {perm} gros, déso)"
+var_dont_have_perm: "Aya mec, ta pa la perm dsl. Vas becter ailleurs, te faut la pem {permission}."
 var_price: "Prix"
 var_boost: "Boost"
 var_uses: "Utilisations"
@@ -591,18 +591,18 @@ poll_embed_fields_choice: ":white_check_mark: **Oui**\n :x: **Non** "
 # /question
 question_not_full: "Entrez une question complète avec 3 mots ou plus!"
 question_s:
-    [
-        "Oui.",
-        "Non.",
-        "wAllah j'en sais rien",
-        "Je ne suis pas sûr(e) !",
-        "Tu es fou/folle!",
-        "Non merci jsuis pas gay.",
-        "Non.",
-        "Oui.",
-        "sah je men tape de ta question",
-        "aupire nique ta mère nan?",
-    ]
+  [
+    "Oui.",
+    "Non.",
+    "wAllah j'en sais rien",
+    "Je ne suis pas sûr(e) !",
+    "Tu es fou/folle!",
+    "Non merci jsuis pas gay.",
+    "Non.",
+    "Oui.",
+    "sah je men tape de ta question",
+    "aupire nique ta mère nan?",
+  ]
 question_fields_input_embed: ":question: **Question**"
 question_fields_output_embed: ":grey_exclamation: **Réponse:**"
 question_embed_title: "`Question: ${interaction.user.username}`"
