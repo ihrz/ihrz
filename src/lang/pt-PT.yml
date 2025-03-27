@@ -70,6 +70,8 @@ var_s: "segundo(s)"
 var_ms: "milissegundo(s)"
 var_banned_user: "Utilizador(es) Banido(s)"
 var_no_one_banned: "Ninguém está banido neste servidor."
+var_category: "Categoria"
+var_total: "Total"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Criar Convite Instantâneo"

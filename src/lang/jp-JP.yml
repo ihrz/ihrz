@@ -70,6 +70,8 @@ var_s: "秒"
 var_ms: "ミリ秒"
 var_banned_user: "BANされたユーザー"
 var_no_one_banned: "このサーバーでBANされているユーザーはいません。"
+var_category: "カテゴリー"
+var_total: "合計"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"

@@ -70,6 +70,8 @@ var_s: "секунда(ы)"
 var_ms: "миллисекунда(ы)"
 var_banned_user: "Заблокированный пользователь(и)"
 var_no_one_banned: "В этом сервере никто не заблокирован."
+var_category: "Категория"
+var_total: "Всего"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"

@@ -70,6 +70,8 @@ var_s: "ثانية/ثوانٍ"
 var_ms: "ميلي ثانية"
 var_banned_user: "المستخدم/المستخدمون المحظورون"
 var_no_one_banned: "لا يوجد أي مستخدم محظور في هذا الخادم."
+var_category: "الفئة"
+var_total: "المجموع"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "إنشاء دعوة فورية"

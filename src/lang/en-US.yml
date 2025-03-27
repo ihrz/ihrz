@@ -70,6 +70,8 @@ var_s: "seconds"
 var_ms: "miliseconds"
 var_banned_user: "Banned User(s)"
 var_no_one_banned: "No one is banned in this server."
+var_category: "Category"
+var_total: "Total"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Create Instant Invite"

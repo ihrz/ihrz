@@ -88,6 +88,8 @@ export interface LanguageData {
 	var_ms: string;
 	var_banned_user: string;
 	var_no_one_banned: string;
+	var_category: string;
+	var_total: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;
