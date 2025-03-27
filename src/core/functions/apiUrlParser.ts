@@ -46,5 +46,5 @@ export enum GatewayMethod {
 };
 
 export function assetsFinder(body: Assets, type: string): string {
-	return `https://gitlab.com/ihrz/assets/-/raw/main/${type}/${Math.floor(Math.random() * body[type])}?ref_type=heads`;
+	return `https://gitlab.com/ihrz/assets/-/raw/main/${type}/${Math.floor(Math.random() * body[type])}.gif?ref_type=heads`;
 };

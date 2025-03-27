@@ -202,7 +202,7 @@ async function handleCategorySelect(
 			case 2:
 				cmdPrefix = bot_prefix.type === 'mention'
 					? `${states}\n・${client.iHorizon_Emojis.icon.Prefix_Command} (@Ping-Me) ${element.prefixCmd}\n≠${client.iHorizon_Emojis.badge.Slash_Bot} **${element.prefixCmd}**`
-					: `${states}\n・${prefixOrNot}・${client.iHorizon_Emojis.badge.Slash_Bot} **${element.cmd}**`;
+					: `${states}\n・${prefixOrNot}・${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
 				break;
 			default:
 				cmdPrefix = `${states}\n・**${element.cmd}**`;

@@ -1,156 +1,556 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        :root {
-            --primary-bg: #1e1f22;
-            --secondary-bg: #2b2d31;
-            --accent-color: #5865f2;
-            --text-primary: #f3f4f5;
-            --text-secondary: #b5bac1;
-            --card-bg: #313338;
-            --hover-bg: #404249;
-            --border-radius: 8px;
-            --spacing: 1rem;
-        }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<title>Server Leaderboard</title>
+	<style>
+		:root {
+			/* Primary Colors */
+			--primary: #5865F2;
+			--primary-light: #7983f5;
+			--primary-dark: #4752c4;
+			--secondary: #EB459E;
+			--secondary-light: #f16db6;
+			--secondary-dark: #c93c85;
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+			/* Background Colors */
+			--bg-dark: #1E1F22;
+			--bg-medium: #2B2D31;
+			--bg-light: #313338;
+			--bg-lighter: #383A40;
 
-        body {
-            font-family: 'gg sans', 'Helvetica Neue', sans-serif;
-            background-color: var(--primary-bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: var(--spacing);
-            display: grid;
-            place-items: center;
-        }
+			/* Text Colors */
+			--text-bright: #FFFFFF;
+			--text-normal: #DCDDDE;
+			--text-muted: #A3A6AA;
+			--text-link: #00AFF4;
 
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            background-color: var(--secondary-bg);
-            border-radius: var(--border-radius);
-            padding: calc(var(--spacing) * 2);
-            gap: calc(var(--spacing) * 2);
-            display: flex;
-            flex-direction: column;
-        }
+			/* Status Colors */
+			--online: #3BA55C;
+			--idle: #FAA61A;
+			--dnd: #ED4245;
+			--offline: #747F8D;
 
-        .header {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing);
-            padding-bottom: var(--spacing);
-            border-bottom: 2px solid var(--card-bg);
-        }
+			/* Other */
+			--border-radius-sm: 4px;
+			--border-radius: 8px;
+			--border-radius-lg: 16px;
+			--shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.2);
+			--shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+			--shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
+			--transition: all 0.2s ease;
+		}
 
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            flex-grow: 1;
-        }
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
 
-        .header img {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
+		body {
+			font-family: 'Inter', sans-serif;
+			background-color: var(--bg-dark);
+			color: var(--text-bright);
+			min-height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 2rem;
+		}
 
-        .grid-layout {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--spacing);
-        }
+		.container {
+			width: 100%;
+			max-width: 1400px;
+			background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+			border-radius: var(--border-radius-lg);
+			box-shadow: var(--shadow-lg);
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			gap: 2rem;
+			padding: 0;
+			position: relative;
+		}
 
-        .section {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: calc(var(--spacing) * 1.5);
-        }
+		.header {
+			position: relative;
+			padding: 2.5rem 3rem;
+			background: linear-gradient(90deg, rgba(88, 101, 242, 0.2) 0%, rgba(235, 69, 158, 0.2) 100%);
+			display: flex;
+			align-items: center;
+			gap: 1.5rem;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		}
 
-        .section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: var(--spacing);
-            padding-bottom: calc(var(--spacing) / 2);
-            border-bottom: 1px solid var(--hover-bg);
-        }
+		.header::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 4px;
+			background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+		}
 
-        .list-item {
-            padding: calc(var(--spacing) / 2);
-            border-radius: calc(var(--border-radius) / 2);
-            transition: background-color 0.2s ease;
-            cursor: pointer;
-        }
+		.server-info {
+			display: flex;
+			align-items: center;
+			gap: 1.5rem;
+			flex: 1;
+		}
 
-        .list-item:hover {
-            background-color: var(--hover-bg);
-        }
+		.server-avatar {
+			width: 80px;
+			height: 80px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 4px solid rgba(255, 255, 255, 0.2);
+			box-shadow: var(--shadow-sm);
+			transition: var(--transition);
+		}
 
-        .user-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: calc(var(--spacing) / 4);
-        }
+		.server-avatar:hover {
+			transform: scale(1.05);
+			border-color: var(--primary-light);
+		}
 
-        .activity-stats {
-            display: flex;
-            gap: var(--spacing);
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-        }
+		.server-details {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
 
-        .badge {
-            background-color: var(--accent-color);
-            color: var(--text-primary);
-            padding: 0.25rem 0.5rem;
-            border-radius: calc(var(--border-radius) / 2);
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
+		.server-name {
+			font-size: 2.2rem;
+			font-weight: 800;
+			color: var(--text-bright);
+			letter-spacing: -0.5px;
+			margin: 0;
+		}
 
-        @media (max-width: 768px) {
-            .container {
-                padding: var(--spacing);
-            }
+		.server-meta {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			color: var(--text-muted);
+			font-size: 0.95rem;
+		}
 
-            .grid-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+		.meta-item {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.meta-icon {
+			opacity: 0.8;
+		}
+
+		.content {
+			padding: 0 3rem 3rem;
+			display: flex;
+			flex-direction: column;
+			gap: 2.5rem;
+		}
+
+		.grid-layout {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+			gap: 2rem;
+		}
+
+		.section {
+			background: var(--bg-light);
+			border-radius: var(--border-radius);
+			box-shadow: var(--shadow);
+			overflow: hidden;
+			transition: var(--transition);
+			height: 100%;
+		}
+
+		.section:hover {
+			transform: translateY(-5px);
+			box-shadow: var(--shadow-lg);
+		}
+
+		.section-header {
+			padding: 1.5rem;
+			background: rgba(0, 0, 0, 0.15);
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		.section-icon {
+			font-size: 1.25rem;
+			color: var(--primary);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 32px;
+			height: 32px;
+			background: rgba(88, 101, 242, 0.15);
+			border-radius: 50%;
+		}
+
+		.section-title {
+			font-size: 1.25rem;
+			font-weight: 700;
+			color: var(--text-bright);
+			margin: 0;
+		}
+
+		.section-content {
+			padding: 1.5rem;
+		}
+
+		.list {
+			display: flex;
+			flex-direction: column;
+			gap: 0.75rem;
+		}
+
+		.list-item {
+			background: rgba(255, 255, 255, 0.03);
+			border-radius: var(--border-radius);
+			padding: 1rem;
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			transition: var(--transition);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.list-item:hover {
+			background: rgba(255, 255, 255, 0.07);
+			transform: translateX(5px);
+		}
+
+		.list-item::before {
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			width: 4px;
+			background: var(--primary);
+			border-radius: 2px;
+			opacity: 0;
+			transition: var(--transition);
+		}
+
+		.list-item:hover::before {
+			opacity: 1;
+		}
+
+		.rank {
+			font-size: 1.25rem;
+			font-weight: 800;
+			color: var(--text-muted);
+			width: 30px;
+			text-align: center;
+		}
+
+		.rank-1 {
+			color: gold;
+		}
+
+		.rank-2 {
+			color: silver;
+		}
+
+		.rank-3 {
+			color: #cd7f32;
+			/* Bronze */
+		}
+
+		.avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			object-fit: cover;
+		}
+
+		.channel-icon {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.1);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 1.25rem;
+			color: var(--text-normal);
+		}
+
+		.info {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 0.25rem;
+			min-width: 0;
+		}
+
+		.name {
+			font-weight: 600;
+			color: var(--text-bright);
+			font-size: 1rem;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.detail {
+			font-size: 0.85rem;
+			color: var(--text-muted);
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.stat {
+			font-weight: 700;
+			color: var(--primary-light);
+			margin-left: auto;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			background: rgba(88, 101, 242, 0.1);
+			padding: 0.5rem 0.75rem;
+			border-radius: var(--border-radius-sm);
+			transition: var(--transition);
+		}
+
+		.list-item:hover .stat {
+			background: rgba(88, 101, 242, 0.2);
+		}
+
+		.badge {
+			background: var(--primary);
+			color: white;
+			font-size: 0.75rem;
+			font-weight: 600;
+			padding: 0.25rem 0.5rem;
+			border-radius: var(--border-radius-sm);
+			display: inline-flex;
+			align-items: center;
+			gap: 0.25rem;
+		}
+
+		.footer {
+			text-align: center;
+			padding: 1.5rem;
+			color: var(--text-muted);
+			font-size: 0.9rem;
+			border-top: 1px solid rgba(255, 255, 255, 0.05);
+			background: rgba(0, 0, 0, 0.1);
+		}
+
+		.footer a {
+			color: var(--text-link);
+			text-decoration: none;
+			transition: var(--transition);
+		}
+
+		.footer a:hover {
+			text-decoration: underline;
+		}
+
+		/* Animations */
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(10px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.container {
+			animation: fadeIn 0.6s ease-out;
+		}
+
+		.section {
+			animation: fadeIn 0.6s ease-out;
+			animation-fill-mode: both;
+		}
+
+		.section:nth-child(1) {
+			animation-delay: 0.1s;
+		}
+
+		.section:nth-child(2) {
+			animation-delay: 0.2s;
+		}
+
+		.section:nth-child(3) {
+			animation-delay: 0.3s;
+		}
+
+		.list-item {
+			animation: fadeIn 0.5s ease-out;
+			animation-fill-mode: both;
+		}
+
+		.list-item:nth-child(1) {
+			animation-delay: 0.1s;
+		}
+
+		.list-item:nth-child(2) {
+			animation-delay: 0.15s;
+		}
+
+		.list-item:nth-child(3) {
+			animation-delay: 0.2s;
+		}
+
+		.list-item:nth-child(4) {
+			animation-delay: 0.25s;
+		}
+
+		.list-item:nth-child(5) {
+			animation-delay: 0.3s;
+		}
+
+		/* Responsive Design */
+		@media (max-width: 1200px) {
+			.grid-layout {
+				grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+			}
+		}
+
+		@media (max-width: 768px) {
+			body {
+				padding: 1rem;
+			}
+
+			.container {
+				max-width: 100%;
+			}
+
+			.header {
+				padding: 1.5rem;
+				flex-direction: column;
+				text-align: center;
+			}
+
+			.server-info {
+				flex-direction: column;
+			}
+
+			.content {
+				padding: 0 1.5rem 1.5rem;
+			}
+
+			.grid-layout {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>{header_h1_value}</h1>
-            <img src="{guild_pfp}" alt="Server Logo">
+	<div class="container">
+		<div class="header">
+			<div class="server-info">
+				<img class="server-avatar" src="{guild_pfp}" alt="Server Logo">
+				<div class="server-details">
+					<h1 class="server-name">{header_h1_value}</h1>
+					<div class="server-meta">
+						<div class="meta-item">
+							<span class="meta-icon">👥</span>
+							<span>{member_count} members</span>
+						</div>
+						<div class="meta-item">
+							<span class="meta-icon">📊</span>
+							<span>Activity Leaderboard</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="content">
+			<div class="grid-layout">
+				<div class="section">
+					<div class="section-header">
+						<div class="section-icon">👑</div>
+						<h2 class="section-title">Top Active Users</h2>
+					</div>
+					<div class="section-content">
+						<div class="list">
+							{top_message_users}
+						</div>
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-header">
+						<div class="section-icon">💬</div>
+						<h2 class="section-title">Top Active Text Channels</h2>
+					</div>
+					<div class="section-content">
+						<div class="list">
+							{top_text_channels}
+						</div>
+					</div>
+				</div>
+
+				<div class="section">
+					<div class="section-header">
+						<div class="section-icon">🎤</div>
+						<h2 class="section-title">Top Active Voice Channels</h2>
+					</div>
+					<div class="section-content">
+						<div class="list">
+							{top_voice_channels}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="footer">
+			Stats generated on {current_date} • Powered by <a href="#">IHRZ</a>
+		</div>
+	</div>
+
+	<!-- Template for user item (to be replaced by server) -->
+	<!-- 
+    <div class="list-item">
+        <div class="rank rank-1">1</div>
+        <img class="avatar" src="https://cdn.discordapp.com/avatars/user_id/avatar.png" alt="User">
+        <div class="info">
+            <div class="name">Username</div>
+            <div class="detail">Last active: 2 hours ago</div>
         </div>
-        <div class="grid-layout">
-            <div class="section">
-                <h2 class="section-title">Top Active Users</h2>
-                {top_message_users}
-            </div>
-            <div class="section">
-                <h2 class="section-title">Top Active Text Channels</h2>
-                {top_text_channels}
-            </div>
-            <div class="section">
-                <h2 class="section-title">Top Active Voice Channels</h2>
-                {top_voice_channels}
-            </div>
-        </div>
+        <div class="stat">5.2K <span>messages</span></div>
     </div>
+    -->
+
+	<!-- Template for channel item (to be replaced by server) -->
+	<!-- 
+    <div class="list-item">
+        <div class="rank rank-1">1</div>
+        <div class="channel-icon">#</div>
+        <div class="info">
+            <div class="name">channel-name</div>
+            <div class="detail">Category: General</div>
+        </div>
+        <div class="stat">8.7K <span>messages</span></div>
+    </div>
+    -->
 </body>
+
 </html>

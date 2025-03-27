@@ -70,6 +70,8 @@ var_s: "segundo(s)"
 var_ms: "milissegundo(s)"
 var_banned_user: "Utilizador(es) Banido(s)"
 var_no_one_banned: "Ninguém está banido neste servidor."
+var_category: "Categoria"
+var_total: "Total"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Criar Convite Instantâneo"
@@ -975,7 +977,7 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | O membro q
 
 # /util autorenew
 util_autorenew_time_too_short: "O tempo entre uma renovação de canal deve ser superior a 1 minuto"
-util_autorenew_time_too_long: "O tempo entre uma renovação de canal deve ser inferior a 24 horas"
+util_autorenew_time_too_long: "O tempo entre uma renovação de canal deve ser inferior a 30 dias"
 util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Agora, o canal ${channel.toString()} será automaticamente eliminado-criado (renovado) a cada ${time}!\nPara parar a renovação do canal, basta eliminá-lo você mesmo."
 event_autorenew_channel_renewed: "O AutoRenew renovou o canal!"
 event_autorenew_channel_warning: "O módulo AutoRenew está configurado para renovar este canal. Próxima renovação em ${time}."
@@ -2138,6 +2140,7 @@ minutes_word: "Minutos"
 voice_activity: "Atividade de voz"
 top_voice: "Principais canais de voz"
 top_message: "Principais canais de mensagens"
+activity_under_30d: "Atividade nos últimos 30 dias"
 
 # Módulo de Notificação
 # autor da notificação, configuração da notificação

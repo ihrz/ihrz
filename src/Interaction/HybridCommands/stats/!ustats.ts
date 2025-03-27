@@ -189,6 +189,7 @@ export const subCommand: SubCommand = {
 			.replaceAll('{author_pfp}', member.user.displayAvatarURL({ size: 512 }))
 			.replaceAll('{guild_name}', interaction.guild.name)
 			.replaceAll('{messages_length}', String(totalMessages))
+			.replaceAll('{chart_title}', lang.activity_under_30d)
 			.replaceAll('{voice_daily}', String(client.timeCalculator.to_beautiful_string(dailyVoiceActivity, lang)))
 			.replaceAll('{voice_weekly}', String(client.timeCalculator.to_beautiful_string(weeklyVoiceActivity, lang)))
 			.replaceAll('{voice_monthly}', String(client.timeCalculator.to_beautiful_string(monthlyVoiceActivity, lang)))
@@ -220,8 +221,8 @@ export const subCommand: SubCommand = {
 			elementSelector: '.card',
 			omitBackground: true,
 			selectElement: true,
-			width: 1280,
-			height: 706,
+			width: 1920,
+			height: 1200,
 			scaleSize: 1
 		});
 

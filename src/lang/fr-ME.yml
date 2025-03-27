@@ -18,7 +18,7 @@ var_text_channel: "salon"
 var_voice_channel: "voc"
 var_ownihrz: "OWNIHRZ"
 var_creator: "Chef"
-var_doesnt_have_permissions: "Vous n'êtes pas autorisé à faire cela. Vous avez besoin de la permission {permission}."
+var_doesnt_have_permissions: "Ta pas les perms gros. (Y te faut la perm {perm} gros, déso)"
 var_ihorizon: "iHorizon"
 var_developer: "Dev"
 var_chance: "Chance"
@@ -52,7 +52,7 @@ var_page: "Page"
 var_permission: "Permission"
 var_usage: "Utilisation"
 var_aliases: "Alias"
-var_dont_have_perm: "Ta pas les perms gros. (Y te faut la perm {perm} gros, déso)"
+var_dont_have_perm: "Aya mec, ta pa la perm dsl. Vas becter ailleurs, te faut la pem {permission}."
 var_price: "Prix"
 var_boost: "Boost"
 var_uses: "Utilisations"
@@ -70,14 +70,16 @@ var_s: "seconde(s)"
 var_ms: "milliseconde(s)"
 var_banned_user: "Mecs ban"
 var_no_one_banned: "Personne est ban, t con ou koi"
+var_category: "Catégorie du bail"
+var_total: "Total du bail"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Faire une inv"
-perm_kickmembers_name: "Expulser des mecs"
-perm_banmembers_name: "Bannir des mecs"
+perm_kickmembers_name: "Expulser des migrants"
+perm_banmembers_name: "Bannall le serv"
 perm_administrator_name: "Admin"
-perm_managechannels_name: "Gérer les salons"
-perm_manageguild_name: "Gérer le serveur"
+perm_managechannels_name: "Péter les salons"
+perm_manageguild_name: "Niquer le serveur"
 perm_addreactions_name: "Ajouter des réactions"
 perm_viewauditlog_name: "Voir les logs du serveur"
 perm_priorityspeaker_name: "Voix prioritaire"
@@ -96,7 +98,7 @@ perm_connect_name: "Se connecter"
 perm_speak_name: "Parler"
 perm_mutemembers_name: "Rendre muet"
 perm_deafenmembers_name: "Mettre en sourdine"
-perm_movemembers_name: "Déplacer des membres"
+perm_movemembers_name: "Déporter des membres"
 perm_usevad_name: "Utiliser la détection de la voix"
 perm_changenickname_name: "Changer de pseudo"
 perm_managenicknames_name: "Gérer les pseudos"
@@ -211,14 +213,14 @@ ticket_logchannel_embed_title: "salon de Logs des Tickets"
 ticket_logchannel_embed_desc: "${interaction.user}, vous avez configuré le salon des logs du module des Tickets sur ${channel} !"
 
 # /ticket panel
-ticket_panel_default_placeholder: "Sélectionnez une catégorie pour ouvrir un ticket"
+ticket_panel_default_placeholder: "Sélectionnez une catégorie pour becter le ticket"
 ticket_panel_embed_title: "Panneau de Tickets #"
 ticket_panel_embed_desc: "Personnalisez un embed de ticket avec des options spécifiques"
 ticket_panel_saved_conf: "💾 Configuration Sauvegardée"
 ticket_panel_related_embed: "🕸️ Embed associé"
 ticket_panel_role_to_ping: "📌 Rôle à mentionner"
 ticket_panel_ping_user: "📎 Mentionner l'utilisateur"
-ticket_panel_placeholder: "🏷️ Texte indicatif"
+ticket_panel_placeholder: "🏷️ Texte de con"
 ticket_panel_category: "📤 Catégorie"
 ticket_panel_option_fields: "📔 Champs d'options"
 ticket_panel_form: "📝 Formulaire"
@@ -240,7 +242,7 @@ ticket_panel_change_placeholder_modal_placeholder: "Nouveau texte indicatif"
 ticket_panel_need_save_config: "Vous devez sauvegarder la configuration actuelle avant d'envoyer l'embed"
 ticket_panel_need_1_option: "Vous avez besoin d'au moins une option pour envoyer l'embed"
 ticket_panel_related_embed_dont_exist: "L'embed associé n'existe pas"
-ticket_panel_channel_error: "Le salon n'existe pas ou je n'ai pas la permission d'y envoyer des messages"
+ticket_panel_channel_error: "fréro ton salon il est satanique, j'ai pas accès"
 ticket_panel_embed_been_send: "L'embed a été envoyé dans le salon"
 ticket_panel_successfully_saved: "La configuration a été sauvegardée avec succès"
 ticket_panel_change_role_roleSelect_placeholder: "Sélectionnez un rôle"
@@ -249,8 +251,8 @@ ticket_panel_change_embed_modal_title: "Modifier l'Embed Associé"
 ticket_panel_change_embed_modal_placeholder: "ID de l'Embed"
 ticket_panel_change_embed_dont_exist: "L'embed n'existe pas"
 ticket_panel_change_option_select_placeholder: "Sélectionnez une option"
-ticket_panel_change_option_select_1_label: "Ajouter un nouveau champ d'option"
-ticket_panel_change_option_select_2_label: "Retirer un champ d'option"
+ticket_panel_change_option_select_1_label: "Ajouter un nouveau champ de côton"
+ticket_panel_change_option_select_2_label: "Retirer un champ de côton"
 ticket_panel_change_option_interaction_content: "Sélectionnez une option pour ajouter ou retirer des champs d'options"
 ticket_panel_add_option_max_10: "Vous ne pouvez pas ajouter plus de 10 champs d'options"
 ticket_panel_add_option_modal_title: "Ajouter un champ d'option"
@@ -263,7 +265,7 @@ ticket_panel_rempve_option_interaction_content: "Sélectionnez une option à ret
 ticket_panel_change_form_select_placeholder_1: "Ajouter un champ de formulaire"
 ticket_panel_change_form_select_placeholder_2: "Retirer un champ de formulaire"
 ticket_panel_change_form_interaction_content: "Sélectionnez une option pour ajouter ou retirer des champs de formulaire"
-ticket_panel_add_form_max_3: "Vous ne pouvez pas ajouter plus de 3 champs de formulaire"
+ticket_panel_add_form_max_3: "Ola femme! Stop toi là mdrr. 3 questions c'est déjà beaucoup. Dégage de là sale 92i"
 ticket_panel_add_form_modal_title: "Ajouter un champ de formulaire"
 ticket_panel_add_form_modal_field1_label: "Titre de la Question"
 ticket_panel_add_form_modal_field2_label: "Texte indicatif de la Question"
@@ -275,7 +277,7 @@ ticket_panel_panel_11_label: "Modifier le panneau d'intégration du canal de tic
 
 # /ticket rename
 ticket_rename_ok: "Le salon du ticket a été renommé !"
-ticket_rename_error: "Erreur lors du renommage du salon textuel."
+ticket_rename_error: "Alors j'sais pas ce que j'ai consommer mais frr elle est bonne hyn. j'me suis endormis sur le keyboard jcrois. Ya un monde où ton salon c'est dla merde"
 
 # Ranks commandsa
 # /xp, /setxpchannels, /disablexp
@@ -319,12 +321,12 @@ level_xp_total: "XP total :"
 ranks_leaderboard_top_txt: "Top #${i}"
 ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Niveau**: `${a.level || '0'}`\n🔱 ➥ **XP Total**: `${a.xptotal}`"
-ranks_leaderboard_embed_title: "🏆 Classement des Légendes du Serveur"
+ranks_leaderboard_embed_title: "🏆 Classement des mecs qui prennent pas de douche"
 ranks_leaderboard_embed_footer: "Page ${cPage} sur ${totalPages} • Classé par XP Total"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "Configurations du Module de Rangs"
-ranks_ignorechannels_embed_desc: "Lorsque de nouveaux messages sont envoyés dans l'un de ces canaux, le module de rangs les ignore."
+ranks_ignorechannels_embed_desc: "Lorsque de nouveaux messages sont envoyés dans l'un de ces canaux, le module de rangs les ignore. Un peu comme quand ma femme m'explique sa journée."
 
 # /ranks set-message
 ranksSetMessage_not_admin: ":x: | Vous devez être administrateur de ce serveur pour demander cette commande!"
@@ -461,10 +463,10 @@ botinfo_embed_fields_created_by: "Créé par (les meilleurs dev):"
 
 # /invite
 invite_embed_title: "Merci d'avoir ajouté iHorizon !"
-invite_embed_description: "Je t'aime (no-homo), montre-moi ton amour en retour (et pas ta chatte) ! Invite-moi !"
+invite_embed_description: "Je t'aime (no-homo), montre-moi ton amour en retour (et pas ta chatte) ! Invite-moi ! Si tu es un skidder, tu peux aussi me rejoindre sur mon serveur privé !"
 
 # /kisakay
-kisakay_message: "Wsh c ma owner, elle est blg et a un vrai beau cul, elle m'a construit mais moi je veux la détruire 🤤🤤🤤"
+kisakay_message: "Wsh c ma owner, elle est blg et a un vrai beau cul, elle m'a construit mais moi je veux la détruire 🤤🤤🤤\nLa vie, si jlui fait un BOULOOOT jdirais pas nan"
 
 # /andru
 andru_message: 'Andru est un collaborateur et développeur. "L''homme à tout faire", il gère le marketing, la communauté...'
@@ -601,6 +603,7 @@ question_s:
     "Non.",
     "Oui.",
     "sah je men tape de ta question",
+    "aupire nique ta mère nan?",
   ]
 question_fields_input_embed: ":question: **Question**"
 question_fields_output_embed: ":grey_exclamation: **Réponse:**"
@@ -976,7 +979,7 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | Le membre 
 
 # /util autorenew
 util_autorenew_time_too_short: "Le temps entre chaque renouvellement de salon doit être supérieur à 1 minute"
-util_autorenew_time_too_long: "Le temps entre chaque renouvellement de salon doit être inférieur à 24 heures"
+util_autorenew_time_too_long: "Le temps entre chaque renouvellement de salon doit être inférieur à 30 jours"
 util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} Désormais, le salon ${channel.toString()} sera automatiquement supprimé-créé (renouvelé) toutes les ${time} !\nPour arrêter le renouvellement du salon, il suffit de le supprimer vous-même."
 event_autorenew_channel_renewed: "L'AutoRenew a renouvelé le salon !"
 event_autorenew_channel_warning: "Le module AutoRenew est configuré pour renouveler ce salon. Prochain renouvellement dans ${time}."
@@ -2139,6 +2142,7 @@ voice_activity: "Activité vocale"
 minutes_word: "Minutes"
 top_voice: "Principaux canaux vocaux"
 top_message: "Principaux canaux de messages"
+activity_under_30d: "Activité sur 30 jours"
 
 # Module de Notification
 # auteur de la notification, configuration de la notification

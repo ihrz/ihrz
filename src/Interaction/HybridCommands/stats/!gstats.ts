@@ -166,64 +166,84 @@ export const subCommand: SubCommand = {
 		var htmlContent = client.htmlfiles['guildStatsLeaderboard'];
 		leaderboardData = getStatsLeaderboard(leaderboardData)
 
+		// Format current date for footer
+		const currentDate = new Date().toLocaleDateString(await client.db.get(`${interaction.guildId}.LANG.lang`) || "en-US", {
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit'
+		});
+
 		htmlContent = htmlContent
 			.replaceAll('{header_h1_value}', lang.header_h1_value)
 			.replaceAll("{guild_pfp}", interaction.guild.iconURL({ size: 512 }) || client.user.displayAvatarURL({ size: 512 }))
 			.replaceAll("{author_username}", interaction.guild.name)
-			.replaceAll('{top_message_users}', leaderboardData.map((user, index) => `
+			.replaceAll("{member_count}", interaction.guild.memberCount.toString())
+			.replaceAll("{current_date}", currentDate)
+			.replaceAll('{top_message_users}', leaderboardData.map((user, index) => {
+				// Determine rank class for styling
+				const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
+
+				return `
         <div class="list-item">
-            <div class="user-info">
-                <span>${index + 1}. @${user.member?.username}</span>
+            <div class="rank ${rankClass}">${index + 1}</div>
+            <img class="avatar" src="${user.member?.displayAvatarURL({ size: 128 }) || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="User">
+            <div class="info">
+                <div class="name">@${user.member?.username || lang.var_unknown}</div>
+                <div class="detail">${lang.var_total}: ${user.monthlyMessages} ${lang.messages_word}, ${(user.monthlyVoiceActivity / 1000 / 60).toFixed(0)} ${lang.minutes_word}</div>
             </div>
-            <div class="activity-stats">
-                <div>
-                    <span class="badge">1d</span>
-                    <span>${user.dailyMessages} ${lang.messages_word}, ${(user.dailyVoiceActivity / 1000 / 60).toFixed(2)} ${lang.minutes_word}</span>
-                </div>
-                <div>
-                    <span class="badge">7d</span>
-                    <span>${user.weeklyMessages} ${lang.messages_word}, ${(user.weeklyVoiceActivity / 1000 / 60).toFixed(2)} ${lang.minutes_word}</span>
-                </div>
-                <div>
-                    <span class="badge">30d</span>
-                    <span>${user.monthlyMessages} ${lang.messages_word}, ${(user.monthlyVoiceActivity / 1000 / 60).toFixed(2)} ${lang.minutes_word}</span>
-                </div>
+            <div class="stat">${user.dailyMessages} <span>${lang.messages_word}</span></div>
+        </div>
+        `;
+			}).join(''))
+			.replaceAll('{top_text_channels}', [
+				firstActiveChannel,
+				secondActiveChannel,
+				thirdActiveChannel
+			].map((channelId, index) => {
+				if (!channelId) return '';
+				const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
+				const messagesCount = getChannelMessagesCount(channelId, allMessages);
+
+				return `
+        <div class="list-item">
+            <div class="rank ${rankClass}">${index + 1}</div>
+            <div class="channel-icon">#</div>
+            <div class="info">
+                <div class="name">${getChannelName(interaction.guild!, channelId)}</div>
+                <div class="detail">${lang.var_category}: ${interaction.guild!.channels.cache.get(channelId)?.parent?.name || 'N/A'}</div>
             </div>
+            <div class="stat">${messagesCount} <span>${lang.messages_word}</span></div>
         </div>
-        `).join(''))
-			.replaceAll('{top_text_channels}', `
+        `;
+			}).join(''))
+			.replaceAll('{top_voice_channels}', [
+				firstActiveVoiceChannel,
+				secondActiveVoiceChannel,
+				thirdActiveVoiceChannel
+			].map((channelId, index) => {
+				if (!channelId) return '';
+				const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
+				const minutesCount = getChannelMinutesCount(channelId, allVoiceActivities);
+
+				return `
         <div class="list-item">
-            <span># ${getChannelName(interaction.guild, firstActiveChannel)}</span>
-            <span>${getChannelMessagesCount(firstActiveChannel, allMessages)} ${lang.messages_word}</span>
+            <div class="rank ${rankClass}">${index + 1}</div>
+            <div class="channel-icon">🎤</div>
+            <div class="info">
+                <div class="name">${getChannelName(interaction.guild!, channelId)}</div>
+                <div class="detail">${lang.var_category}: ${interaction.guild!.channels.cache.get(channelId)?.parent?.name || 'N/A'}</div>
+            </div>
+            <div class="stat">${minutesCount} <span>${lang.minutes_word}</span></div>
         </div>
-        <div class="list-item">
-            <span># ${getChannelName(interaction.guild, secondActiveChannel)}</span>
-            <span>${getChannelMessagesCount(secondActiveChannel, allMessages)} ${lang.messages_word}</span>
-        </div>
-        <div class="list-item">
-            <span># ${getChannelName(interaction.guild, thirdActiveChannel)}</span>
-            <span>${getChannelMessagesCount(thirdActiveChannel, allMessages)} ${lang.messages_word}</span>
-        </div>
-        `)
-			.replaceAll('{top_voice_channels}', `
-        <div class="list-item">
-            <span># ${getChannelName(interaction.guild, firstActiveVoiceChannel)}</span>
-            <span>${getChannelMinutesCount(firstActiveVoiceChannel, allVoiceActivities)} ${lang.minutes_word}</span>
-        </div>
-        <div class="list-item">
-            <span># ${getChannelName(interaction.guild, secondActiveVoiceChannel)}</span>
-            <span>${getChannelMinutesCount(secondActiveVoiceChannel, allVoiceActivities)} ${lang.minutes_word}</span>
-        </div>
-        <div class="list-item">
-            <span># ${getChannelName(interaction.guild, thirdActiveVoiceChannel)}</span>
-            <span>${getChannelMinutesCount(thirdActiveVoiceChannel, allVoiceActivities)} ${lang.minutes_word}</span>
-        </div>
-        `);
+        `;
+			}).join(''));
 
 		const image = await client.func.html2png(htmlContent, {
 			width: 1902,
 			height: 1080,
-			scaleSize: 2,
+			scaleSize: 3,
 			elementSelector: '.container',
 			omitBackground: true,
 			selectElement: true,
