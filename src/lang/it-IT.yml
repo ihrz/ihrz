@@ -2138,6 +2138,7 @@ voice_activity: "Attività vocale"
 minutes_word: "Minuti"
 top_voice: "Canali vocali principali"
 top_message: "Canali di messaggi principali"
+activity_under_30d: "Attività negli ultimi 30 giorni"
 
 # Modulo di Notifica
 # autore della notifica, configurazione della notifica

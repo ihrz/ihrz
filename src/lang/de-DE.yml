@@ -2138,6 +2138,7 @@ minutes_word: "Minuten"
 voice_activity: "Sprachaktivität"
 top_voice: "Top-Sprachkanäle"
 top_message: "Top-Nachrichtenkanäle"
+activity_under_30d: "Aktivität der letzten 30 Tage"
 
 # Benachrichtigungsmodul
 # Benachrichtigungsautor, Benachrichtigungskonfiguration

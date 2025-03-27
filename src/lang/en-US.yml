@@ -2140,6 +2140,7 @@ voice_activity: "Voice Activity"
 minutes_word: "Minutes"
 top_voice: "Top Voice Channels"
 top_message: "Top Message Channels"
+activity_under_30d: "Activity under 30 days"
 
 # Notifier Module
 # notifier author, notifier config

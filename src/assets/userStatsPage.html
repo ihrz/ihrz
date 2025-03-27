@@ -2,195 +2,624 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background: #2C2F33;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+		rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<style>
+		:root {
+			--primary: #5865F2;
+			--primary-light: #7983f5;
+			--secondary: #EB459E;
+			--secondary-light: #f16db6;
+			--bg-dark: #1E1F22;
+			--bg-medium: #2B2D31;
+			--bg-light: #313338;
+			--text-bright: #FFFFFF;
+			--text-muted: #B5BAC1;
+			--success: #3BA55C;
+			--warning: #FAA61A;
+			--danger: #ED4245;
+			--border-radius: 12px;
+			--box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+			--transition: all 0.3s ease;
+		}
 
-        .card {
-            background: #23272A;
-            border-radius: 15px;
-            padding: 20px;
-            width: 800px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-        }
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
 
-        .header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+		html,
+		body {
+			font-family: 'Poppins', sans-serif;
+			background: var(--bg-dark);
+			color: var(--text-bright);
+			width: 1920px;
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
 
-        .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-right: 20px;
-        }
+		.card {
+			background: var(--bg-medium);
+			border-radius: var(--border-radius);
+			width: 1920px;
+			height: 1200px;
+			box-shadow: var(--box-shadow);
+			position: relative;
+			box-sizing: border-box;
+			overflow: hidden;
+			display: grid;
+			grid-template-rows: auto auto 1fr;
+			grid-template-areas:
+				"header"
+				"sections"
+				"chart";
+		}
 
-        .header-info {
-            display: flex;
-            flex-direction: column;
-        }
+		.card::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 4px;
+			background: linear-gradient(90deg, var(--primary), var(--secondary));
+		}
 
-        .username {
-            font-size: 24px;
-            font-weight: bold;
-        }
+		.header {
+			grid-area: header;
+			display: flex;
+			align-items: center;
+			padding: 15px;
+			background: var(--bg-light);
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+			position: relative;
+			width: 100%;
+			box-sizing: border-box;
+		}
 
-        .rank {
-            color: #7289DA;
-            font-size: 18px;
-        }
+		.avatar-container {
+			position: relative;
+			margin-right: 24px;
+		}
 
-        .sections {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
+		.avatar {
+			width: 90px;
+			height: 90px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 4px solid var(--primary);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+			transition: var(--transition);
+		}
 
-        .section {
-            background: #2C2F33;
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-        }
+		.avatar:hover {
+			transform: scale(1.05);
+		}
 
-        .section-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
+		.header-info {
+			display: flex;
+			flex-direction: column;
+		}
 
-        .section-content {
-            font-size: 14px;
-        }
+		.username {
+			font-size: 32px;
+			font-weight: 700;
+			margin-bottom: 5px;
+			background: linear-gradient(90deg, var(--primary), var(--secondary));
+			-webkit-background-clip: text;
+			background-clip: text;
+			-webkit-text-fill-color: transparent;
+		}
 
-        .chart-container {
-            background: #40444B;
-            border-radius: 10px;
-            margin-top: 20px;
-            padding: 20px;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		.rank {
+			color: var(--text-muted);
+			font-size: 20px;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+		}
+
+		.rank::before {
+			content: '';
+			display: inline-block;
+			width: 8px;
+			height: 8px;
+			background-color: var(--success);
+			border-radius: 50%;
+			margin-right: 8px;
+		}
+
+		.stats-overview {
+			display: flex;
+			justify-content: space-between;
+			padding: 20px 30px;
+			background: var(--bg-light);
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+		}
+
+		.stat-item {
+			text-align: center;
+			flex: 1;
+			padding: 0 15px;
+			position: relative;
+		}
+
+		.stat-item:not(:last-child)::after {
+			content: '';
+			position: absolute;
+			right: 0;
+			top: 50%;
+			transform: translateY(-50%);
+			height: 70%;
+			width: 1px;
+			background: rgba(255, 255, 255, 0.1);
+		}
+
+		.stat-value {
+			font-size: 24px;
+			font-weight: 700;
+			color: var(--text-bright);
+			margin-bottom: 5px;
+		}
+
+		.stat-label {
+			font-size: 14px;
+			color: var(--text-muted);
+			font-weight: 500;
+		}
+
+		.sections {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 15px;
+			padding: 15px;
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		.section {
+			background: var(--bg-light);
+			border-radius: var(--border-radius);
+			padding: 15px;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+			position: relative;
+			overflow: hidden;
+			transition: var(--transition);
+			height: auto;
+			min-height: 180px;
+		}
+
+
+
+		.section::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 4px;
+			height: 100%;
+			background: var(--primary);
+		}
+
+		.section:nth-child(2n)::before {
+			background: var(--secondary);
+		}
+
+		.section-title {
+			font-size: 20px;
+			font-weight: 600;
+			margin-bottom: 10px;
+			display: flex;
+			align-items: center;
+			color: var(--text-bright);
+		}
+
+		.section-title .icon {
+			margin-right: 10px;
+			font-size: 20px;
+		}
+
+		.section-content {
+			font-size: 16px;
+			color: var(--text-muted);
+			line-height: 1.5;
+		}
+
+		.rank-item {
+			display: flex;
+			align-items: center;
+			margin-bottom: 8px;
+			padding-bottom: 8px;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+		}
+
+		.rank-item:last-child {
+			margin-bottom: 0;
+			padding-bottom: 0;
+			border-bottom: none;
+		}
+
+		.rank-position {
+			font-weight: 700;
+			margin-right: 10px;
+			color: var(--text-bright);
+			background: var(--primary);
+			width: 24px;
+			height: 24px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 12px;
+		}
+
+		.rank-item:nth-child(2) .rank-position {
+			background: var(--secondary);
+		}
+
+		.rank-item:nth-child(3) .rank-position {
+			background: var(--warning);
+		}
+
+		.rank-name {
+			flex: 1;
+			font-weight: 500;
+			color: var(--text-bright);
+		}
+
+		.rank-value {
+			font-weight: 600;
+			color: var(--primary-light);
+		}
+
+		.time-stat {
+			display: flex;
+			align-items: center;
+			margin-bottom: 8px;
+			padding-bottom: 8px;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+		}
+
+		.time-stat:last-child {
+			margin-bottom: 0;
+			padding-bottom: 0;
+			border-bottom: none;
+		}
+
+		.time-period {
+			flex: 1;
+			font-weight: 500;
+			color: var(--text-bright);
+		}
+
+		.time-value {
+			font-weight: 600;
+			color: var(--primary-light);
+		}
+
+		.chart-container {
+			grid-area: chart;
+			background: var(--bg-light);
+			border-radius: var(--border-radius);
+			margin: 0 20px 20px;
+			padding: 15px 15px 25px;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+			width: calc(100% - 40px);
+			box-sizing: border-box;
+			display: flex;
+			flex-direction: column;
+			height: 550px;
+			align-self: stretch;
+		}
+
+		.chart-title {
+			font-size: 22px;
+			font-weight: 600;
+			font-weight: 600;
+			margin-bottom: 5px;
+			color: var(--text-bright);
+			text-align: center;
+		}
+
+		@media (max-width: 350px) {
+			.card {
+				width: 350px;
+				max-width: 350px;
+				min-width: 350px;
+			}
+
+			.sections {
+				grid-template-columns: 1fr;
+			}
+
+			.stats-overview {
+				flex-direction: column;
+				gap: 15px;
+			}
+
+			.stat-item:not(:last-child)::after {
+				display: none;
+			}
+		}
+	</style>
 </head>
 
 <body>
-    <div class="card">
-        <div class="header">
-            <img src="{author_pfp}" alt="Avatar" class="avatar">
-            <div class="header-info">
-                <div class="username">{username}</div>
-                <div class="rank">{guild_name}</div>
-            </div>
-        </div>
-        <div class="sections">
-            <div class="section">
-                <div class="section-title">{top_voice} 🏆</div>
-                <div class="section-content">
-                    <strong>#{voice_top1}</strong>: {voice_top1_2}<br>
-                    <strong>#{voice_top2}</strong>: {voice_top2_2}<br>
-                    <strong>#{voice_top3}</strong>: {voice_top3_2}<br>
-                </div>
-            </div>
-            <div class="section">
-                <div class="section-title">{top_message} 📊</div>
-                <div class="section-content">
-                    <strong>#{messages_top1}</strong>: {messages_top1_2} {messages_word}<br>
-                    <strong>#{messages_top2}</strong>: {messages_top2_2} {messages_word}<br>
-                    <strong>#{messages_top3}</strong>: {messages_top3_2} {messages_word}
-                </div>
-            </div>
-            <div class="section">
-                <div class="section-title">{voice_activity} 🔊</div>
-                <div class="section-content">
-                    {var_1d}: {voice_daily}<br>
-                    {var_7d}: {voice_weekly}<br>
-                    {var_14d}: {voice_monthly}
-                </div>
-            </div>
-            <div class="section">
-                <div class="section-title">{messages_word} 📨</div>
-                <div class="section-content">
-                    {var_1d}: {message_daily} {messages_word}<br>
-                    {var_7d}: {message_weekly} {messages_word}<br>
-                    {var_14d}: {message_monthly} {messages_word}
-                </div>
-            </div>
-        </div>
-        <div class="chart-container">
-            <canvas id="statsChart"></canvas>
-        </div>
-    </div>
+	<div class="card">
+		<!-- Header with user info -->
+		<div class="header">
+			<div class="avatar-container">
+				<img src="{author_pfp}" alt="Avatar" class="avatar">
+			</div>
+			<div class="header-info">
+				<div class="username">{username}</div>
+				<div class="rank">{guild_name}</div>
+			</div>
+		</div>
 
-    <script>
-        const messageData = { messageData };
-        const voiceData = { voiceData };
-        const labels = { timeLabels };
+		<!-- Stats overview -->
+		<div class="stats-overview">
+			<div class="stat-item">
+				<div class="stat-value">{message_monthly}</div>
+				<div class="stat-label">{messages_word}</div>
+			</div>
+			<div class="stat-item">
+				<div class="stat-value">{voice_monthly}</div>
+				<div class="stat-label">{voice_activity}</div>
+			</div>
+		</div>
 
-        const ctx = document.getElementById('statsChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: '{messages_word}',
-                        data: messageData,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        fill: false,
-                        tension: 0.1
-                    },
-                    {
-                        label: '{voice_activity}',
-                        data: voiceData,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: false,
-                        tension: 0.1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: ' > '
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: ' > '
-                        },
-                        beginAtZero: true
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                }
-            }
-        });
-    </script>
+		<!-- Main sections -->
+		<div class="sections">
+			<!-- Top voice channels -->
+			<div class="section">
+				<div class="section-title">
+					<span class="icon">🏆</span>
+					{top_voice}
+				</div>
+				<div class="section-content">
+					<div class="rank-item">
+						<div class="rank-position">1</div>
+						<div class="rank-name">#{voice_top1}</div>
+						<div class="rank-value">{voice_top1_2}</div>
+					</div>
+					<div class="rank-item">
+						<div class="rank-position">2</div>
+						<div class="rank-name">#{voice_top2}</div>
+						<div class="rank-value">{voice_top2_2}</div>
+					</div>
+					<div class="rank-item">
+						<div class="rank-position">3</div>
+						<div class="rank-name">#{voice_top3}</div>
+						<div class="rank-value">{voice_top3_2}</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Top message channels -->
+			<div class="section">
+				<div class="section-title">
+					<span class="icon">📊</span>
+					{top_message}
+				</div>
+				<div class="section-content">
+					<div class="rank-item">
+						<div class="rank-position">1</div>
+						<div class="rank-name">#{messages_top1}</div>
+						<div class="rank-value">{messages_top1_2} {messages_word}</div>
+					</div>
+					<div class="rank-item">
+						<div class="rank-position">2</div>
+						<div class="rank-name">#{messages_top2}</div>
+						<div class="rank-value">{messages_top2_2} {messages_word}</div>
+					</div>
+					<div class="rank-item">
+						<div class="rank-position">3</div>
+						<div class="rank-name">#{messages_top3}</div>
+						<div class="rank-value">{messages_top3_2} {messages_word}</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Voice activity -->
+			<div class="section">
+				<div class="section-title">
+					<span class="icon">🔊</span>
+					{voice_activity}
+				</div>
+				<div class="section-content">
+					<div class="time-stat">
+						<div class="time-period">{var_1d}</div>
+						<div class="time-value">{voice_daily}</div>
+					</div>
+					<div class="time-stat">
+						<div class="time-period">{var_7d}</div>
+						<div class="time-value">{voice_weekly}</div>
+					</div>
+					<div class="time-stat">
+						<div class="time-period">{var_14d}</div>
+						<div class="time-value">{voice_monthly}</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Message activity -->
+			<div class="section">
+				<div class="section-title">
+					<span class="icon">📨</span>
+					{messages_word}
+				</div>
+				<div class="section-content">
+					<div class="time-stat">
+						<div class="time-period">{var_1d}</div>
+						<div class="time-value">{message_daily} {messages_word}</div>
+					</div>
+					<div class="time-stat">
+						<div class="time-period">{var_7d}</div>
+						<div class="time-value">{message_weekly} {messages_word}</div>
+					</div>
+					<div class="time-stat">
+						<div class="time-period">{var_14d}</div>
+						<div class="time-value">{message_monthly} {messages_word}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Activity chart -->
+		<div class="chart-container">
+			<div class="chart-title">{chart_title}</div>
+			<canvas id="statsChart"></canvas>
+		</div>
+	</div>
+
+	<script>
+		const messageData = { messageData };
+		const voiceData = { voiceData };
+		const labels = { timeLabels };
+
+		const ctx = document.getElementById('statsChart').getContext('2d');
+
+		// Create gradient for message data
+		const messageGradient = ctx.createLinearGradient(0, 0, 0, 600);
+		messageGradient.addColorStop(0, 'rgba(88, 101, 242, 0.8)');
+		messageGradient.addColorStop(1, 'rgba(88, 101, 242, 0.1)');
+
+		// Create gradient for voice data
+		const voiceGradient = ctx.createLinearGradient(0, 0, 0, 600);
+		voiceGradient.addColorStop(0, 'rgba(235, 69, 158, 0.8)');
+		voiceGradient.addColorStop(1, 'rgba(235, 69, 158, 0.1)');
+
+		new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: labels,
+				datasets: [
+					{
+						label: '{messages_word}',
+						data: messageData,
+						borderColor: 'rgba(88, 101, 242, 1)',
+						backgroundColor: messageGradient,
+						fill: true,
+						tension: 0.4,
+						borderWidth: 3,
+						pointBackgroundColor: 'rgba(88, 101, 242, 1)',
+						pointBorderColor: '#fff',
+						pointRadius: 3,
+						pointHoverRadius: 5
+					},
+					{
+						label: '{voice_activity}',
+						data: voiceData,
+						borderColor: 'rgba(235, 69, 158, 1)',
+						backgroundColor: voiceGradient,
+						fill: true,
+						tension: 0.4,
+						borderWidth: 3,
+						pointBackgroundColor: 'rgba(235, 69, 158, 1)',
+						pointBorderColor: '#fff',
+						pointRadius: 3,
+						pointHoverRadius: 5
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				animation: false,
+				interaction: {
+					mode: 'index',
+					intersect: false,
+				},
+				layout: {
+					padding: {
+						left: 10,
+						right: 10,
+						top: 20,
+						bottom: 30
+					}
+				},
+				plugins: {
+					legend: {
+						position: 'top',
+						labels: {
+							boxWidth: 12,
+							usePointStyle: true,
+							padding: 10,
+							color: 'rgba(255, 255, 255, 1)',
+							font: {
+								family: 'Poppins',
+								size: 14,
+								weight: 600
+							}
+						}
+					},
+					tooltip: {
+						enabled: true,
+						mode: 'index',
+						intersect: false,
+						backgroundColor: 'rgba(30, 31, 34, 0.9)',
+						titleFont: {
+							family: 'Poppins',
+							size: 15,
+							weight: 700
+						},
+						bodyFont: {
+							family: 'Poppins',
+							size: 14,
+							weight: 500
+						}
+					}
+				},
+				scales: {
+					x: {
+						grid: {
+							color: 'rgba(255, 255, 255, 0.05)',
+							drawBorder: false
+						},
+						ticks: {
+							color: 'rgba(255, 255, 255, 0.9)',
+							font: {
+								family: 'Poppins',
+								size: 14,
+								weight: 600
+							},
+							maxRotation: 45,
+							minRotation: 45,
+							autoSkip: true,
+							maxTicksLimit: 15
+						}
+					},
+					y: {
+						beginAtZero: true,
+						grid: {
+							color: 'rgba(255, 255, 255, 0.05)',
+							drawBorder: false
+						},
+						max: function (context) {
+							const maxValue = Math.max(...messageData, ...voiceData);
+							return maxValue + (maxValue * 0.2);
+						},
+						ticks: {
+							color: 'rgba(255, 255, 255, 0.9)',
+							font: {
+								family: 'Poppins',
+								size: 14,
+								weight: 600
+							}
+						}
+					}
+				}
+			}
+		});
+	</script>
 </body>
 
 </html>

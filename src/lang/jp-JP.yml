@@ -2138,6 +2138,7 @@ voice_activity: "音声活動"
 minutes_word: "分"
 top_voice: "トップ音声チャンネル"
 top_message: "トップメッセージチャンネル"
+activity_under_30d: "30日間のアクティビティ"
 
 # 通知モジュール
 # 通知の作成者, 通知の設定
