@@ -88,6 +88,8 @@ export interface LanguageData {
 	var_ms: string;
 	var_banned_user: string;
 	var_no_one_banned: string;
+	var_category: string;
+	var_total: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;
@@ -192,9 +194,9 @@ export interface LanguageData {
 	disableticket_not_admin: string;
 	disableticket_logs_embed_title_disable: string;
 	disableticket_logs_embed_description_disable: string;
+	disableticket_command_work_disable: string;
 	disableticket_logs_embed_title_enable: string;
 	disableticket_logs_embed_description_enable: string;
-	disableticket_command_work_disable: string;
 	disableticket_command_work_enable: string;
 	setticketcategory_not_admin: string;
 	setticketcategory_disabled_command: string;
@@ -1610,10 +1612,11 @@ export interface LanguageData {
 	antispam_ignorechannels_embed_desc: string;
 	header_h1_value: string;
 	messages_word: string;
+	voice_activity: string;
 	minutes_word: string;
 	top_voice: string;
 	top_message: string;
-	voice_activity: string;
+	activity_under_30d: string;
 	notifier_author_add_author_doesnt_exist: string;
 	notifier_config_channel_logsEmbed_title: string;
 	notifier_config_channel_logsEmbed_desc: string;

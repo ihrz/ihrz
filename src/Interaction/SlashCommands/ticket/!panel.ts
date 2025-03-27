@@ -72,6 +72,7 @@ export interface TicketPanel {
 };
 
 import { SubCommand } from '../../../../types/command.js';
+import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -887,7 +888,12 @@ export const subCommand: SubCommand = {
 
 			let name = modal.fields.getTextInputValue("name");
 			let desc = modal.fields.getTextInputValue("desc");
-			let emoji = modal.fields.getTextInputValue("emoji");
+			let emoji: string | undefined = modal.fields.getTextInputValue("emoji");
+
+			// Check emoji before push
+			if (!isSingleEmoji(emoji) && !isDiscordEmoji(emoji)) {
+				emoji = undefined;
+			}
 
 			baseData.config.optionFields.push({
 				name,
