@@ -70,6 +70,8 @@ var_s: "секунда(ы)"
 var_ms: "миллисекунда(ы)"
 var_banned_user: "Заблокированный пользователь(и)"
 var_no_one_banned: "В этом сервере никто не заблокирован."
+var_category: "Категория"
+var_total: "Всего"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"
@@ -448,7 +450,7 @@ resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} удал
 # /links
 links_message: "Нажмите на ссылки ниже обо мне!"
 links_website: "Мой веб-сайт"
-links_github: "Мой Github"
+links_gitlab: "Мой GitLab"
 
 # /botinfo
 botinfo_embed_fields_myname: "Моё имя:"

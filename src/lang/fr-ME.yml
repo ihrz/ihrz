@@ -70,6 +70,8 @@ var_s: "seconde(s)"
 var_ms: "milliseconde(s)"
 var_banned_user: "Mecs ban"
 var_no_one_banned: "Personne est ban, t con ou koi"
+var_category: "Catégorie du bail"
+var_total: "Total du bail"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Faire une inv"
@@ -448,7 +450,7 @@ resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} a suppri
 # /links
 links_message: "Clique sur ces putains de liens !"
 links_website: "Mon Putain De Site Web"
-links_github: "Mon Github sale skidder"
+links_gitlab: "Mon GitLab sale skidder"
 
 # /botinfo
 botinfo_embed_fields_myname: "Mon nom ca la vie dma mere :"

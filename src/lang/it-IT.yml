@@ -70,6 +70,8 @@ var_s: "secondo/i"
 var_ms: "millisecondo/i"
 var_banned_user: "Utente/i Bannato/i"
 var_no_one_banned: "Nessuno è bannato in questo server."
+var_category: "Categoria"
+var_total: "Totale"
 
 # Nomi dei Permessi Discord
 perm_createinstantinvite_name: "Crea invito istantaneo"
@@ -448,7 +450,7 @@ resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} ha elimi
 # /links
 links_message: "Clicca sui link qui sotto su di me!"
 links_website: "Il mio sito web"
-links_github: "Il mio Github"
+links_gitlab: "Il mio GitLab"
 
 # /botinfo
 botinfo_embed_fields_myname: "Il mio nome:"

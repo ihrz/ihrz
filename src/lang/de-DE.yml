@@ -70,6 +70,8 @@ var_s: "Sekunde(n)"
 var_ms: "Millisekunde(n)"
 var_banned_user: "Gesperrter Benutzer"
 var_no_one_banned: "Niemand ist in diesem Server gesperrt."
+var_category: "Kategorie"
+var_total: "Gesamt"
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"
@@ -448,7 +450,7 @@ resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} hat alle
 # /links
 links_message: "Klicken Sie auf die unten stehenden Links über mich!"
 links_website: "Meine Website"
-links_github: "Meine Github"
+links_gitlab: "Meine GitLab"
 
 # /botinfo
 botinfo_embed_fields_myname: "Mein Name:"

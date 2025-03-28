@@ -88,6 +88,8 @@ export interface LanguageData {
 	var_ms: string;
 	var_banned_user: string;
 	var_no_one_banned: string;
+	var_category: string;
+	var_total: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;
@@ -389,7 +391,7 @@ export interface LanguageData {
 	resetallinvites_logs_embed_desc: string;
 	links_message: string;
 	links_website: string;
-	links_github: string;
+	links_gitlab: string;
 	botinfo_embed_fields_myname: string;
 	botinfo_embed_fields_mychannels: string;
 	botinfo_embed_fields_myservers: string;

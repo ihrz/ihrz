@@ -100,7 +100,7 @@ export const command: Command = {
 
 			let data = await client.kdenlive.open(path.join(twoSidesPath, 'meme2.kdenlive'));
 
-			data = data.replace("/home/anais/Documents/GitHub/ihrz/src/assets/two-sides", tempDir)
+			data = data.replace("{two-sides_var}", tempDir)
 				.replaceAll("part1.mp4", path.join(twoSidesPath, 'part1.mp4'))
 				.replaceAll("part2.mp4", path.join(twoSidesPath, 'part2.mp4'))
 				.replaceAll("part3.mp4", path.join(twoSidesPath, 'part3.mp4'))

@@ -223,6 +223,10 @@ export const command: Command = {
 
 			await (channel as GuildTextBasedChannel | null)?.messages.fetch(messagei!)
 				.then(async (message) => {
+					if (message?.author.id !== client.user?.id) {
+						return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
+					}
+
 					let res = await client.db.get(`${interaction.guildId}.GUILD.REACTION_ROLES.${message.id}`) as DatabaseStructure.ReactionRolesData[""];
 					let fetched = Object.values(res).find(x => x.reactionNAME === reaction);
 

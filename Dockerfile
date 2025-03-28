@@ -12,7 +12,7 @@ FROM node:20
 # Create a workspace repo
 WORKDIR /app
 
-# Clone the Github repo
+# Clone the GitLab repo
 RUN git clone https://gitlab.com/ihrz/ihrz ./
 
 # Install ffmpeg for Music Module
