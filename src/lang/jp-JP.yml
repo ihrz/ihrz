@@ -450,7 +450,7 @@ resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} がInvit
 # /links
 links_message: "私に関する下記のリンクをクリックしてください！"
 links_website: "私のウェブサイト"
-links_github: "私のGithub"
+links_gitlab: "私のGitLab"
 
 # /botinfo
 botinfo_embed_fields_myname: "私の名前："

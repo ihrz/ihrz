@@ -450,7 +450,7 @@ resetallinvites_logs_embed_desc: "¡${interaction.member.user.toString()} ha eli
 # /links
 links_message: "Haga clic en los enlaces a continuación sobre mí!"
 links_website: "Mi sitio web"
-links_github: "Mi Github"
+links_gitlab: "Mi GitLab"
 
 # /botinfo
 botinfo_embed_fields_myname: "Mi nombre:"

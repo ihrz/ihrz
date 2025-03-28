@@ -450,7 +450,7 @@ resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} قام �
 # /links
 links_message: "انقر على الروابط أدناه للتعرف علي!"
 links_website: "موقعي الإلكتروني"
-links_github: "حسابي على GitHub"
+links_gitlab: "حسابي على GitLab"
 
 # /botinfo
 botinfo_embed_fields_myname: "اسمي:"

@@ -450,7 +450,7 @@ resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} excluiu 
 # /links
 links_message: "Clique nos links abaixo sobre mim!"
 links_website: "Meu Website"
-links_github: "Meu Github"
+links_gitlab: "Meu GitLab"
 
 # /botinfo
 botinfo_embed_fields_myname: "Meu Nome:"
