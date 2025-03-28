@@ -143,6 +143,15 @@ export const command: Command = {
 			return;
 		}
 
+		// Check if message author is the bot
+		if (fetchedMessage.author.id !== client.user.id) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.buttonreaction_message_other_user_error
+			});
+			return;
+		}
+
+
 		// Fetch existing role select data
 		let baseData: DatabaseStructure.RoleReactData = await client.db.get(`${interaction.guildId}.GUILD.ROLE_SELECT.${messageId}`) || [];
 		let placeholder = lang.roleselect_default_placeholder;
