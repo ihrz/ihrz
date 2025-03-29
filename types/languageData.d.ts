@@ -391,7 +391,7 @@ export interface LanguageData {
 	resetallinvites_logs_embed_desc: string;
 	links_message: string;
 	links_website: string;
-	links_github: string;
+	links_gitlab: string;
 	botinfo_embed_fields_myname: string;
 	botinfo_embed_fields_mychannels: string;
 	botinfo_embed_fields_myservers: string;

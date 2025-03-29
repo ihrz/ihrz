@@ -88,7 +88,6 @@ setticketcategory_command_work: "<@${interaction.user.id}>, ви встанов�
 ticket_logchannel_embed_title: "Канал логів тікетів"
 ticket_logchannel_embed_desc: "${interaction.user}, ви встановили канал логів модуля тікетів на ${channel}!"
 
-
 # Команды для рангов
 # /level, /setxpchannels, /disablexp
 
@@ -133,7 +132,6 @@ ranks_leaderboard_top_txt: "Топ #${i}"
 ranks_leaderboard_top_txt_raw: "Топ #${i} ${index.rawText}\n"
 ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Рівень**: `${a.level || '0'}`\n🔱 ➥ **Загальний XP**: `${a.xptotal}`"
 
-
 # Команды владельца
 # /owner, /unowner, /blacklist, /unblacklist
 
@@ -164,7 +162,6 @@ unblacklist_not_blacklisted: "<@${member.id}> не був у чорному сп
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} Тепер не в чорному списку, не можна розблокувати цього учасника тут, відсутні дозволи або його вже розблоковано?"
 unblacklist_user_is_not_exist: "Я не можу знайти цього користувача"
 
-
 # Команды менеджера приглашений
 # /addinvites, /invites, /leaderboard, /removeinvites
 
@@ -188,14 +185,13 @@ removeinvites_confirmation_embed_description: "Видалено ${amount} зап
 removeinvites_logs_embed_title: "Логи менеджера запрошень"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> Видалив ${amount} запрошень для <@${user.id}>!"
 
-
 # Команды бота
 # /botinfo, /invite, /kisakay, /ping, /status
 
 # /links
 links_message: "Натисніть на посилання нижче про мене!"
 links_website: "Мій веб-сайт"
-links_github: "Мій Github"
+links_gitlab: "Мій GitLab"
 
 # /botinfo
 botinfo_embed_fields_myname: "Моє ім'я:"
@@ -287,7 +283,6 @@ say_footer_msg: "\n\nВідправлено з команди `/say` від ${in
 ping_down_msg: "**НЕДОСТУПНО**"
 ping_embed_desc: "# Понг! Статистика мережі ${interaction.client.user.username}:\n\n**[Пінг веб-сайту Discord]** >> `${_net03}` мс.\n**[Пінг Cloudflare]** >> `${_net02}` мс.\n**[Пінг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Пінг веб-сайту iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Пінг веб-сокету]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[Середнє]** >> (ср)`${averagePing}` мс."
 
-
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 
@@ -318,7 +313,17 @@ poll_embed_fields_choice: ":white_check_mark: **Так**\n :x: **Ні** "
 
 # /question
 question_not_full: "Введіть повне питання з 3 або більше словами!"
-question_s: ["Так.","Ні.","Я не знаю.","Я не впевнений!","Ти збожеволів!", "Ні, дякую.", "Ні.", "Так."]
+question_s:
+  [
+    "Так.",
+    "Ні.",
+    "Я не знаю.",
+    "Я не впевнений!",
+    "Ти збожеволів!",
+    "Ні, дякую.",
+    "Ні.",
+    "Так.",
+  ]
 question_fields_input_embed: ":question:__**Питання**__"
 question_fields_output_embed: ":grey_exclamation:__**Відповідь:**__"
 question_embed_title: "__**Питання**__: `${interaction.user.username}`"
@@ -333,7 +338,6 @@ dogs_embed_title: "🐶 Гав-гав."
 # /love
 love_embed_description: "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ любові 💗"
 love_command_error: "Сталася помилка під час створення зображення"
-
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -419,7 +423,6 @@ economy_disable_set_disable: "<@${interaction.user.id}>, ви успішно **�
 economy_disable_logs_embed_desc: "<@${interaction.user.id}> змінив(ла) стан Модуля Економіки на `${state}`!"
 economy_disable_logs_embed_title: "Логи Економіки"
 
-
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -441,7 +444,6 @@ profil_embed_fields_xplevels_value: " рівнів xp"
 profil_embed_fields_age: "🎂 ・ __Вік__"
 profil_embed_fields_age_value: " років"
 profil_embed_fields_gender: "👤 ・ __Стать__"
-
 
 # Utils commands
 # /serverinfo, /snipe, /userinfo, /renew
@@ -553,7 +555,6 @@ vc_embed_fields_2_value: "```py\n${textChannelSize} текстовий(і) ка�
 massmove_results: "${interaction.user}, iHorizon перемістив учасників між голосовими каналами.\n\n**${movedCount}** учасник(ів) було успішно переміщено з ${fromChannel} до ${toChannel}.\n**${errorCount}** учасник(ів) не вдалося перемістити (детальніше див. у журналах сервера)."
 massmove_too_much_member: "Занадто багато учасників, не можу перемістити усіх через можливе обмеження швидкості!"
 
-
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -658,7 +659,7 @@ setjoindm_awaiting_response: "Напишіть нове користувацьк
 
 # /setjoinmessage
 setjoinmessage_not_admin: ":x: | Для виконання цієї команди ви повинні бути адміністратором цього сервера!"
-setjoinmessage_help_embed_title: "Довідка щодо команди setjoinmessage!" 
+setjoinmessage_help_embed_title: "Довідка щодо команди setjoinmessage!"
 setjoinmessage_help_embed_description: "/setjoinmessage <Включити / Вимкнути / Показати встановлене повідомлення> <повідомлення при вході>"
 setjoinmessage_help_embed_fields_name: "Як використовувати?"
 setjoinmessage_help_embed_fields_value: "Використовуйте ```/setjoinmessage <Включити / Вимкнути / Показати встановлене повідомлення> <повідомлення>```\n{user} = Ім'я учасника\n{membercount} = Кількість учасників сервера\n{createdat} = Дата створення облікового запису учасника\n{guild} = Назва сервера\n{inviter} = Ім'я та дискримінатор запрошуючого користувача\n{invites} = Кількість запрошень користувача"
@@ -797,7 +798,6 @@ setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo}
 setmembercount_logs_embed_title_on_disable: "Журнал видалення лічильника учасників"
 setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> видалив лічильник учасників з цього сервера!"
 
-
 # Команды музыки
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
@@ -862,7 +862,6 @@ lyrics_embed_title_unknown: "Невідомий заголовок"
 lyrics_embed_author_name_unknown: "Невідомий автор"
 lyrics_not_found: "Тексти не знайдено"
 
-
 # Команды раздачи призов
 # /end, /start, /reroll
 
@@ -912,7 +911,6 @@ gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as strin
 gw_getdata_yes: "`Так`"
 gw_getdata_no: "`Ні`"
 
-
 # Команды модерации
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
 # /unban, /tempmute, /unmute
@@ -931,7 +929,7 @@ ban_cant_ban_member: "${client.iHorizon_Emojis.icon.No_Logo} | Я не можу 
 ban_message_to_the_banned_member: "Ви були заблоковані на цьому сервері: **${interaction.guild.name}** користувачем `${interaction.member.user.username}`"
 ban_command_work: "<@${member.user.id}> заблокований користувачем <@${interaction.member.id}>"
 ban_logs_embed_title: "Логи блокувань"
-ban_logs_embed_description: "<@${member.user.id}> заблокований користувачем <@${interaction.member.id}>" 
+ban_logs_embed_description: "<@${member.user.id}> заблокований користувачем <@${interaction.member.id}>"
 
 # /kick
 kick_not_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас немає дозволу на вигнання учасників."
@@ -1000,7 +998,6 @@ unmute_command_work: "<@${tomute.id}> був розблокований!"
 unmute_logs_embed_title: "Логи розблокування"
 unmute_logs_embed_description: "<@${interaction.user.id}> розблокував <@${tomute.id}>"
 
-
 # Команды резервного копирования
 # /backup
 
@@ -1032,7 +1029,6 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} 
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} Резервна копія збережена!"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} Час вийшов. Резервна копія збережена!"
 
-
 # Реакции ролей
 # /reactionroles
 
@@ -1051,7 +1047,6 @@ reactionroles_logs_embed_title_remove: "Логи реакцій на ролі"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> видалив реакцію на ролі: Повідомлення: `${messagei}` | Реакція: `${reaction}`"
 reactionroles_command_work_remove: "${reaction} було видалено з повідомлення ${messagei}"
 reactionroles_dont_message_found: "Я не можу отримати повідомлення з поточним"
-
 
 # New feature commands
 # /punishpub, /report, /support
@@ -1141,7 +1136,6 @@ rolesaver_on_off_embed_title: "Модуль RoleSaver"
 rolesaver_on_off_embed_desc: "При виході учасників з сервера їх ролі не зберігаються в базі даних. Тепер iHorizon більше не відновлює старі ролі учасникам при їх поверненні на сервер."
 rolesaver_on_off_embed_fields_1_name: "Увімкнути"
 
-
 # Команды предложений
 # /setsuggest, /suggest
 
@@ -1154,7 +1148,6 @@ suggest_accept_embed_fields_to_put: "Відповідь від ${interaction.use
 suggest_acceptembed_title_to_put: "[Прийнято] ${msg.embeds[0].data?.title}"
 suggest_accept_command_work: "Ви прийняли пропозицію!\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
 suggest_accept_command_error: "Пропозиція не знайдена на Discord-каналі!"
-
 
 # /suggest deny
 suggest_deny_not_admin: "Ви не є адміністратором!"
@@ -1195,7 +1188,6 @@ setsuggest_channel_embed_title: "Модуль пропозицій встано�
 setsuggest_channel_embed_desc: "Тепер усі користувачі, які мають право надсилати повідомлення тут, можуть пропонувати свої ідеї, надсилаючи повідомлення!"
 setsuggest_channel_command_work: "${interaction.user}, ви встановили канал модуля пропозицій в ${channel}!"
 
-
 # Команда безопасности
 # /security
 
@@ -1211,7 +1203,6 @@ security_role_to_give_command_work: "${interaction.user}, ви встанови�
 # /security channel
 security_channel_not_admin: "Ви не є адміністратором!"
 security_channel_command_work: "${interaction.user}, ви встановили канал ${channel} для модуля безпеки!"
-
 
 # Команда расписания
 # /schedule
@@ -1245,7 +1236,6 @@ schedule_create_embed_fields_name_confirm: "Дата сповіщення"
 schedule_create_embed_title_confirm: "Розклад #${scheduleCode} створено!"
 schedule_create_confirm_msg: "${interaction.user}, ваш розклад був створений!\nКод: `${scheduleCode}`"
 
-
 # Команда PFPS
 # /pfps channel, /pfps disable
 
@@ -1260,7 +1250,6 @@ pfps_channel_embed_title: "Модуль PFPS налаштовано тут!"
 pfps_channel_embed_desc: "${interaction.user} налаштував модуль PFPS тут!\nТепер кожні 30 секунд iHorizon буде відправляти аватар випадкового користувача у цій гільдії!\nЯ зроблю все можливе!"
 pfps_channel_command_work: "${interaction.user}, ви успішно налаштували модуль PFPS для каналу ${channel}!"
 pfps_channel_command_error: "${interaction.user}, команда повернула помилку. Будь ласка, перевірте, чи існує зазначений канал і чи увімкнено модуль PFPP!"
-
 
 # Protection Module
 # /authorization actions, ... sanction, ... config-show, /allowlist show, ... add, ... delete
@@ -1308,7 +1297,6 @@ allowlist_delete_cant_remove_owner: "Неможливо видалити вла�
 allowlist_delete_isnt_in: "Учасник, якого ви хочете видалити зі списку дозволів, не знаходиться там!"
 allowlist_delete_command_work: "${member.user} був видалений зі списку дозволів!"
 
-
 # OWNIHRZ Module
 # /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
 
@@ -1346,7 +1334,6 @@ mybot_instance_deny_utils_msg_no: "Ні"
 mybot_instance_deny_embed_title: "Розмістіть свій власний iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
 mybot_instance_deny_embed_desc: "Бот був відхилений\n\n${utils_msg}"
 
-
 # TempVoice Module
 # /text, /voice, /status, /staff
 
@@ -1372,7 +1359,6 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, у вас немає пра�
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, у вас немає прав на використання цієї команди!"
 tempvoice_staff_desc_embed: "## Роль персоналу тимчасового голосового каналу\nТепер <@&${targetedRole?.id}> може увійти в канал у режимі модератора!\n"
 
-
 # Confessionn Module
 # /cooldown, /disable, /channel
 
@@ -1393,7 +1379,6 @@ confession_disable_command_work_off: "Модуль сповідей тепер �
 confession_log_embed_title_on_enable: "Увімкнення/Вимкнення Сповідей"
 confession_log_embed_desc_on_enable: "${interaction.user} увімкнув модуль сповідей!"
 confession_log_embed_desc_on_disabled: "${interaction.user} вимкнув модуль сповідей!"
-
 
 # Модуль AntiSpam
 # /antispam manage
@@ -1622,5 +1607,4 @@ antispam_more_kick_msg: " Якщо ви продовжите, вас буде в
 # Встроенные логи AntiSpam
 antispam_log_embed_title: "[АнтіСпам] Новий ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} **${actionType}** ${user.toString()}"
-
 # -----------------------------/ \-----------------------------

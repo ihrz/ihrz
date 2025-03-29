@@ -57,12 +57,12 @@ export const command: Command = {
 			.setStyle(ButtonStyle.Link)
 			.setURL('https://ihorizon.org');
 
-		let githubbutton = new ButtonBuilder()
-			.setLabel(lang.links_github)
+		let gitlabbutton = new ButtonBuilder()
+			.setLabel(lang.links_gitlab)
 			.setStyle(ButtonStyle.Link)
 			.setURL('https://gitlab.com/ihrz/ihrz');
 
-		let row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, githubbutton);
+		let row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, gitlabbutton);
 
 		await client.func.method.interactionSend(interaction, { content: lang.links_message, components: [row] });
 		return;

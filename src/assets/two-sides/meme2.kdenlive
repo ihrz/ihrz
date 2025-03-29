@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<mlt LC_NUMERIC="C" producer="main_bin" root="/home/anais/Documents/GitHub/ihrz/src/assets/two-sides" version="7.28.0">
+<mlt LC_NUMERIC="C" producer="main_bin" root="{two-sides_var}" version="7.28.0">
  <profile colorspace="709" description="HD 1080p 25 fps" display_aspect_den="9" display_aspect_num="16" frame_rate_den="1" frame_rate_num="25" height="1080" progressive="1" sample_aspect_den="1" sample_aspect_num="1" width="1920"/>
  <producer id="producer0" in="00:00:00.000" out="00:05:08.040">
   <property name="length">2147483647</property>

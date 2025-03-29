@@ -102,7 +102,7 @@ export const command: Command = {
 
 			let data = await client.kdenlive.open(path.join(rapRealityPath, 'meme1.kdenlive'));
 
-			data = data.replace("/home/anais/Documents/GitHub/ihrz/src/assets/rap-vs-reality", tempDir)
+			data = data.replace("{rap-vs-reality_var}", tempDir)
 				.replaceAll("part1.mp4", path.join(rapRealityPath, 'part1.mp4'))
 				.replaceAll("part2.mp4", path.join(rapRealityPath, 'part2.mp4'))
 				.replaceAll("part3.mp4", path.join(rapRealityPath, 'part3.mp4'))
