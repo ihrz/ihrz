@@ -169,7 +169,13 @@ export const command: Command = {
 						return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
 					}
 
-					await client.func.method.buttonReact(msg, new ButtonBuilder().setStyle(ButtonStyle.Secondary).setCustomId(`button_reaction%${role?.id}`).setEmoji(reaction!))
+					let _ = new ButtonBuilder()
+						.setStyle(ButtonStyle.Secondary)
+						.setCustomId(`button_reaction%${role?.id}`)
+						.setEmoji(reaction!)
+						;
+
+					await client.func.method.buttonReact(msg, _)
 						.then(async () => {
 							if (!reaction) return;
 
@@ -203,7 +209,8 @@ export const command: Command = {
 								, flags: [1 << 6]
 							});
 						})
-						.catch(async () => {
+						.catch(async (err) => {
+							console.error(err)
 							await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_dont_message_found });
 							return;
 						})
