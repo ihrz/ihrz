@@ -261,6 +261,36 @@ export const command: Command = {
 
 			permission: PermissionFlagsBits.ManageGuildExpressions
 		},
+		{
+			name: "sync",
+
+			description: "Sync all channels to the parent category",
+
+			description_localizations: {
+				"fr": "Synchroniser tous les channels avec la catégorie parent"
+			},
+
+			options: [
+				{
+					name: "category",
+
+					description: "The category to sync channels to",
+					description_localizations: {
+						"fr": "La catégorie pour synchroniser les channels"
+					},
+
+					type: ApplicationCommandOptionType.Channel,
+					channel_types: [ChannelType.GuildCategory],
+
+					required: true,
+					permission: null
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator,
+		}
 	],
 
 	category: 'utils',

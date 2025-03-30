@@ -1008,6 +1008,10 @@ vkick_logEmbed_title: "ボイスキック"
 vkick_logEmbed_desc: "${interaction.member.user.toString()} は ${member.toString()} をボイスチャンネル ${voiceChannel?.toString()} から切断しました。"
 vkick_command_work: "${interaction.member.user.toString()}、${member.toString()} を ${voiceChannel?.toString()} から正常に切断しました。"
 
+# /util sync
+util_sync_embed_description_1: "以下のチャンネルが `#${category?.name}` カテゴリーと同期されました：\n\n${changes}"
+util_sync_embed_description_0: "カテゴリー内のすべてのチャンネルは既に権限が同期されています。"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

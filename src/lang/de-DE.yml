@@ -1008,6 +1008,10 @@ vkick_logEmbed_title: "Sprachkick"
 vkick_logEmbed_desc: "${interaction.member.user.toString()} hat ${member.toString()} vom Sprachkanal ${voiceChannel?.toString()} getrennt."
 vkick_command_work: "${interaction.member.user.toString()}, Sie haben ${member.toString()} erfolgreich von ${voiceChannel?.toString()} getrennt."
 
+# /util sync
+util_sync_embed_description_1: "Die folgenden Kanäle wurden mit der Kategorie `#${category?.name}` synchronisiert:\n\n${changes}"
+util_sync_embed_description_0: "Alle Kanäle in der Kategorie haben bereits synchronisierte Berechtigungen."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
