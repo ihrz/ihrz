@@ -128,7 +128,10 @@ export const event: BotEvent = {
 					commands: client.commands.size + client.message_commands.size + client.applicationsCommands.size,
 					category: client.category.length
 				},
-				"user": client.user
+				"user": client.user,
+				"misc": {
+					ownihrz_instances_length: await client.db.table("OWNIHRZ").all().then(x => x.length) || 0,
+				}
 			})
 		}
 
