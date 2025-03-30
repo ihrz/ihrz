@@ -117,6 +117,8 @@ export const event: BotEvent = {
 		};
 
 		async function refreshBotData() {
+			let ownihrz_table = client.db.table("OWNIHRZ");
+
 			await client.db.set("BOT", {
 				"info": {
 					members: client.guilds.cache.reduce((a, b) => a + b.memberCount, 0),
@@ -130,7 +132,7 @@ export const event: BotEvent = {
 				},
 				"user": client.user,
 				"misc": {
-					ownihrz_instances_length: await client.db.table("OWNIHRZ").all().then(x => x.length) || 0,
+					ownihrz_instances_length: (await ownihrz_table.get("CLUSTER")).length || 0,
 				}
 			})
 		}
