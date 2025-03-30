@@ -1008,6 +1008,10 @@ vkick_logEmbed_title: "Espulsione Vocale"
 vkick_logEmbed_desc: "${interaction.member.user.toString()} ha disconnesso ${member.toString()} dal canale vocale ${voiceChannel?.toString()}."
 vkick_command_work: "${interaction.member.user.toString()}, hai disconnesso con successo ${member.toString()} da ${voiceChannel?.toString()}."
 
+# /util sync
+util_sync_embed_description_1: "I seguenti canali sono ora sincronizzati con la categoria `#${category?.name}`:\n\n${changes}"
+util_sync_embed_description_0: "Tutti i canali nella categoria hanno già permessi sincronizzati."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

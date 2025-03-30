@@ -771,6 +771,8 @@ export interface LanguageData {
 	vkick_logEmbed_title: string;
 	vkick_logEmbed_desc: string;
 	vkick_command_work: string;
+	util_sync_embed_description_1: string;
+	util_sync_embed_description_0: string;
 	blockpub_not_admin: string;
 	blockpub_now_enable: string;
 	blockpub_now_disable: string;
