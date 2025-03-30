@@ -118,6 +118,7 @@ export const event: BotEvent = {
 
 		async function refreshBotData() {
 			let ownihrz_table = client.db.table("OWNIHRZ");
+			let ownihrz_data = await ownihrz_table.get("CLUSTER")
 
 			await client.db.set("BOT", {
 				"info": {
@@ -132,7 +133,7 @@ export const event: BotEvent = {
 				},
 				"user": client.user,
 				"misc": {
-					ownihrz_instances_length: (await ownihrz_table.get("CLUSTER")).length || 0,
+					ownihrz_instances_length: Object.keys(ownihrz_data).length || 0,
 				}
 			})
 		}
