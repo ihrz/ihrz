@@ -55,7 +55,7 @@ export const command: Command = {
 		await interaction.reply({
 			content: lang.remove_react_command_work
 				.replace("${interaction.member?.id}", interaction.member?.id!)
-				.replace("${message.toLowerCase()}", message.toLowerCase())
+				.replace("${message.toLowerCase()}", message?.toLowerCase())
 			, allowedMentions: { repliedUser: false }
 		});
 
