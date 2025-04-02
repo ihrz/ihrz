@@ -133,7 +133,7 @@ export const event: BotEvent = {
 				},
 				"user": client.user,
 				"misc": {
-					ownihrz_instances_length: Object.keys(ownihrz_data).length || 0,
+					ownihrz_instances_length: Object.keys(ownihrz_data || {}).length || 0,
 				}
 			})
 		}
