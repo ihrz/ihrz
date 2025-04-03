@@ -126,7 +126,7 @@ async function executeCommand(
 		return;
 	}
 
-	if (command.permission && !message.member!.permissions.has(command.permission)) {
+	if (command.permission && !message.member!.permissions.has(command.permission) && !permCheck.allowed) {
 		let perm = getPermissionByValue(command.permission);
 
 		if (perm) {
