@@ -52,7 +52,7 @@ export interface Command {
 	description_localizations: DescriptionLocalizations;
 	integration_types?: number[],
 	contexts?: number[],
-	permission: bigint | 0 | null;
+	permission: bigint | 0 | null | bigint[];
 	category: string;
 	options?: Option[];
 	thinking: boolean;

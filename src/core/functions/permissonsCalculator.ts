@@ -415,7 +415,21 @@ export const PERMISSION_MAPPING = {
 	}
 } as const;
 
-export function getPermissionByValue(value: bigint) {
+export function getPermissionByValue(value: bigint | bigint[]) {
+	// If value is an array, we need to handle each permission separately
+	if (Array.isArray(value)) {
+		// For arrays, return an array of permission objects
+		const permissions = value.map(singleValue => {
+			const key = Object.keys(PERMISSION_MAPPING).find(
+				k => PERMISSION_MAPPING[k as keyof typeof PERMISSION_MAPPING].value === singleValue
+			);
+			return key ? PERMISSION_MAPPING[key as keyof typeof PERMISSION_MAPPING] : null;
+		}).filter(Boolean); // Filter out nulls
+
+		return permissions.length > 0 ? permissions : null;
+	}
+
+	// Original behavior for single bigint
 	const key = Object.keys(PERMISSION_MAPPING).find(
 		k => PERMISSION_MAPPING[k as keyof typeof PERMISSION_MAPPING].value === value
 	);
