@@ -58,7 +58,17 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 				let perm = getPermissionByValue(subCmd.permission);
 
 				if (perm) {
-					const permName = lang[perm.name] || perm.name;
+					let permName: string;
+					if (Array.isArray(perm)) {
+						// If it's an array of permissions, join their names
+						permName = perm
+							.filter((p): p is NonNullable<typeof p> => p !== null)
+							.map(p => lang[p.name] || p.name)
+							.join(', ');
+					} else {
+						// Single permission case
+						permName = lang[perm.name] || perm.name;
+					}
 					const body = {
 						content: lang.var_dont_have_perm
 							.replace("{perm}", permName)
@@ -86,7 +96,17 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 				let perm = getPermissionByValue(subCmd.permission);
 
 				if (perm) {
-					const permName = lang[perm.name] || perm.name;
+					let permName: string;
+					if (Array.isArray(perm)) {
+						// If it's an array of permissions, join their names
+						permName = perm
+							.filter((p): p is NonNullable<typeof p> => p !== null)
+							.map(p => lang[p.name] || p.name)
+							.join(', ');
+					} else {
+						// Single permission case
+						permName = lang[perm.name] || perm.name;
+					}
 					const body = {
 						content: lang.var_dont_have_perm
 							.replace("{perm}", permName)
@@ -110,7 +130,17 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 		let perm = getPermissionByValue(command.permission);
 
 		if (perm) {
-			const permName = lang[perm.name] || perm.name;
+			let permName: string;
+			if (Array.isArray(perm)) {
+				// If it's an array of permissions, join their names
+				permName = perm
+					.filter((p): p is NonNullable<typeof p> => p !== null)
+					.map(p => lang[p.name] || p.name)
+					.join(', ');
+			} else {
+				// Single permission case
+				permName = lang[perm.name] || perm.name;
+			}
 			const body = {
 				content: lang.var_dont_have_perm
 					.replace("{perm}", permName)
