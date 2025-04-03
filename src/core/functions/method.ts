@@ -224,7 +224,19 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
 
 		if (command.permission) {
 			let perm_cmd = getPermissionByValue(command.permission);
-			if (perm_cmd) perm = lang[perm_cmd.name];
+			if (perm_cmd) {
+				if (Array.isArray(perm_cmd)) {
+					// If it's an array of permissions, join their names
+					// Filter out any null values before mapping
+					perm = perm_cmd
+						.filter((p): p is NonNullable<typeof p> => p !== null)
+						.map(p => lang[p.name])
+						.join(', ');
+				} else {
+					// Single permission case
+					perm = lang[perm_cmd.name];
+				}
+			}
 		}
 
 		if (CommandsPerm?.level) {
