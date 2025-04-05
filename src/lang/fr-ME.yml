@@ -761,8 +761,8 @@ profil_embed_fields_birthdate: "🎂 ・ __Date d'anniversaire__"
 profil_birthday_month_button_label: "Définir le mois"
 profil_birthday_day_button_label: "Définir le jour"
 profil_birthday_year_button_label: "Définir l'année"
-profil_birthday_embed_title: "🎂 ・ Définissez votre anniversaire !"
-profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **Comme tout être humain, vous avez un anniversaire !**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ Hey, ${interaction.member?.toString()}\n:tada: ・ Pour le célébrer, il est temps de le définir !\n"
+profil_birthday_embed_title: "🎂 ・ Définis ton anniversaire chacal"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **Comme tout gros fdp d'humain, tu as un anniversaire !**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ Hey, ${interaction.member?.toString()}\n:tada: ・ Pour le célébrer, il est temps de le définir !\n"
 profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.icon.Pin} ・ **Anniversaire actuel**: `${birthday.month}/${birthday.day}/${birthday.year}` (au format MM/JJ/AAAA)"
 profil_birthday_modal1_title: "Entrez votre année de naissance"
 profil_birthday_modal1_fields1_label: "Année"
@@ -992,7 +992,7 @@ var_whereis: "Où est"
 util_not_in_vc: "Les membres ne sont pas dans un voc"
 
 # /util allwebhooks
-util_no_webhooks: "Il n'y a pas de webhooks dans ce serveur."
+util_no_webhooks: "J'aimerais faire le ménage, mais il n'y a pas de webhooks dans ce putain de serveur de con!"
 util_allwebhooks_embed_title: "Tous les webhooks"
 util_allwebhooks_deleting: "Suppression de tous les webhooks..."
 util_allwebhooks_deleted: "**`${u}`** webhook(s) supprimé(s) !"
@@ -1003,7 +1003,7 @@ util_unzip_emojis_command_error: "Une erreur s'est produite lors de la décompre
 util_unzip_emojis_command_no_file: "Veuille joindre un fichier zip contenant des emojis."
 
 # /util vkick
-vkick_member_not_in_guild: "Le membre n'est pas dans la guilde."
+vkick_member_not_in_guild: "Le membre n'est pas dans le serveur mec."
 vkick_not_in_vc: "Le membre n'est pas dans un canal vocal."
 vkick_not_admin_kick: "Vous ne pouvez pas déconnecter un administrateur d'un canal vocal."
 vkick_logEmbed_title: "Déconnexion Vocale"
