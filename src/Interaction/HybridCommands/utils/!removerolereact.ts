@@ -95,7 +95,7 @@ export const subCommand: SubCommand = {
 				const users = await reaction.users.fetch();
 				const reactedUsers = users.filter((user: User) => !user.bot);
 
-				await updateStatus(interaction, replyMessage, `Ajout du rôle ${role.name} en cours pour ${reactedUsers.size} utilisateurs...`);
+				client.func.method.interactionSend(replyMessage, `Ajout du rôle ${role.name} en cours pour ${reactedUsers.size} utilisateurs...`);
 
 				for (const user of reactedUsers.values()) {
 					try {
@@ -109,18 +109,9 @@ export const subCommand: SubCommand = {
 				}
 			}
 
-			await updateStatus(interaction, replyMessage, `Ajout du rôle ${role.name} terminé. ${totalUsersAffected} utilisateurs ont reçu le rôle.`);
+			client.func.method.interactionSend(replyMessage, `Ajout du rôle ${role.name} terminé. ${totalUsersAffected} utilisateurs ont reçu le rôle.`);
 		} catch (error) {
 			await client.func.method.interactionSend(interaction, { content: "Erreur lors de l'exécution de la commande." });
 		}
 	},
 };
-
-// Fonctions utilitaires
-async function updateStatus(interaction: ChatInputCommandInteraction<"cached"> | Message, replyMessage: any, content: string) {
-	if (interaction instanceof ChatInputCommandInteraction) {
-		return await interaction.editReply({ content });
-	} else {
-		return await replyMessage.edit(content);
-	}
-} 
