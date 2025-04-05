@@ -40,20 +40,12 @@ export const subCommand: SubCommand = {
 		try {
 			if (!client.user || !interaction.guild || !interaction.channel) return;
 
-			let messageId: string;
-			let roleId: string;
-
 			if (interaction instanceof ChatInputCommandInteraction) {
-				messageId = interaction.options.getString('message_id', true);
-				const roleOption = interaction.options.getRole('role', true);
-				roleId = roleOption.id;
+				var messageId = interaction.options.getString('message_id', true);
+				var roleId = interaction.options.getRole('role', true).id;
 			} else {
-				if (!args || args.length < 2) {
-					await client.func.method.interactionSend(interaction, { content: "Usage: !remove_role_react <message_id> <@role>" });
-					return;
-				}
-				messageId = args[0];
-				roleId = args[1].replace(/[<@&>]/g, '');
+				var messageId = client.func.method.string(args!, 0)!;
+				var roleId = client.func.method.role(interaction, args!, 1)?.id!;
 			}
 
 			const guild = interaction.guild;
