@@ -43,10 +43,10 @@ export const subCommand: SubCommand = {
 
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var numberx = interaction.options.getNumber("number")!;
+			var numberx = interaction.options.getNumber("number")! + 1;
 			var member = interaction.options.getMember("member");
 		} else {
-			var numberx = client.func.method.number(args!, 0);
+			var numberx = client.func.method.number(args!, 0) + 1;
 			var member = client.func.method.member(interaction, args!, 1);
 		};
 
