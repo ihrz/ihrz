@@ -2482,3 +2482,15 @@ pfps_embed_guild_title: "${username}s **Server**-Avatar"
 pfps_download_user_button: "Benutzer-Avatar herunterladen"
 pfps_download_guild_button: "Server-Avatar herunterladen"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Rolle nicht gefunden."
+addrolereact_cannot_check_permissions: "Kann Ihre Berechtigungen nicht überprüfen."
+addrolereact_role_too_high: "Sie können keine Rolle hinzufügen, die höher oder gleich Ihrer höchsten Rolle ist."
+addrolereact_must_be_text_channel: "Dieser Befehl muss in einem Textkanal ausgeführt werden."
+addrolereact_message_not_found: "Nachricht nicht gefunden."
+addrolereact_no_reactions: "Diese Nachricht hat keine Reaktionen."
+addrolereact_adding_role: "Rolle {role} wird hinzugefügt..."
+addrolereact_adding_role_progress: "Rolle {role} wird für {count} Benutzer hinzugefügt..."
+addrolereact_role_added: "Rolle {role} hinzugefügt. {count} Benutzer haben die Rolle erhalten."
+addrolereact_error: "Fehler bei der Ausführung des Befehls."

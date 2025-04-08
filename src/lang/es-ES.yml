@@ -2482,3 +2482,15 @@ pfps_embed_guild_title: "Avatar del **servidor** de ${username}"
 pfps_download_user_button: "Descargar avatar de usuario"
 pfps_download_guild_button: "Descargar avatar del servidor"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Rol no encontrado."
+addrolereact_cannot_check_permissions: "No se pueden verificar sus permisos."
+addrolereact_role_too_high: "No puede agregar un rol superior o igual a su rol más alto."
+addrolereact_must_be_text_channel: "Este comando debe ejecutarse en un canal de texto."
+addrolereact_message_not_found: "Mensaje no encontrado."
+addrolereact_no_reactions: "Este mensaje no tiene reacciones."
+addrolereact_adding_role: "Agregando rol {role} en progreso..."
+addrolereact_adding_role_progress: "Agregando rol {role} en progreso para {count} usuarios..."
+addrolereact_role_added: "Rol {role} agregado. {count} usuarios recibieron el rol."
+addrolereact_error: "Error al ejecutar el comando."

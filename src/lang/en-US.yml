@@ -968,14 +968,14 @@ util_nick_kicker_disable_desc: "Disable the nick-kicker"
 util_nick_kicker_enable_desc: "Enable the nick-kicker"
 
 # /util wakeup
-util_wakeup_yourself: "Bro, are you dumb or what? Don’t tell me you’re sleeping on the keyboard while typing this command lol"
-util_wakeup_not_in_vc: "Bro, the bot isn’t going to create a little Chinese guy named ${user.displayName} with the same profile pic and banner to make you think they woke up... They’re not even in the VC lol"
-util_wakeup_command_work: "Let’s go wake up ${user.toString()} !"
+util_wakeup_yourself: "Bro, are you dumb or what? Don't tell me you're sleeping on the keyboard while typing this command lol"
+util_wakeup_not_in_vc: "Bro, the bot isn't going to create a little Chinese guy named ${user.displayName} with the same profile pic and banner to make you think they woke up... They're not even in the VC lol"
+util_wakeup_command_work: "Let's go wake up ${user.toString()} !"
 
 # /util leash
-util_leash_too_naugthy: "You little rascal, you can’t leash more than 3 people :D"
+util_leash_too_naugthy: "You little rascal, you can't leash more than 3 people :D"
 util_leah_already_owned: "You little rascal, you already own these little wonders :smirk:"
-util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | The member you want to leash isn’t in a voice channel!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Are you sure you want to proceed with this action?"
+util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | The member you want to leash isn't in a voice channel!\n${client.iHorizon_Emojis.icon.Warning_Icon} | Are you sure you want to proceed with this action?"
 
 # /util autorenew
 util_autorenew_time_too_short: "The time between a channel renew must be more than 1 minutes"
@@ -1018,12 +1018,12 @@ util_sync_embed_description_0: "'All channels in the category already have synch
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
 # /blockpub
-blockpub_not_admin: ":x: | You must be an administrator of this server! "
+blockpub_not_admin: ":x: | You must be an administrator of this server! "
 blockpub_now_enable: "📌 | The antipub is now functional (It works for everyone except admin)"
 blockpub_now_disable: "📌 | The antipub is now deactivated!"
 
 # /guildprofil
-guildprofil_not_admin: ":x: | You must be an administrator of this server! "
+guildprofil_not_admin: ":x: | You must be an administrator of this server! "
 guildprofil_not_set_reactionrole: "No set!"
 guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} give <@&${rolesID}> role\n"
 guildprofil_not_set_ticketFetched: "No set!"
@@ -2484,3 +2484,15 @@ pfps_embed_guild_title: "${username}'s **Guild** avatar"
 pfps_download_user_button: "Download User Avatar"
 pfps_download_guild_button: "Download Guild Avatar"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Role not found."
+addrolereact_cannot_check_permissions: "Cannot check your permissions."
+addrolereact_role_too_high: "You cannot add a role higher than or equal to your highest role."
+addrolereact_must_be_text_channel: "This command must be executed in a text channel."
+addrolereact_message_not_found: "Message not found."
+addrolereact_no_reactions: "This message has no reactions."
+addrolereact_adding_role: "Adding role {role} in progress..."
+addrolereact_adding_role_progress: "Adding role {role} in progress for {count} users..."
+addrolereact_role_added: "Role {role} added. {count} users received the role."
+addrolereact_error: "Error executing the command."

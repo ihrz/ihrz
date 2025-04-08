@@ -1257,10 +1257,10 @@ automod_block_spam_command_on: "${interaction.user}, vous avez activé la règle
 automod_block_spam_command_off: "${interaction.user}, vous avez désactivé la règle `AutoModération de Spam` à **false**.\nMaintenant, les utilisateurs peuvent spammer.\nAutoMod x iHorizon a été désactivé sur votre serveur !"
 
 # /guildconfig block too-new-account
-too_new_account_dont_specified_time_on_enable: "Vous n'avez pas spécifié de délai. Pour activer ce module, un âge minimum du compte est requis !"
-too_new_account_invalid_time_on_enable: "Le délai que vous avez entré n'est pas valide ! **Exemple de délai valide** : `3h ; 30m ; 2mo ; 4w ; 4y` -> 3 heures ; 30 minutes ; 2 mois ; 4 semaines ; 4 ans"
+too_new_account_dont_specified_time_on_enable: "Ta pas spécifié de délai fdp. Pour activer ce module, un âge minimum du compte est requis !"
+too_new_account_invalid_time_on_enable: "Le délai que t'a entré n'est pas valide t trop conn smr ! **Exemple de délai valide** : `3h ; 30m ; 2mo ; 4w ; 4y` -> 3 heures ; 30 minutes ; 2 mois ; 4 semaines ; 4 ans"
 too_new_account_logEmbed_title: "Module TooNewAccount"
-too_new_account_logEmbed_desc_on_enable: "${interaction.user} a activé le module TooNewAccount. Les comptes nécessitent désormais un âge minimum de ${beautifulTime} !"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} a activé le module TooNewAccount ptdr x lol mdrrr xlddldldl. Les comptes nécessitent désormais un âge minimum de ${beautifulTime} !"
 too_new_account_command_work_on_enable: "${interaction.user}, les nouveaux membres rejoignant **${interaction.guild?.name}** avec des comptes âgés de moins de `${beautifulTime}` seront désormais expulsés."
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} a désactivé le module !"
 too_new_account_command_work_on_disable: "${interaction.user}, le module a été désactivé avec succès. La date de création des comptes des nouveaux membres ne sera plus vérifiée."
@@ -2435,7 +2435,7 @@ antispam_log_embed_desc: "${client.user?.toString()} a **${actionType}** ${user.
 
 hybridcommands_global_prefix_mention: "`@Ping-Moi`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Moi "
-hybridcommands_args_error_embed_desc: "```ts\nNom de la commande : ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErreur lors de l’envoi de l’argument \"${wrongArgumentName}\".\n```"
+hybridcommands_args_error_embed_desc: "```ts\nNom de la commande : ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErreur lors de l'envoi de l'argument \"${wrongArgumentName}\".\n```"
 hybridcommands_embed_help_title: "${commandName} Menue d'Aide"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 hybridcommands_embed_footer_text: "Les options entre [...] sont obligatoires, tandis que celles entre <...> sont facultatives.\nUtilisez la commande : ${botPrefix}help [command] pour plus d'informations."
@@ -2482,3 +2482,15 @@ pfps_embed_guild_title: "Avatar de **serveur** de ${username}"
 pfps_download_user_button: "Télécharger l'avatar utilisateur"
 pfps_download_guild_button: "Télécharger l'avatar du serveur"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Rôle introuvable."
+addrolereact_cannot_check_permissions: "Impossible de vérifier vos permissions."
+addrolereact_role_too_high: "Vous ne pouvez pas ajouter un rôle supérieur ou égal à votre plus haut rôle."
+addrolereact_must_be_text_channel: "Cette commande doit être exécutée dans un canal texte."
+addrolereact_message_not_found: "Message introuvable."
+addrolereact_no_reactions: "Ce message n'a pas de réactions."
+addrolereact_adding_role: "Ajout du rôle {role} en cours..."
+addrolereact_adding_role_progress: "Ajout du rôle {role} en cours pour {count} utilisateurs..."
+addrolereact_role_added: "Ajout du rôle {role} terminé. {count} utilisateurs ont reçu le rôle."
+addrolereact_error: "Erreur lors de l'exécution de la commande."

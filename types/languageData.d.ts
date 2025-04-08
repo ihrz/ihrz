@@ -1839,4 +1839,14 @@ export interface LanguageData {
 	pfps_embed_guild_title: string;
 	pfps_download_user_button: string;
 	pfps_download_guild_button: string;
+	addrolereact_role_not_found: string;
+	addrolereact_cannot_check_permissions: string;
+	addrolereact_role_too_high: string;
+	addrolereact_must_be_text_channel: string;
+	addrolereact_message_not_found: string;
+	addrolereact_no_reactions: string;
+	addrolereact_adding_role: string;
+	addrolereact_adding_role_progress: string;
+	addrolereact_role_added: string;
+	addrolereact_error: string;
 }

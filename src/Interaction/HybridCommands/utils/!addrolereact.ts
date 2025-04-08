@@ -51,13 +51,13 @@ export const subCommand: SubCommand = {
 			const guild = interaction.guild;
 			const role = guild.roles.cache.get(roleId);
 			if (!role) {
-				await client.func.method.interactionSend(interaction, { content: "Rôle introuvable." });
+				await client.func.method.interactionSend(interaction, { content: lang.addrolereact_role_not_found });
 				return;
 			}
 
 			const member = interaction.member;
 			if (!member) {
-				await client.func.method.interactionSend(interaction, { content: "Impossible de vérifier vos permissions." });
+				await client.func.method.interactionSend(interaction, { content: lang.addrolereact_cannot_check_permissions });
 				return;
 			}
 
@@ -65,37 +65,43 @@ export const subCommand: SubCommand = {
 
 			if (role.position >= highestUserRole.position) {
 				await client.func.method.interactionSend(interaction, {
-					content: "Vous ne pouvez pas ajouter un rôle supérieur ou égal à votre plus haut rôle."
+					content: lang.addrolereact_role_too_high
 				});
 				return;
 			}
 
 			const channel = interaction.channel;
 			if (!(channel instanceof TextChannel)) {
-				await client.func.method.interactionSend(interaction, { content: "Cette commande doit être exécutée dans un canal texte." });
+				await client.func.method.interactionSend(interaction, { content: lang.addrolereact_must_be_text_channel });
 				return;
 			}
 
 			const message = await channel.messages.fetch(messageId).catch(() => null);
 			if (!message) {
-				await client.func.method.interactionSend(interaction, { content: "Message introuvable." });
+				await client.func.method.interactionSend(interaction, { content: lang.addrolereact_message_not_found });
 				return;
 			}
 
 			const reactions = message.reactions.cache;
 			if (reactions.size === 0) {
-				await client.func.method.interactionSend(interaction, { content: "Ce message n'a pas de réactions." });
+				await client.func.method.interactionSend(interaction, { content: lang.addrolereact_no_reactions });
 				return;
 			}
 
-			const replyMessage = await client.func.method.interactionSend(interaction, { content: `Ajout du rôle ${role.name} en cours...` });
+			const replyMessage = await client.func.method.interactionSend(interaction, {
+				content: lang.addrolereact_adding_role.replace('{role}', role.name)
+			});
 			let totalUsersAffected = 0;
 
 			for (const reaction of reactions.values()) {
 				const users = await reaction.users.fetch();
 				const reactedUsers = users.filter((user: User) => !user.bot);
 
-				client.func.method.interactionSend(replyMessage, `Ajout du rôle ${role.name} en cours pour ${reactedUsers.size} utilisateurs...`);
+				client.func.method.interactionSend(replyMessage,
+					lang.addrolereact_adding_role_progress
+						.replace('{role}', role.name)
+						.replace('{count}', reactedUsers.size.toString())
+				);
 
 				for (const user of reactedUsers.values()) {
 					try {
@@ -109,9 +115,13 @@ export const subCommand: SubCommand = {
 				}
 			}
 
-			client.func.method.interactionSend(replyMessage, `Ajout du rôle ${role.name} terminé. ${totalUsersAffected} utilisateurs ont reçu le rôle.`);
+			client.func.method.interactionSend(replyMessage,
+				lang.addrolereact_role_added
+					.replace('{role}', role.name)
+					.replace('{count}', totalUsersAffected.toString())
+			);
 		} catch (error) {
-			await client.func.method.interactionSend(interaction, { content: "Erreur lors de l'exécution de la commande." });
+			await client.func.method.interactionSend(interaction, { content: lang.addrolereact_error });
 		}
 	},
 };

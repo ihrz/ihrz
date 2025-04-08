@@ -2482,3 +2482,7 @@ pfps_embed_guild_title: "Avatar do **servidor** de ${username}"
 pfps_download_user_button: "Descarregar avatar de utilizador"
 pfps_download_guild_button: "Descarregar avatar do servidor"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Cargo não encontrado."
+addrolereact_cannot_check_permissions: "Não é possível verificar suas permissões."

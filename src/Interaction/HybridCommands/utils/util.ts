@@ -292,11 +292,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator,
 		},
 		{
-			name: "removerolereact",
+			name: "addrolereact",
 
-			description: "Remove a role from all users who reacted to a specific message",
+			description: "Add a role to all users who reacted to a specific message",
 			description_localizations: {
-				"fr": "Retirer un rôle à tous les utilisateurs qui ont réagi à un message spécifique"
+				"fr": "Ajouter un rôle à tous les utilisateurs qui ont réagi à un message spécifique"
 			},
 
 			options: [
@@ -316,9 +316,9 @@ export const command: Command = {
 				{
 					name: "role",
 
-					description: "The role to remove from users",
+					description: "The role to add to users",
 					description_localizations: {
-						"fr": "Le rôle à retirer aux utilisateurs"
+						"fr": "Le rôle à ajouter aux utilisateurs"
 					},
 
 					type: ApplicationCommandOptionType.Role,
