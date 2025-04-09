@@ -2481,10 +2481,11 @@ event_nick_kicker_kick_msg: "Dans le serveur `${member.guild.name}`, votre nom d
 # Module des avatars
 pfps_embed_user_title: "Avatar **utilisateur** de ${username}"
 pfps_embed_guild_title: "Avatar de **serveur** de ${username}"
-pfps_download_user_button: "Télécharger l'avatar utilisateur"
-pfps_download_guild_button: "Télécharger l'avatar du serveur"
+pfps_download_user_button: "Télécharger l'avatar utilisateur (ignoble)"
+pfps_download_guild_button: "Télécharger l'avatar du serveur (il est dégueulasse)"
 # -----------------------------\ /-----------------------------
 
+# AddRoleReact Command
 addrolereact_role_not_found: "Le rôle que tu cherches existe pas gros, t'es con ou quoi"
 addrolereact_cannot_check_permissions: "Jpeux pas vérifier tes perms frr, c'est la merde"
 addrolereact_role_too_high: "Le rôle que tu veux donner est plus haut que ton rôle, t'es ouf ou quoi"

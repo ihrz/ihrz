@@ -2482,3 +2482,15 @@ pfps_embed_guild_title: "**Серверный** аватар ${username}"
 pfps_download_user_button: "Скачать аватар пользователя"
 pfps_download_guild_button: "Скачать аватар сервера"
 # -----------------------------/ \-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Роль не найдена."
+addrolereact_cannot_check_permissions: "Невозможно проверить ваши права."
+addrolereact_role_too_high: "Невозможно добавить роль, превышающую или равную вашей наивысшей роли."
+addrolereact_must_be_text_channel: "Эта команда должна быть выполнена в текстовом канале."
+addrolereact_message_not_found: "Сообщение не найдено."
+addrolereact_no_reactions: "Это сообщение не имеет реакций."
+addrolereact_adding_role: "Добавление роли {role}..."
+addrolereact_adding_role_progress: "Добавление роли {role} для {count} пользователей..."
+addrolereact_role_added: "Роль {role} добавлена. {count} пользователей получили роль."
+addrolereact_error: "Ошибка при выполнении команды."

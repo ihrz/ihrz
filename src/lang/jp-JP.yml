@@ -2482,3 +2482,15 @@ pfps_embed_guild_title: "${username}の**サーバー**アバター"
 pfps_download_user_button: "ユーザーアバターをダウンロード"
 pfps_download_guild_button: "サーバーアバターをダウンロード"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "役割が見つかりません。"
+addrolereact_cannot_check_permissions: "役割をチェックする権限がありません。"
+addrolereact_role_too_high: "役割を追加する権限がありません。"
+addrolereact_must_be_text_channel: "このコマンドはテキストチャンネルで実行する必要があります。"
+addrolereact_message_not_found: "メッセージが見つかりません。"
+addrolereact_no_reactions: "このメッセージにはリアクションがありません。"
+addrolereact_adding_role: "役割 {role} を追加中..."
+addrolereact_adding_role_progress: "役割 {role} を追加中..."
+addrolereact_role_added: "役割 {role} を追加しました。"
+addrolereact_error: "コマンドの実行中にエラーが発生しました。"
