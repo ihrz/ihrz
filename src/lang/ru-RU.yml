@@ -1012,6 +1012,15 @@ vkick_command_work: "${interaction.member.user.toString()}, вы успешно 
 util_sync_embed_description_1: "Следующие каналы теперь синхронизированы с категорией `#${category?.name}`:\n\n${changes}"
 util_sync_embed_description_0: "Все каналы в категории уже имеют синхронизированные разрешения."
 
+# /util securewebhook
+util_securewebhook_action_create: "Недействительный URL-адрес вебхука Discord"
+util_securewebhook_action_create_error: "Ошибка при создании вебхука: `${data.status}`"
+util_securewebhook_action_create_ok: "Вебхук успешно создан\n> URL: ${data.url}\n> Использование: ${data.use}"
+util_securewebhook_action_delete_any: "У вас нет вебхуков"
+util_securewebhook_action_delete_not_owner: "Вы не являетесь владельцем этого вебхука"
+util_securewebhook_action_delete_error: "Ошибка при удалении вебхука"
+util_securewebhook_actiom_list_ok: ":star: __**Ваши вебхуки**__:\n"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

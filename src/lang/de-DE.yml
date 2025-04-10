@@ -1012,6 +1012,15 @@ vkick_command_work: "${interaction.member.user.toString()}, Sie haben ${member.t
 util_sync_embed_description_1: "Die folgenden Kanäle wurden mit der Kategorie `#${category?.name}` synchronisiert:\n\n${changes}"
 util_sync_embed_description_0: "Alle Kanäle in der Kategorie haben bereits synchronisierte Berechtigungen."
 
+# /util securewebhook
+util_securewebhook_action_create: "Ungültige Discord Webhook URL"
+util_securewebhook_action_create_error: "Fehler beim Erstellen des Webhooks: `${data.status}`"
+util_securewebhook_action_create_ok: "Webhook erfolgreich erstellt\n> URL: ${data.url}\n> Verwendung: ${data.use}"
+util_securewebhook_action_delete_any: "Du hast keine Webhooks"
+util_securewebhook_action_delete_not_owner: "Du bist nicht der Besitzer dieses Webhooks"
+util_securewebhook_action_delete_error: "Fehler beim Löschen des Webhooks"
+util_securewebhook_actiom_list_ok: ":star: __**Deine Webhooks**__:\n"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

@@ -773,6 +773,13 @@ export interface LanguageData {
   vkick_command_work: string;
   util_sync_embed_description_1: string;
   util_sync_embed_description_0: string;
+  util_securewebhook_action_create: string;
+  util_securewebhook_action_create_error: string;
+  util_securewebhook_action_create_ok: string;
+  util_securewebhook_action_delete_any: string;
+  util_securewebhook_action_delete_not_owner: string;
+  util_securewebhook_action_delete_error: string;
+  util_securewebhook_actiom_list_ok: string;
   blockpub_not_admin: string;
   blockpub_now_enable: string;
   blockpub_now_disable: string;

@@ -1014,6 +1014,15 @@ vkick_command_work: "${interaction.member.user.toString()}, vous avez déconnect
 util_sync_embed_description_1: "Les canaux suivants sont maintenant synchronisés avec la catégorie `#${category?.name}` :\n\n${changes}"
 util_sync_embed_description_0: "Tous les canaux de la catégorie ont déjà des permissions synchronisées."
 
+# /util securewebhook
+util_securewebhook_action_create: "URL de Webhook Discord invalide"
+util_securewebhook_action_create_error: "Erreur lors de la création du webhook : `${data.status}`"
+util_securewebhook_action_create_ok: "Webhook créé avec succès\n> URL : ${data.url}\n> Utilisation : ${data.use}"
+util_securewebhook_action_delete_any: "Vous n'avez aucun webhook"
+util_securewebhook_action_delete_not_owner: "Vous n'êtes pas le propriétaire de ce webhook"
+util_securewebhook_action_delete_error: "Erreur lors de la suppression du webhook"
+util_securewebhook_actiom_list_ok: ":star: __**Vos webhooks**__ :\n"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

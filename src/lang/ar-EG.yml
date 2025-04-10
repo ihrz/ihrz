@@ -1013,6 +1013,15 @@ vkick_command_work: "${interaction.member.user.toString()}، لقد نجحت ف�
 util_sync_embed_description_1: "تم الآن مزامنة القنوات التالية مع فئة `#${category?.name}`:\n\n${changes}"
 util_sync_embed_description_0: "جميع القنوات في الفئة لديها بالفعل أذونات متزامنة."
 
+# /util securewebhook
+util_securewebhook_action_create: "رابط Webhook Discord غير صالح"
+util_securewebhook_action_create_error: "خطأ أثناء إنشاء الويب هوك: `${data.status}`"
+util_securewebhook_action_create_ok: "تم إنشاء الويب هوك بنجاح\n> الرابط: ${data.url}\n> الاستخدام: ${data.use}"
+util_securewebhook_action_delete_any: "ليس لديك أي ويب هوك"
+util_securewebhook_action_delete_not_owner: "أنت لست مالك هذا الويب هوك"
+util_securewebhook_action_delete_error: "خطأ أثناء حذف الويب هوك"
+util_securewebhook_actiom_list_ok: ":star: __**الويب هوك الخاص بك**__:\n"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
