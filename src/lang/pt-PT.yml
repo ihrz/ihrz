@@ -1012,6 +1012,15 @@ vkick_command_work: "${interaction.member.user.toString()}, você desconectou co
 util_sync_embed_description_1: "Os seguintes canais estão agora sincronizados com a categoria `#${category?.name}`:\n\n${changes}"
 util_sync_embed_description_0: "Todos os canais na categoria já têm permissões sincronizadas."
 
+# /util securewebhook
+util_securewebhook_action_create: "URL de Webhook do Discord inválido"
+util_securewebhook_action_create_error: "Erro ao criar o webhook: `${data.status}`"
+util_securewebhook_action_create_ok: "Webhook criado com sucesso\n> URL: ${data.url}\n> Uso: ${data.use}"
+util_securewebhook_action_delete_any: "Não tem nenhum webhook"
+util_securewebhook_action_delete_not_owner: "Não é o proprietário deste webhook"
+util_securewebhook_action_delete_error: "Erro ao eliminar o webhook"
+util_securewebhook_actiom_list_ok: ":star: __**Os seus webhooks**__:\n"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -2482,3 +2491,15 @@ pfps_embed_guild_title: "Avatar do **servidor** de ${username}"
 pfps_download_user_button: "Descarregar avatar de utilizador"
 pfps_download_guild_button: "Descarregar avatar do servidor"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Cargo não encontrado."
+addrolereact_cannot_check_permissions: "Não é possível verificar suas permissões."
+addrolereact_role_too_high: "Não é possível adicionar um cargo superior ou igual ao seu cargo mais alto."
+addrolereact_must_be_text_channel: "Este comando deve ser executado num canal de texto."
+addrolereact_message_not_found: "Mensagem não encontrada."
+addrolereact_no_reactions: "Esta mensagem não tem reações."
+addrolereact_adding_role: "Adicionando o cargo {role}..."
+addrolereact_adding_role_progress: "Adicionando o cargo {role} para {count} utilizadores..."
+addrolereact_role_added: "Cargo {role} adicionado. {count} utilizadores receberam o cargo."
+addrolereact_error: "Erro ao executar o comando."

@@ -1012,6 +1012,15 @@ vkick_command_work: "${interaction.member.user.toString()}, has desconectado exi
 util_sync_embed_description_1: "The following channels are now synchronized to the `#${category?.name}` category:\n\n${changes}"
 util_sync_embed_description_0: "All channels in the category already have synchronized permissions."
 
+# /util securewebhook
+util_securewebhook_action_create: "URL de Webhook de Discord no válida"
+util_securewebhook_action_create_error: "Error al crear el webhook: `${data.status}`"
+util_securewebhook_action_create_ok: "Webhook creado con éxito\n> URL: ${data.url}\n> Uso: ${data.use}"
+util_securewebhook_action_delete_any: "No tienes ningún webhook"
+util_securewebhook_action_delete_not_owner: "No eres el propietario de este webhook"
+util_securewebhook_action_delete_error: "Error al eliminar el webhook"
+util_securewebhook_actiom_list_ok: ":star: __**Tus webhooks**__:\n"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -2482,3 +2491,15 @@ pfps_embed_guild_title: "Avatar del **servidor** de ${username}"
 pfps_download_user_button: "Descargar avatar de usuario"
 pfps_download_guild_button: "Descargar avatar del servidor"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Rol no encontrado."
+addrolereact_cannot_check_permissions: "No se pueden verificar sus permisos."
+addrolereact_role_too_high: "No puede agregar un rol superior o igual a su rol más alto."
+addrolereact_must_be_text_channel: "Este comando debe ejecutarse en un canal de texto."
+addrolereact_message_not_found: "Mensaje no encontrado."
+addrolereact_no_reactions: "Este mensaje no tiene reacciones."
+addrolereact_adding_role: "Agregando rol {role} en progreso..."
+addrolereact_adding_role_progress: "Agregando rol {role} en progreso para {count} usuarios..."
+addrolereact_role_added: "Rol {role} agregado. {count} usuarios recibieron el rol."
+addrolereact_error: "Error al ejecutar el comando."

@@ -761,8 +761,8 @@ profil_embed_fields_birthdate: "🎂 ・ __Date d'anniversaire__"
 profil_birthday_month_button_label: "Définir le mois"
 profil_birthday_day_button_label: "Définir le jour"
 profil_birthday_year_button_label: "Définir l'année"
-profil_birthday_embed_title: "🎂 ・ Définissez votre anniversaire !"
-profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **Comme tout être humain, vous avez un anniversaire !**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ Hey, ${interaction.member?.toString()}\n:tada: ・ Pour le célébrer, il est temps de le définir !\n"
+profil_birthday_embed_title: "🎂 ・ Définis ton anniversaire chacal"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **Comme tout gros fdp d'humain, tu as un anniversaire !**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ Hey, ${interaction.member?.toString()}\n:tada: ・ Pour le célébrer, il est temps de le définir !\n"
 profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.icon.Pin} ・ **Anniversaire actuel**: `${birthday.month}/${birthday.day}/${birthday.year}` (au format MM/JJ/AAAA)"
 profil_birthday_modal1_title: "Entrez votre année de naissance"
 profil_birthday_modal1_fields1_label: "Année"
@@ -886,7 +886,7 @@ vc_embed_fields_1_name: "・Nombre de Membres"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} membres```"
 vc_embed_fields_2_name: "・Nombre de Canaux"
 vc_embed_fields_2_value: "```py\n${textChannelSize} salon(aux) texte\n${voiceChannelSize} salon(aux) vocal(aux)```"
-vc_embed_short_desc: "## États des Vocaux\n`${voiceStates?.size}` membre(s) sont dans le voc :\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${total_members_vc_video}\n## États des Membres\n`${total_members_size}` membre(s) sont dans la guilde :\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${total_members_states_idle}"
+vc_embed_short_desc: "## États des Vocaux\n`${voiceStates?.size}` membre(s) sont dans le voc\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${total_members_vc_video}\n## États des Membres\n`${total_members_size}` membre(s) sont dans la guilde\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}, iHorizon a déplacé des membres entre les canaux vocaux.\n\n**${movedCount}** membre(s) ont été déplacé(s) avec succès de ${fromChannel} à ${toChannel}.\n**${errorCount}** membre(s) n'ont pas pu être déplacé(s) (voir les logs du serveur pour plus de détails)."
@@ -992,7 +992,7 @@ var_whereis: "Où est"
 util_not_in_vc: "Les membres ne sont pas dans un voc"
 
 # /util allwebhooks
-util_no_webhooks: "Il n'y a pas de webhooks dans ce serveur."
+util_no_webhooks: "J'aimerais faire le ménage, mais il n'y a pas de webhooks dans ce putain de serveur de con!"
 util_allwebhooks_embed_title: "Tous les webhooks"
 util_allwebhooks_deleting: "Suppression de tous les webhooks..."
 util_allwebhooks_deleted: "**`${u}`** webhook(s) supprimé(s) !"
@@ -1003,7 +1003,7 @@ util_unzip_emojis_command_error: "Une erreur s'est produite lors de la décompre
 util_unzip_emojis_command_no_file: "Veuille joindre un fichier zip contenant des emojis."
 
 # /util vkick
-vkick_member_not_in_guild: "Le membre n'est pas dans la guilde."
+vkick_member_not_in_guild: "Le membre n'est pas dans le serveur mec."
 vkick_not_in_vc: "Le membre n'est pas dans un canal vocal."
 vkick_not_admin_kick: "Vous ne pouvez pas déconnecter un administrateur d'un canal vocal."
 vkick_logEmbed_title: "Déconnexion Vocale"
@@ -1013,6 +1013,15 @@ vkick_command_work: "${interaction.member.user.toString()}, vous avez déconnect
 # /util sync
 util_sync_embed_description_1: "Les canaux suivants sont maintenant synchronisés avec la catégorie `#${category?.name}` :\n\n${changes}"
 util_sync_embed_description_0: "Tous les canaux de la catégorie ont déjà des permissions synchronisées."
+
+# /util securewebhook
+util_securewebhook_action_create: "URL de Webhook Discord invalide"
+util_securewebhook_action_create_error: "Erreur lors de la création du webhook : `${data.status}`"
+util_securewebhook_action_create_ok: "Webhook créé avec succès\n> URL : ${data.url}\n> Utilisation : ${data.use}"
+util_securewebhook_action_delete_any: "Vous n'avez aucun webhook"
+util_securewebhook_action_delete_not_owner: "Vous n'êtes pas le propriétaire de ce webhook"
+util_securewebhook_action_delete_error: "Erreur lors de la suppression du webhook"
+util_securewebhook_actiom_list_ok: ":star: __**Vos webhooks**__ :\n"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1260,7 +1269,7 @@ automod_block_spam_command_off: "${interaction.user}, tu as désactivé la règl
 
 # /guildconfig block too-new-account
 too_new_account_dont_specified_time_on_enable: "Vous n'avez pas spécifié de délai. Pour activer ce module, un âge minimum du compte est requis !"
-too_new_account_invalid_time_on_enable: "Le délai que vous avez entré n'est pas valide ! **Exemple de délai valide** : `3h ; 30m ; 2mo ; 4w ; 4y` -> 3 heures ; 30 minutes ; 2 mois ; 4 semaines ; 4 ans"
+too_new_account_invalid_time_on_enable: "Le délai que vous avez entré n'est pas valide ! **Exemple de délai valide** : `3h ; 30m ; 2mo ; 4w ; 4y` -> 3 heures ; 30 minutes ; 2 mois ; 4 semaines ; 4 ans"
 too_new_account_logEmbed_title: "Module TooNewAccount"
 too_new_account_logEmbed_desc_on_enable: "${interaction.user} a activé le module TooNewAccount. Les comptes nécessitent désormais un âge minimum de ${beautifulTime} !"
 too_new_account_command_work_on_enable: "${interaction.user}, les nouveaux membres rejoignant **${interaction.guild?.name}** avec des comptes âgés de moins de `${beautifulTime}` seront désormais expulsés."
@@ -2437,7 +2446,7 @@ antispam_log_embed_desc: "${client.user?.toString()} a **${actionType}** ${user.
 
 hybridcommands_global_prefix_mention: "`@Ping-Moi`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Moi "
-hybridcommands_args_error_embed_desc: "```ts\nNom de la commande : ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErreur lors de l’envoi de l’argument \"${wrongArgumentName}\".\n```"
+hybridcommands_args_error_embed_desc: "```ts\nNom de la commande : ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErreur lors de l'envoi de l'argument \"${wrongArgumentName}\".\n```"
 hybridcommands_embed_help_title: "${commandName} Aide en Intégration"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 hybridcommands_embed_footer_text: "Les options entre [...] sont obligatoires, tandis que celles entre <...> sont facultatives.\nUtilisez la commande : ${botPrefix}help [command] pour plus d'informations."
@@ -2481,6 +2490,18 @@ event_nick_kicker_kick_msg: "Dans le serveur `${member.guild.name}`, votre nom d
 # Module des avatars
 pfps_embed_user_title: "Avatar **utilisateur** de ${username}"
 pfps_embed_guild_title: "Avatar de **serveur** de ${username}"
-pfps_download_user_button: "Télécharger l'avatar utilisateur"
-pfps_download_guild_button: "Télécharger l'avatar du serveur"
+pfps_download_user_button: "Télécharger l'avatar utilisateur (ignoble)"
+pfps_download_guild_button: "Télécharger l'avatar du serveur (il est dégueulasse)"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Le rôle que tu cherches existe pas gros, t'es con ou quoi"
+addrolereact_cannot_check_permissions: "Jpeux pas vérifier tes perms frr, c'est la merde"
+addrolereact_role_too_high: "Le rôle que tu veux donner est plus haut que ton rôle, t'es ouf ou quoi"
+addrolereact_must_be_text_channel: "Faut que ce soit un salon texte frr, t'es con ou quoi"
+addrolereact_message_not_found: "Le message que tu cherches existe pas, t'es aveugle ou quoi"
+addrolereact_no_reactions: "Y'a pas de réactions sur ce message, t'es con ou quoi"
+addrolereact_adding_role: "Jvais donner le rôle {role} à tous les mecs qui ont réagi"
+addrolereact_adding_role_progress: "Jdonne le rôle {role} à {count} mecs qui ont réagi"
+addrolereact_role_added: "J'ai donné le rôle {role} à {count} mecs qui ont réagi"
+addrolereact_error: "Une erreur de merde est survenue, réessaye plus tard"

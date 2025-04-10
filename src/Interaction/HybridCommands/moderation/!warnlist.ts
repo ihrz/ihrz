@@ -75,9 +75,9 @@ export const subCommand: SubCommand = {
 			let pageContent = pageUsers.map((x) =>
 				lang.warnlist_embed_desc
 					.replace("${x.id}", x.id)
-					.replace("${format(x.timestamp, 'DD/MM/YYYY')}", format(x.timestamp, 'DD/MM/YYYY'))
-					.replace("${x.authorID}", x.authorID)
-					.replace("${x.reason}", x.reason)
+					.replace("${format(x.timestamp, 'DD/MM/YYYY')}", format(x.timestamp, 'DD/MM/YYYY').replace("`", "\`"))
+					.replace("${x.authorID}", x.authorID.replace("`", "\`"))
+					.replace("${x.reason}", x.reason.replace("`", "\`"))
 			).join("\n");
 			pages.push({
 				title: lang.warnlist_embed_title
