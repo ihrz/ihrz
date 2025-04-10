@@ -290,6 +290,47 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.Administrator,
+		},
+		{
+			name: "addrolereact",
+
+			description: "Add a role to all users who reacted to a specific message",
+			description_localizations: {
+				"fr": "Ajouter un rôle à tous les utilisateurs qui ont réagi à un message spécifique"
+			},
+
+			options: [
+				{
+					name: "message_id",
+
+					description: "The ID of the message to check reactions from",
+					description_localizations: {
+						"fr": "L'ID du message dont on veut vérifier les réactions"
+					},
+
+					type: ApplicationCommandOptionType.String,
+
+					required: true,
+					permission: null
+				},
+				{
+					name: "role",
+
+					description: "The role to add to users",
+					description_localizations: {
+						"fr": "Le rôle à ajouter aux utilisateurs"
+					},
+
+					type: ApplicationCommandOptionType.Role,
+
+					required: true,
+					permission: null
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.ManageRoles,
 		}
 	],
 

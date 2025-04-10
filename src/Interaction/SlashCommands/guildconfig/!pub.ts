@@ -35,6 +35,7 @@ interface Action {
 const regexPatterns = [
 	'(discord\\.gg\\/|\\.gg\\/|gg\\/)',
 	'[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
+	'discord:\/\-\/invite\/[a-zA-Z0-9\-\_]+'
 ];
 
 

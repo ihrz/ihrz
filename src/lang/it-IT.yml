@@ -1012,11 +1012,20 @@ vkick_command_work: "${interaction.member.user.toString()}, hai disconnesso con 
 util_sync_embed_description_1: "I seguenti canali sono ora sincronizzati con la categoria `#${category?.name}`:\n\n${changes}"
 util_sync_embed_description_0: "Tutti i canali nella categoria hanno già permessi sincronizzati."
 
+# /util securewebhook
+util_securewebhook_action_create: "URL Webhook Discord non valido"
+util_securewebhook_action_create_error: "Errore durante la creazione del webhook: `${data.status}`"
+util_securewebhook_action_create_ok: "Webhook creato con successo\n> URL: ${data.url}\n> Utilizzo: ${data.use}"
+util_securewebhook_action_delete_any: "Non hai nessun webhook"
+util_securewebhook_action_delete_not_owner: "Non sei il proprietario di questo webhook"
+util_securewebhook_action_delete_error: "Errore durante l'eliminazione del webhook"
+util_securewebhook_actiom_list_ok: ":star: __**I tuoi webhook**__:\n"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
 # /blockpub
-blockpub_not_admin: ":x: | You must be an administrator of this server! "
+blockpub_not_admin: ":x: | You must be an administrator of this server! "
 blockpub_now_enable: "📌 | The antipub is now functional (It works for everyone except admin)"
 blockpub_now_disable: "📌 | The antipub is now deactivated!"
 
@@ -2482,3 +2491,15 @@ pfps_embed_guild_title: "Avatar **server** di ${username}"
 pfps_download_user_button: "Scarica avatar utente"
 pfps_download_guild_button: "Scarica avatar server"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Ruolo non trovato."
+addrolereact_cannot_check_permissions: "Impossibile verificare i tuoi permessi."
+addrolereact_role_too_high: "Non puoi aggiungere un ruolo superiore o uguale al tuo ruolo più alto."
+addrolereact_must_be_text_channel: "Questo comando deve essere eseguito in un canale di testo."
+addrolereact_message_not_found: "Messaggio non trovato."
+addrolereact_no_reactions: "Questo messaggio non ha reazioni."
+addrolereact_adding_role: "Aggiunta del ruolo {role} in corso..."
+addrolereact_adding_role_progress: "Aggiunta del ruolo {role} in corso per {count} utenti..."
+addrolereact_role_added: "Ruolo {role} aggiunto. {count} utenti hanno ricevuto il ruolo."
+addrolereact_error: "Errore durante l'esecuzione del comando."

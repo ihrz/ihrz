@@ -1013,6 +1013,15 @@ vkick_command_work: "${interaction.member.user.toString()}، لقد نجحت ف�
 util_sync_embed_description_1: "تم الآن مزامنة القنوات التالية مع فئة `#${category?.name}`:\n\n${changes}"
 util_sync_embed_description_0: "جميع القنوات في الفئة لديها بالفعل أذونات متزامنة."
 
+# /util securewebhook
+util_securewebhook_action_create: "رابط Webhook Discord غير صالح"
+util_securewebhook_action_create_error: "خطأ أثناء إنشاء الويب هوك: `${data.status}`"
+util_securewebhook_action_create_ok: "تم إنشاء الويب هوك بنجاح\n> الرابط: ${data.url}\n> الاستخدام: ${data.use}"
+util_securewebhook_action_delete_any: "ليس لديك أي ويب هوك"
+util_securewebhook_action_delete_not_owner: "أنت لست مالك هذا الويب هوك"
+util_securewebhook_action_delete_error: "خطأ أثناء حذف الويب هوك"
+util_securewebhook_actiom_list_ok: ":star: __**الويب هوك الخاص بك**__:\n"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -2475,3 +2484,15 @@ pfps_embed_guild_title: "صورة ${username} **للسيرفر**"
 pfps_download_user_button: "تحميل الصورة الشخصية"
 pfps_download_guild_button: "تحميل صورة السيرفر"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Rôle introuvable."
+addrolereact_cannot_check_permissions: "Impossible de vérifier vos permissions."
+addrolereact_role_too_high: "Vous ne pouvez pas ajouter un rôle supérieur ou égal à votre plus haut rôle."
+addrolereact_must_be_text_channel: "Cette commande doit être exécutée dans un canal texte."
+addrolereact_message_not_found: "Message introuvable."
+addrolereact_no_reactions: "Ce message n'a pas de réactions."
+addrolereact_adding_role: "Ajout du rôle {role} en cours..."
+addrolereact_adding_role_progress: "Ajout du rôle {role} en cours pour {count} utilisateurs..."
+addrolereact_role_added: "Ajout du rôle {role} terminé. {count} utilisateurs ont reçu le rôle."
+addrolereact_error: "Erreur lors de l'exécution de la commande."

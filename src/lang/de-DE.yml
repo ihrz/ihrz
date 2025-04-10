@@ -1012,6 +1012,15 @@ vkick_command_work: "${interaction.member.user.toString()}, Sie haben ${member.t
 util_sync_embed_description_1: "Die folgenden Kanäle wurden mit der Kategorie `#${category?.name}` synchronisiert:\n\n${changes}"
 util_sync_embed_description_0: "Alle Kanäle in der Kategorie haben bereits synchronisierte Berechtigungen."
 
+# /util securewebhook
+util_securewebhook_action_create: "Ungültige Discord Webhook URL"
+util_securewebhook_action_create_error: "Fehler beim Erstellen des Webhooks: `${data.status}`"
+util_securewebhook_action_create_ok: "Webhook erfolgreich erstellt\n> URL: ${data.url}\n> Verwendung: ${data.use}"
+util_securewebhook_action_delete_any: "Du hast keine Webhooks"
+util_securewebhook_action_delete_not_owner: "Du bist nicht der Besitzer dieses Webhooks"
+util_securewebhook_action_delete_error: "Fehler beim Löschen des Webhooks"
+util_securewebhook_actiom_list_ok: ":star: __**Deine Webhooks**__:\n"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -2482,3 +2491,15 @@ pfps_embed_guild_title: "${username}s **Server**-Avatar"
 pfps_download_user_button: "Benutzer-Avatar herunterladen"
 pfps_download_guild_button: "Server-Avatar herunterladen"
 # -----------------------------\ /-----------------------------
+
+# AddRoleReact Command
+addrolereact_role_not_found: "Rolle nicht gefunden."
+addrolereact_cannot_check_permissions: "Kann Ihre Berechtigungen nicht überprüfen."
+addrolereact_role_too_high: "Sie können keine Rolle hinzufügen, die höher oder gleich Ihrer höchsten Rolle ist."
+addrolereact_must_be_text_channel: "Dieser Befehl muss in einem Textkanal ausgeführt werden."
+addrolereact_message_not_found: "Nachricht nicht gefunden."
+addrolereact_no_reactions: "Diese Nachricht hat keine Reaktionen."
+addrolereact_adding_role: "Rolle {role} wird hinzugefügt..."
+addrolereact_adding_role_progress: "Rolle {role} wird für {count} Benutzer hinzugefügt..."
+addrolereact_role_added: "Rolle {role} hinzugefügt. {count} Benutzer haben die Rolle erhalten."
+addrolereact_error: "Fehler bei der Ausführung des Befehls."
