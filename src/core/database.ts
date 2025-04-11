@@ -34,7 +34,7 @@ export type db = QuickDB<any> | PallasDB;
 let dbInstance: db | null = null;
 
 const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
-const readOnlyTables = ["AUTHRESTORE", "OWNIHRZ"];
+const readOnlyTables = ["AUTHRESTORE", "OWNIHRZ", 'API'];
 
 async function isReachable(database: ConfigData['database']): Promise<boolean> {
 	let connection;
