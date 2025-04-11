@@ -36,7 +36,6 @@ import { Emojis } from "./emojis.js";
 import * as ClientVersion from "../src/version.js";
 import { Assets } from "./assets.js";
 import { ConfigData } from "./configDatad.js";
-import { BashCommands } from "./bashCommands.js";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";
 import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
 import { db } from "../src/core/database.js";
@@ -67,7 +66,6 @@ declare module 'discord.js' {
 		config: ConfigData,
 		isModuled?: boolean,
 		owners: string[],
-		bash: Collection<string, BashCommands>,
 		notifier: StreamNotifier,
 		ownihrz: OwnIHRZ,
 		kdenlive: KdenLive,
