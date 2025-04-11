@@ -35,6 +35,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
+import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 
 function VerifyVanityCode(VanityCode: string) {
 	if (VanityCode.length > 32) {
@@ -90,14 +91,28 @@ export const subCommand: SubCommand = {
 
 		let guildInvite = await interaction.guild.invites.create((interaction.channel as TextChannel), { temporary: false, reason: "iHorizon - VanityGenerator", maxAge: 0 });
 
-		if (guildGet) {
-			await client.func.method.interactionSend(interaction, { content: `The URL Vanity code \`${guildGet}\` have been overwrited for \`${VanityCode}\`. The guild is now joinable at: https://discord.wf/${VanityCode}` });
-			await db.set(`VANITY.${interaction.guildId}`, { vanity: VanityCode, invite: guildInvite?.code });
-			return;
-		} else {
-			await client.func.method.interactionSend(interaction, { content: `The guild is now joinable at: https://discord.wf/${VanityCode}` });
-			await db.set(`VANITY.${interaction.guildId}`, { vanity: VanityCode, invite: guildInvite?.code });
+		const req = await fetch(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.CreateCustomVanity), {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				adminKey: client.config.api.apiToken,
+				guildId: interaction.guildId,
+				vanityCode: VanityCode,
+				inviteCode: guildInvite.code,
+			}),
+		});
+
+		if (req.status !== 200) {
+			await client.func.method.interactionSend(interaction, { content: `An error has occurred while creating the vanity code. Please try again later.` });
 			return;
 		};
+
+		const res = await req.json();
+
+		await client.func.method.interactionSend(interaction, { content: res.message });
+		return;
+
 	},
 };

@@ -43,7 +43,8 @@ export enum GatewayMethod {
 	ChangeRole = 4,
 	UserInfo = 5,
 	ServerBackup = 6,
-	SecureWebhook = 7
+	SecureWebhook = 7,
+	CreateCustomVanity = 8,
 };
 
 export function assetsFinder(body: Assets, type: string): string {
@@ -144,6 +145,9 @@ export function HorizonGateway(gateway_method: GatewayMethod): string {
 			break;
 		case 7:
 			data += "/api/v1/securewebhook/manage"
+			break;
+		case 8:
+			data += "/api/ihorizon/v1/vanity-creation"
 			break;
 	}
 
