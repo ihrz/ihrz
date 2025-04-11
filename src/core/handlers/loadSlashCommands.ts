@@ -66,10 +66,10 @@ export default async function loadCommands(client: Client, path: string = p): Pr
 
 	var i = 0;
 	for (let path of paths) {
-		if (!path.endsWith('.js') && !path.endsWith('.json')) continue;
+		if (!path.endsWith('.ts') && !path.endsWith('.json')) continue;
 
 		let module;
-		if (path.endsWith('.js')) {
+		if (path.endsWith('.ts')) {
 			module = await import(path);
 		} else if (path.endsWith('init.json')) {
 			module = await import(path, { with: { "type": "json" } })
@@ -166,7 +166,7 @@ async function processCommandOptions(
 
 async function loadSubCommandModule(directoryPath: string, commandName: string): Promise<SubCommandModule | null> {
 	try {
-		return await import(`${directoryPath}/!${commandName}.js`) as SubCommandModule;
+		return await import(`${directoryPath}/!${commandName}.ts`) as SubCommandModule;
 	} catch (error) {
 		logger.err(`Failed to load subcommand module: ${commandName}`);
 		return null;

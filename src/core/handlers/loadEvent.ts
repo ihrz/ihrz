@@ -46,7 +46,7 @@ async function buildDirectoryTree(path: string): Promise<DirectoryTreeItem[]> {
 	for await (const dirent of dir) {
 		if (dirent.isDirectory()) {
 			result.push({ name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name)) });
-		} else if (dirent.name.endsWith('.js')) {
+		} else if (dirent.name.endsWith('.ts')) {
 			result.push({ name: dirent.name, sub: [] });
 		}
 	}
