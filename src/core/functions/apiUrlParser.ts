@@ -43,7 +43,8 @@ export enum GatewayMethod {
 	ChangeRole = 4,
 	UserInfo = 5,
 	ServerBackup = 6,
-	SecureWebhook = 7
+	SecureWebhook = 7,
+	CreateCustomVanity = 8,
 };
 
 export function assetsFinder(body: Assets, type: string): string {
