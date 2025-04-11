@@ -19,11 +19,6 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-if (process.env.CACHE === "true") {
-	// @ts-ignore
-	global.cache = await import("../../handlerCache.js");;
-}
-
 import { Client, Partials, GatewayIntentBits } from 'discord.js';
 import { initializeDatabase } from './database.js';
 
