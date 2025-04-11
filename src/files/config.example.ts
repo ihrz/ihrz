@@ -66,6 +66,9 @@ const config: ConfigData = {
 
 	core: {
 
+		devMode: true,
+		// true => log's ERROR are been in the console OR false => In the .err_logs folder.
+
 		blacklistPictureInEmbed: "An png url",
 		// The image of the blacklist's Embed (When blacklisted user attempt to interact with the bot)
 

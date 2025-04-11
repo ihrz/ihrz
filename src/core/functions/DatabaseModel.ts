@@ -19,16 +19,16 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { QuickDB } from "quick.db";
+import { BunDB } from "bun.db";
 import config from "../../files/config.js";
 import logger from "../logger.js";
 
 let db;
 
 if (!db) {
-	db = new Promise<QuickDB<any>>((resolve, reject) => {
+	db = new Promise<BunDB>((resolve, reject) => {
 		logger.log(`${config.console.emojis.HOST} >> Connected to the database (SQLITE) !`.green);
-		resolve(new QuickDB({ filePath: `${process.cwd()}/src/files/db.sqlite` }));
+		resolve(new BunDB(`${process.cwd()}/src/files/db.sqlite`));
 	});
 }
 

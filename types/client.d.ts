@@ -39,7 +39,7 @@ import { ConfigData } from "./configDatad.js";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";
 import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
 import { db } from "../src/core/database.js";
-import { QuickDB } from "quick.db";
+import { BunDB } from "bun.db";
 import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
 import type { Client_Functions } from "./client_functions.d.ts";
 import { AutoRenew } from "../src/core/modules/autorenewManager.js";
@@ -55,7 +55,7 @@ declare module 'discord.js' {
 		vanityInvites: Collection<Snowflake, VanityInviteData>,
 		buttons: Collection<string, Function>,
 		selectmenu: Collection<string, Function>,
-		db: QuickDB,
+		db: BunDB,
 		applicationsCommands: Collection<string, AnotherCommand>,
 		iHorizon_Emojis: Emojis,
 		giveawaysManager: GiveawayManager,
