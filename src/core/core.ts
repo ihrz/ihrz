@@ -47,14 +47,12 @@ import { CacheStorage } from './cache.js';
 import { getDatabaseInstance } from './database.js';
 import { KdenLive } from './functions/kdenliveManipulator.js';
 import { Command } from '../../types/command.js';
-import { BashCommands } from '../../types/bashCommands.js';
 import { mkdir, readdir } from 'node:fs/promises';
 import { MemberCountModule } from './modules/memberCountManager.js';
 import { AutoRenew } from './modules/autorenewManager.js';
 import config from '../files/config.js';
 import { Client_Functions } from '../../types/client_functions.js';
 import { AnotherCommand } from '../../types/anotherCommand.js';
-import { load_cache } from '../load_cache.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -85,7 +83,6 @@ export async function main(client: Client) {
 	setMaxListeners(0)
 
 	global.client = client;
-	client.bash = new Collection<string, BashCommands>();
 	client.commands = new Collection<string, Command>();
 	client.subCommands = new Collection<string, Command>();
 	client.message_commands = new Collection<string, Command>();
@@ -129,20 +126,17 @@ export async function main(client: Client) {
 	assetsCalc(client);
 	playerManager(client);
 	emojis(client);
-	if (process.env.CACHE === "true") {
-		logger.log(`[${config.console.emojis.LOAD}] Cache is enabled, initializing cache storage...`.bgBlack.gray.boldText);
-		await load_cache(client);
-	} else {
-		let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-		let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));
 
-		for (const file of handlerFiles) {
-			const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
-			if (handlerFunction && typeof handlerFunction === 'function') {
-				await handlerFunction(client);
-			}
+	let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
+	let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));
+
+	for (const file of handlerFiles) {
+		const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
+		if (handlerFunction && typeof handlerFunction === 'function') {
+			await handlerFunction(client);
 		}
 	}
+
 
 	client.login(await getToken() || process.env.BOT_TOKEN || client.config.discord.token).then(async () => {
 		const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;

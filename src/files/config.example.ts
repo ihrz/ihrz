@@ -69,9 +69,6 @@ const config: ConfigData = {
 		devMode: true,
 		// true => log's ERROR are been in the console OR false => In the .err_logs folder.
 
-		bash: false,
-		// true => Beautiful iHorizon bash on the console OR false => Disable them.
-
 		blacklistPictureInEmbed: "An png url",
 		// The image of the blacklist's Embed (When blacklisted user attempt to interact with the bot)
 

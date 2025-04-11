@@ -43,7 +43,10 @@ export interface ConfigData {
 
 	core: {
 		devMode: boolean;
-		bash: boolean;
+		/**
+		 * @deprecated
+		 */
+		bash?: boolean;
 		blacklistPictureInEmbed: string;
 		guildLogsChannelID: string;
 		reportChannelID: string;
