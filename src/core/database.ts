@@ -19,10 +19,11 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { JSONDriver, MemoryDriver, QuickDB } from 'quick.db';
+import { MemoryDriver, QuickDB } from 'quick.db';
 import ansiEscapes from 'ansi-escapes';
 import mysql from 'mysql2/promise.js';
 import { PallasDB } from 'pallas-db';
+import { BunDB } from 'bun.db';
 import { setInterval } from 'timers';
 
 import { ConfigData } from '../../types/configDatad.js';
@@ -30,7 +31,7 @@ import logger from './logger.js';
 import fs from 'fs';
 import { mkdir } from 'fs/promises';
 
-export type db = QuickDB<any> | PallasDB;
+export type db = QuickDB<any> | PallasDB | BunDB;
 let dbInstance: db | null = null;
 
 const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
@@ -62,7 +63,7 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 		return dbInstance;
 	}
 
-	let dbPromise: Promise<QuickDB<any>> | PallasDB | Promise<PallasDB>;
+	let dbPromise: Promise<QuickDB<any>> | Promise<PallasDB> | Promise<BunDB>;
 	let databasePath = `${process.cwd()}/src/files`;
 
 	if (!fs.existsSync(databasePath)) {
@@ -70,12 +71,6 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 	}
 
 	switch (config.database?.method) {
-		case 'JSON':
-			dbPromise = new Promise<QuickDB>((resolve, reject) => {
-				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
-				resolve(new QuickDB({ driver: new JSONDriver() }));
-			});
-			break;
 		case 'MYSQL':
 			dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
 				const connectionAvailable = await isReachable(config.database);
@@ -104,16 +99,17 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 			});
 			break;
 		case 'POSTGRES2':
-			dbPromise = new PallasDB({
-				host: config.database?.mySQL?.host,
-				username: config.database?.mySQL?.user,
-				password: config.database?.mySQL?.password,
-				database: config.database?.mySQL?.database,
-				port: config.database?.mySQL?.port,
-				dialect: "postgres",
-				tables
+			dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
+				resolve(new PallasDB({
+					host: config.database?.mySQL?.host,
+					username: config.database?.mySQL?.user,
+					password: config.database?.mySQL?.password,
+					database: config.database?.mySQL?.database,
+					port: config.database?.mySQL?.port,
+					dialect: "postgres",
+					tables
+				}));
 			});
-
 			logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 			break;
 		case 'CACHED_POSTGRES2':
@@ -201,14 +197,10 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 				resolve(memoryDB);
 			});
 			break;
-		case 'SQLITE':
-			dbPromise = new PallasDB({ dialect: "sqlite", tables: tables, storage: databasePath + "/db.sqlite" });
-			logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`);
-			break;
 		default:
-			dbPromise = new Promise<QuickDB>((resolve, reject) => {
+			dbPromise = new Promise<BunDB>((resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
-				resolve(new QuickDB({ filePath: databasePath + '/db.sqlite' }));
+				resolve(new BunDB(databasePath + '/db.sqlite'));
 			});
 			break;
 	}

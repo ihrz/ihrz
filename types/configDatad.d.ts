@@ -86,9 +86,8 @@ export interface ConfigData {
 
 	database?: {
 		method:
-		'JSON' | // Quick.DB with JSON Driver
 		'MYSQL' | // PallasDB for MySQL/MariaDB
-		'SQLITE' | // Sqlite for PallasDB
+		'SQLITE' | // Sqlite for BunDB
 		"POSTGRES2" | // PallasDB for postgres
 		"CACHED_POSTGRES2" // Quick.DB Memory Cached with PallasDB postgres 
 

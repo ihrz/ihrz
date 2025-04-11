@@ -20,7 +20,6 @@
 */
 
 import commandsSync from './commandsSync.js';
-import bash from './bash/bash.js';
 import logger from "./logger.js";
 
 import * as errorManager from './modules/errorManager.js';
@@ -129,7 +128,6 @@ export async function main(client: Client) {
 
 	assetsCalc(client);
 	playerManager(client);
-	bash(client);
 	emojis(client);
 	if (process.env.CACHE === "true") {
 		logger.log(`[${config.console.emojis.LOAD}] Cache is enabled, initializing cache storage...`.bgBlack.gray.boldText);
