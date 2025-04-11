@@ -19,11 +19,9 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { handlerCache } from "./handlerCache.js";
 import { Client } from "discord.js";
 
 declare global {
-	var cache: typeof handlerCache;
 	var client: Client;
 }
 

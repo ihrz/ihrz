@@ -94,77 +94,7 @@ declare namespace Client_Functions {
 			lang: LanguageData,
 			permissionData: command
 		): any;
-		export function getPermissionByValue(value: bigint): any;
-	}
-
-	// From method.ts
-	export namespace method {
-		export function isNumber(str: string): boolean;
-		export function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null>;
-		export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | null;
-		export function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null>;
-		export function channel(interaction: Message, args: string[], argsNumber: number): Promise<Channel | null>;
-		export function role(interaction: Message, args: string[], argsNumber: number): Role | null;
-		export function string(args: string[], argsNumber: number): string | null;
-		export function longString(args: string[], argsNumber: number): string | null;
-		export function number(args: string[], argsNumber: number): number;
-		export function getArgumentOptionNameWithOptions(o: Option): string;
-		export function stringifyOption(option: Option[]): string;
-		export function boldStringifyOption(option: Option[]): string;
-		export function createAwesomeEmbed(
-			lang: LanguageData,
-			command: Command,
-			client: Client,
-			interaction: ChatInputCommandInteraction<"cached"> | Message
-		): Promise<EmbedBuilder>;
-		export function checkCommandArgs(message: Message, command: Command, args: string[], lang: LanguageData): Promise<boolean>;
-		export function interactionSend(
-			interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message,
-			options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
-		): Promise<Message>;
-		export function channelSend(
-			interaction: Message | ChatInputCommandInteraction<"cached"> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel,
-			options: string | MessageReplyOptions | MessageEditOptions
-		): Promise<Message>;
-		export function hasSubCommand(options: Option[] | undefined): boolean;
-		export function hasSubCommandGroup(options: Option[] | undefined): boolean;
-		export function isSubCommand(option: Option | Command): boolean;
-		export function punish(data: any, user: GuildMember | undefined, reason?: string): any;
-		export function generateCustomMessagePreview(
-			message: string,
-			input: {
-				guild: Guild;
-				user: User;
-				guildLocal: string;
-				inviter?: {
-					user: {
-						username: string;
-						mention: string;
-					}
-					invitesAmount: number;
-				},
-				ranks?: {
-					level: number;
-				},
-				notifier?: {
-					artistAuthor: string;
-					artistLink: string;
-					mediaURL: string;
-				}
-			}
-		): string;
-		export function findOptionRecursively(options: Option[], subcommandName: string): Option | undefined;
-		export function buttonReact(msg: Message, button: ButtonBuilder): Promise<Message>;
-		export function buttonUnreact(msg: Message, buttonEmoji: string): Promise<Message>;
-		export function isAnimated(attachmentUrl: string): boolean;
-		export function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string>;
-		export function getDangerousPermissions(lang: LanguageData): {
-			flag: bigint;
-			name: string;
-		}[];
-		export function addCoins(member: GuildMember, coins: number): Promise<void>;
-		export function subCoins(member: GuildMember, coins: number): Promise<void>;
-		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
+		export function getPermissionByValue(value: bigint | bigint[]): any;
 	}
 
 	// From wait.ts
@@ -270,9 +200,6 @@ declare namespace Client_Functions {
 		totalTime: string;
 	};
 
-	// From getIp.ts
-	export function getIp({ useIPv6 = false }: { useIPv6?: boolean }): any;
-
 	// From helper.ts
 	export namespace helper {
 		export function coolDown(message: Message, method: string, ms: number): any;
@@ -313,83 +240,6 @@ declare namespace Client_Functions {
 
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
-
-	// From mediaManipulation.ts
-	export namespace mediaManipulation {
-		export function convertToPng(buffer: Buffer): Promise<Buffer>;
-		export function adjustImageQuality(imagePath: string): any;
-		export function resizeImage(inputImage: Buffer, outputPath: string, width?: number, height?: number): any;
-	}
-
-	// From kdenliveManipulator.ts
-	export namespace kdenliveManipulator {
-	}
-
-	// From method.ts
-	export namespace method {
-		export function isNumber(str: string): boolean;
-		export function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null>;
-		export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | null;
-		export function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null>;
-		export function channel(interaction: Message, args: string[], argsNumber: number): Promise<Channel | null>;
-		export function role(interaction: Message, args: string[], argsNumber: number): Role | null;
-		export function string(args: string[], argsNumber: number): string | null;
-		export function longString(args: string[], argsNumber: number): string | null;
-		export function number(args: string[], argsNumber: number): number;
-		export function createAwesomeEmbed(
-			lang: LanguageData,
-			command: Command,
-			client: Client,
-			interaction: ChatInputCommandInteraction<"cached"> | Message
-		): Promise<EmbedBuilder>;
-		export function checkCommandArgs(message: Message, command: Command, args: string[], lang: LanguageData): Promise<boolean>;
-		export function interactionSend(
-			interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message,
-			options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
-		): Promise<Message>;
-		export function channelSend(
-			interaction: Message | ChatInputCommandInteraction<"cached"> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel,
-			options: string | MessageReplyOptions | MessageEditOptions
-		): Promise<Message>;
-		export function hasSubCommand(options: Option[] | undefined): boolean;
-		export function hasSubCommandGroup(options: Option[] | undefined): boolean;
-		export function isSubCommand(option: Option | Command): boolean;
-		export function punish(data: any, user: GuildMember | undefined, reason?: string): any;
-		export function generateCustomMessagePreview(
-			message: string,
-			input: {
-				guild: Guild;
-				user: User;
-				guildLocal: string;
-				inviter?: {
-					user: {
-						username: string;
-						mention: string;
-					}
-					invitesAmount: number;
-				},
-				ranks?: {
-					level: number;
-				},
-				notifier?: {
-					artistAuthor: string;
-					artistLink: string;
-					mediaURL: string;
-				}
-			}
-		): string;
-		export function buttonReact(msg: Message, button: ButtonBuilder): Promise<Message>;
-		export function buttonUnreact(msg: Message, buttonEmoji: string): Promise<Message>;
-		export function isAnimated(attachmentUrl: string): boolean;
-		export function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string>;
-		export function getDangerousPermissions(lang: LanguageData): {
-			flag: bigint;
-			name: string;
-		}[];
-		export function addCoins(member: GuildMember, coins: number): Promise<void>;
-		export function subCoins(member: GuildMember, coins: number): Promise<void>;
-		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
-	}
 }
 
 export { Client_Functions };
