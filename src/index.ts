@@ -24,14 +24,6 @@ execSync("git pull", {
 	stdio: [0, 1, 2],
 	cwd: process.cwd()
 });
-execSync("rm -r dist", {
-	stdio: [0, 1, 2],
-	cwd: process.cwd()
-});
-execSync("npx tsc", {
-	stdio: [0, 1, 2],
-	cwd: process.cwd()
-});
 
 import './core/functions/colors.js';
 
