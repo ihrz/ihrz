@@ -1,34 +1,45 @@
 {
 	"compilerOptions": {
-		"strict": true,
 		"declaration": false,
-		"outDir": "dist",
-		"module": "NodeNext",
-		"target": "ESNext",
-		"moduleResolution": "node16",
 		"resolveJsonModule": true,
-		"useUnknownInCatchVariables": true,
+		"useUnknownInCatchVariables": false,
 		"allowUnreachableCode": false,
-		"esModuleInterop": true,
-		"allowJs": false,
 		"importHelpers": true,
 		"strictPropertyInitialization": false,
+		"esModuleInterop": true,
 		"typeRoots": [
 			"node_modules/@types"
 		],
-		"skipLibCheck": true
+		// Environment setup & latest features
+		"lib": [
+			"ESNext",
+			"DOM"
+		],
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleDetection": "force",
+		"jsx": "react-jsx",
+		"allowJs": false,
+		// Bundler mode
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": false,
+		"noEmit": true,
+		// Best practices
+		"strict": true,
+		"skipLibCheck": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": false,
+		// Some stricter flags (disabled by default)
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noPropertyAccessFromIndexSignature": false
 	},
-	"include": [
-		".",
-		"src/**/*.json",
-		"types/**/*.d.ts"
-	],
 	"exclude": [
 		"/.github",
-		"./dist",
 		"./node_modules",
 		"./src/files/config.example.ts",
 		"./ownihrz",
-		"./draft"
+		"./draft",
 	]
 }

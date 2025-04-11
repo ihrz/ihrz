@@ -36,7 +36,7 @@ export default async (client: Client) => {
 
 		let files = await readdir(commandPath);
 
-		for (let file of files.filter((file: string) => file.endsWith('.js'))) {
+		for (let file of files.filter((file: string) => file.endsWith('.ts'))) {
 			let { command } = await import(`${commandPath}/${file}`);
 
 			client.applicationsCommands.set(command.name, {

@@ -136,7 +136,7 @@ export async function main(client: Client) {
 		await load_cache(client);
 	} else {
 		let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-		let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.js'));
+		let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));
 
 		for (const file of handlerFiles) {
 			const { default: handlerFunction } = await import(`${handlerPath}/${file}`);

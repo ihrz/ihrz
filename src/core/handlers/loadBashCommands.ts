@@ -79,7 +79,7 @@ async function loadCommands(client: Client, path: string = p): Promise<void> {
 
 	var i = 0;
 	for (let path of paths) {
-		if (!path.endsWith('.js')) continue;
+		if (!path.endsWith('.ts')) continue;
 		i++;
 
 		let { command } = await import(path) as CommandModule; if (!command) continue;

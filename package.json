@@ -2,13 +2,11 @@
 	"name": "ihrz",
 	"version": "2025.3.0",
 	"description": "iHrz in ts!",
-	"main": "./dist/src/index.js",
+	"main": "./src/index.js",
 	"scripts": {
-		"start": "node ./dist/src/index.js",
+		"start": "node ./src/index.js",
 		"auto-build": "npx tsc -w",
-		"build": "npx tsc",
-		"clean-auto-build": "rm -r dist; npx tsc -w",
-		"clean-build": "rm -r dist; npx tsc"
+		"build": "npx tsc"
 	},
 	"repository": {
 		"type": "git",
@@ -51,6 +49,7 @@
 	},
 	"devDependencies": {
 		"@types/archiver": "^6.0.3",
+		"@types/bun": "^1.2.9",
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^20.17.22",
 		"@types/ping": "^0.4.4",

@@ -45,7 +45,7 @@ async function buildDirectoryTree(dirPath: string): Promise<DirectoryTreeItem[]>
 	for await (const dirent of dir) {
 		if (dirent.isDirectory()) {
 			result.push({ name: dirent.name, sub: await buildDirectoryTree(join(dirPath, dirent.name)) });
-		} else if (dirent.name.endsWith('.js') || dirent.name.endsWith('.json')) {
+		} else if (dirent.name.endsWith('.ts') || dirent.name.endsWith('.json')) {
 			result.push({ name: dirent.name, sub: [] });
 		}
 	}
@@ -63,7 +63,7 @@ async function buildFullDirectoryTree(dirPath: string): Promise<DirectoryTreeIte
 	for await (const dirent of dir) {
 		if (dirent.isDirectory()) {
 			result.push({ name: dirent.name, sub: await buildFullDirectoryTree(join(dirPath, dirent.name)) });
-		} else if (dirent.name.endsWith('.js') || dirent.name.endsWith('.json')) {
+		} else if (dirent.name.endsWith('.ts') || dirent.name.endsWith('.json')) {
 			result.push({ name: dirent.name, sub: [] });
 		}
 	}
@@ -123,11 +123,11 @@ function loadAnotherStuff() {
 	all_imports["components_select_menu"] = '';
 
 	fs.readdirSync(components_button)
-		.filter(file => file.endsWith(".js"))
+		.filter(file => file.endsWith(".ts"))
 		.forEach(file => {
 			const commandPath = `./src/Interaction/Components/Buttons/${file}`;
 			let commandName = file
-				.replace('.js', '')
+				.replace('.ts', '')
 				.replaceAll('-', '_')
 				.replaceAll('!', '_');
 			commandName = `component_button_${commandName}`;
@@ -137,11 +137,11 @@ function loadAnotherStuff() {
 		});
 
 	fs.readdirSync(core_functions)
-		.filter(file => file.endsWith(".js"))
+		.filter(file => file.endsWith(".ts"))
 		.forEach(file => {
 			const commandPath = `./src/core/functions/${file}`;
 			var commandName = file
-				.replace('.js', '')
+				.replace('.ts', '')
 				.replaceAll('-', '_')
 				.replaceAll('!', '_');
 			commandName = `core_function_${commandName}`;
@@ -151,11 +151,11 @@ function loadAnotherStuff() {
 		});
 
 	fs.readdirSync(components_select_menu)
-		.filter(file => file.endsWith(".js"))
+		.filter(file => file.endsWith(".ts"))
 		.forEach(file => {
 			const commandPath = `./src/Interaction/Components/SelectMenu/${file}`;
 			let commandName = file
-				.replace('.js', '')
+				.replace('.ts', '')
 				.replaceAll('-', '_')
 				.replaceAll('!', '_');
 			commandName = `component_select_menu_${commandName}`;
@@ -175,11 +175,11 @@ function loadApplicationCommands() {
 	all_imports["UserApplicationCommands"] = '';
 
 	fs.readdirSync(MessageApplicationCommands)
-		.filter(file => file.endsWith(".js"))
+		.filter(file => file.endsWith(".ts"))
 		.forEach(file => {
 			const commandPath = `./src/Interaction/MessageApplicationCommands/${file}`;
 			let commandName = file
-				.replace('.js', '')
+				.replace('.ts', '')
 				.replaceAll('-', '_')
 				.replaceAll('!', '_');
 			commandName = `message_app_${commandName}`;
@@ -189,11 +189,11 @@ function loadApplicationCommands() {
 		});
 
 	fs.readdirSync(UserApplicationCommands)
-		.filter(file => file.endsWith(".js"))
+		.filter(file => file.endsWith(".ts"))
 		.forEach(file => {
 			const commandPath = `./src/Interaction/UserApplicationCommands/${file}`;
 			let commandName = file
-				.replace('.js', '')
+				.replace('.ts', '')
 				.replaceAll('-', '_')
 				.replaceAll('!', '_');
 			commandName = `user_app_${commandName}`;
@@ -345,7 +345,7 @@ async function processSlashWithSubcommands() {
 				// Process command options to find subcommands
 				for (const option of commandModule.command.options) {
 					if (option.type === 1) { // ApplicationCommandOptionType.Subcommand
-						const subcommandPath = join(dirPath, `!${option.name}.js`);
+						const subcommandPath = join(dirPath, `!${option.name}.ts`);
 						if (fs.existsSync(subcommandPath)) {
 							await loadSubCommand(subcommandPath, commandModule.command.name);
 						}
@@ -353,7 +353,7 @@ async function processSlashWithSubcommands() {
 					else if (option.type === 2 && option.options) { // ApplicationCommandOptionType.SubcommandGroup
 						for (const subOption of option.options) {
 							if (subOption.type === 1) { // Subcommand within group
-								const subcommandPath = join(dirPath, `!${subOption.name}.js`);
+								const subcommandPath = join(dirPath, `!${subOption.name}.ts`);
 								if (fs.existsSync(subcommandPath)) {
 									await loadSubCommand(subcommandPath, commandModule.command.name, option.name);
 								}
@@ -461,7 +461,7 @@ async function processHybridCommands() {
 				// Process command options to find subcommands
 				for (const option of commandModule.command.options) {
 					if (option.type === 1) { // ApplicationCommandOptionType.Subcommand
-						const subcommandPath = join(dirPath, `!${option.name}.js`);
+						const subcommandPath = join(dirPath, `!${option.name}.ts`);
 						if (fs.existsSync(subcommandPath)) {
 							await loadHybridSubCommand(subcommandPath, commandModule.command.name);
 						}
@@ -469,7 +469,7 @@ async function processHybridCommands() {
 					else if (option.type === 2 && option.options) { // ApplicationCommandOptionType.SubcommandGroup
 						for (const subOption of option.options) {
 							if (subOption.type === 1) { // Subcommand within group
-								const subcommandPath = join(dirPath, `!${subOption.name}.js`);
+								const subcommandPath = join(dirPath, `!${subOption.name}.ts`);
 								if (fs.existsSync(subcommandPath)) {
 									await loadHybridSubCommand(subcommandPath, commandModule.command.name, option.name);
 								}

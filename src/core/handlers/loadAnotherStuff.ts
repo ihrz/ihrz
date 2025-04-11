@@ -36,17 +36,17 @@ export type FunctionModule = {
 export default async (client: Client) => {
 
 	(await readdir(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons')))
-		.filter(file => file.endsWith(".js"))
+		.filter(file => file.endsWith(".ts"))
 		.forEach(async file => {
 			const buttons = await import(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons', file));
-			client.buttons.set(file.split('.js')[0], buttons.default || buttons);
+			client.buttons.set(file.split('.ts')[0], buttons.default || buttons);
 		});
 
 	const functionsDir = path.join(__dirname, '..', '..', 'core', 'functions');
-	const functionFiles = (await readdir(functionsDir)).filter(file => file.endsWith(".js"));
+	const functionFiles = (await readdir(functionsDir)).filter(file => file.endsWith(".ts"));
 
 	for (const file of functionFiles) {
-		const functionName = file.split('.js')[0] as keyof typeof Client_Functions;
+		const functionName = file.split('.ts')[0] as keyof typeof Client_Functions;
 		const functionModule = await import(path.join(functionsDir, file));
 		const functionImplementation = functionModule.default || functionModule;
 
@@ -54,9 +54,9 @@ export default async (client: Client) => {
 	}
 
 	(await readdir(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'SelectMenu')))
-		.filter(file => file.endsWith(".js"))
+		.filter(file => file.endsWith(".ts"))
 		.forEach(async file => {
 			const selectmenu = await import(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'SelectMenu', file));
-			client.selectmenu.set(file.split('.js')[0], selectmenu.default || selectmenu);
+			client.selectmenu.set(file.split('.ts')[0], selectmenu.default || selectmenu);
 		});
 };
