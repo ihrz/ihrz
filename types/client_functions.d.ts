@@ -11,6 +11,7 @@ import { Option } from './option.js';
 import { db } from '../src/core/database.ts';
 import { PasswordOptions } from '../src/core/functions/random.ts';
 import { command } from '../src/core/functions/permissonsCalculator.ts';
+import { BunDB } from 'bun.db';
 
 declare namespace Client_Functions {
 
@@ -69,18 +70,11 @@ declare namespace Client_Functions {
 	// From numberBeautifuer.ts
 	export function numberBeautifuer(num: number): string;
 
+	// From apiUrlParser.ts
+	export function apiUrlParser(body: Assets, type: string): string;
+
 	// From awaitingResponse.ts
 	export function awaitingResponse(interaction: ChatInputCommandInteraction<"cached"> | Message, opt: LangForPrompt): any;
-
-	// From authRestoreHelper.ts
-	export namespace authRestoreHelper {
-		export function createAuthRestoreLink(data: AuthRestore_EntryType): string;
-		export function createAuthRestore(data: AuthRestore_EntryType): Promise<AuthRestore_ResponseType>;
-		export function getGuildDataPerSecretCode(data: { id: string; value: any }[], secretCode: string): { id: string, data: GuildAuthRestore } | null;
-		export function forceJoinAuthRestore(data: AuthRestore_ForceJoin_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
-		export function securityCodeUpdate(data: AuthRestore_KeyUpdate_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
-		export function changeRoleAuthRestore(data: AuthRestore_RoleUpdate_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
-	}
 
 	// From permissonsCalculator.ts
 	export namespace permissonsCalculator {
@@ -108,12 +102,6 @@ declare namespace Client_Functions {
 
 	// From maskLink.ts
 	export function maskLink(input: string): string;
-
-	// From image_dominant_color.ts
-	export function image_dominant_color(input: string | Buffer): Promise<string>;
-
-	// From apiUrlParser.ts
-	export function apiUrlParser(body: Assets, type: string): string;
 
 	// From sanitizer.ts
 	export namespace sanitizer {
@@ -200,10 +188,13 @@ declare namespace Client_Functions {
 		totalTime: string;
 	};
 
+	// From getIp.ts
+	export function getIp(useIPv6?: boolean): Promise<string>;
+
 	// From helper.ts
 	export namespace helper {
 		export function coolDown(message: Message, method: string, ms: number): any;
-		export function hardCooldown(database: QuickDB, method: string, ms: number): any;
+		export function hardCooldown(database: BunDB, method: string, ms: number): any;
 	}
 
 	// From html2png.ts
@@ -235,11 +226,91 @@ declare namespace Client_Functions {
 	}
 
 	// From image_dominant_color.ts
-	export namespace image_dominant_color {
-	}
+	export function image_dominant_color(input: string | Buffer): Promise<string>;
 
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
+
+	// From mediaManipulation.ts
+	export namespace mediaManipulation {
+		export function convertToPng(buffer: Buffer): Promise<Buffer>;
+		export function adjustImageQuality(imagePath: string): any;
+		export function resizeImage(inputImage: Buffer, outputPath: string, width?: number, height?: number): any;
+	}
+
+	// From kdenliveManipulator.ts
+	export namespace kdenliveManipulator {
+	}
+
+	// From method.ts
+	export namespace method {
+		export function isNumber(str: string): boolean;
+		export function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null>;
+		export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | null;
+		export function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null>;
+		export function channel(interaction: Message, args: string[], argsNumber: number): Promise<Channel | null>;
+		export function role(interaction: Message, args: string[], argsNumber: number): Role | null;
+		export function string(args: string[], argsNumber: number): string | null;
+		export function longString(args: string[], argsNumber: number): string | null;
+		export function number(args: string[], argsNumber: number): number;
+		export function getArgumentOptionNameWithOptions(o: Option): string;
+		export function stringifyOption(option: Option[]): string;
+		export function boldStringifyOption(option: Option[]): string;
+		export function createAwesomeEmbed(
+			lang: LanguageData,
+			command: Command,
+			client: Client,
+			interaction: ChatInputCommandInteraction<"cached"> | Message
+		): Promise<EmbedBuilder>;
+		export function checkCommandArgs(message: Message, command: Command, args: string[], lang: LanguageData): Promise<boolean>;
+		export function interactionSend(
+			interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message,
+			options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
+		): Promise<Message>;
+		export function channelSend(
+			interaction: Message | ChatInputCommandInteraction<"cached"> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel,
+			options: string | MessageReplyOptions | MessageEditOptions
+		): Promise<Message>;
+		export function hasSubCommand(options: Option[] | undefined): boolean;
+		export function hasSubCommandGroup(options: Option[] | undefined): boolean;
+		export function isSubCommand(option: Option | Command): boolean;
+		export function punish(data: any, user: GuildMember | undefined, reason?: string): any;
+		export function generateCustomMessagePreview(
+			message: string,
+			input: {
+				guild: Guild;
+				user: User;
+				guildLocal: string;
+				inviter?: {
+					user: {
+						username: string;
+						mention: string;
+					}
+					invitesAmount: number;
+				},
+				ranks?: {
+					level: number;
+				},
+				notifier?: {
+					artistAuthor: string;
+					artistLink: string;
+					mediaURL: string;
+				}
+			}
+		): string;
+		export function findOptionRecursively(options: Option[], subcommandName: string): Option | undefined;
+		export function buttonReact(msg: Message, button: ButtonBuilder): Promise<Message>;
+		export function buttonUnreact(msg: Message, buttonEmoji: string): Promise<Message>;
+		export function isAnimated(attachmentUrl: string): boolean;
+		export function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string>;
+		export function getDangerousPermissions(lang: LanguageData): {
+			flag: bigint;
+			name: string;
+		}[];
+		export function addCoins(member: GuildMember, coins: number): Promise<void>;
+		export function subCoins(member: GuildMember, coins: number): Promise<void>;
+		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
+	}
 }
 
 export { Client_Functions };

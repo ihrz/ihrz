@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { BunDB } from "bun.db";
 import { Message } from "discord.js";
-import { QuickDB } from "quick.db";
 
 export async function coolDown(message: Message, method: string, ms: number) {
 	let tn = Date.now();
@@ -32,7 +32,7 @@ export async function coolDown(message: Message, method: string, ms: number) {
 	return false;
 };
 
-export async function hardCooldown(database: QuickDB, method: string, ms: number) {
+export async function hardCooldown(database: BunDB, method: string, ms: number) {
 	let tn = Date.now();
 	let table = database.table("TEMP");
 	var fetch = await table.get(`COOLDOWN.${method}`);
