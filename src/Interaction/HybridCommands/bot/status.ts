@@ -69,7 +69,7 @@ export const command: Command = {
 				{ name: "Bot Uptime", value: `${time(new Date(getCacheStorage()?.initialized_timestamp!), 'd')}` },
 				{ name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
 				{ name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },
-				{ name: "NodeJS Version", value: `${process.version}`, inline: false }
+				{ name: "Bun Version", value: `${Bun.version}`, inline: false }
 			)
 			.setThumbnail(interaction.guild.iconURL() as string)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
