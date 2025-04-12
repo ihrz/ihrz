@@ -33,17 +33,65 @@ import { Command } from '../../../../types/command.js';
 
 import os from 'node:os';
 import { getCacheStorage } from '../../../core/core.js';
+import { readFile } from 'node:fs';
 
-function niceBytes(a: Number) { let b = 0, c = parseInt((a.toString()), 10) || 0; for (; 1024 <= c && ++b;)c /= 1024; return c.toFixed(10 > c && 0 < b ? 1 : 0) + " " + ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][b] }
+function niceBytes(kb: number) {
+	let bytes = kb * 1024;
+
+	const units = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+	let unitIndex = 0;
+
+	while (bytes >= 1024 && unitIndex < units.length - 1) {
+		bytes /= 1024;
+		unitIndex++;
+	}
+
+	return `${bytes < 10 && unitIndex > 0 ? bytes.toFixed(2) : bytes.toFixed(0)} ${units[unitIndex]}`;
+}
+
+function getMemoryInfo(): Promise<{
+	MemTotal: number,
+	MemFree: number,
+	MemAvailable: number,
+}> {
+	return new Promise((resolve, reject) => {
+		readFile('/proc/meminfo', 'utf8', (err, data) => {
+			if (err) {
+				reject(err);
+				return;
+			}
+
+			const memInfo: Record<string, number> = {};
+			const lines = data.split('\n');
+
+			lines.forEach(line => {
+				const parts = line.split(':');
+				if (parts.length === 2) {
+					const key = parts[0].trim();
+					const valueStr = parts[1].trim().split(' ')[0];
+					const value = parseInt(valueStr, 10);
+
+					memInfo[key] = value;
+				}
+			});
+
+			resolve({
+				MemTotal: memInfo['MemTotal'],
+				MemFree: memInfo['MemFree'],
+				MemAvailable: memInfo['MemAvailable'],
+			});
+		});
+	});
+}
 
 export const command: Command = {
 	name: 'status',
 
 	aliases: ["server"],
 
-	description: 'Get the bot status! (Only for the bot owner)',
+	description: 'Get the bot status!',
 	description_localizations: {
-		"fr": "Obtenez le statut du bot ! (Uniquement pour le propriétaire du bot)"
+		"fr": "Obtenez le statut du bot !"
 	},
 
 	category: 'bot',
@@ -60,16 +108,19 @@ export const command: Command = {
 		//     await client.func.method.interactionSend(interaction, { content: lang.status_be_bot_dev });
 		//     return;
 		// };
+
+		const memInfo = await getMemoryInfo();
+
 		let embed = new EmbedBuilder()
 			.setColor("#82cda8")
 			.setFields(
 				{ name: "Cpu", value: `${os.cpus()[0].model} (${os.machine()})`, inline: false },
-				{ name: "Memory", value: `${niceBytes(os.totalmem() - os.freemem())}/${niceBytes(os.totalmem())}`, inline: false },
+				{ name: "Memory", value: `${niceBytes(memInfo["MemTotal"] - memInfo["MemAvailable"])}/${niceBytes(memInfo["MemTotal"])}`, inline: false },
 				{ name: "Machine Uptime", value: `${time(new Date(Date.now() - os.uptime() * 1000), 'd')}`, inline: false },
 				{ name: "Bot Uptime", value: `${time(new Date(getCacheStorage()?.initialized_timestamp!), 'd')}` },
 				{ name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
 				{ name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },
-				{ name: "NodeJS Version", value: `${process.version}`, inline: false }
+				{ name: "Bun Version", value: `${Bun.version}`, inline: false }
 			)
 			.setThumbnail(interaction.guild.iconURL() as string)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction));

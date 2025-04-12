@@ -130,7 +130,7 @@ export const command: Command = {
 				content: lang.util_securewebhook_action_create_ok
 					.replace("${data.url}", data.url)
 					.replace("${data.code}", data.code)
-					.replace("${data.use}", data.token)
+					.replace("${data.use}", data.use)
 			})
 
 		} else if (action == "delete") {
