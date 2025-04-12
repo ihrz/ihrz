@@ -33,7 +33,7 @@ export const event: BotEvent = {
 
 		const recognizeItems: string[] = [
 			'hey', 'salut', 'coucou', 'bonjour', 'salem', 'wesh',
-			'hello', 'bienvenue', 'welcome', 'hi'
+			'hello', 'bienvenue', 'welcome', 'hi', 'hola'
 		];
 		const customReacts = await client.db.get<{ [msg: string]: string }>(`${message.guildId}.GUILD.REACT_MSG`);
 		const firstWord = message.content.split(' ')[0]?.toLowerCase();
