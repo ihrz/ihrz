@@ -49,7 +49,7 @@ export const event: BotEvent = {
 		};
 
 		if (
-			bio.state?.toString().toLowerCase().includes(someinfo.input.toString().toLowerCase())
+			bio.state?.toString().toLowerCase().includes(someinfo?.input?.toString().toLowerCase())
 			|| bio.state?.toString().toLowerCase().includes(vanity.toString().toLowerCase())
 		) {
 			return fetchedUser?.roles.add(someinfo.rolesId, "[Support] Module").catch(() => { });
