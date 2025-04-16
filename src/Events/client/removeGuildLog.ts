@@ -45,7 +45,7 @@ export const event: BotEvent = {
 					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
 					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
 					{ name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
-					{ name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
+					// { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
 					{ name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
 					{ name: "🥛・New members total", value: `${usersize} members`, inline: true },
 				)
