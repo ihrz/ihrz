@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
 
 		let stop = new ButtonBuilder()
 			.setCustomId('stop')
-			.setEmoji(client.iHorizon_Emojis.Stop)
+			.setEmoji(client.iHorizon_Emojis.Music_Stop)
 			.setStyle(ButtonStyle.Secondary);
 
 		let lyricsButton = new ButtonBuilder()
