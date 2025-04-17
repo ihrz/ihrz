@@ -560,7 +560,7 @@ say_footer_msg: "\n\nأُرسل من `/say` بواسطة ${interaction.user}"
 
 # /ping
 ping_down_msg: "**غير متصل**"
-ping_embed_desc: "# بونج! إحصائيات الشبكة لـ ${interaction.client.user.username}:\n\n**[Ping موقع Discord]** >> `${_net03}` مللي ثانية.\n**[Ping Cloudflare]** >> `${_net02}` مللي ثانية.\n**[Ping Google]** >> `${_net01}` مللي ثانية.\n\n${client.iHorizon_Emojis.Crown} **[Ping موقع iHorizon]** >> `${_net04}` مللي ثانية.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` مللي ثانية.\n\n## ${client.iHorizon_Emojis.iHorizon_Pointer} **[المتوسط]** >> (avg)`${averagePing}` مللي ثانية."
+ping_embed_desc: "# بونج! إحصائيات الشبكة لـ ${interaction.client.user.username}:\n\n**[Ping موقع Discord]** >> `${_net03}` مللي ثانية.\n**[Ping Cloudflare]** >> `${_net02}` مللي ثانية.\n**[Ping Google]** >> `${_net01}` مللي ثانية.\n\n${client.iHorizon_Emojis.Crown} **[Ping موقع iHorizon]** >> `${_net04}` مللي ثانية.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` مللي ثانية.\n\n## ${client.iHorizon_Emojis.Pointer} **[المتوسط]** >> (avg)`${averagePing}` مللي ثانية."
 
 # أوامر المرح
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -2265,7 +2265,7 @@ event_ticket_embed_description: "مرحبًا ${user.username}، مرحبًا ب
 event_ticket_add_member: "${interaction.user} لقد **أضاف** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} إلى التذكرة ${interaction.channel}!"
 event_ticket_del_member: "${interaction.user} لقد **أزال** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} من التذكرة ${interaction.channel}!"
 event_ticket_button_name: "إنشاء تذكرة"
-event_ticket_category_awaiting_response: "ما هي الفئة [${x.emojis ?? interaction.client.iHorizon_Emojis.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_category_awaiting_response: "ما هي الفئة [${x.emojis ?? interaction.client.iHorizon_Emojis.Pointer}] >> ${x.name}"
 event_ticket_reason_awaiting_response: "${interaction.user.toString()} هل يجب على المستخدم تقديم سبب قبل إنشاء التذكرة؟"
 event_ticket_create_reason_modal_title: "ما هو سبب تذكرتك"
 event_ticket_create_reason_modal_fields_1_label: "سبب التذكرة"
