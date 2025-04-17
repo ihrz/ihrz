@@ -132,7 +132,7 @@ export const command: Command = {
 
 				(interaction.guild?.channels.cache.get(channel.id) as BaseGuildTextChannel | null)?.send({
 					content: lang.setlogschannel_confirmation_message
-						.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+						.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 						.replace("${interaction.user.id}", interaction.member?.user.id!)
 						.replace("${typeOfLogs}", typeOfLogs)
 				});
@@ -170,7 +170,7 @@ export const command: Command = {
 				allCreatedChannels.push(channel.id);
 				(interaction.guild.channels.cache.get(channel.id) as BaseGuildTextChannel | null)?.send({
 					content: lang.setlogschannel_confirmation_message
-						.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+						.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 						.replace("${interaction.user.id}", interaction.member.user.id!)
 						.replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(","))
 				});
@@ -202,7 +202,7 @@ export const command: Command = {
 							allCreatedChannels.push(channel.id);
 							(interaction.guild.channels.cache.get(channel.id) as BaseGuildTextChannel | null)?.send({
 								content: lang.setlogschannel_confirmation_message
-									.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+									.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 									.replace("${interaction.user.id}", interaction.member.user.id!)
 									.replace("${typeOfLogs}", logType.value)
 							});

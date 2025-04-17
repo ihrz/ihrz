@@ -66,55 +66,55 @@ export const subCommand: SubCommand = {
 		} = {
 			Discord_Employee: {
 				Value: 1,
-				Emoji: client.iHorizon_Emojis.badge.Discord_Employee,
+				Emoji: client.iHorizon_Emojis.Discord_Staff_Badge,
 			},
 			Partnered_Server_Owner: {
 				Value: 2,
-				Emoji: client.iHorizon_Emojis.badge.Partnered_Server_Owner,
+				Emoji: client.iHorizon_Emojis.Partne_Badger,
 			},
 			HypeSquad_Events: {
 				Value: 4,
-				Emoji: client.iHorizon_Emojis.badge.HypeSquad_Events,
+				Emoji: client.iHorizon_Emojis.HypeSquad_Event_Badge,
 			},
 			Bug_Hunter_Level_1: {
 				Value: 8,
-				Emoji: client.iHorizon_Emojis.badge.Bug_Hunter_Level_1,
+				Emoji: client.iHorizon_Emojis.Bug_Hunter1_Badge,
 			},
 			Early_Supporter: {
 				Value: 512,
-				Emoji: client.iHorizon_Emojis.badge.Early_Supporter,
+				Emoji: client.iHorizon_Emojis.Early_Supporter_Badge,
 			},
 			Bug_Hunter_Level_2: {
 				Value: 16384,
-				Emoji: client.iHorizon_Emojis.badge.Bug_Hunter_Level_2,
+				Emoji: client.iHorizon_Emojis.Bug_Hunter2_Badge,
 			},
 			Early_Verified_Bot_Developer: {
 				Value: 131072,
-				Emoji: client.iHorizon_Emojis.badge.Early_Verified_Bot_Developer,
+				Emoji: client.iHorizon_Emojis.ECBDD_Badge,
 			},
 			House_Bravery: {
 				Value: 64,
-				Emoji: client.iHorizon_Emojis.badge.House_Bravery,
+				Emoji: client.iHorizon_Emojis.HypeS_Bravery_Bad,
 			},
 			House_Brilliance: {
 				Value: 128,
-				Emoji: client.iHorizon_Emojis.badge.House_Brilliance,
+				Emoji: client.iHorizon_Emojis.HypeS_Brillance_Bad,
 			},
 			House_Balance: {
 				Value: 256,
-				Emoji: client.iHorizon_Emojis.badge.House_Balance,
+				Emoji: client.iHorizon_Emojis.HypeS_Brillance_Bad,
 			},
 			Active_Developers: {
 				Value: 4194304,
-				Emoji: client.iHorizon_Emojis.badge.Active_Developers,
+				Emoji: client.iHorizon_Emojis.Active_Dev_Badge,
 			},
 			Discord_Moderators: {
 				Value: 262144,
-				Emoji: client.iHorizon_Emojis.badge.Discord_Moderators,
+				Emoji: client.iHorizon_Emojis.Discord_Moderators_Badg,
 			},
 			Slash_Bot: {
 				Value: 524288,
-				Emoji: client.iHorizon_Emojis.badge.Slash_Bot,
+				Emoji: client.iHorizon_Emojis.Slash_Bot_Badge,
 			},
 		};
 
@@ -135,7 +135,7 @@ export const subCommand: SubCommand = {
 		};
 
 		const originalInteraction = await client.func.method.interactionSend(interaction as ChatInputCommandInteraction, {
-			content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
+			content: client.iHorizon_Emojis.Discord_Loading
 		});
 
 		async function sendMessage(user: User) {
@@ -251,15 +251,15 @@ export const subCommand: SubCommand = {
 
 				switch (input) {
 					case 1:
-						badge = client.iHorizon_Emojis.badge.Nitro;
+						badge = client.iHorizon_Emojis.Discord_Nitro_Badge;
 						type = "Nitro Classic";
 						break;
 					case 2:
-						badge = client.iHorizon_Emojis.badge.Nitro + client.iHorizon_Emojis.badge.Server_Boost_Badge;
+						badge = client.iHorizon_Emojis.Discord_Nitro_Badge + client.iHorizon_Emojis.Discord_Nitro_Boost_Bad;
 						type = "Nitro Boost";
 						break;
 					case 3:
-						badge = client.iHorizon_Emojis.badge.Nitro;
+						badge = client.iHorizon_Emojis.Discord_Nitro_Badge;
 						type = "Nitro Basic";
 						break;
 				};

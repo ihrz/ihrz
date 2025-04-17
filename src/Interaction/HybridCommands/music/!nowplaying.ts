@@ -53,17 +53,17 @@ export const subCommand: SubCommand = {
 
 		let pause = new ButtonBuilder()
 			.setCustomId('pause')
-			.setEmoji(client.iHorizon_Emojis.icon.iHorizon_Pause)
+			.setEmoji(client.iHorizon_Emojis.Pause)
 			.setStyle(ButtonStyle.Secondary);
 
 		let stop = new ButtonBuilder()
 			.setCustomId('stop')
-			.setEmoji(client.iHorizon_Emojis.icon.iHorizon_Stop)
+			.setEmoji(client.iHorizon_Emojis.Stop)
 			.setStyle(ButtonStyle.Secondary);
 
 		let lyricsButton = new ButtonBuilder()
 			.setCustomId('lyrics')
-			.setEmoji(client.iHorizon_Emojis.icon.iHorizon_Paper)
+			.setEmoji(client.iHorizon_Emojis.Paper)
 			.setStyle(ButtonStyle.Secondary);
 
 		let btn = new ActionRowBuilder<ButtonBuilder>()
@@ -227,7 +227,7 @@ export const subCommand: SubCommand = {
 						}
 
 					} else {
-						await i.reply({ content: client.iHorizon_Emojis.icon.No_Logo, flags: [1 << 6] });
+						await i.reply({ content: client.iHorizon_Emojis.No, flags: [1 << 6] });
 					}
 				}
 			});
@@ -239,7 +239,7 @@ export const subCommand: SubCommand = {
 				await response.edit({ components: [] });
 			});
 		} catch {
-			await client.func.method.channelSend(interaction, client.iHorizon_Emojis.icon.Timer);
+			await client.func.method.channelSend(interaction, client.iHorizon_Emojis.Timer);
 			return;
 		};
 	}

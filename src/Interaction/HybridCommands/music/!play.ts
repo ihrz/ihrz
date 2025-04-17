@@ -61,7 +61,7 @@ export const subCommand: SubCommand = {
 		// Check if the member is in the same voice channel as the bot
 		if (interaction.guild.members.me?.voice.channelId && (interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+				content: lang.music_cannot.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
 			});
 			return;
 		}
@@ -163,7 +163,7 @@ export const subCommand: SubCommand = {
 				new EmbedBuilder()
 					.setColor(2829617)
 					.setDescription(lang.event_mp_audioTrackAdd
-						.replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+						.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
 						.replace("${track.title}", res.tracks[0].info.title as string)
 					)
 			]
@@ -189,7 +189,7 @@ export const subCommand: SubCommand = {
 
 		const i = await client.func.method.interactionSend(interaction, {
 			content: lang.p_loading_message
-				.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
+				.replace("${client.iHorizon_Emojis.Timer}", client.iHorizon_Emojis.Timer)
 				.replace("{result}", res.loadType === "playlist" ? 'playlist' : 'track')
 			, embeds: [embed]
 		});

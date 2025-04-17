@@ -289,7 +289,7 @@ export const subCommand: SubCommand = {
 							__tempEmbed.setColor(message.content as ColorResolvable);
 							response.edit({ embeds: [__tempEmbed] });
 						} else {
-							await client.func.method.channelSend(interaction, { content: lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) });
+							await client.func.method.channelSend(interaction, { content: lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No) });
 						}
 					});
 					break;

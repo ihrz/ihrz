@@ -32,7 +32,7 @@ import { Category } from "./category.js";
 
 import type { VanityInviteData } from "./vanityUrlData.d.ts";
 import { Command } from "./command.js";
-import { Emojis } from "./emojis.js";
+import emojis from "../src/files/emojis.json";
 
 import * as ClientVersion from "../src/version.js";
 import { Assets } from "./assets.js";
@@ -44,6 +44,7 @@ import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
 import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
 import type { Client_Functions } from "./client_functions.d.ts";
 import { AutoRenew } from "../src/core/modules/autorenewManager.js";
+import { EmojisManager } from "../src/core/modules/emojisManager.ts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -59,7 +60,7 @@ declare module 'discord.js' {
 		selectmenu: Collection<string, Function>,
 		db: db,
 		applicationsCommands: Collection<string, AnotherCommand>,
-		iHorizon_Emojis: Emojis,
+		iHorizon_Emojis: typeof emojis,
 		giveawaysManager: GiveawayManager,
 		content: BotContent[],
 		timeCalculator: iHorizonTimeCalculator,
@@ -74,6 +75,7 @@ declare module 'discord.js' {
 		kdenlive: KdenLive,
 		htmlfiles: Record<string, string>,
 		memberCountManager: MemberCountModule,
-		autoRenewManager: AutoRenew
+		autoRenewManager: AutoRenew,
+		emojisManager: EmojisManager
 	}
 }

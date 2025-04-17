@@ -60,14 +60,14 @@ export const subCommand: SubCommand = {
 		if (isNaN(Number(toDeposit))) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.temporary_voice_limit_button_not_integer
-					.replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					.replace("${interaction.client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			})
 			return;
 		}
 
 		if (toDeposit && toDeposit > balance) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};
@@ -80,11 +80,11 @@ export const subCommand: SubCommand = {
 			.setColor("#a4cb80")
 			.setTitle(lang.deposit_embed_title)
 			.setDescription(lang.deposit_embed_desc
-				.replace('${client.iHorizon_Emojis.icon.Coin}', client.iHorizon_Emojis.icon.Coin)
+				.replace('${client.iHorizon_Emojis.Coin}', client.iHorizon_Emojis.Coin)
 				.replace('${interaction.user}', interaction.member.user.toString())
 				.replace('${toDeposit}', toDeposit.toString())
 			)
-			.addFields({ name: lang.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.icon.Coin}` })
+			.addFields({ name: lang.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.Coin}` })
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
 			.setTimestamp();
 

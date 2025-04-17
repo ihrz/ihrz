@@ -91,19 +91,19 @@ export const subCommand: SubCommand = {
 		if (giveawayRequirement === "invites" && !client.func.method.isNumber(giveawayRequirementValue || "")) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.start_invalid_invites_req_value
-					.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		} else if (giveawayRequirement === 'messages' && !client.func.method.isNumber(giveawayRequirementValue || "")) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.start_invalid_messages_req_value
-					.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		} else if (giveawayRequirement === "roles" && !interaction.guild.roles.cache.has(giveawayRequirementValue || "")) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.start_invalid_roles_req_value
-					.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		}

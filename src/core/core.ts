@@ -25,7 +25,6 @@ import logger from "./logger.js";
 import * as errorManager from './modules/errorManager.js';
 import playerManager from "./modules/playerManager.js";
 import { OwnIHRZ } from './modules/ownihrzManager.js';
-import emojis from './modules/emojisManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData.js';
 
@@ -53,6 +52,7 @@ import { AutoRenew } from './modules/autorenewManager.js';
 import config from '../files/config.js';
 import { Client_Functions } from '../../types/client_functions.js';
 import { AnotherCommand } from '../../types/anotherCommand.js';
+import { EmojisManager } from './modules/emojisManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -102,6 +102,7 @@ export async function main(client: Client) {
 	client.func = {} as typeof Client_Functions;
 	client.htmlfiles = {};
 	client.applicationsCommands = new Collection<string, AnotherCommand>();
+	client.emojisManager = new EmojisManager(client);
 
 	process.on('SIGINT', async () => {
 		// if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
@@ -125,7 +126,6 @@ export async function main(client: Client) {
 
 	assetsCalc(client);
 	playerManager(client);
-	emojis(client);
 
 	let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
 	let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));

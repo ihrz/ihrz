@@ -125,7 +125,7 @@ export const command: Command = {
 		} catch (e) {
 			await tableBlacklist.delete(`${member?.id}`);
 			await client.func.method.interactionSend(interaction, {
-				content: lang.unblacklist_unblacklisted_but_can_unban_him.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.unblacklist_unblacklisted_but_can_unban_him.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};

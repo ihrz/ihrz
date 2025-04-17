@@ -61,7 +61,7 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.warn_command_work
-				.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+				.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 				.replace("${member?.toString()}", member?.toString()!)
 				.replace("${reason}", reason)
 				.replace("${warnId}", warnId)

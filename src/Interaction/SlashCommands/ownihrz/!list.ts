@@ -79,7 +79,7 @@ async function buildEmbed(
 	const embed = new EmbedBuilder()
 		.setColor('#ff7f50')
 		.setDescription(lang.mybot_list_embed1_desc
-			.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+			.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
 			.replace('${data_2[i].code}', data.Code)
 			.replace('${expire}', expire)
 			.replace('${utils_msg}', ""))

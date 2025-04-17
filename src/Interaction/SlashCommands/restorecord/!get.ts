@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 
 		if (!Data) return client.func.method.interactionSend(interaction, {
 			content: lang.rc_key_doesnt_exist
-				.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 				.replace("${secretCode}", secretCode),
 			flags: [1 << 6]
 		});
@@ -211,7 +211,7 @@ export const subCommand: SubCommand = {
 						.setDisabled(currentCategory !== 1 || currentPage === 0),
 					new ButtonBuilder()
 						.setStyle(ButtonStyle.Secondary)
-						.setEmoji(client.iHorizon_Emojis.icon.iHorizon_Pages)
+						.setEmoji(client.iHorizon_Emojis.Pages)
 						.setCustomId("pdeco")
 						.setDisabled(true),
 					new ButtonBuilder()
@@ -224,17 +224,17 @@ export const subCommand: SubCommand = {
 				.addComponents(
 					new ButtonBuilder()
 						.setStyle(ButtonStyle.Secondary)
-						.setEmoji(client.iHorizon_Emojis.icon.iHorizon_Minus)
+						.setEmoji(client.iHorizon_Emojis.Minus)
 						.setCustomId("previous")
 						.setDisabled(currentCategory === 0),
 					new ButtonBuilder()
 						.setStyle(ButtonStyle.Secondary)
-						.setEmoji(client.iHorizon_Emojis.icon.iHorizon_Folder)
+						.setEmoji(client.iHorizon_Emojis.Folder)
 						.setCustomId("deco")
 						.setDisabled(true),
 					new ButtonBuilder()
 						.setStyle(ButtonStyle.Secondary)
-						.setEmoji(client.iHorizon_Emojis.icon.iHorizon_Plus)
+						.setEmoji(client.iHorizon_Emojis.Plus)
 						.setCustomId("next")
 						.setDisabled(currentCategory >= 2)
 				)

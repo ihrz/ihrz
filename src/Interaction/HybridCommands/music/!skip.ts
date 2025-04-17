@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 
 		if (!(interaction.member as GuildMember).voice.channel) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.skip_not_in_voice_channel.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+				content: lang.skip_not_in_voice_channel.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
 			});
 			return;
 		};
@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 		// Check if the member is in the same voice channel as the bot
 		if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+				content: lang.music_cannot.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
 			});
 			return;
 		}
@@ -81,7 +81,7 @@ export const subCommand: SubCommand = {
 					new EmbedBuilder()
 						.setColor(2829617)
 						.setDescription(lang.event_mp_playerSkip
-							.replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+							.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
 							.replace("${track.title}", oldName as string)
 						)
 				]

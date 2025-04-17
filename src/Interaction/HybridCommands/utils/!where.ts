@@ -59,12 +59,12 @@ export const subCommand: SubCommand = {
 			.setTitle(`${lang.var_whereis}: ${member.displayName}`)
 			.setColor("#4fdb12")
 			.setDescription(
-				`> ${client.iHorizon_Emojis.vc.Limit} **${lang.var_member}:** ${member.toString()}
-> ${client.iHorizon_Emojis.vc.Name} **${lang.var_voice_channel}:** ${member.voice.channel?.toString()}
-> ${client.iHorizon_Emojis.icon.iHorizon_Streaming} **${lang.perm_stream_name}:** ${member.voice.streaming ? lang.var_yes : lang.var_no}
-> ${client.iHorizon_Emojis.icon.iHorizon_Camera} **${lang.var_video}:** ${member.voice.selfVideo ? lang.var_yes : lang.var_no}
-> ${client.iHorizon_Emojis.icon.iHorizon_Mute} **${lang.util_where_mute}:** ${member.voice.selfMute ? lang.var_yes : lang.var_no}
-> ${client.iHorizon_Emojis.icon.iHorizon_Deaf} **${lang.util_where_deaf}:** ${member.voice.selfDeaf ? lang.var_yes : lang.var_no}`
+				`> ${client.iHorizon_Emojis.VC_Limit} **${lang.var_member}:** ${member.toString()}
+> ${client.iHorizon_Emojis.VC_Name} **${lang.var_voice_channel}:** ${member.voice.channel?.toString()}
+> ${client.iHorizon_Emojis.Streaming} **${lang.perm_stream_name}:** ${member.voice.streaming ? lang.var_yes : lang.var_no}
+> ${client.iHorizon_Emojis.Camera} **${lang.var_video}:** ${member.voice.selfVideo ? lang.var_yes : lang.var_no}
+> ${client.iHorizon_Emojis.Mute} **${lang.util_where_mute}:** ${member.voice.selfMute ? lang.var_yes : lang.var_no}
+> ${client.iHorizon_Emojis.Deaf} **${lang.util_where_deaf}:** ${member.voice.selfDeaf ? lang.var_yes : lang.var_no}`
 			)
 			.setThumbnail(member.user.displayAvatarURL({ extension: "gif", forceStatic: false, size: 4096 }))
 

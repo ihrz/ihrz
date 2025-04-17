@@ -66,9 +66,9 @@ export const subCommand: SubCommand = {
 					.setColor(2829617)
 					.setDescription(
 						lang.action_unban_all_embed_desc
-							.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+							.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 							.replace("${unbanned_members.length}", unbanned_members.length.toString())
-							.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+							.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 							.replace('${cannot_unban}', cannot_unban.toString())
 					)
 					.setFooter(await client.func.displayBotName.footerBuilder(interaction))

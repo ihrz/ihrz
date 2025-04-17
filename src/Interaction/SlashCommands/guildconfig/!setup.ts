@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 			});
 
 			await interaction.editReply({
-				content: lang.setup_command_work.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)
+				content: lang.setup_command_work.replace('${client.iHorizon_Emojis.Yes}', client.iHorizon_Emojis.Yes)
 			});
 			return;
 		} else {

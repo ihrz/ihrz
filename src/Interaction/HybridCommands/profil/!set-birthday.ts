@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 			new ButtonBuilder()
 				.setStyle(ButtonStyle.Success)
 				.setLabel(lang.var_confirm)
-				.setEmoji(client.iHorizon_Emojis.icon.Yes_Logo)
+				.setEmoji(client.iHorizon_Emojis.Yes)
 				.setCustomId("set_confirm"),
 		];
 
@@ -76,14 +76,14 @@ export const subCommand: SubCommand = {
 		};
 
 		let introduction = lang.profil_birthday_embed_introduction
-			.replaceAll("${client.iHorizon_Emojis.icon.Sparkles}", client.iHorizon_Emojis.icon.Sparkles)
-			.replace("${client.iHorizon_Emojis.icon.Crown_Logo}", client.iHorizon_Emojis.icon.Crown_Logo)
+			.replaceAll("${client.iHorizon_Emojis.Sparkles}", client.iHorizon_Emojis.Sparkles)
+			.replace("${client.iHorizon_Emojis.Crown}", client.iHorizon_Emojis.Crown)
 			.replace("${interaction.member?.toString()}", interaction.member?.toString()!);
 
 		// function to get the current birthday
 		function getBirthdayString(): string {
 			return lang.profil_birthday_embed_current_birthday
-				.replace("${client.iHorizon_Emojis.icon.Pin}", client.iHorizon_Emojis.icon.Pin)
+				.replace("${client.iHorizon_Emojis.Pin}", client.iHorizon_Emojis.Pin)
 				.replace("${birthday.month}", birthday.month)
 				.replace("${birthday.day}", birthday.day)
 				.replace("${birthday.year}", birthday.year);

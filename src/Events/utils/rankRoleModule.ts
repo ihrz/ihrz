@@ -41,7 +41,7 @@ export const event: BotEvent = {
 		let text = lang.ping_bot_show_info_msg
 			.replace("${prefix}", prefix)
 			.replace("${message.author.toString()}", message.author.toString())
-			.replace("${client.iHorizon_Emojis.badge.Slash_Bot}", client.iHorizon_Emojis.badge.Slash_Bot)
+			.replace("${client.iHorizon_Emojis.Slash_Bot_Badge}", client.iHorizon_Emojis.Slash_Bot_Badge)
 			;
 
 		if (!dbGet || !dbGet.roles) {

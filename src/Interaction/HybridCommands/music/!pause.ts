@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 
 		if (!(interaction.member as GuildMember)?.voice.channel) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.pause_no_queue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+				content: lang.pause_no_queue.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
 			});
 			return;
 		};
@@ -61,7 +61,7 @@ export const subCommand: SubCommand = {
 			// Check if the member is in the same voice channel as the bot
 			if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.music_cannot.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+					content: lang.music_cannot.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
 				});
 				return;
 			}

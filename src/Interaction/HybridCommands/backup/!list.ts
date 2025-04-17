@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 
 		if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};
