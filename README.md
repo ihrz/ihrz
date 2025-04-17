@@ -69,8 +69,7 @@ It offers a **large variety of features**, including:
 ## 🛠 How to Self-Host?  
 
 ### 📌 Requirements  
-- [NodeJS](https://nodejs.org) (**20+ required**)  
-- [Npm](https://npmjs.com) (**Included with NodeJS**)  
+- [Bun](https://bun.sh)
 
 ⚠ **Windows users**: iHorizon **can't be hosted directly** on Windows 10/11.  
 👉 Use **[WSL](https://learn.microsoft.com/en-us/windows/wsl/install)** (Windows Subsystem for Linux) instead!  
@@ -90,9 +89,9 @@ bun -i
 bun build && bun .
 ```
 
-## 🐳 Docker Method  
+## 🚀 NpmJS Method  
 
-🚧 Coming soon! [See more](https://hub.docker.com/r/kisakay/ihorizon)  
+Working: [See more](https://npmjs.com/ihrz)  
 
 # 💸 Need Cheap Hosting?  
 
