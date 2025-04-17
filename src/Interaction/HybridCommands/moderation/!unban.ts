@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 
 		if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.unban_bot_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.unban_bot_dont_have_permission.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			})
 			return;
 		};
@@ -66,14 +66,14 @@ export const subCommand: SubCommand = {
 			.then(async (bans) => {
 				if (bans.size == 0) {
 					await client.func.method.interactionSend(interaction, {
-						content: lang.unban_there_is_nobody_banned.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+						content: lang.unban_there_is_nobody_banned.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 					});
 					return;
 				}
 				let bannedID = bans.find(ban => ban.user.id == userID);
 				if (!bannedID) {
 					await client.func.method.interactionSend(interaction, {
-						content: lang.unban_the_member_is_not_banned.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+						content: lang.unban_the_member_is_not_banned.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 					});
 					return;
 				};

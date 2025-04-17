@@ -53,14 +53,14 @@ export const subCommand: SubCommand = {
 
 		if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.unmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.unmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;;
 		};
 
 		if (tomute?.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.unmute_attempt_mute_your_self.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.unmute_attempt_mute_your_self.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;;
 		};

@@ -55,13 +55,13 @@ export const subCommand: SubCommand = {
 		if (baseData?.join) {
 			current_join_channel = `<#${baseData.join}>`
 		} else {
-			current_join_channel = client.iHorizon_Emojis.icon.No_Logo
+			current_join_channel = client.iHorizon_Emojis.No
 		};
 
 		if (baseData?.leave) {
 			current_leave_channel = `<#${baseData.leave}>`
 		} else {
-			current_leave_channel = client.iHorizon_Emojis.icon.No_Logo
+			current_leave_channel = client.iHorizon_Emojis.No
 		};
 
 		let embed = new EmbedBuilder()
@@ -144,7 +144,7 @@ export const subCommand: SubCommand = {
 					if (!(channel instanceof TextChannel)) {
 						i2.delete();
 						result.reply(lang.setchannels_not_a_text_channel
-							.replace('${client.iHorizon_Emojis.icon.Warning_Icon}', client.iHorizon_Emojis.icon.Warning_Icon)
+							.replace('${client.iHorizon_Emojis.Warning_Icon}', client.iHorizon_Emojis.Warning_Icon)
 						);
 					} else {
 						await client.func.ihorizon_logs(interaction, {
@@ -221,7 +221,7 @@ export const subCommand: SubCommand = {
 					if (!(channel instanceof TextChannel)) {
 						i2.delete();
 						result.reply(lang.setchannels_not_a_text_channel
-							.replace('${client.iHorizon_Emojis.icon.Warning_Icon}', client.iHorizon_Emojis.icon.Warning_Icon)
+							.replace('${client.iHorizon_Emojis.Warning_Icon}', client.iHorizon_Emojis.Warning_Icon)
 						);
 						return;
 					}
@@ -284,8 +284,8 @@ export const subCommand: SubCommand = {
 					await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
 					await i.reply({ content: lang.setchannels_command_work_on_off });
 
-					current_join_channel = client.iHorizon_Emojis.icon.No_Logo
-					current_leave_channel = client.iHorizon_Emojis.icon.No_Logo
+					current_join_channel = client.iHorizon_Emojis.No
+					current_leave_channel = client.iHorizon_Emojis.No
 
 					embed.setFields(
 						{ name: lang.setchannels_embed_fields_value_join, value: current_join_channel, inline: true },

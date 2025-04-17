@@ -81,7 +81,7 @@ export default async (client: Client) => {
 				new EmbedBuilder()
 					.setColor(2829617)
 					.setDescription(data.event_mp_playerStart
-						.replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+						.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
 						.replace("${track.title}", String(track?.info.title))
 						.replace("${queue.channel.name}", `<#${player.voiceChannelId}>`)
 						.replace("${url}", track?.info.uri!)
@@ -99,7 +99,7 @@ export default async (client: Client) => {
 		const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
 
 		(channel as BaseGuildTextChannel).send({
-			content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+			content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
 		});
 		return;
 	});

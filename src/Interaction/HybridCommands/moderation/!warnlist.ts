@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 		if (!allWarns || allWarns.length === 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.warnlist_no_data
-					.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 					.replace("${member?.toString()}", member?.toString()!)
 			})
 			return;

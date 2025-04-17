@@ -117,7 +117,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 						.setFields(
 							{
 								name: lang.temporary_voice_new_region,
-								value: `${i.client.iHorizon_Emojis.vc.Region} **${value}**`,
+								value: `${i.client.iHorizon_Emojis.VC_Region} **${value}**`,
 								inline: true
 							},
 						)

@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 
 		if (!allowed_roles?.includes(role?.id!) && allowed_roles!.length > 0) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_addrole_not_wl.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.utils_addrole_not_wl.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			})
 			return;
 		};
@@ -84,7 +84,7 @@ export const subCommand: SubCommand = {
 
 		if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_addrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
+				content: lang.utils_addrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
 			});
 			return;
 		};

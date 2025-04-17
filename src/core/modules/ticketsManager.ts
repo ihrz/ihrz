@@ -351,7 +351,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 
 		const i_category = await interaction.client.func.method.channelSend(interaction.message!, {
 			content: lang.event_ticket_category_awaiting_response
-				.replace('${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}', x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer)
+				.replace('${x.emojis ?? interaction.client.iHorizon_Emojis.Pointer}', x.emojis ?? interaction.client.iHorizon_Emojis.Pointer)
 				.replace('${x.name}', x.name),
 			components: [action_row_category]
 		});

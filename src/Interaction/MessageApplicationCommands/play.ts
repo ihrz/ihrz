@@ -93,7 +93,7 @@ export const command: AnotherCommand = {
 					new EmbedBuilder()
 						.setColor(2829617)
 						.setDescription(lang.event_mp_audioTrackAdd
-							.replace("${client.iHorizon_Emojis.icon.Music_Icon}", client.iHorizon_Emojis.icon.Music_Icon)
+							.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
 							.replace("${track.title}", res.tracks[0].info.title as string)
 						)
 				]
@@ -129,7 +129,7 @@ export const command: AnotherCommand = {
 
 		await interaction.editReply({
 			content: lang.p_loading_message
-				.replace("${client.iHorizon_Emojis.icon.Timer}", client.iHorizon_Emojis.icon.Timer)
+				.replace("${client.iHorizon_Emojis.Timer}", client.iHorizon_Emojis.Timer)
 				.replace("{result}", yes.playlist ? 'playlist' : 'track')
 			, embeds: [embed]
 		});

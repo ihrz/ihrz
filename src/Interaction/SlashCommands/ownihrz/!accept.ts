@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 		await client.ownihrz.Active_Intents(id_2.Auth).catch(() => { })
 
 		if (!client.owners.includes(interaction.user.id)) {
-			await interaction.reply({ content: client.iHorizon_Emojis.icon.No_Logo, flags: [1 << 6] });
+			await interaction.reply({ content: client.iHorizon_Emojis.No, flags: [1 << 6] });
 			return;
 		};
 

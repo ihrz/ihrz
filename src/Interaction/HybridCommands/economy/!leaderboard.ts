@@ -93,7 +93,7 @@ export const subCommand: SubCommand = {
 			.replaceAll('{1_avatar}', array[0]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.org/assets/img/unknown-user.png")
 			.replaceAll('{2_avatar}', array[1]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.org/assets/img/unknown-user.png")
 			.replaceAll('{3_avatar}', array[2]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://ihorizon.org/assets/img/unknown-user.png")
-			.replaceAll('{coin_emoji}', client.iHorizon_Emojis.icon.Coin);
+			.replaceAll('{coin_emoji}', client.iHorizon_Emojis.Coin);
 
 		const createEmbed = (page: number) => {
 			const startIndex = page * itemsPerPage;
@@ -109,7 +109,7 @@ export const subCommand: SubCommand = {
 						const globalIndex = startIndex + index;
 						const medal = globalIndex === 0 ? '🥇' : globalIndex === 1 ? '🥈' : globalIndex === 2 ? '🥉' : '💰';
 
-						return `${medal} **${globalIndex + 1}** ・ ${entry.user?.toString()}\n  ┖ ${client.iHorizon_Emojis.icon.Coin} **${formatNumber(entry.bank)}** (${lang.balance_embed_fields1_name}) + **${formatNumber(entry.money)}** (${lang.balance_embed_fields2_name})`;
+						return `${medal} **${globalIndex + 1}** ・ ${entry.user?.toString()}\n  ┖ ${client.iHorizon_Emojis.Coin} **${formatNumber(entry.bank)}** (${lang.balance_embed_fields1_name}) + **${formatNumber(entry.money)}** (${lang.balance_embed_fields2_name})`;
 					}).join('\n')
 				)
 				.setFooter({

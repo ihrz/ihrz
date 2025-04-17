@@ -149,9 +149,9 @@ unowner_command_work: "${member.username} більше не є власнико�
 blacklist_not_owner: "Ви не є власником проекту iHorizon. Ви не можете використовувати цю команду."
 blacklist_bot_lol: "Не можу внести себе в чорний список x)"
 blacklist_command_work: "${member.user.username} тепер у чорному списку"
-blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} Тепер у чорному списку, не можна заблокувати цього учасника тут, відсутні дозволи?"
+blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.No} Тепер у чорному списку, не можна заблокувати цього учасника тут, відсутні дозволи?"
 blacklist_already_blacklisted: "${member.user.username} уже у чорному списку!"
-blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} Нікого не знайдено в чорному списку!"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} Нікого не знайдено в чорному списку!"
 blacklist_var_no_reason: "Причину не знайдено"
 blacklist_embed_title: "Чорний список - Сторінка ${i / usersPerPage + 1}"
 
@@ -159,7 +159,7 @@ blacklist_embed_title: "Чорний список - Сторінка ${i / users
 unblacklist_not_owner: "Ви не є власником проекту iHorizon. Ви не можете використовувати цю команду."
 unblacklist_command_work: "<@${member.id}> більше не у чорному списку"
 unblacklist_not_blacklisted: "<@${member.id}> не був у чорному списку"
-unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} Тепер не в чорному списку, не можна розблокувати цього учасника тут, відсутні дозволи або його вже розблоковано?"
+unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} Тепер не в чорному списку, не можна розблокувати цього учасника тут, відсутні дозволи або його вже розблоковано?"
 unblacklist_user_is_not_exist: "Я не можу знайти цього користувача"
 
 # Команды менеджера приглашений
@@ -207,7 +207,7 @@ invite_embed_title: "Дякую за довіру iHorizon!"
 invite_embed_description: "Я вас люблю, покажіть мені свою любов до мене! Запросіть мене!"
 
 # /kisakay
-kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakay - і мій творець і розробник. Завдяки їй та її клавіатурі я з'явився в цьому світі. Я глибоко вдячний їй!✨ ❤️❤️"
+kisakay_message: "${client.iHorizon_Emojis.Sparkles} Kisakay - і мій творець і розробник. Завдяки їй та її клавіатурі я з'явився в цьому світі. Я глибоко вдячний їй!✨ ❤️❤️"
 
 # /Irisweb
 irisweb_message: "😼IrisWeb - мій другий розробник/співавтор , IrisWeb и Kisakay ❤️"
@@ -219,7 +219,7 @@ pong_message: "【:ballot_box_with_check:】__**Понг**__ : "
 status_be_bot_dev: ":x: | **Ви маєте бути розробником бота, щоб виконати це!**"
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ Меню допомоги```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** доступні категорії команд\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** доступні слеш-команди\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **Створено** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Чи знаєте ви? ・ Підказки```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} **100% багатомовний**\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ Меню допомоги```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** доступні категорії команд\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** доступні слеш-команди\n${client.iHorizon_Emojis.Crown} ・ **Створено** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Чи знаєте ви? ・ Підказки```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} **100% багатомовний**\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`"
 help_mod_fields: "Модерація"
 help_ranks_fields: "Ранги"
 help_fun_fields: "Розваги"
@@ -281,7 +281,7 @@ say_footer_msg: "\n\nВідправлено з команди `/say` від ${in
 
 # /ping
 ping_down_msg: "**НЕДОСТУПНО**"
-ping_embed_desc: "# Понг! Статистика мережі ${interaction.client.user.username}:\n\n**[Пінг веб-сайту Discord]** >> `${_net03}` мс.\n**[Пінг Cloudflare]** >> `${_net02}` мс.\n**[Пінг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Пінг веб-сайту iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Пінг веб-сокету]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[Середнє]** >> (ср)`${averagePing}` мс."
+ping_embed_desc: "# Понг! Статистика мережі ${interaction.client.user.username}:\n\n**[Пінг веб-сайту Discord]** >> `${_net03}` мс.\n**[Пінг Cloudflare]** >> `${_net02}` мс.\n**[Пінг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.Crown} **[Пінг веб-сайту iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.Crown} **[Пінг веб-сокету]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.iHorizon_Pointer} **[Середнє]** >> (ср)`${averagePing}` мс."
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -350,9 +350,9 @@ addmoney_command_work: "Успішно додано `${amount.value}`$ кори�
 
 # /balance
 balance_dont_have_wallet: "👛 У вас немає гаманця... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.icon.Wallet_Logo} ${user} не має гаманця... !"
+balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} не має гаманця... !"
 balance_have_wallet: "👛 У вас є ${bal} монет(и) !"
-balance_he_have_wallet: "${client.iHorizon_Emojis.icon.Wallet_Logo} У ${user} є ${bal} монет(и) !"
+balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} У ${user} є ${bal} монет(и) !"
 balance_embed_fields1_name: "Банк"
 balance_embed_fields2_name: "На рахунку"
 
@@ -399,20 +399,20 @@ work_embed_author: "${interaction.user.username}, це було вигідно!"
 work_embed_description: "${interaction.user.username}, ви працювали і заробили ${amount}$ !"
 
 # /withdraw
-withdraw_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Ви не можете зняти більшу суму монет, ніж у вас в банку!"
+withdraw_cannot_abuse: "${client.iHorizon_Emojis.No} | Ви не можете зняти більшу суму монет, ніж у вас в банку!"
 withdraw_embed_title: "Зняття з вашого банку"
-withdraw_embed_desc: "${interaction.user}, ви зняли ${toWithdraw}${client.iHorizon_Emojis.icon.Coin} з вашого `банку`"
+withdraw_embed_desc: "${interaction.user}, ви зняли ${toWithdraw}${client.iHorizon_Emojis.Coin} з вашого `банку`"
 withdraw_embed_fields1_name: "Банк"
 
 # /deposit
-deposit_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | Ви не можете внести більшу суму монет, ніж у вас в гаманці!"
+deposit_cannot_abuse: "${client.iHorizon_Emojis.No} | Ви не можете внести більшу суму монет, ніж у вас в гаманці!"
 deposit_embed_title: "Внесення в ваш банк"
-deposit_embed_desc: "${interaction.user}, ви внесли ${toDeposit}${client.iHorizon_Emojis.icon.Coin} в ваш `банк`"
+deposit_embed_desc: "${interaction.user}, ви внесли ${toDeposit}${client.iHorizon_Emojis.Coin} в ваш `банк`"
 deposit_embed_fields1_name: "Банк"
 
 # /leaderboard
 economy_leaderboard_embed_title: "Лідерство за економікою `${interaction.guild.name}`"
-economy_leaderboard_embed_fields_value: "<@${userId}> - Банк: `${userData.bank || 0}`${client.iHorizon_Emojis.icon.Coin} | Баланс: `${userData.money || 0}`${client.iHorizon_Emojis.icon.Coin}"
+economy_leaderboard_embed_fields_value: "<@${userId}> - Банк: `${userData.bank || 0}`${client.iHorizon_Emojis.Coin} | Баланс: `${userData.money || 0}`${client.iHorizon_Emojis.Coin}"
 
 # /economy disable
 economy_disable_not_admin: ":x: | Ви повинні бути адміністратором цього сервера, щоб виконати цю команду!"
@@ -435,7 +435,7 @@ setprofildescriptions_command_work: "**Ваш опис успішно оновл
 # /profil
 profil_not_description_set: "Опис не встановлено!"
 profil_unknown: "Невідомо"
-profil_embed_title: "${client.iHorizon_Emojis.icon.Pin} __Профіль ${member.tag}__"
+profil_embed_title: "${client.iHorizon_Emojis.Pin} __Профіль ${member.tag}__"
 profil_embed_fields_nickname: "📝 ・ __Нікнейм__"
 profil_embed_fields_money: "🪙 ・ __Гроші__"
 profil_embed_fields_money_value: " Монет"
@@ -468,23 +468,23 @@ serverinfo_embed_fields_joinat: "🚲・**Приєднався:**"
 serverinfo_embed_fields_createat: "⚓・**Створено:**"
 
 # /setrankroles
-setrankroles_not_admin: "${client.iHorizon_Emojis.icon.No_Logo} Ви не є адміністратором цього сервера. Ви не можете виконати цю команду!"
-setrankroles_already_this_in_db: "${client.iHorizon_Emojis.icon.No_Logo} Ролі рангів вже є в базі даних для цього сервера."
-setrankroles_not_roles_typed: "${client.iHorizon_Emojis.icon.No_Logo} Ви не включили жодної ролі у своїй команді!"
+setrankroles_not_admin: "${client.iHorizon_Emojis.No} Ви не є адміністратором цього сервера. Ви не можете виконати цю команду!"
+setrankroles_already_this_in_db: "${client.iHorizon_Emojis.No} Ролі рангів вже є в базі даних для цього сервера."
+setrankroles_not_roles_typed: "${client.iHorizon_Emojis.No} Ви не включили жодної ролі у своїй команді!"
 setrankroles_command_work: "Тепер, коли ви згадуєте мене `@iHorizon`, я додам наступні ролі: <@&${argsid}>"
 setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> встановив ролі рангів на <@&${argsid}>"
 setrankroles_logs_embed_title_enable: "Встановлення ролей рангів"
 setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> видалив роль рангів!"
 setrankroles_logs_embed_title_disable: "Встановлення ролей рангів"
 setrankroles_command_work_disable: "<@${interaction.user.id}>, ви видалили роль рангів!"
-setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} Команда зіткнулася з помилкою! Спробуйте ще раз пізніше."
+setrankroles_command_error: "${client.iHorizon_Emojis.No} Команда зіткнулася з помилкою! Спробуйте ще раз пізніше."
 setrankroles_command_work_with_nicknames: "Тепер, коли ви згадуєте мене з `@iHorizon`, я додам наступні ролі: <@&${argsid}> **Тільки якщо у користувача є ім'я користувача або глобальне ім'я з** `${nicknames}`"
 
 # /snipe
 snipe_no_previous_message_deleted: "У цьому каналі немає видалених повідомлень!"
 
 # /userinfo
-userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} Будь ласка, зачекайте..."
+userinfo_wait_please: "${client.iHorizon_Emojis.Timer} Будь ласка, зачекайте..."
 userinfo_embed_fields_1_name: "Значок"
 userinfo_embed_fields_2_name: "Ім'я користувача"
 userinfo_embed_fields_3_name: "Показане ім'я"
@@ -538,14 +538,14 @@ derank_msg_desc_embed: "## Я успішно видалив **${good}** роле
 derank_msg_failed: "При видаленні ролей сталася помилка."
 
 # /action unban all
-action_unban_all_embed_desc: "## Розблокувати всіх учасників гільдії\n${client.iHorizon_Emojis.icon.Yes_Logo} | Я успішно зняв блокування для `${unbanned_members.length}` учасника(ів) у гільдії!\n${client.iHorizon_Emojis.icon.No_Logo} | Я не можу розблокувати `${cannot_unban}` учасника(ів)!"
+action_unban_all_embed_desc: "## Розблокувати всіх учасників гільдії\n${client.iHorizon_Emojis.Yes} | Я успішно зняв блокування для `${unbanned_members.length}` учасника(ів) у гільдії!\n${client.iHorizon_Emojis.No} | Я не можу розблокувати `${cannot_unban}` учасника(ів)!"
 action_unban_all_no_banned_members: "Заблокованих учасників немає."
 
 # /action unban undo
-action_unban_undo_embed_desc: "## Скасувати всі розблокування\n${client.iHorizon_Emojis.icon.Yes_Logo} | Я успішно забанив `${banned_members.length}` учасника(ів) у гільдії!\n${client.iHorizon_Emojis.icon.No_Logo} | Я не можу розблокувати `${cannot_ban}` учасника(ів)!"
+action_unban_undo_embed_desc: "## Скасувати всі розблокування\n${client.iHorizon_Emojis.Yes} | Я успішно забанив `${banned_members.length}` учасника(ів) у гільдії!\n${client.iHorizon_Emojis.No} | Я не можу розблокувати `${cannot_ban}` учасника(ів)!"
 
 # /vc
-vc_embed_desc: "## Стани Голосу\n`${voiceStates?.size}` учасник(ів) у голосовому каналі:\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Стани Учасників\n`${membersStates?.size}` учасник(ів) у гільдії:\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Стани Бустів\n`${interaction.guild?.premiumSubscriptionCount}` буст(ів) у гільдії,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_desc: "## Стани Голосу\n`${voiceStates?.size}` учасник(ів) у голосовому каналі:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Стани Учасників\n`${membersStates?.size}` учасник(ів) у гільдії:\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Стани Бустів\n`${interaction.guild?.premiumSubscriptionCount}` буст(ів) у гільдії,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
 vc_embed_fields_1_name: "・Кількість Учасників"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} учасників```"
 vc_embed_fields_2_name: "・Кількість Каналів"
@@ -633,7 +633,7 @@ setchannels_button_leave: "Змінити канал виходу"
 setchannels_button_delete: "Видалити конфігурацію"
 setchannels_embed_fields_value_join: "Канал приєднання"
 setchannels_embed_fields_value_leave: "Канал виходу"
-setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} Вказаний канал не є текстовим каналом!"
+setchannels_not_a_text_channel: "${client.iHorizon_Emojis.Warning_Icon} Вказаний канал не є текстовим каналом!"
 setchannels_which_channel: "<@${interaction.user.id}>, Який канал ви хочете встановити?"
 setchannels_title_embed_panel: "Панель конфігурації каналів для налаштувань серверу"
 
@@ -665,10 +665,10 @@ setjoinmessage_help_embed_fields_name: "Як використовувати?"
 setjoinmessage_help_embed_fields_value: "Використовуйте ```/setjoinmessage <Включити / Вимкнути / Показати встановлене повідомлення> <повідомлення>```\n{user} = Ім'я учасника\n{membercount} = Кількість учасників сервера\n{createdat} = Дата створення облікового запису учасника\n{guild} = Назва сервера\n{inviter} = Ім'я та дискримінатор запрошуючого користувача\n{invites} = Кількість запрошень користувача"
 setjoinmessage_logs_embed_title_on_enable: "Журнал встановлення повідомлення при вході"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> встановив повідомлення при вході!"
-setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo}  | Повідомлення при вході успішно встановлено."
+setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick}  | Повідомлення при вході успішно встановлено."
 setjoinmessage_logs_embed_title_on_disable: "Журнал вимкнення повідомлення при вході"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> видалив повідомлення при вході!"
-setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Повідомлення при вході успішно видалено."
+setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | Повідомлення при вході успішно видалено."
 setjoinmessage_command_work_ls: "Повідомлення при вході:"
 setjoinmessage_help_embed_fields_custom_name: "Користувацьке повідомлення"
 setjoinmessage_help_embed_fields_custom_name_empy: "Не встановлено!"
@@ -713,22 +713,22 @@ setleavemessage_help_embed_fields_name: "Як використовувати?"
 setleavemessage_help_embed_fields_value: "Використовуйте ```/setleavemessage <Увімкнути / Вимкнути / Показати встановлене повідомлення> <повідомлення>```\n{user} = Ім'я учасника\n{membercount} = Кількість учасників сервера\n{guild} = Назва сервера"
 setleavemessage_logs_embed_title_on_enable: "Журнал встановлення повідомлення при виході"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> встановив повідомлення при виході!"
-setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успішно встановлено користувацьке повідомлення при виході."
+setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.Yes} | Успішно встановлено користувацьке повідомлення при виході."
 setleavemessage_logs_embed_title_on_disable: "Журнал вимкнення повідомлення при виході"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> видалив повідомлення при виході!"
-setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Успішно видалено користувацьке повідомлення при виході."
+setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | Успішно видалено користувацьке повідомлення при виході."
 setleavemessage_command_work_ls: "Повідомлення при виході:"
 setleavemessage_awaiting_response: "Напишіть повідомлення."
 
 # /setup
 setup_not_admin: ":x: | Для виконання цієї команди ви повинні бути адміністратором цього сервера!"
-setup_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} | Налаштування каналів"
+setup_command_work: "${client.iHorizon_Emojis.Yes} | Налаштування каналів"
 setup_command_error: "Бот вже налаштував канали для журналів! Або у бота немає дозволів..."
 
 # /setlogschannel
 setlogschannel_not_admin: ":x: | Для виконання цієї команди ви повинні бути адміністратором цього сервера!"
 setlogschannel_not_specified_args: "Ви повинні вказати припустимий канал для вашого модуля."
-setlogschannel_confirmation_message: "${client.iHorizon_Emojis.icon.Yes_Logo} | Тепер `${typeOfLogs}` налаштовано, встановлено користувачем <@${interaction.user.id}> !"
+setlogschannel_confirmation_message: "${client.iHorizon_Emojis.Yes} | Тепер `${typeOfLogs}` налаштовано, встановлено користувачем <@${interaction.user.id}> !"
 setlogschannel_already_this_channel: "На цьому сервері вже є цей канал для журналів!"
 setlogschannel_already_deleted: "На цьому сервері вже немає `SERVER_LOGS`!"
 setlogschannel_command_error: "Помилка?"
@@ -793,8 +793,8 @@ setmembercount_helpembed_fields_name: "Як використовувати?"
 setmembercount_helpembed_fields_value: "Використовуйте ```/setjoinmessage <Увімкнути / Вимкнути / Показати встановлене повідомлення> <повідомлення>```\n{membercount} = Кількість учасників сервера\n{rolescount} = Кількість ролей\n{botcount} = Кількість ботів на сервері"
 setmembercount_logs_embed_title_on_enable: "Журнал встановлення лічильника учасників"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> встановив лічильник учасників на <#${channel.id}> у `${messagei}`!"
-setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Лічильник учасників успішно встановлено."
-setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | Лічильник учасників успішно видалено."
+setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.Yes} | Лічильник учасників успішно встановлено."
+setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | Лічильник учасників успішно видалено."
 setmembercount_logs_embed_title_on_disable: "Журнал видалення лічильника учасників"
 setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> видалив лічильник учасників з цього сервера!"
 
@@ -804,7 +804,7 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> в�
 # /p
 p_not_in_voice_channel: "Ви повинні бути в голосовому каналі, щоб використовувати цю команду!"
 p_embed_title: "Немає результатів"
-p_loading_message: "${client.iHorizon_Emojis.icon.Timer} Завантажується: **{result}**!"
+p_loading_message: "${client.iHorizon_Emojis.Timer} Завантажується: **{result}**!"
 p_duration: "Тривалість: "
 p_not_allowed: "Посилання, яке ви відправили, не підтримується цим ботом. Будь ласка, використовуйте авторизовані музичні сервіси, такі як Deezer, Spotify, Youtube та інші."
 
@@ -821,7 +821,7 @@ nowplaying_lyrics_button: "Текст для цієї пісні не знайд
 nowplaying_stop_buttom: "${interaction.user} **зупинив(ла)** музику!"
 
 # /pause
-pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - Ви не перебуваєте в голосовому каналі!"
+pause_no_queue: "${client.iHorizon_Emojis.Warning_Icon} - Ви не перебуваєте в голосовому каналі!"
 pause_nothing_playing: "Зараз нічого не відтворюється"
 pause_var_paused: "Пауза"
 pause_var_err: "Щось пішло не так"
@@ -831,7 +831,7 @@ resume_nothing_playing: "Зараз нічого не відтворюється
 resume_command_work: "Успішно відновлено"
 
 # /skip
-skip_not_in_voice_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} - Ви не перебуваєте у голосовому каналі!"
+skip_not_in_voice_channel: "${client.iHorizon_Emojis.Warning_Icon} - Ви не перебуваєте у голосовому каналі!"
 skip_nothing_playing: "Зараз нічого не відтворюється"
 skip_command_work: "Пропущено {queue}"
 
@@ -920,30 +920,30 @@ avatar_embed_description: "Подивіться на цей чудовий ав�
 avatar_embed_title: "__**Аватар**__: `${mentionedUser.username}`"
 
 # /ban
-ban_not_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас немає дозволу на блокування учасників."
+ban_not_permission: "${client.iHorizon_Emojis.No} | У вас немає дозволу на блокування учасників."
 ban_dont_found_member: "🔍 | Не вдалося знайти цього учасника"
-ban_dont_have_perm_myself: "${client.iHorizon_Emojis.icon.No_Logo} | У мене немає дозволу на блокування учасників!"
-ban_try_to_ban_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Ви не можете заблокувати самих себе!"
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} Ви не можете заблокувати користувача з вищою роллю, ніж у вас..."
-ban_cant_ban_member: "${client.iHorizon_Emojis.icon.No_Logo} | Я не можу заблокувати цього учасника"
+ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | У мене немає дозволу на блокування учасників!"
+ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | Ви не можете заблокувати самих себе!"
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop_Logo} Ви не можете заблокувати користувача з вищою роллю, ніж у вас..."
+ban_cant_ban_member: "${client.iHorizon_Emojis.No} | Я не можу заблокувати цього учасника"
 ban_message_to_the_banned_member: "Ви були заблоковані на цьому сервері: **${interaction.guild.name}** користувачем `${interaction.member.user.username}`"
 ban_command_work: "<@${member.user.id}> заблокований користувачем <@${interaction.member.id}>"
 ban_logs_embed_title: "Логи блокувань"
 ban_logs_embed_description: "<@${member.user.id}> заблокований користувачем <@${interaction.member.id}>"
 
 # /kick
-kick_not_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас немає дозволу на вигнання учасників."
-kick_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У мене немає дозволу на вигнання учасників!"
-kick_attempt_kick_your_self: "${client.iHorizon_Emojis.icon.No_Logo} | Ви не можете вигнати самих себе!"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} Ви не можете вигнати користувача з вищою роллю, ніж у вас..."
+kick_not_permission: "${client.iHorizon_Emojis.No} | У вас немає дозволу на вигнання учасників."
+kick_dont_have_permission: "${client.iHorizon_Emojis.No} | У мене немає дозволу на вигнання учасників!"
+kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | Ви не можете вигнати самих себе!"
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop_Logo} Ви не можете вигнати користувача з вищою роллю, ніж у вас..."
 kick_message_to_the_banned_member: "Ви були вигнані з цього серверу: **${interaction.guild.name}** користувачем `${interaction.member.user.username}`"
 kick_command_work: "${member.user} був вигнаний користувачем ${interaction.user}"
 kick_logs_embed_title: "Логи вигнань"
 kick_logs_embed_description: "${member.user} був вигнаний користувачем <@${interaction.user.id}>"
 
 # /clear
-clear_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас немає дозволу на керування повідомленнями (`MANAGE_MESSAGES`)."
-clear_max_message_limit: "${client.iHorizon_Emojis.icon.No_Logo} | Я не можу видалити більше 99 повідомлень за один раз!"
+clear_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас немає дозволу на керування повідомленнями (`MANAGE_MESSAGES`)."
+clear_max_message_limit: "${client.iHorizon_Emojis.No} | Я не можу видалити більше 99 повідомлень за один раз!"
 clear_channel_message_deleted: "Видалено ${messages.size} повідомлень!"
 clear_confirmation_message: "${messages.size} повідомлень було видалено!"
 clear_logs_embed_title: "Логи видалення повідомлень"
@@ -951,36 +951,36 @@ clear_logs_embed_description: "<@${interaction.user.id}> видалив ${messag
 
 # /lock
 lock_embed_message_description: "Канал заблоковано користувачем <@${interaction.user.id}>."
-lock_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас немає дозволу на блокування каналів."
+lock_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас немає дозволу на блокування каналів."
 lock_logs_embed_title: "Логи блокування каналів"
 lock_logs_embed_description: "<@${interaction.user.id}> заблокував канал <#${interaction.channel.id}>"
 
 # /unlock
 unlock_embed_message_description: "Канал успішно розблоковано!"
-unlock_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас немає дозволу на розблокування каналу."
+unlock_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас немає дозволу на розблокування каналу."
 unlock_logs_embed_title: "Логи розблокування каналів"
 unlock_logs_embed_description: "<@${interaction.user.id}> розблокував канал <#${interaction.channel.id}>"
 
 # /lockall
-lockall_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас немає дозволу на блокування всіх каналів."
+lockall_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас немає дозволу на блокування всіх каналів."
 lockall_embed_message_description: "Всі канали заблоковані користувачем <@${interaction.user.id}>."
 lockall_logs_embed_title: "Логи блокування всіх каналів"
 lockall_logs_embed_description: "<@${interaction.user.id}> заблокував всі канали!"
 
 # /unban
-unban_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас немає дозволу на розблокування учасників."
-unban_bot_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У мене немає дозволу."
-unban_there_is_nobody_banned: "${client.iHorizon_Emojis.icon.No_Logo} | **На цьому сервері немає забанених учасників!**"
-unban_the_member_is_not_banned: "${client.iHorizon_Emojis.icon.No_Logo} | **Вказаний ID не забанений на цьому сервері**!"
+unban_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас немає дозволу на розблокування учасників."
+unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | У мене немає дозволу."
+unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **На цьому сервері немає забанених учасників!**"
+unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **Вказаний ID не забанений на цьому сервері**!"
 unban_is_now_unbanned: "<@${userID}> тепер розбанений на цьому сервері!"
 unban_logs_embed_title: "Логи розбанів"
 unban_logs_embed_description: "<@${userID}> тепер розбанений на сервері користувачем ${interaction.user.id}!"
 unban_reason: "Причина не вказана."
 
 # /tempmute
-tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас немає дозволу на тимчасове блокування учасників."
-tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У мене немає дозволу."
-tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | Ви не можете тимчасово заблокувати самі себе!"
+tempmute_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас немає дозволу на тимчасове блокування учасників."
+tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.No} | У мене немає дозволу."
+tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.No} | Ви не можете тимчасово заблокувати самі себе!"
 tempmute_already_muted: "Цей користувач вже заблокований!"
 tempmute_command_work: "<@${tomute.id}> був заблокований на ${ms(ms(mutetime))}"
 tempmute_unmuted_by_time: "<@${tomute.id}> був розблокований!"
@@ -989,9 +989,9 @@ tempmute_logs_embed_description: "<@${interaction.user.id}> заблокував
 tempmute_reason_create_roles: "Створено роль для тимчасового блокування!"
 
 # /unmute
-unmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У вас немає дозволу на розблокування учасників."
-unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.icon.No_Logo} | Ви не можете розблокувати самі себе!"
-unmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | У мене немає дозволу."
+unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас немає дозволу на розблокування учасників."
+unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | Ви не можете розблокувати самі себе!"
+unmute_i_dont_have_permission: "${client.iHorizon_Emojis.No} | У мене немає дозволу."
 unmute_not_muted: "Цей користувач не заблокований!"
 unmute_muted_role_doesnt_exist: "Роль `muted` не існує. Будь ласка, заблокуйте користувача **перед** створенням ролей для блокування..."
 unmute_command_work: "<@${tomute.id}> був розблокований!"
@@ -1012,22 +1012,22 @@ backup_logs_embed_description_on_creation: "<@${interaction.user.id}> Створ
 backup_dont_have_perm_on_load: ":x: | Ви повинні бути адміністратором сервера, щоб завантажити резервну копію!"
 backup_i_dont_have_perm_on_load: "У мене немає дозволу `АДМІНІСТРАТОР`"
 backup_unvalid_id_on_load: ":x: | Ви повинні вказати дійсний ID резервної копії!"
-backup_waiting_on_load: "${client.iHorizon_Emojis.icon.Yes_Logo} - Завантаження..."
+backup_waiting_on_load: "${client.iHorizon_Emojis.Yes} - Завантаження..."
 backup_error_on_load: ":x: | Вибачте, сталася помилка... Будь ласка, перевірте, що у мене є права адміністратора!"
 backup_error_when_fetch_backup_on_load: ":x: | Резервна копія не знайдена для ${backupID}!"
-backup_this_is_not_your_backup: "${client.iHorizon_Emojis.icon.No_Logo} | Це не ваша резервна копія!"
+backup_this_is_not_your_backup: "${client.iHorizon_Emojis.No} | Це не ваша резервна копія!"
 backup_backup_doesnt_exist: "Помилка? Резервна копія не існує."
 backup_string_see_v: ":placard:・Кількість категорій: `${data.categoryCount}`\n:hash:・Кількість каналів: `${data.channelCount}`"
 backup_all_of_your_backup: "**Всі ваші резервні копії:**"
 backup_string_see_another_v: ":placard:・Кількість категорій: `${result.categoryCount}`\n:hash:・Кількість каналів: `${result.channelCount}`"
 
 # /backup delete
-backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} Ви дійсно бажаєте видалити цей резервний файл?"
+backup_really_want: "${client.iHorizon_Emojis.Warning_Icon} Ви дійсно бажаєте видалити цей резервний файл?"
 backup_confirm_button: "Так, видалити цей резервний файл"
 backup_cancel_button: "Скасувати дію"
-backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} Резервну копію успішно видалено!"
-backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} Резервна копія збережена!"
-backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} Час вийшов. Резервна копія збережена!"
+backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} Резервну копію успішно видалено!"
+backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} Резервна копія збережена!"
+backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} Час вийшов. Резервна копія збережена!"
 
 # Реакции ролей
 # /reactionroles
@@ -1036,7 +1036,7 @@ backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} Ч�
 reactionroles_dont_admin_added: ":x: | Ви повинні мати права адміністратора сервера, щоб використовувати цю команду!"
 reactionroles_embed_message_description_added: "__як користуватися?__\n/rolesreaction add `<ID повідомлення>` `<реакція>` `<ID ролі>`\n/rolesreaction remove `<ID повідомлення>` `<реакція>`\n/rolesreaction list `<ID повідомлення>`"
 reactionroles_missing_reaction_added: "Відсутній аргумент: Емодзі реакції"
-reactionroles_invalid_emote_format_added: "${client.iHorizon_Emojis.icon.No_Logo} | Ви не можете надіслати мені `CUSTOM_EMOJI` у форматі `<::xxx>`! Мені потрібно лише їх ID!"
+reactionroles_invalid_emote_format_added: "${client.iHorizon_Emojis.No} | Ви не можете надіслати мені `CUSTOM_EMOJI` у форматі `<::xxx>`! Мені потрібно лише їх ID!"
 reactionroles_logs_embed_title_added: "Логи реакцій на ролі"
 reactionroles_logs_embed_description_added: "<@${interaction.user.id}> встановив реакцію на ролі: Повідомлення: `${messagei}` | Реакція: `${reaction}` | Роль: ${role}"
 reactionroles_command_work_added: "${reaction} було додано до повідомлення ${messagei} для надання ролі ${role}"
@@ -1121,7 +1121,7 @@ embed_choose_9: "Яке зображення мініатюри ви хочет�
 embed_choose_10: "Яке зображення ви хочете включити в вбудовання?"
 embed_choose_11: "Який URL заголовка ви хочете включити в вбудовання?"
 embed_choose_12: "Який колір ви хочете включити в вбудовання? **www.color-hex.com**"
-embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | Неправильний колір! Будь ласка, перевірте **www.color-hex.com**"
+embed_choose_12_error: "${client.iHorizon_Emojis.No} | Неправильний колір! Будь ласка, перевірте **www.color-hex.com**"
 embed_choose_13: "Колір вбудовання успішно видалено!"
 embed_send_embed_work: "<@${interaction.user.id}>, **Ви успішно відправили ембет у канал <#${message.content}>!**"
 
@@ -1314,7 +1314,7 @@ mybot_list_utils_msg: "__ID бота__ `${data_2[i].bot.id}`\n__Ім'я кори
 mybot_list_utils_msg_yes: "Так"
 mybot_list_utils_msg_no: "Ні"
 mybot_list_embed1_title: "Ваш власний iHorizon: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "Код вашого бота: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.icon.Warning_Icon} **Не діліться ним з ніким**! \n**Термін дії** : `${expire}`\n**Приєднуйтесь до серверу підтримки** [Натисніть тут](https://discord.gg/ihorizon), якщо у вас виникли проблеми з вашим ботом.\n\n${utils_msg}"
+mybot_list_embed1_desc: "Код вашого бота: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **Не діліться ним з ніким**! \n**Термін дії** : `${expire}`\n**Приєднуйтесь до серверу підтримки** [Натисніть тут](https://discord.gg/ihorizon), якщо у вас виникли проблеми з вашим ботом.\n\n${utils_msg}"
 
 # /mybot manage accept
 mybot_manage_accept_not_found: "Бот в базі даних не може бути знайдений. Ми не можемо продовжувати."
@@ -1340,17 +1340,17 @@ mybot_instance_deny_embed_desc: "Бот був відхилений\n\n${utils_m
 # /voice interface set-text-channel
 tempvoice_if_text_not_admin: "<@${interaction.user.id}>, у вас немає прав на використання цієї команди!"
 tempvoice_if_text_desc_embed: "## Інтерфейс тимчасового голосового каналу\nЦей **інтерфейс** може бути використаний для управління тимчасовими голосовими каналами.\n"
-tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.vc.Limit} **Змінити ліміт**"
-tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.vc.Name} **Змінити назву**"
-tempvoice_if_text_fields_value_region: "${client.iHorizon_Emojis.vc.Region} **Змінити регіон**"
-tempvoice_if_text_fields_value_trust: "${client.iHorizon_Emojis.vc.Trust} **Довірений користувач**"
-tempvoice_if_text_fields_value_untrust: "${client.iHorizon_Emojis.vc.Untrust} **Недовірий користувач**"
-tempvoice_if_text_fields_value_block: "${client.iHorizon_Emojis.vc.Block} **Блокувати**"
-tempvoice_if_text_fields_value_unblock: "${client.iHorizon_Emojis.vc.Unblock} **Розблокувати**"
-tempvoice_if_text_fields_value_claim: "${client.iHorizon_Emojis.vc.Claim} **Призначити**"
-tempvoice_if_text_fields_value_privacy: "${client.iHorizon_Emojis.vc.Privacy} **Конфіденційність**"
-tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.vc.Transfer} **Передати**"
-tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.vc.Delete} **Видалити**"
+tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.VC_Limit} **Змінити ліміт**"
+tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.VC_Name} **Змінити назву**"
+tempvoice_if_text_fields_value_region: "${client.iHorizon_Emojis.VC_Region} **Змінити регіон**"
+tempvoice_if_text_fields_value_trust: "${client.iHorizon_Emojis.VC_Trust} **Довірений користувач**"
+tempvoice_if_text_fields_value_untrust: "${client.iHorizon_Emojis.VC_Untrust} **Недовірий користувач**"
+tempvoice_if_text_fields_value_block: "${client.iHorizon_Emojis.VC_Block} **Блокувати**"
+tempvoice_if_text_fields_value_unblock: "${client.iHorizon_Emojis.VC_Unblock} **Розблокувати**"
+tempvoice_if_text_fields_value_claim: "${client.iHorizon_Emojis.VC_Claim} **Призначити**"
+tempvoice_if_text_fields_value_privacy: "${client.iHorizon_Emojis.VC_Privacy} **Конфіденційність**"
+tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.VC_Transfer} **Передати**"
+tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.VC_Delete} **Видалити**"
 
 # /voice inteface set-voice-channel
 tempvoice_vc_not_admin: "<@${interaction.user.id}>, у вас немає прав на використання цієї команди!"
@@ -1425,13 +1425,13 @@ confession_module_modal_components2_label: "Це приватно?"
 
 # События проигрывателя музыки
 
-event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - Зараз грає `${track.title}` у каналі **${queue.channel.name}** ..."
-event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} було додано до черги!"
+event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Зараз грає `${track.title}` у каналі **${queue.channel.name}** ..."
+event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} було додано до черги!"
 event_mp_playerError: "Виникли проблеми з підключенням => ${error.message}"
 event_mp_error: "Виникла проблема з музичною чергою => ${error.message}"
-event_mp_emptyChannel: "${client.iHorizon_Emojis.icon.No_Logo} | Ніхто не знаходиться в голосовому каналі, виходимо..."
-event_mp_playerSkip: "${client.iHorizon_Emojis.icon.Music_Icon} - Пропускається **${track.title}** !"
-event_mp_emptyQueue: "${client.iHorizon_Emojis.icon.Warning_Icon} - Музика зупинена, оскільки в черзі більше немає музики!"
+event_mp_emptyChannel: "${client.iHorizon_Emojis.No} | Ніхто не знаходиться в голосовому каналі, виходимо..."
+event_mp_playerSkip: "${client.iHorizon_Emojis.Music_Icon} - Пропускається **${track.title}** !"
+event_mp_emptyQueue: "${client.iHorizon_Emojis.Warning_Icon} - Музика зупинена, оскільки в черзі більше немає музики!"
 
 # События создания канала
 event_channel_create_message_embed_title: "Успішно налаштовано!"
@@ -1453,7 +1453,7 @@ event_ticket_embed_description: "Привіт, ${user.username}, ласкаво 
 event_ticket_add_member: "${interaction.user}, ви **додали** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} до тікету ${interaction.channel} !"
 event_ticket_del_member: "${interaction.user}, ви **видалили** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} з тікета ${interaction.channel} !"
 event_ticket_button_name: "Створити тікет"
-event_ticket_category_awaiting_response: "Виберіть категорію [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_category_awaiting_response: "Виберіть категорію [${x.emojis ?? interaction.client.iHorizon_Emojis.iHorizon_Pointer}] >> ${x.name}"
 event_ticket_reason_awaiting_response: "${interaction.user.toString()} чи потрібно користувачеві вказати причину перед створенням тікета?"
 event_ticket_create_reason_modal_title: "У чому причина вашого звернення?"
 event_ticket_create_reason_modal_fields_1_label: "Причина звернення"
@@ -1560,7 +1560,7 @@ temporary_voice_block_button_menu_placeholder: "Вибрані користув�
 temporary_voice_delete_button_desc_embed: "## Видалення каналу\nКанал успішно видалено!"
 
 temporary_voice_limit_button_menu_label: "Який ліміт користувачів каналу?"
-temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.icon.No_Logo} | Введене значення не є числом"
+temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.No} | Введене значення не є числом"
 
 temporary_voice_name_button_menu_label: "Яка назва каналу?"
 

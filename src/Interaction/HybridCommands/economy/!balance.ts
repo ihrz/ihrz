@@ -67,11 +67,11 @@ export const subCommand: SubCommand = {
 			.setDescription(lang.balance_he_have_wallet
 				.replace("${bal}", totalWallet.toString())
 				.replace('${user}', member.toString())
-				.replace("${client.iHorizon_Emojis.icon.Wallet_Logo}", client.iHorizon_Emojis.icon.Wallet_Logo)
+				.replace("${client.iHorizon_Emojis.Wallet}", client.iHorizon_Emojis.Wallet)
 			)
 			.addFields(
-				{ name: lang.balance_embed_fields1_name, value: `${baseData.bank || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
-				{ name: lang.balance_embed_fields2_name, value: `${baseData.money || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
+				{ name: lang.balance_embed_fields1_name, value: `${baseData.bank || 0}${client.iHorizon_Emojis.Coin}`, inline: true },
+				{ name: lang.balance_embed_fields2_name, value: `${baseData.money || 0}${client.iHorizon_Emojis.Coin}`, inline: true },
 				{ name: lang.var_boost, value: `${possibleBoost}x`, inline: true }
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction))

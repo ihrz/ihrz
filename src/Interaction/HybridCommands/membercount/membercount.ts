@@ -210,7 +210,7 @@ export const command: Command = {
 
 			(fetched as BaseGuildTextChannel).edit({ name: joinmsgreplace });
 			await client.func.method.interactionSend(interaction, {
-				content: lang.setmembercount_command_work_on_enable.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+				content: lang.setmembercount_command_work_on_enable.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 			});
 			return;
 
@@ -224,7 +224,7 @@ export const command: Command = {
 			});
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.setmembercount_command_work_on_disable.replace('${client.iHorizon_Emojis.icon.Yes_Logo}', client.iHorizon_Emojis.icon.Yes_Logo)
+				content: lang.setmembercount_command_work_on_disable.replace('${client.iHorizon_Emojis.Yes}', client.iHorizon_Emojis.Yes)
 			});
 			return;
 		} else if (!type) {

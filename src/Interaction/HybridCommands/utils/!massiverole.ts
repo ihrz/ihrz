@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 		};
 
 		let ogInteraction = await client.func.method.interactionSend(interaction, {
-			content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
+			content: client.iHorizon_Emojis.Discord_Loading
 		});
 
 		if (action === 'add') {

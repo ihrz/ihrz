@@ -64,21 +64,21 @@ export const subCommand: SubCommand = {
 
 		if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.KickMembers)) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.kick_dont_have_permission.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.kick_dont_have_permission.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};
 
 		if (member.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.kick_attempt_kick_your_self.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.kick_attempt_kick_your_self.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};
 
 		if ((interaction.member.roles as GuildMemberRoleManager).highest.position < member.roles.highest.position) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.kick_attempt_kick_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
+				content: lang.kick_attempt_kick_higter_member.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
 			});
 			return;
 		};
@@ -92,7 +92,7 @@ export const subCommand: SubCommand = {
 		await member.kick(`Kicked by: ${interaction.member.user.username} | Reason: ${reason}`)
 			.catch((error) => {
 				return client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 				});
 			});
 

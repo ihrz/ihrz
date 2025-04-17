@@ -62,22 +62,22 @@ export const subCommand = {
 				.setDescription(
 					lang.vc_embed_desc
 						.replaceAll('${voiceStates?.size}', voiceStats.total.toString())
-						.replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Streaming}', client.iHorizon_Emojis.icon.iHorizon_Streaming)
+						.replaceAll('${client.iHorizon_Emojis.Streaming}', client.iHorizon_Emojis.Streaming)
 						.replaceAll('${voiceStates?.filter(vc => vc.streaming).size}', voiceStats.streaming.toString())
-						.replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Deaf}', client.iHorizon_Emojis.icon.iHorizon_Deaf)
+						.replaceAll('${client.iHorizon_Emojis.Deaf}', client.iHorizon_Emojis.Deaf)
 						.replaceAll('${voiceStates?.filter(vc => vc.selfDeaf).size}', voiceStats.selfDeaf.toString())
-						.replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Mute}', client.iHorizon_Emojis.icon.iHorizon_Mute)
+						.replaceAll('${client.iHorizon_Emojis.Mute}', client.iHorizon_Emojis.Mute)
 						.replaceAll('${voiceStates?.filter(vc => vc.selfMute).size}', voiceStats.selfMute.toString())
-						.replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Camera}', client.iHorizon_Emojis.icon.iHorizon_Camera)
+						.replaceAll('${client.iHorizon_Emojis.Camera}', client.iHorizon_Emojis.Camera)
 						.replaceAll('${voiceStates?.filter(vc => vc.selfVideo).size}', voiceStats.selfVideo.toString())
 						.replaceAll('${membersStates?.size}', memberStats.total.toString())
-						.replaceAll('${client.iHorizon_Emojis.icon.iHorizon_DND}', client.iHorizon_Emojis.icon.iHorizon_DND)
+						.replaceAll('${client.iHorizon_Emojis.DND}', client.iHorizon_Emojis.DND)
 						.replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}', memberStats.dnd.toString())
-						.replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Online}', client.iHorizon_Emojis.icon.iHorizon_Online)
+						.replaceAll('${client.iHorizon_Emojis.Online}', client.iHorizon_Emojis.Online)
 						.replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', memberStats.online.toString())
-						.replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Idle}', client.iHorizon_Emojis.icon.iHorizon_Idle)
+						.replaceAll('${client.iHorizon_Emojis.Idle}', client.iHorizon_Emojis.Idle)
 						.replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', memberStats.idle.toString())
-						.replaceAll('${client.iHorizon_Emojis.icon.iHorizon_Invisible}', client.iHorizon_Emojis.icon.iHorizon_Invisible)
+						.replaceAll('${client.iHorizon_Emojis.Invisible}', client.iHorizon_Emojis.Invisible)
 						.replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', memberStats.invisible.toString())
 						.replaceAll('${interaction.guild?.premiumSubscriptionCount}', guild.premiumSubscriptionCount?.toString() || '0')
 						.replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', boosters.join(', '))
@@ -103,27 +103,27 @@ export const subCommand = {
 				.setColor(2829617)
 				.setFields(
 					{
-						name: client.iHorizon_Emojis.vc.Limit,
+						name: client.iHorizon_Emojis.VC_Limit,
 						value: voiceStats.total.toString(),
 						inline: true
 					},
 					{
-						name: client.iHorizon_Emojis.icon.iHorizon_Streaming,
+						name: client.iHorizon_Emojis.Streaming,
 						value: voiceStats.streaming.toString(),
 						inline: true
 					},
 					{
-						name: client.iHorizon_Emojis.icon.iHorizon_Camera,
+						name: client.iHorizon_Emojis.Camera,
 						value: voiceStats.selfVideo.toString(),
 						inline: true
 					},
 					{
-						name: client.iHorizon_Emojis.icon.iHorizon_Mute,
+						name: client.iHorizon_Emojis.Mute,
 						value: voiceStats.selfMute.toString(),
 						inline: true
 					},
 					{
-						name: client.iHorizon_Emojis.icon.iHorizon_Deaf,
+						name: client.iHorizon_Emojis.Deaf,
 						value: voiceStats.selfDeaf.toString(),
 						inline: true
 					}

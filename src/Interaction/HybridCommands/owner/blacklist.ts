@@ -109,7 +109,7 @@ export const command: Command = {
 			if (!blacklistedUsers.length) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.blacklist_no_one_blacklist
-						.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+						.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
 					flags: [1 << 6]
 				});
 				return;
@@ -223,7 +223,7 @@ export const command: Command = {
 			}).catch(async () => {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.blacklist_blacklisted_but_can_ban_him
-						.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+						.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 				});
 			});
 

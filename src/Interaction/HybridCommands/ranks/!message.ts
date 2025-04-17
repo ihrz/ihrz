@@ -151,7 +151,7 @@ export const subCommand: SubCommand = {
 					await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.message`, response);
 					await modalInteraction.reply({
 						content: lang.ranksSetMessage_command_work_on_enable
-							.replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
+							.replace("${client.iHorizon_Emojis.GreenTick}", client.iHorizon_Emojis.GreenTick),
 						flags: [1 << 6]
 					});
 					newEmbed.addFields(helpEmbed.data.fields![1]);
@@ -176,7 +176,7 @@ export const subCommand: SubCommand = {
 				await client.db.delete(`${interaction.guildId}.GUILD.XP_LEVELING.message`);
 				await buttonInteraction.reply({
 					content: lang.ranksSetMessage_command_work_on_enable
-						.replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
+						.replace("${client.iHorizon_Emojis.GreenTick}", client.iHorizon_Emojis.GreenTick),
 					flags: [1 << 6]
 				});
 

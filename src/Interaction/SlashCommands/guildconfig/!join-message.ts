@@ -190,7 +190,7 @@ export const subCommand: SubCommand = {
 					await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinmessage`, response);
 					await modalInteraction.reply({
 						content: lang.setjoinmessage_command_work_on_enable
-							.replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
+							.replace("${client.iHorizon_Emojis.GreenTick}", client.iHorizon_Emojis.GreenTick),
 						flags: [1 << 6]
 					});
 
@@ -222,7 +222,7 @@ export const subCommand: SubCommand = {
 
 				await buttonInteraction.reply({
 					content: lang.setjoinmessage_command_work_on_enable
-						.replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
+						.replace("${client.iHorizon_Emojis.GreenTick}", client.iHorizon_Emojis.GreenTick),
 					flags: [1 << 6]
 				});
 
@@ -361,7 +361,7 @@ export const subCommand: SubCommand = {
 						textColour = res?.fields.getTextInputValue("colour")!;
 
 						if (!isValidColor(textColour)) {
-							res?.reply({ content: lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo) })
+							res?.reply({ content: lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No) })
 						}
 
 						await res?.deferUpdate();

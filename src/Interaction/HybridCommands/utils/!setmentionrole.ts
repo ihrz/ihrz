@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 		if (type === "on") {
 			if (!argsid) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_not_roles_typed.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					content: lang.setrankroles_not_roles_typed.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 				});
 				return;
 			};
@@ -79,7 +79,7 @@ export const subCommand: SubCommand = {
 
 				if (already === argsid.id) {
 					await client.func.method.interactionSend(interaction, {
-						content: lang.setrankroles_already_this_in_db.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+						content: lang.setrankroles_already_this_in_db.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 					});
 					return;
 				};
@@ -107,7 +107,7 @@ export const subCommand: SubCommand = {
 			} catch (e: any) {
 				logger.err(e);
 				await client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 				});
 				return;
 			}
@@ -129,7 +129,7 @@ export const subCommand: SubCommand = {
 			} catch (e: any) {
 				logger.err(e)
 				await client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 				});
 				return;
 			}

@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 
 		if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.BanMembers)) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.ban_dont_have_perm_myself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.ban_dont_have_perm_myself.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};
@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 
 		if (member.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.ban_try_to_ban_yourself.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.ban_try_to_ban_yourself.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};
@@ -87,14 +87,14 @@ export const subCommand: SubCommand = {
 
 			if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= guildMember.roles.highest.position) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.icon.Stop_Logo}", client.iHorizon_Emojis.icon.Stop_Logo)
+					content: lang.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
 				});
 				return;
 			};
 
 			if (!guildMember.bannable) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.ban_cant_ban_member.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					content: lang.ban_cant_ban_member.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 				});
 				return;
 			};
@@ -132,7 +132,7 @@ export const subCommand: SubCommand = {
 			})
 			.catch(() => {
 				return client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 				});
 			});
 	},

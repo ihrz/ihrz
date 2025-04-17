@@ -187,6 +187,7 @@ export const event: BotEvent = {
 		await client.autoRenewManager.init();
 		// await client.ownihrz.Start_Refresh();
 		await client.notifier.start();
+		client.emojisManager.startSync();
 
 		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000), setInterval(refreshBotData, 45_000);
 

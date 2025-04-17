@@ -19,15 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Emojis } from '../../../types/emojis.js';
-import fs from 'node:fs';
-import toml from 'toml';
-
-function _emojis(): Emojis {
-	return toml.parse(fs.readFileSync(process.cwd() + "/src/files/emojis.toml", 'utf-8')) as Emojis
-};
-
-let emojis: Emojis;
+import emojis from "../../files/emojis.json" with { "type": "json" };
 
 export default function generateProgressBar(currentTimeMs: number, totalTimeMs: number): {
 	bar: string;
@@ -36,10 +28,6 @@ export default function generateProgressBar(currentTimeMs: number, totalTimeMs: 
 } {
 	let currentTimeInSeconds = Math.floor(currentTimeMs / 1000);
 	let totalTimeInSeconds = Math.floor(totalTimeMs / 1000);
-
-	if (!emojis) {
-		emojis = _emojis();
-	}
 
 	let progress = (currentTimeInSeconds / totalTimeInSeconds) * 100;
 
@@ -51,7 +39,7 @@ export default function generateProgressBar(currentTimeMs: number, totalTimeMs: 
 	let dashesBefore = Math.floor((progressBarLength - 2) * (progress / 100));
 	let dashesAfter = progressBarLength - dashesBefore - 2;
 
-	let progressBar = `${currentTimeFormatted} ┃ ${`${emojis.icon.iHorizon_Bar}`.repeat(dashesBefore)}${emojis.icon.iHorizon_Pointer}${`${emojis.icon.iHorizon_Bar}`.repeat(dashesAfter)} ┃ ${totalTimeFormatted}`;
+	let progressBar = `${currentTimeFormatted} ┃ ${`${emojis.Bar}`.repeat(dashesBefore)}${emojis.Pointer}${`${emojis.Bar}`.repeat(dashesAfter)} ┃ ${totalTimeFormatted}`;
 
 	return {
 		bar: progressBar,

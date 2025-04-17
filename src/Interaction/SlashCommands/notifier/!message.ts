@@ -143,7 +143,7 @@ export const subCommand: SubCommand = {
 					await client.db.set(`${interaction.guildId}.NOTIFIER.message`, response);
 					await modalInteraction.reply({
 						content: lang.notifier_config_message_command_work_on_enable
-							.replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
+							.replace("${client.iHorizon_Emojis.GreenTick}", client.iHorizon_Emojis.GreenTick),
 						flags: [1 << 6]
 					});
 					newEmbed.addFields(helpEmbed.data.fields![1]);
@@ -168,7 +168,7 @@ export const subCommand: SubCommand = {
 				await client.db.delete(`${interaction.guildId}.NOTIFIER.message`);
 				await buttonInteraction.reply({
 					content: lang.notifier_config_message_command_work_on_enable
-						.replace("${client.iHorizon_Emojis.icon.Green_Tick_Logo}", client.iHorizon_Emojis.icon.Green_Tick_Logo),
+						.replace("${client.iHorizon_Emojis.GreenTick}", client.iHorizon_Emojis.GreenTick),
 					flags: [1 << 6]
 				});
 

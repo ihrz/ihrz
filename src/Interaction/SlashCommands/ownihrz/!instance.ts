@@ -102,7 +102,7 @@ export const subCommand: SubCommand = {
 		let id_to_bot = interaction.options.getString('id');
 
 		if (!client.owners.includes(interaction.user.id)) {
-			await interaction.editReply({ content: client.iHorizon_Emojis.icon.No_Logo });
+			await interaction.editReply({ content: client.iHorizon_Emojis.No });
 			return;
 		};
 
