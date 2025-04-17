@@ -217,7 +217,7 @@ declare namespace Client_Functions {
 	}
 
 	// From generateProgressBar.ts
-	export function generateProgressBar(currentTimeMs: number, totalTimeMs: number): {
+	export function generateProgressBar(emojis: any, currentTimeMs: number, totalTimeMs: number): {
 		bar: string;
 		currentTime: string;
 		totalTime: string;

@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let progress = client.func.generateProgressBar(player.position, player.queue.current?.info.duration!)
+		let progress = client.func.generateProgressBar(client.iHorizon_Emojis, player.position, player.queue.current?.info.duration!)
 
 		var htmlContent = client.htmlfiles["nowPlaying"];
 		var dominant_color = (await getTopTwoColors(player.queue.current?.info.artworkUrl as string)).split(" ");
@@ -122,7 +122,7 @@ export const subCommand: SubCommand = {
 			let player = client.player.getPlayer(interaction.guildId as string);
 
 			if (player && player.playing && !paused && player.queue.current?.info.identifier === musicId) {
-				let progress = client.func.generateProgressBar(player.position, player.queue.current?.info.duration!)
+				let progress = client.func.generateProgressBar(client.emojis, player.position, player.queue.current?.info.duration!)
 				let htmlContent = client.htmlfiles["nowPlaying"]
 					.replace("{album_cover}", player.queue.current?.info.artworkUrl as string)
 					.replace("{song_title}", player.queue.current?.info.title as string)

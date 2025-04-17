@@ -18,10 +18,8 @@
 
 ・ Copyright © 2020-2025 iHorizon
 */
-// @ts-ignore
-import emojis from "../../files/emojis.json" with { "type": "json" };
 
-export default function generateProgressBar(currentTimeMs: number, totalTimeMs: number): {
+export default function generateProgressBar(emojis: any, currentTimeMs: number, totalTimeMs: number): {
 	bar: string;
 	currentTime: string;
 	totalTime: string;
