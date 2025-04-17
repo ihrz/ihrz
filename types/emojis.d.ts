@@ -42,7 +42,7 @@ interface Icon {
 	Boosting_24_Months_Logo: string;
 	Discord_Nitro_Animated_Logo: string;
 	Green_Tick_Logo: string;
-	NodeJS_Logo: string;
+	Bun_Logo: string;
 	Yes_Logo: string;
 	No_Logo: string;
 	Stop_Logo: string;
