@@ -39,7 +39,8 @@ class EmojisManager {
 
 		let result = {
 			skiped: 0,
-			writed: 0
+			writed: 0,
+			cant: 0
 		}
 
 		for (let local_emoji of local_emojis) {
@@ -49,17 +50,23 @@ class EmojisManager {
 				this.final_appEmojis[local_emoji.Name.replace("iHorizon_", "")] = appEmoji.FormatedName;
 				result.skiped++;
 			} else {
-				let res = await this.client.application?.emojis.create({
-					name: local_emoji.Name,
-					attachment: readFileSync(path.join(this.emojisPath, `${local_emoji.Name}.${local_emoji.Extension}`))
-				});
+				try {
+					let res = await this.client.application?.emojis.create({
+						name: local_emoji.Name,
+						attachment: readFileSync(path.join(this.emojisPath, `${local_emoji.Name}.${local_emoji.Extension}`))
+					});
 
-				this.final_appEmojis[local_emoji.Name.replace("iHorizon_", "")] = res!.toString();
-				result.writed++;
+					this.final_appEmojis[local_emoji.Name.replace("iHorizon_", "")] = res!.toString();
+
+					result.writed++;
+				} catch {
+					result.cant++;
+				}
 			}
 		}
 
-		logger.log(`${this.client.config.console.emojis.OK} >> ${result.skiped} emojis skiped, ${result.writed} emojis created.`)
+		logger.log(`${this.client.config.console.emojis.OK} >> ${result.skiped} emojis skiped, ${result.writed} emojis created.`);
+		(result.cant >= 1) ? logger.warn(`I got issue with ${result.cant} emoji(s)!`) : null;
 		this.writeInClient();
 		this.writeFinalJSON();
 	}
