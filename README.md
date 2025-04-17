@@ -89,9 +89,9 @@ bun -i
 bun build && bun .
 ```
 
-## 🐳 Docker Method  
+## 🚀 NpmJS Method  
 
-🚧 Coming soon! [See more](https://hub.docker.com/r/kisakay/ihorizon)  
+Working: [See more](https://npmjs.com/ihrz)  
 
 # 💸 Need Cheap Hosting?  
 
