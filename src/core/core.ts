@@ -23,7 +23,6 @@ import commandsSync from './commandsSync.js';
 import logger from "./logger.js";
 
 import * as errorManager from './modules/errorManager.js';
-import playerManager from "./modules/playerManager.js";
 
 import { VanityInviteData } from '../../types/vanityUrlData.js';
 
