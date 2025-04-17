@@ -203,7 +203,7 @@ export const subCommand: SubCommand = {
 				.setCustomId("send_embed")
 				.setLabel(lang.ticket_panel_button_send)
 				.setStyle(ButtonStyle.Primary)
-				.setEmoji(client.iHorizon_Emojis.icon.Green_Tick_Logo),
+				.setEmoji(client.iHorizon_Emojis.GreenTick),
 		];
 
 		const components = [
@@ -620,7 +620,7 @@ export const subCommand: SubCommand = {
 						new ButtonBuilder()
 							.setCustomId("saved")
 							.setStyle(ButtonStyle.Success)
-							.setEmoji(client.iHorizon_Emojis.icon.Yes_Logo)
+							.setEmoji(client.iHorizon_Emojis.Yes)
 							.setDisabled(true)
 					)
 				]

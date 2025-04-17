@@ -72,7 +72,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 					.setFields(
 						{
 							name: lang.temporary_voice_new_name,
-							value: `${interaction.client.iHorizon_Emojis.vc.Name} **${response.fields.getField('name').value}**`,
+							value: `${interaction.client.iHorizon_Emojis.VC_Name} **${response.fields.getField('name').value}**`,
 							inline: true
 						},
 					)

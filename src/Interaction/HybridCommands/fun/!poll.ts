@@ -62,8 +62,8 @@ export const subCommand: SubCommand = {
 
 		let msg = await client.func.method.interactionSend(interaction, { embeds: [pollEmbed] });
 
-		await msg.react(client.iHorizon_Emojis.icon.Yes_Logo);
-		await msg.react(client.iHorizon_Emojis.icon.No_Logo);
+		await msg.react(client.iHorizon_Emojis.Yes);
+		await msg.react(client.iHorizon_Emojis.No);
 
 		return;
 	},

@@ -51,28 +51,28 @@ export const subCommand: SubCommand = {
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_limit
-						.replace('${client.iHorizon_Emojis.vc.Limit}', client.iHorizon_Emojis.vc.Limit)
+						.replace('${client.iHorizon_Emojis.VC_Limit}', client.iHorizon_Emojis.VC_Limit)
 					,
 					inline: true
 				},
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_name
-						.replace('${client.iHorizon_Emojis.vc.Name}', client.iHorizon_Emojis.vc.Name)
+						.replace('${client.iHorizon_Emojis.VC_Name}', client.iHorizon_Emojis.VC_Name)
 					,
 					inline: true
 				},
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_region
-						.replace('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
+						.replace('${client.iHorizon_Emojis.VC_Region}', client.iHorizon_Emojis.VC_Region)
 					,
 					inline: true
 				},
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_trust
-						.replace("${client.iHorizon_Emojis.vc.Trust}", client.iHorizon_Emojis.vc.Trust)
+						.replace("${client.iHorizon_Emojis.VC_Trust}", client.iHorizon_Emojis.VC_Trust)
 					,
 					inline: true
 				},
@@ -84,14 +84,14 @@ export const subCommand: SubCommand = {
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_untrust
-						.replace("${client.iHorizon_Emojis.vc.Untrust}", client.iHorizon_Emojis.vc.Untrust)
+						.replace("${client.iHorizon_Emojis.VC_Untrust}", client.iHorizon_Emojis.VC_Untrust)
 					,
 					inline: true
 				},
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_block
-						.replace("${client.iHorizon_Emojis.vc.Block}", client.iHorizon_Emojis.vc.Block)
+						.replace("${client.iHorizon_Emojis.VC_Block}", client.iHorizon_Emojis.VC_Block)
 					,
 					inline: true
 				},
@@ -103,28 +103,28 @@ export const subCommand: SubCommand = {
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_unblock
-						.replace("${client.iHorizon_Emojis.vc.Unblock}", client.iHorizon_Emojis.vc.Unblock)
+						.replace("${client.iHorizon_Emojis.VC_Unblock}", client.iHorizon_Emojis.VC_Unblock)
 					,
 					inline: true
 				},
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_claim
-						.replace("${client.iHorizon_Emojis.vc.Claim}", client.iHorizon_Emojis.vc.Claim)
+						.replace("${client.iHorizon_Emojis.VC_Claim}", client.iHorizon_Emojis.VC_Claim)
 					,
 					inline: true
 				},
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_privacy
-						.replace("${client.iHorizon_Emojis.vc.Privacy}", client.iHorizon_Emojis.vc.Privacy)
+						.replace("${client.iHorizon_Emojis.VC_Privacy}", client.iHorizon_Emojis.VC_Privacy)
 					,
 					inline: true
 				},
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_transfer
-						.replace('${client.iHorizon_Emojis.vc.Transfer}', client.iHorizon_Emojis.vc.Transfer)
+						.replace('${client.iHorizon_Emojis.VC_Transfer}', client.iHorizon_Emojis.VC_Transfer)
 					,
 					inline: true
 				},
@@ -136,7 +136,7 @@ export const subCommand: SubCommand = {
 				{
 					name: "** **",
 					value: lang.tempvoice_if_text_fields_value_delete
-						.replace('${client.iHorizon_Emojis.vc.Delete}', client.iHorizon_Emojis.vc.Delete)
+						.replace('${client.iHorizon_Emojis.VC_Delete}', client.iHorizon_Emojis.VC_Delete)
 					,
 					inline: true
 				},
@@ -150,25 +150,25 @@ export const subCommand: SubCommand = {
 
 		let buttonRows = [
 			[
-				{ emoji: client.iHorizon_Emojis.vc.Limit, customId: 'temporary_voice_limit_button' },
-				{ emoji: client.iHorizon_Emojis.vc.Name, customId: 'temporary_voice_name_button' },
-				{ emoji: client.iHorizon_Emojis.vc.Claim, customId: 'temporary_voice_claim_button' },
-				{ emoji: client.iHorizon_Emojis.vc.Privacy, customId: 'temporary_voice_privacy_button' },
-				{ emoji: client.iHorizon_Emojis.vc.Region, customId: 'temporary_voice_region_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Limit, customId: 'temporary_voice_limit_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Name, customId: 'temporary_voice_name_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Claim, customId: 'temporary_voice_claim_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Privacy, customId: 'temporary_voice_privacy_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Region, customId: 'temporary_voice_region_button' },
 			],
 			[
-				{ emoji: client.iHorizon_Emojis.vc.Trust, customId: 'temporary_voice_trust_button' },
-				{ emoji: client.iHorizon_Emojis.vc.Block, customId: 'temporary_voice_block_button' },
-				{ emoji: client.iHorizon_Emojis.vc.Transfer, customId: 'temporary_voice_transfer_button' },
-				{ emoji: client.iHorizon_Emojis.vc.Unblock, customId: 'temporary_voice_unblock_button' },
-				{ emoji: client.iHorizon_Emojis.vc.Untrust, customId: 'temporary_voice_untrust_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Trust, customId: 'temporary_voice_trust_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Block, customId: 'temporary_voice_block_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Unblock, customId: 'temporary_voice_transfer_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Unblock, customId: 'temporary_voice_unblock_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Untrust, customId: 'temporary_voice_untrust_button' },
 			],
 			[
-				{ emoji: client.iHorizon_Emojis.icon.iHorizon_Empty, customId: 'temporary_voice_disable1_button', disabled: true },
-				{ emoji: client.iHorizon_Emojis.icon.iHorizon_Empty, customId: 'temporary_voice_disable2_button', disabled: true },
-				{ emoji: client.iHorizon_Emojis.vc.Delete, customId: 'temporary_voice_delete_button' },
-				{ emoji: client.iHorizon_Emojis.icon.iHorizon_Empty, customId: 'temporary_voice_disable3_button', disabled: true },
-				{ emoji: client.iHorizon_Emojis.icon.iHorizon_Empty, customId: 'temporary_voice_disable4_button', disabled: true },
+				{ emoji: client.iHorizon_Emojis.Empty, customId: 'temporary_voice_disable1_button', disabled: true },
+				{ emoji: client.iHorizon_Emojis.Empty, customId: 'temporary_voice_disable2_button', disabled: true },
+				{ emoji: client.iHorizon_Emojis.VC_Delete, customId: 'temporary_voice_delete_button' },
+				{ emoji: client.iHorizon_Emojis.Empty, customId: 'temporary_voice_disable3_button', disabled: true },
+				{ emoji: client.iHorizon_Emojis.Empty, customId: 'temporary_voice_disable4_button', disabled: true },
 			]
 		];
 
@@ -186,7 +186,7 @@ export const subCommand: SubCommand = {
 
 		let response = await (targetedChannel as BaseGuildTextChannel).send({ embeds: [embed], components });
 
-		await interaction.editReply({ content: `${client.iHorizon_Emojis.icon.Yes_Logo} | ${response.url}` });
+		await interaction.editReply({ content: `${client.iHorizon_Emojis.Yes} | ${response.url}` });
 
 		await client.db.set(`${interaction.guildId}.VOICE_INTERFACE.interface`,
 			{

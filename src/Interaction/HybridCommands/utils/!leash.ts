@@ -79,14 +79,14 @@ export const subCommand: SubCommand = {
 		if (!isInVoiceChannel(user) || isInVoiceChannel(interaction.member)) {
 			let response = await promptYesOrNo(interaction, {
 				content: lang.util_leash_confirm_message
-					.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
-					.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo).replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
+					.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
+					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No).replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes),
 				yesButton: lang.var_yes,
 				noButton: lang.var_no,
 				dangerAction: false
 			})
 			if (!response) {
-				await client.func.method.interactionSend(interaction, { content: `${client.iHorizon_Emojis.icon.Yes_Logo} | Leash configurations canceled`, components: [] })
+				await client.func.method.interactionSend(interaction, { content: `${client.iHorizon_Emojis.Yes} | Leash configurations canceled`, components: [] })
 				return;
 			}
 		}
@@ -94,6 +94,6 @@ export const subCommand: SubCommand = {
 		fetchedData!.push({ dom: interaction.member.user.id, sub: user.id, timestamp: Date.now() })
 		await client.db.set(`${interaction.guildId}.UTILS.LEASH`, Array.from(new Set(fetchedData)));
 
-		await client.func.method.interactionSend(interaction, { content: `${client.iHorizon_Emojis.icon.Yes_Logo} | You have sucessfuly leashed the user in this guild :smirk:`, components: [] })
+		await client.func.method.interactionSend(interaction, { content: `${client.iHorizon_Emojis.Yes} | You have sucessfuly leashed the user in this guild :smirk:`, components: [] })
 	},
 };

@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
 
 		if (numberx && numberx > 100) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.clear_max_message_limit.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.clear_max_message_limit.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};

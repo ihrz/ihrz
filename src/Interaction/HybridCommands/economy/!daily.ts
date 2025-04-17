@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 				.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#a4cb80")
 				.setAuthor({ name: lang.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
 				.setDescription(lang.daily_embed_description)
-				.addFields({ name: lang.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.icon.Coin}` })
+				.addFields({ name: lang.daily_embed_fields, value: `${amount}${client.iHorizon_Emojis.Coin}` })
 
 			await client.func.method.interactionSend(interaction, { embeds: [embed] });
 			await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);

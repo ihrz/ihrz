@@ -39,11 +39,11 @@ export function generateTagInfoEmbed(interaction: ChatInputCommandInteraction<"c
 		.setThumbnail(interaction?.guild!.iconURL() || interaction.member!.user.avatarURL() || interaction.client.user.displayAvatarURL())
 		.setColor("Aqua")
 		.setDescription(
-			`${interaction.client.iHorizon_Emojis.icon.Crown_Logo} > **${lang.var_author}:** <@${tag.createBy}>\n` +
-			`${interaction.client.iHorizon_Emojis.icon.Sparkles} > **${lang.tag_embed_created_at}:** ${time(new Date(tag.createTimestamp), "D")}\n` +
-			`${interaction.client.iHorizon_Emojis.icon.Timer} > **${lang.tag_embed_last_update}:** ${time(new Date(tag.lastUseTimestamp), "D")}\n` +
-			`${interaction.client.iHorizon_Emojis.icon.Timer} > **${lang.var_uses}:** ${"**`" + tag.uses + "`**"}\n` +
-			`${interaction.client.iHorizon_Emojis.icon.Boosting_24_Months_Logo} > **${lang.tag_embed_last_updated_by}:** ${tag.lastUseBy ? '<@' + tag.lastUseBy + '>' : lang.var_no_set}`
+			`${interaction.client.iHorizon_Emojis.Crown} > **${lang.var_author}:** <@${tag.createBy}>\n` +
+			`${interaction.client.iHorizon_Emojis.Sparkles} > **${lang.tag_embed_created_at}:** ${time(new Date(tag.createTimestamp), "D")}\n` +
+			`${interaction.client.iHorizon_Emojis.Timer} > **${lang.tag_embed_last_update}:** ${time(new Date(tag.lastUseTimestamp), "D")}\n` +
+			`${interaction.client.iHorizon_Emojis.Timer} > **${lang.var_uses}:** ${"**`" + tag.uses + "`**"}\n` +
+			`${interaction.client.iHorizon_Emojis.Boosting24Months_Badge} > **${lang.tag_embed_last_updated_by}:** ${tag.lastUseBy ? '<@' + tag.lastUseBy + '>' : lang.var_no_set}`
 		);
 }
 

@@ -188,12 +188,12 @@ export const event: BotEvent = {
 					new ActionRowBuilder<ButtonBuilder>()
 						.addComponents(
 							new ButtonBuilder()
-								.setEmoji(client.iHorizon_Emojis.icon.Crown_Logo)
+								.setEmoji(client.iHorizon_Emojis.Crown)
 								.setLabel('Invite ' + client.user?.username!)
 								.setStyle(ButtonStyle.Link)
 								.setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
 							new ButtonBuilder()
-								.setEmoji(client.iHorizon_Emojis.icon.Sparkles)
+								.setEmoji(client.iHorizon_Emojis.Sparkles)
 								.setLabel('Main Website')
 								.setStyle(ButtonStyle.Link)
 								.setURL('https://ihorizon.org'),

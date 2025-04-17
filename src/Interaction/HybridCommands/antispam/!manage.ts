@@ -395,7 +395,7 @@ export const subCommand: SubCommand = {
 					if (Number.isNaN(isNumber)) {
 						await result.reply({
 							content: lang.temporary_voice_limit_button_not_integer
-								.replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo),
+								.replace("${interaction.client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
 							flags: [1 << 6]
 						});
 						return;

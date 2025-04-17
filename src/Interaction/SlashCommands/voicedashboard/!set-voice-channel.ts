@@ -40,7 +40,7 @@ export const subCommand: SubCommand = {
 		let targetedChannel = interaction.options.getChannel('channel');
 
 		await interaction.editReply({
-			content: `${client.iHorizon_Emojis.icon.Yes_Logo} | <#${targetedChannel?.id}>`
+			content: `${client.iHorizon_Emojis.Yes} | <#${targetedChannel?.id}>`
 		});
 
 		await client.db.set(

@@ -335,10 +335,10 @@ ranksSetMessage_help_embed_description: "/ranks set-message"
 ranksSetMessage_help_embed_fields_name: "使い方?"
 ranksSetMessage_logs_embed_title_on_enable: "RanksSetMessage ログ"
 ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> がランクメッセージを設定しました！"
-ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo} | ランクメッセージが正常に設定されました。"
+ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | ランクメッセージが正常に設定されました。"
 ranksSetMessage_logs_embed_title_on_disable: "RanksSetMessage ログ"
 ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> がランクメッセージを削除しました！"
-ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタムランクメッセージが正常に削除されました。"
+ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | カスタムランクメッセージが正常に削除されました。"
 ranksSetMessage_command_work_ls: "ランクメッセージは:"
 ranksSetMessage_help_embed_fields_custom_name: "カスタムメッセージ"
 ranksSetMessage_help_embed_fields_custom_name_empy: "未設定！"
@@ -397,9 +397,9 @@ unowner_command_work: "${member.username}はもう所有者ではありません
 blacklist_not_owner: "あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。"
 blacklist_bot_lol: "自分自身をブラックリストにすることはできません x)"
 blacklist_command_work: "${member.user.username}は今、ブラックリストに登録されています。"
-blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.icon.No_Logo} 現在ブラックリストに登録されています。このメンバーをここでBanすることはできません。パーミッションが足りませんか？"
+blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.No} 現在ブラックリストに登録されています。このメンバーをここでBanすることはできません。パーミッションが足りませんか？"
 blacklist_already_blacklisted: "${member.user.username}はすでにブラックリストに登録されています！"
-blacklist_no_one_blacklist: "${client.iHorizon_Emojis.icon.No_Logo} ブラックリストに誰も見つかりませんでした！"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} ブラックリストに誰も見つかりませんでした！"
 blacklist_var_no_reason: "理由が見つかりません"
 blacklist_embed_title: "ブラックリスト - ページ ${i / usersPerPage + 1}"
 
@@ -407,7 +407,7 @@ blacklist_embed_title: "ブラックリスト - ページ ${i / usersPerPage + 1
 unblacklist_not_owner: "あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。"
 unblacklist_command_work: "<@${member.id}>はもうブラックリストに登録されていません。"
 unblacklist_not_blacklisted: "<@${member.id}>はブラックリストに登録されていませんでした。"
-unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.icon.No_Logo} 現在ブラックリストから削除されています。このメンバーをここでアンバンすることはできません。パーミッションが足りませんか？またはすでにアンバンされていますか？"
+unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} 現在ブラックリストから削除されています。このメンバーをここでアンバンすることはできません。パーミッションが足りませんか？またはすでにアンバンされていますか？"
 unblacklist_user_is_not_exist: "ユーザーを見つけることができませんでした。"
 
 # Invite Managerコマンド
@@ -466,13 +466,13 @@ invite_embed_title: "iHorizonを追加していただきありがとうござい
 invite_embed_description: "私はあなたを愛しています、私に対するあなたの愛を見せてください！私を招待してください！"
 
 # /kisakay
-kisakay_message: "${client.iHorizon_Emojis.icon.Sparkles} Kisakayは私の創造者であり開発者です。彼女と彼女のキーボードのおかげで生まれました。彼女には深く感謝しています！✨ ❤️❤️"
+kisakay_message: "${client.iHorizon_Emojis.Sparkles} Kisakayは私の創造者であり開発者です。彼女と彼女のキーボードのおかげで生まれました。彼女には深く感謝しています！✨ ❤️❤️"
 
 # /andru
 andru_message: 'Andruはコラボレーターであり開発者です。"何でも屋"として、マーケティング、コミュニティを管理しています...'
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.icon.Sparkles} EtherはiHorizonのコントリビューターです。Linuxとサイバーセキュリティに魅了され、iHorizonボットのサポートヘルパーとして即興で活動している。"
+ether_message: "${client.iHorizon_Emojis.Sparkles} EtherはiHorizonのコントリビューターです。Linuxとサイバーセキュリティに魅了され、iHorizonボットのサポートヘルパーとして即興で活動している。"
 
 # /Irisweb
 irisweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
@@ -484,7 +484,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: ":x: | **Botの開発者である必要があります！**"
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ ヘルプメニュー```\n${client.iHorizon_Emojis.icon.Pin} ・ **${categories.length}** 利用可能なコマンドカテゴリ\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ **${client.content.filter(c => c.messageCmd === false).length}** 利用可能なスラッシュコマンド\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ **作成者** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```知ってますか？ ・ ヒント```\n${client.iHorizon_Emojis.vc.Region} ・ ${client.user?.username} は**100％マルチ言語**です\n${client.iHorizon_Emojis.badge.Slash_Bot} ・ `/setlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ ヘルプメニュー```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** 利用可能なコマンドカテゴリ\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** 利用可能なスラッシュコマンド\n${client.iHorizon_Emojis.Crown} ・ **作成者** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```知ってますか？ ・ ヒント```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} は**100％マルチ言語**です\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`"
 help_mod_fields: "モデレーション"
 help_ranks_fields: "ランク"
 help_fun_fields: "楽しい"
@@ -560,7 +560,7 @@ say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
 
 # /ping
 ping_down_msg: "**ダウン**"
-ping_embed_desc: "# Pong！${interaction.client.user.username}のネットワーク統計:\n\n**[Discord ウェブサイトの Ping]** >> `${_net03}` ms\n**[Cloudflare の Ping]** >> `${_net02}` ms\n**[Google の Ping]** >> `${_net01}` ms\n\n${client.iHorizon_Emojis.icon.Crown_Logo} **[iHorizon ウェブサイトの Ping]** >> `${_net04}` ms\n${client.iHorizon_Emojis.icon.Crown_Logo} **[Websocket の Ping]** `${client.ws.ping}` ms\n\n## ${client.iHorizon_Emojis.icon.iHorizon_Pointer} **[平均]** >> (平均)`${averagePing}` ms"
+ping_embed_desc: "# Pong！${interaction.client.user.username}のネットワーク統計:\n\n**[Discord ウェブサイトの Ping]** >> `${_net03}` ms\n**[Cloudflare の Ping]** >> `${_net02}` ms\n**[Google の Ping]** >> `${_net01}` ms\n\n${client.iHorizon_Emojis.Crown} **[iHorizon ウェブサイトの Ping]** >> `${_net04}` ms\n${client.iHorizon_Emojis.Crown} **[Websocket の Ping]** `${client.ws.ping}` ms\n\n## ${client.iHorizon_Emojis.iHorizon_Pointer} **[平均]** >> (平均)`${averagePing}` ms"
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -635,9 +635,9 @@ addmoney_command_work: "<@${user.user.id}> に `${amount.value}`$ 追加に成�
 
 # /balance
 balance_dont_have_wallet: "👛 財布がありません... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.icon.Wallet_Logo} ${user} は財布を持っていません... !"
+balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} は財布を持っていません... !"
 balance_have_wallet: "👛 ${bal} コインを持っています！"
-balance_he_have_wallet: "${client.iHorizon_Emojis.icon.Wallet_Logo} ${user} は ${bal} コインを持っています！"
+balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} は ${bal} コインを持っています！"
 balance_embed_fields1_name: "銀行"
 balance_embed_fields2_name: "バランス中"
 
@@ -684,20 +684,20 @@ work_embed_author: "${interaction.user.username}、報酬がもらえました�
 work_embed_description: "${interaction.user.username}、あなたは働いて${amount}$を稼ぎました！"
 
 # /withdraw
-withdraw_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | あなたの銀行にある金額よりも多くのコインを引き出すことはできません！"
+withdraw_cannot_abuse: "${client.iHorizon_Emojis.No} | あなたの銀行にある金額よりも多くのコインを引き出すことはできません！"
 withdraw_embed_title: "あなたの銀行から引き出す"
-withdraw_embed_desc: "${interaction.user}、あなたは`銀行`から${toWithdraw}${client.iHorizon_Emojis.icon.Coin}を引き出しました"
+withdraw_embed_desc: "${interaction.user}、あなたは`銀行`から${toWithdraw}${client.iHorizon_Emojis.Coin}を引き出しました"
 withdraw_embed_fields1_name: "銀行"
 
 # /deposit
-deposit_cannot_abuse: "${client.iHorizon_Emojis.icon.No_Logo} | あなたのウォレットにある金額よりも多くのコインを預けることはできません！"
+deposit_cannot_abuse: "${client.iHorizon_Emojis.No} | あなたのウォレットにある金額よりも多くのコインを預けることはできません！"
 deposit_embed_title: "あなたの銀行に預ける"
-deposit_embed_desc: "${interaction.user}、あなたは`銀行`に${toDeposit}${client.iHorizon_Emojis.icon.Coin}を預けました"
+deposit_embed_desc: "${interaction.user}、あなたは`銀行`に${toDeposit}${client.iHorizon_Emojis.Coin}を預けました"
 deposit_embed_fields1_name: "銀行"
 
 # /leaderboard
 economy_leaderboard_embed_title: "`${interaction.guild.name}`の経済リーダーボード"
-economy_leaderboard_embed_fields_value: "<@${userId}> - 銀行: `${userData.bank || 0}`${client.iHorizon_Emojis.icon.Coin} | バランス: `${userData.money || 0}`${client.iHorizon_Emojis.icon.Coin}"
+economy_leaderboard_embed_fields_value: "<@${userId}> - 銀行: `${userData.bank || 0}`${client.iHorizon_Emojis.Coin} | バランス: `${userData.money || 0}`${client.iHorizon_Emojis.Coin}"
 
 # /economy disable
 economy_disable_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
@@ -743,7 +743,7 @@ setprofildescriptions_command_work: "**説明が正常に更新されました�
 # /profil
 profil_not_description_set: "説明が設定されていません！"
 profil_unknown: "不明"
-profil_embed_title: "${client.iHorizon_Emojis.icon.Pin} __${member.tag}のプロフィール__"
+profil_embed_title: "${client.iHorizon_Emojis.Pin} __${member.tag}のプロフィール__"
 profil_embed_fields_nickname: "📝 ・ __ニックネーム__"
 profil_embed_fields_money: "🪙 ・ __所持金__"
 profil_embed_fields_money_value: " コイン"
@@ -760,8 +760,8 @@ profil_birthday_month_button_label: "月を設定"
 profil_birthday_day_button_label: "日を設定"
 profil_birthday_year_button_label: "年を設定"
 profil_birthday_embed_title: "🎂 ・ 誕生日を設定しましょう！"
-profil_birthday_embed_introduction: "${client.iHorizon_Emojis.icon.Sparkles} **人間なら誰でも誕生日がありますよね！**${client.iHorizon_Emojis.icon.Sparkles}\n\n${client.iHorizon_Emojis.icon.Crown_Logo} ・ こんにちは、${interaction.member?.toString()}\n:tada: ・ お祝いするために、設定しましょう！\n"
-profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.icon.Pin} ・ **現在の誕生日**: `${birthday.month}/${birthday.day}/${birthday.year}` (MM/DD/YYYY形式)"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.Sparkles} **人間なら誰でも誕生日がありますよね！**${client.iHorizon_Emojis.Sparkles}\n\n${client.iHorizon_Emojis.Crown} ・ こんにちは、${interaction.member?.toString()}\n:tada: ・ お祝いするために、設定しましょう！\n"
+profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.Pin} ・ **現在の誕生日**: `${birthday.month}/${birthday.day}/${birthday.year}` (MM/DD/YYYY形式)"
 profil_birthday_modal1_title: "生年を入力してください"
 profil_birthday_modal1_fields1_label: "年"
 profil_birthday_invalid_year: "無効な年です！有効な年を入力してください。"
@@ -801,16 +801,16 @@ serverinfo_embed_fields_joinat: "🚲・**参加日時:**"
 serverinfo_embed_fields_createat: "⚓・**作成日時:**"
 
 # /setrankroles
-setrankroles_not_admin: "${client.iHorizon_Emojis.icon.No_Logo} このサーバーの管理者ではありません。このコマンドを実行することはできません！"
-setrankroles_already_this_in_db: "${client.iHorizon_Emojis.icon.No_Logo} ランクロールは既にこのサーバーのデータベースに存在します。"
-setrankroles_not_roles_typed: "${client.iHorizon_Emojis.icon.No_Logo} コマンドには役職が指定されていません！"
+setrankroles_not_admin: "${client.iHorizon_Emojis.No} このサーバーの管理者ではありません。このコマンドを実行することはできません！"
+setrankroles_already_this_in_db: "${client.iHorizon_Emojis.No} ランクロールは既にこのサーバーのデータベースに存在します。"
+setrankroles_not_roles_typed: "${client.iHorizon_Emojis.No} コマンドには役職が指定されていません！"
 setrankroles_command_work: "今後、`@iHorizon` とメンションすると、以下の役職が追加されます: <@&${argsid}>"
 setrankroles_logs_embed_description_enable: "<@${interaction.user.id}> がランクロールを <@&${argsid}> に設定しました"
 setrankroles_logs_embed_title_enable: "ランクロールの設定"
 setrankroles_logs_embed_description_disable: "<@${interaction.user.id}> がランクロールを削除しました！"
 setrankroles_logs_embed_title_disable: "ランクロールの設定"
 setrankroles_command_work_disable: "<@${interaction.user.id}> さん、ランクロールを削除しました！"
-setrankroles_command_error: "${client.iHorizon_Emojis.icon.No_Logo} コマンドの実行中にエラーが発生しました！後でもう一度お試しください。"
+setrankroles_command_error: "${client.iHorizon_Emojis.No} コマンドの実行中にエラーが発生しました！後でもう一度お試しください。"
 setrankroles_command_work_with_nicknames: "今、あなたが私を `@iHorizon` でピンすると、次の役割を追加します: <@&${argsid}> **ユーザーがユーザー名またはグローバル名に** `${nicknames}` **を持っている場合のみ**"
 setrankroles_command_work_with_nicknames_2: "\n**注意**:\nニックネームの一部を削除した場合、ロールは自動的に削除されます。再度追加した際には、ロールを再度付与します。"
 
@@ -818,7 +818,7 @@ setrankroles_command_work_with_nicknames_2: "\n**注意**:\nニックネーム�
 snipe_no_previous_message_deleted: "このチャンネルで削除されたメッセージはありません！"
 
 # /userinfo
-userinfo_wait_please: "${client.iHorizon_Emojis.icon.Timer} 少々お待ちください..."
+userinfo_wait_please: "${client.iHorizon_Emojis.Timer} 少々お待ちください..."
 userinfo_embed_fields_1_name: "バッジ"
 userinfo_embed_fields_2_name: "ユーザー名"
 userinfo_embed_fields_3_name: "表示名"
@@ -872,19 +872,19 @@ derank_msg_desc_embed: "## 私は<@${member.id}>から**${good}**つの役職を
 derank_msg_failed: "役職の削除中にエラーが発生しました。"
 
 # /アクション全員の禁止解除
-action_unban_all_embed_desc: "## ギルドメンバー全員の禁止を解除する\n${client.iHorizon_Emojis.icon.Yes_Logo} | ギルドで`${unbanned_members.length}`人のメンバーの禁止を成功裏に解除しました！\n${client.iHorizon_Emojis.icon.No_Logo} | `${cannot_unban}`人のメンバーを禁止解除できません！"
+action_unban_all_embed_desc: "## ギルドメンバー全員の禁止を解除する\n${client.iHorizon_Emojis.Yes} | ギルドで`${unbanned_members.length}`人のメンバーの禁止を成功裏に解除しました！\n${client.iHorizon_Emojis.No} | `${cannot_unban}`人のメンバーを禁止解除できません！"
 action_unban_all_no_banned_members: "禁止されているメンバーはいません。"
 
 # /アクションの禁止解除を元に戻す
-action_unban_undo_embed_desc: "## 全員の禁止解除を元に戻す\n${client.iHorizon_Emojis.icon.Yes_Logo} | ギルドで`${banned_members.length}`人のメンバーを成功裏に禁止しました！\n${client.iHorizon_Emojis.icon.No_Logo} | `${cannot_ban}`人のメンバーを禁止解除できません！"
+action_unban_undo_embed_desc: "## 全員の禁止解除を元に戻す\n${client.iHorizon_Emojis.Yes} | ギルドで`${banned_members.length}`人のメンバーを成功裏に禁止しました！\n${client.iHorizon_Emojis.No} | `${cannot_ban}`人のメンバーを禁止解除できません！"
 
 # /vc
-vc_embed_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます：\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## メンバーステータス\n`${membersStates?.size}` 人がギルドにいます：\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.icon.iHorizon_Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## ブーストステータス\n`${interaction.guild?.premiumSubscriptionCount}` ブーストがギルドにあります、\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます：\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## メンバーステータス\n`${membersStates?.size}` 人がギルドにいます：\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## ブーストステータス\n`${interaction.guild?.premiumSubscriptionCount}` ブーストがギルドにあります、\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
 vc_embed_fields_1_name: "・メンバー数"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} 人のメンバー```"
 vc_embed_fields_2_name: "・チャンネル数"
 vc_embed_fields_2_value: "```py\n${textChannelSize} テキストチャンネル\n${voiceChannelSize} ボイスチャンネル```"
-vc_embed_short_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます:\n${client.iHorizon_Emojis.icon.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.icon.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.icon.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.icon.iHorizon_Camera} **=>** ${total_members_vc_video}\n## メンバーステータス\n`${total_members_size}` 人がギルドにいます:\n${client.iHorizon_Emojis.icon.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.icon.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.icon.iHorizon_Idle} **=>** ${total_members_states_idle}"
+vc_embed_short_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## メンバーステータス\n`${total_members_size}` 人がギルドにいます:\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}さん、iHorizonはボイスチャンネル間でメンバーを移動しました。\n\n**${movedCount}**人のメンバーが${fromChannel}から${toChannel}に正常に移動しました。\n**${errorCount}**人のメンバーは移動できませんでした (詳細はサーバーログをご確認ください)。"
@@ -901,14 +901,14 @@ all_admins_unrank_not_owner: "サーバーの所有者のみがサーバーの�
 all_bots_embed_title: "全てのボットのリスト | ページ ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたより上位の役職を持つユーザーに役職を追加することはできません..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} あなたより上位の役職を持つユーザーに役職を追加することはできません..."
 utils_addrole_command_ok: "${author.toString()} は正常に ${role?.toString()} の役職を ${user.toString()} に追加しました"
-utils_addrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | あなたがユーザーに追加しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）"
+utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | あなたがユーザーに追加しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたより上位の役職を持つユーザーから役職を削除することはできません..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} あなたより上位の役職を持つユーザーから役職を削除することはできません..."
 utils_delrole_command_ok: "${author.toString()} は正常に ${user.toString()} から ${role?.toString()} の役職を削除しました"
-utils_delrole_not_wl: "${client.iHorizon_Emojis.icon.No_Logo} | あなたがユーザーから削除しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）"
+utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | あなたがユーザーから削除しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）"
 
 # /utils wlroles
 utils_wlroles_embed_title: "ホワイトリストの役職"
@@ -917,8 +917,8 @@ utils_wlRoles_logsEmbed_title: "ホワイトリスト役職モジュール"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} はホワイトリスト役職を編集しました（ `addrole`、`delrole` コマンド用）"
 
 # /utils dm
-utils_dm: "${client.iHorizon_Emojis.icon.Yes_Logo} メッセージは ${targetMember.toString()} に正常に送信されました。"
-utils_dm_cant: "${client.iHorizon_Emojis.icon.No_Logo} ${targetMember.toString()} にメッセージを送信できませんでした。プライベートメッセージをブロックしているか、私をブロックしている可能性があります。"
+utils_dm: "${client.iHorizon_Emojis.Yes} メッセージは ${targetMember.toString()} に正常に送信されました。"
+utils_dm_cant: "${client.iHorizon_Emojis.No} ${targetMember.toString()} にメッセージを送信できませんでした。プライベートメッセージをブロックしているか、私をブロックしている可能性があります。"
 
 # /utils pic-only
 utils_pic_only_embed_title: "画像専用チャンネル"
@@ -973,12 +973,12 @@ util_wakeup_command_work: "${user.toString()}を起こしに行くぞ！"
 # /util leash
 util_leash_too_naugthy: "やんちゃ坊主、3人以上はリードに繋げないよ :D"
 util_leah_already_owned: "やんちゃ坊主、もうその小さな宝物を持ってるじゃないか :smirk:"
-util_leash_confirm_message: "${client.iHorizon_Emojis.icon.No_Logo} | リードに繋げたいメンバーはボイスチャンネルにいません！\n${client.iHorizon_Emojis.icon.Warning_Icon} | この操作を実行してもよろしいですか？"
+util_leash_confirm_message: "${client.iHorizon_Emojis.No} | リードに繋げたいメンバーはボイスチャンネルにいません！\n${client.iHorizon_Emojis.Warning_Icon} | この操作を実行してもよろしいですか？"
 
 # /util autorenew
 util_autorenew_time_too_short: "チャンネルの更新間隔は1分以上である必要があります"
 util_autorenew_time_too_long: "サロンの更新間隔は30日以内でなければならない"
-util_autorenew_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} これで、${channel.toString()} チャンネルは${time}ごとに自動的に削除-作成（更新）されます！\nチャンネルの更新を停止するには、自分で削除してください。"
+util_autorenew_command_ok: "${client.iHorizon_Emojis.Yes} これで、${channel.toString()} チャンネルは${time}ごとに自動的に削除-作成（更新）されます！\nチャンネルの更新を停止するには、自分で削除してください。"
 event_autorenew_channel_renewed: "AutoRenewがチャンネルを更新しました！"
 event_autorenew_channel_warning: "AutoRenewモジュールはこのチャンネルを更新するように設定されています。次回の更新は${time}です。"
 
@@ -1099,7 +1099,7 @@ setchannels_button_leave: "退出チャンネルを変更"
 setchannels_button_delete: "設定を削除"
 setchannels_embed_fields_value_join: "参加チャンネル"
 setchannels_embed_fields_value_leave: "退出チャンネル"
-setchannels_not_a_text_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} 指定されたチャンネルはテキストチャンネルではありません！"
+setchannels_not_a_text_channel: "${client.iHorizon_Emojis.Warning_Icon} 指定されたチャンネルはテキストチャンネルではありません！"
 setchannels_which_channel: "<@${interaction.user.id}>, どのチャンネルに設定しますか？"
 setchannels_title_embed_panel: "ギルド構成のチャンネルの設定パネル"
 
@@ -1131,10 +1131,10 @@ setjoinmessage_help_embed_fields_name: "使い方"
 setjoinmessage_help_embed_fields_value: "```/setjoinmessage <Power on / Power off / Show the message set> <message>```\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{createdat} = メンバーアカウントの作成日\n{guild} = ギルドの名前\n{inviter} = 招待者のユーザー名＆識別子\n{invites} = 招待数"
 setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> が参加メッセージを設定しました！"
-setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Green_Tick_Logo}  | カスタム参加メッセージの設定に成功しました。"
+setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick}  | カスタム参加メッセージの設定に成功しました。"
 setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> が参加メッセージを削除しました！"
-setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム参加メッセージの削除に成功しました。"
+setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | カスタム参加メッセージの削除に成功しました。"
 setjoinmessage_command_work_ls: "参加メッセージは以下の通りです："
 setjoinmessage_help_embed_fields_custom_name: "カスタムメッセージ"
 setjoinmessage_help_embed_fields_custom_name_empy: "未設定！"
@@ -1199,22 +1199,22 @@ setleavemessage_help_embed_fields_name: "使い方？"
 setleavemessage_help_embed_fields_value: "`/setleavemessage <オン/オフ/設定されたメッセージを表示する> <メッセージ>を使用してください。`\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{guild} = ギルドの名前"
 setleavemessage_logs_embed_title_on_enable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}>が退出メッセージを設定しました！"
-setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム退出メッセージを正常に設定しました。"
+setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.Yes} | カスタム退出メッセージを正常に設定しました。"
 setleavemessage_logs_embed_title_on_disable: "SetJoinMessage ログ"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}>が退出メッセージを削除しました！"
-setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | カスタム退出メッセージを正常に削除しました。"
+setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | カスタム退出メッセージを正常に削除しました。"
 setleavemessage_command_work_ls: "退出メッセージは次のとおりです。"
 setleavemessage_awaiting_response: "休暇メッセージを書きます。"
 
 # /setup
 setup_not_admin: ":x: | このサーバーの管理者である必要があります！"
-setup_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} | チャンネルセットアップ完了"
+setup_command_work: "${client.iHorizon_Emojis.Yes} | チャンネルセットアップ完了"
 setup_command_error: "ボットは既にログチャンネルを設定しています！またはボットに権限がありません..."
 
 # /setlogschannel
 setlogschannel_not_admin: ":x: | このコマンドを実行するには、サーバーの管理者である必要があります！"
 setlogschannel_not_specified_args: "モジュールに有効なチャンネルを指定する必要があります。"
-setlogschannel_confirmation_message: "${client.iHorizon_Emojis.icon.Yes_Logo} | `${typeOfLogs}` は <@${interaction.user.id}> によって設定されました！"
+setlogschannel_confirmation_message: "${client.iHorizon_Emojis.Yes} | `${typeOfLogs}` は <@${interaction.user.id}> によって設定されました！"
 setlogschannel_already_this_channel: "このサーバーは既にログのためのこのチャンネルを持っています！"
 setlogschannel_already_deleted: "このサーバーは既に `SERVER_LOGS` を持っていません！"
 setlogschannel_command_error: "コマンドの実行中にエラーが発生しましたか？"
@@ -1385,20 +1385,20 @@ setmembercount_helpembed_fields_name: "使い方"
 setmembercount_helpembed_fields_value: "{MemberCount} = サーバーのメンバー数\n{RolesCount} = ロール数\n{BotCount} = サーバーのボット数\n{ChannelCount} = サーバーのチャンネル数\n{BoostCount} = サーバーのブースト数\n{VoiceCount} = サーバーのボイスチャンネルにいるメンバーの総数\n{OnlineCount} = サーバーのオンラインメンバーの総数"
 setmembercount_logs_embed_title_on_enable: "メンバーカウントログ"
 setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}>さんが <#${channel.id}> チャンネルのメンバーカウントを ${messagei} に設定しました！"
-setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.icon.Yes_Logo} | メンバーカウントを設定しました。"
-setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.icon.Yes_Logo} | メンバーカウントを削除しました。"
+setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.Yes} | メンバーカウントを設定しました。"
+setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | メンバーカウントを削除しました。"
 setmembercount_logs_embed_title_on_disable: "メンバーカウントの設定ログ"
 setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}>さんがこのサーバーのメンバーカウントを削除しました！"
 
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
 
-music_cannot: "${client.iHorizon_Emojis.icon.No_Logo} このコマンドを使用するには、私と同じボイスチャンネルにいる必要があります！"
+music_cannot: "${client.iHorizon_Emojis.No} このコマンドを使用するには、私と同じボイスチャンネルにいる必要があります！"
 
 # /p
 p_not_in_voice_channel: "このコマンドを使用するには、ボイスチャンネルに接続する必要があります！"
 p_embed_title: "検索結果がありません"
-p_loading_message: "${client.iHorizon_Emojis.icon.Timer}  {result}をロード中！"
+p_loading_message: "${client.iHorizon_Emojis.Timer}  {result}をロード中！"
 p_duration: "再生時間："
 p_not_allowed: "このボットではサポートされていないリンクを送信しようとしました。Deezer、Spotify、Youtubeなど、許可された音楽ストリーミングサービスを使用してください。"
 
@@ -1415,7 +1415,7 @@ nowplaying_lyrics_button: "この曲の歌詞は見つかりませんでした"
 nowplaying_stop_buttom: "${interaction.user}が**音楽を停止**しました！"
 
 # /pause
-pause_no_queue: "${client.iHorizon_Emojis.icon.Warning_Icon} - ボイスチャンネルに接続していません！"
+pause_no_queue: "${client.iHorizon_Emojis.Warning_Icon} - ボイスチャンネルに接続していません！"
 pause_nothing_playing: "再生中の曲はありません"
 pause_var_paused: "一時停止"
 pause_var_err: "何かがうまくいかなかった"
@@ -1425,7 +1425,7 @@ resume_nothing_playing: "再生中の曲はありません"
 resume_command_work: "再生が再開されました"
 
 # /skip
-skip_not_in_voice_channel: "${client.iHorizon_Emojis.icon.Warning_Icon} - ボイスチャンネルに接続していません！"
+skip_not_in_voice_channel: "${client.iHorizon_Emojis.Warning_Icon} - ボイスチャンネルに接続していません！"
 skip_nothing_playing: "再生中の曲はありません"
 skip_command_work: "{queue} をスキップしました"
 
@@ -1474,9 +1474,9 @@ start_confirmation_command: "${giveawayChannel}でギブアウェイが開始さ
 start_logs_embed_title: "ギブアウェイのログ"
 start_logs_embed_description: "<@${interaction.user.id}>が${giveawayChannel}でギブアウェイを開始しました。"
 start_time_not_valid: "${interaction.user}、指定したギブアウェイの期間が無効です。もう一度試してみてください！"
-start_invalid_invites_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | 「招待」の値が無効です！ギブアウェイに参加するために招待数を指定する必要があります！"
-start_invalid_messages_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | 「メッセージ」の値が無効です！ギブアウェイに参加するためにメッセージ数を指定する必要があります！"
-start_invalid_roles_req_value: "${client.iHorizon_Emojis.icon.No_Logo} | 「役割」の値のロールが見つかりません！ギブアウェイに参加するためにロールIDを指定する必要があります！"
+start_invalid_invites_req_value: "${client.iHorizon_Emojis.No} | 「招待」の値が無効です！ギブアウェイに参加するために招待数を指定する必要があります！"
+start_invalid_messages_req_value: "${client.iHorizon_Emojis.No} | 「メッセージ」の値が無効です！ギブアウェイに参加するためにメッセージ数を指定する必要があります！"
+start_invalid_roles_req_value: "${client.iHorizon_Emojis.No} | 「役割」の値のロールが見つかりません！ギブアウェイに参加するためにロールIDを指定する必要があります！"
 
 # /reroll
 reroll_not_perm: "このギブアウェイを終了するためには、メッセージを管理する権限が必要です。"
@@ -1518,30 +1518,30 @@ avatar_embed_description: "素晴らしいアバターをご覧ください！ :
 avatar_embed_title: "__**アバター**__: `${mentionedUser.username}`"
 
 # /ban
-ban_not_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーをBANする権限がありません。"
+ban_not_permission: "${client.iHorizon_Emojis.No} | メンバーをBANする権限がありません。"
 ban_dont_found_member: "🔍 | そのメンバーが見つかりません"
-ban_dont_have_perm_myself: "${client.iHorizon_Emojis.icon.No_Logo} | 私にはメンバーをBANする権限がありません！"
-ban_try_to_ban_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | 自分自身をBANすることはできません！"
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} あなたよりも高い役職のユーザーをBANすることはできません..."
-ban_cant_ban_member: "${client.iHorizon_Emojis.icon.No_Logo} | そのメンバーをBANすることができません"
+ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | 私にはメンバーをBANする権限がありません！"
+ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | 自分自身をBANすることはできません！"
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop_Logo} あなたよりも高い役職のユーザーをBANすることはできません..."
+ban_cant_ban_member: "${client.iHorizon_Emojis.No} | そのメンバーをBANすることができません"
 ban_message_to_the_banned_member: "あなたはこのサーバー `${interaction.guild.name}` からBANされました。理由: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> が <@${interaction.member.id}> によってBANされました。"
 ban_logs_embed_title: "BANログ"
 ban_logs_embed_description: "<@${interaction.member.id}> によって <@${member.user.id}> がBANされました。"
 
 # /kick
-kick_not_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーをキックする権限がありません。"
-kick_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーをキックする権限がありません！"
-kick_attempt_kick_your_self: "${client.iHorizon_Emojis.icon.No_Logo} | 自分自身をキックすることはできません！"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.icon.Stop_Logo} 自分よりも権限が高いユーザーをキックすることはできません..."
+kick_not_permission: "${client.iHorizon_Emojis.No} | メンバーをキックする権限がありません。"
+kick_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをキックする権限がありません！"
+kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | 自分自身をキックすることはできません！"
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop_Logo} 自分よりも権限が高いユーザーをキックすることはできません..."
 kick_message_to_the_banned_member: "あなたは `${interaction.member.user.username}` によって、このサーバー：**${interaction.guild.name}** からキックされました。"
 kick_command_work: "${interaction.user} によって ${member.user} がキックされました。"
 kick_logs_embed_title: "キックログ"
 kick_logs_embed_description: "<@${interaction.user.id}> によって ${member.user} がキックされました。"
 
 # /clear
-clear_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | `MANAGE_MESSAGES` の権限がありません。"
-clear_max_message_limit: "${client.iHorizon_Emojis.icon.No_Logo} | 一度に99以上のメッセージを削除することはできません！"
+clear_dont_have_permission: "${client.iHorizon_Emojis.No} | `MANAGE_MESSAGES` の権限がありません。"
+clear_max_message_limit: "${client.iHorizon_Emojis.No} | 一度に99以上のメッセージを削除することはできません！"
 clear_channel_message_deleted: "${messages.size} 個のメッセージが削除されました！"
 clear_confirmation_message: "${messages.size} 個のメッセージが削除されました！"
 clear_logs_embed_title: "メッセージクリアログ"
@@ -1549,36 +1549,36 @@ clear_logs_embed_description: "<@${interaction.user.id}> が <#${interaction.cha
 
 # /lock
 lock_embed_message_description: "<@${interaction.user.id}> によってチャンネルがロックされました。"
-lock_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | チャンネルをロックする権限がありません。"
+lock_dont_have_permission: "${client.iHorizon_Emojis.No} | チャンネルをロックする権限がありません。"
 lock_logs_embed_title: "ロックログ"
 lock_logs_embed_description: "<@${interaction.user.id}> によって <#${interaction.channel.id}> がロックされました。"
 
 # /unlock
 unlock_embed_message_description: "チャンネルが正常にアンロックされました！"
-unlock_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | チャンネルをアンロックする権限がありません。"
+unlock_dont_have_permission: "${client.iHorizon_Emojis.No} | チャンネルをアンロックする権限がありません。"
 unlock_logs_embed_title: "アンロックログ"
 unlock_logs_embed_description: "<@${interaction.user.id}> が <#${interaction.channel.id}> をアンロックしました。"
 
 # /lockall
-lockall_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | 全てのチャンネルをロックする権限がありません。"
+lockall_dont_have_permission: "${client.iHorizon_Emojis.No} | 全てのチャンネルをロックする権限がありません。"
 lockall_embed_message_description: "全てのチャンネルが <@${interaction.user.id}> によってロックされました。"
 lockall_logs_embed_title: "ロックオールログ"
 lockall_logs_embed_description: "<@${interaction.user.id}> が全てのチャンネルをロックしました！"
 
 # /unban
-unban_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーをアンバンする権限がありません。"
-unban_bot_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | 私には権限がありません。"
-unban_there_is_nobody_banned: "${client.iHorizon_Emojis.icon.No_Logo} | **このサーバーから誰もBANされていません！**"
-unban_the_member_is_not_banned: "${client.iHorizon_Emojis.icon.No_Logo} | **指定されたIDは、このサーバーからBANされていません！**"
+unban_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをアンバンする権限がありません。"
+unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | 私には権限がありません。"
+unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **このサーバーから誰もBANされていません！**"
+unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **指定されたIDは、このサーバーからBANされていません！**"
 unban_is_now_unbanned: "<@${userID}> はこのサーバーからアンバンされました！"
 unban_logs_embed_title: "アンバンログ"
 unban_logs_embed_description: "${interaction.user.id}によって<@${userID}>がサーバーからアンバンされました！"
 unban_reason: "理由が提供されませんでした。"
 
 # /tempmute
-tempmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーを一時的にミュートする権限がありません。"
-tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | 私には権限がありません。"
-tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.icon.No_Logo} | 自分自身をミュートすることはできません！"
+tempmute_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーを一時的にミュートする権限がありません。"
+tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.No} | 私には権限がありません。"
+tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.No} | 自分自身をミュートすることはできません！"
 tempmute_already_muted: "このユーザーはすでにミュートされています！"
 tempmute_command_work: "<@${tomute.id}> は ${ms(ms(mutetime))} の間ミュートされました\n**理由**: `${reason}`"
 tempmute_unmuted_by_time: "<@${tomute.id}>さんがミュート解除されました！"
@@ -1587,9 +1587,9 @@ tempmute_logs_embed_description: "<@${interaction.user.id}> が <@${tomute.id}> 
 tempmute_reason_create_roles: "一時ミュートのミュート役職を作成してください！"
 
 # /unmute
-unmute_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | メンバーをミュート解除する権限がありません。"
-unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.icon.No_Logo} | 自分自身をミュートすることはできません！"
-unmute_i_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | 私には権限がありません。"
+unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをミュート解除する権限がありません。"
+unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | 自分自身をミュートすることはできません！"
+unmute_i_dont_have_permission: "${client.iHorizon_Emojis.No} | 私には権限がありません。"
 unmute_not_muted: "このユーザーはミュートされていません！"
 unmute_muted_role_doesnt_exist: "`muted` 役職が存在しません。ミュート役職を作成してから、ユーザーをミュートしてください..."
 unmute_command_work: "<@${tomute.id}>さんがミュート解除されました！"
@@ -1597,24 +1597,24 @@ unmute_logs_embed_title: "Unmute Logs"
 unmute_logs_embed_description: "<@${interaction.user.id}>さんが<@${tomute.id}>さんのミュートを解除しました。"
 
 # /warn
-warn_command_work: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} が警告されました！**理由**：`${reason}`\n__警告ID__：`${warnId}`"
+warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} が警告されました！**理由**：`${reason}`\n__警告ID__：`${warnId}`"
 warn_logEmbed_title: "警告ログ"
 warn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} に警告しました。理由：`${reason}`"
-warn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | このDiscordサーバーでメンバーに警告を与える権限がありません。"
+warn_dont_have_permission: "${client.iHorizon_Emojis.No} | このDiscordサーバーでメンバーに警告を与える権限がありません。"
 
 # /unwarn
-unwarn_cannot_found: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} はデータベースに警告が見つかりません！"
-unwarn_cannot_found_id: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} 提供された警告IDはデータベースにありません"
-unwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${member?.toString()} の警告が解除されました！"
+unwarn_cannot_found: "${client.iHorizon_Emojis.No} ${member?.toString()} はデータベースに警告が見つかりません！"
+unwarn_cannot_found_id: "${client.iHorizon_Emojis.No} ${member?.toString()} 提供された警告IDはデータベースにありません"
+unwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${member?.toString()} の警告が解除されました！"
 unwarn_logEmbed_title: "警告解除ログ"
 unwarn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} の警告を解除しました"
-unwarn_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | このDiscordサーバーでメンバーの警告を削除する権限がありません。"
+unwarn_dont_have_permission: "${client.iHorizon_Emojis.No} | このDiscordサーバーでメンバーの警告を削除する権限がありません。"
 
 # /warnlist
-warnlist_no_data: "${client.iHorizon_Emojis.icon.No_Logo} ${member?.toString()} はデータベースに警告が見つかりません！"
+warnlist_no_data: "${client.iHorizon_Emojis.No} ${member?.toString()} はデータベースに警告が見つかりません！"
 warnlist_embed_desc: "### ID：${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> 作成者：<@${x.authorID}>\n> 理由：`${x.reason}`"
 warnlist_embed_title: "${member?.user.globalName} の警告リスト | ページ ${i / usersPerPage + 1}"
-warnlist_dont_have_permission: "${client.iHorizon_Emojis.icon.No_Logo} | このDiscordサーバーでメンバーの警告を管理する権限がありません。"
+warnlist_dont_have_permission: "${client.iHorizon_Emojis.No} | このDiscordサーバーでメンバーの警告を管理する権限がありません。"
 
 # /baninfo
 baninfo_not_banned: "ユーザーはBANされていません"
@@ -1624,7 +1624,7 @@ var_banned_by: "BAN実行者"
 var_ban_date: "BAN日時"
 
 # /警告クリア
-clearwarn_command_ok: "${client.iHorizon_Emojis.icon.Yes_Logo} ${interaction.member.toString()}、${member?.toString()} の **`${allWarns.length}`** 件の警告が削除されました。"
+clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}、${member?.toString()} の **`${allWarns.length}`** 件の警告が削除されました。"
 
 # Backup commands
 # /backup
@@ -1640,10 +1640,10 @@ backup_logs_embed_description_on_creation: "<@${interaction.user.id}>さんが�
 backup_dont_have_perm_on_load: ":x: | バックアップを読み込むためには、サーバーの管理者である必要があります！"
 backup_i_dont_have_perm_on_load: "管理者権限が必要です。"
 backup_unvalid_id_on_load: ":x: | 有効なバックアップIDを指定する必要があります！"
-backup_waiting_on_load: "${client.iHorizon_Emojis.icon.Yes_Logo} - 読み込み中..."
+backup_waiting_on_load: "${client.iHorizon_Emojis.Yes} - 読み込み中..."
 backup_error_on_load: ":x: | 申し訳ありませんが、エラーが発生しました... 管理者権限を持っているか確認してください！"
 backup_error_when_fetch_backup_on_load: ":x: | ${backupID} のバックアップは見つかりませんでした！"
-backup_this_is_not_your_backup: "${client.iHorizon_Emojis.icon.No_Logo} | これはあなたのバックアップではありません！"
+backup_this_is_not_your_backup: "${client.iHorizon_Emojis.No} | これはあなたのバックアップではありません！"
 backup_backup_doesnt_exist: "ERROR? バックアップが存在しません。"
 backup_string_see_v: ":placard:・カテゴリ数: `${data.categoryCount}`\n:hash:・チャンネル数: `${data.channelCount}`"
 backup_all_of_your_backup: "**すべてのバックアップ:**"
@@ -1652,12 +1652,12 @@ backup_load_confirm: "${interaction.member.user.toString()},\n# 非常に危険�
 backup_not_load: "バックアップはロードされませんでした。リクエストにより操作がキャンセルされました。"
 
 # /backup delete
-backup_really_want: "${client.iHorizon_Emojis.icon.Warning_Icon} 本当にこのバックアップを削除しますか？"
+backup_really_want: "${client.iHorizon_Emojis.Warning_Icon} 本当にこのバックアップを削除しますか？"
 backup_confirm_button: "はい、このバックアップを削除します"
 backup_cancel_button: "アクションをキャンセル"
-backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.icon.Yes_Logo} バックアップは正常に削除されました！"
-backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.icon.Yes_Logo} バックアップは保持されました！"
-backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} 時間切れです。バックアップは保持されました！"
+backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} バックアップは正常に削除されました！"
+backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} バックアップは保持されました！"
+backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} 時間切れです。バックアップは保持されました！"
 
 # Role Reactions
 # /reactionroles
@@ -1666,7 +1666,7 @@ backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.icon.No_Logo} 時
 reactionroles_dont_admin_added: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
 reactionroles_embed_message_description_added: "__使い方__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`"
 reactionroles_missing_reaction_added: "引数が足りません：リアクションの絵文字"
-reactionroles_invalid_emote_format_added: "${client.iHorizon_Emojis.icon.No_Logo} | `<::xxx>` 形式の `CUSTOM_EMOJI` を送信することはできません！ID のみ必要です！"
+reactionroles_invalid_emote_format_added: "${client.iHorizon_Emojis.No} | `<::xxx>` 形式の `CUSTOM_EMOJI` を送信することはできません！ID のみ必要です！"
 reactionroles_logs_embed_title_added: "ReactionRoles ログ"
 reactionroles_logs_embed_description_added: "<@${interaction.user.id}> がリアクションロールを設定しました：メッセージ： `${messagei}` | リアクション： `${reaction}` | 役割： ${role}"
 reactionroles_command_work_added: "${reaction} が ${role} を与えるために ${messagei} のメッセージに追加されました"
@@ -1790,7 +1790,7 @@ embed_choose_9: "埋め込みに含めるサムネイルの画像は何ですか
 embed_choose_10: "埋め込みに含める画像は何ですか？"
 embed_choose_11: "埋め込みに含めるタイトルのURLは何ですか？"
 embed_choose_12: "埋め込みに含める色は何ですか？ **www.color-hex.com**"
-embed_choose_12_error: "${client.iHorizon_Emojis.icon.No_Logo} | 無効な色です！ www.color-hex.comで調べてください。"
+embed_choose_12_error: "${client.iHorizon_Emojis.No} | 無効な色です！ www.color-hex.comで調べてください。"
 embed_choose_13: "埋め込みの色が正常に削除されました！"
 embed_send_embed_work: "<@${interaction.user.id}>さん、**埋め込みを正常に<#${message.content}>チャンネルに送信しました！**"
 embed_copy_bad_guild_msg: "メッセージがあるギルドは ${interaction.guild?.name} と同じではありません"
@@ -2032,7 +2032,7 @@ mybot_list_utils_msg: "__Bot ID__ `${data_2[i].bot.id}`\n__Bot ユーザー名__
 mybot_list_utils_msg_yes: "はい"
 mybot_list_utils_msg_no: "いいえ"
 mybot_list_embed1_title: "あなた自身の iHorizon: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "あなたのボットコード: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.icon.Warning_Icon} **他の人と共有しないでください**！\n**有効期限**：`${expire}`\nあなたのボットに問題がある場合、**サポートサーバーに参加** [ここをクリック](https://discord.gg/ihorizon) してください。\n\n${utils_msg}"
+mybot_list_embed1_desc: "あなたのボットコード: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **他の人と共有しないでください**！\n**有効期限**：`${expire}`\nあなたのボットに問題がある場合、**サポートサーバーに参加** [ここをクリック](https://discord.gg/ihorizon) してください。\n\n${utils_msg}"
 
 # /mybot 管理 承認
 mybot_manage_accept_not_found: "データベース内のボットが見つかりません。進行できません。"
@@ -2061,17 +2061,17 @@ mybot_instance_deny_embed_desc: "ボットは拒否されました\n\n${utils_ms
 # /voice インターフェースを設定する
 tempvoice_if_text_not_admin: "<@${interaction.user.id}>, このコマンドを使用する権限がありません！"
 tempvoice_if_text_desc_embed: "## TempVoice インターフェース\nこの**インターフェース**は一時的な音声チャンネルを管理するために使用できます。\n"
-tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.vc.Limit} **制限を変更する**"
-tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.vc.Name} **名前を変更する**"
-tempvoice_if_text_fields_value_region: "${client.iHorizon_Emojis.vc.Region} **地域を変更する**"
-tempvoice_if_text_fields_value_trust: "${client.iHorizon_Emojis.vc.Trust} **信頼する**"
-tempvoice_if_text_fields_value_untrust: "${client.iHorizon_Emojis.vc.Untrust} **信頼しない**"
-tempvoice_if_text_fields_value_block: "${client.iHorizon_Emojis.vc.Block} **ブロックする**"
-tempvoice_if_text_fields_value_unblock: "${client.iHorizon_Emojis.vc.Unblock} **ブロック解除する**"
-tempvoice_if_text_fields_value_claim: "${client.iHorizon_Emojis.vc.Claim} **クレームする**"
-tempvoice_if_text_fields_value_privacy: "${client.iHorizon_Emojis.vc.Privacy} **プライバシー**"
-tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.vc.Transfer} **転送する**"
-tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.vc.Delete} **削除する**"
+tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.VC_Limit} **制限を変更する**"
+tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.VC_Name} **名前を変更する**"
+tempvoice_if_text_fields_value_region: "${client.iHorizon_Emojis.VC_Region} **地域を変更する**"
+tempvoice_if_text_fields_value_trust: "${client.iHorizon_Emojis.VC_Trust} **信頼する**"
+tempvoice_if_text_fields_value_untrust: "${client.iHorizon_Emojis.VC_Untrust} **信頼しない**"
+tempvoice_if_text_fields_value_block: "${client.iHorizon_Emojis.VC_Block} **ブロックする**"
+tempvoice_if_text_fields_value_unblock: "${client.iHorizon_Emojis.VC_Unblock} **ブロック解除する**"
+tempvoice_if_text_fields_value_claim: "${client.iHorizon_Emojis.VC_Claim} **クレームする**"
+tempvoice_if_text_fields_value_privacy: "${client.iHorizon_Emojis.VC_Privacy} **プライバシー**"
+tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.VC_Transfer} **転送する**"
+tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.VC_Delete} **削除する**"
 
 # /voice インターフェースを設定する
 tempvoice_vc_not_admin: "<@${interaction.user.id}>, このコマンドを使用する権限がありません！"
@@ -2176,7 +2176,7 @@ notifier_config_message_command_work_on_enable: "通知メッセージの有効�
 # AuthRestore モジュール
 # ロール、設定、削除、取得、強制参加
 
-rc_key_doesnt_exist: "${client.iHorizon_Emojis.icon.No_Logo} キー：**${secretCode}** による AuthRestore モジュールは存在しません！"
+rc_key_doesnt_exist: "${client.iHorizon_Emojis.No} キー：**${secretCode}** による AuthRestore モジュールは存在しません！"
 rc_verify: "確認する"
 
 # /authrestore ロール
@@ -2237,13 +2237,13 @@ confession_module_modal_components2_label: "これはプライベートですか
 
 # Music Player Events
 
-event_mp_playerStart: "${client.iHorizon_Emojis.icon.Music_Icon} - 現在 **${queue.channel.name}** で [`${track.title}`](${url}) を再生中..."
-event_mp_audioTrackAdd: "${client.iHorizon_Emojis.icon.Music_Icon} - ${track.title} をキューに追加しました！"
+event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - 現在 **${queue.channel.name}** で [`${track.title}`](${url}) を再生中..."
+event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} をキューに追加しました！"
 event_mp_playerError: "接続に問題があります => ${error.message}"
 event_mp_error: "曲のキューに問題があります => ${error.message}"
-event_mp_emptyChannel: "${client.iHorizon_Emojis.icon.No_Logo} | 誰もボイスチャンネルにいないため、退出します..."
-event_mp_playerSkip: "${client.iHorizon_Emojis.icon.Music_Icon} - **${track.title}** をスキップしました！"
-event_mp_emptyQueue: "${client.iHorizon_Emojis.icon.Warning_Icon} - キューにはもう曲がありません！音楽を停止しました。"
+event_mp_emptyChannel: "${client.iHorizon_Emojis.No} | 誰もボイスチャンネルにいないため、退出します..."
+event_mp_playerSkip: "${client.iHorizon_Emojis.Music_Icon} - **${track.title}** をスキップしました！"
+event_mp_emptyQueue: "${client.iHorizon_Emojis.Warning_Icon} - キューにはもう曲がありません！音楽を停止しました。"
 
 # Channel Create Events
 event_channel_create_message_embed_title: "正常にセットアップされました！"
@@ -2259,14 +2259,14 @@ event_goodbye_default: "{memberUsername}（アカウント作成日：{accountCr
 
 # XP Level Events
 event_xp_level_earn: "{memberMention} さん、レベルアップ (+1) おめでとうございます (現在のレベル: **{xpLevel}**)。"
-event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.vc.OpenChat} このメッセージは煩わしいですか？`/ranks disable`コマンドでレベリングシステムを無効にすることで、このメッセージを無効にできます"
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.OpenChat} このメッセージは煩わしいですか？`/ranks disable`コマンドでレベリングシステムを無効にすることで、このメッセージを無効にできます"
 
 # Ticket Module Events:
 event_ticket_embed_description: "${user.username}さん、チケットへようこそ！しばらくお待ちください。チケットを閉じる場合は、`/ticket close` を実行してください。"
 event_ticket_add_member: "${interaction.user}, あなたはチケット ${interaction.channel} に**追加**しました：${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
 event_ticket_del_member: "${interaction.user}, あなたはチケット ${interaction.channel} から**削除**しました：${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
 event_ticket_button_name: "チケットを作成する"
-event_ticket_category_awaiting_response: "カテゴリは何ですか [${x.emojis ?? interaction.client.iHorizon_Emojis.icon.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_category_awaiting_response: "カテゴリは何ですか [${x.emojis ?? interaction.client.iHorizon_Emojis.iHorizon_Pointer}] >> ${x.name}"
 event_ticket_reason_awaiting_response: "${interaction.user.toString()} ユーザーはチケットを作成する前に理由を入力する必要がありますか？"
 event_ticket_create_reason_modal_title: "チケットの理由は何ですか？"
 event_ticket_create_reason_modal_fields_1_label: "チケットの理由"
@@ -2353,7 +2353,7 @@ event_gw_embed_desc: "終了: ${end_string} (${end_string2})\n主催者: <@${dat
 event_gw_ended_embed_desc: "終了: ${time1} (${time2})\n主催者: <@${fetch.hostedBy}>\nエントリー **${fetch.entries.length}**\n勝者: ${winners}"
 event_gw_entries_words: "参加数"
 event_gw_ended_word: "終了: ${ended} (${time2})\n主催者: <@${hostedBy}>\n参加数 **${entries}**\n当選者: ${winners}"
-event_gw_break_req: "${interaction.client.iHorizon_Emojis.icon.No_Logo} このプレゼントに参加するための必要条件を満たしていません。\nタイプ: `${giveawayData?.requirement.type}`\n値: `${giveawayData?.requirement.value}`"
+event_gw_break_req: "${interaction.client.iHorizon_Emojis.No} このプレゼントに参加するための必要条件を満たしていません。\nタイプ: `${giveawayData?.requirement.type}`\n値: `${giveawayData?.requirement.value}`"
 
 # ブーストログイベント
 event_boostlog_add: "<@${newMember.user.id}> **がサーバーをブーストしました**！（合計**${newMember.guild.premiumSubscriptionCount}**ブースト）"
@@ -2389,7 +2389,7 @@ temporary_voice_block_button_menu_placeholder: "選択したユーザーは参�
 temporary_voice_delete_button_desc_embed: "## チャンネル削除\nチャンネルが正常に削除されました！"
 
 temporary_voice_limit_button_menu_label: "チャンネルのユーザー制限は何ですか？"
-temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.icon.No_Logo} | 入力が数字ではありません"
+temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.No} | 入力が数字ではありません"
 
 temporary_voice_name_button_menu_label: "チャンネルの名前は何ですか？"
 
@@ -2449,7 +2449,7 @@ hybridcommands_embed_help_title: "${commandName} ヘルプ埋め込み"
 hybridcommands_embed_help_fields_value: "**エイリアス:** ${aliases}\n**使用法:** ${use}"
 hybridcommands_embed_footer_text: "［...］内のオプションは必須で、<...>内のオプションは任意です。\n詳しくは、コマンド: ${botPrefix}help [command] を使用してください。"
 
-ping_bot_show_info_msg: "こんにちは ${message.author.toString()}、私は `Slash Command` (${client.iHorizon_Emojis.badge.Slash_Bot}) で100%使用可能で、プレフィックスコマンドで85%以上使用可能です。このサーバーのプレフィックスは `${prefix}` です！"
+ping_bot_show_info_msg: "こんにちは ${message.author.toString()}、私は `Slash Command` (${client.iHorizon_Emojis.Slash_Bot_Badge}) で100%使用可能で、プレフィックスコマンドで85%以上使用可能です。このサーバーのプレフィックスは `${prefix}` です！"
 
 # 通知モジュール
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** が新しい動画を公開しました [ここをクリック]({mediaURL})"

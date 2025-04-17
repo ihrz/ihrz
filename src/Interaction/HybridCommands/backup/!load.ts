@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 
 		if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};
@@ -77,7 +77,7 @@ export const subCommand: SubCommand = {
 		});
 
 		await client.func.method.channelSend(interaction, {
-			content: lang.backup_waiting_on_load.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
+			content: lang.backup_waiting_on_load.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes),
 			components: []
 		});
 
@@ -88,7 +88,7 @@ export const subCommand: SubCommand = {
 				return;
 			});
 		}).catch((err) => {
-			client.func.method.channelSend(interaction, { content: client.iHorizon_Emojis.icon.No_Logo });
+			client.func.method.channelSend(interaction, { content: client.iHorizon_Emojis.No });
 			return;
 		});
 	},

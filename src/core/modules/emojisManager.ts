@@ -18,16 +18,95 @@
 
 ・ Copyright © 2020-2025 iHorizon
 */
-import { Emojis } from '../../../types/emojis.js';
 
 import { Client } from 'discord.js';
-import fs from 'node:fs';
-import toml from 'toml';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+import logger from '../logger.ts';
 
-function emojis(client: Client) {
-	let emojis: Emojis = toml.parse(fs.readFileSync(process.cwd() + "/src/files/emojis.toml", 'utf-8'))
+class EmojisManager {
+	private client: Client;
+	private emojisPath = path.join(process.cwd(), "src", "assets", "emojis");
+	private final_appEmojis: Record<string, string> = {};
 
-	client.iHorizon_Emojis = emojis;
+	constructor(client: Client) {
+		this.client = client;
+	}
+
+	public async startSync() {
+		let appEmojis = await this.fetchCurrentApplicationEmojis();
+		let local_emojis = this.loadLocalEmojis();
+
+		let result = {
+			skiped: 0,
+			writed: 0
+		}
+
+		for (let local_emoji of local_emojis) {
+			// Check if the local emoji exist on the Application Emoji
+			let appEmoji = appEmojis.find(x => x.Name === local_emoji.Name);
+			if (appEmoji) {
+				this.final_appEmojis[local_emoji.Name.replace("iHorizon_", "")] = appEmoji.FormatedName;
+				result.skiped++;
+			} else {
+				let res = await this.client.application?.emojis.create({
+					name: local_emoji.Name,
+					attachment: readFileSync(path.join(this.emojisPath, `${local_emoji.Name}.${local_emoji.Extension}`))
+				});
+
+				this.final_appEmojis[local_emoji.Name.replace("iHorizon_", "")] = res!.toString();
+				result.writed++;
+			}
+		}
+
+		logger.log(`${this.client.config.console.emojis.OK} >> ${result.skiped} emojis skiped, ${result.writed} emojis created.`)
+		this.writeInClient();
+		this.writeFinalJSON();
+	}
+
+	private loadLocalEmojis() {
+		let local_emojis = readdirSync(this.emojisPath);
+		let emojis = [];
+
+		for (let emoji of local_emojis) {
+			emojis.push({
+				Name: `${emoji.split(".")[0]}`,
+				Extension: emoji.endsWith("png") ? "png" : "gif",
+			})
+		}
+
+		return emojis;
+	}
+
+	private async fetchCurrentApplicationEmojis() {
+		var fetched_emojis_data = await this.client.application?.emojis.fetch();
+		var filtered_emojis_data = fetched_emojis_data?.values().toArray()
+			.map(x => {
+				return {
+					Name: x.name,
+					Extension: x.animated ? "gif" : "png",
+					Id: x.id,
+					FormatedName: x.toString()
+				}
+			})
+			.filter(x => x.Name?.startsWith("iHorizon"));
+		return filtered_emojis_data || [];
+	}
+
+	private writeFinalJSON() {
+		writeFileSync(path.join(
+			process.cwd(),
+			"src",
+			"files",
+			"emojis.json"
+		), JSON.stringify(this.final_appEmojis, null, 4));
+	}
+
+	private writeInClient() {
+		this.client.iHorizon_Emojis = this.final_appEmojis as any;
+	}
+}
+
+export {
+	EmojisManager
 };
-
-export default emojis;

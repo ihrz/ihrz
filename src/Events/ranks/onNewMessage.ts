@@ -111,7 +111,7 @@ export const event: BotEvent = {
 
 				if (newLevel === 1 && Math.random() < 0.5) {
 					msg += lang.event_xp_level_additional_info
-						.replace("${client.iHorizon_Emojis.vc.OpenChat}", client.iHorizon_Emojis.vc.OpenChat)
+						.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat)
 				}
 
 				client.func.method.channelSend(message, {

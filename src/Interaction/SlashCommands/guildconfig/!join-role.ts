@@ -157,7 +157,7 @@ export const subCommand: SubCommand = {
 					.addComponents(
 						saveButton
 							.setStyle(ButtonStyle.Success)
-							.setEmoji(client.iHorizon_Emojis.icon.Yes_Logo)
+							.setEmoji(client.iHorizon_Emojis.Yes)
 							.setDisabled(true)
 					);
 

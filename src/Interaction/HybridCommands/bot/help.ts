@@ -112,15 +112,15 @@ async function handleCategorySelect(
 			.setColor('#001eff')
 			.setDescription(lang.help_tip_embed
 				.replaceAll('${client.user?.username}', i.client.user.username)
-				.replaceAll('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
+				.replaceAll('${client.iHorizon_Emojis.Pin}', client.iHorizon_Emojis.Pin)
 				.replaceAll('${categories.length}', categories.length.toString())
-				.replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
+				.replaceAll('${client.iHorizon_Emojis.Slash_Bot_Badge}', client.iHorizon_Emojis.Slash_Bot_Badge)
 				.replaceAll('${client.content.filter(c => c.messageCmd === false).length}', i.client.content.length.toString())
-				.replaceAll('${client.iHorizon_Emojis.icon.Crown_Logo}', client.iHorizon_Emojis.icon.Crown_Logo)
+				.replaceAll('${client.iHorizon_Emojis.Crown}', client.iHorizon_Emojis.Crown)
 				.replaceAll('${config.owner.ownerid1}', client.owners[0])
 				.replaceAll('${config.owner.ownerid2}', client.owners[1] ?? client.owners[0])
-				.replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
-				.replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
+				.replaceAll('${client.iHorizon_Emojis.VC_Region}', client.iHorizon_Emojis.VC_Region)
+				.replaceAll('${client.iHorizon_Emojis.Slash_Bot_Badge}', client.iHorizon_Emojis.Slash_Bot_Badge)
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(i))
 			.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${i.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
@@ -165,44 +165,44 @@ async function handleCategorySelect(
 
 		if (commandStates) {
 			if (commandStates.level > 0) {
-				states = `${client.iHorizon_Emojis.icon.iHorizon_Lock} ${commandStates.level}`;
+				states = `${client.iHorizon_Emojis.Lock} ${commandStates.level}`;
 			} else {
-				states = `${client.iHorizon_Emojis.icon.iHorizon_Unlock}`;
+				states = `${client.iHorizon_Emojis.Unlock}`;
 			}
 
 			const hasRoles = commandStates.roles.length > 0;
 			const hasUsers = commandStates.users.length > 0;
 
 			if (hasRoles && hasUsers) {
-				states = ` ${client.iHorizon_Emojis.icon.iHorizon_Lock} (${commandStates.roles.length} ${lang.var_roles}) (${commandStates.users.length} ${lang.var_member})`;
+				states = ` ${client.iHorizon_Emojis.Lock} (${commandStates.roles.length} ${lang.var_roles}) (${commandStates.users.length} ${lang.var_member})`;
 			} else if (hasRoles) {
-				states = ` ${client.iHorizon_Emojis.icon.iHorizon_Lock} (${commandStates.roles.length} ${lang.var_roles})`;
+				states = ` ${client.iHorizon_Emojis.Lock} (${commandStates.roles.length} ${lang.var_roles})`;
 			} else if (hasUsers) {
-				states = ` ${client.iHorizon_Emojis.icon.iHorizon_Lock} (${commandStates.users.length} ${lang.var_member})`;
+				states = ` ${client.iHorizon_Emojis.Lock} (${commandStates.users.length} ${lang.var_member})`;
 			}
 		} else {
-			states = `${client.iHorizon_Emojis.icon.iHorizon_Unlock}`;
+			states = `${client.iHorizon_Emojis.Unlock}`;
 		}
 
 		var cleanedPrefixCommandName = element.prefixCmd || element.cmd;
-		var prefixOrNot = `${client.iHorizon_Emojis.icon.Prefix_Command} ${bot_prefix.string}${cleanedPrefixCommandName} \n`;
+		var prefixOrNot = `${client.iHorizon_Emojis.Message_Commands} ${bot_prefix.string}${cleanedPrefixCommandName} \n`;
 
 		switch (element.messageCmd) {
 			// Slash command
 			case 0:
-				cmdPrefix = `${states}\n・${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
+				cmdPrefix = `${states}\n・${client.iHorizon_Emojis.Slash_Bot_Badge} **/${element.cmd}**`;
 				break;
 			// Message command
 			case 1:
 				cmdPrefix = bot_prefix.type === 'mention'
-					? `${states}\n・${client.iHorizon_Emojis.icon.Prefix_Command} **@Ping-Me ${cleanedPrefixCommandName}**`
-					: `${states}\n・${client.iHorizon_Emojis.icon.Prefix_Command} **${bot_prefix.string}${cleanedPrefixCommandName}**`;
+					? `${states}\n・${client.iHorizon_Emojis.Message_Commands} **@Ping-Me ${cleanedPrefixCommandName}**`
+					: `${states}\n・${client.iHorizon_Emojis.Message_Commands} **${bot_prefix.string}${cleanedPrefixCommandName}**`;
 				break;
 			// Hybrid command
 			case 2:
 				cmdPrefix = bot_prefix.type === 'mention'
-					? `${states}\n・${client.iHorizon_Emojis.icon.Prefix_Command} (@Ping-Me) ${element.prefixCmd}\n≠${client.iHorizon_Emojis.badge.Slash_Bot} **${element.prefixCmd}**`
-					: `${states}\n・${prefixOrNot}・${client.iHorizon_Emojis.badge.Slash_Bot} **/${element.cmd}**`;
+					? `${states}\n・${client.iHorizon_Emojis.Message_Commands} (@Ping-Me) ${element.prefixCmd}\n≠${client.iHorizon_Emojis.Slash_Bot_Badge} **${element.prefixCmd}**`
+					: `${states}\n・${prefixOrNot}・${client.iHorizon_Emojis.Slash_Bot_Badge} **/${element.cmd}**`;
 				break;
 			default:
 				cmdPrefix = `${states}\n・**${element.cmd}**`;
@@ -405,15 +405,15 @@ export const command: Command = {
 				.setColor('#001eff')
 				.setDescription(lang.help_tip_embed
 					.replaceAll('${client.user?.username}', interaction.client.user.username)
-					.replaceAll('${client.iHorizon_Emojis.icon.Pin}', client.iHorizon_Emojis.icon.Pin)
+					.replaceAll('${client.iHorizon_Emojis.Pin}', client.iHorizon_Emojis.Pin)
 					.replaceAll('${categories.length}', categories.length.toString())
-					.replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
+					.replaceAll('${client.iHorizon_Emojis.Slash_Bot_Badge}', client.iHorizon_Emojis.Slash_Bot_Badge)
 					.replaceAll('${client.content.filter(c => c.messageCmd === false).length}', client.content.length.toString())
-					.replaceAll('${client.iHorizon_Emojis.icon.Crown_Logo}', client.iHorizon_Emojis.icon.Crown_Logo)
+					.replaceAll('${client.iHorizon_Emojis.Crown}', client.iHorizon_Emojis.Crown)
 					.replaceAll('${config.owner.ownerid1}', client.owners[0])
 					.replaceAll('${config.owner.ownerid2}', (client.owners[0] === client.owners[1]) ? "" : client.owners[1])
-					.replaceAll('${client.iHorizon_Emojis.vc.Region}', client.iHorizon_Emojis.vc.Region)
-					.replaceAll('${client.iHorizon_Emojis.badge.Slash_Bot}', client.iHorizon_Emojis.badge.Slash_Bot)
+					.replaceAll('${client.iHorizon_Emojis.VC_Region}', client.iHorizon_Emojis.VC_Region)
+					.replaceAll('${client.iHorizon_Emojis.Slash_Bot_Badge}', client.iHorizon_Emojis.Slash_Bot_Badge)
 				)
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction))
 				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'fr-FR'}.png`)
@@ -464,7 +464,7 @@ export const command: Command = {
 
 			if (!fetchCommand) {
 				await client.func.method.interactionSend(interaction, {
-					content: client.iHorizon_Emojis.icon.No_Logo + " | " + lang.var_unreachable_command,
+					content: client.iHorizon_Emojis.No + " | " + lang.var_unreachable_command,
 				});
 				return;
 			}

@@ -67,7 +67,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		if (!userLimit) {
 			await response.reply({
 				content: lang.temporary_voice_limit_button_not_integer
-					.replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", interaction.client.iHorizon_Emojis.icon.No_Logo)
+					.replace("${interaction.client.iHorizon_Emojis.No}", interaction.client.iHorizon_Emojis.No)
 				,
 				flags: [1 << 6]
 			});
@@ -85,7 +85,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 					.setFields(
 						{
 							name: lang.temporary_voice_new_userlimit,
-							value: `${interaction.client.iHorizon_Emojis.vc.Limit} **${response.fields.getField('name').value}**`,
+							value: `${interaction.client.iHorizon_Emojis.VC_Limit} **${response.fields.getField('name').value}**`,
 							inline: true
 						},
 					)

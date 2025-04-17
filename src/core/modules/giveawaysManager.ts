@@ -174,7 +174,7 @@ class GiveawayManager {
 							lang.event_gw_break_req
 								.replace("${giveawayData?.requirement.value}", String(giveawayData?.requirement.value))
 								.replace("${giveawayData?.requirement.type}", String(giveawayData?.requirement.type))
-								.replace("${interaction.client.iHorizon_Emojis.icon.No_Logo}", interaction.client.iHorizon_Emojis.icon.No_Logo)
+								.replace("${interaction.client.iHorizon_Emojis.No}", interaction.client.iHorizon_Emojis.No)
 						, flags: [1 << 6]
 					})
 				}

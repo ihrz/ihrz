@@ -52,7 +52,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const ogI = await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading });
+		const ogI = await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.Discord_Loading });
 
 		let _net01: number | string = '';
 		let _net02: number | string = '';
@@ -73,11 +73,11 @@ export const command: Command = {
 				.replaceAll('${_net03}', _net03)
 				.replaceAll('${_net02}', _net02)
 				.replaceAll('${_net01}', _net01)
-				.replaceAll('${client.iHorizon_Emojis.icon.Crown_Logo}', client.iHorizon_Emojis.icon.Crown_Logo)
+				.replaceAll('${client.iHorizon_Emojis.Crown}', client.iHorizon_Emojis.Crown)
 				.replace('${_net04}', _net04)
 				.replace('${client.ws.ping}', client.ws.ping.toString())
 				.replace('${interaction.client.user.username}', interaction.client.user.username)
-				.replace('${client.iHorizon_Emojis.icon.iHorizon_Pointer}', client.iHorizon_Emojis.icon.iHorizon_Pointer)
+				.replace('${client.iHorizon_Emojis.Pointer}', client.iHorizon_Emojis.Pointer)
 				.replace('${averagePing}', averagePing.toString())
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction));

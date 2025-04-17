@@ -138,7 +138,7 @@ export const subCommand: SubCommand = {
 				await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`, response);
 				await modalInteraction.reply({
 					content: lang.setleavemessage_command_work_on_enable
-						.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
+						.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes),
 					flags: [1 << 6]
 				});
 				newEmbed.addFields(helpEmbed.data.fields![1]);
@@ -160,7 +160,7 @@ export const subCommand: SubCommand = {
 
 				await buttonInteraction.reply({
 					content: lang.setleavemessage_command_work_on_enable
-						.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo),
+						.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes),
 					flags: [1 << 6]
 				});
 

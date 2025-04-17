@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		const originalResponse = await interaction.editReply({
-			content: client.iHorizon_Emojis.icon.iHorizon_Discord_Loading
+			content: client.iHorizon_Emojis.Discord_Loading
 		});
 
 		let baseData = await client.db.get(`${interaction.guildId}`) as DatabaseStructure.DbInId;

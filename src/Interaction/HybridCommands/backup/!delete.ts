@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 
 		if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};
@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 
 		let em = new EmbedBuilder()
 			.setTitle(lang.backup_really_want
-				.replace("${client.iHorizon_Emojis.icon.Warning_Icon}", client.iHorizon_Emojis.icon.Warning_Icon)
+				.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
 			)
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#ff1100")
 			.setTimestamp()
@@ -80,7 +80,7 @@ export const subCommand: SubCommand = {
 
 		var cancel_button = new ButtonBuilder()
 			.setStyle(ButtonStyle.Primary)
-			.setEmoji(client.iHorizon_Emojis.icon.Warning_Icon)
+			.setEmoji(client.iHorizon_Emojis.Warning_Icon)
 			.setCustomId("backup-cancel-button")
 			.setLabel(lang.backup_cancel_button);
 
@@ -104,7 +104,7 @@ export const subCommand: SubCommand = {
 				await client.db.delete(`BACKUPS.${interaction.user.id}.${backupID}`);
 
 				em.setTitle(lang.backup_embed_title_succefully_deleted
-					.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 				);
 				em.setColor("#6aa84f");
 				messageEmbed.edit({ embeds: [em], components: [] });
@@ -112,7 +112,7 @@ export const subCommand: SubCommand = {
 				used = true
 
 				em.setTitle(lang.backup_embed_title_cancel_deletion
-					.replace("${client.iHorizon_Emojis.icon.Yes_Logo}", client.iHorizon_Emojis.icon.Yes_Logo)
+					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 				);
 				em.setColor("#0460a5");
 				messageEmbed.edit({ embeds: [em], components: [] });
@@ -123,7 +123,7 @@ export const subCommand: SubCommand = {
 			if (used) return;
 
 			em.setTitle(lang.backup_embed_title_timesup_deletion
-				.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+				.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			);
 			em.setColor("#ce7e00");
 			messageEmbed.edit({ embeds: [em], components: [] });

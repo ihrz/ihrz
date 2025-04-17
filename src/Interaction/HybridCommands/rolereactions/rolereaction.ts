@@ -172,7 +172,7 @@ export const command: Command = {
 
 					if (reaction.includes("<") || reaction.includes(">") || reaction.includes(":")) {
 						await client.func.method.interactionSend(interaction, {
-							content: lang.reactionroles_invalid_emote_format_added.replace("${client.iHorizon_Emojis.icon.No_Logo}", client.iHorizon_Emojis.icon.No_Logo)
+							content: lang.reactionroles_invalid_emote_format_added.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 						})
 						return;
 					};

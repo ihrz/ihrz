@@ -114,10 +114,15 @@ export const event: BotEvent = {
 			let buttons = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents(
 					new ButtonBuilder()
-						.setEmoji(client.iHorizon_Emojis.icon.Crown_Logo)
-						.setLabel('Invite ' + client.user?.username)
+						.setEmoji(client.iHorizon_Emojis.Crown)
+						.setLabel('Invite iHorizon')
 						.setStyle(ButtonStyle.Link)
 						.setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
+					new ButtonBuilder()
+						.setEmoji(client.iHorizon_Emojis.Sparkles)
+						.setLabel('iHorizon Website')
+						.setStyle(ButtonStyle.Link)
+						.setURL('https://ihorizon.org'),
 				)
 				;
 
@@ -150,41 +155,41 @@ export const event: BotEvent = {
 					let invite = await channel.createInvite();
 					let inviteCode = invite.code;
 
-					return 'discord.gg/' + inviteCode;
-				} catch {
-					return 'None';
-				}
-			}
+					// 		return 'discord.gg/' + inviteCode;
+					// 	} catch {
+					// 		return 'None';
+					// 	}
+					// }
 
-			let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+					let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
-			let embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#00FF00")
-				.setTimestamp(guild.joinedTimestamp)
-				.setDescription(`**A new guild added your bot !**`)
-				.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
-					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
-					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
-					{ name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
-					{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
-					{ name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
-					{ name: "🥛・New members total", value: `${usersize} members`, inline: true },
+					let embed = new EmbedBuilder()
+						.setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#00FF00")
+						.setTimestamp(guild.joinedTimestamp)
+						.setDescription(`**A new guild added your bot !**`)
+						.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
+							{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
+							{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
+							{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
+							// { name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
+							// { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
+							{ name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
+							{ name: "🥛・New members total", value: `${usersize} members`, inline: true },
 
-				)
-				.setThumbnail(guild.iconURL())
-				.setFooter(await client.func.displayBotName.footerBuilder(guild));
+						)
+						.setThumbnail(guild.iconURL())
+						.setFooter(await client.func.displayBotName.footerBuilder(guild));
 
-			for (let owner of owners) {
-				await (client.users.cache.get(owner))?.send({
-					embeds: [embed],
-					files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-				}).catch(() => { });
-			}
+					for (let owner of owners) {
+						await (client.users.cache.get(owner))?.send({
+							embeds: [embed],
+							files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
+						}).catch(() => { });
+					}
+				};
+
+				// let c = await antiPoubelle();
+				let d = await blacklistLeave();
+				if (d) ownerLogs(), messageToServer(), getInvites();
+			},
 		};
-
-		// let c = await antiPoubelle();
-		let d = await blacklistLeave();
-		if (d) ownerLogs(), messageToServer(), getInvites();
-	},
-};

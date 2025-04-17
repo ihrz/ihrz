@@ -85,8 +85,8 @@ export const subCommand: SubCommand = {
 			.setDescription(lang.economy_shop_embed_desc)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
 			.setFields(
-				{ name: lang.balance_embed_fields1_name, value: `${baseData.bank || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
-				{ name: lang.balance_embed_fields2_name, value: `${baseData.money || 0}${client.iHorizon_Emojis.icon.Coin}`, inline: true },
+				{ name: lang.balance_embed_fields1_name, value: `${baseData.bank || 0}${client.iHorizon_Emojis.Coin}`, inline: true },
+				{ name: lang.balance_embed_fields2_name, value: `${baseData.money || 0}${client.iHorizon_Emojis.Coin}`, inline: true },
 				{ name: lang.var_boost, value: `${possibleBoost}x`, inline: true }
 			)
 			;
