@@ -53,7 +53,7 @@ export const event: BotEvent = {
 				let user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
 				await client.func.method.punish(data, user);
 
-				await newMember.roles.set(oldMember.roles.cache).catch(() => false);
+				await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid").catch(() => false);
 			};
 		}
 	},
