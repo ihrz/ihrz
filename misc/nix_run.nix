@@ -40,7 +40,7 @@ pkgs.mkShell {
     libjpeg
     
     # Pour le développement Node.js/Bun
-    bun
+    # bun
     nodejs
   ];
 
