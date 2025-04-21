@@ -96,9 +96,11 @@ export const subCommand: SubCommand = {
 		);
 
 		setTimeout(async () => {
-			await client.func.method.channelSend(interaction, {
-				content: lang.tempmute_unmuted_by_time.replace("${tomute.id}", tomute?.id!),
-			});
+			if (tomute?.isCommunicationDisabled() === true) {
+				await client.func.method.channelSend(interaction, {
+					content: lang.tempmute_unmuted_by_time.replace("${tomute.id}", tomute?.id!),
+				});
+			}
 		}, mutetimeMS);
 
 		await client.func.ihorizon_logs(interaction, {
