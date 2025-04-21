@@ -35,7 +35,7 @@
 		"jszip": "^3.10.1",
 		"lavalink-client": "^2.5.0",
 		"mysql2": "3.10.0",
-		"pallas-db": "^1.0.14",
+		"pallas-db": "^1.0.15",
 		"pg": "^8.14.1",
 		"ping": "^0.4.4",
 		"puppeteer": "^23.11.1",
@@ -46,7 +46,7 @@
 	},
 	"devDependencies": {
 		"@types/archiver": "^6.0.3",
-		"@types/bun": "^1.2.9",
+		"@types/bun": "^1.2.10",
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^20.17.30",
 		"@types/ping": "^0.4.4",
