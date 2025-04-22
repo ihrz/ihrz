@@ -37,16 +37,9 @@ import {
 import { axios } from '../../../core/functions/axios.js';
 import { SubCommand } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Oauth2_Link, oauth2Member } from '../../../core/functions/authRestoreHelper.js';
+import { createOauth2Link, oauth2Member } from '../../../core/functions/authRestoreHelper.js';
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 
-function createOauth2Link(client_id: string): string {
-	return Oauth2_Link
-		.replace("{client_id}", client_id)
-		.replace("{guild_id}", "")
-		.replace("{redirect_uri}", apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.GenerateOauthLink))
-		.replace("{scope}", "identify")
-}
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
@@ -186,7 +179,12 @@ export const subCommand: SubCommand = {
 					},
 					{
 						name: lang.userinfo_embed_fields_5_name,
-						value: nitro.type || (client.config.api.HorizonGateway?.startsWith("http") ? `[\`Not found\`](${createOauth2Link(client.user?.id!)})` : "`Not found`"),
+						value: nitro.type || (client.config.api.HorizonGateway?.startsWith("http") ? `[\`Not found\`](${createOauth2Link({
+							guildId: interaction.guildId!,
+							clientId: client.user?.id,
+							scope: "identify"
+
+						})})` : "`Not found`"),
 						inline: true,
 					},
 					{
