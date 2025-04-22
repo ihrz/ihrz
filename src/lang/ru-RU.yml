@@ -560,7 +560,7 @@ say_footer_msg: "\n\nОтправлено из `/говорить` от ${intera
 
 # /ping
 ping_down_msg: "**НЕДОСТУПНО**"
-ping_embed_desc: "# Понг! Статистика сети ${interaction.client.user.username}:\n\n**[Пинг веб-сайта Discord]** >> `${_net03}` мс.\n**[Пинг Cloudflare]** >> `${_net02}` мс.\n**[Пинг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.Crown} **[Пинг веб-сайта iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.Crown} **[Пинг веб-сокета]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.iHorizon_Pointer} **[Среднее]** >> (ср)`${averagePing}` мс."
+ping_embed_desc: "# Понг! Статистика сети ${interaction.client.user.username}:\n\n**[Пинг веб-сайта Discord]** >> `${_net03}` мс.\n**[Пинг Cloudflare]** >> `${_net02}` мс.\n**[Пинг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.Crown} **[Пинг веб-сайта iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.Crown} **[Пинг веб-сокета]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.Pointer} **[Среднее]** >> (ср)`${averagePing}` мс."
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -2266,7 +2266,7 @@ event_ticket_embed_description: "Привет, ${user.username}, добро по
 event_ticket_add_member: "${interaction.user}, вы **добавили** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} в билет ${interaction.channel} !"
 event_ticket_del_member: "${interaction.user}, вы **удалили** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} из билета ${interaction.channel} !"
 event_ticket_button_name: "Создать тикет"
-event_ticket_category_awaiting_response: "Выберите категорию [${x.emojis ?? interaction.client.iHorizon_Emojis.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_category_awaiting_response: "Выберите категорию [${x.emojis ?? interaction.client.iHorizon_Emojis.Pointer}] >> ${x.name}"
 event_ticket_reason_awaiting_response: "${interaction.user.toString()} нужен ли пользователю указать причину перед созданием тикета?"
 event_ticket_create_reason_modal_title: "В чем причина вашего обращения?"
 event_ticket_create_reason_modal_fields_1_label: "Причина обращения"

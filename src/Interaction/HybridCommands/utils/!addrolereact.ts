@@ -107,7 +107,7 @@ export const subCommand: SubCommand = {
 					try {
 						const member = guild.members.cache.get(user.id) || await guild.members.fetch(user.id).catch(() => null);
 						if (member && !member.roles.cache.has(roleId)) {
-							await member.roles.add(role);
+							await member.roles.add(role, "[RoleReact] Assign role");
 							totalUsersAffected++;
 						}
 					} catch (error) {

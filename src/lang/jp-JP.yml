@@ -560,7 +560,7 @@ say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
 
 # /ping
 ping_down_msg: "**ダウン**"
-ping_embed_desc: "# Pong！${interaction.client.user.username}のネットワーク統計:\n\n**[Discord ウェブサイトの Ping]** >> `${_net03}` ms\n**[Cloudflare の Ping]** >> `${_net02}` ms\n**[Google の Ping]** >> `${_net01}` ms\n\n${client.iHorizon_Emojis.Crown} **[iHorizon ウェブサイトの Ping]** >> `${_net04}` ms\n${client.iHorizon_Emojis.Crown} **[Websocket の Ping]** `${client.ws.ping}` ms\n\n## ${client.iHorizon_Emojis.iHorizon_Pointer} **[平均]** >> (平均)`${averagePing}` ms"
+ping_embed_desc: "# Pong！${interaction.client.user.username}のネットワーク統計:\n\n**[Discord ウェブサイトの Ping]** >> `${_net03}` ms\n**[Cloudflare の Ping]** >> `${_net02}` ms\n**[Google の Ping]** >> `${_net01}` ms\n\n${client.iHorizon_Emojis.Crown} **[iHorizon ウェブサイトの Ping]** >> `${_net04}` ms\n${client.iHorizon_Emojis.Crown} **[Websocket の Ping]** `${client.ws.ping}` ms\n\n## ${client.iHorizon_Emojis.Pointer} **[平均]** >> (平均)`${averagePing}` ms"
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -2266,7 +2266,7 @@ event_ticket_embed_description: "${user.username}さん、チケットへよう�
 event_ticket_add_member: "${interaction.user}, あなたはチケット ${interaction.channel} に**追加**しました：${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
 event_ticket_del_member: "${interaction.user}, あなたはチケット ${interaction.channel} から**削除**しました：${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}！"
 event_ticket_button_name: "チケットを作成する"
-event_ticket_category_awaiting_response: "カテゴリは何ですか [${x.emojis ?? interaction.client.iHorizon_Emojis.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_category_awaiting_response: "カテゴリは何ですか [${x.emojis ?? interaction.client.iHorizon_Emojis.Pointer}] >> ${x.name}"
 event_ticket_reason_awaiting_response: "${interaction.user.toString()} ユーザーはチケットを作成する前に理由を入力する必要がありますか？"
 event_ticket_create_reason_modal_title: "チケットの理由は何ですか？"
 event_ticket_create_reason_modal_fields_1_label: "チケットの理由"

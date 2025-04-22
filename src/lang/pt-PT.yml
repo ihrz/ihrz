@@ -560,7 +560,7 @@ say_footer_msg: "\n\nEnviado de `/say` por ${interaction.user}"
 
 # /ping
 ping_down_msg: "**FORA DO AR**"
-ping_embed_desc: "# Pong! Estatísticas de Rede do ${interaction.client.user.username}:\n\n**[Ping do site do Discord]** >> `${_net03}` ms.\n**[Ping do Cloudflare]** >> `${_net02}` ms.\n**[Ping do Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[Ping do site do iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Ping do Websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.iHorizon_Pointer} **[Média]** >> (avg)`${averagePing}` ms."
+ping_embed_desc: "# Pong! Estatísticas de Rede do ${interaction.client.user.username}:\n\n**[Ping do site do Discord]** >> `${_net03}` ms.\n**[Ping do Cloudflare]** >> `${_net02}` ms.\n**[Ping do Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[Ping do site do iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Ping do Websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Média]** >> (avg)`${averagePing}` ms."
 
 # Comandos divertidos
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -2266,7 +2266,7 @@ event_ticket_embed_description: "Olá ${user.username}, bem-vindo ao seu ticket!
 event_ticket_add_member: "${interaction.user}, você **adicionou** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} ao ticket ${interaction.channel}!"
 event_ticket_del_member: "${interaction.user}, você **removeu** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} do ticket ${interaction.channel}!"
 event_ticket_button_name: "Criar Ticket"
-event_ticket_category_awaiting_response: "Qual é a categoria [${x.emojis ?? interaction.client.iHorizon_Emojis.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_category_awaiting_response: "Qual é a categoria [${x.emojis ?? interaction.client.iHorizon_Emojis.Pointer}] >> ${x.name}"
 event_ticket_reason_awaiting_response: "${interaction.user.toString()} o usuário precisa informar o motivo antes de criar o ticket?"
 event_ticket_create_reason_modal_title: "Qual o motivo do seu ticket?"
 event_ticket_create_reason_modal_fields_1_label: "Motivo do ticket"

@@ -281,7 +281,7 @@ say_footer_msg: "\n\nВідправлено з команди `/say` від ${in
 
 # /ping
 ping_down_msg: "**НЕДОСТУПНО**"
-ping_embed_desc: "# Понг! Статистика мережі ${interaction.client.user.username}:\n\n**[Пінг веб-сайту Discord]** >> `${_net03}` мс.\n**[Пінг Cloudflare]** >> `${_net02}` мс.\n**[Пінг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.Crown} **[Пінг веб-сайту iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.Crown} **[Пінг веб-сокету]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.iHorizon_Pointer} **[Середнє]** >> (ср)`${averagePing}` мс."
+ping_embed_desc: "# Понг! Статистика мережі ${interaction.client.user.username}:\n\n**[Пінг веб-сайту Discord]** >> `${_net03}` мс.\n**[Пінг Cloudflare]** >> `${_net02}` мс.\n**[Пінг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.Crown} **[Пінг веб-сайту iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.Crown} **[Пінг веб-сокету]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.Pointer} **[Середнє]** >> (ср)`${averagePing}` мс."
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -1453,7 +1453,7 @@ event_ticket_embed_description: "Привіт, ${user.username}, ласкаво 
 event_ticket_add_member: "${interaction.user}, ви **додали** ${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')} до тікету ${interaction.channel} !"
 event_ticket_del_member: "${interaction.user}, ви **видалили** ${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')} з тікета ${interaction.channel} !"
 event_ticket_button_name: "Створити тікет"
-event_ticket_category_awaiting_response: "Виберіть категорію [${x.emojis ?? interaction.client.iHorizon_Emojis.iHorizon_Pointer}] >> ${x.name}"
+event_ticket_category_awaiting_response: "Виберіть категорію [${x.emojis ?? interaction.client.iHorizon_Emojis.Pointer}] >> ${x.name}"
 event_ticket_reason_awaiting_response: "${interaction.user.toString()} чи потрібно користувачеві вказати причину перед створенням тікета?"
 event_ticket_create_reason_modal_title: "У чому причина вашого звернення?"
 event_ticket_create_reason_modal_fields_1_label: "Причина звернення"
