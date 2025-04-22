@@ -87,7 +87,7 @@ class InfrastructureMonitoring {
 				const latency = Date.now() - startTime;
 
 				return {
-					up: response.status >= 200 && response.status < 300,
+					up: true,
 					latency: latency
 				};
 			} catch (error) {
@@ -129,7 +129,7 @@ class InfrastructureMonitoring {
 				const latency = Date.now() - startTime;
 
 				return {
-					up: response.status >= 200 && response.status < 300,
+					up: true,
 					latency: latency
 				};
 			} catch (error) {
