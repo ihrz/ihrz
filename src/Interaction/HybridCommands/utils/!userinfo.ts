@@ -179,12 +179,12 @@ export const subCommand: SubCommand = {
 					},
 					{
 						name: lang.userinfo_embed_fields_5_name,
-						value: nitro.type || (client.config.api.HorizonGateway?.startsWith("http") ? `[\`Not found\`](${createOauth2Link({
+						value: nitro.type || (client.config.api.HorizonGateway?.startsWith("http") ? `[${lang.userinfo_var_notfound}](${createOauth2Link({
 							guildId: interaction.guildId!,
 							clientId: client.user?.id,
 							scope: "identify"
 
-						})})` : "`Not found`"),
+						})})` : lang.userinfo_var_notfound),
 						inline: true,
 					},
 					{
