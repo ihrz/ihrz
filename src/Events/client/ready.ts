@@ -32,6 +32,7 @@ import { DatabaseStructure } from '../../../types/database_structure.js';
 import { CacheStorage } from '../../core/cache.js';
 import { recoverActiveSessions } from '../stats/onVoiceUpdate.js';
 import { getCacheStorage } from '../../core/core.js';
+import { InfrastructureMonitoring } from '../../core/modules/infrastructureMonitoringManager.js';
 
 export const event: BotEvent = {
 	name: "ready",
@@ -184,6 +185,7 @@ export const event: BotEvent = {
 		await recoverActiveSessions(client);
 		await client.memberCountManager.init();
 		await client.autoRenewManager.init();
+		await client.emojisManager.startSync();
 		let initData = getCacheStorage();
 
 		let oldV = initData?._cache.version;

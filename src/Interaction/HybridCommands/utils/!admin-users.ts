@@ -144,7 +144,7 @@ export const subCommand: SubCommand = {
 						);
 
 						try {
-							await member.roles.set(filtered_roles).catch(() => false);
+							await member.roles.set(filtered_roles, "[AdminUsers] clearing admin on the server").catch(() => false);
 							good++
 						} catch (err) {
 							bad++

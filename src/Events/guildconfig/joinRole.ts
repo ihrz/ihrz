@@ -43,7 +43,7 @@ export const event: BotEvent = {
 
 			await Promise.resolve().then(async () => {
 				if (Array.isArray(roleid)) {
-					await member.roles.set(roleid).catch(() => null);
+					await member.roles.set(roleid, "[AutoRole] Assign role for new member").catch(() => null);
 				} else {
 					const role = member.guild.roles.cache.get(roleid);
 					if (role)
