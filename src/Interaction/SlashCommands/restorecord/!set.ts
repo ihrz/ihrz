@@ -32,7 +32,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
 
-import { createAuthRestore, createAuthRestoreLink } from '../../../core/functions/authRestoreHelper.js';
+import { createAuthRestore, createOauth2Link } from '../../../core/functions/authRestoreHelper.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -55,7 +55,11 @@ export const subCommand: SubCommand = {
 					return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
 				}
 
-				let buttonLink = createAuthRestoreLink({ guildId: interaction.guildId, clientId: client.user.id });
+				let buttonLink = createOauth2Link({
+					guildId: interaction.guildId,
+					clientId: client.user.id,
+					scope: "identify+guilds+guilds.join"
+				});
 
 				createAuthRestore({
 					guildId: interaction.guildId,

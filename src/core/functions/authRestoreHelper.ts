@@ -61,6 +61,7 @@ export interface AuthRestore_EntryType {
 	clientId?: string;
 	apiToken?: string;
 	roleId?: string;
+	scope?: string;
 }
 
 export interface AuthRestore_ForceJoin_EntryType {
@@ -94,12 +95,12 @@ export interface AuthRestore_ResponseType {
 	secretCode?: string;
 }
 
-export function createAuthRestoreLink(data: AuthRestore_EntryType): string {
+export function createOauth2Link(data: AuthRestore_EntryType): string {
 	return Oauth2_Link
 		.replace("{client_id}", data.clientId!)
 		.replace("{guild_id}", data.guildId)
 		.replace("{redirect_uri}", apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.GenerateOauthLink))
-		.replace("{scope}", "identify+guilds+guilds.join")
+		.replace("{scope}", data?.scope || "identify")
 }
 
 export async function createAuthRestore(data: AuthRestore_EntryType): Promise<AuthRestore_ResponseType> {
