@@ -43,7 +43,7 @@ export default async (client: Client) => {
 			onEmptyQueue: {
 				destroyAfterMs: 30_000,
 			},
-			defaultSearchPlatform: "youtube",
+			defaultSearchPlatform: 'youtube',
 			onDisconnect: {
 				autoReconnect: false,
 				destroyPlayer: true
@@ -118,5 +118,31 @@ export default async (client: Client) => {
 		logger.err(`:: ERROR :: ${node.id} ${error.message}`);
 	}).on("resumed", (node, payload, players) => {
 		// logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
-	});
+	})
+
+	client.player.on("trackError", async (player, err, r) => {
+		if (r.exception?.message === "Something broke when playing the track.") {
+			// Search with Soundcloud
+
+			let res = await player.node.search({
+				query: `${(r as any).track.info.title} - ${(r as any).track.info.author}`,
+				source: "scsearch"
+			},
+				client.user
+			);
+
+			if (res.tracks.length! > 0) {
+				await player.queue.add(res.loadType === "playlist" ? res.tracks : res.tracks[0]);
+
+				if (!player.connected) {
+					await player.connect();
+				}
+
+				if (!player.playing) {
+					await player.play();
+				}
+			}
+
+		}
+	})
 };
