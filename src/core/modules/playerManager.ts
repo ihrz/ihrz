@@ -43,7 +43,7 @@ export default async (client: Client) => {
 			onEmptyQueue: {
 				destroyAfterMs: 30_000,
 			},
-			defaultSearchPlatform: "youtube",
+			defaultSearchPlatform: 'youtube',
 			onDisconnect: {
 				autoReconnect: false,
 				destroyPlayer: true
@@ -144,6 +144,5 @@ export default async (client: Client) => {
 			}
 
 		}
-		console.log(r)
 	})
 };
