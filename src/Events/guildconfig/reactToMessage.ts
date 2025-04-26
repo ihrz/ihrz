@@ -45,7 +45,7 @@ export const event: BotEvent = {
 			}
 		}
 
-		if (firstWord && recognizeItems.some(item => firstWord.startsWith(item.toLowerCase()))) {
+		if (firstWord && recognizeItems.some(item => firstWord === (item.toLowerCase()))) {
 			await message.react('👋').catch(() => { });
 		}
 	},
