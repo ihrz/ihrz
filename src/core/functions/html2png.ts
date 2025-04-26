@@ -19,11 +19,8 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import puppeteer, { Browser } from 'puppeteer';
-
-let browser: Browser | null = await puppeteer.launch({
-	args: ['--no-sandbox', '--disable-setuid-sandbox']
-});
+import config from "../../files/config.ts";
+import { axios } from "./axios.ts";
 
 export default async function html2Png(
 	code: string,
@@ -44,66 +41,15 @@ export default async function html2Png(
 		}
 ): Promise<Buffer> {
 	try {
-		if (browser === null) {
-			browser = await puppeteer.launch({
-				args: ['--no-sandbox', '--disable-setuid-sandbox']
-			});
-		}
-		if (!browser?.connected) {
-			browser = await puppeteer.launch({
-				args: ['--no-sandbox', '--disable-setuid-sandbox']
-			});
-			return await html2Png(code, options);
-		}
-
-		const page = await browser.newPage();
-
-		await page.setViewport({
-			width: options.width ?? 1280,
-			height: options.height ?? 800,
-			deviceScaleFactor: options.scaleSize ?? 1,
+		let res = await axios.post(`https://gateway.ihorizon.org/api/ownihrz/v1/png`, {
+			adminKey: config.api.apiToken,
+			html: code,
+			body: options,
+		}, {
+			responseType: "arrayBuffer"
 		});
 
-		await page.setContent(code);
-
-		let imageBuffer;
-		if (options.selectElement && options.elementSelector) {
-			await page.evaluate(() => {
-				document.body.style.background = 'transparent';
-			});
-			await page.evaluate((selector) => {
-				const element: any = document.querySelector(selector);
-				if (element) {
-					element.style.margin = '0';
-					element.style.padding = '0';
-				}
-			}, options.elementSelector);
-			const element = await page.$(options.elementSelector);
-			if (!element) throw new Error('Element not found');
-			const boundingBox = await element.boundingBox();
-			if (!boundingBox) throw new Error('Unable to get bounding box for the element');
-
-			imageBuffer = await page.screenshot({
-				clip: {
-					x: boundingBox.x,
-					y: boundingBox.y,
-					width: boundingBox.width,
-					height: boundingBox.height,
-				},
-				type: 'png',
-				omitBackground: options.omitBackground,
-			});
-		} else {
-			imageBuffer = await page.screenshot({
-				fullPage: true,
-				omitBackground: options.omitBackground,
-				type: 'png',
-				fromSurface: true,
-			});
-		}
-
-		await page.close();
-		return Buffer.from(imageBuffer);
+		return Buffer.from(res.data || [0]);
 	} catch (error) {
 		throw error;
 	}
