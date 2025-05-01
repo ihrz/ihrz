@@ -105,6 +105,11 @@ export const command: Command = {
 			var reason = "iHorizon Project Blacklist - " + (client.func.method.longString(args!, 1) || 'blacklisted!');
 		};
 
+		if (client.config.owner.ownerid1 === member?.id || client.config.owner.ownerid2 === member?.id) {
+			await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
+			return;
+		};
+
 		if (!member && !user) {
 			if (!blacklistedUsers.length) {
 				await client.func.method.interactionSend(interaction, {
