@@ -88,7 +88,7 @@ export const command: Command = {
 		let tableOwner = client.db.table('OWNER');
 		let tableBlacklist = client.db.table('BLACKLIST');
 
-		if (await tableOwner.get(`${interaction.member.user.id}.owner`) !== true) {
+		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
 			return;
 		};
