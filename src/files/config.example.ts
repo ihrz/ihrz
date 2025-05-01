@@ -93,7 +93,6 @@ const config: ConfigData = {
 		/*
 		This owners have different permissions than the others in the db,
 	    
-		* They are allowed to use /eval command everywhere.
 		* They can't be unowner by owner who are in the Database.
 		* They can't be blacklisted by owner who are in the Database.
 		* They can't be banned by owner who are in the Database.
