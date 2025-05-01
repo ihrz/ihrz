@@ -88,7 +88,7 @@ export const command: Command = {
 		let tableOwner = client.db.table('OWNER');
 		let tableBlacklist = client.db.table('BLACKLIST');
 
-		if (await tableOwner.get(`${interaction.member.user.id}.owner`) !== true) {
+		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
 			return;
 		};
@@ -103,6 +103,11 @@ export const command: Command = {
 			var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
 			var user = await client.func.method.user(interaction, args!, 0);
 			var reason = "iHorizon Project Blacklist - " + (client.func.method.longString(args!, 1) || 'blacklisted!');
+		};
+
+		if (client.config.owner.ownerid1 === member?.id || client.config.owner.ownerid2 === member?.id) {
+			await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
+			return;
 		};
 
 		if (!member && !user) {

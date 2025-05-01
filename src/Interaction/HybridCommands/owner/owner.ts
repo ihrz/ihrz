@@ -67,7 +67,6 @@ export const command: Command = {
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		let tableOwner = client.db.table('OWNER');
-		let isOwner = await tableOwner.get(interaction.member.user.id);
 
 		var text = "";
 		var char = await tableOwner.all();
@@ -76,7 +75,7 @@ export const command: Command = {
 			text += `<@${entry.id}>\n`;
 		}
 
-		if (!isOwner?.owner) {
+		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.owner_not_owner });
 			return;
 		};
@@ -98,9 +97,7 @@ export const command: Command = {
 			return;
 		};
 
-		let checkAx = await tableOwner.get(`${member.id}.owner`);
-
-		if (checkAx) {
+		if (await tableOwner.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.owner_already_owner });
 			return;
 		};
