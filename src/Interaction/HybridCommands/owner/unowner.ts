@@ -82,7 +82,7 @@ export const command: Command = {
 		};
 
 		await tableOwner.delete(`${member?.id}`);
-		client.owners.filter((id: string) => id !== member?.id);
+		client.owners = client.owners.filter((id: string) => id !== member?.id);
 
 		await client.func.method.interactionSend(interaction, { content: lang.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
 		return;
