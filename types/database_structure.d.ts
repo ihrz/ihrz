@@ -498,6 +498,10 @@ export namespace DatabaseStructure {
 		whitelist_create?: string[];
 	}
 
+	export interface BackupConfig {
+		onlyOwner?: boolean;
+	}
+
 	export interface DbGuildObject {
 		TAGS: GuildTagsStructure;
 		BOT?: DbGuildBotObject;
@@ -546,6 +550,7 @@ export namespace DatabaseStructure {
 		ANTISPAM?: AntiSpam.AntiSpamOptions;
 		RESTORECORD?: AuthRestoreSchema;
 		ROLE_SELECT?: RoleReactData;
+		BACKUP: BackupConfig;
 	}
 
 	export interface DbTicketConfigurationObject {

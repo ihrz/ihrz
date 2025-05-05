@@ -1659,6 +1659,12 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} O backup f
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} O backup foi mantido!"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} O tempo esgotou. O backup foi mantido!"
 
+# /backup manage
+backup_manage_nique_tes_mort: "Acesso negado. Este comando é reservado ao proprietário do servidor.\n# Não pode desativar a proteção de backups para comprometer a segurança do servidor.\n# Qualquer tentativa de abuso será reportada e bloqueada."
+backup_manage_admin: "todos os administradores"
+backup_manage_owner: "proprietário do servidor"
+backup_manage_command_ok: "O módulo de backup foi atualizado. A partir de agora, ${allowed_user_string} pode criar/carregar backups neste servidor."
+
 # Reações de Funções
 # /reactionroles
 

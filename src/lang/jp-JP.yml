@@ -1659,6 +1659,12 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} バック�
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} バックアップは保持されました！"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} 時間切れです。バックアップは保持されました！"
 
+# /backup manage
+backup_manage_nique_tes_mort: "アクセスが拒否されました。このコマンドはサーバー所有者専用です。\n# サーバーのセキュリティを損なうためにバックアップ保護を無効にすることはできません。\n# すべての悪用試行は報告され、ブロックされます。"
+backup_manage_admin: "すべての管理者"
+backup_manage_owner: "サーバー所有者"
+backup_manage_command_ok: "バックアップモジュールが更新されました。これからは、${allowed_user_string} がこのサーバーでバックアップの作成・読み込みを実行できます。"
+
 # Role Reactions
 # /reactionroles
 

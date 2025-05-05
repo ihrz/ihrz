@@ -158,6 +158,44 @@ export const command: Command = {
 			],
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: null
+		},
+		{
+			name: "manage",
+			prefixName: "backup-manager",
+
+			description: "Manage the backup system into this guild",
+			description_localizations: {
+				"fr": "Gérer le système de backup sur le serveur"
+			},
+
+			permission: null,
+			type: ApplicationCommandOptionType.Subcommand,
+
+			options: [
+				{
+					name: "only_guild_owner",
+
+					description: "Make the backup system only working for guild owner",
+					description_localizations: {
+						"fr": "Faire fonctionner le système de backup uniquement pour le propriétaire du serveur discord."
+					},
+
+					type: ApplicationCommandOptionType.String,
+					choices: [
+						{
+							name: "Only owner",
+							value: "yes"
+						},
+						{
+							name: "All admins",
+							value: "no"
+						}
+					],
+
+					required: true,
+					permission: null
+				}
+			]
 		}
 	],
 	category: 'backup',

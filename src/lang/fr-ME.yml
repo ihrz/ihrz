@@ -1661,6 +1661,12 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} La sauvega
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} La sauvegarde a été conservée ah ouais t con toi tu veut supprimer une sauvegarde pour en fait la garder!"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} Le délai est écoulé. La sauvegarde a été conservée !"
 
+# /backup manage
+backup_manage_nique_tes_mort: "Bha alors sale gros fils de pute de tes mort? Tu crois brain le grand bot iHorizon? tsss vas niquer ta pute de mère. insh'Allah elle ce fait renverser par ton père le chauve enfant d'fiotte. \n# Cette commande est réserver pour le propriétaire du serveur. \n# TU CROIS DÉSACTIVER LA PROTECTION DU BACKUP POUR RAID LE SERVEUR\n# SALE RETARD, LA VIE TAS PAS FAIT DE CADEAU"
+backup_manage_admin: tout les admins"
+backup_manage_owner: "propriétaire du serveur"
+backup_manage_command_ok: "Le module de backup as subit un changement. Dorrénavant, ${allowed_user_string} peut executer une création/chargement de backup sur ce serveur."
+
 # Role Reactions
 # /reactionroles
 
