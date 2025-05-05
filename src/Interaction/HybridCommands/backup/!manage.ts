@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`) || true;
+		let state = true;
 		if (only_guild_owner == 'yes') {
 			state = true
 		} else {

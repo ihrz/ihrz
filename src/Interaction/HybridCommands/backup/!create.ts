@@ -51,7 +51,8 @@ export const subCommand: SubCommand = {
 			var svMsg = client.func.method.string(args!, 0)!;
 		};
 
-		if (await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`)) {
+		let state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
+		if (state || state === undefined || state === null) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_manage_nique_tes_mort
 			})
