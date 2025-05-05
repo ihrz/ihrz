@@ -43,9 +43,16 @@ export const subCommand: SubCommand = {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var backupID = interaction.options.getString('backup-id')!;
 		} else {
-
 			var backupID = client.func.method.string(args!, 0)!;
 		};
+
+		let state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
+		if (state || state === undefined || state === null) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.backup_manage_nique_tes_mort
+			})
+			return;
+		}
 
 		if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
 			await client.func.method.interactionSend(interaction, { content: lang.backup_i_dont_have_perm_on_load });

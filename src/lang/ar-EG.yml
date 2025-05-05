@@ -1659,6 +1659,12 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} تم حذ�
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} تم الحفاظ على النسخة الاحتياطية!"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} انتهى الوقت. تم الحفاظ على النسخة الاحتياطية!"
 
+# /backup manage
+backup_manage_nique_tes_mort: "تم رفض الوصول. هذا الأمر مخصص لصاحب الخادم فقط.\n# لا يمكنك تعطيل حماية النسخ الاحتياطي للإضرار بأمان الخادم.\n# سيتم الإبلاغ عن أي محاولة إساءة وايقافها."
+backup_manage_admin: "جميع المدراء"
+backup_manage_owner: "مالك الخادم"
+backup_manage_command_ok: "تم تحديث وحدة النسخ الاحتياطي. الآن يمكن لـ ${allowed_user_string} إنشاء / تحميل النسخ الاحتياطية على هذا الخادم."
+
 # Role Reactions
 # /reactionroles
 
