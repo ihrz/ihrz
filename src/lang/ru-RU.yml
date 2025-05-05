@@ -1659,6 +1659,12 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} Бэкап
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} Бэкап сохранен!"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} Время вышло. Бэкап сохранен!"
 
+# /backup manage
+backup_manage_nique_tes_mort: "Доступ запрещен. Эта команда предназначена только для владельца сервера.\n# Вы не можете отключить защиту резервных копий, чтобы поставить под угрозу безопасность сервера.\n# Любая попытка злоупотребления будет зафиксирована и заблокирована."
+backup_manage_admin: "все администраторы"
+backup_manage_owner: "владелец сервера"
+backup_manage_command_ok: "Модуль резервного копирования обновлён. Теперь ${allowed_user_string} может создавать и загружать резервные копии на этом сервере."
+
 # Реакции ролей
 # /reactionroles
 

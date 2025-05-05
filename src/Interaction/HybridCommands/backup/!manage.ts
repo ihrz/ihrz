@@ -20,18 +20,17 @@
 */
 
 import {
-	BaseGuildTextChannel,
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 } from 'discord.js';
-
-
-import logger from '../../../core/logger.js';
-import backup from 'discord-rebackup';
 import { LanguageData } from '../../../../types/languageData.js';
+
+import backup from "discord-rebackup";
 import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
@@ -42,52 +41,34 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let i: number = 0;
-		let j: number = 0;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var svMsg = interaction.options.getString('save-message')!;
+			var only_guild_owner = interaction.options.getString("only_guild_owner", true);
 		} else {
-			var svMsg = client.func.method.string(args!, 0)!;
+			var only_guild_owner = client.func.method.string(args!, 1)!;
 		};
 
-		let state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
-		if (state || state === undefined || state === null) {
-			await client.func.method.interactionSend(interaction, {
+		if (interaction.member.user.id !== interaction.guild.ownerId) {
+			client.func.method.interactionSend(interaction, {
 				content: lang.backup_manage_nique_tes_mort
 			})
 			return;
 		}
 
-		// @ts-ignore
-		backup.create(interaction.guild, {
-			maxMessagesPerChannel: svMsg === "yes" ? 10 : 0,
-			jsonBeautify: true
-		}).then(async (backupData) => {
+		let state = true;
+		if (only_guild_owner == 'yes') {
+			state = true
+		} else {
+			state = false;
+		}
 
-			backupData.channels.categories.forEach(category => {
-				i++;
-				category.children.forEach(() => {
-					j++;
-				});
-			});
+		await client.db.set(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`, state);
 
-			let ellData = { guildName: backupData.name, categoryCount: i, channelCount: j };
+		let allowed_user_string = state ? lang.backup_manage_owner : lang.backup_manage_admin;
 
-			await client.db.set(`BACKUPS.${interaction.member?.user.id}.${backupData.id}`, ellData);
-
-			client.func.method.channelSend(interaction, { content: lang.backup_command_work_on_creation });
-
-			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_command_work_info_on_creation
-					.replace("${backupData.id}", backupData.id)
-			});
-
-			await client.func.ihorizon_logs(interaction, {
-				title: lang.backup_logs_embed_title_on_creation,
-				description: lang.backup_logs_embed_description_on_creation
-					.replace('${interaction.user.id}', interaction.member?.user.id!)
-			});
-		});
+		await client.func.method.interactionSend(interaction, {
+			content: lang.backup_manage_command_ok
+				.replace("${allowed_user_string}", allowed_user_string)
+		})
 	},
 };

@@ -1659,6 +1659,12 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} Das Backup
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} Das Backup wurde behalten!"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} Die Zeit ist abgelaufen. Das Backup wurde behalten!"
 
+# /backup manage
+backup_manage_nique_tes_mort: "Zugriff verweigert. Dieser Befehl ist nur dem Serverbesitzer vorbehalten.\n# Sie können den Backup-Schutz nicht deaktivieren, um die Serversicherheit zu gefährden.\n# Jeder Missbrauchsversuch wird gemeldet und blockiert."
+backup_manage_admin: "alle Administratoren"
+backup_manage_owner: "Serverbesitzer"
+backup_manage_command_ok: "Das Backup-Modul wurde aktualisiert. Ab sofort kann ${allowed_user_string} Backups auf diesem Server erstellen oder laden."
+
 # Role Reactions
 # /reactionroles
 

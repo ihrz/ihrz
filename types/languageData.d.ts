@@ -1270,6 +1270,10 @@ export interface LanguageData {
   backup_embed_title_succefully_deleted: string;
   backup_embed_title_cancel_deletion: string;
   backup_embed_title_timesup_deletion: string;
+  backup_manage_nique_tes_mort: string;
+  backup_manage_admin: string;
+  backup_manage_owner: string;
+  backup_manage_command_ok: string;
   reactionroles_dont_admin_added: string;
   reactionroles_embed_message_description_added: string;
   reactionroles_missing_reaction_added: string;

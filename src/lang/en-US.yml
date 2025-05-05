@@ -1661,6 +1661,12 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} The backup
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} The backup was keeped !"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} Time's UP. The backup was keeped !"
 
+# /backup manage
+backup_manage_nique_tes_mort: "Access denied. This command is reserved for the server owner.\n# You cannot disable backup protection to compromise the server's security.\n# Any abuse attempt will be reported and blocked."
+backup_manage_admin: "all administrators"
+backup_manage_owner: "server owner"
+backup_manage_command_ok: "The backup module has been updated. From now on, ${allowed_user_string} can perform backup creation/loading on this server."
+
 # Role Reactions
 # /reactionroles
 

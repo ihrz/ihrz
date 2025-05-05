@@ -1659,6 +1659,12 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} La sauvega
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} La sauvegarde a été conservée !"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} Le délai est écoulé. La sauvegarde a été conservée !"
 
+# /backup manage
+backup_manage_nique_tes_mort: "Accès refusé. Cette commande est réservée au propriétaire du serveur. \n# Vous ne pouvez pas désactiver la protection des sauvegardes pour compromettre la sécurité du serveur. \n# Toute tentative d'abus sera signalée et bloquée."
+backup_manage_admin: "tous les administrateurs"
+backup_manage_owner: "propriétaire du serveur"
+backup_manage_command_ok: "Le module de sauvegarde a été mis à jour. Désormais, ${allowed_user_string} peut exécuter la création ou le chargement de sauvegardes sur ce serveur."
+
 # Role Reactions
 # /reactionroles
 

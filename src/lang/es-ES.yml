@@ -1659,6 +1659,12 @@ backup_embed_title_succefully_deleted: "${client.iHorizon_Emojis.Yes} ¡La copia
 backup_embed_title_cancel_deletion: "${client.iHorizon_Emojis.Yes} ¡La copia de seguridad se mantuvo!"
 backup_embed_title_timesup_deletion: "${client.iHorizon_Emojis.No} Se acabó el tiempo. ¡La copia de seguridad se mantuvo!"
 
+# /backup manage
+backup_manage_nique_tes_mort: "Acceso denegado. Este comando está reservado para el propietario del servidor.\n# No puedes desactivar la protección de copia de seguridad para comprometer la seguridad del servidor.\n# Cualquier intento de abuso será reportado y bloqueado."
+backup_manage_admin: "todos los administradores"
+backup_manage_owner: "propietario del servidor"
+backup_manage_command_ok: "El módulo de copias de seguridad ha sido actualizado. Ahora, ${allowed_user_string} puede crear o cargar copias de seguridad en este servidor."
+
 # Role Reactions
 # /reactionroles
 
