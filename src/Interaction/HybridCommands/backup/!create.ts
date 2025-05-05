@@ -48,9 +48,15 @@ export const subCommand: SubCommand = {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var svMsg = interaction.options.getString('save-message')!;
 		} else {
-
 			var svMsg = client.func.method.string(args!, 0)!;
 		};
+
+		if (await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`)) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.backup_manage_nique_tes_mort
+			})
+			return;
+		}
 
 		// @ts-ignore
 		backup.create(interaction.guild, {
