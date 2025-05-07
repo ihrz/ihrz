@@ -2030,7 +2030,7 @@ mybot_submit_utils_msg: "__معرّف البوت__ `${bot_1.bot.id}`\n__اسم �
 mybot_submit_utils_msg_yes: "نعم"
 mybot_submit_utils_msg_no: "لا"
 mybot_submit_embed_title: "استضاف بوت iHorizon الخاص بك: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "تم تسجيل طلبك بنجاح، معرّفك الفريد هو: **${code}**!\nلا تشاركه مع أي شخص!\n**انضم إلى خادم الدعم** [اضغط هنا](https://discord.gg/ihorizon)، ثم افتح تذكرة لمتابعة الشراء.\n\n${utils_msg}"
+mybot_submit_embed_desc: "تم تسجيل طلبك بنجاح، معرّفك الفريد هو: **${code}**\nلا تشاركه مع أي شخص!\n**انضم إلى خادم الدعم** [اضغط هنا](https://discord.gg/ihorizon)، ثم افتح تذكرة لمتابعة الشراء.\n\n${utils_msg}"
 
 # /mybot list
 mybot_list_embed0_title: "قائمة جميع بوتاتك"

@@ -2030,7 +2030,7 @@ mybot_submit_utils_msg: "__Bot-ID__ `${bot_1.bot.id}`\n__Bot-Benutzername__ `${b
 mybot_submit_utils_msg_yes: "Ja"
 mybot_submit_utils_msg_no: "Nein"
 mybot_submit_embed_title: "Hoste deine eigene iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "Ihre Anfrage wurde erfolgreich registriert, Ihre eindeutige Kennung lautet: **${code}**!\nTeilen Sie sie mit niemandem!\n**Treten Sie dem Support-Server bei** [Klicken Sie hier](https://discord.gg/ihorizon) und öffnen Sie dann ein Ticket, um den Kauf fortzusetzen.\n\n${utils_msg}"
+mybot_submit_embed_desc: "Ihre Anfrage wurde erfolgreich registriert, Ihre eindeutige Kennung lautet: **${code}**\nTeilen Sie sie mit niemandem!\n**Treten Sie dem Support-Server bei** [Klicken Sie hier](https://discord.gg/ihorizon) und öffnen Sie dann ein Ticket, um den Kauf fortzusetzen.\n\n${utils_msg}"
 
 # /mybot Liste
 mybot_list_embed0_title: "Liste aller Ihrer Bots"
