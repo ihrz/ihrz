@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
 		};
 
 		let state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
-		if (state || state === undefined || state === null) {
+		if (!state || state === undefined || state === null) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_manage_nique_tes_mort
 			})
