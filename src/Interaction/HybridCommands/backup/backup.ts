@@ -184,11 +184,11 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Only owner",
-							value: "yes"
+							value: "owner"
 						},
 						{
-							name: "All admins",
-							value: "no"
+							name: "All admin(s)",
+							value: "admin"
 						}
 					],
 
