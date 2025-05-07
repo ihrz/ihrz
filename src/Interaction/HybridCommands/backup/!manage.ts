@@ -55,8 +55,8 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let state = true;
-		if (only_guild_owner == 'yes') {
+		let state = null;
+		if (only_guild_owner == 'owner') {
 			state = true
 		} else {
 			state = false;
