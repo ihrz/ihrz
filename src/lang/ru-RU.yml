@@ -2030,7 +2030,7 @@ mybot_submit_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Имя польз�
 mybot_submit_utils_msg_yes: "Да"
 mybot_submit_utils_msg_no: "Нет"
 mybot_submit_embed_title: "Разместите свой собственный iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "Ваш запрос был успешно зарегистрирован, ваш уникальный идентификатор: **${code}**!\nНе делятесь им ни с кем!\n**Присоединитесь к серверу поддержки** [Нажмите здесь](https://discord.gg/ihorizon), затем откройте заявку, чтобы продолжить покупку.\n\n${utils_msg}"
+mybot_submit_embed_desc: "Ваш запрос был успешно зарегистрирован, ваш уникальный идентификатор: **${code}**\nНе делятесь им ни с кем!\n**Присоединитесь к серверу поддержки** [Нажмите здесь](https://discord.gg/ihorizon), затем откройте заявку, чтобы продолжить покупку.\n\n${utils_msg}"
 
 # /mybot список
 mybot_list_embed0_title: "Список всех ваших ботов"
