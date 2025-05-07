@@ -90,7 +90,7 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'messageid',
+			name: 'message_id',
 			type: ApplicationCommandOptionType.String,
 
 			description: "Please copy the identifiant of the message you want to configure",
@@ -144,7 +144,7 @@ export const command: Command = {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var type = interaction.options.getString("value");
 			var channel = interaction.options.getChannel("channel") as Channel | null;
-			var messagei = interaction.options.getString("messageid");
+			var messagei = interaction.options.getString("message_id");
 			var reaction = interaction.options.getString("reaction");
 			var role = interaction.options.getRole("role");
 		} else {

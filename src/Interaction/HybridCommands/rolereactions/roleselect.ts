@@ -98,7 +98,7 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'messageid',
+			name: 'message_id',
 			type: ApplicationCommandOptionType.String,
 			description: "Message ID to configure role selection",
 			description_localizations: {
@@ -123,7 +123,7 @@ export const command: Command = {
 			: await client.func.method.channel(interaction, args!, 0) as Channel;
 
 		const messageId = interaction instanceof ChatInputCommandInteraction
-			? interaction.options.getString("messageid") as string
+			? interaction.options.getString("message_id") as string
 			: client.func.method.string(args!, 1) as string;
 
 		// Validate message ID

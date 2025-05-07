@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		var channel = interaction.options.getChannel("channel") as Channel | null;
-		var messagei = interaction.options.getString("messageid");
+		var messagei = interaction.options.getString("message_id");
 		var role = interaction.options.getRole("role");
 
 		if (!role) { return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_roles_not_found }); };
