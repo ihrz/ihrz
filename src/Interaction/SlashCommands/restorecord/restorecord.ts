@@ -75,7 +75,7 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'messageid',
+					name: 'message_id',
 					type: ApplicationCommandOptionType.String,
 
 					description: "Please copy the identifiant of the message you want to configure",

@@ -1306,7 +1306,7 @@ mybot_submit_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Ім'я корис
 mybot_submit_utils_msg_yes: "Так"
 mybot_submit_utils_msg_no: "Ні"
 mybot_submit_embed_title: "Подайте свого власного iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "Ваш запит було успішно зареєстровано, ваш унікальний ідентифікатор: **${code}**!\nНе діліться ним з ніким!\n**Приєднуйтесь до серверу підтримки** [Натисніть тут](https://discord.gg/ihorizon), потім відкрийте заявку, щоб продовжити покупку.\n\n${utils_msg}"
+mybot_submit_embed_desc: "Ваш запит було успішно зареєстровано, ваш унікальний ідентифікатор: **${code}**\nНе діліться ним з ніким!\n**Приєднуйтесь до серверу підтримки** [Натисніть тут](https://discord.gg/ihorizon), потім відкрийте заявку, щоб продовжити покупку.\n\n${utils_msg}"
 
 # /mybot list
 mybot_list_embed0_title: "Список всіх ваших ботів"
