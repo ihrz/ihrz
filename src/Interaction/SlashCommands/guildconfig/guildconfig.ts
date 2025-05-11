@@ -134,7 +134,7 @@ export const command: Command = {
 							permission: null
 						},
 						{
-							name: 'maximum-date',
+							name: 'minimum-date',
 							type: ApplicationCommandOptionType.String,
 
 							description: 'Minimum seniority time',

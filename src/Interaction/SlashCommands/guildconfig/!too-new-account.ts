@@ -38,7 +38,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		let action = interaction.options.getString('action') as string;
-		let maximumDate = interaction.options.getString('maximum-date');
+		let maximumDate = interaction.options.getString('minimum-date');
 		let maximumJoin = interaction.options.getNumber("maximum-join") || 3;
 
 		if (action === 'on') {
