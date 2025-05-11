@@ -129,8 +129,7 @@ export const command: Command = {
 			await client.func.method.channelSend(message, {
 				content: lang.util_securewebhook_action_create_ok
 					.replace("${data.url}", data.url)
-					.replace("${data.code}", data.code)
-					.replace("${data.use}", data.use)
+					.replace("${data.use}", String(0))
 			})
 
 		} else if (action == "delete") {

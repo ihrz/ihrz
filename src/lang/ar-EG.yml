@@ -1270,8 +1270,9 @@ automod_block_spam_command_off: "${interaction.user}, لقد قمت بإيقاف
 too_new_account_dont_specified_time_on_enable: "لم تقم بتحديد وقت. لتمكين هذه الوحدة، يلزم أن يكون عمر الحساب الأدنى محددًا!"
 too_new_account_invalid_time_on_enable: "الوقت الذي أدخلته غير صالح! **مثال على الوقت الصحيح**: `3h; 30m; 4w; 4y` -> 3 ساعات؛ 30 دقيقة؛ 4 أسابيع؛ 4 سنوات"
 too_new_account_logEmbed_title: "وحدة الحسابات الجديدة جدًا"
-too_new_account_logEmbed_desc_on_enable: "${interaction.user} قد قام بتمكين وحدة الحسابات الجديدة جدًا. الآن، الحسابات الجديدة التي تنضم إلى ${interaction.guild?.name} يجب أن يكون عمرها على الأقل `${beautifulTime}`!"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} قام بتفعيل وحدة TooNewAccount. يجب أن يكون عمر الحسابات الآن على الأقل ${beautifulTime}، وإذا انضم المستخدم أكثر من `${maxJoin}` مرة، سيتم حظره."
 too_new_account_command_work_on_enable: "${interaction.user}, الآن، سيتم طرد الأعضاء الجدد الذين ينضمون إلى **${interaction.guild?.name}** بحسابات أقل من `${beautifulTime}`."
+too_new_account_command_work_on_enable2: "\n-#  ${client.iHorizon_Emojis.Sparkles} بعد أن ينضم الحساب إلى الخادم **`${maxJoin}`** مرة، سيتم حظره."
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} قد قام بإيقاف هذه الوحدة!"
 too_new_account_command_work_on_disable: "${interaction.user}, تم تعطيل الوحدة بنجاح. لن يتم التحقق بعد الآن من تواريخ إنشاء الحسابات للأعضاء الجدد."
 

@@ -996,6 +996,7 @@ export interface LanguageData {
   too_new_account_logEmbed_title: string;
   too_new_account_logEmbed_desc_on_enable: string;
   too_new_account_command_work_on_enable: string;
+  too_new_account_command_work_on_enable2: string;
   too_new_account_logEmbed_desc_on_disable: string;
   too_new_account_command_work_on_disable: string;
   guildconfig_setbot_footername_footer_too_long_msg: string;

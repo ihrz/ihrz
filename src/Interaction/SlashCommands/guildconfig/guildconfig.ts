@@ -134,12 +134,25 @@ export const command: Command = {
 							permission: null
 						},
 						{
-							name: 'maximum-date',
+							name: 'minimum-date',
 							type: ApplicationCommandOptionType.String,
 
 							description: 'Minimum seniority time',
 							description_localizations: {
 								"fr": "Temps minimum d'ancienneté"
+							},
+
+							required: false,
+
+							permission: null
+						},
+						{
+							name: 'maximum-join',
+							type: ApplicationCommandOptionType.Number,
+
+							description: 'Maximum join before ban',
+							description_localizations: {
+								"fr": "Montant de join maximum possible de l'utilisateur avant sont bannisement"
 							},
 
 							required: false,

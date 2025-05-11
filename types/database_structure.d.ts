@@ -451,6 +451,7 @@ export namespace DatabaseStructure {
 	export interface BlockNewAccountSchema {
 		state: boolean;
 		req: number;
+		maxJoin?: number;
 	}
 
 	export interface DbGuildBotObject {

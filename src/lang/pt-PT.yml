@@ -1269,8 +1269,9 @@ automod_block_spam_command_off: "${interaction.user}, você configurou a `Regra 
 too_new_account_dont_specified_time_on_enable: "Você não especificou um tempo. Para ativar este módulo, é necessário uma idade mínima da conta!"
 too_new_account_invalid_time_on_enable: "O tempo que você inseriu não é válido! **Exemplo de tempo válido**: `3h; 30m; 4w; 4y` -> 3 horas; 30 minutos; 4 semanas; 4 anos"
 too_new_account_logEmbed_title: "Módulo TooNewAccount"
-too_new_account_logEmbed_desc_on_enable: "${interaction.user} ativou o módulo TooNewAccount. Agora as contas precisam ter uma idade mínima de ${beautifulTime}!"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} ativou o módulo TooNewAccount. As contas agora devem ter pelo menos ${beautifulTime} de idade, e se um usuário entrar mais de `${maxJoin}` vezes, será banido."
 too_new_account_command_work_on_enable: "${interaction.user}, novos membros que entrarem em **${interaction.guild?.name}** com contas criadas há menos de `${beautifulTime}` serão expulsos."
+too_new_account_command_work_on_enable2: "\n-#  ${client.iHorizon_Emojis.Sparkles} Após a conta entrar no servidor **`${maxJoin}`** vezes, será banida."
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} desativou o módulo!"
 too_new_account_command_work_on_disable: "${interaction.user}, o módulo foi desativado com sucesso. As datas de criação das contas dos novos membros não serão mais verificadas."
 
