@@ -27,18 +27,14 @@ import { DatabaseStructure } from '../../../types/database_structure.js';
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-		/**
-		 * Why doing this?
-		 * On iHorizon Production, we have some ~problems~ 👎
-		 * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-		 */
-		const nonce = SnowflakeUtil.generate().toString();
-
 		if (!member.guild || member.user.bot) return;
 
 		let baseData = await client.db.get(`${member.guild.id}.GUILD.BLOCK_NEW_ACCOUNT`) as DatabaseStructure.BlockNewAccountSchema;
 		let joinCount = await client.db.get(`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`) || 0;
-		await client.db.set(`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`, joinCount++);
+
+		joinCount++;
+
+		await client.db.set(`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`, joinCount);
 
 		if (!baseData) return;
 
