@@ -346,6 +346,7 @@ function antispamToString(antispamConfig: AntiSpam.AntiSpamOptions | undefined, 
 function tooNewAccountToString(user: GuildMember, tooNewConfig: DatabaseStructure.BlockNewAccountSchema | undefined, lang: LanguageData): string {
 	return (tooNewConfig?.state === true) ? lang.too_new_account_logEmbed_desc_on_enable
 		.replace('${interaction.user}', user.toString())
+		.replace("${maxJoin}", String(tooNewConfig.maxJoin || 0))
 		.replace('${beautifulTime}', new iHorizonTimeCalculator().to_beautiful_string(tooNewConfig?.req || 0, lang)) : lang.var_no_set;
 }
 

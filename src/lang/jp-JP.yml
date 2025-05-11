@@ -1269,8 +1269,9 @@ automod_block_spam_command_off: "${interaction.user}, あなたは`Spam AutoMod�
 too_new_account_dont_specified_time_on_enable: "時間が指定されていません。このモジュールを有効にするには、アカウントの最低年齢が必要です！"
 too_new_account_invalid_time_on_enable: "入力した時間が無効です！ **有効な時間の例**: `3h; 30m; 4w; 4y` -> 3時間; 30分; 4週間; 4年"
 too_new_account_logEmbed_title: "TooNewAccount モジュール"
-too_new_account_logEmbed_desc_on_enable: "${interaction.user} は TooNewAccount モジュールを有効にしました。アカウントには現在、最低 ${beautifulTime} の年齢が必要です！"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} が TooNewAccount モジュールを有効にしました。アカウントは最低でも ${beautifulTime} 経過している必要があり、ユーザーが `${maxJoin}` 回以上参加するとBANされます。"
 too_new_account_command_work_on_enable: "${interaction.user}、**${interaction.guild?.name}** に参加する新しいメンバーは、アカウントが `${beautifulTime}` より若い場合、強制退出させられます。"
+too_new_account_command_work_on_enable2: "\n-#  ${client.iHorizon_Emojis.Sparkles} アカウントがサーバーに**`${maxJoin}`**回参加すると、BANされます。"
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} がモジュールを無効にしました！"
 too_new_account_command_work_on_disable: "${interaction.user}、モジュールは正常に無効化されました。新しいメンバーのアカウント作成日はチェックされなくなります。"
 

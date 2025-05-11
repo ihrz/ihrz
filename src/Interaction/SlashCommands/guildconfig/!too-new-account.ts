@@ -28,10 +28,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
-
-
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
@@ -42,8 +38,8 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		let action = interaction.options.getString('action') as string;
-		let maximumDate = interaction.options.getString('maximum-date');
-
+		let maximumDate = interaction.options.getString('minimum-date');
+		let maximumJoin = interaction.options.getNumber("maximum-join") || 3;
 
 		if (action === 'on') {
 			if (!maximumDate) {
@@ -73,7 +69,8 @@ export const subCommand: SubCommand = {
 
 			await client.db.set(`${interaction.guildId}.GUILD.BLOCK_NEW_ACCOUNT`, {
 				state: true,
-				req: calculatedTime
+				req: calculatedTime,
+				maxJoin: maximumJoin
 			});
 
 			await interaction.editReply({
@@ -81,6 +78,10 @@ export const subCommand: SubCommand = {
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${beautifulTime}', beautifulTime.toString())
 					.replace('${interaction.guild?.name}', beautifulTime.toString())
+					+
+					lang.too_new_account_command_work_on_enable2
+						.replace("${client.iHorizon_Emojis.Sparkles}", client.iHorizon_Emojis.Sparkles)
+						.replace("${maxJoin}", String(maximumJoin))
 			});
 			return;
 
