@@ -37,6 +37,8 @@ export const event: BotEvent = {
 		if (!member.guild || member.user.bot) return;
 
 		let baseData = await client.db.get(`${member.guild.id}.GUILD.BLOCK_NEW_ACCOUNT`) as DatabaseStructure.BlockNewAccountSchema;
+		let joinCount = await client.db.get(`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`) || 0;
+		await client.db.set(`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`, joinCount++);
 
 		if (!baseData) return;
 
@@ -44,12 +46,14 @@ export const event: BotEvent = {
 		const currentTime = Date.now();
 		const accountAge = currentTime - accountCreationDate.getTime();
 
-		if (accountAge < baseData.req) {
-			try {
-				member.kick("[TooNewAccount] Account is too new")
-					.catch(() => { })
-					.then(() => { });
-			} catch { }
+		if (baseData.maxJoin && joinCount >= baseData.maxJoin) {
+			member.ban({ reason: "[TooNewAccount] User join too much." })
+				.catch(() => { })
+				.then(() => { });
+		} else if (accountAge < baseData.req) {
+			member.kick("[TooNewAccount] Account is too new")
+				.catch(() => { })
+				.then(() => { });
 		}
 	},
 };

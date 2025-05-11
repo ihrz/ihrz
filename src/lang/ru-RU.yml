@@ -1269,8 +1269,9 @@ automod_block_spam_command_off: "${interaction.user}, вы отключили `�
 too_new_account_dont_specified_time_on_enable: "Вы не указали время. Для включения этого модуля требуется минимальный возраст аккаунта!"
 too_new_account_invalid_time_on_enable: "Введенное вами время недействительно! **Пример допустимого времени**: `3h; 30m; 4w; 4y` -> 3 часа; 30 минут; 4 недели; 4 года"
 too_new_account_logEmbed_title: "Модуль TooNewAccount"
-too_new_account_logEmbed_desc_on_enable: "${interaction.user} включил модуль TooNewAccount. Теперь для аккаунтов требуется минимальный возраст в ${beautifulTime}!"
+too_new_account_logEmbed_desc_on_enable: "${interaction.user} включил модуль TooNewAccount. Теперь аккаунтам должно быть не менее ${beautifulTime}, и если пользователь присоединится более `${maxJoin}` раз, он будет забанен."
 too_new_account_command_work_on_enable: "${interaction.user}, новые участники, присоединившиеся к **${interaction.guild?.name}** с аккаунтами младше `${beautifulTime}`, будут удалены."
+too_new_account_command_work_on_enable2: "\n-#  ${client.iHorizon_Emojis.Sparkles} После того как аккаунт присоединится к серверу **`${maxJoin}`** раз, он будет забанен."
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} отключил модуль!"
 too_new_account_command_work_on_disable: "${interaction.user}, модуль успешно отключен. Даты создания новых аккаунтов участников больше не будут проверяться."
 

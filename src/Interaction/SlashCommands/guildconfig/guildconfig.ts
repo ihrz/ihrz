@@ -145,6 +145,19 @@ export const command: Command = {
 							required: false,
 
 							permission: null
+						},
+						{
+							name: 'maximum-join',
+							type: ApplicationCommandOptionType.Number,
+
+							description: 'Maximum join before ban',
+							description_localizations: {
+								"fr": "Montant de join maximum possible de l'utilisateur avant sont bannisement"
+							},
+
+							required: false,
+
+							permission: null
 						}
 					],
 
