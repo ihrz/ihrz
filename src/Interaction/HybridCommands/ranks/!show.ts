@@ -84,13 +84,13 @@ export const subCommand: SubCommand = {
 			.setColor('#0014a8')
 			.addFields(
 				{
-					name: lang.level_embed_fields1_name, value: lang.level_embed_fields1_value
-						.replace('${currentxp}', currentxp)
-						.replace('${xpNeeded}', xpNeeded.toString()), inline: true
+					name: lang.level_embed_fields1_name, value: lang.level_embed_fields2_value
+						.replace('${level}', level), inline: true
 				},
 				{
-					name: lang.level_embed_fields2_name, value: lang.level_embed_fields2_value
-						.replace('${level}', level), inline: true
+					name: lang.level_embed_fields2_name, value: lang.level_embed_fields1_value
+						.replace('${currentxp}', currentxp)
+						.replace('${xpNeeded}', xpNeeded.toString()), inline: true
 				}
 			)
 			.setImage("attachment://image.png")
