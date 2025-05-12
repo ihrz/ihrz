@@ -87,7 +87,7 @@ class EmojisManager {
 
 	private async fetchCurrentApplicationEmojis() {
 		var fetched_emojis_data = await this.client.application?.emojis.fetch();
-		var filtered_emojis_data = fetched_emojis_data?.values().toArray()
+		var filtered_emojis_data = fetched_emojis_data ? Array.from(fetched_emojis_data.values())
 			.map(x => {
 				return {
 					Name: x.name,
@@ -96,8 +96,8 @@ class EmojisManager {
 					FormatedName: x.toString()
 				}
 			})
-			.filter(x => x.Name?.startsWith("iHorizon"));
-		return filtered_emojis_data || [];
+			.filter(x => x.Name?.startsWith("iHorizon")) : [];
+		return filtered_emojis_data;
 	}
 
 	private writeFinalJSON() {
