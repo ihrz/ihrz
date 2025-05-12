@@ -152,7 +152,7 @@ function promptUser(): Promise<number> {
 	});
 
 	return new Promise((resolve) => {
-		rl.question('Choose an option:\n1. [EXIT]\n2. Create TypeScript Interface files\n', (answer) => {
+		rl.question('Choose an option:\n1. [EXIT]\n2. Create TypeScript Interface files\n3. Build combined lang.json with all languages\n', (answer) => {
 			rl.close();
 			resolve(parseInt(answer, 10));
 		});
@@ -237,6 +237,25 @@ async function main() {
 		interfaceContent += `export interface LanguageData ${mergedType}`;
 		writeFileSync(outputPath, interfaceContent, 'utf-8');
 		logger.log(`[+] TypeScript definition file created: ${outputPath}`);
+	} else if (userChoice === 3) {
+		// Construction du fichier lang.json avec toutes les langues
+		const langJsonPath = path.join(process.cwd(), 'src', 'lang', 'lang.json');
+		const langsData: Record<string, any> = {};
+
+		// Charger toutes les données de langue à partir des fichiers YAML
+		for (const langFile of langsContent) {
+			try {
+				const langCode = langFile.replace('.yml', '');
+				const langData = yaml.load(readFileSync(path.join(langsPath, langFile), 'utf-8'));
+				langsData[langCode] = langData;
+			} catch (err) {
+				logger.warn(`Error when loading ${langFile} language file`);
+			}
+		}
+
+		// Écriture du fichier JSON combiné
+		writeFileSync(langJsonPath, JSON.stringify(langsData, null, 2), 'utf-8');
+		logger.log(`[+] Combined language file created: ${langJsonPath}`);
 	}
 }
 
