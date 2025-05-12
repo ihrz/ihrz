@@ -33,6 +33,8 @@ import { CacheStorage } from '../../core/cache.js';
 import { recoverActiveSessions } from '../stats/onVoiceUpdate.js';
 import { getCacheStorage } from '../../core/core.js';
 import { InfrastructureMonitoring } from '../../core/modules/infrastructureMonitoringManager.js';
+import { writeFileSync } from 'node:fs';
+import { removePermissionProperties } from '../../core/commandsSync.js';
 
 export const event: BotEvent = {
 	name: "ready",
@@ -298,5 +300,20 @@ export const event: BotEvent = {
 		}
 
 		logger.log(`${client.config.console.emojis.HOST} >> Bot is ready`.white);
+
+		if (client.version.env === "dev") {
+			writeFileSync("commands.json", JSON.stringify(client.commands.map(x => {
+				return {
+					name: x.name,
+					name_translated: x.name_localizations,
+
+					description: x.description,
+					description_translated: x.description_localizations,
+
+					category: x.category,
+					options: removePermissionProperties(x.options),
+				}
+			}), null, 4))
+		}
 	},
 };
