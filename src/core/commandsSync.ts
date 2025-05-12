@@ -23,7 +23,7 @@ import { REST, Routes, Client, ApplicationCommand } from 'discord.js';
 import logger from "./logger.js";
 import getToken from './functions/getToken.js';
 
-function removePermissionProperties(obj: any): any {
+export function removePermissionProperties(obj: any): any {
 	// If obj is an array, map through its elements
 	if (Array.isArray(obj)) {
 		return obj.map(item => removePermissionProperties(item));
