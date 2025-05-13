@@ -187,8 +187,43 @@ export const event: BotEvent = {
 			}).catch(() => { });
 		};
 
+		async function setLangByRegion() {
+			let guildLocation = guild.preferredLocale;
+
+			switch (guildLocation) {
+				case 'fr':
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'fr-FR');
+					break;
+				case 'en-US':
+				case 'en-GB':
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'en-US');
+					break;
+				case 'es-ES':
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'es-ES');
+					break;
+				case 'de':
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'de-DE');
+					break;
+				case 'it':
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'it-IT');
+					break;
+				case 'ja':
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'jp-JP');
+					break;
+				case 'pt-BR':
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'pt-PT');
+					break;
+				case 'ru':
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'ru-RU');
+					break;
+				default:
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'en-US');
+					break;
+			}
+		}
+
 		// let c = await antiPoubelle();
 		let d = await blacklistLeave();
-		if (d) ownerLogs(), messageToServer(), getInvites();
+		if (d) await Promise.all([ownerLogs(), messageToServer(), getInvites(), setLangByRegion()]);
 	},
 };
