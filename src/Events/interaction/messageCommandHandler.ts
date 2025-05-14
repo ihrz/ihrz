@@ -151,11 +151,7 @@ async function executeCommand(
 	var _ = await message.client.func.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
 
 	(async () => {
-		try {
-			await command.run!(message.client, message, lang, args);
-		} catch (error) {
-			await handleCommandError(message, command, error);
-		}
+		await command.run!(message.client, message, lang, args);
 	})();
 }
 
