@@ -46,10 +46,6 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let a = new EmbedBuilder()
-			.setColor("#FF0000")
-			.setDescription(lang.removeinvites_not_admin_embed_description);
-
 		let response = await promptYesOrNo(interaction, {
 			content: lang.reset_uranks_are_you_sure,
 			noButton: lang.resetallinvites_no_button,
