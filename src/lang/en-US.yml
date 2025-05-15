@@ -1619,6 +1619,10 @@ warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> 
 warnlist_embed_title: "${member?.user.globalName}'s WarnList | Page ${i / usersPerPage + 1}"
 warnlist_dont_have_permission: "${client.iHorizon_Emojis.No} | You don't have permission to manage member warnings in this discord server."
 
+# /clear-allwarns
+clear_allwarns_confirmation_message: "**Are you really sure you want to delete all warns data?\nThis action is permanent and you cannot undo it.**\n**This action is destructive!!**"
+clear_allwarns_command_ok: "All the warns in this discord server have been deleted."
+
 # /baninfo
 baninfo_not_banned: "User is not banned"
 baninfo_ban_info: "Ban info"

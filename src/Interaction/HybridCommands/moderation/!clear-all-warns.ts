@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
 		let DbData = await client.db.get(`${interaction.guild?.id}.USER`) as DatabaseStructure.DbGuildUserObject[];
 
 		let response = await promptYesOrNo(interaction, {
-			content: "**Are you really sure you want to delete all warns data?\nThis action is permanent and you cannot undo it.**\n**This action is destructive!!**",
+			content: lang.clear_allwarns_confirmation_message,
 			noButton: lang.resetallinvites_no_button,
 			yesButton: lang.resetallinvites_yes_button,
 			dangerAction: true
@@ -59,11 +59,11 @@ export const subCommand: SubCommand = {
 			}
 
 			await client.func.method.interactionSend(interaction, {
-				content: "fdp ok"
+				content: lang.clear_allwarns_command_ok
 			});
 		} else {
 			await client.func.method.interactionSend(interaction, {
-				content: "on as anuler la commande batar",
+				content: lang.setjoinroles_action_canceled,
 				components: []
 			});
 		}
