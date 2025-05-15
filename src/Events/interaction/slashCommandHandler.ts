@@ -149,8 +149,11 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 		}
 	}
 
-	if (command.run)
-		await command.run(client, interaction, lang, []);
+	if (command.run) {
+		(async () => {
+			await command.run!(client, interaction, lang, []);
+		})();
+	}
 }
 
 async function handleCommandError(client: Client, interaction: ChatInputCommandInteraction, command: Command, error: any) {
