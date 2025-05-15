@@ -570,7 +570,7 @@ export function findOptionRecursively(options: Option[], subcommandName: string)
 };
 
 export async function buttonReact(msg: Message, button: ButtonBuilder): Promise<Message> {
-	let comp = msg.components;
+	let comp = msg.components as ActionRow<MessageActionRowComponent>[];
 	let isAdd = false;
 
 	if (comp.length >= 5) {
@@ -578,9 +578,9 @@ export async function buttonReact(msg: Message, button: ButtonBuilder): Promise<
 	}
 
 	for (let lines of comp) {
-		if (lines.components.length < 5 && !isAdd) {
-			if (lines.components.find(x => x.type === ComponentType.Button)) {
-				let newActionRow: ActionRowBuilder = ActionRowBuilder.from(lines);
+		if ((lines as ActionRow<MessageActionRowComponent>).components.length < 5 && !isAdd) {
+			if ((lines as ActionRow<MessageActionRowComponent>).components.find((x: MessageActionRowComponent) => x.type === ComponentType.Button)) {
+				let newActionRow = ActionRowBuilder.from(lines as ActionRow<MessageActionRowComponent>);
 
 				newActionRow.addComponents(button);
 				comp[comp.indexOf(lines)] = newActionRow.toJSON() as ActionRow<MessageActionRowComponent>;
@@ -601,15 +601,15 @@ export async function buttonReact(msg: Message, button: ButtonBuilder): Promise<
 }
 
 export async function buttonUnreact(msg: Message, buttonEmoji: string): Promise<Message> {
-	let comp = msg.components;
+	let comp = msg.components as ActionRow<MessageActionRowComponent>[];
 	let isRemoved = false;
 
-	const newComp = [];
+	const newComp: ActionRow<MessageActionRowComponent>[] = [];
 
 	for (let i = 0; i < comp.length; i++) {
-		const actionRow = comp[i];
-		const newComponents = actionRow.components.filter(component => {
-			if (component.type === ComponentType.Button && component.emoji?.id === buttonEmoji) {
+		const actionRow = comp[i] as ActionRow<MessageActionRowComponent>;
+		const newComponents = actionRow.components.filter((component: MessageActionRowComponent) => {
+			if (component.type === ComponentType.Button && (component as ButtonComponent).emoji?.id === buttonEmoji) {
 				isRemoved = true;
 				return false;
 			}
@@ -617,7 +617,7 @@ export async function buttonUnreact(msg: Message, buttonEmoji: string): Promise<
 		});
 
 		if (newComponents.length > 0) {
-			newComp.push({ type: 1, components: newComponents });
+			newComp.push({ type: 1, components: newComponents } as ActionRow<MessageActionRowComponent>);
 		}
 	}
 
