@@ -564,6 +564,20 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: "clear-all-warns",
+
+			description: "clear all warns of all users across the server",
+			description_localizations: {
+				"fr": "effacer tout les avertissement de tous les utilisateurs du serveur"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			aliases: ["clearallwarns", "clearallwarn", "clearsanctionsall", "clearsanctionall"],
+
+			permission: PermissionFlagsBits.Administrator
 		}
 	],
 	thinking: true,

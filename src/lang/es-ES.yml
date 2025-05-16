@@ -1611,6 +1611,10 @@ unwarn_logEmbed_title: "Registros de Retiro de Advertencias"
 unwarn_logEmbed_desc: "${interaction.member.toString()} ha retirado la advertencia de ${member?.toString()}"
 unwarn_dont_have_permission: "${client.iHorizon_Emojis.No} | No tienes permiso para eliminar una advertencia de un miembro en este servidor de Discord."
 
+# /clear-allwarns
+clear_allwarns_confirmation_message: "**¿Estás realmente seguro de que quieres eliminar todos los datos de advertencias? Esta acción es permanente y no puedes deshacerla.** **¡¡Esta acción es destructiva!!**"
+clear_allwarns_command_ok: "Todas las advertencias en este servidor de Discord han sido eliminadas."
+
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.No} ¡${member?.toString()} parece no tener ninguna advertencia en mi base de datos!"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autor: <@${x.authorID}>\n> Razón: `${x.reason}`"

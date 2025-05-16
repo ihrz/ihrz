@@ -1611,6 +1611,10 @@ unwarn_logEmbed_title: "Protokolle aufgehobener Verwarnungen"
 unwarn_logEmbed_desc: "${interaction.member.toString()} hat die Verwarnung von ${member?.toString()} aufgehoben"
 unwarn_dont_have_permission: "${client.iHorizon_Emojis.No} | Sie haben keine Berechtigung, eine Verwarnung eines Mitglieds auf diesem Discord-Server zu entfernen."
 
+# /clear-allwarns
+clear_allwarns_confirmation_message: "**Sind Sie wirklich sicher, dass Sie alle Verwarnungsdaten löschen möchten? Diese Aktion ist permanent und kann nicht rückgängig gemacht werden.** **Diese Aktion ist zerstörerisch!!**"
+clear_allwarns_command_ok: "Alle Verwarnungen auf diesem Discord-Server wurden gelöscht."
+
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.No} ${member?.toString()} scheint keine Verwarnungen in meiner Datenbank zu haben!"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autor: <@${x.authorID}>\n> Grund: `${x.reason}`"
