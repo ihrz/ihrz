@@ -78,6 +78,7 @@ export const subCommand: SubCommand = {
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${beautifulTime}', beautifulTime.toString())
 					.replace('${interaction.guild?.name}', beautifulTime.toString())
+					.replace('${maxJoin}', String(maximumJoin))
 					+
 					lang.too_new_account_command_work_on_enable2
 						.replace("${client.iHorizon_Emojis.Sparkles}", client.iHorizon_Emojis.Sparkles)
