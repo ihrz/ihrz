@@ -1613,6 +1613,10 @@ unwarn_logEmbed_title: "Historique des Retraits d'Avertissements"
 unwarn_logEmbed_desc: "${interaction.member.toString()} a retiré l'avertissement de ${member?.toString()}"
 unwarn_dont_have_permission: "${client.iHorizon_Emojis.No} | Vous n'avez pas la permission de supprimer un avertissement d'un membre de ce serveur discord."
 
+# /clear-allwarns
+clear_allwarns_confirmation_message: "**Êtes-vous vraiment sûr de vouloir supprimer toutes les données d'avertissements ? Cette action est permanente et vous ne pouvez pas l'annuler.** **Cette action est destructive!!**"
+clear_allwarns_command_ok: "Tous les avertissements dans ce serveur discord ont été supprimés."
+
 # /warnlist
 warnlist_no_data: "${client.iHorizon_Emojis.No} ${member?.toString()} ne semble avoir aucun avertissement dans ma base de données !"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Auteur : <@${x.authorID}>\n> Raison : `${x.reason}`"

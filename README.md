@@ -82,11 +82,11 @@ It offers a **large variety of features**, including:
 ### 🚀 Running on Linux & macOS  
 
 ```bash
-bun -i
+bun i
 
 # If you see an error, install bun and resource your terminal.
 
-bun build && bun .
+bun .
 ```
 
 ## 🚀 NpmJS Method  
@@ -126,7 +126,7 @@ Working: [See more](https://npmjs.com/ihrz)
 <br>
 🇨🇦 Noémie : She is even prettier than most :D
 
-🎀 Camille : Real she is really pretty.
+🎀 Camille : She is really pretty.
 
 ## ❗ Remarks  
 

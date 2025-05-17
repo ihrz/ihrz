@@ -1235,6 +1235,8 @@ export interface LanguageData {
   unwarn_logEmbed_title: string;
   unwarn_logEmbed_desc: string;
   unwarn_dont_have_permission: string;
+  clear_allwarns_confirmation_message: string;
+  clear_allwarns_command_ok: string;
   warnlist_no_data: string;
   warnlist_embed_desc: string;
   warnlist_embed_title: string;

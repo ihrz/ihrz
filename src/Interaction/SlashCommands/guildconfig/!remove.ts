@@ -44,9 +44,11 @@ export const subCommand: SubCommand = {
 
 
 		let channel = interaction.options.getChannel('channel') as GuildChannel;
-		let all_channels: DatabaseStructure.GhostPingData['channels'] = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) || [];
+		let allData: DatabaseStructure.GhostPingData['channels'] = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) || [];
 
-		if (!all_channels?.includes(channel.id)) {
+		let all_channels = new Set(allData?.filter(x => interaction.guild?.channels.cache.get(x)));
+
+		if (!all_channels?.has(channel.id)) {
 			await interaction.reply({
 				content: lang.joinghostping_remove_isnt_set
 					.replace('${channel}', channel.toString())
@@ -54,9 +56,9 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		all_channels = all_channels.filter(x => x !== channel.id);
+		all_channels.delete(channel.id);
 
-		await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`, all_channels);
+		await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`, Array.from(all_channels));
 
 		let embed = new EmbedBuilder()
 			.setTitle(lang.joinghostping_add_ok_embed_title)
@@ -64,8 +66,8 @@ export const subCommand: SubCommand = {
 			.setDescription(lang.joinghostping_remove_ok_embed_desc)
 			.addFields({
 				name: lang.joinghostping_add_ok_embed_fields_name,
-				value: all_channels.length > 0
-					? Array.from(new Set(all_channels.map(x => `<#${x}>`))).join('\n')
+				value: all_channels.size > 0
+					? Array.from(all_channels).map(x => `<#${x}>`).join('\n')
 					: lang.var_no_set
 			});
 

@@ -53,6 +53,7 @@ export default async function promptYesOrNo(interaction: ChatInputCommandInterac
 	let e = (await sent.awaitMessageComponent({ componentType: ComponentType.Button, filter: (x) => x.user.id === interaction.member?.user.id }));
 
 	e.deferUpdate();
+	sent.edit({ components: [] });
 
 	return e.customId === "yes" ? true : false;
 }
