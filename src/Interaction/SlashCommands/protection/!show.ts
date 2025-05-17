@@ -29,6 +29,7 @@ import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -45,11 +46,11 @@ export const subCommand: SubCommand = {
 		var text = "";
 		var text2 = "";
 
-		let baseData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`);
+		let baseData: DatabaseStructure.AllowListData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`) || { enable: false, list: [] };
 
 		let baseData4Protection = await client.db.get(`${interaction.guild.id}.PROTECTION`);
 
-		if (!baseData || !baseData4Protection || Object.keys(baseData.list).length === 0 || Object.keys(baseData4Protection).length === 0) {
+		if (!baseData || !baseData4Protection || Object.keys(baseData?.list || []).length === 0 || Object.keys(baseData4Protection).length === 0) {
 			await interaction.editReply({ content: lang.authorization_configshow_not_anything_setup });
 			return;
 		};

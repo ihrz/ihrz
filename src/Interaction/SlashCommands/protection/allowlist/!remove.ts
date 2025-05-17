@@ -29,6 +29,7 @@ import {
 
 import { LanguageData } from '../../../../../types/languageData.js';
 import { SubCommand } from '../../../../../types/command.js';
+import { DatabaseStructure } from '../../../../../types/database_structure.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -37,7 +38,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
+		let baseData: DatabaseStructure.AllowListData = await client.db.get(`${interaction.guildId}.ALLOWLIST`) || { enable: false, list: [] };
 		let member = interaction.options.getUser('member') as User;
 
 		if (interaction.user.id !== interaction.guild.ownerId) {
@@ -45,7 +46,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		if (interaction.user.id !== interaction.guild.ownerId && baseData?.list[interaction.user.id]?.allowed !== true) {
+		if (interaction.user.id !== interaction.guild.ownerId && baseData?.list?.[interaction.user.id]?.allowed !== true) {
 			await interaction.reply({ content: lang.allowlist_delete_not_permited });
 			return;
 		};
@@ -60,7 +61,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		if (!baseData.list[member.id]?.allowed == true) {
+		if (!baseData.list?.[member.id]?.allowed == true) {
 			await interaction.reply({ content: lang.allowlist_delete_isnt_in });
 			return;
 		};
