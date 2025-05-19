@@ -37,7 +37,7 @@ import {
 import { axios } from '../../../core/functions/axios.js';
 import { SubCommand } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { createOauth2Link, oauth2Member } from '../../../core/functions/authRestoreHelper.js';
+import { createOauth2LinkWithoutGuild, oauth2Member } from '../../../core/functions/authRestoreHelper.js';
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 
 export const subCommand: SubCommand = {
@@ -179,11 +179,9 @@ export const subCommand: SubCommand = {
 					},
 					{
 						name: lang.userinfo_embed_fields_5_name,
-						value: nitro.type || (client.config.api.HorizonGateway?.startsWith("http") ? `[${lang.userinfo_var_notfound}](${createOauth2Link({
-							guildId: interaction.guildId!,
+						value: nitro.type || (client.config.api.HorizonGateway?.startsWith("http") ? `[${lang.userinfo_var_notfound}](${createOauth2LinkWithoutGuild({
 							clientId: client.user?.id,
 							scope: "identify"
-
 						})})` : lang.userinfo_var_notfound),
 						inline: true,
 					},

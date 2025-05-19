@@ -95,10 +95,26 @@ export interface AuthRestore_ResponseType {
 	secretCode?: string;
 }
 
-export function createOauth2Link(data: AuthRestore_EntryType): string {
+export interface Oauth2_Link_Entry {
+	author?: oauth2Author
+	clientId?: string;
+	apiToken?: string;
+	roleId?: string;
+	scope?: string;
+}
+
+export function createOauth2LinkWithGuild(data: AuthRestore_EntryType): string {
 	return Oauth2_Link
 		.replace("{client_id}", data.clientId!)
 		.replace("{guild_id}", data.guildId)
+		.replace("{redirect_uri}", apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.GenerateOauthLink))
+		.replace("{scope}", data?.scope || "identify")
+}
+
+
+export function createOauth2LinkWithoutGuild(data: Oauth2_Link_Entry): string {
+	return Oauth2_Link.split("&state=")[0]
+		.replace("{client_id}", data.clientId!)
 		.replace("{redirect_uri}", apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.GenerateOauthLink))
 		.replace("{scope}", data?.scope || "identify")
 }
