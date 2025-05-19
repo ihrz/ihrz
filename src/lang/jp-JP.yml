@@ -1021,6 +1021,13 @@ util_securewebhook_action_delete_not_owner: "あなたはこのWebhookの所有�
 util_securewebhook_action_delete_error: "Webhookの削除中にエラーが発生しました"
 util_securewebhook_actiom_list_ok: ":star: __**あなたのWebhook**__：\n"
 
+# /util admin-roles
+admin_roles_nobody_roles: "このサーバーには管理者ロールがありません！"
+admin_roles_embed_title: "すべての管理者ロール一覧 | ページ ${i / rolesPerPage + 1}"
+admin_roles_remove_button_label: "全てから管理者を削除"
+admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}、iHorizon は AdminRoles モジュールの管理者権限削除を実行しました。\n\n**${good}** 個のロールを __正常に変更__\niHorizon は **${bad}** 個のロールを変更できませんでした。"
+admin_roles_remove_not_owner: "あなたはサーバーオーナーではありません！"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

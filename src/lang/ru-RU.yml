@@ -1021,6 +1021,13 @@ util_securewebhook_action_delete_not_owner: "Вы не являетесь вла
 util_securewebhook_action_delete_error: "Ошибка при удалении вебхука"
 util_securewebhook_actiom_list_ok: ":star: __**Ваши вебхуки**__:\n"
 
+# /util admin-roles
+admin_roles_nobody_roles: "В этом сервере нет роли администратора!"
+admin_roles_embed_title: "Список всех ролей администратора | Страница ${i / rolesPerPage + 1}"
+admin_roles_remove_button_label: "Снять права админа у всех"
+admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}, iHorizon выполнил удаление прав администратора для модуля AdminRoles.\n\n**${good}** роль(и) успешно __изменены__\nНе удалось изменить **${bad}** роль(ей) в iHorizon."
+admin_roles_remove_not_owner: "Вы не владелец сервера!"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

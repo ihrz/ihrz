@@ -1021,6 +1021,13 @@ util_securewebhook_action_delete_not_owner: "Vous n'êtes pas le propriétaire d
 util_securewebhook_action_delete_error: "Erreur lors de la suppression du webhook"
 util_securewebhook_actiom_list_ok: ":star: __**Vos webhooks**__ :\n"
 
+# /util admin-roles
+admin_roles_nobody_roles: "Il n’y a aucun rôle administrateur sur ce serveur !"
+admin_roles_embed_title: "Liste de tous les rôles administrateur | Page ${i / rolesPerPage + 1}"
+admin_roles_remove_button_label: "Retirer l’admin de tous"
+admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}, iHorizon a exécuté la suppression des permissions administrateur pour le module AdminRoles.\n\n**${good}** rôle(s) __modifié(s)__ avec succès\niHorizon n’a pas pu modifier **${bad}** rôle(s)."
+admin_roles_remove_not_owner: "Vous n’êtes pas propriétaire du serveur !"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

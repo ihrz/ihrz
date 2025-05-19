@@ -1022,6 +1022,13 @@ util_securewebhook_action_delete_not_owner: "أنت لست مالك هذا ال�
 util_securewebhook_action_delete_error: "خطأ أثناء حذف الويب هوك"
 util_securewebhook_actiom_list_ok: ":star: __**الويب هوك الخاص بك**__:\n"
 
+# /util admin-roles
+admin_roles_nobody_roles: "لا يوجد دور مسؤول في هذا الخادم!"
+admin_roles_embed_title: "قائمة كل أدوار المسؤولين | الصفحة ${i / rolesPerPage + 1}"
+admin_roles_remove_button_label: "إزالة المسؤول من الجميع"
+admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}، قام iHorizon بتنفيذ إزالة صلاحيات المسؤول لوحدة AdminRoles.\n\n**${good}** دور/أدوار تم __تعديلها__ بنجاح\nفشل iHorizon في تعديل **${bad}** دور/أدوار."
+admin_roles_remove_not_owner: "أنت لست مالك الخادم!"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

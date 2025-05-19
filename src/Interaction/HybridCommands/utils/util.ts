@@ -188,6 +188,20 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand
 		},
 		{
+			name: 'admin-roles',
+
+			description: 'Get the list of all guild roles whose have admin permissions',
+			description_localizations: {
+				"fr": "Obtenez la liste de tous les roles de la guilde disposant d'autorisations d'administrateur"
+			},
+
+			aliases: ["allrolesadmin", "adminroles", "adminrole"],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
 			name: 'where',
 			aliases: ['whereis'],
 

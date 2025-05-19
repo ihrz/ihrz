@@ -30,6 +30,7 @@ import {
 	Message,
 	PermissionFlagsBits,
 	PermissionsBitField,
+	Role
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -45,28 +46,29 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let all_admin_members = Array.from(interaction.guild.members.cache
+		let all_admin_roles = Array.from(interaction.guild.roles.cache
 			.filter(x => x.permissions.has(PermissionFlagsBits.Administrator))
-			.filter(x => x.user.id !== x.guild.ownerId)
-			.filter(x => x.user.id !== x.client.user.id)
 			.values()
 		) || [];
 
-		if (all_admin_members.length == 0) {
-			await client.func.method.interactionSend(interaction, { content: lang.all_admins_nobody_admins });
+		if (all_admin_roles.length == 0) {
+			await client.func.method.interactionSend(interaction, { content: lang.admin_roles_nobody_roles });
 			return;
 		};
 
 		let currentPage = 0;
-		let usersPerPage = 5;
+		let rolesPerPage = 5;
 		let pages: { title: string; description: string; }[] = [];
 
-		for (let i = 0; i < all_admin_members.length; i += usersPerPage) {
-			let pageUsers = all_admin_members.slice(i, i + usersPerPage);
-			let pageContent = pageUsers.map((userId) => userId).join('\n');
+		for (let i = 0; i < all_admin_roles.length; i += rolesPerPage) {
+			let pageRoles = all_admin_roles.slice(i, i + rolesPerPage);
+			let pageContent = pageRoles.map((role) => {
+				// Add a bot emoji for managed roles
+				return role.managed ? `${role} 🤖 (BOT)` : `${role}`;
+			}).join('\n');
 			pages.push({
-				title: lang.all_admins_embed_title
-					.replace("${i / usersPerPage + 1}", String(i / usersPerPage + 1)),
+				title: lang.admin_roles_embed_title
+					.replace("${i / rolesPerPage + 1}", String(i / rolesPerPage + 1)),
 				description: pageContent,
 			});
 		};
@@ -96,7 +98,7 @@ export const subCommand: SubCommand = {
 				.setStyle(ButtonStyle.Secondary),
 			new ButtonBuilder()
 				.setCustomId("trash-button-embed")
-				.setLabel(lang.all_admins_unrank_button_label)
+				.setLabel(lang.admin_roles_remove_button_label)
 				.setEmoji("🗑️")
 				.setStyle(ButtonStyle.Danger)
 		);
@@ -134,44 +136,42 @@ export const subCommand: SubCommand = {
 					let bad = 0;
 
 					await interaction_2.deferUpdate();
-					let to_unrank_members = all_admin_members.filter(x => x.guild.ownerId !== x.user.id);
+					let to_remove_admin_roles = all_admin_roles;
 
-					for (let member of to_unrank_members) {
-						let filtered_roles = Array.from(
-							member.roles.cache
-								.filter(x => !x.permissions.has(PermissionFlagsBits.Administrator))
-								.keys()
-						);
-
+					for (let role of to_remove_admin_roles) {
 						try {
-							await member.roles.set(filtered_roles, "[AdminUsers] clearing admin on the server").catch(() => false);
-							good++
+							// Create new permissions without Administrator
+							let newPermissions = new PermissionsBitField(role.permissions);
+							newPermissions.remove(PermissionFlagsBits.Administrator);
+
+							await role.setPermissions(newPermissions, `[AdminRoles] removing admin permission from role`);
+							good++;
 						} catch (err) {
-							bad++
+							bad++;
 						}
-
-						let embed = new EmbedBuilder()
-							.setFooter(await client.func.displayBotName.footerBuilder(interaction))
-							.setColor('#007fff')
-							.setTimestamp()
-							.setThumbnail(interaction.guild?.iconURL()!)
-							.setDescription(lang.all_admins_unrank_embed_desc
-								.replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
-								.replace("${good}", good.toString())
-								.replace("${bad}", bad.toString())
-							)
-
-						await messageEmbed.edit({
-							embeds: [embed],
-							files: [],
-						})
-
-						collector.stop()
-						return;
 					}
 
+					let embed = new EmbedBuilder()
+						.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+						.setColor('#007fff')
+						.setTimestamp()
+						.setThumbnail(interaction.guild?.iconURL()!)
+						.setDescription(lang.admin_roles_remove_embed_desc
+							.replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
+							.replace("${good}", good.toString())
+							.replace("${bad}", bad.toString())
+						)
+
+					await messageEmbed.edit({
+						embeds: [embed],
+						files: [],
+					})
+
+					collector.stop();
+					return;
+
 				} else {
-					await interaction_2.reply({ content: lang.all_admins_unrank_not_owner });
+					await interaction_2.reply({ content: lang.admin_roles_remove_not_owner });
 					collector.stop();
 				}
 			};
