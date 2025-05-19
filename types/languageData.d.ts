@@ -1863,4 +1863,9 @@ export interface LanguageData {
   addrolereact_adding_role_progress: string;
   addrolereact_role_added: string;
   addrolereact_error: string;
+  admin_roles_nobody_roles: string;
+  admin_roles_embed_title: string;
+  admin_roles_remove_button_label: string;
+  admin_roles_remove_embed_desc: string;
+  admin_roles_remove_not_owner: string;
 }
