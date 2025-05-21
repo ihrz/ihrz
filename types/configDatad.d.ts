@@ -89,7 +89,7 @@ export interface ConfigData {
 
 	database?: {
 		method:
-		'MYSQL' | // PallasDB for MySQL/MariaDB
+		'JSON' | // JSON with Quick.DB
 		'SQLITE' | // Sqlite for BunDB
 		"POSTGRES2" | // PallasDB for postgres
 		"CACHED_POSTGRES2" // Quick.DB Memory Cached with PallasDB postgres 
