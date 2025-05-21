@@ -1030,6 +1030,10 @@ admin_roles_remove_button_label: "Remove admin from all"
 admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}, iHorizon has executed the admin permission removal for the AdminRoles module.\n\n**${good}** Role(s) __modified__ successfully\niHorizon __failed__ to modify **${bad}** Role(s)."
 admin_roles_remove_not_owner: "Only the owner of the guild can remove administrator permission from roles"
 
+# /util rolelimit
+util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | The provided options are invalid. Please check your input."
+util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Role: ${role.toString()} | Max Members: ${limit_count}\n- New users won't be able to receive this role if ${limit_count} members already have it."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

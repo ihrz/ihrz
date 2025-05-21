@@ -202,6 +202,47 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
+			name: 'rolelimit',
+
+			description: 'Limit the number of member(s) in the same role',
+			description_localizations: {
+				"fr": "Limiter le nombre de membres qui peuvent ce partager un rôle."
+			},
+
+			aliases: ["limitrole", "limitoles", "roleslimit"],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			options: [
+				{
+					name: "role",
+
+					description: "The role you want to manage",
+					description_localizations: {
+						"fr": "Le rôle que tu shouaite gérer."
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Role,
+					required: true
+				},
+				{
+					name: "members-limit",
+
+					description: "The maximum member you want on the sane role",
+					description_localizations: {
+						"fr": "Le nombre maximum de membre qui auront le rôle en même temps."
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Number,
+
+				}
+			],
+
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
 			name: 'where',
 			aliases: ['whereis'],
 

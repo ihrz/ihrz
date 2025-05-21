@@ -1029,6 +1029,10 @@ admin_roles_remove_button_label: "إزالة المسؤول من الجميع"
 admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}، قام iHorizon بتنفيذ إزالة صلاحيات المسؤول لوحدة AdminRoles.\n\n**${good}** دور/أدوار تم __تعديلها__ بنجاح\nفشل iHorizon في تعديل **${bad}** دور/أدوار."
 admin_roles_remove_not_owner: "أنت لست مالك الخادم!"
 
+# /util rolelimit
+util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | الخيارات المقدمة غير صالحة. يرجى التحقق من الإدخال."
+util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | الدور: ${role.toString()} | الحد الأقصى للأعضاء: ${limit_count}\n- لن يتمكن المستخدمون الجدد من الحصول على هذا الدور إذا كان ${limit_count} عضوًا يمتلكونه بالفعل."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
