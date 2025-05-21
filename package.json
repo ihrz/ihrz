@@ -42,6 +42,7 @@
 		"sharp": "^0.33.5",
 		"stegano.db": "^3.5.0",
 		"toml": "^3.0.0",
+		"write-file-atomic": "^6.0.0",
 		"ws": "^8.18.2"
 	},
 	"devDependencies": {
