@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
 			content: lang.util_rolelimit_good
 				.replaceAll("${client.iHorizon_Emojis.Crown}", client.iHorizon_Emojis.Crown)
 				.replaceAll("${role.toString()}", role.toString())
-				.replaceAll("${limit_count}", limit_count)
+				.replaceAll("${limit_count}", String(limit_count))
 		});
 
 		return;
