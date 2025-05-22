@@ -1028,6 +1028,10 @@ admin_roles_remove_button_label: "Rimuovi admin da tutti"
 admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}, iHorizon ha eseguito la rimozione dei permessi admin per il modulo AdminRoles.\n\n**${good}** ruolo/i __modificato/i__ con successo\niHorizon non è riuscito a modificare **${bad}** ruolo/i."
 admin_roles_remove_not_owner: "Non sei il proprietario del server!"
 
+# /util rolelimit
+util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | Le opzioni fornite non sono valide. Per favore, controlla l'input."
+util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Ruolo: ${role.toString()} | Membri massimi: ${limit_count}\n- I nuovi utenti non potranno ricevere questo ruolo se già ${limit_count} utenti lo possiedono."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

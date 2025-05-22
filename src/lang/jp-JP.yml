@@ -1028,6 +1028,10 @@ admin_roles_remove_button_label: "全てから管理者を削除"
 admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}、iHorizon は AdminRoles モジュールの管理者権限削除を実行しました。\n\n**${good}** 個のロールを __正常に変更__\niHorizon は **${bad}** 個のロールを変更できませんでした。"
 admin_roles_remove_not_owner: "あなたはサーバーオーナーではありません！"
 
+# /util rolelimit
+util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | 指定されたオプションが無効です。入力内容をご確認ください。"
+util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | ロール: ${role.toString()} | 最大メンバー数: ${limit_count}\n- すでに${limit_count}人がこのロールを持っている場合、新しいユーザーには付与できません。"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

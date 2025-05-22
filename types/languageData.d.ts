@@ -780,6 +780,13 @@ export interface LanguageData {
   util_securewebhook_action_delete_not_owner: string;
   util_securewebhook_action_delete_error: string;
   util_securewebhook_actiom_list_ok: string;
+  admin_roles_nobody_roles: string;
+  admin_roles_embed_title: string;
+  admin_roles_remove_button_label: string;
+  admin_roles_remove_embed_desc: string;
+  admin_roles_remove_not_owner: string;
+  util_rolelimit_bad_opt: string;
+  util_rolelimit_good: string;
   blockpub_not_admin: string;
   blockpub_now_enable: string;
   blockpub_now_disable: string;
@@ -1863,9 +1870,4 @@ export interface LanguageData {
   addrolereact_adding_role_progress: string;
   addrolereact_role_added: string;
   addrolereact_error: string;
-  admin_roles_nobody_roles: string;
-  admin_roles_embed_title: string;
-  admin_roles_remove_button_label: string;
-  admin_roles_remove_embed_desc: string;
-  admin_roles_remove_not_owner: string;
 }

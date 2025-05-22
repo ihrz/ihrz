@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { MemoryDriver, QuickDB } from 'quick.db';
+import { MemoryDriver, QuickDB, JSONDriver } from 'quick.db';
 import ansiEscapes from 'ansi-escapes';
 import mysql from 'mysql2/promise.js';
 import { PallasDB } from 'pallas-db';
@@ -30,6 +30,7 @@ import { ConfigData } from '../../types/configDatad.js';
 import logger from './logger.js';
 import fs from 'fs';
 import { mkdir } from 'fs/promises';
+import path from 'path';
 
 export type db = QuickDB<any> | PallasDB | BunDB;
 let dbInstance: db | null = null;
@@ -71,33 +72,6 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 	}
 
 	switch (config.database?.method) {
-		case 'MYSQL':
-			dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
-				const connectionAvailable = await isReachable(config.database);
-
-				if (!connectionAvailable) {
-					console.error(`${config.console.emojis.ERROR} >> Failed to connect to the MySQL database`);
-					process.exit(1)
-				};
-
-				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
-
-				const db = new PallasDB({
-					dialect: "mysql",
-					host: config.database?.mySQL?.host,
-					username: config.database?.mySQL?.user,
-					password: config.database?.mySQL?.password,
-					database: config.database?.mySQL?.database,
-					port: config.database?.mySQL?.port,
-					tables
-				});
-
-				for (let table of tables) {
-					db.table(table);
-				};
-				resolve(db);
-			});
-			break;
 		case 'POSTGRES2':
 			dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
 				resolve(new PallasDB({
@@ -195,6 +169,12 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 
 				setInterval(syncToPostgres, 60000 * 5);
 				resolve(memoryDB);
+			});
+			break;
+		case 'JSON':
+			dbPromise = new Promise<QuickDB>((resolve, reject) => {
+				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
+				resolve(new QuickDB({ driver: new JSONDriver(path.join(process.cwd(), "quick-db.json")) }));
 			});
 			break;
 		default:
