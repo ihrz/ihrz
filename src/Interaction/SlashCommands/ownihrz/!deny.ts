@@ -87,7 +87,7 @@ export const subCommand: SubCommand = {
 				.setDescription(lang.mybot_instance_deny_embed_desc
 					.replace('${utils_msg}', utils_msg)
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 			await interaction.reply({
 				embeds: [embed],

@@ -104,7 +104,8 @@ declare namespace Client_Functions {
 
 	// From authRestoreHelper.ts
 	export namespace authRestoreHelper {
-		export function createAuthRestoreLink(data: AuthRestore_EntryType): string;
+		export function createOauth2LinkWithGuild(data: AuthRestore_EntryType): string;
+		export function createOauth2LinkWithoutGuild(data: Oauth2_Link_Entry): string;
 		export function createAuthRestore(data: AuthRestore_EntryType): Promise<AuthRestore_ResponseType>;
 		export function getGuildDataPerSecretCode(data: { id: string; value: any }[], secretCode: string): { id: string, data: GuildAuthRestore } | null;
 		export function forceJoinAuthRestore(data: AuthRestore_ForceJoin_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
@@ -204,65 +205,6 @@ declare namespace Client_Functions {
 		export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
 	}
 
-	// From displayBotName.ts
-	export namespace displayBotName {
-		export function footerBuilder(
-			message: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild
-		): any;
-		export function footerAttachmentBuilder(
-			interaction: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client
-		): any;
-		export function displayBotPP(client: Client, guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
-		export function displayBotName(guildId: string): Promise<string>;
-	}
-
-	// From generateProgressBar.ts
-	export function generateProgressBar(emojis: any, currentTimeMs: number, totalTimeMs: number): {
-		bar: string;
-		currentTime: string;
-		totalTime: string;
-	};
-
-	// From getIp.ts
-	export function getIp(useIPv6?: boolean): Promise<string>;
-
-	// From helper.ts
-	export namespace helper {
-		export function coolDown(message: Message, method: string, ms: number): any;
-		export function hardCooldown(database: db, method: string, ms: number): any;
-	}
-
-	// From html2png.ts
-	export function html2png(
-		code: string,
-		options: {
-			width?: number;
-			height?: number;
-			scaleSize?: number;
-			elementSelector?: string;
-			omitBackground: boolean;
-			selectElement: boolean;
-		}
-	): Promise<Buffer>;
-
-	// From ihorizon_logs.ts
-	export function ihorizon_logs(
-		interaction: ChatInputCommandInteraction<"cached"> | Message,
-		embed: {
-			title: string;
-			description: string;
-		}
-	): any;
-
-	// From image64.ts
-	export namespace image64 {
-		export function isImageUrl(url: string): Promise<boolean>;
-		export function image64(arg: string): Promise<Buffer | undefined>;
-	}
-
-	// From isAllowedLinks.ts
-	export function isAllowedLinks(link: string): boolean;
-
 	// From method.ts
 	export namespace method {
 		export function isNumber(str: string): boolean;
@@ -332,6 +274,62 @@ declare namespace Client_Functions {
 		export function subCoins(member: GuildMember, coins: number): Promise<void>;
 		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
 	}
+
+	// From displayBotName.ts
+	export namespace displayBotName {
+		export function footerBuilder(guildId: string): any;
+		export function footerAttachmentBuilder(
+			interaction: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client
+		): any;
+		export function displayBotPP(client: Client, guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
+	}
+
+	// From generateProgressBar.ts
+	export function generateProgressBar(emojis: any, currentTimeMs: number, totalTimeMs: number): {
+		bar: string;
+		currentTime: string;
+		totalTime: string;
+	};
+
+	// From getIp.ts
+	export function getIp(useIPv6?: boolean): Promise<string>;
+
+	// From helper.ts
+	export namespace helper {
+		export function coolDown(message: Message, method: string, ms: number): any;
+		export function hardCooldown(database: db, method: string, ms: number): any;
+	}
+
+	// From html2png.ts
+	export function html2png(
+		code: string,
+		options: {
+			width?: number;
+			height?: number;
+			scaleSize?: number;
+			elementSelector?: string;
+			omitBackground: boolean;
+			selectElement: boolean;
+		}
+	): Promise<Buffer>;
+
+	// From ihorizon_logs.ts
+	export function ihorizon_logs(
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		embed: {
+			title: string;
+			description: string;
+		}
+	): any;
+
+	// From image64.ts
+	export namespace image64 {
+		export function isImageUrl(url: string): Promise<boolean>;
+		export function image64(arg: string): Promise<Buffer | undefined>;
+	}
+
+	// From isAllowedLinks.ts
+	export function isAllowedLinks(link: string): boolean;
 }
 
 export { Client_Functions };

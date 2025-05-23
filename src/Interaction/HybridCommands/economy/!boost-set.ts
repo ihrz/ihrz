@@ -88,7 +88,7 @@ export const subCommand: SubCommand = {
 			.setFields(generateRoleFields(roleData, lang))
 			.setColor("#0097ff")
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await client.func.method.interactionSend(interaction, {
 			content: null,

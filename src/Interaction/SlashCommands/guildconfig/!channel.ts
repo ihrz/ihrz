@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 
 		let embed = new EmbedBuilder()
 			.setColor('#6e819a')
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTitle(lang.setchannels_title_embed_panel)
 			.setThumbnail((interaction.guild.iconURL() as string))
 			.setTimestamp()

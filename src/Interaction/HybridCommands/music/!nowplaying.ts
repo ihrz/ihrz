@@ -207,7 +207,7 @@ export const subCommand: SubCommand = {
 										})
 										.setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
 										.setColor('#cd703a')
-										.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+										.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 									i.editReply({
 										embeds: [embed],
 										files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]

@@ -77,14 +77,14 @@ export const subCommand: SubCommand = {
 			.setColor('#000000')
 			.setAuthor({ name: lang.authorization_configshow_embed1_author })
 			.setDescription(text2)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp();
 
 		let embed2 = new EmbedBuilder()
 			.setColor("#000000")
 			.setAuthor({ name: lang.authorization_configshow_embed2_author })
 			.setDescription(text)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp();
 
 		await interaction.editReply({

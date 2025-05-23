@@ -100,7 +100,7 @@ export const subCommand: SubCommand = {
 					.replace("${OwnerOne}", OwnerOne)
 					.replace("${OwnerTwo}", OwnerTwo)
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 			await interaction.reply({
 				embeds: [embed],

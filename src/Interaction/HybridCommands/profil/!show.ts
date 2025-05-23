@@ -87,7 +87,7 @@ export const subCommand: SubCommand = {
 			.setColor("#ffa550")
 			.setThumbnail(member.displayAvatarURL({ extension: 'png', size: 1024 }))
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [profil],

@@ -71,7 +71,7 @@ export const subCommand: SubCommand = {
 			.setColor('#000000')
 			.setImage('attachment://youtube.png')
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		let imgs: AttachmentBuilder;
 

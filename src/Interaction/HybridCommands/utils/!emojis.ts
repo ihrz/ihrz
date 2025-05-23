@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 
 		let embed = new EmbedBuilder()
 			.setColor('#bea9de')
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp()
 			.setDescription(lang.emoji_embed_desc_work
 				.replace('${cnt}', cnt.toString())

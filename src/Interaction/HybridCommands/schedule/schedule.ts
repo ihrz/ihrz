@@ -218,7 +218,7 @@ export const command: Command = {
 						)
 						.setThumbnail(interaction.guild?.iconURL() as string)
 						.setColor('#ff0a0a')
-						.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+						.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 						.setTimestamp();
 
 					await table.delete(`${interaction.member?.user.id}.${arg0}`);
@@ -240,7 +240,7 @@ export const command: Command = {
 							name: user.globalName || user.username,
 							iconURL: user.displayAvatarURL({ extension: 'png', size: 512 })
 						})
-						.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+						.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 						.setTitle(lang.schedule_deleteall_title_embed)
 						.setDescription(lang.schedule_deleteall_desc_embed)
 
@@ -268,7 +268,7 @@ export const command: Command = {
 				};
 
 				let embed = new EmbedBuilder()
-					.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+					.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 					.setTitle(lang.schedule_list_title_embed)
 					.setColor('#60BEE0')
 					.setAuthor({
@@ -308,7 +308,7 @@ export const command: Command = {
 					.setTitle(lang.schedule_create_title_embed)
 					.setThumbnail(interaction.guild?.iconURL() as string)
 					.setColor('#00549f')
-					.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+					.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 					.setTimestamp();
 
 				await original_interaction.edit({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });

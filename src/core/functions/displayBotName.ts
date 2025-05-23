@@ -22,9 +22,17 @@
 import { ButtonInteraction, ChatInputCommandInteraction, Client, Guild, GuildMember, Interaction, Message, StringSelectMenuInteraction, UserContextMenuCommandInteraction } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
-export async function footerBuilder(message: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild) {
-	let name = await displayBotName(message.id);
-	return { text: name, iconURL: "attachment://footer_icon.png" }
+export async function footerBuilder(guildId: string = "") {
+	let botName = await global.client.db.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
+
+	if (!botName) {
+		botName = 'iHorizon';
+	};
+
+	return {
+		text: botName,
+		iconURL: "attachment://footer_icon.png"
+	}
 }
 
 export async function footerAttachmentBuilder(interaction: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client) {
@@ -71,14 +79,4 @@ export async function displayBotPP(client: Client, guildId?: string): Promise<{ 
 	} else {
 		return { type: 2, string: botPFP }
 	}
-};
-
-export async function displayBotName(guildId: string): Promise<string> {
-	let botName = await global.client.db.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
-
-	if (!botName) {
-		botName = 'iHorizon';
-	};
-
-	return botName;
 };

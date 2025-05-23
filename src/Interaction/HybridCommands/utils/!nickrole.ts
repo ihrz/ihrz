@@ -93,7 +93,7 @@ export const subCommand: SubCommand = {
 			} catch (error) { }
 
 			let embed = new EmbedBuilder()
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setColor('#007fff')
 				.setTimestamp()
 				.setThumbnail(interaction.guild.iconURL())
@@ -142,7 +142,7 @@ export const subCommand: SubCommand = {
 			} catch (error) { }
 
 			let embed = new EmbedBuilder()
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setColor('#007fff')
 				.setTimestamp()
 				.setThumbnail(interaction.guild.iconURL())

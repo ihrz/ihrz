@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 		let currentCategory = 0;
 		let currentPage = 0;
 
-		let footer = await client.func.displayBotName.footerBuilder(interaction);
+		let footer = await client.func.displayBotName.footerBuilder(interaction.guildId!);
 
 		const mainEmbed = new EmbedBuilder()
 			.setColor(2829617)

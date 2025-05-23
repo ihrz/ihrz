@@ -144,7 +144,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	await panelMessage?.delete();
 
 	const newPanelFromOldData: MessageReplyOptions = {
-		embeds: [EmbedBuilder.from(embedFromPanelMessage!).setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))], components: [compFromPanelMessage!],
+		embeds: [EmbedBuilder.from(embedFromPanelMessage!).setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))], components: [compFromPanelMessage!],
 		files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
 	};
 

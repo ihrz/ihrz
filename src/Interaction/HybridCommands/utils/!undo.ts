@@ -67,7 +67,7 @@ export const subCommand: SubCommand = {
 							.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 							.replace('${cannot_ban}', cannot_ban.toString())
 					)
-					.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+					.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			],
 			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});

@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 				.replace('${interaction.user}', interaction.user.toString())
 				.replace('${channel}', channel.toString())
 			)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp();
 
 		await interaction.editReply({

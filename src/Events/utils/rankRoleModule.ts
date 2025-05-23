@@ -75,7 +75,7 @@ export const event: BotEvent = {
 					.replace("${message.author.id}", message.author.id)
 					.replace("${fetch.id}", fetch.id)
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(message))
+				.setFooter(await client.func.displayBotName.footerBuilder(message.guildId!))
 				.setTimestamp();
 
 			message.member?.roles.add(fetch, "[RankRole] Module").catch(() => { });

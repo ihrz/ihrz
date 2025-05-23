@@ -98,7 +98,7 @@ export const subCommand: SubCommand = {
 					.replace('${user2.username}', user2.username)
 					.replace('${randomNumber}', randomNumber.toString())
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setTimestamp();
 
 			await client.func.method.interactionSend(interaction, {

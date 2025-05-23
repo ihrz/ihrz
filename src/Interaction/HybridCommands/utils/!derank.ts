@@ -89,7 +89,7 @@ export const subCommand: SubCommand = {
 						.replace('${bad}', bad.toString())
 						.replace('${member.id}', member.id)
 					)
-					.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+					.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 				await client.func.method.interactionSend(interaction, {
 					embeds: [embed],

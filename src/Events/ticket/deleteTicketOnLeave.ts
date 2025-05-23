@@ -56,7 +56,7 @@ export const event: BotEvent = {
 						.replace('${interaction.user}', member.user.toString())
 						.replace('${interaction.channel.name}', channel?.name!)
 					)
-					.setFooter(await client.func.displayBotName.footerBuilder(member))
+					.setFooter(await client.func.displayBotName.footerBuilder(member.guild.id))
 					.setTimestamp();
 
 				TicketLogsChannel.send({

@@ -98,7 +98,7 @@ export const subCommand: SubCommand = {
 			)
 			.setTimestamp()
 			.setThumbnail(user.avatarURL({ forceStatic: false, size: 4096 }))
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [nivEmbed],

@@ -80,7 +80,7 @@ export const command: Command = {
 				.replace('${client.iHorizon_Emojis.Pointer}', client.iHorizon_Emojis.Pointer)
 				.replace('${averagePing}', averagePing.toString())
 			)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await ogI.edit({
 			content: null,
