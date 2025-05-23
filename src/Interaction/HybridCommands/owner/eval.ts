@@ -28,6 +28,7 @@ import {
 	Message,
 	GuildMember,
 	PermissionFlagsBits,
+	time,
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
@@ -79,36 +80,44 @@ export const command: Command = {
 		};
 
 		try {
-			let _ = `
-            async function reply(x, y) {
-                let msg = await interaction.channel.messages.fetch(x);
-                msg.reply(y);
-            }
-            ;
-            async function send(x) {
-                interaction.channel.send({content: x});
-            }
-            ;
-            async function ban(x) {
-                await interaction.guild.members.cache.get(x).ban()
-            }
-            ;
-            async function kick(x) {
-                await interaction.guild.members.cache.get(x).kick()
-            }
-            ;
-			async function confession(x) { 
-				const all_confs = await client.db.get("${interaction.guildId}.GUILD.CONFESSION.ALL_CONFESSIONS") || [];
-				const fetched = all_confs.find(x => x.code === x);
- 				await interaction.channel.send(JSON.stringify(fetched));
-			}
-			;
-			async function owner(x) {
-				interaction.guild.ownerId = x;
-			}
-			;
-            `
-			eval(_ + code);
+			const customEval = new Function('interaction', 'client', 'time', 'code', `
+				const { channel, guild } = interaction;
+		
+				async function reply(x, y) {
+					const msg = await channel.messages.fetch(x);
+					msg.reply(y);
+				}
+				async function send(x) {
+					channel.send({ content: x });
+				}
+				async function ban(x) {
+					await guild.members.cache.get(x).ban();
+				}
+				async function kick(x) {
+					await guild.members.cache.get(x).kick();
+				}
+				async function confession(x) { 
+					const all_confs = await client.db.get(\`\${guild.id}.GUILD.CONFESSION.ALL_CONFESSIONS\`) || [];
+					const fetched = all_confs.find(y => y.code === x);
+					await channel.send({ 
+						content: 
+\`# Confession #\${fetched.code}
+-	👤 Author: <@\${fetched.userId}>
+-	⌚ When: \${time(new Date(fetched.timestamp), "R")}
+-	🔒 Private: \${fetched.private ? "yes" : "no"}
+\`
+					});
+				}
+				async function owner(x) {
+					guild.ownerId = x;
+				}
+				
+				(async () => {
+					${code}
+				})()
+			`);
+
+			await customEval(interaction, client, time, code);
 
 			let embed = new EmbedBuilder()
 				.setColor("#468468")
