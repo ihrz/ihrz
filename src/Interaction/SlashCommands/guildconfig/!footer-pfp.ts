@@ -22,40 +22,29 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { axios } from '../../../core/functions/axios.js';
-
-import { Command } from '../../../../types/command.js';
-
-
 import { SubCommand } from '../../../../types/command.js';
+import { axios } from '../../../core/functions/axios.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		let action = interaction.options.getString("action");
 		let footerAvatar = interaction.options.getAttachment("avatar")!;
 
-
-
 		if (action === "reset") {
 			await client.db.delete(`${interaction.guildId}.BOT.botPFP`);
 			await interaction.editReply({ content: lang.guildconfig_setbot_footeravatar_is_reset });
 			return;
-		} else if (footerAvatar && footerAvatar.contentType?.startsWith("image")) {
+		} else if (footerAvatar && isValidImageType(footerAvatar.contentType)) {
 			const fileBuffer = (await axios.get(footerAvatar.url!, { responseType: "arrayBuffer" })).data;
 			const buffer = Buffer.from(fileBuffer);
 			const base64String = buffer.toString('base64');
-
 			await client.db.set(`${interaction.guildId}.BOT.botPFP`, base64String);
-
 			await interaction.editReply({ content: lang.guildconfig_setbot_footeravatar_is_good });
 			return;
 		} else {
@@ -64,3 +53,17 @@ export const subCommand: SubCommand = {
 		}
 	},
 };
+
+function isValidImageType(contentType: string | null): boolean {
+	if (!contentType) return false;
+
+	const supportedTypes = [
+		'image/png',
+		'image/jpeg',
+		'image/jpg',
+		'image/gif',
+		'image/webp'
+	];
+
+	return supportedTypes.includes(contentType.toLowerCase());
+}

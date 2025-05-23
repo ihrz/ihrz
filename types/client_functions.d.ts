@@ -279,9 +279,9 @@ declare namespace Client_Functions {
 	export namespace displayBotName {
 		export function footerBuilder(guildId: string): any;
 		export function footerAttachmentBuilder(
-			interaction: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client
+			entry: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild
 		): any;
-		export function displayBotPP(client: Client, guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
+		export function displayBotPP(guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
 	}
 
 	// From generateProgressBar.ts
