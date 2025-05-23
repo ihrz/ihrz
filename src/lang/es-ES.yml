@@ -901,12 +901,12 @@ all_admins_unrank_not_owner: "Solo el dueño del servidor puede desclasificar a 
 all_bots_embed_title: "Lista de todos los bot(s) | Página ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} No puedes añadir un rol a un usuario que tiene un rol más alto que tú..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} No puedes añadir un rol a un usuario que tiene un rol más alto que tú..."
 utils_addrole_command_ok: "${author.toString()} ha añadido con éxito el rol ${role?.toString()} a ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | El rol que deseas añadir al usuario no está en la lista blanca. Un administrador debe añadirlo primero! (usando `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} No puedes eliminar un rol de un usuario que tiene un rol más alto que tú..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} No puedes eliminar un rol de un usuario que tiene un rol más alto que tú..."
 utils_delrole_command_ok: "${author.toString()} ha eliminado con éxito el rol ${role?.toString()} de ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | El rol que deseas eliminar del usuario no está en la lista blanca. Un administrador debe añadirlo primero! (usando `/utils wlroles`)"
 
@@ -1534,7 +1534,7 @@ ban_not_permission: "${client.iHorizon_Emojis.No} | No tienes permiso para banea
 ban_dont_found_member: "🔍 | No se puede encontrar a este miembro."
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | No tengo permiso para banear miembros."
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | No puedes banearte a ti mismo."
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop_Logo} No puedes banear a un usuario que tiene un rol más alto que tú..."
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} No puedes banear a un usuario que tiene un rol más alto que tú..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | No puedo banear a ese miembro."
 ban_message_to_the_banned_member: "Has sido baneado de este servidor: `${interaction.guild.name}` por la razón: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> ha sido baneado por <@${interaction.member.id}>"
@@ -1545,7 +1545,7 @@ ban_logs_embed_description: "<@${member.user.id}> ha sido baneado por <@${intera
 kick_not_permission: "${client.iHorizon_Emojis.No} | No tienes permiso para expulsar miembros."
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | No tengo permiso para expulsar miembros."
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | ¡No puedes expulsarte a ti mismo!"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop_Logo} No puedes expulsar a usuarios con un rol más alto que el tuyo..."
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} No puedes expulsar a usuarios con un rol más alto que el tuyo..."
 kick_message_to_the_banned_member: "Has sido expulsado de este servidor: **${interaction.guild.name}** por `${interaction.member.user.username}`"
 kick_command_work: "${member.user} expulsado por ${interaction.user}"
 kick_logs_embed_title: "Registros de expulsión"

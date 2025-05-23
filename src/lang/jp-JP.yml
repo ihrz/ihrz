@@ -901,12 +901,12 @@ all_admins_unrank_not_owner: "サーバーの所有者のみがサーバーの�
 all_bots_embed_title: "全てのボットのリスト | ページ ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} あなたより上位の役職を持つユーザーに役職を追加することはできません..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} あなたより上位の役職を持つユーザーに役職を追加することはできません..."
 utils_addrole_command_ok: "${author.toString()} は正常に ${role?.toString()} の役職を ${user.toString()} に追加しました"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | あなたがユーザーに追加しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} あなたより上位の役職を持つユーザーから役職を削除することはできません..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} あなたより上位の役職を持つユーザーから役職を削除することはできません..."
 utils_delrole_command_ok: "${author.toString()} は正常に ${user.toString()} から ${role?.toString()} の役職を削除しました"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | あなたがユーザーから削除しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）"
 
@@ -1534,7 +1534,7 @@ ban_not_permission: "${client.iHorizon_Emojis.No} | メンバーをBANする権�
 ban_dont_found_member: "🔍 | そのメンバーが見つかりません"
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | 私にはメンバーをBANする権限がありません！"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | 自分自身をBANすることはできません！"
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop_Logo} あなたよりも高い役職のユーザーをBANすることはできません..."
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} あなたよりも高い役職のユーザーをBANすることはできません..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | そのメンバーをBANすることができません"
 ban_message_to_the_banned_member: "あなたはこのサーバー `${interaction.guild.name}` からBANされました。理由: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> が <@${interaction.member.id}> によってBANされました。"
@@ -1545,7 +1545,7 @@ ban_logs_embed_description: "<@${interaction.member.id}> によって <@${member
 kick_not_permission: "${client.iHorizon_Emojis.No} | メンバーをキックする権限がありません。"
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをキックする権限がありません！"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | 自分自身をキックすることはできません！"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop_Logo} 自分よりも権限が高いユーザーをキックすることはできません..."
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} 自分よりも権限が高いユーザーをキックすることはできません..."
 kick_message_to_the_banned_member: "あなたは `${interaction.member.user.username}` によって、このサーバー：**${interaction.guild.name}** からキックされました。"
 kick_command_work: "${interaction.user} によって ${member.user} がキックされました。"
 kick_logs_embed_title: "キックログ"

@@ -901,12 +901,12 @@ all_admins_unrank_not_owner: "Somente o proprietário do servidor pode desclassi
 all_bots_embed_title: "Lista de todos os bot(s) | Página ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} Você não pode adicionar um cargo a um usuário que tem um cargo superior ao seu..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Você não pode adicionar um cargo a um usuário que tem um cargo superior ao seu..."
 utils_addrole_command_ok: "${author.toString()} adicionou com sucesso o cargo ${role?.toString()} a ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | O cargo que você deseja adicionar ao usuário não está na lista de permissões. Um administrador deve adicioná-lo primeiro! (usando `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} Você não pode remover um cargo de um usuário que tem um cargo superior ao seu..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Você não pode remover um cargo de um usuário que tem um cargo superior ao seu..."
 utils_delrole_command_ok: "${author.toString()} removeu com sucesso o cargo ${role?.toString()} de ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | O cargo que você deseja remover do usuário não está na lista de permissões. Um administrador deve adicioná-lo primeiro! (usando `/utils wlroles`)"
 
@@ -1534,7 +1534,7 @@ ban_not_permission: "${client.iHorizon_Emojis.No} | Você não tem permissão pa
 ban_dont_found_member: "🔍 | Não foi possível encontrar este membro"
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | Eu não tenho permissão para banir membros!"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | Você não pode banir a si mesmo!"
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop_Logo} Você não pode banir um usuário com um cargo superior ao seu..."
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} Você não pode banir um usuário com um cargo superior ao seu..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | Eu não posso banir esse membro"
 ban_message_to_the_banned_member: "Foste banido deste servidor: `${interaction.guild.name}` pelo motivo: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> banido por <@${interaction.member.id}>"
@@ -1545,7 +1545,7 @@ ban_logs_embed_description: "<@${member.user.id}> banido por <@${interaction.mem
 kick_not_permission: "${client.iHorizon_Emojis.No} | Você não tem permissão para expulsar membros."
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | Eu não tenho permissão para expulsar membros!"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | Você não pode se expulsar!"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop_Logo} Você não pode expulsar um usuário com um cargo superior ao seu..."
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} Você não pode expulsar um usuário com um cargo superior ao seu..."
 kick_message_to_the_banned_member: "Você foi expulso deste servidor: **${interaction.guild.name}** por `${interaction.member.user.username}`"
 kick_command_work: "${member.user} expulso por ${interaction.user}"
 kick_logs_embed_title: "Logs de Expulsão"

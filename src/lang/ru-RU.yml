@@ -901,12 +901,12 @@ all_admins_unrank_not_owner: "Только владелец сервера мо�
 all_bots_embed_title: "Список всех бот(ов) | Страница ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} Вы не можете добавить роль пользователю, у которого роль выше вашей..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Вы не можете добавить роль пользователю, у которого роль выше вашей..."
 utils_addrole_command_ok: "${author.toString()} успешно добавил роль ${role?.toString()} пользователю ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | Роль, которую вы хотите добавить пользователю, не внесена в белый список. Администратор должен сначала добавить её! (используйте `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} Вы не можете удалить роль у пользователя, у которого роль выше вашей..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Вы не можете удалить роль у пользователя, у которого роль выше вашей..."
 utils_delrole_command_ok: "${author.toString()} успешно удалил роль ${role?.toString()} у пользователя ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | Роль, которую вы хотите удалить у пользователя, не внесена в белый список. Администратор должен сначала добавить её! (используйте `/utils wlroles`)"
 
@@ -1534,7 +1534,7 @@ ban_not_permission: "${client.iHorizon_Emojis.No} | У вас нет разре�
 ban_dont_found_member: "🔍 | Не удалось найти этого участника"
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | У меня нет разрешения на бан участников!"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | Вы не можете забанить сами себя!"
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop_Logo} Вы не можете забанить пользователя с более высокой ролью, чем у вас..."
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} Вы не можете забанить пользователя с более высокой ролью, чем у вас..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | Я не могу забанить этого участника"
 ban_message_to_the_banned_member: "Вы были забанены на этом сервере: `${interaction.guild.name}` по причине: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> забанен пользователем <@${interaction.member.id}>"
@@ -1545,7 +1545,7 @@ ban_logs_embed_description: "<@${member.user.id}> забанен пользов�
 kick_not_permission: "${client.iHorizon_Emojis.No} | У вас нет разрешения на кик участников."
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | У меня нет разрешения на кик участников!"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | Вы не можете выгнать сами себя!"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop_Logo} Вы не можете выгнать пользователя с более высокой ролью, чем у вас..."
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} Вы не можете выгнать пользователя с более высокой ролью, чем у вас..."
 kick_message_to_the_banned_member: "Вы были выгнаны с этого сервера: **${interaction.guild.name}** пользователем `${interaction.member.user.username}`"
 kick_command_work: "${member.user} был выгнан пользователем ${interaction.user}"
 kick_logs_embed_title: "Логи киков"
