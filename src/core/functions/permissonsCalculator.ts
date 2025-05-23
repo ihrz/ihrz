@@ -81,8 +81,8 @@ function getCmdPermData(command: string, guildPerm: DatabaseStructure.UtilsData)
 	let cmdPermData = guildPerm?.PERMS?.[command] as command | DatabaseStructure.PermLevel | undefined;
 
 	// If no direct command permission, check category permission
-	if (!cmdPermData && guildPerm?.PERMS?.[command.split(" ")[0]]) {
-		cmdPermData = guildPerm.PERMS[command.split(" ")[0]];
+	if (!cmdPermData && guildPerm?.PERMS?.[command?.split(" ")[0]]) {
+		cmdPermData = guildPerm.PERMS[command?.split(" ")[0]];
 	}
 
 	// Convert legacy number format to new format
