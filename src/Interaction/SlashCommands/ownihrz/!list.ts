@@ -85,7 +85,7 @@ async function buildEmbed(
 			.replace('${utils_msg}', ""))
 		.setTitle(lang.mybot_list_embed1_title.replace('${data_2[i].bot.username}', bot?.bot?.username || data?.Bot?.Name))
 		.setImage(`attachment://bot-${data.Bot.Id}.png`)
-		.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+		.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 		.setTimestamp();
 
 	return { embed, attachment };
@@ -105,7 +105,7 @@ export const subCommand: SubCommand = {
 			new EmbedBuilder()
 				.setTitle(lang.mybot_list_embed0_title)
 				.setColor('#000000')
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setTimestamp()
 		];
 

@@ -901,12 +901,12 @@ all_admins_unrank_not_owner: "Nur der Besitzer des Servers kann alle Administrat
 all_bots_embed_title: "Liste aller Bot(s) | Seite ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} Du kannst keine Rolle zu einem Benutzer hinzufügen, der eine höhere Rolle als du hat..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Du kannst keine Rolle zu einem Benutzer hinzufügen, der eine höhere Rolle als du hat..."
 utils_addrole_command_ok: "${author.toString()} hat erfolgreich die Rolle ${role?.toString()} zu ${user.toString()} hinzugefügt"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | Die Rolle, die du dem Benutzer hinzufügen möchtest, ist nicht auf der Whitelist. Ein Administrator muss sie zuerst hinzufügen! (mit `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} Du kannst keine Rolle von einem Benutzer entfernen, der eine höhere Rolle als du hat..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Du kannst keine Rolle von einem Benutzer entfernen, der eine höhere Rolle als du hat..."
 utils_delrole_command_ok: "${author.toString()} hat erfolgreich die Rolle ${role?.toString()} von ${user.toString()} entfernt"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | Die Rolle, die du dem Benutzer entfernen möchtest, ist nicht auf der Whitelist. Ein Administrator muss sie zuerst hinzufügen! (mit `/utils wlroles`)"
 
@@ -1534,7 +1534,7 @@ ban_not_permission: "${client.iHorizon_Emojis.No} | Sie haben keine Berechtigung
 ban_dont_found_member: "🔍 | Dieses Mitglied konnte nicht gefunden werden"
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | Ich habe keine Berechtigung, Mitglieder zu bannen!"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | Sie können sich nicht selbst bannen!"
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop_Logo} Sie können Benutzer mit höherer Rolle als Sie nicht bannen..."
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} Sie können Benutzer mit höherer Rolle als Sie nicht bannen..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | Ich kann dieses Mitglied nicht bannen"
 ban_message_to_the_banned_member: "Du wurdest von diesem Server gebannt: `${interaction.guild.name}` aus folgendem Grund: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> gebannt von <@${interaction.member.id}>"
@@ -1545,7 +1545,7 @@ ban_logs_embed_description: "<@${member.user.id}> gebannt von <@${interaction.me
 kick_not_permission: "${client.iHorizon_Emojis.No} | Sie haben keine Berechtigung, Mitglieder zu kicken."
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | Ich habe keine Berechtigung, Mitglieder zu kicken!"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | Sie können sich nicht selbst kicken!"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop_Logo} Sie können Benutzer mit höherer Rolle als Sie nicht kicken..."
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} Sie können Benutzer mit höherer Rolle als Sie nicht kicken..."
 kick_message_to_the_banned_member: "Sie wurden von diesem Server gekickt: **${interaction.guild.name}** von `${interaction.member.user.username}`"
 kick_command_work: "${member.user} gekickt von ${interaction.user}"
 kick_logs_embed_title: "Kick-Logs"

@@ -98,7 +98,7 @@ export const subCommand: SubCommand = {
 			.setDescription(lang.mybot_manage_accept_embed_desc
 				.replace('${utils_msg}', utils_msg)
 			)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],

@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 		let setupEmbed = new EmbedBuilder()
 			.setColor('#000000')
 			.setTitle(lang.setsuggest_channel_embed_title)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setDescription(lang.setsuggest_channel_embed_desc);
 
 		await client.db.set(`${interaction.guild.id}.SUGGEST.channel`, channel?.id);

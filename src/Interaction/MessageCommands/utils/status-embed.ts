@@ -55,7 +55,7 @@ export const command: Command = {
 				.setColor("#ff40c4")
 				.setTitle("iHorizon Status Panel")
 				.setDescription("This embed refresh every 1 minutes for showing the latest informations about iHorizon infrastructure")
-				.setFooter(await client.func.displayBotName.footerBuilder(message))
+				.setFooter(await client.func.displayBotName.footerBuilder(message.guildId))
 				.setFields(
 					{
 						name: "iHorizon (Public Bot)",

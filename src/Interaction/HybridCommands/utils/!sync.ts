@@ -64,7 +64,7 @@ export const subCommand: SubCommand = {
 						.replace("${category?.name}", String(category?.name))
 						.replace("${changes}", changes)
 					: lang.util_sync_embed_description_0)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp();
 
 		client.func.method.interactionSend(interaction, {

@@ -73,7 +73,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 			.setDescription(`## Modifications about your temporary voice channel`)
 			.setColor(2829617)
 			.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
-			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		switch (value) {
 			case 'temporary_channel_lock_channel_menu':

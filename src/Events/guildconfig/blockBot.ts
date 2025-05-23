@@ -55,7 +55,7 @@ export const event: BotEvent = {
 					{ name: "Target bot", value: member.toString(), inline: true },
 				)
 				.setTimestamp()
-				.setFooter(await client.func.displayBotName.footerBuilder(member));
+				.setFooter(await client.func.displayBotName.footerBuilder(member.guild.id));
 
 			owner?.send({ embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(member.guild)] })
 				.catch(() => { })

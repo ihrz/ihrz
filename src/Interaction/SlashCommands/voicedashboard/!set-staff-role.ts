@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 				lang.tempvoice_staff_desc_embed
 					.replace('${targetedRole?.id}', targetedRole?.id as string)
 			)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await interaction.editReply({
 			embeds: [embed]

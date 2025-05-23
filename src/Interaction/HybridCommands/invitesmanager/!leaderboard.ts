@@ -95,7 +95,7 @@ export const subCommand: SubCommand = {
 				.setTitle(lang.leaderboard_default_text + " • " + interaction.guild?.name)
 				.setDescription(pageText)
 				.setTimestamp()
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setThumbnail("attachment://guildIcon.png");
 		};
 

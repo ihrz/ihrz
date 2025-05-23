@@ -81,7 +81,7 @@ export const subCommand: SubCommand = {
 			});
 
 			embed.setColor('#8afe46');
-			embed.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			embed.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 			embed.setTitle(lang.suggest_reply_embed_title_to_put
 				.replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string)
 			);

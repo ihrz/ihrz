@@ -83,7 +83,7 @@ export const subCommand: SubCommand = {
 			)
 			.setColor("#45f712")
 			.setDescription(lang.economy_shop_embed_desc)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setFields(
 				{ name: lang.balance_embed_fields1_name, value: `${baseData.bank || 0}${client.iHorizon_Emojis.Coin}`, inline: true },
 				{ name: lang.balance_embed_fields2_name, value: `${baseData.money || 0}${client.iHorizon_Emojis.Coin}`, inline: true },

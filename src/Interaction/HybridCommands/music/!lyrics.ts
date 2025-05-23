@@ -64,7 +64,7 @@ export const subCommand: SubCommand = {
 						})
 						.setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
 						.setColor('#cd703a')
-						.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+						.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 					await client.func.method.interactionSend(interaction, {
 						embeds: [embed],

@@ -94,7 +94,7 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.profil_birthday_embed_title)
 			.setThumbnail((interaction.member?.displayAvatarURL() || interaction.member?.user.displayAvatarURL()) as string)
 			.setDescription(introduction + getBirthdayString())
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		const og_interaction = await client.func.method.interactionSend(interaction, {
 			embeds: [embed],

@@ -64,7 +64,7 @@ export const subCommand: SubCommand = {
 
 		let embed = new EmbedBuilder()
 			.setColor('#ff05aa')
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp()
 			.setDescription(lang.confession_channel_panel_embed_desc)
 			;

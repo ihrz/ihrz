@@ -123,7 +123,7 @@ export const command: Command = {
 				{ name: `${client.iHorizon_Emojis.Bun} Bun Version`, value: `${Bun.version}`, inline: false }
 			)
 			.setThumbnail(interaction.guild.iconURL() as string)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],

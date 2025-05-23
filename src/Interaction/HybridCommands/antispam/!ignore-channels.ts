@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 					? all_channels.map(x => `<#${x}>`).join(', ')
 					: lang.setjoinroles_var_none
 			})
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		const select = new ChannelSelectMenuBuilder()
 			.setCustomId('antispam-select-config')

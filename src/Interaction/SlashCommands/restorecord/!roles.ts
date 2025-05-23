@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 
 		await changeRoleAuthRestore({ guildId: interaction.guildId!, apiToken: client.config.api.apiToken, roleId: role.id });
 
-		let footer = await client.func.displayBotName.footerBuilder(interaction);
+		let footer = await client.func.displayBotName.footerBuilder(interaction.guildId!);
 
 		const mainEmbed = new EmbedBuilder()
 			.setColor(2829617)

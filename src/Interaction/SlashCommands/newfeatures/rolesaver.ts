@@ -134,7 +134,7 @@ export const command: Command = {
 					{ name: lang.rolesaver_embed_fields_2_name, value: `\`${settings}\``, inline: false },
 					{ name: lang.rolesaver_embed_fields_3_name, value: `\`${timeout}\``, inline: false }
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 			await interaction.reply({ embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)] });
 			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver`, {
@@ -159,7 +159,7 @@ export const command: Command = {
 				.addFields(
 					{ name: lang.rolesaver_on_off_embed_fields_1_name, value: `\`${action}\``, inline: false },
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 			await interaction.reply({
 				embeds: [embed],
