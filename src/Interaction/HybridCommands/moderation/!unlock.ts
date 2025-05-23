@@ -51,7 +51,10 @@ export const subCommand: SubCommand = {
 			var role = client.func.method.role(interaction, args!, 0);
 		};
 
-		await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(role?.id || interaction.guild.roles.everyone.id, { SendMessages: true });
+		await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(role?.id || interaction.guild.roles.everyone.id, {
+			SendMessages: true,
+			Connect: true
+		});
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.unlock_logs_embed_title,
 			description: lang.unlock_logs_embed_description
