@@ -89,17 +89,25 @@ export const command: Command = {
 
 		type SupportedLang = keyof typeof all_supported_languages;
 
-		const lines = Object
-			.entries(allLangsStats)
-			.map(([code, count]) => {
-				const flag = all_supported_languages[code as SupportedLang] ?? "❔";
-				return `${flag}\n - **${code}** → ${count}`;
-			})
-			.join('\n');
+		let embed = new EmbedBuilder()
+			.setColor(2829617)
+			.setDescription(`# Stats Lang over all iHorizon guilds (${client.guilds.cache.size} guilds)`)
+			.setFooter(await client.func.displayBotName.footerBuilder(message.guildId))
+			;
 
-		client.func.method.interactionSend(message, {
-			content: `> __**⭐️ Lang Stats**__
-${lines}`
-		})
+		Object
+			.entries(allLangsStats)
+			.forEach(([code, count]) => {
+				embed.addFields({
+					name: (all_supported_languages[code as SupportedLang] ?? "❔") + ` (${code})`,
+					value: `${count} guilds`,
+					inline: true
+				})
+			})
+
+		await client.func.method.interactionSend(message, {
+			embeds: [embed]
+		});
+		return;
 	},
 };
