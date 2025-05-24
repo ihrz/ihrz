@@ -121,8 +121,10 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			text: interaction.user.globalName || interaction.user.username,
 			iconURL: "attachment://user_icon.png"
 		});
-	} else {
+	} else if (view.toLowerCase().includes(lang.mybot_submit_utils_msg_yes)) {
 		view = true;
+	} else {
+		view = false;
 	}
 
 	(body.embeds as EmbedBuilder[]).push(embed);
