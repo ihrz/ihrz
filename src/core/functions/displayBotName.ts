@@ -35,14 +35,15 @@ export async function footerBuilder(guildId: string = "") {
 	}
 }
 
-export async function footerAttachmentBuilder(entry: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild) {
+export async function footerAttachmentBuilder(entry?: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild
+) {
 
 	var res = await displayBotPP(
 		entry instanceof Guild
 			?
 			entry.id
 			:
-			entry.guild?.id!
+			entry?.guild?.id!
 	);
 
 	if (res.type === 1) {
