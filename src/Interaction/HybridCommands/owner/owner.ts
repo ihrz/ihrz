@@ -84,7 +84,7 @@ export const command: Command = {
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#2E2EFE")
 			.setAuthor({ name: "Owners" })
 			.setDescription(text)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getUser('member');

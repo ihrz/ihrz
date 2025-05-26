@@ -32,13 +32,7 @@ import {
 	PermissionsBitField,
 } from 'discord.js';
 
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
-import { generatePassword } from '../../../core/functions/random.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
@@ -60,6 +54,11 @@ export const subCommand: SubCommand = {
 		if (!mutetime || !tomute || !mutetime) { return; };
 
 		let mutetimeMS = client.timeCalculator.to_ms(mutetime);
+		let max_time = 3600 * 24 * 7;
+
+		if (mutetimeMS > max_time) {
+			mutetimeMS = max_time;
+		}
 
 		if (!mutetimeMS) {
 			await client.func.method.interactionSend(interaction, { content: lang.too_new_account_invalid_time_on_enable });

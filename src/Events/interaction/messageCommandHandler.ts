@@ -119,10 +119,14 @@ async function executeCommand(
 
 	// for format like: "+utils" without subcommand behind
 	if (!command?.run) {
-		await message.client.func.method.interactionSend(message, {
+		let msg = await message.client.func.method.interactionSend(message, {
 			embeds: [await message.client.func.method.createAwesomeEmbed(lang, command, message.client, message)],
 			files: [await message.client.func.displayBotName.footerAttachmentBuilder(message)]
 		});
+
+		setTimeout(() => {
+			msg.delete()
+		}, 60_000)
 		return;
 	}
 

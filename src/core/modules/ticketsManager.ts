@@ -69,7 +69,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cache
 		.setTitle(data.name)
 		.setColor("#3b8f41")
 		.setDescription(data.description || lang.sethereticket_description_embed)
-		.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+		.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 
 	let confirm = new ButtonBuilder()
 		.setCustomId('open-new-ticket')
@@ -108,7 +108,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cache
 				.replace('${data.name}', data.name!)
 				.replace('${interaction}', interaction.channel?.toString()!)
 			)
-			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp();
 
 		TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
@@ -132,7 +132,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 	let panel_for_create = new EmbedBuilder()
 		.setColor(2829617)
 		.setDescription(lang.sethereticket_panelforcreate_embed_desc)
-		.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction));
+		.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 	let button = new ActionRowBuilder<ButtonBuilder>()
 		.addComponents(
@@ -295,7 +295,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 					new EmbedBuilder()
 						.setColor(2829617)
 						.setDescription(`## ${title}\n${desc}`)
-						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 				],
 				components: [
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
@@ -330,7 +330,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 					.setColor("#008000")
 					.setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
 					.setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
-					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 					.setTimestamp();
 
 				TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
@@ -610,7 +610,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 							.replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
 							.replace('{category}', result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.name!)
 					)
-					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 			);
 
 			if (result.reason && result.reason) {
@@ -618,7 +618,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 					new EmbedBuilder()
 						.setColor(2829617)
 						.setDescription(lang.event_ticket_reason_embed_desc.replace('${reason}', reason))
-						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 				);
 			}
 		} else {
@@ -628,7 +628,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 					.setDescription(lang.event_ticket_embed_description
 						.replace("${user.username}", interaction.user.username)
 					)
-					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 			)
 		};
 
@@ -687,7 +687,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${channel.id}', channel.id)
 				)
-				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setTimestamp();
 
 			TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
@@ -798,7 +798,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 					.replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
 					.replace('{category}', categoryName?.name!)
 			)
-			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		if (result.ticketChannelPanel) {
 			let embed_from_db = (await interaction.client.db.get(`EMBED.${result.ticketChannelPanel}.embedSource`) as APIEmbed | null);
@@ -825,7 +825,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 				new EmbedBuilder()
 					.setColor(2829617)
 					.setDescription(desc)
-					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 			);
 		}
 
@@ -896,7 +896,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${channel.id}', channel.id)
 				)
-				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setTimestamp();
 
 			TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
@@ -954,7 +954,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
 								.replace('${interaction.user}', interaction.user.toString())
 								.replace('${interaction.channel.id}', interaction.channel?.id!)
 							)
-							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 							.setTimestamp();
 
 						TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
@@ -1032,7 +1032,7 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cach
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${interaction.channel.id}', interaction.channel?.id!)
 				)
-				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setTimestamp();
 
 			TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
@@ -1071,7 +1071,7 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached"
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${interaction.channel.id}', interaction.channel?.id!)
 				)
-				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setTimestamp();
 
 			TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
@@ -1121,7 +1121,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) 
 								.replace('${interaction.user}', interaction.user.toString())
 								.replace('${interaction.channel.id}', interaction.channel.id)
 							)
-							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 							.setTimestamp();
 
 						TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
@@ -1168,7 +1168,7 @@ async function TicketDelete(interaction: Interaction<"cached">) {
 								.replace('${interaction.user}', interaction.user.toString())
 								.replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
 							)
-							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 							.setTimestamp();
 						interaction.channel.delete();
 
@@ -1258,7 +1258,7 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached"
 				.replace('${interaction.channel}', interaction.channel?.toString()!)
 
 			)
-			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp();
 
 		TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });

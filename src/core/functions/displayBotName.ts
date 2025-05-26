@@ -23,28 +23,27 @@ import { ButtonInteraction, ChatInputCommandInteraction, Client, Guild, GuildMem
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import db from "./DatabaseModel.js";
 
-export async function footerBuilder(message: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild) {
-	let name = await displayBotName(message.id);
-	return { text: name, iconURL: "attachment://footer_icon.png" }
+export async function footerBuilder(guildId: string = "") {
+	let botName = await global.client.db.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
+
+	if (!botName) {
+		botName = global.client.user?.username!;
+	};
+
+	return {
+		text: botName,
+		iconURL: "attachment://footer_icon.png"
+	}
 }
 
-export async function footerAttachmentBuilder(interaction: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild | Client) {
+export async function footerAttachmentBuilder(entry: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild) {
 
 	var res = await displayBotPP(
-		interaction instanceof Client
+		entry instanceof Guild
 			?
-			interaction
+			entry.id
 			:
-			interaction.client,
-		interaction instanceof Guild
-			?
-			interaction.id
-			:
-			interaction instanceof Client
-				?
-				undefined
-				:
-				interaction.guild?.id!
+			entry.guild?.id!
 	);
 
 	if (res.type === 1) {
@@ -62,24 +61,14 @@ export async function footerAttachmentBuilder(interaction: ChatInputCommandInter
 	}
 }
 
-export async function displayBotPP(client: Client, guildId?: string): Promise<{ type: 1 | 2; string: string; }> {
-	let botPFP = await client.db.get(`${guildId}.BOT.botPFP`) as DatabaseStructure.DbGuildBotObject["botPFP"];
+export async function displayBotPP(guildId?: string): Promise<{ type: 1 | 2; string: string; }> {
+	let botPFP = await global.client.db.get(`${guildId}.BOT.botPFP`) as DatabaseStructure.DbGuildBotObject["botPFP"];
 
 	if (!botPFP) {
-		botPFP = client.user?.displayAvatarURL({ size: 1024 })!;
+		botPFP = global.client.user?.displayAvatarURL({ size: 1024 })!;
 
 		return { type: 1, string: botPFP }
 	} else {
 		return { type: 2, string: botPFP }
 	}
-};
-
-export async function displayBotName(guildId: string): Promise<string> {
-	let botName = await global.client.db.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
-
-	if (!botName) {
-		botName = global.client.user?.username!;
-	};
-
-	return botName;
 };

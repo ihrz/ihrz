@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.banner_user_embed.replace('${user?.username}', user?.username))
 			.setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
 			.setThumbnail(user?.displayAvatarURL() as string)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],

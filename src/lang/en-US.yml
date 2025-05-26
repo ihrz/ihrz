@@ -901,12 +901,12 @@ all_admins_unrank_not_owner: "Only the owner of the guild can unrank all adminis
 all_bots_embed_title: "List of all bot(s) | Page ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} You cannot add role to user who have higher role than you..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot add role to user who have higher role than you..."
 utils_addrole_command_ok: "${author.toString()} have succefully added the ${role?.toString()} role to ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | The role you want to add to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} You cannot remove role to user who have higher role than you..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot remove role to user who have higher role than you..."
 utils_delrole_command_ok: "${author.toString()} have succefully removed the ${role?.toString()} role to ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | The role you want to delete to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
 
@@ -1022,6 +1022,17 @@ util_securewebhook_action_delete_any: "You don't have any webhook"
 util_securewebhook_action_delete_not_owner: "You are not the owner of this webhook"
 util_securewebhook_action_delete_error: "Error while deleting the webhook"
 util_securewebhook_actiom_list_ok: ":star: __**Your webhooks**__:\n"
+
+# /util admin-roles
+admin_roles_nobody_roles: "There is no administrator role in this guild!"
+admin_roles_embed_title: "List of all administrator roles | Page ${i / rolesPerPage + 1}"
+admin_roles_remove_button_label: "Remove admin from all"
+admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}, iHorizon has executed the admin permission removal for the AdminRoles module.\n\n**${good}** Role(s) __modified__ successfully\niHorizon __failed__ to modify **${bad}** Role(s)."
+admin_roles_remove_not_owner: "Only the owner of the guild can remove administrator permission from roles"
+
+# /util rolelimit
+util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | The provided options are invalid. Please check your input."
+util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Role: ${role.toString()} | Max Members: ${limit_count}\n- New users won't be able to receive this role if ${limit_count} members already have it."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1525,7 +1536,7 @@ ban_not_permission: "${client.iHorizon_Emojis.No} | You don't have permission to
 ban_dont_found_member: "🔍 | Cannot find this member"
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | I don't have permission to ban members!"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | You cannot ban yourself!"
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop_Logo} You cannot ban user who have higher role than you..."
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} You cannot ban user who have higher role than you..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | I cannot ban that member"
 ban_message_to_the_banned_member: "You have been banned from this server: `${interaction.guild.name}` for the reason: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> banned by <@${interaction.member.id}>"
@@ -1536,7 +1547,7 @@ ban_logs_embed_description: "<@${member.user.id}> banned by <@${interaction.memb
 kick_not_permission: "${client.iHorizon_Emojis.No} | You don't have permission to kick members."
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | I don't have permission to kick members!"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | You cannot kick yourself!"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop_Logo} You cannot kick user who have higher role than you..."
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} You cannot kick user who have higher role than you..."
 kick_message_to_the_banned_member: "You are kicked from this server: **${interaction.guild.name}** by `${interaction.member.user.username}`"
 kick_command_work: "${member.user} kicked by ${interaction.user}"
 kick_logs_embed_title: "Kick Logs"

@@ -122,7 +122,7 @@ async function handleCategorySelect(
 				.replaceAll('${client.iHorizon_Emojis.VC_Region}', client.iHorizon_Emojis.VC_Region)
 				.replaceAll('${client.iHorizon_Emojis.Slash_Bot_Badge}', client.iHorizon_Emojis.Slash_Bot_Badge)
 			)
-			.setFooter(await client.func.displayBotName.footerBuilder(i))
+			.setFooter(await client.func.displayBotName.footerBuilder(i.guildId!))
 			.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${i.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
 			.setThumbnail("attachment://footer_icon.png")
 			.setTimestamp();
@@ -142,7 +142,7 @@ async function handleCategorySelect(
 		.setTitle(`${category.emoji}・${category.name}`)
 		.setDescription(category.description)
 		.setColor(category.color as ColorResolvable)
-		.setFooter(await client.func.displayBotName.footerBuilder(i))
+		.setFooter(await client.func.displayBotName.footerBuilder(i.guildId!))
 		.setThumbnail("attachment://footer_icon.png")
 		.setTimestamp();
 
@@ -219,7 +219,7 @@ async function handleCategorySelect(
 				.setTitle(`${category.emoji}・${category.name}`)
 				.setDescription(category.description)
 				.setColor(category.color as ColorResolvable)
-				.setFooter(await client.func.displayBotName.footerBuilder(i))
+				.setFooter(await client.func.displayBotName.footerBuilder(i.guildId!))
 				.setThumbnail("attachment://footer_icon.png")
 				.setTimestamp();
 			currentFieldsLength = 0;
@@ -415,8 +415,8 @@ export const command: Command = {
 					.replaceAll('${client.iHorizon_Emojis.VC_Region}', client.iHorizon_Emojis.VC_Region)
 					.replaceAll('${client.iHorizon_Emojis.Slash_Bot_Badge}', client.iHorizon_Emojis.Slash_Bot_Badge)
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction))
-				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'fr-FR'}.png`)
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
 				.setThumbnail("attachment://footer_icon.png")
 				.setTimestamp();
 

@@ -104,7 +104,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
 		.setTitle(lang.pfps_embed_user_title.replace('{username}', username!))
 		.setImage(user.user.displayAvatarURL({ extension: 'png', forceStatic: false }))
 		.setTimestamp()
-		.setFooter(await client.func.displayBotName.footerBuilder(channel.guild))
+		.setFooter(await client.func.displayBotName.footerBuilder(channel.guild.id))
 	);
 
 	(channel as BaseGuildTextChannel).send({

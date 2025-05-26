@@ -80,7 +80,7 @@ export const subCommand: SubCommand = {
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#000000")
 			.setImage('attachment://tweet.png')
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		let imgs: AttachmentBuilder;
 

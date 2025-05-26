@@ -80,8 +80,8 @@ export const subCommand: SubCommand = {
 				value: message as string
 			});
 
-			embed.setFooter(await client.func.displayBotName.footerBuilder(interaction));
-			embed.setFooter({ text: await client.func.displayBotName.displayBotName(interaction.guild.id), iconURL: "attachment://icon.png" });
+			embed.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			embed.setColor('#21744c');
 			embed.setTitle(lang.suggest_acceptembed_title_to_put
 				.replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string));
 

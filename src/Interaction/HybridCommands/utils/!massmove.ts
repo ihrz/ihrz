@@ -91,7 +91,7 @@ export const subCommand: SubCommand = {
 		}
 
 		let embed = new EmbedBuilder()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#007fff")
 			.setTimestamp()
 			.setThumbnail(interaction.guild.iconURL())

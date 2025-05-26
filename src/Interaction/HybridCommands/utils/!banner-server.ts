@@ -41,7 +41,7 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.banner_guild_embed)
 			.setImage(interaction.guild.bannerURL({ extension: 'png', size: 4096 }))
 			.setThumbnail(interaction.guild.iconURL({ size: 4096 }) as string)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],

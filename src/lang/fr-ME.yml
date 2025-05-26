@@ -903,12 +903,12 @@ all_admins_unrank_not_owner: "Seul le propriétaire du serveur peut déclasser t
 all_bots_embed_title: "Liste de tous les bot(s) | Page ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} Vous ne pouvez pas ajouter un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Vous ne pouvez pas ajouter un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
 utils_addrole_command_ok: "${author.toString()} a ajouté avec succès le rôle ${role?.toString()} à ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | Le rôle que vous souhaitez ajouter à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} Vous ne pouvez pas supprimer un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Vous ne pouvez pas supprimer un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
 utils_delrole_command_ok: "${author.toString()} a supprimé avec succès le rôle ${role?.toString()} à ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | Le rôle que vous souhaitez supprimer à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
 
@@ -1022,6 +1022,17 @@ util_securewebhook_action_delete_any: "Vous n'avez aucun webhook"
 util_securewebhook_action_delete_not_owner: "Vous n'êtes pas le propriétaire de ce webhook"
 util_securewebhook_action_delete_error: "Erreur lors de la suppression du webhook"
 util_securewebhook_actiom_list_ok: ":star: __**Vos webhooks**__ :\n"
+
+# /util admin-roles
+admin_roles_nobody_roles: "Il n’y a aucun rôle administrateur sur ce serveur !"
+admin_roles_embed_title: "Liste de tous les rôles administrateur | Page ${i / rolesPerPage + 1}"
+admin_roles_remove_button_label: "Retirer l’admin de tous"
+admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}, iHorizon a exécuté la suppression des permissions administrateur pour le module AdminRoles.\n\n**${good}** rôle(s) __modifié(s)__ avec succès\niHorizon n’a pas pu modifier **${bad}** rôle(s)."
+admin_roles_remove_not_owner: "Vous n’êtes pas propriétaire du serveur !"
+
+# /util rolelimit
+util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | Les options fournies sont invalides. Veuillez vérifier votre saisie."
+util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Rôle : ${role.toString()} | Membres max : ${limit_count}\n- Les nouveaux utilisateurs ne pourront pas recevoir ce rôle si ${limit_count} membres le possèdent déjà."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1525,7 +1536,7 @@ ban_not_permission: "${client.iHorizon_Emojis.No} | Tu n'avez pas la permission 
 ban_dont_found_member: "🔍 | Impossible de trouver ce membre."
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | Je n'ai pas la permission de bannir des membres !"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | Tu ne peux pas tu bannir tu-même !"
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop_Logo} Tu ne peux pas bannir un utilisateur qui a un rôle supérieur au vôtre..."
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} Tu ne peux pas bannir un utilisateur qui a un rôle supérieur au vôtre..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | Je ne peux pas bannir ce membre."
 ban_message_to_the_banned_member: "Vous avez été banni de ce serveur : `${interaction.guild.name}` pour la raison: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> a été banni par <@${interaction.member.id}>."
@@ -1536,7 +1547,7 @@ ban_logs_embed_description: "<@${member.user.id}> a été banni par <@${interact
 kick_not_permission: "${client.iHorizon_Emojis.No} | Tu n'avez pas la permission d'expulser des membres."
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | Je n'ai pas la permission d'expulser des membres!"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | Tu ne peux pas tu expulser tu-même!"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop_Logo} Tu ne peux pas expulser un utilisateur ayant un rôle supérieur au vôtre..."
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} Tu ne peux pas expulser un utilisateur ayant un rôle supérieur au vôtre..."
 kick_message_to_the_banned_member: "Tu as été expulser de ce serveur : ${interaction.guild.name} par ${interaction.member.user.username}"
 kick_command_work: "${member.user} a été expulser par ${interaction.user}"
 kick_logs_embed_title: "Logs du Kick"

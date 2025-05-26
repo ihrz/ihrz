@@ -191,7 +191,7 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
 		.setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", cleanCommandName))
 		.setColor("LightGrey");
 
-	embed.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+	embed.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 	if (hasSubCommand(command.options)) {
 		command.options?.map(x => {

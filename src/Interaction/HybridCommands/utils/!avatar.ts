@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 			)
 			.setDescription(lang.avatar_embed_description)
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],

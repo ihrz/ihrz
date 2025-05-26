@@ -124,7 +124,18 @@ export const command: Command = {
 			}
 
 			try {
-				let already = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.${type}`);
+				let already = null;
+				if (type === 'ticket-log-channel') {
+					already = await client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
+				} else {
+					already = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.${type}`);
+				}
+
+				if (already === channel.id) {
+					await client.func.method.interactionSend(interaction, { content: lang.joinghostping_add_already_set.replace("${channel}", channel.toString()) });
+					return;
+				}
+
 				if (already === channel.id) {
 					await client.func.method.interactionSend(interaction, { content: lang.joinghostping_add_already_set.replace("${channel}", channel.toString()) });
 					return;
@@ -136,7 +147,12 @@ export const command: Command = {
 						.replace("${interaction.user.id}", interaction.member?.user.id!)
 						.replace("${typeOfLogs}", typeOfLogs)
 				});
-				await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${type}`, channel.id);
+
+				if (type === 'ticket-log-channel') {
+					await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel.id);
+				} else {
+					await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${type}`, channel.id);
+				}
 
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setlogschannel_command_work

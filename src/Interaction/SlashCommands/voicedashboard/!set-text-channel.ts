@@ -146,7 +146,7 @@ export const subCommand: SubCommand = {
 					inline: true
 				},
 			)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		let buttonRows = [
 			[

@@ -902,12 +902,12 @@ all_admins_unrank_not_owner: "فقط مالك الخادم يمكنه إلغاء
 all_bots_embed_title: "قائمة جميع البوتات | الصفحة ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} لا يمكنك إضافة دور إلى مستخدم يمتلك دورًا أعلى منك..."
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} لا يمكنك إضافة دور إلى مستخدم يمتلك دورًا أعلى منك..."
 utils_addrole_command_ok: "${author.toString()} قام بإضافة الدور ${role?.toString()} بنجاح إلى ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | الدور الذي تريد إضافته للمستخدم غير مدرج في القائمة البيضاء. يجب على المسؤول إضافته أولاً! (باستخدام `/utils wlroles`)"
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop_Logo} لا يمكنك إزالة دور من مستخدم يمتلك دورًا أعلى منك..."
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} لا يمكنك إزالة دور من مستخدم يمتلك دورًا أعلى منك..."
 utils_delrole_command_ok: "${author.toString()} قام بإزالة الدور ${role?.toString()} بنجاح من ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | الدور الذي تريد حذفه من المستخدم غير مدرج في القائمة البيضاء. يجب على المسؤول إضافته أولاً! (باستخدام `/utils wlroles`)"
 
@@ -1021,6 +1021,17 @@ util_securewebhook_action_delete_any: "ليس لديك أي ويب هوك"
 util_securewebhook_action_delete_not_owner: "أنت لست مالك هذا الويب هوك"
 util_securewebhook_action_delete_error: "خطأ أثناء حذف الويب هوك"
 util_securewebhook_actiom_list_ok: ":star: __**الويب هوك الخاص بك**__:\n"
+
+# /util admin-roles
+admin_roles_nobody_roles: "لا يوجد دور مسؤول في هذا الخادم!"
+admin_roles_embed_title: "قائمة كل أدوار المسؤولين | الصفحة ${i / rolesPerPage + 1}"
+admin_roles_remove_button_label: "إزالة المسؤول من الجميع"
+admin_roles_remove_embed_desc: "${interaction.member?.user.toString()}، قام iHorizon بتنفيذ إزالة صلاحيات المسؤول لوحدة AdminRoles.\n\n**${good}** دور/أدوار تم __تعديلها__ بنجاح\nفشل iHorizon في تعديل **${bad}** دور/أدوار."
+admin_roles_remove_not_owner: "أنت لست مالك الخادم!"
+
+# /util rolelimit
+util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | الخيارات المقدمة غير صالحة. يرجى التحقق من الإدخال."
+util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | الدور: ${role.toString()} | الحد الأقصى للأعضاء: ${limit_count}\n- لن يتمكن المستخدمون الجدد من الحصول على هذا الدور إذا كان ${limit_count} عضوًا يمتلكونه بالفعل."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1523,7 +1534,7 @@ ban_not_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لح�
 ban_dont_found_member: "🔍 | لا يمكن العثور على هذا العضو"
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | ليس لدي إذن لحظر الأعضاء!"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | لا يمكنك حظر نفسك!"
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop_Logo} لا يمكنك حظر عضو لديه دور أعلى منك..."
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} لا يمكنك حظر عضو لديه دور أعلى منك..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | لا أستطيع حظر هذا العضو"
 ban_message_to_the_banned_member: "لقد تم حظرك من هذا الخادم: `${interaction.guild.name}` للسبب: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> تم حظره بواسطة <@${interaction.member.id}>"
@@ -1534,7 +1545,7 @@ ban_logs_embed_description: "<@${member.user.id}> تم حظره بواسطة <@$
 kick_not_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لطرد الأعضاء."
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لدي إذن لطرد الأعضاء!"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | لا يمكنك طرد نفسك!"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop_Logo} لا يمكنك طرد عضو لديه دور أعلى منك..."
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} لا يمكنك طرد عضو لديه دور أعلى منك..."
 kick_message_to_the_banned_member: "لقد تم طردك من هذا الخادم: **${interaction.guild.name}** بواسطة `${interaction.member.user.username}`"
 kick_command_work: "${member.user} تم طرده بواسطة ${interaction.user}"
 kick_logs_embed_title: "سجلات الطرد"

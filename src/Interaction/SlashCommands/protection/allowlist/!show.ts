@@ -71,7 +71,7 @@ export const subCommand: SubCommand = {
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
 			.setAuthor({ name: lang.allowlist_show_embed_author })
 			.setDescription(`${text}`)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp();
 
 		await interaction.reply({

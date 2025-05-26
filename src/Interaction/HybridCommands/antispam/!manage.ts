@@ -104,7 +104,7 @@ export const subCommand: SubCommand = {
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6666ff")
 			.setTitle(lang.antispam_manage_embed_title)
 			.setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		const choices: {
 			label: string;

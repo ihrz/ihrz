@@ -72,7 +72,7 @@ export const event: BotEvent = {
 				.setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#FF0000")
 				.setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
 				.setTimestamp()
-				.setFooter(await guild.client.func.displayBotName.footerBuilder(guild))
+				.setFooter(await guild.client.func.displayBotName.footerBuilder(guild.id))
 
 			let table = client.db.table('BLACKLIST')
 			let isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;

@@ -121,8 +121,10 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			text: interaction.user.globalName || interaction.user.username,
 			iconURL: "attachment://user_icon.png"
 		});
-	} else {
+	} else if (view.toLowerCase().includes(lang.mybot_submit_utils_msg_yes)) {
 		view = true;
+	} else {
+		view = false;
 	}
 
 	(body.embeds as EmbedBuilder[]).push(embed);
@@ -144,7 +146,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	await panelMessage?.delete();
 
 	const newPanelFromOldData: MessageReplyOptions = {
-		embeds: [EmbedBuilder.from(embedFromPanelMessage!).setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction))], components: [compFromPanelMessage!],
+		embeds: [EmbedBuilder.from(embedFromPanelMessage!).setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))], components: [compFromPanelMessage!],
 		files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
 	};
 

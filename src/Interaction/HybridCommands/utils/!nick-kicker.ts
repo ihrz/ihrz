@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 		let embed = new EmbedBuilder()
 			.setTitle(lang.util_nick_kicker_embed_title)
 			.setDescription(lang.util_nick_kicker_embed_desc)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setFields(
 				{
 					name: lang.var_enabled,

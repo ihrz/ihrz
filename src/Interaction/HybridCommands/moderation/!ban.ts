@@ -118,7 +118,7 @@ export const subCommand: SubCommand = {
 								{ name: lang.var_author, value: interaction.member?.toString()!, inline: true },
 								{ name: lang.var_reason, value: reason || lang.var_no_set, inline: true }
 							)
-							.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 					],
 					files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 				}).catch(() => { });

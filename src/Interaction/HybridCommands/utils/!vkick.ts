@@ -83,6 +83,7 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.vkick_not_admin_kick, // draft
 			});
+			return;
 		}
 
 		// So, let's fetch the voice channel

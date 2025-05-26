@@ -667,7 +667,7 @@ export const command: Command = {
 				"fr": "Obtenez la liste de tous les membres de la guilde disposant d'autorisations d'administrateur"
 			},
 
-			aliases: ["alladmin", "allperms"],
+			aliases: ["alladmin", "allperms", "alladmins"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 

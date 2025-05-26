@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 					iconURL: "attachment://guild_icon.png"
 				}
 			)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		filtered.forEach(index => {
 			let Channel = `<#${index.giveawayData.channelId}>`;

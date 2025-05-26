@@ -149,7 +149,7 @@ export const subCommand: SubCommand = {
 			let nitro = '';
 
 			let embed = new EmbedBuilder()
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction))
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setThumbnail("attachment://user_icon.gif")
 				.setTimestamp()
 				.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#0014a8')

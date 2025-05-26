@@ -20,10 +20,8 @@
 */
 
 import {
-	CategoryChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
 } from 'discord.js'
 
@@ -36,40 +34,33 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
+		let role;
+		let limit_count: number;
+
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var category = interaction.options.getChannel("category") as CategoryChannel | null;
+			role = interaction.options.getRole("role", false);
+			limit_count = interaction.options.getNumber("members-limit", false) || 0;
 		} else {
-			var category = await client.func.method.channel(interaction, args!, 0) as CategoryChannel | null;
-		};
-
-		let child_channels = category?.children.cache.values()!;
-
-		let changes: string[] | string = [];
-
-		for (let child of child_channels) {
-			if (!child.permissionsLocked) {
-				await child.lockPermissions();
-				changes.push(child.id);
-			}
+			role = client.func.method.role(interaction, args!, 0);
+			limit_count = client.func.method.number(args!, 1) || 0;
 		}
 
-		changes = changes.map(x => `• <#${x}>`).join('\n');
+		if (!role || !limit_count) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.util_rolelimit_bad_opt.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+			});
+			return;
+		}
 
-		// Create an embed message
-		const embed = new EmbedBuilder()
-			.setColor('#5865F2') // Discord's blurple color
-			.setDescription(
-				changes.length > 0
-					? lang.util_sync_embed_description_1
-						.replace("${category?.name}", String(category?.name))
-						.replace("${changes}", changes)
-					: lang.util_sync_embed_description_0)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-			.setTimestamp();
+		await client.db.set(`${interaction.guildId}.GUILD.UTILS.ROLE_LIMIT.${role.id}`, limit_count);
 
-		client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+		await client.func.method.interactionSend(interaction, {
+			content: lang.util_rolelimit_good
+				.replaceAll("${client.iHorizon_Emojis.Crown}", client.iHorizon_Emojis.Crown)
+				.replaceAll("${role.toString()}", role.toString())
+				.replaceAll("${limit_count}", String(limit_count))
 		});
+
+		return;
 	},
 };
