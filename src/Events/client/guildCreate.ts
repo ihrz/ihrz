@@ -173,7 +173,7 @@ export const event: BotEvent = {
 
 				)
 				.setThumbnail(guild.iconURL())
-				.setFooter(await client.func.displayBotName.footerBuilder(guild));
+				.setFooter(await client.func.displayBotName.footerBuilder(guild.id));
 
 			for (let owner of owners) {
 				await (client.users.cache.get(owner))?.send({
