@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 		var text = "";
 		var text2 = "";
 
-		let baseData: DatabaseStructure.AllowListData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`) || { enable: false, list: [] };
+		let baseData = (await client.db.get(`${interaction.guild.id}.ALLOWLIST`) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
 
 		let baseData4Protection = await client.db.get(`${interaction.guild.id}.PROTECTION`);
 
