@@ -97,7 +97,10 @@ export const command: Command = {
 			return;
 		};
 
-		if (await tableOwner.get(`${interaction.member.user.id}.owner`)) {
+
+		let is_owner = await tableOwner.get(`${member.id}.owner`);
+
+		if (is_owner) {
 			await client.func.method.interactionSend(interaction, { content: lang.owner_already_owner });
 			return;
 		};
