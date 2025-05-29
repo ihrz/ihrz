@@ -92,7 +92,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 				await interaction.deferReply({ flags: subCmd.ephemeral ? [1 << 6] : [0] });
 			}
 
-			if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
+			if (subCmd.permission && !interaction?.member?.permissions.has(subCmd.permission) && !permCheck.allowed) {
 				let perm = getPermissionByValue(subCmd.permission);
 
 				if (perm) {
