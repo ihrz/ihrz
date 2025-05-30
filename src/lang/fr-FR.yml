@@ -635,9 +635,9 @@ addmoney_command_work: "Ajout de `${amount.value}`$ à <@${user.user.id}> effect
 
 # /balance
 balance_dont_have_wallet: "👛 Vous n'avez pas de portefeuille... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} n'a pas de portefeuille... !"
+balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} n'a pas de portefeuille... !"
 balance_have_wallet: "👛 Vous avez ${bal} coin(s) !"
-balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} a ${bal} coin(s) !"
+balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} a ${bal} coin(s) !"
 balance_embed_fields1_name: "Banque"
 balance_embed_fields2_name: "En Solde"
 

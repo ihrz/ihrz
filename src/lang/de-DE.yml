@@ -635,9 +635,9 @@ addmoney_command_work: "Erfolgreich `${amount.value}`$ zu <@${user.user.id}> hin
 
 # /balance
 balance_dont_have_wallet: "👛 Du hast keine Brieftasche... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} hat keine Brieftasche... !"
+balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} hat keine Brieftasche... !"
 balance_have_wallet: "👛 Du hast ${bal} Münzen !"
-balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} hat ${bal} Münzen !"
+balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} hat ${bal} Münzen !"
 balance_embed_fields1_name: "Bank"
 balance_embed_fields2_name: "Im Guthaben"
 

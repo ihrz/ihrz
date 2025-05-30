@@ -635,9 +635,9 @@ addmoney_command_work: "Успешно добавлено `${amount.value}`$ п�
 
 # /balance
 balance_dont_have_wallet: "👛 У вас нет кошелька... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} не имеет кошелька... !"
+balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} не имеет кошелька... !"
 balance_have_wallet: "👛 У вас есть ${bal} монет(ы) !"
-balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} У ${user} есть ${bal} монет(ы) !"
+balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet} У ${user} есть ${bal} монет(ы) !"
 balance_embed_fields1_name: "Банк"
 balance_embed_fields2_name: "В балансе"
 

@@ -635,9 +635,9 @@ addmoney_command_work: "تمت إضافة `${amount.value}`$ بنجاح إلى <
 
 # /balance
 balance_dont_have_wallet: "👛 لا تمتلك محفظة... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} لا يمتلك محفظة... !"
+balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} لا يمتلك محفظة... !"
 balance_have_wallet: "👛 لديك ${bal} عملة(ات) !"
-balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} يمتلك ${bal} عملة(ات) !"
+balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} يمتلك ${bal} عملة(ات) !"
 balance_embed_fields1_name: "البنك"
 balance_embed_fields2_name: "الرصيد"
 
