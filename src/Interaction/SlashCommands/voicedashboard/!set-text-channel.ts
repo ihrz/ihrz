@@ -159,7 +159,7 @@ export const subCommand: SubCommand = {
 			[
 				{ emoji: client.iHorizon_Emojis.VC_Trust, customId: 'temporary_voice_trust_button' },
 				{ emoji: client.iHorizon_Emojis.VC_Block, customId: 'temporary_voice_block_button' },
-				{ emoji: client.iHorizon_Emojis.VC_Unblock, customId: 'temporary_voice_transfer_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Transfer, customId: 'temporary_voice_transfer_button' },
 				{ emoji: client.iHorizon_Emojis.VC_Unblock, customId: 'temporary_voice_unblock_button' },
 				{ emoji: client.iHorizon_Emojis.VC_Untrust, customId: 'temporary_voice_untrust_button' },
 			],
