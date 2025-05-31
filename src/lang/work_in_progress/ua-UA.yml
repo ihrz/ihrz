@@ -350,9 +350,9 @@ addmoney_command_work: "Успішно додано `${amount.value}`$ кори�
 
 # /balance
 balance_dont_have_wallet: "👛 У вас немає гаманця... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} не має гаманця... !"
+balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} не має гаманця... !"
 balance_have_wallet: "👛 У вас є ${bal} монет(и) !"
-balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} У ${user} є ${bal} монет(и) !"
+balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet} У ${user} є ${bal} монет(и) !"
 balance_embed_fields1_name: "Банк"
 balance_embed_fields2_name: "На рахунку"
 

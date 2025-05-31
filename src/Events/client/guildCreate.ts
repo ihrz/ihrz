@@ -149,16 +149,16 @@ export const event: BotEvent = {
 			let i: string = '';
 			if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
-			// async function createInvite(channel: BaseGuildTextChannel): Promise<string> {
-			// 	try {
-			// 		let invite = await channel.createInvite();
-			// 		let inviteCode = invite.code;
+			async function createInvite(channel: BaseGuildTextChannel): Promise<string> {
+				try {
+					let invite = await channel.createInvite();
+					let inviteCode = invite.code;
 
-			// 		return 'discord.gg/' + inviteCode;
-			// 	} catch {
-			// 		return 'None';
-			// 	}
-			// }
+					return 'discord.gg/' + inviteCode;
+				} catch {
+					return 'None';
+				}
+			}
 
 			let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
@@ -170,8 +170,8 @@ export const event: BotEvent = {
 					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
 					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
 					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
-					// { name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
-					// { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
+					{ name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
+					{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
 					{ name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
 					{ name: "🥛・New members total", value: `${usersize} members`, inline: true },
 

@@ -635,9 +635,9 @@ addmoney_command_work: "<@${user.user.id}> に `${amount.value}`$ 追加に成�
 
 # /balance
 balance_dont_have_wallet: "👛 財布がありません... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} は財布を持っていません... !"
+balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} は財布を持っていません... !"
 balance_have_wallet: "👛 ${bal} コインを持っています！"
-balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet_Logo} ${user} は ${bal} コインを持っています！"
+balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} は ${bal} コインを持っています！"
 balance_embed_fields1_name: "銀行"
 balance_embed_fields2_name: "バランス中"
 
