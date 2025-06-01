@@ -403,7 +403,7 @@ export const subCommand: SubCommand = {
 					is_saved = false;
 					panelEmbed.data.fields![0].value = "🔴";
 
-					panelEmbed.data.fields![8].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
+					panelEmbed.data.fields![7].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
 
 					await originalResponse.edit({
 						embeds: [panelEmbed],

@@ -36,6 +36,16 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	if (!result || !allChannel) return await interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId) return await interaction.deferUpdate();
 
+	let isTemporaryChannel = false;
+	for (let [userId, channelId] of Object.entries(allChannel)) {
+		if (channelId === targetedChannel?.id) {
+			isTemporaryChannel = true;
+			break;
+		}
+	};
+
+	if (!isTemporaryChannel) return await interaction.deferUpdate();
+
 	function getPreviousOwner(guild: Guild): GuildMember | undefined {
 		var result = '';
 
