@@ -52,6 +52,11 @@ export const subCommand: SubCommand = {
 				channel = (await interaction.guild.channels.fetch(channel.id)) as BaseGuildTextChannel;
 			}
 
+			if (!channel.deletable) {
+				await client.func.method.interactionSend(interaction, { content: lang.renew_dont_have_permission });
+				return;
+			}
+
 			let here = await channel.clone({
 				name: channel.name,
 				parent: channel.parent,
