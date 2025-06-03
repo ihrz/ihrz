@@ -81,7 +81,7 @@ export const event: BotEvent = {
 					return;
 				} else {
 					await msg.delete().catch(() => { })
-					await member.kick().catch(() => { })
+					await member.kick("Security Process failed").catch(() => { })
 					return;
 				}
 			});
@@ -90,7 +90,7 @@ export const event: BotEvent = {
 				if (passedtest) return;
 
 				if (!member.joinedAt && memberJoinDate === member.joinedAt) {
-					await member.kick().catch(() => { })
+					await member.kick("Security Process failed").catch(() => { })
 				}
 
 				await msg.delete().catch(() => { })

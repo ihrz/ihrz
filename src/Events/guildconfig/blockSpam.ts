@@ -53,7 +53,7 @@ export const event: BotEvent = {
 						message.guild.members.ban(message.author, { reason: "Ban by PUNISHPUB" }).catch(() => { });
 						break;
 					case 'kick':
-						message.guild.members.kick(message.author).catch(() => { });
+						message.guild.members.kick(message.author, "Kick by PunishPub").catch(() => { });
 						break;
 					case 'mute':
 						await member?.timeout(40000, 'Timeout by PunishPUB');
