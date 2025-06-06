@@ -75,6 +75,9 @@ const config: ConfigData = {
 		guildLogsChannelID: "The Discord Channel's ID for logs when guildCreate/guildRemove",
 		// The channel where the robot informs of the arrival on a server or when it leaves.
 
+		lavalinkLogsChannelID: "",
+		// The channel where the error will be sent when lavalink sucks
+
 		reportChannelID: "The Discord Channel's ID for logs when bugs/message are reported",
 		// The channel where the robot informs of a bug reported by a user of the bot.
 

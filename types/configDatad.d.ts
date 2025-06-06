@@ -50,6 +50,7 @@ export interface ConfigData {
 		blacklistPictureInEmbed: string;
 		guildLogsChannelID: string;
 		reportChannelID: string;
+		lavalinkLogsChannelID?: string;
 
 		cluster: string[];
 
