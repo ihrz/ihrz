@@ -43,7 +43,8 @@ export function generateTagInfoEmbed(interaction: ChatInputCommandInteraction<"c
 			`${interaction.client.iHorizon_Emojis.Sparkles} > **${lang.tag_embed_created_at}:** ${time(new Date(tag.createTimestamp), "D")}\n` +
 			`${interaction.client.iHorizon_Emojis.Timer} > **${lang.tag_embed_last_update}:** ${time(new Date(tag.lastUseTimestamp), "D")}\n` +
 			`${interaction.client.iHorizon_Emojis.Timer} > **${lang.var_uses}:** ${"**`" + tag.uses + "`**"}\n` +
-			`${interaction.client.iHorizon_Emojis.Boosting24Months_Badge} > **${lang.tag_embed_last_updated_by}:** ${tag.lastUseBy ? '<@' + tag.lastUseBy + '>' : lang.var_no_set}`
+			`${interaction.client.iHorizon_Emojis.Boosting24Months_Badge} > **${lang.tag_embed_last_updated_by}:** ${tag.lastUseBy ? '<@' + tag.lastUseBy + '>' : lang.var_no_set}\n` +
+			`${interaction.client.iHorizon_Emojis.Message_Commands} > **${lang.var_message}:** ** ${tag?.content || lang.var_no_set}**`
 		);
 }
 
@@ -163,6 +164,18 @@ export const command: Command = {
 
 					type: ApplicationCommandOptionType.String,
 					required: true,
+					permission: null
+				},
+				{
+					name: "message_content",
+
+					description: "Message with the embed",
+					description_localizations: {
+						fr: "le message qui acompagneras l'embed"
+					},
+
+					type: ApplicationCommandOptionType.String,
+					required: false,
 					permission: null
 				},
 			],

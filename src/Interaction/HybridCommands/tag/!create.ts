@@ -48,9 +48,11 @@ export const subCommand: SubCommand = {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var tag_name = interaction.options.getString("tag_name", true);
 			var embed_id = interaction.options.getString("embed_id", true);
+			var message_content = interaction.options.getString("message_content", false);
 		} else {
 			var tag_name = client.func.method.string(args!, 0)!;
 			var embed_id = client.func.method.string(args!, 1)!;
+			var message_content = client.func.method.string(args!, 2);
 		}
 
 		tag_name = tag_name.trim();
@@ -95,6 +97,7 @@ export const subCommand: SubCommand = {
 			uses: 0,
 			lastUseTimestamp: Date.now(),
 			lastUseBy: null,
+			content: message_content || null
 		});
 
 		await client.func.method.interactionSend(interaction, {
