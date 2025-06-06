@@ -87,14 +87,14 @@ export const subCommand: SubCommand = {
 				let message = await interaction.channel.messages.fetch(message_id).catch(() => null);
 				if (message) {
 					await message.reply({
-						content: mention ? mention.toString() : undefined,
+						content: mention ? mention.toString() : baseData?.storedTags?.[tag_name].content || undefined,
 						embeds: [embed?.embedSource],
 					});
 				}
 			}
 			else {
 				await interaction.channel.send({
-					content: mention ? mention.toString() : undefined,
+					content: mention ? mention.toString() : baseData?.storedTags?.[tag_name].content || undefined,
 					embeds: [embed?.embedSource],
 				});
 			}

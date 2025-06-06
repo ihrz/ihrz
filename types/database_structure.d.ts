@@ -494,6 +494,7 @@ export namespace DatabaseStructure {
 		uses: number;
 		lastUseTimestamp: number;
 		lastUseBy: string | null;
+		content?: string | null;
 	}
 
 	export interface GuildTagsStructure {
