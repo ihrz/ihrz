@@ -100,7 +100,7 @@ export const event: BotEvent = {
 
 		let icon = newMessage.author.displayAvatarURL();
 
-		if (oldMessage.partial) {
+		if (oldMessage.partial || newMessage.content === "" || newMessage.content === null || newMessage.content === undefined) {
 			return;
 		}
 
@@ -118,8 +118,8 @@ export const event: BotEvent = {
 			);
 		} else {
 			logsEmbed.setFields(
-				{ name: data.event_srvLogs_messageUpdate_footer_1, value: oldMessage.content + '.' },
-				{ name: data.event_srvLogs_messageUpdate_footer_2, value: newMessage.content + '.' }
+				{ name: data.event_srvLogs_messageUpdate_footer_1, value: oldMessage.content },
+				{ name: data.event_srvLogs_messageUpdate_footer_2, value: newMessage.content }
 			);
 		}
 
