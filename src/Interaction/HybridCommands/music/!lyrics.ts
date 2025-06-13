@@ -23,15 +23,11 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 } from 'discord.js';
 
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -52,13 +48,13 @@ export const subCommand: SubCommand = {
 		try {
 			client.lyricsSearcher.search(title)
 				.then(async response => {
-					let trimmedLyrics = response?.lyrics?.substring(0, 1997);
+					const trimmedLyrics = response?.lyrics?.substring(0, 1997);
 
-					let embed = new EmbedBuilder()
+					const embed = new EmbedBuilder()
 						.setTitle(response?.title || lang.lyrics_embed_title_unknown)
 						.setURL(response?.url!)
 						.setTimestamp()
-						.setThumbnail(response?.image!)
+						.setThumbnail(response?.artist.image || response?.image!)
 						.setAuthor({
 							name: response?.artist.name || lang.lyrics_embed_author_name_unknown,
 						})

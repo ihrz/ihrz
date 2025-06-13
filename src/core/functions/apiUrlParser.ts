@@ -58,8 +58,8 @@ export function OwnIhrzCluster(options: {
 	discord_bot_token?: string;
 	forceDatabaseSet?: boolean;
 }): string {
-	var data = config.core.cluster[options.cluster_number];
-	var admin_key = config.api.apiToken;
+	let data = config.core.cluster[options.cluster_number];
+	const admin_key = config.api.apiToken;
 
 	data += "/api/v1/instance/";
 	switch (options.cluster_method) {
@@ -117,7 +117,7 @@ export function OwnIhrzCluster(options: {
 };
 
 export function HorizonGateway(gateway_method: GatewayMethod): string {
-	var data = config.api.HorizonGateway;
+	let data = config.api.HorizonGateway;
 
 	if (!data) throw "Error: HorizonGateway empty in the configurations files";
 

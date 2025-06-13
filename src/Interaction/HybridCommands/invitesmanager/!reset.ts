@@ -20,19 +20,12 @@
 */
 
 import {
-	ActionRowBuilder,
-	BaseGuildTextChannel,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	ComponentType,
 	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
@@ -45,11 +38,11 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let a = new EmbedBuilder()
+		const a = new EmbedBuilder()
 			.setColor("#FF0000")
 			.setDescription(lang.removeinvites_not_admin_embed_description);
 
-		let response = await promptYesOrNo(interaction, {
+		const response = await promptYesOrNo(interaction, {
 			content: lang.resetallinvites_warning_msg,
 			noButton: lang.resetallinvites_no_button,
 			yesButton: lang.resetallinvites_yes_button,
@@ -58,7 +51,7 @@ export const subCommand: SubCommand = {
 
 		if (response) {
 			const baseData = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
-			for (let user in baseData) {
+			for (const user in baseData) {
 				baseData[user].INVITES = {}
 			}
 			await client.db.set(`${interaction.guildId}.USER`, baseData);

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, APIRole, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, InteractionDeferReplyOptions, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -180,14 +180,14 @@ export function boldStringifyOption(option: Option[]): string {
 }
 
 export async function createAwesomeEmbed(lang: LanguageData, command: Command, client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message): Promise<EmbedBuilder> {
-	var commandName = command.prefixName || command.name;
-	var cleanCommandName = commandName.charAt(0).toUpperCase() + commandName.slice(1);;
-	var botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
-	var cleanBotPrefix = botPrefix.string;
+	const commandName = command.prefixName || command.name;
+	const cleanCommandName = commandName.charAt(0).toUpperCase() + commandName.slice(1);;
+	const botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
+	let cleanBotPrefix = botPrefix.string;
 
 	if (botPrefix.type === "mention") cleanBotPrefix = lang.hybridcommands_global_prefix_mention;
 
-	let embed = new EmbedBuilder()
+	const embed = new EmbedBuilder()
 		.setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", cleanCommandName))
 		.setColor("LightGrey");
 
@@ -195,11 +195,11 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
 
 	if (hasSubCommand(command.options)) {
 		command.options?.map(x => {
-			var shortCommandName = x.prefixName || x.name;
-			var pathString = boldStringifyOption(x.options || []);
+			const shortCommandName = x.prefixName || x.name;
+			const pathString = boldStringifyOption(x.options || []);
 
-			var aliases = x.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none;
-			var use = `${cleanBotPrefix}${shortCommandName} ${pathString}`;
+			const aliases = x.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none;
+			const use = `${cleanBotPrefix}${shortCommandName} ${pathString}`;
 
 			embed.addFields({
 				name: `${cleanBotPrefix}${shortCommandName}`,
@@ -209,8 +209,8 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
 			});
 		});
 	} else {
-		let fetchFullCommandName = interaction.client.content.find(c => c.desc === command.description);
-		var CommandsPerm = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${fetchFullCommandName?.cmd}`) as DatabaseStructure.UtilsPermsData[""] | undefined;
+		const fetchFullCommandName = interaction.client.content.find(c => c.desc === command.description);
+		let CommandsPerm = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${fetchFullCommandName?.cmd}`) as DatabaseStructure.UtilsPermsData[""] | undefined;
 
 		if (typeof CommandsPerm === "number") {
 			CommandsPerm = {
@@ -219,11 +219,11 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
 				level: CommandsPerm
 			};
 		}
-		var pathString = boldStringifyOption(command.options || []);
+		const pathString = boldStringifyOption(command.options || []);
 		let perm: DatabaseStructure.PermLevel | string | undefined | null = "";
 
 		if (command.permission) {
-			let perm_cmd = getPermissionByValue(command.permission);
+			const perm_cmd = getPermissionByValue(command.permission);
 			if (perm_cmd) {
 				if (Array.isArray(perm_cmd)) {
 					// If it's an array of permissions, join their names
@@ -291,7 +291,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 		cleanBotPrefix = lang.hybridcommands_global_prefix_cleaned_mention;
 	}
 
-	let expectedArgs: ArgumentBrief[] = [];
+	const expectedArgs: ArgumentBrief[] = [];
 
 	command.options?.forEach(option => {
 		expectedArgs.push({
@@ -358,7 +358,7 @@ function isValidArgument(arg: string, type: string, atc: Collection<string, Atta
 }
 
 async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix: string, command: Command, expectedArgs: ArgumentBrief[], errorIndex: number) {
-	let argument: string[] = [];
+	const argument: string[] = [];
 	let fullNameCommand: string;
 
 	expectedArgs.forEach(arg => argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`));
@@ -381,7 +381,7 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
 		}
 	});
 
-	let argsString = argument.join(" ");
+	const argsString = argument.join(" ");
 	const embed = new EmbedBuilder()
 		.setDescription(lang.hybridcommands_args_error_embed_desc
 			.replace("${currentCommand.name}", currentCommand.prefixName || currentCommand.name)
@@ -486,8 +486,8 @@ export function isSubCommand(option: Option | Command): boolean {
 
 export async function punish(data: any, user: GuildMember | undefined, reason?: string) {
 	async function derank() {
-		let user_roles = Array.from(user?.roles.cache.values()!);
-		let role_app = user_roles.find(x => x.managed);
+		const user_roles = Array.from(user?.roles.cache.values()!);
+		const role_app = user_roles.find(x => x.managed);
 		if (role_app) {
 			await role_app.setPermissions(PermissionFlagsBits.ViewChannel);
 		}
@@ -570,17 +570,17 @@ export function findOptionRecursively(options: Option[], subcommandName: string)
 };
 
 export async function buttonReact(msg: Message, button: ButtonBuilder): Promise<Message> {
-	let comp = msg.components as ActionRow<MessageActionRowComponent>[];
+	const comp = msg.components as ActionRow<MessageActionRowComponent>[];
 	let isAdd = false;
 
 	if (comp.length >= 5) {
 		throw "Too much components on this message!";
 	}
 
-	for (let lines of comp) {
+	for (const lines of comp) {
 		if ((lines as ActionRow<MessageActionRowComponent>).components.length < 5 && !isAdd) {
 			if ((lines as ActionRow<MessageActionRowComponent>).components.find((x: MessageActionRowComponent) => x.type === ComponentType.Button)) {
-				let newActionRow = ActionRowBuilder.from(lines as ActionRow<MessageActionRowComponent>);
+				const newActionRow = ActionRowBuilder.from(lines as ActionRow<MessageActionRowComponent>);
 
 				newActionRow.addComponents(button);
 				comp[comp.indexOf(lines)] = newActionRow.toJSON() as ActionRow<MessageActionRowComponent>;
@@ -591,7 +591,7 @@ export async function buttonReact(msg: Message, button: ButtonBuilder): Promise<
 	}
 
 	if (!isAdd) {
-		let newActionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+		const newActionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
 		comp.push(newActionRow.toJSON() as ActionRow<MessageActionRowComponent>);
 	}
 
@@ -601,7 +601,7 @@ export async function buttonReact(msg: Message, button: ButtonBuilder): Promise<
 }
 
 export async function buttonUnreact(msg: Message, buttonEmoji: string): Promise<Message> {
-	let comp = msg.components as ActionRow<MessageActionRowComponent>[];
+	const comp = msg.components as ActionRow<MessageActionRowComponent>[];
 	let isRemoved = false;
 
 	const newComp: ActionRow<MessageActionRowComponent>[] = [];
@@ -633,7 +633,7 @@ export function isAnimated(attachmentUrl: string): boolean {
 }
 
 export async function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string> {
-	let warnObject: DatabaseStructure.WarnsData = {
+	const warnObject: DatabaseStructure.WarnsData = {
 		timestamp: Date.now(),
 		reason: reason,
 		authorID: author.user.id,
@@ -674,7 +674,7 @@ export async function subCoins(member: GuildMember, coins: number): Promise<void
 }
 
 export async function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean> {
-	let allTickets = await channel.client.db.get(`${channel.guild.id}.TICKET_ALL`);
+	const allTickets = await channel.client.db.get(`${channel.guild.id}.TICKET_ALL`);
 
 	if (!allTickets || typeof allTickets !== "object") {
 		return false;

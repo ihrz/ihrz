@@ -27,7 +27,7 @@ export const event: BotEvent = {
 	run: async (client: Client, member: GuildMember) => {
 		try {
 			let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`)
-			let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
+			const guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
 
 			if (!msg_dm || msg_dm === "off") return;
 
@@ -46,7 +46,7 @@ export const event: BotEvent = {
 				}
 			);
 
-			let button = new ButtonBuilder()
+			const button = new ButtonBuilder()
 				.setDisabled(true)
 				.setCustomId('join-dm-from-server')
 				.setStyle(ButtonStyle.Secondary)

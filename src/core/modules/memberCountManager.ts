@@ -52,7 +52,7 @@ class MemberCountModule {
 	}
 
 	private async Refresh(memberCountData: memberCountData) {
-		for (let guildObject of memberCountData) {
+		for (const guildObject of memberCountData) {
 			try {
 				const guild = this.client.guilds.cache.get(guildObject.guildId);
 				if (!guild) continue;

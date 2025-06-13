@@ -24,10 +24,8 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -49,16 +47,16 @@ export const subCommand: SubCommand = {
 			var user = interaction.author;
 		};
 
-		let text = question?.split(" ");
+		const text = question?.split(" ");
 
 		if (!text[2]) {
 			await client.func.method.interactionSend(interaction, { content: lang.question_not_full });
 			return;
 		}
 
-		let reponses = lang.question_s
+		const reponses = lang.question_s
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.question_embed_title
 				.replace(/\${interaction\.user\.username}/g, user.globalName || user.username)
 			)

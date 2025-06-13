@@ -26,7 +26,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -41,7 +40,7 @@ export const subCommand: SubCommand = {
 			var user = interaction.author;
 		};
 
-		let tableProfil = client.db.table('USER_PROFIL');
+		const tableProfil = client.db.table('USER_PROFIL');
 
 		switch (gender) {
 			case "female":

@@ -22,21 +22,14 @@
 import {
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
-	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	ChannelType,
-	ApplicationCommandType,
 	BaseGuildVoiceChannel,
 	VoiceChannel,
-	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions
+	Message
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -90,7 +83,7 @@ export const subCommand: SubCommand = {
 			}
 		}
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setColor('#007fff')
 			.setTimestamp()

@@ -23,7 +23,6 @@ import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Cli
 
 import { DatabaseStructure } from '../../types/database_structure.js';
 import logger from './logger.js';
-import { LanguageData } from '../../types/languageData.js';
 import { axios } from './functions/axios.js';
 
 export type Platform = "kick" | "youtube" | "twitch";
@@ -283,11 +282,11 @@ export class StreamNotifier {
 	}
 
 	public async generateAuthorsEmbed(guild: Guild): Promise<EmbedBuilder> {
-		let lang = await this.client.func.getLanguageData(guild?.id);
-		let authors = (await this.getGuildData(guild.id))?.users || [];
-		let embed = new EmbedBuilder();
+		const lang = await this.client.func.getLanguageData(guild?.id);
+		const authors = (await this.getGuildData(guild.id))?.users || [];
+		const embed = new EmbedBuilder();
 		let desc = lang.notifier_generateAuthorsEmbed_embed_desc;
-		for (let author of authors) {
+		for (const author of authors) {
 			desc += `${author.platform} - [\`${await this.getChannelNameById(author.platform, author.id_or_username)}\`](https://youtube.com/channel/${author.id_or_username})\n`
 		}
 		embed.setTitle(lang.notifier_generateAuthorsEmbed_embed_title);
@@ -298,11 +297,11 @@ export class StreamNotifier {
 	}
 
 	public async generateConfigurationEmbed(guild: Guild) {
-		let lang = await this.client.func.getLanguageData(guild?.id);
-		let config = (await this.getGuildData(guild.id));
+		const lang = await this.client.func.getLanguageData(guild?.id);
+		const config = (await this.getGuildData(guild.id));
 
-		let channel = guild.channels.cache.get(config?.channelId || "");
-		let embed = new EmbedBuilder();
+		const channel = guild.channels.cache.get(config?.channelId || "");
+		const embed = new EmbedBuilder();
 
 		embed.setTitle(lang.notifier_generateConfigurationEmbed_embed_title);
 		embed.setColor(2829617);
@@ -317,15 +316,15 @@ export class StreamNotifier {
 		await this.ensureValidAccessToken();
 		const guildsData = await this.getGuildsData();
 
-		for (let entry of guildsData) {
-			let guild = this.client.guilds.cache.get(entry.guildId);
-			let channel = guild?.channels.cache.get(entry.value.channelId) as BaseGuildTextChannel | undefined;
-			let lang = await this.client.func.getLanguageData(guild?.id);
-			let medias = await this.fetchUsersMedias(entry.value.users || []);
+		for (const entry of guildsData) {
+			const guild = this.client.guilds.cache.get(entry.guildId);
+			const channel = guild?.channels.cache.get(entry.value.channelId) as BaseGuildTextChannel | undefined;
+			const lang = await this.client.func.getLanguageData(guild?.id);
+			const medias = await this.fetchUsersMedias(entry.value.users || []);
 
-			for (let media of medias) {
+			for (const media of medias) {
 				if (!await this.mediaHaveAlreadyBeNotified(entry.guildId, media)) {
-					let message = this.client.func.method.generateCustomMessagePreview(
+					const message = this.client.func.method.generateCustomMessagePreview(
 						entry.value.message || lang.notifier_on_new_media_default_message,
 						{
 							guild: guild!,

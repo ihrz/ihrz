@@ -20,14 +20,7 @@
 */
 
 import {
-	ApplicationCommandOptionType,
-	ApplicationCommandType,
-	BaseGuildTextChannel,
-	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildMember,
-	GuildVoiceChannelResolvable,
 	Message,
 	PermissionsBitField,
 } from 'discord.js';
@@ -54,9 +47,9 @@ export const command: Command = {
 	run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
 
 
-		let emoji = options![0];
+		const emoji = options![0];
 
-		let emojiMsg = emoji || lang.var_none;
+		const emojiMsg = emoji || lang.var_none;
 
 		if (!isSingleEmoji(emoji) && !isDiscordEmoji(emoji)) {
 			await interaction.reply({
@@ -67,7 +60,7 @@ export const command: Command = {
 			return;
 		}
 
-		let message = options![1];
+		const message = options![1];
 
 		await interaction.reply({
 			content: lang.add_react_command_work

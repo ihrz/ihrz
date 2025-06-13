@@ -22,18 +22,12 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	CommandInteractionOptionResolver,
-	Guild,
 	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -45,8 +39,8 @@ export const subCommand: SubCommand = {
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		try {
-			let voiceChannel = (interaction.member as GuildMember).voice.channel;
-			let player = client.player.getPlayer(interaction.guildId as string);
+			const voiceChannel = (interaction.member as GuildMember).voice.channel;
+			const player = client.player.getPlayer(interaction.guildId as string);
 
 			if (interaction instanceof ChatInputCommandInteraction) {
 				var mode = interaction.options.getString('mode');

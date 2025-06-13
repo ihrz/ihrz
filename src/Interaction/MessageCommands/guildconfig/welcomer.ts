@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	ChatInputCommandInteraction,
 	ApplicationCommandType,
 	Message,
 } from 'discord.js';

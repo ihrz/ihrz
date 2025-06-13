@@ -20,21 +20,14 @@
 */
 
 import {
-	ApplicationCommandType,
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	GuildChannel,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
-	PermissionsBitField,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -57,7 +50,7 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			let here = await channel.clone({
+			const here = await channel.clone({
 				name: channel.name,
 				parent: channel.parent,
 				permissionOverwrites: channel.permissionOverwrites.cache!,

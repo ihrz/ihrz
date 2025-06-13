@@ -42,11 +42,11 @@ export const subCommand: SubCommand = {
 			var category = await client.func.method.channel(interaction, args!, 0) as CategoryChannel | null;
 		};
 
-		let child_channels = category?.children.cache.values()!;
+		const child_channels = category?.children.cache.values()!;
 
 		let changes: string[] | string = [];
 
-		for (let child of child_channels) {
+		for (const child of child_channels) {
 			if (!child.permissionsLocked) {
 				await child.lockPermissions();
 				changes.push(child.id);

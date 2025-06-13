@@ -22,13 +22,9 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	ChatInputCommandInteraction,
-	Client,
-	Message,
 	PermissionFlagsBits,
 } from 'discord.js'
 
-import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
 
 

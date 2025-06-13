@@ -23,15 +23,14 @@ import { Client, GuildMember } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
 
 		try {
-			let baseData = await client.db.get(`${member.guild.id}.UTILS.NICK_KICKER`) as DatabaseStructure.NickKickerData | null;
-			let lang = await client.func.getLanguageData(member.guild.id);
+			const baseData = await client.db.get(`${member.guild.id}.UTILS.NICK_KICKER`) as DatabaseStructure.NickKickerData | null;
+			const lang = await client.func.getLanguageData(member.guild.id);
 
 			if (baseData?.enabled &&
 				(

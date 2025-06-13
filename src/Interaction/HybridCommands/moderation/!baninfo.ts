@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
 			log.action === AuditLogEvent.MemberBanAdd
 		);
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(`${lang.baninfo_ban_info}: ${user.displayName}`)
 			.setColor("#4fdb12")
 			.setDescription(

@@ -25,7 +25,6 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -43,12 +42,12 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		var text = "";
-		var text2 = "";
+		let text = "";
+		let text2 = "";
 
-		let baseData: DatabaseStructure.AllowListData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`) || { enable: false, list: [] };
+		const baseData: DatabaseStructure.AllowListData = await client.db.get(`${interaction.guild.id}.ALLOWLIST`) || { enable: false, list: [] };
 
-		let baseData4Protection = await client.db.get(`${interaction.guild.id}.PROTECTION`);
+		const baseData4Protection = await client.db.get(`${interaction.guild.id}.PROTECTION`);
 
 		if (!baseData || !baseData4Protection || Object.keys(baseData?.list || []).length === 0 || Object.keys(baseData4Protection).length === 0) {
 			await interaction.editReply({ content: lang.authorization_configshow_not_anything_setup });
@@ -61,7 +60,7 @@ export const subCommand: SubCommand = {
 
 		for (var i in baseData4Protection) {
 			if (i !== 'SANCTION') {
-				var a = baseData4Protection[i].mode;
+				const a = baseData4Protection[i].mode;
 				text2 += `**${i.toUpperCase()}** -> \`${a}\`\n`
 			}
 		};
@@ -73,14 +72,14 @@ export const subCommand: SubCommand = {
 
 		text2 += lang.authorization_configshow_punishement.replace('${okay}', okay);
 
-		let embed1 = new EmbedBuilder()
+		const embed1 = new EmbedBuilder()
 			.setColor('#000000')
 			.setAuthor({ name: lang.authorization_configshow_embed1_author })
 			.setDescription(text2)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp();
 
-		let embed2 = new EmbedBuilder()
+		const embed2 = new EmbedBuilder()
 			.setColor("#000000")
 			.setAuthor({ name: lang.authorization_configshow_embed2_author })
 			.setDescription(text)

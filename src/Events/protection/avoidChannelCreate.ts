@@ -30,17 +30,17 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
+		const data = await client.db.get(`${channel.guild.id}.PROTECTION`);
 		if (!data) return;
 
 		if (data.createchannel && data.createchannel.mode === 'allowlist') {
 
-			let fetchedLogs = await channel.guild.fetchAuditLogs({
+			const fetchedLogs = await channel.guild.fetchAuditLogs({
 				type: AuditLogEvent.ChannelCreate,
 				limit: 75,
 			});
 
-			let relevantLog = fetchedLogs.entries.find(entry =>
+			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === channel.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
@@ -50,10 +50,10 @@ export const event: BotEvent = {
 				return;
 			}
 
-			let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
-				let member = channel.guild.members.cache.get(relevantLog?.executorId!);
+				const member = channel.guild.members.cache.get(relevantLog?.executorId!);
 				await client.func.method.punish(data, member);
 
 				await channel.delete();

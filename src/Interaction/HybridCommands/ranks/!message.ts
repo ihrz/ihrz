@@ -21,7 +21,6 @@
 
 import {
 	ActionRowBuilder,
-	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
@@ -29,13 +28,11 @@ import {
 	ComponentType,
 	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 	TextInputStyle
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -46,7 +43,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		let xpMessage = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.message`);
-		let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
+		const guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
 
 		xpMessage = xpMessage?.substring(0, 1010);
 
@@ -112,7 +109,7 @@ export const subCommand: SubCommand = {
 			};
 
 			if (buttonInteraction.customId === "xpMessage-set-message") {
-				let modalInteraction = await iHorizonModalResolve({
+				const modalInteraction = await iHorizonModalResolve({
 					customId: 'xpMessage-modal',
 					title: lang.ranksSetMessage_awaiting_response,
 					deferUpdate: false,

@@ -19,20 +19,19 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, ComponentType, Embed, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ButtonInteraction, EmbedBuilder, GuildMember } from 'discord.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
-	let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	let table = interaction.client.db.table('TEMP');
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const table = interaction.client.db.table('TEMP');
 
-	let targetedChannel = (interaction.member as GuildMember).voice.channel;
+	const targetedChannel = (interaction.member as GuildMember).voice.channel;
 
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	let member = interaction.member as GuildMember;
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const member = interaction.member as GuildMember;
 
-	let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+	const getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
 	if (!result) return interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId

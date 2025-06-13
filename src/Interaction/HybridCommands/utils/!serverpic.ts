@@ -37,7 +37,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setImage(interaction.guild.iconURL({ extension: "webp", size: 4096 }))
 			.setColor("#add5ff")
 			.setTitle(interaction.guild.name);

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, GuildMember } from 'discord.js'
+import { Client, AuditLogEvent, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
 
@@ -27,17 +27,17 @@ export const event: BotEvent = {
 	name: "guildMemberUpdate",
 	run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
 
-		let data = await client.db.get(`${newMember.guild.id}.PROTECTION`);
+		const data = await client.db.get(`${newMember.guild.id}.PROTECTION`);
 		if (!data) return;
 
 
 		if (data.updatemember && data.updatemember.mode === 'allowlist') {
-			let fetchedLogs = await oldMember.guild.fetchAuditLogs({
+			const fetchedLogs = await oldMember.guild.fetchAuditLogs({
 				type: AuditLogEvent.MemberRoleUpdate,
 				limit: 1,
 			});
 
-			let relevantLog = fetchedLogs.entries.find(entry =>
+			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === oldMember.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
@@ -47,10 +47,10 @@ export const event: BotEvent = {
 				return;
 			}
 
-			let baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			const baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
-				let user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
+				const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
 				await client.func.method.punish(data, user);
 
 				await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid").catch(() => false);

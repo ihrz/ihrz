@@ -20,25 +20,13 @@
 */
 
 import {
-	Client,
-	EmbedBuilder,
-	PermissionsBitField,
 	ApplicationCommandOptionType,
-	ChatInputCommandInteraction,
-	BaseGuildTextChannel,
 	ApplicationCommandType,
-	Message,
-	ButtonBuilder,
-	ButtonStyle,
 	ChannelType,
-	Channel,
-	GuildTextBasedChannel,
-	ActionRowBuilder,
 	PermissionFlagsBits
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
 	name: 'authrestore',

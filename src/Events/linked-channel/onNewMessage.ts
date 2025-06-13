@@ -19,9 +19,8 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Command } from '../../../types/command.js';
 import { BotEvent } from '../../../types/event.js';
-import { Client, Message, TextChannel } from 'discord.js';
+import { Client, Message } from 'discord.js';
 
 interface LinkedChannelStructure {
 	channels: { to_lang: string; in: string; out: string; }[]

@@ -22,8 +22,6 @@
 import {
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
-	ApplicationCommandOptionType,
 	ActionRowBuilder,
 	ComponentType,
 	StringSelectMenuBuilder,
@@ -34,8 +32,6 @@ import {
 	ChatInputCommandInteraction,
 	BaseGuildTextChannel,
 	StringSelectMenuInteraction,
-	CacheType,
-	ApplicationCommandType,
 	ChannelSelectMenuBuilder,
 	ChannelType,
 	ButtonInteraction,
@@ -47,7 +43,6 @@ import {
 import { generatePassword } from '../../../core/functions/random.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { SubCommand } from '../../../../types/command.js';
@@ -66,8 +61,8 @@ export const subCommand: SubCommand = {
 			var arg = client.func.method.string(args!, 0);
 		};
 
-		let potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
-		let files: { attachment: string; name: string; }[] = [];
+		const potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
+		const files: { attachment: string; name: string; }[] = [];
 
 
 		let __tempEmbed = new EmbedBuilder().setDescription('** **');
@@ -75,7 +70,7 @@ export const subCommand: SubCommand = {
 			__tempEmbed = new EmbedBuilder(potentialEmbed.embedSource);
 		}
 
-		let select = new StringSelectMenuBuilder()
+		const select = new StringSelectMenuBuilder()
 			.setCustomId('embed-select-menu')
 			.setPlaceholder(lang.embed_placeholder_string_select_menu_builder)
 			.addOptions(
@@ -95,27 +90,27 @@ export const subCommand: SubCommand = {
 				new StringSelectMenuOptionBuilder().setLabel(lang.embed_placeholder_option_delete_color).setEmoji("🔵").setValue('13')
 			);
 
-		let save = new ButtonBuilder()
+		const save = new ButtonBuilder()
 			.setCustomId('save')
 			.setLabel(lang.embed_btn_save)
 			.setStyle(ButtonStyle.Success);
 
-		let send = new ButtonBuilder()
+		const send = new ButtonBuilder()
 			.setCustomId('send')
 			.setLabel(lang.embed_btn_send)
 			.setStyle(ButtonStyle.Primary);
 
-		let cancel = new ButtonBuilder()
+		const cancel = new ButtonBuilder()
 			.setCustomId('cancel')
 			.setLabel(lang.embed_btn_cancel)
 			.setStyle(ButtonStyle.Danger);
 
-		let replace = new ButtonBuilder()
+		const replace = new ButtonBuilder()
 			.setCustomId('replace')
 			.setLabel(lang.embed_btn_replace)
 			.setStyle(ButtonStyle.Secondary);
 
-		let response = await client.func.method.interactionSend(interaction, {
+		const response = await client.func.method.interactionSend(interaction, {
 			content: lang.embed_first_message,
 			embeds: [__tempEmbed],
 			components: [
@@ -124,7 +119,7 @@ export const subCommand: SubCommand = {
 			],
 		});
 
-		let collector = response.createMessageComponentCollector({
+		const collector = response.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			time: 1_420_000
 		});
@@ -305,8 +300,8 @@ export const subCommand: SubCommand = {
 
 		async function handleCollector(i: StringSelectMenuInteraction<"cached">, replyContent: LanguageDataKeys, onCollect: (message: Message) => void) {
 			const replyMessage = Array.isArray(lang[replyContent]) ? (lang[replyContent] as string[]).join(' ') : lang[replyContent];
-			let reply = await i.reply({ content: replyMessage.toString(), flags: [1 << 6] });
-			let messageCollector = (interaction.channel as BaseGuildTextChannel)?.createMessageCollector({ filter: (m) => m.author.id === interaction.member?.user.id!, max: 1, time: 300_000 });
+			const reply = await i.reply({ content: replyMessage.toString(), flags: [1 << 6] });
+			const messageCollector = (interaction.channel as BaseGuildTextChannel)?.createMessageCollector({ filter: (m) => m.author.id === interaction.member?.user.id!, max: 1, time: 300_000 });
 			messageCollector?.on('collect', async (message) => {
 				onCollect(message);
 				await reply.delete();
@@ -322,7 +317,7 @@ export const subCommand: SubCommand = {
 				files
 			});
 
-			let response2 = await (interaction.channel as BaseGuildTextChannel)?.awaitMessages({
+			const response2 = await (interaction.channel as BaseGuildTextChannel)?.awaitMessages({
 				filter: (m) => m.author.id === interaction.member?.user.id!,
 				max: 1,
 				time: 300_000,
@@ -449,7 +444,7 @@ export const subCommand: SubCommand = {
 				files: files
 			});
 
-			let seCollector = (interaction.channel as BaseGuildTextChannel)?.createMessageComponentCollector({
+			const seCollector = (interaction.channel as BaseGuildTextChannel)?.createMessageComponentCollector({
 				filter: (m) => m.user.id === interaction.member?.user.id! && m.customId === 'embed-save-channel',
 				max: 1,
 				time: 300_000,
@@ -458,7 +453,7 @@ export const subCommand: SubCommand = {
 
 			seCollector?.on('collect', async (result) => {
 				if (result instanceof ChannelSelectMenuInteraction) {
-					let channel = interaction.guild?.channels.cache.get(result.channels.first()?.id!);
+					const channel = interaction.guild?.channels.cache.get(result.channels.first()?.id!);
 					if (!channel) return;
 
 					await (channel as BaseGuildTextChannel).send({ embeds: [__tempEmbed], files });
@@ -478,7 +473,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function saveEmbed() {
-			var password = "";
+			let password = "";
 			if (potentialEmbed?.embedOwner !== interaction.member?.user.id!
 				|| !arg
 			) {
@@ -510,7 +505,7 @@ export const subCommand: SubCommand = {
 
 			switch (confirmation.customId) {
 				case "save":
-					let embedId = await saveEmbed();
+					const embedId = await saveEmbed();
 					await confirmation.update({
 						content: lang.embed_save_message.replace('${interaction.user.id}', interaction.member?.user.id!).replace('${await saveEmbed()}', embedId),
 						components: [],

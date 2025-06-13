@@ -20,16 +20,12 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	Guild,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { Platform } from '../../../core/StreamNotifier.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -43,12 +39,12 @@ export const subCommand: SubCommand = {
 
 
 
-		let platform = interaction.options.getString("platform") as Platform;
-		let author = interaction.options.getString("author") as string;
+		const platform = interaction.options.getString("platform") as Platform;
+		const author = interaction.options.getString("author") as string;
 
 		if (await client.notifier.authorExistOnPlatform(platform, author)) {
-			let fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema | null;
-			let fetchedUsers = fetched?.users || [];
+			const fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema | null;
+			const fetchedUsers = fetched?.users || [];
 
 			fetchedUsers.push({ id_or_username: author, platform: platform });
 

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, Channel, GuildChannel, TextChannel, GuildChannelEditOptions, ChannelType, VoiceChannel, PermissionFlagsBits } from 'discord.js'
+import { Client, AuditLogEvent, GuildChannel, TextChannel, GuildChannelEditOptions, ChannelType, VoiceChannel, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
 
@@ -27,7 +27,7 @@ export const event: BotEvent = {
 	name: "channelUpdate",
 	run: async (client: Client, oldChannel: GuildChannel, newChannel: GuildChannel) => {
 
-		let data = await client.db.get(`${newChannel.guild.id}.PROTECTION`);
+		const data = await client.db.get(`${newChannel.guild.id}.PROTECTION`);
 		if (!data) return;
 
 		if (!oldChannel.guild.members.me?.permissions.has([
@@ -35,12 +35,12 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.updatechannel && data.updatechannel.mode === 'allowlist') {
-			let fetchedLogs = await oldChannel.guild.fetchAuditLogs({
+			const fetchedLogs = await oldChannel.guild.fetchAuditLogs({
 				type: AuditLogEvent.ChannelUpdate,
 				limit: 75,
 			});
 
-			let relevantLog = fetchedLogs.entries.find(entry =>
+			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === newChannel.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
@@ -50,10 +50,10 @@ export const event: BotEvent = {
 				return;
 			}
 
-			let baseData = await client.db.get(`${newChannel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			const baseData = await client.db.get(`${newChannel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
-				let member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
+				const member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
 				await client.func.method.punish(data, member);
 
 				const editOptions: GuildChannelEditOptions = {

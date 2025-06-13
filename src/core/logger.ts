@@ -27,7 +27,7 @@ function getCurrentTime(): string {
 	return (new Date()).toLocaleString()
 };
 
-let logger: Logger = {
+const logger: Logger = {
 	warn(message) {
 		_(`[${getCurrentTime()} WRN]: `.red + message);
 	},

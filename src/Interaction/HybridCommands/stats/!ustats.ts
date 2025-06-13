@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
 			user = interaction.author;
 		}
 
-		let res = (await client.db.get(`${interaction.guildId}.STATS.USER.${member.user.id}`)) as DatabaseStructure.UserStats | null;
+		const res = (await client.db.get(`${interaction.guildId}.STATS.USER.${member.user.id}`)) as DatabaseStructure.UserStats | null;
 
 		if (!res) {
 			return await client.func.method.interactionSend(interaction, { content: lang.unblacklist_user_is_not_exist })
@@ -83,13 +83,13 @@ export const subCommand: SubCommand = {
 		let monthlyMessages: DatabaseStructure.StatsMessage[] = [];
 		let weeklyMessages: DatabaseStructure.StatsMessage[] = [];
 		let dailyMessages: DatabaseStructure.StatsMessage[] = [];
-		let totalMessages: number = res.messages?.length || 0;
+		const totalMessages: number = res.messages?.length || 0;
 
-		let nowTimestamp = Date.now();
+		const nowTimestamp = Date.now();
 
-		let dailyTimeout = 86_400_000; // 24 hours in ms
-		let weeklyTimeout = 604_800_000; // One week in ms
-		let monthlyTimeout = 2_592_000_000; // One month in ms
+		const dailyTimeout = 86_400_000; // 24 hours in ms
+		const weeklyTimeout = 604_800_000; // One week in ms
+		const monthlyTimeout = 2_592_000_000; // One month in ms
 
 		let firstActiveVoiceChannel = "";
 		let secondActiveVoiceChannel = "";

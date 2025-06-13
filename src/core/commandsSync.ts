@@ -54,17 +54,17 @@ export function removePermissionProperties(obj: any): any {
 const synchronizeCommands = async (client: Client): Promise<void> => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			let rest = new REST().setToken(await getToken() || process.env.BOT_TOKEN || client.config.discord.token);
+			const rest = new REST().setToken(await getToken() || process.env.BOT_TOKEN || client.config.discord.token);
 
 			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`.white);
 			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`.white);
 
-			let appCmds = client.applicationsCommands.map((command) => ({
+			const appCmds = client.applicationsCommands.map((command) => ({
 				name: command.name,
 				type: command.type,
 			}));
 
-			let slashCommands = client.commands?.map((command) => {
+			const slashCommands = client.commands?.map((command) => {
 				const commandData = {
 					name: command.name,
 					type: command.type,
@@ -77,9 +77,9 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
 				return commandData;
 			}) || [];
 
-			let allCommands = [...slashCommands, ...appCmds];
+			const allCommands = [...slashCommands, ...appCmds];
 
-			let data = await rest.put(
+			const data = await rest.put(
 				Routes.applicationCommands(client.user?.id!),
 				{ body: allCommands }
 			);

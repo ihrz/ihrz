@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, Interaction, Message } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, Message } from "discord.js";
 
 export interface LangForPrompt {
 	content: string;
@@ -50,7 +50,7 @@ export default async function promptYesOrNo(interaction: ChatInputCommandInterac
 				)
 		]
 	});
-	let e = (await sent.awaitMessageComponent({ componentType: ComponentType.Button, filter: (x) => x.user.id === interaction.member?.user.id }));
+	const e = (await sent.awaitMessageComponent({ componentType: ComponentType.Button, filter: (x) => x.user.id === interaction.member?.user.id }));
 
 	e.deferUpdate();
 	sent.edit({ components: [] });

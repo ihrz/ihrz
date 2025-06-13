@@ -23,11 +23,9 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -40,8 +38,8 @@ export const subCommand: SubCommand = {
 
 
 
-		let channel = interaction.options.getChannel("target") as BaseGuildTextChannel;
-		let fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema;
+		const channel = interaction.options.getChannel("target") as BaseGuildTextChannel;
+		const fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema;
 
 		if (fetched && channel.id === fetched.channelId) {
 			return await client.func.method.interactionSend(interaction, {

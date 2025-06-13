@@ -23,15 +23,11 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -50,8 +46,8 @@ export const subCommand: SubCommand = {
 		};
 
 		try {
-			let voiceChannel = (interaction.member as GuildMember).voice.channel;
-			let player = client.player.getPlayer(interaction.guildId as string);
+			const voiceChannel = (interaction.member as GuildMember).voice.channel;
+			const player = client.player.getPlayer(interaction.guildId as string);
 
 			if (!player || !player.playing || !voiceChannel) {
 				await client.func.method.interactionSend(interaction, { content: lang.pause_nothing_playing });

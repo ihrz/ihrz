@@ -23,10 +23,7 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -41,8 +38,8 @@ export const subCommand: SubCommand = {
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		try {
-			let voiceChannel = (interaction.member as GuildMember).voice.channel;
-			let player = client.player.getPlayer(interaction.guildId as string);
+			const voiceChannel = (interaction.member as GuildMember).voice.channel;
+			const player = client.player.getPlayer(interaction.guildId as string);
 
 			if (!player || !voiceChannel) {
 				await client.func.method.interactionSend(interaction, { content: lang.resume_nothing_playing });

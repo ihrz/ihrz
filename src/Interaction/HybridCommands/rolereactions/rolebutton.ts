@@ -21,11 +21,8 @@
 
 import {
 	Client,
-	EmbedBuilder,
-	PermissionsBitField,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
-	BaseGuildTextChannel,
 	ApplicationCommandType,
 	Message,
 	ButtonBuilder,
@@ -37,7 +34,6 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
@@ -156,7 +152,7 @@ export const command: Command = {
 			var role = client.func.method.role(interaction, args!, 4);
 		}
 
-		let match = reaction?.match(regex);
+		const match = reaction?.match(regex);
 		reaction = match ? match[1] : reaction;
 
 		if (type == "add") {
@@ -169,7 +165,7 @@ export const command: Command = {
 						return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
 					}
 
-					let _ = new ButtonBuilder()
+					const _ = new ButtonBuilder()
 						.setStyle(ButtonStyle.Secondary)
 						.setCustomId(`button_reaction%${role?.id}`)
 						.setEmoji(reaction!)
@@ -234,15 +230,15 @@ export const command: Command = {
 						return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
 					}
 
-					let res = await client.db.get(`${interaction.guildId}.GUILD.REACTION_ROLES.${message.id}`) as DatabaseStructure.ReactionRolesData[""];
-					let fetched = Object.values(res).find(x => x.reactionNAME === reaction);
+					const res = await client.db.get(`${interaction.guildId}.GUILD.REACTION_ROLES.${message.id}`) as DatabaseStructure.ReactionRolesData[""];
+					const fetched = Object.values(res).find(x => x.reactionNAME === reaction);
 
 					if (!fetched) {
 						await client.func.method.interactionSend(interaction, { content: lang.reactionroles_missing_reaction_remove });
 						return
 					};
 
-					let reactionVar = await client.func.method.buttonUnreact(message, reaction!)
+					const reactionVar = await client.func.method.buttonUnreact(message, reaction!)
 
 					if (!reactionVar) {
 						await client.func.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })

@@ -20,20 +20,14 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 } from 'discord.js';
 
 
-import logger from '../../../core/logger.js';
 import backup from 'discord-rebackup';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
@@ -51,7 +45,7 @@ export const subCommand: SubCommand = {
 			var svMsg = client.func.method.string(args!, 0)!;
 		};
 
-		let state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
+		const state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
 		if ((state && interaction.guild.ownerId !== interaction.member.user.id)
 			|| ((state === undefined || state === null) && interaction.guild.ownerId !== interaction.member.user.id)) {
 			await client.func.method.interactionSend(interaction, {
@@ -73,7 +67,7 @@ export const subCommand: SubCommand = {
 				});
 			});
 
-			let ellData = { guildName: backupData.name, categoryCount: i, channelCount: j };
+			const ellData = { guildName: backupData.name, categoryCount: i, channelCount: j };
 
 			await client.db.set(`BACKUPS.${interaction.member?.user.id}.${backupData.id}`, ellData);
 

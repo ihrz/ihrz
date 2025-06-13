@@ -24,12 +24,10 @@ import {
 	EmbedBuilder,
 	ChatInputCommandInteraction,
 	Message,
-	User,
 	PermissionsBitField,
 	Role,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
 import { generateRoleFields } from './economy.js';
@@ -48,14 +46,14 @@ export const subCommand: SubCommand = {
 			var amount = client.func.method.number(args!, 1);
 		}
 
-		var roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
+		let roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
 		if (!roleData) {
 			roleData = {};
 		}
 
 		// check if the roles has dangerous permissions
-		let rolePermissions = new PermissionsBitField(role.permissions);
-		let roleDangerousPermissions: string[] = [];
+		const rolePermissions = new PermissionsBitField(role.permissions);
+		const roleDangerousPermissions: string[] = [];
 
 		for (const perm of client.func.method.getDangerousPermissions(lang)) {
 			if (rolePermissions.has(perm.flag)) {
@@ -65,11 +63,11 @@ export const subCommand: SubCommand = {
 
 		// send message if the role has dangerous permissions
 		if (roleDangerousPermissions.length > 0) {
-			let stringDangerousPermissions = roleDangerousPermissions
+			const stringDangerousPermissions = roleDangerousPermissions
 				.map(x => "`" + x + "`")
 				.join(", ");
 
-			var response = await promptYesOrNo(interaction, {
+			const response = await promptYesOrNo(interaction, {
 				content: lang.economy_role_add_prompt_dangerous
 					.replace("${stringDangerousPermissions}", stringDangerousPermissions),
 				noButton: lang.var_no,
@@ -97,7 +95,7 @@ export const subCommand: SubCommand = {
 
 		await client.db.set(`${interaction.guildId}.ECONOMY.buyableRoles`, roleData);
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.economy_boost_embed_title)
 			.setDescription(lang.economy_boost_embed_desc)
 			.setFields(generateRoleFields(roleData, lang))

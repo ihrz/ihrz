@@ -28,7 +28,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { axios } from '../../../core/functions/axios.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -42,7 +41,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 		axios.get('http://edgecats.net/random').then(async res => {
-			let emb = new EmbedBuilder()
+			const emb = new EmbedBuilder()
 				.setImage(res.data)
 				.setTitle(lang.cats_embed_title)
 				.setTimestamp();

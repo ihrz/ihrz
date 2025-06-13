@@ -23,13 +23,11 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	GuildMember,
 	Message,
 	time,
 	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -43,33 +41,33 @@ export const subCommand: SubCommand = {
 			var member = await client.func.method.user(interaction, args!, 0) || interaction.author;
 		};
 
-		let tableProfil = client.db.table('USER_PROFIL');
+		const tableProfil = client.db.table('USER_PROFIL');
 
-		var description = await tableProfil.get(`${member.id}.desc`);
+		let description = await tableProfil.get(`${member.id}.desc`);
 		if (!description) description = lang.profil_not_description_set;
 
-		var level = await client.db.get(`${interaction.guildId}.USER.${member.id}.XP_LEVELING.level`);
+		let level = await client.db.get(`${interaction.guildId}.USER.${member.id}.XP_LEVELING.level`);
 		if (!level) level = 0;
 
-		var balance = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`);
+		let balance = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`);
 		if (!balance) balance = 0;
 
-		var age = await tableProfil.get(`${member.id}.age`);
+		let age = await tableProfil.get(`${member.id}.age`);
 		if (!age) age = lang.profil_unknown;
 
-		var gender = await tableProfil.get(`${member.id}.gender`);
+		let gender = await tableProfil.get(`${member.id}.gender`);
 		if (!gender) gender = lang.profil_unknown;
 
-		var pronoun = await tableProfil.get(`${member.id}.pronoun`);
+		let pronoun = await tableProfil.get(`${member.id}.pronoun`);
 		if (!pronoun) pronoun = lang.profil_unknown;
 
-		var birthday = await tableProfil.get(`${member.id}.birthday`);
+		let birthday = await tableProfil.get(`${member.id}.birthday`);
 		if (!birthday) birthday = lang.profil_unknown;
 
 		// convert birthday to timestamp and transform timestamp to discord timestamp
 		birthday = time(new Date(new Date().getFullYear(), parseInt(birthday.month) - 1, parseInt(birthday.day)), 'R');
 
-		let profil = new EmbedBuilder()
+		const profil = new EmbedBuilder()
 			.setTitle(lang.profil_embed_title
 				.replace(/\${member\.tag}/g, member.username)
 				.replace('${client.iHorizon_Emojis.Pin}', client.iHorizon_Emojis.Pin)

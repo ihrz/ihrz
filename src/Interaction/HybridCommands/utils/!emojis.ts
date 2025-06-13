@@ -21,20 +21,13 @@
 
 import {
 	Client,
-	ApplicationCommandOptionType,
 	EmbedBuilder,
-	PermissionsBitField,
 	ChatInputCommandInteraction,
-	ApplicationCommandType,
-	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions
+	Message
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -56,10 +49,10 @@ export const subCommand: SubCommand = {
 		let nemj: string = '';
 
 
-		for (let emoji of str) {
-			let match = emoji.match(/:(\w+):(\d+)>/);
+		for (const emoji of str) {
+			const match = emoji.match(/:(\w+):(\d+)>/);
 			if (match) {
-				let isAnimated = emoji.startsWith('<a:');
+				const isAnimated = emoji.startsWith('<a:');
 
 				await interaction.guild?.emojis.create({
 					attachment: `https://cdn.discordapp.com/emojis/${match[2]}.${isAnimated ? 'gif' : 'png'}`,
@@ -80,7 +73,7 @@ export const subCommand: SubCommand = {
 			}
 		}
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor('#bea9de')
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp()

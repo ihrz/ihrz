@@ -22,7 +22,6 @@
 import { Client, Message, PermissionFlagsBits } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 const warnings = new Map<string, number[]>();
 
@@ -62,7 +61,7 @@ export const event: BotEvent = {
 				return contentType && validImageTypes.includes(contentType.toLowerCase());
 			});
 
-			let lang = await client.func.getLanguageData(message.guildId);
+			const lang = await client.func.getLanguageData(message.guildId);
 
 			if (!hasValidImageAttachment) {
 				await message.delete();
@@ -74,7 +73,7 @@ export const event: BotEvent = {
 				userWarnings.push(Date.now());
 				warnings.set(userId, userWarnings);
 
-				let threshold = picOnlyConfig.threshold || 3;
+				const threshold = picOnlyConfig.threshold || 3;
 
 				if (userWarnings.length >= 3) {
 					warnings.delete(userId);

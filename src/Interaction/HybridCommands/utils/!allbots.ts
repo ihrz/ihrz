@@ -21,19 +21,15 @@
 
 import {
 	ActionRowBuilder,
-	ApplicationCommandType,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	Message,
-	PermissionFlagsBits,
-	PermissionsBitField,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -45,7 +41,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let all_bots = Array.from(interaction.guild.members.cache
+		const all_bots = Array.from(interaction.guild.members.cache
 			.filter(x => x.user.bot)
 			.values()
 		) || [];
@@ -56,12 +52,12 @@ export const subCommand: SubCommand = {
 		};
 
 		let currentPage = 0;
-		let usersPerPage = 5;
-		let pages: { title: string; description: string; }[] = [];
+		const usersPerPage = 5;
+		const pages: { title: string; description: string; }[] = [];
 
 		for (let i = 0; i < all_bots.length; i += usersPerPage) {
-			let pageUsers = all_bots.slice(i, i + usersPerPage);
-			let pageContent = pageUsers.map((userId) => userId).join('\n');
+			const pageUsers = all_bots.slice(i, i + usersPerPage);
+			const pageContent = pageUsers.map((userId) => userId).join('\n');
 			pages.push({
 				title: lang.all_bots_embed_title
 					.replace("${i / usersPerPage + 1}", String(i / usersPerPage + 1)),
@@ -69,7 +65,7 @@ export const subCommand: SubCommand = {
 			});
 		};
 
-		let createEmbed = () => {
+		const createEmbed = () => {
 			return new EmbedBuilder()
 				.setColor("#000000")
 				.setTitle(pages[currentPage].title)
@@ -83,7 +79,7 @@ export const subCommand: SubCommand = {
 				.setTimestamp()
 		};
 
-		let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
 				.setCustomId('previousPage')
 				.setLabel('<<')
@@ -94,13 +90,13 @@ export const subCommand: SubCommand = {
 				.setStyle(ButtonStyle.Secondary),
 		);
 
-		let messageEmbed = await client.func.method.interactionSend(interaction, {
+		const messageEmbed = await client.func.method.interactionSend(interaction, {
 			embeds: [createEmbed()],
 			components: [row],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
 
-		let collector = messageEmbed.createMessageComponentCollector({
+		const collector = messageEmbed.createMessageComponentCollector({
 			time: 60_000
 		});
 

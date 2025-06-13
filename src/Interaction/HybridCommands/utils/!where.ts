@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let member_is_connected = member?.voice.channel ? true : false;
+		const member_is_connected = member?.voice.channel ? true : false;
 
 		if (!member_is_connected) {
 			await client.func.method.interactionSend(interaction, {
@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 		}
 
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(`${lang.var_whereis}: ${member.displayName}`)
 			.setColor("#4fdb12")
 			.setDescription(

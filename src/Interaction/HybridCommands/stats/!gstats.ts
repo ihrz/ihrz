@@ -23,18 +23,12 @@ import {
 	AttachmentBuilder,
 	ChatInputCommandInteraction,
 	Client,
-	GuildMember,
 	Message,
 	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import {
-	calculateActiveChannels,
-	calculateActiveVoiceChannels,
-	calculateMessageTime,
-	calculateVoiceActivity,
 	getChannelMessagesCount,
 	getChannelMinutesCount,
 	getChannelName,
@@ -83,21 +77,21 @@ export const subCommand: SubCommand = {
 
 		const res = await client.db.get(`${interaction.guildId}.STATS`) as DatabaseStructure.GuildStats | null;
 
-		let memberStats: { [memberId: string]: MemberStats } = {};
-		let channelStats: { [channelId: string]: ChannelStats } = {};
+		const memberStats: { [memberId: string]: MemberStats } = {};
+		const channelStats: { [channelId: string]: ChannelStats } = {};
 
 		let allMessages: DatabaseStructure.StatsMessage[] = [];
 		let allVoiceActivities: DatabaseStructure.StatsVoice[] = [];
 
-		for (let memberId in res?.USER) {
-			let userData = res.USER[memberId];
+		for (const memberId in res?.USER) {
+			const userData = res.USER[memberId];
 			let dailyMessages = 0, weeklyMessages = 0, monthlyMessages = 0;
 			let dailyVoice = 0, weeklyVoice = 0, monthlyVoice = 0;
 
 			allMessages = [...allMessages, ...userData.messages || []];
 			allVoiceActivities = [...allVoiceActivities, ...userData.voices || []];
 
-			let user = client.users.cache.get(memberId);
+			const user = client.users.cache.get(memberId);
 
 			userData.messages?.forEach(message => {
 				if (nowTimestamp - message.sentTimestamp <= dailyTimeout) {
@@ -120,7 +114,7 @@ export const subCommand: SubCommand = {
 			});
 
 			userData.voices?.forEach(voice => {
-				let voiceDuration = voice.endTimestamp - voice.startTimestamp;
+				const voiceDuration = voice.endTimestamp - voice.startTimestamp;
 				if (nowTimestamp - voice.endTimestamp <= dailyTimeout) {
 					dailyVoice += voiceDuration;
 				}
@@ -160,10 +154,10 @@ export const subCommand: SubCommand = {
 				.map(([id, stats]) => ({ id, ...(stats as object) }));
 		}
 
-		let [firstActiveChannel, secondActiveChannel, thirdActiveChannel] = topThree(channelStats, 'dailyMessages').map(item => item.id);
-		let [firstActiveVoiceChannel, secondActiveVoiceChannel, thirdActiveVoiceChannel] = topThree(channelStats, 'dailyVoice').map(item => item.id);
+		const [firstActiveChannel, secondActiveChannel, thirdActiveChannel] = topThree(channelStats, 'dailyMessages').map(item => item.id);
+		const [firstActiveVoiceChannel, secondActiveVoiceChannel, thirdActiveVoiceChannel] = topThree(channelStats, 'dailyVoice').map(item => item.id);
 
-		var htmlContent = client.htmlfiles['guildStatsLeaderboard'];
+		let htmlContent = client.htmlfiles['guildStatsLeaderboard'];
 		leaderboardData = getStatsLeaderboard(leaderboardData)
 
 		// Format current date for footer

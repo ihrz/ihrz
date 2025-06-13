@@ -28,7 +28,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { getMemberBoost } from './economy.js';
 import { SubCommand } from '../../../../types/command.js';
@@ -39,9 +38,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.weekly.cooldown`) || 604800000);
-		let amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.weekly.amount`) || 1000) * await getMemberBoost(interaction.member);
-		let weekly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.weekly`);
+		const timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.weekly.cooldown`) || 604800000);
+		const amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.weekly.amount`) || 1000) * await getMemberBoost(interaction.member);
+		const weekly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.weekly`);
 
 		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
 			await client.func.method.interactionSend(interaction, {
@@ -52,14 +51,14 @@ export const subCommand: SubCommand = {
 		};
 
 		if (weekly !== null && timeout - (Date.now() - weekly) > 0) {
-			let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - weekly), lang);
+			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - weekly), lang);
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.weekly_cooldown_error
 					.replace(/\${time}/g, time)
 			})
 		} else {
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setAuthor({ name: lang.weekly_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
 				.setColor("#a4cb80")
 				.setDescription(lang.weekly_embed_description)

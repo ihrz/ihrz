@@ -19,14 +19,14 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildBan, PermissionsBitField, InteractionCollector } from 'discord.js'
+import { Client, AuditLogEvent, GuildBan, PermissionsBitField } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
 	name: "guildBanRemove",
 	run: async (client: Client, ban: GuildBan) => {
 
-		let data = await client.db.get(`${ban.guild.id}.PROTECTION`);
+		const data = await client.db.get(`${ban.guild.id}.PROTECTION`);
 		if (!data) return;
 
 		if (data.unbanmembers && data.unbanmembers.mode === 'allowlist') {
@@ -36,12 +36,12 @@ export const event: BotEvent = {
 				PermissionsBitField.Flags.ManageGuild
 			])) return;
 
-			let fetchedLogs = await ban.guild.fetchAuditLogs({
+			const fetchedLogs = await ban.guild.fetchAuditLogs({
 				type: AuditLogEvent.MemberBanRemove,
 				limit: 75,
 			});
 
-			let relevantLog = fetchedLogs.entries.find(entry =>
+			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === ban.user.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
@@ -51,10 +51,10 @@ export const event: BotEvent = {
 				return;
 			}
 
-			let baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			const baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
-				let member = ban.guild.members.cache.get(relevantLog?.executorId!);
+				const member = ban.guild.members.cache.get(relevantLog?.executorId!);
 				await ban.guild.members.ban(ban.user.id);
 				await client.func.method.punish(data, member);
 			};

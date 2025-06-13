@@ -21,7 +21,6 @@
 
 import { Client, EmbedBuilder, GuildChannel, GuildTextBasedChannel } from 'discord.js'
 
-import { LanguageData } from '../../../types/languageData.js';
 import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
@@ -30,9 +29,9 @@ export const event: BotEvent = {
 
 		if (channel.name !== "ihorizon-logs") return;
 
-		let data = await client.func.getLanguageData(channel.guild.id);
+		const data = await client.func.getLanguageData(channel.guild.id);
 
-		let setup_embed = new EmbedBuilder()
+		const setup_embed = new EmbedBuilder()
 			.setColor("#1e1d22")
 			.setTitle(data.event_channel_create_message_embed_title)
 			.setDescription(data.event_channel_create_message_embed_description);

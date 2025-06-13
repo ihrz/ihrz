@@ -20,11 +20,8 @@
 */
 
 import {
-	Client,
 	ApplicationCommandOptionType,
-	ChatInputCommandInteraction,
 	ApplicationCommandType,
-	ChannelType,
 	PermissionFlagsBits,
 } from 'discord.js';
 
@@ -289,7 +286,7 @@ export const command: Command = {
 
 	async autocomplete(client, interaction) {
 		const focusedOption = interaction.options.getFocused(true);
-		let choices: string[] = [];
+		const choices: string[] = [];
 
 		if (focusedOption.name === 'command') {
 			const getCommandChoices = (command: Command | Option, parentName = '') => {

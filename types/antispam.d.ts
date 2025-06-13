@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Collection, GuildMember, Message, Snowflake } from 'discord.js';
+import { GuildMember, Snowflake } from 'discord.js';
 
 export namespace AntiSpam {
 	export interface CachedMessage {

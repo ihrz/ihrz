@@ -27,7 +27,6 @@ import {
 	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -38,7 +37,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let balance = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
+		const balance = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var toDeposit = interaction.options.getString('how-much') as string;
@@ -75,7 +74,7 @@ export const subCommand: SubCommand = {
 		await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`, parseInt(toDeposit));
 		await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, parseInt(toDeposit));
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setAuthor({ name: lang.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
 			.setColor("#a4cb80")
 			.setTitle(lang.deposit_embed_title)

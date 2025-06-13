@@ -21,8 +21,6 @@
 
 import {
 	Client,
-	EmbedBuilder,
-	PermissionsBitField,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	BaseGuildTextChannel,
@@ -30,10 +28,7 @@ import {
 	ChannelType,
 	PermissionFlagsBits,
 	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
 	Channel,
-	MessageReplyOptions,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command.js';
@@ -96,8 +91,8 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let allCreatedChannels: string[] = [];
-		let allLogsPossible = [
+		const allCreatedChannels: string[] = [];
+		const allLogsPossible = [
 			{ id: "voice", value: lang.setlogschannel_var_voice },
 			{ id: "moderation", value: lang.setlogschannel_var_mods },
 			{ id: "message", value: lang.setlogschannel_var_msg },
@@ -176,7 +171,7 @@ export const command: Command = {
 		if (type === "auto") {
 
 			if (channel) {
-				for (let logType of allLogsPossible) {
+				for (const logType of allLogsPossible) {
 					if (logType.id === 'ticket-log-channel') {
 						await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel.id);
 					} else {
@@ -191,7 +186,7 @@ export const command: Command = {
 						.replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(","))
 				});
 			} else {
-				let category = await interaction.guild.channels.create({
+				const category = await interaction.guild.channels.create({
 					name: "LOGS",
 					type: ChannelType.GuildCategory,
 					permissionOverwrites: [
@@ -207,8 +202,8 @@ export const command: Command = {
 				});
 
 				if (category) {
-					for (let logType of allLogsPossible) {
-						let channel = await interaction.guild.channels.create({
+					for (const logType of allLogsPossible) {
+						const channel = await interaction.guild.channels.create({
 							name: logType.value,
 							parent: category.id,
 							permissionOverwrites: category.permissionOverwrites.cache,
@@ -247,7 +242,7 @@ export const command: Command = {
 						.replace(/\${interaction\.user\.id}/g, interaction.member.user.id!)
 				});
 
-				let checkData = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS`);
+				const checkData = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS`);
 				if (!checkData) {
 					await client.func.method.interactionSend(interaction, { content: lang.setlogschannel_already_deleted });
 					return;

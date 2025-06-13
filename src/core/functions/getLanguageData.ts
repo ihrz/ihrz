@@ -29,10 +29,10 @@ interface LangsData {
 	[lang: string]: LanguageData;
 }
 
-let LangsData: LangsData = {};
+const LangsData: LangsData = {};
 
 export default async function getLanguageData(arg: string | undefined | null): Promise<LanguageData> {
-	let database = getDatabaseInstance();
+	const database = getDatabaseInstance();
 
 	let lang = await database.get(`${arg}.GUILD.LANG.lang`) as string;
 

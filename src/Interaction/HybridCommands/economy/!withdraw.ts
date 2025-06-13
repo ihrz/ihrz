@@ -29,7 +29,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -39,7 +38,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let dataAccount = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY`) as DatabaseStructure.EconomyUserSchema;
+		const dataAccount = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY`) as DatabaseStructure.EconomyUserSchema;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var toWithdraw = interaction.options.getString('how-much') as string;
@@ -66,7 +65,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		var clean_to_withdraw = parseInt(toWithdraw)
+		const clean_to_withdraw = parseInt(toWithdraw)
 
 		if (toWithdraw && clean_to_withdraw > dataAccount?.bank!) {
 			await client.func.method.interactionSend(interaction, {
@@ -78,7 +77,7 @@ export const subCommand: SubCommand = {
 		await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`, parseInt(toWithdraw));
 		await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, parseInt(toWithdraw));
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setAuthor({ name: lang.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
 			.setColor("#a4cb80")
 			.setTitle(lang.withdraw_embed_title)

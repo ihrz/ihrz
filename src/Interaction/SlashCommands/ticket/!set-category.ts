@@ -22,12 +22,10 @@
 import {
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
 	CategoryChannel,
 	ChatInputCommandInteraction,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -38,7 +36,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let category = interaction.options.getChannel("category-name");
+		const category = interaction.options.getChannel("category-name");
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
 			await interaction.editReply({ content: lang.ticket_disabled_command });
@@ -52,7 +50,7 @@ export const subCommand: SubCommand = {
 
 		await client.db.set(`${interaction.guildId}.GUILD.TICKET.category`, category.id);
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setColor('#00FFFF')
 			.setDescription(lang.setticketcategory_command_work

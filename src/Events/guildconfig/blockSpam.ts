@@ -86,7 +86,7 @@ async function shouldSanctionMessage(message: Message, whitelist: string[]): Pro
 	}
 
 	// Check if message contains blacklisted terms
-	for (let word of blacklist) {
+	for (const word of blacklist) {
 		if (contentLower.includes(word)) {
 			return true;
 		}

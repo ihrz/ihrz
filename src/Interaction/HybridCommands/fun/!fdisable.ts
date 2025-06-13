@@ -22,15 +22,10 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildMember,
 	Message,
-	PermissionsBitField,
-	User,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -48,7 +43,7 @@ export const subCommand: SubCommand = {
 
 		await client.db.set(`${interaction.guildId}.GUILD.FUN.states`, action);
 
-		let action_type = action === "off" ? lang.var_disabled : lang.var_enabled;
+		const action_type = action === "off" ? lang.var_disabled : lang.var_enabled;
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.fun_disable_command_msg

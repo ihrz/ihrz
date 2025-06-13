@@ -19,16 +19,15 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ActionRowBuilder, ButtonInteraction, CacheType, ComponentType, EmbedBuilder, GuildMember, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ActionRowBuilder, ButtonInteraction, ComponentType, EmbedBuilder, GuildMember, StringSelectMenuBuilder } from 'discord.js';
 
 export default async function handleButtonInteraction(interaction: ButtonInteraction<"cached">) {
-	let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	let table = interaction.client.db.table('TEMP');
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	let member = interaction.member as GuildMember;
-	let targetedChannel = member.voice.channel;
-	let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const table = interaction.client.db.table('TEMP');
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const member = interaction.member as GuildMember;
+	const targetedChannel = member.voice.channel;
+	const getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
 	if (!result) return await interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId || getChannelOwner !== targetedChannel?.id) {
@@ -40,7 +39,7 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 		return;
 	}
 
-	let comp = new StringSelectMenuBuilder()
+	const comp = new StringSelectMenuBuilder()
 		.setCustomId('tempmorary_voice_privacy_menu')
 		.setPlaceholder(lang.temporary_voice_privacy_menu_placeholder)
 		.addOptions(
@@ -52,24 +51,24 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 			{ label: lang.temporary_voice_privacy_menu_openchat_label, description: lang.temporary_voice_privacy_menu_openchat_desc, emoji: interaction.client.iHorizon_Emojis.VC_OpenChat, value: 'temporary_channel_openchat_channel_menu' }
 		);
 
-	let response = await interaction.reply({
+	const response = await interaction.reply({
 		flags: [1 << 6],
 		components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)]
 	});
 
-	let collector = interaction.channel?.createMessageComponentCollector({
+	const collector = interaction.channel?.createMessageComponentCollector({
 		componentType: ComponentType.StringSelect,
 		filter: (u) => u.user.id === interaction.user.id,
 		time: 200_000
 	});
 
 	collector?.on('collect', async i => {
-		let value = i.values[0];
-		let action = comp.options.find(option => option.data.value === value)?.data.label;
+		const value = i.values[0];
+		const action = comp.options.find(option => option.data.value === value)?.data.label;
 
 		if (!action || !i.guild) return;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setDescription(`## Modifications about your temporary voice channel`)
 			.setColor(2829617)
 			.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await i.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)

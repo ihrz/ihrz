@@ -22,15 +22,14 @@
 import { PermissionsBitField, Client, GuildMember } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
 	run: async (client: Client, member: GuildMember) => {
 
 		if (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`)) {
-			let admin = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.admin`);
-			let rolesArray: string[] = [];
+			const admin = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.admin`);
+			const rolesArray: string[] = [];
 
 			member.roles.cache.each((role) => {
 				if (role.id === member.guild.roles.everyone.id) {

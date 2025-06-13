@@ -24,16 +24,11 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Guild,
 	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -60,10 +55,10 @@ export const subCommand: SubCommand = {
 		}
 
 		try {
-			let voiceChannel = (interaction.member as GuildMember).voice.channel;
-			let player = client.player.getPlayer(interaction.guildId as string);
-			let oldName = player?.queue.current?.info.title;
-			let channel = interaction.guild.channels.cache.get(player?.textChannelId as string);
+			const voiceChannel = (interaction.member as GuildMember).voice.channel;
+			const player = client.player.getPlayer(interaction.guildId as string);
+			const oldName = player?.queue.current?.info.title;
+			const channel = interaction.guild.channels.cache.get(player?.textChannelId as string);
 
 			if (!player || !player.playing || !voiceChannel) {
 				await client.func.method.interactionSend(interaction, { content: lang.skip_nothing_playing });

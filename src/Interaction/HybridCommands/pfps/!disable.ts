@@ -22,12 +22,9 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	Message,
-	PermissionsBitField
+	Message
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 

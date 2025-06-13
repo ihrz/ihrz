@@ -27,10 +27,9 @@ import {
 	User,
 } from 'discord.js';
 
-import { axios, AxiosResponse } from '../../../core/functions/axios.js';
+import { axios } from '../../../core/functions/axios.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -52,11 +51,11 @@ export const subCommand: SubCommand = {
 			var user = interaction.author;
 		};
 
-		let url = apiUrlParser.assetsFinder(client.assets, "slap");
+		const url = apiUrlParser.assetsFinder(client.assets, "slap");
 
 		axios.get(url)
 			.then(async () => {
-				let embed = new EmbedBuilder()
+				const embed = new EmbedBuilder()
 					.setColor("#42ff08")
 					.setDescription(lang.slap_embed_description
 						.replace(/\${slap\.id}/g, slap?.id as string)

@@ -22,20 +22,13 @@
 import {
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
-	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	Role,
 	Guild,
-	ApplicationCommandType,
-	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions
+	Message
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -65,19 +58,19 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let ogInteraction = await client.func.method.interactionSend(interaction, {
+		const ogInteraction = await client.func.method.interactionSend(interaction, {
 			content: client.iHorizon_Emojis.Discord_Loading
 		});
 
 		if (action === 'add') {
 
 			try {
-				let members = await interaction.guild.members.fetch();
-				let promises = [];
+				const members = await interaction.guild.members.fetch();
+				const promises = [];
 
-				for (let [memberID, member] of members!) {
+				for (const [memberID, member] of members!) {
 					if (!member.roles.cache.has(role?.id!)) {
-						let promise = await member.roles.add(role as Role, "[Massrole] Module")
+						const promise = await member.roles.add(role as Role, "[Massrole] Module")
 							.then(() => {
 								a++;
 							})
@@ -93,7 +86,7 @@ export const subCommand: SubCommand = {
 				await Promise.all(promises);
 			} catch (error) { };
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setColor('#007fff')
 				.setTimestamp()
@@ -115,12 +108,12 @@ export const subCommand: SubCommand = {
 		} else if (action === 'sub') {
 
 			try {
-				let members = await interaction.guild.members.fetch();
-				let promises = [];
+				const members = await interaction.guild.members.fetch();
+				const promises = [];
 
-				for (let [memberID, member] of members!) {
+				for (const [memberID, member] of members!) {
 					if (member.roles.cache.has(role?.id!)) {
-						let promise = await member.roles.remove(role as Role, "[MassiveRole] Command")
+						const promise = await member.roles.remove(role as Role, "[MassiveRole] Command")
 							.then(() => {
 								a++;
 							})
@@ -136,7 +129,7 @@ export const subCommand: SubCommand = {
 				await Promise.all(promises);
 			} catch (error) { };
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setColor('#007fff')
 				.setTimestamp()

@@ -24,12 +24,10 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 	time
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -49,7 +47,7 @@ export const subCommand: SubCommand = {
 
 		client.giveawaysManager.getGiveawayData(giveawayId)
 			.then(async giveawayData => {
-				let embed = new EmbedBuilder()
+				const embed = new EmbedBuilder()
 					.setAuthor({
 						name: interaction.guild?.name as string,
 						iconURL: interaction.guild?.iconURL({ size: 512, forceStatic: false })!

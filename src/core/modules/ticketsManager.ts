@@ -25,10 +25,8 @@ import {
 	ButtonStyle,
 	ActionRowBuilder,
 	ChannelType,
-	PermissionsBitField,
 	UserSelectMenuBuilder,
 	ChatInputCommandInteraction,
-	CacheType,
 	ButtonInteraction,
 	TextBasedChannel,
 	BaseGuildTextChannel,
@@ -63,15 +61,15 @@ interface CreatePanelData {
 
 async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cached">, data: CreatePanelData) {
 
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
-	let panel = new EmbedBuilder()
+	const panel = new EmbedBuilder()
 		.setTitle(data.name)
 		.setColor("#3b8f41")
 		.setDescription(data.description || lang.sethereticket_description_embed)
 		.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 
-	let confirm = new ButtonBuilder()
+	const confirm = new ButtonBuilder()
 		.setCustomId('open-new-ticket')
 		.setEmoji('📩')
 		.setLabel(lang.event_ticket_button_name)
@@ -101,7 +99,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cache
 		TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 		if (!TicketLogsChannel) return;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor("#008000")
 			.setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
 			.setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc
@@ -126,15 +124,15 @@ export interface CaseList {
 }
 
 async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cached">, data: CreatePanelData) {
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	let case_list: CaseList[] = [];
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const case_list: CaseList[] = [];
 
-	let panel_for_create = new EmbedBuilder()
+	const panel_for_create = new EmbedBuilder()
 		.setColor(2829617)
 		.setDescription(lang.sethereticket_panelforcreate_embed_desc)
 		.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-	let button = new ActionRowBuilder<ButtonBuilder>()
+	const button = new ActionRowBuilder<ButtonBuilder>()
 		.addComponents(
 			new ButtonBuilder()
 				.setCustomId("add_selection")
@@ -150,24 +148,24 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 				.setStyle(ButtonStyle.Success),
 		);
 
-	let comp = new StringSelectMenuBuilder()
+	const comp = new StringSelectMenuBuilder()
 		.setCustomId("ticket-open-selection")
 		.setPlaceholder(data.name!);
 
-	let og_interaction = await interaction.editReply({
+	const og_interaction = await interaction.editReply({
 		embeds: [panel_for_create],
 		components: [button],
 		content: null,
 		files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
 	});
 
-	let collector = interaction.channel?.createMessageComponentCollector({
+	const collector = interaction.channel?.createMessageComponentCollector({
 		componentType: ComponentType.Button,
 		filter: (i) => i.user.id === interaction.user.id,
 		time: 2_240_000
 	});
 
-	let collector2wish = og_interaction.createMessageComponentCollector({
+	const collector2wish = og_interaction.createMessageComponentCollector({
 		componentType: ComponentType.StringSelect,
 		filter: async (i) => {
 			await i.deferUpdate(); return interaction.user.id === i.user.id;
@@ -187,7 +185,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 				});
 			}
 		} else if (i.customId === 'add_selection') {
-			let response = await iHorizonModalResolve({
+			const response = await iHorizonModalResolve({
 				customId: 'selection_modal',
 				title: lang.sethereticket_modal_1_title,
 				deferUpdate: true,
@@ -214,10 +212,10 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 			}, i);
 
 			if (!response) return;
-			let name = response?.fields.getTextInputValue("case_name")!;
-			let emoji = response?.fields.getTextInputValue("case_emoji")!;
+			const name = response?.fields.getTextInputValue("case_name")!;
+			const emoji = response?.fields.getTextInputValue("case_emoji")!;
 
-			let optionBuilder = new StringSelectMenuOptionBuilder()
+			const optionBuilder = new StringSelectMenuOptionBuilder()
 				.setLabel(name)
 				.setValue((comp.options.length + 1).toString());
 
@@ -242,7 +240,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 				]
 			});
 		} else if (i.customId === "save_selection") {
-			let response = await iHorizonModalResolve({
+			const response = await iHorizonModalResolve({
 				customId: 'embed_saved_modal',
 				title: lang.sethereticket_modal_2_title,
 				deferUpdate: true,
@@ -270,7 +268,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 
 			if (!response) return;
 
-			let title = response?.fields.getTextInputValue("embed_title")!;
+			const title = response?.fields.getTextInputValue("embed_title")!;
 			let desc = response?.fields.getTextInputValue("embed_desc")!;
 
 			if (desc === '') {
@@ -282,13 +280,13 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 			})
 			await og_interaction.edit({ components: [button, new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)] });
 
-			for (let x in case_list) {
-				let _ = await sendCategorySelection(response!, case_list[x]);
+			for (const x in case_list) {
+				const _ = await sendCategorySelection(response!, case_list[x]);
 				case_list[x].categoryId = _;
 			}
 
-			let reason = await reasonTicket(response!);
-			let panel_message = await interaction.client.func.method.channelSend(og_interaction, {
+			const reason = await reasonTicket(response!);
+			const panel_message = await interaction.client.func.method.channelSend(og_interaction, {
 				content: undefined,
 				files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],
 				embeds: [
@@ -326,7 +324,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 				TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 				if (!TicketLogsChannel) return;
 
-				let embed = new EmbedBuilder()
+				const embed = new EmbedBuilder()
 					.setColor("#008000")
 					.setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
 					.setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
@@ -407,14 +405,14 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">) {
 
 	if (interaction instanceof ButtonInteraction) {
-		let result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
+		const result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
 		let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData | null;
 
 		if (!result || result.channel !== interaction.message.channelId
 			|| result.messageID !== interaction.message.id) return;
 
-		let channelId = userTickets && Object.values(userTickets)[0]?.channel;
-		let channel = channelId ? interaction.guild?.channels.cache.get(channelId) || await interaction.guild.channels.fetch(channelId).catch(() => null) : null;
+		const channelId = userTickets && Object.values(userTickets)[0]?.channel;
+		const channel = channelId ? interaction.guild?.channels.cache.get(channelId) || await interaction.guild.channels.fetch(channelId).catch(() => null) : null;
 
 		if (userTickets && !channel) {
 			await interaction.client.db.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
@@ -436,14 +434,14 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
 			return;
 		};
 	} else {
-		let result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
+		const result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
 		let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData | null;
 
 		if (!result || result.channel !== interaction.message.channelId
 			|| result.messageID !== interaction.message.id) return;
 
-		let channelId = userTickets && Object.values(userTickets)[0]?.channel;
-		let channel = channelId ? interaction.guild?.channels.cache.get(channelId) || await interaction.guild.channels.fetch(channelId).catch(() => null) : null;
+		const channelId = userTickets && Object.values(userTickets)[0]?.channel;
+		const channel = channelId ? interaction.guild?.channels.cache.get(channelId) || await interaction.guild.channels.fetch(channelId).catch(() => null) : null;
 
 		if (userTickets && !channel) {
 			await interaction.client.db.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
@@ -470,14 +468,14 @@ async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | St
 type ModalResultArray = { questonPlaceholder: string | undefined; questionValue: string; }[];
 
 async function CreateTicketChannelV2(interaction: StringSelectMenuInteraction<"cached">) {
-	let panelCode = await interaction.client.db.get(
+	const panelCode = await interaction.client.db.get(
 		`${interaction.guildId}.GUILD.TICKET_PANEL.${interaction.message.id}`
 	) as string | null;
-	let result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`) as TicketPanel;
+	const result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`) as TicketPanel;
 	let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData | null;
 
-	let channelId = userTickets && Object.values(userTickets)[0]?.channel;
-	let channel = channelId ? interaction.guild?.channels.cache.get(channelId) || await interaction.guild.channels.fetch(channelId).catch(() => null) : null;
+	const channelId = userTickets && Object.values(userTickets)[0]?.channel;
+	const channel = channelId ? interaction.guild?.channels.cache.get(channelId) || await interaction.guild.channels.fetch(channelId).catch(() => null) : null;
 
 	if (userTickets && !channel) {
 		await interaction.client.db.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
@@ -509,7 +507,7 @@ interface ResultButton {
 };
 
 async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">, result: ResultButton) {
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 	let category = await interaction.client.db.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
 
 	if (result.categoryId) category = result.categoryId
@@ -518,7 +516,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 	let reasonInteraction: ModalSubmitInteraction<"cached">;
 
 	if (result && result?.reason) {
-		let response = await iHorizonModalResolve({
+		const response = await iHorizonModalResolve({
 			customId: 'ticket_reason_modal',
 			title: lang.event_ticket_create_reason_modal_title,
 			deferUpdate: false,
@@ -597,7 +595,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 			}
 		}
 
-		let embeds: EmbedBuilder[] = []
+		const embeds: EmbedBuilder[] = []
 
 		if (interaction instanceof StringSelectMenuInteraction) {
 
@@ -640,19 +638,19 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 			}
 		);
 
-		let delete_ticket_button = new ButtonBuilder()
+		const delete_ticket_button = new ButtonBuilder()
 			.setCustomId('t-embed-delete-ticket')
 			.setEmoji('🗑️')
 			.setLabel(lang.ticket_module_button_delete)
 			.setStyle(ButtonStyle.Danger);
 
-		let transcript_ticket_button = new ButtonBuilder()
+		const transcript_ticket_button = new ButtonBuilder()
 			.setCustomId('t-embed-transcript-ticket')
 			.setEmoji('📜')
 			.setLabel(lang.ticket_module_button_transcript)
 			.setStyle(ButtonStyle.Primary);
 
-		let selectUsersMenu = new UserSelectMenuBuilder()
+		const selectUsersMenu = new UserSelectMenuBuilder()
 			.setCustomId('t-embed-select-user')
 			.setPlaceholder(`${lang.ticket_module_button_addmember} / ${lang.ticket_module_button_removemember}`)
 			.setMinValues(0)
@@ -680,7 +678,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 			TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 			if (!TicketLogsChannel) return;
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor("#008000")
 				.setTitle(lang.event_ticket_logsChannel_onCreationChannel_embed_title)
 				.setDescription(lang.event_ticket_logsChannel_onCreationChannel_embed_desc
@@ -697,17 +695,17 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 };
 
 async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached">, result: TicketPanel) {
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
 	let values: ModalResultArray = [];
 	let reasonInteraction: ModalSubmitInteraction<"cached">;
 
-	let category =
+	const category =
 		result.config.optionFields.find(item => item.value === interaction.values[0])?.categoryId
 		|| result.category;
 
 	if (result.config.form.length >= 1) {
-		let modalFields = result.config.form.map((field) => {
+		const modalFields = result.config.form.map((field) => {
 			return {
 				customId: field.questionId.toString(),
 				label: field.questionTitle.substring(0, 45),
@@ -719,7 +717,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			}
 		});
 
-		let modal = await iHorizonModalResolve({
+		const modal = await iHorizonModalResolve({
 			customId: 'ticket_reason_modal',
 			title: lang.event_ticket_create_reason_modal_fields_1_label,
 			deferUpdate: false,
@@ -783,14 +781,14 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			});
 		}
 
-		let embeds: EmbedBuilder[] = []
-		let files: any[] = [];
+		const embeds: EmbedBuilder[] = []
+		const files: any[] = [];
 
 		// get categoryName from the values of the select menu
 		// find the category name from the values of the select menu
-		let categoryName = result.config.optionFields?.find(item => item.value === interaction.values[0]);
+		const categoryName = result.config.optionFields?.find(item => item.value === interaction.values[0]);
 
-		let og_embed = new EmbedBuilder()
+		const og_embed = new EmbedBuilder()
 			.setColor(2829617)
 			.setDescription(
 				lang.sethereticket_panel_select_embed_desc
@@ -801,7 +799,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		if (result.ticketChannelPanel) {
-			let embed_from_db = (await interaction.client.db.get(`EMBED.${result.ticketChannelPanel}.embedSource`) as APIEmbed | null);
+			const embed_from_db = (await interaction.client.db.get(`EMBED.${result.ticketChannelPanel}.embedSource`) as APIEmbed | null);
 
 			if (embed_from_db) {
 				embeds.push(
@@ -818,7 +816,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 
 		if (values.length > 0) {
 			let desc = "";
-			for (let x in values) {
+			for (const x in values) {
 				desc += `## ${values[x].questonPlaceholder}\n\`${values[x].questionValue}\`\n`
 			}
 			embeds.push(
@@ -837,19 +835,19 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			}
 		);
 
-		let delete_ticket_button = new ButtonBuilder()
+		const delete_ticket_button = new ButtonBuilder()
 			.setCustomId('t-embed-delete-ticket')
 			.setEmoji('🗑️')
 			.setLabel(lang.ticket_module_button_delete)
 			.setStyle(ButtonStyle.Danger);
 
-		let transcript_ticket_button = new ButtonBuilder()
+		const transcript_ticket_button = new ButtonBuilder()
 			.setCustomId('t-embed-transcript-ticket')
 			.setEmoji('📜')
 			.setLabel(lang.ticket_module_button_transcript)
 			.setStyle(ButtonStyle.Primary);
 
-		let selectUsersMenu = new UserSelectMenuBuilder()
+		const selectUsersMenu = new UserSelectMenuBuilder()
 			.setCustomId('t-embed-select-user')
 			.setPlaceholder(`${lang.ticket_module_button_addmember} / ${lang.ticket_module_button_removemember}`)
 			.setMinValues(0)
@@ -889,7 +887,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 			if (!TicketLogsChannel) return;
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor("#008000")
 				.setTitle(lang.event_ticket_logsChannel_onCreationChannel_embed_title)
 				.setDescription(lang.event_ticket_logsChannel_onCreationChannel_embed_desc
@@ -908,21 +906,21 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 };
 
 async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
-	let data = await interaction.client.func.getLanguageData(interaction.guildId);
+	const data = await interaction.client.func.getLanguageData(interaction.guildId);
 
-	let fetch = await interaction.client.db.get(
+	const fetch = await interaction.client.db.get(
 		`${interaction.guildId}.TICKET_ALL`
 	);
 
-	for (let user in fetch) {
-		for (let channel in fetch[user]) {
+	for (const user in fetch) {
+		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
-				let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
+				const member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
 				interaction.channel.messages.fetch().then(async (messages) => {
 
 					//@ts-ignore
-					let attachment = await discordTranscripts.createTranscript(interaction.channel, {
+					const attachment = await discordTranscripts.createTranscript(interaction.channel, {
 						limit: -1,
 						filename: `${interaction.guildId}-transcript.html`,
 						footerText: "Exported {number} message{s}",
@@ -930,7 +928,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
 						hydrate: true
 					});
 
-					let embed = new EmbedBuilder()
+					const embed = new EmbedBuilder()
 						.setDescription(data.close_title_sourcebin)
 						.setColor('#0014a8');
 
@@ -947,7 +945,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
 						TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 						if (!TicketLogsChannel) return;
 
-						let embed = new EmbedBuilder()
+						const embed = new EmbedBuilder()
 							.setColor("#008000")
 							.setTitle(data.event_ticket_logsChannel_onClose_embed_title)
 							.setDescription(data.event_ticket_logsChannel_onClose_embed_desc
@@ -967,22 +965,22 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
 };
 
 async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
-	let data = await interaction.client.func.getLanguageData(interaction.guildId);
-	let interactionChannel = interaction.channel;
+	const data = await interaction.client.func.getLanguageData(interaction.guildId);
+	const interactionChannel = interaction.channel;
 
 	if (interactionChannel?.type !== ChannelType.GuildText) return;
 
-	let fetch = await interaction.client.db.get(
+	const fetch = await interaction.client.db.get(
 		`${interaction.guildId}.TICKET_ALL`
 	);
 
-	for (let user in fetch) {
-		for (let channel in fetch[user]) {
+	for (const user in fetch) {
+		for (const channel in fetch[user]) {
 
 			if (channel === interaction.channel?.id) {
 
 				//@ts-ignore
-				let attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
+				const attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
 					limit: -1,
 					filename: `${interaction.guildId}-transcript.html`,
 					footerText: "Exported {number} message{s}",
@@ -992,7 +990,7 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 					favicon: interaction.client.user.displayAvatarURL({ size: 512, extension: "png" })
 				});
 
-				let embed = new EmbedBuilder()
+				const embed = new EmbedBuilder()
 					.setDescription(data.close_title_sourcebin)
 					.setColor('#0014a8');
 
@@ -1012,8 +1010,8 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 };
 
 async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cached">) {
-	let data = await interaction.client.func.getLanguageData(interaction.guildId);
-	let member = interaction.options.getUser("user");
+	const data = await interaction.client.func.getLanguageData(interaction.guildId);
+	const member = interaction.options.getUser("user");
 
 	try {
 		(interaction.channel as BaseGuildTextChannel)?.permissionOverwrites.create(member as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
@@ -1024,7 +1022,7 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cach
 			TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 			if (!TicketLogsChannel) return;
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor("#008000")
 				.setTitle(data.event_ticket_logsChannel_onRemoveMember_embed_title)
 				.setDescription(data.event_ticket_logsChannel_onRemoveMember_embed_desc
@@ -1046,8 +1044,8 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cach
 };
 
 async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached">) {
-	let data = await interaction.client.func.getLanguageData(interaction.guildId);
-	let member = interaction.options.getUser("user");
+	const data = await interaction.client.func.getLanguageData(interaction.guildId);
+	const member = interaction.options.getUser("user");
 
 	if (!member) {
 		await interaction.editReply({ content: data.add_command_error });
@@ -1063,7 +1061,7 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached"
 			TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 			if (!TicketLogsChannel) return;
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor("#008000")
 				.setTitle(data.event_ticket_logsChannel_onAddMember_embed_title)
 				.setDescription(data.event_ticket_logsChannel_onAddMember_embed_desc
@@ -1085,14 +1083,14 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached"
 };
 
 async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) {
-	let data = await interaction.client.func.getLanguageData(interaction.guildId);
-	let fetch = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL`);
+	const data = await interaction.client.func.getLanguageData(interaction.guildId);
+	const fetch = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL`);
 
-	for (let user in fetch) {
-		for (let channel in fetch[user]) {
+	for (const user in fetch) {
+		for (const channel in fetch[user]) {
 
 			if (channel === interaction.channel?.id) {
-				let member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
+				const member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
 				try {
 					(interaction.channel as BaseGuildTextChannel).permissionOverwrites.edit(member?.user.id!, {
@@ -1114,7 +1112,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) 
 						TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 						if (!TicketLogsChannel) return;
 
-						let embed = new EmbedBuilder()
+						const embed = new EmbedBuilder()
 							.setColor("#008000")
 							.setTitle(data.event_ticket_logsChannel_onReopen_embed_title)
 							.setDescription(data.event_ticket_logsChannel_onReopen_embed_desc
@@ -1128,7 +1126,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) 
 						return;
 					} catch (e) { return };
 
-				} catch (e: any) {
+				} catch (e) {
 					await interaction.editReply({ content: data.open_command_error });
 					return;
 				};
@@ -1138,11 +1136,11 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) 
 };
 
 async function TicketDelete(interaction: Interaction<"cached">) {
-	let data = await interaction.client.func.getLanguageData(interaction.guildId);
-	let fetch = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL`);
+	const data = await interaction.client.func.getLanguageData(interaction.guildId);
+	const fetch = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL`);
 
-	for (let user in fetch) {
-		for (let channel in fetch[user]) {
+	for (const user in fetch) {
+		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
 
 				await interaction.client.db.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
@@ -1153,7 +1151,7 @@ async function TicketDelete(interaction: Interaction<"cached">) {
 
 					if (TicketLogsChannel) {
 						//@ts-ignore
-						let attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
+						const attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
 							limit: -1,
 							filename: `${interaction.guildId}-transcript.html`,
 							footerText: "Exported {number} message{s}",
@@ -1161,7 +1159,7 @@ async function TicketDelete(interaction: Interaction<"cached">) {
 							hydrate: true
 						});
 
-						let embed = new EmbedBuilder()
+						const embed = new EmbedBuilder()
 							.setColor("#008000")
 							.setTitle(data.event_ticket_logsChannel_onDelete_embed_title)
 							.setDescription(data.event_ticket_logsChannel_onDelete_embed_desc
@@ -1184,16 +1182,16 @@ async function TicketDelete(interaction: Interaction<"cached">) {
 };
 
 async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached">) {
-	let data = await interaction.client.func.getLanguageData(interaction.guildId);;
-	let owner_ticket = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${interaction.channel?.id}`);
+	const data = await interaction.client.func.getLanguageData(interaction.guildId);;
+	const owner_ticket = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${interaction.channel?.id}`);
 
 	if (!owner_ticket) {
 		await interaction.deferUpdate();
 		return;
 	};
 
-	let membersArray: string[] = [];
-	let listmembersArray: string[] = [];
+	const membersArray: string[] = [];
+	const listmembersArray: string[] = [];
 
 	interaction.members.each(async (i) => {
 		membersArray.push(i.user?.id!);
@@ -1203,8 +1201,8 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached"
 		.filter((i) => i.type === 1).each
 		((i) => { listmembersArray.push(i.id) });
 
-	let addedMembers: string[] = [];
-	let removedMembers: string[] = [];
+	const addedMembers: string[] = [];
+	const removedMembers: string[] = [];
 
 	listmembersArray.forEach(async (overwriteId) => {
 		if (!membersArray.includes(overwriteId) && owner_ticket.author !== overwriteId) {
@@ -1248,7 +1246,7 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached"
 		TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 		if (!TicketLogsChannel) return;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor("#008000")
 			.setTitle(data.event_ticket_logsChannel_onAddMember2_embed_title)
 			.setDescription(data.event_ticket_logsChannel_onAddMember2_embed_desc

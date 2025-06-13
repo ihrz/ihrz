@@ -28,7 +28,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { getMemberBoost } from './economy.js';
 import { SubCommand } from '../../../../types/command.js';
@@ -40,9 +39,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.cooldown`) || 86400000);
-		let amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.amount`) || 500) * await getMemberBoost(interaction.member);
-		let daily = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`);
+		const timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.cooldown`) || 86400000);
+		const amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.amount`) || 500) * await getMemberBoost(interaction.member);
+		const daily = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`);
 
 		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
 			await client.func.method.interactionSend(interaction, {
@@ -54,12 +53,12 @@ export const subCommand: SubCommand = {
 
 
 		if (daily !== null && timeout - (Date.now() - daily) > 0) {
-			let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - daily), lang);
+			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - daily), lang);
 
 			await client.func.method.interactionSend(interaction, { content: lang.daily_cooldown_error.replace(/\${time}/g, time) });
 			return;
 		} else {
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setAuthor({ name: lang.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
 				.setColor("#a4cb80")
 				.setDescription(lang.daily_embed_description)

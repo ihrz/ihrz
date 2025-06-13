@@ -19,20 +19,19 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ActionRowBuilder, ButtonInteraction, CacheType, EmbedBuilder, GuildMember, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ButtonInteraction, EmbedBuilder, GuildMember, TextInputStyle } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
-	let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	let table = interaction.client.db.table('TEMP');
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const table = interaction.client.db.table('TEMP');
 
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	let member = interaction.member as GuildMember;
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const member = interaction.member as GuildMember;
 
-	let targetedChannel = (interaction.member as GuildMember).voice.channel;
-	let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+	const targetedChannel = (interaction.member as GuildMember).voice.channel;
+	const getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
 	if (!result) return await interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId
@@ -43,7 +42,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		return;
 	} else {
 
-		let response = await iHorizonModalResolve({
+		const response = await iHorizonModalResolve({
 			customId: 'modal',
 			title: lang.temporary_voice_modal_title,
 			deferUpdate: false,
@@ -61,7 +60,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
 		if (!response) return;
 
-		let channel = (interaction.member as GuildMember).voice.channel;
+		const channel = (interaction.member as GuildMember).voice.channel;
 		channel?.setName(response.fields.getField('name').value);
 
 		await response.reply({

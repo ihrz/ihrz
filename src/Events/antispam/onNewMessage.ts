@@ -73,7 +73,7 @@ async function logsAction(lang: LanguageData, message: Message, users: Set<Guild
 	const channel = firstUser?.guild.channels.cache.get(inDb);
 	if (!channel) return;
 
-	let embed = new EmbedBuilder()
+	const embed = new EmbedBuilder()
 		.setColor("#e4433f")
 		.setTimestamp()
 		.setTitle(lang.antispam_log_embed_title.replace('${actionType}', sanctionType))
@@ -159,7 +159,7 @@ async function PunishUsers(
 	const membersCleaned = [...new Set(members)];
 
 	const punishPromises = membersCleaned.map(async (member) => {
-		let time = options.punishTime;
+		const time = options.punishTime;
 
 		switch (options.punishment_type) {
 			case 'mute':
@@ -209,12 +209,12 @@ async function PunishUsers(
 export const event: BotEvent = {
 	name: 'messageCreate',
 	run: async (client: Client, message: Message) => {
-		let options = await client.db.get(`${message.guildId}.GUILD.ANTISPAM`) as DatabaseStructure.DbGuildObject['ANTISPAM'];
+		const options = await client.db.get(`${message.guildId}.GUILD.ANTISPAM`) as DatabaseStructure.DbGuildObject['ANTISPAM'];
 
 		if (!options) return;
 
 		// Check if the member have roles to bypass antispam 
-		for (let role in options.BYPASS_ROLES) {
+		for (const role in options.BYPASS_ROLES) {
 			if (message.member?.roles.cache.has(options.BYPASS_ROLES[parseInt(role)]))
 				return false; // yes -> cancels the analysation
 		};
@@ -232,9 +232,9 @@ export const event: BotEvent = {
 			return false;
 		}
 
-		let lang = await client.func.getLanguageData(message.guild.id);
+		const lang = await client.func.getLanguageData(message.guild.id);
 
-		let currentMessage: AntiSpam.CachedMessage = {
+		const currentMessage: AntiSpam.CachedMessage = {
 			messageID: message.id,
 			guildID: message.guild.id,
 			authorID: message.author.id,
@@ -270,7 +270,7 @@ export const event: BotEvent = {
 		// Add current message in cache
 		guildCacheMessages.add(currentMessage);
 
-		let memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(message.author.id)!;
+		const memberTotalWarn = cache.membersFlags.get(message.guild.id)!.get(message.author.id)!;
 
 		const lastMessage = previousMessages.filter(x => x.authorID === message.author.id).slice(-1)[0];
 		const elapsedTime = lastMessage ? currentMessage.sentTimestamp - lastMessage.sentTimestamp : options.maxInterval - 100;
@@ -289,8 +289,8 @@ export const event: BotEvent = {
 		if (cache.membersToPunish.get(message.guild.id)!.size >= 1 && cache.membersFlags.get(message.guild.id)!.get(`${message.author.id}`)! >= options.Threshold) {
 			currentMessage.isSpam = true;
 
-			let membersToPunish = cache.membersToPunish.get(message.guild.id);
-			let guildRaidInfo = cache.raidInfo.get(message.guild.id);
+			const membersToPunish = cache.membersToPunish.get(message.guild.id);
+			const guildRaidInfo = cache.raidInfo.get(message.guild.id);
 
 			if (!guildRaidInfo?.has(`${message.author.id}.timeout`)) {
 				guildRaidInfo?.set(`${message.author.id}.timeout`, 0);

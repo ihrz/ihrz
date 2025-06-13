@@ -24,14 +24,10 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -42,7 +38,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let player = client.player.getPlayer(interaction.guildId as string);
+		const player = client.player.getPlayer(interaction.guildId as string);
 
 		if (!player) {
 			await client.func.method.interactionSend(interaction, { content: lang.queue_iam_not_voicec });
@@ -62,7 +58,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let tracks = player.queue.tracks
+		const tracks = player.queue.tracks
 			.map((track, idx) => `**${++idx})** [${track.info.title}](${track.info.uri})`)
 
 		if (tracks.length === 0) {
@@ -70,12 +66,12 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let embeds: EmbedBuilder[] = [];
-		let chunkSize = 10;
+		const embeds: EmbedBuilder[] = [];
+		const chunkSize = 10;
 		let index = 0;
 		while (tracks.length > 0) {
-			let chunk = tracks.slice(0, chunkSize);
-			let embed = new EmbedBuilder()
+			const chunk = tracks.slice(0, chunkSize);
+			const embed = new EmbedBuilder()
 				.setColor('#ff0000')
 				.setTitle(lang.queue_embed_title)
 				.setDescription(chunk.join('\n') || lang.queue_embed_description_empty)
@@ -90,14 +86,14 @@ export const subCommand: SubCommand = {
 			index++;
 		};
 
-		let message = await client.func.method.interactionSend(interaction, { embeds: [embeds[0]] }) as Message;
+		const message = await client.func.method.interactionSend(interaction, { embeds: [embeds[0]] }) as Message;
 
 		if (embeds.length === 1) return;
 
 		message.react('⬅️');
 		message.react('➡️');
 
-		let collector = message.createReactionCollector({
+		const collector = message.createReactionCollector({
 			filter: (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name as string) && user.id === interaction.member?.user.id,
 			time: 60000
 		});

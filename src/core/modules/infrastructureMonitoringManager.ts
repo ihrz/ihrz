@@ -79,7 +79,7 @@ class InfrastructureMonitoring {
 	}
 
 	private async HorizonGateway(): Promise<ResponseResult> {
-		let HorizonGatewayURL = this.client.config.api.HorizonGateway;
+		const HorizonGatewayURL = this.client.config.api.HorizonGateway;
 		if (HorizonGatewayURL) {
 			try {
 				const startTime = Date.now();
@@ -105,7 +105,7 @@ class InfrastructureMonitoring {
 	}
 
 	private async Lavalink(): Promise<ResponseResult> {
-		let Lavalinks = this.client.config.lavalink.nodes.map(x => `${x.host}:${x.port}`) || [];
+		const Lavalinks = this.client.config.lavalink.nodes.map(x => `${x.host}:${x.port}`) || [];
 		if (Lavalinks.length >= 1) {
 			// Test the first Lavalink node for simplicity
 			const [host, port] = Lavalinks[0].split(':');
@@ -120,7 +120,7 @@ class InfrastructureMonitoring {
 	}
 
 	private async ClusterManager(): Promise<ResponseResult> {
-		let ClusterManagers = this.client.config.core.cluster;
+		const ClusterManagers = this.client.config.core.cluster;
 		if (ClusterManagers.length >= 1) {
 			// Assuming ClusterManagers contains URLs or endpoints
 			try {
@@ -147,7 +147,7 @@ class InfrastructureMonitoring {
 	}
 
 	private async iHorizonWebsite(): Promise<ResponseResult> {
-		let iHorizonWebsiteURL = "https://www.ihorizon.org";
+		const iHorizonWebsiteURL = "https://www.ihorizon.org";
 
 		try {
 			const startTime = Date.now();
@@ -167,7 +167,7 @@ class InfrastructureMonitoring {
 	}
 
 	private async PublicBot(): Promise<ResponseResult> {
-		let PublicBot = this.client;
+		const PublicBot = this.client;
 		if (PublicBot) {
 			try {
 				const startTime = Date.now();
@@ -292,14 +292,14 @@ class InfrastructureMonitoring {
 
 	public async init() {
 		try {
-			let all_guilds = await this.client.db.get("MISC.statusEmbed") || {};
+			const all_guilds = await this.client.db.get("MISC.statusEmbed") || {};
 
 			// Check all services and update the embed
 			this.lastResult = await this.checkAllServices();
 			this.updateStatusEmbed(this.lastResult);
 
 			// Update all status messages in configured channels
-			for (let [guild_id, data] of Object.entries(all_guilds)) {
+			for (const [guild_id, data] of Object.entries(all_guilds)) {
 				try {
 					const channelData = data as any;
 					const channel = this.client.channels.cache.get(channelData.channel_id || channelData.guild_id);

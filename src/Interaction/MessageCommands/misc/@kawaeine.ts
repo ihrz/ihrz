@@ -93,8 +93,8 @@ export const command: Command = {
 				.replaceAll("oof.mp3", path.join(rapRealityPath, 'oof.mp3'))
 				.replaceAll("placeholder.png", beforeSucksResizedPath);
 
-			let outPath = await client.kdenlive.tempSave(data);
-			let exported = await client.kdenlive.export(outPath);
+			const outPath = await client.kdenlive.tempSave(data);
+			const exported = await client.kdenlive.export(outPath);
 
 			await interaction.reply({
 				files: [{

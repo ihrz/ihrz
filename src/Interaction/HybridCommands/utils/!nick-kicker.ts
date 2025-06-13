@@ -22,20 +22,10 @@
 import {
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
-	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
-	ChannelType,
-	ApplicationCommandType,
-	BaseGuildVoiceChannel,
-	VoiceChannel,
 	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
-	ActionRow,
 	ActionRowBuilder,
 	ComponentType,
 	TextInputStyle,
@@ -44,7 +34,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
@@ -61,12 +50,12 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let baseData = (await client.db.get(`${interaction.guild.id}.UTILS.NICK_KICKER`) || {
+		const baseData = (await client.db.get(`${interaction.guild.id}.UTILS.NICK_KICKER`) || {
 			enabled: true,
 			words: []
 		}) as DatabaseStructure.NickKickerData;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.util_nick_kicker_embed_title)
 			.setDescription(lang.util_nick_kicker_embed_desc)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
@@ -83,7 +72,7 @@ export const subCommand: SubCommand = {
 				}
 			)
 
-		let selectMenu = new StringSelectMenuBuilder()
+		const selectMenu = new StringSelectMenuBuilder()
 			.setCustomId("nick-kicker")
 			.setPlaceholder(lang.ticket_panel_change_option_select_placeholder)
 			.addOptions(
@@ -138,7 +127,7 @@ export const subCommand: SubCommand = {
 				await RemoveWord();
 			} else if (i.values[0].startsWith("nick-kicker-remove")) {
 				await i.deferUpdate();
-				let word = i.values[0].split("-")[3];
+				const word = i.values[0].split("-")[3];
 				baseData.words = baseData.words.filter(w => w !== word);
 				embed.data.fields![1].value = "```" + (baseData.words.length === 0 ? lang.var_none : baseData.words.join(", ")) + "```";
 				await client.db.set(`${interaction.guild!.id}.UTILS.NICK_KICKER`, baseData);
@@ -187,7 +176,7 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			let modal = await iHorizonModalResolve({
+			const modal = await iHorizonModalResolve({
 				title: lang.util_nick_kicker_add_word,
 				customId: 'nick-kicker-add',
 				deferUpdate: true,
@@ -226,7 +215,7 @@ export const subCommand: SubCommand = {
 			}
 
 			// make select menu for remove word
-			let selectMenu = new StringSelectMenuBuilder()
+			const selectMenu = new StringSelectMenuBuilder()
 				.setCustomId("nick-kicker-remove")
 				.setPlaceholder(lang.util_nick_kicker_select_to_remove)
 				.addOptions(baseData.words.map(word => {

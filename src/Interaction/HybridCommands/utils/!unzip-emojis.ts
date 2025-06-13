@@ -20,16 +20,10 @@
 */
 
 import {
-	ActionRowBuilder,
 	Attachment,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildEmoji,
-	Message,
-	PermissionsBitField
+	Message
 } from 'discord.js';
 import JSZip from 'jszip';
 import { LanguageData } from '../../../../types/languageData.js';
@@ -67,7 +61,7 @@ export const subCommand: SubCommand = {
 			const zip = new JSZip();
 			const zipContents = await zip.loadAsync(zipBuffer);
 
-			let emojis: [string, JSZip.JSZipObject][] = [];
+			const emojis: [string, JSZip.JSZipObject][] = [];
 
 			Object.entries(zipContents.files)
 				.filter(([filename, file]) => {

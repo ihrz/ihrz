@@ -21,7 +21,6 @@
 
 import { Client, EmbedBuilder, GuildMember, TextChannel } from 'discord.js'
 
-import { LanguageData } from '../../../types/languageData.js';
 import { BotEvent } from '../../../types/event.js';
 import { createTranscript } from 'discord-html-transcripts';
 
@@ -29,11 +28,11 @@ export const event: BotEvent = {
 	name: "guildMemberRemove",
 	run: async (client: Client, member: GuildMember) => {
 
-		let fetch = await client.db.get(`${member.guild.id}.TICKET_ALL.${member.user.id}`);
+		const fetch = await client.db.get(`${member.guild.id}.TICKET_ALL.${member.user.id}`);
 
-		for (let channelId in fetch) {
-			let lang = await client.func.getLanguageData(member.guild.id);
-			let channel = member.guild.channels.cache.get(fetch[channelId].channel);
+		for (const channelId in fetch) {
+			const lang = await client.func.getLanguageData(member.guild.id);
+			const channel = member.guild.channels.cache.get(fetch[channelId].channel);
 
 			try {
 				let TicketLogsChannel = await client.db.get(`${member.guild.id}.GUILD.TICKET.logs`);
@@ -41,7 +40,7 @@ export const event: BotEvent = {
 				if (!TicketLogsChannel) return;
 
 				// @ts-ignore
-				let attachment = await createTranscript(channel as TextChannel, {
+				const attachment = await createTranscript(channel as TextChannel, {
 					limit: -1,
 					filename: `${member.guild.id}-transcript.html`,
 					footerText: "Exported {number} message{s}",
@@ -49,7 +48,7 @@ export const event: BotEvent = {
 					hydrate: true
 				});
 
-				let embed = new EmbedBuilder()
+				const embed = new EmbedBuilder()
 					.setColor("#008000")
 					.setTitle(lang.event_ticket_logsChannel_onDelete_embed_title)
 					.setDescription(lang.event_ticket_logsChannel_onDelete_embed_desc

@@ -29,7 +29,7 @@ export const event: BotEvent = {
 			|| !interaction.guild?.channels
 			|| interaction.user.bot) return;
 
-		let cmd = client.applicationsCommands.get(interaction.commandName);
+		const cmd = client.applicationsCommands.get(interaction.commandName);
 		if (cmd && cmd.thinking) { await interaction.deferReply(); };
 		if (cmd) { cmd.run(client, interaction) };
 	},

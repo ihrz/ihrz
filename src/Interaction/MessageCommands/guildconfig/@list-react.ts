@@ -23,7 +23,6 @@ import {
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
-	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	Message,
@@ -49,11 +48,11 @@ export const command: Command = {
 	permission: PermissionsBitField.Flags.AddReactions,
 	run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
 
-		let all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
+		const all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
 
 		let currentPage = 0;
 
-		let pages: string[] = [];
+		const pages: string[] = [];
 
 		Object.entries(all_specific_message!).forEach(([key, value]) => {
 			pages.push(lang.list_react_embed_msg.replace("${key}", key).replace("${value}", value));
@@ -67,7 +66,7 @@ export const command: Command = {
 			return;
 		}
 
-		let createEmbed = () => {
+		const createEmbed = () => {
 			return new EmbedBuilder()
 				.setColor("#000000")
 				.setDescription(pages[currentPage])
@@ -75,7 +74,7 @@ export const command: Command = {
 				.setTimestamp()
 		};
 
-		let row = new ActionRowBuilder().addComponents(
+		const row = new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
 				.setCustomId('previousPage')
 				.setLabel('<<<')
@@ -86,13 +85,13 @@ export const command: Command = {
 				.setStyle(ButtonStyle.Secondary),
 		);
 
-		let messageEmbed = await interaction.reply({
+		const messageEmbed = await interaction.reply({
 			embeds: [createEmbed()],
 			components: [(row as ActionRowBuilder<ButtonBuilder>)],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
 
-		let collector = messageEmbed.createMessageComponentCollector({
+		const collector = messageEmbed.createMessageComponentCollector({
 			filter: async (i) => {
 				await i.deferUpdate();
 				return interaction.author.id === i.user.id;

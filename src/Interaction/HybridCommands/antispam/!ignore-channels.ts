@@ -29,15 +29,10 @@ import {
 	Client,
 	ComponentType,
 	EmbedBuilder,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { AntiSpam } from '../../../../types/antispam.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -49,7 +44,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let all_channels = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_CHANNELS`) as AntiSpam.AntiSpamOptions['BYPASS_CHANNELS'];
+		const all_channels = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_CHANNELS`) as AntiSpam.AntiSpamOptions['BYPASS_CHANNELS'];
 
 		const embed = new EmbedBuilder()
 			.setColor("#6666ff")
@@ -124,7 +119,7 @@ export const subCommand: SubCommand = {
 
 			await i.deferUpdate();
 
-			let values = i.values;
+			const values = i.values;
 
 			embed.setFields({
 				name: lang.joinghostping_add_ok_embed_fields_name,

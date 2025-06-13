@@ -22,11 +22,9 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 } from 'discord.js';
 import { LanguageData } from '../../../../../types/languageData.js';
-import { Command } from '../../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../../types/command.js';
@@ -39,8 +37,8 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let baseData: DatabaseStructure.AllowListData = await client.db.get(`${interaction.guildId}.ALLOWLIST`) || { enable: false, list: [] };
-		let member = interaction.options.getMember('member') as GuildMember;
+		const baseData: DatabaseStructure.AllowListData = await client.db.get(`${interaction.guildId}.ALLOWLIST`) || { enable: false, list: [] };
+		const member = interaction.options.getMember('member') as GuildMember;
 
 		if (interaction.user.id !== interaction.guild.ownerId) {
 			await interaction.reply({ content: lang.allowlist_add_not_owner });

@@ -23,13 +23,11 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	GuildMember,
 	Message,
 	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import crypto from 'crypto';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -52,13 +50,13 @@ export const subCommand: SubCommand = {
 			var user = interaction.author;
 		}
 
-		var ip = [
+		const ip = [
 			'01', '-10', '168', '254', '3045', '128', '256', '255', '-0', '-144',
 			'308', '670', '097', '32', '-64', '1092', '-10', '172', '1002', '2000', '87',
 			'150', '402', '99', '7-6', '211', '172', '398', '-806', '055', '220', '7'
 		];
 
-		var hackerNames = [
+		const hackerNames = [
 			'cyberpunk', 'zeroday', 'blackhat', 'hackmaster', 'shadowbyte', 'crypt0',
 			'phishr', 'darknet', 'rootaccess', 'sploit3r', 'hack3rman', 'v1rus',
 			'bytebandit', 'malware', 'scriptkiddie', 'hackgenius', 'hackmaster', 'cyberghost',
@@ -96,7 +94,7 @@ export const subCommand: SubCommand = {
 			'codemercenary', 'cyberwarrior', 'digitalwarrior', 'viruswarrior', 'hackwarrior', 'codewarrior'
 		];
 
-		var hackerDomains = [
+		const hackerDomains = [
 			"hackmail.com", "darkweb.net", "blackhat.org", "zerodaymail.com", "phishmail.net", "cryptomail.org",
 			"sploitmail.com", "hackergang.com", "rootmail.org", "v1rusmail.com", "hackers.com", "hackzone.com",
 			"hacknet.com", "hackworld.com", "hackerhub.com", "hackerland.com", "hackersquad.com", "hackerforce.com",
@@ -122,7 +120,7 @@ export const subCommand: SubCommand = {
 			"hackersdistrict.com", "hackersprovince.com", "hackersstate.com", "hackerscountry.com"
 		];
 
-		var hackerPasswords = [
+		const hackerPasswords = [
 			"5up3rP@$$w0rd", "H4x0r!z3d", "N0s3cur1ty", "3vilG3nius", "0bscureC0de", "Hacker123!", "P@$$phr4s3",
 			"D3c3pt10n", "0v3rwr1t3", "V1rtu4lInf1ltr4t0r", "R3v3rse3ng1n33r", "C0mpl3xM4tr1x", "D1g1t4lS3cr3t",
 			"Myst3ryH4ck", "Ph4nt0mC0ntrol", "BruteForc3!", "S3cur1ty!", "D4rkW3b!", "Crypt0Gr4ph!", "H4ckThePl4n3t!",
@@ -147,12 +145,12 @@ export const subCommand: SubCommand = {
 			return randomNumber.toString();
 		};
 
-		var generatedIp = `${ip[Math.floor(crypto.randomInt(0, ip.length))]}.${ip[Math.floor(crypto.randomInt(0, ip.length))]}.${ip[Math.floor(crypto.randomInt(0, ip.length))]}.${ip[Math.floor(crypto.randomInt(0, ip.length))]}`;
-		var generatedUsername = `${hackerNames[Math.floor(crypto.randomInt(0, hackerNames.length))]}${generateRandomNumber()}`;
-		var generatedEmail = `${generatedUsername}@${hackerDomains[Math.floor(crypto.randomInt(0, hackerDomains.length))]}`;
-		var generatedPassword = hackerPasswords[Math.floor(crypto.randomInt(0, hackerPasswords.length))];
+		const generatedIp = `${ip[Math.floor(crypto.randomInt(0, ip.length))]}.${ip[Math.floor(crypto.randomInt(0, ip.length))]}.${ip[Math.floor(crypto.randomInt(0, ip.length))]}.${ip[Math.floor(crypto.randomInt(0, ip.length))]}`;
+		const generatedUsername = `${hackerNames[Math.floor(crypto.randomInt(0, hackerNames.length))]}${generateRandomNumber()}`;
+		const generatedEmail = `${generatedUsername}@${hackerDomains[Math.floor(crypto.randomInt(0, hackerDomains.length))]}`;
+		const generatedPassword = hackerPasswords[Math.floor(crypto.randomInt(0, hackerPasswords.length))];
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor("#800000")
 			.setDescription(lang.hack_embed_description
 				.replace(/\${victim\.id}/g, victim.id)

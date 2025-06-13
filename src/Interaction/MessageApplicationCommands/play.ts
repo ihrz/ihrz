@@ -41,11 +41,11 @@ export const command: AnotherCommand = {
 	permission: null,
 	run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
 
-		let lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-		let voiceChannel = (interaction.member as GuildMember)?.voice.channel;
+		const lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+		const voiceChannel = (interaction.member as GuildMember)?.voice.channel;
 
-		let msg = interaction.options.getMessage("message") as Message;
-		let check: string[] = [];
+		const msg = interaction.options.getMessage("message") as Message;
+		const check: string[] = [];
 
 		if (msg && msg.attachments.size >= 1) {
 			msg.attachments.forEach(content => check.push(content.url));
@@ -62,20 +62,20 @@ export const command: AnotherCommand = {
 			return interaction.editReply({ content: lang.p_not_allowed })
 		};
 
-		let player = client.player.createPlayer({
+		const player = client.player.createPlayer({
 			guildId: interaction.guildId as string,
 			voiceChannelId: voiceChannel.id,
 			textChannelId: interaction.channelId,
 		});
 
-		let all_res: (SearchResult | UnresolvedSearchResult)[] = [];
+		const all_res: (SearchResult | UnresolvedSearchResult)[] = [];
 
-		for (let trackUrl of check) {
-			let res = await player.search({ query: trackUrl }, interaction.user);
+		for (const trackUrl of check) {
+			const res = await player.search({ query: trackUrl }, interaction.user);
 			all_res.push(res);
 
 			if (res.tracks.length === 0) {
-				let results = new EmbedBuilder()
+				const results = new EmbedBuilder()
 					.setTitle(lang.p_embed_title)
 					.setColor('#ff0000')
 					.setTimestamp();
@@ -86,7 +86,7 @@ export const command: AnotherCommand = {
 
 			await player.queue.add(res.tracks[0]);
 
-			let channel = interaction.guild?.channels.cache.get(player.textChannelId!);
+			const channel = interaction.guild?.channels.cache.get(player.textChannelId!);
 
 			(channel as BaseGuildTextChannel)?.send({
 				embeds: [
@@ -108,19 +108,19 @@ export const command: AnotherCommand = {
 			await player.play();
 		};
 
-		let yes = all_res[0];
+		const yes = all_res[0];
 
 		function timeCalcultator() {
-			let totalDurationMs = yes.tracks[0].info.duration;
-			let totalDurationSec = Math.floor(totalDurationMs! / 1000);
-			let hours = Math.floor(totalDurationSec / 3600);
-			let minutes = Math.floor((totalDurationSec % 3600) / 60);
-			let seconds = totalDurationSec % 60;
-			let durationStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+			const totalDurationMs = yes.tracks[0].info.duration;
+			const totalDurationSec = Math.floor(totalDurationMs! / 1000);
+			const hours = Math.floor(totalDurationSec / 3600);
+			const minutes = Math.floor((totalDurationSec % 3600) / 60);
+			const seconds = totalDurationSec % 60;
+			const durationStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 			return durationStr;
 		};
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setDescription(`**${yes.tracks[0].info.title}**`)
 			.setColor('#00cc1a')
 			.setTimestamp()

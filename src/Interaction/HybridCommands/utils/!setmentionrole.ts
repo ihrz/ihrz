@@ -22,19 +22,11 @@
 import {
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
-	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
-	BaseGuildTextChannel,
-	ApplicationCommandType,
 	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions,
 	Role
 } from 'discord.js'
 
-import { Command } from '../../../../types/command.js';
 import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
@@ -75,7 +67,7 @@ export const subCommand: SubCommand = {
 			});
 
 			try {
-				let already = await client.db.get(`${interaction.guildId}.GUILD.RANK_ROLES.roles`);
+				const already = await client.db.get(`${interaction.guildId}.GUILD.RANK_ROLES.roles`);
 
 				if (already === argsid.id) {
 					await client.func.method.interactionSend(interaction, {
@@ -99,7 +91,7 @@ export const subCommand: SubCommand = {
 
 				await client.db.set(`${interaction.guildId}.GUILD.RANK_ROLES.roles`, argsid.id);
 
-				let e = new EmbedBuilder().setDescription(msg);
+				const e = new EmbedBuilder().setDescription(msg);
 
 				await client.func.method.interactionSend(interaction, { embeds: [e] });
 				return;

@@ -47,12 +47,12 @@ export interface ModalOptionsBuilder {
 }
 
 export function iHorizonModalBuilder(modalOptions: ModalOptionsBuilder): APIModalInteractionResponseCallbackData {
-	let modal = new ModalBuilder()
+	const modal = new ModalBuilder()
 		.setCustomId(modalOptions.customId)
 		.setTitle(modalOptions.title.substring(0, 32));
 
 	modalOptions.fields.forEach((content) => {
-		let _ = new TextInputBuilder()
+		const _ = new TextInputBuilder()
 			.setCustomId(content.customId)
 			.setLabel(content.label)
 			.setStyle(content.style)
@@ -76,11 +76,11 @@ export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, in
 	const { deferUpdate = true } = modalOptions;
 	modalOptions.deferUpdate = deferUpdate;
 
-	let modal = iHorizonModalBuilder(modalOptions);
+	const modal = iHorizonModalBuilder(modalOptions);
 
 	await (interaction as MessageComponentInteraction).showModal(modal);
 
-	let response = await (interaction as MessageComponentInteraction<"cached">).awaitModalSubmit({
+	const response = await (interaction as MessageComponentInteraction<"cached">).awaitModalSubmit({
 		filter: (i) => i.customId === modalOptions.customId && i.user.id === interaction.user.id,
 		time: 1_240_000
 	});

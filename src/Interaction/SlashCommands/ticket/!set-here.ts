@@ -25,14 +25,12 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
-	PermissionsBitField,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
 } from 'discord.js';
 
 import { CreateButtonPanel, CreateSelectPanel } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -44,16 +42,16 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let panelName = interaction.options.getString("name");
-		let panelDesc = interaction.options.getString("description");
-		let panelCategory = interaction.options.getChannel("category") as CategoryChannel | null;
+		const panelName = interaction.options.getString("name");
+		const panelDesc = interaction.options.getString("description");
+		const panelCategory = interaction.options.getChannel("category") as CategoryChannel | null;
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
 			await interaction.editReply({ content: lang.ticket_disabled_command });
 			return;
 		};
 
-		let comp = new StringSelectMenuBuilder()
+		const comp = new StringSelectMenuBuilder()
 			.setCustomId("choose_panel_type")
 			.setPlaceholder(lang.sethereticket_command_type_menu_placeholder)
 			.addOptions(
@@ -65,7 +63,7 @@ export const subCommand: SubCommand = {
 					.setValue("select_panel")
 			);
 
-		let response = await interaction.editReply({
+		const response = await interaction.editReply({
 			content: lang.sethereticket_command_type_menu_question
 				.replace("${interaction.user.id}", interaction.user.id),
 			components: [

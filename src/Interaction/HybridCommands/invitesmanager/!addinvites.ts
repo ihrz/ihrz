@@ -20,20 +20,13 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
-	PermissionsBitField,
-	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -53,9 +46,9 @@ export const subCommand: SubCommand = {
 			var amount = client.func.method.number(args!, 1);
 		};
 
-		let a = new EmbedBuilder().setColor("#FF0000").setDescription(lang.addinvites_not_admin_embed_description);
+		const a = new EmbedBuilder().setColor("#FF0000").setDescription(lang.addinvites_not_admin_embed_description);
 
-		let check = await client.db.get(`${interaction?.guild?.id}.USER.${user.id}.INVITES`);
+		const check = await client.db.get(`${interaction?.guild?.id}.USER.${user.id}.INVITES`);
 
 		if (check) {
 			await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.invites`, amount!);
@@ -71,7 +64,7 @@ export const subCommand: SubCommand = {
 			await client.db.add(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
 		};
 
-		let finalEmbed = new EmbedBuilder()
+		const finalEmbed = new EmbedBuilder()
 			.setDescription(lang.addinvites_confirmation_embed_description
 				.replace(/\${amount}/g, amount!.toString())
 				.replace(/\${user}/g, user.toString())

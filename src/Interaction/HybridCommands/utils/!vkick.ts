@@ -21,18 +21,9 @@
 
 import {
 	Client,
-	ApplicationCommandOptionType,
-	EmbedBuilder,
-	PermissionsBitField,
 	ChatInputCommandInteraction,
-	ApplicationCommandType,
 	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions,
 	GuildMember,
-	GuildChannel,
-	VoiceBasedChannel,
 	PermissionFlagsBits,
 } from "discord.js";
 
@@ -69,7 +60,7 @@ export const subCommand: SubCommand = {
 		}
 
 		// Get instance of GuildMember
-		let member = interaction.guild.members.cache.get(user.id) as GuildMember;
+		const member = interaction.guild.members.cache.get(user.id) as GuildMember;
 
 		// Check if member is in a voice channel
 		if (member.voice.channelId === null) {
@@ -87,7 +78,7 @@ export const subCommand: SubCommand = {
 		}
 
 		// So, let's fetch the voice channel
-		let voiceChannel = member.voice.channel;
+		const voiceChannel = member.voice.channel;
 
 		// So , let's kick from the voice channel the member
 		await member.voice.setChannel(null);

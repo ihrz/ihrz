@@ -20,20 +20,13 @@
 */
 
 import {
-	ActionRowBuilder,
-	BaseGuildTextChannel,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	ComponentType,
 	EmbedBuilder,
 	GuildMember,
 	Message,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
 
@@ -52,11 +45,11 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0) || interaction.member;
 		};
 
-		let a = new EmbedBuilder()
+		const a = new EmbedBuilder()
 			.setColor("#FF0000")
 			.setDescription(lang.removeinvites_not_admin_embed_description);
 
-		let response = await promptYesOrNo(interaction, {
+		const response = await promptYesOrNo(interaction, {
 			content: lang.reset_uranks_are_you_sure,
 			noButton: lang.resetallinvites_no_button,
 			yesButton: lang.resetallinvites_yes_button,

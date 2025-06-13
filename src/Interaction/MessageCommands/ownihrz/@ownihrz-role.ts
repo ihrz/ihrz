@@ -21,15 +21,8 @@
 
 import {
 	ApplicationCommandOptionType,
-	ApplicationCommandType,
-	BaseGuildTextChannel,
-	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildMember,
-	GuildVoiceChannelResolvable,
 	Message,
-	PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -63,17 +56,17 @@ export const command: Command = {
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
 	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
-		let role = client.func.method.role(message, options!, 0);
+		const role = client.func.method.role(message, options!, 0);
 
 		let added = 0;
 		let skipped = 0;
 		let errors = 0;
 
 		if (client.owners.includes(message.member?.user.id!)) {
-			let allOwnihrzOwners = await client.ownihrz.GetOwnersList();
+			const allOwnihrzOwners = await client.ownihrz.GetOwnersList();
 
-			let guildMembers = message.guild.members.cache;
-			let ownersInGuild = guildMembers.filter(member => allOwnihrzOwners.includes(member.id));
+			const guildMembers = message.guild.members.cache;
+			const ownersInGuild = guildMembers.filter(member => allOwnihrzOwners.includes(member.id));
 
 			for (const member of ownersInGuild.values()) {
 				try {

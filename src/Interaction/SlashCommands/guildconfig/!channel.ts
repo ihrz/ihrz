@@ -31,8 +31,6 @@ import {
 	ComponentType,
 	EmbedBuilder,
 	GuildTextBasedChannel,
-	Message,
-	PermissionsBitField,
 	TextChannel,
 } from 'discord.js';
 
@@ -48,9 +46,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
 
-		var baseData = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG`) as DatabaseStructure.DbGuildObject['GUILD_CONFIG'];
-		var current_join_channel = '';
-		var current_leave_channel = '';
+		const baseData = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG`) as DatabaseStructure.DbGuildObject['GUILD_CONFIG'];
+		let current_join_channel = '';
+		let current_leave_channel = '';
 
 		if (baseData?.join) {
 			current_join_channel = `<#${baseData.join}>`
@@ -64,7 +62,7 @@ export const subCommand: SubCommand = {
 			current_leave_channel = client.iHorizon_Emojis.No
 		};
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor('#6e819a')
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTitle(lang.setchannels_title_embed_panel)
@@ -75,7 +73,7 @@ export const subCommand: SubCommand = {
 				{ name: lang.setchannels_embed_fields_value_leave, value: current_leave_channel, inline: true }
 			);
 
-		let action_row = new ActionRowBuilder<ButtonBuilder>()
+		const action_row = new ActionRowBuilder<ButtonBuilder>()
 			.addComponents(
 				new ButtonBuilder()
 					.setCustomId('guildconfig-channel-panel-change-join-channel')
@@ -95,13 +93,13 @@ export const subCommand: SubCommand = {
 					.setStyle(ButtonStyle.Danger)
 			);
 
-		let response = await client.func.method.interactionSend(interaction, {
+		const response = await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
 			components: [action_row],
 			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
 
-		let collector = response.createMessageComponentCollector({
+		const collector = response.createMessageComponentCollector({
 			componentType: ComponentType.Button,
 			time: 50_000
 		});
@@ -124,12 +122,12 @@ export const subCommand: SubCommand = {
 							.setMinValues(1)
 					)
 					;
-				let i2 = await i.reply({
+				const i2 = await i.reply({
 					content: lang.setchannels_which_channel.replace('${interaction.user.id}', interaction.member.user.id),
 					components: [channelSelectMenu]
 				});
 
-				let i2Collector = (interaction.channel as GuildTextBasedChannel)?.createMessageComponentCollector({
+				const i2Collector = (interaction.channel as GuildTextBasedChannel)?.createMessageComponentCollector({
 					filter: (x) => x.user.id === interaction.member?.user.id && x.customId === 'guildconfig-channel-selectMenu-join-channel',
 					componentType: ComponentType.ChannelSelect,
 					time: 30_000,
@@ -138,7 +136,7 @@ export const subCommand: SubCommand = {
 				i2Collector?.on('collect', async (result) => {
 					const channelId = result.channels.first()?.id
 
-					var channel = interaction.guild?.channels.cache.get(channelId as string) as TextChannel;
+					const channel = interaction.guild?.channels.cache.get(channelId as string) as TextChannel;
 					current_join_channel = `<#${channelId}>`;
 
 					if (!(channel instanceof TextChannel)) {
@@ -155,7 +153,7 @@ export const subCommand: SubCommand = {
 						});
 
 						try {
-							let already = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
+							const already = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
 
 							if (already === channelId) {
 								await result.reply({ content: lang.setchannels_already_this_channel_on_join });
@@ -201,12 +199,12 @@ export const subCommand: SubCommand = {
 							.setMinValues(1)
 					)
 					;
-				let i2 = await i.reply({
+				const i2 = await i.reply({
 					content: lang.setchannels_which_channel.replace('${interaction.user.id}', interaction.member.user.id),
 					components: [channelSelectMenu]
 				});
 
-				let i2Collector = (interaction.channel as GuildTextBasedChannel)?.createMessageComponentCollector({
+				const i2Collector = (interaction.channel as GuildTextBasedChannel)?.createMessageComponentCollector({
 					filter: (x) => x.user.id === interaction.member?.user.id && x.customId === 'guildconfig-channel-selectMenu-leave-channel',
 					componentType: ComponentType.ChannelSelect,
 					time: 30_000,
@@ -215,7 +213,7 @@ export const subCommand: SubCommand = {
 				i2Collector?.on('collect', async (result) => {
 					const channelId = result.channels.first()?.id
 
-					var channel = interaction.guild?.channels.cache.get(channelId as string) as TextChannel;
+					const channel = interaction.guild?.channels.cache.get(channelId as string) as TextChannel;
 					current_leave_channel = `<#${channelId}>`;
 
 					if (!(channel instanceof TextChannel)) {
@@ -234,7 +232,7 @@ export const subCommand: SubCommand = {
 					});
 
 					try {
-						let already = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
+						const already = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
 
 						if (already === channelId as string) {
 							await result.reply({ content: lang.setchannels_already_this_channel_on_leave });
@@ -274,8 +272,8 @@ export const subCommand: SubCommand = {
 						.replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
 				});
 
-				let leavec = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
-				let joinc = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
+				const leavec = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.join`);
+				const joinc = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leave`);
 
 				if (!joinc && !leavec) {
 					await i.reply({ content: lang.setchannels_already_on_off });

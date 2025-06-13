@@ -26,7 +26,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -37,8 +36,8 @@ export const subCommand: SubCommand = {
 
 		let i: number;
 
-		let alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
-		let morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(",");
+		const alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
+		const morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(",");
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
 			await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
@@ -56,16 +55,16 @@ export const subCommand: SubCommand = {
 		};
 
 		if (text.startsWith(".") || text.startsWith("-")) {
-			let textArray = text.split(" ");
-			let length = textArray.length;
+			const textArray = text.split(" ");
+			const length = textArray.length;
 			for (i = 0; i < length; i++) {
 				textArray[i] = alpha[morse.indexOf(textArray[i])];
 			};
 
 			text = textArray.join("");
 		} else {
-			let textArray = text.split("");
-			let length = textArray.length;
+			const textArray = text.split("");
+			const length = textArray.length;
 			for (i = 0; i < length; i++) {
 				textArray[i] = morse[alpha.indexOf(textArray[i])];
 			};

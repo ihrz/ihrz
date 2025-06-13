@@ -23,12 +23,10 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Message,
-	PermissionsBitField
+	Message
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import wait from '../../../core/functions/wait.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -38,9 +36,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let banned_members = await interaction.guild.bans.fetch()
+		const banned_members = await interaction.guild.bans.fetch()
 
-		let unbanned_members: string[] = [];
+		const unbanned_members: string[] = [];
 		let cannot_unban = 0;
 
 		if (!banned_members) {

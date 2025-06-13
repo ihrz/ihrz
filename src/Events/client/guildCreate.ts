@@ -40,7 +40,7 @@ export const event: BotEvent = {
 			}
 		});
 
-		let channel = guild.systemChannelId ? guild.channels.cache.get(guild?.systemChannelId) : highestPositionChannel;
+		const channel = guild.systemChannelId ? guild.channels.cache.get(guild?.systemChannelId) : highestPositionChannel;
 
 		// async function antiPoubelle() {
 		//   let embed = new EmbedBuilder()
@@ -65,17 +65,17 @@ export const event: BotEvent = {
 		// };
 
 		async function blacklistLeave() {
-			let channelHr = guild.channels.cache.get((guild.systemChannelId as string))
+			const channelHr = guild.channels.cache.get((guild.systemChannelId as string))
 				|| guild.channels.cache.random();
 
-			let tqtmonreuf = new EmbedBuilder()
+			const tqtmonreuf = new EmbedBuilder()
 				.setColor('#FF0000')
 				.setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
 				.setTimestamp()
 				.setFooter(await guild.client.func.displayBotName.footerBuilder(guild.id))
 
-			let table = client.db.table('BLACKLIST')
-			let isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
+			const table = client.db.table('BLACKLIST')
+			const isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
 
 			if (isBL) {
 				await (channelHr as GuildTextBasedChannel).send({
@@ -90,7 +90,7 @@ export const event: BotEvent = {
 		}
 
 		async function messageToServer() {
-			let welcomeMessage = [
+			const welcomeMessage = [
 				"Welcome to our server! 🎉",
 				"Greetings, fellow Discordians! 👋",
 				"iHorizon has joined the chat! 💬",
@@ -98,7 +98,7 @@ export const event: BotEvent = {
 				"Let's give a warm welcome to iHorizon! 🔥",
 			];
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor(2829617)
 				.setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" })
 				.setDescription(
@@ -111,7 +111,7 @@ export const event: BotEvent = {
 				)
 				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`);
 
-			let buttons = new ActionRowBuilder<ButtonBuilder>()
+			const buttons = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents(
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Crown)
@@ -151,8 +151,8 @@ export const event: BotEvent = {
 
 			async function createInvite(channel: BaseGuildTextChannel): Promise<string> {
 				try {
-					let invite = await channel.createInvite();
-					let inviteCode = invite.code;
+					const invite = await channel.createInvite();
+					const inviteCode = invite.code;
 
 					return 'discord.gg/' + inviteCode;
 				} catch {
@@ -160,9 +160,9 @@ export const event: BotEvent = {
 				}
 			}
 
-			let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+			const usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor("#00FF00")
 				.setTimestamp(guild.joinedTimestamp)
 				.setDescription(`**A new guild added iHorizon !**`)
@@ -179,7 +179,7 @@ export const event: BotEvent = {
 				.setThumbnail(guild.iconURL())
 				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" });
 
-			let logsChannel = client.channels.cache.get(client.config.core.guildLogsChannelID) as TextChannel | null;
+			const logsChannel = client.channels.cache.get(client.config.core.guildLogsChannelID) as TextChannel | null;
 
 			logsChannel?.send({
 				embeds: [embed],
@@ -188,7 +188,7 @@ export const event: BotEvent = {
 		};
 
 		async function setLangByRegion() {
-			let guildLocation = guild.preferredLocale;
+			const guildLocation = guild.preferredLocale;
 
 			switch (guildLocation) {
 				case 'fr':
@@ -223,7 +223,7 @@ export const event: BotEvent = {
 		}
 
 		// let c = await antiPoubelle();
-		let d = await blacklistLeave();
+		const d = await blacklistLeave();
 		if (d) await Promise.all([ownerLogs(), messageToServer(), getInvites(), setLangByRegion()]);
 	},
 };

@@ -20,23 +20,16 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	GuildMember,
 	GuildMemberRoleManager,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 	PermissionsBitField,
 	User,
 } from 'discord.js';
 
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -74,7 +67,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let guildMember = interaction.guild.members.cache.get(member.id);
+		const guildMember = interaction.guild.members.cache.get(member.id);
 
 		if (member.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {

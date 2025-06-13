@@ -22,17 +22,11 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 	PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 import { SubCommand } from '../../../../types/command.js';
@@ -55,7 +49,7 @@ export const subCommand: SubCommand = {
 
 		tag_name = tag_name.trim();
 
-		let baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS`) as DatabaseStructure.GuildTagsStructure | undefined;
+		const baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS`) as DatabaseStructure.GuildTagsStructure | undefined;
 
 		if (!baseData?.storedTags?.[tag_name]) {
 			await client.func.method.interactionSend(interaction, {
@@ -65,10 +59,10 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let tag = baseData.storedTags[tag_name];
+		const tag = baseData.storedTags[tag_name];
 
 		// check administrator permission if is not allowed to use the tag
-		let is_in_wl = interaction.member.roles.cache.some(role => baseData.whitelist_use?.includes(role.id))
+		const is_in_wl = interaction.member.roles.cache.some(role => baseData.whitelist_use?.includes(role.id))
 
 		if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator) && !is_in_wl) {
 			await client.func.method.interactionSend(interaction, {
@@ -80,11 +74,11 @@ export const subCommand: SubCommand = {
 		}
 
 		// send the tag content
-		let embed = await client.db.get(`EMBED.${tag.embedId}`);
+		const embed = await client.db.get(`EMBED.${tag.embedId}`);
 
 		if (interaction.channel.isSendable()) {
 			if (message_id) {
-				let message = await interaction.channel.messages.fetch(message_id).catch(() => null);
+				const message = await interaction.channel.messages.fetch(message_id).catch(() => null);
 				if (message) {
 					await message.reply({
 						content: mention ? mention.toString() : baseData?.storedTags?.[tag_name].content || undefined,

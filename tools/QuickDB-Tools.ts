@@ -37,7 +37,7 @@ const mysql = new MySQLDriver({
 	password: 'password',
 });
 
-let tables_to_export = [
+const tables_to_export = [
 	'OWNIHRZ',
 	'OWNER',
 	'BLACKLIST',
@@ -61,20 +61,20 @@ const time_before = Date.now();
 
 	const db_mysql = new QuickDB({ driver: mysql });
 
-	for (let table of tables_to_export) {
-		var i = 0;
+	for (const table of tables_to_export) {
+		let i = 0;
 
 		await wait(1000);
 
 		// Creating the table if doesn't exist
 
-		let table_mysql = db_mysql.table(table);
+		const table_mysql = db_mysql.table(table);
 
 		logger.legacy(`[-]`.gray + ` Starting to export ${table} table !`.white);
 
-		let table_sqlite = db_sqlite.table(table);
+		const table_sqlite = db_sqlite.table(table);
 
-		let content = await table_sqlite.all();
+		const content = await table_sqlite.all();
 
 		for (const item of content) {
 			logger.legacy(`[+]`.green + ` (line:${i}) <${table}> `.gray + `${item.id}`.blue);

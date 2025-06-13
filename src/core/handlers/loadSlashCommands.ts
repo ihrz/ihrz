@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ApplicationCommandOptionType, Client, Collection } from 'discord.js';
+import { ApplicationCommandOptionType, Client } from 'discord.js';
 
 import { buildDirectoryTree, buildPaths } from '../handlerHelper.js';
-import { Command, SubCommand, SubCommandModule } from "../../../types/command.js";
+import { Command, SubCommandModule } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { fileURLToPath } from 'url';
 
@@ -34,8 +34,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function processOptions(options: Option[], category: string, parentName: string = "", client: Client) {
-	for (let option of options) {
-		let fullName = parentName ? `${parentName} ${option.name}` : option.name;
+	for (const option of options) {
+		const fullName = parentName ? `${parentName} ${option.name}` : option.name;
 
 		if (option.type === ApplicationCommandOptionType.Subcommand) {
 
@@ -57,15 +57,15 @@ async function processOptions(options: Option[], category: string, parentName: s
 	};
 };
 
-let p = path.join(__dirname, '..', '..', 'Interaction', 'SlashCommands');
+const p = path.join(__dirname, '..', '..', 'Interaction', 'SlashCommands');
 
 export default async function loadCommands(client: Client, path: string = p): Promise<void> {
 
-	let directoryTree = await buildDirectoryTree(path);
-	let paths = buildPaths(path, directoryTree);
+	const directoryTree = await buildDirectoryTree(path);
+	const paths = buildPaths(path, directoryTree);
 
-	var i = 0;
-	for (let path of paths) {
+	let i = 0;
+	for (const path of paths) {
 		if (!path.endsWith('.ts') && !path.endsWith('.json')) continue;
 
 		let module;

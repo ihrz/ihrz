@@ -20,7 +20,7 @@
 */
 
 import { CreateTicketChannel } from '../../../core/modules/ticketsManager.js';
-import { ButtonInteraction, CacheType } from 'discord.js';
+import { ButtonInteraction } from 'discord.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 

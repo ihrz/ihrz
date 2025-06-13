@@ -29,7 +29,6 @@ import { generatePassword } from '../../../core/functions/random.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -41,16 +40,16 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let discord_bot_token = interaction.options.getString('discord_bot_token') as string;
-		let bot_1 = (await client.ownihrz.Get_Bot(discord_bot_token).catch(() => { }))?.data || 404;
+		const discord_bot_token = interaction.options.getString('discord_bot_token') as string;
+		const bot_1 = (await client.ownihrz.Get_Bot(discord_bot_token).catch(() => { }))?.data || 404;
 
 		if (!bot_1.bot) {
 			await interaction.editReply({ content: lang.mybot_submit_token_invalid });
 			return;
 		} else {
-			var code = generatePassword({ length: 8, numbers: true })
+			const code = generatePassword({ length: 8, numbers: true })
 
-			var table_1 = client.db.table("TEMP");
+			const table_1 = client.db.table("TEMP");
 			await table_1.set(`OWNIHRZ.${interaction.user.id}.${code}`,
 				{
 					Auth: discord_bot_token,
@@ -66,14 +65,14 @@ export const subCommand: SubCommand = {
 				}
 			);
 
-			let utils_msg = lang.mybot_submit_utils_msg
+			const utils_msg = lang.mybot_submit_utils_msg
 				.replace('${bot_1.bot.id}', bot_1.bot.id)
 				.replace('${bot_1.bot.username}', bot_1.bot.username)
 				.replace("${bot_1.bot_public ? 'Yes' : 'No'}",
 					bot_1.bot_public ? lang.mybot_submit_utils_msg_yes : lang.mybot_submit_utils_msg_no
 				)
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor('#ff7f50')
 				.setTitle(lang.mybot_submit_embed_title
 					.replace('${bot_1.bot.username}', bot_1.bot.username)

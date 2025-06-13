@@ -21,16 +21,12 @@
 
 import {
 	Client,
-	EmbedBuilder,
-	PermissionsBitField,
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	GuildMember,
 	Message,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
@@ -51,7 +47,7 @@ export const subCommand: SubCommand = {
 			var warnID = client.func.method.longString(args!, 1)!;
 		};
 
-		let allWarns: DatabaseStructure.WarnsData[] | null = await client.db.get(`${interaction.guildId}.USER.${member?.id}.WARNS`);
+		const allWarns: DatabaseStructure.WarnsData[] | null = await client.db.get(`${interaction.guildId}.USER.${member?.id}.WARNS`);
 
 		if (!allWarns || allWarns.length === 0) {
 			await client.func.method.interactionSend(interaction, {

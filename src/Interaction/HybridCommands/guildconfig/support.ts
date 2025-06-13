@@ -21,19 +21,15 @@
 
 import {
 	Client,
-	EmbedBuilder,
 	PermissionsBitField,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
-	BaseGuildTextChannel,
 	ApplicationCommandType,
 	Message,
 	Role,
-	APIRole,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command.js';
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {

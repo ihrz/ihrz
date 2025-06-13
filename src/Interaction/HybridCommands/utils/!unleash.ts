@@ -21,24 +21,13 @@
 
 import {
 	Client,
-	ApplicationCommandOptionType,
-	EmbedBuilder,
-	PermissionsBitField,
 	ChatInputCommandInteraction,
-	ApplicationCommandType,
-	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions,
-	GuildMember,
-	GuildChannel,
-	VoiceBasedChannel
+	Message
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
 
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -54,7 +43,7 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0)!;
 		}
 
-		let fetchedData: DatabaseStructure.LeashData[] = await client.db.get(`${interaction.guildId}.UTILS.LEASH`);
+		const fetchedData: DatabaseStructure.LeashData[] = await client.db.get(`${interaction.guildId}.UTILS.LEASH`);
 
 		const pairingToRemove = fetchedData?.find(x =>
 			(x.dom === interaction.member?.user.id && x.sub === user.id)

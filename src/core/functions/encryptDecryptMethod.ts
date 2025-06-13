@@ -30,10 +30,10 @@ const IV_LENGTH = 16;
  * @returns The encrypted string
  */
 export function encrypt(k: string, text: string): string {
-	let key = crypto.createHash('sha256').update(k).digest();
+	const key = crypto.createHash('sha256').update(k).digest();
 
-	let iv = crypto.randomBytes(IV_LENGTH);
-	let cipher = crypto.createCipheriv(ALGORITHM, key, iv);
+	const iv = crypto.randomBytes(IV_LENGTH);
+	const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
 	let encrypted = cipher.update(text, 'utf8', 'hex');
 	encrypted += cipher.final('hex');
 	return iv.toString('hex') + ':' + encrypted;
@@ -46,12 +46,12 @@ export function encrypt(k: string, text: string): string {
  */
 export function decrypt(k: string, text: string): string | undefined {
 	try {
-		let key = crypto.createHash('sha256').update(k).digest();
+		const key = crypto.createHash('sha256').update(k).digest();
 
-		let textParts = text.split(':');
-		let iv = Buffer.from(textParts.shift()!, 'hex');
-		let encryptedText = textParts.join(':');
-		let decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+		const textParts = text.split(':');
+		const iv = Buffer.from(textParts.shift()!, 'hex');
+		const encryptedText = textParts.join(':');
+		const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
 		let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
 		decrypted += decipher.final('utf8');
 		return decrypted;

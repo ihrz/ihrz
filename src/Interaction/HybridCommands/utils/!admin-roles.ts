@@ -21,7 +21,6 @@
 
 import {
 	ActionRowBuilder,
-	ApplicationCommandType,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
@@ -29,12 +28,10 @@ import {
 	EmbedBuilder,
 	Message,
 	PermissionFlagsBits,
-	PermissionsBitField,
-	Role
+	PermissionsBitField
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -46,7 +43,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let all_admin_roles = Array.from(interaction.guild.roles.cache
+		const all_admin_roles = Array.from(interaction.guild.roles.cache
 			.filter(x => x.permissions.has(PermissionFlagsBits.Administrator))
 			.values()
 		) || [];
@@ -57,12 +54,12 @@ export const subCommand: SubCommand = {
 		};
 
 		let currentPage = 0;
-		let rolesPerPage = 5;
-		let pages: { title: string; description: string; }[] = [];
+		const rolesPerPage = 5;
+		const pages: { title: string; description: string; }[] = [];
 
 		for (let i = 0; i < all_admin_roles.length; i += rolesPerPage) {
-			let pageRoles = all_admin_roles.slice(i, i + rolesPerPage);
-			let pageContent = pageRoles.map((role) => {
+			const pageRoles = all_admin_roles.slice(i, i + rolesPerPage);
+			const pageContent = pageRoles.map((role) => {
 				// Add a bot emoji for managed roles
 				return role.managed ? `${role} 🤖 (BOT)` : `${role}`;
 			}).join('\n');
@@ -73,7 +70,7 @@ export const subCommand: SubCommand = {
 			});
 		};
 
-		let createEmbed = () => {
+		const createEmbed = () => {
 			return new EmbedBuilder()
 				.setColor("#000000")
 				.setTitle(pages[currentPage].title)
@@ -87,7 +84,7 @@ export const subCommand: SubCommand = {
 				.setTimestamp()
 		};
 
-		let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
 				.setCustomId('previousPage')
 				.setLabel('<<')
@@ -103,13 +100,13 @@ export const subCommand: SubCommand = {
 				.setStyle(ButtonStyle.Danger)
 		);
 
-		let messageEmbed = await client.func.method.interactionSend(interaction, {
+		const messageEmbed = await client.func.method.interactionSend(interaction, {
 			embeds: [createEmbed()],
 			components: [row],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
 
-		let collector = messageEmbed.createMessageComponentCollector({
+		const collector = messageEmbed.createMessageComponentCollector({
 			time: 1_60_000
 		});
 
@@ -136,12 +133,12 @@ export const subCommand: SubCommand = {
 					let bad = 0;
 
 					await interaction_2.deferUpdate();
-					let to_remove_admin_roles = all_admin_roles;
+					const to_remove_admin_roles = all_admin_roles;
 
-					for (let role of to_remove_admin_roles) {
+					for (const role of to_remove_admin_roles) {
 						try {
 							// Create new permissions without Administrator
-							let newPermissions = new PermissionsBitField(role.permissions);
+							const newPermissions = new PermissionsBitField(role.permissions);
 							newPermissions.remove(PermissionFlagsBits.Administrator);
 
 							await role.setPermissions(newPermissions, `[AdminRoles] removing admin permission from role`);
@@ -151,7 +148,7 @@ export const subCommand: SubCommand = {
 						}
 					}
 
-					let embed = new EmbedBuilder()
+					const embed = new EmbedBuilder()
 						.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 						.setColor('#007fff')
 						.setTimestamp()

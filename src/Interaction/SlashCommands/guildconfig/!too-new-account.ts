@@ -20,11 +20,8 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -37,9 +34,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let action = interaction.options.getString('action') as string;
-		let maximumDate = interaction.options.getString('minimum-date');
-		let maximumJoin = interaction.options.getNumber("maximum-join") || 3;
+		const action = interaction.options.getString('action') as string;
+		const maximumDate = interaction.options.getString('minimum-date');
+		const maximumJoin = interaction.options.getNumber("maximum-join") || 3;
 
 		if (action === 'on') {
 			if (!maximumDate) {
@@ -49,7 +46,7 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			let calculatedTime = client.timeCalculator.to_ms(maximumDate);
+			const calculatedTime = client.timeCalculator.to_ms(maximumDate);
 			if (!calculatedTime) {
 				await interaction.editReply({
 					content: lang.too_new_account_invalid_time_on_enable
@@ -57,7 +54,7 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			let beautifulTime = client.timeCalculator.to_beautiful_string(calculatedTime, lang);
+			const beautifulTime = client.timeCalculator.to_beautiful_string(calculatedTime, lang);
 
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.too_new_account_logEmbed_title,

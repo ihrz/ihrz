@@ -27,7 +27,6 @@ import {
 } from 'discord.js';
 import { format } from '../../../core/functions/date_and_time.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { Custom_iHorizon } from '../../../../types/ownihrz.js';
 
@@ -37,7 +36,7 @@ async function generateBotHTML(
 	bot: any,
 	lang: LanguageData
 ): Promise<string> {
-	let htmlContent = client.htmlfiles['botProfileCard'];
+	const htmlContent = client.htmlfiles['botProfileCard'];
 
 	const PowerOff = data.PowerOff ? false : true;
 	const accentColor = PowerOff ? '#23a559' : '#f23f43';
@@ -64,7 +63,7 @@ async function buildEmbed(
 	lang: LanguageData,
 	interaction: ChatInputCommandInteraction
 ): Promise<{ embed: EmbedBuilder; attachment: AttachmentBuilder }> {
-	let bot = (await client.ownihrz.Get_Bot(data.Auth).catch(() => { }))?.data || 404;
+	const bot = (await client.ownihrz.Get_Bot(data.Auth).catch(() => { }))?.data || 404;
 
 	const htmlContent = await generateBotHTML(client, data, bot, lang);
 
@@ -75,7 +74,7 @@ async function buildEmbed(
 	});
 	const attachment = new AttachmentBuilder(image, { name: `bot-${data.Bot.Id}.png` });
 
-	let expire = format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
+	const expire = format(new Date(data.ExpireIn), 'ddd, MMM DD YYYY');
 	const embed = new EmbedBuilder()
 		.setColor('#ff7f50')
 		.setDescription(lang.mybot_list_embed1_desc
@@ -97,11 +96,11 @@ export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let table_1 = client.db.table("OWNIHRZ");
-		let data_2 = await table_1.get(`MAIN.${interaction.user.id}`);
-		let allData = await table_1.get("CLUSTER");
+		const table_1 = client.db.table("OWNIHRZ");
+		const data_2 = await table_1.get(`MAIN.${interaction.user.id}`);
+		const allData = await table_1.get("CLUSTER");
 
-		let embeds: EmbedBuilder[] = [
+		const embeds: EmbedBuilder[] = [
 			new EmbedBuilder()
 				.setTitle(lang.mybot_list_embed0_title)
 				.setColor('#000000')
@@ -109,9 +108,9 @@ export const subCommand: SubCommand = {
 				.setTimestamp()
 		];
 
-		let attachments: AttachmentBuilder[] = [];
+		const attachments: AttachmentBuilder[] = [];
 
-		for (let botId in data_2) {
+		for (const botId in data_2) {
 			if (data_2[botId]) {
 				const { embed, attachment } = await buildEmbed(
 					client,
@@ -125,7 +124,7 @@ export const subCommand: SubCommand = {
 		}
 
 		if (allData && allData[interaction.user.id]) {
-			for (let botId in allData[interaction.user.id]) {
+			for (const botId in allData[interaction.user.id]) {
 				const { embed, attachment } = await buildEmbed(
 					client,
 					allData[interaction.user.id][botId],

@@ -127,8 +127,8 @@ export async function main(client: Client) {
 	assetsCalc(client);
 	playerManager(client);
 
-	let handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-	let handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));
+	const handlerPath = path.join(__dirname, '..', 'core', 'handlers');
+	const handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));
 
 	for (const file of handlerFiles) {
 		const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
@@ -158,7 +158,7 @@ export async function main(client: Client) {
 };
 
 export function dataInitializer() {
-	let baseData: InitData = {
+	const baseData: InitData = {
 		initialized_timestamp: Date.now(),
 		_cache: {
 			version: getCacheStorage()?._cache.version || version,

@@ -20,11 +20,8 @@
 */
 
 import {
-	Client,
 	ApplicationCommandOptionType,
-	ChatInputCommandInteraction,
 	ApplicationCommandType,
-	Message,
 	GuildMember,
 	PermissionFlagsBits,
 } from "discord.js";
@@ -49,17 +46,17 @@ export function generateRoleFields(
 
 export async function getMemberBoost(member: GuildMember): Promise<number> {
 	try {
-		let economyConfig = (await member.guild.client.db.get(
+		const economyConfig = (await member.guild.client.db.get(
 			`${member.guild.id}.ECONOMY`,
 		)) as DatabaseStructure.EconomyModel;
 
 		// get the roles that the user has
-		let role = Object.entries(economyConfig?.buyableRoles || [])
+		const role = Object.entries(economyConfig?.buyableRoles || [])
 			.filter(([roleID]) => member?.roles.cache.has(roleID))
 			.map(([roleID]) => roleID);
 
 		// get the role with the highest boost
-		let highestBoost = role
+		const highestBoost = role
 			.map((r) => economyConfig?.buyableRoles?.[r]?.boost ?? 0)
 			.sort((a, b) => b - a)[0];
 

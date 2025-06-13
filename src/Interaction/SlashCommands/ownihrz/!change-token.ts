@@ -30,7 +30,6 @@ import { Custom_iHorizon } from '../../../../types/ownihrz.js';
 
 import logger from '../../../core/logger.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -42,33 +41,33 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let botId = interaction.options.getString('bot_code')!;
-		let newToken = interaction.options.getString('new_discord_bot_token')!;
-		let tempTable = client.db.table('TEMP');
-		let table = client.db.table('OWNIHRZ');
+		const botId = interaction.options.getString('bot_code')!;
+		const newToken = interaction.options.getString('new_discord_bot_token')!;
+		const tempTable = client.db.table('TEMP');
+		const table = client.db.table('OWNIHRZ');
 
-		let allData = await table.get("CLUSTER");
+		const allData = await table.get("CLUSTER");
 
-		let timeout: number = 3600000;
-		let executingBefore = await tempTable.get(`OWNIHRZ_CHANGE_TOKEN.${interaction.user.id}.timeout`);
+		const timeout: number = 3600000;
+		const executingBefore = await tempTable.get(`OWNIHRZ_CHANGE_TOKEN.${interaction.user.id}.timeout`);
 
 		if (executingBefore !== null && timeout - (Date.now() - executingBefore) > 0) {
-			let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - executingBefore), lang);
+			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - executingBefore), lang);
 
 			await client.func.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
 			return;
 		};
 
 		function getData() {
-			for (let ownerId in allData) {
-				for (let bot_id in allData[ownerId]) {
+			for (const ownerId in allData) {
+				for (const bot_id in allData[ownerId]) {
 					if (bot_id !== botId) continue;
 					return allData[ownerId][botId];
 				}
 			}
 		}
 
-		let id_2 = getData() as Custom_iHorizon;
+		const id_2 = getData() as Custom_iHorizon;
 
 		if (!id_2) {
 			await client.func.method.interactionSend(interaction, { content: lang.mybot_manage_accept_not_found });
@@ -80,16 +79,16 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let bot_1 = (await client.ownihrz.Get_Bot(newToken).catch(() => { }))?.data || 404
+		const bot_1 = (await client.ownihrz.Get_Bot(newToken).catch(() => { }))?.data || 404
 
-		let utils_msg = lang.mybot_manage_accept_utils_msg
+		const utils_msg = lang.mybot_manage_accept_utils_msg
 			.replace('${bot_1.bot.id}', bot_1.bot.id)
 			.replace('${bot_1.bot.username}', bot_1.bot.username)
 			.replace("${bot_1.bot_public ? 'Yes' : 'No'}",
 				bot_1.bot_public ? lang.mybot_manage_accept_utiis_yes : lang.mybot_manage_accept_utils_no
 			);
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor('#ff7f50')
 			.setTitle(lang.mybot_manage_accept_embed_title
 				.replace('${bot_1.bot.username}', bot_1.bot.username)

@@ -27,11 +27,11 @@ export const event: BotEvent = {
 	name: "userUpdate",
 	run: async (client: Client, oldUser: User) => {
 
-		var newUser = await client.users.fetch(oldUser.id);
+		const newUser = await client.users.fetch(oldUser.id);
 
-		let oldUsertag = oldUser.username;
-		let oldUserGlbl = oldUser.globalName || oldUser.displayName;
-		let table = client.db.table("PREVNAMES");
+		const oldUsertag = oldUser.username;
+		const oldUserGlbl = oldUser.globalName || oldUser.displayName;
+		const table = client.db.table("PREVNAMES");
 
 		if (!oldUser) return;
 

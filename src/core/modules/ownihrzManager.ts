@@ -57,7 +57,7 @@ class OwnIHRZ {
 		expireTime: number,
 		notificationType: "1h" | "1d" | "3d"
 	): Promise<void> {
-		var message = `📌  __**Your bot soon expire**__
+		const message = `📌  __**Your bot soon expire**__
 
 > Bot: <@${botId}>
 > Expire in: **${time(new Date(expireTime), "R")}**
@@ -206,16 +206,16 @@ class OwnIHRZ {
 	}
 
 	async Startup_Container() {
-		var table_1 = this.client.db.table("OWNIHRZ");
+		const table_1 = this.client.db.table("OWNIHRZ");
 
 		(await table_1.all()).forEach(async owner_one => {
-			var cluster_ownihrz = owner_one.value;
+			const cluster_ownihrz = owner_one.value;
 
-			for (let owner_id in cluster_ownihrz) {
-				for (let bot_id in cluster_ownihrz[owner_id]) {
+			for (const owner_id in cluster_ownihrz) {
+				for (const bot_id in cluster_ownihrz[owner_id]) {
 					if (cluster_ownihrz[owner_id][bot_id].PowerOff || !cluster_ownihrz[owner_id][bot_id].Code) continue;
 
-					let response = await axios.get(
+					const response = await axios.get(
 						OwnIhrzCluster({
 							cluster_method: ClusterMethod.StartupContainer,
 							cluster_number: parseInt(cluster_ownihrz[owner_id][bot_id].Cluster),
@@ -366,8 +366,8 @@ class OwnIHRZ {
 	}
 
 	async GetOwnersList() {
-		let ownihrzTable = this.client.db.table("OWNIHRZ");
-		let ownihrzData = await ownihrzTable.get("CLUSTER") as BotCollection;
+		const ownihrzTable = this.client.db.table("OWNIHRZ");
+		const ownihrzData = await ownihrzTable.get("CLUSTER") as BotCollection;
 
 		const owners: string[] = [];
 

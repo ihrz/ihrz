@@ -28,7 +28,7 @@ export const event: BotEvent = {
 
 		if (!message.guild || message.author.bot || !message.channel) return;
 
-		let baseData = await client.db.get(`${message.guildId}.ALLOWLIST`);
+		const baseData = await client.db.get(`${message.guildId}.ALLOWLIST`);
 
 		if (!baseData) {
 			await client.db.set(`${message.guildId}.ALLOWLIST`,

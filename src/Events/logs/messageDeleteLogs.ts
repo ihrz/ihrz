@@ -23,25 +23,24 @@ import { Attachment, AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuild
 import { AxiosResponse, axios } from '../../core/functions/axios.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
 	name: "messageDelete",
 	run: async (client: Client, message: Message) => {
 
-		let data = await client.func.getLanguageData(message.guildId);
+		const data = await client.func.getLanguageData(message.guildId);
 		if (!message.guild || !message.author
 			|| message.author.id == client.user?.id) return;
 
-		let someinfo = await client.db.get(`${message.guild.id}.GUILD.SERVER_LOGS.message`);
+		const someinfo = await client.db.get(`${message.guild.id}.GUILD.SERVER_LOGS.message`);
 		if (!someinfo) return;
 
-		let Msgchannel = message.guild.channels.cache.get(someinfo);
+		const Msgchannel = message.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
-		let iconURL = message.author.displayAvatarURL();
-		let saves_emb: EmbedBuilder[] = [];
-		let logsEmbed = new EmbedBuilder()
+		const iconURL = message.author.displayAvatarURL();
+		const saves_emb: EmbedBuilder[] = [];
+		const logsEmbed = new EmbedBuilder()
 			.setColor("#000000")
 			.setAuthor({
 				name: message.author.username,
@@ -54,20 +53,20 @@ export const event: BotEvent = {
 			.setTimestamp();
 
 		if (message.attachments.size >= 1) {
-			let attachments = message.attachments;
-			let attachment = attachments.first();
+			const attachments = message.attachments;
+			const attachment = attachments.first();
 			if (!attachment || !attachment.contentType) return;
 
 			if (attachments.size >= 2) {
-				let files: AttachmentBuilder[] = [];
+				const files: AttachmentBuilder[] = [];
 
 				async function getFile(file: Attachment) {
-					let response = await axios.get(file['attachment'] as string, { responseType: 'arrayBuffer' });
-					let attachment = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: file?.name });
+					const response = await axios.get(file['attachment'] as string, { responseType: 'arrayBuffer' });
+					const attachment = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: file?.name });
 					files.push(attachment);
 				}
 
-				let filePromises = attachments.map(async (file) => {
+				const filePromises = attachments.map(async (file) => {
 					await getFile(file);
 				});
 
@@ -96,7 +95,7 @@ export const event: BotEvent = {
 				return;
 			}
 		} else if (message.embeds) {
-			for (let embed in message.embeds) {
+			for (const embed in message.embeds) {
 				saves_emb.push(EmbedBuilder.from(message.embeds[embed]))
 			}
 		}

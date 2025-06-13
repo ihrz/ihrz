@@ -21,7 +21,7 @@
 
 import { readFileSync } from "fs";
 
-let pkg = JSON.parse(readFileSync(process.cwd() + "/package.json", 'utf-8'));
+const pkg = JSON.parse(readFileSync(process.cwd() + "/package.json", 'utf-8'));
 
 type Env = "ownihrz" | "dev" | "production";
 

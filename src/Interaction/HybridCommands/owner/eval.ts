@@ -27,7 +27,6 @@ import {
 	ApplicationCommandType,
 	Message,
 	GuildMember,
-	PermissionFlagsBits,
 	time,
 } from 'discord.js'
 
@@ -119,7 +118,7 @@ export const command: Command = {
 
 			await customEval(interaction, client, time, code);
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor("#468468")
 				.setTitle("This block was evalued with iHorizon.")
 				.setDescription(`\`\`\`JS\n${code || "None"}\n\`\`\``)

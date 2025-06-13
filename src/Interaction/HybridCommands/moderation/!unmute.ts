@@ -21,17 +21,13 @@
 
 import {
 	Client,
-	EmbedBuilder,
 	PermissionsBitField,
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	GuildMember,
 	Message,
 } from 'discord.js';
 
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';

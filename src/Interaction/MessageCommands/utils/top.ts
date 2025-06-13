@@ -20,12 +20,8 @@
 */
 
 import {
-	BaseGuildTextChannel,
-	ChannelType,
 	Client,
-	EmbedBuilder,
 	Message,
-	time,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -49,10 +45,10 @@ export const command: Command = {
 
 	category: "utils",
 	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
-		let channel = message.channel;
+		const channel = message.channel;
 		channel.messages.fetch({ after: "0", limit: 1 }).then((messages) => {
-			let firstMessage = messages.first();
-			let link = `https://discord.com/channels/${message.guild?.id}/${channel.id}`;
+			const firstMessage = messages.first();
+			const link = `https://discord.com/channels/${message.guild?.id}/${channel.id}`;
 
 			if (firstMessage) {
 				client.func.method.channelSend(

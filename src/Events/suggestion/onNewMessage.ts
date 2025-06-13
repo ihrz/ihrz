@@ -36,18 +36,18 @@ export const event: BotEvent = {
 
 		if (!message.guild || message.author.bot || !message.channel) return;
 
-		let data = await client.func.getLanguageData(message.guild.id);
+		const data = await client.func.getLanguageData(message.guild.id);
 
-		let baseData = await client.db.get(`${message.guildId}.SUGGEST`);
+		const baseData = await client.db.get(`${message.guildId}.SUGGEST`);
 
 		if (!baseData
 			|| baseData?.channel !== message.channel.id
 			|| baseData?.disable) return;
 
-		let suggestionContent = '```' + message.content + '```';
-		var suggestCode = generatePassword({ length: 12 });
+		const suggestionContent = '```' + message.content + '```';
+		const suggestCode = generatePassword({ length: 12 });
 
-		let suggestionEmbed = new EmbedBuilder()
+		const suggestionEmbed = new EmbedBuilder()
 			.setColor('#4000ff')
 			.setTitle(`#${suggestCode}`)
 			.setAuthor({
@@ -62,10 +62,10 @@ export const event: BotEvent = {
 
 		message.delete();
 
-		let args = message.content.split(' ');
+		const args = message.content.split(' ');
 		if (args.length < 5) return;
 
-		let msg = await client.func.method.channelSend(message, {
+		const msg = await client.func.method.channelSend(message, {
 			content: message.author.toString(),
 			embeds: [suggestionEmbed],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(message)],
