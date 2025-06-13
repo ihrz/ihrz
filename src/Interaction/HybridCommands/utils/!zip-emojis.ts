@@ -30,7 +30,7 @@ import {
 	Message,
 	PermissionsBitField
 } from 'discord.js';
-import archiver from 'archiver';
+import JSZip from 'jszip';
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
 
@@ -48,43 +48,10 @@ export const subCommand: SubCommand = {
 		if (!interaction.guild) return;
 
 		const emojis = interaction.guild.emojis.cache;
+		const zip = new JSZip();
 
-		return new Promise<void>((resolve, reject) => {
-			const archive = archiver('zip', { zlib: { level: 9 } });
-			const chunks: Buffer[] = [];
-
-			archive.on('data', (chunk) => {
-				chunks.push(chunk);
-			});
-
-			archive.on('end', async () => {
-				const archiveBuffer = Buffer.concat(chunks);
-				let calcTime = Date.now() - time;
-				try {
-					await client.func.method.interactionSend(interaction, {
-						content: lang.zip_emojis_command_work
-							.replace("${calcTime}", String(calcTime))
-							.replace("${emojis.size}", String(emojis.size)),
-						files: [{
-							attachment: archiveBuffer,
-							name: 'server_emojis.zip'
-						}],
-						flags: [1 << 6]
-					});
-					resolve();
-				} catch (error) {
-					await client.func.method.interactionSend(interaction, {
-						content: lang.zip_emojis_command_error,
-						flags: [1 << 6]
-					});
-					reject(error);
-				}
-			});
-
-			archive.on('error', (err) => {
-				reject(err);
-			});
-
+		try {
+			// Download and add all emojis to the zip
 			const downloadPromises = Array.from(emojis.values()).map(async (emoji) => {
 				try {
 					const emojiName = `${emoji.name}_${emoji.id}${emoji.animated ? '.gif' : '.png'}`;
@@ -98,14 +65,44 @@ export const subCommand: SubCommand = {
 						responseType: 'arrayBuffer'
 					});
 
-					archive.append(Buffer.from(response.data), { name: emojiName });
+					zip.file(emojiName, Buffer.from(response.data));
 				} catch {
+					// Silently handle individual emoji errors
 				}
 			});
 
-			Promise.all(downloadPromises)
-				.then(() => archive.finalize())
-				.catch(reject);
-		});
+			// Wait for all downloads to complete
+			await Promise.all(downloadPromises);
+
+			// Generate the zip file with high compression
+			const archiveBuffer = await zip.generateAsync({ 
+				type: 'nodebuffer',
+				compression: 'DEFLATE',
+				compressionOptions: {
+					level: 9
+				}
+			});
+
+			// Calculate time taken
+			let calcTime = Date.now() - time;
+
+			// Send the zip file
+			await client.func.method.interactionSend(interaction, {
+				content: lang.zip_emojis_command_work
+					.replace("${calcTime}", String(calcTime))
+					.replace("${emojis.size}", String(emojis.size)),
+				files: [{
+					attachment: archiveBuffer,
+					name: 'server_emojis.zip'
+				}],
+				flags: [1 << 6]
+			});
+
+		} catch (error) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.zip_emojis_command_error,
+				flags: [1 << 6]
+			});
+		}
 	}
 };

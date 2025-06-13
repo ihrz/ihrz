@@ -20,18 +20,11 @@
 */
 
 import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-
-import backup from "discord-rebackup";
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 

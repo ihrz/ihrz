@@ -20,20 +20,14 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 } from 'discord.js';
 
 
-import logger from '../../../core/logger.js';
 import backup from 'discord-rebackup';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {

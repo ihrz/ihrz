@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
 						.setTitle(response?.title || lang.lyrics_embed_title_unknown)
 						.setURL(response?.url!)
 						.setTimestamp()
-						.setThumbnail(response?.image!)
+						.setThumbnail(response?.artist.image || response?.image!)
 						.setAuthor({
 							name: response?.artist.name || lang.lyrics_embed_author_name_unknown,
 						})

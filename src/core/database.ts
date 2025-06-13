@@ -20,8 +20,6 @@
 */
 
 import { MemoryDriver, QuickDB, JSONDriver } from 'quick.db';
-import ansiEscapes from 'ansi-escapes';
-import mysql from 'mysql2/promise.js';
 import { PallasDB } from 'pallas-db';
 import { BunDB } from 'bun.db';
 import { setInterval } from 'timers';
@@ -38,24 +36,10 @@ let dbInstance: db | null = null;
 const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
 const readOnlyTables = ["AUTHRESTORE", "OWNIHRZ", 'API'];
 
-async function isReachable(database: ConfigData['database']): Promise<boolean> {
-	let connection;
-	try {
-		connection = await mysql.createConnection(database?.mySQL!);
-		await connection.end();
-		return true;
-	} catch (error) {
-		return false;
-	} finally {
-		if (connection && connection.end) {
-			await connection.end();
-		}
-	}
-};
 
 const overwriteLastLine = (message: string) => {
-	process.stdout.write(ansiEscapes.eraseLine);
-	process.stdout.write(ansiEscapes.cursorLeft);
+	process.stdout.write('\u001B[2K');
+	process.stdout.write('\u001B[G');
 	process.stdout.write(message);
 };
 
