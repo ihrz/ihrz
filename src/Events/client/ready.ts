@@ -184,7 +184,6 @@ export const event: BotEvent = {
 		await recoverActiveSessions(client);
 		await client.memberCountManager.init();
 		await client.autoRenewManager.init();
-		await client.emojisManager.startSync();
 		let initData = getCacheStorage();
 
 		const oldV = initData?._cache.version;
