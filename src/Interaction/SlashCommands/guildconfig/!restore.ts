@@ -21,13 +21,10 @@
 
 import {
 	Client,
-	PermissionsBitField,
 	ChatInputCommandInteraction,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { axios } from '../../../core/functions/axios.js';
 
-import { Command } from '../../../../types/command.js';
 
 import { decrypt } from '../../../core/functions/encryptDecryptMethod.js';
 
@@ -42,12 +39,12 @@ export const subCommand: SubCommand = {
 
 
 
-		let backup = interaction.options.getAttachment("backup-to-load");
+		const backup = interaction.options.getAttachment("backup-to-load");
 
 		if (backup) {
 			try {
 				const response = await fetch(backup.url);
-				let res = JSON.parse(decrypt(client.config.api.apiToken, await response.text()) || "{}");
+				const res = JSON.parse(decrypt(client.config.api.apiToken, await response.text()) || "{}");
 				if (!res) throw "";
 
 				await client.db.set(`${interaction.guildId}`, res);

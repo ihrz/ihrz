@@ -20,30 +20,23 @@
 */
 
 import {
-	BaseGuildTextChannel,
-	Channel,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	Message,
 	PermissionsBitField,
-	User,
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
 	RoleSelectMenuBuilder,
-	ModalBuilder,
-	TextInputBuilder,
 	TextInputStyle,
 	ComponentType,
 	Colors,
 	Role,
-	GuildTextChannelType,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
@@ -55,7 +48,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let ranksConfig = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING`) || {
+		const ranksConfig = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING`) || {
 			message: '',
 			disabled: false,
 			ranksRoles: {},
@@ -77,9 +70,9 @@ export const subCommand: SubCommand = {
 			const startIndex = page * itemsPerPage;
 			const pageRoles = roleEntries.slice(startIndex, startIndex + itemsPerPage);
 
-			let currentPage = page + 1;
-			let totalPage = Math.max(1, Math.ceil(roleEntries.length / itemsPerPage));
-			let totalRanks = roleEntries.length;
+			const currentPage = page + 1;
+			const totalPage = Math.max(1, Math.ceil(roleEntries.length / itemsPerPage));
+			const totalRanks = roleEntries.length;
 
 			const embed = new EmbedBuilder()
 				.setColor(Colors.Blurple)
@@ -216,7 +209,7 @@ export const subCommand: SubCommand = {
 							.setPlaceholder(lang.ranks_config_add_role_menu_placeholder)
 					);
 
-				let awaiting = await interaction2.update({
+				const awaiting = await interaction2.update({
 					content: lang.ranks_config_awaiting1_response,
 					components: [roleSelectRow, createReturnRow()]
 				});
@@ -239,8 +232,8 @@ export const subCommand: SubCommand = {
 				const selectedRole = response1.roles.first();
 				if (!selectedRole) return;
 
-				let rolePermissions = new PermissionsBitField((selectedRole as Role).permissions);
-				let roleDangerousPermissions: string[] = [];
+				const rolePermissions = new PermissionsBitField((selectedRole as Role).permissions);
+				const roleDangerousPermissions: string[] = [];
 
 				for (const perm of client.func.method.getDangerousPermissions(lang)) {
 					if (rolePermissions.has(perm.flag)) {
@@ -312,7 +305,7 @@ export const subCommand: SubCommand = {
 					});
 
 					if (roleDangerousPermissions.length > 0) {
-						let _ = roleDangerousPermissions.join('\n');
+						const _ = roleDangerousPermissions.join('\n');
 						await response1.followUp({
 							content: lang.ranks_config_add_command_warn
 								.replace("${selectedRole}", selectedRole.toString())
@@ -357,7 +350,7 @@ export const subCommand: SubCommand = {
 							.addOptions(roleOptions)
 					);
 
-				let awaiting = await interaction2.update({
+				const awaiting = await interaction2.update({
 					content: lang.ranks_config_remove_awaiting_response,
 					components: [removeRoleRow, createReturnRow()]
 				});

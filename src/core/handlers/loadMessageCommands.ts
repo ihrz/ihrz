@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, Collection } from 'discord.js';
+import { Client } from 'discord.js';
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
@@ -38,9 +38,9 @@ export interface CommandModule {
 }
 
 async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
-	let result = [];
-	let dir = await opendir(path);
-	for await (let dirent of dir) {
+	const result = [];
+	const dir = await opendir(path);
+	for await (const dirent of dir) {
 		if (!dirent.name.startsWith('!')) {
 			if (dirent.isDirectory()) {
 				result.push({ name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name)) });
@@ -53,11 +53,11 @@ async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
 };
 
 function buildPaths(basePath: string, directoryTree: (string | object)[]): string[] {
-	let paths = [];
-	for (let elt of directoryTree) {
+	const paths = [];
+	for (const elt of directoryTree) {
 		switch (typeof elt) {
 			case "object":
-				for (let subElt of buildPaths((elt as EltType).name, (elt as EltType).sub)) {
+				for (const subElt of buildPaths((elt as EltType).name, (elt as EltType).sub)) {
 					paths.push(pathJoin(basePath, subElt));
 				}
 				break;
@@ -71,19 +71,19 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
 	return paths;
 };
 
-let p = path.join(__dirname, '..', '..', 'Interaction', 'MessageCommands');
+const p = path.join(__dirname, '..', '..', 'Interaction', 'MessageCommands');
 
 async function loadCommands(client: Client, path: string = p): Promise<void> {
 
-	let directoryTree = await buildDirectoryTree(path);
-	let paths = buildPaths(path, directoryTree);
+	const directoryTree = await buildDirectoryTree(path);
+	const paths = buildPaths(path, directoryTree);
 
-	var i = 0;
-	for (let path of paths) {
+	let i = 0;
+	for (const path of paths) {
 		if (!path.endsWith('.ts')) continue;
 		i++;
 
-		let { command } = await import(path) as CommandModule; if (!command) continue;
+		const { command } = await import(path) as CommandModule; if (!command) continue;
 
 		client.content.push(
 			{
@@ -99,7 +99,7 @@ async function loadCommands(client: Client, path: string = p): Promise<void> {
 
 		client.message_commands.set(command.name, command); if (!command?.aliases) continue;
 
-		for (let aliases of command.aliases) {
+		for (const aliases of command.aliases) {
 			client.message_commands.set(aliases, command);
 		}
 	};

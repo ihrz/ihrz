@@ -19,8 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { AnotherCommand } from '../../../types/anotherCommand.js';
-import { Client, Collection } from 'discord.js';
+import { Client } from 'discord.js';
 
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -31,13 +30,13 @@ const __dirname = path.dirname(__filename);
 
 export default async (client: Client) => {
 
-	let loadCommands = async (commandType: string) => {
-		let commandPath = path.join(__dirname, '..', '..', 'Interaction', commandType + 'ApplicationCommands');
+	const loadCommands = async (commandType: string) => {
+		const commandPath = path.join(__dirname, '..', '..', 'Interaction', commandType + 'ApplicationCommands');
 
-		let files = await readdir(commandPath);
+		const files = await readdir(commandPath);
 
-		for (let file of files.filter((file: string) => file.endsWith('.ts'))) {
-			let { command } = await import(`${commandPath}/${file}`);
+		for (const file of files.filter((file: string) => file.endsWith('.ts'))) {
+			const { command } = await import(`${commandPath}/${file}`);
 
 			client.applicationsCommands.set(command.name, {
 				type: command.type,

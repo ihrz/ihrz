@@ -22,8 +22,6 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildMember,
 	User,
 } from 'discord.js';
 
@@ -38,8 +36,8 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let baseData: DatabaseStructure.AllowListData = await client.db.get(`${interaction.guildId}.ALLOWLIST`) || { enable: false, list: [] };
-		let member = interaction.options.getUser('member') as User;
+		const baseData: DatabaseStructure.AllowListData = await client.db.get(`${interaction.guildId}.ALLOWLIST`) || { enable: false, list: [] };
+		const member = interaction.options.getUser('member') as User;
 
 		if (interaction.user.id !== interaction.guild.ownerId) {
 			await interaction.reply({ content: lang.allowlist_delete_not_owner });

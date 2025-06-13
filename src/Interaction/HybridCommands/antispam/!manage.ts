@@ -28,11 +28,7 @@ import {
 	Client,
 	ComponentType,
 	EmbedBuilder,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
-	PermissionsBitField,
 	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
 	StringSelectMenuOptionBuilder,
@@ -42,7 +38,6 @@ import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { AntiSpam } from '../../../../types/antispam.js';
-import { Command } from '../../../../types/command.js';
 
 
 type AntiSpamOptionKey = keyof AntiSpam.AntiSpamOptions;
@@ -177,7 +172,7 @@ export const subCommand: SubCommand = {
 
 		choices.forEach((content, x) => {
 			let value: string = '';
-			let inDb = baseData?.[content.value as AntiSpamOptionKey];
+			const inDb = baseData?.[content.value as AntiSpamOptionKey];
 
 			switch (content.type) {
 				case 'boolean':
@@ -188,7 +183,7 @@ export const subCommand: SubCommand = {
 						if (content.wantedValueType === 'number') {
 							value = inDb.toString()
 						} else if (content.wantedValueType === 'time') {
-							let beautifulTime = client.timeCalculator.to_beautiful_string(inDb.toString() + 'ms', lang);
+							const beautifulTime = client.timeCalculator.to_beautiful_string(inDb.toString() + 'ms', lang);
 
 							if (!beautifulTime) {
 								value = '⏲️ ' + lang.setjoinroles_var_none
@@ -347,11 +342,11 @@ export const subCommand: SubCommand = {
 				return;
 			};
 
-			let value = i.values[0];
-			let choicesGet = choices.find(x => x.value === value);
+			const value = i.values[0];
+			const choicesGet = choices.find(x => x.value === value);
 
 			if (choicesGet?.componentType === 'modal') {
-				let result = await iHorizonModalResolve({
+				const result = await iHorizonModalResolve({
 					customId: 'antispam-modal-config',
 					title: lang.antispam_manage_modal_title,
 					deferUpdate: false,
@@ -369,7 +364,7 @@ export const subCommand: SubCommand = {
 
 				if (!result) return;
 
-				let resultModal = result.fields.getTextInputValue(value).replace(",", ".");
+				const resultModal = result.fields.getTextInputValue(value).replace(",", ".");
 
 				if (choicesGet.wantedValueType === 'time') {
 					const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
@@ -513,7 +508,7 @@ export const subCommand: SubCommand = {
 
 				await response.deferUpdate();
 
-				let collectedResponse = response.values[0];
+				const collectedResponse = response.values[0];
 				const fieldIndex = choices.findIndex(x => x.value === choicesGet.value);
 
 				await originalResponse.edit({

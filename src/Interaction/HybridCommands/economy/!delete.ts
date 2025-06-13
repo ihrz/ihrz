@@ -24,13 +24,10 @@ import {
 	EmbedBuilder,
 	ChatInputCommandInteraction,
 	Message,
-	User,
-	PermissionsBitField,
 	Role,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generateRoleFields } from './economy.js';
 import { SubCommand } from '../../../../types/command.js';
@@ -56,7 +53,7 @@ export const subCommand: SubCommand = {
 			var role = client.func.method.role(interaction, args!, 0) as Role;
 		}
 
-		var roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
+		let roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
 		if (!roleData) {
 			roleData = {};
 		}
@@ -72,7 +69,7 @@ export const subCommand: SubCommand = {
 
 		await client.db.set(`${interaction.guildId}.ECONOMY.buyableRoles`, roleData);
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.economy_boost_embed_title)
 			.setDescription(lang.economy_boost_embed_desc)
 			.setFields(generateRoleFields(roleData, lang))

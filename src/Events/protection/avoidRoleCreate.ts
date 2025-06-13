@@ -27,7 +27,7 @@ export const event: BotEvent = {
 	name: "roleCreate",
 	run: async (client: Client, role: Role) => {
 
-		let data = await client.db.get(`${role.guild.id}.PROTECTION`);
+		const data = await client.db.get(`${role.guild.id}.PROTECTION`);
 		if (!data) return;
 
 		if (!role.guild.members.me?.permissions.has([
@@ -35,12 +35,12 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.createrole && data.createrole.mode === 'allowlist') {
-			let fetchedLogs = await role.guild.fetchAuditLogs({
+			const fetchedLogs = await role.guild.fetchAuditLogs({
 				type: AuditLogEvent.RoleCreate,
 				limit: 75,
 			});
 
-			let relevantLog = fetchedLogs.entries.find(entry =>
+			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === role.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
@@ -50,10 +50,10 @@ export const event: BotEvent = {
 				return;
 			}
 
-			let baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
-				let member = role.guild.members.cache.get(relevantLog?.executorId as string);
+				const member = role.guild.members.cache.get(relevantLog?.executorId as string);
 				await client.func.method.punish(data, member);
 
 				await role.delete('Protect!');

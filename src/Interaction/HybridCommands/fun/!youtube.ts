@@ -30,7 +30,6 @@ import {
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { sanitizing } from '../../../core/functions/sanitizer.js';
 import { SubCommand } from '../../../../types/command.js';
@@ -65,9 +64,9 @@ export const subCommand: SubCommand = {
 			username = username.substring(0, 15);
 		};
 
-		let link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent(sanitizing(username))}&comment=${encodeURIComponent(sanitizing(messageArgs.join(' ')))}`;
+		const link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent(sanitizing(username))}&comment=${encodeURIComponent(sanitizing(messageArgs.join(' ')))}`;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor('#000000')
 			.setImage('attachment://youtube.png')
 			.setTimestamp()

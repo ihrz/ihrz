@@ -20,16 +20,12 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -47,7 +43,7 @@ export const subCommand: SubCommand = {
 			var state = client.func.method.longString(args!, 0) as string;
 		};
 
-		let current_state = await client.db.get(`${interaction.guildId}.ECONOMY.disabled`);
+		const current_state = await client.db.get(`${interaction.guildId}.ECONOMY.disabled`);
 
 		if (state === 'on') {
 

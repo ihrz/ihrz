@@ -54,14 +54,14 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let data_2 = await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`);
+		const data_2 = await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`);
 
 		if (!data_2) {
 			await client.func.method.interactionSend(interaction, { content: lang.backup_backup_doesnt_exist });
 			return;
 		};
 
-		let em = new EmbedBuilder()
+		const em = new EmbedBuilder()
 			.setTitle(lang.backup_really_want
 				.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
 			)
@@ -74,29 +74,29 @@ export const subCommand: SubCommand = {
 					.replace('${data.channelCount}', data_2.channelCount)
 			});
 
-		var delete_button = new ButtonBuilder()
+		const delete_button = new ButtonBuilder()
 			.setStyle(ButtonStyle.Danger)
 			.setEmoji("🗑️")
 			.setCustomId("backup-trash-button")
 			.setLabel(lang.backup_confirm_button);
 
-		var cancel_button = new ButtonBuilder()
+		const cancel_button = new ButtonBuilder()
 			.setStyle(ButtonStyle.Primary)
 			.setEmoji(client.iHorizon_Emojis.Warning_Icon)
 			.setCustomId("backup-cancel-button")
 			.setLabel(lang.backup_cancel_button);
 
-		var components = new ActionRowBuilder<ButtonBuilder>().addComponents(delete_button).addComponents(cancel_button);
-		let messageEmbed = await client.func.method.interactionSend(interaction, { embeds: [em], components: [components] });
+		const components = new ActionRowBuilder<ButtonBuilder>().addComponents(delete_button).addComponents(cancel_button);
+		const messageEmbed = await client.func.method.interactionSend(interaction, { embeds: [em], components: [components] });
 
-		let collector = messageEmbed.createMessageComponentCollector({
+		const collector = messageEmbed.createMessageComponentCollector({
 			filter: async (i) => {
 				await i.deferUpdate();
 				return interaction.member?.user.id === i.user.id;
 			}, time: 15000
 		});
 
-		var used = false;
+		let used = false;
 
 		collector.on('collect', async (interaction) => {
 			if (interaction.customId === 'backup-trash-button') {

@@ -93,8 +93,8 @@ export const command: Command = {
 			const beforeSucksResizedPath = path.join(tempDir, `beforeSucksResized-${interaction.id}.png`);
 			const bigSucksResizedPath = path.join(tempDir, `bigSucksResized-${interaction.id}.png`);
 
-			let mt1 = await resizeImage(await convertToPng(Buffer.from(beforeSucksResponse.data)), beforeSucksResizedPath);
-			let mt2 = await resizeImage(await convertToPng(Buffer.from(bigSucksResponse.data)), bigSucksResizedPath);
+			const mt1 = await resizeImage(await convertToPng(Buffer.from(beforeSucksResponse.data)), beforeSucksResizedPath);
+			const mt2 = await resizeImage(await convertToPng(Buffer.from(bigSucksResponse.data)), bigSucksResizedPath);
 
 			const twoSidesPath = path.join(process.cwd(), 'src', 'assets', 'two-sides');
 
@@ -113,8 +113,8 @@ export const command: Command = {
 				.replaceAll("screen2.width", String(mt2.width!.toString()))
 				.replaceAll("screen2.height", String(mt2.height!.toString()))
 
-			let outPath = await client.kdenlive.tempSave(data);
-			let exported = await client.kdenlive.export(outPath);
+			const outPath = await client.kdenlive.tempSave(data);
+			const exported = await client.kdenlive.export(outPath);
 
 			await interaction.reply({
 				files: [{

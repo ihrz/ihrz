@@ -21,7 +21,6 @@
 
 import {
 	ActionRowBuilder,
-	AuditLogEvent,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
@@ -29,7 +28,6 @@ import {
 	ComponentType,
 	EmbedBuilder,
 	Message,
-	time,
 } from 'discord.js'
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
@@ -37,8 +35,8 @@ import { SubCommand } from '../../../../types/command.js';
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-		let fetchedBan = await interaction.guild?.bans.fetch();
-		let bansArray = fetchedBan?.map(ban => ban);
+		const fetchedBan = await interaction.guild?.bans.fetch();
+		const bansArray = fetchedBan?.map(ban => ban);
 
 		if (!bansArray || bansArray?.length == 0) {
 			await client.func.method.interactionSend(interaction, {
@@ -48,12 +46,12 @@ export const subCommand: SubCommand = {
 		}
 
 		let currentPage = 0;
-		let usersPerPage = 5;
-		let pages: { title: string; description: string; }[] = [];
+		const usersPerPage = 5;
+		const pages: { title: string; description: string; }[] = [];
 
 		for (let i = 0; i < bansArray.length; i += usersPerPage) {
-			let page = bansArray.slice(i, i + usersPerPage);
-			let description = page.map(ban => {
+			const page = bansArray.slice(i, i + usersPerPage);
+			const description = page.map(ban => {
 				return `[${ban.user.id}](https://discord.com/users/${ban.user.id}) (${ban.user.toString()})`
 			}).join("\n");
 
@@ -87,7 +85,7 @@ export const subCommand: SubCommand = {
 		)
 
 
-		let message = await client.func.method.interactionSend(interaction, {
+		const message = await client.func.method.interactionSend(interaction, {
 			embeds: [createEmbed()],
 			components: [row]
 		});

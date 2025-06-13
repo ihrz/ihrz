@@ -26,11 +26,11 @@ import { env } from "../../version.js";
 
 export default async function getToken(): Promise<string | undefined> {
 	if (config.api.HorizonGateway && env === "production") {
-		let url = config.api.HorizonGateway + "/api/ihorizon/v1/login";
-		let key = config.api.apiToken;
+		const url = config.api.HorizonGateway + "/api/ihorizon/v1/login";
+		const key = config.api.apiToken;
 
 		try {
-			let res = await axios.post(url, {
+			const res = await axios.post(url, {
 				apiToken: encrypt(key, key),
 				clientID: encrypt(key, config.api.clientID)
 			},

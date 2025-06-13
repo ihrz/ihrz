@@ -21,12 +21,9 @@
 
 import {
 	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-	PermissionsBitField
+	Client
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -38,7 +35,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let role = interaction.options.getRole("role");
+		const role = interaction.options.getRole("role");
 
 		await client.db.set(`${interaction.guildId}.SECURITY.role2`, role?.id);
 

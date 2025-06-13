@@ -21,20 +21,17 @@
 
 import {
 	ActionRowBuilder,
-	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
 	EmbedBuilder,
-	PermissionsBitField,
 	TextInputStyle
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -47,7 +44,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		let notifyMessage = await client.db.get(`${interaction.guildId}.NOTIFIER.message`);
-		let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
+		const guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
 
 		notifyMessage = notifyMessage?.substring(0, 1010);
 
@@ -107,7 +104,7 @@ export const subCommand: SubCommand = {
 			};
 
 			if (buttonInteraction.customId === "notifyMessage-set-message") {
-				let modalInteraction = await iHorizonModalResolve({
+				const modalInteraction = await iHorizonModalResolve({
 					customId: 'notifyMessage-Modal',
 					title: lang.notifier_config_message_awaiting_response,
 					deferUpdate: false,

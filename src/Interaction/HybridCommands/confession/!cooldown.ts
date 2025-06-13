@@ -20,17 +20,11 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	InteractionEditReplyOptions,
-	Message,
-	MessageReplyOptions,
-	PermissionsBitField
+	Message
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -48,7 +42,7 @@ export const subCommand: SubCommand = {
 			var action = (client.func.method.string(args!, 0) || "0s") as string
 		};
 
-		let time = client.timeCalculator.to_ms(action);
+		const time = client.timeCalculator.to_ms(action);
 
 		if (!time) {
 			await client.func.method.interactionSend(interaction, {

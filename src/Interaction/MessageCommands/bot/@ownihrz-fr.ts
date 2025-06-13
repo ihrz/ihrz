@@ -42,8 +42,8 @@ export const command: Command = {
 	permission: null,
 	run: async (client: Client, interaction: Message, lang: LanguageData, args?: string[]) => {
 
-		let option1 = args?.[0];
-		var content = "";
+		const option1 = args?.[0];
+		let content = "";
 
 		switch (option1) {
 			case "fr":

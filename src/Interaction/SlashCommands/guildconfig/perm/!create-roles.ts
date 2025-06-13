@@ -21,12 +21,7 @@
 
 import {
 	Client,
-	PermissionsBitField,
 	ChatInputCommandInteraction,
-	EmbedBuilder,
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
 } from 'discord.js';
 import { LanguageData } from '../../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../../types/database_structure.js';
@@ -37,8 +32,8 @@ export const subCommand: SubCommand = {
 
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		var roles = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8"];
-		let existingRoles = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {} as DatabaseStructure.UtilsRoleData;
+		const roles = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8"];
+		const existingRoles = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {} as DatabaseStructure.UtilsRoleData;
 
 		if (interaction.member.id !== interaction.guild.ownerId) {
 			await client.func.method.interactionSend(interaction, {
@@ -48,8 +43,8 @@ export const subCommand: SubCommand = {
 		}
 
 		try {
-			let updatedRoles: DatabaseStructure.UtilsRoleData = {};
-			let createdRoles: string[] = [];
+			const updatedRoles: DatabaseStructure.UtilsRoleData = {};
+			const createdRoles: string[] = [];
 
 			for (let i = 0; i < roles.length; i++) {
 				const permLevel = i + 1;

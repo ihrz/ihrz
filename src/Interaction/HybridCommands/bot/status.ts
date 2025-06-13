@@ -111,7 +111,7 @@ export const command: Command = {
 
 		const memInfo = await getMemoryInfo();
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor("#82cda8")
 			.setFields(
 				{ name: "Cpu", value: `${os.cpus()[0].model} (${os.machine()})`, inline: false },

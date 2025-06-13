@@ -25,14 +25,14 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 export default async function (interaction: ButtonInteraction<"cached">, lang: LanguageData) {
 
-	let res = await interaction.client.db.get(
+	const res = await interaction.client.db.get(
 		`${interaction.guildId}.GUILD.REACTION_ROLES.${interaction.message.id}`
 	) as DatabaseStructure.ReactionRolesData[""]
 	if (!res) return;
 
-	let filtered_res = res[interaction.customId];
+	const filtered_res = res[interaction.customId];
 
-	let fetched_role = interaction.guild.roles.cache.get(filtered_res.rolesID) || await interaction.guild.roles.fetch(filtered_res.rolesID).catch(() => null);
+	const fetched_role = interaction.guild.roles.cache.get(filtered_res.rolesID) || await interaction.guild.roles.fetch(filtered_res.rolesID).catch(() => null);
 
 	if (!fetched_role) {
 		await interaction.reply({

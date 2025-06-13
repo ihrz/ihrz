@@ -23,14 +23,14 @@
 ... (Your copyright and license information)
 */
 
-import { Client, AuditLogEvent, Guild, GuildEditOptions, GuildAuditLogsEntry, PermissionFlagsBits } from 'discord.js';
+import { Client, AuditLogEvent, Guild, PermissionFlagsBits } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
 
 export const event: BotEvent = {
 	name: "guildUpdate",
 	run: async (client: Client, oldGuild: Guild, newGuild: Guild) => {
-		let data = await client.db.get(`${newGuild.id}.PROTECTION`);
+		const data = await client.db.get(`${newGuild.id}.PROTECTION`);
 		if (!data) return;
 
 		if (!oldGuild.members.me?.permissions.has([
@@ -38,12 +38,12 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.updateguild && data.updateguild.mode === 'allowlist') {
-			let fetchedLogs = await newGuild.fetchAuditLogs({
+			const fetchedLogs = await newGuild.fetchAuditLogs({
 				type: AuditLogEvent.GuildUpdate,
 				limit: 1,
 			});
 
-			let relevantLog = fetchedLogs.entries.find(entry =>
+			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === newGuild.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
@@ -53,10 +53,10 @@ export const event: BotEvent = {
 				return;
 			}
 
-			let baseData = await client.db.get(`${newGuild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			const baseData = await client.db.get(`${newGuild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 			if (baseData) return;
 
-			let member = newGuild.members.cache.get(relevantLog?.executorId!);
+			const member = newGuild.members.cache.get(relevantLog?.executorId!);
 			if (!member) return;
 
 			await client.func.method.punish(data, member);

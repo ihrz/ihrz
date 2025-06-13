@@ -57,7 +57,7 @@ export async function checkCommandPermission(
 	}
 
 	// Get command permission data
-	let cmdPermData = getCmdPermData(command, guildPerm);
+	const cmdPermData = getCmdPermData(command, guildPerm);
 
 	// Check permissions in order of priority
 	const checkResults = await Promise.all([

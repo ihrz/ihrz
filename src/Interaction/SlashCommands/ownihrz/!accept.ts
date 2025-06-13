@@ -30,7 +30,6 @@ import { Custom_iHorizon } from '../../../../types/ownihrz.js';
 
 import logger from '../../../core/logger.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -42,21 +41,21 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let cluster = parseInt(interaction.options.getString("cluster")!);
-		let id = interaction.options.getString('id')!;
+		const cluster = parseInt(interaction.options.getString("cluster")!);
+		const id = interaction.options.getString('id')!;
 
-		var table = client.db.table("TEMP");
-		let allData = await table.get(`OWNIHRZ`);
+		const table = client.db.table("TEMP");
+		const allData = await table.get(`OWNIHRZ`);
 
 		function getData() {
-			for (let ownerId in allData) {
-				for (let botId in allData[ownerId]) {
+			for (const ownerId in allData) {
+				for (const botId in allData[ownerId]) {
 					if (botId !== id) continue;
 					return allData[ownerId][botId];
 				}
 			}
 		}
-		let id_2 = getData() as Custom_iHorizon;
+		const id_2 = getData() as Custom_iHorizon;
 
 		if (!id_2) {
 			await interaction.reply({ content: lang.mybot_manage_accept_not_found });
@@ -73,21 +72,21 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let bot_1 = (await client.ownihrz.Get_Bot(id_2.Auth).catch(() => { }))?.data || 404
+		const bot_1 = (await client.ownihrz.Get_Bot(id_2.Auth).catch(() => { }))?.data || 404
 
 		if (!bot_1.bot) {
 			await interaction.reply({ content: lang.mybot_manage_accept_token_error });
 			return;
 		} else {
 
-			let utils_msg = lang.mybot_manage_accept_utils_msg
+			const utils_msg = lang.mybot_manage_accept_utils_msg
 				.replace('${bot_1.bot.id}', bot_1.bot.id)
 				.replace('${bot_1.bot.username}', bot_1.bot.username)
 				.replace("${bot_1.bot_public ? 'Yes' : 'No'}",
 					bot_1.bot_public ? lang.mybot_manage_accept_utiis_yes : lang.mybot_manage_accept_utils_no
 				);
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor('#ff7f50')
 				.setTitle(lang.mybot_manage_accept_embed_title
 					.replace('${bot_1.bot.username}', bot_1.bot.username)

@@ -20,16 +20,11 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	PermissionsBitField,
 } from 'discord.js';
 
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -41,7 +36,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let type = interaction.options.getString('action');
+		const type = interaction.options.getString('action');
 
 		if (type === "off") {
 			await client.func.ihorizon_logs(interaction, {

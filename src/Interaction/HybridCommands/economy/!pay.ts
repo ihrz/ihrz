@@ -27,7 +27,6 @@ import {
 	GuildMember
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -47,7 +46,7 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0) as GuildMember;
 		};
 
-		let member = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
+		const member = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
 
 		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
 			await client.func.method.interactionSend(interaction, {

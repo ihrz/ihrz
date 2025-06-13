@@ -34,19 +34,19 @@ export const command: AnotherCommand = {
 	permission: null,
 	run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
 
-		let lang = await client.func.getLanguageData(interaction.guildId);
-		let question = interaction.options.getMessage("message")?.content || ".";
+		const lang = await client.func.getLanguageData(interaction.guildId);
+		const question = interaction.options.getMessage("message")?.content || ".";
 
-		let text = question?.split(" ");
+		const text = question?.split(" ");
 
 		if (!text?.[2]) {
 			await interaction.reply({ content: lang.question_not_full });
 			return;
 		};
 
-		let reponses = lang.question_s;
+		const reponses = lang.question_s;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.question_embed_title
 				.replace(/\${interaction\.user\.username}/g, interaction.targetMessage.author.globalName || interaction.targetMessage.author.tag)
 			)

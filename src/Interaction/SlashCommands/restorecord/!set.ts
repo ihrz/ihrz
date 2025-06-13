@@ -26,11 +26,9 @@ import {
 	Channel,
 	ChatInputCommandInteraction,
 	Client,
-	GuildTextBasedChannel,
-	PermissionsBitField
+	GuildTextBasedChannel
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { createAuthRestore, createOauth2LinkWithGuild } from '../../../core/functions/authRestoreHelper.js';
 
@@ -43,9 +41,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		var channel = interaction.options.getChannel("channel") as Channel | null;
-		var messagei = interaction.options.getString("message_id");
-		var role = interaction.options.getRole("role");
+		const channel = interaction.options.getChannel("channel") as Channel | null;
+		const messagei = interaction.options.getString("message_id");
+		const role = interaction.options.getRole("role");
 
 		if (!role) { return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_roles_not_found }); };
 
@@ -55,7 +53,7 @@ export const subCommand: SubCommand = {
 					return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
 				}
 
-				let buttonLink = createOauth2LinkWithGuild({
+				const buttonLink = createOauth2LinkWithGuild({
 					guildId: interaction.guildId,
 					clientId: client.user.id,
 					scope: "identify+guilds+guilds.join"
@@ -80,7 +78,7 @@ export const subCommand: SubCommand = {
 							]
 						})
 
-						let msgLink = `https://discord.com/channels/${interaction.guildId}/${channel?.id}/${messagei}`;
+						const msgLink = `https://discord.com/channels/${interaction.guildId}/${channel?.id}/${messagei}`;
 
 						await client.func.method.interactionSend(interaction, {
 							content: lang.rc_command_ok

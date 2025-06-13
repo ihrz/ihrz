@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { SnowflakeUtil, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel, Message } from 'discord.js';
+import { SnowflakeUtil, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel } from 'discord.js';
 
 import logger from "../../core/logger.js";
 import captcha from "../../core/captcha.js";
@@ -29,18 +29,18 @@ import { BotEvent } from '../../../types/event.js';
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-		let baseData = await client.db.get(`${member.guild.id}.SECURITY`);
+		const baseData = await client.db.get(`${member.guild.id}.SECURITY`);
 		if (!baseData || baseData?.disable === true) return;
 
-		let data = await client.func.getLanguageData(member.guild.id);
-		let channel = member.guild.channels.cache.get(baseData?.channel);
+		const data = await client.func.getLanguageData(member.guild.id);
+		const channel = member.guild.channels.cache.get(baseData?.channel);
 		if (!channel) return;
 		const { code, image } = await captcha(280, 100)
 
-		let sfbuff = Buffer.from((image).split(",")[1], "base64");
+		const sfbuff = Buffer.from((image).split(",")[1], "base64");
 		const memberJoinDate = member.joinedAt;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor('#c4001f')
 			.setTimestamp()
 			.setImage("attachment://captcha.png")
@@ -61,7 +61,7 @@ export const event: BotEvent = {
 				{ name: "captcha.png", attachment: sfbuff },
 			], enforceNonce: true, nonce: nonce
 		}).then(async (msg) => {
-			let collector = msg.channel.createMessageCollector({
+			const collector = msg.channel.createMessageCollector({
 				filter: (m) => m.author.id === member.id,
 				time: (60_00 * 2 + 30_000)
 			});

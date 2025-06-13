@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, GuildMember, Role } from 'discord.js';
+import { Client, GuildMember } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
 
@@ -29,7 +29,7 @@ export const event: BotEvent = {
 
 		if (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`)) {
 
-			let array: string[] | null = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+			const array: string[] | null = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
 
 			if (!array || array.length === 0) return;
 

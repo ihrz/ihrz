@@ -25,13 +25,10 @@ import {
 	Client,
 	ComponentType,
 	EmbedBuilder,
-	GuildMember,
 	Message,
 	StringSelectMenuBuilder,
-	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { getMemberBoost } from './economy.js';
 
@@ -51,17 +48,17 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let economy = await client.db.get(`${interaction.guildId}.ECONOMY`) as DatabaseStructure.EconomyModel;
-		let buyableRolesArray = Object.entries(economy?.buyableRoles || {}).map(([roleId, details]) => ({
+		const economy = await client.db.get(`${interaction.guildId}.ECONOMY`) as DatabaseStructure.EconomyModel;
+		const buyableRolesArray = Object.entries(economy?.buyableRoles || {}).map(([roleId, details]) => ({
 			roleId,
 			...details
 		}));
-		var baseData = (await client.db.get(`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY`) || {
+		const baseData = (await client.db.get(`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY`) || {
 			money: 0,
 			bank: 0,
 			ownedRoles: []
 		}) as DatabaseStructure.EconomyUserSchema;
-		var possibleBoost = await getMemberBoost(interaction.member!);
+		const possibleBoost = await getMemberBoost(interaction.member!);
 
 		baseData.money = baseData.money || 0;
 		baseData.bank = baseData.bank || 0;
@@ -75,7 +72,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let buyableRoles = buyableRolesArray // buyableRolesArray.filter((role) => !baseData.ownedRoles?.includes(role.roleId));
+		const buyableRoles = buyableRolesArray // buyableRolesArray.filter((role) => !baseData.ownedRoles?.includes(role.roleId));
 
 		const embed = new EmbedBuilder()
 			.setTitle(lang.economy_shop_embed_title
@@ -122,7 +119,7 @@ export const subCommand: SubCommand = {
 		const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>()
 			.addComponents(selectMenu);
 
-		let og_interaction = await client.func.method.interactionSend(interaction, {
+		const og_interaction = await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)],
 			components: [actionRow]
@@ -176,7 +173,7 @@ export const subCommand: SubCommand = {
 			await client.db.set(`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.money`, (baseData.money ?? 0) - role.price);
 			await client.db.set(`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.ownedRoles`, [...(baseData.ownedRoles || []), role.roleId]);
 
-			var string_role_name = interaction.guild?.roles.cache.get(role.roleId)?.name || lang.economy_shop_unknown_role
+			const string_role_name = interaction.guild?.roles.cache.get(role.roleId)?.name || lang.economy_shop_unknown_role
 			await i.reply({
 				content: lang.economy_shop_role_purchased
 					.replace("{roleName}", string_role_name)

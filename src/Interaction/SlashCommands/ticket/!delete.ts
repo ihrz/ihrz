@@ -27,7 +27,6 @@ import {
 
 import { TicketDelete } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';

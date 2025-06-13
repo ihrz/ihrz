@@ -28,7 +28,6 @@ import {
 	Role,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generateRoleFields } from './economy.js';
 
@@ -55,14 +54,14 @@ export const subCommand: SubCommand = {
 			var boost = client.func.method.number(args!, 1);
 		}
 
-		var roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
+		let roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
 		if (!roleData) {
 			roleData = {};
 		}
 
 		// check if the roles has dangerous permissions
-		let rolePermissions = new PermissionsBitField(role.permissions);
-		let roleDangerousPermissions: string[] = [];
+		const rolePermissions = new PermissionsBitField(role.permissions);
+		const roleDangerousPermissions: string[] = [];
 
 		for (const perm of client.func.method.getDangerousPermissions(lang)) {
 			if (rolePermissions.has(perm.flag)) {
@@ -82,7 +81,7 @@ export const subCommand: SubCommand = {
 
 		await client.db.set(`${interaction.guildId}.ECONOMY.buyableRoles`, roleData);
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.economy_boost_embed_title)
 			.setDescription(lang.economy_boost_embed_desc)
 			.setFields(generateRoleFields(roleData, lang))

@@ -32,6 +32,6 @@ logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
 logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
 logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
 
-let manager = new ShardingManager('./src/core/bot.ts', { totalShards: "auto", token: _token || process.env.BOT_TOKEN || config.discord.token });
+const manager = new ShardingManager('./src/core/bot.ts', { totalShards: "auto", token: _token || process.env.BOT_TOKEN || config.discord.token });
 manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is now launched :) !`.green));
 manager.spawn();

@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	PermissionsBitField,
 	ChatInputCommandInteraction,
 	EmbedBuilder,
 	ActionRowBuilder,
@@ -41,9 +40,9 @@ export const subCommand: SubCommand = {
 
 
 
-		let all_members: DatabaseStructure.UtilsPermsUserData = await client.db.get(`${interaction.guildId}.UTILS.USER_PERMS`) || {};
-		let all_roles: DatabaseStructure.UtilsRoleData = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {};
-		let allUsers: { group: number, userId: string }[] = [];
+		const all_members: DatabaseStructure.UtilsPermsUserData = await client.db.get(`${interaction.guildId}.UTILS.USER_PERMS`) || {};
+		const all_roles: DatabaseStructure.UtilsRoleData = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {};
+		const allUsers: { group: number, userId: string }[] = [];
 
 		Object.entries(all_roles).forEach(([perm, userId]) => {
 			allUsers.push({ userId, group: parseInt(perm) });
@@ -53,23 +52,23 @@ export const subCommand: SubCommand = {
 			allUsers.push({ userId, group: perm });
 		});
 
-		let itemsPerPage = 10;
+		const itemsPerPage = 10;
 		let currentPage = 0;
-		let totalPages = Math.max(1, Math.ceil(allUsers.length / itemsPerPage));
+		const totalPages = Math.max(1, Math.ceil(allUsers.length / itemsPerPage));
 
 		const generateEmbed = (page: number) => {
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setTitle(lang.perm_list_embed_title)
 				.setColor("#475387");
 
-			let startIndex = page * itemsPerPage;
-			let endIndex = Math.min(startIndex + itemsPerPage, allUsers.length);
+			const startIndex = page * itemsPerPage;
+			const endIndex = Math.min(startIndex + itemsPerPage, allUsers.length);
 
-			let groupedUsers: { [key: number]: string[] } = {};
+			const groupedUsers: { [key: number]: string[] } = {};
 
 			for (let i = startIndex; i < endIndex; i++) {
-				let { group, userId } = allUsers[i];
-				let user = interaction.guild.roles.cache.get(userId)?.toString() || interaction.guild.members.cache.get(userId)?.toString();
+				const { group, userId } = allUsers[i];
+				const user = interaction.guild.roles.cache.get(userId)?.toString() || interaction.guild.members.cache.get(userId)?.toString();
 
 				if (!groupedUsers[group]) {
 					groupedUsers[group] = [];
@@ -110,7 +109,7 @@ export const subCommand: SubCommand = {
 				);
 		};
 
-		let message = await client.func.method.interactionSend(interaction, {
+		const message = await client.func.method.interactionSend(interaction, {
 			embeds: [generateEmbed(currentPage)],
 			components: [generateButtons(currentPage)],
 			withResponse: true,

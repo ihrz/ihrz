@@ -30,7 +30,6 @@ import { Custom_iHorizon } from '../../../../types/ownihrz.js';
 
 import logger from '../../../core/logger.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -42,35 +41,35 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let botId = interaction.options.getString('bot_code')!;
-		let OwnerOne = interaction.options.getUser('owner_one')!.id;
-		let OwnerTwo = interaction.options.getUser('owner_two')?.id || OwnerOne;
+		const botId = interaction.options.getString('bot_code')!;
+		const OwnerOne = interaction.options.getUser('owner_one')!.id;
+		const OwnerTwo = interaction.options.getUser('owner_two')?.id || OwnerOne;
 
-		let tempTable = client.db.table('TEMP');
-		let table = client.db.table('OWNIHRZ');
+		const tempTable = client.db.table('TEMP');
+		const table = client.db.table('OWNIHRZ');
 
-		let allData = await table.get("CLUSTER");
+		const allData = await table.get("CLUSTER");
 
-		let timeout: number = 3600000;
-		let executingBefore = await tempTable.get(`OWNIHRZ_CHANGE_OWNER.${botId}.timeout`);
+		const timeout: number = 3600000;
+		const executingBefore = await tempTable.get(`OWNIHRZ_CHANGE_OWNER.${botId}.timeout`);
 
 		if (executingBefore !== null && timeout - (Date.now() - executingBefore) > 0) {
-			let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - executingBefore), lang);
+			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - executingBefore), lang);
 
 			await interaction.reply({ content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
 			return;
 		};
 
 		function getData() {
-			for (let ownerId in allData) {
-				for (let bot_id in allData[ownerId]) {
+			for (const ownerId in allData) {
+				for (const bot_id in allData[ownerId]) {
 					if (bot_id !== botId) continue;
 					return allData[ownerId][botId];
 				}
 			}
 		}
 
-		let id_2 = getData() as Custom_iHorizon;
+		const id_2 = getData() as Custom_iHorizon;
 
 		if (!id_2) {
 			await interaction.reply({ content: lang.mybot_manage_accept_not_found });
@@ -83,14 +82,14 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let bot_1 = (await client.ownihrz.Get_Bot(id_2.Auth).catch(() => { }))?.data || 404
+		const bot_1 = (await client.ownihrz.Get_Bot(id_2.Auth).catch(() => { }))?.data || 404
 
 		if (!bot_1.bot) {
 			await interaction.reply({ content: lang.mybot_manage_accept_token_error });
 			return;
 		} else {
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor('#ff7f50')
 				.setTitle(lang.mybot_manage_accept_embed_title
 					.replace('${bot_1.bot.username}', bot_1.bot.username)

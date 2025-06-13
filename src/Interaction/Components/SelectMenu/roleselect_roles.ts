@@ -22,14 +22,14 @@
 import { StringSelectMenuInteraction } from 'discord.js';
 
 export default async function (interaction: StringSelectMenuInteraction<"cached">) {
-	let baseData = await interaction.client.db.get(`${interaction.guildId}.GUILD.ROLE_SELECT.${interaction.message.id}`);
+	const baseData = await interaction.client.db.get(`${interaction.guildId}.GUILD.ROLE_SELECT.${interaction.message.id}`);
 	if (!baseData) return;
 
 	const role = (interaction.values[0]).split("_")[1];
 
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
-	let fetched_role = interaction.guild.roles.cache.get(role) || await interaction.guild.roles.fetch(role).catch(() => null);
+	const fetched_role = interaction.guild.roles.cache.get(role) || await interaction.guild.roles.fetch(role).catch(() => null);
 
 	if (!fetched_role) {
 		await interaction.reply({

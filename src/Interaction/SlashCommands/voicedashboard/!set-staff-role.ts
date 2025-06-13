@@ -22,11 +22,9 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	PermissionsBitField
+	EmbedBuilder
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -38,9 +36,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let targetedRole = interaction.options.getRole('role');
+		const targetedRole = interaction.options.getRole('role');
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor(2829617)
 			.setDescription(
 				lang.tempvoice_staff_desc_embed

@@ -27,14 +27,9 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -45,23 +40,23 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let history = await client.db.get(`${interaction.guildId}.MUSIC_HISTORY`);
+		const history = await client.db.get(`${interaction.guildId}.MUSIC_HISTORY`);
 
 		if (!history || !history.embed || history.embed.length == 0) {
 			await client.func.method.interactionSend(interaction, { content: lang.history_no_entries });
 			return;
 		};
 
-		let buffer = Buffer.from(history.buffer.map((content: string) => content).join('\n'), 'utf-8');
-		let attachment = new AttachmentBuilder(buffer, { name: 'music_history_by_ihorizon.txt' })
+		const buffer = Buffer.from(history.buffer.map((content: string) => content).join('\n'), 'utf-8');
+		const attachment = new AttachmentBuilder(buffer, { name: 'music_history_by_ihorizon.txt' })
 
 		let currentPage = 0;
-		let usersPerPage = 10;
-		let pages: { title: string; description: string; }[] = [];
+		const usersPerPage = 10;
+		const pages: { title: string; description: string; }[] = [];
 
 		for (let i = 0; i < history.embed.length; i += usersPerPage) {
-			let pageUsers = history.embed.slice(i, i + usersPerPage);
-			let pageContent = pageUsers.map((userId: string) => userId).join('\n');
+			const pageUsers = history.embed.slice(i, i + usersPerPage);
+			const pageContent = pageUsers.map((userId: string) => userId).join('\n');
 
 			pages.push({
 				title: lang.history_embed_title
@@ -71,7 +66,7 @@ export const subCommand: SubCommand = {
 			});
 		};
 
-		let createEmbed = () => {
+		const createEmbed = () => {
 			return new EmbedBuilder()
 				.setColor('#00cc1a')
 				.setTimestamp()
@@ -86,7 +81,7 @@ export const subCommand: SubCommand = {
 				.setTimestamp()
 		};
 
-		let row = new ActionRowBuilder().addComponents(
+		const row = new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
 				.setCustomId('previousPage')
 				.setLabel('<<')
@@ -97,13 +92,13 @@ export const subCommand: SubCommand = {
 				.setStyle(ButtonStyle.Secondary),
 		);
 
-		let messageEmbed = await client.func.method.interactionSend(interaction, {
+		const messageEmbed = await client.func.method.interactionSend(interaction, {
 			embeds: [createEmbed()],
 			components: [(row as ActionRowBuilder<ButtonBuilder>)],
 			files: [attachment, await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
 
-		let collector = messageEmbed.createMessageComponentCollector({
+		const collector = messageEmbed.createMessageComponentCollector({
 			filter: async (i) => {
 				await i.deferUpdate();
 				return interaction.member?.user.id === i.user.id;

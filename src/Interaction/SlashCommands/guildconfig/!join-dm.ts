@@ -21,19 +21,15 @@
 
 import {
 	ActionRowBuilder,
-	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
 	EmbedBuilder,
-	PermissionsBitField,
 } from 'discord.js';
 
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -46,11 +42,11 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		let joinDm = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`) as string | undefined;
-		let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
+		const guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
 
 		joinDm = joinDm?.substring(0, 1010);
 
-		let help_embed = new EmbedBuilder()
+		const help_embed = new EmbedBuilder()
 			.setColor("#0014a8")
 			.setTitle(lang.setjoindm_help_embed_title)
 			.setDescription(lang.setjoindm_help_embed_desc)
@@ -77,12 +73,12 @@ export const subCommand: SubCommand = {
 					.setStyle(ButtonStyle.Danger),
 			);
 
-		let originalResponse = await interaction.editReply({
+		const originalResponse = await interaction.editReply({
 			embeds: [help_embed],
 			components: [buttons]
 		});
 
-		let collector = originalResponse.createMessageComponentCollector({
+		const collector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.Button,
 			filter: (u) => u.user.id === interaction.user.id,
 			time: 80_000
@@ -95,14 +91,14 @@ export const subCommand: SubCommand = {
 					flags: [1 << 6]
 				});
 
-				let questionReply = interaction.channel?.createMessageCollector({
+				const questionReply = interaction.channel?.createMessageCollector({
 					filter: (m) => m.author.id === interaction.user.id,
 					max: 1,
 					time: 120_000
 				});
 
 				questionReply?.on('collect', async collected => {
-					let response = collected.content.substring(0, 1010);
+					const response = collected.content.substring(0, 1010);
 
 					await client.func.ihorizon_logs(interaction, {
 						title: lang.setjoindm_logs_embed_title_on_enable,
@@ -130,7 +126,7 @@ export const subCommand: SubCommand = {
 						.replace(/\${interaction\.user\.id}/g, interaction.user.id)
 				});
 
-				let already_off = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
+				const already_off = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
 
 				if (!already_off) {
 					await interaction.editReply({

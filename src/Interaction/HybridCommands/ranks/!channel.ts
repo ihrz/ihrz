@@ -24,15 +24,10 @@ import {
 	Channel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
-	PermissionsBitField,
-	User,
 } from 'discord.js';
 
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -64,7 +59,7 @@ export const subCommand: SubCommand = {
 			});
 
 			try {
-				let already = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
+				const already = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
 				if (already === argsid.id) return await client.func.method.interactionSend(interaction, { content: lang.setxpchannels_already_with_this_config });
 
 				(interaction.guild.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({ content: lang.setxpchannels_confirmation_message });
@@ -83,7 +78,7 @@ export const subCommand: SubCommand = {
 			});
 
 			try {
-				let already2 = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
+				const already2 = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
 
 				if (already2 === "off") {
 					await client.func.method.interactionSend(interaction, { content: lang.setxpchannels_already_disabled_disable });

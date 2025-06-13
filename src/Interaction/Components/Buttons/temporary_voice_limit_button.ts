@@ -19,21 +19,20 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ButtonInteraction, CacheType, EmbedBuilder, GuildMember, TextInputStyle } from 'discord.js';
+import { ButtonInteraction, EmbedBuilder, GuildMember, TextInputStyle } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
-import { LanguageData } from '../../../../types/languageData.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
-	let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	let table = interaction.client.db.table('TEMP');
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const table = interaction.client.db.table('TEMP');
 
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	let member = interaction.member as GuildMember;
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const member = interaction.member as GuildMember;
 
-	let targetedChannel = (interaction.member as GuildMember).voice.channel;
+	const targetedChannel = (interaction.member as GuildMember).voice.channel;
 
-	let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+	const getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
 	if (!result) return await interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId
@@ -43,7 +42,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		await interaction.deferUpdate()
 		return;
 	} else {
-		let response = await iHorizonModalResolve({
+		const response = await iHorizonModalResolve({
 			customId: 'modal',
 			deferUpdate: false,
 			title: lang.temporary_voice_modal_title,
@@ -61,8 +60,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
 		if (!response) return;
 
-		let channel = (interaction.member as GuildMember).voice.channel;
-		let userLimit = parseInt(response.fields.getField('name').value);
+		const channel = (interaction.member as GuildMember).voice.channel;
+		const userLimit = parseInt(response.fields.getField('name').value);
 
 		if (!userLimit) {
 			await response.reply({

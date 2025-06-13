@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	PermissionsBitField,
 	AutoModerationRuleTriggerType,
 	ChatInputCommandInteraction
 } from 'discord.js';
@@ -31,7 +30,6 @@ interface Action {
 	metadata: Record<string, any>;
 };
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -43,16 +41,16 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let turn = interaction.options.getString("action");
-		let max_mention = interaction.options.getNumber('max-mention-allowed') || 3;
-		let logs_channel = interaction.options.getChannel('logs-channel');
+		const turn = interaction.options.getString("action");
+		const max_mention = interaction.options.getNumber('max-mention-allowed') || 3;
+		const logs_channel = interaction.options.getChannel('logs-channel');
 
-		let automodRules = await interaction.guild.autoModerationRules.fetch();
+		const automodRules = await interaction.guild.autoModerationRules.fetch();
 
-		let mentionSpamRule = automodRules.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
+		const mentionSpamRule = automodRules.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
 
 		if (turn === "on") {
-			let arrayActionsForRule: Action[] = [
+			const arrayActionsForRule: Action[] = [
 				{
 					type: 1,
 					metadata: {

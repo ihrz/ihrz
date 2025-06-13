@@ -27,10 +27,8 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { getGuildDataPerSecretCode, SavedMembersAuthRestore, securityCodeUpdate } from '../../../core/functions/authRestoreHelper.js';
 import { discordLocales } from '../../../files/locales.js';
@@ -63,7 +61,7 @@ export const subCommand: SubCommand = {
 		let currentCategory = 0;
 		let currentPage = 0;
 
-		let footer = await client.func.displayBotName.footerBuilder(interaction.guildId!);
+		const footer = await client.func.displayBotName.footerBuilder(interaction.guildId!);
 
 		const mainEmbed = new EmbedBuilder()
 			.setColor(2829617)
@@ -123,7 +121,7 @@ export const subCommand: SubCommand = {
 				})
 			}));
 
-		let given_role = interaction.guild.roles.cache.get(Data.data.config.roleId)?.name;
+		const given_role = interaction.guild.roles.cache.get(Data.data.config.roleId)?.name;
 
 		htmlContent = htmlContent
 			.replaceAll('{author_pfp}', interaction.member.user.displayAvatarURL({ size: 512 }))
@@ -264,7 +262,7 @@ export const subCommand: SubCommand = {
 				currentPage--;
 			}
 
-			let files = [];
+			const files = [];
 
 			if (currentCategory === 2) files.push(attachment);
 

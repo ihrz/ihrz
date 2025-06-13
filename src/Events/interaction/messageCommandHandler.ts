@@ -112,14 +112,14 @@ async function executeCommand(
 
 	if (!canUseCommands) return;
 
-	let fetchFullCommandName = message.client.content.find(c => c.desc === command.description);
+	const fetchFullCommandName = message.client.content.find(c => c.desc === command.description);
 
-	let permCheck = await message.client.func.permissonsCalculator.checkCommandPermission(message, fetchFullCommandName?.cmd!);
+	const permCheck = await message.client.func.permissonsCalculator.checkCommandPermission(message, fetchFullCommandName?.cmd!);
 	if (!permCheck.allowed && permCheck.permissionData.level !== 0) return message.client.func.permissonsCalculator.sendErrorMessage(message, lang, permCheck.permissionData);
 
 	// for format like: "+utils" without subcommand behind
 	if (!command?.run) {
-		let msg = await message.client.func.method.interactionSend(message, {
+		const msg = await message.client.func.method.interactionSend(message, {
 			embeds: [await message.client.func.method.createAwesomeEmbed(lang, command, message.client, message)],
 			files: [await message.client.func.displayBotName.footerAttachmentBuilder(message)]
 		});
@@ -131,7 +131,7 @@ async function executeCommand(
 	}
 
 	if (command.permission && !message.member!.permissions.has(command.permission) && !permCheck.allowed) {
-		let perm = getPermissionByValue(command.permission);
+		const perm = getPermissionByValue(command.permission);
 
 		if (perm) {
 			let permName: string;
@@ -152,7 +152,7 @@ async function executeCommand(
 		}
 	}
 
-	var _ = await message.client.func.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
+	const _ = await message.client.func.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
 
 	(async () => {
 		await command.run!(message.client, message, lang, args);

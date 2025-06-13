@@ -32,16 +32,16 @@ export const command: AnotherCommand = {
 	thinking: false,
 	permission: null,
 	run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
-		let lang = await client.func.getLanguageData(interaction.guildId);
-		var user1 = interaction.user;
-		var user2 = interaction.targetUser;
+		const lang = await client.func.getLanguageData(interaction.guildId);
+		const user1 = interaction.user;
+		const user2 = interaction.targetUser;
 
-		let profileImageSize = 512;
-		let canvasWidth = profileImageSize * 3;
-		let canvasHeight = profileImageSize;
+		const profileImageSize = 512;
+		const canvasWidth = profileImageSize * 3;
+		const canvasHeight = profileImageSize;
 
 		try {
-			let [profileImage1, profileImage2, heartEmoji] = await Promise.all([
+			const [profileImage1, profileImage2, heartEmoji] = await Promise.all([
 				Jimp.read(user1.displayAvatarURL({ extension: 'png', size: 512 })),
 				Jimp.read(user2.displayAvatarURL({ extension: 'png', size: 512 })),
 				Jimp.read(process.cwd() + "/src/assets/heart.png")
@@ -51,16 +51,16 @@ export const command: AnotherCommand = {
 			profileImage2.resize(profileImageSize, profileImageSize);
 			heartEmoji.resize(profileImageSize, profileImageSize);
 
-			let combinedImage = new Jimp(canvasWidth, canvasHeight);
+			const combinedImage = new Jimp(canvasWidth, canvasHeight);
 
 			combinedImage.blit(profileImage1, 0, 0);
 			combinedImage.blit(heartEmoji, profileImageSize, profileImageSize / 2 - heartEmoji.bitmap.height / 2);
 			combinedImage.blit(profileImage2, profileImageSize * 2, 1);
 
-			let buffer = await combinedImage.getBufferAsync(Jimp.MIME_PNG);
-			let always100: Array<string> = client.config.command.alway100;
+			const buffer = await combinedImage.getBufferAsync(Jimp.MIME_PNG);
+			const always100: Array<string> = client.config.command.alway100;
 
-			var found = always100.find(element => {
+			const found = always100.find(element => {
 				if (
 					element === `${user1?.id}x${user2?.id}`
 					||
@@ -71,14 +71,14 @@ export const command: AnotherCommand = {
 				return false;
 			});
 
-			var randomNumber: number;
+			let randomNumber: number;
 			if (found) {
 				randomNumber = 100;
 			} else {
 				randomNumber = Math.floor(Math.random() * 101);
 			};
 
-			var embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor("#FFC0CB")
 				.setTitle("💕")
 				.setImage(`attachment://love.png`)

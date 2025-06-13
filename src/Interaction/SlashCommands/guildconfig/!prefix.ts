@@ -22,11 +22,9 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -38,8 +36,8 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let action = interaction.options.getString("action")!;
-		let prefix = interaction.options.getString('name');
+		const action = interaction.options.getString("action")!;
+		const prefix = interaction.options.getString('name');
 
 
 
@@ -50,7 +48,7 @@ export const subCommand: SubCommand = {
 			if (!prefix) return await interaction.editReply({ content: lang.guildconfig_setbot_prefix_prefix_specify_prefix });
 			if (prefix.length >= 5) return await interaction.editReply({ content: lang.guildconfig_setbot_prefix_prefix_too_long });
 
-			let formatedPrefix = prefix.split(" ")[0];
+			const formatedPrefix = prefix.split(" ")[0];
 			await client.db.set(`${interaction.guildId}.BOT.prefix`, formatedPrefix);
 
 			await interaction.editReply({

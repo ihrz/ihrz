@@ -30,15 +30,15 @@ export const event: BotEvent = {
 		if (!newPresence.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) return;
 		if (!oldPresence || !oldPresence.guild) return;
 
-		let someinfo = await client.db.get(`${oldPresence.guild.id}.GUILD.SUPPORT`);
+		const someinfo = await client.db.get(`${oldPresence.guild.id}.GUILD.SUPPORT`);
 
 		if (!someinfo) { return; };
 
-		let bio = newPresence.activities[0] || 'null';
-		let vanity = oldPresence.guild.vanityURLCode || 'null';
+		const bio = newPresence.activities[0] || 'null';
+		const vanity = oldPresence.guild.vanityURLCode || 'null';
 
-		let fetchedUser = oldPresence.guild.members.cache.get(oldPresence.userId);
-		let fetchedRoles = newPresence.guild.roles.cache.get(someinfo.rolesId);
+		const fetchedUser = oldPresence.guild.members.cache.get(oldPresence.userId);
+		const fetchedRoles = newPresence.guild.roles.cache.get(someinfo.rolesId);
 		if (!fetchedUser || !fetchedRoles || newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition || newPresence.status === 'offline' || newPresence.status === "invisible") {
 			return;
 		};

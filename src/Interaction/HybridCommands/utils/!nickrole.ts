@@ -22,19 +22,12 @@
 import {
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
-	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	Role,
-	ApplicationCommandType,
-	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions
+	Message
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -65,10 +58,10 @@ export const subCommand: SubCommand = {
 		if (action_1 === 'add') {
 
 			try {
-				let members = await interaction.guild.members.fetch();
-				let promises = [];
+				const members = await interaction.guild.members.fetch();
+				const promises = [];
 
-				for (let [memberID, member] of members!) {
+				for (const [memberID, member] of members!) {
 					if (
 						(
 							member.user.globalName?.toLowerCase().includes(part_of_nickname)
@@ -76,7 +69,7 @@ export const subCommand: SubCommand = {
 						)
 						&& !member.roles.cache.has(role?.id!)
 					) {
-						let promise = member.roles.add(role as Role, "[NickRole] Module")
+						const promise = member.roles.add(role as Role, "[NickRole] Module")
 							.then(() => {
 								a++;
 							})
@@ -92,7 +85,7 @@ export const subCommand: SubCommand = {
 				await Promise.all(promises);
 			} catch (error) { }
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setColor('#007fff')
 				.setTimestamp()
@@ -114,10 +107,10 @@ export const subCommand: SubCommand = {
 
 		} else if (action_1 === 'sub') {
 			try {
-				let members = await interaction.guild?.members.fetch();
-				let promises = [];
+				const members = await interaction.guild?.members.fetch();
+				const promises = [];
 
-				for (let [memberID, member] of members!) {
+				for (const [memberID, member] of members!) {
 					if (
 						(
 							member.user.globalName?.toLowerCase().includes(part_of_nickname)
@@ -125,7 +118,7 @@ export const subCommand: SubCommand = {
 						)
 						&& member.roles.cache.has(role?.id!)
 					) {
-						let promise = member.roles.remove(role.id, "[NickRole] Module")
+						const promise = member.roles.remove(role.id, "[NickRole] Module")
 							.then(() => {
 								a++;
 							})
@@ -141,7 +134,7 @@ export const subCommand: SubCommand = {
 				await Promise.all(promises);
 			} catch (error) { }
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setColor('#007fff')
 				.setTimestamp()

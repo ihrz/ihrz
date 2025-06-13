@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, Collection } from 'discord.js';
+import { Client } from 'discord.js';
 
 import { fileURLToPath } from 'url';
 import path from 'path';

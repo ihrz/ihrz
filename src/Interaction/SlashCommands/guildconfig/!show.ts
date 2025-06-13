@@ -28,11 +28,9 @@ import {
 	EmbedBuilder,
 	Guild,
 	GuildMember,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Command } from '../../../../types/command.js';
 
 import { iHorizonTimeCalculator } from '../../../core/functions/ms.js';
 import { AntiSpam } from '../../../../types/antispam.js';
@@ -50,7 +48,7 @@ export const subCommand: SubCommand = {
 			content: client.iHorizon_Emojis.Discord_Loading
 		});
 
-		let baseData = await client.db.get(`${interaction.guildId}`) as DatabaseStructure.DbInId;
+		const baseData = await client.db.get(`${interaction.guildId}`) as DatabaseStructure.DbInId;
 		const pages: EmbedBuilder[] = [];
 
 		const joinDmMessageField = { name: lang.guildprofil_embed_fields_joinDmMessage, value: baseData?.GUILD?.GUILD_CONFIG?.joindm ? '```' + baseData?.GUILD?.GUILD_CONFIG?.joindm.substring(0, 1020) + '```' : lang.guildprofil_not_set_joinDmMessage };
@@ -289,7 +287,7 @@ function reactionRolesToString(charForRr: DatabaseStructure.DbGuildObject["REACT
 	for (const i in charForRr) {
 		const a = charForRr[i];
 		if (a) {
-			let stringContent = Object.keys(a).map((key) => {
+			const stringContent = Object.keys(a).map((key) => {
 				const rolesID = a?.[key].rolesID;
 				const emoji = guild?.emojis.cache.find((emoji: { id: string; }) => emoji.id === key);
 

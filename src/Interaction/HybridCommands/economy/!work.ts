@@ -28,7 +28,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { getMemberBoost } from './economy.js';
 import { SubCommand } from '../../../../types/command.js';
 
@@ -38,8 +37,8 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.work.cooldown`) || 3_600_000);
-		let work = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`);
+		const timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.work.cooldown`) || 3_600_000);
+		const work = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`);
 
 		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
 			await client.func.method.interactionSend(interaction, {
@@ -50,7 +49,7 @@ export const subCommand: SubCommand = {
 		};
 
 		if (work !== null && timeout - (Date.now() - work) > 0) {
-			let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work), lang);
+			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work), lang);
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.economy_cooldown_error
@@ -60,9 +59,9 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let amount = (Math.floor(Math.random() * 1024) + 1) * await getMemberBoost(interaction.member);
+		const amount = (Math.floor(Math.random() * 1024) + 1) * await getMemberBoost(interaction.member);
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: lang.work_embed_author
 					.replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username),

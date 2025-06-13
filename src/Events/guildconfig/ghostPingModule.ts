@@ -26,11 +26,11 @@ import { DatabaseStructure } from '../../../types/database_structure.js';
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-		let all_channels = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) as DatabaseStructure.GhostPingData['channels'];
+		const all_channels = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) as DatabaseStructure.GhostPingData['channels'];
 
 		if (!all_channels) return;
 
-		for (let i of all_channels) {
+		for (const i of all_channels) {
 			const channel = member.guild.channels.cache.get(i) as BaseGuildTextChannel;
 			if (!channel || !channel.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) continue;
 

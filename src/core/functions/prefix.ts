@@ -22,8 +22,8 @@
 import { Client } from "discord.js";
 
 export async function guildPrefix(client: Client, guildId: string): Promise<{ type: 'prefix' | 'mention'; string: string; }> {
-	let custom_prefix = await client.db.get(`${guildId}.BOT.prefix`);
-	let prefix_string = ((!custom_prefix) ?
+	const custom_prefix = await client.db.get(`${guildId}.BOT.prefix`);
+	const prefix_string = ((!custom_prefix) ?
 		client.config.discord.messageCommandsMention
 			? `<@${client.user?.id}>`
 			: client.config.discord.defaultMessageCommandsPrefix
@@ -33,7 +33,7 @@ export async function guildPrefix(client: Client, guildId: string): Promise<{ ty
 };
 
 export function defaultPrefix(client: Client): { type: 'prefix' | 'mention'; string: string; } {
-	let prefix_string = (client.config.discord.messageCommandsMention
+	const prefix_string = (client.config.discord.messageCommandsMention
 		? `@Mention`
 		: client.config.discord.defaultMessageCommandsPrefix
 	) as string;

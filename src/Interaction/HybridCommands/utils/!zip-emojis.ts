@@ -20,15 +20,9 @@
 */
 
 import {
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildEmoji,
-	Message,
-	PermissionsBitField
+	Message
 } from 'discord.js';
 import JSZip from 'jszip';
 import { LanguageData } from '../../../../types/languageData.js';
@@ -43,7 +37,7 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		let time = Date.now();
+		const time = Date.now();
 
 		if (!interaction.guild) return;
 
@@ -84,7 +78,7 @@ export const subCommand: SubCommand = {
 			});
 
 			// Calculate time taken
-			let calcTime = Date.now() - time;
+			const calcTime = Date.now() - time;
 
 			// Send the zip file
 			await client.func.method.interactionSend(interaction, {

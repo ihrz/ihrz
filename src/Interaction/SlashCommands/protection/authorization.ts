@@ -20,9 +20,7 @@
 */
 
 import {
-	Client,
 	ApplicationCommandOptionType,
-	ChatInputCommandInteraction,
 	ApplicationCommandType,
 	PermissionFlagsBits,
 } from 'discord.js';

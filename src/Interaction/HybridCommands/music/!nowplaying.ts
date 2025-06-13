@@ -27,19 +27,14 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
-	Guild,
 	GuildMember,
 	BaseGuildTextChannel,
 	User,
 	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions,
 	AttachmentBuilder,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -51,36 +46,36 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let pause = new ButtonBuilder()
+		const pause = new ButtonBuilder()
 			.setCustomId('pause')
 			.setEmoji(client.iHorizon_Emojis.Pause)
 			.setStyle(ButtonStyle.Secondary);
 
-		let stop = new ButtonBuilder()
+		const stop = new ButtonBuilder()
 			.setCustomId('stop')
 			.setEmoji(client.iHorizon_Emojis.Music_Stop)
 			.setStyle(ButtonStyle.Secondary);
 
-		let lyricsButton = new ButtonBuilder()
+		const lyricsButton = new ButtonBuilder()
 			.setCustomId('lyrics')
 			.setEmoji(client.iHorizon_Emojis.Paper)
 			.setStyle(ButtonStyle.Secondary);
 
-		let btn = new ActionRowBuilder<ButtonBuilder>()
+		const btn = new ActionRowBuilder<ButtonBuilder>()
 			.addComponents(stop, pause, lyricsButton);
 
-		let player = client.player.getPlayer(interaction.guildId as string);
-		let voiceChannel = (interaction.member as GuildMember).voice.channel;
+		const player = client.player.getPlayer(interaction.guildId as string);
+		const voiceChannel = (interaction.member as GuildMember).voice.channel;
 
 		if (!player || !player.playing || !voiceChannel) {
 			await client.func.method.interactionSend(interaction, { content: lang.nowplaying_no_queue });
 			return;
 		};
 
-		let progress = client.func.generateProgressBar(client.iHorizon_Emojis, player.position, player.queue.current?.info.duration!)
+		const progress = client.func.generateProgressBar(client.iHorizon_Emojis, player.position, player.queue.current?.info.duration!)
 
-		var htmlContent = client.htmlfiles["nowPlaying"];
-		var dominant_color = (await getTopTwoColors(player.queue.current?.info.artworkUrl as string)).split(" ");
+		let htmlContent = client.htmlfiles["nowPlaying"];
+		const dominant_color = (await getTopTwoColors(player.queue.current?.info.artworkUrl as string)).split(" ");
 
 		htmlContent = htmlContent.replace("{album_cover}", player.queue.current?.info.artworkUrl as string)
 			.replace("{song_title}", player.queue.current?.info.title as string)
@@ -98,32 +93,32 @@ export const subCommand: SubCommand = {
 
 		const attachment = new AttachmentBuilder(image, { name: 'nowplaying.png' });
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(`**${player.queue.current?.info.title}**, ${player.queue.current?.info?.author}`)
 			.setURL(player.queue.current?.info?.uri || "")
 			.setDescription(`by: ${(player.queue.current?.requester as User).toString()}`)
 			.setColor("#6fa8dc")
 			.setImage("attachment://nowplaying.png")
 
-		let response = await client.func.method.interactionSend(interaction, {
+		const response = await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
 			components: [btn],
 			files: [attachment]
 		});
 
-		var paused: boolean = false;
-		var musicId = player.queue.current?.info.identifier;
+		let paused: boolean = false;
+		const musicId = player.queue.current?.info.identifier;
 		const collector = response.createMessageComponentCollector({
 			componentType: ComponentType.Button,
 			time: player.queue.current?.info.duration! - player.position
 		});
 
-		let refresh_interval = setInterval((async () => {
-			let player = client.player.getPlayer(interaction.guildId as string);
+		const refresh_interval = setInterval((async () => {
+			const player = client.player.getPlayer(interaction.guildId as string);
 
 			if (player && player.playing && !paused && player.queue.current?.info.identifier === musicId) {
-				let progress = client.func.generateProgressBar(client.emojis, player.position, player.queue.current?.info.duration!)
-				let htmlContent = client.htmlfiles["nowPlaying"]
+				const progress = client.func.generateProgressBar(client.emojis, player.position, player.queue.current?.info.duration!)
+				const htmlContent = client.htmlfiles["nowPlaying"]
 					.replace("{album_cover}", player.queue.current?.info.artworkUrl as string)
 					.replace("{song_title}", player.queue.current?.info.title as string)
 					.replace("{song_author}", player.queue.current?.info.author as string)
@@ -140,7 +135,7 @@ export const subCommand: SubCommand = {
 
 				const attachment = new AttachmentBuilder(image, { name: 'nowplaying.png' });
 
-				let embed = new EmbedBuilder()
+				const embed = new EmbedBuilder()
 					.setTitle(`**${player.queue.current?.info.title}**, ${player.queue.current?.info?.author}`)
 					.setURL(player.queue.current?.info?.uri || "")
 					.setDescription(`by: ${(player.queue.current?.requester as User).toString()}`)
@@ -166,8 +161,8 @@ export const subCommand: SubCommand = {
 
 				if (player || voiceChannel) {
 
-					let channel = i.guild?.channels.cache.get(player.textChannelId as string);
-					let requesterId = (player.queue.current?.requester as User).id
+					const channel = i.guild?.channels.cache.get(player.textChannelId as string);
+					const requesterId = (player.queue.current?.requester as User).id
 
 					if (i.user.id === requesterId) {
 						switch (i.customId) {
@@ -196,8 +191,8 @@ export const subCommand: SubCommand = {
 								if (!lyrics) {
 									i.editReply({ content: lang.nowplaying_lyrics_button });
 								} else {
-									let trimmedLyrics = lyrics.lyrics.substring(0, 1997);
-									let embed = new EmbedBuilder()
+									const trimmedLyrics = lyrics.lyrics.substring(0, 1997);
+									const embed = new EmbedBuilder()
 										.setTitle(player.queue.current?.info?.title as string)
 										.setURL(player.queue.current?.info?.uri as string)
 										.setTimestamp()

@@ -57,7 +57,7 @@ export const subCommand: SubCommand = {
 
 		await client.db.set(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`, state);
 
-		let allowed_user_string = state ? lang.backup_manage_owner : lang.backup_manage_admin;
+		const allowed_user_string = state ? lang.backup_manage_owner : lang.backup_manage_admin;
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.backup_manage_command_ok

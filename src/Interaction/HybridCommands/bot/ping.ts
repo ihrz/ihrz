@@ -23,7 +23,6 @@ import {
 	ApplicationCommandType,
 	ChatInputCommandInteraction,
 	Client,
-	CommandInteractionOptionResolver,
 	EmbedBuilder,
 	Message,
 } from 'discord.js'
@@ -64,9 +63,9 @@ export const command: Command = {
 		await ping.promise.probe("discord.com").then(result => { _net03 = Number(result.time) }).catch(() => { _net03 = lang.ping_down_msg });
 		await ping.promise.probe("ihorizon.org").then(result => { _net04 = Number(result.time) }).catch(() => { _net04 = lang.ping_down_msg });
 
-		let averagePing = (parseInt(_net01) + parseInt(_net02) + parseInt(_net03) + parseInt(_net04)) / 4;
+		const averagePing = (parseInt(_net01) + parseInt(_net02) + parseInt(_net03) + parseInt(_net04)) / 4;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor(2829617)
 			.setDescription(lang.ping_embed_desc
 				.replaceAll('${interaction.client.user.username}', interaction.client.user.username)

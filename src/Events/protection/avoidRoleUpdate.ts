@@ -27,7 +27,7 @@ export const event: BotEvent = {
 	name: "roleUpdate",
 	run: async (client: Client, oldRole: Role, newRole: Role) => {
 
-		let data = await client.db.get(`${newRole.guild.id}.PROTECTION`);
+		const data = await client.db.get(`${newRole.guild.id}.PROTECTION`);
 		if (!data) return;
 
 		if (!newRole.guild.members.me?.permissions.has([
@@ -35,12 +35,12 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.updaterole && data.updaterole.mode === 'allowlist') {
-			let fetchedLogs = await newRole.guild.fetchAuditLogs({
+			const fetchedLogs = await newRole.guild.fetchAuditLogs({
 				type: AuditLogEvent.RoleUpdate,
 				limit: 75,
 			});
 
-			let relevantLog = fetchedLogs.entries.find(entry =>
+			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === oldRole.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
@@ -50,14 +50,14 @@ export const event: BotEvent = {
 				return;
 			}
 
-			let baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			const baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
 				await newRole.edit({
 					...oldRole
 				});
 
-				let member = newRole.guild.members.cache.get(relevantLog?.executorId as string);
+				const member = newRole.guild.members.cache.get(relevantLog?.executorId as string);
 				await client.func.method.punish(data, member);
 			};
 		}

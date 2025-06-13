@@ -20,14 +20,9 @@
 */
 
 import {
-	Client,
 	ApplicationCommandOptionType,
-	ChatInputCommandInteraction,
 	ApplicationCommandType,
-	Message,
-	EmbedBuilder,
 	ChannelType,
-	PermissionsBitField,
 	PermissionFlagsBits,
 } from "discord.js";
 

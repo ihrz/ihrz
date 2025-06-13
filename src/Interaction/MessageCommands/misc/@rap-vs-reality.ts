@@ -111,8 +111,8 @@ export const command: Command = {
 				.replaceAll("overlay1.png", beforeSucksResizedPath)
 				.replaceAll("overlay2.png", bigSucksResizedPath);
 
-			let outPath = await client.kdenlive.tempSave(data);
-			let exported = await client.kdenlive.export(outPath);
+			const outPath = await client.kdenlive.tempSave(data);
+			const exported = await client.kdenlive.export(outPath);
 
 			await interaction.reply({
 				files: [{

@@ -22,7 +22,6 @@
 import {
 	Client,
 	ApplicationCommandOptionType,
-	User,
 	ChatInputCommandInteraction,
 	ApplicationCommandType,
 	Message
@@ -63,7 +62,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let tableOwner = client.db.table('OWNER');
+		const tableOwner = client.db.table('OWNER');
 
 		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unowner_not_owner });

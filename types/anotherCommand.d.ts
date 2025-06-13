@@ -23,10 +23,7 @@ import {
 	ApplicationCommandType,
 	CacheType,
 	Client,
-	CommandInteraction,
-	CommandInteractionOptionResolver,
 	MessageContextMenuCommandInteraction,
-	PermissionFlagsBits,
 	UserContextMenuCommandInteraction
 } from 'discord.js';
 

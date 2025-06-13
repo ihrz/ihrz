@@ -26,27 +26,27 @@ export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
 
-		let data = await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`) || false;
+		const data = await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`) || false;
 
 		if (!member.guild.members.me?.permissions.has([
 			PermissionsBitField.Flags.Administrator
 		])) return;
 
-		let fetchedLogs = await member.guild.fetchAuditLogs({
+		const fetchedLogs = await member.guild.fetchAuditLogs({
 			type: AuditLogEvent.BotAdd,
 		});
 
-		let filteredLog = fetchedLogs.entries.filter(x => x.targetId === member.id).first();
+		const filteredLog = fetchedLogs.entries.filter(x => x.targetId === member.id).first();
 
 		if (data === true && member.user.bot && filteredLog?.executorId !== member.guild.ownerId) {
 			await member.ban({ reason: 'The BlockBot function are enable!' });
 
-			let executor = member.guild.members.cache.get(filteredLog?.executorId!);
+			const executor = member.guild.members.cache.get(filteredLog?.executorId!);
 
 			await client.func.method.punish({ SANCTION: "simply+derank" }, executor, "Attempt to add an discord bot into this guild! -> Derank");
 
-			let owner = member.guild.members.cache.get(member.guild.ownerId);
-			let embed = new EmbedBuilder()
+			const owner = member.guild.members.cache.get(member.guild.ownerId);
+			const embed = new EmbedBuilder()
 				.setColor(2829617)
 				.setTitle(`⚠️ Danger in ${member.guild.name} ⚠️`)
 				.setDescription(`# BotAdd Warning\nSomeone have try to add discord bot.`)

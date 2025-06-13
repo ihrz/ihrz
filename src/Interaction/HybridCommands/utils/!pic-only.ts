@@ -27,11 +27,7 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
-	RoleSelectMenuBuilder,
-	RoleSelectMenuInteraction,
 	ComponentType,
-	Role,
 	PermissionFlagsBits,
 	Message,
 	ChannelSelectMenuBuilder,
@@ -43,7 +39,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Command } from '../../../../types/command.js';
 
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 
@@ -56,12 +51,12 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		let all_channels = await client.db.get(`${interaction.guildId}.UTILS.picOnly`) || [] as DatabaseStructure.UtilsData["picOnly"];
-		let baseData: DatabaseStructure.PicOnlyConfig = await client.db.get(`${interaction.guildId}.UTILS.picOnlyConfig`) || {
+		const baseData: DatabaseStructure.PicOnlyConfig = await client.db.get(`${interaction.guildId}.UTILS.picOnlyConfig`) || {
 			threshold: 3,
 			muteTime: 600000
 		};
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.utils_pic_only_embed_title)
 			.setColor("#475387")
 			.setDescription(lang.utils_pic_only_emnbed_desc)
@@ -84,13 +79,13 @@ export const subCommand: SubCommand = {
 				},
 			);
 
-		let channelSelectMenu = new ChannelSelectMenuBuilder()
+		const channelSelectMenu = new ChannelSelectMenuBuilder()
 			.setCustomId('utils-picOnly-role-selecter')
 			.setChannelTypes([ChannelType.GuildText])
 			.setMaxValues(25)
 			.setMinValues(0);
 
-		let choiceSelectMenu = new StringSelectMenuBuilder()
+		const choiceSelectMenu = new StringSelectMenuBuilder()
 			.setCustomId('utils-picOnly-option-selecter')
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
@@ -106,16 +101,16 @@ export const subCommand: SubCommand = {
 			channelSelectMenu.setDefaultChannels(channels);
 		}
 
-		let saveButton = new ButtonBuilder()
+		const saveButton = new ButtonBuilder()
 			.setCustomId('utils-picOnly-save-button')
 			.setStyle(ButtonStyle.Primary)
 			.setEmoji('💾');
 
-		let comp = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelectMenu);
-		let comp_1 = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(choiceSelectMenu);
-		let comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
+		const comp = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelectMenu);
+		const comp_1 = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(choiceSelectMenu);
+		const comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
 
-		let og_response = await client.func.method.interactionSend(interaction, {
+		const og_response = await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
 			components: [comp, comp_1, comp_2]
 		});
@@ -157,7 +152,7 @@ export const subCommand: SubCommand = {
 		collector_1.on('collect', async (stringInteraction) => {
 
 			if (stringInteraction.values[0] === "utils-picOnly-option-change-time") {
-				let response = await iHorizonModalResolve({
+				const response = await iHorizonModalResolve({
 					title: lang.utils_piconly_modal1_title,
 					customId: "pic_only_time_config",
 					deferUpdate: true,
@@ -175,7 +170,7 @@ export const subCommand: SubCommand = {
 					]
 				}, stringInteraction);
 
-				let calculedTime = client.timeCalculator.to_ms(response?.fields.getTextInputValue("case_value")!) || 600000;
+				const calculedTime = client.timeCalculator.to_ms(response?.fields.getTextInputValue("case_value")!) || 600000;
 
 				baseData.muteTime = 1296000000 < calculedTime ? 600000 : calculedTime
 
@@ -183,7 +178,7 @@ export const subCommand: SubCommand = {
 				await og_response.edit({ embeds: [embed] });
 				await client.db.set(`${interaction.guildId}.UTILS.picOnlyConfig`, baseData);
 			} else if (stringInteraction.values[0] === "utils-picOnly-option-change-threshold") {
-				let response = await iHorizonModalResolve({
+				const response = await iHorizonModalResolve({
 					title: lang.utils_piconly_modal2_title,
 					customId: "pic_only_threshold_config",
 					deferUpdate: true,
@@ -201,7 +196,7 @@ export const subCommand: SubCommand = {
 					]
 				}, stringInteraction);
 
-				let threshold = parseInt(response?.fields.getTextInputValue("case_value")!);
+				const threshold = parseInt(response?.fields.getTextInputValue("case_value")!);
 
 				baseData.threshold = 15 < threshold ? 3 : threshold
 
@@ -214,7 +209,7 @@ export const subCommand: SubCommand = {
 		buttonCollector.on('collect', async (buttonInteraction: ButtonInteraction) => {
 			await buttonInteraction.deferUpdate();
 			if (buttonInteraction.customId === 'utils-picOnly-save-button') {
-				let newComp_2 = new ActionRowBuilder<ButtonBuilder>()
+				const newComp_2 = new ActionRowBuilder<ButtonBuilder>()
 					.addComponents(
 						saveButton
 							.setStyle(ButtonStyle.Success)

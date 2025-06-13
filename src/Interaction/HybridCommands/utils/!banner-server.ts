@@ -26,7 +26,6 @@ import {
 	Message,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -36,7 +35,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor('#c4afed')
 			.setTitle(lang.banner_guild_embed)
 			.setImage(interaction.guild.bannerURL({ extension: 'png', size: 4096 }))

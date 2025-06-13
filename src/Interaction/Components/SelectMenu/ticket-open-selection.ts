@@ -20,7 +20,7 @@
 */
 
 import { CreateTicketChannel } from '../../../core/modules/ticketsManager.js';
-import { CacheType, StringSelectMenuInteraction } from 'discord.js';
+import { StringSelectMenuInteraction } from 'discord.js';
 
 export default async function (interaction: StringSelectMenuInteraction<"cached">) {
 	if (!await interaction.client.db.get(

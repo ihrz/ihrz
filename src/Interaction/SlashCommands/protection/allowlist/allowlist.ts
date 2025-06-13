@@ -20,14 +20,11 @@
 */
 
 import {
-	Client,
 	ApplicationCommandOptionType,
-	ChatInputCommandInteraction,
 	ApplicationCommandType,
 } from 'discord.js';
 
 import { Command } from '../../../../../types/command.js';
-import { LanguageData } from '../../../../../types/languageData.js';
 
 export const command: Command = {
 	name: "allowlist",

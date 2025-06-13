@@ -47,12 +47,12 @@ export const subCommand: SubCommand = {
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		// Fetch user data
-		let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
-		let array: { user: User; level: number; xptotal: number; xp: number; }[] = [];
+		const char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
+		const array: { user: User; level: number; xptotal: number; xp: number; }[] = [];
 
-		for (let i in char) {
-			var a = char[i].XP_LEVELING!
-			let user = interaction.client.users.cache.get(i);
+		for (const i in char) {
+			const a = char[i].XP_LEVELING!
+			const user = interaction.client.users.cache.get(i);
 			if (!user || !a) continue;
 			array.push({
 				user: user,
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		var htmlContent = client.htmlfiles["podiumRanksModule"];
+		let htmlContent = client.htmlfiles["podiumRanksModule"];
 
 		// Sort array by total XP in descending order
 		array.sort((a, b) => b.xptotal - a.xptotal);

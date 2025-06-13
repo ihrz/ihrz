@@ -19,25 +19,24 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, Client, ComponentType, Embed, EmbedBuilder, Guild, GuildMember, UserSelectMenuBuilder } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ButtonInteraction, EmbedBuilder, Guild, GuildMember } from 'discord.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
-	let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	let table = interaction.client.db.table('TEMP');
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const table = interaction.client.db.table('TEMP');
 
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	let member = interaction.member as GuildMember;
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const member = interaction.member as GuildMember;
 
-	let targetedChannel = (interaction.member as GuildMember).voice.channel;
-	let allChannel = await table.get(`CUSTOM_VOICE.${interaction.guildId}`);
+	const targetedChannel = (interaction.member as GuildMember).voice.channel;
+	const allChannel = await table.get(`CUSTOM_VOICE.${interaction.guildId}`);
 
 	if (!result || !allChannel) return await interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId) return await interaction.deferUpdate();
 
 	let isTemporaryChannel = false;
-	for (let [userId, channelId] of Object.entries(allChannel)) {
+	for (const [userId, channelId] of Object.entries(allChannel)) {
 		if (channelId === targetedChannel?.id) {
 			isTemporaryChannel = true;
 			break;
@@ -47,9 +46,9 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	if (!isTemporaryChannel) return await interaction.deferUpdate();
 
 	function getPreviousOwner(guild: Guild): GuildMember | undefined {
-		var result = '';
+		let result = '';
 
-		for (let [userId, channelId] of Object.entries(allChannel)) {
+		for (const [userId, channelId] of Object.entries(allChannel)) {
 			if (channelId !== targetedChannel?.id) continue;
 			result = userId;
 		};
@@ -57,7 +56,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		return guild?.members.cache.get(result);
 	};
 
-	let previousOwner = getPreviousOwner(interaction.guild!);
+	const previousOwner = getPreviousOwner(interaction.guild!);
 
 	// Check if the previous owner is in their channel
 	if (targetedChannel?.members.get(previousOwner?.id!)) return await interaction.deferUpdate();

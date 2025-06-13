@@ -85,10 +85,10 @@ export const command: Command = {
 				)
 				;
 
-			let channelId = message.channelId;
-			let content = `**Last update:** ${time(new Date(), "R")}`
+			const channelId = message.channelId;
+			const content = `**Last update:** ${time(new Date(), "R")}`
 
-			let res = await client.func.method.channelSend(message.channel as BaseGuildTextChannel, {
+			const res = await client.func.method.channelSend(message.channel as BaseGuildTextChannel, {
 				content,
 				embeds: [embed]
 			});

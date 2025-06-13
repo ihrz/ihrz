@@ -127,7 +127,7 @@ export async function createAuthRestore(data: AuthRestore_EntryType): Promise<Au
 }
 
 export function getGuildDataPerSecretCode(data: { id: string; value: any }[], secretCode: string): { id: string, data: GuildAuthRestore } | null {
-	for (let index in data) {
+	for (const index in data) {
 		const entry = data[index];
 
 		if (entry.value && entry.value.config && entry.value.config.securityCode === secretCode) {

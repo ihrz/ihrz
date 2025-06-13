@@ -20,17 +20,14 @@
 */
 
 import {
-	AttachmentBuilder,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 	time
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -41,10 +38,10 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let giveawayData = await client.giveawaysManager.getAllGiveawayData();
-		let filtered = giveawayData.filter((giveaway) => giveaway.giveawayData.guildId === interaction.guildId && !giveaway.giveawayData.ended);
+		const giveawayData = await client.giveawaysManager.getAllGiveawayData();
+		const filtered = giveawayData.filter((giveaway) => giveaway.giveawayData.guildId === interaction.guildId && !giveaway.giveawayData.ended);
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor("#2986cc")
 			.setTimestamp()
 			.setTitle(lang.gw_getall_embed_title
@@ -59,9 +56,9 @@ export const subCommand: SubCommand = {
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		filtered.forEach(index => {
-			let Channel = `<#${index.giveawayData.channelId}>`;
-			let MessageURL = `https://discord.com/channels/${interaction.guildId}/${index.giveawayData.channelId}/${index.giveawayId}`;
-			let ExpireIn = `${time(new Date(index.giveawayData.expireIn), 'd')}`;
+			const Channel = `<#${index.giveawayData.channelId}>`;
+			const MessageURL = `https://discord.com/channels/${interaction.guildId}/${index.giveawayData.channelId}/${index.giveawayId}`;
+			const ExpireIn = `${time(new Date(index.giveawayData.expireIn), 'd')}`;
 
 			embed.addFields(
 				{

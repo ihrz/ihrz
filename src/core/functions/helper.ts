@@ -23,9 +23,9 @@ import { Message } from "discord.js";
 import { db } from "../database.js";
 
 export async function coolDown(message: Message, method: string, ms: number) {
-	let tn = Date.now();
-	let table = message.client.db.table("TEMP");
-	var fetch = await table.get(`COOLDOWN.${method}.${message.author.id}`);
+	const tn = Date.now();
+	const table = message.client.db.table("TEMP");
+	const fetch = await table.get(`COOLDOWN.${method}.${message.author.id}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;
 
 	await table.set(`COOLDOWN.${method}.${message.author.id}`, tn);
@@ -33,9 +33,9 @@ export async function coolDown(message: Message, method: string, ms: number) {
 };
 
 export async function hardCooldown(database: db, method: string, ms: number) {
-	let tn = Date.now();
-	let table = database.table("TEMP");
-	var fetch = await table.get(`COOLDOWN.${method}`);
+	const tn = Date.now();
+	const table = database.table("TEMP");
+	const fetch = await table.get(`COOLDOWN.${method}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;
 
 	await table.set(`COOLDOWN.${method}`, tn);

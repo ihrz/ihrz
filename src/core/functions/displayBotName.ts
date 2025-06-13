@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ButtonInteraction, ChatInputCommandInteraction, Client, Guild, GuildMember, Interaction, Message, StringSelectMenuInteraction, UserContextMenuCommandInteraction } from "discord.js";
+import { ButtonInteraction, ChatInputCommandInteraction, Guild, GuildMember, Interaction, Message, StringSelectMenuInteraction, UserContextMenuCommandInteraction } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 export async function footerBuilder(guildId: string = "") {
@@ -38,7 +38,7 @@ export async function footerBuilder(guildId: string = "") {
 export async function footerAttachmentBuilder(entry?: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild
 ) {
 
-	var res = await displayBotPP(
+	const res = await displayBotPP(
 		entry instanceof Guild
 			?
 			entry.id
@@ -52,7 +52,7 @@ export async function footerAttachmentBuilder(entry?: ChatInputCommandInteractio
 			name: 'footer_icon.png'
 		}
 	} else {
-		var buffer = Buffer.from(res.string, 'base64');
+		const buffer = Buffer.from(res.string, 'base64');
 
 		return {
 			attachment: buffer,

@@ -31,7 +31,6 @@ import {
 	ApplicationCommandType,
 	ColorResolvable,
 	Message,
-	CommandInteractionOptionResolver,
 	ApplicationCommandOptionType,
 	ButtonStyle,
 	ButtonBuilder,
@@ -136,7 +135,7 @@ async function handleCategorySelect(
 	const guildData = await client.db.get(`${i.guildId}.GUILD.LANG.lang`);
 	const categoryIndex = parseInt(i.values[0]);
 	const category = categories[categoryIndex];
-	let embeds: EmbedBuilder[] = [];
+	const embeds: EmbedBuilder[] = [];
 
 	let currentEmbed = new EmbedBuilder()
 		.setTitle(`${category.emoji}・${category.name}`)
@@ -153,7 +152,7 @@ async function handleCategorySelect(
 		let states = "";
 		let cmdPrefix: string;
 
-		var commandStates = Commands?.[element.cmd]
+		let commandStates = Commands?.[element.cmd]
 
 		if (typeof commandStates === 'number') {
 			commandStates = {
@@ -184,8 +183,8 @@ async function handleCategorySelect(
 			states = `${client.iHorizon_Emojis.Unlock}`;
 		}
 
-		var cleanedPrefixCommandName = element.prefixCmd || element.cmd;
-		var prefixOrNot = `${client.iHorizon_Emojis.Message_Commands} ${bot_prefix.string}${cleanedPrefixCommandName} \n`;
+		const cleanedPrefixCommandName = element.prefixCmd || element.cmd;
+		const prefixOrNot = `${client.iHorizon_Emojis.Message_Commands} ${bot_prefix.string}${cleanedPrefixCommandName} \n`;
 
 		switch (element.messageCmd) {
 			// Slash command
@@ -401,7 +400,7 @@ export const command: Command = {
 				return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu);
 			});
 
-			let og_embed = new EmbedBuilder()
+			const og_embed = new EmbedBuilder()
 				.setColor('#001eff')
 				.setDescription(lang.help_tip_embed
 					.replaceAll('${client.user?.username}', interaction.client.user.username)
@@ -420,14 +419,14 @@ export const command: Command = {
 				.setThumbnail("attachment://footer_icon.png")
 				.setTimestamp();
 
-			let response = await client.func.method.interactionSend(interaction, {
+			const response = await client.func.method.interactionSend(interaction, {
 				embeds: [og_embed],
 				components: rows,
 				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 			});
 
-			let collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840000 });
-			let bot_prefix = await client.func.prefix.guildPrefix(client, interaction.guild?.id!);
+			const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840000 });
+			const bot_prefix = await client.func.prefix.guildPrefix(client, interaction.guild?.id!);
 
 			collector.on('collect', async (i: StringSelectMenuInteraction) => {
 				if (i.user.id !== interaction.member?.user.id) {
@@ -460,7 +459,7 @@ export const command: Command = {
 				return;
 			});
 		} else {
-			let fetchCommand = client.commands.get(targetCommand) || client.message_commands.get(targetCommand);
+			const fetchCommand = client.commands.get(targetCommand) || client.message_commands.get(targetCommand);
 
 			if (!fetchCommand) {
 				await client.func.method.interactionSend(interaction, {

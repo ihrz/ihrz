@@ -65,7 +65,7 @@ function buildPaths(basePath: string, directoryTree: DirectoryTreeItem[]): strin
 	return paths;
 }
 
-let p = path.join(__dirname, '..', '..', 'Events');
+const p = path.join(__dirname, '..', '..', 'Events');
 
 async function loadEvents(client: Client, pathDir = p): Promise<void> {
 	const directoryTree = await buildDirectoryTree(pathDir);

@@ -27,12 +27,7 @@ import {
 	Client,
 	ComponentType,
 	EmbedBuilder,
-	InteractionEditReplyOptions,
 	Message,
-	MessageEditOptions,
-	MessagePayload,
-	MessageReplyOptions,
-	PermissionsBitField,
 	RoleSelectMenuBuilder
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
@@ -46,7 +41,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let all_roles = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`) as AntiSpam.AntiSpamOptions['BYPASS_ROLES'];
+		const all_roles = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`) as AntiSpam.AntiSpamOptions['BYPASS_ROLES'];
 
 		const embed = new EmbedBuilder()
 			.setColor("#6666ff")
@@ -119,7 +114,7 @@ export const subCommand: SubCommand = {
 
 			await i.deferUpdate();
 
-			let values = i.values;
+			const values = i.values;
 
 			embed.setFields({
 				name: lang.setjoinroles_help_embed_fields_1_name,

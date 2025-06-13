@@ -36,9 +36,9 @@ export const event: BotEvent = {
 
 			if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
-			let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+			const usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor("#ff0505")
 				.setDescription(`**A guild removed iHorizon !**`)
 				.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
@@ -53,7 +53,7 @@ export const event: BotEvent = {
 				.setTimestamp(guild.joinedTimestamp)
 				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
 
-			let channel = client.channels.cache.get(client.config.core.guildLogsChannelID);
+			const channel = client.channels.cache.get(client.config.core.guildLogsChannelID);
 
 			return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(guild)] });
 		} catch (error: any) {

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, Message, SnowflakeUtil } from 'discord.js';
+import { Client, Message } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
@@ -32,7 +32,7 @@ export const event: BotEvent = {
 			|| message.author.bot
 			|| !message.channel) return;
 
-		let messageObject: DatabaseStructure.StatsMessage = {
+		const messageObject: DatabaseStructure.StatsMessage = {
 			channelId: message.channelId,
 			contentLength: message.content.length,
 			sentTimestamp: message.createdTimestamp

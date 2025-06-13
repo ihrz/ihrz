@@ -21,11 +21,8 @@
 
 import {
 	Client,
-	EmbedBuilder,
-	PermissionsBitField,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
-	BaseGuildTextChannel,
 	ApplicationCommandType,
 	PermissionFlagsBits,
 } from 'discord.js';
@@ -116,9 +113,9 @@ export const command: Command = {
 
 
 
-		let action = interaction.options.getString("status");
-		let amount = interaction.options.getNumber("amount");
-		let punishment = interaction.options.getString("punishement");
+		const action = interaction.options.getString("status");
+		const amount = interaction.options.getNumber("amount");
+		const punishment = interaction.options.getString("punishement");
 
 		if (amount && action == "true") {
 			if (amount > 50) {

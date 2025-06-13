@@ -50,9 +50,9 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+		const usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
-		let clientembed = new EmbedBuilder()
+		const clientembed = new EmbedBuilder()
 			.setColor("#f0d020")
 			.setThumbnail("attachment://footer_icon.png")
 			.addFields(

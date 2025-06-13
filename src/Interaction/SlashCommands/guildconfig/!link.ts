@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	PermissionsBitField,
 	AutoModerationRuleTriggerType,
 	ChatInputCommandInteraction,
 	TextChannel
@@ -43,7 +42,6 @@ const regexPatterns = [
 ];
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -55,16 +53,16 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let turn = interaction.options.getString("action");
-		let logs_channel = interaction.options.getChannel('logs-channel');
+		const turn = interaction.options.getString("action");
+		const logs_channel = interaction.options.getChannel('logs-channel');
 
-		let automodRules = await interaction.guild.autoModerationRules.fetch();
-		let KeywordPresetRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+		const automodRules = await interaction.guild.autoModerationRules.fetch();
+		const KeywordPresetRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
 		if (turn === "on") {
 
 			if (!KeywordPresetRule) {
-				let arrayActionsForRule: Action[] = [
+				const arrayActionsForRule: Action[] = [
 					{
 						type: 1,
 						metadata: {

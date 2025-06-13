@@ -24,17 +24,12 @@ import {
 	Channel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
-	PermissionsBitField,
-	TextBasedChannel,
 } from 'discord.js';
 
-import { AxiosResponse, axios } from '../../../core/functions/axios.js';
-import logger from '../../../core/logger.js';
+import { axios } from '../../../core/functions/axios.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 async function isImageUrl(url: string): Promise<boolean> {
@@ -54,7 +49,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		var giveawayChannel = interaction.channel! as Channel;
+		const giveawayChannel = interaction.channel! as Channel;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var giveawayRequirement = interaction.options.getString("requirement") as "none" | "invites" | "messages" | "roles";
@@ -78,7 +73,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let giveawayDurationFormated = client.timeCalculator.to_ms(giveawayDuration!);
+		const giveawayDurationFormated = client.timeCalculator.to_ms(giveawayDuration!);
 
 		if (!giveawayDurationFormated) {
 			await client.func.method.interactionSend(interaction, {

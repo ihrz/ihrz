@@ -19,19 +19,18 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, ComponentType, Embed, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ActionRowBuilder, ButtonInteraction, ComponentType, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
-	let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	let table = interaction.client.db.table('TEMP');
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const table = interaction.client.db.table('TEMP');
 
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	let member = interaction.member as GuildMember;
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const member = interaction.member as GuildMember;
 
-	let targetedChannel = (interaction.member as GuildMember).voice.channel;
-	let getChannelId = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+	const targetedChannel = (interaction.member as GuildMember).voice.channel;
+	const getChannelId = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
 	if (!result) return await interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId
@@ -42,7 +41,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		return;
 	} else {
 
-		let response = await interaction.reply({
+		const response = await interaction.reply({
 			flags: [1 << 6],
 			components: [
 				new ActionRowBuilder<UserSelectMenuBuilder>()
@@ -56,7 +55,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			]
 		});
 
-		let collector = interaction.channel?.createMessageComponentCollector({
+		const collector = interaction.channel?.createMessageComponentCollector({
 			componentType: ComponentType.UserSelect,
 			filter: (u) => u.user.id === interaction.user.id,
 			time: 200_000
@@ -64,7 +63,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
 		collector?.on('collect', async i => {
 			// The new owner of the channel
-			let newOwner = i.members.first();
+			const newOwner = i.members.first();
 
 			// change ownership now
 			await table.delete(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);

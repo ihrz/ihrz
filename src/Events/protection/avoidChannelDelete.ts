@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, ChannelType, CategoryChannel, TextChannel, PermissionFlagsBits } from 'discord.js';
+import { Client, AuditLogEvent, GuildChannel, ChannelType, CategoryChannel, PermissionFlagsBits } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { protectionCache } from './ready.js';
 import wait from '../../core/functions/wait.js';
@@ -31,7 +31,7 @@ export const event: BotEvent = {
 	run: async (client: Client, channel: GuildChannel) => {
 		const guildId = channel.guild.id;
 
-		let data = await client.db.get(`${guildId}.PROTECTION`);
+		const data = await client.db.get(`${guildId}.PROTECTION`);
 		if (!data) return;
 
 		if (!channel.guild.members.me?.permissions.has([
@@ -51,10 +51,10 @@ export const event: BotEvent = {
 
 			if (!relevantLog) return;
 
-			let baseData = await client.db.get(`${guildId}.ALLOWLIST.list.${relevantLog.executorId}`);
+			const baseData = await client.db.get(`${guildId}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
-				let user = channel.guild.members.cache.get(relevantLog.executorId!);
+				const user = channel.guild.members.cache.get(relevantLog.executorId!);
 				if (!user) return;
 
 				client.func.method.punish(data, user);

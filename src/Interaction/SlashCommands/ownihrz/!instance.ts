@@ -33,7 +33,6 @@ import { format } from '../../../core/functions/date_and_time.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 const ITEMS_PER_PAGE = 5;
@@ -98,16 +97,16 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let action_to_do = interaction.options.getString('action');
-		let id_to_bot = interaction.options.getString('id');
+		const action_to_do = interaction.options.getString('action');
+		const id_to_bot = interaction.options.getString('id');
 
 		if (!client.owners.includes(interaction.user.id)) {
 			await interaction.editReply({ content: client.iHorizon_Emojis.No });
 			return;
 		};
 
-		let tableOWNIHRZ = client.db.table("OWNIHRZ")
-		let ownihrzClusterData = await tableOWNIHRZ.get('CLUSTER');
+		const tableOWNIHRZ = client.db.table("OWNIHRZ")
+		const ownihrzClusterData = await tableOWNIHRZ.get('CLUSTER');
 
 		// Working with Cluster
 		if (action_to_do === 'shutdown') {
@@ -117,11 +116,11 @@ export const subCommand: SubCommand = {
 				})
 			};
 
-			for (let userId in ownihrzClusterData as any) {
-				let botData = ownihrzClusterData[userId];
-				for (let botId in botData) {
+			for (const userId in ownihrzClusterData as any) {
+				const botData = ownihrzClusterData[userId];
+				for (const botId in botData) {
 					if (botId === id_to_bot) {
-						let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
 
 						if (fetch.PowerOff) {
 							await interaction.editReply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...` });
@@ -145,11 +144,11 @@ export const subCommand: SubCommand = {
 				})
 			};
 
-			for (let userId in ownihrzClusterData as any) {
-				let botData = ownihrzClusterData[userId];
-				for (let botId in botData) {
+			for (const userId in ownihrzClusterData as any) {
+				const botData = ownihrzClusterData[userId];
+				for (const botId in botData) {
 					if (botId === id_to_bot) {
-						let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
 
 						if (!fetch.PowerOff) {
 							await interaction.editReply({ content: `OwnIHRZ of <@${userId}>, is already up...` });
@@ -163,11 +162,11 @@ export const subCommand: SubCommand = {
 			}
 		} else if (action_to_do === 'delete') {
 
-			for (let userId in ownihrzClusterData as any) {
-				let botData = ownihrzClusterData[userId];
-				for (let botId in botData) {
+			for (const userId in ownihrzClusterData as any) {
+				const botData = ownihrzClusterData[userId];
+				for (const botId in botData) {
 					if (botId === id_to_bot) {
-						let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
 
 						await interaction.editReply({
 							content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`,
@@ -278,11 +277,11 @@ export const subCommand: SubCommand = {
 
 		} else if (action_to_do === 'add-expire') {
 
-			for (let userId in ownihrzClusterData as any) {
-				for (let botId in ownihrzClusterData[userId]) {
+			for (const userId in ownihrzClusterData as any) {
+				for (const botId in ownihrzClusterData[userId]) {
 					if (botId === id_to_bot) {
-						let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
-						let time = interaction.options.getString('time') || '0d';
+						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const time = interaction.options.getString('time') || '0d';
 
 						if (!client.timeCalculator.to_ms(time)) {
 							await interaction.editReply({ content: `Invalid time format!` });
@@ -294,7 +293,7 @@ export const subCommand: SubCommand = {
 							ms: client.timeCalculator.to_ms(time)!
 						})
 
-						let ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
+						const ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
 						let expire: string | null = null;
 
 						if (ExpireIn !== null) {
@@ -308,11 +307,11 @@ export const subCommand: SubCommand = {
 			};
 		} else if (action_to_do === 'sub-expire') {
 
-			for (let userId in ownihrzClusterData as any) {
-				for (let botId in ownihrzClusterData[userId]) {
+			for (const userId in ownihrzClusterData as any) {
+				for (const botId in ownihrzClusterData[userId]) {
 					if (botId === id_to_bot) {
-						let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
-						let time = interaction.options.getString('time') || '0d';
+						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const time = interaction.options.getString('time') || '0d';
 
 						if (!client.timeCalculator.to_ms(time)) {
 							await interaction.editReply({ content: `Invalid time format!` });
@@ -324,7 +323,7 @@ export const subCommand: SubCommand = {
 							ms: client.timeCalculator.to_ms(time)!
 						})
 
-						let ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
+						const ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
 						let expire: string | null = null;
 
 						if (ExpireIn !== null) {
@@ -339,17 +338,17 @@ export const subCommand: SubCommand = {
 				}
 			};
 		} else if (action_to_do === 'get') {
-			for (let userId in ownihrzClusterData as any) {
-				for (let botId in ownihrzClusterData[userId]) {
+			for (const userId in ownihrzClusterData as any) {
+				for (const botId in ownihrzClusterData[userId]) {
 					if (botId === id_to_bot) {
-						let fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
 						let expire: string | null = null;
 
 						if (fetch.ExpireIn) {
 							expire = format(new Date(fetch.ExpireIn), 'ddd, MMM DD YYYY');
 						}
 
-						let embed = new EmbedBuilder()
+						const embed = new EmbedBuilder()
 							.setColor('#2B2D31')
 							.setTitle('🤖 OwnIHRZ Bot Informations')
 							.setDescription("```json\n" + JSON.stringify({

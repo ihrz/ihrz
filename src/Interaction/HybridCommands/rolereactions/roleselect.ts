@@ -37,7 +37,6 @@ import {
 	RoleSelectMenuBuilder,
 	StringSelectMenuInteraction,
 	CacheType,
-	PermissionsBitField,
 	PermissionFlagsBits
 } from 'discord.js'
 
@@ -134,7 +133,7 @@ export const command: Command = {
 			return;
 		}
 
-		let fetchedMessage = await getMessage(channel as GuildTextBasedChannel, messageId);
+		const fetchedMessage = await getMessage(channel as GuildTextBasedChannel, messageId);
 
 		if (!fetchedMessage) {
 			await client.func.method.interactionSend(interaction, {
@@ -153,7 +152,7 @@ export const command: Command = {
 
 
 		// Fetch existing role select data
-		let baseData: DatabaseStructure.RoleReactData = await client.db.get(`${interaction.guildId}.GUILD.ROLE_SELECT.${messageId}`) || [];
+		const baseData: DatabaseStructure.RoleReactData = await client.db.get(`${interaction.guildId}.GUILD.ROLE_SELECT.${messageId}`) || [];
 		let placeholder = lang.roleselect_default_placeholder;
 
 		// Main selection menu
@@ -391,7 +390,7 @@ export const command: Command = {
 				await client.db.set(`${interaction.guildId}.GUILD.ROLE_SELECT.${messageId}`, baseData);
 				collector.stop();
 
-				let fetchedMessage = await getMessage(channel as GuildTextBasedChannel, messageId);
+				const fetchedMessage = await getMessage(channel as GuildTextBasedChannel, messageId);
 
 				if (baseData.length === 0) {
 					fetchedMessage?.edit({
@@ -424,7 +423,7 @@ export const command: Command = {
 		}
 
 		async function handlePlaceholderConfiguration(interaction2: StringSelectMenuInteraction<CacheType>) {
-			let modal2 = await iHorizonModalResolve({
+			const modal2 = await iHorizonModalResolve({
 				title: lang.roleselect_modal2_title,
 				customId: "roleselect_placeholder",
 				fields: [

@@ -21,18 +21,14 @@
 
 import {
 	Client,
-	EmbedBuilder,
-	PermissionsBitField,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
-	BaseGuildTextChannel,
 	ApplicationCommandType,
 	Message,
 	PermissionFlagsBits
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
@@ -126,7 +122,7 @@ export const command: Command = {
 			var type = args?.[0] as string | null;
 		};
 
-		let already = await client.db.get(`${interaction.guildId}.GUILD.LANG`);
+		const already = await client.db.get(`${interaction.guildId}.GUILD.LANG`);
 
 		if (already?.lang === type) {
 			await client.func.method.interactionSend(interaction, { content: lang.setserverlang_already });

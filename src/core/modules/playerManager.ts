@@ -22,19 +22,18 @@
 import { AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
-import { LanguageData } from '../../../types/languageData.js';
 import logger from '../logger.js';
 
 export default async (client: Client) => {
 
-	let nodes = client.config.lavalink.nodes;
+	const nodes = client.config.lavalink.nodes;
 
 	nodes.forEach(i => {
 		i.retryAmount = Infinity
 		i.retryDelay = 50_000
 	});
 
-	let lavalink_channel = client.channels.cache.get(client.config.core.lavalinkLogsChannelID || "") as BaseGuildTextChannel | undefined;
+	const lavalink_channel = client.channels.cache.get(client.config.core.lavalinkLogsChannelID || "") as BaseGuildTextChannel | undefined;
 
 	client.player = new LavalinkManager({
 		nodes,
@@ -58,11 +57,11 @@ export default async (client: Client) => {
 	});
 
 	client.player.on("trackStart", async (player, track) => {
-		let data = await client.func.getLanguageData(player.guildId);
+		const data = await client.func.getLanguageData(player.guildId);
 
 		const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
 
-		var htmlContent = client.htmlfiles["musicBanner"];
+		let htmlContent = client.htmlfiles["musicBanner"];
 
 		htmlContent = htmlContent
 			.replace("{song_title}", track?.info.title as string)
@@ -96,7 +95,7 @@ export default async (client: Client) => {
 	});
 
 	client.player.on("queueEnd", async player => {
-		let data = await client.func.getLanguageData(player.guildId);
+		const data = await client.func.getLanguageData(player.guildId);
 
 		const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
 
@@ -156,7 +155,7 @@ export default async (client: Client) => {
 		if (r.exception?.message === "Something broke when playing the track.") {
 			// Search with Soundcloud
 
-			let res = await player.node.search({
+			const res = await player.node.search({
 				query: `${(r as any).track.info.title} - ${(r as any).track.info.author}`,
 				source: "scsearch"
 			},

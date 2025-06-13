@@ -33,7 +33,6 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Command } from '../../../../types/command.js';
 
 
 const itemsPerPage = 5;
@@ -60,13 +59,13 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let data2 = await client.db.get(`BACKUPS.${interaction.member.user.id}`) as DatabaseStructure.DbBackupsUserObject;
-		let backups = [];
+		const data2 = await client.db.get(`BACKUPS.${interaction.member.user.id}`) as DatabaseStructure.DbBackupsUserObject;
+		const backups = [];
 
-		for (let i in data2) {
-			let result = data2[i];
+		for (const i in data2) {
+			const result = data2[i];
 
-			let v = (lang.backup_string_see_another_v
+			const v = (lang.backup_string_see_another_v
 				.replace('${result.categoryCount}', result.categoryCount.toString())
 				.replace('${result.channelCount}', result.channelCount.toString()));
 
@@ -77,16 +76,16 @@ export const subCommand: SubCommand = {
 		let currentPage = 0;
 
 		const generateEmbed = (page: number) => {
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setDescription(backups.length > 0 ? lang.backup_all_of_your_backup : lang.backup_backup_doesnt_exist)
 				.setAuthor({ name: interaction.member?.user.username || (interaction.member as GuildMember)?.displayName, iconURL: "attachment://user_icon.png" })
 				.setColor("#bf0bb9")
 				.setTimestamp();
 
 			if (backups.length > 0) {
-				let start = page * itemsPerPage;
-				let end = start + itemsPerPage;
-				let currentBackups = backups.slice(start, end);
+				const start = page * itemsPerPage;
+				const end = start + itemsPerPage;
+				const currentBackups = backups.slice(start, end);
 
 				currentBackups.forEach(backup => embed.addFields(backup));
 			}

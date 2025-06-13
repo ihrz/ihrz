@@ -19,19 +19,18 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ActionRowBuilder, ButtonInteraction, CacheType, ComponentType, EmbedBuilder, Guild, GuildMember, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ActionRowBuilder, ButtonInteraction, ComponentType, EmbedBuilder, GuildMember, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
-	let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	let table = interaction.client.db.table('TEMP');
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const table = interaction.client.db.table('TEMP');
 
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	let member = interaction.member as GuildMember;
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const member = interaction.member as GuildMember;
 
-	let targetedChannel = (interaction.member as GuildMember).voice.channel;
-	let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user?.id}`);
+	const targetedChannel = (interaction.member as GuildMember).voice.channel;
+	const getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user?.id}`);
 
 	if (!result) return await interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId
@@ -42,7 +41,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		return;
 	} else {
 
-		let comp = new StringSelectMenuBuilder()
+		const comp = new StringSelectMenuBuilder()
 			.setCustomId('starter')
 			.setPlaceholder(lang.temporary_voice_region_menu_placeholder)
 			.addOptions(
@@ -90,22 +89,22 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 					.setValue('brazil'),
 			);
 
-		let response = await interaction.reply({
+		const response = await interaction.reply({
 			flags: [1 << 6],
 			components: [
 				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
 			]
 		});
 
-		let collector = interaction.channel?.createMessageComponentCollector({
+		const collector = interaction.channel?.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			filter: (u) => u.user.id === interaction.user.id,
 			time: 200_000
 		});
 
 		collector?.on('collect', async i => {
-			let channel = (i.member as GuildMember).voice.channel;
-			let value = i.values[0];
+			const channel = (i.member as GuildMember).voice.channel;
+			const value = i.values[0];
 
 			await channel?.setRTCRegion(value);
 

@@ -49,7 +49,7 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 	}
 
 	let dbPromise: Promise<QuickDB<any>> | Promise<PallasDB> | Promise<BunDB>;
-	let databasePath = `${process.cwd()}/src/files`;
+	const databasePath = `${process.cwd()}/src/files`;
 
 	if (!fs.existsSync(databasePath)) {
 		await mkdir(databasePath, { recursive: true });

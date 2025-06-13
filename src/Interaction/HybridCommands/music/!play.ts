@@ -25,10 +25,7 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 	time,
 } from 'discord.js';
 
@@ -44,7 +41,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let voiceChannel = (interaction.member as GuildMember).voice.channel;
+		const voiceChannel = (interaction.member as GuildMember).voice.channel;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var query = interaction.options.getString("title")!;
@@ -73,7 +70,7 @@ export const subCommand: SubCommand = {
 		let res: SearchResult | undefined;
 		let node;
 
-		for (let _node of client.player.nodeManager.nodes.values()) {
+		for (const _node of client.player.nodeManager.nodes.values()) {
 			if (_node.connected === false) continue;
 
 			res = await _node?.search({ query }, interaction.member.user)
@@ -84,7 +81,7 @@ export const subCommand: SubCommand = {
 			}
 		}
 
-		let player = client.player.createPlayer({
+		const player = client.player.createPlayer({
 			guildId: interaction.guildId as string,
 			voiceChannelId: voiceChannel.id,
 			textChannelId: interaction.channelId,
@@ -133,7 +130,7 @@ export const subCommand: SubCommand = {
 		// player.setVolume(75);
 
 		if (!res || res.tracks.length === 0) {
-			let results = new EmbedBuilder()
+			const results = new EmbedBuilder()
 				.setTitle(lang.p_embed_title)
 				.setColor('#ff0000')
 				.setTimestamp();
@@ -156,7 +153,7 @@ export const subCommand: SubCommand = {
 			await player.play();
 		}
 
-		let channel = interaction.guild.channels.cache.get(player.textChannelId as string);
+		const channel = interaction.guild.channels.cache.get(player.textChannelId as string);
 
 		(channel as BaseGuildTextChannel).send({
 			embeds: [
@@ -169,18 +166,18 @@ export const subCommand: SubCommand = {
 			]
 		});
 
-		let yes = res.tracks[0];
+		const yes = res.tracks[0];
 
 		function timeCalcultator() {
-			let totalDurationMs = yes.info.duration;
-			let totalDurationSec = Math.floor(totalDurationMs! / 1000);
-			let hours = Math.floor(totalDurationSec / 3600);
-			let minutes = Math.floor((totalDurationSec % 3600) / 60);
-			let seconds = totalDurationSec % 60;
+			const totalDurationMs = yes.info.duration;
+			const totalDurationSec = Math.floor(totalDurationMs! / 1000);
+			const hours = Math.floor(totalDurationSec / 3600);
+			const minutes = Math.floor((totalDurationSec % 3600) / 60);
+			const seconds = totalDurationSec % 60;
 			return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 		}
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setDescription(`**${yes.info.title}**`)
 			.setColor('#00cc1a')
 			.setTimestamp()

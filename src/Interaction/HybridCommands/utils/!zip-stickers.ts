@@ -37,7 +37,7 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		let time = Date.now();
+		const time = Date.now();
 		if (!interaction.guild) return;
 
 		const stickers = interaction.guild.stickers.cache;
@@ -92,7 +92,7 @@ export const subCommand: SubCommand = {
 			});
 
 			// Calculate time taken
-			let calcTime = Date.now() - time;
+			const calcTime = Date.now() - time;
 
 			// Send the zip file
 			await client.func.method.interactionSend(interaction, {

@@ -34,7 +34,7 @@ export const event: BotEvent = {
 		if (message.content.length == 0) return;
 		if (message.content === "") return;
 
-		let message_content = hidden(message.content);
+		const message_content = hidden(message.content);
 
 		await client.db.set(`${message.guildId}.GUILD.SNIPE.${message.channel.id}`,
 			{

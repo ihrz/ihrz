@@ -21,7 +21,6 @@
 
 import { BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 export function getDetailedDiff(oldText: string, newText: string): string {
 	const oldLines = oldText.trim().split('\n');
@@ -84,27 +83,27 @@ export const event: BotEvent = {
 	name: "messageUpdate",
 	run: async (client: Client, oldMessage: Message, newMessage: Message) => {
 
-		let data = await client.func.getLanguageData(oldMessage.guildId);
+		const data = await client.func.getLanguageData(oldMessage.guildId);
 
 		if (!oldMessage || !oldMessage.guild) return;
 
 		if (!newMessage.author || newMessage.author.bot
 			|| oldMessage.content === '' || newMessage.content === '') return;
 
-		let someinfo = await client.db.get(`${oldMessage.guildId}.GUILD.SERVER_LOGS.message`);
+		const someinfo = await client.db.get(`${oldMessage.guildId}.GUILD.SERVER_LOGS.message`);
 
 		if (!someinfo || oldMessage.content === newMessage.content) return;
 
-		let Msgchannel = oldMessage.guild.channels.cache.get(someinfo);
+		const Msgchannel = oldMessage.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
-		let icon = newMessage.author.displayAvatarURL();
+		const icon = newMessage.author.displayAvatarURL();
 
 		if (oldMessage.partial || newMessage.content === "" || newMessage.content === null || newMessage.content === undefined) {
 			return;
 		}
 
-		let logsEmbed = new EmbedBuilder()
+		const logsEmbed = new EmbedBuilder()
 			.setColor("#000000")
 			.setAuthor({ name: newMessage.author.username, iconURL: icon })
 			.setDescription(data.event_srvLogs_messageUpdate_description

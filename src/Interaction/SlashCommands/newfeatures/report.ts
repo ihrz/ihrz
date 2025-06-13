@@ -64,12 +64,12 @@ export const command: Command = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		var sentences = interaction.options.getString("message-to-dev")
-		let timeout = 18000000
-		let cooldown = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.REPORT.cooldown`);
+		const sentences = interaction.options.getString("message-to-dev")
+		const timeout = 18000000
+		const cooldown = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.REPORT.cooldown`);
 
 		if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {
-			let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - cooldown), lang);
+			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - cooldown), lang);
 
 			await interaction.editReply({
 				content: lang.report_cooldown_command
@@ -88,7 +88,7 @@ export const command: Command = {
 			};
 
 			interaction.editReply({ content: lang.report_command_work });
-			var embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor("#ff0000")
 				.setDescription(`**${interaction.user.globalName || interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
 

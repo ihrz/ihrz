@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BaseGuildTextChannel, ChatInputCommandInteraction, EmbedBuilder, GuildMember, Message } from "discord.js";
+import { BaseGuildTextChannel, ChatInputCommandInteraction, EmbedBuilder, Message } from "discord.js";
 
 export default async function send(
 	interaction: ChatInputCommandInteraction<"cached"> | Message,
@@ -29,12 +29,12 @@ export default async function send(
 	}
 ) {
 	try {
-		let logEmbed = new EmbedBuilder()
+		const logEmbed = new EmbedBuilder()
 			.setColor("#bf0bb9")
 			.setTitle(embed.title)
 			.setDescription(embed.description);
 
-		let logchannel = interaction.guild?.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
+		const logchannel = interaction.guild?.channels.cache.find((channel) => channel.name === 'ihorizon-logs');
 
 		if (!logchannel) return;
 		(logchannel as BaseGuildTextChannel).send({ embeds: [logEmbed] });

@@ -21,7 +21,6 @@
 
 import {
 	ActionRowBuilder,
-	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
 	CacheType,
@@ -29,10 +28,8 @@ import {
 	ChannelType,
 	ChatInputCommandInteraction,
 	Client,
-	Component,
 	ComponentType,
 	EmbedBuilder,
-	PermissionFlagsBits,
 	RoleSelectMenuBuilder,
 	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
@@ -41,7 +38,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { generatePassword } from '../../../core/functions/random.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
@@ -90,7 +86,7 @@ export const subCommand: SubCommand = {
 		let panel_id = interaction.options.getString("panel_id");
 
 		// get panel data or initialize it
-		let baseData: TicketPanel = await client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panel_id}`) || {
+		const baseData: TicketPanel = await client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panel_id}`) || {
 			panelCode: generatePassword({ length: 10, uppercase: true, numbers: true }),
 			relatedEmbedId: null,
 			category: null,
@@ -107,7 +103,7 @@ export const subCommand: SubCommand = {
 
 		let is_saved = true;
 
-		let panelEmbed = new EmbedBuilder()
+		const panelEmbed = new EmbedBuilder()
 			.setTitle(lang.ticket_panel_embed_title + panel_id)
 			.setDescription(lang.ticket_panel_embed_desc)
 			.setFields(
@@ -159,7 +155,7 @@ export const subCommand: SubCommand = {
 			)
 			;
 
-		let panelSelec2t = new StringSelectMenuBuilder()
+		const panelSelec2t = new StringSelectMenuBuilder()
 			.setCustomId("panelSelect")
 			.setPlaceholder(lang.ticket_panel_panel_placeholder)
 			.addOptions(
@@ -198,7 +194,7 @@ export const subCommand: SubCommand = {
 					.setValue("change_ticket_channel_panel"),
 			);
 
-		let panelButton = [
+		const panelButton = [
 			new ButtonBuilder()
 				.setCustomId("send_embed")
 				.setLabel(lang.ticket_panel_button_send)
@@ -223,7 +219,7 @@ export const subCommand: SubCommand = {
 			let i = 0;
 			let _ = "```\n";
 
-			for (let field of fields) {
+			for (const field of fields) {
 				_ += `${i++} - ${field.name}\n`
 				field.desc ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field2_label}: ${field.desc}\n`) : null;
 				field.emoji ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field3_label}: ${field.emoji}\n`) : null;
@@ -238,7 +234,7 @@ export const subCommand: SubCommand = {
 			let _ = "```\n";
 			let i = 0;
 
-			for (let field of fields) {
+			for (const field of fields) {
 				_ += `${i++} - ${field.questionTitle}\n`
 				field.questionPlaceholder ? (_ += `  ┖  ${field.questionPlaceholder}\n`) : null;
 				_ += "\n"
@@ -263,7 +259,7 @@ export const subCommand: SubCommand = {
 				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 			};
 
-			let choice = i.customId;
+			const choice = i.customId;
 			i.deferUpdate();
 
 			switch (choice) {
@@ -278,7 +274,7 @@ export const subCommand: SubCommand = {
 				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 			};
 
-			let choice = i.values[0];
+			const choice = i.values[0];
 
 			switch (choice) {
 				case "save":
@@ -336,7 +332,7 @@ export const subCommand: SubCommand = {
 				});
 			}
 
-			let select = new StringSelectMenuBuilder()
+			const select = new StringSelectMenuBuilder()
 				.setCustomId("change_category_for_option")
 				.setPlaceholder(lang.ticket_panel_option_change_category)
 				.addOptions(
@@ -366,13 +362,13 @@ export const subCommand: SubCommand = {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
-				let choice = i.values[0];
-				let option = baseData.config.optionFields[parseInt(choice)];
+				const choice = i.values[0];
+				const option = baseData.config.optionFields[parseInt(choice)];
 
 				await i.deferUpdate();
 
 
-				let channelSelect = new ChannelSelectMenuBuilder()
+				const channelSelect = new ChannelSelectMenuBuilder()
 					.setCustomId("change_category_for_option")
 					.setChannelTypes(ChannelType.GuildCategory)
 					.setPlaceholder(lang.ticket_panel_change_category_channelSelect_placeholder);
@@ -396,7 +392,7 @@ export const subCommand: SubCommand = {
 						return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 					};
 
-					let category = i.values[0];
+					const category = i.values[0];
 					await i.deferUpdate();
 
 					option.categoryId = category;
@@ -418,7 +414,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function change_category() {
-			let channelSelect = new ChannelSelectMenuBuilder()
+			const channelSelect = new ChannelSelectMenuBuilder()
 				.setCustomId("change_category")
 				.setChannelTypes(ChannelType.GuildCategory)
 				.setPlaceholder(lang.ticket_panel_change_category_channelSelect_placeholder);
@@ -443,10 +439,10 @@ export const subCommand: SubCommand = {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
-				let category = i.values[0];
+				const category = i.values[0];
 				await i.deferUpdate();
 
-				let fetchChannel = await i.guild?.channels.fetch(category)!;
+				const fetchChannel = await i.guild?.channels.fetch(category)!;
 
 				baseData.category = category;
 				is_saved = false;
@@ -464,7 +460,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function change_placeholder(i: StringSelectMenuInteraction<CacheType>) {
-			let modal = await iHorizonModalResolve({
+			const modal = await iHorizonModalResolve({
 				customId: "change_placeholder",
 				deferUpdate: false,
 				title: lang.ticket_panel_change_placeholder_modal_title,
@@ -482,7 +478,7 @@ export const subCommand: SubCommand = {
 
 			if (!modal) return;
 
-			let placeholder = modal.fields.getTextInputValue("placeholder");
+			const placeholder = modal.fields.getTextInputValue("placeholder");
 
 			baseData.placeholder = placeholder;
 			is_saved = false;
@@ -499,7 +495,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function send_embed() {
-			let channelSelect = new ChannelSelectMenuBuilder()
+			const channelSelect = new ChannelSelectMenuBuilder()
 				.setCustomId("send_embed")
 				.setPlaceholder("Select a channel")
 				.setChannelTypes([ChannelType.GuildText]);
@@ -539,16 +535,16 @@ export const subCommand: SubCommand = {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
-				let channel = i.values[0];
-				let relatedEmbed = await client.db.get(`EMBED.${baseData.relatedEmbedId}`);
+				const channel = i.values[0];
+				const relatedEmbed = await client.db.get(`EMBED.${baseData.relatedEmbedId}`);
 
 				if (!relatedEmbed || !relatedEmbed.embedSource) {
 					return i.reply({ flags: [1 << 6], content: lang.ticket_panel_related_embed_dont_exist });
 				}
 
-				let embed = EmbedBuilder.from(relatedEmbed.embedSource);
+				const embed = EmbedBuilder.from(relatedEmbed.embedSource);
 
-				let selectMenu = new StringSelectMenuBuilder()
+				const selectMenu = new StringSelectMenuBuilder()
 					.setCustomId("ticket-open-selection-v2")
 					.setPlaceholder(baseData.placeholder)
 					.addOptions(
@@ -569,7 +565,7 @@ export const subCommand: SubCommand = {
 						})
 					);
 
-				let fetchChannel = await i.guild?.channels.fetch(channel);
+				const fetchChannel = await i.guild?.channels.fetch(channel);
 
 				if (!fetchChannel || !fetchChannel.isSendable()) {
 					return i.reply({ flags: [1 << 6], content: lang.ticket_panel_channel_error });
@@ -577,7 +573,7 @@ export const subCommand: SubCommand = {
 
 				i.deferUpdate();
 
-				let send_embed_interaction = await fetchChannel.send({
+				const send_embed_interaction = await fetchChannel.send({
 					embeds: [embed],
 					components: [
 						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)
@@ -628,7 +624,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function change_role() {
-			let roleSelect = new RoleSelectMenuBuilder()
+			const roleSelect = new RoleSelectMenuBuilder()
 				.setPlaceholder(lang.ticket_panel_change_role_roleSelect_placeholder)
 				.setCustomId("change_role")
 				.setMaxValues(10)
@@ -700,7 +696,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function change_embed(i: StringSelectMenuInteraction<CacheType>) {
-			let modal = await iHorizonModalResolve({
+			const modal = await iHorizonModalResolve({
 				customId: "change_embed",
 				deferUpdate: false,
 				title: lang.ticket_panel_change_embed_modal_placeholder,
@@ -719,10 +715,10 @@ export const subCommand: SubCommand = {
 			if (!modal) return;
 
 			// get the embed id
-			let embed_id = modal.fields.getTextInputValue("embed_id");
+			const embed_id = modal.fields.getTextInputValue("embed_id");
 
 			// check if the embed exists
-			let embed = await client.db.get(`EMBED.${embed_id}`);
+			const embed = await client.db.get(`EMBED.${embed_id}`);
 
 			if (!embed) {
 				return modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
@@ -743,7 +739,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function change_ticket_channel_panel(i: StringSelectMenuInteraction<CacheType>) {
-			let modal = await iHorizonModalResolve({
+			const modal = await iHorizonModalResolve({
 				customId: "change_embed2",
 				deferUpdate: false,
 				title: lang.ticket_panel_change_embed_modal_placeholder,
@@ -762,10 +758,10 @@ export const subCommand: SubCommand = {
 			if (!modal) return;
 
 			// get the embed id
-			let embed_id = modal.fields.getTextInputValue("embed_id");
+			const embed_id = modal.fields.getTextInputValue("embed_id");
 
 			// check if the embed exists
-			let embed = await client.db.get(`EMBED.${embed_id}`);
+			const embed = await client.db.get(`EMBED.${embed_id}`);
 
 			if (!embed) {
 				return modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
@@ -785,7 +781,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function change_option() {
-			let select = new StringSelectMenuBuilder()
+			const select = new StringSelectMenuBuilder()
 				.setCustomId("change_option")
 				.setPlaceholder(lang.ticket_panel_change_option_select_placeholder)
 				.addOptions(
@@ -816,7 +812,7 @@ export const subCommand: SubCommand = {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
-				let choice = i.values[0];
+				const choice = i.values[0];
 
 				switch (choice) {
 					case "add":
@@ -852,7 +848,7 @@ export const subCommand: SubCommand = {
 				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_add_option_max_10 });
 			}
 
-			let modal = await iHorizonModalResolve({
+			const modal = await iHorizonModalResolve({
 				customId: "add_option",
 				deferUpdate: false,
 				title: lang.ticket_panel_add_option_modal_title,
@@ -886,8 +882,8 @@ export const subCommand: SubCommand = {
 
 			if (!modal) return;
 
-			let name = modal.fields.getTextInputValue("name");
-			let desc = modal.fields.getTextInputValue("desc");
+			const name = modal.fields.getTextInputValue("name");
+			const desc = modal.fields.getTextInputValue("desc");
 			let emoji: string | undefined = modal.fields.getTextInputValue("emoji");
 
 			// Check emoji before push
@@ -924,7 +920,7 @@ export const subCommand: SubCommand = {
 				});
 			}
 
-			let select = new StringSelectMenuBuilder()
+			const select = new StringSelectMenuBuilder()
 				.setCustomId("remove_option")
 				.setPlaceholder(lang.ticket_panel_remove_option_select_placeholder)
 				.addOptions(
@@ -954,7 +950,7 @@ export const subCommand: SubCommand = {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
-				let choice = i.values[0];
+				const choice = i.values[0];
 				baseData.config.optionFields.splice(parseInt(choice), 1);
 
 				is_saved = false;
@@ -984,7 +980,7 @@ export const subCommand: SubCommand = {
 		};
 
 		async function change_form() {
-			let select = new StringSelectMenuBuilder()
+			const select = new StringSelectMenuBuilder()
 				.setCustomId("change_form")
 				.setPlaceholder(lang.ticket_panel_change_option_select_placeholder)
 				.addOptions(
@@ -1015,7 +1011,7 @@ export const subCommand: SubCommand = {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
-				let choice = i.values[0];
+				const choice = i.values[0];
 
 				switch (choice) {
 					case "add":
@@ -1051,7 +1047,7 @@ export const subCommand: SubCommand = {
 				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_add_form_max_3 });
 			}
 
-			let modal = await iHorizonModalResolve({
+			const modal = await iHorizonModalResolve({
 				customId: "add_form",
 				deferUpdate: false,
 				title: lang.ticket_panel_add_form_modal_title,
@@ -1077,8 +1073,8 @@ export const subCommand: SubCommand = {
 
 			if (!modal) return;
 
-			let questionTitle = modal.fields.getTextInputValue("questionTitle");
-			let questionPlaceholder = modal.fields.getTextInputValue("questionPlaceholder");
+			const questionTitle = modal.fields.getTextInputValue("questionTitle");
+			const questionPlaceholder = modal.fields.getTextInputValue("questionPlaceholder");
 
 			baseData.config.form.push({
 				questionId: baseData.config.form.length,
@@ -1112,7 +1108,7 @@ export const subCommand: SubCommand = {
 				});
 			}
 
-			let select = new StringSelectMenuBuilder()
+			const select = new StringSelectMenuBuilder()
 				.setCustomId("remove_form")
 				.setPlaceholder(lang.ticket_panel_remove_option_select_placeholder)
 				.addOptions(
@@ -1142,7 +1138,7 @@ export const subCommand: SubCommand = {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
-				let choice = i.values[0];
+				const choice = i.values[0];
 				baseData.config.form.splice(parseInt(choice), 1);
 
 				is_saved = false;
@@ -1172,7 +1168,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function preview(i: StringSelectMenuInteraction<CacheType>) {
-			let relatedEmbed = await client.db.get(`EMBED.${baseData.relatedEmbedId}`);
+			const relatedEmbed = await client.db.get(`EMBED.${baseData.relatedEmbedId}`);
 
 			if (!relatedEmbed || !relatedEmbed.embedSource) {
 				await originalResponse.edit({
@@ -1189,9 +1185,9 @@ export const subCommand: SubCommand = {
 				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_need_1_option });
 			}
 
-			let embed = EmbedBuilder.from(relatedEmbed.embedSource);
+			const embed = EmbedBuilder.from(relatedEmbed.embedSource);
 
-			let selectMenu = new StringSelectMenuBuilder()
+			const selectMenu = new StringSelectMenuBuilder()
 				.setCustomId("ticket-open-selection-v2-preview")
 				.setPlaceholder(baseData.placeholder)
 				.addOptions(

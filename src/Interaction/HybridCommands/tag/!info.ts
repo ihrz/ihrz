@@ -22,17 +22,10 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
-	time,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generateTagInfoEmbed } from './tag.js';
 
@@ -50,7 +43,7 @@ export const subCommand: SubCommand = {
 			var tag_name = client.func.method.string(args!, 0)!;
 		}
 
-		let baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS.storedTags.${tag_name}`) as DatabaseStructure.TagInfo | undefined;
+		const baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS.storedTags.${tag_name}`) as DatabaseStructure.TagInfo | undefined;
 
 		// check if there are no tags
 
@@ -62,9 +55,9 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let embed = generateTagInfoEmbed(interaction, lang, tag_name, baseData)
+		const embed = generateTagInfoEmbed(interaction, lang, tag_name, baseData)
 
-		let embed2 = await client.db.get(`EMBED.${baseData.embedId}`);
+		const embed2 = await client.db.get(`EMBED.${baseData.embedId}`);
 
 		await client.func.method.interactionSend(interaction, { embeds: [embed, embed2?.embedSource] });
 		return;

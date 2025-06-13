@@ -27,7 +27,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -39,13 +38,13 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let id_1 = interaction.options.getString('id');
+		const id_1 = interaction.options.getString('id');
 
-		var table_1 = client.db.table("TEMP");
+		const table_1 = client.db.table("TEMP");
 		let id_2 = await table_1.get(`OWNIHRZ.${interaction.user.id}.${id_1}`);
 
-		for (let i in id_2) {
-			for (let j in id_2[i]) {
+		for (const i in id_2) {
+			for (const j in id_2[i]) {
 				if (id_1 === j) {
 					id_2 = id_2[i][j];
 				}
@@ -64,21 +63,21 @@ export const subCommand: SubCommand = {
 
 		id_2.code = id_1;
 
-		let bot_1 = (await client.ownihrz.Get_Bot(id_2.auth).catch(() => { }))?.data || 404
+		const bot_1 = (await client.ownihrz.Get_Bot(id_2.auth).catch(() => { }))?.data || 404
 
 		if (bot_1 === 404) {
 			await interaction.reply({ content: lang.mybot_instance_deny_token_error });
 			return;
 		} else {
 
-			let utils_msg = lang.mybot_instance_deny_utils_msg
+			const utils_msg = lang.mybot_instance_deny_utils_msg
 				.replace('${bot_1.bot.id}', bot_1.bot.id)
 				.replace('${bot_1.bot.username}', bot_1.bot.username)
 				.replace("${bot_1.bot_public ? 'Yes' : 'No'}",
 					bot_1.bot_public ? lang.mybot_instance_deny_utils_msg_yes : lang.mybot_instance_deny_utils_msg_no
 				);
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor('#ff0000')
 				.setTitle(lang.mybot_instance_deny_embed_title
 					.replace('${bot_1.bot.username}', bot_1.bot.username)

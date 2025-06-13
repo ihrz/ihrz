@@ -26,10 +26,8 @@ import {
 	EmbedBuilder,
 	GuildMember,
 	Message,
-	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -46,14 +44,14 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0) || interaction.member;
 		};
 
-		let baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
-		var level = baseData?.level || 0;
-		var currentxp = baseData?.xp || 0;
+		const baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
+		const level = baseData?.level || 0;
+		const currentxp = baseData?.xp || 0;
 
-		var xpNeeded = level * 500 + 500;
-		var expNeededForLevelUp = xpNeeded - currentxp;
+		const xpNeeded = level * 500 + 500;
+		const expNeededForLevelUp = xpNeeded - currentxp;
 
-		var htmlContent = client.htmlfiles['ranksCard'];
+		let htmlContent = client.htmlfiles['ranksCard'];
 
 		htmlContent = htmlContent
 			.replace('AVATAR_URL', user.displayAvatarURL({ extension: 'png', size: 128 }))
@@ -77,7 +75,7 @@ export const subCommand: SubCommand = {
 
 		const attachment = new AttachmentBuilder(image, { name: 'image.png' });
 
-		let nivEmbed = new EmbedBuilder()
+		const nivEmbed = new EmbedBuilder()
 			.setTitle(lang.level_embed_title
 				.replace('${user.username}', String(user.user.globalName || user.displayName))
 			)

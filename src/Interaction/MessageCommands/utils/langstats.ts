@@ -20,12 +20,9 @@
 */
 
 import {
-	BaseGuildTextChannel,
-	ChannelType,
 	Client,
 	EmbedBuilder,
 	Message,
-	time,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -51,22 +48,22 @@ export const command: Command = {
 
 	category: "owner",
 	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
-		let tableOwner = client.db.table('OWNER');
+		const tableOwner = client.db.table('OWNER');
 
 		if (!await tableOwner.get(`${message.author.id}.owner`)) {
 			await client.func.method.interactionSend(message, { content: lang.blacklist_not_owner });
 			return;
 		};
 
-		let database_entry = await client.db.all();
-		let all_JSON_guild_data = database_entry.filter(x => isNumber(x.id));
+		const database_entry = await client.db.all();
+		const all_JSON_guild_data = database_entry.filter(x => isNumber(x.id));
 
 		const allLangsStats: Record<string, number> = {};
 
-		for (let guild of all_JSON_guild_data) {
-			let guildId = guild.id;
-			let guildData = guild.value as DatabaseStructure.DbInId;
-			let lang = guildData?.GUILD?.LANG?.lang || "en-US";
+		for (const guild of all_JSON_guild_data) {
+			const guildId = guild.id;
+			const guildData = guild.value as DatabaseStructure.DbInId;
+			const lang = guildData?.GUILD?.LANG?.lang || "en-US";
 			if (allLangsStats[lang]) {
 				allLangsStats[lang] = (allLangsStats[lang] + 1);
 			} else {
@@ -89,7 +86,7 @@ export const command: Command = {
 
 		type SupportedLang = keyof typeof all_supported_languages;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor(2829617)
 			.setDescription(`# Stats Lang over all iHorizon guilds (${client.guilds.cache.size} guilds)`)
 			.setFooter(await client.func.displayBotName.footerBuilder(message.guildId))

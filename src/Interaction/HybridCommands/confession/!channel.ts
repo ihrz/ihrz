@@ -27,15 +27,11 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	InteractionEditReplyOptions,
 	Message,
-	MessageReplyOptions,
-	PermissionsBitField,
 	SnowflakeUtil,
 	TextChannel
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -62,14 +58,14 @@ export const subCommand: SubCommand = {
 				.replace('${channel?.toString()}', channel.toString()!)
 		});
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor('#ff05aa')
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp()
 			.setDescription(lang.confession_channel_panel_embed_desc)
 			;
 
-		let actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
 				.setStyle(ButtonStyle.Secondary)
 				.setLabel(buttonTitle)
@@ -78,7 +74,7 @@ export const subCommand: SubCommand = {
 
 		const nonce = SnowflakeUtil.generate().toString();
 
-		let message = await (channel as BaseGuildTextChannel).send({
+		const message = await (channel as BaseGuildTextChannel).send({
 			embeds: [embed],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)],
 			components: [actionRow],

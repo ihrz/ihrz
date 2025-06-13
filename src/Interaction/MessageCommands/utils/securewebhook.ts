@@ -23,7 +23,6 @@ import {
 	ApplicationCommandOptionType,
 	Client,
 	Message,
-	PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -89,8 +88,8 @@ export const command: Command = {
 	permission: null,
 	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
 
-		let action = client.func.method.string(options!, 0);
-		let input = client.func.method.string(options!, 1) || "";
+		const action = client.func.method.string(options!, 0);
+		const input = client.func.method.string(options!, 1) || "";
 
 		const matches = input.match(
 			/https?:\/\/(?:ptb\.|canary\.)?discord\.com\/api(?:\/v\d{1,2})?\/webhooks\/(\d{17,19})\/([\w-]{68})/i,
@@ -137,9 +136,9 @@ export const command: Command = {
 
 			const data = await API_TABLE.get("WH_SEC") || {};
 
-			let datas = Object.values(data) || [];
+			const datas = Object.values(data) || [];
 
-			let filtered_wh = datas.filter((wh: any) => wh.userId === message.author.id) || []
+			const filtered_wh = datas.filter((wh: any) => wh.userId === message.author.id) || []
 
 			// Check if the webhook is owned by the user
 			if (filtered_wh.length == 0) {
@@ -184,11 +183,11 @@ export const command: Command = {
 
 			const data = await API_TABLE.get("WH_SEC") || {};
 
-			let datas = Object.values(data) || [];
+			const datas = Object.values(data) || [];
 
-			let filtered_wh = datas.filter((wh: any) => wh.userId === message.author.id);
-			let webhook_base_url = `${client.config.api.HorizonGateway}/api/webhooks/{id}/{token}`;
-			let all_whs = filtered_wh
+			const filtered_wh = datas.filter((wh: any) => wh.userId === message.author.id);
+			const webhook_base_url = `${client.config.api.HorizonGateway}/api/webhooks/{id}/{token}`;
+			const all_whs = filtered_wh
 				.map((wh: any) => `> [${wh.code}](${webhook_base_url.replace("{id}", wh.code).replace("{token}", wh.token)}) - ${wh.use} use(s)`)
 				.join("\n");
 

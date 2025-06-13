@@ -27,11 +27,9 @@ import {
 	Client,
 	ComponentType,
 	EmbedBuilder,
-	PermissionsBitField,
 } from 'discord.js';
 import WebSocket from 'ws';
-import { forceJoinAuthRestore, getGuildDataPerSecretCode, SavedMembersAuthRestore } from '../../../core/functions/authRestoreHelper.js';
-import { Command } from '../../../../types/command.js';
+import { forceJoinAuthRestore, getGuildDataPerSecretCode } from '../../../core/functions/authRestoreHelper.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 
@@ -59,7 +57,7 @@ export const subCommand: SubCommand = {
 			return interaction.guild.members.cache.has(userId)
 		});
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.rc_forceJoin_embed_title)
 			.setDescription(lang.rc_forceJoin_embed_desc)
 			.setColor(2829617)
@@ -102,7 +100,7 @@ export const subCommand: SubCommand = {
 			await i.deferUpdate();
 
 			if (i.customId === "yes") {
-				let totalMembers = Data.data.members.length;
+				const totalMembers = Data.data.members.length;
 				let addedCount = 0;
 				let lastUpdateTime = Date.now();
 
@@ -128,8 +126,8 @@ export const subCommand: SubCommand = {
 					guildId: Data.id,
 					secretCode
 				}).then(res => {
-					let data = res.message.split("%");
-					let ws = new WebSocket(data[0]);
+					const data = res.message.split("%");
+					const ws = new WebSocket(data[0]);
 
 					ws.on('error', console.error);
 

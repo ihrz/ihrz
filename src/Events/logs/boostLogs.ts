@@ -22,20 +22,19 @@
 import { EmbedBuilder, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
 	run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
 
-		let data = await client.func.getLanguageData(newMember.guild.id);
+		const data = await client.func.getLanguageData(newMember.guild.id);
 
 		if (!newMember.guild.roles.premiumSubscriberRole) return;
-		let Msgchannel = newMember.guild.channels.cache.get(await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`) as string);
+		const Msgchannel = newMember.guild.channels.cache.get(await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`) as string);
 
 		if (!Msgchannel) return;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor("#a27cec")
 			.setAuthor({ name: newMember?.user.username, iconURL: newMember?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
 			.setTimestamp();

@@ -19,19 +19,18 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, CacheType, ComponentType, Embed, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, ComponentType, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
-	let result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	let table = interaction.client.db.table('TEMP');
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const table = interaction.client.db.table('TEMP');
 
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	let member = interaction.member;
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const member = interaction.member;
 
-	let targetedChannel = (interaction.member as GuildMember).voice.channel;
-	let getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+	const targetedChannel = (interaction.member as GuildMember).voice.channel;
+	const getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
 	if (!result) return await interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId
@@ -42,7 +41,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		return;
 	} else {
 
-		let response = await interaction.reply({
+		const response = await interaction.reply({
 			flags: [1 << 6],
 			components: [
 				new ActionRowBuilder<UserSelectMenuBuilder>()
@@ -56,15 +55,15 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			]
 		});
 
-		let collector = interaction.channel?.createMessageComponentCollector({
+		const collector = interaction.channel?.createMessageComponentCollector({
 			componentType: ComponentType.UserSelect,
 			filter: (u) => u.user.id === interaction.user.id,
 			time: 200_000
 		});
 
 		collector?.on('collect', async i => {
-			let membersArray: string[] = [];
-			let listmembersArray: string[] = [];
+			const membersArray: string[] = [];
+			const listmembersArray: string[] = [];
 
 			// Push all the member of the Selection on the Array
 			i.members.each(async (i) => { membersArray.push(i.user?.id as string) });
@@ -75,8 +74,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			});
 
 			// Declare the array
-			let addedMembers: string[] = [];
-			let removedMembers: string[] = [];
+			const addedMembers: string[] = [];
+			const removedMembers: string[] = [];
 
 			// Remove member if are delete from the SelectMenu
 			listmembersArray.forEach(async (overwriteId) => {

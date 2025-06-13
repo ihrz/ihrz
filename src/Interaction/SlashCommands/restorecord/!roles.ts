@@ -20,19 +20,13 @@
 */
 
 import {
-	ActionRowBuilder,
-	AttachmentBuilder,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
 } from 'discord.js';
 import { changeRoleAuthRestore, getGuildDataPerSecretCode } from '../../../core/functions/authRestoreHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -56,7 +50,7 @@ export const subCommand: SubCommand = {
 
 		await changeRoleAuthRestore({ guildId: interaction.guildId!, apiToken: client.config.api.apiToken, roleId: role.id });
 
-		let footer = await client.func.displayBotName.footerBuilder(interaction.guildId!);
+		const footer = await client.func.displayBotName.footerBuilder(interaction.guildId!);
 
 		const mainEmbed = new EmbedBuilder()
 			.setColor(2829617)

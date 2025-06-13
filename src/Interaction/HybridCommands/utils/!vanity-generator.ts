@@ -21,20 +21,12 @@
 
 import {
 	Client,
-	EmbedBuilder,
-	CommandInteraction,
-	ApplicationCommandType,
-	ChannelType,
-	PermissionsBitField,
-	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
-	BaseGuildTextChannel,
 	TextChannel,
 	Message,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 
 function VerifyVanityCode(VanityCode: string) {
@@ -51,7 +43,7 @@ function VerifyVanityCode(VanityCode: string) {
 
 async function VanityCodeAlreadyExist(AllVanityGuild: any, code: string): Promise<boolean> {
 	let _ = false;
-	for (let guildId in AllVanityGuild) {
+	for (const guildId in AllVanityGuild) {
 		if (AllVanityGuild[guildId]?.vanity === code) _ = true;
 	}
 	return _;
@@ -73,11 +65,11 @@ export const subCommand: SubCommand = {
 			var VanityCode = client.func.method.string(args!, 0) as string;
 		};
 
-		let db = client.db.table('API');
+		const db = client.db.table('API');
 
-		let get = await db.get('VANITY');
+		const get = await db.get('VANITY');
 
-		let guildGet = get?.[`${interaction.guildId}`]?.['code'];
+		const guildGet = get?.[`${interaction.guildId}`]?.['code'];
 
 		if (!VerifyVanityCode(VanityCode)) {
 			await client.func.method.interactionSend(interaction, { content: `The URL Vanity code \`${VanityCode}\` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
@@ -89,7 +81,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let guildInvite = await interaction.guild.invites.create((interaction.channel as TextChannel), { temporary: false, reason: "iHorizon - VanityGenerator", maxAge: 0 });
+		const guildInvite = await interaction.guild.invites.create((interaction.channel as TextChannel), { temporary: false, reason: "iHorizon - VanityGenerator", maxAge: 0 });
 
 		const req = await fetch(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.CreateCustomVanity), {
 			method: 'POST',
