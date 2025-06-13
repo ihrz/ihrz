@@ -24,14 +24,10 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -49,9 +45,9 @@ export const subCommand: SubCommand = {
 			var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
 		};
 
-		let mentionedUser = member || interaction.member.user as User;
+		const mentionedUser = member || interaction.member.user as User;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setImage(mentionedUser.displayAvatarURL({ extension: 'png', size: 512 }))
 			.setColor("#add5ff")
 			.setTitle(lang.avatar_embed_title

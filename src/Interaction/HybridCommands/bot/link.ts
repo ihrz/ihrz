@@ -27,7 +27,6 @@ import {
 	ChatInputCommandInteraction,
 	ApplicationCommandType,
 	Message,
-	CommandInteractionOptionResolver,
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
@@ -52,17 +51,17 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let websitebutton = new ButtonBuilder()
+		const websitebutton = new ButtonBuilder()
 			.setLabel(lang.links_website)
 			.setStyle(ButtonStyle.Link)
 			.setURL('https://ihorizon.org');
 
-		let gitlabbutton = new ButtonBuilder()
+		const gitlabbutton = new ButtonBuilder()
 			.setLabel(lang.links_gitlab)
 			.setStyle(ButtonStyle.Link)
 			.setURL('https://gitlab.com/ihrz/ihrz');
 
-		let row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, gitlabbutton);
+		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, gitlabbutton);
 
 		await client.func.method.interactionSend(interaction, { content: lang.links_message, components: [row] });
 		return;

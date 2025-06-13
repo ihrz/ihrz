@@ -20,17 +20,14 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	GuildMember,
 	Message,
-	PermissionsBitField,
 	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -58,9 +55,9 @@ export const subCommand: SubCommand = {
 		};
 
 		await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount!);
-		let bal = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
+		const bal = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setAuthor({ name: lang.removemoney_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
 			.addFields({ name: lang.removemoney_embed_fields, value: `${amount}$` },
 				{ name: lang.removemoney_embed_second_fields, value: `${bal}$` })

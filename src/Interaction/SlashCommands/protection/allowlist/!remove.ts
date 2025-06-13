@@ -22,8 +22,6 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildMember,
 	User,
 } from 'discord.js';
 

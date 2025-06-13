@@ -23,13 +23,9 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	GuildMember,
 	Message,
-	PermissionsBitField,
-	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -50,7 +46,7 @@ export const subCommand: SubCommand = {
 			var user = interaction.author;
 		}
 
-		let pollEmbed = new EmbedBuilder()
+		const pollEmbed = new EmbedBuilder()
 			.setTitle(lang.poll_embed_title
 				.replace(/\${interaction\.user\.username}/g, user.globalName || user.username)
 			)
@@ -60,7 +56,7 @@ export const subCommand: SubCommand = {
 			.setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")
 			.setTimestamp()
 
-		let msg = await client.func.method.interactionSend(interaction, { embeds: [pollEmbed] });
+		const msg = await client.func.method.interactionSend(interaction, { embeds: [pollEmbed] });
 
 		await msg.react(client.iHorizon_Emojis.Yes);
 		await msg.react(client.iHorizon_Emojis.No);

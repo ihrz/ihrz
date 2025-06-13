@@ -21,11 +21,7 @@
 
 import {
 	Client,
-	PermissionsBitField,
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
-	GuildChannel,
-	EmbedBuilder,
 	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../../types/languageData.js';
@@ -40,8 +36,8 @@ export const subCommand: SubCommand = {
 
 
 
-		let user = interaction.options.getUser('user') as User;
-		let perm = interaction.options.getString('permission') as string;
+		const user = interaction.options.getUser('user') as User;
+		const perm = interaction.options.getString('permission') as string;
 
 		if (perm === "0") {
 			await client.db.delete(`${interaction.guildId}.UTILS.USER_PERMS.${user.id}`);
@@ -50,7 +46,7 @@ export const subCommand: SubCommand = {
 				content: lang.perm_set_deleted.replace("${user.toString()}", user.toString())
 			});
 		} else {
-			let fetchedPerm = await client.func.permissonsCalculator.checkUserPermissions(
+			const fetchedPerm = await client.func.permissonsCalculator.checkUserPermissions(
 				interaction.member,
 			);
 

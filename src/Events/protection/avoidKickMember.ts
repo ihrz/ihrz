@@ -26,7 +26,7 @@ export const event: BotEvent = {
 	name: "guildMemberRemove",
 	run: async (client: Client, member: GuildMember) => {
 
-		let data = await client.db.get(`${member.guild.id}.PROTECTION`);
+		const data = await client.db.get(`${member.guild.id}.PROTECTION`);
 		if (!data) return;
 
 		if (!member.guild.members.me?.permissions.has([
@@ -43,12 +43,12 @@ export const event: BotEvent = {
 				PermissionsBitField.Flags.ManageGuild
 			])) return;
 
-			let fetchedLogs = await member.guild.fetchAuditLogs({
+			const fetchedLogs = await member.guild.fetchAuditLogs({
 				type: AuditLogEvent.MemberKick,
 				limit: 75,
 			});
 
-			let relevantLog = fetchedLogs.entries.find(entry =>
+			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === member.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
@@ -58,10 +58,10 @@ export const event: BotEvent = {
 				return;
 			}
 
-			let baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			const baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
-				let user = member.guild.members.cache.get(relevantLog?.executorId!);
+				const user = member.guild.members.cache.get(relevantLog?.executorId!);
 				await client.func.method.punish(data, user);
 			}
 		}

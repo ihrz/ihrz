@@ -22,21 +22,15 @@
 import {
 	Client,
 	EmbedBuilder,
-	ApplicationCommandOptionType,
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
-	ApplicationCommandType,
-	MessagePayload,
-	Message,
-	InteractionEditReplyOptions,
-	MessageReplyOptions
+	Message
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -54,8 +48,8 @@ export const subCommand: SubCommand = {
 			var user = await client.func.method.user(interaction, args!, 0) || interaction.member.user;
 		};
 
-		var table = client.db.table("PREVNAMES")
-		var char: Array<string> = await table.get(`${user.id}`) || [];
+		const table = client.db.table("PREVNAMES")
+		const char: Array<string> = await table.get(`${user.id}`) || [];
 
 		if (char.length == 0) {
 			await client.func.method.interactionSend(interaction, { content: lang.prevnames_undetected });
@@ -63,19 +57,19 @@ export const subCommand: SubCommand = {
 		};
 
 		let currentPage = 0;
-		let usersPerPage = 5;
-		let pages: { title: string; description: string; }[] = [];
+		const usersPerPage = 5;
+		const pages: { title: string; description: string; }[] = [];
 
 		for (let i = 0; i < char.length; i += usersPerPage) {
-			let pageUsers = char.slice(i, i + usersPerPage);
-			let pageContent = pageUsers.map((userId) => userId).join('\n');
+			const pageUsers = char.slice(i, i + usersPerPage);
+			const pageContent = pageUsers.map((userId) => userId).join('\n');
 			pages.push({
 				title: `${lang.prevnames_embed_title.replace("${user.username}", user.globalName as string)} | Page ${i / usersPerPage + 1}`,
 				description: pageContent,
 			});
 		};
 
-		let createEmbed = () => {
+		const createEmbed = () => {
 			return new EmbedBuilder()
 				.setColor("#000000")
 				.setTitle(pages[currentPage].title)
@@ -89,7 +83,7 @@ export const subCommand: SubCommand = {
 				.setTimestamp()
 		};
 
-		let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
 				.setCustomId('previousPage')
 				.setLabel('⬅️')
@@ -104,13 +98,13 @@ export const subCommand: SubCommand = {
 				.setStyle(ButtonStyle.Danger)
 		);
 
-		let messageEmbed = await client.func.method.interactionSend(interaction, {
+		const messageEmbed = await client.func.method.interactionSend(interaction, {
 			embeds: [createEmbed()],
 			components: [row],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
 
-		let collector = messageEmbed.createMessageComponentCollector({
+		const collector = messageEmbed.createMessageComponentCollector({
 			filter: async (i) => {
 				await i.deferUpdate();
 				return interaction.member?.user.id === i.user.id;
@@ -128,7 +122,7 @@ export const subCommand: SubCommand = {
 			} else if (interaction_2.customId === 'trash-prevnames-embed') {
 
 				if (interaction.member?.user.id === user.id) {
-					let table = client.db.table("PREVNAMES");
+					const table = client.db.table("PREVNAMES");
 
 					await table.delete(`${user.id}`);
 

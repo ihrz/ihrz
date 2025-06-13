@@ -21,15 +21,12 @@
 
 import {
 	Client,
-	PermissionsBitField,
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	GuildChannel,
 	EmbedBuilder,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -43,10 +40,10 @@ export const subCommand: SubCommand = {
 
 
 
-		let channel = interaction.options.getChannel('channel') as GuildChannel;
-		let allData: DatabaseStructure.GhostPingData['channels'] = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) || [];
+		const channel = interaction.options.getChannel('channel') as GuildChannel;
+		const allData: DatabaseStructure.GhostPingData['channels'] = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) || [];
 
-		let all_channels = new Set(allData?.filter(x => interaction.guild?.channels.cache.get(x)));
+		const all_channels = new Set(allData?.filter(x => interaction.guild?.channels.cache.get(x)));
 
 		if (!all_channels?.has(channel.id)) {
 			await interaction.reply({
@@ -60,7 +57,7 @@ export const subCommand: SubCommand = {
 
 		await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`, Array.from(all_channels));
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.joinghostping_add_ok_embed_title)
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#475387")
 			.setDescription(lang.joinghostping_remove_ok_embed_desc)

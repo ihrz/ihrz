@@ -23,7 +23,6 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	GuildMember,
 	Message,
 	User,
 } from 'discord.js';
@@ -31,7 +30,6 @@ import {
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { axios } from '../../../core/functions/axios.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -53,7 +51,7 @@ export const subCommand: SubCommand = {
 			var user = interaction.author;
 		}
 
-		let url = apiUrlParser.assetsFinder(client.assets, "hug");
+		const url = apiUrlParser.assetsFinder(client.assets, "hug");
 
 		axios.get(url)
 			.then(async () => {

@@ -85,15 +85,15 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let tableOwner = client.db.table('OWNER');
-		let tableBlacklist = client.db.table('BLACKLIST');
+		const tableOwner = client.db.table('OWNER');
+		const tableBlacklist = client.db.table('BLACKLIST');
 
 		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
 			return;
 		};
 
-		var blacklistedUsers = await tableBlacklist.all();
+		const blacklistedUsers = await tableBlacklist.all();
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getMember('user') as GuildMember | null;
@@ -121,12 +121,12 @@ export const command: Command = {
 			};
 
 			let currentPage = 0;
-			let usersPerPage = 5;
-			let pages: { title: string; description: string; }[] = [];
+			const usersPerPage = 5;
+			const pages: { title: string; description: string; }[] = [];
 
 			for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
-				let pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
-				let pageContent = pageUsers.map(userObj => {
+				const pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
+				const pageContent = pageUsers.map(userObj => {
 					return `<@${userObj.id}>\n├─ ${userObj.value.createdAt !== undefined ? format(new Date(userObj.value.createdAt), 'MMM DD YYYY') : lang.profil_unknown}\n├─ \`${userObj.value.reason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.value.owner || lang.profil_unknown}`;
 				}).join('\n');
 
@@ -151,7 +151,7 @@ export const command: Command = {
 					.setTimestamp();
 			};
 
-			let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 				new ButtonBuilder()
 					.setCustomId('previousPage')
 					.setLabel('⬅️')
@@ -168,7 +168,7 @@ export const command: Command = {
 				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 			});
 
-			let collector = messageEmbed.createMessageComponentCollector({
+			const collector = messageEmbed.createMessageComponentCollector({
 				filter: async (i) => {
 					await i.deferUpdate(); return interaction.member?.user.id === i.user.id;
 				},
@@ -195,7 +195,7 @@ export const command: Command = {
 			});
 		};
 
-		let guilds = client.guilds.cache.map(guild => guild.id);
+		const guilds = client.guilds.cache.map(guild => guild.id);
 
 		if (member) {
 			if (member.user.id === client.user.id) {
@@ -203,7 +203,7 @@ export const command: Command = {
 				return;
 			};
 
-			let fetched = await tableBlacklist.get(`${member.user.id}`);
+			const fetched = await tableBlacklist.get(`${member.user.id}`);
 
 			if (fetched) {
 				await client.func.method.interactionSend(interaction, {
@@ -232,8 +232,8 @@ export const command: Command = {
 				});
 			});
 
-			let banPromises = guilds.map(async (guildId) => {
-				let guild = client.guilds.cache.find(guild => guild.id === guildId);
+			const banPromises = guilds.map(async (guildId) => {
+				const guild = client.guilds.cache.find(guild => guild.id === guildId);
 				if (guild && guild.memberCount < 500) {
 					try {
 						await guild!.members.ban(member?.user.id!, { reason });
@@ -246,8 +246,8 @@ export const command: Command = {
 				}
 			});
 
-			let results = await Promise.all(banPromises);
-			let successCount = results.filter(result => result).length;
+			const results = await Promise.all(banPromises);
+			const successCount = results.filter(result => result).length;
 
 			await client.func.method.channelSend(interaction, { content: `${member.user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
 		} else if (user) {
@@ -257,7 +257,7 @@ export const command: Command = {
 				return;
 			};
 
-			let fetched = await tableBlacklist.get(`${user.id}`);
+			const fetched = await tableBlacklist.get(`${user.id}`);
 
 			if (fetched) {
 				await client.func.method.interactionSend(interaction, {
@@ -279,8 +279,8 @@ export const command: Command = {
 					.replace(/\${member\.user\.username}/g, user.globalName || user.username)
 			});
 
-			let banPromises = guilds.map(async (guildId) => {
-				let guild = client.guilds.cache.find(guild => guild.id === guildId);
+			const banPromises = guilds.map(async (guildId) => {
+				const guild = client.guilds.cache.find(guild => guild.id === guildId);
 				if (guild && guild.memberCount < 500) {
 					try {
 						await guild.members.ban(user?.id!, { reason });
@@ -293,8 +293,8 @@ export const command: Command = {
 				}
 			});
 
-			let results = await Promise.all(banPromises);
-			let successCount = results.filter(result => result).length;
+			const results = await Promise.all(banPromises);
+			const successCount = results.filter(result => result).length;
 
 			await client.func.method.channelSend(interaction, { content: `${user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
 		}

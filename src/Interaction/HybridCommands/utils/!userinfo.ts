@@ -21,9 +21,7 @@
 
 import {
 	Client,
-	ApplicationCommandOptionType,
 	EmbedBuilder,
-	ApplicationCommandType,
 	time,
 	User,
 	ActionRowBuilder,
@@ -49,7 +47,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let badges: {
+		const badges: {
 			[key: string]: {
 				Value: number;
 				Emoji: string;
@@ -110,7 +108,7 @@ export const subCommand: SubCommand = {
 		};
 
 		function getBadges(flags: number): string {
-			let badgeValues = Object.values(badges);
+			const badgeValues = Object.values(badges);
 			return badgeValues
 				.filter(badge => (flags & badge.Value) === badge.Value)
 				.map(badge => badge.Emoji)
@@ -133,13 +131,13 @@ export const subCommand: SubCommand = {
 
 			let format = 'png';
 
-			let user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, {
+			const user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, {
 				headers: {
 					Authorization: `Bot ${client.token}`
 				}
 			})).data;
 
-			let banner = user_1.banner;
+			const banner = user_1.banner;
 
 			if (banner !== null && banner?.substring(0, 2) === 'a_') {
 				format = 'gif'
@@ -148,7 +146,7 @@ export const subCommand: SubCommand = {
 			let badges = getBadges(member.flags?.bitfield!);
 			let nitro = '';
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 				.setThumbnail("attachment://user_icon.gif")
 				.setTimestamp()
@@ -189,7 +187,7 @@ export const subCommand: SubCommand = {
 				)
 				.setImage("attachment://user_banner.gif");
 
-			var files: { name: string; attachment: any }[] = [
+			const files: { name: string; attachment: any }[] = [
 				await client.func.displayBotName.footerAttachmentBuilder(interaction),
 				{
 					attachment: user.displayAvatarURL({ size: 512, forceStatic: false }),

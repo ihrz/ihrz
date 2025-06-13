@@ -21,20 +21,13 @@
 
 import {
 	Client,
-	EmbedBuilder,
-	PermissionsBitField,
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	GuildMember,
 	Message,
 } from 'discord.js';
 
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { generatePassword } from '../../../core/functions/random.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -53,7 +46,7 @@ export const subCommand: SubCommand = {
 			var reason = client.func.method.longString(args!, 1)!;
 		};
 
-		let warnId = await client.func.method.warnMember(
+		const warnId = await client.func.method.warnMember(
 			interaction.member!,
 			member!,
 			reason

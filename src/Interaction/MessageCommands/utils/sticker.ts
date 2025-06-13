@@ -44,14 +44,14 @@ export const command: Command = {
 	permission: null,
 	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
 		if (message.reference) {
-			let msg = await message.channel.messages.fetch(message.reference.messageId || "");
+			const msg = await message.channel.messages.fetch(message.reference.messageId || "");
 
 			if (msg.stickers.size === 0) {
 				return await client.func.method.interactionSend(message, {
 					content: lang.sticket_no_sticker
 				});
 			} else {
-				let sticker = msg.stickers.first()!;
+				const sticker = msg.stickers.first()!;
 
 				await message.guild.stickers.create({
 					file: sticker.url,

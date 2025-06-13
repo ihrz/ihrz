@@ -23,10 +23,8 @@ import {
 	Client,
 	EmbedBuilder,
 	ApplicationCommandOptionType,
-	CommandInteractionOptionResolver,
 	ChatInputCommandInteraction,
 	ApplicationCommandType,
-	PermissionsBitField,
 	PermissionFlagsBits,
 } from 'discord.js';
 
@@ -119,9 +117,9 @@ export const command: Command = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		var action = interaction.options.getString("action");
-		var settings = interaction.options.getString("settings") || "None";
-		var timeout = interaction.options.getString("timeout") || "None";
+		const action = interaction.options.getString("action");
+		const settings = interaction.options.getString("settings") || "None";
+		const timeout = interaction.options.getString("timeout") || "None";
 
 		if (action === 'on') {
 
@@ -145,7 +143,7 @@ export const command: Command = {
 
 			return;
 		} else if (action === 'off') {
-			let state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver.enable`);
+			const state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver.enable`);
 
 			if (!state) {
 				await interaction.reply({ content: lang.rolesaver_on_off_already_set });

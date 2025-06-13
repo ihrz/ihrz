@@ -22,33 +22,32 @@
 import { EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
 	run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
 
-		let data = await client.func.getLanguageData(newMember.guild.id);
+		const data = await client.func.getLanguageData(newMember.guild.id);
 
 		if (!newMember.guild.members.me?.permissions.has([
 			PermissionsBitField.Flags.ViewAuditLog,
 			PermissionsBitField.Flags.ManageGuild
 		])) return;
 
-		let fetchedLogs = await newMember.guild.fetchAuditLogs({
+		const fetchedLogs = await newMember.guild.fetchAuditLogs({
 			type: AuditLogEvent.MemberRoleUpdate,
 			limit: 1,
 		});
 
-		let firstEntry = fetchedLogs.entries.first();
+		const firstEntry = fetchedLogs.entries.first();
 
 		if (!firstEntry
 			|| firstEntry.executorId == client.user?.id
 			|| firstEntry.targetId !== newMember.user.id
 		) return;
 
-		let someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
-		let Msgchannel = newMember.guild.channels.cache.get(someinfo);
+		const someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
+		const Msgchannel = newMember.guild.channels.cache.get(someinfo);
 
 		if (!someinfo || !Msgchannel) return;
 
@@ -56,8 +55,8 @@ export const event: BotEvent = {
 			id: string;
 		}
 
-		let newObjects: CustomObject[] = [];
-		let removeObjects: CustomObject[] = [];
+		const newObjects: CustomObject[] = [];
+		const removeObjects: CustomObject[] = [];
 
 		firstEntry.changes.forEach((item) => {
 			if (item.key === '$add') {
@@ -67,8 +66,8 @@ export const event: BotEvent = {
 			}
 		});
 
-		let newObjectsnewObjectIds: string[] = newObjects.map((obj) => obj.id);
-		let removeObjectIds: string[] = removeObjects.map((obj) => obj.id);
+		const newObjectsnewObjectIds: string[] = newObjects.map((obj) => obj.id);
+		const removeObjectIds: string[] = removeObjects.map((obj) => obj.id);
 
 		let logsEmbed = new EmbedBuilder()
 			.setColor(await client.db.get(`${oldMember.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")

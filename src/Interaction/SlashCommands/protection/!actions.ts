@@ -22,12 +22,10 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { rules } from './authorization.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -44,15 +42,15 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let rule = interaction.options.getString('rule') as string;
+		const rule = interaction.options.getString('rule') as string;
 		let allow = interaction.options.getString('allow') as string;
 
 		if (rule === "all" && allow) {
-			let allRules = Object.entries(rules).map(([key, value]) => (value.value));
+			const allRules = Object.entries(rules).map(([key, value]) => (value.value));
 			allRules.shift(); // Remove cls
 			allRules.shift(); // Remove all
 
-			for (let rule of allRules) {
+			for (const rule of allRules) {
 				await client.db.set(`${interaction.guild.id}.PROTECTION.${rule}`, { mode: allow });
 			}
 

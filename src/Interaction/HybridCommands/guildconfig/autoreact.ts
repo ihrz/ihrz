@@ -20,27 +20,19 @@
 */
 
 import {
-	BaseGuildTextChannel,
-	Channel,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	Message,
 	PermissionsBitField,
-	User,
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
-	RoleSelectMenuBuilder,
-	ModalBuilder,
-	TextInputBuilder,
 	TextInputStyle,
 	ComponentType,
 	Colors,
-	Role,
-	GuildTextChannelType,
 	ApplicationCommandType,
 	ChannelSelectMenuBuilder,
 	ChannelType,
@@ -89,9 +81,9 @@ export const command: Command = {
 			const startIndex = page * itemsPerPage;
 			const pageValue = channelEntries.slice(startIndex, startIndex + itemsPerPage);
 
-			let currentPage = page + 1;
-			let totalPage = Math.max(1, Math.ceil(channelEntries.length / itemsPerPage));
-			let totalReact = channelEntries.length;
+			const currentPage = page + 1;
+			const totalPage = Math.max(1, Math.ceil(channelEntries.length / itemsPerPage));
+			const totalReact = channelEntries.length;
 
 			const embed = new EmbedBuilder()
 				.setColor(Colors.Blurple)
@@ -229,7 +221,7 @@ export const command: Command = {
 							.setChannelTypes(ChannelType.GuildText)
 					);
 
-				let awaiting = await interaction2.update({
+				const awaiting = await interaction2.update({
 					content: lang.autoreact_awaiting1_msg,
 					components: [channelSelectRow, createReturnRow()]
 				});
@@ -342,7 +334,7 @@ export const command: Command = {
 							.addOptions(channelOptions)
 					);
 
-				let awaiting = await interaction2.update({
+				const awaiting = await interaction2.update({
 					content: lang.autoreact_awaiting_remove_msg,
 					components: [removeRoleRow, createReturnRow()]
 				});

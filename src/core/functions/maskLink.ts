@@ -20,13 +20,13 @@
 */
 
 export default function maskLink(input: string): string {
-	let blacklistContent = [
+	const blacklistContent = [
 		"http://",
 		"https://",
 		".gg/",
 	];
 
-	for (let content of blacklistContent) {
+	for (const content of blacklistContent) {
 		if (input.includes(content)) return `Hidden Link`;
 	};
 	return input;

@@ -20,14 +20,8 @@
 */
 
 import {
-	ApplicationCommandOptionType,
-	ApplicationCommandType,
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildMember,
-	GuildVoiceChannelResolvable,
 	Message,
 	PermissionsBitField,
 } from 'discord.js';
@@ -52,14 +46,14 @@ export const command: Command = {
 	permission: PermissionsBitField.Flags.ManageGuildExpressions,
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
 
-		let state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`) || true;
+		const state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`) || true;
 
 		if (state) {
 			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, !state)
 		} else {
 			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, !state)
 		};
-		let activeMsg = !state ? lang.toggle_react_react : lang.toggle_react_doesnt_react;
+		const activeMsg = !state ? lang.toggle_react_react : lang.toggle_react_doesnt_react;
 
 		await interaction.reply({
 			content: lang.toggle_react_command_work

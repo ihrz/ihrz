@@ -25,10 +25,8 @@ import {
 	EmbedBuilder,
 	GuildMember,
 	Message,
-	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -46,8 +44,8 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.rob.cooldown`) || 3000000);
-		let rob = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.rob`);
+		const timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.rob.cooldown`) || 3000000);
+		const rob = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.rob`);
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var user = interaction.options.getMember("member") as GuildMember;
@@ -56,7 +54,7 @@ export const subCommand: SubCommand = {
 		};
 
 		if (rob !== null && timeout - (Date.now() - rob) > 0) {
-			let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - rob), lang);
+			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - rob), lang);
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.work_cooldown_error
@@ -67,8 +65,8 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let targetuser = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
-		let author = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
+		const targetuser = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
+		const author = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
 
 		if (author < 250) {
 			await client.func.method.interactionSend(interaction, { content: lang.rob_dont_enought_error });
@@ -83,9 +81,9 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let random = Math.floor(Math.random() * 200) + 1;
+		const random = Math.floor(Math.random() * 200) + 1;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setDescription(lang.rob_embed_description
 				.replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
 				.replace(/\${user\.id}/g, user.id)

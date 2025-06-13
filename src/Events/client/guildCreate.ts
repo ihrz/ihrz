@@ -40,7 +40,7 @@ export const event: BotEvent = {
 			}
 		});
 
-		let channel = guild.systemChannelId ? guild.channels.cache.get(guild?.systemChannelId) : highestPositionChannel;
+		const channel = guild.systemChannelId ? guild.channels.cache.get(guild?.systemChannelId) : highestPositionChannel;
 
 		// async function antiPoubelle() {
 		//   let embed = new EmbedBuilder()
@@ -65,7 +65,7 @@ export const event: BotEvent = {
 		// };
 
 		async function blacklistLeave() {
-			let channelHr = guild.channels.cache.get((guild.systemChannelId as string))
+			const channelHr = guild.channels.cache.get((guild.systemChannelId as string))
 				|| guild.channels.cache.random();
 
 			let tqtmonreuf = new EmbedBuilder()
@@ -74,8 +74,8 @@ export const event: BotEvent = {
 				.setTimestamp()
 				.setFooter(await guild.client.func.displayBotName.footerBuilder(guild.id))
 
-			let table = client.db.table('BLACKLIST')
-			let isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
+			const table = client.db.table('BLACKLIST')
+			const isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
 
 			if (isBL) {
 				await (channelHr as GuildTextBasedChannel).send({
@@ -90,7 +90,7 @@ export const event: BotEvent = {
 		}
 
 		async function messageToServer() {
-			let welcomeMessage = [
+			const welcomeMessage = [
 				"Welcome to our server! 🎉",
 				"Greetings, fellow Discordians! 👋",
 				client.user?.username! + " has joined the chat! 💬",
@@ -98,7 +98,7 @@ export const event: BotEvent = {
 				`Let's give a warm welcome to ${client.user?.username!} ! 🔥`,
 			];
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setColor(2829617)
 				.setFooter({ text: client.user?.username!, iconURL: "attachment://footer_icon.png" })
 				.setDescription(
@@ -111,7 +111,7 @@ export const event: BotEvent = {
 				)
 				;
 
-			let buttons = new ActionRowBuilder<ButtonBuilder>()
+			const buttons = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents(
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Crown)
@@ -145,18 +145,19 @@ export const event: BotEvent = {
 
 			let owners = new Set(client.owners)
 
-			// async function createInvite(channel: BaseGuildTextChannel): Promise<string> {
-			// 	try {
-			// 		let invite = await channel.createInvite();
-			// 		let inviteCode = invite.code;
 
-			// 		return 'discord.gg/' + inviteCode;
-			// 	} catch {
-			// 		return 'None';
-			// 	}
-			// }
+			async function createInvite(channel: BaseGuildTextChannel): Promise<string> {
+				try {
+					const invite = await channel.createInvite();
+					const inviteCode = invite.code;
 
-			let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+					return 'discord.gg/' + inviteCode;
+				} catch {
+					return 'None';
+				}
+			}
+
+			const usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
 			let embed = new EmbedBuilder()
 				.setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#00FF00")
@@ -166,8 +167,8 @@ export const event: BotEvent = {
 					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
 					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
 					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
-					// { name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
-					// { name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
+					{ name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
+					{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
 					{ name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
 					{ name: "🥛・New members total", value: `${usersize} members`, inline: true },
 
@@ -184,7 +185,7 @@ export const event: BotEvent = {
 		};
 
 		async function setLangByRegion() {
-			let guildLocation = guild.preferredLocale;
+			const guildLocation = guild.preferredLocale;
 
 			switch (guildLocation) {
 				case 'fr':
@@ -219,7 +220,7 @@ export const event: BotEvent = {
 		}
 
 		// let c = await antiPoubelle();
-		let d = await blacklistLeave();
+		const d = await blacklistLeave();
 		if (d) await Promise.all([ownerLogs(), messageToServer(), getInvites(), setLangByRegion()]);
 	},
 };

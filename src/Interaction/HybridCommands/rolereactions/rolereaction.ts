@@ -22,7 +22,6 @@
 import {
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	BaseGuildTextChannel,
@@ -152,7 +151,7 @@ export const command: Command = {
 			var role = client.func.method.role(interaction, args!, 4);
 		}
 
-		let match = reaction?.match(regex);
+		const match = reaction?.match(regex);
 		reaction = match ? match[1] : reaction;
 
 		let help_embed = new EmbedBuilder()
@@ -164,7 +163,7 @@ export const command: Command = {
 			if (!role) { await client.func.method.interactionSend(interaction, { embeds: [help_embed] }) };
 			if (!reaction) { return await client.func.method.interactionSend(interaction, { content: lang.reactionroles_missing_reaction_added }) };
 
-			let msg = await (channel as BaseGuildTextChannel)?.messages.fetch(messagei!);
+			const msg = await (channel as BaseGuildTextChannel)?.messages.fetch(messagei!);
 
 			msg.react(reaction)
 				.then(async () => {
@@ -212,19 +211,19 @@ export const command: Command = {
 				return;
 			};
 
-			let message = await (channel as BaseGuildTextChannel)?.messages.fetch(messagei as string).catch(async () => {
+			const message = await (channel as BaseGuildTextChannel)?.messages.fetch(messagei as string).catch(async () => {
 				await client.func.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
 				return;
 			});
 
-			let fetched = await client.db.get(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
+			const fetched = await client.db.get(`${interaction.guildId}.GUILD.REACTION_ROLES.${messagei}.${reaction}`);
 
 			if (!fetched) {
 				await client.func.method.interactionSend(interaction, { content: lang.reactionroles_missing_reaction_remove });
 				return
 			};
 
-			let reactionVar = message?.reactions.cache.get(fetched.reactionNAME);
+			const reactionVar = message?.reactions.cache.get(fetched.reactionNAME);
 
 			if (!reactionVar) {
 				await client.func.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })

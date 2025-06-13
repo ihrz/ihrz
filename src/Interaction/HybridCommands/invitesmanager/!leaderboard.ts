@@ -31,7 +31,6 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Command } from '../../../../types/command.js';
 
 
 const itemsPerPage = 15;
@@ -40,16 +39,16 @@ import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-		let execTimestamp = Date.now();
+		const execTimestamp = Date.now();
 
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
-		let arr: { invites: number; regular: number; bonus: number; leaves: number; inviter: string; }[] = [];
+		const char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
+		const arr: { invites: number; regular: number; bonus: number; leaves: number; inviter: string; }[] = [];
 
-		for (let key in char) {
-			let a = char?.[key]?.INVITES;
+		for (const key in char) {
+			const a = char?.[key]?.INVITES;
 
 			if (a && a.invites && a.invites >= 1) {
 				arr.push({

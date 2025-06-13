@@ -20,16 +20,14 @@
 */
 
 import {
-	Client,
 	ApplicationCommandOptionType,
-	ChatInputCommandInteraction,
 	ApplicationCommandType,
 	ChannelType,
 	PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js'; export const command: Command = {
+export const command: Command = {
 	name: "join-ghostping",
 
 	description: "Subcommand for guildconfig category!",

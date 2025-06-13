@@ -33,8 +33,8 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let action = interaction.options.getString("action");
-		let footerAvatar = interaction.options.getAttachment("avatar")!;
+		const action = interaction.options.getString("action");
+		const footerAvatar = interaction.options.getAttachment("avatar")!;
 
 		if (action === "reset") {
 			await client.db.delete(`${interaction.guildId}.BOT.botPFP`);

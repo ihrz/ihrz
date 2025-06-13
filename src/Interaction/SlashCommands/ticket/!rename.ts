@@ -25,9 +25,7 @@ import {
 	Client,
 } from 'discord.js';
 
-import { TicketDelete } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -49,7 +47,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let name = interaction.options.getString('name')!;
+		const name = interaction.options.getString('name')!;
 
 		interaction.channel.setName(name).then(async () => {
 			await interaction.editReply({ content: lang.ticket_rename_ok });

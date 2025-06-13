@@ -58,13 +58,13 @@ export const event: BotEvent = {
 
 		async function refreshDatabaseModel() {
 			await client.db.table(`TEMP`).deleteAll();
-			let table = client.db.table('OWNER');
+			const table = client.db.table('OWNER');
 
-			let owners = [...new Set([...client.owners, ...(await table.all()).map(x => x.id)])];
+			const owners = [...new Set([...client.owners, ...(await table.all()).map(x => x.id)])];
 
 			owners.forEach(async ownerId => {
 				try {
-					let user = await client.users?.fetch(ownerId);
+					const user = await client.users?.fetch(ownerId);
 					if (user) {
 						await table.set(user.id, { owner: true });
 					}
@@ -94,23 +94,23 @@ export const event: BotEvent = {
 		};
 
 		async function refreshSchedule() {
-			let table = client.db.table("SCHEDULE");
-			let listAll = await table.all();
+			const table = client.db.table("SCHEDULE");
+			const listAll = await table.all();
 
-			let dateNow = Date.now();
+			const dateNow = Date.now();
 			let desc: string = '';
 
 			Object.entries(listAll).forEach(async ([userId, array]) => {
 
-				let member = client.users.cache.get(array.id) as User;
+				const member = client.users.cache.get(array.id) as User;
 
-				for (let ScheduleId in array.value) {
+				for (const ScheduleId in array.value) {
 					if (array.value[ScheduleId]?.expired <= dateNow) {
 						desc += `${format(new Date(array.value[ScheduleId]?.expired), 'YYYY/MM/DD HH:mm:ss')}`;
 						desc += `\`\`\`${array.value[ScheduleId]?.title}\`\`\``;
 						desc += `\`\`\`${array.value[ScheduleId]?.description}\`\`\``;
 
-						let embed = new EmbedBuilder()
+						const embed = new EmbedBuilder()
 							.setColor('#56a0d3')
 							.setTitle(`#${ScheduleId} Schedule has been expired!`)
 							.setDescription(desc)
@@ -136,12 +136,12 @@ export const event: BotEvent = {
 			const fourteenDaysInMillis = 30 * 24 * 60 * 60 * 1000;
 
 			(await client.db.all()).forEach(async (index, value) => {
-				let guild = index.value as DatabaseStructure.DbInId;
-				let stats = guild.STATS?.USER;
+				const guild = index.value as DatabaseStructure.DbInId;
+				const stats = guild.STATS?.USER;
 
 				if (stats) {
 					Object.keys(stats).forEach(userId => {
-						let userStats = stats[userId];
+						const userStats = stats[userId];
 
 						if (userStats.messages) {
 							userStats.messages = userStats.messages.filter((message: DatabaseStructure.StatsMessage) => {
@@ -187,11 +187,11 @@ export const event: BotEvent = {
 		await client.emojisManager.startSync();
 		let initData = getCacheStorage();
 
-		let oldV = initData?._cache.version;
-		let newV = client.version.version;
+		const oldV = initData?._cache.version;
+		const newV = client.version.version;
 
 		if (oldV !== newV) {
-			let sendingContent = {
+			const sendingContent = {
 				content: "@everyone **New update available !**",
 				embeds: [
 					new EmbedBuilder()
@@ -208,7 +208,7 @@ export const event: BotEvent = {
 					user.send(sendingContent).catch(() => false);
 				});
 			} else {
-				let channel_to_send = client.channels.cache.get(initData?._cache.updateChannelId || "00") as BaseGuildTextChannel | undefined;
+				const channel_to_send = client.channels.cache.get(initData?._cache.updateChannelId || "00") as BaseGuildTextChannel | undefined;
 				channel_to_send?.send(sendingContent).catch(() => false);
 			}
 
@@ -223,7 +223,7 @@ export const event: BotEvent = {
 				let totalRoles = 0;
 				let totalChannels = 0;
 				let totalMembers = 0;
-				let totalUniqueUsers = new Set();
+				const totalUniqueUsers = new Set();
 
 				// Fetch all guilds
 				const guilds = await client.guilds.fetch();

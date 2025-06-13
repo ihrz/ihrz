@@ -21,15 +21,8 @@
 
 import {
 	Client,
-	EmbedBuilder,
-	PermissionsBitField,
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
-	GuildMember,
 	Message,
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -44,9 +37,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;;
 
-		let DbData = await client.db.get(`${interaction.guild?.id}.USER`) as DatabaseStructure.DbGuildUserObject[];
+		const DbData = await client.db.get(`${interaction.guild?.id}.USER`) as DatabaseStructure.DbGuildUserObject[];
 
-		let response = await promptYesOrNo(interaction, {
+		const response = await promptYesOrNo(interaction, {
 			content: lang.clear_allwarns_confirmation_message,
 			noButton: lang.resetallinvites_no_button,
 			yesButton: lang.resetallinvites_yes_button,
@@ -54,7 +47,7 @@ export const subCommand: SubCommand = {
 		})
 
 		if (response) {
-			for (let entries in DbData) {
+			for (const entries in DbData) {
 				await client.db.delete(`${interaction.guild?.id}.USER.${entries}.WARNS`)
 			}
 

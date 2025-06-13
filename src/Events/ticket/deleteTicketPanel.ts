@@ -27,10 +27,10 @@ export const event: BotEvent = {
 	name: "channelDelete",
 	run: async (client: Client, channel: GuildChannel) => {
 
-		let fetch = await client.db.get(`${channel.guild.id}.TICKET_ALL`);
+		const fetch = await client.db.get(`${channel.guild.id}.TICKET_ALL`);
 
-		for (let user in fetch) {
-			for (let channel_2 in fetch[user]) {
+		for (const user in fetch) {
+			for (const channel_2 in fetch[user]) {
 
 				if (channel.id === channel_2) {
 					await client.db.delete(`${channel.guild.id}.TICKET_ALL.${user}`);

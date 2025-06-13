@@ -20,23 +20,17 @@
 */
 
 import {
-	ActionRowBuilder,
-	ApplicationCommandType,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	GuildMember,
 	GuildMemberRoleManager,
 	Message,
-	PermissionFlagsBits,
 	PermissionsBitField,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { SubCommand } from '../../../../types/command.js';
@@ -59,7 +53,7 @@ export const subCommand: SubCommand = {
 			var author = interaction.member as GuildMember;
 		};
 
-		let allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`) || [];
+		const allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`) || [];
 
 		if (!allowed_roles?.includes(role?.id!) && allowed_roles!.length > 0) {
 			await client.func.method.interactionSend(interaction, {

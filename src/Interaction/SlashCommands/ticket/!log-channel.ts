@@ -24,10 +24,8 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildChannel,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -45,7 +43,7 @@ export const subCommand: SubCommand = {
 			await interaction.editReply({ content: lang.ticket_disabled_command });
 			return;
 		};
-		let channel = interaction.options.getChannel('channel') as GuildChannel;
+		const channel = interaction.options.getChannel('channel') as GuildChannel;
 
 		await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
 

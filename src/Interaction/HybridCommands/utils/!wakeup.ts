@@ -32,7 +32,6 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 
 import wait from '../../../core/functions/wait.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -46,7 +45,7 @@ export const subCommand: SubCommand = {
 			? interaction.options.getMember("member")!
 			: client.func.method.member(interaction, args!, 0)!;
 
-		let start = Date.now();
+		const start = Date.now();
 
 		if (user.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, { content: lang.util_wakeup_yourself });

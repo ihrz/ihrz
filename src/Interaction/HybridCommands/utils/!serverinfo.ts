@@ -20,7 +20,6 @@
 */
 
 import {
-	ApplicationCommandType,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
@@ -30,7 +29,6 @@ import {
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -41,7 +39,7 @@ export const subCommand: SubCommand = {
 
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-		let verlvl = {
+		const verlvl = {
 			0: lang.serverinfo_verlvl_NONE,
 			1: lang.serverinfo_verlvl_LOW,
 			2: lang.serverinfo_verlvl_MEDIUM,

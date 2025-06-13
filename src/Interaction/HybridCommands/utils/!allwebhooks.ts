@@ -21,7 +21,6 @@
 
 import {
 	ActionRowBuilder,
-	AuditLogEvent,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
@@ -29,7 +28,6 @@ import {
 	ComponentType,
 	EmbedBuilder,
 	Message,
-	time,
 } from 'discord.js'
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
@@ -37,8 +35,8 @@ import { SubCommand } from '../../../../types/command.js';
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-		let fetchedWebhooks = await interaction.guild?.fetchWebhooks()
-		let webhookArray = fetchedWebhooks?.map(webhook => webhook);
+		const fetchedWebhooks = await interaction.guild?.fetchWebhooks()
+		const webhookArray = fetchedWebhooks?.map(webhook => webhook);
 
 		if (!webhookArray || webhookArray?.length == 0) {
 			await client.func.method.interactionSend(interaction, {
@@ -48,13 +46,13 @@ export const subCommand: SubCommand = {
 		}
 
 		let currentPage = 0;
-		let usersPerPage = 5;
-		let pages: { title: string; description: string; }[] = [];
+		const usersPerPage = 5;
+		const pages: { title: string; description: string; }[] = [];
 
 		for (let i = 0; i < webhookArray.length; i += usersPerPage) {
-			let page = webhookArray.slice(i, i + usersPerPage);
-			let description = page.map(webhook => {
-				let maskedToken = webhook.token?.split('').map(() => '◯').join('');
+			const page = webhookArray.slice(i, i + usersPerPage);
+			const description = page.map(webhook => {
+				const maskedToken = webhook.token?.split('').map(() => '◯').join('');
 				return `[${webhook.name}](https://discord.com/api/webhooks/${webhook.id}/${maskedToken}) (${webhook.channel?.toString()})`;
 			}).join("\n");
 
@@ -92,7 +90,7 @@ export const subCommand: SubCommand = {
 		)
 
 
-		let message = await client.func.method.interactionSend(interaction, {
+		const message = await client.func.method.interactionSend(interaction, {
 			embeds: [createEmbed()],
 			components: [row]
 		});
@@ -136,7 +134,7 @@ export const subCommand: SubCommand = {
 
 				let u = 0;
 
-				for (let webhook of webhookArray) {
+				for (const webhook of webhookArray) {
 					await webhook.delete().catch(() => false);
 					u++;
 				}

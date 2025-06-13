@@ -49,9 +49,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
 
-		let all_channels = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG`) as DatabaseStructure.DbGuildObject['GUILD_CONFIG'];
+		const all_channels = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG`) as DatabaseStructure.DbGuildObject['GUILD_CONFIG'];
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.setjoinroles_help_embed_title)
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#bf0bb9")
 			.setDescription(lang.setjoinroles_help_embed_description)
@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 					: lang.setjoinroles_var_none
 			});
 
-		let roleSelectMenu = new RoleSelectMenuBuilder()
+		const roleSelectMenu = new RoleSelectMenuBuilder()
 			.setCustomId('guildconfig-joinRoles-role-selecter')
 			.setMaxValues(8)
 			.setMinValues(0);
@@ -72,15 +72,15 @@ export const subCommand: SubCommand = {
 			roleSelectMenu.setDefaultRoles(roles);
 		}
 
-		let saveButton = new ButtonBuilder()
+		const saveButton = new ButtonBuilder()
 			.setCustomId('guildconfig-joinRoles-save-button')
 			.setStyle(ButtonStyle.Primary)
 			.setEmoji('💾');
 
-		let comp = new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelectMenu);
-		let comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
+		const comp = new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelectMenu);
+		const comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
 
-		let og_response = await client.func.method.interactionSend(interaction, {
+		const og_response = await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
 			components: [comp, comp_2]
 		});
@@ -107,8 +107,8 @@ export const subCommand: SubCommand = {
 			selectedRoles = [];
 			all_roles = [];
 
-			let dangerous_roles: { id: string, name: string, permissions: string[] }[] = [];
-			let too_highter_roles: { id: string, name: string, position: string }[] = [];
+			const dangerous_roles: { id: string, name: string, permissions: string[] }[] = [];
+			const too_highter_roles: { id: string, name: string, position: string }[] = [];
 
 			if (!roleInteraction.guild?.members.me?.permissions.has(PermissionFlagsBits.ManageRoles)) {
 				await roleInteraction.followUp({ content: lang.setjoinroles_var_perm_issue, flags: [1 << 6] });
@@ -118,7 +118,7 @@ export const subCommand: SubCommand = {
 			for (const role of roleInteraction.roles) {
 				all_roles.push(role[1].id);
 				const rolePermissions = new PermissionsBitField((role[1] as Role).permissions);
-				let roleDangerousPermissions: string[] = [];
+				const roleDangerousPermissions: string[] = [];
 
 				for (const perm of client.func.method.getDangerousPermissions(lang)) {
 					if (rolePermissions.has(perm.flag)) {
@@ -153,7 +153,7 @@ export const subCommand: SubCommand = {
 		buttonCollector.on('collect', async (buttonInteraction: ButtonInteraction) => {
 			await buttonInteraction.deferUpdate();
 			if (buttonInteraction.customId === 'guildconfig-joinRoles-save-button') {
-				let newComp_2 = new ActionRowBuilder<ButtonBuilder>()
+				const newComp_2 = new ActionRowBuilder<ButtonBuilder>()
 					.addComponents(
 						saveButton
 							.setStyle(ButtonStyle.Success)
@@ -203,17 +203,17 @@ export const subCommand: SubCommand = {
 			embed: EmbedBuilder,
 			og_response: Message,
 			lang: LanguageData) {
-			let dangerous_fields = dangerous_roles.map(role => ({
+			const dangerous_fields = dangerous_roles.map(role => ({
 				name: `@${role.name} (${role.id})`,
 				value: role.permissions.map(p => `\`${p}\``).join(', ')
 			}));
 
-			let dangerous_embed = new EmbedBuilder()
+			const dangerous_embed = new EmbedBuilder()
 				.setTitle(lang.setjoinroles_warn_title)
 				.setDescription(lang.setjoinroles_warn_dangerous_perm)
 				.addFields(dangerous_fields);
 
-			let confirm_buttons = new ActionRowBuilder<ButtonBuilder>()
+			const confirm_buttons = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents(
 					new ButtonBuilder()
 						.setCustomId('dangerous_roles_confirm_yes')
@@ -225,10 +225,10 @@ export const subCommand: SubCommand = {
 						.setLabel(lang.mybot_submit_utils_msg_no)
 				);
 
-			let warn_msg = await roleInteraction.reply({ embeds: [dangerous_embed], components: [confirm_buttons], flags: [1 << 6] });
+			const warn_msg = await roleInteraction.reply({ embeds: [dangerous_embed], components: [confirm_buttons], flags: [1 << 6] });
 
 			try {
-				let buttonInteraction = await (interaction.channel as BaseGuildTextChannel)?.awaitMessageComponent({
+				const buttonInteraction = await (interaction.channel as BaseGuildTextChannel)?.awaitMessageComponent({
 					componentType: ComponentType.Button,
 					time: 20_000,
 					filter: (i) => i.user.id === interaction.member?.user.id
@@ -275,12 +275,12 @@ export const subCommand: SubCommand = {
 					name: string;
 					position: string;
 				}[]) {
-			let too_highter_fields = too_highter_roles.map(role => ({
+			const too_highter_fields = too_highter_roles.map(role => ({
 				name: `@${role.name} (${role.id})`,
 				value: `<@&${role.id}>: \`${role.position}\` vs ${interaction.client.user.toString()}: \`${interaction.guild?.members.me?.roles.highest.position}\``
 			}));
 
-			let too_highter_embed = new EmbedBuilder()
+			const too_highter_embed = new EmbedBuilder()
 				.setTitle(lang.setjoinroles_warn_title)
 				.setDescription(lang.setjoinroles_too_highter_roles)
 				.addFields(too_highter_fields);

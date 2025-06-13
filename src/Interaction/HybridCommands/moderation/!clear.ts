@@ -23,14 +23,10 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 } from 'discord.js';
 
-import logger from '../../../core/logger.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -59,7 +55,7 @@ export const subCommand: SubCommand = {
 
 		// if the member is found, fetch the messages and delete them
 		if (member) {
-			let fetchedMessages = await (interaction.channel as BaseGuildTextChannel).messages.fetch({
+			const fetchedMessages = await (interaction.channel as BaseGuildTextChannel).messages.fetch({
 				limit: 100
 			});
 

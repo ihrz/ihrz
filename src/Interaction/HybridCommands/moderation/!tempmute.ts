@@ -20,15 +20,10 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 	PermissionsBitField,
 } from 'discord.js';
 
@@ -54,7 +49,7 @@ export const subCommand: SubCommand = {
 		if (!mutetime || !tomute || !mutetime) { return; };
 
 		let mutetimeMS = client.timeCalculator.to_ms(mutetime);
-		let max_time = 3600 * 24 * 7;
+		const max_time = 3600 * 24 * 7;
 
 		if (mutetimeMS > max_time) {
 			mutetimeMS = max_time;
@@ -65,7 +60,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let mutetimeString = client.timeCalculator.to_beautiful_string(mutetime, lang);
+		const mutetimeString = client.timeCalculator.to_beautiful_string(mutetime, lang);
 
 		if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
 			await client.func.method.interactionSend(interaction, {

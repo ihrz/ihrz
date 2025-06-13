@@ -66,8 +66,8 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let tableOwner = client.db.table('OWNER');
-		let tableBlacklist = client.db.table('BLACKLIST');
+		const tableOwner = client.db.table('OWNER');
+		const tableBlacklist = client.db.table('BLACKLIST');
 
 		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_owner });
@@ -81,8 +81,8 @@ export const command: Command = {
 			var member = await client.func.method.user(interaction, args!, 0);
 		};
 
-		let fetched = await tableBlacklist.get(`${member?.id}`);
-		let guilds = client.guilds.cache.map(guild => guild.id);
+		const fetched = await tableBlacklist.get(`${member?.id}`);
+		const guilds = client.guilds.cache.map(guild => guild.id);
 
 		if (!fetched) {
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", member?.id!) });
@@ -90,7 +90,7 @@ export const command: Command = {
 		};
 
 		try {
-			let bannedMember = await client.users.fetch(member?.id as UserResolvable);
+			const bannedMember = await client.users.fetch(member?.id as UserResolvable);
 
 			if (!bannedMember) {
 				await client.func.method.interactionSend(interaction, { content: lang.unblacklist_user_is_not_exist });
@@ -102,8 +102,8 @@ export const command: Command = {
 
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
 
-			let banPromises = guilds.map(async (guildId) => {
-				let guild = client.guilds.cache.find(guild => guild.id === guildId);
+			const banPromises = guilds.map(async (guildId) => {
+				const guild = client.guilds.cache.find(guild => guild.id === guildId);
 				if (guild) {
 					try {
 						await guild.members.unban(bannedMember.id!, "iHorizon Unblacklist");
@@ -115,8 +115,8 @@ export const command: Command = {
 				return false;
 			});
 
-			let results = await Promise.all(banPromises);
-			let successCount = results.filter(result => result).length;
+			const results = await Promise.all(banPromises);
+			const successCount = results.filter(result => result).length;
 
 			await client.func.method.channelSend(interaction, { content: `${bannedMember.username} is now unbanned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
 

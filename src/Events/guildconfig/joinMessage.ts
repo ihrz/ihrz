@@ -19,25 +19,24 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, time } from 'discord.js';
+import { AttachmentBuilder, BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 
 export async function generateJoinImage(member: GuildMember, optionalOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
-	var htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
-	var ImageBannerOptions = await member.client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
+	let htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
+	const ImageBannerOptions = await member.client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
 
-	var backgroundURL = member.guild.bannerURL({ size: 512 }) || member.user.bannerURL({ size: 512 }) || ""
-	var profilePictureRound = member.displayHexColor;
-	var textColour = "#aa9999";
-	var textMessage = member.client.func.method.generateCustomMessagePreview("Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild", {
+	let backgroundURL = member.guild.bannerURL({ size: 512 }) || member.user.bannerURL({ size: 512 }) || ""
+	let profilePictureRound = member.displayHexColor;
+	let textColour = "#aa9999";
+	let textMessage = member.client.func.method.generateCustomMessagePreview("Welcome {memberUsername} to {guildName}<br>We are now {memberCount} in the guild", {
 		user: member.user,
 		guild: member.guild,
 		guildLocal: "fr-FR"
 	});
-	var textSize = "40px";
-	var avatarSize = "140px"
+	let textSize = "40px";
+	let avatarSize = "140px"
 
 	if (optionalOptions) {
 		backgroundURL = optionalOptions.backgroundURL;
@@ -105,7 +104,7 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
 		.replaceAll("40px", textSize)
 		.replaceAll("140px", avatarSize)
 
-	var image = await member.client.func.html2png(htmlContent, {
+	const image = await member.client.func.html2png(htmlContent, {
 		omitBackground: false,
 		selectElement: false
 	});
@@ -115,7 +114,7 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-		let data = await client.func.getLanguageData(member.guild.id);
+		const data = await client.func.getLanguageData(member.guild.id);
 
 		if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
 
@@ -123,14 +122,14 @@ export const event: BotEvent = {
 		let oldInvites = client.invites.get(member.guild.id);
 		let newInvites = await member.guild.invites.fetch();
 
-		let invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
-		let joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
-		let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
-		let ImageBannerStates = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbannerStates`) as string | undefined;
+		const invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
+		const joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
+		const wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+		const ImageBannerStates = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbannerStates`) as string | undefined;
 
-		let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
+		const channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
 
-		let files = [];
+		const files = [];
 
 		if (ImageBannerStates === "on") {
 			files.push(await generateJoinImage(member))
@@ -144,10 +143,10 @@ export const event: BotEvent = {
 		const nonce = SnowflakeUtil.generate().toString();
 
 		if (invite) {
-			let inviter = await client.users.fetch(invite?.inviterId!);
+			const inviter = await client.users.fetch(invite?.inviterId!);
 			client.invites.get(member.guild.id)?.set(invite?.code, invite?.uses);
 
-			let check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
+			const check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
 
 			if (check) {
 
@@ -173,13 +172,13 @@ export const event: BotEvent = {
 				}
 			);
 
-			var invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
+			const invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
 			let isCustomVanity = false; // Is discord.wf link
 			let msg = '';
 
 			if (!wChan || !channel) return;
 
-			let CustomVanityInvite = await (client.db.table('API')).get(`VANITY.${member.guild.id}`)
+			const CustomVanityInvite = await (client.db.table('API')).get(`VANITY.${member.guild.id}`)
 			if (inviter.id === client.user?.id && CustomVanityInvite.invite === invite.code) {
 				isCustomVanity = true;
 			}
@@ -205,13 +204,13 @@ export const event: BotEvent = {
 		} else if (member.guild.features.includes(GuildFeature.VanityURL)) {
 
 			let msg = '';
-			let VanityURL = await member.guild.fetchVanityData();
-			let vanityInviteCache = client.vanityInvites.get(member.guild.id);
+			const VanityURL = await member.guild.fetchVanityData();
+			const vanityInviteCache = client.vanityInvites.get(member.guild.id);
 
 			client.vanityInvites.set(member.guild.id, VanityURL);
 
-			let wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
-			let channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
+			const wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+			const channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
 
 			if (!wChan || !channel) return;
 

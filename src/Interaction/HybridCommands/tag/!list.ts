@@ -28,13 +28,9 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	ComponentType,
-	ButtonInteraction,
-	InteractionResponse,
-	MessageEditOptions,
-	time
+	ButtonInteraction
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generateTagInfoEmbed } from './tag.js';
 
@@ -46,7 +42,7 @@ export const subCommand: SubCommand = {
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		// Fetch tags data
-		let baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS.storedTags`) as DatabaseStructure.GuildTagsStructure["storedTags"] | undefined;
+		const baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS.storedTags`) as DatabaseStructure.GuildTagsStructure["storedTags"] | undefined;
 
 		// Check if there are no tags
 		if (!baseData || Object.entries(baseData).length === 0) {
@@ -55,12 +51,12 @@ export const subCommand: SubCommand = {
 		}
 
 		// Create embeds array
-		let arrayEmbeds: EmbedBuilder[][] = [];
+		const arrayEmbeds: EmbedBuilder[][] = [];
 		const tags = Object.entries(baseData);
 
 		// Generate embeds for each tag
 		for (const [id, info] of tags) {
-			let embed = generateTagInfoEmbed(interaction, lang, id, info);
+			const embed = generateTagInfoEmbed(interaction, lang, id, info);
 
 			const embedData = await client.db.get(`EMBED.${info.embedId}`);
 			if (embedData) {

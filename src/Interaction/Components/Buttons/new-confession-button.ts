@@ -19,11 +19,10 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BaseGuildTextChannel, ButtonInteraction, CacheType, EmbedBuilder, TextInputStyle, SnowflakeUtil, MessageReplyOptions, InteractionReplyOptions } from 'discord.js';
+import { BaseGuildTextChannel, ButtonInteraction, EmbedBuilder, TextInputStyle, SnowflakeUtil, MessageReplyOptions } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js'
-import { LanguageData } from '../../../../types/languageData.js';
 import maskLink from '../../../core/functions/maskLink.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
@@ -39,15 +38,15 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		`${interaction.guildId}.GUILD.CONFESSION.disable`
 	)) return;
 
-	let allDataConfession = await interaction.client.db.get(`${interaction.guildId}.GUILD.CONFESSION`) as DatabaseStructure.ConfessionSchema;
-	let confessionTime = await interaction.client.db.table('TEMP').get(`CONFESSION_COOLDOWN.${interaction.user.id}`);
-	let lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const allDataConfession = await interaction.client.db.get(`${interaction.guildId}.GUILD.CONFESSION`) as DatabaseStructure.ConfessionSchema;
+	const confessionTime = await interaction.client.db.table('TEMP').get(`CONFESSION_COOLDOWN.${interaction.user.id}`);
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
-	let timeout = allDataConfession.cooldown!;
-	let panel = allDataConfession.panel;
+	const timeout = allDataConfession.cooldown!;
+	const panel = allDataConfession.panel;
 
 	if (confessionTime !== null && timeout - (Date.now() - confessionTime) > 0) {
-		let time = interaction.client.timeCalculator.to_beautiful_string(timeout - (Date.now() - confessionTime), lang);
+		const time = interaction.client.timeCalculator.to_beautiful_string(timeout - (Date.now() - confessionTime), lang);
 
 		await interaction.reply({
 			content: lang.monthly_cooldown_error.replace(/\${time}/g, time),
@@ -56,13 +55,13 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		return;
 	};
 
-	let channel = interaction.guild?.channels.cache.get(panel?.channelId!);
+	const channel = interaction.guild?.channels.cache.get(panel?.channelId!);
 
 	if (panel?.channelId !== interaction.channelId || panel?.messageId !== interaction.message.id) {
 		return;
 	}
 
-	let submitInteraction = await iHorizonModalResolve({
+	const submitInteraction = await iHorizonModalResolve({
 		customId: 'selection_modal',
 		title: lang.confession_module_modal_title,
 		deferUpdate: true,
@@ -90,11 +89,11 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
 	if (!submitInteraction) return;
 
-	let name = maskLink(submitInteraction.fields.getTextInputValue("case_name"));
+	const name = maskLink(submitInteraction.fields.getTextInputValue("case_name"));
 	let view: string | boolean = submitInteraction.fields.getTextInputValue("case_private");
-	let code = generatePassword({ length: 6, numbers: true, lowercase: true });
+	const code = generatePassword({ length: 6, numbers: true, lowercase: true });
 
-	let body: {
+	const body: {
 		embeds: EmbedBuilder[],
 		files: { attachment: Buffer | string, name: string }[],
 		enforceNonce: boolean,
@@ -139,9 +138,9 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
 	await interaction.client.db.table('TEMP').set(`CONFESSION_COOLDOWN.${interaction.user.id}`, Date.now());
 
-	let panelMessage = await interaction.channel?.messages.fetch(allDataConfession.panel?.messageId!);
-	let embedFromPanelMessage = panelMessage?.embeds[0];
-	let compFromPanelMessage = panelMessage?.components[0];
+	const panelMessage = await interaction.channel?.messages.fetch(allDataConfession.panel?.messageId!);
+	const embedFromPanelMessage = panelMessage?.embeds[0];
+	const compFromPanelMessage = panelMessage?.components[0];
 
 	await panelMessage?.delete();
 
@@ -151,8 +150,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	};
 
 	interaction.client.func.method.channelSend(interaction.message, newPanelFromOldData).then(async (msg) => {
-		let messageId = msg.id;
-		let channelId = msg.channelId;
+		const messageId = msg.id;
+		const channelId = msg.channelId;
 
 		await msg.client.db.set(`${interaction.guildId}.GUILD.CONFESSION.panel`, {
 			channelId,

@@ -33,7 +33,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Command, SubCommand } from '../../../../types/command.js';
+import { SubCommand } from '../../../../types/command.js';
 import formatNumber from '../../../core/functions/numberBeautifuer.js';
 
 export const subCommand: SubCommand = {
@@ -53,12 +53,12 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
-		let array: { user: User; totalWealth: number; bank: number; money: number; }[] = [];
+		const char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
+		const array: { user: User; totalWealth: number; bank: number; money: number; }[] = [];
 
-		for (let i in char) {
-			let user = interaction.client.users.cache.get(i);
-			let economy = char[i].ECONOMY;
+		for (const i in char) {
+			const user = interaction.client.users.cache.get(i);
+			const economy = char[i].ECONOMY;
 			if (!user || !economy) continue;
 			array.push({
 				user: user,
@@ -75,7 +75,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		var htmlContent = client.htmlfiles["podiumEconomyModule"];
+		let htmlContent = client.htmlfiles["podiumEconomyModule"];
 
 		array.sort((a, b) => b.totalWealth - a.totalWealth);
 

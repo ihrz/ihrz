@@ -34,24 +34,24 @@ class EmojisManager {
 	}
 
 	public async startSync() {
-		let appEmojis = await this.fetchCurrentApplicationEmojis();
-		let local_emojis = this.loadLocalEmojis();
+		const appEmojis = await this.fetchCurrentApplicationEmojis();
+		const local_emojis = this.loadLocalEmojis();
 
-		let result = {
+		const result = {
 			skiped: 0,
 			writed: 0,
 			cant: 0
 		}
 
-		for (let local_emoji of local_emojis) {
+		for (const local_emoji of local_emojis) {
 			// Check if the local emoji exist on the Application Emoji
-			let appEmoji = appEmojis.find(x => x.Name === local_emoji.Name);
+			const appEmoji = appEmojis.find(x => x.Name === local_emoji.Name);
 			if (appEmoji) {
 				this.final_appEmojis[local_emoji.Name.replace("iHorizon_", "")] = appEmoji.FormatedName;
 				result.skiped++;
 			} else {
 				try {
-					let res = await this.client.application?.emojis.create({
+					const res = await this.client.application?.emojis.create({
 						name: local_emoji.Name,
 						attachment: readFileSync(path.join(this.emojisPath, `${local_emoji.Name}.${local_emoji.Extension}`))
 					});
@@ -72,10 +72,10 @@ class EmojisManager {
 	}
 
 	private loadLocalEmojis() {
-		let local_emojis = readdirSync(this.emojisPath);
-		let emojis = [];
+		const local_emojis = readdirSync(this.emojisPath);
+		const emojis = [];
 
-		for (let emoji of local_emojis) {
+		for (const emoji of local_emojis) {
 			emojis.push({
 				Name: `${emoji.split(".")[0]}`,
 				Extension: emoji.endsWith("png") ? "png" : "gif",
@@ -86,8 +86,8 @@ class EmojisManager {
 	}
 
 	private async fetchCurrentApplicationEmojis() {
-		var fetched_emojis_data = await this.client.application?.emojis.fetch();
-		var filtered_emojis_data = fetched_emojis_data ? Array.from(fetched_emojis_data.values())
+		const fetched_emojis_data = await this.client.application?.emojis.fetch();
+		const filtered_emojis_data = fetched_emojis_data ? Array.from(fetched_emojis_data.values())
 			.map(x => {
 				return {
 					Name: x.name,

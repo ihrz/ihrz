@@ -20,21 +20,14 @@
 */
 
 import {
-	ApplicationCommandType,
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	GuildChannel,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
-	PermissionsBitField,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -52,7 +45,12 @@ export const subCommand: SubCommand = {
 				channel = (await interaction.guild.channels.fetch(channel.id)) as BaseGuildTextChannel;
 			}
 
-			let here = await channel.clone({
+			if (!channel.deletable) {
+				await client.func.method.interactionSend(interaction, { content: lang.renew_dont_have_permission });
+				return;
+			}
+
+			const here = await channel.clone({
 				name: channel.name,
 				parent: channel.parent,
 				permissionOverwrites: channel.permissionOverwrites.cache!,

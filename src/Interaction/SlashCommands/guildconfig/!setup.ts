@@ -21,14 +21,11 @@
 
 import {
 	Client,
-	PermissionsBitField,
 	ChannelType,
 	PermissionFlagsBits,
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -42,7 +39,7 @@ export const subCommand: SubCommand = {
 
 
 
-		let logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+		const logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
 		if (!logchannel) {
 			interaction.guild.channels.create({
 				name: 'ihorizon-logs',

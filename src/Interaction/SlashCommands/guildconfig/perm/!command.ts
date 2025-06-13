@@ -343,7 +343,7 @@ export const subCommand: SubCommand = {
 			const customRole = interaction.options.getRole("custom-role");
 			const customUser = interaction.options.getUser("custom-user");
 
-			let changes = [];
+			const changes = [];
 
 			// We need at least one of the options to proceed
 			if (!perms && !customRole && !customUser) {
@@ -417,8 +417,8 @@ export const subCommand: SubCommand = {
 				return;
 			} else {
 				let msg = `\`\`\`diff\n${changes.join('')}\`\`\``;
-				let type = perms ? lang.var_permission : customRole ? lang.var_roles : lang.var_user;
-				let value = perms ? perms : customRole ? customRole.toString() : customUser ? customUser.toString() : '';
+				const type = perms ? lang.var_permission : customRole ? lang.var_roles : lang.var_user;
+				const value = perms ? perms : customRole ? customRole.toString() : customUser ? customUser.toString() : '';
 
 				msg += lang.perm_command_delete_all_command_ok
 					.replace("${changes.length}", changes.length.toString())

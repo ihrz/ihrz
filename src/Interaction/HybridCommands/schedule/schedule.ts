@@ -31,13 +31,10 @@ import {
 	ChatInputCommandInteraction,
 	StringSelectMenuInteraction,
 	ModalSubmitInteraction,
-	CacheType,
 	TextInputComponent,
 	ApplicationCommandType,
 	Message,
-	GuildMember,
-	User,
-	Guild
+	User
 } from 'discord.js';
 
 import { format } from '../../../core/functions/date_and_time.js';
@@ -63,9 +60,9 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let table = client.db.table("SCHEDULE");
+		const table = client.db.table("SCHEDULE");
 
-		let select = new StringSelectMenuBuilder()
+		const select = new StringSelectMenuBuilder()
 			.setCustomId('starter')
 			.setPlaceholder(lang.schedule_menu_placeholder)
 			.addOptions(
@@ -87,18 +84,18 @@ export const command: Command = {
 					.setValue('3'),
 			);
 
-		let original_interaction = await client.func.method.interactionSend(interaction, {
+		const original_interaction = await client.func.method.interactionSend(interaction, {
 			content: interaction.member.user.toString(),
 			components: [
 				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select),
 			],
 		});
 
-		let user = interaction.member.user as User;
+		const user = interaction.member.user as User;
 
 		try {
 
-			let collector = original_interaction.createMessageComponentCollector({
+			const collector = original_interaction.createMessageComponentCollector({
 				filter: (member) => member.user.id === interaction.member?.user.id,
 				componentType: ComponentType.StringSelect,
 				time: 420_000
@@ -130,7 +127,7 @@ export const command: Command = {
 		async function chooseAction(i: StringSelectMenuInteraction) {
 			switch (i.values[0]) {
 				case '0':
-					let modal = await iHorizonModalResolve({
+					const modal = await iHorizonModalResolve({
 						customId: 'modal',
 						title: lang.schedule_modal_title,
 						deferUpdate: false,
@@ -158,9 +155,9 @@ export const command: Command = {
 					executeAfterModal(modal);
 					break;
 				case '1':
-					let u = await i.reply({ content: lang.schedule_delete_question, ephemeral: false });
+					const u = await i.reply({ content: lang.schedule_delete_question, ephemeral: false });
 
-					let deleteCollector = interaction.channel?.createMessageCollector({
+					const deleteCollector = interaction.channel?.createMessageCollector({
 						filter: (m) => m.author.id === interaction.member?.user.id,
 						max: 1,
 						time: 120_000
@@ -173,8 +170,8 @@ export const command: Command = {
 					});
 					break;
 				case '2':
-					let u2 = await i.reply({ content: lang.schedule_deleteall_question, ephemeral: false });
-					let deleteAllCollector = interaction.channel?.createMessageCollector({
+					const u2 = await i.reply({ content: lang.schedule_deleteall_question, ephemeral: false });
+					const deleteAllCollector = interaction.channel?.createMessageCollector({
 						filter: (m) => m.author.id === interaction.member?.user.id,
 						max: 1,
 						time: 120_000
@@ -199,7 +196,7 @@ export const command: Command = {
 			};
 
 			async function __1(arg0: string) {
-				let fetched = await table.get(`${interaction.member?.user.id}`);
+				const fetched = await table.get(`${interaction.member?.user.id}`);
 
 				if (!fetched || !fetched[arg0]) {
 					await original_interaction.edit({
@@ -208,7 +205,7 @@ export const command: Command = {
 					});
 					return;
 				} else {
-					let embed = new EmbedBuilder()
+					const embed = new EmbedBuilder()
 						.setAuthor({
 							name: user.globalName || user.username,
 							iconURL: (interaction.member?.user as User).displayAvatarURL({ extension: 'png', size: 512 })
@@ -234,7 +231,7 @@ export const command: Command = {
 				if (arg0) {
 					await table.delete(`${interaction.member?.user.id}`);
 
-					let embed = new EmbedBuilder()
+					const embed = new EmbedBuilder()
 						.setColor('#ff0a0a')
 						.setAuthor({
 							name: user.globalName || user.username,
@@ -260,14 +257,14 @@ export const command: Command = {
 			};
 
 			async function __3() {
-				let fetched = await table.get(`${interaction.member?.user.id}`);
+				const fetched = await table.get(`${interaction.member?.user.id}`);
 
 				if (!fetched) {
 					await original_interaction.edit({ content: lang.schedule_list_not_schedule, embeds: [], files: [] });
 					return;
 				};
 
-				let embed = new EmbedBuilder()
+				const embed = new EmbedBuilder()
 					.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 					.setTitle(lang.schedule_list_title_embed)
 					.setColor('#60BEE0')
@@ -276,7 +273,7 @@ export const command: Command = {
 						iconURL: user.displayAvatarURL({ extension: 'png', size: 512 })
 					});
 
-				for (let i in fetched) {
+				for (const i in fetched) {
 					embed.addFields({
 						name: `#${i}`, value: lang.schedule_list_fields_embed
 							.replace("${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}",
@@ -295,11 +292,11 @@ export const command: Command = {
 			};
 
 			async function executeAfterModal(i: ModalSubmitInteraction<"cached">) {
-				let collection = i.fields.fields;
-				let nameValue = collection.get('name')?.value;
-				let descValue = collection.get('desc')?.value;
+				const collection = i.fields.fields;
+				const nameValue = collection.get('name')?.value;
+				const descValue = collection.get('desc')?.value;
 
-				let embed = new EmbedBuilder()
+				const embed = new EmbedBuilder()
 					.setDescription(`\`\`\`${nameValue}\`\`\`\`\`\`${descValue}\`\`\``)
 					.setAuthor({
 						name: user.globalName || user.username,
@@ -312,9 +309,9 @@ export const command: Command = {
 					.setTimestamp();
 
 				await original_interaction.edit({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
-				let u = await i.reply({ content: lang.schedule_create_when_question });
+				const u = await i.reply({ content: lang.schedule_create_when_question });
 
-				let dateCollector = interaction.channel?.createMessageCollector({
+				const dateCollector = interaction.channel?.createMessageCollector({
 					filter: (m) => m.author.id === user.id,
 					max: 1,
 					time: 120_000
@@ -328,7 +325,7 @@ export const command: Command = {
 
 
 				async function __0(date0: number, collection: Collection<string, TextInputComponent>) {
-					var scheduleCode = generatePassword({ length: 16 });
+					const scheduleCode = generatePassword({ length: 16 });
 
 					if (Number.isNaN(date0)) {
 						original_interaction.edit({

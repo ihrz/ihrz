@@ -20,7 +20,6 @@
 */
 
 import {
-	ApplicationCommandType,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
@@ -30,7 +29,6 @@ import {
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -42,9 +40,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		var based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`) as DatabaseStructure.SnipeData[""];
+		const based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`) as DatabaseStructure.SnipeData[""];
 
-		var message_content = based?.snipe;
+		const message_content = based?.snipe;
 
 		if (!based || !message_content) {
 			await client.func.method.interactionSend(interaction, { content: lang.snipe_no_previous_message_deleted });

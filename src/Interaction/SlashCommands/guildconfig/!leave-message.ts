@@ -21,20 +21,16 @@
 
 import {
 	ActionRowBuilder,
-	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
 	EmbedBuilder,
-	PermissionsBitField,
 	TextInputStyle
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -104,7 +100,7 @@ export const subCommand: SubCommand = {
 			};
 
 			if (buttonInteraction.customId === "leaveMessage-set-message") {
-				let modalInteraction = (await iHorizonModalResolve({
+				const modalInteraction = (await iHorizonModalResolve({
 					customId: 'leaveMessage-modal',
 					title: lang.setleavemessage_awaiting_response,
 					deferUpdate: false,
@@ -149,7 +145,7 @@ export const subCommand: SubCommand = {
 						.replace("${interaction.user.id}", interaction.user.id)
 				});
 			} else if (buttonInteraction.customId === "leaveMessage-default-message") {
-				let newEmbed = EmbedBuilder.from(helpEmbed).setFields(
+				const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
 					{
 						name: lang.setjoinmessage_help_embed_fields_custom_name,
 						value: lang.setjoinmessage_help_embed_fields_custom_name_empy

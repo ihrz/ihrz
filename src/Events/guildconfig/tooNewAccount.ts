@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, GuildMember, SnowflakeUtil } from 'discord.js';
+import { Client, GuildMember } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
@@ -29,7 +29,7 @@ export const event: BotEvent = {
 	run: async (client: Client, member: GuildMember) => {
 		if (!member.guild || member.user.bot) return;
 
-		let baseData = await client.db.get(`${member.guild.id}.GUILD.BLOCK_NEW_ACCOUNT`) as DatabaseStructure.BlockNewAccountSchema;
+		const baseData = await client.db.get(`${member.guild.id}.GUILD.BLOCK_NEW_ACCOUNT`) as DatabaseStructure.BlockNewAccountSchema;
 		let joinCount = await client.db.get(`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`) || 0;
 
 		joinCount++;

@@ -22,16 +22,11 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 	PermissionFlagsBits,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 import { SubCommand } from '../../../../types/command.js';
@@ -43,19 +38,21 @@ export const subCommand: SubCommand = {
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		// Check if the user is allowed to use the command
-		let baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS`) as DatabaseStructure.GuildTagsStructure | undefined;
+		const baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS`) as DatabaseStructure.GuildTagsStructure | undefined;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var tag_name = interaction.options.getString("tag_name", true);
 			var embed_id = interaction.options.getString("embed_id", true);
+			var message_content = interaction.options.getString("message_content", false);
 		} else {
 			var tag_name = client.func.method.string(args!, 0)!;
 			var embed_id = client.func.method.string(args!, 1)!;
+			var message_content = client.func.method.string(args!, 2);
 		}
 
 		tag_name = tag_name.trim();
 
-		let is_in_wl = interaction.member.roles.cache.some(role => baseData?.whitelist_create?.includes(role.id))
+		const is_in_wl = interaction.member.roles.cache.some(role => baseData?.whitelist_create?.includes(role.id))
 
 		if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator) && !is_in_wl) {
 			await client.func.method.interactionSend(interaction, {
@@ -79,7 +76,7 @@ export const subCommand: SubCommand = {
 		}
 
 		// Check if the embed exists
-		let embed = await client.db.get(`EMBED.${embed_id}`);
+		const embed = await client.db.get(`EMBED.${embed_id}`);
 
 		if (!embed) {
 			await client.func.method.interactionSend(interaction, {
@@ -95,6 +92,7 @@ export const subCommand: SubCommand = {
 			uses: 0,
 			lastUseTimestamp: Date.now(),
 			lastUseBy: null,
+			content: message_content || null
 		});
 
 		await client.func.method.interactionSend(interaction, {

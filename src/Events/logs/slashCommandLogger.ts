@@ -34,7 +34,7 @@ export const event: BotEvent = {
 			|| !interaction.guild?.channels
 			|| interaction.user.bot) return;
 
-		let optionsList: string[] = (interaction.options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:"${element.value}"`)
+		const optionsList: string[] = (interaction.options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:"${element.value}"`)
 		let subCmd: string = '';
 
 		if ((interaction.options as CommandInteractionOptionResolver)["_subcommand"]) {
@@ -42,7 +42,7 @@ export const event: BotEvent = {
 			subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommand()
 		};
 
-		let logMessage = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
+		const logMessage = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
 			`${interaction.user.username}:\n` +
 			`/${interaction.commandName} ${subCmd} ${optionsList?.join(' ')}\n\n`;
 

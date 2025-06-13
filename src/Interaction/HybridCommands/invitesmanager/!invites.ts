@@ -24,14 +24,9 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
-	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -49,14 +44,14 @@ export const subCommand: SubCommand = {
 			var member = client.func.method.member(interaction, args!, 0) || interaction.member;
 		};
 
-		let baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);
+		const baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);
 
-		let inv = baseData?.invites;
-		let leaves = baseData?.leaves;
-		let Regular = baseData?.regular;
-		let bonus = baseData?.bonus;
+		const inv = baseData?.invites;
+		const leaves = baseData?.leaves;
+		const Regular = baseData?.regular;
+		const bonus = baseData?.bonus;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor("#92A8D1")
 			.setTitle(lang.invites_confirmation_embed_title)
 			.setTimestamp()

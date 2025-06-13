@@ -30,15 +30,15 @@ export const event: BotEvent = {
 
 		if (!message.guild || message.author.bot || !message.channel) return;
 
-		let lang = await client.func.getLanguageData(message.guild.id);
+		const lang = await client.func.getLanguageData(message.guild.id);
 
 		if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
 			|| message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)
 			|| !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.ManageRoles) || message.content !== `<@${client.user?.id}>`) return;
 
-		let dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES`) as DatabaseStructure.DbGuildObject['RANK_ROLES'];
-		var prefix = (await guildPrefix(client, message.guildId!)).string;
-		let text = lang.ping_bot_show_info_msg
+		const dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES`) as DatabaseStructure.DbGuildObject['RANK_ROLES'];
+		const prefix = (await guildPrefix(client, message.guildId!)).string;
+		const text = lang.ping_bot_show_info_msg
 			.replace("${prefix}", prefix)
 			.replace("${message.author.toString()}", message.author.toString())
 			.replace("${client.iHorizon_Emojis.Slash_Bot_Badge}", client.iHorizon_Emojis.Slash_Bot_Badge)
@@ -50,7 +50,7 @@ export const event: BotEvent = {
 			};
 			return await client.func.method.interactionSend(message, { content: text });
 		}
-		let fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
+		const fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
 
 		/**
 		 * Why doing this?
@@ -60,17 +60,17 @@ export const event: BotEvent = {
 		const nonce = SnowflakeUtil.generate().toString();
 
 		if (fetch) {
-			let target = message.guild.members.cache.get(message.author.id);
+			const target = message.guild.members.cache.get(message.author.id);
 			if (target?.roles.cache.has(fetch.id)) return;
 
 			if (dbGet.nicknames) {
-				let includeUsername = message.author.username.includes(dbGet.nicknames);
-				let includeGlobalname = message.author.globalName ? message.author.globalName.includes(dbGet.nicknames) : false;
+				const includeUsername = message.author.username.includes(dbGet.nicknames);
+				const includeGlobalname = message.author.globalName ? message.author.globalName.includes(dbGet.nicknames) : false;
 
 				if (!includeUsername && !includeGlobalname) return;
 			}
 
-			let embed = new EmbedBuilder()
+			const embed = new EmbedBuilder()
 				.setDescription(lang.event_rank_role
 					.replace("${message.author.id}", message.author.id)
 					.replace("${fetch.id}", fetch.id)

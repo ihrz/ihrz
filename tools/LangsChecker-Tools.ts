@@ -166,7 +166,7 @@ async function main() {
 
 	logger.legacy(`[-] Starting to check ${langsContent.length} lang files!`);
 
-	let TypingFiles: TypingsFiles = {};
+	const TypingFiles: TypingsFiles = {};
 
 	for (const langFile of langsContent) {
 		try {
@@ -211,7 +211,7 @@ async function main() {
 			mergedType = mergeTypes(mergedType, currentType);
 		}
 
-		var interfaceContent = `/*
+		let interfaceContent = `/*
 ・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)

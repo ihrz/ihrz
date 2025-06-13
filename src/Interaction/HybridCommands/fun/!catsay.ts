@@ -42,7 +42,7 @@ export const subCommand: SubCommand = {
 		args?: string[]
 	) => {
 
-		let baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
+		const baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
 			await client.func.method.interactionSend(interaction, { content: "You cannot use this command, the fun commands category is disable." });
@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 			var text = client.func.method.longString(args!, 0)?.slice(0, 30);
 		}
 
-		let font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+		const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
 		const newImg = await Jimp.read(baseImg[0].url);
 		const textWidth = Jimp.measureText(font, text);

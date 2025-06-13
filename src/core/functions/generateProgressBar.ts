@@ -24,20 +24,20 @@ export default function generateProgressBar(emojis: any, currentTimeMs: number, 
 	currentTime: string;
 	totalTime: string;
 } {
-	let currentTimeInSeconds = Math.floor(currentTimeMs / 1000);
-	let totalTimeInSeconds = Math.floor(totalTimeMs / 1000);
+	const currentTimeInSeconds = Math.floor(currentTimeMs / 1000);
+	const totalTimeInSeconds = Math.floor(totalTimeMs / 1000);
 
-	let progress = (currentTimeInSeconds / totalTimeInSeconds) * 100;
+	const progress = (currentTimeInSeconds / totalTimeInSeconds) * 100;
 
-	let currentTimeFormatted = formatTime(currentTimeInSeconds);
-	let totalTimeFormatted = formatTime(totalTimeInSeconds);
+	const currentTimeFormatted = formatTime(currentTimeInSeconds);
+	const totalTimeFormatted = formatTime(totalTimeInSeconds);
 
-	let progressBarLength = 17;
+	const progressBarLength = 17;
 
-	let dashesBefore = Math.floor((progressBarLength - 2) * (progress / 100));
-	let dashesAfter = progressBarLength - dashesBefore - 2;
+	const dashesBefore = Math.floor((progressBarLength - 2) * (progress / 100));
+	const dashesAfter = progressBarLength - dashesBefore - 2;
 
-	let progressBar = `${currentTimeFormatted} ┃ ${`${emojis.Bar}`.repeat(dashesBefore)}${emojis.Pointer}${`${emojis.Bar}`.repeat(dashesAfter)} ┃ ${totalTimeFormatted}`;
+	const progressBar = `${currentTimeFormatted} ┃ ${`${emojis.Bar}`.repeat(dashesBefore)}${emojis.Pointer}${`${emojis.Bar}`.repeat(dashesAfter)} ┃ ${totalTimeFormatted}`;
 
 	return {
 		bar: progressBar,
@@ -47,8 +47,8 @@ export default function generateProgressBar(emojis: any, currentTimeMs: number, 
 }
 
 function formatTime(seconds: number): string {
-	let minutes = Math.floor(seconds / 60);
-	let remainingSeconds = seconds % 60;
+	const minutes = Math.floor(seconds / 60);
+	const remainingSeconds = seconds % 60;
 
 	return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }

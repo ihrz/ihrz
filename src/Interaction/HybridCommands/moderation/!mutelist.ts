@@ -21,20 +21,14 @@
 
 import {
 	ActionRowBuilder,
-	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -53,18 +47,18 @@ export const subCommand: SubCommand = {
 		};
 
 		let currentPage = 0;
-		let usersPerPage = 5;
-		let pages: { description: string; }[] = [];
+		const usersPerPage = 5;
+		const pages: { description: string; }[] = [];
 
 		for (let i = 0; i < char.length; i += usersPerPage) {
-			let pageUsers = char.slice(i, i + usersPerPage);
-			let pageContent = pageUsers.map((userId) => userId).join('\n');
+			const pageUsers = char.slice(i, i + usersPerPage);
+			const pageContent = pageUsers.map((userId) => userId).join('\n');
 			pages.push({
 				description: pageContent,
 			});
 		};
 
-		let createEmbed = () => {
+		const createEmbed = () => {
 			return new EmbedBuilder()
 				.setColor("#000000")
 				.setDescription(pages[currentPage].description)
@@ -77,7 +71,7 @@ export const subCommand: SubCommand = {
 				.setTimestamp()
 		};
 
-		let row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
 				.setCustomId('previousPage')
 				.setLabel('⬅️')
@@ -92,13 +86,13 @@ export const subCommand: SubCommand = {
 				.setStyle(ButtonStyle.Danger)
 		);
 
-		let messageEmbed = await client.func.method.interactionSend(interaction, {
+		const messageEmbed = await client.func.method.interactionSend(interaction, {
 			embeds: [createEmbed()],
 			components: [row],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
 
-		let collector = messageEmbed.createMessageComponentCollector({
+		const collector = messageEmbed.createMessageComponentCollector({
 			filter: async (i) => {
 				await i.deferUpdate();
 				return interaction.member?.user.id === i.user.id;

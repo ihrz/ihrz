@@ -23,11 +23,9 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	PermissionsBitField
+	EmbedBuilder
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -39,11 +37,11 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let id = interaction.options.getString("id");
-		let message = interaction.options.getString("message");
+		const id = interaction.options.getString("id");
+		const message = interaction.options.getString("message");
 
-		let baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
-		let fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`);
+		const baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
+		const fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`);
 
 		if (!baseData
 			|| baseData?.channel !== interaction.channel?.id
@@ -68,11 +66,11 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let channel = interaction.guild.channels.cache.get(baseData?.channel);
+		const channel = interaction.guild.channels.cache.get(baseData?.channel);
 
 		await (channel as BaseGuildTextChannel).messages.fetch(fetchId?.msgId).then(async (msg) => {
 
-			let embed = new EmbedBuilder(msg.embeds[0].data);
+			const embed = new EmbedBuilder(msg.embeds[0].data);
 
 			embed.addFields({
 				name: lang.suggest_reply_embed_fields_to_put

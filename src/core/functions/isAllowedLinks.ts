@@ -21,7 +21,7 @@
 
 import * as url from 'url';
 
-let allowedDomains: string[] = [
+const allowedDomains: string[] = [
 	'open.spotify.com', 'play.spotify.com', 'spotify.com',
 	'www.spotify.com', 'www.deezer.com', 'deezer.com',
 	'www.youtube.com', 'youtube.com', 'youtu.be',
@@ -37,7 +37,7 @@ let allowedDomains: string[] = [
 
 export default function isAllowedLinks(link: string): boolean {
 	if (link !== null) {
-		let parsedUrl = url.parse(link);
+		const parsedUrl = url.parse(link);
 
 		if (parsedUrl.hostname !== null) {
 			return allowedDomains.includes(parsedUrl.hostname);

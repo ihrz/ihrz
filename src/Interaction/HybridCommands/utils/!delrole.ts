@@ -20,23 +20,17 @@
 */
 
 import {
-	ActionRowBuilder,
-	ApplicationCommandType,
-	ButtonBuilder,
-	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	GuildMember,
 	GuildMemberRoleManager,
 	Message,
-	PermissionFlagsBits,
 	PermissionsBitField,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { SubCommand } from '../../../../types/command.js';

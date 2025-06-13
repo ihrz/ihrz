@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, Message, PermissionFlagsBits } from 'discord.js';
+import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, PermissionFlagsBits } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { LanguageData } from '../../../types/languageData.js';
 
@@ -93,7 +93,7 @@ export const event: BotEvent = {
 	name: "channelUpdate",
 	run: async (client: Client, oldChannel: GuildChannel, newChannel: GuildChannel) => {
 
-		let lang = await client.func.getLanguageData(oldChannel.guildId);
+		const lang = await client.func.getLanguageData(oldChannel.guildId);
 
 		if (!oldChannel || !oldChannel?.guild) return;
 
@@ -101,25 +101,25 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		let fetchedLogs = await newChannel.guild.fetchAuditLogs({
+		const fetchedLogs = await newChannel.guild.fetchAuditLogs({
 			type: AuditLogEvent.ChannelUpdate,
 			limit: 1,
 		});
 
 		if (oldChannel.position !== newChannel.position) return;
 
-		var firstEntry = fetchedLogs.entries.first();
+		const firstEntry = fetchedLogs.entries.first();
 
 		// check if the author is the bot
 		if (firstEntry?.executor?.id === client.user?.id) return;
 
-		let someinfo = await client.db.get(`${oldChannel.guildId}.GUILD.SERVER_LOGS.channel`);
+		const someinfo = await client.db.get(`${oldChannel.guildId}.GUILD.SERVER_LOGS.channel`);
 		if (!someinfo) return;
 
-		let Msgchannel = oldChannel.guild.channels.cache.get(someinfo);
+		const Msgchannel = oldChannel.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
-		var changes = getDiff(oldChannel, newChannel, lang);
+		let changes = getDiff(oldChannel, newChannel, lang);
 
 		if (changes === "") {
 			return;
@@ -129,9 +129,9 @@ export const event: BotEvent = {
 			changes = changes.substring(0, 1021) + "...";
 		}
 
-		let icon = firstEntry?.executor?.displayAvatarURL();
+		const icon = firstEntry?.executor?.displayAvatarURL();
 
-		let logsEmbed = new EmbedBuilder()
+		const logsEmbed = new EmbedBuilder()
 			.setColor("#000000")
 			.setAuthor({ name: firstEntry?.executor?.username || lang.var_unknown, iconURL: icon })
 			.setDescription(`${newChannel.toString()} are updated`)

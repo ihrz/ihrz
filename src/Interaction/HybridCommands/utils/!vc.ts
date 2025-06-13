@@ -183,7 +183,7 @@ function calculateMemberStats(members: Collection<string, GuildMember>): MemberS
 
 function calculateVoiceStats(voiceStates: Collection<string, VoiceState>): VoiceStats {
 	// Making a set with userid
-	let data = new Set(voiceStates.keys())
+	const data = new Set(voiceStates.keys())
 	return {
 		total: data.size,
 		streaming: voiceStates.filter(vc => vc.streaming).size,

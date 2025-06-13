@@ -39,7 +39,7 @@ export const event: BotEvent = {
 
 			if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
-			let usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+			const usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
 
 			let embed = new EmbedBuilder()
 				.setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#ff0505")

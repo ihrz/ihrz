@@ -23,10 +23,8 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionsBitField,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -53,7 +51,7 @@ export const subCommand: SubCommand = {
 			var cooldown = client.func.method.longString(args!, 1)!;
 		};
 
-		let time = client.timeCalculator.to_ms(cooldown);
+		const time = client.timeCalculator.to_ms(cooldown);
 
 		if (!time) {
 			await client.func.method.interactionSend(interaction, {

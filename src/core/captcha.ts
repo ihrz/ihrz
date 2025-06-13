@@ -26,17 +26,17 @@ async function captcha(width: number, height: number): Promise<{ code: string; i
 	let captchaCode = generateRandomCode();
 	captchaCode = captchaCode.toUpperCase();
 
-	let image = new Jimp(width, height, '#ffffff');
+	const image = new Jimp(width, height, '#ffffff');
 
 	for (let i = 0; i < captchaCode.length; i++) {
-		let letterX = 50 + i * 30;
-		let letterY = 50;
-		let letterImage = await createLetterImage(captchaCode[i]);
+		const letterX = 50 + i * 30;
+		const letterY = 50;
+		const letterImage = await createLetterImage(captchaCode[i]);
 
 		letterImage.scan(0, 0, letterImage.bitmap.width, letterImage.bitmap.height, function (x, y, idx) {
-			let newX = x + Math.sin(y / 36) * 5;
-			let newY = y + Math.cos(x / 26) * 5;
-			let newIdx = letterImage.getPixelIndex(newX, newY);
+			const newX = x + Math.sin(y / 36) * 5;
+			const newY = y + Math.cos(x / 26) * 5;
+			const newIdx = letterImage.getPixelIndex(newX, newY);
 			for (let j = 0; j < 4; j++) {
 				letterImage.bitmap.data[idx + j] = letterImage.bitmap.data[newIdx + j];
 			}
@@ -51,18 +51,18 @@ async function captcha(width: number, height: number): Promise<{ code: string; i
 }
 
 function generateRandomCode(): string {
-	let characters = 'ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789';
+	const characters = 'ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789';
 	let code = '';
 	for (let i = 0; i < 8; i++) {
-		let randomIndex = randomInt(0, characters.length);
+		const randomIndex = randomInt(0, characters.length);
 		code += characters.charAt(randomIndex);
 	}
 	return code;
 }
 
 async function createLetterImage(letter: string): Promise<Jimp> {
-	let image = new Jimp(30, 50, '#ffffff');
-	let font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
+	const image = new Jimp(30, 50, '#ffffff');
+	const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 	return image.print(font, 0, 0, letter);
 }
 

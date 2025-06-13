@@ -40,14 +40,14 @@ import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-		let tableProfil = client.db.table('USER_PROFIL');
-		let birthday = await tableProfil.get(`${interaction.member?.user.id}.birthday`) || {
+		const tableProfil = client.db.table('USER_PROFIL');
+		const birthday = await tableProfil.get(`${interaction.member?.user.id}.birthday`) || {
 			day: null,
 			month: null,
 			year: null
 		};
 
-		let buttons = [
+		const buttons = [
 			new ButtonBuilder()
 				.setStyle(ButtonStyle.Secondary)
 				.setLabel(lang.profil_birthday_month_button_label)
@@ -75,7 +75,7 @@ export const subCommand: SubCommand = {
 			return '#' + Math.floor(Math.random() * 16777215).toString(16);
 		};
 
-		let introduction = lang.profil_birthday_embed_introduction
+		const introduction = lang.profil_birthday_embed_introduction
 			.replaceAll("${client.iHorizon_Emojis.Sparkles}", client.iHorizon_Emojis.Sparkles)
 			.replace("${client.iHorizon_Emojis.Crown}", client.iHorizon_Emojis.Crown)
 			.replace("${interaction.member?.toString()}", interaction.member?.toString()!);
@@ -89,7 +89,7 @@ export const subCommand: SubCommand = {
 				.replace("${birthday.year}", birthday.year);
 		};
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor("#0092cc")
 			.setTitle(lang.profil_birthday_embed_title)
 			.setThumbnail((interaction.member?.displayAvatarURL() || interaction.member?.user.displayAvatarURL()) as string)
@@ -103,7 +103,7 @@ export const subCommand: SubCommand = {
 		});
 
 		// loop to change the color of the embed every 5 seconds
-		let cool_loop = setInterval(() => {
+		const cool_loop = setInterval(() => {
 			try {
 				if (!og_interaction) return;
 
@@ -162,7 +162,7 @@ export const subCommand: SubCommand = {
 
 		async function set_year(buttonInteraction: ButtonInteraction) {
 			// create a modal to get the year
-			let modal = await iHorizonModalResolve({
+			const modal = await iHorizonModalResolve({
 				title: lang.profil_birthday_modal1_title,
 				customId: "set_year",
 				deferUpdate: false,
@@ -181,7 +181,7 @@ export const subCommand: SubCommand = {
 			if (!modal) return;
 
 			// get the year
-			let year = modal.fields.getTextInputValue("year");
+			const year = modal.fields.getTextInputValue("year");
 
 			// check if the year is valid
 			if (Number.isNaN(parseInt(year))
@@ -214,7 +214,7 @@ export const subCommand: SubCommand = {
 
 		async function set_month(buttonInteraction: ButtonInteraction) {
 			// create a modal to get the month
-			let modal = await iHorizonModalResolve({
+			const modal = await iHorizonModalResolve({
 				title: lang.profil_birthday_modal2_title,
 				customId: "set_month",
 				deferUpdate: false,
@@ -233,7 +233,7 @@ export const subCommand: SubCommand = {
 			if (!modal) return;
 
 			// get the month
-			let month = modal.fields.getTextInputValue("month");
+			const month = modal.fields.getTextInputValue("month");
 
 			// check if the month is valid
 			if (Number.isNaN(parseInt(month))
@@ -267,7 +267,7 @@ export const subCommand: SubCommand = {
 
 		async function set_day(buttonInteraction: ButtonInteraction) {
 			// create a modal to get the day
-			let modal = await iHorizonModalResolve({
+			const modal = await iHorizonModalResolve({
 				title: lang.profil_birthday_modal3_title,
 				customId: "set_day",
 				deferUpdate: false,
@@ -286,7 +286,7 @@ export const subCommand: SubCommand = {
 			if (!modal) return;
 
 			// get the day
-			let day = modal.fields.getTextInputValue("day");
+			const day = modal.fields.getTextInputValue("day");
 
 			// check if the day is valid
 			if (Number.isNaN(parseInt(day))

@@ -23,16 +23,9 @@ import {
 	Channel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
-	User,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -51,7 +44,7 @@ export const subCommand: SubCommand = {
 			var time = client.func.method.string(args!, 1);
 		};
 
-		let parseTime = client.timeCalculator.to_ms(time || "");
+		const parseTime = client.timeCalculator.to_ms(time || "");
 
 		if (parseTime && parseTime < 60_000) { // Ceci est égal à 1 minute
 			await client.func.method.interactionSend(interaction, {

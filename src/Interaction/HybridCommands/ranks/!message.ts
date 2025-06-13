@@ -21,7 +21,6 @@
 
 import {
 	ActionRowBuilder,
-	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
@@ -29,13 +28,11 @@ import {
 	ComponentType,
 	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 	TextInputStyle
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -112,7 +109,7 @@ export const subCommand: SubCommand = {
 			};
 
 			if (buttonInteraction.customId === "xpMessage-set-message") {
-				let modalInteraction = await iHorizonModalResolve({
+				const modalInteraction = await iHorizonModalResolve({
 					customId: 'xpMessage-modal',
 					title: lang.ranksSetMessage_awaiting_response,
 					deferUpdate: false,

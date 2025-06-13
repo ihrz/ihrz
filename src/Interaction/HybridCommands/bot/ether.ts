@@ -22,7 +22,6 @@
 import {
 	Client, ChatInputCommandInteraction, ApplicationCommandType,
 	Message,
-	CommandInteractionOptionResolver,
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';

@@ -24,10 +24,8 @@ import {
 	ApplicationCommandType,
 	ChatInputCommandInteraction,
 	Client,
-	CommandInteractionOptionResolver,
 	Message,
 	PermissionFlagsBits,
-	PermissionsBitField,
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';

@@ -31,7 +31,6 @@ import {
 
 import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -51,9 +50,9 @@ export const subCommand: SubCommand = {
 			var member1 = await client.func.method.user(interaction, args!, 0) || interaction.author;
 		};
 
-		let link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
+		const link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor('#000000')
 			.setImage('attachment://transgender.png')
 			.setTimestamp()
@@ -61,7 +60,7 @@ export const subCommand: SubCommand = {
 
 		let imgs: AttachmentBuilder | undefined;
 
-		let response: AxiosResponse = await axios.get(link, { responseType: 'arrayBuffer' })
+		const response: AxiosResponse = await axios.get(link, { responseType: 'arrayBuffer' })
 		imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'transgender.png' });
 		embed.setImage(`attachment://transgender.png`);
 

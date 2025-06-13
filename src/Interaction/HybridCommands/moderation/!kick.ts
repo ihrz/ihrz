@@ -20,22 +20,16 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	GuildMember,
 	GuildMemberRoleManager,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 	PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 
 

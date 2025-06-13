@@ -28,7 +28,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { getMemberBoost } from './economy.js';
 import { SubCommand } from '../../../../types/command.js';
 
@@ -39,10 +38,10 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		let timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.monthly.cooldown`) || 2592000000);
-		let amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.monthly.amount`) || 5000) * await getMemberBoost(interaction.member);
+		const timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.monthly.cooldown`) || 2592000000);
+		const amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.monthly.amount`) || 5000) * await getMemberBoost(interaction.member);
 
-		let monthly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`);
+		const monthly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`);
 
 		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
 			await client.func.method.interactionSend(interaction, {
@@ -53,7 +52,7 @@ export const subCommand: SubCommand = {
 		};
 
 		if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
-			let time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly), lang);
+			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly), lang);
 
 			await client.func.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
 			return;

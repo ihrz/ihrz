@@ -27,7 +27,7 @@ export const event: BotEvent = {
 	name: "webhooksUpdate",
 	run: async (client: Client, channel: GuildChannel) => {
 
-		let data = await client.db.get(`${channel.guild.id}.PROTECTION`);
+		const data = await client.db.get(`${channel.guild.id}.PROTECTION`);
 		if (!data) return;
 
 		if (!channel.guild.members.me?.permissions.has([
@@ -35,12 +35,12 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.webhook && data.webhook.mode === 'allowlist') {
-			let fetchedLogs = await channel.guild.fetchAuditLogs({
+			const fetchedLogs = await channel.guild.fetchAuditLogs({
 				type: AuditLogEvent.WebhookCreate,
 				limit: 1,
 			});
 
-			let relevantLog = fetchedLogs.entries.find(entry =>
+			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.target.channelId === channel.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
@@ -50,15 +50,15 @@ export const event: BotEvent = {
 				return;
 			}
 
-			let baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
-				let webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
-				let myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.target.id);
+				const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
+				const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.target.id);
 
-				for (let [id, webhook] of myWebhooks) await webhook.delete("Protect!");
+				for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 
-				let member = channel.guild.members.cache.get(relevantLog.executorId as string);
+				const member = channel.guild.members.cache.get(relevantLog.executorId as string);
 				await client.func.method.punish(data, member);
 			};
 		}

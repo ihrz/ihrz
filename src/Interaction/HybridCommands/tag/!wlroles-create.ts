@@ -27,14 +27,12 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
 	RoleSelectMenuBuilder,
 	RoleSelectMenuInteraction,
 	ComponentType,
 	Role,
 	PermissionFlagsBits,
-	Message,
-	BaseGuildTextChannel
+	Message
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -50,7 +48,7 @@ export const subCommand: SubCommand = {
 
 		let all_roles: DatabaseStructure.GuildTagsStructure["whitelist_use"] = await client.db.get(`${interaction.guildId}.GUILD.TAGS.whitelist_create`) || [];
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setTitle(lang.tag_wlcreate_embed_title)
 			.setColor("#475387")
 			.setDescription(lang.tag_wlcreate_embed_desc)
@@ -61,7 +59,7 @@ export const subCommand: SubCommand = {
 					: lang.setjoinroles_var_none
 			});
 
-		let roleSelectMenu = new RoleSelectMenuBuilder()
+		const roleSelectMenu = new RoleSelectMenuBuilder()
 			.setCustomId('utils-wlTagCreate-role-selecter')
 			.setMaxValues(25)
 			.setMinValues(0);
@@ -71,15 +69,15 @@ export const subCommand: SubCommand = {
 			roleSelectMenu.setDefaultRoles(roles);
 		}
 
-		let saveButton = new ButtonBuilder()
+		const saveButton = new ButtonBuilder()
 			.setCustomId('utils-wlTagCreate-save-button')
 			.setStyle(ButtonStyle.Primary)
 			.setEmoji('💾');
 
-		let comp = new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelectMenu);
-		let comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
+		const comp = new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelectMenu);
+		const comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
 
-		let og_response = await client.func.method.interactionSend(interaction, {
+		const og_response = await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
 			components: [comp, comp_2]
 		});
@@ -103,7 +101,7 @@ export const subCommand: SubCommand = {
 			selectedRoles = [];
 			all_roles = [];
 
-			let too_highter_roles: { id: string, name: string, position: string }[] = [];
+			const too_highter_roles: { id: string, name: string, position: string }[] = [];
 
 			if (!roleInteraction.guild?.members.me?.permissions.has(PermissionFlagsBits.ManageRoles)) {
 				await roleInteraction.deferUpdate();
@@ -131,7 +129,7 @@ export const subCommand: SubCommand = {
 		buttonCollector.on('collect', async (buttonInteraction: ButtonInteraction) => {
 			await buttonInteraction.deferUpdate();
 			if (buttonInteraction.customId === 'utils-wlTagCreate-save-button') {
-				let newComp_2 = new ActionRowBuilder<ButtonBuilder>()
+				const newComp_2 = new ActionRowBuilder<ButtonBuilder>()
 					.addComponents(
 						saveButton
 							.setStyle(ButtonStyle.Success)

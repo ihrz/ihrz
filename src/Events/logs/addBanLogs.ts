@@ -22,30 +22,29 @@
 import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
 	name: "guildBanAdd",
 	run: async (client: Client, ban: GuildBan) => {
 
-		let data = await client.func.getLanguageData(ban.guild.id);
+		const data = await client.func.getLanguageData(ban.guild.id);
 
 		if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
 			PermissionsBitField.Flags.ViewAuditLog,
 			PermissionsBitField.Flags.ManageGuild
 		])) return;
 
-		let fetchedLogs = await ban.guild.fetchAuditLogs({
+		const fetchedLogs = await ban.guild.fetchAuditLogs({
 			type: AuditLogEvent.MemberBanAdd,
 			limit: 1,
 		});
 
-		var firstEntry = fetchedLogs.entries.first();
-		let someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
+		const firstEntry = fetchedLogs.entries.first();
+		const someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
 
 		if (!someinfo) return;
 
-		let Msgchannel = ban.guild.channels.cache.get(someinfo);
+		const Msgchannel = ban.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
 		let logsEmbed = new EmbedBuilder()

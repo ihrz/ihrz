@@ -29,7 +29,6 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { axios } from '../../../core/functions/axios.js';
 import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -44,7 +43,7 @@ export const subCommand: SubCommand = {
 		};
 		axios.get('https://dog.ceo/api/breeds/image/random')
 			.then(async res => {
-				let emb = new EmbedBuilder()
+				const emb = new EmbedBuilder()
 					.setImage(res.data.message).setTitle(lang.dogs_embed_title).setTimestamp();
 
 				await client.func.method.interactionSend(interaction, { embeds: [emb] });

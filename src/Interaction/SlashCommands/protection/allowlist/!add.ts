@@ -22,7 +22,6 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	GuildMember,
 } from 'discord.js';
 import { LanguageData } from '../../../../../types/languageData.js';

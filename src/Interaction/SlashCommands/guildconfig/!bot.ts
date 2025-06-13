@@ -20,15 +20,11 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -40,7 +36,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let action = interaction.options.getString('action');
+		const action = interaction.options.getString('action');
 
 		if (interaction.user.id !== interaction.guild.ownerId) {
 			await interaction.editReply({ content: lang.blockbot_not_owner });

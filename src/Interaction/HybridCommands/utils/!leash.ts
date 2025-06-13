@@ -21,18 +21,8 @@
 
 import {
 	Client,
-	ApplicationCommandOptionType,
-	EmbedBuilder,
-	PermissionsBitField,
 	ChatInputCommandInteraction,
-	ApplicationCommandType,
-	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions,
-	GuildMember,
-	GuildChannel,
-	VoiceBasedChannel
+	Message
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -40,7 +30,6 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { isInVoiceChannel } from '../../../core/functions/leashModuleHelper.js';
 import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -57,12 +46,12 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0)!;
 		};
 
-		let baseData = await client.db.get(`${interaction.guildId}.UTILS.LEASH_CONFIG`) || {
+		const baseData = await client.db.get(`${interaction.guildId}.UTILS.LEASH_CONFIG`) || {
 			maxLeashedByUsers: 3,
 			maxLeashTime: client.timeCalculator.to_ms("30min")
 		} as DatabaseStructure.LeashConfig;
-		let fetchedData = (await client.db.get(`${interaction.guildId}.UTILS.LEASH`) || []) as DatabaseStructure.LeashData[];
-		let filteredData = fetchedData.filter(x => x.dom === interaction.member?.user.id) || [];
+		const fetchedData = (await client.db.get(`${interaction.guildId}.UTILS.LEASH`) || []) as DatabaseStructure.LeashData[];
+		const filteredData = fetchedData.filter(x => x.dom === interaction.member?.user.id) || [];
 
 		if (filteredData.length >= (baseData.maxLeashedByUsers)) {
 			await client.func.method.interactionSend(interaction, { content: lang.util_leash_too_naugthy });
@@ -77,7 +66,7 @@ export const subCommand: SubCommand = {
 
 
 		if (!isInVoiceChannel(user) || isInVoiceChannel(interaction.member)) {
-			let response = await promptYesOrNo(interaction, {
+			const response = await promptYesOrNo(interaction, {
 				content: lang.util_leash_confirm_message
 					.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
 					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No).replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes),

@@ -21,21 +21,12 @@
 
 import {
 	Client,
-	EmbedBuilder,
-	PermissionsBitField,
 	ChannelType,
 	ChatInputCommandInteraction,
-	GuildChannel,
-	GuildTextBasedChannel,
-	BaseGuildTextChannel,
 	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 

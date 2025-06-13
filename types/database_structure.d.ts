@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { EmbedBuilder } from "@discordjs/builders";
 import { CaseList } from "../src/core/modules/ticketsManager.js";
 import { AntiSpam } from "./antispam.js";
 import { Platform } from "../src/core/StreamNotifier.js";
@@ -494,6 +493,7 @@ export namespace DatabaseStructure {
 		uses: number;
 		lastUseTimestamp: number;
 		lastUseBy: string | null;
+		content?: string | null;
 	}
 
 	export interface GuildTagsStructure {

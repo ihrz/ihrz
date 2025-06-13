@@ -24,7 +24,6 @@ import {
 	EmbedBuilder,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
-	GuildMember,
 	ApplicationCommandType,
 	Message
 } from 'discord.js'
@@ -66,12 +65,12 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		let tableOwner = client.db.table('OWNER');
+		const tableOwner = client.db.table('OWNER');
 
-		var text = "";
-		var char = await tableOwner.all();
+		let text = "";
+		const char = await tableOwner.all();
 
-		for (let entry of char) {
+		for (const entry of char) {
 			text += `<@${entry.id}>\n`;
 		}
 
@@ -98,7 +97,7 @@ export const command: Command = {
 		};
 
 
-		let is_owner = await tableOwner.get(`${member.id}.owner`);
+		const is_owner = await tableOwner.get(`${member.id}.owner`);
 
 		if (is_owner) {
 			await client.func.method.interactionSend(interaction, { content: lang.owner_already_owner });

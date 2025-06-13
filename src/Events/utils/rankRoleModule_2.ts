@@ -26,18 +26,18 @@ export const event: BotEvent = {
 	name: "userUpdate",
 	run: async (client: Client, oldUser: User, newUser: User) => {
 		if ((oldUser.username !== newUser.username) || (oldUser.globalName !== newUser.globalName)) {
-			let guilds = client.guilds.cache.filter(guild => guild.members.cache.has(newUser.id)).toJSON();
+			const guilds = client.guilds.cache.filter(guild => guild.members.cache.has(newUser.id)).toJSON();
 			guilds.forEach(async guild => {
-				let guildData = await client.db.get(`${guild.id}.GUILD.RANK_ROLES`);
+				const guildData = await client.db.get(`${guild.id}.GUILD.RANK_ROLES`);
 				if (guildData?.roles && guildData?.nicknames) {
-					let nicknames = guildData.nicknames;
-					let rankRoles = guildData.roles;
+					const nicknames = guildData.nicknames;
+					const rankRoles = guildData.roles;
 
-					let member = guild.members.cache.get(newUser.id);
+					const member = guild.members.cache.get(newUser.id);
 					if (!member) return;
 
-					let includeUsername = newUser.username.includes(nicknames);
-					let includeGlobalname = newUser.globalName ? newUser.globalName.includes(nicknames) : false;
+					const includeUsername = newUser.username.includes(nicknames);
+					const includeGlobalname = newUser.globalName ? newUser.globalName.includes(nicknames) : false;
 
 					if (!includeUsername && !includeGlobalname) {
 						if (member.roles.cache.has(rankRoles)) {

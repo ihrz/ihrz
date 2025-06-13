@@ -20,20 +20,14 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 	PermissionsBitField,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import logger from '../../../core/logger.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -70,7 +64,7 @@ export const subCommand: SubCommand = {
 					});
 					return;
 				}
-				let bannedID = bans.find(ban => ban.user.id == userID);
+				const bannedID = bans.find(ban => ban.user.id == userID);
 				if (!bannedID) {
 					await client.func.method.interactionSend(interaction, {
 						content: lang.unban_the_member_is_not_banned.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)

@@ -22,15 +22,10 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	GuildMember,
-	InteractionEditReplyOptions,
 	Message,
-	MessagePayload,
-	MessageReplyOptions,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 import { SubCommand } from '../../../../types/command.js';
@@ -49,14 +44,14 @@ export const subCommand: SubCommand = {
 
 		tag_name = tag_name.trim();
 
-		let baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS`) as DatabaseStructure.GuildTagsStructure | undefined;
+		const baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS`) as DatabaseStructure.GuildTagsStructure | undefined;
 
 		if (!baseData?.storedTags) {
 			await client.func.method.interactionSend(interaction, { content: lang.tag_no_one_found });
 			return;
 		}
 
-		let tags = Object.keys(baseData.storedTags);
+		const tags = Object.keys(baseData.storedTags);
 
 		// check if the tag exists
 		if (!tags.includes(tag_name)) {

@@ -22,7 +22,6 @@
 import {
 	Client,
 	EmbedBuilder,
-	PermissionsBitField,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	BaseGuildTextChannel,
@@ -125,12 +124,12 @@ export const command: Command = {
 			.addFields({ name: lang.setmembercount_helpembed_fields_name, value: lang.setmembercount_helpembed_fields_value });
 
 		if (type == "on") {
-			let botMembers = interaction.guild.members.cache.filter((member: GuildMember) => member.user.bot);
-			let rolesCollection = interaction.guild.roles.cache;
-			let channelsCount = interaction.guild.channels.cache.size.toString()!;
-			let rolesCount = rolesCollection.size!;
-			let boostsCount = interaction.guild.premiumSubscriptionCount?.toString() || '0';
-			let onlineCount = interaction.guild.members.cache
+			const botMembers = interaction.guild.members.cache.filter((member: GuildMember) => member.user.bot);
+			const rolesCollection = interaction.guild.roles.cache;
+			const channelsCount = interaction.guild.channels.cache.size.toString()!;
+			const rolesCount = rolesCollection.size!;
+			const boostsCount = interaction.guild.premiumSubscriptionCount?.toString() || '0';
+			const onlineCount = interaction.guild.members.cache
 				.filter(member =>
 					member.presence?.status === 'online' ||
 					member.presence?.status === 'idle' ||
@@ -156,7 +155,7 @@ export const command: Command = {
 				return;
 			};
 
-			let joinmsgreplace = messagei
+			const joinmsgreplace = messagei
 				.replace("{MemberCount}", interaction.guild.memberCount.toString()!)
 				.replace("{RolesCount}", rolesCount.toString())
 				.replace("{ChannelCount}", channelsCount)
@@ -206,7 +205,7 @@ export const command: Command = {
 					.replace(/\${messagei}/g, messagei)
 			});
 
-			let fetched = interaction.guild?.channels.cache.get(channel?.id as string);
+			const fetched = interaction.guild?.channels.cache.get(channel?.id as string);
 
 			(fetched as BaseGuildTextChannel).edit({ name: joinmsgreplace });
 			await client.func.method.interactionSend(interaction, {

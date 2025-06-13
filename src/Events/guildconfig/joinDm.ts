@@ -46,7 +46,7 @@ export const event: BotEvent = {
 				}
 			);
 
-			let button = new ButtonBuilder()
+			const button = new ButtonBuilder()
 				.setDisabled(true)
 				.setCustomId('join-dm-from-server')
 				.setStyle(ButtonStyle.Secondary)

@@ -21,7 +21,6 @@
 
 import {
 	Client,
-	PermissionsBitField,
 	ChatInputCommandInteraction,
 	AttachmentBuilder,
 } from 'discord.js';

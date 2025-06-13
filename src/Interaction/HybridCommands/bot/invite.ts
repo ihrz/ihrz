@@ -28,7 +28,6 @@ import {
 	ChatInputCommandInteraction,
 	ApplicationCommandType,
 	Message,
-	CommandInteractionOptionResolver,
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
@@ -53,7 +52,7 @@ export const command: Command = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
-		let button_add_me = new ButtonBuilder()
+		const button_add_me = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
 			.setLabel(lang.invite_embed_title)
 			.setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`);
@@ -66,7 +65,7 @@ export const command: Command = {
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setThumbnail("attachment://footer_icon.png");
 
-		let components = new ActionRowBuilder<ButtonBuilder>().addComponents(button_add_me);
+		const components = new ActionRowBuilder<ButtonBuilder>().addComponents(button_add_me);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [invites],

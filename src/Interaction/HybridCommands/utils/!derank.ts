@@ -21,21 +21,14 @@
 
 import {
 	Client,
-	ApplicationCommandOptionType,
 	EmbedBuilder,
-	PermissionsBitField,
 	ChatInputCommandInteraction,
-	ApplicationCommandType,
 	GuildMember,
-	Message,
-	MessagePayload,
-	InteractionEditReplyOptions,
-	MessageReplyOptions
+	Message
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -58,8 +51,8 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		let rolesToRemove = member.roles.cache;
-		let promises: Promise<void>[] = [];
+		const rolesToRemove = member.roles.cache;
+		const promises: Promise<void>[] = [];
 
 		let good = 0;
 		let bad = 0;
@@ -81,7 +74,7 @@ export const subCommand: SubCommand = {
 
 		Promise.all(promises)
 			.then(async () => {
-				let embed = new EmbedBuilder()
+				const embed = new EmbedBuilder()
 					.setColor(2829617)
 					.setTimestamp()
 					.setDescription(lang.derank_msg_desc_embed

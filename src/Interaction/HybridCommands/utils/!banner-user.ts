@@ -30,7 +30,6 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { axios } from '../../../core/functions/axios.js';
 
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -50,14 +49,14 @@ export const subCommand: SubCommand = {
 
 		let format = 'png';
 
-		let config = {
+		const config = {
 			headers: {
 				Authorization: `Bot ${client.token}`
 			}
 		};
 
-		let user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, config))?.data;
-		let banner = user_1?.banner;
+		const user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, config))?.data;
+		const banner = user_1?.banner;
 
 		if (banner !== null && banner?.startsWith('a_')) {
 			format = 'gif'

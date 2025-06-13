@@ -33,24 +33,24 @@ export const event: BotEvent = {
 
 		try {
 			if (user.id == client.user?.id || !reaction.message.guild) return;
-			let fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
+			const fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
 			if (fetched) {
-				let role = reaction.message.guild!.roles.cache.get(fetched.rolesID) || await reaction.message.guild.roles.fetch(fetched.rolesID);
+				const role = reaction.message.guild!.roles.cache.get(fetched.rolesID) || await reaction.message.guild.roles.fetch(fetched.rolesID);
 				if (!role) return;
 
-				let member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
+				const member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
 				await member?.roles.remove(role.id, "[ReactionRoles] Module").catch(() => { });
 				return;
 			};
 
-			let fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
+			const fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
 			if (fetchedForNitro) {
-				let role = reaction.message.guild!.roles.cache.get(fetchedForNitro.rolesID) || await reaction.message.guild.roles.fetch(fetchedForNitro.rolesID);
+				const role = reaction.message.guild!.roles.cache.get(fetchedForNitro.rolesID) || await reaction.message.guild.roles.fetch(fetchedForNitro.rolesID);
 				if (!role) return;
 
-				let member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
+				const member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
 				await member?.roles.remove(role, "[ReactionRoles] Module").catch(() => { });
 				return;
 			};

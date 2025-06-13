@@ -20,7 +20,6 @@
 */
 
 import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, EmbedBuilder } from 'discord.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 async function PfpsManager_Init(client: Client) {
 	Refresh(client);
@@ -31,7 +30,7 @@ async function PfpsManager_Init(client: Client) {
 }
 
 async function Refresh(client: Client) {
-	let all = await client.db.all();
+	const all = await client.db.all();
 
 	all.forEach((v: any) => {
 		if (Number(v.id)) {
@@ -47,11 +46,11 @@ async function Refresh(client: Client) {
 	});
 }
 
-let usr: Record<string, string> = {};
+const usr: Record<string, string> = {};
 async function SendMessage(client: Client, data: { guildId: string; channelId: string; }) {
 
-	let guild = client.guilds.cache.get(data.guildId);
-	let channel = guild?.channels.cache.get(data.channelId);
+	const guild = client.guilds.cache.get(data.guildId);
+	const channel = guild?.channels.cache.get(data.channelId);
 
 	if (!guild || !channel) return;
 
@@ -64,7 +63,7 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
 
 	if (!user) return;
 
-	let lang = await client.func.getLanguageData(guild.id);
+	const lang = await client.func.getLanguageData(guild.id);
 
 	// Prevent the same before and after
 	if (user.id === usr[data.guildId]) {
@@ -72,10 +71,10 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
 		user = guild.members.cache.filter(user => user.id !== usr[data.guildId]).random()!;
 	} else usr[data.guildId] = (user.id);
 
-	let actRow: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder();
-	let ebds = [];
+	const actRow: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder();
+	const ebds = [];
 
-	let username = user.user.globalName || user.user.username;
+	const username = user.user.globalName || user.user.username;
 
 	if (user.avatarURL() !== null) {
 

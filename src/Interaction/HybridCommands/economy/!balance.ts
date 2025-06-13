@@ -24,11 +24,9 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	Message,
-	User
+	Message
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 import { getMemberBoost } from './economy.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { SubCommand } from '../../../../types/command.js';
@@ -55,10 +53,10 @@ export const subCommand: SubCommand = {
 			var member: GuildMember = client.func.method.member(interaction, args!, 0) || interaction.member;
 		};
 
-		var baseData: DatabaseStructure.EconomyUserSchema = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY`) || { money: 0, bank: 0, ownedRoles: [] };
+		const baseData: DatabaseStructure.EconomyUserSchema = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY`) || { money: 0, bank: 0, ownedRoles: [] };
 
-		var possibleBoost = await getMemberBoost(interaction.member!);
-		let totalWallet = (baseData.money || 0) + (baseData.bank || 0);
+		const possibleBoost = await getMemberBoost(interaction.member!);
+		const totalWallet = (baseData.money || 0) + (baseData.bank || 0);
 
 		let embed = new EmbedBuilder()
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#e3c6ff")

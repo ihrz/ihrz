@@ -20,17 +20,11 @@
 */
 
 import {
-	Application,
-	ApplicationCommand,
 	ApplicationCommandType,
 	AutocompleteInteraction,
 	ChatInputCommandInteraction,
 	Client,
-	CommandInteraction,
-	CommandInteractionOptionResolver,
-	Message,
-	PermissionFlagsBits,
-	RESTPostAPIApplicationCommandsJSONBody
+	Message
 } from 'discord.js';
 
 import { Option } from "./option.js";

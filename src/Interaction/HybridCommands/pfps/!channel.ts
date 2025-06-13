@@ -24,12 +24,9 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Message,
-	PermissionsBitField,
-	TextChannel
+	Message
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -46,7 +43,7 @@ export const subCommand: SubCommand = {
 			var channel = await client.func.method.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
 		}
 
-		let fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);
+		const fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);
 
 		if (!fetch && channel) {
 			await client.db.set(`${interaction.guildId}.PFPS.channel`, channel.id);

@@ -23,7 +23,6 @@ import {
 	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonStyle,
-	Channel,
 	ChannelSelectMenuBuilder,
 	ChannelType,
 	ChatInputCommandInteraction,
@@ -31,11 +30,9 @@ import {
 	ComponentType,
 	EmbedBuilder,
 	Message,
-	PermissionsBitField,
 } from 'discord.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -46,7 +43,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		var all_channels = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING`) as DatabaseStructure.DbGuildXpLeveling["bypassChannels"];
+		const all_channels = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING`) as DatabaseStructure.DbGuildXpLeveling["bypassChannels"];
 
 		const embed = new EmbedBuilder()
 			.setColor("#6666ff")
@@ -120,7 +117,7 @@ export const subCommand: SubCommand = {
 
 			await i.deferUpdate();
 
-			let values = i.values;
+			const values = i.values;
 
 			embed.setFields({
 				name: lang.joinghostping_add_ok_embed_fields_name,

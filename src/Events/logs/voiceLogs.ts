@@ -22,35 +22,34 @@
 import { EmbedBuilder, Client, VoiceState, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
 	run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 
-		let data = await client.func.getLanguageData(oldState.guild.id);
+		const data = await client.func.getLanguageData(oldState.guild.id);
 
 		if (!oldState || !oldState.guild) return;
 
-		let someinfo = await client.db.get(`${oldState.guild.id}.GUILD.SERVER_LOGS.voice`);
+		const someinfo = await client.db.get(`${oldState.guild.id}.GUILD.SERVER_LOGS.voice`);
 		if (!someinfo) return;
 
-		let Msgchannel = oldState.guild.channels.cache.get(someinfo);
+		const Msgchannel = oldState.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
-		var Ouser = oldState.id
-		var OchannelID = oldState.channelId
-		var Ostatus = { selfDeaf: oldState.selfDeaf, selfMute: oldState.selfMute };
+		const Ouser = oldState.id
+		const OchannelID = oldState.channelId
+		const Ostatus = { selfDeaf: oldState.selfDeaf, selfMute: oldState.selfMute };
 
-		var user = newState.id
-		var channelID = newState.channelId
-		var status = { selfDeaf: newState.selfDeaf, selfMute: newState.selfMute };
+		const user = newState.id
+		const channelID = newState.channelId
+		const status = { selfDeaf: newState.selfDeaf, selfMute: newState.selfMute };
 
-		let targetUser = await client.users.fetch(user);
+		const targetUser = await client.users.fetch(user);
 
 		if (targetUser.id === client.user?.id) return;
 
-		let iconURL = targetUser.displayAvatarURL();
+		const iconURL = targetUser.displayAvatarURL();
 
 		let logsEmbed = new EmbedBuilder()
 			.setColor(await client.db.get(`${newState.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")

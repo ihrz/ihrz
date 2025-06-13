@@ -23,11 +23,9 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	PermissionsBitField
+	EmbedBuilder
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -39,9 +37,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let channel = interaction.options.getChannel("channel") as BaseGuildTextChannel;
+		const channel = interaction.options.getChannel("channel") as BaseGuildTextChannel;
 
-		let fetchOldChannel = await client.db.get(`${interaction.guild.id}.SUGGEST.channel`);
+		const fetchOldChannel = await client.db.get(`${interaction.guild.id}.SUGGEST.channel`);
 
 		if (fetchOldChannel === channel?.id) {
 			await interaction.reply({

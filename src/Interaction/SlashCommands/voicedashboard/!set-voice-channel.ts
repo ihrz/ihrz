@@ -21,11 +21,9 @@
 
 import {
 	ChatInputCommandInteraction,
-	Client,
-	PermissionsBitField
+	Client
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -37,7 +35,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let targetedChannel = interaction.options.getChannel('channel');
+		const targetedChannel = interaction.options.getChannel('channel');
 
 		await interaction.editReply({
 			content: `${client.iHorizon_Emojis.Yes} | <#${targetedChannel?.id}>`

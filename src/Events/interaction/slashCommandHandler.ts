@@ -25,12 +25,12 @@ import { BotEvent } from '../../../types/event.js';
 import { Command } from '../../../types/command.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 
-var timeout: number = 1000;
+const timeout: number = 1000;
 
 async function cooldDown(client: Client, interaction: Interaction) {
-	let tn = Date.now();
-	let table = client.db.table("TEMP");
-	var fetch = await table.get(`COOLDOWN.${interaction.user.id}`);
+	const tn = Date.now();
+	const table = client.db.table("TEMP");
+	const fetch = await table.get(`COOLDOWN.${interaction.user.id}`);
 	if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
 	await table.set(`COOLDOWN.${interaction.user.id}`, tn);
@@ -43,19 +43,19 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 	const subCommand = options.getSubcommand(false);
 
 	if (group && subCommand) {
-		let stringCommand = interaction.commandName + " " + group + " " + subCommand;
+		const stringCommand = interaction.commandName + " " + group + " " + subCommand;
 		const subCmd = client.subCommands.get(stringCommand);
 
 		if (subCmd && subCmd.run) {
-			let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
+			const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
 			if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
 			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
 				await interaction.deferReply({ flags: subCmd.ephemeral ? [1 << 6] : [0] });
 			}
 
-			if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
-				let perm = getPermissionByValue(subCmd.permission);
+			if (subCmd.permission && !interaction?.member?.permissions.has(subCmd.permission) && !permCheck.allowed) {
+				const perm = getPermissionByValue(subCmd.permission);
 
 				if (perm) {
 					let permName: string;
@@ -81,19 +81,19 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 		}
 	}
 	else if (subCommand) {
-		let stringCommand = interaction.commandName + " " + subCommand;
+		const stringCommand = interaction.commandName + " " + subCommand;
 		const subCmd = client.subCommands.get(stringCommand);
 
 		if (subCmd && subCmd.run) {
-			let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
+			const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
 			if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
 			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
 				await interaction.deferReply({ flags: subCmd.ephemeral ? [1 << 6] : [0] });
 			}
 
-			if (subCmd.permission && !interaction.member!.permissions.has(subCmd.permission) && !permCheck.allowed) {
-				let perm = getPermissionByValue(subCmd.permission);
+			if (subCmd.permission && !interaction?.member?.permissions.has(subCmd.permission) && !permCheck.allowed) {
+				const perm = getPermissionByValue(subCmd.permission);
 
 				if (perm) {
 					let permName: string;
@@ -123,11 +123,11 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 		await interaction.deferReply({ ephemeral: command.ephemeral });
 	}
 
-	let permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, interaction.commandName);
+	const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, interaction.commandName);
 	if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 
 	if (command.permission && !interaction.member!.permissions.has(command.permission) && !permCheck.allowed) {
-		let perm = getPermissionByValue(command.permission);
+		const perm = getPermissionByValue(command.permission);
 
 		if (perm) {
 			let permName: string;

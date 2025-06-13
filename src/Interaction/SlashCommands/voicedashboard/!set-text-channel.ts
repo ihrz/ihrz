@@ -26,8 +26,7 @@ import {
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
-	PermissionsBitField
+	EmbedBuilder
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
@@ -39,9 +38,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let targetedChannel = interaction.options.getChannel('channel');
+		const targetedChannel = interaction.options.getChannel('channel');
 
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor(2829617)
 			.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'fr-FR'}.png`)
 			.setDescription(
@@ -148,7 +147,7 @@ export const subCommand: SubCommand = {
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-		let buttonRows = [
+		const buttonRows = [
 			[
 				{ emoji: client.iHorizon_Emojis.VC_Limit, customId: 'temporary_voice_limit_button' },
 				{ emoji: client.iHorizon_Emojis.VC_Name, customId: 'temporary_voice_name_button' },
@@ -159,7 +158,7 @@ export const subCommand: SubCommand = {
 			[
 				{ emoji: client.iHorizon_Emojis.VC_Trust, customId: 'temporary_voice_trust_button' },
 				{ emoji: client.iHorizon_Emojis.VC_Block, customId: 'temporary_voice_block_button' },
-				{ emoji: client.iHorizon_Emojis.VC_Unblock, customId: 'temporary_voice_transfer_button' },
+				{ emoji: client.iHorizon_Emojis.VC_Transfer, customId: 'temporary_voice_transfer_button' },
 				{ emoji: client.iHorizon_Emojis.VC_Unblock, customId: 'temporary_voice_unblock_button' },
 				{ emoji: client.iHorizon_Emojis.VC_Untrust, customId: 'temporary_voice_untrust_button' },
 			],
@@ -172,7 +171,7 @@ export const subCommand: SubCommand = {
 			]
 		];
 
-		let components = buttonRows.map(row =>
+		const components = buttonRows.map(row =>
 			new ActionRowBuilder<ButtonBuilder>().addComponents(
 				...row.map(button =>
 					new ButtonBuilder()
@@ -184,7 +183,7 @@ export const subCommand: SubCommand = {
 			)
 		);
 
-		let response = await (targetedChannel as BaseGuildTextChannel).send({ embeds: [embed], components });
+		const response = await (targetedChannel as BaseGuildTextChannel).send({ embeds: [embed], components });
 
 		await interaction.editReply({ content: `${client.iHorizon_Emojis.Yes} | ${response.url}` });
 

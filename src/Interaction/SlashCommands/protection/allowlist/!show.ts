@@ -25,7 +25,6 @@ import {
 	EmbedBuilder,
 } from 'discord.js';
 import { LanguageData } from '../../../../../types/languageData.js';
-import { Command } from '../../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../../types/command.js';
@@ -37,12 +36,12 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		var text = "";
+		let text = "";
 
 		let baseData = await client.db.get(`${interaction.guildId}.ALLOWLIST`);
 
 		if (!baseData) {
-			let datas = {
+			const datas = {
 				enable: false,
 				list: {
 					[`${interaction.guild?.ownerId}`]: { allowed: true },
@@ -54,7 +53,7 @@ export const subCommand: SubCommand = {
 			baseData = datas;
 		};
 
-		for (var i in baseData.list) {
+		for (const i in baseData.list) {
 			text += `<@${i}>\n`
 		};
 

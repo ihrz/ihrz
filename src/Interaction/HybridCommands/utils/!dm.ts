@@ -21,19 +21,14 @@
 
 import {
 	ActionRowBuilder,
-	ApplicationCommandType,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
-	PermissionFlagsBits,
-	PermissionsBitField,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -57,7 +52,7 @@ export const subCommand: SubCommand = {
 			var msg = client.func.method.longString(args!, 2)!
 		};
 
-		let buttons = [new ButtonBuilder()
+		const buttons = [new ButtonBuilder()
 			.setCustomId("forgot-my-name")
 			.setStyle(ButtonStyle.Secondary)
 			.setLabel("Message from: " + interaction.guildId)
