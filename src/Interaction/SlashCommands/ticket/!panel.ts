@@ -316,7 +316,6 @@ export const subCommand: SubCommand = {
 					await change_category();
 					break;
 				case "change_ticket_channel_panel":
-					i.deferUpdate();
 					await change_ticket_channel_panel(i);
 					break;
 			}
