@@ -99,7 +99,6 @@ async function backupGuildStructure(client: Client) {
 			}
 			backup.roles.push(roleData)
 		})
-		console.log(backup)
 
 		protectionCache.data.set(guild.id, backup);
 	}
