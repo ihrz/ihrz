@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, GuildBasedChannel, CategoryChannel, ChannelType, PermissionOverwrites, GuildChannel } from 'discord.js';
+import { Client, GuildBasedChannel, CategoryChannel, ChannelType, PermissionOverwrites, GuildChannel, PermissionsBitField } from 'discord.js';
 
-type BackupChannel = {
+export type BackupChannel = {
 	id: string;
 	name: string;
 	type: ChannelType;
@@ -30,16 +30,22 @@ type BackupChannel = {
 	parent: string | null;
 };
 
-type BackupCategory = {
+export type BackupRole = {
+	id: string;
+	members: string[]
+}
+
+export type BackupCategory = {
 	id: string;
 	name: string;
 	position: number;
 	channels: BackupChannel[];
 };
 
-type GuildBackup = {
+export type GuildBackup = {
 	categories: BackupCategory[];
 	channels: BackupChannel[];
+	roles: BackupRole[];
 };
 
 export const protectionCache = {
@@ -53,7 +59,8 @@ async function backupGuildStructure(client: Client) {
 		if (protectionCache.isRaiding.get(guild.id)) return;
 		const backup: GuildBackup = {
 			categories: [],
-			channels: []
+			channels: [],
+			roles: []
 		};
 
 		guild.channels.cache.forEach((channel: GuildBasedChannel) => {
@@ -84,6 +91,15 @@ async function backupGuildStructure(client: Client) {
 				backup.channels.push(channelData);
 			}
 		});
+
+		guild.roles.cache.forEach((role) => {
+			const roleData: BackupRole = {
+				id: role.id,
+				members: role.members.toJSON().map(x => x.id)
+			}
+			backup.roles.push(roleData)
+		})
+		console.log(backup)
 
 		protectionCache.data.set(guild.id, backup);
 	}
