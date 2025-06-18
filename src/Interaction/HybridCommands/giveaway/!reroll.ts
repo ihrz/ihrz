@@ -56,7 +56,6 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		// @ts-ignore
 		await client.giveawaysManager.reroll(client, inputData as string);
 
 		await client.func.method.interactionSend(interaction, { content: lang.reroll_command_work });

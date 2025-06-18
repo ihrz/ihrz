@@ -56,7 +56,6 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		// @ts-ignore
 		await client.giveawaysManager.listEntries(interaction, inputData)
 		return;
 	},
