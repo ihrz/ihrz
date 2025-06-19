@@ -169,7 +169,6 @@ export const event: BotEvent = {
 			});
 		}
 
-		// @ts-ignore
 		client.giveawaysManager = new GiveawayManager(client, {
 			storage: `${process.cwd()}/src/files/giveaways/`,
 			config: {

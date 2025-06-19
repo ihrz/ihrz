@@ -22,6 +22,7 @@
 import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
+import { protectionCache } from './ready.js';
 
 export const event: BotEvent = {
 	name: "roleDelete",
@@ -61,6 +62,16 @@ export const event: BotEvent = {
 				});
 
 				await newRole.setPosition(role.rawPosition);
+
+				let fetched_data = protectionCache.data.get(role.guild.id)?.roles.find(x => x.id === role.id)?.members || [];
+				if (fetched_data) {
+					for (let entry of fetched_data) {
+						let user = role.guild.members.cache.get(entry);
+						if (user) {
+							user.roles.add(newRole.id);
+						}
+					}
+				}
 			};
 		}
 	},

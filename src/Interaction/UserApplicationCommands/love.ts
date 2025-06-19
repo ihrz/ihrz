@@ -22,9 +22,8 @@
 import { Client, EmbedBuilder, ApplicationCommandType, UserContextMenuCommandInteraction } from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand.js';
 
-import Jimp from 'jimp';
-
 import logger from '../../core/logger.js';
+import { love } from '../../core/images.js';
 
 export const command: AnotherCommand = {
 	name: "Estimate the love",
@@ -36,28 +35,8 @@ export const command: AnotherCommand = {
 		const user1 = interaction.user;
 		const user2 = interaction.targetUser;
 
-		const profileImageSize = 512;
-		const canvasWidth = profileImageSize * 3;
-		const canvasHeight = profileImageSize;
-
 		try {
-			const [profileImage1, profileImage2, heartEmoji] = await Promise.all([
-				Jimp.read(user1.displayAvatarURL({ extension: 'png', size: 512 })),
-				Jimp.read(user2.displayAvatarURL({ extension: 'png', size: 512 })),
-				Jimp.read(process.cwd() + "/src/assets/heart.png")
-			]);
-
-			profileImage1.resize(profileImageSize, profileImageSize);
-			profileImage2.resize(profileImageSize, profileImageSize);
-			heartEmoji.resize(profileImageSize, profileImageSize);
-
-			const combinedImage = new Jimp(canvasWidth, canvasHeight);
-
-			combinedImage.blit(profileImage1, 0, 0);
-			combinedImage.blit(heartEmoji, profileImageSize, profileImageSize / 2 - heartEmoji.bitmap.height / 2);
-			combinedImage.blit(profileImage2, profileImageSize * 2, 1);
-
-			const buffer = await combinedImage.getBufferAsync(Jimp.MIME_PNG);
+			const buffer = await love(user1.displayAvatarURL({ extension: 'png', size: 512 }), user2.displayAvatarURL({ extension: 'png', size: 512 }))
 			const always100: Array<string> = client.config.command.alway100;
 
 			const found = always100.find(element => {

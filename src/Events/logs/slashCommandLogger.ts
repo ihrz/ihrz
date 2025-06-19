@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, CommandInteractionOptionResolver, GuildChannel, Interaction } from 'discord.js';
+import { Client, CommandInteractionOptionResolver, GuildChannel, Interaction, ChatInputCommandInteraction } from 'discord.js';
 
 import logger from '../../core/logger.js';
 import fs from 'node:fs';
@@ -34,12 +34,12 @@ export const event: BotEvent = {
 			|| !interaction.guild?.channels
 			|| interaction.user.bot) return;
 
-		const optionsList: string[] = (interaction.options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:"${element.value}"`)
+		const optionsList: string[] = ((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:"${element.value}"`)
 		let subCmd: string = '';
 
-		if ((interaction.options as CommandInteractionOptionResolver)["_subcommand"]) {
-			if ((interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()) subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommandGroup()! + " ";
-			subCmd += (interaction.options as CommandInteractionOptionResolver).getSubcommand()
+		if (((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver)["_subcommand"]) {
+			if (((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver).getSubcommandGroup()) subCmd += ((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver).getSubcommandGroup()! + " ";
+			subCmd += ((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver).getSubcommand()
 		};
 
 		const logMessage = `[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}] "${interaction.guild?.name}" #${interaction.channel ? (interaction.channel as GuildChannel).name : 'Unknown Channel'}:\n` +
