@@ -19,33 +19,33 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { randomInt } from 'crypto';
 import html2Png from './functions/html2png.ts';
 
-async function captcha(): Promise<{ code: string; image: Buffer }> {
-	const captchaCode = generateRandomCode();
-
-	return {
-		code: captchaCode,
-		image: await html2Png(globalThis.client.htmlfiles["captcha"]
-			.replace("{X}", captchaCode), {
-			omitBackground: true,
-			selectElement: true,
-			elementSelector: ".captcha-container",
-			height: 300,
-			width: 900
-		})
-	};
+async function love(user1: string, user2: string): Promise<Buffer> {
+	return await html2Png(globalThis.client.htmlfiles["love"]
+		.replace("{Y}", "https://gitlab.com/ihrz/ihrz/-/raw/production/src/assets/heart.png")
+		.replace("{X}", user1)
+		.replace("{Z}", user2), {
+		omitBackground: true,
+		selectElement: true,
+		elementSelector: ".love-container",
+		width: 1600,
+		height: 600,
+		scaleSize: 1
+	})
 }
 
-function generateRandomCode(): string {
-	const characters = 'ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789';
-	let code = '';
-	for (let i = 0; i < 7; i++) {
-		const randomIndex = randomInt(0, characters.length);
-		code += characters.charAt(randomIndex);
-	}
-	return code;
+async function catsay(img: string, text: string): Promise<Buffer> {
+	return await html2Png(globalThis.client.htmlfiles["catsay"]
+		.replace("{X}", img)
+		.replace("{Z}", text), {
+		omitBackground: true,
+		selectElement: true,
+		elementSelector: ".meme-container",
+	});
 }
 
-export default captcha;
+export {
+	love,
+	catsay
+};
