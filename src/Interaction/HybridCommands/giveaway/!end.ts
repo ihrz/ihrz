@@ -56,7 +56,6 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		// @ts-ignore
 		client.giveawaysManager.end(client, inputData as string)
 
 		await client.func.method.interactionSend(interaction, {

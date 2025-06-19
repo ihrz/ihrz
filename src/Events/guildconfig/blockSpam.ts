@@ -54,7 +54,6 @@ async function applySanction(client: Client, message: Message, member: GuildMemb
 
 		// Clear the punishment data after successful sanction application
 		await table.set(`${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
-		console.log(`Applied ${LOG.punishementType} sanction to ${message.author.tag} and cleared punishment data`);
 	} catch (error) {
 		console.error(`Failed to apply sanction to ${message.author.tag}:`, error);
 	}

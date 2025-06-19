@@ -60,7 +60,10 @@ export const subCommand: SubCommand = {
 		};
 
 		const data2 = await client.db.get(`BACKUPS.${interaction.member.user.id}`) as DatabaseStructure.DbBackupsUserObject;
-		var backups: { name: string; value: string; }[] = [];
+		const backups: {
+			name: string;
+			value: string
+		}[] = [];
 
 		for (const i in data2) {
 			const result = data2[i];

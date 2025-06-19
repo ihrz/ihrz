@@ -30,9 +30,8 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { axios } from '../../../core/functions/axios.js';
 import { SubCommand } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
-import Jimp from 'jimp';
-
+import { catsay } from '../../../core/images.js';
+import captcha from '../../../core/captcha.js';
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -55,17 +54,7 @@ export const subCommand: SubCommand = {
 			var text = client.func.method.longString(args!, 0)?.slice(0, 30);
 		}
 
-		const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
-
-		const newImg = await Jimp.read(baseImg[0].url);
-		const textWidth = Jimp.measureText(font, text);
-		const textHeight = Jimp.measureTextHeight(font, text, newImg.bitmap.width);
-		const textX = (newImg.bitmap.width - textWidth) / 2;
-		const textY = newImg.bitmap.height - textHeight - 10;
-
-		newImg.print(font, textX, textY, text);
-
-		let embed = new EmbedBuilder()
+		const embed = new EmbedBuilder()
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#000000")
 			.setImage('attachment://catsay.png')
 			.setTimestamp()
@@ -74,7 +63,8 @@ export const subCommand: SubCommand = {
 		let imgs: AttachmentBuilder | undefined;
 
 		try {
-			imgs = new AttachmentBuilder(await newImg.getBufferAsync(Jimp.MIME_GIF), { name: 'catsay.png' });
+			let image = await catsay(baseImg[0].url, text || "");
+			imgs = new AttachmentBuilder(image, { name: 'catsay.png' });
 			embed.setImage(`attachment://catsay.png`);
 
 			if (imgs) {

@@ -35,9 +35,8 @@ export const event: BotEvent = {
 		const data = await client.func.getLanguageData(member.guild.id);
 		const channel = member.guild.channels.cache.get(baseData?.channel);
 		if (!channel) return;
-		const { code, image } = await captcha(280, 100)
+		const { code, image } = await captcha()
 
-		const sfbuff = Buffer.from((image).split(",")[1], "base64");
 		const memberJoinDate = member.joinedAt;
 
 		const embed = new EmbedBuilder()
@@ -58,7 +57,7 @@ export const event: BotEvent = {
 			content: member.toString(),
 			embeds: [embed],
 			files: [
-				{ name: "captcha.png", attachment: sfbuff },
+				{ name: "captcha.png", attachment: image },
 			], enforceNonce: true, nonce: nonce
 		}).then(async (msg) => {
 			const collector = msg.channel.createMessageCollector({

@@ -50,7 +50,6 @@ export const subCommand: SubCommand = {
 				interaction.member,
 			);
 
-			// @ts-ignore
 			if (Array.isArray(fetchedPerm) ? false : fetchedPerm <= parseInt(perm) && interaction.guild.ownerId !== interaction.member.id) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.perm_set_warn_message.replace(
