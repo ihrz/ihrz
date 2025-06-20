@@ -470,7 +470,7 @@ export const subCommand: SubCommand = {
 						style: TextInputStyle.Short,
 						required: true,
 						maxLength: 100,
-						minLength: 10
+						minLength: 4
 					}
 				]
 			}, i);
@@ -858,7 +858,7 @@ export const subCommand: SubCommand = {
 						style: TextInputStyle.Short,
 						required: true,
 						maxLength: 128,
-						minLength: 10
+						minLength: 4
 					},
 					{
 						customId: "desc",
@@ -866,7 +866,7 @@ export const subCommand: SubCommand = {
 						style: TextInputStyle.Short,
 						required: false,
 						maxLength: 130,
-						minLength: 10
+						minLength: 4
 					},
 					{
 						customId: "emoji",
@@ -1057,7 +1057,7 @@ export const subCommand: SubCommand = {
 						style: TextInputStyle.Short,
 						required: true,
 						maxLength: 128,
-						minLength: 10
+						minLength: 4
 					},
 					{
 						customId: "questionPlaceholder",
@@ -1065,7 +1065,7 @@ export const subCommand: SubCommand = {
 						style: TextInputStyle.Short,
 						required: false,
 						maxLength: 130,
-						minLength: 10
+						minLength: 4
 					}
 				]
 			}, i);
