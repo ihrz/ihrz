@@ -757,20 +757,21 @@ export const subCommand: SubCommand = {
 			if (!modal) return;
 
 			// get the embed id
-			const embed_id = modal.fields.getTextInputValue("embed_id");
+			let embed_id: string | undefined = modal.fields.getTextInputValue("embed_id");
 
 			// check if the embed exists
 			const embed = await client.db.get(`EMBED.${embed_id}`);
 
 			if (!embed) {
-				return modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
+				modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
+				embed_id = undefined;
 			}
 
 			baseData.ticketChannelPanel = embed_id;
 			is_saved = false;
 			panelEmbed.data.fields![0].value = "🔴";
 
-			panelEmbed.data.fields![2].value = baseData.ticketChannelPanel;
+			panelEmbed.data.fields![2].value = baseData.ticketChannelPanel || lang.var_no_set;
 			modal.deferUpdate();
 
 			await originalResponse.edit({
