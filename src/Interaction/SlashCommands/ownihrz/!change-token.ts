@@ -99,15 +99,19 @@ export const subCommand: SubCommand = {
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			ephemeral: false,
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-		});
-
 		try {
 			await client.ownihrz.Change_Token(id_2.Cluster!, id_2.Code, newToken);
+
+			await client.func.method.interactionSend(interaction, {
+				embeds: [embed],
+				ephemeral: false,
+				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			});
 		} catch (error: any) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.add_command_error,
+				ephemeral: false,
+			});
 			return logger.err(error)
 		};
 
