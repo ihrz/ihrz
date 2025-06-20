@@ -31,7 +31,6 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { axios } from '../../../core/functions/axios.js';
 import { SubCommand } from '../../../../types/command.js';
 import { catsay } from '../../../core/images.js';
-import captcha from '../../../core/captcha.js';
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -49,9 +48,9 @@ export const subCommand: SubCommand = {
 		};
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var text = interaction.options.getString('text')?.slice(0, 30);
+			var text = interaction.options.getString('text')?.slice(0, 70);
 		} else {
-			var text = client.func.method.longString(args!, 0)?.slice(0, 30);
+			var text = client.func.method.longString(args!, 0)?.slice(0, 70);
 		}
 
 		const embed = new EmbedBuilder()
