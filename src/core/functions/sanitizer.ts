@@ -21,7 +21,7 @@
 
 import { escape } from "querystring"
 
-export const sanitizing = (text: string | undefined): string => {
+export function sanitizing(text: string | undefined): string {
 	return text?.split('').filter(char => {
 		try {
 			decodeURIComponent(escape(char));

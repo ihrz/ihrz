@@ -49,10 +49,6 @@ declare namespace Client_Functions {
 		export function HorizonGateway(gateway_method: GatewayMethod): string;
 	}
 
-	// From sanitizer.ts
-	export namespace sanitizer {
-	}
-
 	// From lyrics_fetcher.ts
 	export namespace lyrics_fetcher {
 	}
@@ -139,6 +135,9 @@ declare namespace Client_Functions {
 
 	// From maskLink.ts
 	export function maskLink(input: string): string;
+
+	// From sanitizer.ts
+	export function sanitizer(text: string | undefined): string;
 
 	// From image_dominant_color.ts
 	export function image_dominant_color(input: string | Buffer): Promise<string>;
@@ -234,6 +233,7 @@ declare namespace Client_Functions {
 			interaction: Message | ChatInputCommandInteraction<"cached"> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel,
 			options: string | MessageReplyOptions | MessageEditOptions
 		): Promise<Message>;
+		export function reply(message: Message<boolean>, options: string | MessageReplyOptions): Promise<Message>;
 		export function hasSubCommand(options: Option[] | undefined): boolean;
 		export function hasSubCommandGroup(options: Option[] | undefined): boolean;
 		export function isSubCommand(option: Option | Command): boolean;
