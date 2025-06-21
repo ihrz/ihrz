@@ -32,7 +32,7 @@ const allowedDomains: string[] = [
 	'play.google.com', 'music.youtube.com',
 	'music.apple.com', 'www.music.apple.com',
 	'www.deezer.com', 'deezer.com', 'deezer.page.link',
-	'cdn.discordapp.com', 'dzr.page.link'
+	'cdn.discordapp.com', 'dzr.page.link', "link.deezer.com"
 ];
 
 export default function isAllowedLinks(link: string): boolean {
