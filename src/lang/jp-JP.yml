@@ -572,6 +572,9 @@ fun_var_good_sentence: "良い文章を送ってください！"
 # /cats
 cats_embed_title: "ニャー🐱"
 
+# /duck
+duck_embed_title: "ガーガー :duck:"
+
 # /hack
 hack_embed_description: "<@${victim.id}> が <@${interaction.user.id}> にハックされました！"
 hack_embed_fields_ip: "IPアドレス："

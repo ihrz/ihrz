@@ -481,6 +481,7 @@ export interface LanguageData {
   fun_var_down_api: string;
   fun_var_good_sentence: string;
   cats_embed_title: string;
+  duck_embed_title: string;
   hack_embed_description: string;
   hack_embed_fields_ip: string;
   hack_embed_fields_email: string;

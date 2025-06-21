@@ -572,6 +572,9 @@ fun_var_good_sentence: "Veuille envoyer une bonne phrase !"
 # /cats
 cats_embed_title: "Miauw , MIAUWWWW :cat:"
 
+# /duck
+duck_embed_title: "Coin coin, COIN COINNNNNNN :duck:"
+
 # /hack
 hack_embed_description: "<@${victim.id}> a été piraté par <@${interaction.user.id}> sale merde t hack!"
 hack_embed_fields_ip: "Adresse IP"
