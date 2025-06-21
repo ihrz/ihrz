@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment, MessagePayload } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -468,6 +468,24 @@ export async function channelSend(interaction: Message | ChatInputCommandInterac
 	} else {
 		return await (interaction.channel as BaseGuildTextChannel)?.send(replyOptions)!;
 	}
+}
+
+export async function reply(message: Message<boolean>, options: string | MessageReplyOptions): Promise<Message> {
+	const nonce = SnowflakeUtil.generate().toString();
+	let replyOptions: MessageReplyOptions | MessagePayload;
+
+	if (typeof options === 'string') {
+		replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+	} else {
+		replyOptions = {
+			...options,
+			content: options.content ?? undefined,
+			nonce: nonce,
+			enforceNonce: true
+		} as MessageReplyOptions;
+	}
+
+	return await message.reply(replyOptions);
 }
 
 export function hasSubCommand(options: Option[] | undefined): boolean {

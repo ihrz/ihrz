@@ -130,7 +130,8 @@ export const command: Command = {
 			],
 
 			permission: null,
-			ephemeral: true
+			ephemeral: true,
+			thinking: true
 		},
 		{
 			name: "change-owner",
