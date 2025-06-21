@@ -33,8 +33,6 @@ export default async (client: Client) => {
 		i.retryDelay = 50_000
 	});
 
-	const lavalink_channel = client.channels.cache.get(client.config.core.lavalinkLogsChannelID || "") as BaseGuildTextChannel | undefined;
-
 	client.player = new LavalinkManager({
 		nodes,
 		sendToShard(id, payload) {
@@ -116,42 +114,12 @@ export default async (client: Client) => {
 	}).on("destroy", (node) => {
 		// logger.err(`:: DESTROYED :: ${node.id}`);
 	}).on("error", (node, error, payload) => {
-		if (lavalink_channel) {
-			lavalink_channel?.send({
-				files: [
-					{
-						name: "lavalink-logs.txt",
-						attachment: String(
-							JSON.stringify(node) +
-							JSON.stringify(error) +
-							JSON.stringify(payload)
-						)
-					}
-				]
-			})
-		} else {
-			logger.err(`:: ERROR :: ${node.id} ${error.message}`);
-		}
+		logger.err(`:: ERROR :: ${node.id} ${error.message}`);
 	}).on("resumed", (node, payload, players) => {
 		// logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
 	})
 
 	client.player.on("trackError", async (player, err, r) => {
-		if (lavalink_channel) {
-			lavalink_channel?.send({
-				files: [
-					{
-						name: "lavalink-logs.txt",
-						attachment: String(
-							JSON.stringify(player) +
-							JSON.stringify(err) +
-							JSON.stringify(r)
-						)
-					}
-				]
-			})
-		}
-
 		if (r.exception?.message === "Something broke when playing the track.") {
 			// Search with Soundcloud
 
@@ -174,6 +142,27 @@ export default async (client: Client) => {
 				}
 			}
 
+		} else if (r.exception?.message === "This video requires login.") {
+			// Search with Deezer
+
+			const res = await player.node.search({
+				query: `${(r as any).track.info.title} - ${(r as any).track.info.author}`,
+				source: "deezer"
+			},
+				client.user
+			);
+
+			if (res.tracks.length! > 0) {
+				await player.queue.add(res.loadType === "playlist" ? res.tracks : res.tracks[0]);
+
+				if (!player.connected) {
+					await player.connect();
+				}
+
+				if (!player.playing) {
+					await player.play();
+				}
+			}
 		}
 	})
 };
