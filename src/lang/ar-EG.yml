@@ -873,6 +873,7 @@ emoji_embed_desc_work: "__تم إنشاء **${cnt}** رمز تعبيري في `$
 # /derank
 derank_msg_desc_embed: "## لقد قمت بنجاح بإزالة **${good}** دور(s) من <@${member.id}>.\n## ومع ذلك، فشلت في إزالة **${bad}** دور(s)."
 derank_msg_failed: "حدث خطأ أثناء إزالة الأدوار."
+derank_no_role: "هذا العضو ليس لديه أدوار للإزالة."
 
 # /action unban all
 action_unban_all_embed_desc: "## إلغاء حظر جميع أعضاء الخادم\n${client.iHorizon_Emojis.Yes} | لقد قمت بإلغاء حظر `${unbanned_members.length}` عضو(s) في الخادم!\n${client.iHorizon_Emojis.No} | لا يمكنني إلغاء حظر `${cannot_unban}` عضو(s)!"
@@ -2252,6 +2253,16 @@ rc_forceJoin_ws_end_renew_msg: "# اقرأ بعناية\nده الكود الخ�
 # media cooldown
 media_gen_cooldown: "يجب أن تنتظر `1 دقيقة و 30 ثانية` بين عمليات إنشاء الوسائط!"
 media_gen_error_args: "يرجى تقديم رابطين صالحين للصور."
+
+# ar-EG.yml (Arabic - Egypt)
+batch_ban_process: "🔄 جاري حظر ${member.user.username} في ${guilds.length} خادم..."
+batch_unban_process: "🔄 جاري إلغاء حظر ${banned_members.size} عضو..."
+batch_unblacklist_process: "🔄 جاري إزالة ${bannedMember.username} من القائمة السوداء في ${guildObjects.length} خادم..."
+batch_unbanall_process: "🔄 جاري إلغاء حظر ${banned_members.size} عضو..."
+batch_massiverole_process: "🔄 جاري إضافة دور لـ ${membersToProcess.length} عضو..."
+batch_unmassiverole_process: "🔄 جاري إزالة دور من ${membersToProcess.length} عضو..."
+batch_undo_unban: "🔄 جاري إعادة إلغاء حظر ${unbanned_members.length} عضو..."
+batch_derank_process: "🔄 إزالة ${rolesToRemove.length} من ${member.user.username}..."
 
 # -----------------------------/ \-----------------------------
 # Confession Module Events

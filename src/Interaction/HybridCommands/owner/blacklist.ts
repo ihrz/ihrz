@@ -313,7 +313,7 @@ export const command: Command = {
 			// Immediate response to user
 			await client.func.method.channelSend(interaction, {
 				content: lang.batch_ban_process
-					.replace("${user.globalName || user.username}", user.globalName || user.username)
+					.replace("${member.user.username}", user.globalName || user.username)
 					.replace("${guilds.length}", guilds.length.toString())
 			});
 

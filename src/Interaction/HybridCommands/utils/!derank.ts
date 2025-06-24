@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 
 		// Send immediate response
 		const ogInteraction = await client.func.method.interactionSend(interaction, {
-			content: lang.derank_process
+			content: lang.batch_derank_process
 				.replace("${rolesToRemove.length}", rolesToRemove.length.toString())
 				.replace("${member.user.username}", member.user.username)
 		});

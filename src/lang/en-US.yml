@@ -2260,10 +2260,11 @@ media_gen_error_args: "Please provide two valid image URLs."
 batch_ban_process: "🔄 Banning ${member.user.username} in progress on ${guilds.length} servers..."
 batch_unban_process: "🔄 Unbanning ${banned_members.size} members in progress..."
 batch_unblacklist_process: "🔄 Unblacklisting ${bannedMember.username} from ${guildObjects.length} servers in progress..."
-batch_derank_process: "🔄 Unbanning ${banned_members.size} members in progress..."
+batch_unbanall_process: "🔄 Unbanning ${banned_members.size} members in progress..."
 batch_massiverole_process: "🔄 Adding role to ${membersToProcess.length} members in progress..."
 batch_unmassiverole_process: "🔄 Removing role from ${membersToProcess.length} members in progress..."
 batch_undo_unban: "🔄 Re-unbanning ${unbanned_members.length} members in progress..."
+batch_derank_process: "🔄 Removing ${rolesToRemove.length} roles from ${member.user.username}..."
 
 # -----------------------------/ \-----------------------------
 # Confession Module Events

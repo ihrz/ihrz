@@ -875,6 +875,7 @@ emoji_embed_desc_work: "__Créé **${cnt}** emoji(s) dans `${interaction.guild.n
 # /derank
 derank_msg_desc_embed: "## J'ai enlevé **${good}** rôle(s) à <@${member.id}> avec __succès__.\n## Cependant, je n'ai pas réussi à lui enlever **${bad}** rôle(s)"
 derank_msg_failed: "Une erreur s'est produite lors de la suppression des rôles."
+derank_no_role: "Ce membre n'a aucun rôle à supprimer."
 
 # /action débannir tous
 action_unban_all_embed_desc: "## Débannir tous les membres de la guilde ptn d'ta mère\n${client.iHorizon_Emojis.Yes} | J'ai réussi à débannir `${unbanned_members.length}` trou du cul dans c'ptn dserv !\n${client.iHorizon_Emojis.No} | Je ne peux pas dévierger `${cannot_unban}` de ces autistes !"
@@ -2254,6 +2255,16 @@ rc_forceJoin_ws_end_renew_msg: "# À LIRE ATTENTIVEMENT\nVOICI LE CODE PRIVÉ QU
 # cooldown pour les médias
 media_gen_cooldown: "Vous devez attendre `1 minute et 30 secondes` entre chaque génération de médias !"
 media_gen_error_args: "Veuille fournir deux URLs d'images valides."
+
+# fr-FR.yml (French - France)
+batch_ban_process: "🔄 Bannissement de ${member.user.username} en cours sur ${guilds.length} serveurs..."
+batch_unban_process: "🔄 Débannissement de ${banned_members.size} membres en cours..."
+batch_unblacklist_process: "🔄 Suppression de ${bannedMember.username} de la liste noire sur ${guildObjects.length} serveurs en cours..."
+batch_unbanall_process: "🔄 Débannissement de ${banned_members.size} membres en cours..."
+batch_massiverole_process: "🔄 Ajout de rôle à ${membersToProcess.length} membres en cours..."
+batch_unmassiverole_process: "🔄 Suppression de rôle de ${membersToProcess.length} membres en cours..."
+batch_undo_unban: "🔄 Re-débannissement de ${unbanned_members.length} membres en cours..."
+batch_derank_process: "🔄 Suppression de ${rolesToRemove.length} rôles de ${member.user.username} en cours..."
 
 # -----------------------------/ \-----------------------------
 # Événements du Module de Confession

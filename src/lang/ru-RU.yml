@@ -873,6 +873,7 @@ emoji_embed_desc_work: "__Созданы **${cnt}** смайликов в сер
 # /derank
 derank_msg_desc_embed: "## Я успешно удалил **${good}** ролей у <@${member.id}>.\n## Однако, не удалось удалить **${bad}** ролей."
 derank_msg_failed: "При удалении ролей произошла ошибка."
+derank_no_role: "У этого участника нет ролей для удаления."
 
 # /действие разблокировать все
 action_unban_all_embed_desc: "## Разблокировать всех членов гильдии\n${client.iHorizon_Emojis.Yes} | Я успешно убрал запрет на `${unbanned_members.length}` участника(ов) в гильдии!\n${client.iHorizon_Emojis.No} | Я не могу разблокировать `${cannot_unban}` участника(ов)!"
@@ -2252,6 +2253,16 @@ rc_forceJoin_ws_end_renew_msg: "# ВНИМАНИЕ\nЭТО ПРИВАТНЫЙ К
 # кулдаун медиа
 media_gen_cooldown: "Необходимо подождать `1 минуту и 30 секунд` между созданием медиа!"
 media_gen_error_args: "Пожалуйста, укажите два действительных URL изображений."
+
+# ru-RU.yml (Russian - Russia)
+batch_ban_process: "🔄 Баню ${member.user.username} на ${guilds.length} серверах..."
+batch_unban_process: "🔄 Разбаниваю ${banned_members.size} участников..."
+batch_unblacklist_process: "🔄 Удаляю ${bannedMember.username} из чёрного списка на ${guildObjects.length} серверах..."
+batch_unbanall_process: "🔄 Разбаниваю ${banned_members.size} участников..."
+batch_massiverole_process: "🔄 Добавляю роль ${membersToProcess.length} участникам..."
+batch_unmassiverole_process: "🔄 Удаляю роль у ${membersToProcess.length} участников..."
+batch_undo_unban: "🔄 Повторно разбаниваю ${unbanned_members.length} участников..."
+batch_derank_process: "🔄 Удаляю ${rolesToRemove.length} ролей у ${member.user.username}..."
 
 # -----------------------------/ \-----------------------------
 # События Модуля Исповедей
