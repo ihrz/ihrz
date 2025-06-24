@@ -873,6 +873,7 @@ emoji_embed_desc_work: "__Created **${cnt}** emoji(s) in `${interaction.guild.na
 # /derank
 derank_msg_desc_embed: "## I have successfully removed **${good}** role(s) from <@${member.id}>.\n## However, I failed to remove **${bad}** role(s)."
 derank_msg_failed: "An error occurred while removing roles."
+derank_no_role: "This member has no roles to remove."
 
 # /action unban all
 action_unban_all_embed_desc: "## Unban all guild members\n${client.iHorizon_Emojis.Yes} | I have successfully remove the ban of `${unbanned_members.length}` member(s) in the guild!\n${client.iHorizon_Emojis.No} | I can't unban `${cannot_unban}` member(s) !"
@@ -2254,6 +2255,15 @@ rc_forceJoin_ws_end_renew_msg: "# READ CAREFULLY\nTHERE IS THE PRIVATE CODE THAT
 # media cooldown
 media_gen_cooldown: "You need to wait `1minutes & 30 secondes` between medias generation!"
 media_gen_error_args: "Please provide two valid image URLs."
+
+# Batch processing message
+batch_ban_process: "🔄 Banning ${member.user.username} in progress on ${guilds.length} servers..."
+batch_unban_process: "🔄 Unbanning ${banned_members.size} members in progress..."
+batch_unblacklist_process: "🔄 Unblacklisting ${bannedMember.username} from ${guildObjects.length} servers in progress..."
+batch_derank_process: "🔄 Unbanning ${banned_members.size} members in progress..."
+batch_massiverole_process: "🔄 Adding role to ${membersToProcess.length} members in progress..."
+batch_unmassiverole_process: "🔄 Removing role from ${membersToProcess.length} members in progress..."
+batch_undo_unban: "🔄 Re-unbanning ${unbanned_members.length} members in progress..."
 
 # -----------------------------/ \-----------------------------
 # Confession Module Events

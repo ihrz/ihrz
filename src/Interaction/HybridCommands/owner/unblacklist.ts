@@ -106,8 +106,10 @@ export const command: Command = {
 			const guildObjects = guilds.map(guildId => client.guilds.cache.find(guild => guild.id === guildId)).filter(guild => guild !== undefined);
 
 			// Send immediate response
-			await client.func.method.channelSend(interaction, { 
-				content: `🔄 Unbanning ${bannedMember.username} from ${guildObjects.length} servers in progress...` 
+			await client.func.method.channelSend(interaction, {
+				content: lang.batch_unblacklist_process
+					.replace("${bannedMember.username}", bannedMember.username)
+					.replace("${guildObjects.length}", guildObjects.length.toString())
 			});
 
 			// Process unbans in batches asynchronously
@@ -127,8 +129,8 @@ export const command: Command = {
 				{ batchSize: 10, delay: 100 },
 				async (result) => {
 					// Send final result when processing is complete
-					await client.func.method.channelSend(interaction, { 
-						content: `✅ ${bannedMember.username} is now unbanned on **${result.success}** server(s) (\`${result.success}/${guildObjects.length}\`)` 
+					await client.func.method.channelSend(interaction, {
+						content: `✅ ${bannedMember.username} is now unbanned on **${result.success}** server(s) (\`${result.success}/${guildObjects.length}\`)`
 					});
 				}
 			);

@@ -238,7 +238,9 @@ export const command: Command = {
 
 			// Immediate response to user
 			await client.func.method.channelSend(interaction, {
-				content: `🔄 Banning ${member.user.username} in progress on ${guilds.length} servers...`
+				content: lang.batch_ban_process
+					.replace("${member.user.username}", member.user.username)
+					.replace("${guilds.length}", guilds.length.toString())
 			});
 
 			// Asynchronous background processing
@@ -310,7 +312,9 @@ export const command: Command = {
 
 			// Immediate response to user
 			await client.func.method.channelSend(interaction, {
-				content: `🔄 Banning ${user.username} in progress on ${guilds.length} servers...`
+				content: lang.batch_ban_process
+					.replace("${user.globalName || user.username}", user.globalName || user.username)
+					.replace("${guilds.length}", guilds.length.toString())
 			});
 
 			// Traitement asynchrone en arrière-plan

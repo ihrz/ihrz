@@ -73,7 +73,7 @@ export const subCommand: SubCommand = {
 
 				// Send immediate response
 				const ogInteraction = await client.func.method.interactionSend(interaction, {
-					content: `🔄 Adding role to ${membersToProcess.length} members in progress...`
+					content: lang.batch_massiverole_process.replace("${membersToProcess.length}", membersToProcess.length.toString())
 				});
 
 				// Process in batches asynchronously
@@ -131,7 +131,7 @@ export const subCommand: SubCommand = {
 
 				// Send immediate response
 				const ogInteraction = await client.func.method.interactionSend(interaction, {
-					content: `🔄 Removing role from ${membersToProcess.length} members in progress...`
+					content: lang.batch_unmassiverole_process.replace("${membersToProcess.length}", membersToProcess.length.toString())
 				});
 
 				// Process in batches asynchronously

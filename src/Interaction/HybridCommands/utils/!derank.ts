@@ -58,15 +58,17 @@ export const subCommand: SubCommand = {
 		let bad = 0;
 
 		if (rolesToRemove.length === 0) {
-			await client.func.method.interactionSend(interaction, { 
-				content: "This member has no roles to remove." 
+			await client.func.method.interactionSend(interaction, {
+				content: lang.derank_no_role
 			});
 			return;
 		}
 
 		// Send immediate response
 		const ogInteraction = await client.func.method.interactionSend(interaction, {
-			content: `🔄 Removing ${rolesToRemove.length} roles from ${member.user.username}...`
+			content: lang.derank_process
+				.replace("${rolesToRemove.length}", rolesToRemove.length.toString())
+				.replace("${member.user.username}", member.user.username)
 		});
 
 		// Process role removal in batches asynchronously

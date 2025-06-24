@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
 
 		// Send immediate response
 		const ogInteraction = await client.func.method.interactionSend(interaction, {
-			content: `🔄 Re-banning ${unbanned_members.length} members in progress...`
+			content: lang.batch_undo_unban.replace("${unbanned_members.length}", unbanned_members.length.toString())
 		});
 
 		// Process bans in batches asynchronously
