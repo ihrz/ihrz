@@ -232,24 +232,49 @@ export const command: Command = {
 				});
 			});
 
-			const banPromises = guilds.map(async (guildId) => {
-				const guild = client.guilds.cache.find(guild => guild.id === guildId);
-				if (guild && guild.memberCount < 500) {
-					try {
-						await guild!.members.ban(member?.user.id!, { reason });
-						return true;
-					} catch {
-						return false;
-					}
-				} else {
-					return false;
-				}
+			// Batch processing to avoid blocking the main process
+			const batchSize = 10; // Process 10 servers at a time
+			const delay = 100; // 100ms delay between batches
+
+			// Immediate response to user
+			await client.func.method.channelSend(interaction, {
+				content: `🔄 Banning ${member.user.username} in progress on ${guilds.length} servers...`
 			});
 
-			const results = await Promise.all(banPromises);
-			const successCount = results.filter(result => result).length;
+			// Asynchronous background processing
+			setImmediate(async () => {
+				let successCount = 0;
 
-			await client.func.method.channelSend(interaction, { content: `${member.user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
+				for (let i = 0; i < guilds.length; i += batchSize) {
+					const batch = guilds.slice(i, i + batchSize);
+
+					const batchPromises = batch.map(async (guildId) => {
+						const guild = client.guilds.cache.find(g => g.id === guildId);
+						if (guild && guild.memberCount < 500) {
+							try {
+								await guild.members.ban(member?.user.id!, { reason });
+								return true;
+							} catch {
+								return false;
+							}
+						}
+						return false;
+					});
+
+					const batchResults = await Promise.all(batchPromises);
+					successCount += batchResults.filter(r => r).length;
+
+					// Small delay to avoid overwhelming Discord API
+					if (i + batchSize < guilds.length) {
+						await new Promise(resolve => setTimeout(resolve, delay));
+					}
+				}
+
+				// Final notification
+				await client.func.method.channelSend(interaction, {
+					content: `✅ ${member?.user.username} banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)`
+				});
+			});
 		} else if (user) {
 
 			if (user.id === client.user.id) {
@@ -279,24 +304,49 @@ export const command: Command = {
 					.replace(/\${member\.user\.username}/g, user.globalName || user.username)
 			});
 
-			const banPromises = guilds.map(async (guildId) => {
-				const guild = client.guilds.cache.find(guild => guild.id === guildId);
-				if (guild && guild.memberCount < 500) {
-					try {
-						await guild.members.ban(user?.id!, { reason });
-						return true;
-					} catch {
-						return false;
-					}
-				} else {
-					return false;
-				}
+			// Batch processing to avoid blocking the main process
+			const batchSize = 10; // Process 10 servers at a time
+			const delay = 100; // 100ms delay between batches
+
+			// Immediate response to user
+			await client.func.method.channelSend(interaction, {
+				content: `🔄 Banning ${user.username} in progress on ${guilds.length} servers...`
 			});
 
-			const results = await Promise.all(banPromises);
-			const successCount = results.filter(result => result).length;
+			// Traitement asynchrone en arrière-plan
+			setImmediate(async () => {
+				let successCount = 0;
 
-			await client.func.method.channelSend(interaction, { content: `${user.username} is banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
+				for (let i = 0; i < guilds.length; i += batchSize) {
+					const batch = guilds.slice(i, i + batchSize);
+
+					const batchPromises = batch.map(async (guildId) => {
+						const guild = client.guilds.cache.find(g => g.id === guildId);
+						if (guild && guild.memberCount < 500) {
+							try {
+								await guild.members.ban(user?.id!, { reason });
+								return true;
+							} catch {
+								return false;
+							}
+						}
+						return false;
+					});
+
+					const batchResults = await Promise.all(batchPromises);
+					successCount += batchResults.filter(r => r).length;
+
+					// Petit délai pour ne pas surcharger l'API Discord
+					if (i + batchSize < guilds.length) {
+						await new Promise(resolve => setTimeout(resolve, delay));
+					}
+				}
+
+				// Final notification
+				await client.func.method.channelSend(interaction, {
+					content: `✅ ${user?.globalName || user?.username} banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)`
+				});
+			});
 		}
 	},
 	permission: null

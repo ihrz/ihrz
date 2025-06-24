@@ -28,6 +28,7 @@ import {
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
+import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
 
 
 
@@ -51,29 +52,39 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const rolesToRemove = member.roles.cache;
-		const promises: Promise<void>[] = [];
+		const rolesToRemove = Array.from(member.roles.cache.values()).filter(role => role.id !== role.guild.roles.everyone.id);
 
 		let good = 0;
 		let bad = 0;
 
-		rolesToRemove.forEach(role => {
-			if (role.id === role.guild.roles.everyone.id) return;
-			promises.push(
-				member.roles.remove(role?.id, "[Derank] Module")
-					.then(() => {
-						good++;
-						return;
-					})
-					.catch(() => {
-						bad++;
-						return;
-					})
-			);
-		})
+		if (rolesToRemove.length === 0) {
+			await client.func.method.interactionSend(interaction, { 
+				content: "This member has no roles to remove." 
+			});
+			return;
+		}
 
-		Promise.all(promises)
-			.then(async () => {
+		// Send immediate response
+		const ogInteraction = await client.func.method.interactionSend(interaction, {
+			content: `🔄 Removing ${rolesToRemove.length} roles from ${member.user.username}...`
+		});
+
+		// Process role removal in batches asynchronously
+		processBatchAsync(
+			rolesToRemove,
+			async (role) => {
+				try {
+					await member.roles.remove(role.id, "[Derank] Module");
+					good++;
+					return true;
+				} catch {
+					bad++;
+					return false;
+				}
+			},
+			{ batchSize: 5, delay: 100 },
+			async (result) => {
+				// Send final result when processing is complete
 				const embed = new EmbedBuilder()
 					.setColor(2829617)
 					.setTimestamp()
@@ -88,9 +99,7 @@ export const subCommand: SubCommand = {
 					embeds: [embed],
 					files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 				});
-			})
-			.catch(err => {
-				client.func.method.interactionSend(interaction, { content: lang.derank_msg_failed });
-			});
+			}
+		);
 	},
 };

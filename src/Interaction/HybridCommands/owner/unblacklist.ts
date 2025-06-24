@@ -30,6 +30,7 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
 
 export const command: Command = {
 	name: 'unblacklist',
@@ -102,23 +103,35 @@ export const command: Command = {
 
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
 
-			const banPromises = guilds.map(async (guildId) => {
-				const guild = client.guilds.cache.find(guild => guild.id === guildId);
-				if (guild) {
-					try {
-						await guild.members.unban(bannedMember.id!, "iHorizon Unblacklist");
-						return true;
-					} catch {
-						return false;
-					}
-				}
-				return false;
+			const guildObjects = guilds.map(guildId => client.guilds.cache.find(guild => guild.id === guildId)).filter(guild => guild !== undefined);
+
+			// Send immediate response
+			await client.func.method.channelSend(interaction, { 
+				content: `🔄 Unbanning ${bannedMember.username} from ${guildObjects.length} servers in progress...` 
 			});
 
-			const results = await Promise.all(banPromises);
-			const successCount = results.filter(result => result).length;
-
-			await client.func.method.channelSend(interaction, { content: `${bannedMember.username} is now unbanned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)` });
+			// Process unbans in batches asynchronously
+			processBatchAsync(
+				guildObjects,
+				async (guild) => {
+					if (guild.members.me?.permissions.has("BanMembers")) {
+						try {
+							await guild.members.unban(bannedMember.id!, "iHorizon Unblacklist");
+							return true;
+						} catch {
+							return false;
+						}
+					}
+					return false;
+				},
+				{ batchSize: 10, delay: 100 },
+				async (result) => {
+					// Send final result when processing is complete
+					await client.func.method.channelSend(interaction, { 
+						content: `✅ ${bannedMember.username} is now unbanned on **${result.success}** server(s) (\`${result.success}/${guildObjects.length}\`)` 
+					});
+				}
+			);
 
 			return;
 		} catch (e) {
