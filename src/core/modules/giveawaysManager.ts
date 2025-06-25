@@ -444,11 +444,11 @@ class GiveawayManager {
 				});
 
 				if (winner && winner[0] !== 'None') {
-					await message?.reply({
+					await client.func.method.reply(message, {
 						content: lang.event_gw_reroll_win_msg.replace("${winners}", winners.toString()).replace("${fetch[channelId][messageId].prize}", fetch.prize)
 					})
 				} else {
-					await message?.reply({
+					await client.func.method.reply(message, {
 						content: lang.event_gw_finnish_cannot_msg
 					});
 				}

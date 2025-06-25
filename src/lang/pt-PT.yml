@@ -572,6 +572,9 @@ fun_var_good_sentence: "Por favor, envie uma frase boa!"
 # /cats
 cats_embed_title: "Miauw :cat:"
 
+# /duck
+duck_embed_title: "quá quá :duck:"
+
 # /hack
 hack_embed_description: "<@${victim.id}> foi hackeado por <@${interaction.user.id}>!"
 hack_embed_fields_ip: "IP"
@@ -870,6 +873,7 @@ emoji_embed_desc_work: "__Criado **${cnt}** emoji(s) em `${interaction.guild.nam
 # /derank
 derank_msg_desc_embed: "## Eu removi com sucesso **${good}** função(ões) de <@${member.id}>.\n## No entanto, falhei em remover **${bad}** função(ões)."
 derank_msg_failed: "Ocorreu um erro ao remover funções."
+derank_no_role: "Este membro não tem funções para remover."
 
 # /action unban all
 action_unban_all_embed_desc: "## Desbanir todos os membros da guilda\n${client.iHorizon_Emojis.Yes} | Eu removi com sucesso o banimento de `${unbanned_members.length}` membro(s) na guilda!\n${client.iHorizon_Emojis.No} | Não posso desbanir `${cannot_unban}` membro(s)!"
@@ -2250,6 +2254,16 @@ rc_forceJoin_ws_end_renew_msg: "# LEIA ATENTAMENTE\nESTE É O CÓDIGO PRIVADO QU
 media_gen_cooldown: "Você precisa esperar `1 minuto e 30 segundos` entre cada geração de mídia!"
 media_gen_error_args: "Por favor, forneça dois URLs de imagens válidos."
 
+# pt-PT.yml (Portuguese - Portugal)
+batch_ban_process: "🔄 Banindo ${member.user.username} em ${guilds.length} servidores..."
+batch_unban_process: "🔄 Desbanindo ${banned_members.size} membros..."
+batch_unblacklist_process: "🔄 Removendo ${bannedMember.username} da lista negra em ${guildObjects.length} servidores..."
+batch_unbanall_process: "🔄 Desbanindo ${banned_members.size} membros..."
+batch_massiverole_process: "🔄 Adicionando função a ${membersToProcess.length} membros..."
+batch_unmassiverole_process: "🔄 Removendo função de ${membersToProcess.length} membros..."
+batch_undo_unban: "🔄 Re-desbanindo ${unbanned_members.length} membros..."
+batch_derank_process: "🔄 Removendo ${rolesToRemove.length} funções de ${member.user.username}...
+"
 # -----------------------------/ \-----------------------------
 # Eventos do Módulo de Confissões
 confession_module_modal_title: "Enviar uma confissão"

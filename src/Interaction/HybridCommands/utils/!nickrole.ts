@@ -28,6 +28,7 @@ import {
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
+import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -59,100 +60,118 @@ export const subCommand: SubCommand = {
 
 			try {
 				const members = await interaction.guild.members.fetch();
-				const promises = [];
-
-				for (const [memberID, member] of members!) {
-					if (
-						(
-							member.user.globalName?.toLowerCase().includes(part_of_nickname)
-							|| (member.nickname && member.nickname.toLowerCase().includes(part_of_nickname))
-						)
-						&& !member.roles.cache.has(role?.id!)
-					) {
-						const promise = member.roles.add(role as Role, "[NickRole] Module")
-							.then(() => {
-								a++;
-							})
-							.catch(() => {
-								e++;
-							});
-						promises.push(promise);
-					} else {
-						s++;
-					}
-				};
-
-				await Promise.all(promises);
-			} catch (error) { }
-
-			const embed = new EmbedBuilder()
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-				.setColor('#007fff')
-				.setTimestamp()
-				.setThumbnail(interaction.guild.iconURL())
-				.setDescription(lang.nickrole_add_command_work
-					.replace('${interaction.user}', interaction.member.user.toString())
-					.replace('${a}', a.toString())
-					.replace('${s}', s.toString())
-					.replace('${e}', e.toString())
-					.replace('${part_of_nickname}', part_of_nickname)
-					.replaceAll('${role}', role?.toString()!)
+				const membersToProcess = Array.from(members.values()).filter(member =>
+					(
+						member.user.globalName?.toLowerCase().includes(part_of_nickname!)
+						|| (member.nickname && member.nickname.toLowerCase().includes(part_of_nickname!))
+					)
+					&& !member.roles.cache.has(role?.id!)
 				);
 
-			await client.func.method.interactionSend(interaction, {
-				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-			});
-			return;
+				// Count members that were skipped
+				s = members.size - membersToProcess.length;
+
+				// Send immediate response
+				const ogInteraction = await client.func.method.interactionSend(interaction, {
+					content: lang.batch_massiverole_process.replace("${membersToProcess.length}", membersToProcess.length.toString())
+				});
+
+				// Process in batches asynchronously
+				processBatchAsync(
+					membersToProcess,
+					async (member) => {
+						try {
+							await member.roles.add(role as Role, "[NickRole] Module");
+							a++;
+							return true;
+						} catch {
+							e++;
+							return false;
+						}
+					},
+					{ batchSize: 10, delay: 150 },
+					async (result) => {
+						// Continue with embed creation after async processing
+						const embed = new EmbedBuilder()
+							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+							.setColor('#007fff')
+							.setTimestamp()
+							.setThumbnail(interaction.guild!.iconURL())
+							.setDescription(lang.nickrole_add_command_work
+								.replace('${interaction.user}', interaction.member!.user.toString())
+								.replace('${a}', a.toString())
+								.replace('${s}', s.toString())
+								.replace('${e}', e.toString())
+								.replace('${part_of_nickname}', part_of_nickname!)
+								.replaceAll('${role}', role?.toString()!)
+							);
+
+						await client.func.method.interactionSend(interaction, {
+							embeds: [embed],
+							files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+						});
+					}
+				);
+				return;
+			} catch (error) { }
 
 		} else if (action_1 === 'sub') {
 			try {
 				const members = await interaction.guild?.members.fetch();
-				const promises = [];
-
-				for (const [memberID, member] of members!) {
-					if (
-						(
-							member.user.globalName?.toLowerCase().includes(part_of_nickname)
-							|| (member.nickname && member.nickname.toLowerCase().includes(part_of_nickname))
-						)
-						&& member.roles.cache.has(role?.id!)
-					) {
-						const promise = member.roles.remove(role.id, "[NickRole] Module")
-							.then(() => {
-								a++;
-							})
-							.catch(() => {
-								e++;
-							});
-						promises.push(promise);
-					} else {
-						s++;
-					}
-				};
-
-				await Promise.all(promises);
-			} catch (error) { }
-
-			const embed = new EmbedBuilder()
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-				.setColor('#007fff')
-				.setTimestamp()
-				.setThumbnail(interaction.guild.iconURL())
-				.setDescription(lang.nickrole_sub_command_work
-					.replace('${interaction.user}', interaction.member.user.toString())
-					.replace('${a}', a.toString())
-					.replace('${s}', s.toString())
-					.replace('${e}', e.toString())
-					.replace('${part_of_nickname}', part_of_nickname)
-					.replaceAll('${role}', role?.toString()!)
+				const membersToProcess = Array.from(members!.values()).filter(member =>
+					(
+						member.user.globalName?.toLowerCase().includes(part_of_nickname!)
+						|| (member.nickname && member.nickname.toLowerCase().includes(part_of_nickname!))
+					)
+					&& member.roles.cache.has(role?.id!)
 				);
 
-			await client.func.method.interactionSend(interaction, {
-				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-			});
-			return;
+				// Count members that were skipped
+				s = members!.size - membersToProcess.length;
+
+				// Send immediate response
+				const ogInteraction = await client.func.method.interactionSend(interaction, {
+					content: lang.batch_unmassiverole_process.replace("${membersToProcess.length}", membersToProcess.length.toString())
+				});
+
+				// Process in batches asynchronously
+				processBatchAsync(
+					membersToProcess,
+					async (member) => {
+						try {
+							await member.roles.remove(role!.id, "[NickRole] Module");
+							a++;
+							return true;
+						} catch {
+							e++;
+							return false;
+						}
+					},
+					{ batchSize: 10, delay: 150 },
+					async (result) => {
+						// Continue with embed creation after async processing
+						const embed = new EmbedBuilder()
+							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+							.setColor('#007fff')
+							.setTimestamp()
+							.setThumbnail(interaction.guild!.iconURL())
+							.setDescription(lang.nickrole_sub_command_work
+								.replace('${interaction.user}', interaction.member!.user.toString())
+								.replace('${a}', a.toString())
+								.replace('${s}', s.toString())
+								.replace('${e}', e.toString())
+								.replace('${part_of_nickname}', part_of_nickname!)
+								.replaceAll('${role}', role?.toString()!)
+							);
+
+						await client.func.method.interactionSend(interaction, {
+							embeds: [embed],
+							files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+						});
+					}
+				);
+				return;
+			} catch (error) { }
 		};
 		return;
 	},

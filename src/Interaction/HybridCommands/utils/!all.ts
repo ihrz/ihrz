@@ -26,7 +26,7 @@ import {
 	Message
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import wait from '../../../core/functions/wait.js';
+import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -41,38 +41,54 @@ export const subCommand: SubCommand = {
 		const unbanned_members: string[] = [];
 		let cannot_unban = 0;
 
-		if (!banned_members) {
+		if (!banned_members || banned_members.size === 0) {
 			await client.func.method.interactionSend(interaction, { content: lang.action_unban_all_no_banned_members });
 			return;
 		}
 
-		await Promise.all(banned_members.map(async index => {
-			try {
-				await interaction.guild?.bans.remove(index.user.id);
-				unbanned_members.push(index.user.id);
-			} catch (e) {
-				cannot_unban++;
-			}
-			await wait(800);
-		}));
-
-		await client.db.set(`${interaction.guildId}.UTILS.unban_members`, unbanned_members);
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [
-				new EmbedBuilder()
-					.setColor(2829617)
-					.setDescription(
-						lang.action_unban_all_embed_desc
-							.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
-							.replace("${unbanned_members.length}", unbanned_members.length.toString())
-							.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-							.replace('${cannot_unban}', cannot_unban.toString())
-					)
-					.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-			],
-			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+		// Send immediate response
+		const ogInteraction = await client.func.method.interactionSend(interaction, {
+			content: lang.batch_unbanall_process.replace("${banned_members.size}", banned_members.size.toString())
 		});
+
+		// Process unbans in batches asynchronously
+		processBatchAsync(
+			Array.from(banned_members.values()),
+			async (banInfo) => {
+				try {
+					await interaction.guild?.bans.remove(banInfo.user.id);
+					unbanned_members.push(banInfo.user.id);
+					return true;
+				} catch (e) {
+					cannot_unban++;
+					return false;
+				}
+			},
+			{ batchSize: 5, delay: 200 }, // Slower for unban operations
+			async (result) => {
+				// Save unbanned members to database
+				await client.db.set(`${interaction.guildId}.UTILS.unban_members`, unbanned_members);
+
+				// Send final result
+				await client.func.method.interactionSend(interaction, {
+					embeds: [
+						new EmbedBuilder()
+							.setColor(2829617)
+							.setDescription(
+								lang.action_unban_all_embed_desc
+									.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
+									.replace("${unbanned_members.length}", unbanned_members.length.toString())
+									.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+									.replace('${cannot_unban}', cannot_unban.toString())
+							)
+							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+							.setTimestamp()
+							.setThumbnail(interaction.guild?.iconURL() || '')
+					],
+					files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+				});
+			}
+		);
 
 		return;
 	},

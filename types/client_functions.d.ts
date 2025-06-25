@@ -5,13 +5,12 @@ import { ModalOptionsBuilder } from '../src/core/functions/modalHelper.js';
 import { AnySelectMenuInteraction, APIModalInteractionResponseCallbackData, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, Role, StringSelectMenuInteraction, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
 import { Assets } from './assets.js';
 import { LangForPrompt } from '../src/core/functions/awaitingResponse.js';
-import { AuthRestore_EntryType, AuthRestore_ResponseType, GuildAuthRestore, AuthRestore_ForceJoin_EntryType, AuthRestore_ForceJoin_ResponseType, AuthRestore_KeyUpdate_EntryType, AuthRestore_RoleUpdate_EntryType, Oauth2_Link_Entry } from '../src/core/functions/authRestoreHelper.ts';
 import { Command } from './command.js';
 import { Option } from './option.js';
-import { db } from '../src/core/database.ts';
 import { PasswordOptions } from '../src/core/functions/random.ts';
 import { command } from '../src/core/functions/permissonsCalculator.ts';
 import { BunDB } from 'bun.db';
+import { BatchProcessorOptions, BatchProcessorResult } from '../src/core/functions/batchProcessor.ts';
 
 declare namespace Client_Functions {
 
@@ -91,8 +90,36 @@ declare namespace Client_Functions {
 		export function getPermissionByValue(value: bigint | bigint[]): any;
 	}
 
+	// From batchProcessor.ts
+	export namespace batchProcessor {
+		export function processBatch(
+			items: T[],
+			processor: (item: T) => Promise<boolean>,
+			options: BatchProcessorOptions
+		): Promise<BatchProcessorResult>;
+		export function processBatchAsync(
+			items: T[],
+			processor: (item: T) => Promise<boolean>,
+			options: BatchProcessorOptions,
+			onComplete?: (result: BatchProcessorResult) => void
+		): void;
+	}
+
 	// From wait.ts
 	export function wait(milliseconds: number): Promise<void>;
+
+	// From html2png.ts
+	export function html2png(
+		code: string,
+		options: {
+			width?: number;
+			height?: number;
+			scaleSize?: number;
+			elementSelector?: string;
+			omitBackground: boolean;
+			selectElement: boolean;
+		}
+	): Promise<Buffer>;
 
 	// From prefix.ts
 	export namespace prefix {
@@ -104,8 +131,7 @@ declare namespace Client_Functions {
 	export function maskLink(input: string): string;
 
 	// From sanitizer.ts
-	export namespace sanitizer {
-	}
+	export function sanitizer(text: string | undefined): string;
 
 	// From userStatsUtils.ts
 	export namespace userStatsUtils {
@@ -198,6 +224,7 @@ declare namespace Client_Functions {
 			interaction: Message | ChatInputCommandInteraction<"cached"> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel,
 			options: string | MessageReplyOptions | MessageEditOptions
 		): Promise<Message>;
+		export function reply(message: Message<boolean>, options: string | MessageReplyOptions): Promise<Message>;
 		export function hasSubCommand(options: Option[] | undefined): boolean;
 		export function hasSubCommandGroup(options: Option[] | undefined): boolean;
 		export function isSubCommand(option: Option | Command): boolean;
@@ -261,21 +288,8 @@ declare namespace Client_Functions {
 	// From helper.ts
 	export namespace helper {
 		export function coolDown(message: Message, method: string, ms: number): any;
-		export function hardCooldown(database: db, method: string, ms: number): any;
+		export function hardCooldown(database: BunDB, method: string, ms: number): any;
 	}
-
-	// From html2png.ts
-	export function html2png(
-		code: string,
-		options: {
-			width?: number;
-			height?: number;
-			scaleSize?: number;
-			elementSelector?: string;
-			omitBackground: boolean;
-			selectElement: boolean;
-		}
-	): Promise<Buffer>;
 
 	// From ihorizon_logs.ts
 	export function ihorizon_logs(
@@ -292,8 +306,22 @@ declare namespace Client_Functions {
 		export function image64(arg: string): Promise<Buffer | undefined>;
 	}
 
+	// From image_dominant_color.ts
+	export function image_dominant_color(input: string | Buffer): Promise<string>;
+
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
+
+	// From mediaManipulation.ts
+	export namespace mediaManipulation {
+		export function convertToPng(buffer: Buffer): Promise<Buffer>;
+		export function adjustImageQuality(imagePath: string): any;
+		export function resizeImage(inputImage: Buffer, outputPath: string, width?: number, height?: number): any;
+	}
+
+	// From kdenliveManipulator.ts
+	export namespace kdenliveManipulator {
+	}
 }
 
 export { Client_Functions };

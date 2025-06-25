@@ -572,6 +572,9 @@ fun_var_good_sentence: "¡Por favor, envía una buena frase!"
 # /cats
 cats_embed_title: "Miauw :cat:"
 
+# /duck
+duck_embed_title: "cuac cuac :duck:"
+
 # /hack
 hack_embed_description: "¡<@${victim.id}> hackeado por <@${interaction.user.id}>!"
 hack_embed_fields_ip: "Dirección IP"
@@ -870,6 +873,7 @@ emoji_embed_desc_work: "__Creados **${cnt}** emoji(s) en `${interaction.guild.na
 # /derank
 derank_msg_desc_embed: "## He eliminado exitosamente **${good}** rol(es) de <@${member.id}>.\n## Sin embargo, no pude eliminar **${bad}** rol(es)."
 derank_msg_failed: "Se produjo un error al eliminar los roles."
+derank_no_role: "Este miembro no tiene roles para eliminar."
 
 # /acción desbanear todo
 action_unban_all_embed_desc: "## Desbanear a todos los miembros del gremio\n${client.iHorizon_Emojis.Yes} | ¡He eliminado con éxito la prohibición de `${unbanned_members.length}` miembro(s) en el gremio!\n${client.iHorizon_Emojis.No} | ¡No puedo desbanear a `${cannot_unban}` miembro(s)!"
@@ -2249,6 +2253,16 @@ rc_forceJoin_ws_end_renew_msg: "# LEER CUIDADOSAMENTE\nAQUÍ ESTÁ EL CÓDIGO PR
 # media cooldown
 media_gen_cooldown: "¡Necesitas esperar `1 minuto y 30 segundos` entre generación de medios!"
 media_gen_error_args: "Por favor, proporciona dos URLs de imagen válidas."
+
+# es-ES.yml (Spanish - Spain)
+batch_ban_process: "🔄 Baneando a ${member.user.username} en ${guilds.length} servidores..."
+batch_unban_process: "🔄 Desbaneando a ${banned_members.size} miembros..."
+batch_unblacklist_process: "🔄 Eliminando a ${bannedMember.username} de la lista negra en ${guildObjects.length} servidores..."
+batch_unbanall_process: "🔄 Desbaneando a ${banned_members.size} miembros..."
+batch_massiverole_process: "🔄 Añadiendo rol a ${membersToProcess.length} miembros..."
+batch_unmassiverole_process: "🔄 Eliminando rol de ${membersToProcess.length} miembros..."
+batch_undo_unban: "🔄 Re-desbaneando a ${unbanned_members.length} miembros..."
+batch_derank_process: "🔄 Eliminando ${rolesToRemove.length} roles de ${member.user.username}..."
 
 # -----------------------------/ \-----------------------------
 # Eventos del Módulo de Confesión

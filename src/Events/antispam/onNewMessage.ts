@@ -31,6 +31,7 @@ import {
 } from 'discord.js';
 
 import { DatabaseStructure } from '../../../types/database_structure.js';
+import { processBatchAsync } from '../../core/functions/batchProcessor.js';
 
 import { AntiSpam } from '../../../types/antispam.js';
 import { BotEvent } from '../../../types/event.js';
@@ -129,25 +130,36 @@ async function clearSpamMessages(message: Message, messages: Set<AntiSpam.Cached
 			}
 		});
 
-		await Promise.all(messagesByChannel.map(async (messageIds, channelId) => {
-			const channel = message.guild?.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
-			if (channel && messageIds.size > 0) {
-				const messageIdsArray = Array.from(messageIds.values());
-				for (let i = 0; i < messageIdsArray.length; i += CHUNK_SIZE) {
-					const chunk = messageIdsArray.slice(i, i + CHUNK_SIZE);
-					try {
-						await channel.bulkDelete(chunk, true);
-						chunk.forEach(messageId => {
-							messages.forEach(message => {
-								if (message.messageID === messageId) {
-									cache.messages.get(message.guildID)?.delete(message);
-								}
+		// Convert to array for batch processing
+		const channelEntries = Array.from(messagesByChannel.entries());
+
+		await processBatchAsync(
+			channelEntries,
+			async ([channelId, messageIds]): Promise<boolean> => {
+				const channel = message.guild?.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
+				if (channel && messageIds.size > 0) {
+					const messageIdsArray = Array.from(messageIds.values());
+					for (let i = 0; i < messageIdsArray.length; i += CHUNK_SIZE) {
+						const chunk = messageIdsArray.slice(i, i + CHUNK_SIZE);
+						try {
+							await channel.bulkDelete(chunk, true);
+							chunk.forEach(messageId => {
+								messages.forEach(message => {
+									if (message.messageID === messageId) {
+										cache.messages.get(message.guildID)?.delete(message);
+									}
+								});
 							});
-						});
-					} catch { }
+						} catch { }
+					}
 				}
+				return true;
+			},
+			{
+				batchSize: 3, // Process 3 channels at a time
+				delay: 100 // 100ms delay between batches
 			}
-		}));
+		);
 	} catch { }
 }
 
@@ -158,52 +170,58 @@ async function PunishUsers(
 ): Promise<void> {
 	const membersCleaned = [...new Set(members)];
 
-	const punishPromises = membersCleaned.map(async (member) => {
-		const time = options.punishTime;
+	await processBatchAsync(
+		membersCleaned,
+		async (member): Promise<boolean> => {
+			const time = options.punishTime;
 
-		switch (options.punishment_type) {
-			case 'mute':
-				const userCanBeMuted =
-					member.guild.members.me?.permissions.has(PermissionFlagsBits.ModerateMembers) &&
-					member.guild.members.me.roles.highest.position > member.roles.highest.position &&
-					member.id !== member.guild.ownerId;
+			switch (options.punishment_type) {
+				case 'mute':
+					const userCanBeMuted =
+						member.guild.members.me?.permissions.has(PermissionFlagsBits.ModerateMembers) &&
+						member.guild.members.me.roles.highest.position > member.roles.highest.position &&
+						member.id !== member.guild.ownerId;
 
-				if (userCanBeMuted) {
-					await member.timeout(time, 'Spamming');
-					await member.client.func.method.warnMember(
-						member.guild?.members.me!,
-						member!,
-						"Antispam Punishment"
-					).catch(() => { });
-				}
-				break;
-			case 'ban':
-				const userCanBeBanned =
-					member.guild.members.me?.permissions.has(PermissionFlagsBits.BanMembers) &&
-					member.guild.members.me.roles.highest.position > member.roles.highest.position &&
-					member.id !== member.guild.ownerId &&
-					member.bannable;
+					if (userCanBeMuted) {
+						await member.timeout(time, 'Spamming');
+						await member.client.func.method.warnMember(
+							member.guild?.members.me!,
+							member!,
+							"Antispam Punishment"
+						).catch(() => { });
+					}
+					break;
+				case 'ban':
+					const userCanBeBanned =
+						member.guild.members.me?.permissions.has(PermissionFlagsBits.BanMembers) &&
+						member.guild.members.me.roles.highest.position > member.roles.highest.position &&
+						member.id !== member.guild.ownerId &&
+						member.bannable;
 
-				if (userCanBeBanned) {
-					await member.ban({ reason: 'Spamming!' }).catch(() => { });
-				}
-				break;
-			case 'kick':
-				const userCanBeKicked =
-					member.guild.members.me?.permissions.has(PermissionFlagsBits.KickMembers) &&
-					member.guild.members.me.roles.highest.position > member.roles.highest.position &&
-					member.id !== member.guild.ownerId &&
-					member.kickable;
+					if (userCanBeBanned) {
+						await member.ban({ reason: 'Spamming!' }).catch(() => { });
+					}
+					break;
+				case 'kick':
+					const userCanBeKicked =
+						member.guild.members.me?.permissions.has(PermissionFlagsBits.KickMembers) &&
+						member.guild.members.me.roles.highest.position > member.roles.highest.position &&
+						member.id !== member.guild.ownerId &&
+						member.kickable;
 
-				if (userCanBeKicked) {
-					await member.kick('Spamming!').catch(() => { });
-				}
-				break;
+					if (userCanBeKicked) {
+						await member.kick('Spamming!').catch(() => { });
+					}
+					break;
+			}
+			cache.membersFlags.get(guildId)?.delete(`${member.id}`);
+			return true;
+		},
+		{
+			batchSize: 5, // Process 5 members at a time
+			delay: 200 // 200ms delay between batches to respect rate limits
 		}
-		cache.membersFlags.get(guildId)?.delete(`${member.id}`);
-	});
-
-	await Promise.all(punishPromises);
+	);
 }
 
 export const event: BotEvent = {

@@ -572,6 +572,9 @@ fun_var_good_sentence: "Bitte, sende einen guten Satz!"
 # /cats
 cats_embed_title: "Miauw :cat:"
 
+# /duck
+duck_embed_title: "Quak :duck:"
+
 # /hack
 hack_embed_description: "<@${victim.id}> wurde von <@${interaction.user.id}> gehackt!"
 hack_embed_fields_ip: "IP"
@@ -870,6 +873,7 @@ emoji_embed_desc_work: "__Erstellt **${cnt}** Emoji(s) in `${interaction.guild.n
 # /derank
 derank_msg_desc_embed: "## Ich habe erfolgreich **${good}** Rolle(n) von <@${member.id}> entfernt.\n## Leider konnte ich **${bad}** Rolle(n) nicht entfernen."
 derank_msg_failed: "Ein Fehler ist beim Entfernen der Rollen aufgetreten."
+derank_no_role: "Dieses Mitglied hat keine Rollen zum Entfernen."
 
 # /Aktion Entbannen alle
 action_unban_all_embed_desc: "## Alle Gildenmitglieder entbannen\n${client.iHorizon_Emojis.Yes} | Ich habe erfolgreich das Verbot von `${unbanned_members.length}` Mitglied(ern) in der Gilde aufgehoben!\n${client.iHorizon_Emojis.No} | Ich kann `${cannot_unban}` Mitglied(er) nicht entbannen!"
@@ -2249,6 +2253,16 @@ rc_forceJoin_ws_end_renew_msg: "# SORGFÄLTIG LESEN\nHIER IST DER PRIVATE CODE, 
 # media cooldown
 media_gen_cooldown: "Du musst `1 Minute und 30 Sekunden` zwischen Medienerstellungen warten!"
 media_gen_error_args: "Bitte gebe zwei gültige Bild-URLs an."
+
+# de-DE.yml (German - Germany)
+batch_ban_process: "🔄 Banne ${member.user.username} auf ${guilds.length} Servern..."
+batch_unban_process: "🔄 Entbanne ${banned_members.size} Mitglieder..."
+batch_unblacklist_process: "🔄 Entferne ${bannedMember.username} von der Blacklist auf ${guildObjects.length} Servern..."
+batch_unbanall_process: "🔄 Entbanne ${banned_members.size} Mitglieder..."
+batch_massiverole_process: "🔄 Füge Rolle zu ${membersToProcess.length} Mitgliedern hinzu..."
+batch_unmassiverole_process: "🔄 Entferne Rolle von ${membersToProcess.length} Mitgliedern..."
+batch_undo_unban: "🔄 Entbanne ${unbanned_members.length} Mitglieder erneut..."
+batch_derank_process: "🔄 Entferne ${rolesToRemove.length} Rollen von ${member.user.username}..."
 
 # -----------------------------/ \-----------------------------
 # Bekenntnismodul Ereignisse
