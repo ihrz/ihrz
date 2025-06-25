@@ -572,6 +572,9 @@ fun_var_good_sentence: "良い文章を送ってください！"
 # /cats
 cats_embed_title: "ニャー🐱"
 
+# /duck
+duck_embed_title: "ガーガー :duck:"
+
 # /hack
 hack_embed_description: "<@${victim.id}> が <@${interaction.user.id}> にハックされました！"
 hack_embed_fields_ip: "IPアドレス："
@@ -870,6 +873,7 @@ emoji_embed_desc_work: "__`${interaction.guild.name}` に**${cnt}**個の絵文�
 # /derank
 derank_msg_desc_embed: "## 私は<@${member.id}>から**${good}**つの役職を削除しました。\n## ただし、**${bad}**つの役職を削除できませんでした。"
 derank_msg_failed: "役職の削除中にエラーが発生しました。"
+derank_no_role: "このメンバーには削除するロールがありません。"
 
 # /アクション全員の禁止解除
 action_unban_all_embed_desc: "## ギルドメンバー全員の禁止を解除する\n${client.iHorizon_Emojis.Yes} | ギルドで`${unbanned_members.length}`人のメンバーの禁止を成功裏に解除しました！\n${client.iHorizon_Emojis.No} | `${cannot_unban}`人のメンバーを禁止解除できません！"
@@ -2250,6 +2254,16 @@ rc_forceJoin_ws_end_renew_msg: "# 注意\nこのコードは非常に重要で�
 media_gen_cooldown: "メディア生成は`1分間 30秒`間をあける必要があります！"
 media_gen_error_args: "2つの有効な画像URLを提供してください。"
 
+# jp-JP.yml (Japanese - Japan)
+batch_ban_process: "🔄 ${guilds.length}個のサーバーで${member.user.username}をBAN中..."
+batch_unban_process: "🔄 ${banned_members.size}人のメンバーのBAN解除中..."
+batch_unblacklist_process: "🔄 ${guildObjects.length}個のサーバーで${bannedMember.username}をブラックリストから削除中..."
+batch_unbanall_process: "🔄 ${banned_members.size}人のメンバーのBAN解除中..."
+batch_massiverole_process: "🔄 ${membersToProcess.length}人のメンバーにロールを付与中..."
+batch_unmassiverole_process: "🔄 ${membersToProcess.length}人のメンバーからロールを削除中..."
+batch_undo_unban: "🔄 ${unbanned_members.length}人のメンバーを再BAN解除中..."
+batch_derank_process: "🔄 ${rolesToRemove.length}人のロールを${member.user.username}から削除中...
+"
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント
 confession_module_modal_title: "告白を送る"

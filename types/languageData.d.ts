@@ -194,9 +194,9 @@ export interface LanguageData {
   disableticket_not_admin: string;
   disableticket_logs_embed_title_disable: string;
   disableticket_logs_embed_description_disable: string;
-  disableticket_command_work_disable: string;
   disableticket_logs_embed_title_enable: string;
   disableticket_logs_embed_description_enable: string;
+  disableticket_command_work_disable: string;
   disableticket_command_work_enable: string;
   setticketcategory_not_admin: string;
   setticketcategory_disabled_command: string;
@@ -481,6 +481,7 @@ export interface LanguageData {
   fun_var_down_api: string;
   fun_var_good_sentence: string;
   cats_embed_title: string;
+  duck_embed_title: string;
   hack_embed_description: string;
   hack_embed_fields_ip: string;
   hack_embed_fields_email: string;
@@ -678,6 +679,7 @@ export interface LanguageData {
   emoji_embed_desc_work: string;
   derank_msg_desc_embed: string;
   derank_msg_failed: string;
+  derank_no_role: string;
   action_unban_all_embed_desc: string;
   action_unban_all_no_banned_members: string;
   action_unban_undo_embed_desc: string;
@@ -1635,11 +1637,11 @@ export interface LanguageData {
   antispam_ignorechannels_embed_desc: string;
   header_h1_value: string;
   messages_word: string;
-  voice_activity: string;
   minutes_word: string;
   top_voice: string;
   top_message: string;
   activity_under_30d: string;
+  voice_activity: string;
   notifier_author_add_author_doesnt_exist: string;
   notifier_config_channel_logsEmbed_title: string;
   notifier_config_channel_logsEmbed_desc: string;
@@ -1685,6 +1687,14 @@ export interface LanguageData {
   rc_forceJoin_ws_end_renew_msg: string;
   media_gen_cooldown: string;
   media_gen_error_args: string;
+  batch_ban_process: string;
+  batch_unban_process: string;
+  batch_unblacklist_process: string;
+  batch_unbanall_process: string;
+  batch_massiverole_process: string;
+  batch_unmassiverole_process: string;
+  batch_undo_unban: string;
+  batch_derank_process: string;
   confession_module_modal_title: string;
   confession_module_modal_components1_label: string;
   confession_module_modal_components1_placeholder: string;

@@ -29,6 +29,7 @@ import {
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
+import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
@@ -66,24 +67,53 @@ export const subCommand: SubCommand = {
 
 			try {
 				const members = await interaction.guild.members.fetch();
-				const promises = [];
+				const membersToProcess = Array.from(members.values()).filter(member => !member.roles.cache.has(role?.id!));
 
-				for (const [memberID, member] of members!) {
-					if (!member.roles.cache.has(role?.id!)) {
-						const promise = await member.roles.add(role as Role, "[Massrole] Module")
-							.then(() => {
-								a++;
-							})
-							.catch(() => {
-								e++;
-							});
-						promises.push(promise);
-					} else {
-						s++;
+				// Count members that already have the role
+				s = members.size - membersToProcess.length;
+
+				// Send immediate response
+				await ogInteraction.edit({
+					content: lang.batch_massiverole_process.replace("${membersToProcess.length}", membersToProcess.length.toString())
+				});
+
+				// Process in batches asynchronously
+				processBatchAsync(
+					membersToProcess,
+					async (member) => {
+						try {
+							await member.roles.add(role as Role, "[Massrole] Module");
+							a++;
+							return true;
+						} catch {
+							e++;
+							return false;
+						}
+					},
+					{ batchSize: 10, delay: 150 },
+					async (result) => {
+						// Send final result when processing is complete
+						const embed = new EmbedBuilder()
+							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+							.setColor('#007fff')
+							.setTimestamp()
+							.setThumbnail(interaction.guild!.iconURL())
+							.setDescription(lang.massiverole_add_command_work
+								.replace('${interaction.user}', interaction.member!.user.toString())
+								.replace('${a}', a.toString())
+								.replace('${s}', s.toString())
+								.replace('${e}', e.toString())
+								.replaceAll('${role}', role?.toString()!)
+							);
+
+						await ogInteraction.edit({
+							content: null,
+							embeds: [embed],
+							files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+						});
 					}
-				};
-
-				await Promise.all(promises);
+				);
+				return;
 			} catch (error) { };
 
 			const embed = new EmbedBuilder()
@@ -109,24 +139,53 @@ export const subCommand: SubCommand = {
 
 			try {
 				const members = await interaction.guild.members.fetch();
-				const promises = [];
+				const membersToProcess = Array.from(members.values()).filter(member => member.roles.cache.has(role?.id!));
 
-				for (const [memberID, member] of members!) {
-					if (member.roles.cache.has(role?.id!)) {
-						const promise = await member.roles.remove(role as Role, "[MassiveRole] Command")
-							.then(() => {
-								a++;
-							})
-							.catch(() => {
-								e++;
-							});
-						promises.push(promise);
-					} else {
-						s++;
+				// Count members that don't have the role
+				s = members.size - membersToProcess.length;
+
+				// Send immediate response
+				await ogInteraction.edit({
+					content: lang.batch_unmassiverole_process.replace("${membersToProcess.length}", membersToProcess.length.toString())
+				});
+
+				// Process in batches asynchronously
+				processBatchAsync(
+					membersToProcess,
+					async (member) => {
+						try {
+							await member.roles.remove(role as Role, "[MassiveRole] Command");
+							a++;
+							return true;
+						} catch {
+							e++;
+							return false;
+						}
+					},
+					{ batchSize: 10, delay: 150 },
+					async (result) => {
+						// Send final result when processing is complete
+						const embed = new EmbedBuilder()
+							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+							.setColor('#007fff')
+							.setTimestamp()
+							.setThumbnail(interaction.guild!.iconURL())
+							.setDescription(lang.massiverole_sub_command_work
+								.replace('${interaction.user}', interaction.member!.user.toString())
+								.replace('${a}', a.toString())
+								.replace('${s}', s.toString())
+								.replace('${e}', e.toString())
+								.replaceAll('${role}', role?.toString()!)
+							);
+
+						await ogInteraction.edit({
+							content: null,
+							embeds: [embed],
+							files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+						});
 					}
-				};
-
-				await Promise.all(promises);
+				);
+				return;
 			} catch (error) { };
 
 			const embed = new EmbedBuilder()

@@ -101,6 +101,21 @@ export const command: Command = {
 			permission: null,
 		},
 		{
+			name: "duck",
+			name_localizations: {
+				fr: "cannard",
+			},
+
+			description: "Get a picture of duck!",
+			description_localizations: {
+				fr: "Obtenez une photo de cannard",
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null,
+		},
+		{
 			name: "fdisable",
 
 			description: "Disable the fun category",
