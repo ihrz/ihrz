@@ -38,7 +38,8 @@ const regexPatterns = [
 	'[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
 	'(?:%[0-9a-fA-F]{2}){2,}',
 	'(?:https?:\/\/)?(?:%[0-9a-fA-F]{2})+(?:\.[a-zA-Z]{2,}|\/%[0-9a-fA-F]{2,})*',
-	'discord:\/\-\/invite\/[a-zA-Z0-9\-\_]+'
+	'discord:\/\-\/invite\/[a-zA-Z0-9\-\_]+',
+	'(?:https?:\\/\\/)?discordapp\\.com[\\/\\\\]invite[\\/\\\\][^\\s]+'
 ];
 
 import { LanguageData } from '../../../../types/languageData.js';
