@@ -172,7 +172,7 @@ export const command: Command = {
 				filter: async (i) => {
 					await i.deferUpdate(); return interaction.member?.user.id === i.user.id;
 				},
-				time: 60000
+				time: 60_000 * 16 // 16 minutes
 			});
 
 			collector.on('collect', (interaction: { customId: string; }) => {
