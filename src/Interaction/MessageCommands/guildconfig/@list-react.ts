@@ -77,11 +77,11 @@ export const command: Command = {
 		const row = new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
 				.setCustomId('previousPage')
-				.setLabel('<<<')
+				.setLabel('<<')
 				.setStyle(ButtonStyle.Secondary),
 			new ButtonBuilder()
 				.setCustomId('nextPage')
-				.setLabel('>>>')
+				.setLabel('>>')
 				.setStyle(ButtonStyle.Secondary),
 		);
 
@@ -95,7 +95,7 @@ export const command: Command = {
 			filter: async (i) => {
 				await i.deferUpdate();
 				return interaction.author.id === i.user.id;
-			}, time: 60000
+			}, time: 60_000 * 16 // 16 minutes
 		});
 
 		collector.on('collect', (interaction: { customId: string; }) => {

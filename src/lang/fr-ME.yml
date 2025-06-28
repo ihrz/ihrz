@@ -72,6 +72,13 @@ var_banned_user: "Mecs ban"
 var_no_one_banned: "Personne est ban, t con ou koi"
 var_category: "Catégorie du bail"
 var_total: "Total du bail"
+var_online_members: "Membre(s) en ligne"
+var_boost_level: "Niveau de boost"
+var_features: "Fonctionnalités"
+var_guild_icon: "Icône du serveur"
+var_guild_banner: "Bannière du serveur"
+var_guild_splash: "Écran d’accueil du serveur"
+var_unknown_guild_name: "Nom de serveur inconnu"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Faire une inv"
@@ -1037,6 +1044,9 @@ admin_roles_remove_not_owner: "Vous n’êtes pas propriétaire du serveur !"
 # /util rolelimit
 util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | Les options fournies sont invalides. Veuillez vérifier votre saisie."
 util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Rôle : ${role.toString()} | Membres max : ${limit_count}\n- Les nouveaux utilisateurs ne pourront pas recevoir ce rôle si ${limit_count} membres le possèdent déjà."
+
+# /util inviteinfo
+util_inviteinfo_not_valid_invite: "Cette invitation `discord_invite` n'est pas valide !"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

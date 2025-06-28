@@ -713,3 +713,23 @@ export async function isTicketChannel(channel: BaseGuildTextChannel): Promise<bo
 	}
 	return false;
 }
+
+export function isValidDiscordInvite(input: string): boolean {
+	// Clean input by removing whitespace
+	const trimmed = input.trim();
+
+	// If empty, return false
+	if (!trimmed) {
+		return false;
+	}
+
+	// Regular expressions for different formats
+	const patterns = [
+		/^https:\/\/discord\.gg\/[a-zA-Z0-9]+$/,  // https://discord.gg/<code>
+		/^discord\.gg\/[a-zA-Z0-9]+$/,            // discord.gg/<code>
+		/^[a-zA-Z0-9]+$/                          // <code> only
+	];
+
+	// Check if input matches any of the patterns
+	return patterns.some(pattern => pattern.test(trimmed));
+}

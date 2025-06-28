@@ -72,6 +72,13 @@ var_banned_user: "Utilizador(es) Banido(s)"
 var_no_one_banned: "Ninguém está banido neste servidor."
 var_category: "Categoria"
 var_total: "Total"
+var_online_members: "Membro(s) online"
+var_boost_level: "Nível de impulso"
+var_features: "Funcionalidades"
+var_guild_icon: "Ícone do servidor"
+var_guild_banner: "Banner do servidor"
+var_guild_splash: "Tela inicial do servidor"
+var_unknown_guild_name: "Nome de servidor desconhecido"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Criar Convite Instantâneo"
@@ -1035,6 +1042,9 @@ admin_roles_remove_not_owner: "Tu não és o proprietário do servidor!"
 # /util rolelimit
 util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | As opções fornecidas são inválidas. Por favor, verifique a sua entrada."
 util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Função: ${role.toString()} | Máximo de membros: ${limit_count}\n- Novos utilizadores não poderão receber esta função se já houver ${limit_count} membros com ela."
+
+# /util inviteinfo
+util_inviteinfo_not_valid_invite: "Este convite `discord_invite` não é válido!"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -2262,8 +2272,8 @@ batch_unbanall_process: "🔄 Desbanindo ${banned_members.size} membros..."
 batch_massiverole_process: "🔄 Adicionando função a ${membersToProcess.length} membros..."
 batch_unmassiverole_process: "🔄 Removendo função de ${membersToProcess.length} membros..."
 batch_undo_unban: "🔄 Re-desbanindo ${unbanned_members.length} membros..."
-batch_derank_process: "🔄 Removendo ${rolesToRemove.length} funções de ${member.user.username}...
-"
+batch_derank_process: "🔄 Removendo ${rolesToRemove.length} funções de ${member.user.username}..."
+
 # -----------------------------/ \-----------------------------
 # Eventos do Módulo de Confissões
 confession_module_modal_title: "Enviar uma confissão"

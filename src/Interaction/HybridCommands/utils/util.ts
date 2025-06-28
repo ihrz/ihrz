@@ -382,7 +382,38 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.ManageRoles,
-		}
+		},
+		{
+			name: 'inviteinfo',
+
+			description: 'Get informations about the discord invite link',
+			description_localizations: {
+				"fr": "Obtenir des informations vis-à-vis de l'invitations discord"
+			},
+
+			aliases: [],
+
+			options: [
+				{
+					name: "discord_invite",
+
+					description: "the discord invite / code",
+					description_localizations: {
+						"fr": "le lien d'invitation discord ou le code"
+					},
+
+					type: ApplicationCommandOptionType.String,
+
+					required: true,
+					permission: null
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+			thinking: true,
+
+			permission: PermissionFlagsBits.ManageGuild
+		},
 	],
 
 	category: 'utils',
