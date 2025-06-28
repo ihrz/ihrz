@@ -35,7 +35,9 @@ export async function user(interaction: Message, args: string[], argsNumber: num
 	if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
 		return interaction.mentions.parsedUsers
 			.map(x => x)
-			.filter(x => x.id !== interaction.client.user?.id!)[argsNumber] || null;
+			.filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
+			|| interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber])
+			|| null;
 	}
 
 	const userId = args[argsNumber]?.replace(/[<@!>]/g, '');
@@ -44,14 +46,16 @@ export async function user(interaction: Message, args: string[], argsNumber: num
 }
 
 export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | null {
+	// For prefix with the bot mention, need to slice one from the start to avoid to use the bot mention as the targeted user
 	if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
 		return interaction.mentions.members?.map(x => x)
-			.filter(x => x.id !== interaction.client.user?.id!)?.[argsNumber] || null;
+			.filter(x => x.id !== interaction.client.user?.id!)?.[argsNumber] || interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber]) || null;;
 	}
 
 	const memberId = args[argsNumber]?.replace(/[<@!>]/g, '');
 	return interaction.mentions.members?.map(x => x)[argsNumber] ||
-		(memberId ? interaction.guild?.members.cache.get(memberId) : null) || null;
+		(memberId ? interaction.guild?.members.cache.get(memberId) : null) || interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber])
+		|| null;
 }
 
 export async function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null> {
@@ -86,6 +90,11 @@ export async function voiceChannel(interaction: Message, args: string[], argsNum
 }
 
 export async function channel(interaction: Message, args: string[], argsNumber: number): Promise<Channel | null> {
+	// First of all, if the args is the channel name
+	const channelFromName = interaction.guild?.channels.cache.find(x => x.name === args[argsNumber]);
+	if (channelFromName) {
+		return channelFromName;
+	}
 	// Get potential channel ID from argument, strip any channel mention formatting
 	const channelId = args[argsNumber]?.replace(/[<#>]/g, '');
 
@@ -343,13 +352,13 @@ function isValidArgument(arg: string, type: string, guild: Guild, atc: Collectio
 		case "string":
 			return typeof arg === 'string';
 		case "user":
-			return /^<@!?(\d+)>$/.test(arg) || !isNaN(Number(arg))
+			return /^<@!?(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.members.cache.find(x => x.user.username === arg) !== undefined;
 		case "roles":
 			return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.roles.cache.find(x => x.name === arg)?.id !== undefined;
 		case "number":
 			return !isNaN(Number(arg));
 		case "channel":
-			return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg));
+			return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.channels.cache.find(x => x.name === arg) !== undefined;
 		case "default":
 			return true;
 		default:
