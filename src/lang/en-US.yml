@@ -72,6 +72,13 @@ var_banned_user: "Banned User(s)"
 var_no_one_banned: "No one is banned in this server."
 var_category: "Category"
 var_total: "Total"
+var_online_members: "Online Member(s)"
+var_boost_level: "Boost Level"
+var_features: "Features"
+var_guild_icon: "Guild Icon"
+var_guild_banner: "Guild Banner"
+var_guild_splash: "Guild Splash"
+var_unknown_guild_name: "Unknown Guild Name"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Create Instant Invite"
@@ -1037,6 +1044,9 @@ admin_roles_remove_not_owner: "Only the owner of the guild can remove administra
 # /util rolelimit
 util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | The provided options are invalid. Please check your input."
 util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Role: ${role.toString()} | Max Members: ${limit_count}\n- New users won't be able to receive this role if ${limit_count} members already have it."
+
+# /util inviteinfo
+util_inviteinfo_not_valid_invite: "This `discord_invite` is not valid!"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

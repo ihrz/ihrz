@@ -72,6 +72,13 @@ var_banned_user: "Usuario(s) Baneado(s)"
 var_no_one_banned: "Nadie está baneado en este servidor."
 var_category: "Categoría"
 var_total: "Total"
+var_online_members: "Miembro(s) en línea"
+var_boost_level: "Nivel de impulso"
+var_features: "Funciones"
+var_guild_icon: "Ícono del servidor"
+var_guild_banner: "Banner del servidor"
+var_guild_splash: "Pantalla de bienvenida del servidor"
+var_unknown_guild_name: "Nombre de servidor desconocido"
 
 # Nombres de Permisos de Discord
 perm_createinstantinvite_name: "Crear invitación instantánea"
@@ -1035,6 +1042,9 @@ admin_roles_remove_not_owner: "¡No eres el propietario del servidor!"
 # /util rolelimit
 util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | Las opciones proporcionadas no son válidas. Por favor, verifica tu entrada."
 util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Rol: ${role.toString()} | Miembros máximos: ${limit_count}\n- Los nuevos usuarios no podrán recibir este rol si ya lo tienen ${limit_count} miembros."
+
+# /util inviteinfo
+util_inviteinfo_not_valid_invite: "Esta invitación `discord_invite` no es válida!"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

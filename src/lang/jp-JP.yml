@@ -72,6 +72,13 @@ var_banned_user: "BANされたユーザー"
 var_no_one_banned: "このサーバーでBANされているユーザーはいません。"
 var_category: "カテゴリー"
 var_total: "合計"
+var_online_members: "オンラインメンバー"
+var_boost_level: "ブーストレベル"
+var_features: "機能"
+var_guild_icon: "サーバーアイコン"
+var_guild_banner: "サーバーバナー"
+var_guild_splash: "サーバースプラッシュ"
+var_unknown_guild_name: "不明なサーバー名"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
@@ -1035,6 +1042,9 @@ admin_roles_remove_not_owner: "あなたはサーバーオーナーではあり�
 # /util rolelimit
 util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | 指定されたオプションが無効です。入力内容をご確認ください。"
 util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | ロール: ${role.toString()} | 最大メンバー数: ${limit_count}\n- すでに${limit_count}人がこのロールを持っている場合、新しいユーザーには付与できません。"
+
+# /util inviteinfo
+util_inviteinfo_not_valid_invite: "この `discord_invite` は無効です！"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -2262,8 +2272,8 @@ batch_unbanall_process: "🔄 ${banned_members.size}人のメンバーのBAN解�
 batch_massiverole_process: "🔄 ${membersToProcess.length}人のメンバーにロールを付与中..."
 batch_unmassiverole_process: "🔄 ${membersToProcess.length}人のメンバーからロールを削除中..."
 batch_undo_unban: "🔄 ${unbanned_members.length}人のメンバーを再BAN解除中..."
-batch_derank_process: "🔄 ${rolesToRemove.length}人のロールを${member.user.username}から削除中...
-"
+batch_derank_process: "🔄 ${rolesToRemove.length}人のロールを${member.user.username}から削除中..."
+
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント
 confession_module_modal_title: "告白を送る"

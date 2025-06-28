@@ -72,6 +72,13 @@ var_banned_user: "Gesperrter Benutzer"
 var_no_one_banned: "Niemand ist in diesem Server gesperrt."
 var_category: "Kategorie"
 var_total: "Gesamt"
+var_online_members: "Online-Mitglied(er)"
+var_boost_level: "Boost-Stufe"
+var_features: "Funktionen"
+var_guild_icon: "Server-Icon"
+var_guild_banner: "Server-Banner"
+var_guild_splash: "Server-Splash"
+var_unknown_guild_name: "Unbekannter Servername"
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"
@@ -1035,6 +1042,9 @@ admin_roles_remove_not_owner: "Du bist nicht der Server‑Besitzer!"
 # /util rolelimit
 util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | Die angegebenen Optionen sind ungültig. Bitte überprüfe deine Eingabe."
 util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Rolle: ${role.toString()} | Maximale Mitgliederanzahl: ${limit_count}\n- Neue Benutzer können diese Rolle nicht erhalten, wenn bereits ${limit_count} Mitglieder sie haben."
+
+# /util inviteinfo
+util_inviteinfo_not_valid_invite: "Diese Einladung `discord_invite` ist ungültig!"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

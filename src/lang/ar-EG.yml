@@ -72,6 +72,13 @@ var_banned_user: "المستخدم/المستخدمون المحظورون"
 var_no_one_banned: "لا يوجد أي مستخدم محظور في هذا الخادم."
 var_category: "الفئة"
 var_total: "المجموع"
+var_online_members: "عضو/أعضاء متصل"
+var_boost_level: "مستوى التعزيز"
+var_features: "الميزات"
+var_guild_icon: "أيقونة الخادم"
+var_guild_banner: "راية الخادم"
+var_guild_splash: "صورة البداية للخادم"
+var_unknown_guild_name: "اسم خادم غير معروف"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "إنشاء دعوة فورية"
@@ -1036,6 +1043,9 @@ admin_roles_remove_not_owner: "أنت لست مالك الخادم!"
 # /util rolelimit
 util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | الخيارات المقدمة غير صالحة. يرجى التحقق من الإدخال."
 util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | الدور: ${role.toString()} | الحد الأقصى للأعضاء: ${limit_count}\n- لن يتمكن المستخدمون الجدد من الحصول على هذا الدور إذا كان ${limit_count} عضوًا يمتلكونه بالفعل."
+
+# /util inviteinfo
+util_inviteinfo_not_valid_invite: "رابط الدعوة `discord_invite` غير صالح!"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
