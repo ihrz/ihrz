@@ -35,7 +35,9 @@ export async function user(interaction: Message, args: string[], argsNumber: num
 	if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
 		return interaction.mentions.parsedUsers
 			.map(x => x)
-			.filter(x => x.id !== interaction.client.user?.id!)[argsNumber] || null;
+			.filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
+			|| interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber])
+			|| null;
 	}
 
 	const userId = args[argsNumber]?.replace(/[<@!>]/g, '');
@@ -44,14 +46,16 @@ export async function user(interaction: Message, args: string[], argsNumber: num
 }
 
 export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | null {
+	// For prefix with the bot mention, need to slice one from the start to avoid to use the bot mention as the targeted user
 	if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
 		return interaction.mentions.members?.map(x => x)
-			.filter(x => x.id !== interaction.client.user?.id!)?.[argsNumber] || null;
+			.filter(x => x.id !== interaction.client.user?.id!)?.[argsNumber] || interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber]) || null;;
 	}
 
 	const memberId = args[argsNumber]?.replace(/[<@!>]/g, '');
 	return interaction.mentions.members?.map(x => x)[argsNumber] ||
-		(memberId ? interaction.guild?.members.cache.get(memberId) : null) || null;
+		(memberId ? interaction.guild?.members.cache.get(memberId) : null) || interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber])
+		|| null;
 }
 
 export async function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null> {
@@ -86,6 +90,11 @@ export async function voiceChannel(interaction: Message, args: string[], argsNum
 }
 
 export async function channel(interaction: Message, args: string[], argsNumber: number): Promise<Channel | null> {
+	// First of all, if the args is the channel name
+	const channelFromName = interaction.guild?.channels.cache.find(x => x.name === args[argsNumber]);
+	if (channelFromName) {
+		return channelFromName;
+	}
 	// Get potential channel ID from argument, strip any channel mention formatting
 	const channelId = args[argsNumber]?.replace(/[<#>]/g, '');
 
@@ -109,9 +118,9 @@ export async function channel(interaction: Message, args: string[], argsNumber: 
 }
 
 export function role(interaction: Message, args: string[], argsNumber: number): Role | null {
-	const roleId = args[argsNumber]?.replace(/[<@&>]/g, '');
+	const roleEntry = args[argsNumber]?.replace(/[<@&>]/g, '');
 	return interaction.mentions.roles.map(x => x)[argsNumber] ||
-		(roleId ? interaction.guild?.roles.cache.get(roleId) : null) || null;
+		(roleEntry ? interaction.guild?.roles.cache.get(roleEntry) : null) || interaction.guild?.roles.cache.find(x => x.name === roleEntry) || null;
 }
 
 export function string(args: string[], argsNumber: number): string | null {
@@ -325,7 +334,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 		} else if (i >= args.length && expectedArgs[i].required) {
 			await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
 			return false;
-		} else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.attachments)) {
+		} else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.guild!, message.attachments)) {
 			await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
 			return false;
 		}
@@ -334,7 +343,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 	return true;
 }
 
-function isValidArgument(arg: string, type: string, atc: Collection<string, Attachment>): boolean {
+function isValidArgument(arg: string, type: string, guild: Guild, atc: Collection<string, Attachment>): boolean {
 	if (type.includes("/")) {
 		return type.split("/").includes(arg);
 	}
@@ -343,13 +352,13 @@ function isValidArgument(arg: string, type: string, atc: Collection<string, Atta
 		case "string":
 			return typeof arg === 'string';
 		case "user":
-			return /^<@!?(\d+)>$/.test(arg) || !isNaN(Number(arg))
+			return /^<@!?(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.members.cache.find(x => x.user.username === arg) !== undefined;
 		case "roles":
-			return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg));
+			return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.roles.cache.find(x => x.name === arg)?.id !== undefined;
 		case "number":
 			return !isNaN(Number(arg));
 		case "channel":
-			return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg));
+			return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.channels.cache.find(x => x.name === arg) !== undefined;
 		case "default":
 			return true;
 		default:

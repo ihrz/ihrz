@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 			const voiceChannel = (interaction.member as GuildMember).voice.channel;
 			const player = client.player.getPlayer(interaction.guildId as string);
 
-			if (!player || !player.playing || !voiceChannel) {
+			if (!player || player.queue.tracks.length === 0 || !voiceChannel) {
 				await client.func.method.interactionSend(interaction, { content: lang.stop_nothing_playing });
 				return;
 			};
