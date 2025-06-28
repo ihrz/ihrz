@@ -124,8 +124,36 @@ declare namespace Client_Functions {
 		export function getPermissionByValue(value: bigint | bigint[]): any;
 	}
 
+	// From batchProcessor.ts
+	export namespace batchProcessor {
+		export function processBatch(
+			items: T[],
+			processor: (item: T) => Promise<boolean>,
+			options: BatchProcessorOptions
+		): Promise<BatchProcessorResult>;
+		export function processBatchAsync(
+			items: T[],
+			processor: (item: T) => Promise<boolean>,
+			options: BatchProcessorOptions,
+			onComplete?: (result: BatchProcessorResult) => void
+		): void;
+	}
+
 	// From wait.ts
 	export function wait(milliseconds: number): Promise<void>;
+
+	// From html2png.ts
+	export function html2png(
+		code: string,
+		options: {
+			width?: number;
+			height?: number;
+			scaleSize?: number;
+			elementSelector?: string;
+			omitBackground: boolean;
+			selectElement: boolean;
+		}
+	): Promise<Buffer>;
 
 	// From prefix.ts
 	export namespace prefix {
@@ -198,12 +226,6 @@ declare namespace Client_Functions {
 		): any;
 	}
 
-	// From leashModuleHelper.ts
-	export namespace leashModuleHelper {
-		export function isInVoiceChannel(member: GuildMember): any;
-		export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
-	}
-
 	// From method.ts
 	export namespace method {
 		export function isNumber(str: string): boolean;
@@ -273,6 +295,13 @@ declare namespace Client_Functions {
 		export function addCoins(member: GuildMember, coins: number): Promise<void>;
 		export function subCoins(member: GuildMember, coins: number): Promise<void>;
 		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
+		export function isValidDiscordInvite(input: string): boolean;
+	}
+
+	// From leashModuleHelper.ts
+	export namespace leashModuleHelper {
+		export function isInVoiceChannel(member: GuildMember): any;
+		export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
 	}
 
 	// From displayBotName.ts
@@ -299,19 +328,6 @@ declare namespace Client_Functions {
 		export function coolDown(message: Message, method: string, ms: number): any;
 		export function hardCooldown(database: db, method: string, ms: number): any;
 	}
-
-	// From html2png.ts
-	export function html2png(
-		code: string,
-		options: {
-			width?: number;
-			height?: number;
-			scaleSize?: number;
-			elementSelector?: string;
-			omitBackground: boolean;
-			selectElement: boolean;
-		}
-	): Promise<Buffer>;
 
 	// From ihorizon_logs.ts
 	export function ihorizon_logs(
