@@ -72,6 +72,13 @@ var_banned_user: "Заблокированный пользователь(и)"
 var_no_one_banned: "В этом сервере никто не заблокирован."
 var_category: "Категория"
 var_total: "Всего"
+var_online_members: "Онлайн участник(и)"
+var_boost_level: "Уровень буста"
+var_features: "Функции"
+var_guild_icon: "Иконка сервера"
+var_guild_banner: "Баннер сервера"
+var_guild_splash: "Заставка сервера"
+var_unknown_guild_name: "Неизвестное имя сервера"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"
@@ -1035,6 +1042,9 @@ admin_roles_remove_not_owner: "Вы не владелец сервера!"
 # /util rolelimit
 util_rolelimit_bad_opt: "${client.iHorizon_Emojis.No} | Указанные параметры недействительны. Пожалуйста, проверьте введённые данные."
 util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Роль: ${role.toString()} | Максимум участников: ${limit_count}\n- Новые пользователи не смогут получить эту роль, если её уже имеют ${limit_count} участников."
+
+# /util inviteinfo
+util_inviteinfo_not_valid_invite: "Приглашение `discord_invite` недействительно!"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
