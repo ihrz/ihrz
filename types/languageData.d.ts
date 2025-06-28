@@ -90,6 +90,13 @@ export interface LanguageData {
 	var_no_one_banned: string;
 	var_category: string;
 	var_total: string;
+	var_online_members: string;
+	var_boost_level: string;
+	var_features: string;
+	var_guild_icon: string;
+	var_guild_banner: string;
+	var_guild_splash: string;
+	var_unknown_guild_name: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;
@@ -789,6 +796,7 @@ export interface LanguageData {
 	admin_roles_remove_not_owner: string;
 	util_rolelimit_bad_opt: string;
 	util_rolelimit_good: string;
+	util_inviteinfo_not_valid_invite: string;
 	blockpub_not_admin: string;
 	blockpub_now_enable: string;
 	blockpub_now_disable: string;

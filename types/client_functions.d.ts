@@ -189,12 +189,6 @@ declare namespace Client_Functions {
 		): any;
 	}
 
-	// From leashModuleHelper.ts
-	export namespace leashModuleHelper {
-		export function isInVoiceChannel(member: GuildMember): any;
-		export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
-	}
-
 	// From method.ts
 	export namespace method {
 		export function isNumber(str: string): boolean;
@@ -264,6 +258,13 @@ declare namespace Client_Functions {
 		export function addCoins(member: GuildMember, coins: number): Promise<void>;
 		export function subCoins(member: GuildMember, coins: number): Promise<void>;
 		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
+		export function isValidDiscordInvite(input: string): boolean;
+	}
+
+	// From leashModuleHelper.ts
+	export namespace leashModuleHelper {
+		export function isInVoiceChannel(member: GuildMember): any;
+		export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
 	}
 
 	// From displayBotName.ts
