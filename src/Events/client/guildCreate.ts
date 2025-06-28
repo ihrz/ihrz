@@ -123,6 +123,11 @@ export const event: BotEvent = {
 						.setLabel('iHorizon Website')
 						.setStyle(ButtonStyle.Link)
 						.setURL('https://ihorizon.org'),
+					new ButtonBuilder()
+						.setEmoji(client.iHorizon_Emojis.Search)
+						.setLabel('iHorizon Search')
+						.setStyle(ButtonStyle.Link)
+						.setURL('https://search.ihorizon.org')
 				)
 				;
 

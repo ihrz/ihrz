@@ -422,7 +422,8 @@ export const command: Command = {
 			const response = await client.func.method.interactionSend(interaction, {
 				embeds: [og_embed],
 				components: rows,
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)],
+				content: "> " + client.iHorizon_Emojis.Search + "  **https://search.ihorizon.org/**"
 			});
 
 			const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840000 });

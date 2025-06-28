@@ -107,7 +107,7 @@ export const subCommand: SubCommand = {
 				},
 				{
 					name: lang.var_features,
-					value: link_data.guild?.features.length ? link_data.guild.features.join(', ') : lang.var_none
+					value: link_data.guild?.features.length ? link_data.guild.features.join(', ').substring(0, 1020) : lang.var_none
 				}
 			);
 
