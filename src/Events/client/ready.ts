@@ -304,6 +304,7 @@ export const event: BotEvent = {
 			writeFileSync("commands.json", JSON.stringify(client.commands.map(x => {
 				return {
 					name: x.name,
+					prefix_name: x.prefixName,
 					name_translated: x.name_localizations,
 
 					description: x.description,
@@ -311,6 +312,9 @@ export const event: BotEvent = {
 
 					category: x.category,
 					options: removePermissionProperties(x.options),
+					aliases: x.aliases,
+					thinking: x.thinking,
+					ephemeral: x.ephemeral,
 				}
 			}), null, 4))
 		}
