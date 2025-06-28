@@ -345,7 +345,7 @@ function isValidArgument(arg: string, type: string, guild: Guild, atc: Collectio
 		case "user":
 			return /^<@!?(\d+)>$/.test(arg) || !isNaN(Number(arg))
 		case "roles":
-			return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.roles.cache.find(x => x.name === arg)?.id !== null;
+			return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.roles.cache.find(x => x.name === arg)?.id !== undefined;
 		case "number":
 			return !isNaN(Number(arg));
 		case "channel":
