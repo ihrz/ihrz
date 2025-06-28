@@ -109,9 +109,9 @@ export async function channel(interaction: Message, args: string[], argsNumber: 
 }
 
 export function role(interaction: Message, args: string[], argsNumber: number): Role | null {
-	const roleId = args[argsNumber]?.replace(/[<@&>]/g, '');
+	const roleEntry = args[argsNumber]?.replace(/[<@&>]/g, '');
 	return interaction.mentions.roles.map(x => x)[argsNumber] ||
-		(roleId ? interaction.guild?.roles.cache.get(roleId) : null) || null;
+		(roleEntry ? interaction.guild?.roles.cache.get(roleEntry) : null) || interaction.guild?.roles.cache.find(x => x.name === roleEntry) || null;
 }
 
 export function string(args: string[], argsNumber: number): string | null {
@@ -325,7 +325,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 		} else if (i >= args.length && expectedArgs[i].required) {
 			await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
 			return false;
-		} else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.attachments)) {
+		} else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.guild!, message.attachments)) {
 			await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
 			return false;
 		}
@@ -334,7 +334,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 	return true;
 }
 
-function isValidArgument(arg: string, type: string, atc: Collection<string, Attachment>): boolean {
+function isValidArgument(arg: string, type: string, guild: Guild, atc: Collection<string, Attachment>): boolean {
 	if (type.includes("/")) {
 		return type.split("/").includes(arg);
 	}
@@ -345,7 +345,7 @@ function isValidArgument(arg: string, type: string, atc: Collection<string, Atta
 		case "user":
 			return /^<@!?(\d+)>$/.test(arg) || !isNaN(Number(arg))
 		case "roles":
-			return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg));
+			return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.roles.cache.find(x => x.name === arg)?.id !== null;
 		case "number":
 			return !isNaN(Number(arg));
 		case "channel":
