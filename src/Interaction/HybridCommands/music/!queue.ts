@@ -20,8 +20,12 @@
 */
 
 import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
+	ComponentType,
 	EmbedBuilder,
 	GuildMember,
 	Message,
@@ -86,38 +90,70 @@ export const subCommand: SubCommand = {
 			index++;
 		};
 
-		const message = await client.func.method.interactionSend(interaction, { embeds: [embeds[0]] }) as Message;
+		let currentIndex = 0;
+
+		const createButtons = (currentIndex: number, totalPages: number) => {
+			const row = new ActionRowBuilder<ButtonBuilder>()
+				.addComponents(
+					new ButtonBuilder()
+						.setCustomId('queue_previous')
+						.setLabel('<<<')
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(currentIndex === 0),
+					new ButtonBuilder()
+						.setCustomId('queue_next')
+						.setLabel('>>>')
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(currentIndex === totalPages - 1),
+					new ButtonBuilder()
+						.setCustomId('queue_close')
+						.setEmoji('🗑️')
+						.setStyle(ButtonStyle.Danger)
+				);
+			return row;
+		};
+
+		const components = embeds.length > 1 ? [createButtons(currentIndex, embeds.length)] : [];
+		const message = await client.func.method.interactionSend(interaction, {
+			embeds: [embeds[0]],
+			components
+		}) as Message;
 
 		if (embeds.length === 1) return;
 
-		message.react('⬅️');
-		message.react('➡️');
-
-		const collector = message.createReactionCollector({
-			filter: (reaction, user) => ['⬅️', '➡️'].includes(reaction.emoji.name as string) && user.id === interaction.member?.user.id,
-			time: 60000
+		const collector = message.createMessageComponentCollector({
+			componentType: ComponentType.Button,
+			filter: (i) => i.user.id === interaction.member?.user.id,
+			time: 300000 // 5 minutes
 		});
 
-		let currentIndex = 0;
-		collector.on('collect', (reaction, user) => {
-			switch (reaction.emoji.name) {
-				case '⬅️':
-					if (currentIndex === 0) return;
-					currentIndex--;
+		collector.on('collect', async (i) => {
+			switch (i.customId) {
+				case 'queue_previous':
+					if (currentIndex > 0) {
+						currentIndex--;
+					}
 					break;
-				case '➡️':
-					if (currentIndex === embeds.length - 1) return;
-					currentIndex++;
+				case 'queue_next':
+					if (currentIndex < embeds.length - 1) {
+						currentIndex++;
+					}
 					break;
+				case 'queue_close':
+					collector.stop();
+					return;
 				default:
-					break;
+					return;
 			}
-			reaction.users.remove(user.id).catch(() => { });
-			message.edit({ embeds: [embeds[currentIndex]] });
+
+			await i.update({
+				embeds: [embeds[currentIndex]],
+				components: [createButtons(currentIndex, embeds.length)]
+			});
 		});
 
 		collector.on('end', () => {
-			message.reactions.removeAll().catch(() => { });
+			message.edit({ components: [] }).catch(() => { });
 		});
 	},
 };
