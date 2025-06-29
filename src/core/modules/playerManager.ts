@@ -92,16 +92,17 @@ export default async (client: Client) => {
 
 	});
 
-	client.player.on("queueEnd", async player => {
-		const data = await client.func.getLanguageData(player.guildId);
+	// ts spam the chat lol
+	// client.player.on("queueEnd", async player => {
+	// 	const data = await client.func.getLanguageData(player.guildId);
 
-		const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
+	// 	const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
 
-		(channel as BaseGuildTextChannel).send({
-			content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
-		});
-		return;
-	});
+	// 	(channel as BaseGuildTextChannel).send({
+	// 		content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
+	// 	});
+	// 	return;
+	// });
 
 	client.player.nodeManager.on("disconnect", (node, reason) => {
 		// logger.warn(`:: DISCONNECT :: ${node.id} Reason: ${reason.reason} (${reason.code})`);
