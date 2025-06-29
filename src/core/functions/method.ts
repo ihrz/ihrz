@@ -143,21 +143,25 @@ export function getArgumentOptionNameWithOptions(o: Option): string {
 	return o.name;
 };
 
-const getArgumentOptionType = (type: number): string => {
+type ArgumentType = "string" | "user" | "roles" | "number" | "channel" | "attachment" | "unknown";
+
+const getArgumentOptionType = (type: ApplicationCommandOptionType): ArgumentType => {
 	switch (type) {
-		case 3:
+		case ApplicationCommandOptionType.String:
 			return "string";
-		case 6:
+		case ApplicationCommandOptionType.User:
 			return "user";
-		case 8:
+		case ApplicationCommandOptionType.Role:
 			return "roles";
-		case 10:
-		case 4:
+		case ApplicationCommandOptionType.Number:
+		case ApplicationCommandOptionType.Integer:
 			return "number";
-		case 7:
+		case ApplicationCommandOptionType.Channel:
 			return "channel";
+		case ApplicationCommandOptionType.Attachment:
+			return "attachment"
 		default:
-			return "default";
+			return "unknown";
 	}
 };
 
@@ -343,7 +347,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 	return true;
 }
 
-function isValidArgument(arg: string, type: string, guild: Guild, atc: Collection<string, Attachment>): boolean {
+function isValidArgument(arg: string, type: string, guild: Guild, attachment: Collection<string, Attachment>): boolean {
 	if (type.includes("/")) {
 		return type.split("/").includes(arg);
 	}
@@ -359,8 +363,11 @@ function isValidArgument(arg: string, type: string, guild: Guild, atc: Collectio
 			return !isNaN(Number(arg));
 		case "channel":
 			return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.channels.cache.find(x => x.name === arg) !== undefined;
-		case "default":
+		case "unknown":
 			return true;
+		case "attachment":
+			console.log(attachment.values().toArray()[0])
+			return attachment.values().toArray()[0] ? true : false;
 		default:
 			return false;
 	}
@@ -377,7 +384,7 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
 	let errorPosition = "";
 
 	fullNameCommand = command.prefixName || command.name!;
-	currentCommand = command as any;
+	currentCommand = command;
 
 	errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
 
