@@ -113,7 +113,7 @@ export const subCommand: SubCommand = {
 				.addComponents(
 					new ButtonBuilder()
 						.setCustomId('prev_page')
-						.setLabel('<<')
+						.setLabel('<<<')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(currentPage === 0),
 					new ButtonBuilder()
@@ -126,7 +126,7 @@ export const subCommand: SubCommand = {
 						.setStyle(ButtonStyle.Danger),
 					new ButtonBuilder()
 						.setCustomId('next_page')
-						.setLabel('>>')
+						.setLabel('>>>')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(currentPage >= Math.floor(roleEntries.length / itemsPerPage)),
 				);

@@ -154,11 +154,11 @@ export const command: Command = {
 			const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 				new ButtonBuilder()
 					.setCustomId('previousPage')
-					.setLabel('<<')
+					.setLabel('<<<')
 					.setStyle(ButtonStyle.Secondary),
 				new ButtonBuilder()
 					.setCustomId('nextPage')
-					.setLabel('>>')
+					.setLabel('>>>')
 					.setStyle(ButtonStyle.Secondary)
 			);
 
