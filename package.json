@@ -36,7 +36,6 @@
 		"ping": "^0.4.4",
 		"puppeteer": "^24.11.1",
 		"sharp": "^0.34.2",
-		"stegano.db": "^3.5.0",
 		"typescript-eslint": "^8.35.0",
 		"write-file-atomic": "^6.0.0",
 		"ws": "^8.18.3"

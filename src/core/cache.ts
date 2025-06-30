@@ -19,9 +19,25 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { SteganoDB } from 'stegano.db';
 import path from 'node:path';
+import fs from "node:fs";
 
-const uptime_path = path.join(process.cwd(), "src", "files", ".ihrz-cache")
+const cache_storage_path = path.join(process.cwd(), "src", "files", ".ihrz-cache");
+const format = { format: "2025-07" };
 
-export const CacheStorage = new SteganoDB({ driver: "json", filePath: uptime_path });
+export var cache_storage_data: any = {};
+export const cache_storage_update = () => {
+	fs.writeFileSync(cache_storage_path, JSON.stringify(cache_storage_data, null, 4));
+};
+
+// if not cache founded, let create them
+if (!fs.existsSync(cache_storage_path)) {
+	fs.writeFileSync(cache_storage_path, JSON.stringify(format, null, 4));
+} else {
+	cache_storage_data = JSON.parse(fs.readFileSync(cache_storage_path, 'utf-8'));
+
+	if (cache_storage_data?.["format"] !== "2025-07") {
+		cache_storage_data = format;
+	};
+	cache_storage_update()
+}

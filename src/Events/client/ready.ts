@@ -29,9 +29,9 @@ import logger from "../../core/logger.js";
 import { BotEvent } from '../../../types/event.js';
 import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
-import { CacheStorage } from '../../core/cache.js';
 import { recoverActiveSessions } from '../stats/onVoiceUpdate.js';
 import { getCacheStorage } from '../../core/core.js';
+import { cache_storage_update } from '../../core/cache.js';
 
 export const event: BotEvent = {
 	name: "ready",
@@ -210,7 +210,8 @@ export const event: BotEvent = {
 				channel_to_send?.send(sendingContent).catch(() => false);
 			}
 
-			CacheStorage.set('stored_data._cache.version', newV);
+			initData._cache.version = newV;
+			cache_storage_update();
 
 		}
 
