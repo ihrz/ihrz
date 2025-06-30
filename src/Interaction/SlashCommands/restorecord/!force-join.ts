@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
 		});
 
 		const members = Data.data.members || [];
-		const membersAlreadyHere = Data.data.members.filter(userId => {
+		const membersAlreadyHere = members.filter(userId => {
 			return interaction.guild.members.cache.has(userId)
 		});
 
@@ -112,7 +112,7 @@ export const subCommand: SubCommand = {
 					interaction.editReply({ embeds: [embed] });
 				};
 
-				const forceJoinMembers = Data.data.members.filter(userId => {
+				const forceJoinMembers = members.filter(userId => {
 					return !interaction.guild.members.cache.has(userId)
 				}).map(x => x);
 
