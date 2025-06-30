@@ -71,16 +71,18 @@ export const subCommand: SubCommand = {
 				player.stopPlaying();
 			}
 
-			(channel as BaseGuildTextChannel).send({
-				embeds: [
-					new EmbedBuilder()
-						.setColor(2829617)
-						.setDescription(lang.event_mp_playerSkip
-							.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
-							.replace("${track.title}", oldName as string)
-						)
-				]
-			});
+			if (interaction.channelId !== channel?.id) {
+				(channel as BaseGuildTextChannel).send({
+					embeds: [
+						new EmbedBuilder()
+							.setColor(2829617)
+							.setDescription(lang.event_mp_playerSkip
+								.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
+								.replace("${track.title}", oldName as string)
+							)
+					]
+				});
+			}
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.skip_command_work
