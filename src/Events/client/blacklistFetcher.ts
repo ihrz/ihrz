@@ -31,7 +31,7 @@ export const event: BotEvent = {
 			const table = client.db.table('BLACKLIST')
 
 			const data = await table.get(`${member.user.id}`);
-			if (data.blacklisted === true && !((member.guild.memberCount < 500 && client.version.env === 'production'))) {
+			if (data.blacklisted === true) {
 				member.send({ content: "You have been banned, because you are blacklisted from iHorizon. \nReason: \`" + data.reason + '\`' })
 					.catch(() => { })
 					.then(() => { });
