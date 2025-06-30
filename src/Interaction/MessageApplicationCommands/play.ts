@@ -87,17 +87,18 @@ export const command: AnotherCommand = {
 			await player.queue.add(res.tracks[0]);
 
 			const channel = interaction.guild?.channels.cache.get(player.textChannelId!);
-
-			(channel as BaseGuildTextChannel)?.send({
-				embeds: [
-					new EmbedBuilder()
-						.setColor(2829617)
-						.setDescription(lang.event_mp_audioTrackAdd
-							.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
-							.replace("${track.title}", res.tracks[0].info.title as string)
-						)
-				]
-			});
+			if (channel?.id !== interaction.channelId) {
+				(channel as BaseGuildTextChannel)?.send({
+					embeds: [
+						new EmbedBuilder()
+							.setColor(2829617)
+							.setDescription(lang.event_mp_audioTrackAdd
+								.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
+								.replace("${track.title}", res.tracks[0].info.title as string)
+							)
+					]
+				});
+			}
 		}
 
 		if (!player.connected) {
@@ -135,7 +136,7 @@ export const command: AnotherCommand = {
 		});
 
 		function deleteContent() {
-			interaction.editReply({ content: null });
+			interaction.editReply({ content: null, allowedMentions: { repliedUser: false } });
 		};
 
 		await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,

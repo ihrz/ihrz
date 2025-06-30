@@ -154,17 +154,18 @@ export const subCommand: SubCommand = {
 		}
 
 		const channel = interaction.guild.channels.cache.get(player.textChannelId as string);
-
-		(channel as BaseGuildTextChannel).send({
-			embeds: [
-				new EmbedBuilder()
-					.setColor(2829617)
-					.setDescription(lang.event_mp_audioTrackAdd
-						.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
-						.replace("${track.title}", res.tracks[0].info.title as string)
-					)
-			]
-		});
+		if (channel?.id !== interaction.channelId) {
+			(channel as BaseGuildTextChannel).send({
+				embeds: [
+					new EmbedBuilder()
+						.setColor(2829617)
+						.setDescription(lang.event_mp_audioTrackAdd
+							.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
+							.replace("${track.title}", res.tracks[0].info.title as string)
+						)
+				]
+			});
+		}
 
 		const yes = res.tracks[0];
 
@@ -192,7 +193,7 @@ export const subCommand: SubCommand = {
 		});
 
 		function deleteContent() {
-			i.edit({ content: null });
+			i.edit({ content: null, allowedMentions: { repliedUser: false } });
 		}
 
 		await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,

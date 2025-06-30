@@ -23,6 +23,7 @@ import { BotEvent } from '../../../types/event.js';
 import { Client } from 'discord.js';
 
 export const event: BotEvent = {
+	// @ts-ignore
 	name: "raw",
 	run: async (client: Client, data: any) => {
 

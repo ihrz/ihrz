@@ -154,11 +154,11 @@ export const command: Command = {
 			const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 				new ButtonBuilder()
 					.setCustomId('previousPage')
-					.setLabel('<<')
+					.setLabel('<<<')
 					.setStyle(ButtonStyle.Secondary),
 				new ButtonBuilder()
 					.setCustomId('nextPage')
-					.setLabel('>>')
+					.setLabel('>>>')
 					.setStyle(ButtonStyle.Secondary)
 			);
 
@@ -252,7 +252,7 @@ export const command: Command = {
 
 					const batchPromises = batch.map(async (guildId) => {
 						const guild = client.guilds.cache.find(g => g.id === guildId);
-						if (guild && guild.memberCount < 500) {
+						if (guild) {
 							try {
 								await guild.members.ban(member?.user.id!, { reason });
 								return true;
@@ -326,7 +326,7 @@ export const command: Command = {
 
 					const batchPromises = batch.map(async (guildId) => {
 						const guild = client.guilds.cache.find(g => g.id === guildId);
-						if (guild && guild.memberCount < 500) {
+						if (guild) {
 							try {
 								await guild.members.ban(user?.id!, { reason });
 								return true;

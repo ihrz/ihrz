@@ -46,7 +46,7 @@ function createNavigationRow(currentPage: number, totalPages: number): ActionRow
 		.addComponents(
 			new ButtonBuilder()
 				.setCustomId('first')
-				.setLabel('<<')
+				.setLabel('<<<')
 				.setStyle(ButtonStyle.Primary)
 				.setDisabled(currentPage === 0),
 			new ButtonBuilder()
@@ -66,7 +66,7 @@ function createNavigationRow(currentPage: number, totalPages: number): ActionRow
 				.setDisabled(currentPage === totalPages - 1),
 			new ButtonBuilder()
 				.setCustomId('last')
-				.setLabel('>>')
+				.setLabel('>>>')
 				.setStyle(ButtonStyle.Primary)
 				.setDisabled(currentPage === totalPages - 1)
 		);

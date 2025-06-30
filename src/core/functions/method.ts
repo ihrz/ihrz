@@ -143,21 +143,25 @@ export function getArgumentOptionNameWithOptions(o: Option): string {
 	return o.name;
 };
 
-const getArgumentOptionType = (type: number): string => {
+type ArgumentType = "string" | "user" | "roles" | "number" | "channel" | "attachment" | "unknown";
+
+const getArgumentOptionType = (type: ApplicationCommandOptionType): ArgumentType => {
 	switch (type) {
-		case 3:
+		case ApplicationCommandOptionType.String:
 			return "string";
-		case 6:
+		case ApplicationCommandOptionType.User:
 			return "user";
-		case 8:
+		case ApplicationCommandOptionType.Role:
 			return "roles";
-		case 10:
-		case 4:
+		case ApplicationCommandOptionType.Number:
+		case ApplicationCommandOptionType.Integer:
 			return "number";
-		case 7:
+		case ApplicationCommandOptionType.Channel:
 			return "channel";
+		case ApplicationCommandOptionType.Attachment:
+			return "attachment"
 		default:
-			return "default";
+			return "unknown";
 	}
 };
 
@@ -301,16 +305,25 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 	}
 
 	const expectedArgs: ArgumentBrief[] = [];
+	const attachmentArgs: ArgumentBrief[] = [];
 
 	command.options?.forEach(option => {
-		expectedArgs.push({
+		const argType = getArgumentOptionTypeWithOptions(option);
+		const argBrief = {
 			name: option.name,
-			type: getArgumentOptionTypeWithOptions(option),
+			type: argType,
 			required: option.required || false,
 			longString: option.type === 3 && !option.choices
-		});
+		};
+		
+		if (argType === "attachment") {
+			attachmentArgs.push(argBrief);
+		} else {
+			expectedArgs.push(argBrief);
+		}
 	});
 
+	// Only count non-attachment arguments for minimum args validation
 	const minArgsCount = expectedArgs.filter(arg => arg.required).length;
 	const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
 
@@ -328,14 +341,25 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 		}
 	}
 
+	// Validate text-based arguments
 	for (let i = 0; i < expectedArgs.length; i++) {
 		if (i >= args.length && !expectedArgs[i].required) {
 			continue;
 		} else if (i >= args.length && expectedArgs[i].required) {
-			await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
+			await sendErrorMessage(lang, message, cleanBotPrefix, command, [...expectedArgs, ...attachmentArgs], i);
 			return false;
-		} else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.guild!, message.attachments)) {
-			await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
+		} else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.guild!)) {
+			await sendErrorMessage(lang, message, cleanBotPrefix, command, [...expectedArgs, ...attachmentArgs], i);
+			return false;
+		}
+	}
+
+	// Validate attachment arguments separately
+	for (const attachmentArg of attachmentArgs) {
+		if (attachmentArg.required && (!message.attachments || message.attachments.size === 0)) {
+			// Find the index of this attachment argument in the original command options
+			const originalIndex = command.options?.findIndex(opt => opt.name === attachmentArg.name) ?? -1;
+			await sendErrorMessage(lang, message, cleanBotPrefix, command, [...expectedArgs, ...attachmentArgs], originalIndex);
 			return false;
 		}
 	}
@@ -343,7 +367,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 	return true;
 }
 
-function isValidArgument(arg: string, type: string, guild: Guild, atc: Collection<string, Attachment>): boolean {
+function isValidArgument(arg: string, type: string, guild: Guild): boolean {
 	if (type.includes("/")) {
 		return type.split("/").includes(arg);
 	}
@@ -359,7 +383,7 @@ function isValidArgument(arg: string, type: string, guild: Guild, atc: Collectio
 			return !isNaN(Number(arg));
 		case "channel":
 			return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.channels.cache.find(x => x.name === arg) !== undefined;
-		case "default":
+		case "unknown":
 			return true;
 		default:
 			return false;
@@ -377,7 +401,7 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
 	let errorPosition = "";
 
 	fullNameCommand = command.prefixName || command.name!;
-	currentCommand = command as any;
+	currentCommand = command;
 
 	errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
 
