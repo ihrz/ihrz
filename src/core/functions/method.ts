@@ -35,9 +35,7 @@ export async function user(interaction: Message, args: string[], argsNumber: num
 	if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
 		return interaction.mentions.parsedUsers
 			.map(x => x)
-			.filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
-			|| interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber])
-			|| null;
+			.filter(x => x.id !== interaction.client.user?.id!)[argsNumber] || null;
 	}
 
 	const userId = args[argsNumber]?.replace(/[<@!>]/g, '');
@@ -46,16 +44,14 @@ export async function user(interaction: Message, args: string[], argsNumber: num
 }
 
 export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | null {
-	// For prefix with the bot mention, need to slice one from the start to avoid to use the bot mention as the targeted user
 	if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
 		return interaction.mentions.members?.map(x => x)
-			.filter(x => x.id !== interaction.client.user?.id!)?.[argsNumber] || interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber]) || null;;
+			.filter(x => x.id !== interaction.client.user?.id!)?.[argsNumber] || null;
 	}
 
 	const memberId = args[argsNumber]?.replace(/[<@!>]/g, '');
 	return interaction.mentions.members?.map(x => x)[argsNumber] ||
-		(memberId ? interaction.guild?.members.cache.get(memberId) : null) || interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber])
-		|| null;
+		(memberId ? interaction.guild?.members.cache.get(memberId) : null) || null;
 }
 
 export async function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null> {
@@ -90,11 +86,6 @@ export async function voiceChannel(interaction: Message, args: string[], argsNum
 }
 
 export async function channel(interaction: Message, args: string[], argsNumber: number): Promise<Channel | null> {
-	// First of all, if the args is the channel name
-	const channelFromName = interaction.guild?.channels.cache.find(x => x.name === args[argsNumber]);
-	if (channelFromName) {
-		return channelFromName;
-	}
 	// Get potential channel ID from argument, strip any channel mention formatting
 	const channelId = args[argsNumber]?.replace(/[<#>]/g, '');
 
@@ -118,9 +109,9 @@ export async function channel(interaction: Message, args: string[], argsNumber: 
 }
 
 export function role(interaction: Message, args: string[], argsNumber: number): Role | null {
-	const roleEntry = args[argsNumber]?.replace(/[<@&>]/g, '');
+	const roleId = args[argsNumber]?.replace(/[<@&>]/g, '');
 	return interaction.mentions.roles.map(x => x)[argsNumber] ||
-		(roleEntry ? interaction.guild?.roles.cache.get(roleEntry) : null) || interaction.guild?.roles.cache.find(x => x.name === roleEntry) || null;
+		(roleId ? interaction.guild?.roles.cache.get(roleId) : null) || null;
 }
 
 export function string(args: string[], argsNumber: number): string | null {
@@ -143,25 +134,21 @@ export function getArgumentOptionNameWithOptions(o: Option): string {
 	return o.name;
 };
 
-type ArgumentType = "string" | "user" | "roles" | "number" | "channel" | "attachment" | "unknown";
-
-const getArgumentOptionType = (type: ApplicationCommandOptionType): ArgumentType => {
+const getArgumentOptionType = (type: number): string => {
 	switch (type) {
-		case ApplicationCommandOptionType.String:
+		case 3:
 			return "string";
-		case ApplicationCommandOptionType.User:
+		case 6:
 			return "user";
-		case ApplicationCommandOptionType.Role:
+		case 8:
 			return "roles";
-		case ApplicationCommandOptionType.Number:
-		case ApplicationCommandOptionType.Integer:
+		case 10:
+		case 4:
 			return "number";
-		case ApplicationCommandOptionType.Channel:
+		case 7:
 			return "channel";
-		case ApplicationCommandOptionType.Attachment:
-			return "attachment"
 		default:
-			return "unknown";
+			return "default";
 	}
 };
 
@@ -305,25 +292,16 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 	}
 
 	const expectedArgs: ArgumentBrief[] = [];
-	const attachmentArgs: ArgumentBrief[] = [];
 
 	command.options?.forEach(option => {
-		const argType = getArgumentOptionTypeWithOptions(option);
-		const argBrief = {
+		expectedArgs.push({
 			name: option.name,
-			type: argType,
+			type: getArgumentOptionTypeWithOptions(option),
 			required: option.required || false,
 			longString: option.type === 3 && !option.choices
-		};
-		
-		if (argType === "attachment") {
-			attachmentArgs.push(argBrief);
-		} else {
-			expectedArgs.push(argBrief);
-		}
+		});
 	});
 
-	// Only count non-attachment arguments for minimum args validation
 	const minArgsCount = expectedArgs.filter(arg => arg.required).length;
 	const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
 
@@ -341,25 +319,14 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 		}
 	}
 
-	// Validate text-based arguments
 	for (let i = 0; i < expectedArgs.length; i++) {
 		if (i >= args.length && !expectedArgs[i].required) {
 			continue;
 		} else if (i >= args.length && expectedArgs[i].required) {
-			await sendErrorMessage(lang, message, cleanBotPrefix, command, [...expectedArgs, ...attachmentArgs], i);
+			await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
 			return false;
-		} else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.guild!)) {
-			await sendErrorMessage(lang, message, cleanBotPrefix, command, [...expectedArgs, ...attachmentArgs], i);
-			return false;
-		}
-	}
-
-	// Validate attachment arguments separately
-	for (const attachmentArg of attachmentArgs) {
-		if (attachmentArg.required && (!message.attachments || message.attachments.size === 0)) {
-			// Find the index of this attachment argument in the original command options
-			const originalIndex = command.options?.findIndex(opt => opt.name === attachmentArg.name) ?? -1;
-			await sendErrorMessage(lang, message, cleanBotPrefix, command, [...expectedArgs, ...attachmentArgs], originalIndex);
+		} else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.attachments)) {
+			await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, i);
 			return false;
 		}
 	}
@@ -367,7 +334,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 	return true;
 }
 
-function isValidArgument(arg: string, type: string, guild: Guild): boolean {
+function isValidArgument(arg: string, type: string, atc: Collection<string, Attachment>): boolean {
 	if (type.includes("/")) {
 		return type.split("/").includes(arg);
 	}
@@ -376,14 +343,14 @@ function isValidArgument(arg: string, type: string, guild: Guild): boolean {
 		case "string":
 			return typeof arg === 'string';
 		case "user":
-			return /^<@!?(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.members.cache.find(x => x.user.username === arg) !== undefined;
+			return /^<@!?(\d+)>$/.test(arg) || !isNaN(Number(arg))
 		case "roles":
-			return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.roles.cache.find(x => x.name === arg)?.id !== undefined;
+			return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg));
 		case "number":
 			return !isNaN(Number(arg));
 		case "channel":
-			return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.channels.cache.find(x => x.name === arg) !== undefined;
-		case "unknown":
+			return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg));
+		case "default":
 			return true;
 		default:
 			return false;
@@ -401,7 +368,7 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
 	let errorPosition = "";
 
 	fullNameCommand = command.prefixName || command.name!;
-	currentCommand = command;
+	currentCommand = command as any;
 
 	errorPosition += " ".padStart(botPrefix.length + fullNameCommand.length);
 

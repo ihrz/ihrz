@@ -23,9 +23,7 @@ export default function maskLink(input: string): string {
 	const blacklistContent = [
 		"http://",
 		"https://",
-		"discordapp",
-		".com",
-		".gg"
+		".gg/",
 	];
 
 	for (const content of blacklistContent) {

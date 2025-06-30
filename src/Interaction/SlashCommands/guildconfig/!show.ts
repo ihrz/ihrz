@@ -220,12 +220,12 @@ export const subCommand: SubCommand = {
 			const actionRow = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents(
 					new ButtonBuilder()
-						.setLabel('<<<')
+						.setLabel('<<')
 						.setCustomId('guildconf_before')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(currentPage === 0),
 					new ButtonBuilder()
-						.setLabel('>>>')
+						.setLabel('>>')
 						.setCustomId('guildconf_after')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(currentPage === pages.length - 1)

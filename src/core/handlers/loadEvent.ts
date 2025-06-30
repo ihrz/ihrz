@@ -21,7 +21,7 @@
 
 import { join as pathJoin } from 'node:path';
 import { opendir } from 'fs/promises';
-import { Client, ClientEvents } from 'discord.js';
+import { Client } from 'discord.js';
 
 import logger from '../logger.js';
 
@@ -81,9 +81,9 @@ async function loadEvents(client: Client, pathDir = p): Promise<void> {
 		try {
 			const imported = await import(filePath);
 			if (!imported?.event) return;
-			client.on((imported.event as BotEvent).name as keyof ClientEvents, (imported.event as BotEvent).run.bind(null, client) as (...args: any[]) => Promise<any>);
+			client.on((imported.event as BotEvent).name, (imported.event as BotEvent).run.bind(null, client));
 		} catch (error) {
-			logger.err(`Error loading event from ${filePath}`);
+			logger.err(`Error loading event from file: ${filePath}`);
 			throw error;
 		}
 	}));

@@ -98,12 +98,12 @@ export const subCommand: SubCommand = {
 				.addComponents(
 					new ButtonBuilder()
 						.setCustomId('previous')
-						.setLabel('<<<')
+						.setLabel('<<')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(page === 0),
 					new ButtonBuilder()
 						.setCustomId('next')
-						.setLabel('>>>')
+						.setLabel('>>')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(page === totalPages - 1)
 				);

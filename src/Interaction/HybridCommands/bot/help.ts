@@ -46,7 +46,7 @@ function createNavigationRow(currentPage: number, totalPages: number): ActionRow
 		.addComponents(
 			new ButtonBuilder()
 				.setCustomId('first')
-				.setLabel('<<<')
+				.setLabel('<<')
 				.setStyle(ButtonStyle.Primary)
 				.setDisabled(currentPage === 0),
 			new ButtonBuilder()
@@ -66,7 +66,7 @@ function createNavigationRow(currentPage: number, totalPages: number): ActionRow
 				.setDisabled(currentPage === totalPages - 1),
 			new ButtonBuilder()
 				.setCustomId('last')
-				.setLabel('>>>')
+				.setLabel('>>')
 				.setStyle(ButtonStyle.Primary)
 				.setDisabled(currentPage === totalPages - 1)
 		);
@@ -422,8 +422,7 @@ export const command: Command = {
 			const response = await client.func.method.interactionSend(interaction, {
 				embeds: [og_embed],
 				components: rows,
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)],
-				content: "> " + client.iHorizon_Emojis.Search + "  **https://search.ihorizon.org/**"
+				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 			});
 
 			const collector = response.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 840000 });

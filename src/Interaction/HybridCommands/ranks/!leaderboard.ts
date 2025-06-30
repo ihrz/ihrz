@@ -156,7 +156,7 @@ export const subCommand: SubCommand = {
 				.addComponents(
 					new ButtonBuilder()
 						.setCustomId('first')
-						.setLabel('<<<')
+						.setLabel('<<')
 						.setStyle(ButtonStyle.Primary)
 						.setDisabled(currentPage === 0),
 					new ButtonBuilder()
@@ -176,7 +176,7 @@ export const subCommand: SubCommand = {
 						.setDisabled(currentPage === totalPages - 1),
 					new ButtonBuilder()
 						.setCustomId('last')
-						.setLabel('>>>')
+						.setLabel('>>')
 						.setStyle(ButtonStyle.Primary)
 						.setDisabled(currentPage === totalPages - 1)
 				);
@@ -228,7 +228,7 @@ export const subCommand: SubCommand = {
 						.addComponents(
 							new ButtonBuilder()
 								.setCustomId('first')
-								.setLabel('<<<')
+								.setLabel('<<')
 								.setStyle(ButtonStyle.Secondary)
 								.setDisabled(true),
 							new ButtonBuilder()
@@ -248,7 +248,7 @@ export const subCommand: SubCommand = {
 								.setDisabled(true),
 							new ButtonBuilder()
 								.setCustomId('last')
-								.setLabel('>>>')
+								.setLabel('>>')
 								.setStyle(ButtonStyle.Secondary)
 								.setDisabled(true)
 						)
