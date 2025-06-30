@@ -252,7 +252,7 @@ export const command: Command = {
 
 					const batchPromises = batch.map(async (guildId) => {
 						const guild = client.guilds.cache.find(g => g.id === guildId);
-						if (guild && guild.memberCount < 500) {
+						if (guild) {
 							try {
 								await guild.members.ban(member?.user.id!, { reason });
 								return true;
