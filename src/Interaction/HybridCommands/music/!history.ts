@@ -21,14 +21,14 @@
 
 import {
 	ActionRowBuilder,
+	AttachmentBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	Message,
-} from 'discord.js'
-
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 
@@ -37,41 +37,43 @@ import { SubCommand } from '../../../../types/command.js';
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const all_bots = Array.from(interaction.guild.members.cache
-			.filter(x => x.user.bot)
-			.values()
-		) || [];
+		const history = await client.db.get(`${interaction.guildId}.MUSIC_HISTORY`);
 
-		if (all_bots.length == 0) {
-			await client.func.method.interactionSend(interaction, { content: lang.all_admins_nobody_admins });
+		if (!history || !history.embed || history.embed.length == 0) {
+			await client.func.method.interactionSend(interaction, { content: lang.history_no_entries });
 			return;
 		};
 
+		const buffer = Buffer.from(history.buffer.map((content: string) => content).join('\n'), 'utf-8');
+		const attachment = new AttachmentBuilder(buffer, { name: 'music_history_by_ihorizon.txt' })
+
 		let currentPage = 0;
-		const usersPerPage = 5;
+		const usersPerPage = 10;
 		const pages: { title: string; description: string; }[] = [];
 
-		for (let i = 0; i < all_bots.length; i += usersPerPage) {
-			const pageUsers = all_bots.slice(i, i + usersPerPage);
-			const pageContent = pageUsers.map((userId) => userId).join('\n');
+		for (let i = 0; i < history.embed.length; i += usersPerPage) {
+			const pageUsers = history.embed.slice(i, i + usersPerPage);
+			const pageContent = pageUsers.map((userId: string) => userId).join('\n');
+
 			pages.push({
-				title: lang.all_bots_embed_title
-					.replace("${i / usersPerPage + 1}", String(i / usersPerPage + 1)),
+				title: lang.history_embed_title
+					.replace('${interaction.guild?.name}', interaction.guild.name)
+					.replace('${i / usersPerPage + 1}', (i / usersPerPage + 1).toString()),
 				description: pageContent,
 			});
 		};
 
 		const createEmbed = () => {
 			return new EmbedBuilder()
-				.setColor("#000000")
+				.setColor('#00cc1a')
+				.setTimestamp()
 				.setTitle(pages[currentPage].title)
 				.setDescription(pages[currentPage].description)
 				.setFooter({
-					text: lang.prevnames_embed_footer_text
+					text: lang.history_embed_footer_text
 						.replace('${currentPage + 1}', (currentPage + 1).toString())
 						.replace('${pages.length}', pages.length.toString()),
 					iconURL: "attachment://footer_icon.png"
@@ -79,7 +81,7 @@ export const subCommand: SubCommand = {
 				.setTimestamp()
 		};
 
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		const row = new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
 				.setCustomId('previousPage')
 				.setLabel('<<<')
@@ -92,36 +94,34 @@ export const subCommand: SubCommand = {
 
 		const messageEmbed = await client.func.method.interactionSend(interaction, {
 			embeds: [createEmbed()],
-			components: [row],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			components: [(row as ActionRowBuilder<ButtonBuilder>)],
+			files: [attachment, await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
 
 		const collector = messageEmbed.createMessageComponentCollector({
-			time: 60_000
+			filter: async (i) => {
+				await i.deferUpdate();
+				return interaction.member?.user.id === i.user.id;
+			}, time: 60000
 		});
 
-		collector.on('collect', async (interaction_2) => {
-			if (interaction_2.user.id !== interaction.member?.user.id) {
-				await interaction_2.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
-				return;
-			};
-
-			if (interaction_2.customId === 'previousPage') {
-
-				await interaction_2.deferUpdate();
+		collector.on('collect', (interaction: { customId: string; }) => {
+			if (interaction.customId === 'previousPage') {
 				currentPage = (currentPage - 1 + pages.length) % pages.length;
-
-			} else if (interaction_2.customId === 'nextPage') {
-
-				await interaction_2.deferUpdate();
+			} else if (interaction.customId === 'nextPage') {
 				currentPage = (currentPage + 1) % pages.length;
-			};
+			}
 
 			messageEmbed.edit({ embeds: [createEmbed()] });
 		});
 
-		collector.on('end', async () => {
-			await messageEmbed.edit({ components: [] });
+		collector.on('end', () => {
+			row.components.forEach((component) => {
+				if (component instanceof ButtonBuilder) {
+					component.setDisabled(true);
+				}
+			});
+			messageEmbed.edit({ components: [(row as ActionRowBuilder<ButtonBuilder>)] });
 		});
 
 		return;
