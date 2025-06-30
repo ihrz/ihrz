@@ -124,7 +124,7 @@ export const command: Command = {
 				.addComponents(
 					new ButtonBuilder()
 						.setCustomId('prev_page')
-						.setLabel('<<')
+						.setLabel('<<<')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(currentPage === 0),
 					new ButtonBuilder()
@@ -137,7 +137,7 @@ export const command: Command = {
 						.setStyle(ButtonStyle.Danger),
 					new ButtonBuilder()
 						.setCustomId('next_page')
-						.setLabel('>>')
+						.setLabel('>>>')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(currentPage >= Math.floor(valueEntries.length / itemsPerPage)),
 				);

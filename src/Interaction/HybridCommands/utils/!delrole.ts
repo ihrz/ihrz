@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
 			var author = interaction.member as GuildMember;
 		};
 
-		let allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`) as any;
+		const allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`) || [];
 
 		if (!allowed_roles?.includes(role?.id!) && allowed_roles!.length > 0) {
 			await client.func.method.interactionSend(interaction, {

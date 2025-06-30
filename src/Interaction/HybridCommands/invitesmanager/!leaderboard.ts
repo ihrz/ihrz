@@ -104,12 +104,12 @@ export const subCommand: SubCommand = {
 			components: canFitOnOnePage ? [] : [new ActionRowBuilder<ButtonBuilder>().addComponents(
 				new ButtonBuilder()
 					.setCustomId('previous')
-					.setLabel('<<')
+					.setLabel('<<<')
 					.setStyle(ButtonStyle.Secondary)
 					.setDisabled(true),
 				new ButtonBuilder()
 					.setCustomId('next')
-					.setLabel('>>')
+					.setLabel('>>>')
 					.setStyle(ButtonStyle.Secondary)
 					.setDisabled(arr.length <= itemsPerPage)
 			)],
@@ -136,12 +136,12 @@ export const subCommand: SubCommand = {
 				components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
 						.setCustomId('previous')
-						.setLabel('<<')
+						.setLabel('<<<')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(currentIndex === 0),
 					new ButtonBuilder()
 						.setCustomId('next')
-						.setLabel('>>')
+						.setLabel('>>>')
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(currentIndex + itemsPerPage >= arr.length)
 				)],
