@@ -220,7 +220,7 @@ export const command: Command = {
 				createdAt: new Date().getTime()
 			});
 
-			await member.ban({ reason }).then(async () => {
+			await member.ban({ reason, deleteMessageSeconds: client.timeCalculator.to_ms("30d") }).then(async () => {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.blacklist_command_work
 						.replace(/\${member\.user\.username}/g, String(member?.user.globalName || member?.user.username))
