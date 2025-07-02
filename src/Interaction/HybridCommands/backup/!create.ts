@@ -57,7 +57,8 @@ export const subCommand: SubCommand = {
 		// @ts-ignore
 		backup.create(interaction.guild, {
 			maxMessagesPerChannel: svMsg === "yes" ? 10 : 0,
-			jsonBeautify: true
+			jsonBeautify: true,
+			saveImages: true
 		}).then(async (backupData) => {
 
 			backupData.channels.categories.forEach(category => {

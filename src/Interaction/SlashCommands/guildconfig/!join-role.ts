@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
 
-		const all_channels = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG`) as DatabaseStructure.DbGuildObject['GUILD_CONFIG'];
+		let all_roles: DatabaseStructure.GuildConfigSchema["joinroles"] = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joinroles`) || [];
 
 		const embed = new EmbedBuilder()
 			.setTitle(lang.setjoinroles_help_embed_title)
@@ -57,8 +57,8 @@ export const subCommand: SubCommand = {
 			.setDescription(lang.setjoinroles_help_embed_description)
 			.addFields({
 				name: lang.setjoinroles_help_embed_fields_1_name,
-				value: Array.isArray(all_channels?.joinroles) && all_channels.joinroles.length > 0
-					? all_channels.joinroles.map(x => `<@&${x}>`).join(', ')
+				value: Array.isArray(all_roles) && all_roles.length > 0
+					? all_roles.map(x => `<@&${x}>`).join(', ')
 					: lang.setjoinroles_var_none
 			});
 
@@ -67,8 +67,8 @@ export const subCommand: SubCommand = {
 			.setMaxValues(8)
 			.setMinValues(0);
 
-		if (all_channels?.joinroles !== undefined && all_channels?.joinroles.length >= 1) {
-			const roles: string[] = Array.isArray(all_channels.joinroles) ? all_channels.joinroles : [all_channels.joinroles];
+		if (all_roles !== undefined && all_roles.length >= 1) {
+			const roles: string[] = Array.isArray(all_roles) ? all_roles : [all_roles];
 			roleSelectMenu.setDefaultRoles(roles);
 		}
 
@@ -89,7 +89,6 @@ export const subCommand: SubCommand = {
 		const tooHighterRoles = new Set<string>();
 
 		let selectedRoles: Role[] = [];
-		let all_roles: string[] = [];
 
 		const collector = og_response.createMessageComponentCollector({
 			componentType: ComponentType.RoleSelect,

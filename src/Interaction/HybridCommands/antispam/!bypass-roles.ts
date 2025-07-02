@@ -41,7 +41,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		const all_roles = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`) as AntiSpam.AntiSpamOptions['BYPASS_ROLES'];
+		let all_roles = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`) as AntiSpam.AntiSpamOptions['BYPASS_ROLES'];
 
 		const embed = new EmbedBuilder()
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6666ff")
@@ -90,15 +90,13 @@ export const subCommand: SubCommand = {
 			componentType: ComponentType.Button,
 		});
 
-		let allroles: string[] = [];
-
 		buttonCollector.on('collect', async i => {
 			if (i.user.id !== interaction.member?.user.id) {
 				await i.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
 				return;
 			};
 
-			await client.db.set(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`, allroles);
+			await client.db.set(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`, all_roles);
 
 			await i.deferUpdate();
 
@@ -121,12 +119,22 @@ export const subCommand: SubCommand = {
 				value: values.length === 0 ? lang.setjoinroles_var_none : values.map(x => `<@&${x}>`).join(',')
 			})
 
-			allroles = i.values;
+			all_roles = i.values;
 			await originalResponse.edit({ embeds: [embed] });
 		});
 
 		collector.on('end', async () => {
-			await originalResponse.edit({ components: [] });
+			await originalResponse.edit({
+				components: [
+					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select.setDisabled(true)),
+					new ActionRowBuilder<ButtonBuilder>().addComponents(new ButtonBuilder()
+						.setStyle(ButtonStyle.Success)
+						.setCustomId("antispam-manage-save-button")
+						.setEmoji(client.iHorizon_Emojis.Yes)
+						.setDisabled(true)
+					)
+				]
+			});
 		})
 	},
 };
