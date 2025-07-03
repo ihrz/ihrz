@@ -45,10 +45,10 @@ export const event: BotEvent = {
 			;
 
 		if (!dbGet || !dbGet.roles) {
-			if (await client.func.helper.coolDown(message, "ping_bot", 7000)) {
-				return;
-			};
-			return await client.func.method.interactionSend(message, { content: text });
+			if (!await client.func.helper.coolDown(message, "ping_bot", 7000) && message.member?.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
+				return await client.func.method.interactionSend(message, { content: text });
+			}
+			return;
 		}
 		const fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
 
