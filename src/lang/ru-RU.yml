@@ -632,6 +632,16 @@ love_command_error: "Произошла ошибка при создании и�
 fun_disable_command_msg: "${interaction.member?.user.toString()}, вы ${action_type} категорию развлечений!"
 fun_category_disable: "Вы не можете использовать эту команду, категория команд развлечений отключена."
 
+# /fun gay
+fun_gay_command_ok: "Пользователь ${user} на **${random}%** гей 🏳️‍🌈"
+
+# /fun stench
+fun_stench_command_ok: "Пользователь ${user} воняет на **${random}%** 👃🛀"
+
+# /fun rate
+fun_rate_command_ok: "Я оцениваю **${the_things}** на ${random}/10."
+
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 

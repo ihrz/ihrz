@@ -632,6 +632,15 @@ love_command_error: "حدث خطأ أثناء محاولة إنشاء الصور
 fun_disable_command_msg: "${interaction.member?.user.toString()}، انت ${action_type} فئة الترفيه!"
 fun_category_disable: "مش مسموحلك تستخدم الأمر ده، فئة الأوامر الترفيهية معطلة."
 
+# /fun gay
+fun_gay_command_ok: "المستخدم ${user} هو **${random}%** مثلي 🏳️‍🌈"
+
+# /fun stench
+fun_stench_command_ok: "المستخدم ${user} هو **${random}%** ذو رائحة كريهة 👃🛀"
+
+# /fun rate
+fun_rate_command_ok: "أنا أقيم **${the_things}** ${random}/10."
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
