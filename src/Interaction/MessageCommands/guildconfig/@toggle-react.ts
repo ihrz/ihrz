@@ -46,13 +46,9 @@ export const command: Command = {
 	permission: PermissionsBitField.Flags.ManageGuildExpressions,
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
 
-		const state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`) || true;
+		const state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`);
 
-		if (state) {
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, !state)
-		} else {
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, !state)
-		};
+		await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, !state);
 		const activeMsg = !state ? lang.toggle_react_react : lang.toggle_react_doesnt_react;
 
 		await interaction.reply({
