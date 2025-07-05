@@ -58,7 +58,7 @@ export const command: Command = {
 	thinking: false,
 	category: 'fun',
 	type: "PREFIX_IHORIZON_COMMAND",
-	permission: PermissionsBitField.Flags.ManageGuildExpressions,
+	permission: null,
 	run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
 		if (!interaction.guild) return;
 
