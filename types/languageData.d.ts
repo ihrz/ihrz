@@ -511,6 +511,9 @@ export interface LanguageData {
 	love_command_error: string;
 	fun_disable_command_msg: string;
 	fun_category_disable: string;
+	fun_gay_command_ok: string;
+	fun_stench_command_ok: string;
+	fun_rate_command_ok: string;
 	economy_cooldown_error: string;
 	addmoney_not_admin: string;
 	addmoney_logs_embed_title: string;

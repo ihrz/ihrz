@@ -20,7 +20,7 @@
 */
 
 import {
-	ChatInputCommandInteraction,
+	ApplicationCommandOptionType,
 	Client,
 	Message,
 	PermissionsBitField,
@@ -32,31 +32,46 @@ import { Command } from '../../../../types/command.js';
 
 export const command: Command = {
 
-	name: 'toggle-react',
-	aliases: ['react-toggle', 'togglereact', 'reacttoggle'],
+	name: 'stench',
 
-	description: 'Enable / Disable the reaction when user greets someone',
+	description: 'Show how much stench you are',
 	description_localizations: {
-		"fr": "Activer/Désactiver la réaction lorsque l'utilisateur salue quelqu'un"
+		"fr": "Affiche au combien tu pue"
 	},
 
+	aliases: ["odeur", "odeurs", "puanteurs", "puanteur", "arf", "pue"],
+
+	options: [
+		{
+			name: "user",
+
+			description: "the user",
+			description_localizations: {
+				"fr": "l'user"
+			},
+
+			type: ApplicationCommandOptionType.User,
+			required: false,
+			permission: null
+		}
+	],
 	thinking: false,
-	category: 'guildconfig',
+	category: 'fun',
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: PermissionsBitField.Flags.ManageGuildExpressions,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
+	run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
+		if (!interaction.guild) return;
 
-		const state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`);
+		// Nombre entre 0 et 100
+		const random = Math.floor(Math.random() * 100);
 
-		await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, !state);
-		const activeMsg = !state ? lang.toggle_react_react : lang.toggle_react_doesnt_react;
+		// Fetch user ou soit mêmea
+		const user = client.func.method.member(interaction, options!, 0) || interaction.member!;
 
 		await interaction.reply({
-			content: lang.toggle_react_command_work
-				.replace("{activeMsg}", activeMsg)
-				.replace("${interaction.member?.id}", interaction.member?.id!)
-			, allowedMentions: { repliedUser: false }
+			content: lang.fun_stench_command_ok
+				.replace('${user}', user.toString())
+				.replace('${random}', random.toString())
 		});
-		return;
 	},
 };

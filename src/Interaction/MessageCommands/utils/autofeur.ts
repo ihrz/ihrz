@@ -32,12 +32,12 @@ import { Command } from '../../../../types/command.js';
 
 export const command: Command = {
 
-	name: 'toggle-react',
-	aliases: ['react-toggle', 'togglereact', 'reacttoggle'],
+	name: 'autorespond',
+	aliases: ['auto-feur', 'auto-feur', "autofeur", "ftgl"],
 
-	description: 'Enable / Disable the reaction when user greets someone',
+	description: 'Enable / Disable the auto response when user says something (only in fr-ME lang)',
 	description_localizations: {
-		"fr": "Activer/Désactiver la réaction lorsque l'utilisateur salue quelqu'un"
+		"fr": "Activer/Désactiver la réponse automatique lorsque l'utilisateur dit quelque chose (uniquement en fr-ME)"
 	},
 
 	thinking: false,
@@ -46,15 +46,14 @@ export const command: Command = {
 	permission: PermissionsBitField.Flags.ManageGuildExpressions,
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
 
-		const state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`);
+		if (await client.db.get(`${interaction.guild?.id}.GUILD.LANG.lang`) !== "fr-ME") return;
+		const state = await client.db.get(`${interaction.guildId}.UTILS.autoFeur`);
 
-		await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, !state);
-		const activeMsg = !state ? lang.toggle_react_react : lang.toggle_react_doesnt_react;
+		await client.db.set(`${interaction.guildId}.UTILS.autoFeur`, !state);
 
+		const newState = !state;
 		await interaction.reply({
-			content: lang.toggle_react_command_work
-				.replace("{activeMsg}", activeMsg)
-				.replace("${interaction.member?.id}", interaction.member?.id!)
+			content: newState ? "Bravo mec, maintenant je réponds automatiquement à tout ce que tu dis." : "Je ne réponds plus automatiquement à tout ce que tu dis."
 			, allowedMentions: { repliedUser: false }
 		});
 		return;

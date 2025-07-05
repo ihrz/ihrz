@@ -632,6 +632,15 @@ love_command_error: "Ocorreu um erro ao tentar criar a imagem"
 fun_disable_command_msg: "${interaction.member?.user.toString()}, você ${action_type} a categoria de diversão!"
 fun_category_disable: "Você não pode usar este comando, a categoria de comandos de diversão está desativada."
 
+# /fun gay
+fun_gay_command_ok: "O utilizador ${user} é **${random}%** gay 🏳️‍🌈"
+
+# /fun stench
+fun_stench_command_ok: "O utilizador ${user} tem **${random}%** de mau cheiro 👃🛀"
+
+# /fun rate
+fun_rate_command_ok: "Eu avalio **${the_things}** com ${random}/10."
+
 # Comandos de economia
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
