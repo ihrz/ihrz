@@ -287,7 +287,17 @@ export class StreamNotifier {
 		const embed = new EmbedBuilder();
 		let desc = lang.notifier_generateAuthorsEmbed_embed_desc;
 		for (const author of authors) {
-			desc += `${author.platform} - [\`${await this.getChannelNameById(author.platform, author.id_or_username)}\`](https://youtube.com/channel/${author.id_or_username})\n`
+			let link;
+			switch (author.platform) {
+				case "youtube":
+					link = `https://youtube.com/channel/${author.id_or_username}`;
+					break;
+				case "twitch":
+					link = `https://twitch.tv/${author.id_or_username}`;
+					break;
+			};
+			let author_name = await this.getChannelNameById(author.platform, author.id_or_username);
+			desc += `${author.platform} - [\`${author_name}\`](${link})\n`;
 		}
 		embed.setTitle(lang.notifier_generateAuthorsEmbed_embed_title);
 		embed.setColor(2829617);
