@@ -214,7 +214,7 @@ export const event: BotEvent = {
 			return await interaction.reply({
 				embeds: [
 					new EmbedBuilder()
-						.setColor("#0827F5")
+						.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0827F5")
 						.setTitle(":(")
 						.setImage(client.config.core.blacklistPictureInEmbed)
 				],

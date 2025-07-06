@@ -46,8 +46,6 @@ export const subCommand: SubCommand = {
 			var amount = client.func.method.number(args!, 1);
 		};
 
-		const a = new EmbedBuilder().setColor("#FF0000").setDescription(lang.addinvites_not_admin_embed_description);
-
 		const check = await client.db.get(`${interaction?.guild?.id}.USER.${user.id}.INVITES`);
 
 		if (check) {

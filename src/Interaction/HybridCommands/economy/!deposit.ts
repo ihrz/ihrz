@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
 
 		const embed = new EmbedBuilder()
 			.setAuthor({ name: lang.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
-			.setColor("#a4cb80")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#a4cb80")
 			.setTitle(lang.deposit_embed_title)
 			.setDescription(lang.deposit_embed_desc
 				.replace('${client.iHorizon_Emojis.Coin}', client.iHorizon_Emojis.Coin)

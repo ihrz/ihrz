@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 		const all_channels = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING`) as DatabaseStructure.DbGuildXpLeveling["bypassChannels"];
 
 		const embed = new EmbedBuilder()
-			.setColor("#6666ff")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6666ff")
 			.setTitle(lang.ranks_ignorechannels_embed_title)
 			.setDescription(lang.ranks_ignorechannels_embed_desc)
 			.setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)

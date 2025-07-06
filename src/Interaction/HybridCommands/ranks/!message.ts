@@ -48,7 +48,7 @@ export const subCommand: SubCommand = {
 		xpMessage = xpMessage?.substring(0, 1010);
 
 		const helpEmbed = new EmbedBuilder()
-			.setColor("#ffb3cc")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#ffb3cc")
 			.setDescription(lang.ranksSetMessage_help_embed_desc)
 			.setTitle(lang.ranksSetMessage_help_embed_title)
 			.addFields(

@@ -58,9 +58,9 @@ export const subCommand: SubCommand = {
 			});
 		};
 
-		const createEmbed = () => {
+		const createEmbed = async () => {
 			return new EmbedBuilder()
-				.setColor("#000000")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
 				.setDescription(pages[currentPage].description)
 				.setFooter({
 					text: lang.prevnames_embed_footer_text
@@ -87,7 +87,7 @@ export const subCommand: SubCommand = {
 		);
 
 		const messageEmbed = await client.func.method.interactionSend(interaction, {
-			embeds: [createEmbed()],
+			embeds: [await createEmbed()],
 			components: [row],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
@@ -114,7 +114,7 @@ export const subCommand: SubCommand = {
 				char = []
 			};
 
-			messageEmbed.edit({ embeds: [createEmbed()] });
+			messageEmbed.edit({ embeds: [await createEmbed()] });
 		});
 
 		collector.on('end', async () => {

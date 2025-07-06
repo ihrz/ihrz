@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		const createEmbed = () => {
+		const createEmbed = async () => {
 			return new EmbedBuilder()
 				.setTitle(pages[currentPage].title)
 				.setDescription(pages[currentPage].description)
@@ -71,7 +71,7 @@ export const subCommand: SubCommand = {
 						.replace("${from}", String(currentPage + 1))
 						.replace("${to}", String(pages.length))
 				})
-				.setColor("#72f3f3")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#72f3f3")
 		}
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -91,7 +91,7 @@ export const subCommand: SubCommand = {
 
 
 		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [createEmbed()],
+			embeds: [await createEmbed()],
 			components: [row]
 		});
 
@@ -114,7 +114,7 @@ export const subCommand: SubCommand = {
 				if (currentPage == 0) return;
 				currentPage--;
 				await message.edit({
-					embeds: [createEmbed()],
+					embeds: [await createEmbed()],
 					components: [row]
 				});
 			} else if (i.customId === "next") {
@@ -122,7 +122,7 @@ export const subCommand: SubCommand = {
 				if (currentPage == pages.length - 1) return;
 				currentPage++;
 				await message.edit({
-					embeds: [createEmbed()],
+					embeds: [await createEmbed()],
 					components: [row]
 				});
 			} else if (i.customId === "delete") {

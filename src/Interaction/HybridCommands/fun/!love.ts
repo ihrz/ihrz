@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
 			}
 
 			const embed = new EmbedBuilder()
-				.setColor("#FFC0CB")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#FFC0CB")
 				.setTitle("💕")
 				.setImage(`attachment://love.png`)
 				.setDescription(lang.love_embed_description

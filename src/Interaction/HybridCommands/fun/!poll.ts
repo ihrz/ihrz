@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.poll_embed_title
 				.replace(/\${interaction\.user\.username}/g, user.globalName || user.username)
 			)
-			.setColor("#ddd98b")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#ddd98b")
 			.setDescription(pollMessage)
 			.addFields({ name: lang.poll_embed_fields_reaction, value: lang.poll_embed_fields_choice })
 			.setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")

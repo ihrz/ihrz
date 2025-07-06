@@ -38,10 +38,6 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		const a = new EmbedBuilder()
-			.setColor("#FF0000")
-			.setDescription(lang.removeinvites_not_admin_embed_description);
-
 		const response = await promptYesOrNo(interaction, {
 			content: lang.resetallinvites_warning_msg,
 			noButton: lang.resetallinvites_no_button,

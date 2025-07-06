@@ -45,10 +45,6 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0) || interaction.member;
 		};
 
-		const a = new EmbedBuilder()
-			.setColor("#FF0000")
-			.setDescription(lang.removeinvites_not_admin_embed_description);
-
 		const response = await promptYesOrNo(interaction, {
 			content: lang.reset_uranks_are_you_sure,
 			noButton: lang.resetallinvites_no_button,

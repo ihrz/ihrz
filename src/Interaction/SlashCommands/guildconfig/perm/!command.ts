@@ -238,9 +238,9 @@ export const subCommand: SubCommand = {
 			let currentPage = 0;
 
 			// Create embed for current page
-			const createEmbed = (page: number) => {
+			const createEmbed = async (page: number) => {
 				const embed = new EmbedBuilder()
-					.setColor("#000000")
+					.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
 					.setTitle(`${lang.var_permission} (${page + 1}/${pages})`)
 					.setTimestamp();
 
@@ -274,14 +274,14 @@ export const subCommand: SubCommand = {
 
 			// Only show pagination if there are more than 15 fields
 			if (allFields.length <= fieldsPerPage) {
-				const embed = createEmbed(0);
+				const embed = await createEmbed(0);
 				await client.func.method.interactionSend(interaction, { embeds: [embed] });
 				return;
 			}
 
 			// Send initial message with buttons
 			const message = await client.func.method.interactionSend(interaction, {
-				embeds: [createEmbed(currentPage)],
+				embeds: [await createEmbed(currentPage)],
 				components: [createButtons(currentPage)]
 			}) as Message;
 
@@ -304,7 +304,7 @@ export const subCommand: SubCommand = {
 				}
 
 				await i.update({
-					embeds: [createEmbed(currentPage)],
+					embeds: [await createEmbed(currentPage)],
 					components: [createButtons(currentPage)]
 				});
 			});
@@ -312,7 +312,7 @@ export const subCommand: SubCommand = {
 			collector.on('end', async () => {
 				// Remove buttons when collector expires
 				await message.edit({
-					embeds: [createEmbed(currentPage)],
+					embeds: [await createEmbed(currentPage)],
 					components: []
 				}).catch(() => { });
 			});

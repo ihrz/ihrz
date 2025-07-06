@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
 						name: interaction.guild?.name as string,
 						iconURL: interaction.guild?.iconURL({ size: 512, forceStatic: false })!
 					})
-					.setColor("#0099ff")
+					.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0097ff")
 					.setTitle(lang.gw_getdata_embed_title)
 					.setFields(
 						{

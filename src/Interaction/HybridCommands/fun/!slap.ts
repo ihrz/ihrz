@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 		axios.get(url)
 			.then(async () => {
 				const embed = new EmbedBuilder()
-					.setColor("#42ff08")
+					.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#42ff08")
 					.setDescription(lang.slap_embed_description
 						.replace(/\${slap\.id}/g, slap?.id as string)
 						.replace(/\${interaction\.user\.id}/g, user.id)

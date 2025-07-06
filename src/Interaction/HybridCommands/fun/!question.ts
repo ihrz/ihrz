@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.question_embed_title
 				.replace(/\${interaction\.user\.username}/g, user.globalName || user.username)
 			)
-			.setColor("#ddd98b")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#ddd98b")
 			.addFields(
 				{ name: lang.question_fields_input_embed, value: question, inline: true },
 				{ name: lang.question_fields_output_embed, value: reponses[Math.floor((Math.random() * reponses.length))] }

@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.economy_shop_embed_title
 				.replace("${interaction.guild.name}", interaction.guild.name)
 			)
-			.setColor("#45f712")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#45f712")
 			.setDescription(lang.economy_shop_embed_desc)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setFields(

@@ -78,11 +78,11 @@ export const subCommand: SubCommand = {
 		const totalPages = Math.ceil(backups.length / itemsPerPage);
 		let currentPage = 0;
 
-		const generateEmbed = (page: number) => {
+		const generateEmbed = async (page: number) => {
 			const embed = new EmbedBuilder()
 				.setDescription(backups.length > 0 ? lang.backup_all_of_your_backup : lang.backup_backup_doesnt_exist)
 				.setAuthor({ name: interaction.member?.user.username || (interaction.member as GuildMember)?.displayName, iconURL: "attachment://user_icon.png" })
-				.setColor("#bf0bb9")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#bf0bb9")
 				.setTimestamp();
 
 			if (backups.length > 0) {
@@ -121,7 +121,7 @@ export const subCommand: SubCommand = {
 		};
 
 		const originalResponse = await client.func.method.interactionSend(interaction, {
-			embeds: [generateEmbed(currentPage)],
+			embeds: [await generateEmbed(currentPage)],
 			components: [generateButtons(currentPage)],
 			files: [
 				await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction),
@@ -140,7 +140,7 @@ export const subCommand: SubCommand = {
 				}
 
 				await i.update({
-					embeds: [generateEmbed(currentPage)],
+					embeds: [await generateEmbed(currentPage)],
 					components: [generateButtons(currentPage)]
 				});
 			});

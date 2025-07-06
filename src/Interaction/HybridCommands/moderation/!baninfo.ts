@@ -72,7 +72,7 @@ export const subCommand: SubCommand = {
 
 		const embed = new EmbedBuilder()
 			.setTitle(`${lang.baninfo_ban_info}: ${user.displayName}`)
-			.setColor("#4fdb12")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#4fdb12")
 			.setDescription(
 				`> 🕒 **${lang.var_ban_date}:** ${time(banLog?.createdAt || new Date())}
            > 👤 **${lang.var_banned_by}:** ${banLog?.executor?.tag || lang.var_unknown}

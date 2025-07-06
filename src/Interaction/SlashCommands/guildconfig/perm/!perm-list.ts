@@ -56,10 +56,10 @@ export const subCommand: SubCommand = {
 		let currentPage = 0;
 		const totalPages = Math.max(1, Math.ceil(allUsers.length / itemsPerPage));
 
-		const generateEmbed = (page: number) => {
+		const generateEmbed = async (page: number) => {
 			const embed = new EmbedBuilder()
 				.setTitle(lang.perm_list_embed_title)
-				.setColor("#475387");
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#475387")
 
 			const startIndex = page * itemsPerPage;
 			const endIndex = Math.min(startIndex + itemsPerPage, allUsers.length);

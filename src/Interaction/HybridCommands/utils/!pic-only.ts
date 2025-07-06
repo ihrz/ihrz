@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
 
 		const embed = new EmbedBuilder()
 			.setTitle(lang.utils_pic_only_embed_title)
-			.setColor("#475387")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#475387")
 			.setDescription(lang.utils_pic_only_emnbed_desc)
 			.setFields(
 				{

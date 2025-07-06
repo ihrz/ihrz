@@ -33,11 +33,11 @@ import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
-export function generateTagInfoEmbed(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, tag_id: string, tag: DatabaseStructure.TagInfo) {
+export async function generateTagInfoEmbed(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, tag_id: string, tag: DatabaseStructure.TagInfo) {
 	return new EmbedBuilder()
 		.setTitle(`${lang.tag_name} #${tag_id}`)
 		.setThumbnail(interaction?.guild!.iconURL() || interaction.member!.user.avatarURL() || interaction.client.user.displayAvatarURL())
-		.setColor("Aqua")
+		.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#Aqua")
 		.setDescription(
 			`${interaction.client.iHorizon_Emojis.Crown} > **${lang.var_author}:** <@${tag.createBy}>\n` +
 			`${interaction.client.iHorizon_Emojis.Sparkles} > **${lang.tag_embed_created_at}:** ${time(new Date(tag.createTimestamp), "D")}\n` +

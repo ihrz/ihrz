@@ -75,7 +75,7 @@ async function logsAction(lang: LanguageData, message: Message, users: Set<Guild
 	if (!channel) return;
 
 	const embed = new EmbedBuilder()
-		.setColor("#e4433f")
+		.setColor(await client.db.get(`${channel.guildId}.GUILD.GUILD_CONFIG.embed_color.all`) || "#e4433f")
 		.setTimestamp()
 		.setTitle(lang.antispam_log_embed_title.replace('${actionType}', sanctionType))
 		.setDescription(lang.antispam_log_embed_desc

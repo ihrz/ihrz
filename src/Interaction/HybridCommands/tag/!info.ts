@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const embed = generateTagInfoEmbed(interaction, lang, tag_name, baseData)
+		const embed = await generateTagInfoEmbed(interaction, lang, tag_name, baseData)
 
 		const embed2 = await client.db.get(`EMBED.${baseData.embedId}`);
 

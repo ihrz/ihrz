@@ -99,7 +99,7 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.economy_boost_embed_title)
 			.setDescription(lang.economy_boost_embed_desc)
 			.setFields(generateRoleFields(roleData, lang))
-			.setColor("#0097ff")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0097ff")
 			.setTimestamp()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 

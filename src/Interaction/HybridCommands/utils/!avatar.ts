@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
 
 		const embed = new EmbedBuilder()
 			.setImage(mentionedUser.displayAvatarURL({ extension: 'png', size: 512 }))
-			.setColor("#add5ff")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#add5ff")
 			.setTitle(lang.avatar_embed_title
 				.replace('${mentionedUser.username}', mentionedUser.displayName)
 			)

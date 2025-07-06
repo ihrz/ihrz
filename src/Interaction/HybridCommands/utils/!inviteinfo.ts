@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
 		}
 
 		const embed_1 = new EmbedBuilder()
-			.setColor("Aqua")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#Aqua")
 			.setDescription(link_data.guild?.description || lang.profil_not_description_set)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTitle(link_data.guild?.name || lang.var_unknown_guild_name)
@@ -86,7 +86,7 @@ export const subCommand: SubCommand = {
 
 		// Second embed for additional info
 		const embed_2 = new EmbedBuilder()
-			.setColor("Aqua")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#Aqua")
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTitle(link_data.guild?.name || lang.var_unknown_guild_name)
 			.setFields(

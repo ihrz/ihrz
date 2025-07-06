@@ -39,7 +39,7 @@ export const subCommand: SubCommand = {
 
 		const embed = new EmbedBuilder()
 			.setImage(interaction.guild.iconURL({ extension: "webp", size: 4096 }))
-			.setColor("#add5ff")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#add5ff")
 			.setTitle(interaction.guild.name);
 
 		await client.func.method.interactionSend(interaction, {

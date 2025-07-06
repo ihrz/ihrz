@@ -90,7 +90,7 @@ export const subCommand: SubCommand = {
 		};
 
 		const embed = new EmbedBuilder()
-			.setColor("#0092cc")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0092cc")
 			.setTitle(lang.profil_birthday_embed_title)
 			.setThumbnail((interaction.member?.displayAvatarURL() || interaction.member?.user.displayAvatarURL()) as string)
 			.setDescription(introduction + getBirthdayString())

@@ -104,7 +104,7 @@ export const subCommand: SubCommand = {
 				em.setTitle(lang.backup_embed_title_succefully_deleted
 					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 				);
-				em.setColor("#6aa84f");
+				em.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#6aa84f")
 				messageEmbed.edit({ embeds: [em], components: [] });
 			} else if (interaction.customId === 'backup-cancel-button') {
 				used = true
@@ -112,18 +112,18 @@ export const subCommand: SubCommand = {
 				em.setTitle(lang.backup_embed_title_cancel_deletion
 					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 				);
-				em.setColor("#0460a5");
+				em.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0460a5")
 				messageEmbed.edit({ embeds: [em], components: [] });
 			}
 		});
 
-		collector.on('end', () => {
+		collector.on('end', async () => {
 			if (used) return;
 
 			em.setTitle(lang.backup_embed_title_timesup_deletion
 				.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			);
-			em.setColor("#ce7e00");
+			em.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#ce7e00")
 			messageEmbed.edit({ embeds: [em], components: [] });
 		});
 		return;

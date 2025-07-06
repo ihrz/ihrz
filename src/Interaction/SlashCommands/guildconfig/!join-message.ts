@@ -96,7 +96,7 @@ export const subCommand: SubCommand = {
 			.setFields(helpembed_fields);
 
 		const helpEmbed2 = new EmbedBuilder()
-			.setColor("#ffb3cc")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#ffb3cc")
 			.setTitle(lang.setjoinmessage_var_image_card)
 			.setImage("attachment://image.png")
 

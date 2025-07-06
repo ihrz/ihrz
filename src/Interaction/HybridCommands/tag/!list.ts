@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 
 		// Generate embeds for each tag
 		for (const [id, info] of tags) {
-			const embed = generateTagInfoEmbed(interaction, lang, id, info);
+			const embed = await generateTagInfoEmbed(interaction, lang, id, info);
 
 			const embedData = await client.db.get(`EMBED.${info.embedId}`);
 			if (embedData) {

@@ -42,7 +42,7 @@ export const subCommand: SubCommand = {
 		const filtered = giveawayData.filter((giveaway) => giveaway.giveawayData.guildId === interaction.guildId && !giveaway.giveawayData.ended);
 
 		const embed = new EmbedBuilder()
-			.setColor("#2986cc")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#2986cc")
 			.setTimestamp()
 			.setTitle(lang.gw_getall_embed_title
 				.replace('${interaction.guild?.name}', interaction.guild.name as string)

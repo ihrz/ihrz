@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 			.setTitle("Economy System - Buyable Roles")
 			.setDescription("All buyable roles are listed below.")
 			.setFields(generateRoleFields(roleData, lang))
-			.setColor("#0097ff")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0097ff")
 			.setTimestamp()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 

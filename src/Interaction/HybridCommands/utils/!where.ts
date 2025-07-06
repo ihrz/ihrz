@@ -57,7 +57,7 @@ export const subCommand: SubCommand = {
 
 		const embed = new EmbedBuilder()
 			.setTitle(`${lang.var_whereis}: ${member.displayName}`)
-			.setColor("#4fdb12")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#4fdb12")
 			.setDescription(
 				`> ${client.iHorizon_Emojis.VC_Limit} **${lang.var_member}:** ${member.toString()}
 > ${client.iHorizon_Emojis.VC_Name} **${lang.var_voice_channel}:** ${member.voice.channel?.toString()}
