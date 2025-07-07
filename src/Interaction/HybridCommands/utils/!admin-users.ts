@@ -60,7 +60,12 @@ export const subCommand: SubCommand = {
 
 		for (let i = 0; i < all_admin_members.length; i += usersPerPage) {
 			const pageUsers = all_admin_members.slice(i, i + usersPerPage);
-			const pageContent = pageUsers.map((userId) => userId).join('\n');
+			const pageContent = pageUsers.map((member) => {
+				if (member.user.bot) {
+					return member.toString() + "🤖 (BOT)"
+				}
+				return member.toString()
+			}).join('\n');
 			pages.push({
 				title: lang.all_admins_embed_title
 					.replace("${i / usersPerPage + 1}", String(i / usersPerPage + 1)),
