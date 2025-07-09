@@ -35,7 +35,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		const targetedChannel = interaction.options.getChannel('channel');
+		const targetedChannel = interaction.options.getChannel('category');
 
 		await interaction.editReply({
 			content: `${client.iHorizon_Emojis.Yes} | <#${targetedChannel?.id}>`
