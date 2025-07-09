@@ -155,7 +155,7 @@ export const subCommand: SubCommand = {
 
 			// Créer l'embed de résultat
 			const resultEmbed = new EmbedBuilder()
-				.setTitle(lang.fun_caracteres_final_embed_title)
+				.setTitle(lang.fun_caracteres_final_embed_title.replace("${selectedStyle}", selectedStyle))
 				.addFields(
 					{ name: lang.fun_caracteres_final_embed_field1_name, value: `\`\`\`${inputText}\`\`\``, inline: false },
 					{ name: lang.fun_caracteres_final_embed_field2_name, value: `\`\`\`${convertedText}\`\`\``, inline: false }
