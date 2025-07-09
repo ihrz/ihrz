@@ -110,6 +110,7 @@ export namespace DatabaseStructure {
 		voice_channel?: string | undefined;
 		voice_channel_category?: string | undefined;
 		voice_channel_position?: "top" | "bottom";
+		voice_channel_name?: string;
 	}
 
 	export interface GhostPingData {

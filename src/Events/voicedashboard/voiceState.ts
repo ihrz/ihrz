@@ -85,9 +85,10 @@ export const event: BotEvent = {
 		// If the user join the Create's Channel
 		if (newState.channelId === baseData.voice_channel && oldState.channelId !== ChannelDB) {
 			const PotentialCategory = oldState.guild.channels.cache.get(baseData?.voice_channel_category || "") || await oldState.guild.channels.fetch(baseData?.voice_channel_category || "");
+			const username = newState.member?.displayName || newState.member?.nickname;
 
 			newState.guild.channels.create({
-				name: lang.temporary_voice_channel_name.replace("{nickname}", `${newState.member?.displayName || newState.member?.nickname}`),
+				name: lang.temporary_voice_channel_name.replace("{nickname}", username!),
 				parent: result_channel?.parentId,
 				permissionOverwrites: category_channel.permissionOverwrites.cache,
 				type: ChannelType.GuildVoice,
@@ -101,6 +102,14 @@ export const event: BotEvent = {
 					chann.setPosition(0, {
 						relative: true
 					})
+				}
+
+				if (baseData?.voice_channel_name) {
+					chann.setName(
+						baseData.voice_channel_name.includes("{Username}") ?
+							baseData.voice_channel_name.replace("{Username}", username!)
+							: baseData.voice_channel_name + " " + username
+					)
 				}
 
 				newState.member?.voice.setChannel(chann.id)
