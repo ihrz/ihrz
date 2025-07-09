@@ -94,7 +94,7 @@ export const event: BotEvent = {
 				type: ChannelType.GuildVoice,
 			}).then(async chann => {
 				await table.set(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`, chann.id);
-				if (PotentialCategory) {
+				if (PotentialCategory?.id) {
 					chann.setParent(PotentialCategory.id)
 				}
 
