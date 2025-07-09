@@ -1076,6 +1076,10 @@ util_inviteinfo_not_valid_invite: "This `discord_invite` is not valid!"
 # /util cooldown
 util_cooldown_command_ok: "The channel's slowmode has been set to ${duration_in_string}."
 
+# /util role-members
+util_role_members: "List of users who have the roles"
+util_role_members_no_one: "There is nobody with that role on the server"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

@@ -1074,6 +1074,10 @@ util_inviteinfo_not_valid_invite: "この `discord_invite` は無効です！"
 # /util cooldown
 util_cooldown_command_ok: "チャンネルのスローモードが ${duration_in_string} に設定されました。"
 
+# /util role-members
+util_role_members: "そのロールを持っているユーザーの一覧"
+util_role_members_no_one: "サーバーにそのロールを持つ人はいません"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

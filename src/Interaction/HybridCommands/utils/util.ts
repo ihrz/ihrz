@@ -462,6 +462,36 @@ export const command: Command = {
 
 			permission: PermissionFlagsBits.ManageGuild
 		},
+		{
+			name: "role-members",
+
+			description: "See all server member(s) who have the same roles",
+			description_localizations: {
+				"fr": "Afficher tout les membres d'un serveur qui possèdent le même rôle"
+			},
+
+			aliases: ["rolemembers", "rolemember"],
+
+			options: [
+				{
+					name: "role",
+
+					description: "The role you want to check",
+					description_localizations: {
+						"fr": "Le rôle que vous voulez vérifier"
+					},
+
+					type: ApplicationCommandOptionType.Role,
+
+					required: true,
+					permission: null
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.ManageRoles,
+		},
 	],
 
 	category: 'utils',
