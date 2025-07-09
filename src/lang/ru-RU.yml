@@ -282,6 +282,12 @@ ticket_panel_option_change_category: "Выберите вариант для и�
 ticket_panel_panel_10_label: "Изменить категорию для одной конкретной опции"
 ticket_panel_channel_panel_embed_id: "ID встраивания канала тикетов"
 ticket_panel_panel_11_label: "Изменить панель встраивания канала тикетов"
+ticket_panel_select_user: "Меню для добавления участников в тикет"
+ticket_panel_button_delete: "Кнопка для удаления тикета"
+ticket_panel_button_transcript: "Кнопка для удаления стенограммы"
+ticket_panel_panel_12_label: "Показать меню для добавления/удаления участников тикета"
+ticket_panel_panel_13_label: "Показать кнопку удаления тикета"
+ticket_panel_panel_14_label: "Показать кнопку стенограммы"
 
 # /ticket rename
 ticket_rename_ok: "Канал тикета был переименован!"

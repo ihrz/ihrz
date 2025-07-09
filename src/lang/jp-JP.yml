@@ -282,6 +282,12 @@ ticket_panel_option_change_category: "カテゴリを変更するオプション
 ticket_panel_panel_10_label: "特定のオプションのカテゴリを変更する"
 ticket_panel_channel_panel_embed_id: "チケットチャンネル埋め込みID"
 ticket_panel_panel_11_label: "チケットチャンネル埋め込みパネルを変更"
+ticket_panel_select_user: "チケットにメンバーを追加するメニュー"
+ticket_panel_button_delete: "チケットを削除するボタン"
+ticket_panel_button_transcript: "記録を削除するボタン"
+ticket_panel_panel_12_label: "チケット内でメンバーを追加/削除するメニューを表示"
+ticket_panel_panel_13_label: "チケットを削除するボタンを表示"
+ticket_panel_panel_14_label: "記録ボタンを表示"
 
 # /ticket rename
 ticket_rename_ok: "チケットチャンネルの名前が変更されました！"

@@ -282,6 +282,12 @@ ticket_panel_option_change_category: "Seleziona un'opzione per cambiare categori
 ticket_panel_panel_10_label: "Cambia la categoria per un'opzione specifica"
 ticket_panel_channel_panel_embed_id: "ID embed del canale dei ticket"
 ticket_panel_panel_11_label: "Modifica pannello embed del canale dei ticket"
+ticket_panel_select_user: "Menu per aggiungere membri al ticket"
+ticket_panel_button_delete: "Pulsante per eliminare il ticket"
+ticket_panel_button_transcript: "Pulsante per eliminare la trascrizione"
+ticket_panel_panel_12_label: "Mostra il menu per aggiungere/rimuovere membri da un ticket"
+ticket_panel_panel_13_label: "Mostra il pulsante per eliminare un ticket"
+ticket_panel_panel_14_label: "Mostra il pulsante trascrizione"
 
 # /ticket rename
 ticket_rename_ok: "Il canale del ticket è stato rinominato!"

@@ -282,6 +282,12 @@ ticket_panel_option_change_category: "اختر خيارًا لتغيير الف�
 ticket_panel_panel_10_label: "تغيير الفئة لخيار واحد محدد"
 ticket_panel_channel_panel_embed_id: "معرف تضمين قناة التذاكر"
 ticket_panel_panel_11_label: "تغيير لوحة تضمين قناة التذاكر"
+ticket_panel_select_user: "قائمة لإضافة أعضاء إلى التذكرة"
+ticket_panel_button_delete: "زر لحذف التذكرة"
+ticket_panel_button_transcript: "زر لحذف النص المحفوظ"
+ticket_panel_panel_12_label: "عرض قائمة إضافة/إزالة الأعضاء من التذكرة"
+ticket_panel_panel_13_label: "عرض زر حذف التذكرة"
+ticket_panel_panel_14_label: "عرض زر النص المحفوظ"
 
 # /ticket rename
 ticket_rename_ok: "تم تغيير اسم قناة التذكرة!"

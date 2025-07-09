@@ -282,6 +282,12 @@ ticket_panel_option_change_category: "Sélectionnez une option pour changer de c
 ticket_panel_panel_10_label: "Changer la catégorie pour une option spécifique"
 ticket_panel_channel_panel_embed_id: "ID d'intégration du canal de tickets"
 ticket_panel_panel_11_label: "Modifier le panneau d'intégration du canal de tickets"
+ticket_panel_select_user: "Menu ajouter des membres dans le ticket"
+ticket_panel_button_delete: "Bouton pour supprimer le ticket"
+ticket_panel_button_transcript: "Bouton pour supprimer le transcript"
+ticket_panel_panel_12_label: "Afficher le menu ajout/supression de membre dans un ticket"
+ticket_panel_panel_13_label: "Afficher le bouton supprimer un ticket"
+ticket_panel_panel_14_label: "Afficher le bouton transcript"
 
 # /ticket rename
 ticket_rename_ok: "Le salon du ticket a été renommé !"

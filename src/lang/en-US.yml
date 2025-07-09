@@ -282,6 +282,12 @@ ticket_panel_option_change_category: "Select an option to change category"
 ticket_panel_panel_10_label: "Change category for one specific option"
 ticket_panel_channel_panel_embed_id: "Ticket Channel Embed ID"
 ticket_panel_panel_11_label: "Change ticket channel embed panel"
+ticket_panel_select_user: "Menu to add members to the ticket"
+ticket_panel_button_delete: "Button to delete the ticket"
+ticket_panel_button_transcript: "Button to delete the transcript"
+ticket_panel_panel_12_label: "Show menu to add/remove members from a ticket"
+ticket_panel_panel_13_label: "Show button to delete a ticket"
+ticket_panel_panel_14_label: "Show transcript button"
 
 # /ticket rename
 ticket_rename_ok: "Ticket channel has been renamed !"

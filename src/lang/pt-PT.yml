@@ -282,6 +282,12 @@ ticket_panel_option_change_category: "Selecione uma opção para alterar a categ
 ticket_panel_panel_10_label: "Alterar categoria para uma opção específica"
 ticket_panel_channel_panel_embed_id: "ID de incorporação do canal de tickets"
 ticket_panel_panel_11_label: "Alterar painel de incorporação do canal de tickets"
+ticket_panel_select_user: "Menu para adicionar membros ao ticket"
+ticket_panel_button_delete: "Botão para apagar o ticket"
+ticket_panel_button_transcript: "Botão para apagar a transcrição"
+ticket_panel_panel_12_label: "Mostrar menu para adicionar/remover membros de um ticket"
+ticket_panel_panel_13_label: "Mostrar botão para apagar um ticket"
+ticket_panel_panel_14_label: "Mostrar botão de transcrição"
 
 # /ticket rename
 ticket_rename_ok: "O canal do ticket foi renomeado!"

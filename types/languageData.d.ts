@@ -273,6 +273,12 @@ export interface LanguageData {
 	ticket_panel_panel_10_label: string;
 	ticket_panel_channel_panel_embed_id: string;
 	ticket_panel_panel_11_label: string;
+	ticket_panel_select_user: string;
+	ticket_panel_button_delete: string;
+	ticket_panel_button_transcript: string;
+	ticket_panel_panel_12_label: string;
+	ticket_panel_panel_13_label: string;
+	ticket_panel_panel_14_label: string;
 	ticket_rename_ok: string;
 	ticket_rename_error: string;
 	disablexp_not_admin: string;
