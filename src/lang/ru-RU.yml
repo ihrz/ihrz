@@ -79,6 +79,7 @@ var_guild_icon: "Иконка сервера"
 var_guild_banner: "Баннер сервера"
 var_guild_splash: "Заставка сервера"
 var_unknown_guild_name: "Неизвестное имя сервера"
+var_preview: "Предпросмотр"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"
@@ -640,6 +641,15 @@ fun_stench_command_ok: "Пользователь ${user} воняет на **${r
 
 # /fun rate
 fun_rate_command_ok: "Я оцениваю **${the_things}** на ${random}/10."
+
+# /fun caracteres
+fun_caracteres_command_ok: "Пожалуйста, введите текст для преобразования!"
+fun_caracteres_help_title: "🎨 Выберите стиль текста"
+fun_caracteres_embed_desc: "Исходный текст: **${inputText}**\n\nВыберите стиль из выпадающего меню ниже, чтобы преобразовать текст."
+fun_caracteres_select_menu_placeholder: "Выберите стиль шрифта..."
+fun_caracteres_final_embed_title: "🎨 Преобразованный текст - Стиль: ${selectedStyle}"
+fun_caracteres_final_embed_field1_name: "📝 Исходный текст"
+fun_caracteres_final_embed_field2_name: "✨ Преобразованный текст"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work

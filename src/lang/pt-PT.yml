@@ -79,6 +79,7 @@ var_guild_icon: "Ícone do servidor"
 var_guild_banner: "Banner do servidor"
 var_guild_splash: "Tela inicial do servidor"
 var_unknown_guild_name: "Nome de servidor desconhecido"
+var_preview: "Pré-visualização"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Criar Convite Instantâneo"
@@ -640,6 +641,15 @@ fun_stench_command_ok: "O utilizador ${user} tem **${random}%** de mau cheiro �
 
 # /fun rate
 fun_rate_command_ok: "Eu avalio **${the_things}** com ${random}/10."
+
+# /fun caracteres
+fun_caracteres_command_ok: "Por favor, insira um texto para transformar!"
+fun_caracteres_help_title: "🎨 Selecione um estilo de texto"
+fun_caracteres_embed_desc: "Texto original: **${inputText}**\n\nEscolhe um estilo no menu suspenso abaixo para transformar o teu texto."
+fun_caracteres_select_menu_placeholder: "Escolhe um estilo de fonte..."
+fun_caracteres_final_embed_title: "🎨 Texto transformado - Estilo: ${selectedStyle}"
+fun_caracteres_final_embed_field1_name: "📝 Texto original"
+fun_caracteres_final_embed_field2_name: "✨ Texto transformado"
 
 # Comandos de economia
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work

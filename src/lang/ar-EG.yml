@@ -79,6 +79,7 @@ var_guild_icon: "أيقونة الخادم"
 var_guild_banner: "راية الخادم"
 var_guild_splash: "صورة البداية للخادم"
 var_unknown_guild_name: "اسم خادم غير معروف"
+var_preview: "معاينة"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "إنشاء دعوة فورية"
@@ -640,6 +641,15 @@ fun_stench_command_ok: "المستخدم ${user} هو **${random}%** ذو رائ
 
 # /fun rate
 fun_rate_command_ok: "أنا أقيم **${the_things}** ${random}/10."
+
+# /fun caracteres
+fun_caracteres_command_ok: "يرجى إدخال نص لتحويله!"
+fun_caracteres_help_title: "🎨 اختر نمط النص"
+fun_caracteres_embed_desc: "النص الأصلي: **${inputText}**\n\nاختر نمطًا من القائمة المنسدلة أدناه لتحويل النص."
+fun_caracteres_select_menu_placeholder: "اختر نمط الخط..."
+fun_caracteres_final_embed_title: "🎨 النص المحول - النمط: ${selectedStyle}"
+fun_caracteres_final_embed_field1_name: "📝 النص الأصلي"
+fun_caracteres_final_embed_field2_name: "✨ النص المحول"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work

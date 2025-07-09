@@ -79,6 +79,7 @@ var_guild_icon: "サーバーアイコン"
 var_guild_banner: "サーバーバナー"
 var_guild_splash: "サーバースプラッシュ"
 var_unknown_guild_name: "不明なサーバー名"
+var_preview: "プレビュー"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
@@ -640,6 +641,15 @@ fun_stench_command_ok: "ユーザー${user}は**${random}%**臭いです👃🛀
 
 # /fun rate
 fun_rate_command_ok: "**${the_things}**を${random}/10で評価します。"
+
+# /fun caracteres
+fun_caracteres_command_ok: "変換するテキストを入力してください！"
+fun_caracteres_help_title: "🎨 テキストスタイルを選択"
+fun_caracteres_embed_desc: "元のテキスト: **${inputText}**\n\n下のドロップダウンメニューからスタイルを選んでテキストを変換してください。"
+fun_caracteres_select_menu_placeholder: "フォントスタイルを選択..."
+fun_caracteres_final_embed_title: "🎨 変換されたテキスト - スタイル: ${selectedStyle}"
+fun_caracteres_final_embed_field1_name: "📝 元のテキスト"
+fun_caracteres_final_embed_field2_name: "✨ 変換後のテキスト"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work

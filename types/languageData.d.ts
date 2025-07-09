@@ -97,6 +97,7 @@ export interface LanguageData {
 	var_guild_banner: string;
 	var_guild_splash: string;
 	var_unknown_guild_name: string;
+	var_preview: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;
@@ -514,6 +515,13 @@ export interface LanguageData {
 	fun_gay_command_ok: string;
 	fun_stench_command_ok: string;
 	fun_rate_command_ok: string;
+	fun_caracteres_command_ok: string;
+	fun_caracteres_help_title: string;
+	fun_caracteres_embed_desc: string;
+	fun_caracteres_select_menu_placeholder: string;
+	fun_caracteres_final_embed_title: string;
+	fun_caracteres_final_embed_field1_name: string;
+	fun_caracteres_final_embed_field2_name: string;
 	economy_cooldown_error: string;
 	addmoney_not_admin: string;
 	addmoney_logs_embed_title: string;
