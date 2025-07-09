@@ -110,7 +110,7 @@ export const subCommand: SubCommand = {
 		};
 
 		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [generateEmbed(currentPage)],
+			embeds: [await generateEmbed(currentPage)],
 			components: [generateButtons(currentPage)],
 			withResponse: true,
 		});
@@ -127,7 +127,7 @@ export const subCommand: SubCommand = {
 			}
 
 			await i.update({
-				embeds: [generateEmbed(currentPage)],
+				embeds: [await generateEmbed(currentPage)],
 				components: [generateButtons(currentPage)]
 			});
 		});
