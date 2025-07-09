@@ -1056,6 +1056,9 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | الدور: ${role.toStr
 # /util inviteinfo
 util_inviteinfo_not_valid_invite: "رابط الدعوة `discord_invite` غير صالح!"
 
+# /util cooldown
+util_cooldown_command_ok: "تم تغيير وضع البطء في القناة إلى ${duration_in_string}."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

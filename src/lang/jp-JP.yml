@@ -1055,6 +1055,9 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | ロール: ${role.toStri
 # /util inviteinfo
 util_inviteinfo_not_valid_invite: "この `discord_invite` は無効です！"
 
+# /util cooldown
+util_cooldown_command_ok: "チャンネルのスローモードが ${duration_in_string} に設定されました。"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

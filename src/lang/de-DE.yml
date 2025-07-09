@@ -641,7 +641,6 @@ fun_stench_command_ok: "Der Benutzer ${user} stinkt zu **${random}%** 👃🛀"
 # /fun rate
 fun_rate_command_ok: "Ich gebe **${the_things}** ${random}/10."
 
-
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
@@ -1055,6 +1054,9 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Rolle: ${role.toString()
 
 # /util inviteinfo
 util_inviteinfo_not_valid_invite: "Diese Einladung `discord_invite` ist ungültig!"
+
+# /util cooldown
+util_cooldown_command_ok: "Der Slowmode des Kanals wurde auf ${duration_in_string} gesetzt."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

@@ -800,6 +800,7 @@ export interface LanguageData {
 	util_rolelimit_bad_opt: string;
 	util_rolelimit_good: string;
 	util_inviteinfo_not_valid_invite: string;
+	util_cooldown_command_ok: string;
 	blockpub_not_admin: string;
 	blockpub_now_enable: string;
 	blockpub_now_disable: string;

@@ -1057,6 +1057,9 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Rôle : ${role.toString(
 # /util inviteinfo
 util_inviteinfo_not_valid_invite: "Cette invitation `discord_invite` n'est pas valide !"
 
+# /util cooldown
+util_cooldown_command_ok: "Le salon à vu sont slowmode changer pour ${duration_in_string}."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

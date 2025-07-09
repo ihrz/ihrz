@@ -198,6 +198,54 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
+			name: 'cooldown',
+
+			description: 'Set a cooldown in the current channel',
+			description_localizations: {
+				"fr": "Mettre un coodlown dans le salon actuel"
+			},
+
+			aliases: ["setcooldown", "coldown", "slow", "slowmode"],
+
+			options: [
+				{
+					name: "duration",
+					name_localizations: {
+						fr: "durée"
+					},
+
+					description: "The duration of the slowmode",
+					description_localizations: {
+						fr: "La durée du slow mode"
+					},
+
+					choices: [
+						{ name: "None", value: "0" },
+						{ name: "5 seconds", value: "5s" },
+						{ name: "10 seconds", value: "10s" },
+						{ name: "15 seconds", value: "15s" },
+						{ name: "30 seconds", value: "30s" },
+						{ name: "1 minute", value: "1m" },
+						{ name: "2 minutes", value: "2m" },
+						{ name: "5 minutes", value: "5m" },
+						{ name: "10 minutes", value: "10m" },
+						{ name: "15 minutes", value: "15m" },
+						{ name: "30 minutes", value: "30m" },
+						{ name: "1 hour", value: "1h" },
+						{ name: "2 hours", value: "2h" },
+						{ name: "6 hours", value: "6h" }
+					],
+
+					required: true,
+					type: ApplicationCommandOptionType.String,
+					permission: null
+				}
+			],
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.ManageChannels
+		},
+		{
 			name: 'rolelimit',
 
 			description: 'Limit the number of member(s) in the same role',

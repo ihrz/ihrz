@@ -641,7 +641,6 @@ fun_stench_command_ok: "Пользователь ${user} воняет на **${r
 # /fun rate
 fun_rate_command_ok: "Я оцениваю **${the_things}** на ${random}/10."
 
-
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
@@ -1055,6 +1054,9 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Роль: ${role.toStrin
 
 # /util inviteinfo
 util_inviteinfo_not_valid_invite: "Приглашение `discord_invite` недействительно!"
+
+# /util cooldown
+util_cooldown_command_ok: "Медленный режим канала установлен на ${duration_in_string}."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
