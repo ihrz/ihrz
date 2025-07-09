@@ -108,6 +108,7 @@ export namespace DatabaseStructure {
 			messageId?: string;
 		};
 		voice_channel?: string | undefined;
+		voice_channel_category?: string | undefined;
 	}
 
 	export interface GhostPingData {
