@@ -168,7 +168,11 @@ export const event: BotEvent = {
 					"twitter.com",
 					"flickr.com",
 					"postimages.org",
-					"imagebam.com"
+					"imagebam.com",
+					"x.com",
+					"youtube.com",
+					"github.com",
+					"gilab.com"
 				];
 
 				// Check if message should be sanctioned
