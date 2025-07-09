@@ -22,6 +22,7 @@
 import { Client, VoiceState, CategoryChannel, ChannelType, GuildChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
@@ -36,12 +37,18 @@ export const event: BotEvent = {
 
 		const allChannel = await table.get(`CUSTOM_VOICE.${newState.guild.id}`);
 
-		const ChannelForCreate = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel`);
-		const Category = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel_category`);
+		const baseData = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE`) as DatabaseStructure.VoiceData | null | undefined;
+
+		if (!baseData
+			|| !baseData.voice_channel
+		) {
+			return;
+		}
+
 		const ChannelDB = await table.get(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 
 		const channel_db_fetched = newState.guild.channels.cache.get(ChannelDB) as GuildChannel;
-		const result_channel = newState.guild.channels.cache.get(ChannelForCreate);
+		const result_channel = newState.guild.channels.cache.get(baseData.voice_channel);
 		const category_channel = newState.guild.channels.cache.get(result_channel?.parentId as string) as CategoryChannel;
 
 		// If the user leave their own empty channel
@@ -52,7 +59,7 @@ export const event: BotEvent = {
 		};
 
 		// If the member leave their own channel for trying to create another one
-		if (newState.channelId === ChannelForCreate && oldState.channelId === ChannelDB) {
+		if (newState.channelId === baseData.voice_channel && oldState.channelId === ChannelDB) {
 			await newState.member?.voice.disconnect();
 			return;
 		};
@@ -73,12 +80,11 @@ export const event: BotEvent = {
 			}
 		};
 
-		const staff_role = await client.db.get(`${oldState.guild.id}.VOICE_INTERFACE.staff_role`);
 		const lang = await client.func.getLanguageData(newState.guild.id);
 
 		// If the user join the Create's Channel
-		if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {
-			const PotentialCategory = oldState.guild.channels.cache.get(Category) || await oldState.guild.channels.fetch(Category);
+		if (newState.channelId === baseData.voice_channel && oldState.channelId !== ChannelDB) {
+			const PotentialCategory = oldState.guild.channels.cache.get(baseData?.voice_channel_category || "") || await oldState.guild.channels.fetch(baseData?.voice_channel_category || "");
 
 			newState.guild.channels.create({
 				name: lang.temporary_voice_channel_name.replace("{nickname}", `${newState.member?.displayName || newState.member?.nickname}`),
@@ -89,6 +95,12 @@ export const event: BotEvent = {
 				await table.set(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`, chann.id);
 				if (PotentialCategory) {
 					chann.setParent(PotentialCategory.id)
+				}
+
+				if (baseData?.voice_channel_position === "top") {
+					chann.setPosition(0, {
+						relative: true
+					})
 				}
 
 				newState.member?.voice.setChannel(chann.id)
@@ -112,8 +124,8 @@ export const event: BotEvent = {
 								},
 							);
 
-							if (staff_role) {
-								chann.permissionOverwrites.edit(staff_role,
+							if (baseData.staff_role) {
+								chann.permissionOverwrites.edit(baseData.staff_role,
 									{
 										ViewChannel: true,
 										Connect: true,

@@ -153,6 +153,43 @@ export const command: Command = {
 
 					permission: PermissionFlagsBits.Administrator
 				},
+				{
+					name: "set-voice-channel-position",
+					type: ApplicationCommandOptionType.Subcommand,
+
+					description: "Set the voice channel position in the category when it will be create!",
+					description_localizations: {
+						"fr": "Définis la position du salon où le canal perso vas être créer dans la catégorie"
+					},
+
+					options: [
+						{
+							name: "position_type",
+							type: ApplicationCommandOptionType.String,
+
+							description: "The position type you want",
+							description_localizations: {
+								"fr": "dans quel position tu veux le salon"
+							},
+
+							choices: [
+								{
+									name: "Up (TOP)",
+									value: "top"
+								},
+								{
+									name: "Down (Bottom)",
+									value: "bottom"
+								}
+							],
+
+							required: true,
+							permission: null
+						}
+					],
+
+					permission: PermissionFlagsBits.Administrator
+				},
 			],
 			permission: null
 		},
