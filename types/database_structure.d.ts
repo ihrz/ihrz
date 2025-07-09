@@ -108,6 +108,7 @@ export namespace DatabaseStructure {
 			messageId?: string;
 		};
 		voice_channel?: string | undefined;
+		voice_channel_category?: string | undefined;
 	}
 
 	export interface GhostPingData {
@@ -389,7 +390,8 @@ export namespace DatabaseStructure {
 		picOnlyConfig?: PicOnlyConfig;
 		NICK_KICKER?: NickKickerData;
 		renew_channel?: Record<string, renewChannelStructure>;
-		ROLE_LIMIT: RoleLimitSchema;
+		ROLE_LIMIT?: RoleLimitSchema;
+		autoFeur?: boolean;
 	}
 
 	export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;

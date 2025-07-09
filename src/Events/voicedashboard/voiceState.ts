@@ -37,6 +37,7 @@ export const event: BotEvent = {
 		const allChannel = await table.get(`CUSTOM_VOICE.${newState.guild.id}`);
 
 		const ChannelForCreate = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel`);
+		const Category = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE.voice_channel_category`);
 		const ChannelDB = await table.get(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 
 		const channel_db_fetched = newState.guild.channels.cache.get(ChannelDB) as GuildChannel;
@@ -77,6 +78,8 @@ export const event: BotEvent = {
 
 		// If the user join the Create's Channel
 		if (newState.channelId === ChannelForCreate && oldState.channelId !== ChannelDB) {
+			const PotentialCategory = oldState.guild.channels.cache.get(Category) || await oldState.guild.channels.fetch(Category);
+
 			newState.guild.channels.create({
 				name: lang.temporary_voice_channel_name.replace("{nickname}", `${newState.member?.displayName || newState.member?.nickname}`),
 				parent: result_channel?.parentId,
@@ -84,6 +87,9 @@ export const event: BotEvent = {
 				type: ChannelType.GuildVoice,
 			}).then(async chann => {
 				await table.set(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`, chann.id);
+				if (PotentialCategory) {
+					chann.setParent(PotentialCategory.id)
+				}
 
 				newState.member?.voice.setChannel(chann.id)
 					.then(async () => {

@@ -27,7 +27,6 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	PermissionFlagsBits,
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -42,15 +41,24 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const all_admin_members = Array.from(interaction.guild.members.cache
-			.filter(x => x.permissions.has(PermissionFlagsBits.Administrator))
-			.filter(x => x.user.id !== x.guild.ownerId)
-			.filter(x => x.user.id !== x.client.user.id)
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var role = interaction.options.getRole('role', true);
+		} else {
+			var role = client.func.method.role(interaction, args!, 0)!;
+		}
+
+		if (!role) {
+			return await client.func.method.interactionSend(interaction, {
+				content: lang.addrolereact_role_not_found
+			})
+		}
+
+		const roles_members = Array.from(role.members
 			.values()
 		) || [];
 
-		if (all_admin_members.length == 0) {
-			await client.func.method.interactionSend(interaction, { content: lang.all_admins_nobody_admins });
+		if (roles_members.length == 0) {
+			await client.func.method.interactionSend(interaction, { content: lang.util_role_members_no_one });
 			return;
 		};
 
@@ -58,8 +66,8 @@ export const subCommand: SubCommand = {
 		const usersPerPage = 5;
 		const pages: { title: string; description: string; }[] = [];
 
-		for (let i = 0; i < all_admin_members.length; i += usersPerPage) {
-			const pageUsers = all_admin_members.slice(i, i + usersPerPage);
+		for (let i = 0; i < roles_members.length; i += usersPerPage) {
+			const pageUsers = roles_members.slice(i, i + usersPerPage);
 			const pageContent = pageUsers.map((member) => {
 				if (member.user.bot) {
 					return member.toString() + "🤖 (BOT)"
@@ -67,15 +75,14 @@ export const subCommand: SubCommand = {
 				return member.toString()
 			}).join('\n');
 			pages.push({
-				title: lang.all_admins_embed_title
-					.replace("${i / usersPerPage + 1}", String(i / usersPerPage + 1)),
+				title: lang.util_role_members,
 				description: pageContent,
 			});
 		};
 
-		const createEmbed = async () => {
+		const createEmbed = () => {
 			return new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
+				.setColor("#000000")
 				.setTitle(pages[currentPage].title)
 				.setDescription(pages[currentPage].description)
 				.setFooter({
@@ -95,16 +102,11 @@ export const subCommand: SubCommand = {
 			new ButtonBuilder()
 				.setCustomId('nextPage')
 				.setLabel('>>>')
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("trash-button-embed")
-				.setLabel(lang.all_admins_unrank_button_label)
-				.setEmoji("🗑️")
-				.setStyle(ButtonStyle.Danger)
+				.setStyle(ButtonStyle.Secondary)
 		);
 
 		const messageEmbed = await client.func.method.interactionSend(interaction, {
-			embeds: [await createEmbed()],
+			embeds: [createEmbed()],
 			components: [row],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
@@ -129,56 +131,9 @@ export const subCommand: SubCommand = {
 				await interaction_2.deferUpdate();
 				currentPage = (currentPage + 1) % pages.length;
 
-			} else if (interaction_2.customId === 'trash-button-embed') {
+			}
 
-				if (interaction_2.user.id === interaction_2.guild?.ownerId) {
-					let good = 0;
-					let bad = 0;
-
-					await interaction_2.deferUpdate();
-					const to_unrank_members = all_admin_members.filter(x => x.guild.ownerId !== x.user.id);
-
-					for (const member of to_unrank_members) {
-						const filtered_roles = Array.from(
-							member.roles.cache
-								.filter(x => !x.permissions.has(PermissionFlagsBits.Administrator))
-								.keys()
-						);
-
-						try {
-							await member.roles.set(filtered_roles, "[AdminUsers] clearing admin on the server").catch(() => false);
-							good++
-						} catch (err) {
-							bad++
-						}
-
-						const embed = new EmbedBuilder()
-							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-							.setColor('#007fff')
-							.setTimestamp()
-							.setThumbnail(interaction.guild?.iconURL()!)
-							.setDescription(lang.all_admins_unrank_embed_desc
-								.replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
-								.replace("${good}", good.toString())
-								.replace("${bad}", bad.toString())
-							)
-
-						await messageEmbed.edit({
-							embeds: [embed],
-							files: [],
-						})
-
-						collector.stop()
-						return;
-					}
-
-				} else {
-					await interaction_2.reply({ content: lang.all_admins_unrank_not_owner });
-					collector.stop();
-				}
-			};
-
-			messageEmbed.edit({ embeds: [await createEmbed()] });
+			messageEmbed.edit({ embeds: [createEmbed()] });
 		});
 
 		collector.on('end', async () => {

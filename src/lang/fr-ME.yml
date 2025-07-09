@@ -79,6 +79,7 @@ var_guild_icon: "Icône du serveur"
 var_guild_banner: "Bannière du serveur"
 var_guild_splash: "Écran d’accueil du serveur"
 var_unknown_guild_name: "Nom de serveur inconnu"
+var_preview: "Aperçue"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Faire une inv"
@@ -281,6 +282,12 @@ ticket_panel_option_change_category: "Sélectionnez une option pour changer de c
 ticket_panel_panel_10_label: "Changer la catégorie pour une option spécifique"
 ticket_panel_channel_panel_embed_id: "ID d'intégration du canal de tickets"
 ticket_panel_panel_11_label: "Modifier le panneau d'intégration du canal de tickets"
+ticket_panel_select_user: "Menu ajouter des membres dans le ticket"
+ticket_panel_button_delete: "Bouton pour supprimer le ticket"
+ticket_panel_button_transcript: "Bouton pour supprimer le transcript"
+ticket_panel_panel_12_label: "Afficher le menu ajout/supression de membre dans un ticket"
+ticket_panel_panel_13_label: "Afficher le bouton supprimer un ticket"
+ticket_panel_panel_14_label: "Afficher le bouton transcript"
 
 # /ticket rename
 ticket_rename_ok: "Le salon du ticket a été renommé !"
@@ -633,6 +640,24 @@ love_command_error: "Ya eu une erreur lors dla création dlimage, ressaie plus t
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}, tu as ${action_type} la catégorie fun!"
 fun_category_disable: "Tu ne peux pas utiliser cette commande, la catégorie des commandes fun est désactivée."
+
+# /fun gay
+fun_gay_command_ok: "L'utilisateur ${user} est **${random}%** gay 🏳️‍🌈"
+
+# /fun stench
+fun_stench_command_ok: "L'utilisateur ${user} est **${random}%** malodorant 👃🛀"
+
+# /fun rate
+fun_rate_command_ok: "Je donne une note de ${random}/10 à **${the_things}**."
+
+# /fun caracteres
+fun_caracteres_command_ok: "Veuillez fournir un texte à transformer !"
+fun_caracteres_help_title: "🎨 Sélectionnez un style de texte"
+fun_caracteres_embed_desc: "Texte original : **${inputText}**\n\nChoisissez un style dans le menu déroulant ci-dessous pour transformer votre texte."
+fun_caracteres_select_menu_placeholder: "Choisissez un style de police..."
+fun_caracteres_final_embed_title: "🎨 Texte transformé - Style: ${selectedStyle}"
+fun_caracteres_final_embed_field1_name: "📝 Texte original"
+fun_caracteres_final_embed_field2_name: "✨ Texte transformé"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -1047,6 +1072,13 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Rôle : ${role.toString(
 
 # /util inviteinfo
 util_inviteinfo_not_valid_invite: "Cette invitation `discord_invite` n'est pas valide !"
+
+# /util cooldown
+util_cooldown_command_ok: "Le salon à vu sont slowmode changer pour ${duration_in_string}."
+
+# /util role-members
+util_role_members: "Liste des utilisateurs qui possèdent les rôles"
+util_role_members_no_one: "Personne ne possède ce rôle sur le serveur"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

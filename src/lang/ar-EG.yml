@@ -79,6 +79,7 @@ var_guild_icon: "أيقونة الخادم"
 var_guild_banner: "راية الخادم"
 var_guild_splash: "صورة البداية للخادم"
 var_unknown_guild_name: "اسم خادم غير معروف"
+var_preview: "معاينة"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "إنشاء دعوة فورية"
@@ -281,6 +282,12 @@ ticket_panel_option_change_category: "اختر خيارًا لتغيير الف�
 ticket_panel_panel_10_label: "تغيير الفئة لخيار واحد محدد"
 ticket_panel_channel_panel_embed_id: "معرف تضمين قناة التذاكر"
 ticket_panel_panel_11_label: "تغيير لوحة تضمين قناة التذاكر"
+ticket_panel_select_user: "قائمة لإضافة أعضاء إلى التذكرة"
+ticket_panel_button_delete: "زر لحذف التذكرة"
+ticket_panel_button_transcript: "زر لحذف النص المحفوظ"
+ticket_panel_panel_12_label: "عرض قائمة إضافة/إزالة الأعضاء من التذكرة"
+ticket_panel_panel_13_label: "عرض زر حذف التذكرة"
+ticket_panel_panel_14_label: "عرض زر النص المحفوظ"
 
 # /ticket rename
 ticket_rename_ok: "تم تغيير اسم قناة التذكرة!"
@@ -631,6 +638,24 @@ love_command_error: "حدث خطأ أثناء محاولة إنشاء الصور
 # /fun disable
 fun_disable_command_msg: "${interaction.member?.user.toString()}، انت ${action_type} فئة الترفيه!"
 fun_category_disable: "مش مسموحلك تستخدم الأمر ده، فئة الأوامر الترفيهية معطلة."
+
+# /fun gay
+fun_gay_command_ok: "المستخدم ${user} هو **${random}%** مثلي 🏳️‍🌈"
+
+# /fun stench
+fun_stench_command_ok: "المستخدم ${user} هو **${random}%** ذو رائحة كريهة 👃🛀"
+
+# /fun rate
+fun_rate_command_ok: "أنا أقيم **${the_things}** ${random}/10."
+
+# /fun caracteres
+fun_caracteres_command_ok: "يرجى إدخال نص لتحويله!"
+fun_caracteres_help_title: "🎨 اختر نمط النص"
+fun_caracteres_embed_desc: "النص الأصلي: **${inputText}**\n\nاختر نمطًا من القائمة المنسدلة أدناه لتحويل النص."
+fun_caracteres_select_menu_placeholder: "اختر نمط الخط..."
+fun_caracteres_final_embed_title: "🎨 النص المحول - النمط: ${selectedStyle}"
+fun_caracteres_final_embed_field1_name: "📝 النص الأصلي"
+fun_caracteres_final_embed_field2_name: "✨ النص المحول"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -1046,6 +1071,13 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | الدور: ${role.toStr
 
 # /util inviteinfo
 util_inviteinfo_not_valid_invite: "رابط الدعوة `discord_invite` غير صالح!"
+
+# /util cooldown
+util_cooldown_command_ok: "تم تغيير وضع البطء في القناة إلى ${duration_in_string}."
+
+# /util role-members
+util_role_members: "قائمة المستخدمين الذين لديهم الأدوار"
+util_role_members_no_one: "لا يوجد أي شخص لديه هذا الدور في الخادم"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

@@ -20,7 +20,7 @@
 */
 
 import {
-	ChatInputCommandInteraction,
+	ApplicationCommandOptionType,
 	Client,
 	Message,
 	PermissionsBitField,
@@ -28,35 +28,57 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
+import maskLink from '../../../core/functions/maskLink.js';
 
 
 export const command: Command = {
 
-	name: 'toggle-react',
-	aliases: ['react-toggle', 'togglereact', 'reacttoggle'],
+	name: 'rate',
 
-	description: 'Enable / Disable the reaction when user greets someone',
+	description: 'Let me rate the followed subject',
 	description_localizations: {
-		"fr": "Activer/Désactiver la réaction lorsque l'utilisateur salue quelqu'un"
+		"fr": "Affiche au combien tu pue"
 	},
 
+	aliases: ["odeur", "odeurs", "puanteurs", "puanteur", "arf", "pue"],
+
+	options: [
+		{
+			name: "the_things",
+
+			description: "the_things",
+			description_localizations: {
+				"fr": "la chose"
+			},
+
+			type: ApplicationCommandOptionType.String,
+			required: true,
+			permission: null
+		}
+	],
 	thinking: false,
-	category: 'guildconfig',
+	category: 'fun',
 	type: "PREFIX_IHORIZON_COMMAND",
-	permission: PermissionsBitField.Flags.ManageGuildExpressions,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
+	permission: null,
+	run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
+		if (!interaction.guild) return;
 
-		const state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`);
+		// Nombre entre 0 et 10
+		const random = Math.floor(Math.random() * 10);
 
-		await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, !state);
-		const activeMsg = !state ? lang.toggle_react_react : lang.toggle_react_doesnt_react;
+		// Fetch user ou soit mêmea
+		const the_things = maskLink(client.func.method.longString(options!, 0) || "nothing");
 
 		await interaction.reply({
-			content: lang.toggle_react_command_work
-				.replace("{activeMsg}", activeMsg)
-				.replace("${interaction.member?.id}", interaction.member?.id!)
-			, allowedMentions: { repliedUser: false }
+			content: lang.fun_rate_command_ok
+				.replace('${the_things}', the_things)
+				.replace('${random}', random.toString()),
+			allowedMentions: {
+				repliedUser: false,
+				roles: [],
+				users: [],
+				parse: []
+			}
 		});
-		return;
 	},
 };

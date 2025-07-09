@@ -61,8 +61,9 @@ let client = new Client({
 		Partials.User,
 		Partials.Reaction,
 		Partials.ThreadMember
-	]
-});
+	],
+	enforceNonce: true
+})
 
 client.version = ClientVersion;
 client.config = config;

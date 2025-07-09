@@ -62,7 +62,12 @@ export const subCommand: SubCommand = {
 
 		const mutetimeString = client.timeCalculator.to_beautiful_string(mutetime, lang);
 
-		if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageMessages])) {
+		if (!interaction.guild.members.me?.permissions.has(
+			[PermissionsBitField.Flags.ManageMessages,
+			PermissionsBitField.Flags.MuteMembers,
+			PermissionsBitField.Flags.ViewAuditLog,
+			PermissionsBitField.Flags.ManageGuild]
+		)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempmute_i_dont_have_permission.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
