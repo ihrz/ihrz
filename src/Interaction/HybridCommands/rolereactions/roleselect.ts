@@ -218,7 +218,7 @@ export const command: Command = {
 
 		const collector = configMessage.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
-			time: 300_000, // 5 minutes
+			time: 300_000 * 10, // 50 minutes
 			filter: (x) => {
 				if (x.customId.startsWith("roleselect_roles")) {
 					x.deferUpdate();
