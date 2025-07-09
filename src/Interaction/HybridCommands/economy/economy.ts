@@ -250,6 +250,8 @@ export const command: Command = {
 				fr: "Déposez des pièces dans votre banque",
 			},
 
+			aliases: ["dep"],
+
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
