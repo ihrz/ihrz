@@ -125,7 +125,34 @@ export const command: Command = {
 					],
 
 					permission: PermissionFlagsBits.Administrator
-				}
+				},
+				{
+					name: "set-voice-channel-catgory",
+					type: ApplicationCommandOptionType.Subcommand,
+
+					description: "Set the channel where the voice channel will be create!",
+					description_localizations: {
+						"fr": "Définis la catégorie où le canal perso vas être créer"
+					},
+
+					options: [
+						{
+							name: "category",
+							type: ApplicationCommandOptionType.Channel,
+							channel_types: [ChannelType.GuildCategory],
+
+							description: "The category you want",
+							description_localizations: {
+								"fr": "La category"
+							},
+
+							required: true,
+							permission: null
+						}
+					],
+
+					permission: PermissionFlagsBits.Administrator
+				},
 			],
 			permission: null
 		},

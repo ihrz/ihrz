@@ -97,6 +97,7 @@ export interface LanguageData {
 	var_guild_banner: string;
 	var_guild_splash: string;
 	var_unknown_guild_name: string;
+	var_preview: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;
@@ -272,6 +273,12 @@ export interface LanguageData {
 	ticket_panel_panel_10_label: string;
 	ticket_panel_channel_panel_embed_id: string;
 	ticket_panel_panel_11_label: string;
+	ticket_panel_select_user: string;
+	ticket_panel_button_delete: string;
+	ticket_panel_button_transcript: string;
+	ticket_panel_panel_12_label: string;
+	ticket_panel_panel_13_label: string;
+	ticket_panel_panel_14_label: string;
 	ticket_rename_ok: string;
 	ticket_rename_error: string;
 	disablexp_not_admin: string;
@@ -514,6 +521,13 @@ export interface LanguageData {
 	fun_gay_command_ok: string;
 	fun_stench_command_ok: string;
 	fun_rate_command_ok: string;
+	fun_caracteres_command_ok: string;
+	fun_caracteres_help_title: string;
+	fun_caracteres_embed_desc: string;
+	fun_caracteres_select_menu_placeholder: string;
+	fun_caracteres_final_embed_title: string;
+	fun_caracteres_final_embed_field1_name: string;
+	fun_caracteres_final_embed_field2_name: string;
 	economy_cooldown_error: string;
 	addmoney_not_admin: string;
 	addmoney_logs_embed_title: string;
@@ -800,6 +814,9 @@ export interface LanguageData {
 	util_rolelimit_bad_opt: string;
 	util_rolelimit_good: string;
 	util_inviteinfo_not_valid_invite: string;
+	util_cooldown_command_ok: string;
+	util_role_members: string;
+	util_role_members_no_one: string;
 	blockpub_not_admin: string;
 	blockpub_now_enable: string;
 	blockpub_now_disable: string;

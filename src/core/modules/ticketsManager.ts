@@ -42,6 +42,12 @@ import {
 	ChannelSelectMenuBuilder,
 	ModalSubmitInteraction,
 	APIEmbed,
+	ActionRowData,
+	APIMessageTopLevelComponent,
+	JSONEncodable,
+	MessageActionRowComponentBuilder,
+	MessageActionRowComponentData,
+	TopLevelComponentData,
 } from 'discord.js';
 
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
@@ -835,23 +841,41 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			}
 		);
 
-		const delete_ticket_button = new ButtonBuilder()
-			.setCustomId('t-embed-delete-ticket')
-			.setEmoji('🗑️')
-			.setLabel(lang.ticket_module_button_delete)
-			.setStyle(ButtonStyle.Danger);
-
-		const transcript_ticket_button = new ButtonBuilder()
-			.setCustomId('t-embed-transcript-ticket')
-			.setEmoji('📜')
-			.setLabel(lang.ticket_module_button_transcript)
-			.setStyle(ButtonStyle.Primary);
+		let components: (
+			| JSONEncodable<APIMessageTopLevelComponent>
+		)[] = [];
 
 		const selectUsersMenu = new UserSelectMenuBuilder()
 			.setCustomId('t-embed-select-user')
 			.setPlaceholder(`${lang.ticket_module_button_addmember} / ${lang.ticket_module_button_removemember}`)
 			.setMinValues(0)
 			.setMaxValues(10);
+
+		if (result.config.userSelectPanel !== false) {
+			components.push(new ActionRowBuilder<UserSelectMenuBuilder>()
+				.addComponents(selectUsersMenu)
+			)
+		}
+
+		let row = new ActionRowBuilder<ButtonBuilder>();
+
+		if (result.config.deleteButton !== false) {
+			row.addComponents(new ButtonBuilder()
+				.setCustomId('t-embed-delete-ticket')
+				.setEmoji('🗑️')
+				.setLabel(lang.ticket_module_button_delete)
+				.setStyle(ButtonStyle.Danger))
+		}
+
+		if (result.config.transcriptButton !== false) {
+			row.addComponents(new ButtonBuilder()
+				.setCustomId('t-embed-transcript-ticket')
+				.setEmoji('📜')
+				.setLabel(lang.ticket_module_button_transcript)
+				.setStyle(ButtonStyle.Primary))
+		}
+
+		if (row.components.length > 0) components.push(row);
 
 		let content: string = "";
 
@@ -868,13 +892,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 		(channel as BaseGuildTextChannel).send({
 			embeds: embeds,
 			content: content === "" ? undefined : content,
-			components: [
-				new ActionRowBuilder<UserSelectMenuBuilder>()
-					.addComponents(selectUsersMenu)
-				, new ActionRowBuilder<ButtonBuilder>()
-					.addComponents(transcript_ticket_button)
-					.addComponents(delete_ticket_button)
-			],
+			components,
 			files: files
 		}).then(async (msg) => {
 			await msg.pin("Ticket Panel").catch(() => { })

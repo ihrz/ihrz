@@ -59,7 +59,8 @@ const client = new Client({
 		Partials.User,
 		Partials.Reaction,
 		Partials.ThreadMember
-	]
+	],
+	enforceNonce: true
 })
 
 client.db = await initializeDatabase(config);

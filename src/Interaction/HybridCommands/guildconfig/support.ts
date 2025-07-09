@@ -34,6 +34,9 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 export const command: Command = {
 	name: 'support',
+	name_localizations: {
+		"fr": "soutien"
+	},
 
 	description: 'Give a roles when guild\'s member have something about your server on them bio!',
 	description_localizations: {

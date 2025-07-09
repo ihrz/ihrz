@@ -53,6 +53,8 @@ export const auto_respond: { [key: string]: string } = {
 	"koé": "feur 2.0",
 	"ouais": "non",
 	"je sais": "ta gueule hermione",
+	"trans": "euh ouais par contre parle mieux stp, on as pas élever les cochons ensemble la conne de ta soeur",
+	"fdp": "bha nan la mienne ce fait pas payer frr",
 };
 
 export const event: BotEvent = {

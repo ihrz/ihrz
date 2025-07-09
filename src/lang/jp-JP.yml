@@ -79,6 +79,7 @@ var_guild_icon: "サーバーアイコン"
 var_guild_banner: "サーバーバナー"
 var_guild_splash: "サーバースプラッシュ"
 var_unknown_guild_name: "不明なサーバー名"
+var_preview: "プレビュー"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
@@ -281,6 +282,12 @@ ticket_panel_option_change_category: "カテゴリを変更するオプション
 ticket_panel_panel_10_label: "特定のオプションのカテゴリを変更する"
 ticket_panel_channel_panel_embed_id: "チケットチャンネル埋め込みID"
 ticket_panel_panel_11_label: "チケットチャンネル埋め込みパネルを変更"
+ticket_panel_select_user: "チケットにメンバーを追加するメニュー"
+ticket_panel_button_delete: "チケットを削除するボタン"
+ticket_panel_button_transcript: "記録を削除するボタン"
+ticket_panel_panel_12_label: "チケット内でメンバーを追加/削除するメニューを表示"
+ticket_panel_panel_13_label: "チケットを削除するボタンを表示"
+ticket_panel_panel_14_label: "記録ボタンを表示"
 
 # /ticket rename
 ticket_rename_ok: "チケットチャンネルの名前が変更されました！"
@@ -640,6 +647,15 @@ fun_stench_command_ok: "ユーザー${user}は**${random}%**臭いです👃🛀
 
 # /fun rate
 fun_rate_command_ok: "**${the_things}**を${random}/10で評価します。"
+
+# /fun caracteres
+fun_caracteres_command_ok: "変換するテキストを入力してください！"
+fun_caracteres_help_title: "🎨 テキストスタイルを選択"
+fun_caracteres_embed_desc: "元のテキスト: **${inputText}**\n\n下のドロップダウンメニューからスタイルを選んでテキストを変換してください。"
+fun_caracteres_select_menu_placeholder: "フォントスタイルを選択..."
+fun_caracteres_final_embed_title: "🎨 変換されたテキスト - スタイル: ${selectedStyle}"
+fun_caracteres_final_embed_field1_name: "📝 元のテキスト"
+fun_caracteres_final_embed_field2_name: "✨ 変換後のテキスト"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -1054,6 +1070,13 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | ロール: ${role.toStri
 
 # /util inviteinfo
 util_inviteinfo_not_valid_invite: "この `discord_invite` は無効です！"
+
+# /util cooldown
+util_cooldown_command_ok: "チャンネルのスローモードが ${duration_in_string} に設定されました。"
+
+# /util role-members
+util_role_members: "そのロールを持っているユーザーの一覧"
+util_role_members_no_one: "サーバーにそのロールを持つ人はいません"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

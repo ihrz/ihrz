@@ -64,6 +64,9 @@ export interface TicketPanel {
 			questionTitle: string;
 			questionPlaceholder?: string;
 		}[];
+		userSelectPanel?: boolean;
+		deleteButton?: boolean;
+		transcriptButton?: boolean;
 	}
 };
 
@@ -95,7 +98,10 @@ export const subCommand: SubCommand = {
 				rolesToPing: [],
 				optionFields: [],
 				pingUser: true,
-				form: []
+				form: [],
+				userSelectPanel: true,
+				deleteButton: true,
+				transcriptButton: true
 			}
 		};
 
@@ -152,8 +158,23 @@ export const subCommand: SubCommand = {
 					value: stringifyTicketPanelForm(baseData.config.form) || lang.var_no_set,
 					inline: false
 				},
-			)
-			;
+				{
+					name: lang.ticket_panel_select_user,
+					value: baseData.config.userSelectPanel ? "🟢" : "🔴",
+					inline: true,
+				},
+				{
+					name: lang.ticket_panel_button_delete,
+					value: baseData.config.deleteButton ? "🟢" : "🔴",
+					inline: true,
+				},
+				{
+					name: lang.ticket_panel_button_transcript,
+					value: baseData.config.transcriptButton ? "🟢" : "🔴",
+					inline: true,
+				}
+			);
+		;
 
 		const panelSelec2t = new StringSelectMenuBuilder()
 			.setCustomId("panelSelect")
@@ -192,6 +213,15 @@ export const subCommand: SubCommand = {
 				new StringSelectMenuOptionBuilder()
 					.setLabel(lang.ticket_panel_panel_11_label)
 					.setValue("change_ticket_channel_panel"),
+				new StringSelectMenuOptionBuilder()
+					.setLabel(lang.ticket_panel_panel_12_label)
+					.setValue("change_ticket_user_select_panel"),
+				new StringSelectMenuOptionBuilder()
+					.setLabel(lang.ticket_panel_panel_13_label)
+					.setValue("change_ticket_button_delete_panel"),
+				new StringSelectMenuOptionBuilder()
+					.setLabel(lang.ticket_panel_panel_14_label)
+					.setValue("change_ticket_button_transcript_panel"),
 			);
 
 		const panelButton = [
@@ -318,6 +348,19 @@ export const subCommand: SubCommand = {
 				case "change_ticket_channel_panel":
 					await change_ticket_channel_panel(i);
 					break;
+				case "change_ticket_user_select_panel":
+					i.deferUpdate();
+					await change_ticket_user_select_panel();
+					break;
+				case "change_ticket_button_delete_panel":
+					i.deferUpdate();
+					await change_ticket_button_delete_panel();
+					break;
+				case "change_ticket_button_transcript_panel":
+					i.deferUpdate();
+					await change_ticket_button_transcript_panel();
+					break;
+
 			}
 		});
 
@@ -1216,6 +1259,45 @@ export const subCommand: SubCommand = {
 				],
 				flags: [1 << 6]
 			})
+		}
+
+		async function change_ticket_user_select_panel() {
+			baseData.config.userSelectPanel = !baseData.config.userSelectPanel;
+			is_saved = false;
+			panelEmbed.data.fields![0].value = "🔴";
+
+			panelEmbed.data.fields![9].value = baseData.config.userSelectPanel ? "🟢" : "🔴";
+
+			await originalResponse.edit({
+				embeds: [panelEmbed],
+				components,
+			});
+		}
+
+		async function change_ticket_button_delete_panel() {
+			baseData.config.deleteButton = !baseData.config.deleteButton;
+			is_saved = false;
+			panelEmbed.data.fields![0].value = "🔴";
+
+			panelEmbed.data.fields![10].value = baseData.config.deleteButton ? "🟢" : "🔴";
+
+			await originalResponse.edit({
+				embeds: [panelEmbed],
+				components,
+			});
+		}
+
+		async function change_ticket_button_transcript_panel() {
+			baseData.config.transcriptButton = !baseData.config.transcriptButton;
+			is_saved = false;
+			panelEmbed.data.fields![0].value = "🔴";
+
+			panelEmbed.data.fields![11].value = baseData.config.transcriptButton ? "🟢" : "🔴";
+
+			await originalResponse.edit({
+				embeds: [panelEmbed],
+				components,
+			});
 		}
 
 		og_select_collector.on("end", async (_, reason) => {

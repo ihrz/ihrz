@@ -79,6 +79,7 @@ var_guild_icon: "Ícone do servidor"
 var_guild_banner: "Banner do servidor"
 var_guild_splash: "Tela inicial do servidor"
 var_unknown_guild_name: "Nome de servidor desconhecido"
+var_preview: "Pré-visualização"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Criar Convite Instantâneo"
@@ -281,6 +282,12 @@ ticket_panel_option_change_category: "Selecione uma opção para alterar a categ
 ticket_panel_panel_10_label: "Alterar categoria para uma opção específica"
 ticket_panel_channel_panel_embed_id: "ID de incorporação do canal de tickets"
 ticket_panel_panel_11_label: "Alterar painel de incorporação do canal de tickets"
+ticket_panel_select_user: "Menu para adicionar membros ao ticket"
+ticket_panel_button_delete: "Botão para apagar o ticket"
+ticket_panel_button_transcript: "Botão para apagar a transcrição"
+ticket_panel_panel_12_label: "Mostrar menu para adicionar/remover membros de um ticket"
+ticket_panel_panel_13_label: "Mostrar botão para apagar um ticket"
+ticket_panel_panel_14_label: "Mostrar botão de transcrição"
 
 # /ticket rename
 ticket_rename_ok: "O canal do ticket foi renomeado!"
@@ -640,6 +647,15 @@ fun_stench_command_ok: "O utilizador ${user} tem **${random}%** de mau cheiro �
 
 # /fun rate
 fun_rate_command_ok: "Eu avalio **${the_things}** com ${random}/10."
+
+# /fun caracteres
+fun_caracteres_command_ok: "Por favor, insira um texto para transformar!"
+fun_caracteres_help_title: "🎨 Selecione um estilo de texto"
+fun_caracteres_embed_desc: "Texto original: **${inputText}**\n\nEscolhe um estilo no menu suspenso abaixo para transformar o teu texto."
+fun_caracteres_select_menu_placeholder: "Escolhe um estilo de fonte..."
+fun_caracteres_final_embed_title: "🎨 Texto transformado - Estilo: ${selectedStyle}"
+fun_caracteres_final_embed_field1_name: "📝 Texto original"
+fun_caracteres_final_embed_field2_name: "✨ Texto transformado"
 
 # Comandos de economia
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -1054,6 +1070,13 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Função: ${role.toStrin
 
 # /util inviteinfo
 util_inviteinfo_not_valid_invite: "Este convite `discord_invite` não é válido!"
+
+# /util cooldown
+util_cooldown_command_ok: "O modo lento do canal foi definido para ${duration_in_string}."
+
+# /util role-members
+util_role_members: "Lista de utilizadores que têm os cargos"
+util_role_members_no_one: "Não há ninguém com esse cargo no servidor"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

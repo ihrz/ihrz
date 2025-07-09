@@ -77,6 +77,7 @@ export const command: Command = {
 				repliedUser: false,
 				roles: [],
 				users: [],
+				parse: []
 			}
 		});
 	},

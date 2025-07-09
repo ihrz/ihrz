@@ -79,6 +79,7 @@ var_guild_icon: "Иконка сервера"
 var_guild_banner: "Баннер сервера"
 var_guild_splash: "Заставка сервера"
 var_unknown_guild_name: "Неизвестное имя сервера"
+var_preview: "Предпросмотр"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"
@@ -281,6 +282,12 @@ ticket_panel_option_change_category: "Выберите вариант для и�
 ticket_panel_panel_10_label: "Изменить категорию для одной конкретной опции"
 ticket_panel_channel_panel_embed_id: "ID встраивания канала тикетов"
 ticket_panel_panel_11_label: "Изменить панель встраивания канала тикетов"
+ticket_panel_select_user: "Меню для добавления участников в тикет"
+ticket_panel_button_delete: "Кнопка для удаления тикета"
+ticket_panel_button_transcript: "Кнопка для удаления стенограммы"
+ticket_panel_panel_12_label: "Показать меню для добавления/удаления участников тикета"
+ticket_panel_panel_13_label: "Показать кнопку удаления тикета"
+ticket_panel_panel_14_label: "Показать кнопку стенограммы"
 
 # /ticket rename
 ticket_rename_ok: "Канал тикета был переименован!"
@@ -641,6 +648,14 @@ fun_stench_command_ok: "Пользователь ${user} воняет на **${r
 # /fun rate
 fun_rate_command_ok: "Я оцениваю **${the_things}** на ${random}/10."
 
+# /fun caracteres
+fun_caracteres_command_ok: "Пожалуйста, введите текст для преобразования!"
+fun_caracteres_help_title: "🎨 Выберите стиль текста"
+fun_caracteres_embed_desc: "Исходный текст: **${inputText}**\n\nВыберите стиль из выпадающего меню ниже, чтобы преобразовать текст."
+fun_caracteres_select_menu_placeholder: "Выберите стиль шрифта..."
+fun_caracteres_final_embed_title: "🎨 Преобразованный текст - Стиль: ${selectedStyle}"
+fun_caracteres_final_embed_field1_name: "📝 Исходный текст"
+fun_caracteres_final_embed_field2_name: "✨ Преобразованный текст"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -1055,6 +1070,13 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Роль: ${role.toStrin
 
 # /util inviteinfo
 util_inviteinfo_not_valid_invite: "Приглашение `discord_invite` недействительно!"
+
+# /util cooldown
+util_cooldown_command_ok: "Медленный режим канала установлен на ${duration_in_string}."
+
+# /util role-members
+util_role_members: "Список пользователей с этими ролями"
+util_role_members_no_one: "На сервере нет никого с этой ролью"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
