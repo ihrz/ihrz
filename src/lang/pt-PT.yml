@@ -1982,12 +1982,12 @@ schedule_create_embed_title_confirm: "Agenda #${scheduleCode} Criada!"
 schedule_create_confirm_msg: "${interaction.user}, sua agenda foi criada!\nCódigo: `${scheduleCode}`"
 
 # Comando PFPS
-# /pfps channel, /pfps disable
+# /pfps channel, /pfps config
 
-# /pfps disable
-pfps_disable_not_admin: ":x: Você não tem Permissões de Administrador para executar este comando"
-pfps_disable_command_action_on: "${interaction.user}, você configurou o Módulo PFPS para `Ligado`.\nSe o canal não existir, configure-o com o comando: **/pfps channel**."
-pfps_disable_command_action_off: "${interaction.user}, você configurou o Módulo PFPS para `Desligado`."
+# /pfps config
+pfps_config_not_admin: ":x: Você não tem Permissões de Administrador para executar este comando"
+pfps_config_command_action_on: "${interaction.user}, você configurou o Módulo PFPS para `Ligado`.\nSe o canal não existir, configure-o com o comando: **/pfps channel**."
+pfps_config_command_action_off: "${interaction.user}, você configurou o Módulo PFPS para `Desligado`."
 
 # /pfps channel
 pfps_channel_not_admin: ":x: Você não tem Permissões de Administrador para executar este comando"

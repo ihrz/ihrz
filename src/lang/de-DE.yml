@@ -1985,9 +1985,9 @@ schedule_create_confirm_msg: "${interaction.user}, Ihr Zeitplan wurde erstellt!\
 # /pfps Kanal, /pfps deaktivieren
 
 # /pfps deaktivieren
-pfps_disable_not_admin: ":x: Sie haben keine Administratorberechtigungen, um diesen Befehl auszuführen"
-pfps_disable_command_action_on: "${interaction.user}, Sie haben das PFPS-Modul aktiviert.\nWenn der Kanal nicht existiert, konfigurieren Sie ihn mit dem Befehl: **/pfps Kanal**."
-pfps_disable_command_action_off: "${interaction.user}, Sie haben das PFPS-Modul deaktiviert."
+pfps_config_not_admin: ":x: Sie haben keine Administratorberechtigungen, um diesen Befehl auszuführen"
+pfps_config_command_action_on: "${interaction.user}, Sie haben das PFPS-Modul aktiviert.\nWenn der Kanal nicht existiert, konfigurieren Sie ihn mit dem Befehl: **/pfps Kanal**."
+pfps_config_command_action_off: "${interaction.user}, Sie haben das PFPS-Modul deaktiviert."
 
 # /pfps Kanal
 pfps_channel_not_admin: ":x: Sie haben keine Administratorberechtigungen, um diesen Befehl auszuführen"

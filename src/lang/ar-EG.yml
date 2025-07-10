@@ -1982,12 +1982,12 @@ schedule_create_embed_title_confirm: "#${scheduleCode} تم إنشاء الجد�
 schedule_create_confirm_msg: "${interaction.user}, تم إنشاء جدولك!\nالرمز: `${scheduleCode}`"
 
 # PFPS Command
-# /pfps channel, /pfps disable
+# /pfps channel, /pfps config
 
-# /pfps disable
-pfps_disable_not_admin: ":x: أنت لا تمتلك صلاحيات الإدارة لتنفيذ هذا الأمر"
-pfps_disable_command_action_on: "${interaction.user}, لقد قمت بتفعيل وحدة PFPS.\nإذا كانت القناة غير موجودة، قم بتكوينها باستخدام الأمر: **/pfps channel**."
-pfps_disable_command_action_off: "${interaction.user}, لقد قمت بإيقاف وحدة PFPS."
+# /pfps config
+pfps_config_not_admin: ":x: أنت لا تمتلك صلاحيات الإدارة لتنفيذ هذا الأمر"
+pfps_config_command_action_on: "${interaction.user}, لقد قمت بتفعيل وحدة PFPS.\nإذا كانت القناة غير موجودة، قم بتكوينها باستخدام الأمر: **/pfps channel**."
+pfps_config_command_action_off: "${interaction.user}, لقد قمت بإيقاف وحدة PFPS."
 
 # /pfps channel
 pfps_channel_not_admin: ":x: أنت لا تمتلك صلاحيات الإدارة لتنفيذ هذا الأمر"

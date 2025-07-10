@@ -1982,12 +1982,12 @@ schedule_create_embed_title_confirm: "Planification #${scheduleCode} créée !"
 schedule_create_confirm_msg: "${interaction.user}, votre planification a été créée !\nCode : `${scheduleCode}`"
 
 # Commande PFPS
-# /pfps channel, /pfps disable
+# /pfps channel, /pfps config
 
-# /pfps disable
-pfps_disable_not_admin: ":x: Vous n'avez pas les autorisations d'administrateur pour exécuter cette commande"
-pfps_disable_command_action_on: "${interaction.user}, vous avez activé le module PFPS.\nSi le canal n'existe pas, configurez-le avec la commande : **/pfps channel**."
-pfps_disable_command_action_off: "${interaction.user}, vous avez désactivé le module PFPS."
+# /pfps config
+pfps_config_not_admin: ":x: Vous n'avez pas les autorisations d'administrateur pour exécuter cette commande"
+pfps_config_command_action_on: "${interaction.user}, vous avez activé le module PFPS.\nSi le canal n'existe pas, configurez-le avec la commande : **/pfps channel**."
+pfps_config_command_action_off: "${interaction.user}, vous avez désactivé le module PFPS."
 
 # /pfps channel
 pfps_channel_not_admin: ":x: Vous n'avez pas les autorisations d'administrateur pour exécuter cette commande"
