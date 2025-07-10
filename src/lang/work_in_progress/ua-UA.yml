@@ -1240,12 +1240,12 @@ schedule_create_embed_title_confirm: "Розклад #${scheduleCode} створ
 schedule_create_confirm_msg: "${interaction.user}, ваш розклад був створений!\nКод: `${scheduleCode}`"
 
 # Команда PFPS
-# /pfps channel, /pfps disable
+# /pfps channel, /pfps config
 
-# /pfps disable
-pfps_disable_not_admin: ":x: У вас немає прав адміністратора для виконання цієї команди"
-pfps_disable_command_action_on: "${interaction.user}, ви увімкнули модуль PFPS.\nЯкщо канал не існує, налаштуйте його за допомогою команди: **/pfps channel**."
-pfps_disable_command_action_off: "${interaction.user}, ви вимкнули модуль PFPS."
+# /pfps config
+pfps_config_not_admin: ":x: У вас немає прав адміністратора для виконання цієї команди"
+pfps_config_command_action_on: "${interaction.user}, ви увімкнули модуль PFPS.\nЯкщо канал не існує, налаштуйте його за допомогою команди: **/pfps channel**."
+pfps_config_command_action_off: "${interaction.user}, ви вимкнули модуль PFPS."
 
 # /pfps channel
 pfps_channel_not_admin: ":x: У вас немає прав адміністратора для виконання цієї команди"

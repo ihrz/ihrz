@@ -358,7 +358,7 @@ function roleSaverToString(rs: DatabaseStructure.RoleSaverSchema | undefined, la
 }
 
 function pfpsToString(pfps: DatabaseStructure.DbInId["PFPS"] | undefined, lang: LanguageData) {
-	return (pfps === undefined) || (pfps.disable === true) ? lang.var_no_set :
+	return (pfps === undefined) || (PFPS.config === true) ? lang.var_no_set :
 		`\- ${lang.var_text_channel}: <#${pfps.channel}>`
 }
 

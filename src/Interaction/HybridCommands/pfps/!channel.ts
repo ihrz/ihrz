@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
 			var channel = await client.func.method.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
 		}
 
-		const fetch = await client.db.get(`${interaction.guildId}.PFPS.disable`);
+		const fetch = await client.db.get(`${interaction.guildId}.PFPS.config`);
 
 		if (!fetch && channel) {
 			await client.db.set(`${interaction.guildId}.PFPS.channel`, channel.id);
