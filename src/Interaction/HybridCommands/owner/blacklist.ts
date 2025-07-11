@@ -205,7 +205,13 @@ export const command: Command = {
 
 			const fetched = await tableBlacklist.get(`${member.user.id}`);
 
-			if (fetched) {
+			if (fetched && reason) {
+				await tableBlacklist.set(`${member.user.id}.reason`, reason);
+				await client.func.method.interactionSend(interaction, {
+					content: lang.var_succes
+				})
+				return;
+			} else if (fetched) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.blacklist_already_blacklisted
 						.replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)

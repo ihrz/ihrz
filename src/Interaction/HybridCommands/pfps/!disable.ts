@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 		if (action === 'on') {
 			await client.db.set(`${interaction.guildId}.PFPS.disable`, false);
 			await client.func.method.interactionSend(interaction, {
-				content: lang.pfps_disable_command_action_on
+				content: lang.pfps_config_command_action_on
 					.replace('${interaction.user}', interaction.member.user.toString())
 			});
 
@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
 		} else if (action === 'off') {
 			await client.db.set(`${interaction.guildId}.PFPS.disable`, true);
 			await client.func.method.interactionSend(interaction, {
-				content: lang.pfps_disable_command_action_off
+				content: lang.pfps_config_command_action_off
 					.replace('${interaction.user}', interaction.member.user.toString())
 			});
 

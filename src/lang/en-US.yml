@@ -1984,12 +1984,12 @@ schedule_create_embed_title_confirm: "#${scheduleCode} Schedule Created!"
 schedule_create_confirm_msg: "${interaction.user}, your schedule has been created!\nCode: `${scheduleCode}`"
 
 # PFPS Command
-# /pfps channel, /pfps disable
+# /pfps channel, /pfps config
 
-# /pfps disable
-pfps_disable_not_admin: ":x: You don't have Administrator Permissions to execute this command"
-pfps_disable_command_action_on: "${interaction.user}, you have set to `Power On` the PFPS Module.\nIf channel doesn't exist, configure these, with the command: **/pfps channel**."
-pfps_disable_command_action_off: "${interaction.user}, you have set to `Power Off` the PFPS Module."
+# /pfps config
+pfps_config_not_admin: ":x: You don't have Administrator Permissions to execute this command"
+pfps_config_command_action_on: "${interaction.user}, you have set to `Power On` the PFPS Module.\nIf channel doesn't exist, configure these, with the command: **/pfps channel**."
+pfps_config_command_action_off: "${interaction.user}, you have set to `Power Off` the PFPS Module."
 
 # /pfps channel
 pfps_channel_not_admin: ":x: You don't have Administrator Permissions to execute this command"
@@ -2339,7 +2339,7 @@ event_goodbye_default: "{memberUsername} (account created at {accountCreationTim
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention} you are +1, for the XP level (Level : **{xpLevel}**)"
-event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Do you find this message annoying? You can disable this message by disabling the leveling system with the `/ranks disable` command."
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Do you find this message annoying? You can disable this message by disabling the leveling system with the `/ranks config` command."
 
 # Ticket Module Events:
 event_ticket_embed_description: "Hi ${user.username}, welcome to your ticket! Please be patient, we will be with you shortly. If you would like to close this ticket please run the command `/ticket close`"
