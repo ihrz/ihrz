@@ -2339,7 +2339,7 @@ event_goodbye_default: "Oh fdp pq t partit? C'est {memberUsername} (compte cré�
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention}, bravo sale modo, ta gagné un niveau! On sen branle (Niveau : **{xpLevel}**)"
-event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Ce message vous dérange ? Vous pouvez le désactiver en désactivant le système de niveaux avec la commande `/ranks disable`"
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Ce message vous dérange ? Vous pouvez le désactiver en désactivant le système de niveaux avec la commande `/ranks config`"
 
 # Ticket Module Events:
 event_ticket_embed_description: "Salut ${user.username}, bienvenue dans ton ticket ! S'il tu plaît, soyez patient, nous serons avec tu sous peu. Si tu souhaitez fermer ce ticket, Veuille exécuter `/ticket close`"

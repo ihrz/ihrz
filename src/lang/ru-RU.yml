@@ -2337,7 +2337,7 @@ event_goodbye_default: "{memberUsername} (аккаунт создан {accountCr
 
 # События уровня XP
 event_xp_level_earn: "**GG**, {memberMention}, вы получили +1 уровень, ваш текущий уровень: **{xpLevel}**"
-event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Вам мешает это сообщение? Вы можете отключить его, отключив систему уровней с помощью команды `/ranks disable`"
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Вам мешает это сообщение? Вы можете отключить его, отключив систему уровней с помощью команды `/ranks config`"
 
 # События модуля билетов:
 event_ticket_embed_description: "Привет, ${user.username}, добро пожаловать в ваш бил"
