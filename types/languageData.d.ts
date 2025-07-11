@@ -1515,9 +1515,9 @@ export interface LanguageData {
 	schedule_create_embed_fields_name_confirm: string;
 	schedule_create_embed_title_confirm: string;
 	schedule_create_confirm_msg: string;
-	pfps_disable_not_admin: string;
-	pfps_disable_command_action_on: string;
-	pfps_disable_command_action_off: string;
+	pfps_config_not_admin: string;
+	pfps_config_command_action_on: string;
+	pfps_config_command_action_off: string;
 	pfps_channel_not_admin: string;
 	pfps_channel_embed_title: string;
 	pfps_channel_embed_desc: string;

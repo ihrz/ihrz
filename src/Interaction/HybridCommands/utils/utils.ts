@@ -612,6 +612,8 @@ export const command: Command = {
 				"fr": "Ajoutez facilement des emojis à votre serveur"
 			},
 
+			aliases: ["addemoji", "create", "addemojis", "emoji"],
+
 			options: [
 				{
 					name: 'emojis',

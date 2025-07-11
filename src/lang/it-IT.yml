@@ -1982,12 +1982,12 @@ schedule_create_embed_title_confirm: "Pianificazione #${scheduleCode} creata!"
 schedule_create_confirm_msg: "${interaction.user}, la tua pianificazione è stata creata!\nCodice: `${scheduleCode}`"
 
 # Comando PFPS
-# /pfps channel, /pfps disable
+# /pfps channel, /pfps config
 
-# /pfps disable
-pfps_disable_not_admin: ":x: Non hai le autorizzazioni di amministratore per eseguire questo comando"
-pfps_disable_command_action_on: "${interaction.user}, hai impostato il modulo PFPS su 'Acceso'.\nSe il canale non esiste, configuralo con il comando: **/pfps channel**."
-pfps_disable_command_action_off: "${interaction.user}, hai impostato il modulo PFPS su 'Spento'."
+# /pfps config
+pfps_config_not_admin: ":x: Non hai le autorizzazioni di amministratore per eseguire questo comando"
+pfps_config_command_action_on: "${interaction.user}, hai impostato il modulo PFPS su 'Acceso'.\nSe il canale non esiste, configuralo con il comando: **/pfps channel**."
+pfps_config_command_action_off: "${interaction.user}, hai impostato il modulo PFPS su 'Spento'."
 
 # /pfps channel
 pfps_channel_not_admin: ":x: Non hai le autorizzazioni di amministratore per eseguire questo comando"
@@ -2337,7 +2337,7 @@ event_goodbye_default: "{memberUsername} (account creato il {accountCreationTime
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention} sei salito di livello (Livello: **{xpLevel}**)"
-event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Trovi fastidioso questo messaggio? Puoi disattivarlo disabilitando il sistema dei livelli con il comando `/ranks disable`"
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Trovi fastidioso questo messaggio? Puoi disattivarlo disabilitando il sistema dei livelli con il comando `/ranks config`"
 
 # Ticket Module Events:
 event_ticket_embed_description: "Ciao ${user.username}, benvenuto al tuo ticket! Sii paziente, saremo con te al più presto. Se vuoi chiudere questo ticket, esegui `/ticket close`."
