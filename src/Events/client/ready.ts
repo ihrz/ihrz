@@ -187,6 +187,7 @@ export const event: BotEvent = {
 		await recoverActiveSessions(client);
 		await client.memberCountManager.init();
 		await client.autoRenewManager.init();
+		await client.nightmodeManager.init();
 		// await client.ownihrz.Start_Refresh();
 		await client.notifier.start();
 		await client.emojisManager.startSync();

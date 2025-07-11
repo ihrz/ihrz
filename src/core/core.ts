@@ -53,6 +53,7 @@ import { Client_Functions } from '../../types/client_functions.js';
 import { AnotherCommand } from '../../types/anotherCommand.js';
 import { EmojisManager } from './modules/emojisManager.js';
 import { cache_storage_data, cache_storage_update } from './cache.js';
+import { NightModeManager } from './modules/nightModeManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -103,6 +104,7 @@ export async function main(client: Client) {
 	client.htmlfiles = {};
 	client.applicationsCommands = new Collection<string, AnotherCommand>();
 	client.emojisManager = new EmojisManager(client);
+	client.nightmodeManager = new NightModeManager(client);
 
 	process.on('SIGINT', async () => {
 		// if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
