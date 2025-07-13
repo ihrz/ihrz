@@ -385,7 +385,8 @@ export namespace DatabaseStructure {
 		time?: number[];
 		notify?: boolean;
 		derankBot?: boolean;
-		wlBots?: string[]
+		wlBots?: string[];
+		utc?: number;
 	}
 
 	export interface UtilsData {

@@ -44,6 +44,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { isNumber } from '../../../core/functions/method.js';
+import { utcTimezones } from '../../../files/locales.js';
 
 export const command: Command = {
 	name: 'nightmode',
@@ -70,8 +71,10 @@ export const command: Command = {
 			notify: true,
 			time: [21, 9],
 			wlBots: [],
-			derankBot: true
+			derankBot: true,
+			utc: 1
 		};
+
 		let time = client.timeCalculator.to_ms("30m");
 
 		const embed = new EmbedBuilder()
@@ -95,22 +98,23 @@ export const command: Command = {
 					value: baseData.notify ? "🟢" : "🔴"
 				},
 				{
-					name: "Plage Horaire",
-					value: `${baseData.time![0]} - ${baseData.time![1]}`
-				},
-				{
 					name: "Derank les bots?",
 					value: baseData.derankBot ? "🟢" : "🔴"
 				},
 				{
 					name: "Bot sous liste blanche",
 					value: baseData.wlBots?.map(x => `<@${x}>`).join('') || "aucun"
-				}
+				},
+				{
+					name: "Plage Horaire",
+					value: `${baseData.time![0]} - ${baseData.time![1]} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
+				},
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId));
 
 		const string_select = new StringSelectMenuBuilder()
 			.setCustomId("nightmode_main_panel")
+			.setPlaceholder("Paramétrer le mode nuit sur le serveur.")
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
 					.setLabel('Activer le mode nuit')
@@ -128,6 +132,10 @@ export const command: Command = {
 					.setLabel('Derank les bots')
 					.setDescription("Faut-t'il derank les bots pendant la nuit?")
 					.setValue("derank_bot"),
+				new StringSelectMenuOptionBuilder()
+					.setLabel("Changer le fuseau horaire (UTC)")
+					.setDescription("Si vous avez une heure spécifique vous devez le mettre (format nombre UTC)")
+					.setValue("change_timezone")
 			)
 
 		const save_button = new ButtonBuilder()
@@ -189,6 +197,8 @@ export const command: Command = {
 			} else if (i.values[0] === "derank_bot") {
 				i.deferUpdate();
 				await derank_bot(3)
+			} else if (i.values[0] === "change_timezone") {
+				await change_timezone(i, 5); // 4 is for wl bots
 			}
 		});
 
@@ -225,6 +235,53 @@ export const command: Command = {
 				components: getComponent(),
 				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 			});
+		}
+		async function change_timezone(i: StringSelectMenuInteraction<CacheType>, fieldsNumber: number) {
+			const options = Object.entries(utcTimezones).map(([offset, name]) => {
+				const offsetNum = Number(offset);
+				const displayOffset = offsetNum >= 0 ? `UTC+${offsetNum}` : `UTC${offsetNum}`;
+
+				return new StringSelectMenuOptionBuilder()
+					.setLabel(name)
+					.setValue(offset)
+					.setDescription(displayOffset);
+			});
+
+			let wait = await i.reply({
+				components: [
+					new ActionRowBuilder<StringSelectMenuBuilder>()
+						.addComponents(
+							new StringSelectMenuBuilder()
+								.setCustomId("utc_choice")
+								.setPlaceholder("Choissiez le UTC pour votre serveur discord")
+								.addOptions(options)
+						)
+				],
+				flags: MessageFlags.Ephemeral
+			});
+
+			let collector2con = interaction.channel!.createMessageComponentCollector({
+				time: 60_000,
+				componentType: ComponentType.StringSelect
+			});
+
+			collector2con.on('collect', async (i) => {
+				let utc = i.values?.[0];
+				if (utc) {
+					baseData.utc = Number(utc);
+					collector2con.stop();
+					await ogResponse.edit({
+						embeds: [embed],
+						components: getComponent(),
+						files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+					});
+				}
+			})
+
+			collector2con.on('end', async () => {
+				wait.delete();
+
+			})
 		}
 
 		async function editHoursWindow(i: StringSelectMenuInteraction<CacheType>, fieldsNumber: number) {
