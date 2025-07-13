@@ -26,6 +26,7 @@
 import { Client, AuditLogEvent, Guild, PermissionFlagsBits } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
+import { handledAuditLogEntries } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildUpdate",
@@ -47,11 +48,16 @@ export const event: BotEvent = {
 				entry.targetId === newGuild.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
+				// Window time for avoiding recursive:
+				&& entry.createdTimestamp > (Date.now() - 10_000)
 			);
 
-			if (!relevantLog) {
+			// Avoiding double action by filtering the user
+			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
 				return;
 			}
+
+			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${newGuild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 			if (baseData) return;

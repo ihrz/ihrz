@@ -55,6 +55,8 @@ export const subCommand: SubCommand = {
 		};
 
 		let currentPage = 0;
+		let is_bot_filtered = false;
+
 		const usersPerPage = 5;
 		const pages: { title: string; description: string; }[] = [];
 
@@ -77,7 +79,7 @@ export const subCommand: SubCommand = {
 			return new EmbedBuilder()
 				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
 				.setTitle(pages[currentPage].title)
-				.setDescription(pages[currentPage].description)
+				.setDescription(filterBotInList(pages[currentPage].description))
 				.setFooter({
 					text: lang.prevnames_embed_footer_text
 						.replace('${currentPage + 1}', (currentPage + 1).toString())
@@ -86,6 +88,13 @@ export const subCommand: SubCommand = {
 				})
 				.setTimestamp()
 		};
+
+		function filterBotInList(str: string): string {
+			let _ = str.split("\n");
+			return _.filter(x => {
+				return is_bot_filtered ? !x.endsWith("(BOT)") : x
+			}).join("\n")
+		}
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
@@ -100,7 +109,11 @@ export const subCommand: SubCommand = {
 				.setCustomId("trash-button-embed")
 				.setLabel(lang.all_admins_unrank_button_label)
 				.setEmoji("🗑️")
-				.setStyle(ButtonStyle.Danger)
+				.setStyle(ButtonStyle.Danger),
+			new ButtonBuilder()
+				.setCustomId("filter-bot")
+				.setEmoji("🤖")
+				.setStyle(is_bot_filtered ? ButtonStyle.Success : ButtonStyle.Danger)
 		);
 
 		const messageEmbed = await client.func.method.interactionSend(interaction, {
@@ -176,9 +189,12 @@ export const subCommand: SubCommand = {
 					await interaction_2.reply({ content: lang.all_admins_unrank_not_owner });
 					collector.stop();
 				}
-			};
-
-			messageEmbed.edit({ embeds: [await createEmbed()] });
+			} else if (interaction_2.customId === "filter-bot") {
+				interaction_2.deferUpdate();
+				is_bot_filtered = !is_bot_filtered;
+				row.components[3]!.data.style = is_bot_filtered ? ButtonStyle.Success : ButtonStyle.Danger;
+			}
+			messageEmbed.edit({ embeds: [await createEmbed()], components: [row] });
 		});
 
 		collector.on('end', async () => {

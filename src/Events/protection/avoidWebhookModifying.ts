@@ -22,6 +22,7 @@
 import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
+import { handledAuditLogEntries } from './ready.js';
 
 export const event: BotEvent = {
 	name: "webhooksUpdate",
@@ -37,18 +38,23 @@ export const event: BotEvent = {
 		if (data.webhook && data.webhook.mode === 'allowlist') {
 			const fetchedLogs = await channel.guild.fetchAuditLogs({
 				type: AuditLogEvent.WebhookCreate,
-				limit: 1,
+				limit: 5,
 			});
 
 			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.target.channelId === channel.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
+				// Window time for avoiding recursive:
+				&& entry.createdTimestamp > (Date.now() - 10_000)
 			);
 
-			if (!relevantLog) {
+			// Avoiding double action by filtering the user
+			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
 				return;
 			}
+
+			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 

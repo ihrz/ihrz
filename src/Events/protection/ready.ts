@@ -104,6 +104,8 @@ async function backupGuildStructure(client: Client) {
 	}
 }
 
+export const handledAuditLogEntries = new Set<string>();
+
 export const event = {
 	name: 'ready',
 	run: async (client: Client) => {

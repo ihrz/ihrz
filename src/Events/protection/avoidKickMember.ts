@@ -21,6 +21,7 @@
 
 import { Client, AuditLogEvent, GuildMember, PermissionsBitField, PermissionFlagsBits } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
+import { handledAuditLogEntries } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -45,18 +46,23 @@ export const event: BotEvent = {
 
 			const fetchedLogs = await member.guild.fetchAuditLogs({
 				type: AuditLogEvent.MemberKick,
-				limit: 75,
+				limit: 5,
 			});
 
 			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === member.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
+				// Window time for avoiding recursive:
+				&& entry.createdTimestamp > (Date.now() - 10_000)
 			);
 
-			if (!relevantLog) {
+			// Avoiding double action by filtering the user
+			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
 				return;
 			}
+
+			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
