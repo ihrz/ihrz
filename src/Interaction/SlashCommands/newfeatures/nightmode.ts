@@ -198,7 +198,7 @@ export const command: Command = {
 				i.deferUpdate();
 				await derank_bot(3)
 			} else if (i.values[0] === "change_timezone") {
-				await change_timezone(i, 5); // 4 is for wl bots
+				await change_timezone(i, 4);
 			}
 		});
 
@@ -269,12 +269,13 @@ export const command: Command = {
 				let utc = i.values?.[0];
 				if (utc) {
 					baseData.utc = Number(utc);
-					collector2con.stop();
+					embed.data.fields![fieldsNumber]!.value = `${baseData.time![0]} - ${baseData.time![1]} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
 					await ogResponse.edit({
 						embeds: [embed],
 						components: getComponent(),
 						files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 					});
+					collector2con.stop();
 				}
 			})
 
@@ -382,7 +383,7 @@ export const command: Command = {
 				const bots = users.filter((u): u is User => u !== null && u.bot);
 
 				baseData.wlBots = bots.map(u => u.id);
-				embed.data.fields![4]!.value = baseData.wlBots.map(x => "<@" + x + ">").join(",")
+				embed.data.fields![3]!.value = baseData.wlBots.map(x => "<@" + x + ">").join(",")
 				await ogResponse.edit({
 					embeds: [embed],
 					components: getComponent(),
