@@ -75,6 +75,22 @@ export const command: Command = {
 			utc: 1
 		};
 
+		let check = client.nightmodeManager.Basics_Check(interaction.guild!);
+		let warn_msg = (await interaction.guild.fetchOwner()).toString();
+		warn_msg += "\n";
+
+		if (!check.bot_role) {
+			warn_msg += `${client.iHorizon_Emojis.Warning_Icon} Le bot n'as pas de rôle application. Veuillez re-ajouter le bot correctement.\n`;
+		}
+
+		if (!check.im_on_top) {
+			warn_msg += `${client.iHorizon_Emojis.Warning_Icon} Le bot n'est pas le rôle le plus haut. Veuillez le mettre en haut.\n`;
+		}
+
+		if (!check.im_self_admin) {
+			warn_msg += `${client.iHorizon_Emojis.Warning_Icon} Le rôle du bot n'a pas de permissions administrateur.\n`;
+		}
+
 		let time = client.timeCalculator.to_ms("30m");
 
 		const embed = new EmbedBuilder()
@@ -107,7 +123,7 @@ export const command: Command = {
 				},
 				{
 					name: "Plage Horaire",
-					value: `${baseData.time![0]} - ${baseData.time![1]} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
+					value: `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
 				},
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId));
@@ -158,6 +174,7 @@ export const command: Command = {
 		}
 
 		const ogResponse = await client.func.method.interactionSend(interaction, {
+			content: warn_msg,
 			embeds: [embed],
 			components: getComponent(false),
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
@@ -269,7 +286,7 @@ export const command: Command = {
 				let utc = i.values?.[0];
 				if (utc) {
 					baseData.utc = Number(utc);
-					embed.data.fields![fieldsNumber]!.value = `${baseData.time![0]} - ${baseData.time![1]} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
+					embed.data.fields![fieldsNumber]!.value = `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
 					await ogResponse.edit({
 						embeds: [embed],
 						components: getComponent(),
@@ -339,7 +356,7 @@ export const command: Command = {
 			}
 
 			baseData.time = [start_value_integerified, end_value_integerified];
-			embed.data.fields![fieldsNumber].value = `${baseData.time![0]} - ${baseData.time![1]}`;
+			embed.data.fields![fieldsNumber].value = `${client.nightmodeManager.time_beautifuer(baseData.time)}`;
 			ogResponse.edit({
 				embeds: [embed],
 				components: getComponent(),
