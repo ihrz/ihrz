@@ -35,6 +35,8 @@ import {
 	TextInputStyle,
 	ButtonBuilder,
 	ButtonStyle,
+	UserSelectMenuBuilder,
+	User,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command.js';
@@ -66,8 +68,11 @@ export const command: Command = {
 		let baseData: DatabaseStructure.NightMode = await client.db.get(`${interaction.guildId}.UTILS.NIGHT_MODE`) || {
 			enabled: true,
 			notify: true,
-			time: [21, 9]
+			time: [21, 9],
+			wlBots: [],
+			derankBot: true
 		};
+		let time = client.timeCalculator.to_ms("30m");
 
 		const embed = new EmbedBuilder()
 			.setColor("#000000")
@@ -92,6 +97,14 @@ export const command: Command = {
 				{
 					name: "Plage Horaire",
 					value: `${baseData.time![0]} - ${baseData.time![1]}`
+				},
+				{
+					name: "Derank les bots?",
+					value: baseData.derankBot ? "🟢" : "🔴"
+				},
+				{
+					name: "Bot sous liste blanche",
+					value: baseData.wlBots?.map(x => `<@${x}>`).join('') || "aucun"
 				}
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId));
@@ -111,6 +124,10 @@ export const command: Command = {
 					.setLabel('Configurer la plage horaire du mode nuit')
 					.setDescription("Plage horaire où les PA sont retiré automatiquement.")
 					.setValue("hours_window"),
+				new StringSelectMenuOptionBuilder()
+					.setLabel('Derank les bots')
+					.setDescription("Faut-t'il derank les bots pendant la nuit?")
+					.setValue("derank_bot"),
 			)
 
 		const save_button = new ButtonBuilder()
@@ -118,22 +135,38 @@ export const command: Command = {
 			.setCustomId("nightmode_save_config")
 			.setEmoji(client.iHorizon_Emojis.Yes);
 
+		const wl_bot_select_menu = new UserSelectMenuBuilder()
+			.setCustomId("nightmode-wl-bots-wl")
+			.setMaxValues(20)
+			.setPlaceholder("Bot authorisé as être admin pendant la nuit")
+			.setMinValues(0);
+
+		function getComponent(disabled: boolean = false) {
+			return [
+				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(string_select.setDisabled(disabled)),
+				new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(wl_bot_select_menu.setDisabled(disabled)),
+				new ActionRowBuilder<ButtonBuilder>().addComponents(save_button.setDisabled(disabled)),
+			]
+		}
+
 		const ogResponse = await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			components: [
-				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(string_select),
-				new ActionRowBuilder<ButtonBuilder>().addComponents(save_button)
-			],
+			components: getComponent(false),
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
 
 		const collector2wish = ogResponse.createMessageComponentCollector({
-			time: client.timeCalculator.to_ms("30m"),
+			time,
 			componentType: ComponentType.StringSelect
 		});
 
+		const collector2merde = ogResponse.createMessageComponentCollector({
+			time,
+			componentType: ComponentType.UserSelect
+		})
+
 		const collector2fdp = ogResponse.createMessageComponentCollector({
-			time: client.timeCalculator.to_ms("30m"),
+			time,
 			componentType: ComponentType.Button
 		});
 
@@ -146,13 +179,16 @@ export const command: Command = {
 			}
 
 			if (i.values[0] === "hours_window") {
-				await editHoursWindow(i);
+				await editHoursWindow(i, 2);
 			} else if (i.values[0] === "owner_notify") {
 				i.deferUpdate();
 				await editOwnerNotify(1);
 			} else if (i.values[0] === "enable_mode") {
 				i.deferUpdate();
 				await editEnableMode(0);
+			} else if (i.values[0] === "derank_bot") {
+				i.deferUpdate();
+				await derank_bot(3)
 			}
 		});
 
@@ -163,13 +199,22 @@ export const command: Command = {
 
 			await ogResponse.edit({
 				embeds: [embed],
-				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(string_select),
-					new ActionRowBuilder<ButtonBuilder>().addComponents(save_button)
-				],
+				components: getComponent(),
 				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 			});
 		}
+		async function derank_bot(fieldsNumber: number) {
+			baseData.notify = !baseData.notify;
+
+			embed.data.fields![fieldsNumber].value = baseData.notify ? "🟢" : "🔴";
+
+			await ogResponse.edit({
+				embeds: [embed],
+				components: getComponent(),
+				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			});
+		}
+
 		async function editEnableMode(fieldsNumber: number) {
 			baseData.enabled = !baseData.enabled;
 
@@ -177,15 +222,12 @@ export const command: Command = {
 
 			await ogResponse.edit({
 				embeds: [embed],
-				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(string_select),
-					new ActionRowBuilder<ButtonBuilder>().addComponents(save_button)
-				],
+				components: getComponent(),
 				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 			});
 		}
 
-		async function editHoursWindow(i: StringSelectMenuInteraction<CacheType>) {
+		async function editHoursWindow(i: StringSelectMenuInteraction<CacheType>, fieldsNumber: number) {
 			const modal = await iHorizonModalResolve({
 				customId: "night-mode",
 				deferUpdate: false,
@@ -239,13 +281,10 @@ export const command: Command = {
 			}
 
 			baseData.time = [start_value_integerified, end_value_integerified];
-			embed.data.fields![2].value = `${baseData.time![0]} - ${baseData.time![1]}`;
+			embed.data.fields![fieldsNumber].value = `${baseData.time![0]} - ${baseData.time![1]}`;
 			ogResponse.edit({
 				embeds: [embed],
-				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(string_select),
-					new ActionRowBuilder<ButtonBuilder>().addComponents(save_button)
-				],
+				components: getComponent(),
 			})
 		}
 
@@ -260,13 +299,38 @@ export const command: Command = {
 			if (i.customId === "nightmode_save_config") {
 				await i.deferUpdate();
 				collector2wish.stop();
+				collector2merde.stop();
 				await ogResponse.edit({
-					components: [
-						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(string_select.setDisabled(true)),
-						new ActionRowBuilder<ButtonBuilder>().addComponents(save_button.setDisabled(true))
-					]
+					components: getComponent(true)
 				});
 				await client.db.set(`${interaction.guildId}.UTILS.NIGHT_MODE`, baseData);
+			}
+		})
+
+		collector2merde.on('collect', async (i) => {
+			if (i.user.id !== interaction.user.id) {
+				await i.reply({
+					content: lang.help_not_for_you,
+					flags: MessageFlags.Ephemeral
+				})
+			}
+
+			i.deferUpdate();
+
+			if (i.values) {
+				const users = await Promise.all(
+					i.values.map(id => client.users.fetch(id).catch(() => null))
+				);
+
+				const bots = users.filter((u): u is User => u !== null && u.bot);
+
+				baseData.wlBots = bots.map(u => u.id);
+				embed.data.fields![4]!.value = baseData.wlBots.map(x => "<@" + x + ">").join(",")
+				await ogResponse.edit({
+					embeds: [embed],
+					components: getComponent(),
+					files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+				});
 			}
 		})
 	},
