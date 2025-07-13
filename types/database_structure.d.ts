@@ -382,11 +382,11 @@ export namespace DatabaseStructure {
 
 	export interface NightMode {
 		enabled?: boolean;
-		time?: number[];
+		time: number[];
 		notify?: boolean;
 		derankBot?: boolean;
 		wlBots?: string[];
-		utc?: number;
+		utc: number;
 	}
 
 	export interface UtilsData {
