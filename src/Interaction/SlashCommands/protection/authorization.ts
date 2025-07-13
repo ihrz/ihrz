@@ -84,6 +84,10 @@ export const rules = [
 		placeholder: "Unban Members",
 		value: "unbanmembers",
 	},
+	{
+		placeholder: "Add admin role",
+		value: "add_admin_roles"
+	}
 ] as const
 
 export const command: Command = {

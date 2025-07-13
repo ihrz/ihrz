@@ -21,7 +21,7 @@
 
 import { Client, AuditLogEvent, GuildChannel, ChannelType, CategoryChannel, PermissionFlagsBits } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
-import { protectionCache } from './ready.js';
+import { handledAuditLogEntries, protectionCache } from './ready.js';
 import wait from '../../core/functions/wait.js';
 
 const restorationInProgress = new Map<string, Promise<void>>();
@@ -41,15 +41,21 @@ export const event: BotEvent = {
 		if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
 			const fetchedLogs = await channel.guild.fetchAuditLogs({
 				type: AuditLogEvent.ChannelDelete,
-				limit: 75,
+				limit: 5,
 			});
 			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === channel.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
+				// Window time for avoiding recursive:
+				&& entry.createdTimestamp > (Date.now() - 10_000)
 			);
 
-			if (!relevantLog) return;
+			// Avoiding double action by filtering the user
+			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
+				return;
+			}
+			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${guildId}.ALLOWLIST.list.${relevantLog.executorId}`);
 

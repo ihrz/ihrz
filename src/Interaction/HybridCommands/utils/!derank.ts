@@ -24,7 +24,8 @@ import {
 	EmbedBuilder,
 	ChatInputCommandInteraction,
 	GuildMember,
-	Message
+	Message,
+	GuildMemberRoleManager
 } from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -51,6 +52,13 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, { content: lang.perm_list_no_user });
 			return;
 		}
+
+		if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= member.roles.highest.position) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.utils_delrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
+			});
+			return;
+		};
 
 		const rolesToRemove = Array.from(member.roles.cache.values()).filter(role => role.id !== role.guild.roles.everyone.id);
 
