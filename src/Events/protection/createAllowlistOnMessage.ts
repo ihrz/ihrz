@@ -30,7 +30,7 @@ export const event: BotEvent = {
 
 		const baseData = await client.db.get(`${message.guildId}.ALLOWLIST`);
 
-		if (!baseData) {
+		if (!baseData || Object.values(baseData?.list || {}).length === 0) {
 			await client.db.set(`${message.guildId}.ALLOWLIST`,
 				{
 					enable: false,
