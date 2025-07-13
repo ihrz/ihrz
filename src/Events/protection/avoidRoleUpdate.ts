@@ -22,6 +22,7 @@
 import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
+import { handledAuditLogEntries } from './ready.js';
 
 export const event: BotEvent = {
 	name: "roleUpdate",
@@ -37,18 +38,23 @@ export const event: BotEvent = {
 		if (data.updaterole && data.updaterole.mode === 'allowlist') {
 			const fetchedLogs = await newRole.guild.fetchAuditLogs({
 				type: AuditLogEvent.RoleUpdate,
-				limit: 75,
+				limit: 5,
 			});
 
 			const relevantLog = fetchedLogs.entries.find(entry =>
 				entry.targetId === oldRole.id &&
 				entry.executorId !== client.user?.id &&
 				entry.executorId
+				// Window time for avoiding recursive:
+				&& entry.createdTimestamp > (Date.now() - 10_000)
 			);
 
-			if (!relevantLog) {
+			// Avoiding double action by filtering the user
+			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
 				return;
 			}
+
+			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
