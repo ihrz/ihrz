@@ -387,7 +387,7 @@ export namespace DatabaseStructure {
 		derankBot?: boolean;
 		wlBots?: string[];
 		utc: number;
-		last_activated: number
+		last_state: "started" | "ended"
 	}
 
 	export interface UtilsData {
