@@ -95,10 +95,19 @@ class NightModeManager {
 		const [currentHour, currentMinute] = guildTime.split(':').map(Number);
 		const currentTimeInMinutes = currentHour * 60 + currentMinute;
 
-		const startTimeInMinutes = guildObject.time[0] * 60;
-		const endTimeInMinutes = guildObject.time[1] * 60;
+		// Parse time format: [startHour, startMinute, endHour, endMinute]
+		let startTimeInMinutes: number;
+		let endTimeInMinutes: number;
 
-		// Handle overnight periods (e.g., 22:00 to 06:00)
+		if (guildObject.time.length === 4) {
+			// New format: [startHour, startMinute, endHour, endMinute]
+			startTimeInMinutes = guildObject.time[0] * 60 + guildObject.time[1];
+			endTimeInMinutes = guildObject.time[2] * 60 + guildObject.time[3];
+		} else {
+			throw new Error("Invalid time format in night mode configuration");
+		}
+
+		// Handle overnight periods (e.g., 22:30 to 06:15)
 		if (startTimeInMinutes > endTimeInMinutes) {
 			// Night mode spans midnight
 			if (currentTimeInMinutes >= startTimeInMinutes || currentTimeInMinutes <= endTimeInMinutes) {
@@ -265,20 +274,30 @@ class NightModeManager {
 		}).catch(() => { })
 	}
 
-	// Input: 21
-	// Result: 21:00 / 9PM
-	public hour_beautifuer(str: number, format: "12h" | "24h" = "24h") {
+	// Input: 21, 30
+	// Result: 21:30 / 9:30PM
+	public time_beautifuer_with_minutes(hour: number, minute: number, format: "12h" | "24h" = "24h") {
 		if (format === "12h") {
-			const period = str < 12 || str === 24 ? "AM" : "PM";
-			const hour = str % 12 === 0 ? 12 : str % 12;
-			return `${hour}${period}`;
+			const period = hour < 12 || hour === 24 ? "AM" : "PM";
+			const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+			return `${displayHour}:${minute.toString().padStart(2, '0')}${period}`;
 		} else {
-			return `${str < 10 ? '0' : ''}${str}:00`;
+			return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 		}
 	}
 
-	public time_beautifuer(str: number[]) {
-		return `${this.hour_beautifuer(str[0])} - ${this.hour_beautifuer(str[1])} (${this.hour_beautifuer(str[0], "12h")} - ${this.hour_beautifuer(str[1], "12h")})`
+	public time_beautifuer(timeArray: number[]) {
+		if (timeArray.length === 4) {
+			// New format: [startHour, startMinute, endHour, endMinute]
+			const startTime24 = this.time_beautifuer_with_minutes(timeArray[0], timeArray[1], "24h");
+			const endTime24 = this.time_beautifuer_with_minutes(timeArray[2], timeArray[3], "24h");
+			const startTime12 = this.time_beautifuer_with_minutes(timeArray[0], timeArray[1], "12h");
+			const endTime12 = this.time_beautifuer_with_minutes(timeArray[2], timeArray[3], "12h");
+
+			return `${startTime24} - ${endTime24} (${startTime12} - ${endTime12})`;
+		} else {
+			throw new Error("Invalid time format");
+		}
 	}
 
 	public async isAlreadyHandled(type: checked_nightmode_response, guild: Guild): Promise<boolean> {
@@ -293,7 +312,6 @@ class NightModeManager {
 	}
 
 }
-
 
 export {
 	NightModeManager

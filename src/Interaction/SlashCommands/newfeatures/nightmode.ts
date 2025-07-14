@@ -43,7 +43,6 @@ import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
-import { isNumber } from '../../../core/functions/method.js';
 import { utcTimezones } from '../../../files/locales.js';
 
 export const command: Command = {
@@ -69,7 +68,6 @@ export const command: Command = {
 		let baseData: DatabaseStructure.NightMode = await client.db.get(`${interaction.guildId}.UTILS.NIGHT_MODE`) || {
 			enabled: true,
 			notify: true,
-			time: [21, 9],
 			wlBots: [],
 			derankBot: true,
 			utc: 1
@@ -213,7 +211,7 @@ export const command: Command = {
 				await editEnableMode(0);
 			} else if (i.values[0] === "derank_bot") {
 				i.deferUpdate();
-				await derank_bot(3)
+				await derank_bot(2);
 			} else if (i.values[0] === "change_timezone") {
 				await change_timezone(i, 4);
 			}
@@ -231,10 +229,8 @@ export const command: Command = {
 			});
 		}
 		async function derank_bot(fieldsNumber: number) {
-			baseData.notify = !baseData.notify;
-
-			embed.data.fields![fieldsNumber].value = baseData.notify ? "🟢" : "🔴";
-
+			baseData.derankBot = !baseData.derankBot;
+			embed.data.fields![fieldsNumber].value = baseData.derankBot ? "🟢" : "🔴";
 			await ogResponse.edit({
 				embeds: [embed],
 				components: getComponent(),
@@ -301,6 +297,22 @@ export const command: Command = {
 
 			})
 		}
+		function parseTimeInput(input: string): { hour: number, minute: number } | null {
+			// Supported format: "21", "21:30", "2130"
+			const timeRegex = /^(\d{1,2})(?::(\d{2})|(\d{2}))?$/;
+			const match = input.match(timeRegex);
+
+			if (!match) return null;
+
+			const hour = parseInt(match[1]);
+			const minute = parseInt(match[2] || match[3] || '0');
+
+			if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+				return null;
+			}
+
+			return { hour, minute };
+		}
 
 		async function editHoursWindow(i: StringSelectMenuInteraction<CacheType>, fieldsNumber: number) {
 			const modal = await iHorizonModalResolve({
@@ -309,56 +321,55 @@ export const command: Command = {
 				fields: [
 					{
 						customId: "start",
-						label: "Heure du Début (format 24 heure)",
+						label: "Heure de Début (ex: 21:30 ou 2130)",
 						required: true,
 						style: TextInputStyle.Short,
-						maxLength: 4,
+						maxLength: 5,
 						minLength: 1,
+						placeHolder: "21:30 / 2130"
 					},
 					{
 						customId: "end",
-						label: "Heure de Fin (format 24 heure)",
+						label: "Heure de Fin (ex: 06:15 ou 0615)",
 						required: true,
 						style: TextInputStyle.Short,
-						maxLength: 4,
+						maxLength: 5,
 						minLength: 1,
+						placeHolder: "06:15 / 0615"
 					}
 				],
-				title: "NightMode - Plage Horaire"
+				title: "NightMode - Plage Horaire (Format 24h avec minutes)"
 			}, i);
 
 			let start_value = modal?.fields.getTextInputValue("start");
 			let end_value = modal?.fields.getTextInputValue("end");
 
-			if (!isNumber(start_value!) || !isNumber(end_value!)) {
-				return await interaction.followUp({
-					content: lang.temporary_voice_limit_button_not_integer
-						.replace("${interaction.client.iHorizon_Emojis.No}", interaction.client.iHorizon_Emojis.No),
-					flags: MessageFlags.Ephemeral
-				})
-			}
+			const startTime = parseTimeInput(start_value!);
+			const endTime = parseTimeInput(end_value!);
 
-			let start_value_integerified = parseInt(start_value!);
-			let end_value_integerified = parseInt(end_value!);
-
-			if (start_value_integerified > 24 || start_value_integerified < 0) {
+			if (!startTime) {
 				return await interaction.followUp({
-					content: "L'heure est pas valide frérot",
-					flags: MessageFlags.Ephemeral
-				});
-			} else if (end_value_integerified > 24 || end_value_integerified < 0) {
-				return await interaction.followUp({
-					content: "L'heure est pas valide frérot",
+					content: `${client.iHorizon_Emojis.No} L'heure de début n'est pas valide. Utilisez le format: 21:30 ou 2130`,
 					flags: MessageFlags.Ephemeral
 				});
 			}
 
-			baseData.time = [start_value_integerified, end_value_integerified];
-			embed.data.fields![fieldsNumber].value = `${client.nightmodeManager.time_beautifuer(baseData.time)}`;
-			ogResponse.edit({
+			if (!endTime) {
+				return await interaction.followUp({
+					content: `${client.iHorizon_Emojis.No} L'heure de fin n'est pas valide. Utilisez le format: 06:15 ou 0615`,
+					flags: MessageFlags.Ephemeral
+				});
+			}
+
+			// New format: [startHour, startMinute, endHour, endMinute]
+			baseData.time = [startTime.hour, startTime.minute, endTime.hour, endTime.minute];
+			embed.data.fields![fieldsNumber].value = `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`;
+
+			await ogResponse.edit({
 				embeds: [embed],
 				components: getComponent(),
-			})
+				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			});
 		}
 
 		collector2fdp.on("collect", async (i) => {
