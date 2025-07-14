@@ -59,6 +59,7 @@ class NightModeManager {
 
 				// Check if the time is between the start and end of the night
 				const response = await this.calculate_window_time(guildObject.data!);
+				console.log(response)
 				if (response === "started" && !await this.isAlreadyHandled("started", guild)) {
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
@@ -136,7 +137,7 @@ class NightModeManager {
 		};
 
 		// if all conditions is passed. Do the job
-		const all_changed_roles = await guild.client.db.get(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`);
+		const all_changed_roles: DatabaseStructure.NightMode["changed_roles"] = await guild.client.db.get(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`) || [];
 		if (!all_changed_roles) return;
 		for (const role of all_changed_roles) {
 			const roleObject = guild.roles.cache.get(role);
@@ -206,18 +207,18 @@ class NightModeManager {
 			);
 		}
 
-		let changed_roles = [];
+		let changed_roles: DatabaseStructure.NightMode["changed_roles"] = [];
 		for (let role of filtered_pa_roles) {
 			const newPermissions = new PermissionsBitField(role.permissions).remove(PermissionFlagsBits.Administrator);
 			await role.setPermissions(newPermissions);
-			changed_roles.push(role);
+			changed_roles.push(role.id);
 		}
 
 		let msg = ""
 		msg += "Le mode nuit touche à commencer.\n\n";
 
 		if (changed_roles.length > 0) {
-			msg += `Les rôles suivants ont été modifiés : ${changed_roles.map(role => role.name).join(", ")}`;
+			msg += `Les rôles suivants ont été modifiés : ${changed_roles.join(", ")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
@@ -228,7 +229,7 @@ class NightModeManager {
 			}
 		});
 
-		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`, changed_roles.map(role => role.id));
+		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`, changed_roles);
 	}
 
 	private async Notify_Server_Owner(guild: Guild, opt: { type: checked_nightmode_response, msg?: MessageCreateOptions, guildObject?: DatabaseStructure.NightMode }) {
