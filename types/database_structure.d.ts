@@ -388,6 +388,7 @@ export namespace DatabaseStructure {
 		wlBots?: string[];
 		utc: number;
 		last_state: "started" | "ended"
+		changed_roles?: string[];
 	}
 
 	export interface UtilsData {
