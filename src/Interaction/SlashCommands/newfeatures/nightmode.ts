@@ -68,6 +68,7 @@ export const command: Command = {
 		let baseData: DatabaseStructure.NightMode = await client.db.get(`${interaction.guildId}.UTILS.NIGHT_MODE`) || {
 			enabled: true,
 			notify: true,
+			time: [21, 0, 9, 0],
 			wlBots: [],
 			derankBot: true,
 			utc: 1
