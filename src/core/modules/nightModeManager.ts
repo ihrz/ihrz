@@ -187,9 +187,11 @@ class NightModeManager {
 	// Result: 21:00 / 9PM
 	public hour_beautifuer(str: number, format: "12h" | "24h" = "24h") {
 		if (format === "12h") {
-			return `${str}:00 / ${str}PM`
+			const period = str < 12 || str === 24 ? "AM" : "PM";
+			const hour = str % 12 === 0 ? 12 : str % 12;
+			return `${hour}${period}`;
 		} else {
-			return `${str < 10 ? '0' : ''}${str}:00`
+			return `${str < 10 ? '0' : ''}${str}:00`;
 		}
 	}
 
