@@ -22,6 +22,7 @@
 import { Client, Guild, MessageCreateOptions, PermissionFlagsBits, PermissionsBitField } from "discord.js"
 import { DatabaseStructure } from "../../../types/database_structure";
 import { utcTimezones } from "../../files/locales.ts";
+import { LanguageData } from "../../../types/languageData";
 
 type nightModeData = { guildId: string, data: DatabaseStructure.NightMode | undefined }[];
 type checked_nightmode_response = "started" | "ended";
@@ -60,19 +61,23 @@ class NightModeManager {
 				// Check if the time is between the start and end of the night
 				const response = await this.calculate_window_time(guildObject.data!);
 				if (response === "started" && !await this.isAlreadyHandled("started", guild)) {
+					const lang = await this.client.func.getLanguageData(guild.id);
+
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
-						await this.Notify_Server_Owner(guild, { type: "started", guildObject: guildObject.data });
+						await this.Notify_Server_Owner(guild, { type: "started", guildObject: guildObject.data, lang });
 					}
 					// Remove all PA
-					await this.Remove_All_PA(guild, guildObject);
+					await this.Remove_All_PA(guild, guildObject, lang);
 				} else if (response === "ended" && !await this.isAlreadyHandled("ended", guild)) {
+					const lang = await this.client.func.getLanguageData(guild.id);
+
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
-						await this.Notify_Server_Owner(guild, { type: "ended", guildObject: guildObject.data });
+						await this.Notify_Server_Owner(guild, { type: "ended", guildObject: guildObject.data, lang });
 					}
 					// Add all PA
-					await this.Add_All_PA(guild, guildObject);
+					await this.Add_All_PA(guild, guildObject, lang);
 				}
 			} catch (err) {
 				console.log(err)
@@ -125,7 +130,7 @@ class NightModeManager {
 		}
 	}
 
-	private async Add_All_PA(guild: Guild, guildObject: nightModeData[0]): Promise<void> {
+	private async Add_All_PA(guild: Guild, guildObject: nightModeData[0], lang: LanguageData): Promise<void> {
 		// Check: check if the bot is Administrator
 		const {
 			im_self_admin,
@@ -139,7 +144,8 @@ class NightModeManager {
 			this.warn_owner(guild, {
 				type: "ended",
 				im_on_top,
-				im_self_admin: im_self_admin || false
+				im_self_admin: im_self_admin || false,
+				lang
 			});
 			return
 		};
@@ -154,17 +160,18 @@ class NightModeManager {
 		}
 
 		let msg = ""
-		msg += "Le mode nuit ce termine.\n\n";
+		msg += lang.var_nm_end_main;
 
 		if (all_changed_roles.length > 0) {
-			msg += `Les rôles suivants ont été modifiés : ${all_changed_roles.join(", ")}`;
+			msg += lang.var_nm_edited_roles + `\n>>> ${all_changed_roles.map(x => '<@' + x + '>').join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
 			type: "ended",
 			msg: {
 				content: msg
-			}
+			},
+			lang
 		});
 
 		await guild.client.db.delete(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`);
@@ -183,26 +190,28 @@ class NightModeManager {
 		}
 	}
 
-	private warn_owner(guild: Guild, opt: { type: checked_nightmode_response, im_on_top: boolean, im_self_admin: boolean }) {
-		let warn_msg = `# Un problème est survenu lors ${opt.type === "started" ? "du démarrage" : "de l'arrêt"} du mode nuit.\n`;
+	private warn_owner(guild: Guild, opt: { type: checked_nightmode_response, im_on_top: boolean, im_self_admin: boolean, lang: LanguageData }) {
+		let type = opt.type === "started" ? opt.lang.var_nm_running : opt.lang.var_nm_stopping;
+		let warn_msg = opt.lang.var_nm_error_occured.replace("${type}", type);
 
 		if (!opt.im_on_top) {
-			warn_msg += `- Le bot n'est pas le rôle le plus haut. Veuillez le mettre en haut.\n`;
+			warn_msg += opt.lang.var_nm_role_app_not_high.replace("${client.iHorizon_Emojis.Warning_Icon}", '-');
 		}
 
 		if (!opt.im_self_admin) {
-			warn_msg += `- Le rôle du bot n'a pas de permissions administrateur.\n`;
+			warn_msg += opt.lang.var_nm_role_app_not_admin.replace("${client.iHorizon_Emojis.Warning_Icon}", '-')
 		}
 
 		this.Notify_Server_Owner(guild, {
 			type: "ended",
 			msg: {
 				content: warn_msg
-			}
+			},
+			lang: opt.lang
 		});
 	}
 
-	private async Remove_All_PA(guild: Guild, guildObject: nightModeData[0]): Promise<void> {
+	private async Remove_All_PA(guild: Guild, guildObject: nightModeData[0], lang: LanguageData): Promise<void> {
 		// Check: check if the bot is Administrator
 		const {
 			im_self_admin,
@@ -216,7 +225,8 @@ class NightModeManager {
 			this.warn_owner(guild, {
 				type: "started",
 				im_on_top,
-				im_self_admin: im_self_admin || false
+				im_self_admin: im_self_admin || false,
+				lang
 			});
 			return
 		};
@@ -238,34 +248,37 @@ class NightModeManager {
 		}
 
 		let msg = ""
-		msg += "Le mode nuit touche à commencer.\n\n";
+		msg += lang.var_nm_start_main;
 
 		if (changed_roles.length > 0) {
-			msg += `Les rôles suivants ont été modifiés : ${changed_roles.join(", ")}`;
+			msg += lang.var_nm_edited_roles + `\n>>> ${changed_roles.map(x => '<@' + x + '>').join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
 			type: "started",
 			msg: {
 				content: msg
-			}
+			},
+			lang
 		});
 
 		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`, changed_roles);
 	}
 
-	private async Notify_Server_Owner(guild: Guild, opt: { type: checked_nightmode_response, msg?: MessageCreateOptions, guildObject?: DatabaseStructure.NightMode }) {
+	private async Notify_Server_Owner(guild: Guild, opt: { type: checked_nightmode_response, msg?: MessageCreateOptions, guildObject?: DatabaseStructure.NightMode, lang: LanguageData }) {
 		let server_owner = (await guild.fetchOwner());
+		let type = opt.type === "started" ? opt.lang.var_nm_running2 : opt.lang.var_nm_stopping2;
+
 		await server_owner.user.send(opt.msg || {
 			embeds: [
 				{
-					title: "Mode Nuit",
-					description: `Le mode nuit ${opt.type === "started" ? "commence" : "se termine"}`,
+					title: opt.lang.var_nm_title,
+					description: opt.lang.var_nm_ping_embed_title,
 					color: opt.guildObject?.notify ? 0x00FF00 : 0xFF0000,
 					fields: [
 						{
-							name: "Plage horaire",
-							value: `${this.time_beautifuer(opt.guildObject?.time!)} (fuseau UTC sur ${utcTimezones[opt.guildObject?.utc!]})`,
+							name: opt.lang.var_nm_ping_embed_fields_0_name,
+							value: `${this.time_beautifuer(opt.guildObject?.time!)} (${opt.lang.nightmode_utc_timezone_on} ${utcTimezones[opt.guildObject?.utc!]})`,
 							inline: true
 						}
 					]
