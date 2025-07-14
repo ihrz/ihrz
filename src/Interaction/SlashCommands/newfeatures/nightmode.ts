@@ -305,7 +305,7 @@ export const command: Command = {
 		async function editHoursWindow(i: StringSelectMenuInteraction<CacheType>, fieldsNumber: number) {
 			const modal = await iHorizonModalResolve({
 				customId: "night-mode",
-				deferUpdate: false,
+				deferUpdate: true,
 				fields: [
 					{
 						customId: "start",
@@ -331,25 +331,23 @@ export const command: Command = {
 			let end_value = modal?.fields.getTextInputValue("end");
 
 			if (!isNumber(start_value!) || !isNumber(end_value!)) {
-				return await modal?.reply({
+				return await interaction.followUp({
 					content: lang.temporary_voice_limit_button_not_integer
 						.replace("${interaction.client.iHorizon_Emojis.No}", interaction.client.iHorizon_Emojis.No),
 					flags: MessageFlags.Ephemeral
 				})
 			}
 
-			i.deferUpdate();
-
 			let start_value_integerified = parseInt(start_value!);
 			let end_value_integerified = parseInt(end_value!);
 
 			if (start_value_integerified > 24 || start_value_integerified < 0) {
-				return await modal?.reply({
+				return await interaction.followUp({
 					content: "L'heure est pas valide frérot",
 					flags: MessageFlags.Ephemeral
 				});
 			} else if (end_value_integerified > 24 || end_value_integerified < 0) {
-				return await modal?.reply({
+				return await interaction.followUp({
 					content: "L'heure est pas valide frérot",
 					flags: MessageFlags.Ephemeral
 				});
