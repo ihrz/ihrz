@@ -344,22 +344,26 @@ export const command: Command = {
 			const endTime = parseTimeInput(end_value!);
 
 			if (!startTime) {
-				return interaction instanceof ChatInputCommandInteraction ? interaction.followUp({
+				refreshogResponse()
+				interaction instanceof ChatInputCommandInteraction ? interaction.followUp({
 					content: `${client.iHorizon_Emojis.No} L'heure de début n'est pas valide. Utilisez le format: 21:30 ou 2130`,
 					flags: MessageFlags.Ephemeral
 				}) : await client.func.method.interactionSend(interaction, {
 					content: `${client.iHorizon_Emojis.No} L'heure de début n'est pas valide. Utilisez le format: 21:30 ou 2130`,
 				})
+				return;
 			}
 
 			if (!endTime) {
-				return interaction instanceof ChatInputCommandInteraction ? interaction.followUp({
+				refreshogResponse()
+				interaction instanceof ChatInputCommandInteraction ? interaction.followUp({
 					content: `${client.iHorizon_Emojis.No} L'heure de fin n'est pas valide. Utilisez le format: 06:15 ou 0615`,
 					flags: MessageFlags.Ephemeral
 				}) : await client.func.method.interactionSend(interaction, {
 					content: `${client.iHorizon_Emojis.No} L'heure de fin n'est pas valide. Utilisez le format: 06:15 ou 0615`,
 					flags: MessageFlags.Ephemeral
 				})
+				return;
 			}
 
 			// New format: [startHour, startMinute, endHour, endMinute]
