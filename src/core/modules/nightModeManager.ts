@@ -62,14 +62,14 @@ class NightModeManager {
 				if (response === "started" && !await this.isAlreadyHandled("started", guild)) {
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
-						await this.Notify_Server_Owner(guild, guildObject.data!, { type: "started" });
+						await this.Notify_Server_Owner(guild, { type: "started", guildObject: guildObject.data });
 					}
 					// Remove all PA
 					await this.Remove_All_PA(guild, guildObject);
 				} else if (response === "ended" && !await this.isAlreadyHandled("ended", guild)) {
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
-						await this.Notify_Server_Owner(guild, guildObject.data!, { type: "ended" });
+						await this.Notify_Server_Owner(guild, { type: "ended", guildObject: guildObject.data });
 					}
 					// Add all PA
 					await this.Add_All_PA(guild, guildObject);
@@ -124,9 +124,16 @@ class NightModeManager {
 			is_admin
 		} = this.Basics_Check(guild);
 
-		if (!im_self_admin || !im_on_top || !is_admin) return;
+		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.last_state`, "ended");
 
-		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.last_state`, "ended")
+		if (!im_self_admin || !im_on_top || !is_admin) {
+			this.warn_owner(guild, {
+				type: "ended",
+				im_on_top,
+				im_self_admin: im_self_admin || false
+			});
+			return
+		};
 	}
 
 	public Basics_Check(guild: Guild) {
@@ -142,6 +149,25 @@ class NightModeManager {
 		}
 	}
 
+	private warn_owner(guild: Guild, opt: { type: checked_nightmode_response, im_on_top: boolean, im_self_admin: boolean }) {
+		let warn_msg = `# Un problème est survenu lors ${opt.type === "started" ? "du démarrage" : "de l'arrêt"} du mode nuit.\n`;
+
+		if (!opt.im_on_top) {
+			warn_msg += `- Le bot n'est pas le rôle le plus haut. Veuillez le mettre en haut.\n`;
+		}
+
+		if (!opt.im_self_admin) {
+			warn_msg += `- Le rôle du bot n'a pas de permissions administrateur.\n`;
+		}
+
+		this.Notify_Server_Owner(guild, {
+			type: "ended",
+			msg: {
+				content: warn_msg
+			}
+		});
+	}
+
 	private async Remove_All_PA(guild: Guild, guildObject: nightModeData[0]): Promise<void> {
 		// Check: check if the bot is Administrator
 		const {
@@ -153,40 +179,27 @@ class NightModeManager {
 		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.last_state`, "started");
 
 		if (!im_self_admin || !im_on_top || !is_admin) {
-			let warn_msg = `# Un problème est survenu lors du démarrage du mode nuit.\n`;
-
-			if (!im_on_top) {
-				warn_msg += `- Le bot n'est pas le rôle le plus haut. Veuillez le mettre en haut.\n`;
-			}
-
-			if (!im_self_admin) {
-				warn_msg += `- Le rôle du bot n'a pas de permissions administrateur.\n`;
-			}
-
-			warn_msg += `- Le mode nuit n'a pas pu être activé.\n`;
-
-			this.Notify_Server_Owner(guild, guildObject.data!, {
+			this.warn_owner(guild, {
 				type: "started",
-				msg: {
-					content: warn_msg
-				}
+				im_on_top,
+				im_self_admin: im_self_admin || false
 			});
 			return
 		};
 	}
 
-	private async Notify_Server_Owner(guild: Guild, guildObject: DatabaseStructure.NightMode, opt: { type: checked_nightmode_response, msg?: MessageCreateOptions }) {
+	private async Notify_Server_Owner(guild: Guild, opt: { type: checked_nightmode_response, msg?: MessageCreateOptions, guildObject?: DatabaseStructure.NightMode }) {
 		let server_owner = (await guild.fetchOwner());
 		await server_owner.user.send(opt.msg || {
 			embeds: [
 				{
 					title: "Mode Nuit",
 					description: `Le mode nuit ${opt.type === "started" ? "commence" : "se termine"}`,
-					color: guildObject.notify ? 0x00FF00 : 0xFF0000,
+					color: opt.guildObject?.notify ? 0x00FF00 : 0xFF0000,
 					fields: [
 						{
 							name: "Plage horaire",
-							value: `${this.time_beautifuer(guildObject.time)} (fuseau UTC sur ${utcTimezones[guildObject.utc]})`,
+							value: `${this.time_beautifuer(opt.guildObject?.time!)} (fuseau UTC sur ${utcTimezones[opt.guildObject?.utc!]})`,
 							inline: true
 						}
 					]
