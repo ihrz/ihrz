@@ -37,6 +37,7 @@ import {
 	ButtonStyle,
 	UserSelectMenuBuilder,
 	User,
+	Message,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command.js';
@@ -48,6 +49,8 @@ import { utcTimezones } from '../../../files/locales.js';
 export const command: Command = {
 	name: 'nightmode',
 
+	aliases: ["modenuit", "nuit", "night", "mode-nuit", "night-mode"],
+
 	description: '⭐️ (VERY UHQ) NightMode',
 	description_localizations: {
 		"fr": "⭐️ (VRAIMENT UHQ) Mode Nuit"
@@ -57,7 +60,7 @@ export const command: Command = {
 	category: 'newfeatures',
 	permission: PermissionFlagsBits.Administrator,
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 		// if (interaction.guild.ownerId !== interaction.member.user.id) {
 		// 	return await client.func.method.interactionSend(interaction, {
@@ -75,7 +78,7 @@ export const command: Command = {
 		};
 
 		let check = client.nightmodeManager.Basics_Check(interaction.guild!);
-		let warn_msg = (await interaction.guild.fetchOwner()).toString();
+		let warn_msg = (await interaction.guild!.fetchOwner()).toString();
 		warn_msg += "\n";
 
 		if (!check.bot_role) {
@@ -125,7 +128,16 @@ export const command: Command = {
 					value: `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
 				}, // 4
 			)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId));
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+
+
+		async function refreshogResponse() {
+			ogResponse.edit({
+				embeds: [embed],
+				components: getComponent(),
+				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			});
+		}
 
 		const string_select = new StringSelectMenuBuilder()
 			.setCustomId("nightmode_main_panel")
@@ -195,7 +207,7 @@ export const command: Command = {
 		});
 
 		collector2wish.on('collect', async (i) => {
-			if (i.user.id !== interaction.member.user.id) {
+			if (i.user.id !== interaction.member?.user.id) {
 				return await i.reply({
 					content: lang.help_not_for_you,
 					flags: MessageFlags.Ephemeral
@@ -222,21 +234,12 @@ export const command: Command = {
 			baseData.notify = !baseData.notify;
 
 			embed.data.fields![fieldsNumber].value = baseData.notify ? "🟢" : "🔴";
-
-			await ogResponse.edit({
-				embeds: [embed],
-				components: getComponent(),
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-			});
+			refreshogResponse()
 		}
 		async function derank_bot(fieldsNumber: number) {
 			baseData.derankBot = !baseData.derankBot;
 			embed.data.fields![fieldsNumber].value = baseData.derankBot ? "🟢" : "🔴";
-			await ogResponse.edit({
-				embeds: [embed],
-				components: getComponent(),
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-			});
+			refreshogResponse()
 		}
 
 		async function editEnableMode(fieldsNumber: number) {
@@ -244,11 +247,7 @@ export const command: Command = {
 
 			embed.data.fields![fieldsNumber].value = baseData.enabled ? "🟢" : "🔴";
 
-			await ogResponse.edit({
-				embeds: [embed],
-				components: getComponent(),
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-			});
+			refreshogResponse()
 		}
 		async function change_timezone(i: StringSelectMenuInteraction<CacheType>, fieldsNumber: number) {
 			const options = Object.entries(utcTimezones).map(([offset, name]) => {
@@ -284,11 +283,7 @@ export const command: Command = {
 				if (utc) {
 					baseData.utc = Number(utc);
 					embed.data.fields![fieldsNumber]!.value = `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
-					await ogResponse.edit({
-						embeds: [embed],
-						components: getComponent(),
-						files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-					});
+					refreshogResponse()
 					collector2con.stop();
 				}
 			})
@@ -349,32 +344,33 @@ export const command: Command = {
 			const endTime = parseTimeInput(end_value!);
 
 			if (!startTime) {
-				return await interaction.followUp({
+				return interaction instanceof ChatInputCommandInteraction ? interaction.followUp({
 					content: `${client.iHorizon_Emojis.No} L'heure de début n'est pas valide. Utilisez le format: 21:30 ou 2130`,
 					flags: MessageFlags.Ephemeral
-				});
+				}) : await client.func.method.interactionSend(interaction, {
+					content: `${client.iHorizon_Emojis.No} L'heure de début n'est pas valide. Utilisez le format: 21:30 ou 2130`,
+				})
 			}
 
 			if (!endTime) {
-				return await interaction.followUp({
+				return interaction instanceof ChatInputCommandInteraction ? interaction.followUp({
 					content: `${client.iHorizon_Emojis.No} L'heure de fin n'est pas valide. Utilisez le format: 06:15 ou 0615`,
 					flags: MessageFlags.Ephemeral
-				});
+				}) : await client.func.method.interactionSend(interaction, {
+					content: `${client.iHorizon_Emojis.No} L'heure de fin n'est pas valide. Utilisez le format: 06:15 ou 0615`,
+					flags: MessageFlags.Ephemeral
+				})
 			}
 
 			// New format: [startHour, startMinute, endHour, endMinute]
 			baseData.time = [startTime.hour, startTime.minute, endTime.hour, endTime.minute];
 			embed.data.fields![fieldsNumber].value = `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`;
 
-			await ogResponse.edit({
-				embeds: [embed],
-				components: getComponent(),
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-			});
+			refreshogResponse()
 		}
 
 		collector2fdp.on("collect", async (i) => {
-			if (i.user.id !== interaction.member.user.id) {
+			if (i.user.id !== interaction.member!.user.id) {
 				return await i.reply({
 					content: lang.help_not_for_you,
 					flags: MessageFlags.Ephemeral
@@ -393,7 +389,7 @@ export const command: Command = {
 		})
 
 		collector2merde.on('collect', async (i) => {
-			if (i.user.id !== interaction.user.id) {
+			if (i.user.id !== interaction.member?.user.id) {
 				await i.reply({
 					content: lang.help_not_for_you,
 					flags: MessageFlags.Ephemeral
@@ -411,11 +407,7 @@ export const command: Command = {
 
 				baseData.wlBots = bots.map(u => u.id);
 				embed.data.fields![3]!.value = baseData.wlBots.map(x => "<@" + x + ">").join(",")
-				await ogResponse.edit({
-					embeds: [embed],
-					components: getComponent(),
-					files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-				});
+				refreshogResponse()
 			}
 		})
 	},
