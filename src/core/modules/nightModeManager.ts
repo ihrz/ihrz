@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, Guild, MessageCreateOptions, PermissionFlagsBits } from "discord.js"
+import { Client, Guild, MessageCreateOptions, PermissionFlagsBits, PermissionsBitField } from "discord.js"
 import { DatabaseStructure } from "../../../types/database_structure";
 import { utcTimezones } from "../../files/locales.ts";
 
@@ -134,6 +134,16 @@ class NightModeManager {
 			});
 			return
 		};
+
+		// if all conditions is passed. Do the job
+		const all_changed_roles = await guild.client.db.get(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`);
+		if (!all_changed_roles) return;
+		for (const role of all_changed_roles) {
+			const roleObject = guild.roles.cache.get(role);
+			if (!roleObject) continue;
+			await roleObject.setPermissions(new PermissionsBitField(roleObject.permissions).add(PermissionFlagsBits.Administrator));
+		}
+		await guild.client.db.delete(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`);
 	}
 
 	public Basics_Check(guild: Guild) {
@@ -186,6 +196,39 @@ class NightModeManager {
 			});
 			return
 		};
+
+		// if all conditions is passed. Do the job
+		const all_pa_roles = (await guild.roles.fetch()).filter(role => role.permissions.has(PermissionFlagsBits.Administrator)).values().toArray();
+		let filtered_pa_roles = all_pa_roles
+		if (guildObject.data?.derankBot && guildObject.data.wlBots) {
+			filtered_pa_roles = filtered_pa_roles.filter(role =>
+				!role.managed || (guildObject.data?.wlBots || []).includes(role.id)
+			);
+		}
+
+		let changed_roles = [];
+		for (let role of filtered_pa_roles) {
+			const newPermissions = new PermissionsBitField(role.permissions).remove(PermissionFlagsBits.Administrator);
+			await role.setPermissions(newPermissions);
+			changed_roles.push(role);
+		}
+
+		let msg = ""
+		msg += "Le mode nuit touche à commencer.\n\n";
+
+		if (changed_roles.length > 0) {
+			msg += `Les rôles suivants ont été modifiés : ${changed_roles.map(role => role.name).join(", ")}`;
+		}
+
+		this.Notify_Server_Owner(guild, {
+			type: "started",
+			guildObject: guildObject.data,
+			msg: {
+				content: msg
+			}
+		});
+
+		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`, changed_roles.map(role => role.id));
 	}
 
 	private async Notify_Server_Owner(guild: Guild, opt: { type: checked_nightmode_response, msg?: MessageCreateOptions, guildObject?: DatabaseStructure.NightMode }) {
