@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, Guild, PermissionFlagsBits } from "discord.js"
+import { Client, Guild, MessageCreateOptions, PermissionFlagsBits } from "discord.js"
 import { DatabaseStructure } from "../../../types/database_structure";
 import { utcTimezones } from "../../files/locales.ts";
 
@@ -58,18 +58,18 @@ class NightModeManager {
 				if (!guild) continue;
 
 				// Check if the time is between the start and end of the night
-				const response = await this.calculate_window_time(guild, guildObject.data!);
+				const response = await this.calculate_window_time(guildObject.data!);
 				if (response === "started" && !await this.isAlreadyHandled("started", guild)) {
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
-						await this.Notify_Server_Owner(guild, guildObject.data!, response);
+						await this.Notify_Server_Owner(guild, guildObject.data!, { type: "started" });
 					}
 					// Remove all PA
 					await this.Remove_All_PA(guild, guildObject);
 				} else if (response === "ended" && !await this.isAlreadyHandled("ended", guild)) {
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
-						await this.Notify_Server_Owner(guild, guildObject.data!, response);
+						await this.Notify_Server_Owner(guild, guildObject.data!, { type: "ended" });
 					}
 					// Add all PA
 					await this.Add_All_PA(guild, guildObject);
@@ -80,7 +80,7 @@ class NightModeManager {
 		}
 	}
 
-	private async calculate_window_time(guild: Guild, guildObject: DatabaseStructure.NightMode): Promise<checked_nightmode_response> {
+	private async calculate_window_time(guildObject: DatabaseStructure.NightMode): Promise<checked_nightmode_response> {
 		const guildTimezone = utcTimezones[guildObject.utc];
 		const now = new Date();
 
@@ -124,11 +124,8 @@ class NightModeManager {
 			is_admin
 		} = this.Basics_Check(guild);
 
-		console.log(
-			im_self_admin,
-			im_on_top,
-			is_admin
-		)
+		if (!im_self_admin || !im_on_top || !is_admin) return;
+
 		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.last_state`, "ended")
 	}
 
@@ -153,23 +150,38 @@ class NightModeManager {
 			is_admin
 		} = this.Basics_Check(guild);
 
-		console.log(
-			im_self_admin,
-			im_on_top,
-			is_admin
-		)
+		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.last_state`, "started");
 
-		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.last_state`, "started")
+		if (!im_self_admin || !im_on_top || !is_admin) {
+			let warn_msg = `# Un problème est survenu lors du démarrage du mode nuit.\n`;
+
+			if (!im_on_top) {
+				warn_msg += `- Le bot n'est pas le rôle le plus haut. Veuillez le mettre en haut.\n`;
+			}
+
+			if (!im_self_admin) {
+				warn_msg += `- Le rôle du bot n'a pas de permissions administrateur.\n`;
+			}
+
+			warn_msg += `- Le mode nuit n'a pas pu être activé.\n`;
+
+			this.Notify_Server_Owner(guild, guildObject.data!, {
+				type: "started",
+				msg: {
+					content: warn_msg
+				}
+			});
+			return
+		};
 	}
 
-	private async Notify_Server_Owner(guild: Guild, guildObject: DatabaseStructure.NightMode, type: checked_nightmode_response) {
+	private async Notify_Server_Owner(guild: Guild, guildObject: DatabaseStructure.NightMode, opt: { type: checked_nightmode_response, msg?: MessageCreateOptions }) {
 		let server_owner = (await guild.fetchOwner());
-		await server_owner.user.send({
-			content: `Le mode nuit est ${type === "started" ? "activé" : "désactivé"}`,
+		await server_owner.user.send(opt.msg || {
 			embeds: [
 				{
 					title: "Mode Nuit",
-					description: `Le mode nuit est ${type === "started" ? "activé" : "désactivé"}`,
+					description: `Le mode nuit ${opt.type === "started" ? "commence" : "se termine"}`,
 					color: guildObject.notify ? 0x00FF00 : 0xFF0000,
 					fields: [
 						{
