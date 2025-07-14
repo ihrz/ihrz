@@ -1922,6 +1922,13 @@ nightmode_invalid_hour_morning: "${client.iHorizon_Emojis.No} 開始時刻が無
 nightmode_invalid_hour_night: "${client.iHorizon_Emojis.No} 終了時刻が無効です。形式を使用してください: 06:15 または 0615"
 nightmode_utc_timezone_on: "UTCタイムゾーンを"
 
+# /git lines
+git_lines_avoiding_spam: "申し訳ありませんが、スパムを防ぐため、表示される行数を50に制限しています"
+git_lines_avoiding_limit: "申し訳ありませんが、Discordには2000文字の制限があるため、目的のスニペットを表示できませんでした"
+git_lines_work: "✅ Git Linesが有効になりました。"
+git_lines_work_disabled: "❌ Git Linesが無効になりました。"
+git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} 邪魔してる？`/git lines`でこのモジュールを無効にできるよ！"
+
 # 提案コマンド
 # /setsuggest, /suggest
 

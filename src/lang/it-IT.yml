@@ -1922,6 +1922,13 @@ nightmode_invalid_hour_morning: "${client.iHorizon_Emojis.No} L'ora di inizio no
 nightmode_invalid_hour_night: "${client.iHorizon_Emojis.No} L'ora di fine non è valida. Usa il formato: 06:15 o 0615"
 nightmode_utc_timezone_on: "fuso orario UTC su"
 
+# /git lines
+git_lines_avoiding_spam: "Spiacenti, ma per prevenire lo spam, limitiamo il numero di righe visualizzate a 50"
+git_lines_avoiding_limit: "Spiacenti ma c'è un limite di 2000 caratteri su Discord, quindi non siamo riusciti a visualizzare lo snippet desiderato"
+git_lines_work: "✅ Git Lines è ora abilitato."
+git_lines_work_disabled: "❌ Git Lines è ora disabilitato."
+git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Ti disturbo? Puoi usare `/git lines` per disabilitare questo modulo!"
+
 # Comandi per i suggerimenti
 # /impostasuggerimento, /suggerisci
 

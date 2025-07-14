@@ -1483,6 +1483,11 @@ export interface LanguageData {
 	nightmode_invalid_hour_morning: string;
 	nightmode_invalid_hour_night: string;
 	nightmode_utc_timezone_on: string;
+	git_lines_avoiding_spam: string;
+	git_lines_avoiding_limit: string;
+	git_lines_work: string;
+	git_lines_work_disabled: string;
+	git_lines_borred_warning: string;
 	suggest_accept_not_admin: string;
 	suggest_acceptnot_good_channel: string;
 	suggest_accept_not_found_db: string;

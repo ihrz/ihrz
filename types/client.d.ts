@@ -47,6 +47,7 @@ import { AutoRenew } from "../src/core/modules/autorenewManager.js";
 import { EmojisManager } from "../src/core/modules/emojisManager.ts";
 import { InfrastructureMonitoring } from "../src/core/modules/infrastructureMonitoringManager.ts";
 import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
+import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -80,6 +81,7 @@ declare module 'discord.js' {
 		autoRenewManager: AutoRenew,
 		emojisManager: EmojisManager,
 		infrastructureMonitoring: InfrastructureMonitoring,
-		nightmodeManager: NightModeManager
+		nightmodeManager: NightModeManager,
+		githubLinesManager: GithubLinesManager
 	}
 }
