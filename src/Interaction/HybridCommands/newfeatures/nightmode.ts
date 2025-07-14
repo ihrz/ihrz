@@ -62,11 +62,11 @@ export const command: Command = {
 	type: ApplicationCommandType.ChatInput,
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-		// if (interaction.guild.ownerId !== interaction.member.user.id) {
-		// 	return await client.func.method.interactionSend(interaction, {
-		// 		content: "Vous n'êtes pas le propriétaire du serveur, vous ne pouvez pas toucher à cette fonctionalité critique."
-		// 	})
-		// }
+		if (interaction.guild!.ownerId !== interaction.member!.user.id) {
+			return await client.func.method.interactionSend(interaction, {
+				content: "Vous n'êtes pas le propriétaire du serveur, vous ne pouvez pas toucher à cette fonctionalité critique."
+			})
+		}
 
 		let baseData: DatabaseStructure.NightMode = await client.db.get(`${interaction.guildId}.UTILS.NIGHT_MODE`) || {
 			enabled: true,
