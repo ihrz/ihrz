@@ -108,7 +108,7 @@ async function handleCategorySelect(
 
 	if (i.values[0] === "back") {
 		const og_embed = new EmbedBuilder()
-			.setColor('#001eff')
+			.setColor(await client.db.get(`${i.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#001eff")
 			.setDescription(lang.help_tip_embed
 				.replaceAll('${client.user?.username}', i.client.user.username)
 				.replaceAll('${client.iHorizon_Emojis.Pin}', client.iHorizon_Emojis.Pin)
@@ -140,7 +140,7 @@ async function handleCategorySelect(
 	let currentEmbed = new EmbedBuilder()
 		.setTitle(`${category.emoji}・${category.name}`)
 		.setDescription(category.description)
-		.setColor(category.color as ColorResolvable)
+		.setColor(await client.db.get(`${i.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || category.color as ColorResolvable)
 		.setFooter(await client.func.displayBotName.footerBuilder(i.guildId!))
 		.setThumbnail("attachment://footer_icon.png")
 		.setTimestamp();
@@ -217,7 +217,7 @@ async function handleCategorySelect(
 			currentEmbed = new EmbedBuilder()
 				.setTitle(`${category.emoji}・${category.name}`)
 				.setDescription(category.description)
-				.setColor(category.color as ColorResolvable)
+				.setColor(await client.db.get(`${i.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || category.color as ColorResolvable)
 				.setFooter(await client.func.displayBotName.footerBuilder(i.guildId!))
 				.setThumbnail("attachment://footer_icon.png")
 				.setTimestamp();
@@ -401,7 +401,7 @@ export const command: Command = {
 			});
 
 			const og_embed = new EmbedBuilder()
-				.setColor('#001eff')
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#001eff")
 				.setDescription(lang.help_tip_embed
 					.replaceAll('${client.user?.username}', interaction.client.user.username)
 					.replaceAll('${client.iHorizon_Emojis.Pin}', client.iHorizon_Emojis.Pin)
