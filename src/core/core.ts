@@ -54,6 +54,7 @@ import { AnotherCommand } from '../../types/anotherCommand.js';
 import { EmojisManager } from './modules/emojisManager.js';
 import { cache_storage_data, cache_storage_update } from './cache.js';
 import { NightModeManager } from './modules/nightModeManager.js';
+import { GithubLinesManager } from './modules/githubLinesManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -125,6 +126,7 @@ export async function main(client: Client) {
 		process.env.TWITCH_APPLICATION_SECRET || "",
 		process.env.YOUTUBE_API_KEY || ""
 	);
+	client.githubLinesManager = new GithubLinesManager(process.env.GITHUB_API_KEY)
 
 	assetsCalc(client);
 	playerManager(client);

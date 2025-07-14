@@ -36,6 +36,7 @@
 		"ping": "^0.4.4",
 		"puppeteer": "^24.11.2",
 		"sharp": "^0.34.2",
+		"ts-is-present": "^1.2.2",
 		"typescript-eslint": "^8.35.1",
 		"write-file-atomic": "^6.0.0",
 		"ws": "^8.18.3"

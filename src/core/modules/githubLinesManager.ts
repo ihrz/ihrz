@@ -26,6 +26,10 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { isFilled } from "ts-is-present"; // https://github.com/microsoft/TypeScript/issues/16069
+import { Message } from "discord.js";
+import { LanguageData } from "../../../types/languageData";
+
 export class LineData {
 	readonly lineLength: number;
 	readonly extension: string;
@@ -48,11 +52,7 @@ export type JSONValue = JSONPrimitive | JSONObject | JSONArray;
 export type JSONObject = { [key: string]: JSONValue };
 export type JSONArray = JSONValue[];
 
-function isFilled<T>(value: T | null | undefined): value is T {
-	return value !== null && value !== undefined;
-}
-
-export class CoreLogic {
+class GithubLinesManager {
 	readonly GITHUB_TOKEN: string | undefined;
 	readonly authHeaders: Record<string, string>;
 
@@ -134,7 +134,6 @@ export class CoreLogic {
 			filename = dotFilename;
 			lines = text.split("\n");
 		} else {
-			console.log("Wrong type sent to handleMatch!");
 			return null;
 		}
 
@@ -153,7 +152,7 @@ export class CoreLogic {
 			let start = Math.max(1, Math.min(lineStart, lineEnd));
 			let end = Math.min(lines.length, Math.max(lineStart, lineEnd));
 			lineLength = end - start + 1;
-			toDisplay = CoreLogic.formatIndent(lines.slice(start - 1, end).join("\n")).replace(/``/g, "`\u200b`");
+			toDisplay = GithubLinesManager.formatIndent(lines.slice(start - 1, end).join("\n")).replace(/``/g, "`\u200b`");
 		}
 
 		let extension = (filename.includes(".") ? filename.split(".") : [""]).pop();
@@ -162,7 +161,7 @@ export class CoreLogic {
 		return new LineData(lineLength, extension, toDisplay);
 	}
 
-	async handleMessage(msg: string): Promise<IMessageData> {
+	async extractCodeLinks(msg: string): Promise<IMessageData> {
 		const returned: Promise<LineData | null>[] = [];
 
 		for (const match of msg.matchAll(
@@ -192,4 +191,45 @@ export class CoreLogic {
 			totalLines
 		};
 	}
+
+
+	/**
+	 * This is Discord-level handleMessage(). It calls coreLogic-level handleMessage() and then
+	 * performs necessary formatting and validation.
+	 * @param msg Discord message object
+	 */
+	async handleMessage(msg: Message): Promise<{ botMsg: null | string; toDelete: boolean, lang: LanguageData }> {
+		const { msgList, totalLines } = await this.extractCodeLinks(msg.content);
+		const lang = await msg.client.func.getLanguageData(msg.guildId!);
+
+		if (totalLines > 50) {
+			return { botMsg: lang.git_lines_avoiding_spam, toDelete: true, lang };
+		}
+
+		const messages = msgList.map(
+			(el) => `\`\`\`${el.toDisplay.search(/\S/) !== -1 ? el.extension : " "}\n${el.toDisplay}\n\`\`\``
+		);
+
+		const botMsg = messages.join("\n") || null;
+
+		if (botMsg && botMsg.length >= 2000) {
+			return {
+				botMsg: lang.git_lines_avoiding_limit,
+				toDelete: true,
+				lang
+			};
+		}
+
+		if (botMsg && msg.deletable) {
+			// can always supress embed if deletable
+			// it can take a few ms before the supress can be registered
+			setTimeout(() => msg.suppressEmbeds(true).catch(console.error), 100);
+		}
+
+		return { botMsg, toDelete: false, lang };
+	}
+}
+
+export {
+	GithubLinesManager
 }
