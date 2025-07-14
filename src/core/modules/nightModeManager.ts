@@ -59,7 +59,6 @@ class NightModeManager {
 
 				// Check if the time is between the start and end of the night
 				const response = await this.calculate_window_time(guildObject.data!);
-				console.log(response)
 				if (response === "started" && !await this.isAlreadyHandled("started", guild)) {
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
@@ -144,6 +143,21 @@ class NightModeManager {
 			if (!roleObject) continue;
 			await roleObject.setPermissions(new PermissionsBitField(roleObject.permissions).add(PermissionFlagsBits.Administrator));
 		}
+
+		let msg = ""
+		msg += "Le mode nuit ce termine.\n\n";
+
+		if (all_changed_roles.length > 0) {
+			msg += `Les rôles suivants ont été modifiés : ${all_changed_roles.join(", ")}`;
+		}
+
+		this.Notify_Server_Owner(guild, {
+			type: "ended",
+			msg: {
+				content: msg
+			}
+		});
+
 		await guild.client.db.delete(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`);
 	}
 
@@ -223,7 +237,6 @@ class NightModeManager {
 
 		this.Notify_Server_Owner(guild, {
 			type: "started",
-			guildObject: guildObject.data,
 			msg: {
 				content: msg
 			}
