@@ -46,6 +46,7 @@ import type { Client_Functions } from "./client_functions.d.ts";
 import { AutoRenew } from "../src/core/modules/autorenewManager.js";
 import { EmojisManager } from "../src/core/modules/emojisManager.ts";
 import { InfrastructureMonitoring } from "../src/core/modules/infrastructureMonitoringManager.ts";
+import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -78,6 +79,7 @@ declare module 'discord.js' {
 		memberCountManager: MemberCountModule,
 		autoRenewManager: AutoRenew,
 		emojisManager: EmojisManager,
-		infrastructureMonitoring: InfrastructureMonitoring
+		infrastructureMonitoring: InfrastructureMonitoring,
+		nightmodeManager: NightModeManager
 	}
 }

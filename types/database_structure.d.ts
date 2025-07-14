@@ -380,6 +380,17 @@ export namespace DatabaseStructure {
 
 	export type RoleLimitSchema = Record<string, number>;
 
+	export interface NightMode {
+		enabled?: boolean;
+		time: number[];
+		notify?: boolean;
+		derankBot?: boolean;
+		wlBots?: string[];
+		utc: number;
+		last_state: "started" | "ended"
+		changed_roles?: string[];
+	}
+
 	export interface UtilsData {
 		LEASH?: LeashData[]; // yeah, bdsm ref lmao
 		LEASH_CONFIFG?: LeashConfig;
@@ -394,6 +405,7 @@ export namespace DatabaseStructure {
 		renew_channel?: Record<string, renewChannelStructure>;
 		ROLE_LIMIT?: RoleLimitSchema;
 		autoFeur?: boolean;
+		NIGHT_MODE: NightMode;
 	}
 
 	export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
