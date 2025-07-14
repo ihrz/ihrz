@@ -1909,6 +1909,7 @@ nightmode_modal_hours_window_fields1_label: "Heure de Fin (ex: 06:15 ou 0615)"
 nightmode_modal_hours_window_title: "NightMode - Plage Horaire (Format 24h avec minutes)"
 nightmode_invalid_hour_morning: "${client.iHorizon_Emojis.No} L'heure de début n'est pas valide. Utilisez le format: 21:30 ou 2130"
 nightmode_invalid_hour_night: "${client.iHorizon_Emojis.No} L'heure de fin n'est pas valide. Utilisez le format: 06:15 ou 0615"
+nightmode_utc_timezone_on: "fuseau UTC sur"
 # Commandes de suggestion
 # /setsuggest, /suggest
 

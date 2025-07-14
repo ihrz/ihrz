@@ -113,11 +113,11 @@ export const command: Command = {
 				}, // 2
 				{
 					name: lang.nightmode_embed_fields_3_name,
-					value: baseData.wlBots?.map(x => `<@${x}>`).join('') || "aucun"
+					value: baseData.wlBots?.map(x => `<@${x}>`).join('') || lang.var_none
 				}, // 3
 				{
 					name: lang.nightmode_embed_fields_4_name,
-					value: `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
+					value: `${client.nightmodeManager.time_beautifuer(baseData.time)} (${lang.nightmode_utc_timezone_on} ${utcTimezones[baseData.utc!]})`
 				}, // 4
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
