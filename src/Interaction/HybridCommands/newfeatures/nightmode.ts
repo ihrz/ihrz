@@ -64,7 +64,7 @@ export const command: Command = {
 
 		if (interaction.guild!.ownerId !== interaction.member!.user.id) {
 			return await client.func.method.interactionSend(interaction, {
-				content: "Vous n'êtes pas le propriétaire du serveur, vous ne pouvez pas toucher à cette fonctionalité critique."
+				content: lang.blockbot_not_owner
 			})
 		}
 
