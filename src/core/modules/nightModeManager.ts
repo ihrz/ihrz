@@ -196,7 +196,7 @@ class NightModeManager {
 	}
 
 	public time_beautifuer(str: number[]) {
-		return `${this.hour_beautifuer(str[0])} - ${this.hour_beautifuer(str[1])}`
+		return `${this.hour_beautifuer(str[0])} - ${this.hour_beautifuer(str[1])} (${this.hour_beautifuer(str[0], "12h")} - ${this.hour_beautifuer(str[1], "12h")})`
 	}
 
 	public async isAlreadyHandled(type: checked_nightmode_response, guild: Guild): Promise<boolean> {
