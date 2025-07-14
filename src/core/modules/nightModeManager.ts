@@ -65,14 +65,14 @@ class NightModeManager {
 						await this.Notify_Server_Owner(guild, guildObject.data!, response);
 					}
 					// Remove all PA
-					await this.Remove_All_PA(guild);
+					await this.Remove_All_PA(guild, guildObject);
 				} else if (response === "ended" && !await this.isAlreadyHandled("ended", guild)) {
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
 						await this.Notify_Server_Owner(guild, guildObject.data!, response);
 					}
 					// Add all PA
-					await this.Add_All_PA(guild);
+					await this.Add_All_PA(guild, guildObject);
 				}
 			} catch (err) {
 				console.log(err)
@@ -116,7 +116,7 @@ class NightModeManager {
 		}
 	}
 
-	private async Add_All_PA(guild: Guild): Promise<void> {
+	private async Add_All_PA(guild: Guild, guildObject: nightModeData[0]): Promise<void> {
 		// Check: check if the bot is Administrator
 		const {
 			im_self_admin,
@@ -145,7 +145,7 @@ class NightModeManager {
 		}
 	}
 
-	private async Remove_All_PA(guild: Guild): Promise<void> {
+	private async Remove_All_PA(guild: Guild, guildObject: nightModeData[0]): Promise<void> {
 		// Check: check if the bot is Administrator
 		const {
 			im_self_admin,
