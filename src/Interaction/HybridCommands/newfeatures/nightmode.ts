@@ -82,49 +82,41 @@ export const command: Command = {
 		warn_msg += "\n";
 
 		if (!check.bot_role) {
-			warn_msg += `${client.iHorizon_Emojis.Warning_Icon} Le bot n'as pas de rôle application. Veuillez re-ajouter le bot correctement.\n`;
+			warn_msg += lang.var_nm_role_app_dont_exist.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon);
 		}
 
 		if (!check.im_on_top) {
-			warn_msg += `${client.iHorizon_Emojis.Warning_Icon} Le bot n'est pas le rôle le plus haut. Veuillez le mettre en haut.\n`;
+			warn_msg += lang.var_nm_role_app_not_high.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon);
 		}
 
 		if (!check.im_self_admin) {
-			warn_msg += `${client.iHorizon_Emojis.Warning_Icon} Le rôle du bot n'a pas de permissions administrateur.\n`;
+			warn_msg += lang.var_nm_role_app_not_admin.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon);
 		}
 
 		let time = client.timeCalculator.to_ms("30m");
 
 		const embed = new EmbedBuilder()
 			.setColor("#000000")
-			.setDescription(
-				`# ⭐️ Mode Nuit
-> *Qu'est-ce que le mode nuit?* Le mode nuit est une sécurité **[made by iHorizon](https://www.ihorizon.org)** qui permet de désactiver toute permissions administrateur sur un serveur discord pendant une période donnée.
-> *Exemple, vous êtes sur un serveur Discord avec beaucoup de staffs dessus, vous voulez enlever toute les PA la nuit pour éviter un raid, un snipe de vanity discord, etc*
-> *Vous êtes au bon endroit mon chère. **iHorizon seras toujours la solution.***
-
----
-				`
-			)
+			.setDescription(lang.nightmode_embed_desc)
 			.setFields(
 				{
-					name: "Module Activer",
+					name: lang.nightmode_embed_fields_0_name,
 					value: baseData.enabled ? "🟢" : "🔴"
 				}, // 0
 				{
-					name: "Notifier l'owner du serveur",
+					name: lang.nightmode_embed_fields_1_name,
 					value: baseData.notify ? "🟢" : "🔴"
 				}, // 1
 				{
-					name: "Derank les bots?",
+					name: lang.nightmode_embed_fields_2_name,
 					value: baseData.derankBot ? "🟢" : "🔴"
 				}, // 2
 				{
-					name: "Bot sous liste blanche",
+					name: lang.nightmode_embed_fields_3_name,
 					value: baseData.wlBots?.map(x => `<@${x}>`).join('') || "aucun"
 				}, // 3
 				{
-					name: "Plage Horaire",
+					name: lang.nightmode_embed_fields_4_name,
 					value: `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
 				}, // 4
 			)
@@ -141,27 +133,27 @@ export const command: Command = {
 
 		const string_select = new StringSelectMenuBuilder()
 			.setCustomId("nightmode_main_panel")
-			.setPlaceholder("Paramétrer le mode nuit sur le serveur.")
+			.setPlaceholder(lang.nightmode_select_placeholder)
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Activer le mode nuit')
-					.setDescription("Activer/Désactiver le mode nuit.")
+					.setLabel(lang.nightmode_select_0_label)
+					.setDescription(lang.nightmode_select_0_desc)
 					.setValue("enable_mode"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("Avertir le propriétaire du serveur")
-					.setDescription("Prévenir l'owner du serveur lors de l'activation/désactivation")
+					.setLabel(lang.nightmode_select_1_label)
+					.setDescription(lang.nightmode_select_1_desc)
 					.setValue("owner_notify"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Configurer la plage horaire du mode nuit')
-					.setDescription("Plage horaire où les PA sont retiré automatiquement.")
+					.setLabel(lang.nightmode_select_2_label)
+					.setDescription(lang.nightmode_select_2_desc)
 					.setValue("hours_window"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel('Derank les bots')
-					.setDescription("Faut-t'il derank les bots pendant la nuit?")
+					.setLabel(lang.nightmode_select_3_label)
+					.setDescription(lang.nightmode_select_3_desc)
 					.setValue("derank_bot"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel("Changer le fuseau horaire (UTC)")
-					.setDescription("Si vous avez une heure spécifique vous devez le mettre (format nombre UTC)")
+					.setLabel(lang.nightmode_select_4_label)
+					.setDescription(lang.nightmode_select_4_desc)
 					.setValue("change_timezone")
 			)
 
@@ -173,7 +165,7 @@ export const command: Command = {
 		const wl_bot_select_menu = new UserSelectMenuBuilder()
 			.setCustomId("nightmode-wl-bots-wl")
 			.setMaxValues(20)
-			.setPlaceholder("Bot authorisé as être admin pendant la nuit")
+			.setPlaceholder(lang.nightmode_select1_placeholder)
 			.setMinValues(0);
 
 		function getComponent(disabled: boolean = false) {
@@ -266,7 +258,7 @@ export const command: Command = {
 						.addComponents(
 							new StringSelectMenuBuilder()
 								.setCustomId("utc_choice")
-								.setPlaceholder("Choissiez le UTC pour votre serveur discord")
+								.setPlaceholder(lang.nightmode_change_timezone_question)
 								.addOptions(options)
 						)
 				],
@@ -317,7 +309,7 @@ export const command: Command = {
 				fields: [
 					{
 						customId: "start",
-						label: "Heure de Début (ex: 21:30 ou 2130)",
+						label: lang.nightmode_modal_hours_window_fields0_label,
 						required: true,
 						style: TextInputStyle.Short,
 						maxLength: 5,
@@ -326,7 +318,7 @@ export const command: Command = {
 					},
 					{
 						customId: "end",
-						label: "Heure de Fin (ex: 06:15 ou 0615)",
+						label: lang.nightmode_modal_hours_window_fields1_label,
 						required: true,
 						style: TextInputStyle.Short,
 						maxLength: 5,
@@ -334,7 +326,7 @@ export const command: Command = {
 						placeHolder: "06:15 / 0615"
 					}
 				],
-				title: "NightMode - Plage Horaire (Format 24h avec minutes)"
+				title: lang.nightmode_modal_hours_window_title
 			}, i);
 
 			let start_value = modal?.fields.getTextInputValue("start");
@@ -346,10 +338,10 @@ export const command: Command = {
 			if (!startTime) {
 				refreshogResponse()
 				interaction instanceof ChatInputCommandInteraction ? interaction.followUp({
-					content: `${client.iHorizon_Emojis.No} L'heure de début n'est pas valide. Utilisez le format: 21:30 ou 2130`,
+					content: lang.nightmode_invalid_hour_morning.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
 					flags: MessageFlags.Ephemeral
 				}) : await client.func.method.interactionSend(interaction, {
-					content: `${client.iHorizon_Emojis.No} L'heure de début n'est pas valide. Utilisez le format: 21:30 ou 2130`,
+					content: lang.nightmode_invalid_hour_morning.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
 				})
 				return;
 			}
@@ -357,10 +349,10 @@ export const command: Command = {
 			if (!endTime) {
 				refreshogResponse()
 				interaction instanceof ChatInputCommandInteraction ? interaction.followUp({
-					content: `${client.iHorizon_Emojis.No} L'heure de fin n'est pas valide. Utilisez le format: 06:15 ou 0615`,
+					content: lang.nightmode_invalid_hour_night.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
 					flags: MessageFlags.Ephemeral
 				}) : await client.func.method.interactionSend(interaction, {
-					content: `${client.iHorizon_Emojis.No} L'heure de fin n'est pas valide. Utilisez le format: 06:15 ou 0615`,
+					content: lang.nightmode_invalid_hour_night.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
 					flags: MessageFlags.Ephemeral
 				})
 				return;
