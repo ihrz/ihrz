@@ -100,17 +100,9 @@ class NightModeManager {
 		const [currentHour, currentMinute] = guildTime.split(':').map(Number);
 		const currentTimeInMinutes = currentHour * 60 + currentMinute;
 
-		// Parse time format: [startHour, startMinute, endHour, endMinute]
-		let startTimeInMinutes: number;
-		let endTimeInMinutes: number;
-
-		if (guildObject.time.length === 4) {
-			// New format: [startHour, startMinute, endHour, endMinute]
-			startTimeInMinutes = guildObject.time[0] * 60 + guildObject.time[1];
-			endTimeInMinutes = guildObject.time[2] * 60 + guildObject.time[3];
-		} else {
-			throw new Error("Invalid time format in night mode configuration");
-		}
+		// New format: [startHour, startMinute, endHour, endMinute]
+		let startTimeInMinutes = guildObject.time[0] * 60 + guildObject.time[1];;
+		let endTimeInMinutes = guildObject.time[2] * 60 + guildObject.time[3];;
 
 		// Handle overnight periods (e.g., 22:30 to 06:15)
 		if (startTimeInMinutes > endTimeInMinutes) {
@@ -163,7 +155,7 @@ class NightModeManager {
 		msg += lang.var_nm_end_main;
 
 		if (all_changed_roles.length > 0) {
-			msg += lang.var_nm_edited_roles + `\n>>> ${all_changed_roles.map(x => '<@' + x + '>').join("\n")}`;
+			msg += lang.var_nm_edited_roles + `\n>>> ${all_changed_roles.map(x => '<@&' + x + '>').join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
@@ -251,7 +243,7 @@ class NightModeManager {
 		msg += lang.var_nm_start_main;
 
 		if (changed_roles.length > 0) {
-			msg += lang.var_nm_edited_roles + `\n>>> ${changed_roles.map(x => '<@' + x + '>').join("\n")}`;
+			msg += lang.var_nm_edited_roles + `\n>>> ${changed_roles.map(x => '<@&' + x + '>').join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
