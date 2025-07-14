@@ -39,6 +39,7 @@ import { cache_storage_update } from '../../core/cache.js';
 export const event: BotEvent = {
 	name: "ready",
 	run: async (client: Client) => {
+		await client.emojisManager.startSync();
 
 		async function fetchInvites() {
 			client.guilds.cache.forEach(async (guild) => {
@@ -190,7 +191,6 @@ export const event: BotEvent = {
 		await client.nightmodeManager.init();
 		// await client.ownihrz.Start_Refresh();
 		await client.notifier.start();
-		await client.emojisManager.startSync();
 
 		client.infrastructureMonitoring = new InfrastructureMonitoring(client);
 		await client.infrastructureMonitoring.startMonitoring();
