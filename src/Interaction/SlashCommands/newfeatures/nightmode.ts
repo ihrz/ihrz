@@ -108,23 +108,23 @@ export const command: Command = {
 				{
 					name: "Module Activer",
 					value: baseData.enabled ? "🟢" : "🔴"
-				},
+				}, // 0
 				{
 					name: "Notifier l'owner du serveur",
 					value: baseData.notify ? "🟢" : "🔴"
-				},
+				}, // 1
 				{
 					name: "Derank les bots?",
 					value: baseData.derankBot ? "🟢" : "🔴"
-				},
+				}, // 2
 				{
 					name: "Bot sous liste blanche",
 					value: baseData.wlBots?.map(x => `<@${x}>`).join('') || "aucun"
-				},
+				}, // 3
 				{
 					name: "Plage Horaire",
 					value: `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
-				},
+				}, // 4
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId));
 
@@ -204,7 +204,7 @@ export const command: Command = {
 			}
 
 			if (i.values[0] === "hours_window") {
-				await editHoursWindow(i, 2);
+				await editHoursWindow(i, 4);
 			} else if (i.values[0] === "owner_notify") {
 				i.deferUpdate();
 				await editOwnerNotify(1);
