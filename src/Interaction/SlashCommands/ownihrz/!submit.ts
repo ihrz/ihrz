@@ -40,56 +40,57 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		const discord_bot_token = interaction.options.getString('discord_bot_token') as string;
-		const bot_1 = (await client.ownihrz.Get_Bot(discord_bot_token).catch(() => { }))?.data || 404;
+		await client.func.method.interactionSend(interaction, { content: "We de not provide ownihrz anymore.\nSee there: https://discord.com/channels/972538524790304788/1394398246012453065" })
+		// const discord_bot_token = interaction.options.getString('discord_bot_token') as string;
+		// const bot_1 = (await client.ownihrz.Get_Bot(discord_bot_token).catch(() => { }))?.data || 404;
 
-		if (!bot_1.bot) {
-			await interaction.editReply({ content: lang.mybot_submit_token_invalid });
-			return;
-		} else {
-			const code = generatePassword({ length: 8, numbers: true })
+		// if (!bot_1.bot) {
+		// 	await interaction.editReply({ content: lang.mybot_submit_token_invalid });
+		// 	return;
+		// } else {
+		// 	const code = generatePassword({ length: 8, numbers: true })
 
-			const table_1 = client.db.table("TEMP");
-			await table_1.set(`OWNIHRZ.${interaction.user.id}.${code}`,
-				{
-					Auth: discord_bot_token,
-					OwnerOne: interaction.user.id,
-					OwnerTwo: interaction.options.getUser('owner_two')?.id || interaction.user.id,
-					ExpireIn: Date.now() + client.timeCalculator.to_ms('30d')!,
-					Prefix: interaction.options.getString("prefix") || null,
-					Bot: {
-						Id: bot_1.bot.id,
-						Name: bot_1.bot.username,
-						Public: bot_1.bot_public
-					}
-				}
-			);
+		// 	const table_1 = client.db.table("TEMP");
+		// 	await table_1.set(`OWNIHRZ.${interaction.user.id}.${code}`,
+		// 		{
+		// 			Auth: discord_bot_token,
+		// 			OwnerOne: interaction.user.id,
+		// 			OwnerTwo: interaction.options.getUser('owner_two')?.id || interaction.user.id,
+		// 			ExpireIn: Date.now() + client.timeCalculator.to_ms('30d')!,
+		// 			Prefix: interaction.options.getString("prefix") || null,
+		// 			Bot: {
+		// 				Id: bot_1.bot.id,
+		// 				Name: bot_1.bot.username,
+		// 				Public: bot_1.bot_public
+		// 			}
+		// 		}
+		// 	);
 
-			const utils_msg = lang.mybot_submit_utils_msg
-				.replace('${bot_1.bot.id}', bot_1.bot.id)
-				.replace('${bot_1.bot.username}', bot_1.bot.username)
-				.replace("${bot_1.bot_public ? 'Yes' : 'No'}",
-					bot_1.bot_public ? lang.mybot_submit_utils_msg_yes : lang.mybot_submit_utils_msg_no
-				)
+		// 	const utils_msg = lang.mybot_submit_utils_msg
+		// 		.replace('${bot_1.bot.id}', bot_1.bot.id)
+		// 		.replace('${bot_1.bot.username}', bot_1.bot.username)
+		// 		.replace("${bot_1.bot_public ? 'Yes' : 'No'}",
+		// 			bot_1.bot_public ? lang.mybot_submit_utils_msg_yes : lang.mybot_submit_utils_msg_no
+		// 		)
 
-			const embed = new EmbedBuilder()
-				.setColor('#ff7f50')
-				.setTitle(lang.mybot_submit_embed_title
-					.replace('${bot_1.bot.username}', bot_1.bot.username)
-					.replace('${bot_1.bot.discriminator}', bot_1.bot.discriminator)
-				)
-				.setDescription(
-					lang.mybot_submit_embed_desc
-						.replace('${code}', code)
-						.replace('${utils_msg}', utils_msg)
-				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+		// 	const embed = new EmbedBuilder()
+		// 		.setColor('#ff7f50')
+		// 		.setTitle(lang.mybot_submit_embed_title
+		// 			.replace('${bot_1.bot.username}', bot_1.bot.username)
+		// 			.replace('${bot_1.bot.discriminator}', bot_1.bot.discriminator)
+		// 		)
+		// 		.setDescription(
+		// 			lang.mybot_submit_embed_desc
+		// 				.replace('${code}', code)
+		// 				.replace('${utils_msg}', utils_msg)
+		// 		)
+		// 		.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-			await interaction.editReply({
-				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-			});
-			return;
-		};
+		// 	await interaction.editReply({
+		// 		embeds: [embed],
+		// 		files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+		// 	});
+		// 	return;
+		// };
 	},
 };
