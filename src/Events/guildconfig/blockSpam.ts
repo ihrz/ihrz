@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, PermissionsBitField, ChannelType, Message, GuildMember } from 'discord.js';
+import { Client, PermissionsBitField, ChannelType, Message, GuildMember, AutoModerationRuleTriggerType } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { axios } from '../../core/functions/axios.js';
@@ -140,9 +140,20 @@ export const event: BotEvent = {
 
 		// Check if anti-pub is enabled for this guild
 		const type = await client.db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`) as DatabaseStructure.GuildConfigSchema['antipub'];
-		if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
+		if (type === "off" || message.member.permissions.has(
+			[
+				PermissionsBitField.Flags.Administrator |
+				PermissionsBitField.Flags.ManageGuild
+			]
+		)) return;
+
+		const automodRules = message.guild.autoModerationRules.cache.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
 		const member = message.guild.members.cache.get(message.author.id);
+
+		if (automodRules?.exemptRoles.values().toArray().some(x => member?.roles.cache.has(x.id))) {
+			return;
+		}
 
 		if (type === "on") {
 			// Get punishment configuration and user data
