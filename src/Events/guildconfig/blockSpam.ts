@@ -140,7 +140,12 @@ export const event: BotEvent = {
 
 		// Check if anti-pub is enabled for this guild
 		const type = await client.db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`) as DatabaseStructure.GuildConfigSchema['antipub'];
-		if (type === "off" || message.member.permissions.has(PermissionsBitField.Flags.Administrator)) return;
+		if (type === "off" || message.member.permissions.has(
+			[
+				PermissionsBitField.Flags.Administrator |
+				PermissionsBitField.Flags.ManageGuild
+			]
+		)) return;
 
 		const member = message.guild.members.cache.get(message.author.id);
 
