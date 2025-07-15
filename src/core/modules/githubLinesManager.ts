@@ -26,7 +26,6 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { isFilled } from "ts-is-present"; // https://github.com/microsoft/TypeScript/issues/16069
 import { Message } from "discord.js";
 import { LanguageData } from "../../../types/languageData";
 
@@ -90,26 +89,28 @@ class GithubLinesManager {
 		let lines: string[];
 		let filename = match[3];
 
-		const fetchText = async (url: string): Promise<string | null> => {
-			const resp = await fetch(url, { headers: this.authHeaders });
-			return resp.ok ? await resp.text() : null;
-		};
-
 		if (type === "GitHub") {
-			const text = await fetchText(`https://raw.githubusercontent.com/${match[1]}/${match[2]}/${filename}`);
-			if (!text) return null;
+			const resp = await fetch(`https://raw.githubusercontent.com/${match[1]}/${match[2]}/${filename}`);
+			if (!resp.ok) {
+				return null; // TODO: fallback to API
+			}
+			const text = await resp.text();
 			lines = text.split("\n");
 		} else if (type === "GitLab") {
-			const text = await fetchText(`https://gitlab.com/${match[1]}/-/raw/${match[2]}/${filename}`);
-			if (!text) return null;
+			const resp = await fetch(`https://gitlab.com/${match[1]}/-/raw/${match[2]}/${filename}`);
+			if (!resp.ok) {
+				return null; // TODO: fallback to API
+			}
+			const text = await resp.text();
 			lines = text.split("\n");
 		} else if (type === "Gist") {
 			const dotFilename = filename.replace(/-([^-]*)$/, ".$1");
 			let text: string | null = null;
 
 			if (match[2].length) {
-				text = await fetchText(`https://gist.githubusercontent.com/${match[1]}/raw/${match[2]}/${dotFilename}`);
-				if (!text) return null;
+				const resp = await fetch(`https://gist.githubusercontent.com/${match[1]}/raw/${match[2]}/${dotFilename}`);
+				if (!resp.ok) return null;
+				text = await resp.text();
 			} else {
 				const resp = await fetch(`https://api.github.com/gists/${match[1].split("/")[1]}`, {
 					headers: this.authHeaders
@@ -183,7 +184,7 @@ class GithubLinesManager {
 		}
 
 		const unfiltered = await Promise.all(returned);
-		const filtered = unfiltered.filter(isFilled);
+		const filtered = unfiltered.filter(x => x !== null) as LineData[];
 
 		const totalLines = filtered.reduce((acc, el) => acc + el.lineLength, 0);
 		return {

@@ -21,7 +21,6 @@
 
 import { BaseGuildTextChannel, Client, DMChannel, Message } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
-import { guildPrefix } from '../../core/functions/prefix.js';
 
 export const event: BotEvent = {
 	name: "messageCreate",
