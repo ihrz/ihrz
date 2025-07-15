@@ -80,7 +80,7 @@ class NightModeManager {
 					await this.Add_All_PA(guild, guildObject, lang);
 				}
 			} catch (err) {
-				console.log(err)
+				console.error(err)
 			}
 		}
 	}
