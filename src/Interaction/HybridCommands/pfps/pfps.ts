@@ -69,7 +69,7 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: "disable",
+			name: "config",
 			prefixName: "pfps-config",
 
 			description: "Enable or Disable the PFPS module!",
