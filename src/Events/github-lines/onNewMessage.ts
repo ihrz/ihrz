@@ -37,11 +37,11 @@ export const event: BotEvent = {
 
 		let { botMsg, toDelete, lang } = await client.githubLinesManager.handleMessage(message);
 
-		if (!await client.db.has(`${message.guildId}.UTILS.git_lines`) && (Math.floor(Math.random() * 8) === 0)) {
-			botMsg += lang.git_lines_borred_warning.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat);
-		}
+		if (botMsg !== null) {
+			if (!await client.db.has(`${message.guildId}.UTILS.git_lines`) && (Math.floor(Math.random() * 8) === 0)) {
+				botMsg += lang.git_lines_borred_warning.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat);
+			}
 
-		if (botMsg) {
 			const sentmsg = await (message.channel as BaseGuildTextChannel).send(botMsg);
 
 			if (toDelete) {
