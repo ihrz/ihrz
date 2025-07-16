@@ -38,7 +38,7 @@ class NightModeManager {
 		this.Refresh(await this.GetNightModeData());
 		setInterval(async () => {
 			this.Refresh(await this.GetNightModeData())
-		}, 3000)
+		}, 60_000 * 5)
 	}
 
 	private async GetNightModeData(): Promise<nightModeData> {
