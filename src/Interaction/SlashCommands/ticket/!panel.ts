@@ -799,6 +799,11 @@ export const subCommand: SubCommand = {
 
 			if (!modal) return;
 
+			i.followUp({
+				content: lang.ticket_panel_tip_about_variable1.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat),
+				flags: "Ephemeral"
+			})
+
 			// get the embed id
 			let embed_id: string | undefined = modal.fields.getTextInputValue("embed_id");
 

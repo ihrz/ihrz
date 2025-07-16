@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "Botão para apagar a transcrição"
 ticket_panel_panel_12_label: "Mostrar menu para adicionar/remover membros de um ticket"
 ticket_panel_panel_13_label: "Mostrar botão para apagar um ticket"
 ticket_panel_panel_14_label: "Mostrar botão de transcrição"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Sabia que?** Quando usa `/utils embed` para gerar um embed, pode introduzir a variável **`{category}`**, que será substituída pela categoria escolhida pelo utilizador."
 
 # /ticket rename
 ticket_rename_ok: "O canal do ticket foi renomeado!"

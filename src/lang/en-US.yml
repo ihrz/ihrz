@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "Button to delete the transcript"
 ticket_panel_panel_12_label: "Show menu to add/remove members from a ticket"
 ticket_panel_panel_13_label: "Show button to delete a ticket"
 ticket_panel_panel_14_label: "Show transcript button"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Did you know?** When you use `/utils embed` to generate an embed, you can introduce the **`{category}`** variable, which will be replaced by the category chosen by the user."
 
 # /ticket rename
 ticket_rename_ok: "Ticket channel has been renamed !"
