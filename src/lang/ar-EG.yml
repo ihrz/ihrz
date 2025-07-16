@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "زر لحذف النص المحفوظ"
 ticket_panel_panel_12_label: "عرض قائمة إضافة/إزالة الأعضاء من التذكرة"
 ticket_panel_panel_13_label: "عرض زر حذف التذكرة"
 ticket_panel_panel_14_label: "عرض زر النص المحفوظ"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **هل تعلم؟** عندما تستخدم `/utils embed` لإنشاء embed، يمكنك إدخال المتغير **`{category}`**، والذي سيتم استبداله بالفئة التي اختارها المستخدم."
 
 # /ticket rename
 ticket_rename_ok: "تم تغيير اسم قناة التذكرة!"

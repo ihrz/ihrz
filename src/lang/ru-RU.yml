@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "Кнопка для удаления стено
 ticket_panel_panel_12_label: "Показать меню для добавления/удаления участников тикета"
 ticket_panel_panel_13_label: "Показать кнопку удаления тикета"
 ticket_panel_panel_14_label: "Показать кнопку стенограммы"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Знали ли вы?** Когда вы используете `/utils embed` для создания embed, вы можете ввести переменную **`{category}`**, которая будет заменена категорией, выбранной пользователем."
 
 # /ticket rename
 ticket_rename_ok: "Канал тикета был переименован!"

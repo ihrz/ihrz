@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "Botón para eliminar la transcripción"
 ticket_panel_panel_12_label: "Mostrar menú para agregar/quitar miembros del ticket"
 ticket_panel_panel_13_label: "Mostrar botón para eliminar el ticket"
 ticket_panel_panel_14_label: "Mostrar botón de transcripción"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **¿Sabías que?** Cuando usas `/utils embed` para generar un embed, puedes introducir la variable **`{category}`**, que será reemplazada por la categoría elegida por el usuario."
 
 # /ticket rename
 ticket_rename_ok: "¡El canal del ticket ha sido renombrado!"
