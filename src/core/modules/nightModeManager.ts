@@ -144,18 +144,20 @@ class NightModeManager {
 
 		// if all conditions is passed. Do the job
 		const all_changed_roles: DatabaseStructure.NightMode["changed_roles"] = await guild.client.db.get(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`) || [];
+		let changed_roles: string[] = [];
 		if (!all_changed_roles) return;
 		for (const role of all_changed_roles) {
 			const roleObject = guild.roles.cache.get(role);
 			if (!roleObject) continue;
+			changed_roles.push(roleObject.name);
 			await roleObject.setPermissions(new PermissionsBitField(roleObject.permissions).add(PermissionFlagsBits.Administrator));
 		}
 
 		let msg = ""
 		msg += lang.var_nm_end_main;
 
-		if (all_changed_roles.length > 0) {
-			msg += lang.var_nm_edited_roles + `\n>>> ${all_changed_roles.map(x => '<@&' + x + '>').join("\n")}`;
+		if (changed_roles.length > 0) {
+			msg += lang.var_nm_edited_roles + `\n>>> ${changed_roles.map(x => '@' + x + '').join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
@@ -226,6 +228,8 @@ class NightModeManager {
 		// if all conditions is passed. Do the job
 		const all_pa_roles = (await guild.roles.fetch()).filter(role => role.permissions.has(PermissionFlagsBits.Administrator)).values().toArray();
 		let filtered_pa_roles = all_pa_roles
+			.filter(x => x.id !== x.guild.members.me?.roles.botRole?.id);
+
 		if (guildObject.data?.derankBot && guildObject.data.wlBots) {
 			filtered_pa_roles = filtered_pa_roles.filter(role =>
 				!role.managed || (guildObject.data?.wlBots || []).includes(role.id)
@@ -236,14 +240,14 @@ class NightModeManager {
 		for (let role of filtered_pa_roles) {
 			const newPermissions = new PermissionsBitField(role.permissions).remove(PermissionFlagsBits.Administrator);
 			await role.setPermissions(newPermissions);
-			changed_roles.push(role.id);
+			changed_roles.push(role.name);
 		}
 
-		let msg = ""
+		let msg = "";
 		msg += lang.var_nm_start_main;
 
 		if (changed_roles.length > 0) {
-			msg += lang.var_nm_edited_roles + `\n>>> ${changed_roles.map(x => '<@&' + x + '>').join("\n")}`;
+			msg += lang.var_nm_edited_roles + `\n>>> ${changed_roles.map(x => '@' + x + '').join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
