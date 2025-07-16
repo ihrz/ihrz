@@ -29,5 +29,5 @@ export function sanitizing(text: string | undefined): string {
 		} catch {
 			return false;
 		}
-	}).join('') || '';
+	}).join('') || '<malformed string>';
 }
