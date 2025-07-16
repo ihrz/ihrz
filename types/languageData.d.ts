@@ -1419,6 +1419,7 @@ export interface LanguageData {
 	embed_choose_5: string;
 	embed_choose_6: string;
 	embed_choose_7: string;
+	embed_choose_7bis: string;
 	embed_choose_8: string;
 	embed_choose_9: string;
 	embed_choose_10: string;
