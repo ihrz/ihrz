@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, Guild, MessageCreateOptions, PermissionFlagsBits, PermissionsBitField } from "discord.js"
+import { Client, Guild, MessageCreateOptions, PermissionFlagsBits, PermissionsBitField, Role } from "discord.js"
 import { DatabaseStructure } from "../../../types/database_structure";
 import { utcTimezones } from "../../files/locales.ts";
 import { LanguageData } from "../../../types/languageData";
@@ -144,18 +144,20 @@ class NightModeManager {
 
 		// if all conditions is passed. Do the job
 		const all_changed_roles: DatabaseStructure.NightMode["changed_roles"] = await guild.client.db.get(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`) || [];
+		let changed_roles: string[] = [];
 		if (!all_changed_roles) return;
 		for (const role of all_changed_roles) {
-			const roleObject = guild.roles.cache.get(role);
+			const roleObject = guild.roles.cache.get(role) || await guild.roles.fetch(role);
 			if (!roleObject) continue;
+			changed_roles.push(roleObject.name);
 			await roleObject.setPermissions(new PermissionsBitField(roleObject.permissions).add(PermissionFlagsBits.Administrator));
 		}
 
-		let msg = ""
+		let msg = "";
 		msg += lang.var_nm_end_main;
 
-		if (all_changed_roles.length > 0) {
-			msg += lang.var_nm_edited_roles + `\n>>> ${all_changed_roles.map(x => '<@&' + x + '>').join("\n")}`;
+		if (changed_roles.length > 0) {
+			msg += lang.var_nm_edited_roles + `\n>>> ${changed_roles.map(x => '@' + x + '').join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
@@ -226,24 +228,24 @@ class NightModeManager {
 		// if all conditions is passed. Do the job
 		const all_pa_roles = (await guild.roles.fetch()).filter(role => role.permissions.has(PermissionFlagsBits.Administrator)).values().toArray();
 		let filtered_pa_roles = all_pa_roles
+			.filter(x => x.id !== x.guild.members.me?.roles.botRole?.id);
+
 		if (guildObject.data?.derankBot && guildObject.data.wlBots) {
 			filtered_pa_roles = filtered_pa_roles.filter(role =>
 				!role.managed || (guildObject.data?.wlBots || []).includes(role.id)
 			);
 		}
 
-		let changed_roles: DatabaseStructure.NightMode["changed_roles"] = [];
 		for (let role of filtered_pa_roles) {
 			const newPermissions = new PermissionsBitField(role.permissions).remove(PermissionFlagsBits.Administrator);
 			await role.setPermissions(newPermissions);
-			changed_roles.push(role.id);
 		}
 
-		let msg = ""
+		let msg = "";
 		msg += lang.var_nm_start_main;
 
-		if (changed_roles.length > 0) {
-			msg += lang.var_nm_edited_roles + `\n>>> ${changed_roles.map(x => '<@&' + x + '>').join("\n")}`;
+		if (filtered_pa_roles.length > 0) {
+			msg += lang.var_nm_edited_roles + `\n>>> ${filtered_pa_roles.map(x => '@' + x.name + '').join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
@@ -254,7 +256,7 @@ class NightModeManager {
 			lang
 		});
 
-		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`, changed_roles);
+		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`, filtered_pa_roles.map(x => x.id));
 	}
 
 	private async Notify_Server_Owner(guild: Guild, opt: { type: checked_nightmode_response, msg?: MessageCreateOptions, guildObject?: DatabaseStructure.NightMode, lang: LanguageData }) {
@@ -265,7 +267,7 @@ class NightModeManager {
 			embeds: [
 				{
 					title: opt.lang.var_nm_title,
-					description: opt.lang.var_nm_ping_embed_title,
+					description: opt.lang.var_nm_ping_embed_title.replace("${type}", type),
 					color: opt.guildObject?.notify ? 0x00FF00 : 0xFF0000,
 					fields: [
 						{

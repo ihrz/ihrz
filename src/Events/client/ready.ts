@@ -61,7 +61,7 @@ export const event: BotEvent = {
 		};
 
 		async function refreshDatabaseModel() {
-			await client.db.table(`TEMP`).deleteAll();
+			// await client.db.table(`TEMP`).deleteAll();
 			const table = client.db.table('OWNER');
 
 			const owners = [...new Set([...client.owners, ...(await table.all()).map(x => x.id)])];
