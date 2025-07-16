@@ -265,7 +265,7 @@ class NightModeManager {
 			embeds: [
 				{
 					title: opt.lang.var_nm_title,
-					description: opt.lang.var_nm_ping_embed_title,
+					description: opt.lang.var_nm_ping_embed_title.replace("${type}", type),
 					color: opt.guildObject?.notify ? 0x00FF00 : 0xFF0000,
 					fields: [
 						{
