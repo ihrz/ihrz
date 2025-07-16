@@ -402,6 +402,8 @@ export const command: Command = {
 				"fr": "Demute un utilisateur !"
 			},
 
+			aliases: ["untempmute", "untimeout"],
+
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{

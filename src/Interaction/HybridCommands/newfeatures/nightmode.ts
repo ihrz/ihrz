@@ -222,6 +222,16 @@ export const command: Command = {
 			}
 		});
 
+
+		collector2wish.on('end', async () => {
+			collector2wish.stop();
+			collector2merde.stop();
+			await ogResponse.edit({
+				components: getComponent(true)
+			});
+			await client.db.set(`${interaction.guildId}.UTILS.NIGHT_MODE`, baseData);
+		});
+
 		async function editOwnerNotify(fieldsNumber: number) {
 			baseData.notify = !baseData.notify;
 
