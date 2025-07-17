@@ -149,6 +149,12 @@ export const subCommand: SubCommand = {
 					let bad = 0;
 
 					await interaction_2.deferUpdate();
+					messageEmbed.edit({
+						content: client.iHorizon_Emojis.Discord_Loading,
+						embeds: [],
+						files: [],
+						components: []
+					})
 					const to_unrank_members = all_admin_members.filter(x => x.guild.ownerId !== x.user.id);
 
 					for (const member of to_unrank_members) {
@@ -164,26 +170,27 @@ export const subCommand: SubCommand = {
 						} catch (err) {
 							bad++
 						}
-
-						const embed = new EmbedBuilder()
-							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-							.setColor('#007fff')
-							.setTimestamp()
-							.setThumbnail(interaction.guild?.iconURL()!)
-							.setDescription(lang.all_admins_unrank_embed_desc
-								.replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
-								.replace("${good}", good.toString())
-								.replace("${bad}", bad.toString())
-							)
-
-						await messageEmbed.edit({
-							embeds: [embed],
-							files: [],
-						})
-
-						collector.stop()
-						return;
 					}
+
+					const embed = new EmbedBuilder()
+						.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+						.setColor('#007fff')
+						.setTimestamp()
+						.setThumbnail(interaction.guild?.iconURL()!)
+						.setDescription(lang.all_admins_unrank_embed_desc
+							.replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
+							.replace("${good}", good.toString())
+							.replace("${bad}", bad.toString())
+						)
+
+					await messageEmbed.edit({
+						content: null,
+						embeds: [embed],
+						files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+					})
+
+					collector.stop()
+					return;
 
 				} else {
 					await interaction_2.reply({ content: lang.all_admins_unrank_not_owner });
