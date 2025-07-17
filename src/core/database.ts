@@ -19,9 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { MemoryDriver, QuickDB, JSONDriver } from 'quick.db';
 import { PallasDB } from 'pallas-db';
-import { BunDB } from 'bun.db';
 import { setInterval } from 'timers';
 
 import { ConfigData } from '../../types/configDatad.js';
@@ -30,8 +28,7 @@ import fs from 'fs';
 import { mkdir } from 'fs/promises';
 import path from 'path';
 
-export type db = QuickDB<any> | PallasDB | BunDB;
-let dbInstance: db | null = null;
+let dbInstance: PallasDB | null = null;
 
 const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
 const readOnlyTables = ["AUTHRESTORE", "OWNIHRZ", 'API'];
@@ -43,13 +40,13 @@ const overwriteLastLine = (message: string) => {
 	process.stdout.write(message);
 };
 
-export async function initializeDatabase(config: ConfigData): Promise<db> {
+export async function initializeDatabase(config: ConfigData): Promise<PallasDB> {
 	if (dbInstance !== null) {
 		return dbInstance;
 	}
 
-	let dbPromise: Promise<QuickDB<any>> | Promise<PallasDB> | Promise<BunDB>;
-	const databasePath = `${process.cwd()}/src/files`;
+	let dbPromise: Promise<PallasDB>;
+	const databasePath = `${process.cwd()}/src/files/`;
 
 	if (!fs.existsSync(databasePath)) {
 		await mkdir(databasePath, { recursive: true });
@@ -59,11 +56,13 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 		case 'POSTGRES2':
 			dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
 				resolve(new PallasDB({
-					host: config.database?.mySQL?.host,
-					username: config.database?.mySQL?.user,
-					password: config.database?.mySQL?.password,
-					database: config.database?.mySQL?.database,
-					port: config.database?.mySQL?.port,
+					login: {
+						host: config.database?.mySQL?.host!,
+						username: config.database?.mySQL?.user!,
+						password: config.database?.mySQL?.password!,
+						database: config.database?.mySQL?.database!,
+						port: config.database?.mySQL?.port,
+					},
 					dialect: "postgres",
 					tables
 				}));
@@ -71,20 +70,22 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 			logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 			break;
 		case 'CACHED_POSTGRES2':
-			dbPromise = new Promise<QuickDB>(async (resolve, reject) => {
+			dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup (${config.database?.method}) !`.green);
 
 				const postgresDb = new PallasDB({
 					dialect: "postgres",
 					tables,
-					host: config.database?.mySQL?.host,
-					port: config.database?.mySQL?.port,
-					database: config.database?.mySQL?.database,
-					username: config.database?.mySQL?.user,
-					password: config.database?.mySQL?.password,
+					login: {
+						host: config.database?.mySQL?.host!,
+						port: config.database?.mySQL?.port!,
+						database: config.database?.mySQL?.database!,
+						username: config.database?.mySQL?.user!,
+						password: config.database?.mySQL?.password!,
+					}
 				});
 
-				const memoryDB = new QuickDB({ driver: new MemoryDriver() });
+				const memoryDB = new PallasDB({ dialect: "memory", tables });
 
 				for (const table of tables) {
 					const memoryTable = memoryDB.table(table);
@@ -156,15 +157,15 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 			});
 			break;
 		case 'JSON':
-			dbPromise = new Promise<QuickDB>((resolve, reject) => {
+			dbPromise = new Promise<PallasDB>((resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
-				resolve(new QuickDB({ driver: new JSONDriver(path.join(process.cwd(), "quick-db.json")) }));
+				resolve(new PallasDB({ dialect: "json", filePath: path.join(databasePath, "db.json"), tables }));
 			});
 			break;
 		default:
-			dbPromise = new Promise<BunDB>((resolve, reject) => {
+			dbPromise = new Promise<PallasDB>((resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
-				resolve(new BunDB(databasePath + '/db.sqlite'));
+				resolve(new PallasDB({ filePath: path.join(databasePath, 'db.sqlite'), tables, dialect: "mysql" }));
 			});
 			break;
 	}
@@ -174,7 +175,7 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 	return dbInstance;
 };
 
-export function getDatabaseInstance(): db {
+export function getDatabaseInstance(): PallasDB {
 	if (!dbInstance) {
 		throw new Error('Database has not been initialized. Call initializeDatabase first.');
 	}

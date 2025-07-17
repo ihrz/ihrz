@@ -20,7 +20,7 @@
 */
 
 import { Message } from "discord.js";
-import { db } from "../database.js";
+import { PallasDB } from "pallas-db";
 
 export async function coolDown(message: Message, method: string, ms: number) {
 	const tn = Date.now();
@@ -32,7 +32,7 @@ export async function coolDown(message: Message, method: string, ms: number) {
 	return false;
 };
 
-export async function hardCooldown(database: db, method: string, ms: number) {
+export async function hardCooldown(database: PallasDB, method: string, ms: number) {
 	const tn = Date.now();
 	const table = database.table("TEMP");
 	const fetch = await table.get(`COOLDOWN.${method}`);
