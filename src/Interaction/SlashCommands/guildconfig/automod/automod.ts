@@ -48,7 +48,7 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.SubcommandGroup,
 			options: [
 				{
-					name: 'pub',
+					name: 'discord_invite_link',
 
 					description: 'Allow/Unallow the user to send a server invites into them messages!',
 					description_localizations: {
