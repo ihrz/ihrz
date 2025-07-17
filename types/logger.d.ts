@@ -19,10 +19,11 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+export type LoggerExceptedType = string | any[];
 export interface Logger {
-	log: (message: string) => void;
-	legacy: (message: string) => void;
-	warn: (message: string) => void;
-	err: (message: string) => void;
-	returnLog: (message: string) => string;
+	log: (message: LoggerExceptedType) => void;
+	legacy: (message: LoggerExceptedType) => void;
+	warn: (message: LoggerExceptedType) => void;
+	err: (message: LoggerExceptedType) => void;
+	returnLog: (message: LoggerExceptedType) => string;
 }
