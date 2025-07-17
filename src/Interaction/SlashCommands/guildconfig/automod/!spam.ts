@@ -29,10 +29,10 @@ interface Action {
 	type: number;
 	metadata: Record<string, any>;
 };
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from '../../../../../types/languageData.js';
 
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -42,12 +42,11 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		const turn = interaction.options.getString("action");
-		const max_mention = interaction.options.getNumber('max-mention-allowed') || 3;
 		const logs_channel = interaction.options.getChannel('logs-channel');
 
 		const automodRules = await interaction.guild.autoModerationRules.fetch();
 
-		const mentionSpamRule = automodRules.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.MentionSpam);
+		const spamRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Spam);
 
 		if (turn === "on") {
 			const arrayActionsForRule: Action[] = [
@@ -63,56 +62,51 @@ export const subCommand: SubCommand = {
 				arrayActionsForRule.push({
 					type: 2,
 					metadata: {
-						channel: logs_channel.id,
+						channel: logs_channel,
 					}
 				});
 			};
 
-			try {
-				if (mentionSpamRule) {
-					await mentionSpamRule.edit({
-						name: 'Block mass-mention spam by iHorizon',
-						enabled: true,
-						eventType: 1,
-						triggerMetadata: {
-							mentionTotalLimit: max_mention,
-							presets: [1, 2, 3]
-						},
-						actions: arrayActionsForRule
-					})
-				} else {
-					await interaction.guild.autoModerationRules.create({
-						name: 'Block mass-mention spam by iHorizon',
-						enabled: true,
-						eventType: 1,
-						triggerType: 5,
-						triggerMetadata:
-						{
-							mentionTotalLimit: max_mention,
-							presets: [1, 2, 3]
-						},
-						actions: arrayActionsForRule
-					});
-				};
-
-				await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.mass_mention`, "on");
-				await interaction.editReply({
-					content: lang.automod_block_massmention_command_on
-						.replace('${interaction.user}', interaction.user.toString())
-						.replace('${logs_channel}', (logs_channel?.toString() || 'None'))
-						.replace('${max_mention}', max_mention.toString())
+			if (!spamRule) {
+				await interaction.guild.autoModerationRules.create({
+					name: 'Block spam by iHorizon',
+					enabled: true,
+					eventType: 1,
+					triggerType: 3,
+					triggerMetadata:
+					{
+						presets: [1, 2, 3]
+					},
+					actions: arrayActionsForRule
 				});
-				return;
-			} catch (error) {
-				await interaction.editReply({ content: 'Error 404. ' + lang.automod_block_massmention_command_error404 });
-			}
+
+			} else if (spamRule) {
+
+				await spamRule.edit({
+					name: 'Block spam by iHorizon',
+					enabled: true,
+					triggerMetadata:
+					{
+						presets: [1, 2, 3]
+					},
+					actions: arrayActionsForRule
+				});
+			};
+
+			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "on");
+			await interaction.editReply({
+				content: lang.automod_block_spam_command_on
+					.replace('${interaction.user}', interaction.user.toString())
+					.replace('${logs_channel}', (logs_channel || 'None') as string)
+			});
+			return;
 		} else if (turn === "off") {
 
-			await mentionSpamRule?.setEnabled(false);
+			await spamRule?.setEnabled(false);
 
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.mass_mention`, "off");
+			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "off");
 			await interaction.editReply({
-				content: lang.automod_block_massmention_command_off
+				content: lang.automod_block_spam_command_off
 					.replace('${interaction.user}', interaction.user.toString())
 			});
 			return;

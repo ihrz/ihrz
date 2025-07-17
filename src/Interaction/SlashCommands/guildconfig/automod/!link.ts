@@ -22,17 +22,30 @@
 import {
 	Client,
 	AutoModerationRuleTriggerType,
-	ChatInputCommandInteraction
+	ChatInputCommandInteraction,
+	TextChannel
 } from 'discord.js';
 
 interface Action {
 	type: number;
 	metadata: Record<string, any>;
 };
-import { LanguageData } from '../../../../types/languageData.js';
+
+const regexPatterns = [
+	'(discord\\.gg\\/|\\.gg\\/|gg\\/|https?:\\/\\/|http?:\\/\\/)',
+	'(?:%[0-9a-fA-F]{2})+',
+	'(?:<.*?>)?\\s*https?:\\/\\/.*?',
+	'[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
+	'(?:%[0-9a-fA-F]{2}){2,}',
+	'(?:https?:\/\/)?(?:%[0-9a-fA-F]{2})+(?:\.[a-zA-Z]{2,}|\/%[0-9a-fA-F]{2,})*',
+	'discord:\/\-\/invite\/[a-zA-Z0-9\-\_]+',
+	'(?:https?:\\/\\/)?discordapp\\.com[\\/\\\\]invite[\\/\\\\][^\\s]+'
+];
+
+import { LanguageData } from '../../../../../types/languageData.js';
 
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -45,70 +58,82 @@ export const subCommand: SubCommand = {
 		const logs_channel = interaction.options.getChannel('logs-channel');
 
 		const automodRules = await interaction.guild.autoModerationRules.fetch();
-
-		const spamRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Spam);
+		const KeywordPresetRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
 		if (turn === "on") {
-			const arrayActionsForRule: Action[] = [
-				{
-					type: 1,
-					metadata: {
-						customMessage: "This message was prevented by iHorizon"
-					}
-				},
-			];
 
-			if (logs_channel) {
-				arrayActionsForRule.push({
-					type: 2,
-					metadata: {
-						channel: logs_channel,
-					}
-				});
-			};
+			if (!KeywordPresetRule) {
+				const arrayActionsForRule: Action[] = [
+					{
+						type: 1,
+						metadata: {
+							customMessage: "This message was prevented by iHorizon"
+						}
+					},
+				];
 
-			if (!spamRule) {
+				if (logs_channel) {
+					arrayActionsForRule.push({
+						type: 2,
+						metadata: {
+							channel: logs_channel,
+						}
+					});
+				};
+
 				await interaction.guild.autoModerationRules.create({
-					name: 'Block spam by iHorizon',
+					name: 'Block advertissement message by iHorizon',
 					enabled: true,
 					eventType: 1,
-					triggerType: 3,
+					triggerType: 1,
 					triggerMetadata:
 					{
-						presets: [1, 2, 3]
+						regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
 					},
 					actions: arrayActionsForRule
 				});
+			} else if (KeywordPresetRule) {
 
-			} else if (spamRule) {
-
-				await spamRule.edit({
-					name: 'Block spam by iHorizon',
+				KeywordPresetRule.edit({
 					enabled: true,
 					triggerMetadata:
 					{
-						presets: [1, 2, 3]
+						regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
 					},
-					actions: arrayActionsForRule
+					actions: [
+						{
+							type: 1,
+							metadata: {
+								customMessage: "This message was prevented by iHorizon"
+							}
+						},
+						{
+							type: 2,
+							metadata: {
+								channel: logs_channel as TextChannel
+							}
+						},
+					]
 				});
 			};
 
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "on");
 			await interaction.editReply({
-				content: lang.automod_block_spam_command_on
+				content: lang.automod_block_link_command_on
 					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${logs_channel}', (logs_channel || 'None') as string)
+					.replace('${logs_channel}', (logs_channel?.toString() || 'None'))
 			});
+			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`, false);
+
 			return;
 		} else if (turn === "off") {
+			await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`);
+			await KeywordPresetRule?.setEnabled(false);
 
-			await spamRule?.setEnabled(false);
-
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "off");
 			await interaction.editReply({
-				content: lang.automod_block_spam_command_off
+				content: lang.automod_block_link_command_off
 					.replace('${interaction.user}', interaction.user.toString())
 			});
+
 			return;
 		};
 	},
