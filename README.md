@@ -93,14 +93,6 @@ bun .
 
 Working: [See more](https://npmjs.com/ihrz)  
 
-# 💸 Need Cheap Hosting?  
-
-🎉 iHorizon offers ultra-cheap hosting for an ownihrz instance!  
-💰 Only 2.00€/month (+0.50€ activation fee)  
-⚡ Your bot will be faster than most bots on the market!  
-
-🤖 You can even make it public and earn money with it!  
-
 # 🔥 About the Bot  
 
 🔹 Trusted by more than 330,000 users  
