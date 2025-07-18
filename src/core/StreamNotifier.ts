@@ -327,7 +327,7 @@ export class StreamNotifier {
 		const guildsData = await this.getGuildsData();
 
 		for (const entry of guildsData) {
-			const guild = this.client.guilds.cache.get(entry.guildId);
+			const guild = await this.client.guilds.fetch(entry.guildId).catch(() => null);
 			const channel = guild?.channels.cache.get(entry.value.channelId) as BaseGuildTextChannel | undefined;
 			const lang = await this.client.func.getLanguageData(guild?.id);
 			const medias = await this.fetchUsersMedias(entry.value.users || []);

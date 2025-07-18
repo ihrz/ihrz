@@ -30,6 +30,34 @@ import {
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
+// Get statistics from all shards
+const getShardStats = async (client: Client) => {
+	if (!client.shard) {
+		// No sharding - use local cache
+		return {
+			guilds: client.guilds.cache.size,
+			channels: client.channels.cache.size,
+			users: client.users.cache.size
+		};
+	}
+
+	// With sharding - broadcast to all shards
+	const shardResults = await client.shard.broadcastEval(client => {
+		return {
+			guilds: client.guilds.cache.size,
+			channels: client.channels.cache.size,
+			users: client.users.cache.size
+		};
+	});
+
+	// Sum up all results from all shards
+	return shardResults.reduce((total, shard) => {
+		total.guilds += shard.guilds;
+		total.channels += shard.channels;
+		total.users += shard.users;
+		return total;
+	}, { guilds: 0, channels: 0, users: 0 });
+};
 
 export const command: Command = {
 	name: 'botinfo',
@@ -50,16 +78,16 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+		const stats = await getShardStats(client);
 
 		const clientembed = new EmbedBuilder()
 			.setColor("#f0d020")
 			.setThumbnail("attachment://footer_icon.png")
 			.addFields(
 				{ name: lang.botinfo_embed_fields_myname, value: `\`\`\`${client.user.username}\`\`\``, inline: false },
-				{ name: lang.botinfo_embed_fields_mychannels, value: `\`\`\`py\n${client.channels.cache.size}\`\`\``, inline: false },
-				{ name: lang.botinfo_embed_fields_myservers, value: `\`\`\`py\n${client.guilds.cache.size}\`\`\``, inline: false },
-				{ name: lang.botinfo_embed_fields_members, value: `\`\`\`py\n${usersize}\`\`\``, inline: false },
+				{ name: lang.botinfo_embed_fields_mychannels, value: `\`\`\`py\n${stats.channels}\`\`\``, inline: false },
+				{ name: lang.botinfo_embed_fields_myservers, value: `\`\`\`py\n${stats.guilds}\`\`\``, inline: false },
+				{ name: lang.botinfo_embed_fields_members, value: `\`\`\`py\n${stats.users}\`\`\``, inline: false },
 				{ name: lang.botinfo_embed_fields_libraires, value: `\`\`\`py\ndiscord.js@${client.version.djs}\`\`\``, inline: false },
 				{ name: lang.botinfo_embed_fields_created_at, value: "<t:1600042320:R>", inline: false },
 				{ name: lang.botinfo_embed_fields_created_by, value: "<@171356978310938624>", inline: false }
