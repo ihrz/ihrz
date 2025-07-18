@@ -310,7 +310,7 @@ export class StreamNotifier {
 		const lang = await this.client.func.getLanguageData(guild?.id);
 		const config = (await this.getGuildData(guild.id));
 
-		const channel = guild.channels.cache.get(config?.channelId || "");
+		const channel = await guild.channels.fetch(config?.channelId || "").catch(() => null);
 		const embed = new EmbedBuilder();
 
 		embed.setTitle(lang.notifier_generateConfigurationEmbed_embed_title);
@@ -328,7 +328,7 @@ export class StreamNotifier {
 
 		for (const entry of guildsData) {
 			const guild = await this.client.guilds.fetch(entry.guildId).catch(() => null);
-			const channel = guild?.channels.cache.get(entry.value.channelId) as BaseGuildTextChannel | undefined;
+			const channel = await guild?.channels.fetch(entry.value.channelId).catch(() => null) as BaseGuildTextChannel | undefined;
 			const lang = await this.client.func.getLanguageData(guild?.id);
 			const medias = await this.fetchUsersMedias(entry.value.users || []);
 

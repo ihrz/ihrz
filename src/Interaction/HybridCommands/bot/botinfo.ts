@@ -31,7 +31,7 @@ import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 // Get statistics from all shards
-const getShardStats = async (client: Client) => {
+export const getShardStats = async (client: Client) => {
 	if (!client.shard) {
 		// No sharding - use local cache
 		return {
