@@ -22,10 +22,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
+import pkg from "../package.json";
 
 // Expected license header (first 20 lines)
 const EXPECTED_HEADER = `/*
-・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
+・ iHorizon Discord Bot (${pkg.repository.url})
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
@@ -40,9 +41,9 @@ const EXPECTED_HEADER = `/*
 		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
-・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
+・ Mainly developed by Kisakay (https://gitlab.com/${pkg.author})
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-${new Date().getFullYear()} iHorizon
 */`;
 
 // Array of paths to search recursively
