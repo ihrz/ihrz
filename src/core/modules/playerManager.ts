@@ -19,10 +19,13 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder } from 'discord.js';
+import { AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, User } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
 import logger from '../logger.js';
+import { format } from '../functions/date_and_time.js';
+
+let lavalink_error_channel: 'dont_exist' | null | BaseGuildTextChannel = null;
 
 export default async (client: Client) => {
 
@@ -55,6 +58,15 @@ export default async (client: Client) => {
 	});
 
 	client.player.on("trackStart", async (player, track) => {
+		if (lavalink_error_channel === null && client.config.core.lavalinkLogsChannelID) {
+			let channel = await client.channels.fetch(client.config.core.lavalinkLogsChannelID).catch(() => null);
+			if (channel) {
+				lavalink_error_channel = (channel as BaseGuildTextChannel);
+			} else {
+				lavalink_error_channel = "dont_exist";
+			}
+		}
+
 		const data = await client.func.getLanguageData(player.guildId);
 
 		const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
@@ -120,12 +132,70 @@ export default async (client: Client) => {
 		// logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
 	})
 
-	client.player.on("trackError", async (player, err, r) => {
-		if (r.exception?.message === "Something broke when playing the track.") {
+	client.player.on("trackError", async (player, x, y) => {
+		console.log(y.exception?.message)
+		let t0 = performance.now();
+
+		if (lavalink_error_channel instanceof BaseGuildTextChannel) {
+			let error_log = `
+==================================================================================
+
+# Oops! Lavalink issue when lavalink-client "trackError" event.
+
+==================================================================================
+
+# Debug Info
+
+## Client about
+Client:
+  * WS ping: ${client.ws.ping}ms
+  * WS status: ${client.ws.status}
+
+## Guild about
+Guild:
+  * Guild ID: \`${player.guildId}\`
+  * requester User ID: \`${(x?.requester as User).id}\`
+  * requester global username: \`${(x?.requester as User).username}\`
+
+## Track about
+Track: 
+  * Track Info (title, author): \`${y.track.info.title} - ${y.track.info.author}\`
+  * Uri: \`${y.track.info.uri}\`
+  * Encoded: \`${y.track.encoded}\`
+Source: \`${x?.info.sourceName}\`
+Stream?: \`${x?.info.isStream ? 'yes' : 'no'}\`
+
+## Error
+<TrackExceptionEvent>.error: \`${y.error}\`
+<TrackExceptionEvent>.exception.error: \`${JSON.stringify(y.exception?.error || {})}\`
+
+## Node about
+Node \`${player.node.id}\`:
+  * Connected?: \`${player.node.connected ? 'yes' : 'no'}\`
+  * isAlive?: \`${player.node.isAlive ? 'yes' : 'no'}\`
+  * HeartBeatPing: \`${player.node.heartBeatPing}\`ms
+  * Host: \`${player.node.options.host}:${player.node.options.port}\`
+  * SSL?: \`${player.node.options.secure ? 'yes' : 'no'}\`
+
+Report generated in \`${format(new Date(), 'ddd MMM DD HH:MM (YYYY')}\` less that ${performance.now() - t0}ms
+`;
+
+			lavalink_error_channel.send({
+				content: "<@" + client.config.owner.ownerid1 + ">\nIssue with lavalink founded!",
+				files: [
+					{
+						name: `logs-${Date.now()}.md`,
+						attachment: error_log
+					}
+				]
+			})
+		}
+
+		if (y.exception?.message === "Something broke when playing the track.") {
 			// Search with Soundcloud
 
 			const res = await player.node.search({
-				query: `${(r as any).track.info.title} - ${(r as any).track.info.author}`,
+				query: `${(y as any).track.info.title} - ${(y as any).track.info.author}`,
 				source: "scsearch"
 			},
 				client.user
@@ -143,11 +213,11 @@ export default async (client: Client) => {
 				}
 			}
 
-		} else if (r.exception?.message === "This video requires login.") {
+		} else if (y.exception?.message === "This video requires login.") {
 			// Search with Deezer
 
 			const res = await player.node.search({
-				query: `${(r as any).track.info.title} - ${(r as any).track.info.author}`,
+				query: `${(y as any).track.info.title} - ${(y as any).track.info.author}`,
 				source: "deezer"
 			},
 				client.user

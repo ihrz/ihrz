@@ -135,7 +135,12 @@ export const event: BotEvent = {
 					commands: client.commands.size + client.message_commands.size + client.applicationsCommands.size,
 					category: client.category.length
 				},
-				"user": client.user,
+				"user": {
+					username: client.user?.username,
+					tag: client.user?.tag,
+					id: client.user?.id,
+					discriminator: client.user?.discriminator,
+				},
 				"misc": {
 					ownihrz_instances_length: Object.keys(ownihrz_data || {}).length || 0,
 				}

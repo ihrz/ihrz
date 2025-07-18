@@ -23,7 +23,9 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
+	Guild,
 	Message,
+	User,
 } from 'discord.js';
 
 import logger from '../../../core/logger.js';
@@ -31,6 +33,40 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
+import { SearchResult } from 'lavalink-client';
+
+export async function getLyrics(query: string, author?: User) {
+
+	let res: SearchResult | undefined;
+	let node;
+
+	for (const _node of client.player.nodeManager.nodes.values()) {
+		if (_node.connected === false) continue;
+
+		res = await _node?.search({ query }, author || client.user)
+
+		if (res?.tracks.length! > 0) {
+			node = _node;
+			break;
+		}
+	}
+
+	if (res?.tracks.length === 0) {
+		return null;
+	}
+
+	const response = await node?.lyrics.get(res?.tracks[0]!);
+
+	console.log(response)
+	if (!response) {
+		return null;
+	}
+
+	return {
+		track: res?.tracks[0],
+		res: response
+	}
+}
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -46,35 +82,37 @@ export const subCommand: SubCommand = {
 		}
 
 		try {
-			client.lyricsSearcher.search(title)
-				.then(async response => {
-					const trimmedLyrics = response?.lyrics?.substring(0, 1997);
+			const response = await getLyrics(title);
 
-					const embed = new EmbedBuilder()
-						.setTitle(response?.title || lang.lyrics_embed_title_unknown)
-						.setURL(response?.url!)
-						.setTimestamp()
-						.setThumbnail(response?.artist.image || response?.image!)
-						.setAuthor({
-							name: response?.artist.name || lang.lyrics_embed_author_name_unknown,
-						})
-						.setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
-						.setColor('#cd703a')
-						.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			if (!response?.res.text) {
+				await client.func.method.interactionSend(interaction, { content: lang.lyrics_not_found });
+				return;
+			}
 
-					await client.func.method.interactionSend(interaction, {
-						embeds: [embed],
-						files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
-					});
-					return;
+			const trimmedLyrics = response?.res.text?.substring(0, 1997);
+
+			const embed = new EmbedBuilder()
+				.setTitle(response.track!.info.title || lang.lyrics_embed_title_unknown)
+				.setURL(response.track!.info.uri || "https://spotify.com")
+				.setTimestamp()
+				.setThumbnail(response.track!.info.artworkUrl || null)
+				.setAuthor({
+					name: response.track!.info.author || lang.lyrics_embed_author_name_unknown,
 				})
-				.catch(async err => {
-					await client.func.method.interactionSend(interaction, { content: lang.lyrics_not_found });
-					return;
-				});
+				.setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
+				.setColor('#cd703a')
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+
+			await client.func.method.interactionSend(interaction, {
+				embeds: [embed],
+				files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			});
+			return;
 
 		} catch (error: any) {
-			logger.err(error);
+			logger.err(error)
+			await client.func.method.interactionSend(interaction, { content: lang.lyrics_not_found });
+			return;
 		};
 	},
 };

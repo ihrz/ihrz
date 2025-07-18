@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { LyricsManager } from "../src/core/functions/lyrics_fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 
 import { GiveawayManager } from "../src/core/modules/giveawaysManager.js";
@@ -39,7 +38,6 @@ import { Assets } from "./assets.js";
 import { ConfigData } from "./configDatad.js";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";
 import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
-import { db } from "../src/core/database.js";
 import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
 import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
 import type { Client_Functions } from "./client_functions.d.ts";
@@ -48,6 +46,7 @@ import { EmojisManager } from "../src/core/modules/emojisManager.ts";
 import { InfrastructureMonitoring } from "../src/core/modules/infrastructureMonitoringManager.ts";
 import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
 import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
+import { PallasDB } from "pallas-db";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -61,13 +60,12 @@ declare module 'discord.js' {
 		vanityInvites: Collection<Snowflake, VanityInviteData>,
 		buttons: Collection<string, Function>,
 		selectmenu: Collection<string, Function>,
-		db: db,
+		db: PallasDB,
 		applicationsCommands: Collection<string, AnotherCommand>,
 		iHorizon_Emojis: typeof emojis,
 		giveawaysManager: GiveawayManager,
 		content: BotContent[],
 		timeCalculator: iHorizonTimeCalculator,
-		lyricsSearcher: LyricsManager,
 		version: typeof ClientVersion,
 		assets: Assets,
 		config: ConfigData,
