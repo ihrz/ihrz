@@ -66,4 +66,11 @@ const client = new Client({
 client.db = await initializeDatabase(config);
 client.version = ClientVersion
 client.config = config;
+client.inShard = function (guildId: string): boolean {
+	const shardId = client.shard?.ids?.[0] ?? 0;
+	const totalShards = client.options.shardCount ?? 1;
+
+	const guildShard = Number((BigInt(guildId) >> 22n) % BigInt(totalShards));
+	return guildShard === shardId;
+}
 core.main(client);
