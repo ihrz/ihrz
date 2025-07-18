@@ -19,7 +19,6 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { LyricsManager } from "../src/core/functions/lyrics_fetcher.js";
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 
 import { GiveawayManager } from "../src/core/modules/giveawaysManager.js";
@@ -67,7 +66,6 @@ declare module 'discord.js' {
 		giveawaysManager: GiveawayManager,
 		content: BotContent[],
 		timeCalculator: iHorizonTimeCalculator,
-		lyricsSearcher: LyricsManager,
 		version: typeof ClientVersion,
 		assets: Assets,
 		config: ConfigData,

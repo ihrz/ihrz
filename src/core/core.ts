@@ -34,7 +34,6 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 
-import { LyricsManager } from './functions/lyrics_fetcher.js';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
 import getToken from './functions/getToken.js';
@@ -105,7 +104,6 @@ export async function main(client: Client) {
 	client.category = [];
 	client.invites = new Collection();
 	client.timeCalculator = new iHorizonTimeCalculator();
-	client.lyricsSearcher = new LyricsManager();
 	client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 	client.ownihrz = new OwnIHRZ(client, client.config.core.devMode);
 	client.kdenlive = new KdenLive();
