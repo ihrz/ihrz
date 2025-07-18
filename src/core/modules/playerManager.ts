@@ -166,7 +166,7 @@ Source: \`${x?.info.sourceName}\`
 Stream?: \`${x?.info.isStream ? 'yes' : 'no'}\`
 
 ## Error
-<TrackExceptionEvent>.error: \`${y.error}\`
+<TrackExceptionEvent>.error: \`${y.exception?.message}\`
 <TrackExceptionEvent>.exception.error: \`${JSON.stringify(y.exception?.error || {})}\`
 
 ## Node about
@@ -185,7 +185,7 @@ Report generated in \`${format(new Date(), 'ddd MMM DD HH:MM (YYYY')}\` less tha
 				files: [
 					{
 						name: `logs-${Date.now()}.md`,
-						attachment: error_log
+						attachment: Buffer.from(error_log, 'utf8')
 					}
 				]
 			})
