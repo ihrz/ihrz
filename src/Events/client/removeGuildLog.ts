@@ -39,30 +39,27 @@ export const event: BotEvent = {
 
 			const stats = await getShardStats(client);
 
-			if (client.inShard(guild.id)) {
-				const embed = new EmbedBuilder()
-					.setColor("#ff0505")
-					.setDescription(`**A guild removed iHorizon !**`)
-					.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
-						{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
-						{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-						{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
-						// { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
-						{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
-						{ name: "🥛・New members total", value: `${stats.users} members`, inline: true },
-					)
-					.setThumbnail(guild.iconURL())
-					.setTimestamp(guild.joinedTimestamp)
-					.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
+			const embed = new EmbedBuilder()
+				.setColor("#ff0505")
+				.setDescription(`**A guild removed iHorizon !**`)
+				.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
+					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
+					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
+					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
+					// { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
+					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
+					{ name: "🥛・New members total", value: `${stats.users} members`, inline: true },
+				)
+				.setThumbnail(guild.iconURL())
+				.setTimestamp(guild.joinedTimestamp)
+				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
 
-				const channel = await client.channels.fetch(client.config.core.guildLogsChannelID).catch(() => null);
+			const channel = await client.channels.fetch(client.config.core.guildLogsChannelID).catch(() => null);
 
-				return (channel as BaseGuildTextChannel | null)?.send({
-					embeds: [embed],
-					files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-				});
-
-			}
+			return (channel as BaseGuildTextChannel | null)?.send({
+				embeds: [embed],
+				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
+			});
 		} catch (error: any) {
 			logger.err(error);
 		}
