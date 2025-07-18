@@ -135,7 +135,6 @@ export default async (client: Client) => {
 	})
 
 	client.player.on("trackError", async (player, x, y) => {
-		console.log(y.exception?.message)
 		let t0 = performance.now();
 
 		if (lavalink_error_channel instanceof BaseGuildTextChannel) {
