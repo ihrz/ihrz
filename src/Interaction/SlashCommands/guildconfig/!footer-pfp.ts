@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 	},
 };
 
-function isValidImageType(contentType: string | null): boolean {
+export function isValidImageType(contentType: string | null): boolean {
 	if (!contentType) return false;
 
 	const supportedTypes = [
