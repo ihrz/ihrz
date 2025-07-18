@@ -21,7 +21,6 @@
 
 import { CaseList } from "../src/core/modules/ticketsManager.js";
 import { AntiSpam } from "./antispam.js";
-import { Platform } from "../src/core/StreamNotifier.js";
 import { APIEmbed } from "discord.js";
 
 export namespace DatabaseStructure {
@@ -263,7 +262,7 @@ export namespace DatabaseStructure {
 
 	export interface NotifierUserSchema {
 		id_or_username: string;
-		platform: Platform;
+		platform: any;
 	}
 
 	export interface NotifierLastNotifiedMedias {
