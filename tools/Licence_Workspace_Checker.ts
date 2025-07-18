@@ -88,11 +88,11 @@ function getTypeScriptFiles(dirPath: string): string[] {
 /**
  * Get the first 20 lines of a file
  */
-function getFirst20Lines(filePath: string): string {
+function getHeadersLineCount(filePath: string): string {
 	try {
 		const content = fs.readFileSync(filePath, 'utf-8');
 		const lines = content.split('\n');
-		return lines.slice(0, 20).join('\n');
+		return lines.slice(0, EXPECTED_HEADER.split('\n').length).join('\n');
 	} catch (error) {
 		throw new Error(`Failed to read file: ${error}`);
 	}
@@ -103,7 +103,7 @@ function getFirst20Lines(filePath: string): string {
  */
 function hasCorrectLicenseHeader(filePath: string): boolean {
 	try {
-		const first20Lines = getFirst20Lines(filePath);
+		const first20Lines = getHeadersLineCount(filePath);
 		return first20Lines.trim() === EXPECTED_HEADER.trim();
 	} catch (error) {
 		console.error(`Error checking file ${filePath}: ${error}`);
