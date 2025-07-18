@@ -24,6 +24,7 @@ export interface FunctionMetadata {
 	parameters: ParameterMetadata[];
 	returnType: string;
 	filePath: string;
+	typeParameters?: string[]; // Add support for generic type parameters
 }
 
 export interface ParameterMetadata {
@@ -183,6 +184,28 @@ export class FunctionAnalyzer {
 		const signature = this.typeChecker.getSignatureFromDeclaration(node);
 		if (!signature) return null;
 
+		// Extract type parameters (generics)
+		const typeParameters: string[] = [];
+		if (node.typeParameters) {
+			node.typeParameters.forEach(typeParam => {
+				let paramText = typeParam.name.getText();
+
+				// Handle constraints (e.g., T extends SomeType)
+				if (typeParam.constraint) {
+					paramText += ` extends ${this.getFullTypeText(typeParam.constraint)}`;
+					this.collectImportsFromType(typeParam.constraint, node.getSourceFile());
+				}
+
+				// Handle default types (e.g., T = DefaultType)
+				if (typeParam.default) {
+					paramText += ` = ${this.getFullTypeText(typeParam.default)}`;
+					this.collectImportsFromType(typeParam.default, node.getSourceFile());
+				}
+
+				typeParameters.push(paramText);
+			});
+		}
+
 		const parameters: ParameterMetadata[] = node.parameters.map(param => {
 			const paramType = param.type
 				? this.getFullTypeText(param.type)
@@ -211,25 +234,30 @@ export class FunctionAnalyzer {
 			name: node.name.getText(),
 			parameters,
 			returnType,
-			filePath: node.getSourceFile().fileName
+			filePath: node.getSourceFile().fileName,
+			typeParameters: typeParameters.length > 0 ? typeParameters : undefined
 		};
 	}
 
 	private getFullTypeText(typeNode: ts.TypeNode): string {
-		const fullText = typeNode.getText();
+		// Use the type checker to get the full type representation
+		const type = this.typeChecker.getTypeFromTypeNode(typeNode);
+		const typeString = this.typeChecker.typeToString(
+			type,
+			typeNode,
+			ts.TypeFormatFlags.InTypeAlias |
+			ts.TypeFormatFlags.NoTruncation |
+			ts.TypeFormatFlags.WriteArrayAsGenericType |
+			ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+		);
 
-		if (fullText.includes('...')) {
-			return this.typeChecker.typeToString(
-				this.typeChecker.getTypeFromTypeNode(typeNode),
-				undefined,
-				ts.TypeFormatFlags.NoTruncation |
-				ts.TypeFormatFlags.WriteArrayAsGenericType |
-				ts.TypeFormatFlags.MultilineObjectLiterals |
-				ts.TypeFormatFlags.WriteClassExpressionAsTypeLiteral
-			);
+		// If the type checker gives us a more accurate representation, use it
+		// Otherwise, fall back to the original text
+		if (typeString && typeString !== 'any' && !typeString.includes('typeof')) {
+			return typeString;
 		}
 
-		return fullText;
+		return typeNode.getText();
 	}
 
 	private getRelativeImportPath(fromPath: string, toPath: string): string | null {
@@ -248,7 +276,6 @@ export class FunctionAnalyzer {
 
 		return relativePath;
 	}
-
 
 	public generateInterfaces(): string {
 		const fileMetadata = this.analyzeFunctions();
@@ -272,15 +299,23 @@ export class FunctionAnalyzer {
 			if (file.functions.length === 1) {
 				const func = file.functions[0];
 				this.collectParameterImports(func.parameters, file.fileName);
+
+				// Generate type parameters string
+				const typeParamsStr = func.typeParameters && func.typeParameters.length > 0
+					? `<${func.typeParameters.join(', ')}>`
+					: '';
+
 				const params = this.generateParameterList(func.parameters);
+				const functionName = this.sanitizeIdentifier(file.fileName.split('.')[0]);
+
 				if (params.length > 80) {
-					output += `  export function ${this.sanitizeIdentifier(file.fileName.split('.')[0])}(\n`;
+					output += `  export function ${functionName}${typeParamsStr}(\n`;
 					func.parameters.forEach((param, index) => {
 						output += `    ${param.name}${param.optional ? '?' : ''}: ${param.type}${index < func.parameters.length - 1 ? ',' : ''}\n`;
 					});
 					output += `  ): ${func.returnType};\n`;
 				} else {
-					output += `  export function ${this.sanitizeIdentifier(file.fileName.split('.')[0])}(${params}): ${func.returnType};\n`;
+					output += `  export function ${functionName}${typeParamsStr}(${params}): ${func.returnType};\n`;
 				}
 			} else {
 				const moduleNamespace = this.sanitizeIdentifier(path.basename(file.fileName, '.ts'));
@@ -288,15 +323,23 @@ export class FunctionAnalyzer {
 
 				for (const func of file.functions) {
 					this.collectParameterImports(func.parameters, file.fileName);
+
+					// Generate type parameters string
+					const typeParamsStr = func.typeParameters && func.typeParameters.length > 0
+						? `<${func.typeParameters.join(', ')}>`
+						: '';
+
 					const params = this.generateParameterList(func.parameters);
+					const functionName = this.sanitizeIdentifier(func.name);
+
 					if (params.length > 80) {
-						output += `    export function ${this.sanitizeIdentifier(func.name)}(\n`;
+						output += `    export function ${functionName}${typeParamsStr}(\n`;
 						func.parameters.forEach((param, index) => {
 							output += `      ${param.name}${param.optional ? '?' : ''}: ${param.type}${index < func.parameters.length - 1 ? ',' : ''}\n`;
 						});
 						output += `    ): ${func.returnType};\n`;
 					} else {
-						output += `    export function ${this.sanitizeIdentifier(func.name)}(${params}): ${func.returnType};\n`;
+						output += `    export function ${functionName}${typeParamsStr}(${params}): ${func.returnType};\n`;
 					}
 				}
 
@@ -309,7 +352,6 @@ export class FunctionAnalyzer {
 
 		return output;
 	}
-
 
 	private sanitizeIdentifier(name: string): string {
 		let sanitized = name.replace(/[^a-zA-Z0-9_]/g, '_');
