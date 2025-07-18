@@ -82,16 +82,44 @@ function formatTypeScriptCode(code: string, options: FormattingOptions): string 
 		indentStyle: options.insertSpaces ? ts.IndentStyle.Smart : ts.IndentStyle.Block
 	};
 
-	// Create a temporary source file
-	const sourceFile = ts.createSourceFile(
-		'temp.ts',
-		code,
-		ts.ScriptTarget.Latest,
-		true
-	);
+	// Create a language service host
+	const host: ts.LanguageServiceHost = {
+		getCompilationSettings: () => ({}),
+		getScriptFileNames: () => ['temp.ts'],
+		getScriptVersion: () => '1',
+		getScriptSnapshot: (fileName: string) => {
+			if (fileName === 'temp.ts') {
+				return ts.ScriptSnapshot.fromString(code);
+			}
+			return undefined;
+		},
+		getCurrentDirectory: () => process.cwd(),
+		getDefaultLibFileName: (options: ts.CompilerOptions) => ts.getDefaultLibFilePath(options),
+		fileExists: (fileName: string) => fileName === 'temp.ts',
+		readFile: (fileName: string) => fileName === 'temp.ts' ? code : undefined,
+		directoryExists: () => true,
+		getDirectories: () => []
+	};
 
-	// Get text changes for formatting
-	return simpleFormat(code, options);
+	// Create the language service
+	const languageService = ts.createLanguageService(host);
+
+	// Get formatting edits
+	const edits = languageService.getFormattingEditsForDocument('temp.ts', formatOptions);
+
+	// Apply the formatting changes
+	let formattedCode = code;
+
+	// Apply edits in reverse order to maintain correct positions
+	for (let i = edits.length - 1; i >= 0; i--) {
+		const edit = edits[i];
+		formattedCode =
+			formattedCode.substring(0, edit.span.start) +
+			edit.newText +
+			formattedCode.substring(edit.span.start + edit.span.length);
+	}
+
+	return formattedCode;
 }
 
 /**
