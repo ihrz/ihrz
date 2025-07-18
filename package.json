@@ -27,6 +27,7 @@
 		"discord-html-transcripts": "^3.2.0",
 		"discord-rebackup": "^4.1.0",
 		"discord.js": "^14.21.0",
+		"gifwrap": "^0.10.1",
 		"js-yaml": "^4.1.0",
 		"jszip": "^3.10.1",
 		"lavalink-client": "^2.5.7",
