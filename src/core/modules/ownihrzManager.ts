@@ -35,7 +35,6 @@ interface CacheEntry {
 }
 
 class OwnIHRZ {
-	private client: Client;
 	private cache: Map<string, CacheEntry> = new Map();
 	private debug: boolean;
 	private readonly REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes (increased from 10 seconds in your code)
@@ -45,8 +44,7 @@ class OwnIHRZ {
 		"3d": 12 * 60 * 60 * 1000 // 12 hours
 	};
 
-	constructor(client: Client, debug: boolean) {
-		this.client = client;
+	constructor(debug: boolean) {
 		this.debug = debug;
 	}
 
@@ -120,15 +118,15 @@ class OwnIHRZ {
 
 	private async checkExpiration(botInstance: any): Promise<void> {
 		const now = Date.now();
-		const owner = await this.client.users.fetch(botInstance.OwnerOne).catch(() => null);
+		const owner = await client.users.fetch(botInstance.OwnerOne).catch(() => null);
 
 		if (!owner) return;
 
 		// Order time checks from most urgent to least urgent
 		const timeChecks = [
-			{ type: "1h" as const, threshold: this.client.timeCalculator.to_ms("1h") },
-			{ type: "1d" as const, threshold: this.client.timeCalculator.to_ms("1d") },
-			{ type: "3d" as const, threshold: this.client.timeCalculator.to_ms("3d") }
+			{ type: "1h" as const, threshold: client.timeCalculator.to_ms("1h") },
+			{ type: "1d" as const, threshold: client.timeCalculator.to_ms("1d") },
+			{ type: "3d" as const, threshold: client.timeCalculator.to_ms("3d") }
 		];
 
 		for (const { type, threshold } of timeChecks) {
@@ -152,7 +150,7 @@ class OwnIHRZ {
 	private async Refresh(): Promise<void> {
 		try {
 			this.debug ?? logger.log("Running notification refresh check");
-			const ownihrzTable = this.client.db.table("OWNIHRZ");
+			const ownihrzTable = client.db.table("OWNIHRZ");
 			const ownihrzData = await ownihrzTable.get("CLUSTER") as BotCollection;
 
 			// Count for logging purposes
@@ -194,19 +192,19 @@ class OwnIHRZ {
 
 	// Rest of the existing methods remain unchanged
 	async Startup_Cluster() {
-		this.client.config.core.cluster.forEach(async (x, index) => {
+		client.config.core.cluster.forEach(async (x, index) => {
 			await axios.post(
 				OwnIhrzCluster({
 					cluster_method: ClusterMethod.StartupCluster,
 					cluster_number: index
 				}),
-				{ adminKey: this.client.config.api.apiToken }
+				{ adminKey: client.config.api.apiToken }
 			);
 		})
 	}
 
 	async Startup_Container() {
-		const table_1 = this.client.db.table("OWNIHRZ");
+		const table_1 = client.db.table("OWNIHRZ");
 
 		(await table_1.all()).forEach(async owner_one => {
 			const cluster_ownihrz = owner_one.value;
@@ -271,13 +269,13 @@ class OwnIHRZ {
 	};
 
 	async QuitProgram() {
-		for (const cluster_number of this.client.config.core.cluster.keys()) {
+		for (const cluster_number of client.config.core.cluster.keys()) {
 			await axios.post(
 				OwnIhrzCluster({
 					cluster_method: ClusterMethod.ShutDownCluster,
 					cluster_number
 				}),
-				{ adminKey: this.client.config.api.apiToken }
+				{ adminKey: client.config.api.apiToken }
 			);
 		}
 	}
@@ -343,7 +341,7 @@ class OwnIHRZ {
 			cluster_number: cluster_id,
 		}),
 			{
-				adminKey: this.client.config.api.apiToken,
+				adminKey: client.config.api.apiToken,
 				botId,
 				OwnerData
 			},
@@ -357,7 +355,7 @@ class OwnIHRZ {
 			cluster_number: cluster_id,
 		}),
 			{
-				adminKey: this.client.config.api.apiToken,
+				adminKey: client.config.api.apiToken,
 				botId,
 				data
 			},
@@ -366,7 +364,7 @@ class OwnIHRZ {
 	}
 
 	async GetOwnersList() {
-		const ownihrzTable = this.client.db.table("OWNIHRZ");
+		const ownihrzTable = client.db.table("OWNIHRZ");
 		const ownihrzData = await ownihrzTable.get("CLUSTER") as BotCollection;
 
 		const owners: string[] = [];

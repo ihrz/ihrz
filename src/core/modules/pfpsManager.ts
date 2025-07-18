@@ -26,14 +26,14 @@ async function PfpsManager_Init(client: Client) {
 
 	setInterval(() => {
 		Refresh(client);
-	}, 30000);
+	}, 60_000);
 }
 
 async function Refresh(client: Client) {
 	const all = await client.db.all();
 
 	all.forEach((v: any) => {
-		if (Number(v.id)) {
+		if (Number(v.id) && client.inShard(v.id)) {
 			if (!v.value.PFPS) return;
 			if (v.value.PFPS.config) return;
 			if (!v.value.PFPS.channel) return;
@@ -50,7 +50,7 @@ const usr: Record<string, string> = {};
 async function SendMessage(client: Client, data: { guildId: string; channelId: string; }) {
 
 	const guild = await client.guilds.fetch(data.guildId).catch(() => null);
-	const channel = guild?.channels.cache.get(data.channelId);
+	const channel = await guild?.channels.fetch(data.channelId).catch(() => null);
 
 	if (!guild || !channel) return;
 

@@ -55,11 +55,9 @@ export class StreamNotifier {
 	private twitchAccessToken: string | null;
 	private twitchAccessTokenExpireIn: number | null;
 	private twitchClientSecret: string;
-	private client: Client;
 	private youtubeApiKey: string;
 
-	constructor(client: Client, twitchClientID: string, twitchClientSecret: string, youtubeApiKey: string) {
-		this.client = client;
+	constructor(twitchClientID: string, twitchClientSecret: string, youtubeApiKey: string) {
 		this.twitchClientID = twitchClientID;
 		this.twitchClientSecret = twitchClientSecret;
 		this.youtubeApiKey = youtubeApiKey;
@@ -70,14 +68,14 @@ export class StreamNotifier {
 	}
 
 	private async getGuildData(guildID: string): Promise<DatabaseStructure.NotifierSchema | null> {
-		const all = await this.client.db.get(`${guildID}.NOTIFIER`) as DatabaseStructure.NotifierSchema | null
+		const all = await client.db.get(`${guildID}.NOTIFIER`) as DatabaseStructure.NotifierSchema | null
 		return all
 	}
 
 	private async getGuildsData(): Promise<{ value: DatabaseStructure.NotifierSchema, guildId: string }[]> {
-		const all = await this.client.db.all();
+		const all = await client.db.all();
 		return all
-			.filter(v => Number(v.id))
+			.filter(v => Number(v.id) && client.inShard(v.id))
 			.map(v => {
 				const guildObject = v.value as DatabaseStructure.DbInId;
 				return guildObject.NOTIFIER ? { value: guildObject.NOTIFIER, guildId: v.id } : null;
@@ -160,7 +158,7 @@ export class StreamNotifier {
 	}
 
 	private async mediaHaveAlreadyBeNotified(guildID: string, media: NotifierUserResponse): Promise<boolean> {
-		const notifiedMedias = (await this.client.db.get(`${guildID}.NOTIFIER.lastMediaNotified`) || []) as DatabaseStructure.NotifierLastNotifiedMedias[];
+		const notifiedMedias = (await client.db.get(`${guildID}.NOTIFIER.lastMediaNotified`) || []) as DatabaseStructure.NotifierLastNotifiedMedias[];
 		return notifiedMedias.some(item =>
 			item.userId === media.user.id_or_username &&
 			(item.mediaId === media.content.id || new Date(item.timestamp) >= new Date(media.content.pubDate))
@@ -282,7 +280,7 @@ export class StreamNotifier {
 	}
 
 	public async generateAuthorsEmbed(guild: Guild): Promise<EmbedBuilder> {
-		const lang = await this.client.func.getLanguageData(guild?.id);
+		const lang = await client.func.getLanguageData(guild?.id);
 		const authors = (await this.getGuildData(guild.id))?.users || [];
 		const embed = new EmbedBuilder();
 		let desc = lang.notifier_generateAuthorsEmbed_embed_desc;
@@ -307,7 +305,7 @@ export class StreamNotifier {
 	}
 
 	public async generateConfigurationEmbed(guild: Guild) {
-		const lang = await this.client.func.getLanguageData(guild?.id);
+		const lang = await client.func.getLanguageData(guild?.id);
 		const config = (await this.getGuildData(guild.id));
 
 		const channel = await guild.channels.fetch(config?.channelId || "").catch(() => null);
@@ -327,18 +325,18 @@ export class StreamNotifier {
 		const guildsData = await this.getGuildsData();
 
 		for (const entry of guildsData) {
-			const guild = await this.client.guilds.fetch(entry.guildId).catch(() => null);
+			const guild = await client.guilds.fetch(entry.guildId).catch(() => null);
 			const channel = await guild?.channels.fetch(entry.value.channelId).catch(() => null) as BaseGuildTextChannel | undefined;
-			const lang = await this.client.func.getLanguageData(guild?.id);
+			const lang = await client.func.getLanguageData(guild?.id);
 			const medias = await this.fetchUsersMedias(entry.value.users || []);
 
 			for (const media of medias) {
 				if (!await this.mediaHaveAlreadyBeNotified(entry.guildId, media)) {
-					const message = this.client.func.method.generateCustomMessagePreview(
+					const message = client.func.method.generateCustomMessagePreview(
 						entry.value.message || lang.notifier_on_new_media_default_message,
 						{
 							guild: guild!,
-							user: this.client.user!,
+							user: client.user!,
 							guildLocal: "en-US",
 							notifier: {
 								artistAuthor: media.content.author,
@@ -349,7 +347,7 @@ export class StreamNotifier {
 					);
 
 					if (channel) {
-						await this.client.db.push(`${entry.guildId}.NOTIFIER.lastMediaNotified`, {
+						await client.db.push(`${entry.guildId}.NOTIFIER.lastMediaNotified`, {
 							userId: media.user.id_or_username,
 							mediaId: media.content.id,
 							timestamp: media.content.pubDate.toISOString()

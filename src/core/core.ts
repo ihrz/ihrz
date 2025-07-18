@@ -97,23 +97,23 @@ export async function main(client: Client) {
 	client.commands = new Collection<string, Command>();
 	client.subCommands = new Collection<string, Command>();
 	client.message_commands = new Collection<string, Command>();
-	client.memberCountManager = new MemberCountModule(client);
-	client.autoRenewManager = new AutoRenew(client);
+	client.memberCountManager = new MemberCountModule();
+	client.autoRenewManager = new AutoRenew();
 	client.owners = [];
 	client.content = [];
 	client.category = [];
 	client.invites = new Collection();
 	client.timeCalculator = new iHorizonTimeCalculator();
 	client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
-	client.ownihrz = new OwnIHRZ(client, client.config.core.devMode);
+	client.ownihrz = new OwnIHRZ(client.config.core.devMode);
 	client.kdenlive = new KdenLive();
 	client.selectmenu = new Collection<string, Function>();
 	client.buttons = new Collection<string, Function>();
 	client.func = {} as typeof Client_Functions;
 	client.htmlfiles = {};
 	client.applicationsCommands = new Collection<string, AnotherCommand>();
-	client.emojisManager = new EmojisManager(client);
-	client.nightmodeManager = new NightModeManager(client);
+	client.emojisManager = new EmojisManager();
+	client.nightmodeManager = new NightModeManager();
 
 	process.on('SIGINT', async () => {
 		// if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
@@ -129,7 +129,7 @@ export async function main(client: Client) {
 
 	errorManager.uncaughtExceptionHandler(client);
 	client.db = getDatabaseInstance();
-	client.notifier = new StreamNotifier(client,
+	client.notifier = new StreamNotifier(
 		process.env.TWITCH_APPLICATION_ID || "",
 		process.env.TWITCH_APPLICATION_SECRET || "",
 		process.env.YOUTUBE_API_KEY || ""

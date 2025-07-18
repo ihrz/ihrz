@@ -156,7 +156,7 @@ export const event: BotEvent = {
 				const guild = index.value as DatabaseStructure.DbInId;
 				const stats = guild.STATS?.USER;
 
-				if (stats) {
+				if (stats && client.inShard(index.id)) {
 					Object.keys(stats).forEach(userId => {
 						const userStats = stats[userId];
 
@@ -199,7 +199,7 @@ export const event: BotEvent = {
 		// await client.ownihrz.Start_Refresh();
 		await client.notifier.start();
 
-		client.infrastructureMonitoring = new InfrastructureMonitoring(client);
+		client.infrastructureMonitoring = new InfrastructureMonitoring();
 		await client.infrastructureMonitoring.startMonitoring();
 
 		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000), setInterval(refreshBotData, 45_000);

@@ -108,15 +108,13 @@ function extractDiscordUrlParts(url: string): DiscordUrlParts {
 
 // Main class for embed management
 class EmbedManager {
-	private client: Client;
 	private interaction: ChatInputCommandInteraction<"cached"> | Message;
 	private lang: LanguageData;
 	private embed: EmbedBuilder;
 	private files: EmbedFiles;
 	private response: Message;
 
-	constructor(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData) {
-		this.client = client;
+	constructor(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData) {
 		this.interaction = interaction;
 		this.lang = lang;
 		this.embed = new EmbedBuilder().setDescription('** **');
@@ -342,8 +340,8 @@ class EmbedManager {
 						this.embed.setColor(message.content as ColorResolvable);
 						this.updateResponse();
 					} else {
-						await this.client.func.method.channelSend(this.interaction, {
-							content: this.lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.No}", this.client.iHorizon_Emojis.No)
+						await client.func.method.channelSend(this.interaction, {
+							content: this.lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 						});
 					}
 				});
@@ -363,18 +361,18 @@ class EmbedManager {
 
 	// Optimized embed operations
 	private async saveEmbed(arg?: string): Promise<string> {
-		const potentialEmbed = await this.client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
+		const potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
 
 		if (potentialEmbed?.embedOwner !== this.interaction.member?.user.id! || !arg) {
 			const password = generatePassword({ length: 16 });
-			await this.client.db.set(`EMBED.${password}`, {
+			await client.db.set(`EMBED.${password}`, {
 				embedOwner: this.interaction.member?.user.id!,
 				embedSource: this.embed.toJSON()
 			});
 			return password;
 		}
 
-		await this.client.db.set(`EMBED.${arg}`, {
+		await client.db.set(`EMBED.${arg}`, {
 			embedOwner: this.interaction.member?.user.id!,
 			embedSource: this.embed.toJSON()
 		});
@@ -541,14 +539,14 @@ class EmbedManager {
 	// Main run method
 	async run(arg?: string): Promise<void> {
 		// Load existing embed if available
-		const potentialEmbed = await this.client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
+		const potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
 		if (potentialEmbed) {
 			this.embed = new EmbedBuilder(potentialEmbed.embedSource);
 		}
 
 		const { select, buttons } = this.createComponents();
 
-		this.response = await this.client.func.method.interactionSend(this.interaction, {
+		this.response = await client.func.method.interactionSend(this.interaction, {
 			content: this.lang.embed_first_message,
 			embeds: [this.embed],
 			components: [select, buttons],
@@ -631,7 +629,7 @@ export const subCommand: SubCommand = {
 			? interaction.options.getString("id")
 			: client.func.method.string(args!, 0);
 
-		const embedManager = new EmbedManager(client, interaction, lang);
+		const embedManager = new EmbedManager(interaction, lang);
 		await embedManager.run(arg || undefined);
 	},
 };
