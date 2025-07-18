@@ -2633,3 +2633,14 @@ addrolereact_adding_role: "Jvais donner le rôle {role} à tous les mecs qui ont
 addrolereact_adding_role_progress: "Jdonne le rôle {role} à {count} mecs qui ont réagi"
 addrolereact_role_added: "J'ai donné le rôle {role} à {count} mecs qui ont réagi"
 addrolereact_error: "Une erreur de merde est survenue, réessaye plus tard"
+
+# fr-FR.yml (French - France)
+new_guild_embed_title:
+  - "Bienvenue sur votre serveur ! 🎉"
+  - "Salutations, chers amis Discord ! 👋"
+  - "iHorizon a rejoint le chat ! 💬"
+  - "C'est un oiseau, c'est un avion, non, c'est iHorizon ! 🦸‍♂"
+  - "Souhaitons la bienvenue à iHorizon ! 🔥"
+  - "Une nouvelle aventure commence ! 🚀"
+  - "Un membre fantastique nous a rejoint ! ✨"
+new_guild_embed_desc: "## ${randomMessage}\nSalut les amis extraordinaires !\n\nJe suis iHorizon, un bot avancé conçu pour rendre votre expérience Discord exceptionnelle et pleine de fun.\n\n✨ **Ce que je peux faire pour vous :**\n• Gestion du serveur avec intelligence et professionnalisme\n• Jeux interactifs et divertissement illimité\n• Outils utiles pour l'organisation de la communauté\n• Support technique disponible 24h/24 et 7j/7\n\nExplorez mes commandes et plongez dans un monde de possibilités infinies.\nEnsemble, nous construirons une communauté fantastique remplie de magnifiques souvenirs !\n\nMerci de m'avoir choisi, commençons cette incroyable aventure ! 🌟"

@@ -2633,3 +2633,12 @@ addrolereact_adding_role: "Adding role {role} in progress..."
 addrolereact_adding_role_progress: "Adding role {role} in progress for {count} users..."
 addrolereact_role_added: "Role {role} added. {count} users received the role."
 addrolereact_error: "Error executing the command."
+
+# New guild event
+new_guild_embed_title:
+  - "Welcome to our server! 🎉"
+  - "Greetings, fellow Discordians! 👋"
+  - "iHorizon has joined the chat! 💬"
+  - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
+  - "Let's give a warm welcome to iHorizon! 🔥"
+new_guild_embed_desc: "## ${randomMessage}\nHi there! I'm excited to join your server and be a part of your community.\nMy name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\nIf you have any questions or run into any issues, don't hesitate to reach out to me.\nI'm here to make your experience on this server the best it can be.\nThanks for choosing me and let's have some fun together!\n"

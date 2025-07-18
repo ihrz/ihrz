@@ -1954,4 +1954,6 @@ export interface LanguageData {
 	addrolereact_adding_role_progress: string;
 	addrolereact_role_added: string;
 	addrolereact_error: string;
+	new_guild_embed_title: string[];
+	new_guild_embed_desc: string;
 }

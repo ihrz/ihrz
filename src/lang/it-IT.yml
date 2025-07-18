@@ -2631,3 +2631,14 @@ addrolereact_adding_role: "Aggiunta del ruolo {role} in corso..."
 addrolereact_adding_role_progress: "Aggiunta del ruolo {role} in corso per {count} utenti..."
 addrolereact_role_added: "Ruolo {role} aggiunto. {count} utenti hanno ricevuto il ruolo."
 addrolereact_error: "Errore durante l'esecuzione del comando."
+
+# it-IT.yml (Italian - Italy)
+new_guild_embed_title:
+  - "Benvenuti nel vostro server! 🎉"
+  - "Saluti, cari amici di Discord! 👋"
+  - "iHorizon è entrato nella chat! 💬"
+  - "È un uccello, è un aereo, no, è iHorizon! 🦸‍♂"
+  - "Diamo un caloroso benvenuto a iHorizon! 🔥"
+  - "Una nuova avventura inizia! 🚀"
+  - "Un membro fantastico è arrivato! ✨"
+new_guild_embed_desc: "## ${randomMessage}\nCiao, amici straordinari!\n\nSono iHorizon, un bot avanzato progettato per rendere la vostra esperienza Discord eccezionale e piena di divertimento.\n\n✨ **Cosa posso fare per voi:**\n• Gestione del server con intelligenza e professionalità\n• Giochi interattivi e intrattenimento illimitato\n• Strumenti utili per l'organizzazione della comunità\n• Supporto tecnico disponibile 24/7\n\nEsplorate i miei comandi e immergetevi in un mondo di possibilità infinite.\nInsieme costruiremo una comunità fantastica piena di bellissimi ricordi!\n\nGrazie per avermi scelto, iniziamo questa incredibile avventura! 🌟"
