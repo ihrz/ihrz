@@ -341,7 +341,7 @@ ranks_leaderboard_embed_footer: "Page ${cPage} of ${totalPages} • Ranked by To
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "Ranks Module Configurations"
-ranks_ignorechannels_embed_desc: "When new message are sent in one of this channels, Ranks Module ignore it."
+ranks_ignorechannels_embed_desc: "When new messages are sent in one of these channels, the Ranks Module ignore it."
 
 # /ranks set-message
 ranksSetMessage_not_admin: ":x: | You must be an administrator of this server to use these commands!"
@@ -401,18 +401,18 @@ ranks_config_remove_command_work: "Role for level ${levelToRemove} has been remo
 # /owner
 owner_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
 owner_already_owner: "This user is already owner !"
-owner_is_now_owner: "${member.user.username} is now an owner of the iHorizon Projects!"
+owner_is_now_owner: "${member.user.username} is now an owner of the iHorizon Project!"
 
 # /unowner
-unowner_not_owner: "You are not an owner of the iHorizon Projects. You can't use this command."
-unowner_cant_unowner_creator: "It is not possible to remove this user, it's the creator of the iHorizon Projects."
+unowner_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
+unowner_cant_unowner_creator: "It is not possible to remove this user, it's the creator of the iHorizon Project."
 unowner_command_work: "${member.username} is no longer an owner"
 
 # /blacklist
-blacklist_not_owner: "You are not an owner of the iHorizon Projects. You can't use this command."
+blacklist_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
 blacklist_bot_lol: "Can't blacklist myself x)"
 blacklist_command_work: "${member.user.username} is now blacklisted"
-blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.No} is now blacklisted, can't ban this member here, missing permission?"
+blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.No} is now blacklisted. I can't ban this member here, missing permission?"
 blacklist_already_blacklisted: "${member.user.username} is already blacklisted !"
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} no one blacklisted found!"
 blacklist_var_no_reason: "No reason found"
@@ -422,14 +422,14 @@ blacklist_embed_title: "Blacklist - Page ${i / usersPerPage + 1}"
 unblacklist_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
 unblacklist_command_work: "<@${member.id}> is no longer blacklisted"
 unblacklist_not_blacklisted: "<@${member.id}> was not blacklisted"
-unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} is now unblacklisted, Can't unban this member here, missing permission or already unban?"
+unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} is now unblacklisted. I Can't unban this member here, missing permission or already unban?"
 unblacklist_user_is_not_exist: "I couldn't find the user"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites
 
 # /addinvites
-addinvites_not_admin_embed_description: "You need to be an admin to use this command!"
+addinvites_not_admin_embed_description: "You need to be an administrator to use this command!"
 addinvites_confirmation_embed_description: "Added ${amount} invites for ${user}"
 addinvites_logs_embed_title: "Invite Manager Logs"
 addinvites_logs_embed_description: "<@${interaction.user.id}> Added ${amount} invites to <@${user.id}> !"
@@ -452,7 +452,7 @@ removeinvites_logs_embed_title: "Invite Manager Logs"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> removed ${amount} invites to <@${user.id}> !"
 
 # /invites reset-all
-resetallinvites_warning_msg: "**Are you really sure to delete all of the data of the Invite Manager?\nThis action is permanent and you can't roll it back.**\n**This action is destructive!!**"
+resetallinvites_warning_msg: "**Are you really sure to delete all of the Invite Manager's data?\nThis action is permanent and you can't roll it back.**\n**This action is destructive!!**"
 resetallinvites_yes_button: "Delete all"
 resetallinvites_no_button: "Undo action"
 resetallinvites_succes_on_delete: "Successfully deleted!"
@@ -678,13 +678,13 @@ balance_embed_fields1_name: "Bank"
 balance_embed_fields2_name: "In Balance"
 
 # /daily
-daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+daily_cooldown_error: "Sorry, you must wait **${time}** before running this command!"
 daily_embed_title: "Daily"
 daily_embed_description: "**Daily Reward**"
 daily_embed_fields: "Collected"
 
 # /monthly
-monthly_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+monthly_cooldown_error: "Sorry, you must wait **${time}** before running this command!"
 monthly_embed_title: "Monthly"
 monthly_embed_description: "**Monthly Reward**"
 monthly_embed_fields: "Collected"
@@ -726,7 +726,7 @@ withdraw_embed_desc: "${interaction.user}, you withdrew ${toWithdraw}${client.iH
 withdraw_embed_fields1_name: "Bank"
 
 # /deposit
-deposit_cannot_abuse: "${client.iHorizon_Emojis.No} | You cannot deposit a larger amount of coin as you have in your wallet!"
+deposit_cannot_abuse: "${client.iHorizon_Emojis.No} | You cannot deposit a larger amount of coins as you have in your wallet!"
 deposit_embed_title: "Deposit into your bank"
 deposit_embed_desc: "${interaction.user}, you have deposited ${toDeposit}${client.iHorizon_Emojis.Coin} in your `bank`"
 deposit_embed_fields1_name: "Bank"
@@ -899,8 +899,8 @@ nickrole_sub_command_work: "${interaction.user}, iHorizon has executed the massi
 nickrole_too_much_member: "Too many members, cannot proceed due to possible rate limit!"
 
 # /emoji
-emoji_send_new_emoji: "__Created new emoji__ with name **${emoji.name}**! (${emoji})"
-emoji_send_err_emoji: "__Error when create new emoji__ with name **${emoji.name}**!"
+emoji_send_new_emoji: "__Created new emoji__ with the following name: **${emoji.name}**! (${emoji})"
+emoji_send_err_emoji: "__Error when create new emoji__ with the following name: **${emoji.name}**!"
 emoji_embed_desc_work: "__Created **${cnt}** emoji(s) in `${interaction.guild.name}`__\n(${nemj})"
 
 # /derank
@@ -959,7 +959,7 @@ utils_dm_cant: "${client.iHorizon_Emojis.No} I couldn't send a message to ${targ
 
 # /utils pic-only
 utils_pic_only_embed_title: "Pic Only Channels"
-utils_pic_only_emnbed_desc: "Channel where picture/image are the only one things allowed. Another content are blocked by the bot"
+utils_pic_only_emnbed_desc: "Channel where pictures/images are the only things allowed. Other contents (like plain text messages) are blocked by the bot"
 
 # /utils pic-only
 utils_piconly_embed_fields_3_name: "Timeout Time"
