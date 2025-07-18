@@ -28,12 +28,6 @@ type AutorenewData = {
 }[];
 
 class AutoRenew {
-	private client: Client;
-
-	constructor(client: Client) {
-		this.client = client;
-	}
-
 	public async init() {
 		try {
 			await this.Refresh(await this.GetAutoRenewData());
@@ -51,9 +45,9 @@ class AutoRenew {
 
 	private async GetAutoRenewData(): Promise<AutorenewData> {
 		try {
-			const all = await this.client.db.all();
+			const all = await client.db.all();
 			return all
-				.filter(v => Number(v.id))
+				.filter(v => Number(v.id) && client.inShard(v.id))
 				.map(v => {
 					const guildObject = v.value as DatabaseStructure.DbInId;
 					return { guildId: v.id, data: guildObject.UTILS?.renew_channel };
@@ -69,8 +63,8 @@ class AutoRenew {
 			if (!guildObject.data) continue;
 
 			try {
-				const guild = await this.client.guilds.fetch(guildObject.guildId);
-				const lang = await this.client.func.getLanguageData(guildObject.guildId);
+				const guild = await client.guilds.fetch(guildObject.guildId);
+				const lang = await client.func.getLanguageData(guildObject.guildId);
 				const all_channels = Object.entries(guildObject.data);
 
 				for (const [channelId, data] of all_channels) {
@@ -85,7 +79,7 @@ class AutoRenew {
 							const channel = await guild.channels.fetch(channelId) as BaseGuildTextChannel | null;
 
 							if (!channel) {
-								await this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
+								await client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
 								continue;
 							}
 
@@ -99,11 +93,11 @@ class AutoRenew {
 
 							if (newChannel) {
 								await Promise.all([
-									this.client.db.set(`${guild.id}.UTILS.renew_channel.${newChannel.id}`, {
+									client.db.set(`${guild.id}.UTILS.renew_channel.${newChannel.id}`, {
 										timestamp: currentTime,
 										maxTime: data.maxTime
 									}),
-									this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channel.id}`),
+									client.db.delete(`${guild.id}.UTILS.renew_channel.${channel.id}`),
 									newChannel.setPosition(channel.rawPosition),
 									channel.delete()
 								]);
@@ -116,7 +110,7 @@ class AutoRenew {
 							const channel = await guild.channels.fetch(channelId) as BaseGuildTextChannel | null;
 
 							if (!channel) {
-								await this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
+								await client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
 								continue;
 							}
 
@@ -130,7 +124,7 @@ class AutoRenew {
 								.catch(() => false);
 						}
 					} catch (error) {
-						await this.client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
+						await client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
 					}
 				}
 			} catch { }

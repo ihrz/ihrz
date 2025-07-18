@@ -80,6 +80,8 @@ declare module 'discord.js' {
 		emojisManager: EmojisManager,
 		infrastructureMonitoring: InfrastructureMonitoring,
 		nightmodeManager: NightModeManager,
-		githubLinesManager: GithubLinesManager
+		githubLinesManager: GithubLinesManager,
+		// IN SHARD
+		inShard: (guildId: string) => boolean
 	}
 }
