@@ -41,7 +41,6 @@
 		"@types/bun": "^1.2.18",
 		"@types/js-yaml": "^4.0.9",
 		"@types/node": "^24.0.14",
-		"@types/ping": "^0.4.4",
 		"@types/ws": "^8.18.1",
 		"@typescript-eslint/eslint-plugin": "^8.37.0",
 		"@typescript-eslint/parser": "^8.37.0",
