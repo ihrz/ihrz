@@ -43,6 +43,7 @@ import path from 'path';
 
 import { writeFileSync } from 'fs';
 import logger from '../src/core/logger.js';
+import { formatTypeScriptCode, readVSCodeConfig } from './formatter.js';
 
 let header = `/*
 ・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
@@ -392,7 +393,7 @@ export function generateFunctionInterfaces(
 	const analyzer = new FunctionAnalyzer(sourceDir);
 	let interfaces = header;
 	interfaces += "\n";
-	interfaces += analyzer.generateInterfaces();
+	interfaces += formatTypeScriptCode(analyzer.generateInterfaces(), readVSCodeConfig(path.join(process.cwd(), ".vscode", "settings.json")));
 
 	writeFileSync(outputPath, interfaces, 'utf-8');
 	logger.log(`Generated interfaces written to ${outputPath}`);
