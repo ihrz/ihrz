@@ -47,7 +47,7 @@ class NightModeManager {
 			.filter(v => Number(v.id))
 			.map(v => {
 				const guildObject = v.value as DatabaseStructure.DbInId;
-				return { guildId: v.id, data: guildObject.UTILS?.NIGHT_MODE };
+				return { guildId: v.id, data: guildObject.UTILS?.NIGHT_MODE.enabled ? guildObject.UTILS?.NIGHT_MODE : undefined };
 			})
 			.filter(v => v.data);
 	}

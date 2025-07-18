@@ -35,6 +35,7 @@ import { writeFileSync } from 'node:fs';
 import { removePermissionProperties } from '../../core/commandsSync.js';
 import { getCacheStorage } from '../../core/core.js';
 import { cache_storage_update } from '../../core/cache.js';
+import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
 
 export const event: BotEvent = {
 	name: "ready",
@@ -191,6 +192,7 @@ export const event: BotEvent = {
 		await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
 
 		await recoverActiveSessions(client);
+		await recoverCustomVoiceChannels(client);
 		await client.memberCountManager.init();
 		await client.autoRenewManager.init();
 		await client.nightmodeManager.init();

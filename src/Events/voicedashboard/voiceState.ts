@@ -163,3 +163,40 @@ export const event: BotEvent = {
 		};
 	},
 };
+
+export async function recoverCustomVoiceChannels(client: Client) {
+	for (const guild of client.guilds.cache.values()) {
+		const table = client.db.table('TEMP');
+		const allCustomChannels = await table.get(`CUSTOM_VOICE.${guild.id}`);
+
+		// If no custom voice channels exist for this guild, skip
+		if (!allCustomChannels) continue;
+
+		const allChannelEntries = Object.entries(allCustomChannels);
+
+		for (const [userId, channelId] of allChannelEntries) {
+			try {
+				// Fetch the channel from Discord
+				const channel = guild.channels.cache.get(channelId as string) ||
+					await guild.channels.fetch(channelId as string).catch(() => null);
+
+				// If channel doesn't exist anymore, clean up database
+				if (!channel) {
+					await table.delete(`CUSTOM_VOICE.${guild.id}.${userId}`);
+					continue;
+				}
+
+				// Check if channel is a voice channel and is empty
+				if (channel.type === ChannelType.GuildVoice && channel.members.size === 0) {
+					// Delete the empty custom voice channel
+					await channel.delete().catch(() => { });
+					// Clean up database entry
+					await table.delete(`CUSTOM_VOICE.${guild.id}.${userId}`);
+				}
+			} catch (error) {
+				// If any error occurs, clean up the database entry
+				await table.delete(`CUSTOM_VOICE.${guild.id}.${userId}`);
+			}
+		}
+	}
+};
