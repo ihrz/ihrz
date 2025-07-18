@@ -30,7 +30,7 @@
 		"js-yaml": "^4.1.0",
 		"jszip": "^3.10.1",
 		"lavalink-client": "^2.5.7",
-		"pallas-db": "^1.2.1",
+		"pallas-db": "^1.2.2",
 		"ping": "^0.4.4",
 		"puppeteer": "^24.14.0",
 		"sharp": "^0.34.3",
