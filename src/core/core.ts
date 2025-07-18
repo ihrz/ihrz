@@ -49,14 +49,25 @@ import { AnotherCommand } from '../../types/anotherCommand.js';
 import { EmojisManager } from './modules/emojisManager.js';
 import { cache_storage_data, cache_storage_update } from './cache.js';
 import { NightModeManager } from './modules/nightModeManager.js';
+import { GithubLinesManager } from './modules/githubLinesManager.js';
+import { DiscordSlashLogParser } from './converters/slashLog.js';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const backups_folder = `${process.cwd()}/src/files/backups`;
+const old_slash_logs_file = `${process.cwd()}/src/files/slash.log`;
+const slash_logs_file = `${process.cwd()}/src/files/slash.log.json`;
 
 if (!fs.existsSync(backups_folder)) {
 	await mkdir(backups_folder, { recursive: true });
+}
+
+if (fs.existsSync(old_slash_logs_file)) {
+	let _ = new DiscordSlashLogParser().parse(readFileSync(old_slash_logs_file, "utf-8"));
+	writeFileSync(slash_logs_file, JSON.stringify(_));
+	rmSync(old_slash_logs_file);
 }
 
 backup.setStorageFolder(backups_folder);
@@ -83,8 +94,8 @@ export async function main(client: Client) {
 	client.commands = new Collection<string, Command>();
 	client.subCommands = new Collection<string, Command>();
 	client.message_commands = new Collection<string, Command>();
-	client.memberCountManager = new MemberCountModule(client);
-	client.autoRenewManager = new AutoRenew(client);
+	client.memberCountManager = new MemberCountModule();
+	client.autoRenewManager = new AutoRenew();
 	client.content = [];
 	client.category = [];
 	client.invites = new Collection();
@@ -95,8 +106,8 @@ export async function main(client: Client) {
 	client.func = {} as typeof Client_Functions;
 	client.htmlfiles = {};
 	client.applicationsCommands = new Collection<string, AnotherCommand>();
-	client.emojisManager = new EmojisManager(client);
-	client.nightmodeManager = new NightModeManager(client);
+	client.emojisManager = new EmojisManager();
+	client.nightmodeManager = new NightModeManager();
 
 	assetsCalc(client);
 

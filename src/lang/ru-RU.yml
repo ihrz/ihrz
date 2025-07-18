@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "Кнопка для удаления стено
 ticket_panel_panel_12_label: "Показать меню для добавления/удаления участников тикета"
 ticket_panel_panel_13_label: "Показать кнопку удаления тикета"
 ticket_panel_panel_14_label: "Показать кнопку стенограммы"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Знали ли вы?** Когда вы используете `/utils embed` для создания embed, вы можете ввести переменную **`{category}`**, которая будет заменена категорией, выбранной пользователем."
 
 # /ticket rename
 ticket_rename_ok: "Канал тикета был переименован!"
@@ -1853,6 +1854,7 @@ embed_choose_4: "Описание встраивания успешно удал
 embed_choose_5: "Какого автора вы хотите включить во встраивание?"
 embed_choose_6: "Автор встраивания успешно удален!"
 embed_choose_7: "Какой нижний колонтитул вы хотите включить во встраивание?"
+embed_choose_7bis: "Какую иконку подвала вы хотите включить в ваш embed?"
 embed_choose_8: "Нижний колонтитул встраивания успешно удален!"
 embed_choose_9: "Какое изображение миниатюры вы хотите включить во встраивание?"
 embed_choose_10: "Какое изображение вы хотите включить во встраивание?"
@@ -1921,6 +1923,13 @@ nightmode_modal_hours_window_title: "Ночной режим - Временно�
 nightmode_invalid_hour_morning: "${client.iHorizon_Emojis.No} Время начала недействительно. Используйте формат: 21:30 или 2130"
 nightmode_invalid_hour_night: "${client.iHorizon_Emojis.No} Время окончания недействительно. Используйте формат: 06:15 или 0615"
 nightmode_utc_timezone_on: "часовой пояс UTC на"
+
+# /git lines
+git_lines_avoiding_spam: "Извините, но чтобы предотвратить спам, мы ограничиваем количество отображаемых строк до 50"
+git_lines_avoiding_limit: "Извините, но в Discord есть ограничение в 2000 символов, поэтому мы не смогли отобразить желаемый фрагмент"
+git_lines_work: "✅ Git Lines теперь включен."
+git_lines_work_disabled: "❌ Git Lines теперь отключен."
+git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Я тебя беспокою? ты можешь сделать `/git lines` чтобы отключить этот модуль!"
 
 # Команды предложений
 # /setsuggest, /suggest

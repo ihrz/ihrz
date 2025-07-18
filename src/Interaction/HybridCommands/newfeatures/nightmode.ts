@@ -64,7 +64,7 @@ export const command: Command = {
 
 		if (interaction.guild!.ownerId !== interaction.member!.user.id) {
 			return await client.func.method.interactionSend(interaction, {
-				content: "Vous n'êtes pas le propriétaire du serveur, vous ne pouvez pas toucher à cette fonctionalité critique."
+				content: lang.blockbot_not_owner
 			})
 		}
 
@@ -220,6 +220,16 @@ export const command: Command = {
 			} else if (i.values[0] === "change_timezone") {
 				await change_timezone(i, 4);
 			}
+		});
+
+
+		collector2wish.on('end', async () => {
+			collector2wish.stop();
+			collector2merde.stop();
+			await ogResponse.edit({
+				components: getComponent(true)
+			});
+			await client.db.set(`${interaction.guildId}.UTILS.NIGHT_MODE`, baseData);
 		});
 
 		async function editOwnerNotify(fieldsNumber: number) {

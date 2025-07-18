@@ -109,7 +109,7 @@ export const event: BotEvent = {
 	},
 };
 
-export const recoverActiveSessions = async (client: Client) => {
+export async function recoverActiveSessions(client: Client) {
 	for (const guild of client.guilds.cache.values()) {
 		const activeSessions = await client.db.get(
 			`${guild.id}.ACTIVE_VOICE_SESSIONS`

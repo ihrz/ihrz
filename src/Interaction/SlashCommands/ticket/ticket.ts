@@ -118,8 +118,8 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: "disable",
-			prefixName: "ticket-disable",
+			name: "config",
+			prefixName: "ticket-config",
 
 			description: "Disable ticket commands on a guild!",
 			description_localizations: {

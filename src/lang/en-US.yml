@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "Button to delete the transcript"
 ticket_panel_panel_12_label: "Show menu to add/remove members from a ticket"
 ticket_panel_panel_13_label: "Show button to delete a ticket"
 ticket_panel_panel_14_label: "Show transcript button"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Did you know?** When you use `/utils embed` to generate an embed, you can introduce the **`{category}`** variable, which will be replaced by the category chosen by the user."
 
 # /ticket rename
 ticket_rename_ok: "Ticket channel has been renamed !"
@@ -1855,6 +1856,7 @@ embed_choose_4: "The description of the Embed has been successfully deleted!"
 embed_choose_5: "What author do you want to include in your Embed?"
 embed_choose_6: "The author of the Embed has been successfully deleted!"
 embed_choose_7: "What footer do you want to include in your Embed?"
+embed_choose_7bis: "What footer icon do you want to include in your embed?"
 embed_choose_8: "The footer of the Embed has been successfully deleted!"
 embed_choose_9: "What thumbnail image do you want to include in your Embed?"
 embed_choose_10: "What image do you want to include in your Embed?"
@@ -1923,6 +1925,13 @@ nightmode_modal_hours_window_title: "NightMode - Time Range (24h format with min
 nightmode_invalid_hour_morning: "${client.iHorizon_Emojis.No} Start time is not valid. Use format: 21:30 or 2130"
 nightmode_invalid_hour_night: "${client.iHorizon_Emojis.No} End time is not valid. Use format: 06:15 or 0615"
 nightmode_utc_timezone_on: "UTC timezone on"
+
+# /git lines
+git_lines_avoiding_spam: "Sorry, but to prevent spam, we limit the number of lines displayed at 50"
+git_lines_avoiding_limit: "Sorry but there is a 2000 character limit on Discord, so we were unable to display the desired snippet"
+git_lines_work: "✅ Git Lines is now enabled."
+git_lines_work_disabled: "❌ Git Lines is now disabled."
+git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Am I bothering you? You can use `/git lines` to disable this module!"
 
 # Suggestion commands
 # /setsuggest, /suggest

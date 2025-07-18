@@ -133,6 +133,13 @@ export const subCommand: SubCommand = {
 					let bad = 0;
 
 					await interaction_2.deferUpdate();
+					messageEmbed.edit({
+						content: client.iHorizon_Emojis.Discord_Loading,
+						embeds: [],
+						files: [],
+						components: []
+					})
+
 					const to_remove_admin_roles = all_admin_roles;
 
 					for (const role of to_remove_admin_roles) {
@@ -160,8 +167,9 @@ export const subCommand: SubCommand = {
 						)
 
 					await messageEmbed.edit({
+						content: null,
 						embeds: [embed],
-						files: [],
+						files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 					})
 
 					collector.stop();

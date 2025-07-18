@@ -73,11 +73,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: "disable",
+			name: "config",
 			name_localizations: {
 				"fr": "statut"
 			},
-			prefixName: "security-disable",
+			prefixName: "security-config",
 
 			description: "Disable or enable the Security Module feature!",
 			description_localizations: {

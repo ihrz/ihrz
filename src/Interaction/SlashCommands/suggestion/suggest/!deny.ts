@@ -25,10 +25,10 @@ import {
 	Client,
 	EmbedBuilder
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from '../../../../../types/languageData.js';
 
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -48,7 +48,7 @@ export const subCommand: SubCommand = {
 			|| baseData?.disable === true) {
 			await interaction.deleteReply();
 			await interaction.followUp({
-				content: lang.suggest_acceptnot_good_channel
+				content: lang.suggest_deny_not_good_channel
 					.replace('${baseData?.channel}', baseData?.channel),
 				flags: [1 << 6]
 			});
@@ -58,46 +58,48 @@ export const subCommand: SubCommand = {
 
 		if (!fetchId) {
 			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_accept_not_found_db, flags: [1 << 6] });
+			await interaction.followUp({ content: lang.suggest_deny_not_found_db, flags: [1 << 6] });
 			return;
 		} else if (fetchId.replied) {
 			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_accept_already_replied, flags: [1 << 6] });
+			await interaction.followUp({ content: lang.suggest_deny_already_replied, flags: [1 << 6] });
 			return;
 		};
 
-		const channel = interaction.guild.channels.cache.get(baseData?.channel);
+		const channel = interaction.guild?.channels.cache.get(baseData?.channel);
 
 		await (channel as BaseGuildTextChannel).messages.fetch(fetchId?.msgId).then(async (msg) => {
 
 			const embed = new EmbedBuilder(msg.embeds[0].data);
 
 			embed.addFields({
-				name: lang.suggest_accept_embed_fields_to_put
+				name: lang.suggest_deny_embed_fields_to_put
 					.replace('${interaction.user.username}', interaction.user.globalName as string),
 				value: message as string
 			});
 
+			embed.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#f13b38');
 			embed.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
-			embed.setColor('#21744c');
-			embed.setTitle(lang.suggest_acceptembed_title_to_put
-				.replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string));
+			embed.setTitle(lang.suggest_deny_embed_title_to_put
+				.replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string)
+			);
 
-			await msg.edit({ embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+			await msg.edit({ embeds: [embed] });
 			await client.db.set(`${interaction.guildId}.SUGGESTION.${id}.replied`, true);
 
 			await interaction.deleteReply();
 			await interaction.followUp({
-				content: lang.suggest_accept_command_work
+				content: lang.suggest_deny_command_work
 					.replace('${interaction.guild.id}', interaction.guildId as string)
 					.replace('${interaction.channel.id}', interaction.channel?.id as string)
 					.replace('${fetchId?.msgId}', fetchId?.msgId),
 				flags: [1 << 6]
 			});
+
 			return;
 		}).catch(async () => {
 			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_accept_command_error, flags: [1 << 6] });
+			await interaction.followUp({ content: lang.suggest_deny_command_error, flags: [1 << 6] });
 			return;
 		});
 	},

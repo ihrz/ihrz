@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "記録を削除するボタン"
 ticket_panel_panel_12_label: "チケット内でメンバーを追加/削除するメニューを表示"
 ticket_panel_panel_13_label: "チケットを削除するボタンを表示"
 ticket_panel_panel_14_label: "記録ボタンを表示"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **ご存知でしたか？** `/utils embed` を使用してembedを生成する際、**`{category}`** 変数を導入することができ、これはユーザーが選択したカテゴリに置き換えられます。"
 
 # /ticket rename
 ticket_rename_ok: "チケットチャンネルの名前が変更されました！"
@@ -1853,6 +1854,7 @@ embed_choose_4: "埋め込みの説明が正常に削除されました！"
 embed_choose_5: "埋め込みに含める著者は誰ですか？"
 embed_choose_6: "埋め込みの著者が正常に削除されました！"
 embed_choose_7: "埋め込みに含めるフッターは何ですか？"
+embed_choose_7bis: "埋め込みメッセージのフッターアイコンを何にしますか？"
 embed_choose_8: "埋め込みのフッターが正常に削除されました！"
 embed_choose_9: "埋め込みに含めるサムネイルの画像は何ですか？"
 embed_choose_10: "埋め込みに含める画像は何ですか？"
@@ -1921,6 +1923,13 @@ nightmode_modal_hours_window_title: "ナイトモード - 時間帯 (24時間形
 nightmode_invalid_hour_morning: "${client.iHorizon_Emojis.No} 開始時刻が無効です。形式を使用してください: 21:30 または 2130"
 nightmode_invalid_hour_night: "${client.iHorizon_Emojis.No} 終了時刻が無効です。形式を使用してください: 06:15 または 0615"
 nightmode_utc_timezone_on: "UTCタイムゾーンを"
+
+# /git lines
+git_lines_avoiding_spam: "申し訳ありませんが、スパムを防ぐため、表示される行数を50に制限しています"
+git_lines_avoiding_limit: "申し訳ありませんが、Discordには2000文字の制限があるため、目的のスニペットを表示できませんでした"
+git_lines_work: "✅ Git Linesが有効になりました。"
+git_lines_work_disabled: "❌ Git Linesが無効になりました。"
+git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} 邪魔してる？`/git lines`でこのモジュールを無効にできるよ！"
 
 # 提案コマンド
 # /setsuggest, /suggest

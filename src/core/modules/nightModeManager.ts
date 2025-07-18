@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, Guild, MessageCreateOptions, PermissionFlagsBits, PermissionsBitField } from "discord.js"
+import { Client, Guild, MessageCreateOptions, PermissionFlagsBits, PermissionsBitField, Role } from "discord.js"
 import { DatabaseStructure } from "../../../types/database_structure";
 import { utcTimezones } from "../../files/locales.ts";
 import { LanguageData } from "../../../types/languageData";
@@ -28,12 +28,6 @@ type nightModeData = { guildId: string, data: DatabaseStructure.NightMode | unde
 type checked_nightmode_response = "started" | "ended";
 
 class NightModeManager {
-	client: Client;
-
-	constructor(client: Client) {
-		this.client = client;
-	}
-
 	public async init() {
 		this.Refresh(await this.GetNightModeData());
 		setInterval(async () => {
@@ -42,12 +36,12 @@ class NightModeManager {
 	}
 
 	private async GetNightModeData(): Promise<nightModeData> {
-		const all = await this.client.db.all();
+		const all = await client.db.all();
 		return all
-			.filter(v => Number(v.id))
+			.filter(v => Number(v.id) && client.inShard(v.id))
 			.map(v => {
 				const guildObject = v.value as DatabaseStructure.DbInId;
-				return { guildId: v.id, data: guildObject.UTILS?.NIGHT_MODE };
+				return { guildId: v.id, data: guildObject.UTILS?.NIGHT_MODE?.enabled ? guildObject.UTILS?.NIGHT_MODE : undefined };
 			})
 			.filter(v => v.data);
 	}
@@ -55,13 +49,13 @@ class NightModeManager {
 	private async Refresh(nightModeData: nightModeData) {
 		for (const guildObject of nightModeData) {
 			try {
-				const guild = this.client.guilds.cache.get(guildObject.guildId);
+				const guild = await client.guilds.fetch(guildObject.guildId).catch(() => null);
 				if (!guild) continue;
 
 				// Check if the time is between the start and end of the night
 				const response = await this.calculate_window_time(guildObject.data!);
 				if (response === "started" && !await this.isAlreadyHandled("started", guild)) {
-					const lang = await this.client.func.getLanguageData(guild.id);
+					const lang = await client.func.getLanguageData(guild.id);
 
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
@@ -70,7 +64,7 @@ class NightModeManager {
 					// Remove all PA
 					await this.Remove_All_PA(guild, guildObject, lang);
 				} else if (response === "ended" && !await this.isAlreadyHandled("ended", guild)) {
-					const lang = await this.client.func.getLanguageData(guild.id);
+					const lang = await client.func.getLanguageData(guild.id);
 
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
@@ -80,7 +74,7 @@ class NightModeManager {
 					await this.Add_All_PA(guild, guildObject, lang);
 				}
 			} catch (err) {
-				console.log(err)
+				console.error(err)
 			}
 		}
 	}
@@ -144,18 +138,20 @@ class NightModeManager {
 
 		// if all conditions is passed. Do the job
 		const all_changed_roles: DatabaseStructure.NightMode["changed_roles"] = await guild.client.db.get(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`) || [];
+		let changed_roles: string[] = [];
 		if (!all_changed_roles) return;
 		for (const role of all_changed_roles) {
-			const roleObject = guild.roles.cache.get(role);
+			const roleObject = await guild.roles.fetch(role).catch(() => null);
 			if (!roleObject) continue;
+			changed_roles.push(roleObject.name);
 			await roleObject.setPermissions(new PermissionsBitField(roleObject.permissions).add(PermissionFlagsBits.Administrator));
 		}
 
-		let msg = ""
+		let msg = "";
 		msg += lang.var_nm_end_main;
 
-		if (all_changed_roles.length > 0) {
-			msg += lang.var_nm_edited_roles + `\n>>> ${all_changed_roles.map(x => '<@&' + x + '>').join("\n")}`;
+		if (changed_roles.length > 0) {
+			msg += lang.var_nm_edited_roles + `\n>>> ${changed_roles.map(x => '@' + x + '').join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
@@ -226,24 +222,24 @@ class NightModeManager {
 		// if all conditions is passed. Do the job
 		const all_pa_roles = (await guild.roles.fetch()).filter(role => role.permissions.has(PermissionFlagsBits.Administrator)).values().toArray();
 		let filtered_pa_roles = all_pa_roles
+			.filter(x => x.id !== x.guild.members.me?.roles.botRole?.id);
+
 		if (guildObject.data?.derankBot && guildObject.data.wlBots) {
 			filtered_pa_roles = filtered_pa_roles.filter(role =>
 				!role.managed || (guildObject.data?.wlBots || []).includes(role.id)
 			);
 		}
 
-		let changed_roles: DatabaseStructure.NightMode["changed_roles"] = [];
 		for (let role of filtered_pa_roles) {
 			const newPermissions = new PermissionsBitField(role.permissions).remove(PermissionFlagsBits.Administrator);
 			await role.setPermissions(newPermissions);
-			changed_roles.push(role.id);
 		}
 
-		let msg = ""
+		let msg = "";
 		msg += lang.var_nm_start_main;
 
-		if (changed_roles.length > 0) {
-			msg += lang.var_nm_edited_roles + `\n>>> ${changed_roles.map(x => '<@&' + x + '>').join("\n")}`;
+		if (filtered_pa_roles.length > 0) {
+			msg += lang.var_nm_edited_roles + `\n>>> ${filtered_pa_roles.map(x => '@' + x.name + '').join("\n")}`;
 		}
 
 		this.Notify_Server_Owner(guild, {
@@ -254,7 +250,7 @@ class NightModeManager {
 			lang
 		});
 
-		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`, changed_roles);
+		await guild.client.db.set(`${guild.id}.UTILS.NIGHT_MODE.changed_roles`, filtered_pa_roles.map(x => x.id));
 	}
 
 	private async Notify_Server_Owner(guild: Guild, opt: { type: checked_nightmode_response, msg?: MessageCreateOptions, guildObject?: DatabaseStructure.NightMode, lang: LanguageData }) {
@@ -265,7 +261,7 @@ class NightModeManager {
 			embeds: [
 				{
 					title: opt.lang.var_nm_title,
-					description: opt.lang.var_nm_ping_embed_title,
+					description: opt.lang.var_nm_ping_embed_title.replace("${type}", type),
 					color: opt.guildObject?.notify ? 0x00FF00 : 0xFF0000,
 					fields: [
 						{
@@ -307,7 +303,7 @@ class NightModeManager {
 
 	public async isAlreadyHandled(type: checked_nightmode_response, guild: Guild): Promise<boolean> {
 		// Get night mode config for this guild
-		const nightModeData: DatabaseStructure.NightMode | undefined = await this.client.db.get(`${guild.id}.UTILS.NIGHT_MODE`);
+		const nightModeData: DatabaseStructure.NightMode | undefined = await client.db.get(`${guild.id}.UTILS.NIGHT_MODE`);
 		if (!nightModeData) return false;
 
 		// If last action is the same as the current one, no need to repeat it

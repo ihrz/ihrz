@@ -187,8 +187,8 @@ export const command: Command = {
 			permission: null,
 		},
 		{
-			name: "disable",
-			prefixName: "economy-disable",
+			name: "config",
+			prefixName: "economy-config",
 
 			description: "Disable the economy module into your guild",
 			description_localizations: {

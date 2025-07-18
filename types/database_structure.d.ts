@@ -405,6 +405,7 @@ export namespace DatabaseStructure {
 		renew_channel?: Record<string, renewChannelStructure>;
 		ROLE_LIMIT?: RoleLimitSchema;
 		autoFeur?: boolean;
+		git_lines?: boolean;
 		NIGHT_MODE: NightMode;
 	}
 

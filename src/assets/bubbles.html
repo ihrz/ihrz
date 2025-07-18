@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Meme Generator</title>
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Impact&display=swap');
+
+		body {
+			margin: 0;
+			padding: 0;
+			background: #000;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+
+		.meme-container {
+			position: relative;
+			display: inline-block;
+		}
+
+		.meme-container img {
+			width: 512px;
+			height: auto;
+			display: block;
+		}
+
+		.bubble {
+			position: absolute;
+			background: white;
+			border: 2px solid black;
+			border-radius: 15px;
+			width: 100%;
+			height: 60px;
+			top: 0;
+			left: 0;
+		}
+
+		.bubble::after {
+			content: '';
+			position: absolute;
+			bottom: -10px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 0;
+			height: 0;
+			border-left: 10px solid transparent;
+			border-right: 10px solid transparent;
+			border-top: 10px solid white;
+		}
+
+		.bubble::before {
+			content: '';
+			position: absolute;
+			bottom: -12px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 0;
+			height: 0;
+			border-left: 12px solid transparent;
+			border-right: 12px solid transparent;
+			border-top: 12px solid black;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="meme-container">
+		<img src="{X}" alt="Meme Image">
+		<div class="bubble"></div>
+	</div>
+</body>
+
+</html>

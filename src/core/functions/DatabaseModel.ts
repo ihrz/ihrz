@@ -19,16 +19,16 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BunDB } from "bun.db";
+import { PallasDB } from "pallas-db";
 import config from "../../files/config.js";
 import logger from "../logger.js";
 
 let db;
 
 if (!db) {
-	db = new Promise<BunDB>((resolve, reject) => {
+	db = new Promise<PallasDB>((resolve, reject) => {
 		logger.log(`${config.console.emojis.HOST} >> Connected to the database (SQLITE) !`.green);
-		resolve(new BunDB(`${process.cwd()}/src/files/db.sqlite`));
+		resolve(new PallasDB({ filePath: `${process.cwd()}/src/files/db.sqlite`, dialect: "sqlite", tables: ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"] }));
 	});
 }
 

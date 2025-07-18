@@ -5,6 +5,7 @@ read -p "Enter your TWITCH_APPLICATION_ID: " TWITCH_APPLICATION_ID
 read -p "Enter your TWITCH_APPLICATION_SECRET: " TWITCH_APPLICATION_SECRET
 read -p "Enter your YOUTUBE_API_KEY: " YOUTUBE_API_KEY
 read -p "Enter your GENIUS_API_KEY: " GENIUS_API_KEY
+read -p "Enter your GITHUB_API_KEY: " GITHUB_API_KEY
 
 # Detect if the user is using Bash or Zsh
 SHELL_CONFIG=""
@@ -36,6 +37,7 @@ add_or_update_env_var "TWITCH_APPLICATION_ID" "$TWITCH_APPLICATION_ID"
 add_or_update_env_var "TWITCH_APPLICATION_SECRET" "$TWITCH_APPLICATION_SECRET"
 add_or_update_env_var "YOUTUBE_API_KEY" "$YOUTUBE_API_KEY"
 add_or_update_env_var "GENIUS_API_KEY" "$GENIUS_API_KEY"
+add_or_update_env_var "GITHUB_API_KEY" "$GITHUB_API_KEY"
 
 # Reload the shell configuration
 source "$SHELL_CONFIG"

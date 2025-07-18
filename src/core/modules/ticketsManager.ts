@@ -805,7 +805,9 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		if (result.ticketChannelPanel) {
-			const embed_from_db = (await interaction.client.db.get(`EMBED.${result.ticketChannelPanel}.embedSource`) as APIEmbed | null);
+			var embed_from_db = (await interaction.client.db.get(`EMBED.${result.ticketChannelPanel}.embedSource`));
+			// do this hack for replacing category in descriptions, fields ,etc
+			embed_from_db = JSON.parse(JSON.stringify(embed_from_db).replaceAll('{category}', categoryName?.name!)) as APIEmbed | null;
 
 			if (embed_from_db) {
 				embeds.push(

@@ -62,10 +62,12 @@ export const subCommand: SubCommand = {
 		if (!pronoun) pronoun = lang.profil_unknown;
 
 		let birthday = await tableProfil.get(`${member.id}.birthday`);
-		if (!birthday) birthday = lang.profil_unknown;
-
-		// convert birthday to timestamp and transform timestamp to discord timestamp
-		birthday = time(new Date(new Date().getFullYear(), parseInt(birthday.month) - 1, parseInt(birthday.day)), 'R');
+		if (!birthday) {
+			birthday = lang.profil_unknown;
+		} else {
+			// convert birthday to timestamp and transform timestamp to discord timestamp
+			birthday = time(new Date(new Date().getFullYear(), parseInt(birthday.month) - 1, parseInt(birthday.day)), 'R');
+		}
 
 		const profil = new EmbedBuilder()
 			.setTitle(lang.profil_embed_title

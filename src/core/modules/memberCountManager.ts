@@ -27,12 +27,6 @@ import logger from "../logger.js";
 type memberCountData = { guildId: string, data: DatabaseStructure.MemberCountSchema | undefined }[];
 
 class MemberCountModule {
-	private client: Client;
-
-	constructor(client: Client) {
-		this.client = client;
-	}
-
 	async init() {
 		this.Refresh(await this.GetMemberCountData());
 		setInterval(async () => {
@@ -41,9 +35,9 @@ class MemberCountModule {
 	}
 
 	private async GetMemberCountData(): Promise<memberCountData> {
-		const all = await this.client.db.all();
+		const all = await client.db.all();
 		return all
-			.filter(v => Number(v.id))
+			.filter(v => Number(v.id) && client.inShard(v.id))
 			.map(v => {
 				const guildObject = v.value as DatabaseStructure.DbInId;
 				return { guildId: v.id, data: guildObject.GUILD?.MCOUNT };
@@ -54,7 +48,7 @@ class MemberCountModule {
 	private async Refresh(memberCountData: memberCountData) {
 		for (const guildObject of memberCountData) {
 			try {
-				const guild = this.client.guilds.cache.get(guildObject.guildId);
+				const guild = await client.guilds.fetch(guildObject.guildId).catch(() => null);
 				if (!guild) continue;
 
 				const onlineCount = guild.members.cache
@@ -96,7 +90,7 @@ class MemberCountModule {
 				for (const { key, count } of mappings) {
 					const data = baseData[key];
 					if (data) {
-						const channel = guild.channels.cache.get(data.channel!) as TextChannel;
+						const channel = await guild.channels.fetch(data.channel!).catch(() => null) as TextChannel;
 						if (channel && channel.isTextBased()) {
 							const newName = data.name
 								?.replace(/{\w+Count}/, String(count))

@@ -26,7 +26,7 @@ import {
 	PermissionFlagsBits,
 } from 'discord.js';
 
-import { Command } from '../../../../types/command.js';
+import { Command } from '../../../../../types/command.js';
 
 export const command: Command = {
 	name: "setsuggest",
@@ -38,8 +38,8 @@ export const command: Command = {
 
 	options: [
 		{
-			name: "disable",
-			prefixName: "suggest-disable",
+			name: "config",
+			prefixName: "suggest-config",
 
 			description: "Disable the suggestion module (need admin permission)!",
 			description_localizations: {

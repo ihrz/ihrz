@@ -165,3 +165,5 @@ src/files/emojis.json
 commands.json
 quick-db.json
 todo
+src/files/slash.log.json
+src/files/.bash_history

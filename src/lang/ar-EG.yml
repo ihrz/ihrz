@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "زر لحذف النص المحفوظ"
 ticket_panel_panel_12_label: "عرض قائمة إضافة/إزالة الأعضاء من التذكرة"
 ticket_panel_panel_13_label: "عرض زر حذف التذكرة"
 ticket_panel_panel_14_label: "عرض زر النص المحفوظ"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **هل تعلم؟** عندما تستخدم `/utils embed` لإنشاء embed، يمكنك إدخال المتغير **`{category}`**، والذي سيتم استبداله بالفئة التي اختارها المستخدم."
 
 # /ticket rename
 ticket_rename_ok: "تم تغيير اسم قناة التذكرة!"
@@ -1853,6 +1854,7 @@ embed_choose_4: "تم حذف وصف الإيمبد بنجاح!"
 embed_choose_5: "ما المؤلف الذي تريد تضمينه في الإيمبد الخاص بك؟"
 embed_choose_6: "تم حذف مؤلف الإيمبد بنجاح!"
 embed_choose_7: "ما التذييل الذي تريد تضمينه في الإيمبد الخاص بك؟"
+embed_choose_7bis: "ما أيقونة التذييل التي تريد تضمينها في الرسالة المدمجة؟"
 embed_choose_8: "تم حذف تذييل الإيمبد بنجاح!"
 embed_choose_9: "ما الصورة المصغرة التي تريد تضمينها في الإيمبد الخاص بك؟"
 embed_choose_10: "ما الصورة التي تريد تضمينها في الإيمبد الخاص بك؟"
@@ -1921,6 +1923,13 @@ nightmode_modal_hours_window_title: "الوضع الليلي - الفترة ال
 nightmode_invalid_hour_morning: "${client.iHorizon_Emojis.No} وقت البدء غير صالح. استخدم التنسيق: 21:30 أو 2130"
 nightmode_invalid_hour_night: "${client.iHorizon_Emojis.No} وقت الانتهاء غير صالح. استخدم التنسيق: 06:15 أو 0615"
 nightmode_utc_timezone_on: "المنطقة الزمنية UTC على"
+
+# /git lines
+git_lines_avoiding_spam: "عذراً، ولكن لمنع الرسائل المزعجة، نحن نحدد عدد الأسطر المعروضة بـ 50"
+git_lines_avoiding_limit: "عذراً ولكن هناك حد أقصى 2000 حرف على Discord، لذا لم نتمكن من عرض المقطع المطلوب"
+git_lines_work: "✅ تم تفعيل Git Lines الآن."
+git_lines_work_disabled: "❌ تم إلغاء تفعيل Git Lines الآن."
+git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} هل أزعجك؟ يمكنك كتابة `/git lines` لإلغاء تفعيل هذا الوحدة!"
 
 # Suggestion commands
 # /setsuggest, /suggest

@@ -25,10 +25,10 @@ import {
 	Client,
 	EmbedBuilder
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from '../../../../../types/languageData.js';
 
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {

@@ -38,14 +38,15 @@ import { Assets } from "./assets.js";
 import { ConfigData } from "./configDatad.js";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";
 import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
-import { db } from "../src/core/database.js";
-import { BunDB } from "bun.db";
+import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
 import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
 import type { Client_Functions } from "./client_functions.d.ts";
 import { AutoRenew } from "../src/core/modules/autorenewManager.js";
 import { EmojisManager } from "../src/core/modules/emojisManager.ts";
 import { InfrastructureMonitoring } from "../src/core/modules/infrastructureMonitoringManager.ts";
 import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
+import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
+import { PallasDB } from "pallas-db";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -58,7 +59,7 @@ declare module 'discord.js' {
 		vanityInvites: Collection<Snowflake, VanityInviteData>,
 		buttons: Collection<string, Function>,
 		selectmenu: Collection<string, Function>,
-		db: BunDB,
+		db: PallasDB,
 		applicationsCommands: Collection<string, AnotherCommand>,
 		iHorizon_Emojis: typeof emojis,
 		giveawaysManager: GiveawayManager,
@@ -77,6 +78,9 @@ declare module 'discord.js' {
 		autoRenewManager: AutoRenew,
 		emojisManager: EmojisManager,
 		infrastructureMonitoring: InfrastructureMonitoring,
-		nightmodeManager: NightModeManager
+		nightmodeManager: NightModeManager,
+		githubLinesManager: GithubLinesManager,
+		// IN SHARD
+		inShard: (guildId: string) => boolean
 	}
 }

@@ -26,7 +26,7 @@ import {
 	PermissionFlagsBits,
 } from 'discord.js';
 
-import { Command } from '../../../../types/command.js';
+import { Command } from '../../../../../types/command.js';
 
 export const command: Command = {
 	name: "automod",
@@ -48,7 +48,7 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.SubcommandGroup,
 			options: [
 				{
-					name: 'pub',
+					name: 'discord_invite_link',
 
 					description: 'Allow/Unallow the user to send a server invites into them messages!',
 					description_localizations: {

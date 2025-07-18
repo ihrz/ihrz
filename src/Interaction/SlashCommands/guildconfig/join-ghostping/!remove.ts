@@ -21,18 +21,19 @@
 
 import {
 	Client,
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	GuildChannel,
 	EmbedBuilder,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { LanguageData } from '../../../../../types/languageData.js';
+import { DatabaseStructure } from '../../../../../types/database_structure.js';
 
-import { SubCommand } from '../../../../types/command.js';
+
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+
 
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
@@ -44,32 +45,32 @@ export const subCommand: SubCommand = {
 
 		const all_channels = new Set(allData?.filter(x => interaction.guild?.channels.cache.get(x)));
 
-		if (all_channels?.has(channel.id)) {
+		if (!all_channels?.has(channel.id)) {
 			await interaction.reply({
-				content: lang.joinghostping_add_already_set
+				content: lang.joinghostping_remove_isnt_set
 					.replace('${channel}', channel.toString())
 			});
 			return;
 		};
 
+		all_channels.delete(channel.id);
 
-		all_channels.add(channel.id);
 		await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`, Array.from(all_channels));
-
-		(channel as BaseGuildTextChannel).send({ content: lang.joinghostping_add_sent_to_channel });
 
 		const embed = new EmbedBuilder()
 			.setTitle(lang.joinghostping_add_ok_embed_title)
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#475387")
-			.setDescription(lang.joinghostping_add_ok_embed_desc)
+			.setDescription(lang.joinghostping_remove_ok_embed_desc)
 			.addFields({
 				name: lang.joinghostping_add_ok_embed_fields_name,
-				value: all_channels ? Array.from(Array.from(all_channels).map(x => `<#${x}>`)).join('\n') : `<#${channel.id}>`
+				value: all_channels.size > 0
+					? Array.from(all_channels).map(x => `<#${x}>`).join('\n')
+					: lang.var_no_set
 			});
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.joinghostping_add_logs_embed_title,
-			description: lang.joinghostping_add_logs_embed_desc
+			description: lang.joinghostping_remove_logs_embed_desc
 				.replace('${interaction.user}', interaction.user.toString())
 				.replace('${channel}', channel.toString())
 		});

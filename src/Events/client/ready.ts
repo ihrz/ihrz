@@ -32,6 +32,7 @@ import { DatabaseStructure } from '../../../types/database_structure.js';
 import { recoverActiveSessions } from '../stats/onVoiceUpdate.js';
 import { getCacheStorage } from '../../core/core.js';
 import { cache_storage_update } from '../../core/cache.js';
+import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
 
 export const event: BotEvent = {
 	name: "ready",
@@ -58,7 +59,7 @@ export const event: BotEvent = {
 		};
 
 		async function refreshDatabaseModel() {
-			await client.db.table(`TEMP`).deleteAll();
+			// await client.db.table(`TEMP`).deleteAll();
 			const table = client.db.table('OWNER');
 
 			const owners = [...new Set([...client.owners, ...(await table.all()).map(x => x.id)])];
@@ -140,7 +141,7 @@ export const event: BotEvent = {
 				const guild = index.value as DatabaseStructure.DbInId;
 				const stats = guild.STATS?.USER;
 
-				if (stats) {
+				if (stats && client.inShard(index.id)) {
 					Object.keys(stats).forEach(userId => {
 						const userStats = stats[userId];
 
@@ -182,6 +183,7 @@ export const event: BotEvent = {
 		PfpsManager_Init(client);
 
 		await recoverActiveSessions(client);
+		await recoverCustomVoiceChannels(client);
 		await client.memberCountManager.init();
 		await client.autoRenewManager.init();
 		let initData = getCacheStorage();

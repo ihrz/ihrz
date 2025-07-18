@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "Bouton pour supprimer le transcript"
 ticket_panel_panel_12_label: "Afficher le menu ajout/supression de membre dans un ticket"
 ticket_panel_panel_13_label: "Afficher le bouton supprimer un ticket"
 ticket_panel_panel_14_label: "Afficher le bouton transcript"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Le saviez-vous ?** Quand vous utilisez `/utils embed` pour générer un embed, vous pouvez y introduire la variable **`{category}`**, qui sera remplacée par la catégorie choisie par l'utilisateur."
 
 # /ticket rename
 ticket_rename_ok: "Le canal du ticket a été renommé !"
@@ -1853,6 +1854,7 @@ embed_choose_4: "La description de l'embed à été correctement Supprimer !"
 embed_choose_5: "Quel auteur voulez-vous inclure dans votre Embed?"
 embed_choose_6: "L'autheur de l'embed à été correctement Supprimer !"
 embed_choose_7: "Quel footer voulez-vous inclure dans votre Embed?"
+embed_choose_7bis: "Quel icône de footer voulez-vous inclure dans votre embed?"
 embed_choose_8: "Le footer de l'embed à été correctement Supprimer !"
 embed_choose_9: "Quel image de thumbnail voulez-vous inclure dans votre Embed?"
 embed_choose_10: "Quel image voulez-vous inclure dans votre Embed?"
@@ -1921,6 +1923,13 @@ nightmode_modal_hours_window_title: "NightMode - Plage Horaire (Format 24h avec 
 nightmode_invalid_hour_morning: "${client.iHorizon_Emojis.No} L'heure de début n'est pas valide. Utilisez le format: 21:30 ou 2130"
 nightmode_invalid_hour_night: "${client.iHorizon_Emojis.No} L'heure de fin n'est pas valide. Utilisez le format: 06:15 ou 0615"
 nightmode_utc_timezone_on: "fuseau UTC sur"
+
+# /git lines
+git_lines_avoiding_spam: "Désolé, mais pour éviter le spam, nous limitons le nombre de lignes affichées à 50"
+git_lines_avoiding_limit: "Désolé mais il y a une limite de 2000 caractères sur Discord, nous n'avons donc pas pu afficher l'extrait souhaité"
+git_lines_work: "✅ Git Lines est maintenant activé."
+git_lines_work_disabled: "❌ Git Lines est maintenant désactivé."
+git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Je te dérange ? tu peux faire `/git lines` pour me désactiver ce module!"
 
 # Commandes de suggestion
 # /setsuggest, /suggest

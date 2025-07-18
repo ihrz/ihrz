@@ -82,8 +82,8 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: "disable",
-			prefixName: "confess-disable",
+			name: "config",
+			prefixName: "confess-config",
 
 			description: "Enable or Disable the confession module!",
 			description_localizations: {

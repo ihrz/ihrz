@@ -116,6 +116,99 @@ export const command: Command = {
 			permission: null,
 		},
 		{
+			name: "togif",
+
+			description: "Transform image to gif",
+			description_localizations: {
+				fr: "Transformer une image vers un gif",
+			},
+
+			options: [
+				{
+					name: "image",
+
+					description: "image file",
+					description_localizations: {
+						fr: "fichier image"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Attachment,
+					required: true
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null,
+		},
+		{
+			name: "captions",
+
+			description: "Add text on top of your own image",
+			description_localizations: {
+				fr: "ajouter du texte au dessus de votre image",
+			},
+
+			options: [
+				{
+					name: "image",
+
+					description: "image file",
+					description_localizations: {
+						fr: "fichier image"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Attachment,
+					required: true
+				},
+				{
+					name: "query",
+
+					description: "your captions",
+					description_localizations: {
+						fr: "votre texte"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.String,
+					required: true
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null,
+		},
+		{
+			name: "bubbles",
+
+			description: "Add bubble on top of your own image",
+			description_localizations: {
+				fr: "ajouter une bulle au dessus de votre image",
+			},
+
+			options: [
+				{
+					name: "image",
+
+					description: "image file",
+					description_localizations: {
+						fr: "fichier image"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Attachment,
+					required: true
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null,
+		},
+		{
 			name: "fdisable",
 
 			description: "Disable the fun category",

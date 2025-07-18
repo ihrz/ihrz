@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BunDB } from "bun.db";
 import { Message } from "discord.js";
+import { PallasDB } from "pallas-db";
 
 export async function coolDown(message: Message, method: string, ms: number) {
 	const tn = Date.now();
@@ -32,10 +32,10 @@ export async function coolDown(message: Message, method: string, ms: number) {
 	return false;
 };
 
-export async function hardCooldown(database: BunDB, method: string, ms: number) {
-	let tn = Date.now();
-	let table = database.table("TEMP");
-	var fetch = await table.get(`COOLDOWN.${method}`);
+export async function hardCooldown(database: PallasDB, method: string, ms: number) {
+	const tn = Date.now();
+	const table = database.table("TEMP");
+	const fetch = await table.get(`COOLDOWN.${method}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;
 
 	await table.set(`COOLDOWN.${method}`, tn);

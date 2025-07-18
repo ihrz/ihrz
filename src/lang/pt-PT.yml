@@ -288,6 +288,7 @@ ticket_panel_button_transcript: "Botão para apagar a transcrição"
 ticket_panel_panel_12_label: "Mostrar menu para adicionar/remover membros de um ticket"
 ticket_panel_panel_13_label: "Mostrar botão para apagar um ticket"
 ticket_panel_panel_14_label: "Mostrar botão de transcrição"
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Sabia que?** Quando usa `/utils embed` para gerar um embed, pode introduzir a variável **`{category}`**, que será substituída pela categoria escolhida pelo utilizador."
 
 # /ticket rename
 ticket_rename_ok: "O canal do ticket foi renomeado!"
@@ -1853,6 +1854,7 @@ embed_choose_4: "A descrição do Embed foi excluída com sucesso!"
 embed_choose_5: "Qual autor você quer incluir no seu Embed?"
 embed_choose_6: "O autor do Embed foi excluído com sucesso!"
 embed_choose_7: "Qual rodapé você quer incluir no seu Embed?"
+embed_choose_7bis: "Que ícone de rodapé pretende incluir no seu embed?"
 embed_choose_8: "O rodapé do Embed foi excluído com sucesso!"
 embed_choose_9: "Qual imagem de miniatura você quer incluir no seu Embed?"
 embed_choose_10: "Qual imagem você quer incluir no seu Embed?"
@@ -1921,6 +1923,13 @@ nightmode_modal_hours_window_title: "Modo Nocturno - Intervalo de Tempo (formato
 nightmode_invalid_hour_morning: "${client.iHorizon_Emojis.No} A hora de início não é válida. Use o formato: 21:30 ou 2130"
 nightmode_invalid_hour_night: "${client.iHorizon_Emojis.No} A hora de fim não é válida. Use o formato: 06:15 ou 0615"
 nightmode_utc_timezone_on: "fuso horário UTC em"
+
+# /git lines
+git_lines_avoiding_spam: "Desculpe, mas para prevenir spam, limitamos o número de linhas exibidas a 50"
+git_lines_avoiding_limit: "Desculpe mas há um limite de 2000 caracteres no Discord, então não conseguimos exibir o trecho desejado"
+git_lines_work: "✅ Git Lines está agora ativado."
+git_lines_work_disabled: "❌ Git Lines está agora desativado."
+git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Estou a incomodar-te? Podes usar `/git lines` para desativar este módulo!"
 
 # Comandos de Sugestão
 # /setsuggest, /suggest
