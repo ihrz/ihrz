@@ -9,7 +9,9 @@
 		"build": "npx tsc",
 		"type:func": "bun run tools/Client_Func_Typator.ts",
 		"type:lang": "bun run tools/LangsChecker-Tools.ts --type 2",
-		"check:licence": "bun run tools/Licence_Workspace_Checker.ts"
+		"check:licence": "bun run tools/Licence_Workspace_Checker.ts",
+		"check:lines": "bun run tools/Lines_Count.ts",
+		"check:lc": "bun run check:lines"
 	},
 	"repository": {
 		"type": "git",
