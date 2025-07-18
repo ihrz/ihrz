@@ -42,11 +42,3 @@ logger.legacy("[*] Please respect the terms of this license. Learn more at: http
 const manager = new ShardingManager('./src/core/bot.ts', { totalShards: "auto", token: _token || process.env.BOT_TOKEN || config.discord.token });
 manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is now launched :) !`.green));
 manager.spawn();
-
-client.inShard = function (guildId: string): boolean {
-	const shardId = client.shard?.ids?.[0] ?? 0;
-	const totalShards = client.options.shardCount ?? 1;
-
-	const guildShard = Number((BigInt(guildId) >> 22n) % BigInt(totalShards));
-	return guildShard === shardId;
-}
