@@ -131,7 +131,7 @@ function formatTypeScriptFile(filePath: string, configPath: string = './vsconfig
 		// Read VSCode configuration
 		const options = readVSCodeConfig(configPath);
 
-		logger.log('Formatting options:', options);
+		logger.log('Formatting options:' + options);
 
 		// Only format if formatOnSave is enabled
 		if (!options.formatOnSave) {
