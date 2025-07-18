@@ -39,6 +39,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 import { SubCommand } from '../../../../types/command.js';
 import getTopTwoColors from '../../../core/functions/image_dominant_color.js';
+import { getLyrics } from './!lyrics.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -181,24 +182,19 @@ export const subCommand: SubCommand = {
 							case "lyrics":
 								await i.deferReply({ flags: [1 << 6] });
 
-								var lyrics = await client.lyricsSearcher.search(
-									player.queue.current?.info?.title as string +
-									player.queue.current?.info?.author as string
-								).catch(() => {
-									lyrics = null
-								})
+								var lyrics = await getLyrics(`${player.queue.current?.info?.title} - ${player.queue.current?.info?.author}`)
 
 								if (!lyrics) {
 									i.editReply({ content: lang.nowplaying_lyrics_button });
 								} else {
-									const trimmedLyrics = lyrics.lyrics.substring(0, 1997);
+									const trimmedLyrics = lyrics.res.text!.substring(0, 1997);
 									const embed = new EmbedBuilder()
 										.setTitle(player.queue.current?.info?.title as string)
 										.setURL(player.queue.current?.info?.uri as string)
 										.setTimestamp()
-										.setThumbnail(lyrics.image)
+										.setThumbnail(lyrics.track?.info.artworkUrl || null)
 										.setAuthor({
-											name: player.queue.current?.info?.author as string,
+											name: player.queue.current?.info?.author!,
 										})
 										.setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
 										.setColor('#cd703a')
