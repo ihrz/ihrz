@@ -43,7 +43,7 @@ export async function getLyrics(query: string, author?: User) {
 	for (const _node of client.player.nodeManager.nodes.values()) {
 		if (_node.connected === false) continue;
 
-		res = await _node?.search({ query }, author || client.user?.id)
+		res = await _node?.search({ query }, author || client.user)
 
 		if (res?.tracks.length! > 0) {
 			node = _node;
@@ -57,6 +57,7 @@ export async function getLyrics(query: string, author?: User) {
 
 	const response = await node?.lyrics.get(res?.tracks[0]!);
 
+	console.log(response)
 	if (!response) {
 		return null;
 	}
