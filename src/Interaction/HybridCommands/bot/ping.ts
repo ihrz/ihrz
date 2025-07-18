@@ -28,8 +28,8 @@ import {
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
-import ping from 'ping';
 import { LanguageData } from '../../../../types/languageData.js';
+import { ping } from '../../../core/ping/index.js';
 
 export const command: Command = {
 	name: 'ping',
@@ -58,10 +58,10 @@ export const command: Command = {
 		let _net03: number | string = '';
 		let _net04: number | string = '';
 
-		await ping.promise.probe("google.com").then(result => { _net01 = Number(result.time) }).catch(() => { _net01 = lang.ping_down_msg });
-		await ping.promise.probe("cloudflare.com").then(result => { _net02 = Number(result.time) }).catch(() => { _net02 = lang.ping_down_msg });
-		await ping.promise.probe("discord.com").then(result => { _net03 = Number(result.time) }).catch(() => { _net03 = lang.ping_down_msg });
-		await ping.promise.probe("ihorizon.org").then(result => { _net04 = Number(result.time) }).catch(() => { _net04 = lang.ping_down_msg });
+		await ping("google.com").then(result => { _net01 = Number(result.time) }).catch(() => { _net01 = lang.ping_down_msg });
+		await ping("cloudflare.com").then(result => { _net02 = Number(result.time) }).catch(() => { _net02 = lang.ping_down_msg });
+		await ping("discord.com").then(result => { _net03 = Number(result.time) }).catch(() => { _net03 = lang.ping_down_msg });
+		await ping("ihorizon.org").then(result => { _net04 = Number(result.time) }).catch(() => { _net04 = lang.ping_down_msg });
 
 		const averagePing = (parseInt(_net01) + parseInt(_net02) + parseInt(_net03) + parseInt(_net04)) / 4;
 
