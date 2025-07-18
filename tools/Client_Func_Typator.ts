@@ -44,11 +44,47 @@ import path from 'path';
 import { writeFileSync } from 'fs';
 import logger from '../src/core/logger.js';
 
+let header = `/*
+・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+
+	・   Under the following terms:
+
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+		・ NonCommercial — You may not use the material for commercial purposes.
+
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
+
+・ Copyright © 2020-2025 iHorizon
+*/
+
+import type { DatabaseStructure } from './database_structure.d.ts';
+import type { LanguageData } from './languageData.d.ts';
+import type { ClusterMethod, GatewayMethod } from '../src/core/functions/apiUrlParser.js';
+import { ModalOptionsBuilder } from '../src/core/functions/modalHelper.js';
+import { AnySelectMenuInteraction, APIModalInteractionResponseCallbackData, AutocompleteInteraction, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, CacheType, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, MessageContextMenuCommandInteraction, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, PrimaryEntryPointCommandInteraction, Role, StringSelectMenuInteraction, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
+import { Assets } from './assets.js';
+import { LangForPrompt } from '../src/core/functions/awaitingResponse.js';
+import { AuthRestore_EntryType, AuthRestore_ResponseType, GuildAuthRestore, AuthRestore_ForceJoin_EntryType, AuthRestore_ForceJoin_ResponseType, AuthRestore_KeyUpdate_EntryType, AuthRestore_RoleUpdate_EntryType, Oauth2_Link_Entry } from '../src/core/functions/authRestoreHelper.ts';
+import { Command } from './command.js';
+import { Option } from './option.js';
+import { PasswordOptions } from '../src/core/functions/random.ts';
+import { command } from '../src/core/functions/permissonsCalculator.ts';
+import { DetailedGuildData, GuildData } from '../src/core/functions/shard_helper.ts';
+import { BatchProcessorOptions, BatchProcessorResult } from '../src/core/functions/batchProcessor.ts';
+import { PallasDB } from 'pallas-db';
+`
 export class FunctionAnalyzer {
 	private program: ts.Program;
 	private typeChecker: ts.TypeChecker;
 	private importedTypes: Set<string> = new Set();
-	private importStatements: Map<string, Set<string>> = new Map();
 
 	constructor(private rootDir: string) {
 		const configPath = ts.findConfigFile(
@@ -131,32 +167,6 @@ export class FunctionAnalyzer {
 		};
 	}
 
-	private collectImportsFromType(typeNode: ts.TypeNode | ts.Node, sourceFile: ts.SourceFile) {
-		const visit = (node: ts.Node) => {
-			if (ts.isTypeReferenceNode(node)) {
-				const symbol = this.typeChecker.getSymbolAtLocation(node.typeName);
-				if (symbol && symbol.declarations && symbol.declarations.length > 0) {
-					const declaration = symbol.declarations[0];
-					const declarationSourceFile = declaration.getSourceFile();
-
-					if (declarationSourceFile.fileName !== sourceFile.fileName) {
-						const importPath = this.getRelativeImportPath(sourceFile.fileName, declarationSourceFile.fileName);
-						if (importPath) {
-							if (!this.importStatements.has(importPath)) {
-								this.importStatements.set(importPath, new Set());
-							}
-							this.importStatements.get(importPath)!.add(symbol.name);
-							this.importedTypes.add(symbol.name);
-						}
-					}
-				}
-			}
-			ts.forEachChild(node, visit);
-		};
-
-		visit(typeNode);
-	}
-
 	private collectParameterImports(parameters: ParameterMetadata[], fileName: string): void {
 		const sourceFile = this.program.getSourceFile(fileName);
 		if (!sourceFile) return;
@@ -164,9 +174,6 @@ export class FunctionAnalyzer {
 		for (const param of parameters) {
 			// Find type references in the source file that match our parameter type
 			const visit = (node: ts.Node) => {
-				if (ts.isTypeReferenceNode(node) && node.getText() === param.type) {
-					this.collectImportsFromType(node, sourceFile);
-				}
 				ts.forEachChild(node, visit);
 			};
 
@@ -193,13 +200,11 @@ export class FunctionAnalyzer {
 				// Handle constraints (e.g., T extends SomeType)
 				if (typeParam.constraint) {
 					paramText += ` extends ${this.getFullTypeText(typeParam.constraint)}`;
-					this.collectImportsFromType(typeParam.constraint, node.getSourceFile());
 				}
 
 				// Handle default types (e.g., T = DefaultType)
 				if (typeParam.default) {
 					paramText += ` = ${this.getFullTypeText(typeParam.default)}`;
-					this.collectImportsFromType(typeParam.default, node.getSourceFile());
 				}
 
 				typeParameters.push(paramText);
@@ -211,9 +216,6 @@ export class FunctionAnalyzer {
 				? this.getFullTypeText(param.type)
 				: 'any';
 
-			if (param.type) {
-				this.collectImportsFromType(param.type, node.getSourceFile());
-			}
 
 			return {
 				name: param.name.getText(),
@@ -225,10 +227,6 @@ export class FunctionAnalyzer {
 		const returnType = node.type
 			? this.getFullTypeText(node.type)
 			: 'any';
-
-		if (node.type) {
-			this.collectImportsFromType(node.type, node.getSourceFile());
-		}
 
 		return {
 			name: node.name.getText(),
@@ -280,13 +278,6 @@ export class FunctionAnalyzer {
 	public generateInterfaces(): string {
 		const fileMetadata = this.analyzeFunctions();
 		let output = '';
-
-		// Generate imports
-		this.importStatements.forEach((types, importPath) => {
-			const typesList = Array.from(types).join(', ');
-			output += `import type { ${typesList} } from '${importPath}';\n`;
-		});
-		output += '\n';
 
 		const dirName = path.basename(this.rootDir);
 		const namespaceName = this.formatNamespaceName(dirName);
@@ -399,7 +390,9 @@ export function generateFunctionInterfaces(
 	outputPath: string
 ): void {
 	const analyzer = new FunctionAnalyzer(sourceDir);
-	const interfaces = analyzer.generateInterfaces();
+	let interfaces = header;
+	interfaces += "\n";
+	interfaces += analyzer.generateInterfaces();
 
 	writeFileSync(outputPath, interfaces, 'utf-8');
 	logger.log(`Generated interfaces written to ${outputPath}`);
