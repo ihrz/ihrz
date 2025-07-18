@@ -1,10 +1,3 @@
-/*			This code are taked from:
-
-	https://github.com/diogoscf/github-lines/
-
-			Original author: diogoscf
-			Repositories Licence: MIT			*/
-
 /*
 ・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
@@ -25,6 +18,13 @@
 
 ・ Copyright © 2020-2025 iHorizon
 */
+
+/*			This code are taked from:
+
+	https://github.com/diogoscf/github-lines/
+
+			Original author: diogoscf
+			Repositories Licence: MIT			*/
 
 import { Message } from "discord.js";
 import { LanguageData } from "../../../types/languageData";
