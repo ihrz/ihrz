@@ -21,6 +21,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import logger from '../src/core/logger.ts';
 
 // Array of paths to search recursively
 const SEARCH_PATHS: string[] = [
@@ -103,7 +104,7 @@ function formatFilePath(filePath: string, maxLength: number = 60): string {
  * Main function
  */
 function main(): void {
-	console.log('📊 Starting line count analysis...\n');
+	logger.legacy('📊 Starting line count analysis...\n');
 
 	const allFiles: string[] = [];
 	const fileStats: FileStats[] = [];
@@ -112,15 +113,15 @@ function main(): void {
 	for (const searchPath of SEARCH_PATHS) {
 		const files = getTypeScriptFiles(searchPath);
 		allFiles.push(...files);
-		console.log(`📁 Found ${files.length} TypeScript files in '${searchPath}'`);
+		logger.legacy(`📁 Found ${files.length} TypeScript files in '${searchPath}'`);
 	}
 
 	if (allFiles.length === 0) {
-		console.log('⚠️  No TypeScript files found in specified paths');
+		logger.legacy('⚠️  No TypeScript files found in specified paths');
 		return;
 	}
 
-	console.log(`\n📋 Total files to analyze: ${allFiles.length}\n`);
+	logger.legacy(`\n📋 Total files to analyze: ${allFiles.length}\n`);
 
 	// Count lines for each file
 	for (const filePath of allFiles) {
@@ -137,9 +138,9 @@ function main(): void {
 	// Sort files by line count (descending)
 	fileStats.sort((a, b) => b.lineCount - a.lineCount);
 
-	console.log('📈 Line count results:\n');
-	console.log('File'.padEnd(65) + 'Lines'.padStart(8) + '  Status');
-	console.log('-'.repeat(80));
+	logger.legacy('📈 Line count results:\n');
+	logger.legacy('File'.padEnd(65) + 'Lines'.padStart(8) + '  Status');
+	logger.legacy('-'.repeat(80));
 
 	// Display results
 	for (const stats of fileStats) {
@@ -148,7 +149,7 @@ function main(): void {
 		const statusIcon = stats.isEmpty ? '📄' : stats.lineCount > 500 ? '📚' : stats.lineCount > 100 ? '📝' : '📋';
 		const statusText = stats.isEmpty ? 'Empty' : '';
 
-		console.log(`${formattedPath} ${lineCountStr}  ${statusIcon} ${statusText}`);
+		logger.legacy(`${formattedPath} ${lineCountStr}  ${statusIcon} ${statusText}`);
 	}
 
 	// Calculate statistics
@@ -159,35 +160,35 @@ function main(): void {
 	const smallFiles = fileStats.filter(stat => stat.lineCount <= 100 && !stat.isEmpty).length;
 	const averageLines = Math.round(totalLines / fileStats.length);
 
-	console.log('\n' + '='.repeat(80));
-	console.log('📊 Summary Statistics:');
-	console.log(`   📁 Total files: ${fileStats.length}`);
-	console.log(`   📏 Total lines: ${totalLines.toLocaleString()}`);
-	console.log(`   📐 Average lines per file: ${averageLines}`);
-	console.log(`   📄 Empty files: ${emptyFiles}`);
-	console.log(`   📋 Small files (≤100 lines): ${smallFiles}`);
-	console.log(`   📝 Medium files (101-500 lines): ${mediumFiles}`);
-	console.log(`   📚 Large files (>500 lines): ${largeFiles}`);
+	logger.legacy('\n' + '='.repeat(80));
+	logger.legacy('📊 Summary Statistics:');
+	logger.legacy(`   📁 Total files: ${fileStats.length}`);
+	logger.legacy(`   📏 Total lines: ${totalLines.toLocaleString()}`);
+	logger.legacy(`   📐 Average lines per file: ${averageLines}`);
+	logger.legacy(`   📄 Empty files: ${emptyFiles}`);
+	logger.legacy(`   📋 Small files (≤100 lines): ${smallFiles}`);
+	logger.legacy(`   📝 Medium files (101-500 lines): ${mediumFiles}`);
+	logger.legacy(`   📚 Large files (>500 lines): ${largeFiles}`);
 
 	// Show top 5 largest files
 	if (fileStats.length > 0) {
-		console.log('\n🏆 Top 5 largest files:');
+		logger.legacy('\n🏆 Top 5 largest files:');
 		const top5 = fileStats.slice(0, Math.min(5, fileStats.length));
 		top5.forEach((stat, index) => {
-			console.log(`   ${index + 1}. ${stat.filePath} (${stat.lineCount} lines)`);
+			logger.legacy(`   ${index + 1}. ${stat.filePath} (${stat.lineCount} lines)`);
 		});
 	}
 
 	// Show empty files if any
 	const emptyFilesList = fileStats.filter(stat => stat.isEmpty);
 	if (emptyFilesList.length > 0) {
-		console.log('\n⚠️  Empty files detected:');
+		logger.legacy('\n⚠️  Empty files detected:');
 		emptyFilesList.forEach((stat, index) => {
-			console.log(`   ${index + 1}. ${stat.filePath}`);
+			logger.legacy(`   ${index + 1}. ${stat.filePath}`);
 		});
 	}
 
-	console.log('\n✨ Analysis completed!');
+	logger.legacy('\n✨ Analysis completed!');
 }
 
 main();

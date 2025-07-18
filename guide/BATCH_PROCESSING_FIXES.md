@@ -141,7 +141,7 @@ const result = await processBatch(
     { batchSize: 10, delay: 100 }
 );
 
-console.log(`Success: ${result.success}, Failed: ${result.failed}`);
+log(`Success: ${result.success}, Failed: ${result.failed}`);
 ```
 
 ### Async Background Processing

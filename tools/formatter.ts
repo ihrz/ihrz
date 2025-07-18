@@ -22,6 +22,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
+import logger from '../src/core/logger.ts';
 
 interface VSCodeConfig {
 	"editor.formatOnSave"?: boolean;
@@ -130,11 +131,11 @@ function formatTypeScriptFile(filePath: string, configPath: string = './vsconfig
 		// Read VSCode configuration
 		const options = readVSCodeConfig(configPath);
 
-		console.log('Formatting options:', options);
+		logger.log('Formatting options:' + options);
 
 		// Only format if formatOnSave is enabled
 		if (!options.formatOnSave) {
-			console.log('Format on save is disabled. Skipping formatting.');
+			logger.log('Format on save is disabled. Skipping formatting.');
 			return;
 		}
 
@@ -147,7 +148,7 @@ function formatTypeScriptFile(filePath: string, configPath: string = './vsconfig
 		// Write the formatted code back to the file
 		fs.writeFileSync(filePath, formattedCode, 'utf8');
 
-		console.log(`Successfully formatted: ${filePath}`);
+		logger.legacy(`Successfully formatted: ${filePath}`);
 
 	} catch (error) {
 		console.error('Error formatting file:', error);
