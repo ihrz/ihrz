@@ -2631,3 +2631,14 @@ addrolereact_adding_role: "役割 {role} を追加中..."
 addrolereact_adding_role_progress: "役割 {role} を追加中..."
 addrolereact_role_added: "役割 {role} を追加しました。"
 addrolereact_error: "コマンドの実行中にエラーが発生しました。"
+
+# jp-JP.yml (Japanese - Japan)
+new_guild_embed_title:
+  - "あなたのサーバーへようこそ！🎉"
+  - "こんにちは、Discord仲間たち！👋"
+  - "iHorizonがチャットに参加しました！💬"
+  - "鳥だ、飛行機だ、いや、iHorizonだ！🦸‍♂"
+  - "iHorizonを温かく迎えましょう！🔥"
+  - "新しい冒険が始まります！🚀"
+  - "素晴らしいメンバーが到着しました！✨"
+new_guild_embed_desc: "## ${randomMessage}\nこんにちは、素晴らしい友達たち！\n\n私はiHorizon、あなたのDiscord体験を特別で楽しいものにするために設計された高度なボットです。\n\n✨ **私ができること：**\n• インテリジェントでプロフェッショナルなサーバー管理\n• インタラクティブなゲームと無限のエンターテイメント\n• コミュニティ組織のための便利なツール\n• 24時間365日のテクニカルサポート\n\n私のコマンドを探索し、無限の可能性の世界に飛び込んでください。\n一緒に美しい思い出でいっぱいの素晴らしいコミュニティを構築しましょう！\n\n私を選んでくれてありがとう、この素晴らしい冒険を始めましょう！🌟"
