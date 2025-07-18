@@ -8,9 +8,11 @@ import { LangForPrompt } from '../src/core/functions/awaitingResponse.js';
 import { AuthRestore_EntryType, AuthRestore_ResponseType, GuildAuthRestore, AuthRestore_ForceJoin_EntryType, AuthRestore_ForceJoin_ResponseType, AuthRestore_KeyUpdate_EntryType, AuthRestore_RoleUpdate_EntryType, Oauth2_Link_Entry } from '../src/core/functions/authRestoreHelper.ts';
 import { Command } from './command.js';
 import { Option } from './option.js';
-import { db } from '../src/core/database.ts';
 import { PasswordOptions } from '../src/core/functions/random.ts';
 import { command } from '../src/core/functions/permissonsCalculator.ts';
+import { DetailedGuildData, GuildData } from '../src/core/functions/shard_helper.ts';
+import { BatchProcessorOptions, BatchProcessorResult } from '../src/core/functions/batchProcessor.ts';
+import { PallasDB } from 'pallas-db';
 
 declare namespace Client_Functions {
 
@@ -47,10 +49,6 @@ declare namespace Client_Functions {
 			}
 		): string;
 		export function HorizonGateway(gateway_method: GatewayMethod): string;
-	}
-
-	// From lyrics_fetcher.ts
-	export namespace lyrics_fetcher {
 	}
 
 	// From ms.ts
@@ -326,7 +324,7 @@ declare namespace Client_Functions {
 	// From helper.ts
 	export namespace helper {
 		export function coolDown(message: Message, method: string, ms: number): any;
-		export function hardCooldown(database: db, method: string, ms: number): any;
+		export function hardCooldown(database: PallasDB, method: string, ms: number): any;
 	}
 
 	// From ihorizon_logs.ts
@@ -346,6 +344,12 @@ declare namespace Client_Functions {
 
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
+
+	// From shard_helper.ts
+	export namespace shard_helper {
+		export function getGuildData(client: Client, guildId: string): Promise<GuildData | null>;
+		export function getDetailedGuildData(client: Client, guildId: string): Promise<DetailedGuildData | null>;
+	}
 }
 
 export { Client_Functions };
