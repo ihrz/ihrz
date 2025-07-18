@@ -39,9 +39,9 @@ export const subCommand: SubCommand = {
 		if (!interaction.guild) return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var zipAttachment = interaction.options.getAttachment("zip_file") as Attachment | undefined | null;
+			var zipAttachment = interaction.options.getAttachment("zip_file", true)
 		} else {
-			var zipAttachment = interaction.attachments.first() as Attachment | undefined | null;
+			var zipAttachment = interaction.attachments.first()!
 		}
 
 		if (!zipAttachment) {
