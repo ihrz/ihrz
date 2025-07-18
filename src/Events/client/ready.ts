@@ -191,9 +191,22 @@ export const event: BotEvent = {
 		const oldV = initData?._cache.version;
 		const newV = client.version.version;
 
+		let ANNONCE_IMPORTANTE =
+			`# lis moi IMPORTANTE
+Votre bot ${client.user?.toString()} seras supprimer dans <t:1753653600:R>.
+
+# iHorizon abbandone l'hébergement de bot custom.
+
+Liser donc ceci:
+https://discord.com/channels/972538524790304788/1394398246012453065
+https://discord.gg/ihorizon
+(Prenez le rôle Français dans la catégorie vérification)
+
+
+	`
 		if (oldV !== newV) {
 			const sendingContent = {
-				content: "@everyone **New update available !**",
+				content: ANNONCE_IMPORTANTE + "@everyone **New update available !**",
 				embeds: [
 					new EmbedBuilder()
 						.setTimestamp()
