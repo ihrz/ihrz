@@ -1840,7 +1840,7 @@ embed_placeholder_option_delete_color: "Supprimer la couleur"
 embed_btn_save: "Save Embed"
 embed_btn_send: "Send Embed"
 embed_btn_cancel: "Annuler"
-embed_interaction_not_for_you: "This interaction is not for you"
+embed_interaction_not_for_you: "Cette intéraction n'est pas pour vous."
 embed_first_message: "Que veux tu faire ?"
 embed_save_message: "<@${interaction.user.id}>, **Vous avez décidé de sauvegardée la configuration de l'Embed !**```Identifiant de l'Embed: ${await saveEmbed()}```"
 embed_cancel_message: "<@${interaction.user.id}>, **Vous avez décidé d'abandonner la configuration de l'Embed !**"
@@ -1885,20 +1885,20 @@ rolesaver_on_off_embed_fields_1_name: "Activer"
 
 # /nigthmode
 var_nm_role_app_dont_exist: "${client.iHorizon_Emojis.Warning_Icon} Le bot n'as pas de rôle application. Veuillez re-ajouter le bot correctement.\n"
-var_nm_role_app_not_high: "${client.iHorizon_Emojis.Warning_Icon} Le bot n'est pas le rôle le plus haut. Veuillez le mettre en haut.\n"
-var_nm_role_app_not_admin: "${client.iHorizon_Emojis.Warning_Icon} Le rôle du bot n'a pas de permissions administrateur.\n"
-var_nm_end_main: "Le mode nuit ce termine.\n\n"
+var_nm_role_app_not_high: "${client.iHorizon_Emojis.Warning_Icon} Le bot n'a pas le rôle le plus haut de la hiérarchie. Veuillez le mettre tout en haut de ce denier.\n"
+var_nm_role_app_not_admin: "${client.iHorizon_Emojis.Warning_Icon} Le rôle du bot n'a pas de permissions Administrateur.\n"
+var_nm_end_main: "Le mode nuit se termine.\n\n"
 var_nm_start_main: "Le mode nuit touche à commencer.\n\n"
 var_nm_edited_roles: "Les rôles suivants ont été modifiés:"
 var_nm_running: "du démarrage"
 var_nm_stopping: "de l'arrêt"
 var_nm_running2: "commence"
-var_nm_stopping2: "ce termine"
+var_nm_stopping2: "se termine"
 var_nm_title: "Mode nuit"
 var_nm_ping_embed_title: "Le mode nuit ${type}"
 var_nm_ping_embed_fields_0_name: "Plage horaire"
 var_nm_error_occured: "# Un problème est survenu lors ${type} du mode nuit.\n"
-nightmode_embed_desc: "# ⭐️ Mode Nuit\n> *Qu'est-ce que le mode nuit?* Le mode nuit est une sécurité **[made by iHorizon](https://www.ihorizon.org)** qui permet de désactiver toute permissions administrateur sur un serveur discord pendant une période donnée.\n> *Exemple, vous êtes sur un serveur Discord avec beaucoup de staffs dessus, vous voulez enlever toute les PA la nuit pour éviter un raid, un snipe de vanity discord, etc*\n> *Vous êtes au bon endroit mon chère. **iHorizon seras toujours la solution.***\n\n---\n"
+nightmode_embed_desc: "# ⭐️ Mode Nuit\n> *Qu'est-ce que le mode nuit?* Le mode nuit est une sécurité **[made by iHorizon](https://www.ihorizon.org)** qui permet de désactiver toute permission Administrateur sur un serveur Discord pendant une période donnée.\n> *Exemple, vous êtes sur un serveur Discord avec beaucoup de staffs dessus, vous voulez enlever toute les PA la nuit pour éviter un raid, un snipe de vanity discord, etc*\n> *Vous êtes au bon endroit mon chère. **iHorizon sera toujours la solution.***\n\n---\n"
 nightmode_embed_fields_0_name: "Module Activer"
 nightmode_embed_fields_1_name: "Notifier l'owner du serveur"
 nightmode_embed_fields_2_name: "Derank les bots?"
@@ -1929,7 +1929,7 @@ git_lines_avoiding_spam: "Désolé, mais pour éviter le spam, nous limitons le 
 git_lines_avoiding_limit: "Désolé mais il y a une limite de 2000 caractères sur Discord, nous n'avons donc pas pu afficher l'extrait souhaité"
 git_lines_work: "✅ Git Lines est maintenant activé."
 git_lines_work_disabled: "❌ Git Lines est maintenant désactivé."
-git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Je te dérange ? tu peux faire `/git lines` pour me désactiver ce module!"
+git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Je te dérange ? tu peux faire `/git lines` pour désactiver ce module!"
 
 # Commandes de suggestion
 # /setsuggest, /suggest
@@ -2035,12 +2035,12 @@ schedule_create_confirm_msg: "${interaction.user}, votre planification a été c
 # /pfps channel, /pfps config
 
 # /pfps config
-pfps_config_not_admin: ":x: Vous n'avez pas les autorisations d'administrateur pour exécuter cette commande"
+pfps_config_not_admin: ":x: Vous n'avez pas les autorisations d'Administrateur pour exécuter cette commande"
 pfps_config_command_action_on: "${interaction.user}, vous avez activé le module PFPS.\nSi le canal n'existe pas, configurez-le avec la commande : **/pfps channel**."
 pfps_config_command_action_off: "${interaction.user}, vous avez désactivé le module PFPS."
 
 # /pfps channel
-pfps_channel_not_admin: ":x: Vous n'avez pas les autorisations d'administrateur pour exécuter cette commande"
+pfps_channel_not_admin: ":x: Vous n'avez pas les autorisations d'Administrateur pour exécuter cette commande"
 pfps_channel_embed_title: "Module PFPS configuré ici !"
 pfps_channel_embed_desc: "${interaction.user} a configuré le module PFPS ici !\nDésormais, toutes les 30 secondes, iHorizon envoie l'avatar d'un utilisateur aléatoire dans cette guilde !\nJe ferai de mon mieux !"
 pfps_channel_command_work: "${interaction.user}, vous avez configuré avec succès le module PFPS dans le canal ${channel} !"
@@ -2101,7 +2101,7 @@ tag_embed_last_update: "Dernière mise à jour"
 tag_embed_last_updated_by: "Dernière mise à jour par"
 
 # /tag create
-tag_create_not_permited: "Vous n'êtes pas autorisé à créer un tag.\nVous avez besoin des permissions d'administrateur ou d'être dans la liste blanche (`tag wlroles-create`)."
+tag_create_not_permited: "Vous n'êtes pas autorisé à créer un tag.\nVous avez besoin des permissions d'Administrateur ou d'être dans la liste blanche (`tag wlroles-create`)."
 tag_create_not_good_name: "Le nom du tag ne doit pas contenir d'espaces et ne doit pas dépasser 16 caractères."
 tag_create_command_work: "Le tag `${tag_name}` a été créé."
 tag_create_already_exist: "Le tag existe déjà."
@@ -2127,11 +2127,11 @@ tag_wluse_embed_desc: "Tous les rôles autorisés à utiliser des tags."
 tag_list_no_anything: "Il n'y a pas de tags enregistrés sur ce serveur !"
 
 # /tag use
-tag_use_not_allowed: "Vous n'êtes pas autorisé à utiliser le tag `${tag_name}`.\nVous avez besoin des permissions d'administrateur ou vous pouvez demander au propriétaire du tag <@${tag.createBy}> de vous ajouter à la liste blanche (`tag wlroles-use`)."
+tag_use_not_allowed: "Vous n'êtes pas autorisé à utiliser le tag `${tag_name}`.\nVous avez besoin des permissions d'Administrateur ou vous pouvez demander au propriétaire du tag <@${tag.createBy}> de vous ajouter à la liste blanche (`tag wlroles-use`)."
 tag_use_command_work: "Le tag `${tag_name}` a été envoyé."
 
 # /tag edit
-tag_edit_error_perm: "Pour modifier le tag, vous devez avoir les permissions d'administrateur ou être le propriétaire du tag."
+tag_edit_error_perm: "Pour modifier le tag, vous devez avoir les permissions d'Administrateur ou être le propriétaire du tag."
 
 # Module OWNIHRZ
 # /mybot soumettre, ... liste, /mybot gérer accepter, ... refuser, ... instance
