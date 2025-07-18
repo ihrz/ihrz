@@ -19,13 +19,13 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import sharp from 'sharp';
+import Jimp from 'jimp';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import { mkdir } from 'fs/promises';
 
-const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15 Mo
+const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15 MB
 export const tempDir = path.join(os.tmpdir(), 'media-manipulation');
 
 export async function convertToPng(buffer: Buffer): Promise<Buffer> {
@@ -33,12 +33,12 @@ export async function convertToPng(buffer: Buffer): Promise<Buffer> {
 		await mkdir(tempDir, { recursive: true });
 	}
 	try {
-		const image = sharp(buffer);
-		const metadata = await image.metadata();
+		const image = await Jimp.read(buffer);
+		const metadata = { width: image.getWidth(), height: image.getHeight() };
 
 		const width = 1920;
 		const height = 1080;
-		const aspectRatio = metadata.width! / metadata.height!;
+		const aspectRatio = metadata.width / metadata.height;
 
 		let newWidth, newHeight;
 		if (aspectRatio > (width / height)) {
@@ -51,7 +51,7 @@ export async function convertToPng(buffer: Buffer): Promise<Buffer> {
 
 		image.resize(newWidth, newHeight);
 
-		return image.toBuffer();
+		return await image.getBufferAsync(Jimp.MIME_PNG);
 	} catch (error) {
 		throw error;
 	}
@@ -63,20 +63,20 @@ export async function adjustImageQuality(imagePath: string) {
 
 	while (stats.size > MAX_IMAGE_SIZE && quality > 10) {
 		quality -= 10;
-		await sharp(imagePath)
-			.png({ quality })
-			.toFile(imagePath);
+
+		const image = await Jimp.read(imagePath);
+		await image.quality(quality).writeAsync(imagePath);
+
 		stats = fs.statSync(imagePath);
 	}
 }
 
 export async function resizeImage(inputImage: Buffer, outputPath: string, width?: number, height?: number) {
-	const image = sharp(inputImage);
-	const metadata = await image.metadata();
-
+	const image = await Jimp.read(inputImage);
+	const metadata = { width: image.getWidth(), height: image.getHeight() };
 
 	if (width && height) {
-		const aspectRatio = metadata.width! / metadata.height!;
+		const aspectRatio = metadata.width / metadata.height;
 
 		let newWidth, newHeight;
 		if (aspectRatio > (width / height)) {
@@ -87,19 +87,25 @@ export async function resizeImage(inputImage: Buffer, outputPath: string, width?
 			newWidth = Math.round(height * aspectRatio);
 		}
 
-		image
-			.resize(newWidth, newHeight)
-			.extend({
-				top: Math.round((height - newHeight) / 2),
-				bottom: Math.round((height - newHeight) / 2),
-				left: Math.round((width - newWidth) / 2),
-				right: Math.round((width - newWidth) / 2),
-				background: { r: 0, g: 0, b: 0, alpha: 1 }
-			})
-	}
+		// Resize the image maintaining aspect ratio
+		image.resize(newWidth, newHeight);
 
-	await image
-		.toFile(outputPath);
+		// Create a new image with the target dimensions and black background
+		const canvas = new Jimp(width, height, 0x000000FF); // Black background with full alpha
+
+		// Calculate centering positions
+		const x = Math.round((width - newWidth) / 2);
+		const y = Math.round((height - newHeight) / 2);
+
+		// Composite the resized image onto the canvas
+		canvas.composite(image, x, y);
+
+		// Write the final image
+		await canvas.writeAsync(outputPath);
+	} else {
+		// If no dimensions specified, just write the original image
+		await image.writeAsync(outputPath);
+	}
 
 	await adjustImageQuality(outputPath);
 

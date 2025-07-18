@@ -34,7 +34,6 @@
 		"lavalink-client": "^2.5.7",
 		"pallas-db": "^1.2.2",
 		"puppeteer": "^24.14.0",
-		"sharp": "^0.34.3",
 		"typescript-eslint": "^8.37.0",
 		"ws": "^8.18.3"
 	},
