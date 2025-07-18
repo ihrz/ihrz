@@ -182,6 +182,33 @@ export const command: Command = {
 			permission: null,
 		},
 		{
+			name: "bubbles",
+
+			description: "Add bubble on top of your own image",
+			description_localizations: {
+				fr: "ajouter une bulle au dessus de votre image",
+			},
+
+			options: [
+				{
+					name: "image",
+
+					description: "image file",
+					description_localizations: {
+						fr: "fichier image"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Attachment,
+					required: true
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null,
+		},
+		{
 			name: "fdisable",
 
 			description: "Disable the fun category",
