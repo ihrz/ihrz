@@ -45,7 +45,18 @@ async function catsay(img: string, text: string): Promise<Buffer> {
 	});
 }
 
+async function captions(img: string, text: string): Promise<Buffer> {
+	return await html2Png(globalThis.client.htmlfiles["captions"]
+		.replace("{X}", img)
+		.replace("{Z}", text), {
+		omitBackground: true,
+		selectElement: true,
+		elementSelector: ".meme-container",
+	});
+}
+
 export {
 	love,
-	catsay
+	catsay,
+	captions
 };
