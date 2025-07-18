@@ -166,31 +166,33 @@ export const event: BotEvent = {
 				}
 			}
 
-			const stats = await getShardStats(client);
+			if (client.inShard(guild.id)) {
+				const stats = await getShardStats(client);
 
-			const embed = new EmbedBuilder()
-				.setColor("#00FF00")
-				.setTimestamp(guild.joinedTimestamp)
-				.setDescription(`**A new guild added iHorizon !**`)
-				.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
-					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
-					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
-					{ name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
-					{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
-					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
-					{ name: "🥛・New members total", value: `${stats.users.toString()} members`, inline: true },
+				const embed = new EmbedBuilder()
+					.setColor("#00FF00")
+					.setTimestamp(guild.joinedTimestamp)
+					.setDescription(`**A new guild added iHorizon !**`)
+					.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
+						{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
+						{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
+						{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
+						{ name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
+						{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
+						{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
+						{ name: "🥛・New members total", value: `${stats.users.toString()} members`, inline: true },
 
-				)
-				.setThumbnail(guild.iconURL())
-				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" });
+					)
+					.setThumbnail(guild.iconURL())
+					.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" });
 
-			const logsChannel = await client.channels.fetch(client.config.core.guildLogsChannelID).catch(() => null) as TextChannel | null;
+				const logsChannel = await client.channels.fetch(client.config.core.guildLogsChannelID).catch(() => null) as TextChannel | null;
 
-			logsChannel?.send({
-				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-			}).catch(() => { });
+				logsChannel?.send({
+					embeds: [embed],
+					files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
+				}).catch(() => { });
+			}
 		};
 
 		async function setLangByRegion() {
