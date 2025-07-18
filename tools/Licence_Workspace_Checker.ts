@@ -23,6 +23,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
 import pkg from "../package.json";
+import logger from '../src/core/logger.ts';
 
 // Expected license header (first 20 lines)
 const EXPECTED_HEADER = `/*
@@ -137,7 +138,7 @@ function fixLicenseHeader(filePath: string): void {
 		const newContent = EXPECTED_HEADER + '\n\n' + remainingContent;
 
 		fs.writeFileSync(filePath, newContent, 'utf-8');
-		console.log(`✓ Fixed: ${filePath}`);
+		logger.legacy(`✓ Fixed: ${filePath}`);
 	} catch (error) {
 		console.error(`✗ Failed to fix ${filePath}: ${error}`);
 	}
@@ -164,7 +165,7 @@ function promptUser(question: string): Promise<string> {
  * Main function
  */
 async function main(): Promise<void> {
-	console.log('🔍 Starting license header check...\n');
+	logger.legacy('🔍 Starting license header check...\n');
 
 	// Check for --force argument
 	const forceMode = process.argv.includes('--force') || process.argv.includes('--force=1');
@@ -176,15 +177,15 @@ async function main(): Promise<void> {
 	for (const searchPath of SEARCH_PATHS) {
 		const files = getTypeScriptFiles(searchPath);
 		allFiles.push(...files);
-		console.log(`📁 Found ${files.length} TypeScript files in '${searchPath}'`);
+		logger.legacy(`📁 Found ${files.length} TypeScript files in '${searchPath}'`);
 	}
 
 	if (allFiles.length === 0) {
-		console.log('⚠️  No TypeScript files found in specified paths');
+		logger.legacy('⚠️  No TypeScript files found in specified paths');
 		return;
 	}
 
-	console.log(`\n📋 Total files to check: ${allFiles.length}\n`);
+	logger.legacy(`\n📋 Total files to check: ${allFiles.length}\n`);
 
 	// Check each file
 	for (const filePath of allFiles) {
@@ -193,47 +194,47 @@ async function main(): Promise<void> {
 				filePath,
 				reason: 'Missing or incorrect license header'
 			});
-			console.log(`❌ ${filePath}`);
+			logger.legacy(`❌ ${filePath}`);
 		} else {
-			console.log(`✅ ${filePath}`);
+			logger.legacy(`✅ ${filePath}`);
 		}
 	}
 
-	console.log(`\n📊 Results:`);
-	console.log(`   ✅ Files with correct header: ${allFiles.length - issues.length}`);
-	console.log(`   ❌ Files with issues: ${issues.length}`);
+	logger.legacy(`\n📊 Results:`);
+	logger.legacy(`   ✅ Files with correct header: ${allFiles.length - issues.length}`);
+	logger.legacy(`   ❌ Files with issues: ${issues.length}`);
 
 	if (issues.length === 0) {
-		console.log('\n🎉 All files have the correct license header!');
+		logger.legacy('\n🎉 All files have the correct license header!');
 		return;
 	}
 
-	console.log('\n📝 Files with issues:');
+	logger.legacy('\n📝 Files with issues:');
 	issues.forEach((issue, index) => {
-		console.log(`   ${index + 1}. ${issue.filePath} - ${issue.reason}`);
+		logger.legacy(`   ${index + 1}. ${issue.filePath} - ${issue.reason}`);
 	});
 
 	// Ask user if they want to fix the issues
 	if (!forceMode) {
-		console.log('\n🛠️  Would you like to fix these issues automatically?');
+		logger.legacy('\n🛠️  Would you like to fix these issues automatically?');
 		const answer = await promptUser('Type "y" to fix all issues, "n" to skip, or use --force to skip this prompt: ');
 
 		if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {
-			console.log('⏭️  Skipping fixes. Use --force to skip this prompt in the future.');
+			logger.legacy('⏭️  Skipping fixes. Use --force to skip this prompt in the future.');
 			return;
 		}
 	} else {
-		console.log('⏭️  Skipping fixes due to --force flag.');
+		logger.legacy('⏭️  Skipping fixes due to --force flag.');
 		return;
 	}
 
 	// Fix all issues
-	console.log('\n🔧 Fixing license headers...');
+	logger.legacy('\n🔧 Fixing license headers...');
 	for (const issue of issues) {
 		fixLicenseHeader(issue.filePath);
 	}
 
-	console.log('\n✨ All fixes completed!');
+	logger.legacy('\n✨ All fixes completed!');
 }
 
 main()
