@@ -394,7 +394,6 @@ export function generateFunctionInterfaces(
 	let interfaces = header;
 	interfaces += "\n";
 	interfaces += formatTypeScriptCode(analyzer.generateInterfaces(), readVSCodeConfig(path.join(process.cwd(), ".vscode", "settings.json")));
-	interfaces += "\n ;"
 
 	writeFileSync(outputPath, interfaces, 'utf-8');
 	logger.log(`Generated interfaces written to ${outputPath}`);
