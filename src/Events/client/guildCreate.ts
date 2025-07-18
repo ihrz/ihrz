@@ -95,6 +95,7 @@ export const event: BotEvent = {
 			const welcomeMessage = lang.new_guild_embed_title || [];
 
 			const embed_header = new EmbedBuilder()
+				.setColor("#000000")
 				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`);
 
 			const embed = new EmbedBuilder()
@@ -139,7 +140,7 @@ export const event: BotEvent = {
 
 			(channel as TextChannel).send({
 				embeds: [embed_header, embed],
-				content: 'discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
+				content: '>>> discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
 				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)],
 				components: [buttons1, buttons2]
 			}).catch(() => { });
