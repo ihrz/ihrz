@@ -302,12 +302,12 @@ class InfrastructureMonitoring {
 			for (const [guild_id, data] of Object.entries(all_guilds)) {
 				try {
 					const channelData = data as any;
-					const channel = this.client.channels.cache.get(channelData.channel_id || channelData.guild_id);
+					const channel = await this.client.channels.fetch(channelData.channel_id || channelData.guild_id).catch(() => null);
 
 					if (channel && channel.isTextBased()) {
-						const textChannel = channel as BaseGuildTextChannel;
+						const textChannel = channel as BaseGuildTextChannel | undefined;
 						try {
-							const msg = await textChannel.messages.fetch(channelData.message_id);
+							const msg = await textChannel?.messages.fetch(channelData.message_id);
 
 							if (msg) {
 								await msg.edit({

@@ -49,7 +49,7 @@ async function Refresh(client: Client) {
 const usr: Record<string, string> = {};
 async function SendMessage(client: Client, data: { guildId: string; channelId: string; }) {
 
-	const guild = client.guilds.cache.get(data.guildId);
+	const guild = await client.guilds.fetch(data.guildId).catch(() => null);
 	const channel = guild?.channels.cache.get(data.channelId);
 
 	if (!guild || !channel) return;

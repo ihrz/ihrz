@@ -24,6 +24,7 @@ import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedCha
 import logger from "../../core/logger.js";
 
 import { BotEvent } from '../../../types/event.js';
+import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 
 export const event: BotEvent = {
 	name: "guildCreate",
@@ -165,7 +166,7 @@ export const event: BotEvent = {
 				}
 			}
 
-			const usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+			const stats = await getShardStats(client);
 
 			const embed = new EmbedBuilder()
 				.setColor("#00FF00")
@@ -177,14 +178,14 @@ export const event: BotEvent = {
 					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
 					{ name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
 					{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
-					{ name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
-					{ name: "🥛・New members total", value: `${usersize} members`, inline: true },
+					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
+					{ name: "🥛・New members total", value: `${stats.users.toString()} members`, inline: true },
 
 				)
 				.setThumbnail(guild.iconURL())
 				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" });
 
-			const logsChannel = client.channels.cache.get(client.config.core.guildLogsChannelID) as TextChannel | null;
+			const logsChannel = await client.channels.fetch(client.config.core.guildLogsChannelID).catch(() => null) as TextChannel | null;
 
 			logsChannel?.send({
 				embeds: [embed],

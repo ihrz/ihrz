@@ -69,7 +69,9 @@ export default async (client: Client) => {
 
 		const data = await client.func.getLanguageData(player.guildId);
 
-		const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
+		const guild = await client.guilds.fetch(player.guildId).catch(() => null);
+
+		let channel = await guild?.channels.fetch(player.textChannelId!).catch(() => null);
 
 		let htmlContent = client.htmlfiles["musicBanner"];
 

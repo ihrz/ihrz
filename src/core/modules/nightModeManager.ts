@@ -55,7 +55,7 @@ class NightModeManager {
 	private async Refresh(nightModeData: nightModeData) {
 		for (const guildObject of nightModeData) {
 			try {
-				const guild = this.client.guilds.cache.get(guildObject.guildId);
+				const guild = await this.client.guilds.fetch(guildObject.guildId).catch(() => null);
 				if (!guild) continue;
 
 				// Check if the time is between the start and end of the night

@@ -54,7 +54,7 @@ class MemberCountModule {
 	private async Refresh(memberCountData: memberCountData) {
 		for (const guildObject of memberCountData) {
 			try {
-				const guild = this.client.guilds.cache.get(guildObject.guildId);
+				const guild = await this.client.guilds.fetch(guildObject.guildId).catch(() => null);
 				if (!guild) continue;
 
 				const onlineCount = guild.members.cache
