@@ -25,6 +25,7 @@ import { readdirSync, readFileSync, writeFileSync } from 'fs';
 import yaml from 'js-yaml';
 import path from 'path';
 import readline from 'readline';
+import { formatTypeScriptCode, readVSCodeConfig } from './formatter.js';
 
 logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
 logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
@@ -32,6 +33,25 @@ logger.legacy("[*] Please respect the terms of this license. Learn more at: http
 
 interface TypingsFiles {
 	[key: string]: string;
+}
+
+function parseArgs() {
+	const args = process.argv.slice(2); // Remove 'node' and script name
+	const result: Record<string, string> = {};
+
+	for (let i = 0; i < args.length; i++) {
+		if (args[i].startsWith('--')) {
+			const key = args[i].substring(2); // Remove '--' prefix
+			const value = args[i + 1];
+
+			if (value && !value.startsWith('--')) {
+				result[key] = value;
+				i++; // Skip next argument since we used it as value
+			}
+		}
+	}
+
+	return result;
 }
 
 function generateTypeScriptType(json: any, name: string = "Root"): string {
@@ -146,17 +166,25 @@ function generateMergedTypeString(json: any): string {
 }
 
 function promptUser(): Promise<number> {
-	const rl = readline.createInterface({
-		input: process.stdin as any,
-		output: process.stdout as any
-	});
+	const args = parseArgs();
 
-	return new Promise((resolve) => {
-		rl.question('Choose an option:\n1. [EXIT]\n2. Create TypeScript Interface files\n3. Build combined lang.json with all languages\n', (answer) => {
-			rl.close();
-			resolve(parseInt(answer, 10));
+	if (args?.type) {
+		return new Promise((resolve) => {
+			resolve(parseInt(args?.type, 10));
 		});
-	});
+	} else {
+		const rl = readline.createInterface({
+			input: process.stdin as any,
+			output: process.stdout as any
+		});
+
+		return new Promise((resolve) => {
+			rl.question('Choose an option:\n1. [EXIT]\n2. Create TypeScript Interface files\n3. Build combined lang.json with all languages\n', (answer) => {
+				rl.close();
+				resolve(parseInt(answer, 10));
+			});
+		});
+	}
 }
 
 async function main() {
@@ -216,15 +244,15 @@ async function main() {
 
 ・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-    ・   Under the following terms:
+	・   Under the following terms:
 
-        ・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-        ・ NonCommercial — You may not use the material for commercial purposes.
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-        ・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
-        ・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
@@ -235,7 +263,7 @@ async function main() {
 `
 
 		interfaceContent += `export interface LanguageData ${mergedType}`;
-		writeFileSync(outputPath, interfaceContent, 'utf-8');
+		writeFileSync(outputPath, formatTypeScriptCode(interfaceContent, readVSCodeConfig(path.join(process.cwd(), ".vscode", "settings.json"))), 'utf-8');
 		logger.log(`[+] TypeScript definition file created: ${outputPath}`);
 	} else if (userChoice === 3) {
 		// Construction du fichier lang.json avec toutes les langues

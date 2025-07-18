@@ -24,6 +24,7 @@ import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from 'discord.js';
 import logger from "../../core/logger.js";
 
 import { BotEvent } from '../../../types/event.js';
+import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 
 export const event: BotEvent = {
 	name: "guildDelete",
@@ -36,7 +37,8 @@ export const event: BotEvent = {
 
 			if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
-			const usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+			const stats = await getShardStats(client);
+			const shard_guild = await client.func.shard_helper.getGuildData(client, guild.id);
 
 			const embed = new EmbedBuilder()
 				.setColor("#ff0505")
@@ -44,18 +46,21 @@ export const event: BotEvent = {
 				.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
 					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
 					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-					{ name: "👤・MemberCount", value: `\`${guild.memberCount}\` members`, inline: true },
+					{ name: "👤・Member Count", value: `\`${shard_guild?.memberCount || "idk"}\` members`, inline: true },
 					// { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
-					{ name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
-					{ name: "🥛・New members total", value: `${usersize} members`, inline: true },
+					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
+					{ name: "🥛・New members total", value: `${stats.users} members`, inline: true },
 				)
 				.setThumbnail(guild.iconURL())
 				.setTimestamp(guild.joinedTimestamp)
 				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
 
-			const channel = client.channels.cache.get(client.config.core.guildLogsChannelID);
+			const channel = await client.channels.fetch(client.config.core.guildLogsChannelID).catch(() => null);
 
-			return (channel as BaseGuildTextChannel).send({ embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(guild)] });
+			return (channel as BaseGuildTextChannel | null)?.send({
+				embeds: [embed],
+				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
+			});
 		} catch (error: any) {
 			logger.err(error);
 		}
