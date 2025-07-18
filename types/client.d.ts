@@ -23,7 +23,6 @@ import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 
 import { GiveawayManager } from "../src/core/modules/giveawaysManager.js";
 import { Collection, Snowflake } from 'discord.js';
-import { LavalinkManager } from "lavalink-client";
 
 import { AnotherCommand } from "./anotherCommand.js";
 import { BotContent } from './botContent.js'
@@ -36,14 +35,11 @@ import emojis from "../src/files/emojis.json";
 import * as ClientVersion from "../src/version.js";
 import { Assets } from "./assets.js";
 import { ConfigData } from "./configDatad.js";
-import { StreamNotifier } from "../src/core/StreamNotifier.js";
-import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
 import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
 import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
 import type { Client_Functions } from "./client_functions.d.ts";
 import { AutoRenew } from "../src/core/modules/autorenewManager.js";
 import { EmojisManager } from "../src/core/modules/emojisManager.ts";
-import { InfrastructureMonitoring } from "../src/core/modules/infrastructureMonitoringManager.ts";
 import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
 import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
 import { PallasDB } from "pallas-db";
@@ -70,14 +66,11 @@ declare module 'discord.js' {
 		config: ConfigData,
 		isModuled?: boolean,
 		owners: string[],
-		notifier: StreamNotifier,
-		ownihrz: OwnIHRZ,
 		kdenlive: KdenLive,
 		htmlfiles: Record<string, string>,
 		memberCountManager: MemberCountModule,
 		autoRenewManager: AutoRenew,
 		emojisManager: EmojisManager,
-		infrastructureMonitoring: InfrastructureMonitoring,
 		nightmodeManager: NightModeManager,
 		githubLinesManager: GithubLinesManager,
 		// IN SHARD
