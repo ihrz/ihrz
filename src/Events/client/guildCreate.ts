@@ -95,7 +95,7 @@ export const event: BotEvent = {
 			const welcomeMessage = lang.new_guild_embed_title || [];
 
 			const embed_header = new EmbedBuilder()
-				.setColor("#000000")
+				.setColor("#2134ffff")
 				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`);
 
 			const embed = new EmbedBuilder()
