@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (Der Besitzer des Server
 # /banner
 banner_guild_embed: "**Dies ist das Banner des Gildenservers!**"
 banner_user_embed: "**Dies ist das Banner von ${user?.username}!**"
+banner_guild_no_banner: "Der Server hat kein Banner."
+banner_user_no_banner: "Dieser Benutzer hat kein Banner."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon hat den massiverole-Befehl ausgeführt.\n\n**${a}** Benutzer haben die Rolle ${role} __erhalten__\n**${s}** Benutzer hatten die Rolle ${role} __bereits__\niHorizon konnte die Rolle nicht zu **${e}** Benutzern hinzufügen."

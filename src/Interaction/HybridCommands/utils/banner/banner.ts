@@ -24,7 +24,7 @@ import {
 	ApplicationCommandType
 } from 'discord.js'
 
-import { Command } from '../../../../types/command.js';
+import { Command } from '../../../../../types/command.js';
 
 
 export const command: Command = {
@@ -38,7 +38,8 @@ export const command: Command = {
 	category: 'utils',
 	options: [
 		{
-			name: "banner-user",
+			name: "user",
+			prefixName: 'banner-user',
 
 			description: "Get the banner of a specified user!",
 			description_localizations: {
@@ -65,7 +66,8 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: "banner-server",
+			name: "server",
+			prefixName: "banner-server",
 
 			description: "Get the banner of the server!",
 			description_localizations: {

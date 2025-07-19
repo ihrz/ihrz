@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (Владелец сер
 # /banner
 banner_guild_embed: "**Это баннер сервера!**"
 banner_user_embed: "**Это баннер ${user?.username}!**"
+banner_guild_no_banner: "На сервере нет баннера."
+banner_user_no_banner: "У этого пользователя нет баннера."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon выполнил команду массовой выдачи роли.\n\n**${a}** пользователю(ям) выдана роль ${role}\n**${s}** пользователю(ям) уже имеют роль ${role}\niHorizon не смог выдать роль **${e}** пользователю(ям)."

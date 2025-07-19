@@ -25,9 +25,9 @@ import {
 	EmbedBuilder,
 	Message,
 } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from '../../../../../types/languageData.js';
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -35,11 +35,17 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
+		if (!interaction.guild.banner) {
+			client.func.method.interactionSend(interaction, {
+				content: lang.banner_guild_no_banner
+			})
+			return;
+		}
+
 		const embed = new EmbedBuilder()
 			.setColor('#c4afed')
 			.setTitle(lang.banner_guild_embed)
 			.setImage(interaction.guild.bannerURL({ extension: 'png', size: 4096 }))
-			.setThumbnail(interaction.guild.iconURL({ size: 4096 }) as string)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 
 		await client.func.method.interactionSend(interaction, {

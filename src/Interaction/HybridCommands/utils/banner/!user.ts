@@ -27,12 +27,12 @@ import {
 	User
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { axios } from '../../../core/functions/axios.js';
+import { LanguageData } from '../../../../../types/languageData.js';
+import { axios } from '../../../../core/functions/axios.js';
 
 
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -58,6 +58,13 @@ export const subCommand: SubCommand = {
 		const user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, config))?.data;
 		const banner = user_1?.banner;
 
+		if (!banner) {
+			client.func.method.interactionSend(interaction, {
+				content: lang.banner_user_no_banner
+			})
+			return;
+		}
+
 		if (banner !== null && banner?.startsWith('a_')) {
 			format = 'gif'
 		};
@@ -66,7 +73,6 @@ export const subCommand: SubCommand = {
 			.setColor('#c4afed')
 			.setTitle(lang.banner_user_embed.replace('${user?.username}', user?.username))
 			.setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
-			.setThumbnail(user?.displayAvatarURL() as string)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await client.func.method.interactionSend(interaction, {

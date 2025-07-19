@@ -889,6 +889,8 @@ blockbot_logs_disable_description: "${interaction.user} (Le propriétaire du ser
 # /banner
 banner_guild_embed: "**Tient c'est la bannière du serv !**"
 banner_user_embed: "**Tient la banniere ${user?.username} pourquoi tu fais ça enfaite , tu veut lui voler sa banniere ?! mskn**"
+banner_guild_no_banner: "Le serveur n'as pas de bannière."
+banner_user_no_banner: "Cette utilisateur n'as pas de bannière."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon à effectué la commande massiverole.\n\n**${a}** Utilisateur(s) ont __reçue__ le rôle ${role}\n**${s}** Utilisateur(s) __avait déjà__ le role ${role}\niHorizon __n'a pas réussi__ à ajoutez le rôle à **${e}** Utilisateur(s)."
