@@ -47,13 +47,6 @@ export const subCommand: SubCommand = {
 			var user: User | undefined = await client.func.method.user(interaction, args!, 0) || interaction.author;
 		};
 
-		if (!user.banner) {
-			client.func.method.interactionSend(interaction, {
-				content: lang.banner_user_no_banner
-			})
-			return;
-		}
-
 		let format = 'png';
 
 		const config = {
@@ -64,6 +57,13 @@ export const subCommand: SubCommand = {
 
 		const user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, config))?.data;
 		const banner = user_1?.banner;
+
+		if (!banner) {
+			client.func.method.interactionSend(interaction, {
+				content: lang.banner_user_no_banner
+			})
+			return;
+		}
 
 		if (banner !== null && banner?.startsWith('a_')) {
 			format = 'gif'

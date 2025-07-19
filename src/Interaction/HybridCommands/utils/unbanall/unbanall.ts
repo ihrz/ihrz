@@ -29,7 +29,7 @@ import { Command } from '../../../../../types/command.js';
 
 
 export const command: Command = {
-	name: "unbanall",
+	name: "unban",
 	name_localizations: {
 		"fr": 'unbanall'
 	},
