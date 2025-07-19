@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user}（サーバーのオー�
 # /banner
 banner_guild_embed: "**これはギルドサーバーバナーです！**"
 banner_user_embed: "**これは${user?.username}のバナーです！**"
+banner_guild_no_banner: "サーバーにはバナーがありません。"
+banner_user_no_banner: "このユーザーにはバナーがありません。"
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}、iHorizonはmassiveroleコマンドを実行しました。\n\n**${a}** ユーザーが${role}役職を__受け取りました__\n**${s}** ユーザーがすでに${role}役職を__持っていました__\niHorizonは**${e}** ユーザーに役職を追加できませんでした。"

@@ -47,6 +47,13 @@ export const subCommand: SubCommand = {
 			var user: User | undefined = await client.func.method.user(interaction, args!, 0) || interaction.author;
 		};
 
+		if (!user.banner) {
+			client.func.method.interactionSend(interaction, {
+				content: lang.banner_user_no_banner
+			})
+			return;
+		}
+
 		let format = 'png';
 
 		const config = {
@@ -66,7 +73,6 @@ export const subCommand: SubCommand = {
 			.setColor('#c4afed')
 			.setTitle(lang.banner_user_embed.replace('${user?.username}', user?.username))
 			.setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
-			.setThumbnail(user?.displayAvatarURL() as string)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await client.func.method.interactionSend(interaction, {

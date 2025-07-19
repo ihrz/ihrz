@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (مالك الخادم) 
 # /banner
 banner_guild_embed: "**هذه هي لافتة خادم الغGuild!**"
 banner_user_embed: "**هذه هي لافتة ${user?.username}!**"
+banner_guild_no_banner: "الخادم ليس لديه راية."
+banner_user_no_banner: "هذا المستخدم ليس لديه راية."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, لقد نفذت iHorizon أمر massiverole.\n\n**${a}** مستخدم __تلقى__ دور ${role}\n**${s}** مستخدم __كان لديهم بالفعل__ دور ${role}\nفشلت iHorizon في إضافة الدور إلى **${e}** مستخدم."
