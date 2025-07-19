@@ -21,63 +21,61 @@
 
 import {
 	ApplicationCommandOptionType,
-	ApplicationCommandType
+	ApplicationCommandType,
+	PermissionFlagsBits,
 } from 'discord.js'
 
-import { Command } from '../../../../types/command.js';
+import { Command } from '../../../../../types/command.js';
 
 
 export const command: Command = {
-	name: 'banner',
-
-	description: 'Pick the banner of specified things (Server/User)',
-	description_localizations: {
-		"fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+	name: "unbanall",
+	name_localizations: {
+		"fr": 'unbanall'
 	},
 
-	category: 'utils',
+	aliases: ["massunban"],
+
+	description: "Mass action about unban",
+	description_localizations: {
+		"fr": "Action de masse pour débannir"
+	},
+
 	options: [
 		{
-			name: "banner-user",
+			name: "all",
+			prefixName: "unbanall",
 
-			description: "Get the banner of a specified user!",
+			description: "Unban all member of the guild",
 			description_localizations: {
-				"fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+				"fr": "Débannir toute les personnes bannis du serveur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: 'user',
-					type: ApplicationCommandOptionType.User,
 
-					description: 'What the user then?',
-					description_localizations: {
-						"fr": "Qu'est-ce que l'utilisateur alors ?"
-					},
-
-					required: false,
-
-					permission: null
-				},
-			],
-
-			permission: null
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: "banner-server",
+			name: "undo",
+			name_localizations: {
+				"fr": 'annuler'
+			},
 
-			description: "Get the banner of the server!",
+			description: "Undo the unban all of all members",
 			description_localizations: {
-				"fr": "Récupérer la bannière du serveur"
+				"fr": "Annuler le dé-bannissement de tout les membres"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: null
-		},
+			permission: PermissionFlagsBits.Administrator
+		}
 	],
-	thinking: false,
+
+	category: 'utils',
+	thinking: true,
 	type: ApplicationCommandType.ChatInput,
-	permission: null
+
+
+	permission: PermissionFlagsBits.Administrator
 };

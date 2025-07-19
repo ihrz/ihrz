@@ -21,61 +21,65 @@
 
 import {
 	ApplicationCommandOptionType,
-	ApplicationCommandType,
-	PermissionFlagsBits,
+	ApplicationCommandType
 } from 'discord.js'
 
-import { Command } from '../../../../types/command.js';
+import { Command } from '../../../../../types/command.js';
 
 
 export const command: Command = {
-	name: "bulkunban",
-	name_localizations: {
-		"fr": 'unban'
-	},
+	name: 'banner',
 
-	aliases: ["massunban"],
-
-	description: "Mass action about unban",
+	description: 'Pick the banner of specified things (Server/User)',
 	description_localizations: {
-		"fr": "Action de masse pour débannir"
+		"fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
 	},
-
-	options: [
-		{
-			name: "all",
-			prefixName: "unbanall",
-
-			description: "Unban all member of the guild",
-			description_localizations: {
-				"fr": "Débannir toute les personnes bannis du serveur"
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: PermissionFlagsBits.Administrator
-		},
-		{
-			name: "undo",
-			name_localizations: {
-				"fr": 'annuler'
-			},
-
-			description: "Undo the unban all of all members",
-			description_localizations: {
-				"fr": "Annuler le dé-bannissement de tout les membres"
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: PermissionFlagsBits.Administrator
-		}
-	],
 
 	category: 'utils',
-	thinking: true,
+	options: [
+		{
+			name: "user",
+			prefixName: 'banner-user',
+
+			description: "Get the banner of a specified user!",
+			description_localizations: {
+				"fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			options: [
+				{
+					name: 'user',
+					type: ApplicationCommandOptionType.User,
+
+					description: 'What the user then?',
+					description_localizations: {
+						"fr": "Qu'est-ce que l'utilisateur alors ?"
+					},
+
+					required: false,
+
+					permission: null
+				},
+			],
+
+			permission: null
+		},
+		{
+			name: "server",
+			prefixName: "banner-server",
+
+			description: "Get the banner of the server!",
+			description_localizations: {
+				"fr": "Récupérer la bannière du serveur"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null
+		},
+	],
+	thinking: false,
 	type: ApplicationCommandType.ChatInput,
-
-
-	permission: PermissionFlagsBits.Administrator
+	permission: null
 };
