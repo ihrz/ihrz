@@ -209,7 +209,8 @@ export const command: Command = {
 			permission: null,
 		},
 		{
-			name: "fdisable",
+			name: "disable",
+			prefixName: "fdisable",
 
 			description: "Disable the fun category",
 			description_localizations: {
