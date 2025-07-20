@@ -75,15 +75,15 @@ export const command: Command = {
 		const tableOwner = client.db.table('OWNER');
 		const tableBlacklist = client.db.table('BLACKLIST');
 
-		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
-			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
-			return;
-		};
-
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var user = interaction.options.getUser('user', true);
 		} else {
 			var user = (await client.func.method.user(interaction, args!, 0))!;
+		};
+
+		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
+			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+			return;
 		};
 
 		if (client.config.owner.ownerid1 === user?.id || client.config.owner.ownerid2 === user?.id) {
