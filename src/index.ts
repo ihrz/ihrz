@@ -26,6 +26,8 @@ import logger from './core/logger.js';
 
 import { ShardingManager } from 'discord.js';
 import config from './files/config.js';
+import { config as conf } from 'dotenv';
+conf();
 
 const _token = await getToken();
 
