@@ -108,8 +108,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 								maxRetriesPerRequest: 3,
 								connectTimeout: 10000
 							}
-						},
-						enableVerbose: true
+						}
 					});
 
 					// Load initial data from PostgreSQL to cache
@@ -206,7 +205,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 					}
 				});
 
-				const memoryDB = new PallasDB({ dialect: "memory", tables, enableVerbose: true });
+				const memoryDB = new PallasDB({ dialect: "memory", tables, enableVerbose: process.env.DEV === "true" ? true : false });
 
 				for (const table of tables) {
 					const memoryTable = memoryDB.table(table);
