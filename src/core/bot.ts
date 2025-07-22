@@ -26,6 +26,8 @@ import * as ClientVersion from "../version.js";
 import * as core from './core.js';
 
 import config from "../files/config.js";
+import { configDotenv } from 'dotenv';
+configDotenv()
 
 const client = new Client({
 	intents: [
