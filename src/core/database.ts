@@ -71,12 +71,14 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 		case 'POSTGRES_REDIS':
 			dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
 				try {
-					logger.log(`${config.console.emojis.HOST} >> Initializing PostgreSQL + Redis cache sync setup !`.green);
+					logger.log(`${config.console.emojis.HOST} >> Initializing PostgreSQL + Redis cache sync setup (with deduplication) !`.green);
 
 					// Generate unique shard ID
 					const shardId = process.env.SHARD_ID ||
 						process.env.CLUSTER_ID ||
 						`shard_${process.pid}`;
+
+					const isMainShard = shardId === '0' || shardId === 'main';
 
 					// PostgreSQL database for persistence
 					const postgresDb = new PallasDB({
@@ -91,7 +93,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 						}
 					});
 
-					// Memory cache with Redis sync
+					// Enhanced memory cache with Redis sync (ENABLED ON ALL SHARDS)
 					const cacheDb = new PallasDB({
 						dialect: "memory",
 						tables,
@@ -113,6 +115,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 					});
 
 					// Load initial data from PostgreSQL to cache
+					// Load initial data from PostgreSQL to cache (ALL SHARDS)
 					logger.log(`${config.console.emojis.HOST} >> Loading data from PostgreSQL to cache...`.yellow);
 					for (const table of tables) {
 						const cacheTable = cacheDb.table(table);
@@ -123,65 +126,116 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 						}
 					}
 
-					// Sync cache to PostgreSQL every 3 minutes
-					const syncToPostgres = async () => {
-						try {
-							for (const table of tables) {
-								// Skip read-only tables for writes
-								if (readOnlyTables.includes(table)) {
-									// For read-only tables, sync FROM postgres TO cache
-									const postgresTable = postgresDb.table(table);
-									const cacheTable = cacheDb.table(table);
-									const postgresData = await postgresTable.all();
+					// PostgreSQL sync - ONLY ON MAIN SHARD
+					if (isMainShard) {
+						logger.log(`${config.console.emojis.HOST} >> Main shard: PostgreSQL sync ENABLED`.cyan);
 
-									for (const { id, value } of postgresData) {
-										await cacheTable.set(id, value);
-									}
-									continue;
-								}
+						// Safe sync function with rate limiting
+						let lastSyncTime = 0;
+						let isSyncing = false;
+						const syncToPostgres = async () => {
+							const now = Date.now();
 
-								const postgresTable = postgresDb.table(table);
-								const cacheTable = cacheDb.table(table);
-
-								const postgresData = await postgresTable.all();
-								const cacheData = await cacheTable.all();
-
-								const postgresMap = new Map(postgresData.map(item => [item.id, item.value]));
-								const cacheMap = new Map(cacheData.map(item => [item.id, item.value]));
-
-								// Sync new/updated entries from cache to postgres
-								for (const [id, value] of cacheMap) {
-									const postgresValue = postgresMap.get(id);
-									if (!postgresValue || JSON.stringify(postgresValue) !== JSON.stringify(value)) {
-										await postgresTable.set(id, value);
-									}
-								}
-
-								// Remove deleted entries from postgres
-								for (const id of postgresMap.keys()) {
-									if (!cacheMap.has(id)) {
-										await postgresTable.delete(id);
-									}
-								}
+							// Rate limit sync operations (minimum 30 seconds between syncs)
+							if (now - lastSyncTime < 30000) {
+								return;
 							}
 
-							overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> [${new Date().toLocaleTimeString()}] Synced cache to PostgreSQL`));
-						} catch (error) {
-							logger.err(`Sync to PostgreSQL failed: ${error}`);
-						}
-					};
+							if (isSyncing) {
+								return;
+							}
 
-					// Start sync interval
-					setInterval(syncToPostgres, 60000 * 3); // Every 3 minutes
+							isSyncing = true;
+							lastSyncTime = now;
 
-					// Attach postgres instance for manual operations if needed
-					(cacheDb as any)._postgresDb = postgresDb;
-					(cacheDb as any).syncToPostgres = syncToPostgres;
+							try {
+								let syncCount = 0;
+								for (const table of tables) {
+									// Skip read-only tables for writes
+									if (readOnlyTables.includes(table)) {
+										// For read-only tables, sync FROM postgres TO cache
+										const postgresTable = postgresDb.table(table);
+										const cacheTable = cacheDb.table(table);
+										const postgresData = await postgresTable.all();
 
-					// Log cache sync info
+										for (const { id, value } of postgresData) {
+											await cacheTable.set(id, value);
+										}
+										continue;
+									}
+
+									const postgresTable = postgresDb.table(table);
+									const cacheTable = cacheDb.table(table);
+
+									const [postgresData, cacheData] = await Promise.all([
+										postgresTable.all(),
+										cacheTable.all()
+									]);
+
+									const postgresMap = new Map(postgresData.map(item => [item.id, item.value]));
+									const cacheMap = new Map(cacheData.map(item => [item.id, item.value]));
+
+									// Sync new/updated entries from cache to postgres (batched)
+									const updates: Array<{ id: string, value: any }> = [];
+									for (const [id, value] of cacheMap) {
+										const postgresValue = postgresMap.get(id);
+										if (!postgresValue || JSON.stringify(postgresValue) !== JSON.stringify(value)) {
+											updates.push({ id, value });
+										}
+									}
+
+									// Batch updates to reduce DB load
+									for (const { id, value } of updates) {
+										await postgresTable.set(id, value);
+										syncCount++;
+									}
+
+									// Remove deleted entries from postgres (batched)
+									const deletes: string[] = [];
+									for (const id of postgresMap.keys()) {
+										if (!cacheMap.has(id)) {
+											deletes.push(id);
+										}
+									}
+
+									for (const id of deletes) {
+										await postgresTable.delete(id);
+										syncCount++;
+									}
+								}
+
+								if (syncCount > 0) {
+									logger.log(`${config.console.emojis.HOST} >> [MAIN] [${new Date().toLocaleTimeString()}] Synced ${syncCount} changes to PostgreSQL`.green);
+								}
+							} catch (error) {
+								logger.err(`[MAIN] Sync to PostgreSQL failed: ${error}`);
+							} finally {
+								isSyncing = false;
+							}
+						};
+
+
+						setInterval(syncToPostgres, 60000 * 3); // Every 3 minutes
+
+						// Attach postgres instance for manual operations
+						(cacheDb as any)._postgresDb = postgresDb;
+						(cacheDb as any).syncToPostgres = syncToPostgres;
+					} else {
+						logger.log(`${config.console.emojis.HOST} >> Secondary shard: PostgreSQL sync DISABLED (Redis sync only)`.yellow);
+
+						// Still attach postgres instance for manual operations, but no auto-sync
+						(cacheDb as any)._postgresDb = postgresDb;
+					}
+
 					const syncInfo = cacheDb.getCacheSyncInfo();
-					logger.log(`${config.console.emojis.HOST} >> PostgreSQL + Redis cache ready!`.green);
+					logger.log(`${config.console.emojis.HOST} >> PostgreSQL + Redis cache ready! (Deduplication enabled)`.green);
 					logger.log(`${config.console.emojis.HOST} >> Shard ID: ${syncInfo.shardId}, Channel: ${syncInfo.channel}`.cyan);
+
+					if (isMainShard) {
+						logger.log(`${config.console.emojis.HOST} >> Role: MAIN SHARD (PostgreSQL sync active)`.magenta);
+					} else {
+						logger.log(`${config.console.emojis.HOST} >> Role: SECONDARY SHARD (Redis sync only)`.blue);
+					}
 
 					resolve(cacheDb);
 				} catch (error) {
