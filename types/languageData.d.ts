@@ -693,6 +693,8 @@ export interface LanguageData {
 	blockbot_logs_disable_description: string;
 	banner_guild_embed: string;
 	banner_user_embed: string;
+	banner_guild_no_banner: string;
+	banner_user_no_banner: string;
 	massiverole_add_command_work: string;
 	massiverole_sub_command_work: string;
 	massiverole_too_much_member: string;
@@ -1954,4 +1956,6 @@ export interface LanguageData {
 	addrolereact_adding_role_progress: string;
 	addrolereact_role_added: string;
 	addrolereact_error: string;
+	new_guild_embed_title: string[];
+	new_guild_embed_desc: string;
 }

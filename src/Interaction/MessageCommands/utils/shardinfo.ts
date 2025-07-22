@@ -19,32 +19,40 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import config from "../../files/config.js";
-import { axios } from "./axios.js";
-import { encrypt } from "./encryptDecryptMethod.js";
-import { env } from "../../version.js";
+import {
+	BaseGuildTextChannel,
+	Client,
+	EmbedBuilder,
+	Message,
+	time,
+} from 'discord.js';
 
-export default async function getToken(): Promise<string | undefined> {
-	if (config.api.HorizonGateway && env === "production") {
-		const url = config.api.HorizonGateway + "/api/ihorizon/v1/login";
-		const key = config.api.apiToken;
+import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 
-		try {
-			const res = await axios.post(url, {
-				apiToken: encrypt(key, key),
-				clientID: encrypt(key, config.api.clientID!)
-			},
-				{
-					headers: {
-						'Accept': 'application/json'
-					}
-				}
-			);
-			return res.data?.token;
-		} catch {
-			return undefined;
-		}
-	} else {
-		return undefined;
-	}
-}
+
+export const command: Command = {
+	name: 'shardinfo',
+	aliases: [],
+
+	description: '...',
+	description_localizations: {
+		"fr": "..."
+	},
+
+	thinking: false,
+	category: 'owner',
+	type: "PREFIX_IHORIZON_COMMAND",
+
+	permission: null,
+	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
+		if (client.owners.includes(message.author.id)) {
+			let msg = `this client is on shard: ${process.pid}
+this server is on it? ${client.inShard(message.guildId) ? "yes" : "no"}
+number of shard(s): ${client.shard?.count}
+shard ids: ${client.shard?.ids}`
+				;
+			message.reply({ content: msg })
+		} else return;
+	},
+};

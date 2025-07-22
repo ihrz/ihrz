@@ -26,6 +26,7 @@
 import { AuditLogEvent, Client, GuildMember, Role, Collection } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
+import { handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -47,6 +48,12 @@ export const event: BotEvent = {
 			if (!relevantLog) {
 				return;
 			}
+
+			if (handledAuditLogEntrie_logs.has(relevantLog?.id)) {
+				return;
+			}
+
+			handledAuditLogEntrie_logs.add(relevantLog?.id);
 
 			// Extract role changes from the audit log
 			const changes = relevantLog.changes;

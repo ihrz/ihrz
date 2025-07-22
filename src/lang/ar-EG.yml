@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (مالك الخادم) 
 # /banner
 banner_guild_embed: "**هذه هي لافتة خادم الغGuild!**"
 banner_user_embed: "**هذه هي لافتة ${user?.username}!**"
+banner_guild_no_banner: "الخادم ليس لديه راية."
+banner_user_no_banner: "هذا المستخدم ليس لديه راية."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, لقد نفذت iHorizon أمر massiverole.\n\n**${a}** مستخدم __تلقى__ دور ${role}\n**${s}** مستخدم __كان لديهم بالفعل__ دور ${role}\nفشلت iHorizon في إضافة الدور إلى **${e}** مستخدم."
@@ -2624,3 +2626,14 @@ addrolereact_adding_role: "Ajout du rôle {role} en cours..."
 addrolereact_adding_role_progress: "Ajout du rôle {role} en cours pour {count} utilisateurs..."
 addrolereact_role_added: "Ajout du rôle {role} terminé. {count} utilisateurs ont reçu le rôle."
 addrolereact_error: "Erreur lors de l'exécution de la commande."
+
+# ar-EG.yml (Arabic - Egypt)
+new_guild_embed_title:
+  - "!أهلاً وسهلاً بكم في خادمكم 🎉"
+  - "!تحياتي، يا رفاق ديسكورد 👋"
+  - "!iHorizon انضم إلى المحادثة 💬"
+  - "!إنه طائر، إنه طائرة، لا، إنه iHorizon 🦸‍♂"
+  - "!دعونا نرحب ترحيباً حاراً بـ iHorizon 🔥"
+  - "!مرحباً بالمغامرة الجديدة 🚀"
+  - "!عضو جديد رائع انضم إلينا ✨"
+new_guild_embed_desc: "## ${randomMessage}\n!مرحباً بكم، أصدقائي الأعزاء\n\n.أنا iHorizon، بوت متطور مصمم لجعل تجربتكم على ديسكورد استثنائية ومليئة بالمرح\n\n:✨ ما يمكنني فعله لكم\n• إدارة الخادم بذكاء واحترافية\n• ألعاب تفاعلية وترفيه لا محدود\n• أدوات مفيدة لتنظيم المجتمع\n• دعم فني متاح على مدار الساعة\n\n.استكشفوا أوامري واكتشفوا عالماً من الإمكانيات اللامحدودة\n!معاً سنبني مجتمعاً رائعاً ومليئاً بالذكريات الجميلة\n\n!شكراً لاختياركم لي، فلنبدأ المغامرة 🌟"

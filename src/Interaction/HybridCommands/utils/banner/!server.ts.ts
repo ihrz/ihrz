@@ -20,39 +20,31 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
+	EmbedBuilder,
+	Message,
 } from 'discord.js';
+import { LanguageData } from '../../../../../types/languageData.js';
 
-import { LanguageData } from '../../../../types/languageData.js';
-
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await interaction.editReply({ content: lang.ticket_disabled_command });
-			return;
-		};
+		let embed = new EmbedBuilder()
+			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#c4afed')
+			.setTitle(lang.banner_guild_embed)
+			.setImage(interaction.guild.bannerURL({ extension: 'png', size: 4096 }))
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 
-		if (!await client.func.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
-			await interaction.editReply({ content: lang.delete_not_in_ticket });
-			return;
-		}
-
-		const name = interaction.options.getString('name')!;
-
-		interaction.channel.setName(name).then(async () => {
-			await interaction.editReply({ content: lang.ticket_rename_ok });
-		}).catch(async () => {
-			await interaction.editReply({ content: lang.ticket_rename_error });
+		await client.func.method.interactionSend(interaction, {
+			embeds: [embed],
+			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
+		return;
 	},
 };

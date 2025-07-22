@@ -22,6 +22,7 @@
 import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, PermissionFlagsBits } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { LanguageData } from '../../../types/languageData.js';
+import { handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
 
 function getDiff(
 	oldChannel: GuildChannel,
@@ -108,7 +109,13 @@ export const event: BotEvent = {
 
 		if (oldChannel.position !== newChannel.position) return;
 
-		const firstEntry = fetchedLogs.entries.first();
+		const firstEntry = fetchedLogs.entries.first()!;
+
+		if (handledAuditLogEntrie_logs.has(firstEntry?.id)) {
+			return;
+		}
+
+		handledAuditLogEntrie_logs.add(firstEntry?.id);
 
 		// check if the author is the bot
 		if (firstEntry?.executor?.id === client.user?.id) return;

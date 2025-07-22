@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (Il proprietario del ser
 # /banner
 banner_guild_embed: "**¡Este es el banner del servidor del gremio!**"
 banner_user_embed: "**¡Este es el banner de ${user?.username}!**"
+banner_guild_no_banner: "El servidor no tiene banner."
+banner_user_no_banner: "Este usuario no tiene banner."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** Usuario(s) __han recibido__ el rol ${role}\n**${s}** Usuario(s) __ya tenían__ el rol ${role}\niHorizon __no pudo__ agregar el rol a **${e}** Usuario(s)."
@@ -2631,3 +2633,14 @@ addrolereact_adding_role: "Agregando rol {role} en progreso..."
 addrolereact_adding_role_progress: "Agregando rol {role} en progreso para {count} usuarios..."
 addrolereact_role_added: "Rol {role} agregado. {count} usuarios recibieron el rol."
 addrolereact_error: "Error al ejecutar el comando."
+
+# es-ES.yml (Spanish - Spain)
+new_guild_embed_title:
+  - "¡Bienvenidos a vuestro servidor! 🎉"
+  - "¡Saludos, compañeros de Discord! 👋"
+  - "¡iHorizon se ha unido al chat! 💬"
+  - "¡Es un pájaro, es un avión, no, es iHorizon! 🦸‍♂"
+  - "¡Démosle una cálida bienvenida a iHorizon! 🔥"
+  - "¡Una nueva aventura comienza! 🚀"
+  - "¡Un miembro fantástico ha llegado! ✨"
+new_guild_embed_desc: "## ${randomMessage}\n¡Hola, queridos amigos!\n\nSoy iHorizon, un bot avanzado diseñado para hacer que vuestra experiencia en Discord sea extraordinaria y llena de diversión.\n\n✨ **Lo que puedo hacer por vosotros:**\n• Gestión del servidor con inteligencia y profesionalidad\n• Juegos interactivos y entretenimiento ilimitado\n• Herramientas útiles para la organización de la comunidad\n• Soporte técnico disponible 24/7\n\nExplorad mis comandos y sumergíos en un mundo de posibilidades infinitas.\n¡Juntos construiremos una comunidad fantástica llena de hermosos recuerdos!\n\n¡Gracias por elegirme, comencemos esta increíble aventura! 🌟"

@@ -25,6 +25,7 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
+	Message,
 	StringSelectMenuBuilder,
 	StringSelectMenuOptionBuilder,
 } from 'discord.js';
@@ -36,18 +37,24 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		const panelName = interaction.options.getString("name");
-		const panelDesc = interaction.options.getString("description");
-		const panelCategory = interaction.options.getChannel("category") as CategoryChannel | null;
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var panelName = interaction.options.getString("name");
+			var panelDesc = interaction.options.getString("description");
+			var panelCategory = interaction.options.getChannel("category") as CategoryChannel | null;
+		} else {
+			var panelName = client.func.method.string(args!, 0);
+			var panelDesc = client.func.method.string(args!, 1);
+			var panelCategory = await client.func.method.channel(interaction, args!, 2) as CategoryChannel | null;
+		}
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await interaction.editReply({ content: lang.ticket_disabled_command });
+			await client.func.method.interactionSend(interaction, { content: lang.ticket_disabled_command });
 			return;
 		};
 
@@ -63,9 +70,9 @@ export const subCommand: SubCommand = {
 					.setValue("select_panel")
 			);
 
-		const response = await interaction.editReply({
+		const response = await client.func.method.interactionSend(interaction, {
 			content: lang.sethereticket_command_type_menu_question
-				.replace("${interaction.user.id}", interaction.user.id),
+				.replace("${interaction.user.id}", interaction.member.user.id),
 			components: [
 				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
 			]
@@ -74,20 +81,20 @@ export const subCommand: SubCommand = {
 		response.awaitMessageComponent({
 			componentType: ComponentType.StringSelect,
 			time: 240_000,
-			filter: (i) => i.user.id === interaction.user.id,
+			filter: (i) => i.user.id === interaction.member?.user.id,
 		}).then(async (i) => {
 
 			if (i.values[0] === 'button_panel') {
 				await CreateButtonPanel(interaction, {
 					name: panelName,
-					author: interaction.user.id,
+					author: interaction.member?.user.id!,
 					description: panelDesc,
 					category: panelCategory?.id
 				});
 
 				await i.deferUpdate();
 
-				interaction.editReply({
+				client.func.method.interactionSend(interaction, {
 					components: [],
 					content: lang.sethereticket_command_work
 				});
@@ -98,7 +105,7 @@ export const subCommand: SubCommand = {
 
 				await CreateSelectPanel(interaction, {
 					name: panelName,
-					author: interaction.user.id,
+					author: interaction.member?.user.id!,
 					description: panelDesc,
 				});
 			};

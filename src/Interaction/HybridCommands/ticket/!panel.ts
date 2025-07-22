@@ -30,6 +30,7 @@ import {
 	Client,
 	ComponentType,
 	EmbedBuilder,
+	Message,
 	RoleSelectMenuBuilder,
 	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
@@ -74,19 +75,23 @@ import { SubCommand } from '../../../../types/command.js';
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await interaction.editReply({ content: lang.open_disabled_command });
+			await client.func.method.interactionSend(interaction, { content: lang.open_disabled_command });
 			return;
 		};
 
 		// check panel id
-		let panel_id = interaction.options.getString("panel_id");
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var panel_id = interaction.options.getString("panel_id");
+		} else {
+			var panel_id = client.func.method.string(args!, 0);
+		}
 
 		// get panel data or initialize it
 		const baseData: TicketPanel = await client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panel_id}`) || {
@@ -242,7 +247,7 @@ export const subCommand: SubCommand = {
 			components
 		});
 
-		await interaction.followUp({ content: "https://youtu.be/TehLPQ_WCwQ", flags: [1 << 6] });
+		if (interaction instanceof ChatInputCommandInteraction) await interaction.followUp({ content: "https://youtu.be/TehLPQ_WCwQ", flags: [1 << 6] });
 
 		function stringifyTicketPanelOption(fields: TicketPanel["config"]["optionFields"]): string | undefined {
 			if (!fields || fields?.length === 0) return undefined;
@@ -253,7 +258,7 @@ export const subCommand: SubCommand = {
 				_ += `${i++} - ${field.name}\n`
 				field.desc ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field2_label}: ${field.desc}\n`) : null;
 				field.emoji ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field3_label}: ${field.emoji}\n`) : null;
-				field.categoryId ? (_ += `  ┖  📂: ${interaction.guild.channels.cache.get(field.categoryId)?.name}\n`) : null;
+				field.categoryId ? (_ += `  ┖  📂: ${interaction.guild!.channels.cache.get(field.categoryId)?.name}\n`) : null;
 				_ += "\n"
 			}
 			return _ + "```";
@@ -285,7 +290,7 @@ export const subCommand: SubCommand = {
 		});
 
 		button_collector.on("collect", async (i) => {
-			if (i.user.id !== interaction.user.id) {
+			if (i.user.id !== interaction.member!.user.id) {
 				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 			};
 
@@ -300,7 +305,7 @@ export const subCommand: SubCommand = {
 		});
 
 		og_select_collector.on("collect", async (i) => {
-			if (i.user.id !== interaction.user.id) {
+			if (i.user.id !== interaction.member!.user.id) {
 				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 			};
 
@@ -400,7 +405,7 @@ export const subCommand: SubCommand = {
 			});
 
 			select_collector.on("collect", async (i) => {
-				if (i.user.id !== interaction.user.id) {
+				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
@@ -430,7 +435,7 @@ export const subCommand: SubCommand = {
 				});
 
 				channelCollector.on("collect", async (i) => {
-					if (i.user.id !== interaction.user.id) {
+					if (i.user.id !== interaction.member!.user.id) {
 						return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 					};
 
@@ -477,7 +482,7 @@ export const subCommand: SubCommand = {
 			});
 
 			channelCollector.on("collect", async (i) => {
-				if (i.user.id !== interaction.user.id) {
+				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
@@ -573,7 +578,7 @@ export const subCommand: SubCommand = {
 			});
 
 			channelCollector.on("collect", async (i) => {
-				if (i.user.id !== interaction.user.id) {
+				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
@@ -692,7 +697,7 @@ export const subCommand: SubCommand = {
 			});
 
 			roleCollector.on("collect", async (i) => {
-				if (i.user.id !== interaction.user.id) {
+				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
@@ -856,7 +861,7 @@ export const subCommand: SubCommand = {
 			});
 
 			select_collector.on("collect", async (i) => {
-				if (i.user.id !== interaction.user.id) {
+				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
@@ -994,7 +999,7 @@ export const subCommand: SubCommand = {
 			});
 
 			select_collector.on("collect", async (i) => {
-				if (i.user.id !== interaction.user.id) {
+				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
@@ -1055,7 +1060,7 @@ export const subCommand: SubCommand = {
 			});
 
 			select_collector.on("collect", async (i) => {
-				if (i.user.id !== interaction.user.id) {
+				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 
@@ -1182,7 +1187,7 @@ export const subCommand: SubCommand = {
 			});
 
 			select_collector.on("collect", async (i) => {
-				if (i.user.id !== interaction.user.id) {
+				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				};
 

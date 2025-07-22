@@ -45,8 +45,8 @@ export const getShardStats = async (client: Client) => {
 	const shardResults = await client.shard.broadcastEval(client => {
 		return {
 			guilds: client.guilds.cache.size,
-			channels: client.channels.cache.size,
-			users: client.users.cache.size
+			channels: client.guilds.cache.reduce((acc, guild) => acc + guild.channels.cache.size, 0),
+			users: client.guilds.cache.reduce((a, b) => a + b.memberCount, 0)
 		};
 	});
 

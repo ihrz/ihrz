@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (Le propriétaire du ser
 # /banner
 banner_guild_embed: "**Ceci est la bannière du serveur !**"
 banner_user_embed: "**Ceci est la bannière de ${user?.username} !**"
+banner_guild_no_banner: "Le serveur n'as pas de bannière."
+banner_user_no_banner: "Cette utilisateur n'as pas de bannière."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon à effectué la commande massiverole.\n\n**${a}** Utilisateur(s) ont __reçue__ le rôle ${role}\n**${s}** Utilisateur(s) __avait déjà__ le role ${role}\niHorizon __n'a pas réussi__ à ajoutez le rôle à **${e}** Utilisateur(s)."
@@ -2631,3 +2633,14 @@ addrolereact_adding_role: "Ajout du rôle {role} en cours..."
 addrolereact_adding_role_progress: "Ajout du rôle {role} en cours pour {count} utilisateurs..."
 addrolereact_role_added: "Ajout du rôle {role} terminé. {count} utilisateurs ont reçu le rôle."
 addrolereact_error: "Erreur lors de l'exécution de la commande."
+
+# fr-FR.yml (French - France)
+new_guild_embed_title:
+  - "Bienvenue sur votre serveur ! 🎉"
+  - "Salutations, chers amis Discord ! 👋"
+  - "iHorizon a rejoint le chat ! 💬"
+  - "C'est un oiseau, c'est un avion, non, c'est iHorizon ! 🦸‍♂"
+  - "Souhaitons la bienvenue à iHorizon ! 🔥"
+  - "Une nouvelle aventure commence ! 🚀"
+  - "Un membre fantastique nous a rejoint ! ✨"
+new_guild_embed_desc: "## ${randomMessage}\nSalut les amis extraordinaires !\n\nJe suis iHorizon, un bot avancé conçu pour rendre votre expérience Discord exceptionnelle et pleine de fun.\n\n✨ **Ce que je peux faire pour vous :**\n• Gestion du serveur avec intelligence et professionnalisme\n• Jeux interactifs et divertissement illimité\n• Outils utiles pour l'organisation de la communauté\n• Support technique disponible 24h/24 et 7j/7\n\nExplorez mes commandes et plongez dans un monde de possibilités infinies.\nEnsemble, nous construirons une communauté fantastique remplie de magnifiques souvenirs !\n\nMerci de m'avoir choisi, commençons cette incroyable aventure ! 🌟"

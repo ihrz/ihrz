@@ -33,12 +33,6 @@ import { captions } from '../../../core/images.js';
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var image = interaction.options.getAttachment("image", true);
 			var query = interaction.options.getString("query", true);

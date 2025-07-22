@@ -138,7 +138,7 @@ export async function main(client: Client) {
 			logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta);
 		});
 	});
-};
+}
 
 export function dataInitializer() {
 	const baseData: InitData = {

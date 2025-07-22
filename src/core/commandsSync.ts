@@ -21,7 +21,6 @@
 
 import { REST, Routes, Client, ApplicationCommand } from 'discord.js';
 import logger from "./logger.js";
-import getToken from './functions/getToken.js';
 
 export function removePermissionProperties(obj: any): any {
 	// If obj is an array, map through its elements
@@ -54,7 +53,7 @@ export function removePermissionProperties(obj: any): any {
 const synchronizeCommands = async (client: Client): Promise<void> => {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const rest = new REST().setToken(await getToken() || process.env.BOT_TOKEN || client.config.discord.token);
+			const rest = new REST().setToken(process.env.BOT_TOKEN || client.config.discord.token);
 
 			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`.white);
 			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`.white);

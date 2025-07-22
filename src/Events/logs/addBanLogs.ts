@@ -22,6 +22,7 @@
 import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
+import { handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
 
 export const event: BotEvent = {
 	name: "guildBanAdd",
@@ -39,7 +40,13 @@ export const event: BotEvent = {
 			limit: 1,
 		});
 
-		const firstEntry = fetchedLogs.entries.first();
+		const firstEntry = fetchedLogs.entries.first()!;
+
+		if (handledAuditLogEntrie_logs.has(firstEntry?.id)) {
+			return;
+		}
+
+		handledAuditLogEntrie_logs.add(firstEntry?.id);
 		const someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
 
 		if (!someinfo) return;
