@@ -72,7 +72,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cache
 
 	const panel = new EmbedBuilder()
 		.setTitle(data.name)
-		.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#3b8f41")
+		.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#3b8f41")
 		.setDescription(data.description || lang.sethereticket_description_embed)
 		.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 
@@ -107,7 +107,7 @@ async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cache
 		if (!TicketLogsChannel) return;
 
 		const embed = new EmbedBuilder()
-			.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
 			.setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
 			.setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc
 				.replace('${data.name}', data.name!)
@@ -332,7 +332,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 				if (!TicketLogsChannel) return;
 
 				const embed = new EmbedBuilder()
-					.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
+					.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
 					.setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
 					.setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
 					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
@@ -629,7 +629,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 		} else {
 			embeds.push(
 				new EmbedBuilder()
-					.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#3b8f41")
+					.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#3b8f41")
 					.setDescription(lang.event_ticket_embed_description
 						.replace("${user.username}", interaction.user.username)
 					)
@@ -686,7 +686,7 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 			if (!TicketLogsChannel) return;
 
 			const embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
 				.setTitle(lang.event_ticket_logsChannel_onCreationChannel_embed_title)
 				.setDescription(lang.event_ticket_logsChannel_onCreationChannel_embed_desc
 					.replace('${interaction.user}', interaction.user.toString())
@@ -909,7 +909,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			if (!TicketLogsChannel) return;
 
 			const embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
 				.setTitle(lang.event_ticket_logsChannel_onCreationChannel_embed_title)
 				.setDescription(lang.event_ticket_logsChannel_onCreationChannel_embed_desc
 					.replace('${interaction.user}', interaction.user.toString())
@@ -1043,7 +1043,7 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cach
 			if (!TicketLogsChannel) return;
 
 			const embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
 				.setTitle(data.event_ticket_logsChannel_onRemoveMember_embed_title)
 				.setDescription(data.event_ticket_logsChannel_onRemoveMember_embed_desc
 					.replace('${member}', member?.toString()!)
@@ -1081,7 +1081,7 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached"
 			if (!TicketLogsChannel) return;
 
 			const embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
 				.setTitle(data.event_ticket_logsChannel_onAddMember_embed_title)
 				.setDescription(data.event_ticket_logsChannel_onAddMember_embed_desc
 					.replace('${member}', member.toString())
@@ -1179,7 +1179,7 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 						});
 
 						const embed = new EmbedBuilder()
-							.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
+							.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
 							.setTitle(data.event_ticket_logsChannel_onDelete_embed_title)
 							.setDescription(data.event_ticket_logsChannel_onDelete_embed_desc
 								.replace('${interaction.user}', interaction.member?.user.toString()!)
@@ -1266,7 +1266,7 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached"
 		if (!TicketLogsChannel) return;
 
 		const embed = new EmbedBuilder()
-			.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
+			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
 			.setTitle(data.event_ticket_logsChannel_onAddMember2_embed_title)
 			.setDescription(data.event_ticket_logsChannel_onAddMember2_embed_desc
 				.replace('${interaction.user}', interaction.user.toString())
