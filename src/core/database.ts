@@ -28,11 +28,11 @@ import fs from 'fs';
 
 let dbInstance: PallasDB | null = null;
 
-const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
-const readOnlyTables = ["AUTHRESTORE", "OWNIHRZ", 'API'];
+export const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
+export const readOnlyTables = ["AUTHRESTORE", "OWNIHRZ", 'API'];
 
 
-const overwriteLastLine = (message: string) => {
+export const overwriteLastLine = (message: string) => {
 	process.stdout.write('\u001B[2K');
 	process.stdout.write('\u001B[G');
 	process.stdout.write(message);
@@ -61,7 +61,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 						database: config.database?.mySQL?.database!,
 						port: config.database?.mySQL?.port,
 					},
-					dialect: "postgres",
+					dialect: (process.env.PALLASDB_SEQUELIZE_ALTERNATIVE_DIALECT as "postgres" || "mysql") || "postgres",
 					tables
 				}));
 			});
@@ -72,7 +72,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 				logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup (${config.database?.method}) !`.green);
 
 				const postgresDb = new PallasDB({
-					dialect: "postgres",
+					dialect: (process.env.PALLASDB_SEQUELIZE_ALTERNATIVE_DIALECT as "postgres" || "mysql") || "postgres",
 					tables,
 					login: {
 						host: config.database?.mySQL?.host!,
