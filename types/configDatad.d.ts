@@ -107,6 +107,12 @@ export interface ConfigData {
 			database: string;
 			port?: number;
 		};
+
+		redis: {
+			host: string;
+			db: number;
+			port: number
+		}
 	};
 
 }
