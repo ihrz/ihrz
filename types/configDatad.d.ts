@@ -108,12 +108,11 @@ export interface ConfigData {
 			port?: number;
 		};
 
-		redis?: {
-			host?: string;
-			port?: number;
-			password?: string;
-			db?: number;
-		};
+		redis: {
+			host: string;
+			db: number;
+			port: number
+		}
 	};
 
 }
