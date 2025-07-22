@@ -31,7 +31,7 @@ import { config as conf } from 'dotenv';
 import { overwriteLastLine, readOnlyTables, tables } from './core/database.js';
 import { PallasDB } from 'pallas-db';
 
-conf({ debug: true });
+conf({ debug: false });
 
 const _token = await getToken();
 
@@ -98,7 +98,7 @@ let dbInstance: PallasDB | null = null;
 
 if (process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE !== null && process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE) {
 	dbInstance = await new Promise<PallasDB>(async (resolve, reject) => {
-		logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup (${config.database?.method}) !`.green);
+		logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup for multi-shard !`.green);
 
 		const postgresDb = new PallasDB({
 			dialect: (process.env.PALLASDB_SEQUELIZE_ALTERNATIVE_DIALECT as "postgres" || "mysql") || "postgres",
