@@ -1132,7 +1132,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached"> |
 						if (!TicketLogsChannel) return;
 
 						const embed = new EmbedBuilder()
-							.setColor(await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
+							.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
 							.setTitle(data.event_ticket_logsChannel_onReopen_embed_title)
 							.setDescription(data.event_ticket_logsChannel_onReopen_embed_desc
 								.replace('${interaction.user}', interaction.member?.user.toString()!)
