@@ -65,7 +65,7 @@ const client = new Client({
 		Partials.ThreadMember
 	],
 	enforceNonce: true
-})
+}); global.client = client;
 
 client.db = await initializeDatabase(config);
 client.version = ClientVersion
