@@ -108,7 +108,8 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 								maxRetriesPerRequest: 3,
 								connectTimeout: 10000
 							}
-						}
+						},
+						enableVerbose: process.env.DEV === "true" ? true : false
 					});
 
 					// Load initial data from PostgreSQL to cache
