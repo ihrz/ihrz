@@ -183,7 +183,7 @@ if (process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE) {
 			overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> Synchronized memory database to Postgres !`));
 		};
 
-		setInterval(syncToPostgres, 140);
+		setInterval(syncToPostgres, 60_000 * 5);
 		resolve(memoryDB);
 	});
 }
