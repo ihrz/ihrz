@@ -36,9 +36,7 @@ import fs from 'fs';
 
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
-import getToken from './functions/getToken.js';
 import { StreamNotifier } from './StreamNotifier.js';
-import { setMaxListeners } from 'node:events';
 import { version } from '../version.js';
 import { InitData } from '../../types/initDataType.js';
 import { getDatabaseInstance } from './database.js';
@@ -91,8 +89,6 @@ export async function main(client: Client) {
 		});
 	};
 
-	setMaxListeners(0)
-
 	global.client = client;
 	client.commands = new Collection<string, Command>();
 	client.subCommands = new Collection<string, Command>();
@@ -127,18 +123,6 @@ export async function main(client: Client) {
 	if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
 	if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
 
-	errorManager.uncaughtExceptionHandler(client);
-	client.db = getDatabaseInstance();
-	client.notifier = new StreamNotifier(
-		process.env.TWITCH_APPLICATION_ID || "",
-		process.env.TWITCH_APPLICATION_SECRET || "",
-		process.env.YOUTUBE_API_KEY || ""
-	);
-	client.githubLinesManager = new GithubLinesManager(process.env.GITHUB_API_KEY)
-
-	assetsCalc(client);
-	playerManager(client);
-
 	const handlerPath = path.join(__dirname, '..', 'core', 'handlers');
 	const handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));
 
@@ -149,8 +133,24 @@ export async function main(client: Client) {
 		}
 	}
 
+	login()
 
-	client.login(await getToken() || process.env.BOT_TOKEN || client.config.discord.token).then(async () => {
+	errorManager.uncaughtExceptionHandler(client);
+	client.db = getDatabaseInstance();
+
+	client.notifier = new StreamNotifier(
+		process.env.TWITCH_APPLICATION_ID || "",
+		process.env.TWITCH_APPLICATION_SECRET || "",
+		process.env.YOUTUBE_API_KEY || ""
+	);
+	client.githubLinesManager = new GithubLinesManager(process.env.GITHUB_API_KEY)
+
+	assetsCalc(client);
+	playerManager(client);
+};
+
+function login() {
+	client.login(process.env.BOT_TOKEN || client.config.discord.token).then(async () => {
 		const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
 
 		if (process.platform === 'win32') {
@@ -167,7 +167,7 @@ export async function main(client: Client) {
 			logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta);
 		});
 	});
-};
+}
 
 export function dataInitializer() {
 	const baseData: InitData = {
