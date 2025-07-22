@@ -109,7 +109,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 								connectTimeout: 10000
 							}
 						},
-						enableVerbose: process.env.NODE_ENV === 'development'
+						enableVerbose: true
 					});
 
 					// Load initial data from PostgreSQL to cache
@@ -206,7 +206,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 					}
 				});
 
-				const memoryDB = new PallasDB({ dialect: "memory", tables });
+				const memoryDB = new PallasDB({ dialect: "memory", tables, enableVerbose: true });
 
 				for (const table of tables) {
 					const memoryTable = memoryDB.table(table);
@@ -291,23 +291,6 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 				resolve(new PallasDB({ filePath: path.join(databasePath, 'db.sqlite'), tables, dialect: "mysql" }));
 			});
 			break;
-
-		case 'SHARDED_METHOD':
-			dbPromise = new Promise<PallasDB>((resolve, reject) => {
-				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
-				resolve(new PallasDB({
-					dialect: "redis",
-					tables,
-					redis: {
-						host: config.database?.redis?.host || 'localhost',
-						port: config.database?.redis?.port || 6379,
-						password: config.database?.redis?.password,
-						db: config.database?.redis?.db || 0
-					}
-				}));
-			});
-			break;
-
 		default:
 			dbPromise = new Promise<PallasDB>((resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
