@@ -160,6 +160,25 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 				resolve(new PallasDB({ dialect: "json", filePath: path.join(databasePath, "db.json"), tables }));
 			});
 			break;
+		case 'SQLITE':
+			dbPromise = new Promise<PallasDB>((resolve, reject) => {
+				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
+				resolve(new PallasDB({ filePath: path.join(databasePath, 'db.sqlite'), tables, dialect: "mysql" }));
+			});
+			break;
+		case 'SHARDED_METHOD':
+			dbPromise = new Promise<PallasDB>((resolve, reject) => {
+				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
+				resolve(new PallasDB({
+					dialect: "redis",
+					tables,
+					redis: {
+						host: 'localhost',
+						port: 6379
+					}
+				}));
+			});
+			break
 		default:
 			dbPromise = new Promise<PallasDB>((resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);

@@ -93,7 +93,8 @@ export interface ConfigData {
 		'JSON' | // JSON with Quick.DB
 		'SQLITE' | // Sqlite for BunDB
 		"POSTGRES2" | // PallasDB for postgres
-		"CACHED_POSTGRES2" // Quick.DB Memory Cached with PallasDB postgres 
+		"CACHED_POSTGRES2" | // Quick.DB Memory Cached with PallasDB postgres 
+		"SHARDED_METHOD" // use the brand new method with Redis
 
 		mongoDb?: string;
 
