@@ -78,7 +78,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 						process.env.CLUSTER_ID ||
 						`shard_${process.pid}`;
 
-					const isMainShard = shardId === '0' || shardId === 'main';
+					const isMainShard = client.shard?.ids[0] === 0;
 
 					// PostgreSQL database for persistence
 					const postgresDb = new PallasDB({

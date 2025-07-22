@@ -89,7 +89,6 @@ export async function main(client: Client) {
 		});
 	};
 
-	global.client = client;
 	client.commands = new Collection<string, Command>();
 	client.subCommands = new Collection<string, Command>();
 	client.message_commands = new Collection<string, Command>();
