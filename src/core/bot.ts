@@ -27,7 +27,7 @@ import * as core from './core.js';
 
 import config from "../files/config.js";
 import { configDotenv } from 'dotenv';
-configDotenv()
+configDotenv({ debug: false })
 
 const client = new Client({
 	intents: [
