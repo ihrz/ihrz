@@ -26,7 +26,7 @@ async function PfpsManager_Init(client: Client) {
 
 	setInterval(() => {
 		Refresh(client);
-	}, 60_000);
+	}, 45_000);
 }
 
 async function Refresh(client: Client) {
@@ -59,49 +59,54 @@ async function SendMessage(client: Client, data: { guildId: string; channelId: s
 		await guild.members.fetch();
 	};
 
-	let user = guild.members.cache.filter(user => !user.user.bot).random();
+	let member = guild.members.cache.filter(user => !user.user.bot).random();
 
-	if (!user) return;
+	if (!member) return;
 
 	const lang = await client.func.getLanguageData(guild.id);
 
 	// Prevent the same before and after
-	if (user.id === usr[data.guildId]) {
-		usr[data.guildId] = (user.id);
-		user = guild.members.cache.filter(user => user.id !== usr[data.guildId]).random()!;
-	} else usr[data.guildId] = (user.id);
+	if (member.id === usr[data.guildId]) {
+		usr[data.guildId] = (member.id);
+		member = guild.members.cache.filter(user => user.id !== usr[data.guildId]).random()!;
+	} else usr[data.guildId] = (member.id);
 
 	const actRow: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder();
 	const ebds = [];
 
-	const username = user.user.globalName || user.user.username;
+	const username = member.user.globalName || member.user.username;
 
-	if (user.avatarURL() !== null) {
+	if (member.avatarURL() !== null) {
+		let extension: "png" | "gif" = "png" // by default is png
+		if (member.avatar?.startsWith("a_")) extension = "gif"
 
 		actRow.addComponents(new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
-			.setURL(user.displayAvatarURL({ extension: 'png' }).toString())
+			.setURL(member.displayAvatarURL({ size: 4096, extension }).toString())
 			.setLabel(lang.pfps_download_guild_button)
 		);
 
 		ebds.push(new EmbedBuilder()
 			.setColor('#a2add0')
 			.setTitle(lang.pfps_embed_guild_title.replace('{username}', username!))
-			.setImage(user.displayAvatarURL({ extension: 'png', forceStatic: false }))
+			.setImage(member.displayAvatarURL({ extension, size: 4096 }))
 		);
 
 	};
 
+	let extension: "png" | "gif" = "png" // by default is png
+	if (member.user.avatar?.startsWith("a_")) extension = "gif"
+
 	actRow.addComponents(new ButtonBuilder()
 		.setStyle(ButtonStyle.Link)
-		.setURL(user.user.displayAvatarURL({ extension: 'png' }))
+		.setURL(member.user.displayAvatarURL({ extension, size: 4096 }))
 		.setLabel(lang.pfps_download_user_button)
 	);
 
 	ebds.push(new EmbedBuilder()
 		.setColor('#a2add0')
 		.setTitle(lang.pfps_embed_user_title.replace('{username}', username!))
-		.setImage(user.user.displayAvatarURL({ extension: 'png', forceStatic: false }))
+		.setImage(member.user.displayAvatarURL({ extension, size: 4096 }))
 		.setTimestamp()
 		.setFooter(await client.func.displayBotName.footerBuilder(channel.guild.id))
 	);
