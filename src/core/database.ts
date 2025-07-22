@@ -67,6 +67,129 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 			});
 			logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 			break;
+
+		case 'POSTGRES_REDIS':
+			dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
+				try {
+					logger.log(`${config.console.emojis.HOST} >> Initializing PostgreSQL + Redis cache sync setup !`.green);
+
+					// Generate unique shard ID
+					const shardId = process.env.SHARD_ID ||
+						process.env.CLUSTER_ID ||
+						`shard_${process.pid}`;
+
+					// PostgreSQL database for persistence
+					const postgresDb = new PallasDB({
+						dialect: (process.env.PALLASDB_SEQUELIZE_ALTERNATIVE_DIALECT as "postgres" || "mysql") || "postgres",
+						tables,
+						login: {
+							host: config.database?.mySQL?.host!,
+							port: config.database?.mySQL?.port!,
+							database: config.database?.mySQL?.database!,
+							username: config.database?.mySQL?.user!,
+							password: config.database?.mySQL?.password!,
+						}
+					});
+
+					// Memory cache with Redis sync
+					const cacheDb = new PallasDB({
+						dialect: "memory",
+						tables,
+						cacheSync: {
+							enabled: true,
+							shardId: `ihorizon_${shardId}`,
+							channel: 'ihorizon_cache_sync',
+							redis: {
+								host: config.database?.redis?.host || 'localhost',
+								port: config.database?.redis?.port || 6379,
+								password: config.database?.redis?.password,
+								db: config.database?.redis?.db || 1,
+								retryDelayOnFailover: 100,
+								maxRetriesPerRequest: 3,
+								connectTimeout: 10000
+							}
+						},
+						enableVerbose: process.env.NODE_ENV === 'development'
+					});
+
+					// Load initial data from PostgreSQL to cache
+					logger.log(`${config.console.emojis.HOST} >> Loading data from PostgreSQL to cache...`.yellow);
+					for (const table of tables) {
+						const cacheTable = cacheDb.table(table);
+						const allData = await (postgresDb.table(table)).all();
+
+						for (const { id, value } of allData) {
+							await cacheTable.set(id, value);
+						}
+					}
+
+					// Sync cache to PostgreSQL every 3 minutes
+					const syncToPostgres = async () => {
+						try {
+							for (const table of tables) {
+								// Skip read-only tables for writes
+								if (readOnlyTables.includes(table)) {
+									// For read-only tables, sync FROM postgres TO cache
+									const postgresTable = postgresDb.table(table);
+									const cacheTable = cacheDb.table(table);
+									const postgresData = await postgresTable.all();
+
+									for (const { id, value } of postgresData) {
+										await cacheTable.set(id, value);
+									}
+									continue;
+								}
+
+								const postgresTable = postgresDb.table(table);
+								const cacheTable = cacheDb.table(table);
+
+								const postgresData = await postgresTable.all();
+								const cacheData = await cacheTable.all();
+
+								const postgresMap = new Map(postgresData.map(item => [item.id, item.value]));
+								const cacheMap = new Map(cacheData.map(item => [item.id, item.value]));
+
+								// Sync new/updated entries from cache to postgres
+								for (const [id, value] of cacheMap) {
+									const postgresValue = postgresMap.get(id);
+									if (!postgresValue || JSON.stringify(postgresValue) !== JSON.stringify(value)) {
+										await postgresTable.set(id, value);
+									}
+								}
+
+								// Remove deleted entries from postgres
+								for (const id of postgresMap.keys()) {
+									if (!cacheMap.has(id)) {
+										await postgresTable.delete(id);
+									}
+								}
+							}
+
+							overwriteLastLine(logger.returnLog(`${config.console.emojis.HOST} >> [${new Date().toLocaleTimeString()}] Synced cache to PostgreSQL`));
+						} catch (error) {
+							logger.err(`Sync to PostgreSQL failed: ${error}`);
+						}
+					};
+
+					// Start sync interval
+					setInterval(syncToPostgres, 60000 * 3); // Every 3 minutes
+
+					// Attach postgres instance for manual operations if needed
+					(cacheDb as any)._postgresDb = postgresDb;
+					(cacheDb as any).syncToPostgres = syncToPostgres;
+
+					// Log cache sync info
+					const syncInfo = cacheDb.getCacheSyncInfo();
+					logger.log(`${config.console.emojis.HOST} >> PostgreSQL + Redis cache ready!`.green);
+					logger.log(`${config.console.emojis.HOST} >> Shard ID: ${syncInfo.shardId}, Channel: ${syncInfo.channel}`.cyan);
+
+					resolve(cacheDb);
+				} catch (error) {
+					logger.err(`Failed to initialize PostgreSQL + Redis: ${error}`);
+					reject(error);
+				}
+			});
+			break;
 		case 'CACHED_POSTGRES2':
 			dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup (${config.database?.method}) !`.green);
@@ -154,18 +277,21 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 				resolve(memoryDB);
 			});
 			break;
+
 		case 'JSON':
 			dbPromise = new Promise<PallasDB>((resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 				resolve(new PallasDB({ dialect: "json", filePath: path.join(databasePath, "db.json"), tables }));
 			});
 			break;
+
 		case 'SQLITE':
 			dbPromise = new Promise<PallasDB>((resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
 				resolve(new PallasDB({ filePath: path.join(databasePath, 'db.sqlite'), tables, dialect: "mysql" }));
 			});
 			break;
+
 		case 'SHARDED_METHOD':
 			dbPromise = new Promise<PallasDB>((resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
@@ -173,12 +299,15 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 					dialect: "redis",
 					tables,
 					redis: {
-						host: 'localhost',
-						port: 6379
+						host: config.database?.redis?.host || 'localhost',
+						port: config.database?.redis?.port || 6379,
+						password: config.database?.redis?.password,
+						db: config.database?.redis?.db || 0
 					}
 				}));
 			});
-			break
+			break;
+
 		default:
 			dbPromise = new Promise<PallasDB>((resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
@@ -187,14 +316,62 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 			break;
 	}
 
-	dbInstance = await dbPromise
+	dbInstance = await dbPromise;
+
+	// Setup graceful shutdown for Redis connections
+	if (dbInstance && (dbInstance as any).getCacheSyncInfo) {
+		const syncInfo = (dbInstance as any).getCacheSyncInfo();
+		if (syncInfo?.enabled) {
+			process.on('SIGINT', async () => {
+				logger.log(`${config.console?.emojis?.HOST || '🔧'} >> Disconnecting Redis cache sync...`.yellow);
+				try {
+					await dbInstance!.disconnect();
+					logger.log(`${config.console?.emojis?.HOST || '🔧'} >> Redis disconnected successfully`.green);
+				} catch (error) {
+					logger.err(`Failed to disconnect Redis: ${error}`);
+				}
+			});
+
+			process.on('SIGTERM', async () => {
+				logger.log(`${config.console?.emojis?.HOST || '🔧'} >> Disconnecting Redis cache sync...`.yellow);
+				try {
+					await dbInstance!.disconnect();
+					logger.log(`${config.console?.emojis?.HOST || '🔧'} >> Redis disconnected successfully`.green);
+				} catch (error) {
+					logger.err(`Failed to disconnect Redis: ${error}`);
+				}
+			});
+		}
+	}
 
 	return dbInstance;
-};
+}
 
 export function getDatabaseInstance(): PallasDB {
 	if (!dbInstance) {
 		throw new Error('Database has not been initialized. Call initializeDatabase first.');
 	}
 	return dbInstance;
-};
+}
+
+/**
+ * Get cache synchronization info (only for POSTGRES_REDIS method)
+ */
+export function getCacheSyncInfo() {
+	const db = getDatabaseInstance();
+	if ((db as any).getCacheSyncInfo) {
+		return (db as any).getCacheSyncInfo();
+	}
+	return { enabled: false };
+}
+
+/**
+ * Force sync cache to PostgreSQL (only for POSTGRES_REDIS method)
+ */
+export async function forcePostgresSync() {
+	const db = getDatabaseInstance();
+	if ((db as any).syncToPostgres) {
+		await (db as any).syncToPostgres();
+		logger.log('Manual sync to PostgreSQL completed!'.green);
+	}
+}
