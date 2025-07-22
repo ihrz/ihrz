@@ -114,7 +114,6 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 						enableVerbose: process.env.DEV === "true" ? true : false
 					});
 
-					// Load initial data from PostgreSQL to cache
 					// Load initial data from PostgreSQL to cache (ALL SHARDS)
 					logger.log(`${config.console.emojis.HOST} >> Loading data from PostgreSQL to cache...`.yellow);
 					for (const table of tables) {
