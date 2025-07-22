@@ -19,6 +19,10 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+function envBool(value: any): boolean {
+	return value === "1" || value?.toLowerCase() === "true";
+}
+
 import './core/functions/colors.js';
 
 import getToken from './core/functions/getToken.js';
@@ -96,7 +100,7 @@ const _token = await getToken();
  */
 let dbInstance: PallasDB | null = null;
 
-if (process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE !== null && process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE) {
+if (process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE !== null && envBool(process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE)) {
 	dbInstance = await new Promise<PallasDB>(async (resolve, reject) => {
 		logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup for multi-shard !`.green);
 
