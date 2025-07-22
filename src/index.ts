@@ -120,6 +120,7 @@ if (process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE !== null && process.env.SHOUL
 
 		for (const table of tables) {
 			const memoryTable = memoryDB.table(table);
+			await memoryTable.deleteAll()
 			const allData = await (postgresDb.table(table)).all();
 
 			for (const { id, value } of allData) {
