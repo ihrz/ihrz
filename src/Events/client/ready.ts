@@ -250,7 +250,7 @@ export const event: BotEvent = {
 				const totalUniqueUsers = new Set();
 
 				// Fetch all guilds
-				const guilds = await client.guilds.fetch();
+				const guilds = (await client.guilds.fetch()).filter(x => client.inShard(x.id));
 
 				logger.legacy('\n=== Starting Cache Loading Process ===\n');
 
