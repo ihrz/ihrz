@@ -36,6 +36,7 @@ import { removePermissionProperties } from '../../core/commandsSync.js';
 import { getCacheStorage } from '../../core/core.js';
 import { cache_storage_update } from '../../core/cache.js';
 import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
+import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 
 export const event: BotEvent = {
 	name: "ready",
@@ -124,11 +125,12 @@ export const event: BotEvent = {
 		async function refreshBotData() {
 			const ownihrz_table = client.db.table("OWNIHRZ");
 			const ownihrz_data = await ownihrz_table.get("CLUSTER")
+			const result = await getShardStats(client);
 
 			await client.db.set("BOT", {
 				"info": {
-					members: client.guilds.cache.reduce((a, b) => a + b.memberCount, 0),
-					servers: client.guilds.cache.size,
+					members: result.users,
+					servers: result.guilds,
 					shards: client.shard?.count,
 					ping: client.ws.ping
 				},
