@@ -215,7 +215,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 						};
 
 
-						setInterval(syncToPostgres, 60000 * 3); // Every 3 minutes
+						setInterval(syncToPostgres, 60000 * 5); // Every 5 minutes
 
 						// Attach postgres instance for manual operations
 						(cacheDb as any)._postgresDb = postgresDb;
