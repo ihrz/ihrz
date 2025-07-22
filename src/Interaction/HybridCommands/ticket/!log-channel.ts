@@ -20,33 +20,53 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
+	EmbedBuilder,
+	GuildChannel,
+	Message,
 } from 'discord.js';
-
-import { TicketAddMember } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await interaction.editReply({ content: lang.ticket_disabled_command });
+			await client.func.method.interactionSend(interaction, { content: lang.ticket_disabled_command });
 			return;
 		};
 
-		if (!await client.func.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
-			await interaction.editReply({ content: lang.close_not_in_ticket });
-			return;
-		};
-		await TicketAddMember(interaction);
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var channel = interaction.options.getChannel('channel', true) as GuildChannel;
+		} else {
+			var channel = await client.func.method.channel(interaction, args!, 0) as GuildChannel;
+		}
+
+		await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
+
+		const embed = new EmbedBuilder()
+			.setColor("#008000")
+			.setTitle(lang.ticket_logchannel_embed_title)
+			.setDescription(lang.ticket_logchannel_embed_desc
+				.replace('${interaction.user}', interaction.member.user.toString())
+				.replace('${channel}', channel.toString())
+			)
+			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setTimestamp();
+
+		await client.func.method.interactionSend(interaction, {
+			embeds: [embed],
+			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+		});
+		return;
 	},
 };

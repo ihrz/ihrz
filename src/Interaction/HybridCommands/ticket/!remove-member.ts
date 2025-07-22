@@ -21,33 +21,39 @@
 
 import {
 	BaseGuildTextChannel,
-	ButtonInteraction,
 	ChatInputCommandInteraction,
 	Client,
+	Message,
 } from 'discord.js';
 
-import { TicketTranscript } from '../../../core/modules/ticketsManager.js';
+import { TicketRemoveMember } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var member = interaction.options.getUser("user", true);
+		} else {
+			var member = (await interaction.client.func.method.user(interaction, args!, 0))!;
+		}
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await interaction.editReply({ content: lang.ticket_disabled_command });
+			await client.func.method.interactionSend(interaction, { content: lang.ticket_disabled_command });
 			return;
 		};
 
 		if (!await client.func.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
-			await interaction.editReply({ content: lang.transript_not_in_ticket });
+			await client.func.method.interactionSend(interaction, { content: lang.remove_not_in_ticket });
 			return;
 		}
-		await TicketTranscript(interaction as unknown as ButtonInteraction<"cached">);
-	}
+		await TicketRemoveMember(interaction, member);
+	},
 };

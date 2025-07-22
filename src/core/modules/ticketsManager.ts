@@ -48,13 +48,14 @@ import {
 	MessageActionRowComponentBuilder,
 	MessageActionRowComponentData,
 	TopLevelComponentData,
+	Message,
 } from 'discord.js';
 
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
 import { iHorizonModalResolve } from '../functions/modalHelper.js';
 import * as discordTranscripts from 'discord-html-transcripts';
 import logger from '../logger.js';
-import { TicketPanel } from '../../Interaction/SlashCommands/ticket/!panel.js';
+import { TicketPanel } from '../../Interaction/HybridCommands/ticket/!panel.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import getLanguageData from '../functions/getLanguageData.js';
 
@@ -65,7 +66,7 @@ interface CreatePanelData {
 	category?: string | undefined
 }
 
-async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cached">, data: CreatePanelData) {
+async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cached"> | Message, data: CreatePanelData) {
 
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
@@ -129,7 +130,7 @@ export interface CaseList {
 	categoryId?: string;
 }
 
-async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cached">, data: CreatePanelData) {
+async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cached"> | Message, data: CreatePanelData) {
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 	const case_list: CaseList[] = [];
 
@@ -158,7 +159,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 		.setCustomId("ticket-open-selection")
 		.setPlaceholder(data.name!);
 
-	const og_interaction = await interaction.editReply({
+	const og_interaction = await client.func.method.interactionSend(interaction, {
 		embeds: [panel_for_create],
 		components: [button],
 		content: null,
@@ -167,14 +168,14 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 
 	const collector = interaction.channel?.createMessageComponentCollector({
 		componentType: ComponentType.Button,
-		filter: (i) => i.user.id === interaction.user.id,
+		filter: (i) => i.user.id === interaction.member!.user.id,
 		time: 2_240_000
 	});
 
 	const collector2wish = og_interaction.createMessageComponentCollector({
 		componentType: ComponentType.StringSelect,
 		filter: async (i) => {
-			await i.deferUpdate(); return interaction.user.id === i.user.id;
+			await i.deferUpdate(); return interaction.member?.user.id === i.user.id;
 		},
 		time: 2_240_000
 	});
@@ -278,7 +279,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 			let desc = response?.fields.getTextInputValue("embed_desc")!;
 
 			if (desc === '') {
-				desc = lang.sethereticket_description_embed.replace("${user.username}", interaction.user.username);
+				desc = lang.sethereticket_description_embed.replace("${user.username}", interaction.member!.user.username);
 			}
 
 			button.components.forEach(x => {
@@ -925,7 +926,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 	});
 };
 
-async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
+async function CloseTicket(interaction: ChatInputCommandInteraction<"cached"> | Message) {
 	const data = await interaction.client.func.getLanguageData(interaction.guildId);
 
 	const fetch = await interaction.client.db.get(
@@ -937,7 +938,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
 			if (channel === interaction.channel?.id) {
 				const member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
-				interaction.channel.messages.fetch().then(async (messages) => {
+				interaction.channel.messages.fetch().then(async () => {
 
 					//@ts-ignore
 					const attachment = await discordTranscripts.createTranscript(interaction.channel, {
@@ -954,7 +955,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
 
 					try {
 						(interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-						interaction.editReply({ content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
+						client.func.method.interactionSend(interaction, { content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
 					} catch {
 						await interaction.client.func.method.channelSend(interaction, data.close_command_error);
 						return;
@@ -969,7 +970,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached">) {
 							.setColor("#008000")
 							.setTitle(data.event_ticket_logsChannel_onClose_embed_title)
 							.setDescription(data.event_ticket_logsChannel_onClose_embed_desc
-								.replace('${interaction.user}', interaction.user.toString())
+								.replace('${interaction.user}', interaction.member?.user.toString()!)
 								.replace('${interaction.channel.id}', interaction.channel?.id!)
 							)
 							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
@@ -1029,13 +1030,12 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 	}
 };
 
-async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cached">) {
+async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cached"> | Message, member: User) {
 	const data = await interaction.client.func.getLanguageData(interaction.guildId);
-	const member = interaction.options.getUser("user");
 
 	try {
 		(interaction.channel as BaseGuildTextChannel)?.permissionOverwrites.create(member as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-		interaction.editReply({ content: data.remove_command_work.replace(/\${member\.tag}/g, member?.username!) });
+		client.func.method.interactionSend(interaction, { content: data.remove_command_work.replace(/\${member\.tag}/g, member?.username!) });
 
 		try {
 			let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
@@ -1047,7 +1047,7 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cach
 				.setTitle(data.event_ticket_logsChannel_onRemoveMember_embed_title)
 				.setDescription(data.event_ticket_logsChannel_onRemoveMember_embed_desc
 					.replace('${member}', member?.toString()!)
-					.replace('${interaction.user}', interaction.user.toString())
+					.replace('${interaction.user}', interaction.member?.user.toString()!)
 					.replace('${interaction.channel.id}', interaction.channel?.id!)
 				)
 				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
@@ -1058,23 +1058,22 @@ async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cach
 		} catch (e) { return };
 
 	} catch {
-		await interaction.editReply({ content: data.remove_command_error });
+		await client.func.method.interactionSend(interaction, { content: data.remove_command_error });
 		return;
 	};
 };
 
-async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached">) {
+async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached"> | Message, member: User) {
 	const data = await interaction.client.func.getLanguageData(interaction.guildId);
-	const member = interaction.options.getUser("user");
 
 	if (!member) {
-		await interaction.editReply({ content: data.add_command_error });
+		await client.func.method.interactionSend(interaction, { content: data.add_command_error });
 		return;
 	};
 
 	try {
 		(interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
-		await interaction.editReply({ content: data.add_command_work.replace(/\${member\.tag}/g, member.username) });
+		await client.func.method.interactionSend(interaction, { content: data.add_command_work.replace(/\${member\.tag}/g, member.username) });
 
 		try {
 			let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
@@ -1086,7 +1085,7 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached"
 				.setTitle(data.event_ticket_logsChannel_onAddMember_embed_title)
 				.setDescription(data.event_ticket_logsChannel_onAddMember_embed_desc
 					.replace('${member}', member.toString())
-					.replace('${interaction.user}', interaction.user.toString())
+					.replace('${interaction.user}', interaction.member?.user.toString()!)
 					.replace('${interaction.channel.id}', interaction.channel?.id!)
 				)
 				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
@@ -1097,12 +1096,12 @@ async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached"
 		} catch (e) { return };
 
 	} catch (e) {
-		await interaction.editReply({ content: data.add_command_error });
+		await client.func.method.interactionSend(interaction, { content: data.add_command_error });
 		return;
 	}
 };
 
-async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) {
+async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached"> | Message) {
 	const data = await interaction.client.func.getLanguageData(interaction.guildId);
 	const fetch = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL`);
 
@@ -1120,7 +1119,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) 
 						ReadMessageHistory: true,
 					})
 						.then(() => {
-							interaction.editReply({
+							client.func.method.interactionSend(interaction, {
 								content: data.open_command_work
 									.replace(/\${interaction\.channel}/g, interaction.channel?.toString()!)
 							});
@@ -1136,7 +1135,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) 
 							.setColor("#008000")
 							.setTitle(data.event_ticket_logsChannel_onReopen_embed_title)
 							.setDescription(data.event_ticket_logsChannel_onReopen_embed_desc
-								.replace('${interaction.user}', interaction.user.toString())
+								.replace('${interaction.user}', interaction.member?.user.toString()!)
 								.replace('${interaction.channel.id}', interaction.channel.id)
 							)
 							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
@@ -1147,7 +1146,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) 
 					} catch (e) { return };
 
 				} catch (e) {
-					await interaction.editReply({ content: data.open_command_error });
+					await client.func.method.interactionSend(interaction, { content: data.open_command_error });
 					return;
 				};
 			}
@@ -1155,7 +1154,7 @@ async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached">) 
 	}
 };
 
-async function TicketDelete(interaction: Interaction<"cached">) {
+async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 	const data = await interaction.client.func.getLanguageData(interaction.guildId);
 	const fetch = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL`);
 
@@ -1163,7 +1162,7 @@ async function TicketDelete(interaction: Interaction<"cached">) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
 
-				await interaction.client.db.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+				await interaction.client.db.delete(`${interaction.guildId}.TICKET_ALL.${interaction.member?.user.id}`);
 
 				try {
 					let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
@@ -1183,7 +1182,7 @@ async function TicketDelete(interaction: Interaction<"cached">) {
 							.setColor("#008000")
 							.setTitle(data.event_ticket_logsChannel_onDelete_embed_title)
 							.setDescription(data.event_ticket_logsChannel_onDelete_embed_desc
-								.replace('${interaction.user}', interaction.user.toString())
+								.replace('${interaction.user}', interaction.member?.user.toString()!)
 								.replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
 							)
 							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
