@@ -23,31 +23,30 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
+	Message,
 } from 'discord.js';
 
-import { TicketReOpen } from '../../../core/modules/ticketsManager.js';
+import { CloseTicket } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await interaction.editReply({ content: lang.open_disabled_command });
+			await client.func.method.interactionSend(interaction, { content: lang.ticket_disabled_command });
 			return;
 		};
-
 		if (!await client.func.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
-			await TicketReOpen(interaction);
-		} else {
-			await interaction.editReply({ content: lang.open_not_in_ticket });
+			await client.func.method.interactionSend(interaction, { content: lang.close_not_in_ticket });
 			return;
-		};
+		}
+		await CloseTicket(interaction);
 	},
 };

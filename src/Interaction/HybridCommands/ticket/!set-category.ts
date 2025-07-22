@@ -20,44 +20,51 @@
 */
 
 import {
-	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	GuildChannel,
+	CategoryChannel,
+	ChatInputCommandInteraction,
+	Message,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
+import { Channel } from 'discord.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var category = interaction.options.getChannel("category-name", true) as Channel;
+		} else {
+			var category = await client.func.method.channel(interaction, args!, 0) as Channel;
+		}
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await interaction.editReply({ content: lang.ticket_disabled_command });
+			await client.func.method.interactionSend(interaction, { content: lang.ticket_disabled_command });
 			return;
 		};
-		const channel = interaction.options.getChannel('channel') as GuildChannel;
 
-		await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel?.id);
+		if (!(category instanceof CategoryChannel)) {
+			await client.func.method.interactionSend(interaction, { content: lang.setticketcategory_not_a_category });
+			return;
+		};
+
+		await client.db.set(`${interaction.guildId}.GUILD.TICKET.category`, category.id);
 
 		const embed = new EmbedBuilder()
-			.setColor("#008000")
-			.setTitle(lang.ticket_logchannel_embed_title)
-			.setDescription(lang.ticket_logchannel_embed_desc
-				.replace('${interaction.user}', interaction.user.toString())
-				.replace('${channel}', channel.toString())
-			)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-			.setTimestamp();
+			.setColor('#00FFFF')
+			.setDescription(lang.setticketcategory_command_work
+				.replace('${category.name}', category.name)
+				.replace('${interaction.user.id}', interaction.member.user.id)
+			);
 
-		await interaction.editReply({
+		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
