@@ -76,7 +76,11 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id) {
+		if (
+			((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id)
+			&&
+			interaction.guild.ownerId !== interaction.member.user.id
+		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.utils_addrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
 			});
