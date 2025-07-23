@@ -38,7 +38,6 @@ export const event: BotEvent = {
 			if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
 			const stats = await getShardStats(client);
-			const shard_guild = await client.func.shard_helper.getGuildData(client, guild.id);
 
 			const embed = new EmbedBuilder()
 				.setColor("#ff0505")
@@ -46,8 +45,8 @@ export const event: BotEvent = {
 				.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
 					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
 					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-					{ name: "👤・Member Count", value: `\`${shard_guild?.memberCount || "idk"}\` members`, inline: true },
-					// { name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
+					{ name: "👤・Member Count", value: `\`${guild.memberCount || guild.members.cache.size || "idk"}\` members`, inline: true },
+					{ name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
 					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
 					{ name: "🥛・New members total", value: `${stats.users} members`, inline: true },
 				)
