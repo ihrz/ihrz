@@ -943,6 +943,8 @@ all_bots_embed_title: "List of all bot(s) | Page ${i / usersPerPage + 1}"
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot add role to user who have higher role than you..."
 utils_addrole_command_ok: "${author.toString()} have succefully added the ${role?.toString()} role to ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | The role you want to add to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
+utils_addrole_cant_level: "The user isn’t an admin and you’re trying to give them an admin role? You trying to mess with me? You wanna crash the server or what?"
+utils_addrole_try2brain: "The bot’s role is too low in the hierarchy. I can’t assign that dumb role, sorry."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot remove role to user who have higher role than you..."

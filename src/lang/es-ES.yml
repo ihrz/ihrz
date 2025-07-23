@@ -943,6 +943,8 @@ all_bots_embed_title: "Lista de todos los bot(s) | Página ${i / usersPerPage + 
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} No puedes añadir un rol a un usuario que tiene un rol más alto que tú..."
 utils_addrole_command_ok: "${author.toString()} ha añadido con éxito el rol ${role?.toString()} a ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | El rol que deseas añadir al usuario no está en la lista blanca. Un administrador debe añadirlo primero! (usando `/utils wlroles`)"
+utils_addrole_cant_level: "El usuario no es admin y ¿quieres darle un rol de admin? ¿Estás de broma? ¿Quieres romper el servidor?"
+utils_addrole_try2brain: "El bot está demasiado abajo en la jerarquía de roles. No puedo darle ese rol tonto."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} No puedes eliminar un rol de un usuario que tiene un rol más alto que tú..."

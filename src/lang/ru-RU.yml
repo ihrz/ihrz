@@ -943,6 +943,8 @@ all_bots_embed_title: "Список всех бот(ов) | Страница ${i
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Вы не можете добавить роль пользователю, у которого роль выше вашей..."
 utils_addrole_command_ok: "${author.toString()} успешно добавил роль ${role?.toString()} пользователю ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | Роль, которую вы хотите добавить пользователю, не внесена в белый список. Администратор должен сначала добавить её! (используйте `/utils wlroles`)"
+utils_addrole_cant_level: "Пользователь не админ, а ты хочешь дать ему роль админа? Ты издеваешься? Хочешь сломать сервер?"
+utils_addrole_try2brain: "У бота слишком низкая позиция в иерархии. Я не могу выдать эту глупую роль."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Вы не можете удалить роль у пользователя, у которого роль выше вашей..."

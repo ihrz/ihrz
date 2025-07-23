@@ -943,6 +943,8 @@ all_bots_embed_title: "Lista de todos os bot(s) | Página ${i / usersPerPage + 1
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Você não pode adicionar um cargo a um usuário que tem um cargo superior ao seu..."
 utils_addrole_command_ok: "${author.toString()} adicionou com sucesso o cargo ${role?.toString()} a ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | O cargo que você deseja adicionar ao usuário não está na lista de permissões. Um administrador deve adicioná-lo primeiro! (usando `/utils wlroles`)"
+utils_addrole_cant_level: "Esse utilizador não é admin e queres dar-lhe um cargo de admin? Estás a gozar comigo? Queres lixar o servidor?"
+utils_addrole_try2brain: "O bot está demasiado abaixo na hierarquia de cargos. Não consigo atribuir esse cargo estúpido."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Você não pode remover um cargo de um usuário que tem um cargo superior ao seu..."
