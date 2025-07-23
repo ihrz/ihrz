@@ -185,12 +185,10 @@ export const event: BotEvent = {
 				.setThumbnail(guild.iconURL())
 				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" });
 
-			const logsChannel = await client.channels.fetch(client.config.core.guildLogsChannelID).catch(() => null) as TextChannel | null;
-
-			logsChannel?.send({
+			client.func.method.channelSend(client.config.core.guildLogsChannelID, {
 				embeds: [embed],
 				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-			}).catch(() => { });
+			})
 		};
 
 		async function setLangByRegion() {
