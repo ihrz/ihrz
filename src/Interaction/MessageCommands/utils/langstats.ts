@@ -61,7 +61,6 @@ export const command: Command = {
 		const allLangsStats: Record<string, number> = {};
 
 		for (const guild of all_JSON_guild_data) {
-			const guildId = guild.id;
 			const guildData = guild.value as DatabaseStructure.DbInId;
 			const lang = guildData?.GUILD?.LANG?.lang || "en-US";
 			if (allLangsStats[lang]) {
