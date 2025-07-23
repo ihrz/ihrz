@@ -87,6 +87,14 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
+
+		if (interaction.guild.members.me.roles.highest.position <= role?.position!) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.utils_addrole_try2brain
+			})
+			return;
+		}
+
 		await user.roles.remove(role?.id!, `[DelRole] Author: ${author.id}`);
 
 		await client.func.method.interactionSend(interaction, {
