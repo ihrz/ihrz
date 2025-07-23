@@ -94,13 +94,10 @@ export const event: BotEvent = {
 			const lang = await client.func.getLanguageData(guild.id);
 			const welcomeMessage = lang.new_guild_embed_title || [];
 
-			const embed_header = new EmbedBuilder()
-				.setColor("#2134ffff")
-				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`);
-
 			const embed = new EmbedBuilder()
-				.setColor(2829617)
+				.setColor("#2134ff")
 				.setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" })
+				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`)
 				.setDescription(lang.new_guild_embed_desc.replace('${randomMessage}', welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]))
 
 			const buttons1 = new ActionRowBuilder<ButtonBuilder>()
@@ -139,8 +136,7 @@ export const event: BotEvent = {
 			if (!channel) return;
 
 			(channel as TextChannel).send({
-				embeds: [embed_header, embed],
-				content: '>>> discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
+				embeds: [embed],
 				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)],
 				components: [buttons1, buttons2]
 			}).catch(() => { });
