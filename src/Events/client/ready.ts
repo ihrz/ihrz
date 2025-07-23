@@ -34,7 +34,6 @@ import { InfrastructureMonitoring } from '../../core/modules/infrastructureMonit
 import { writeFileSync } from 'node:fs';
 import { removePermissionProperties } from '../../core/commandsSync.js';
 import { getCacheStorage } from '../../core/core.js';
-import { cache_storage_update } from '../../core/cache.js';
 import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 
@@ -238,8 +237,6 @@ export const event: BotEvent = {
 			}
 
 			initData._cache.version = newV;
-			cache_storage_update();
-
 		}
 
 		// if (client.version.env === "production") {

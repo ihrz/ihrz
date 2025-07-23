@@ -21,6 +21,8 @@
 
 import { REST, Routes, Client, ApplicationCommand } from 'discord.js';
 import logger from "./logger.js";
+import { cache_storage_data } from './cache.js';
+import { createHash } from 'node:crypto';
 
 export function removePermissionProperties(obj: any): any {
 	// If obj is an array, map through its elements
@@ -50,14 +52,10 @@ export function removePermissionProperties(obj: any): any {
 	return cleanedObj;
 }
 
-const synchronizeCommands = async (client: Client): Promise<void> => {
+export async function synchronizeCommands(client: Client): Promise<void> {
 	return new Promise(async (resolve, reject) => {
 		try {
 			const rest = new REST().setToken(process.env.BOT_TOKEN || client.config.discord.token);
-
-			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`.white);
-			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`.white);
-
 			const appCmds = client.applicationsCommands.map((command) => ({
 				name: command.name,
 				type: command.type,
@@ -78,12 +76,30 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
 
 			const allCommands = [...slashCommands, ...appCmds];
 
-			const data = await rest.put(
-				Routes.applicationCommands(client.user?.id!),
-				{ body: allCommands }
-			);
+			let [actual_hash, previously_hash] = (() => {
+				let _ = JSON.stringify(allCommands);
+				_ = createHash('sha256')
+					.update(_)
+					.digest("hex");
+				return [_, cache_storage_data?.["sha256_hash_commands"]]
+			})();
 
-			logger.log(`${client.config.console.emojis.OK} >> Currently, ${(data as unknown as ApplicationCommand<{}>[]).length} applications are now synchronized.`.white);
+			cache_storage_data["sha256_hash_commands"] = actual_hash;
+
+			if (previously_hash === actual_hash) {
+				logger.log(`${client.config.console?.emojis.OK} >> synchronizeCommands: Actually, the body is the same as before, do not needed to sync.`)
+				resolve();
+			} else {
+				const data = await rest.put(
+					Routes.applicationCommands(client.user?.id!),
+					{ body: allCommands }
+				);
+
+				logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`.white);
+				logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`.white);
+				logger.log(`${client.config.console.emojis.OK} >> Currently, ${(data as unknown as ApplicationCommand<{}>[]).length} applications are now synchronized.`.white);
+			}
+
 			resolve();
 		} catch (error: any) {
 			logger.err(error);
@@ -91,5 +107,3 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
 		}
 	});
 };
-
-export default synchronizeCommands;

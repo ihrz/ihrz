@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import commandsSync from './commandsSync.js';
+import { synchronizeCommands } from './commandsSync.js';
 import logger from "./logger.js";
 
 import * as errorManager from './modules/errorManager.js';
@@ -49,7 +49,7 @@ import config from '../files/config.js';
 import { Client_Functions } from '../../types/client_functions.js';
 import { AnotherCommand } from '../../types/anotherCommand.js';
 import { EmojisManager } from './modules/emojisManager.js';
-import { cache_storage_data, cache_storage_update } from './cache.js';
+import { cache_storage_data } from './cache.js';
 import { NightModeManager } from './modules/nightModeManager.js';
 import { GithubLinesManager } from './modules/githubLinesManager.js';
 import { DiscordSlashLogParser } from './converters/slashLog.js';
@@ -158,7 +158,7 @@ function login() {
 			process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
 		};
 
-		commandsSync(client).then(() => {
+		synchronizeCommands(client).then(() => {
 			logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
 			logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
 			logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
@@ -177,9 +177,8 @@ export function dataInitializer() {
 		}
 	}
 	cache_storage_data["stored_data"] = baseData;
-	cache_storage_update();
 
-	logger.log(`${config.console.emojis.OK} >> Timestamp Generated in .uptime`);
+	logger.log(`${config.console.emojis.OK} >> dataInitializer:: Timestamp Generated in .uptime`);
 }
 
 export function getCacheStorage(): InitData {

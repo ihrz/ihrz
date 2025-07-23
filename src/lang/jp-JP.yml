@@ -943,11 +943,14 @@ all_bots_embed_title: "全てのボットのリスト | ページ ${i / usersPer
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} あなたより上位の役職を持つユーザーに役職を追加することはできません..."
 utils_addrole_command_ok: "${author.toString()} は正常に ${role?.toString()} の役職を ${user.toString()} に追加しました"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | あなたがユーザーに追加しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）"
+utils_addrole_cant_level: "そのユーザーは管理者じゃないのに、管理者ロールを付けたいの？冗談でしょ？サーバー壊したいのか？"
+utils_addrole_try2brain: "ボットのロールが下すぎて、その変なロールは付けられないよ。"
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} あなたより上位の役職を持つユーザーから役職を削除することはできません..."
 utils_delrole_command_ok: "${author.toString()} は正常に ${user.toString()} から ${role?.toString()} の役職を削除しました"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | あなたがユーザーから削除しようとしている役職はホワイトリストにありません。管理者が最初に追加する必要があります！（ `/utils wlroles` を使用）"
+utils_delrole_try2brain: "ボットのロールが下すぎて、その変なロールは外せないよ。"
 
 # /utils wlroles
 utils_wlroles_embed_title: "ホワイトリストの役職"

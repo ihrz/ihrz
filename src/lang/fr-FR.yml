@@ -943,11 +943,14 @@ all_bots_embed_title: "Liste de tous les bot(s) | Page ${i / usersPerPage + 1}"
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Vous ne pouvez pas ajouter un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
 utils_addrole_command_ok: "${author.toString()} a ajouté avec succès le rôle ${role?.toString()} à ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | Le rôle que vous souhaitez ajouter à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
+utils_addrole_cant_level: "Le membre n’est pas administrateur, et tu veux lui filer un rôle d’admin ? Tu veux me piéger ou quoi ? Tu veux faire crasher le serveur, sérieux ?"
+utils_addrole_try2brain: "Le bot est placé trop bas dans l’ordre des rôles. Je peux pas lui attribuer ce rôle, même si c’est pour jouer au malin."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Vous ne pouvez pas supprimer un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
 utils_delrole_command_ok: "${author.toString()} a supprimé avec succès le rôle ${role?.toString()} à ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | Le rôle que vous souhaitez supprimer à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
+utils_delrole_try2brain: "Le bot est placé trop bas dans l’ordre des rôles. Je peux pas lui enlever ce rôle, même si c’est pour jouer au malin."
 
 # /utils wlroles
 utils_wlroles_embed_title: "Rôles dans la liste blanche"
