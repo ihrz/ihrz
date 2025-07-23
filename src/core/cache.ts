@@ -34,7 +34,7 @@ const SAVE_DELAY = 50; // 50ms debounce
 
 // Auto-save function with debouncing
 const cache_storage_update = () => {
-	fs.writeFileSync(cache_storage_path, JSON.stringify(_cache_storage_data, null, 4));
+	fs.writeFileSync(cache_storage_path, JSON.stringify(_cache_storage_data, null, 1));
 };
 
 const debouncedSave = () => {
