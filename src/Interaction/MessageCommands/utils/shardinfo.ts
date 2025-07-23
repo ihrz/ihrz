@@ -50,7 +50,10 @@ export const command: Command = {
 			let msg = `this client is on shard: ${process.pid}
 this server is on it? ${client.inShard(message.guildId) ? "yes" : "no"}
 number of shard(s): ${client.shard?.count}
-shard ids: ${client.shard?.ids}`
+shard ids: ${client.shard?.ids}
+servers on this shard: ${client.guilds.cache.size}
+members on this shard: ${client.guilds.cache.reduce((a, b) => a + b.memberCount, 0)}
+`
 				;
 			message.reply({ content: msg })
 		} else return;
