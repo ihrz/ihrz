@@ -20,6 +20,7 @@
 */
 
 import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, Client, EmbedBuilder } from 'discord.js';
+import { DatabaseStructure } from '../../../types/database_structure';
 
 async function PfpsManager_Init(client: Client) {
 	Refresh(client);
@@ -32,10 +33,10 @@ async function PfpsManager_Init(client: Client) {
 async function Refresh(client: Client) {
 	const all = await client.db.all();
 
-	all.forEach((v: any) => {
+	all.forEach((v: { id: string, value: DatabaseStructure.DbInId }) => {
 		if (Number(v.id) && client.inShard(v.id)) {
 			if (!v.value.PFPS) return;
-			if (v.value.PFPS.config) return;
+			if (v.value.PFPS.disable) return;
 			if (!v.value.PFPS.channel) return;
 
 			SendMessage(client, {

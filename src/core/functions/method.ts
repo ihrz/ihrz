@@ -315,7 +315,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 			required: option.required || false,
 			longString: option.type === 3 && !option.choices
 		};
-		
+
 		if (argType === "attachment") {
 			attachmentArgs.push(argBrief);
 		} else {
@@ -481,7 +481,7 @@ export async function interactionSend(
 	}
 }
 
-export async function channelSend(interaction: Message | ChatInputCommandInteraction<"cached"> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel, options: string | MessageReplyOptions | MessageEditOptions): Promise<Message> {
+export async function channelSend(interaction: string | Message | ChatInputCommandInteraction<"cached"> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel, options: string | MessageReplyOptions | MessageEditOptions): Promise<Message> {
 	const nonce = SnowflakeUtil.generate().toString();
 	let replyOptions: MessageReplyOptions;
 
@@ -496,10 +496,178 @@ export async function channelSend(interaction: Message | ChatInputCommandInterac
 		} as MessageReplyOptions;
 	}
 
+	// Handle string channelId case
+	if (typeof interaction === "string") {
+		const channelId = interaction;
+
+		if (!client.shard) {
+			// No sharding - fetch normally
+			const channel = await client.channels.fetch(channelId) as BaseGuildTextChannel;
+			return await channel.send(replyOptions);
+		} else {
+			// Sharding - use broadcastEval to find and send
+			try {
+				const results = await client.shard.broadcastEval(async (c, { channelId, messageOptions }) => {
+					const channel = c.channels.cache.get(channelId) as BaseGuildTextChannel;
+					if (channel) {
+						try {
+							const sentMessage = await channel.send(messageOptions as MessagePayload);
+							return {
+								success: true,
+								messageId: sentMessage.id,
+								channelId: sentMessage.channelId,
+								shardId: c.shard?.ids[0]
+							};
+						} catch (error) {
+							return {
+								success: false,
+								error: error.message,
+								shardId: c.shard?.ids[0]
+							};
+						}
+					}
+					return null;
+				}, {
+					context: {
+						channelId: channelId,
+						messageOptions: replyOptions
+					}
+				});
+
+				// Find successful result
+				const successfulResult = results?.find(result => result?.success);
+
+				if (successfulResult) {
+					// Create a mock Message object since we can't return the actual message from another shard
+					return {
+						id: successfulResult.messageId,
+						channelId: successfulResult.channelId,
+						content: replyOptions.content || '',
+					} as Message;
+				} else {
+					throw new Error('Failed to send message: Channel not found on any shard');
+				}
+			} catch (error) {
+				throw new Error(`Failed to send message to channel ${channelId}: Cross-shard communication failed`);
+			}
+		}
+	}
+
+	// Handle BaseGuildTextChannel case
 	if (interaction instanceof BaseGuildTextChannel) {
-		return await interaction.send(replyOptions)!;
-	} else {
-		return await (interaction.channel as BaseGuildTextChannel)?.send(replyOptions)!;
+		const targetChannel = interaction;
+
+		// If no sharding or channel is in cache, send normally
+		if (!client.shard || client.channels.cache.has(targetChannel.id)) {
+			return await targetChannel.send(replyOptions);
+		}
+
+		// Cross-shard logic: try to find and send on the correct shard
+		try {
+			const results = await client.shard.broadcastEval(async (c, { channelId, messageOptions }) => {
+				const channel = c.channels.cache.get(channelId) as BaseGuildTextChannel;
+				if (channel) {
+					try {
+						const sentMessage = await channel.send(messageOptions as MessagePayload);
+						return {
+							success: true,
+							messageId: sentMessage.id,
+							channelId: sentMessage.channelId,
+							shardId: c.shard?.ids[0]
+						};
+					} catch (error) {
+						return {
+							success: false,
+							error: error.message,
+							shardId: c.shard?.ids[0]
+						};
+					}
+				}
+				return null;
+			}, {
+				context: {
+					channelId: targetChannel.id,
+					messageOptions: replyOptions
+				}
+			});
+
+			// Find successful result
+			const successfulResult = results?.find(result => result?.success);
+
+			if (successfulResult) {
+				// Create a mock Message object since we can't return the actual message from another shard
+				return {
+					id: successfulResult.messageId,
+					channelId: successfulResult.channelId,
+					content: replyOptions.content || '',
+				} as Message;
+			} else {
+				const errors = results?.filter(r => r && !r.success);
+				throw new Error('Failed to send message: Channel not found on any shard');
+			}
+		} catch (error) {
+			// Fallback to normal send (will likely fail but maintains original behavior)
+			return await targetChannel.send(replyOptions);
+		}
+	}
+
+	// Handle Message/Interaction objects case
+	const targetChannel = interaction.channel as BaseGuildTextChannel;
+
+	if (!targetChannel) {
+		throw new Error('Channel not found');
+	}
+
+	// If no sharding or channel is in cache, send normally
+	if (!client.shard || client.channels.cache.has(targetChannel.id)) {
+		return await targetChannel.send(replyOptions);
+	}
+
+	// Cross-shard logic for interaction channels
+	try {
+		const results = await client.shard.broadcastEval(async (c, { channelId, messageOptions }) => {
+			const channel = c.channels.cache.get(channelId) as BaseGuildTextChannel;
+			if (channel) {
+				try {
+					const sentMessage = await channel.send(messageOptions as MessagePayload);
+					return {
+						success: true,
+						messageId: sentMessage.id,
+						channelId: sentMessage.channelId,
+						shardId: c.shard?.ids[0]
+					};
+				} catch (error) {
+					return {
+						success: false,
+						error: error.message,
+						shardId: c.shard?.ids[0]
+					};
+				}
+			}
+			return null;
+		}, {
+			context: {
+				channelId: targetChannel.id,
+				messageOptions: replyOptions
+			}
+		});
+
+		// Find successful result
+		const successfulResult = results?.find(result => result?.success);
+
+		if (successfulResult) {
+			// Create a mock Message object
+			return {
+				id: successfulResult.messageId,
+				channelId: successfulResult.channelId,
+				content: replyOptions.content || '',
+			} as Message;
+		} else {
+			throw new Error('Failed to send message: Channel not found on any shard');
+		}
+	} catch (error) {
+		// Fallback to normal send
+		return await targetChannel.send(replyOptions);
 	}
 }
 

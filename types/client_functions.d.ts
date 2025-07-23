@@ -41,19 +41,6 @@ declare namespace Client_Functions {
 	export namespace colors {
 	}
 
-	// From axios.ts
-	export namespace axios {
-	}
-
-	// From encryptDecryptMethod.ts
-	export namespace encryptDecryptMethod {
-		export function encrypt(k: string, text: string): string;
-		export function decrypt(k: string, text: string): string | undefined;
-	}
-
-	// From getToken.ts
-	export function getToken(): Promise<string | undefined>;
-
 	// From date_and_time.ts
 	export function date_and_time(date: number | Date, formatString: string): string;
 
@@ -64,6 +51,10 @@ declare namespace Client_Functions {
 			options: { cluster_number: number; cluster_method: ClusterMethod; bot_id?: string; discord_bot_token?: string; forceDatabaseSet?: boolean; }
 		): string;
 		export function HorizonGateway(gateway_method: GatewayMethod): string;
+	}
+
+	// From axios.ts
+	export namespace axios {
 	}
 
 	// From ms.ts
@@ -256,7 +247,7 @@ declare namespace Client_Functions {
 			options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
 		): Promise<Message<boolean>>;
 		export function channelSend(
-			interaction: ChatInputCommandInteraction<"cached"> | Message<boolean> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel,
+			interaction: string | ChatInputCommandInteraction<"cached"> | Message<boolean> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel,
 			options: string | MessageReplyOptions | MessageEditOptions
 		): Promise<Message<boolean>>;
 		export function reply(message: Message<boolean>, options: string | MessageReplyOptions): Promise<Message<boolean>>;
@@ -284,6 +275,12 @@ declare namespace Client_Functions {
 	export namespace leashModuleHelper {
 		export function isInVoiceChannel(member: GuildMember): any;
 		export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
+	}
+
+	// From encryptDecryptMethod.ts
+	export namespace encryptDecryptMethod {
+		export function encrypt(k: string, text: string): string;
+		export function decrypt(k: string, text: string): string | undefined;
 	}
 
 	// From displayBotName.ts

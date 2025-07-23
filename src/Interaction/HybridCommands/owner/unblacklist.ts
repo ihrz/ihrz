@@ -116,7 +116,7 @@ export const command: Command = {
 			processBatchAsync(
 				guildObjects,
 				async (guild) => {
-					if (guild.members.me?.permissions.has("BanMembers")) {
+					if (guild.members.me?.permissions.has("BanMembers") && guild.memberCount <= 500) {
 						try {
 							await guild.members.unban(bannedMember.id!, "iHorizon Unblacklist");
 							return true;

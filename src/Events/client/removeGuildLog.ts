@@ -55,12 +55,10 @@ export const event: BotEvent = {
 				.setTimestamp(guild.joinedTimestamp)
 				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
 
-			const channel = await client.channels.fetch(client.config.core.guildLogsChannelID).catch(() => null);
-
-			return (channel as BaseGuildTextChannel | null)?.send({
+			client.func.method.channelSend(client.config.core.guildLogsChannelID, {
 				embeds: [embed],
 				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-			});
+			})
 		} catch (error: any) {
 			logger.err(error);
 		}
