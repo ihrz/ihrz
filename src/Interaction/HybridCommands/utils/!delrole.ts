@@ -90,7 +90,7 @@ export const subCommand: SubCommand = {
 
 		if (interaction.guild.members.me.roles.highest.position <= role?.position!) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_addrole_try2brain
+				content: lang.utils_delrole_try2brain
 			})
 			return;
 		}

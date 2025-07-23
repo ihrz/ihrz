@@ -951,6 +951,7 @@ utils_addrole_try2brain: "البوت مكانه تحت في ترتيب الأد�
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} لا يمكنك إزالة دور من مستخدم يمتلك دورًا أعلى منك..."
 utils_delrole_command_ok: "${author.toString()} قام بإزالة الدور ${role?.toString()} بنجاح من ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | الدور الذي تريد حذفه من المستخدم غير مدرج في القائمة البيضاء. يجب على المسؤول إضافته أولاً! (باستخدام `/utils wlroles`)"
+utils_delrole_try2brain: "البوت مكانه تحت في ترتيب الأدوار. مش قادر أشيل الدور الغبي ده."
 
 # /utils wlroles
 utils_wlroles_embed_title: "الأدوار المسموح بها"

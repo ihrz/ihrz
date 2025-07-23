@@ -732,6 +732,7 @@ export interface LanguageData {
 	utils_delrole_highter_or_egal_roles_msg: string;
 	utils_delrole_command_ok: string;
 	utils_delrole_not_wl: string;
+	utils_delrole_try2brain: string;
 	utils_wlroles_embed_title: string;
 	utils_wlroles_embed_desc: string;
 	utils_wlRoles_logsEmbed_title: string;

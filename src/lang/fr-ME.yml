@@ -952,6 +952,7 @@ utils_addrole_try2brain: "le bot est trop bas par rapport au rôles. je ne peux 
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Vous ne pouvez pas supprimer un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
 utils_delrole_command_ok: "${author.toString()} a supprimé avec succès le rôle ${role?.toString()} à ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | Le rôle que vous souhaitez supprimer à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
+utils_delrole_try2brain: "le bot est trop bas par rapport au rôles. je ne peux pas supprimer sont rôle de con là"
 
 # /utils wlroles
 utils_wlroles_embed_title: "Rôles dans la liste blanche"

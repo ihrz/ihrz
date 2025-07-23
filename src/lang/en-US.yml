@@ -950,6 +950,7 @@ utils_addrole_try2brain: "The bot’s role is too low in the hierarchy. I can’
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot remove role to user who have higher role than you..."
 utils_delrole_command_ok: "${author.toString()} have succefully removed the ${role?.toString()} role to ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | The role you want to delete to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
+utils_delrole_try2brain: "The bot’s role is too low in the hierarchy. I can’t remove that dumb role, sorry."
 
 # /utils wlroles
 utils_wlroles_embed_title: "Whitelist Role"

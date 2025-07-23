@@ -950,6 +950,7 @@ utils_addrole_try2brain: "O bot está demasiado abaixo na hierarquia de cargos. 
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Você não pode remover um cargo de um usuário que tem um cargo superior ao seu..."
 utils_delrole_command_ok: "${author.toString()} removeu com sucesso o cargo ${role?.toString()} de ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | O cargo que você deseja remover do usuário não está na lista de permissões. Um administrador deve adicioná-lo primeiro! (usando `/utils wlroles`)"
+utils_delrole_try2brain: "O bot está demasiado abaixo na hierarquia de cargos. Não consigo remover esse cargo estúpido."
 
 # /utils wlroles
 utils_wlroles_embed_title: "Cargos Permitidos"
