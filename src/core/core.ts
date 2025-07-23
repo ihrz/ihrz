@@ -49,7 +49,7 @@ import config from '../files/config.js';
 import { Client_Functions } from '../../types/client_functions.js';
 import { AnotherCommand } from '../../types/anotherCommand.js';
 import { EmojisManager } from './modules/emojisManager.js';
-import { cache_storage_data, cache_storage_update } from './cache.js';
+import { cache_storage_data } from './cache.js';
 import { NightModeManager } from './modules/nightModeManager.js';
 import { GithubLinesManager } from './modules/githubLinesManager.js';
 import { DiscordSlashLogParser } from './converters/slashLog.js';
@@ -177,7 +177,6 @@ export function dataInitializer() {
 		}
 	}
 	cache_storage_data["stored_data"] = baseData;
-	cache_storage_update();
 
 	logger.log(`${config.console.emojis.OK} >> dataInitializer:: Timestamp Generated in .uptime`);
 }

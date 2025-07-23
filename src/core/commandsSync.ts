@@ -21,7 +21,7 @@
 
 import { REST, Routes, Client, ApplicationCommand } from 'discord.js';
 import logger from "./logger.js";
-import { cache_storage_data, cache_storage_update } from './cache.js';
+import { cache_storage_data } from './cache.js';
 import { createHash } from 'node:crypto';
 
 export function removePermissionProperties(obj: any): any {
@@ -85,7 +85,6 @@ export async function synchronizeCommands(client: Client): Promise<void> {
 			})();
 
 			cache_storage_data["sha256_hash_commands"] = actual_hash;
-			cache_storage_update();
 
 			if (previously_hash === actual_hash) {
 				logger.log(`${client.config.console?.emojis.OK} >> synchronizeCommands: Actually, the body is the same as before, do not needed to sync.`)
