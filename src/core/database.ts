@@ -61,7 +61,24 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 						database: config.database?.mySQL?.database!,
 						port: config.database?.mySQL?.port,
 					},
-					dialect: (process.env.PALLASDB_SEQUELIZE_ALTERNATIVE_DIALECT as "postgres" || "mysql") || "postgres",
+					dialect: "postgres",
+					tables
+				}));
+			});
+			logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
+			break;
+
+		case 'MYSQL':
+			dbPromise = new Promise<PallasDB>(async (resolve, reject) => {
+				resolve(new PallasDB({
+					login: {
+						host: config.database?.mySQL?.host!,
+						username: config.database?.mySQL?.user!,
+						password: config.database?.mySQL?.password!,
+						database: config.database?.mySQL?.database!,
+						port: config.database?.mySQL?.port,
+					},
+					dialect: "mysql",
 					tables
 				}));
 			});
@@ -82,7 +99,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 
 					// PostgreSQL database for persistence
 					const postgresDb = new PallasDB({
-						dialect: (process.env.PALLASDB_SEQUELIZE_ALTERNATIVE_DIALECT as "postgres" || "mysql") || "postgres",
+						dialect: "postgres",
 						tables,
 						login: {
 							host: config.database?.mySQL?.host!,
@@ -249,7 +266,7 @@ export async function initializeDatabase(config: ConfigData): Promise<PallasDB> 
 				logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup (${config.database?.method}) !`.green);
 
 				const postgresDb = new PallasDB({
-					dialect: (process.env.PALLASDB_SEQUELIZE_ALTERNATIVE_DIALECT as "postgres" || "mysql") || "postgres",
+					dialect: "postgres",
 					tables,
 					login: {
 						host: config.database?.mySQL?.host!,
