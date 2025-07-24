@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (مالك الخادم) 
 # /banner
 banner_guild_embed: "**هذه هي لافتة خادم الغGuild!**"
 banner_user_embed: "**هذه هي لافتة ${user?.username}!**"
+banner_guild_no_banner: "الخادم ليس لديه راية."
+banner_user_no_banner: "هذا المستخدم ليس لديه راية."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, لقد نفذت iHorizon أمر massiverole.\n\n**${a}** مستخدم __تلقى__ دور ${role}\n**${s}** مستخدم __كان لديهم بالفعل__ دور ${role}\nفشلت iHorizon في إضافة الدور إلى **${e}** مستخدم."
@@ -942,11 +944,14 @@ all_bots_embed_title: "قائمة جميع البوتات | الصفحة ${i / u
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} لا يمكنك إضافة دور إلى مستخدم يمتلك دورًا أعلى منك..."
 utils_addrole_command_ok: "${author.toString()} قام بإضافة الدور ${role?.toString()} بنجاح إلى ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | الدور الذي تريد إضافته للمستخدم غير مدرج في القائمة البيضاء. يجب على المسؤول إضافته أولاً! (باستخدام `/utils wlroles`)"
+utils_addrole_cant_level: "العضو مش أدمن، وعايز تديه دور أدمن؟ أنت بتهزر؟ عايز تفجر السيرفر؟"
+utils_addrole_try2brain: "البوت مكانه تحت في ترتيب الأدوار. مش قادر أديه الدور ده حتى لو شكله بايخ."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} لا يمكنك إزالة دور من مستخدم يمتلك دورًا أعلى منك..."
 utils_delrole_command_ok: "${author.toString()} قام بإزالة الدور ${role?.toString()} بنجاح من ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | الدور الذي تريد حذفه من المستخدم غير مدرج في القائمة البيضاء. يجب على المسؤول إضافته أولاً! (باستخدام `/utils wlroles`)"
+utils_delrole_try2brain: "البوت مكانه تحت في ترتيب الأدوار. مش قادر أشيل الدور الغبي ده."
 
 # /utils wlroles
 utils_wlroles_embed_title: "الأدوار المسموح بها"
@@ -2624,3 +2629,14 @@ addrolereact_adding_role: "Ajout du rôle {role} en cours..."
 addrolereact_adding_role_progress: "Ajout du rôle {role} en cours pour {count} utilisateurs..."
 addrolereact_role_added: "Ajout du rôle {role} terminé. {count} utilisateurs ont reçu le rôle."
 addrolereact_error: "Erreur lors de l'exécution de la commande."
+
+# ar-EG.yml (Arabic - Egypt)
+new_guild_embed_title:
+  - "!أهلاً وسهلاً بكم في خادمكم 🎉"
+  - "!تحياتي، يا رفاق ديسكورد 👋"
+  - "!iHorizon انضم إلى المحادثة 💬"
+  - "!إنه طائر، إنه طائرة، لا، إنه iHorizon 🦸‍♂"
+  - "!دعونا نرحب ترحيباً حاراً بـ iHorizon 🔥"
+  - "!مرحباً بالمغامرة الجديدة 🚀"
+  - "!عضو جديد رائع انضم إلينا ✨"
+new_guild_embed_desc: "## ${randomMessage}\n!مرحباً بكم، أصدقائي الأعزاء\n\n.أنا iHorizon، بوت متطور مصمم لجعل تجربتكم على ديسكورد استثنائية ومليئة بالمرح\n\n:✨ ما يمكنني فعله لكم\n• إدارة الخادم بذكاء واحترافية\n• ألعاب تفاعلية وترفيه لا محدود\n• أدوات مفيدة لتنظيم المجتمع\n• دعم فني متاح على مدار الساعة\n\n.استكشفوا أوامري واكتشفوا عالماً من الإمكانيات اللامحدودة\n!معاً سنبني مجتمعاً رائعاً ومليئاً بالذكريات الجميلة\n\n!شكراً لاختياركم لي، فلنبدأ المغامرة 🌟"

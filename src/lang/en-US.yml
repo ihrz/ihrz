@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (The owner of the server
 # /banner
 banner_guild_embed: "**This is the guild server banner!**"
 banner_user_embed: "**This is the ${user?.username}'s banner!**"
+banner_guild_no_banner: "The server has no banner."
+banner_user_no_banner: "This user has no banner."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon has executed the massiverole command.\n\n**${a}** User(s) __received__ the ${role} role\n**${s}** User(s) __already had__ the ${role} role\niHorizon __failed__ to add the role to **${e}** User(s)."
@@ -941,11 +943,14 @@ all_bots_embed_title: "List of all bot(s) | Page ${i / usersPerPage + 1}"
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot add role to user who have higher role than you..."
 utils_addrole_command_ok: "${author.toString()} have succefully added the ${role?.toString()} role to ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | The role you want to add to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
+utils_addrole_cant_level: "The user isn’t an admin and you’re trying to give them an admin role? You trying to mess with me? You wanna crash the server or what?"
+utils_addrole_try2brain: "The bot’s role is too low in the hierarchy. I can’t assign that dumb role, sorry."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot remove role to user who have higher role than you..."
 utils_delrole_command_ok: "${author.toString()} have succefully removed the ${role?.toString()} role to ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | The role you want to delete to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
+utils_delrole_try2brain: "The bot’s role is too low in the hierarchy. I can’t remove that dumb role, sorry."
 
 # /utils wlroles
 utils_wlroles_embed_title: "Whitelist Role"
@@ -2633,3 +2638,12 @@ addrolereact_adding_role: "Adding role {role} in progress..."
 addrolereact_adding_role_progress: "Adding role {role} in progress for {count} users..."
 addrolereact_role_added: "Role {role} added. {count} users received the role."
 addrolereact_error: "Error executing the command."
+
+# New guild event
+new_guild_embed_title:
+  - "Welcome to our server! 🎉"
+  - "Greetings, fellow Discordians! 👋"
+  - "iHorizon has joined the chat! 💬"
+  - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
+  - "Let's give a warm welcome to iHorizon! 🔥"
+new_guild_embed_desc: "## ${randomMessage}\nHi there! I'm excited to join your server and be a part of your community.\nMy name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\nIf you have any questions or run into any issues, don't hesitate to reach out to me.\nI'm here to make your experience on this server the best it can be.\nThanks for choosing me and let's have some fun together!\n"

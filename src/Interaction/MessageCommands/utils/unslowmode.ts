@@ -20,33 +20,32 @@
 */
 
 import {
-	BaseGuildTextChannel,
-	ChatInputCommandInteraction,
 	Client,
+	Message,
+	PermissionFlagsBits,
 } from 'discord.js';
 
-import { TicketRemoveMember } from '../../../core/modules/ticketsManager.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from '../../../../types/command.js';
 
+import { subCommand } from "../../HybridCommands/utils/!cooldown.js";
 
-import { SubCommand } from '../../../../types/command.js';
+export const command: Command = {
+	name: 'unslowmode',
 
-export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	aliases: ["uncooldown", "delcooldown"],
 
+	description: 'Removed the cooldown on the current channel',
+	description_localizations: {
+		"fr": "Supprimer le mode lent du cannal actuel"
+	},
 
-		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+	thinking: false,
+	category: 'utils',
+	type: "PREFIX_IHORIZON_COMMAND",
 
-		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await interaction.editReply({ content: lang.ticket_disabled_command });
-			return;
-		};
-
-		if (!await client.func.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
-			await interaction.editReply({ content: lang.remove_not_in_ticket });
-			return;
-		}
-		await TicketRemoveMember(interaction);
+	permission: PermissionFlagsBits.ManageChannels,
+	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
+		subCommand.run(client, message, lang, ["0"])
 	},
 };

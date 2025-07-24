@@ -47,8 +47,5 @@ pkgs.mkShell {
   shellHook = ''
     export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
     export PUPPETEER_EXECUTABLE_PATH=${pkgs.chromium}/bin/chromium
-    
-    # Pour que sharp trouve les bibliothèques C++
-    export LD_LIBRARY_PATH=${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH
   '';
 }

@@ -29,7 +29,6 @@ interface ResponseResult {
 }
 
 class InfrastructureMonitoring {
-	private client: Client;
 	private timeout = 5000; // 5 seconds timeout for requests
 	private statusEmbed: EmbedBuilder;
 	private online: string;
@@ -37,9 +36,7 @@ class InfrastructureMonitoring {
 	private evaluating: string;
 	private lastResult: Record<string, ResponseResult>;
 
-	constructor(client: Client) {
-		this.client = client;
-
+	constructor() {
 		this.online = client.iHorizon_Emojis.Online;
 		this.down = client.iHorizon_Emojis.DND;
 		this.evaluating = client.iHorizon_Emojis.Invisible;
@@ -79,7 +76,7 @@ class InfrastructureMonitoring {
 	}
 
 	private async HorizonGateway(): Promise<ResponseResult> {
-		const HorizonGatewayURL = this.client.config.api.HorizonGateway;
+		const HorizonGatewayURL = client.config.api.HorizonGateway;
 		if (HorizonGatewayURL) {
 			try {
 				const startTime = Date.now();
@@ -105,7 +102,7 @@ class InfrastructureMonitoring {
 	}
 
 	private async Lavalink(): Promise<ResponseResult> {
-		const Lavalinks = this.client.config.lavalink.nodes.map(x => `${x.host}:${x.port}`) || [];
+		const Lavalinks = client.config.lavalink.nodes.map(x => `${x.host}:${x.port}`) || [];
 		if (Lavalinks.length >= 1) {
 			// Test the first Lavalink node for simplicity
 			const [host, port] = Lavalinks[0].split(':');
@@ -120,7 +117,7 @@ class InfrastructureMonitoring {
 	}
 
 	private async ClusterManager(): Promise<ResponseResult> {
-		const ClusterManagers = this.client.config.core.cluster;
+		const ClusterManagers = client.config.core.cluster;
 		if (ClusterManagers.length >= 1) {
 			// Assuming ClusterManagers contains URLs or endpoints
 			try {
@@ -167,7 +164,7 @@ class InfrastructureMonitoring {
 	}
 
 	private async PublicBot(): Promise<ResponseResult> {
-		const PublicBot = this.client;
+		const PublicBot = client;
 		if (PublicBot) {
 			try {
 				const startTime = Date.now();
@@ -270,7 +267,7 @@ class InfrastructureMonitoring {
 				inline: false
 			},
 			{
-				name: `ClusterManager ${this.client.config.core.cluster.map((x, i) => "#" + i)}`,
+				name: `ClusterManager ${client.config.core.cluster.map((x, i) => "#" + i)}`,
 				value: results.ClusterManager ? this.formatStatus(results.ClusterManager) : this.evaluating,
 				inline: false
 			},
@@ -292,7 +289,7 @@ class InfrastructureMonitoring {
 
 	public async init() {
 		try {
-			const all_guilds = await this.client.db.get("MISC.statusEmbed") || {};
+			const all_guilds = await client.db.get("MISC.statusEmbed") || {};
 
 			// Check all services and update the embed
 			this.lastResult = await this.checkAllServices();
@@ -302,12 +299,12 @@ class InfrastructureMonitoring {
 			for (const [guild_id, data] of Object.entries(all_guilds)) {
 				try {
 					const channelData = data as any;
-					const channel = this.client.channels.cache.get(channelData.channel_id || channelData.guild_id);
+					const channel = await client.channels.fetch(channelData.channel_id || channelData.guild_id).catch(() => null);
 
 					if (channel && channel.isTextBased()) {
-						const textChannel = channel as BaseGuildTextChannel;
+						const textChannel = channel as BaseGuildTextChannel | undefined;
 						try {
-							const msg = await textChannel.messages.fetch(channelData.message_id);
+							const msg = await textChannel?.messages.fetch(channelData.message_id);
 
 							if (msg) {
 								await msg.edit({

@@ -34,8 +34,8 @@ import { InfrastructureMonitoring } from '../../core/modules/infrastructureMonit
 import { writeFileSync } from 'node:fs';
 import { removePermissionProperties } from '../../core/commandsSync.js';
 import { getCacheStorage } from '../../core/core.js';
-import { cache_storage_update } from '../../core/cache.js';
 import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
+import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 
 export const event: BotEvent = {
 	name: "ready",
@@ -124,11 +124,12 @@ export const event: BotEvent = {
 		async function refreshBotData() {
 			const ownihrz_table = client.db.table("OWNIHRZ");
 			const ownihrz_data = await ownihrz_table.get("CLUSTER")
+			const result = await getShardStats(client);
 
 			await client.db.set("BOT", {
 				"info": {
-					members: client.guilds.cache.reduce((a, b) => a + b.memberCount, 0),
-					servers: client.guilds.cache.size,
+					members: result.users,
+					servers: result.guilds,
 					shards: client.shard?.count,
 					ping: client.ws.ping
 				},
@@ -156,7 +157,7 @@ export const event: BotEvent = {
 				const guild = index.value as DatabaseStructure.DbInId;
 				const stats = guild.STATS?.USER;
 
-				if (stats) {
+				if (stats && client.inShard(index.id)) {
 					Object.keys(stats).forEach(userId => {
 						const userStats = stats[userId];
 
@@ -199,7 +200,7 @@ export const event: BotEvent = {
 		// await client.ownihrz.Start_Refresh();
 		await client.notifier.start();
 
-		client.infrastructureMonitoring = new InfrastructureMonitoring(client);
+		client.infrastructureMonitoring = new InfrastructureMonitoring();
 		await client.infrastructureMonitoring.startMonitoring();
 
 		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000), setInterval(refreshBotData, 45_000);
@@ -236,76 +237,74 @@ export const event: BotEvent = {
 			}
 
 			initData._cache.version = newV;
-			cache_storage_update();
-
 		}
 
-		if (client.version.env === "production") {
-			try {
-				// Global counters
-				let totalGuilds = 0;
-				let totalRoles = 0;
-				let totalChannels = 0;
-				let totalMembers = 0;
-				const totalUniqueUsers = new Set();
+		// if (client.version.env === "production") {
+		// 	try {
+		// 		// Global counters
+		// 		let totalGuilds = 0;
+		// 		let totalRoles = 0;
+		// 		let totalChannels = 0;
+		// 		let totalMembers = 0;
+		// 		const totalUniqueUsers = new Set();
 
-				// Fetch all guilds
-				const guilds = await client.guilds.fetch();
+		// 		// Fetch all guilds
+		// 		const guilds = (await client.guilds.fetch()).filter(x => client.inShard(x.id));
 
-				logger.legacy('\n=== Starting Cache Loading Process ===\n');
+		// 		logger.legacy('\n=== Starting Cache Loading Process ===\n');
 
-				for (const [guildId, guild] of guilds) {
-					totalGuilds++;
-					logger.legacy(`📋 Processing Guild: ${guild.name} (${guild.id})`);
+		// 		for (const [guildId, guild] of guilds) {
+		// 			totalGuilds++;
+		// 			logger.legacy(`📋 Processing Guild: ${guild.name} (${guild.id})`);
 
-					// Load complete guild
-					const fullGuild = await guild.fetch();
+		// 			// Load complete guild
+		// 			const fullGuild = await guild.fetch();
 
-					// Load roles
-					const roles = await fullGuild.roles.fetch();
-					totalRoles += roles.size;
-					logger.legacy(`   ┣━ Roles Loaded: ${roles.size}`);
+		// 			// Load roles
+		// 			const roles = await fullGuild.roles.fetch();
+		// 			totalRoles += roles.size;
+		// 			logger.legacy(`   ┣━ Roles Loaded: ${roles.size}`);
 
-					// Load channels
-					const channels = await fullGuild.channels.fetch();
-					totalChannels += channels.size;
-					logger.legacy(`   ┣━ Channels Loaded: ${channels.size}`);
+		// 			// Load channels
+		// 			const channels = await fullGuild.channels.fetch();
+		// 			totalChannels += channels.size;
+		// 			logger.legacy(`   ┣━ Channels Loaded: ${channels.size}`);
 
-					// Load members with chunking
-					try {
-						// Request guild members chunking
-						await fullGuild.members.fetch()
-							.then(members => {
-								totalMembers += members.size;
-								members.forEach(member => totalUniqueUsers.add(member.user.id));
-								logger.legacy(`   ┗━ Members Loaded: ${members.size}`);
-							})
-							.catch(error => {
-								if (error.code === 'GuildMembersTimeout') {
-									logger.legacy(`   ┗━ ⚠️ Partial Members Load: Timeout occurred for ${fullGuild.name}`);
-								} else {
-									throw error;
-								}
-							});
-					} catch (memberError) {
-						console.error(`   ┗━ ❌ Error loading members for ${fullGuild.name}:`, memberError);
-					}
-					logger.legacy(''); // Empty line for readability
-				}
+		// 			// Load members with chunking
+		// 			try {
+		// 				// Request guild members chunking
+		// 				await fullGuild.members.fetch()
+		// 					.then(members => {
+		// 						totalMembers += members.size;
+		// 						members.forEach(member => totalUniqueUsers.add(member.user.id));
+		// 						logger.legacy(`   ┗━ Members Loaded: ${members.size}`);
+		// 					})
+		// 					.catch(error => {
+		// 						if (error.code === 'GuildMembersTimeout') {
+		// 							logger.legacy(`   ┗━ ⚠️ Partial Members Load: Timeout occurred for ${fullGuild.name}`);
+		// 						} else {
+		// 							throw error;
+		// 						}
+		// 					});
+		// 			} catch (memberError) {
+		// 				console.error(`   ┗━ ❌ Error loading members for ${fullGuild.name}:`, memberError);
+		// 			}
+		// 			logger.legacy(''); // Empty line for readability
+		// 		}
 
-				// Print global statistics
-				logger.legacy('=== Global Cache Statistics ===');
-				logger.legacy(`📊 Total Guilds: ${totalGuilds}`);
-				logger.legacy(`👥 Total Unique Users: ${totalUniqueUsers.size}`);
-				logger.legacy(`👤 Total Members (including duplicates): ${totalMembers}`);
-				logger.legacy(`📜 Total Roles: ${totalRoles}`);
-				logger.legacy(`📝 Total Channels: ${totalChannels}`);
-				logger.legacy('\n=== Cache Loading Complete ===');
+		// 		// Print global statistics
+		// 		logger.legacy('=== Global Cache Statistics ===');
+		// 		logger.legacy(`📊 Total Guilds: ${totalGuilds}`);
+		// 		logger.legacy(`👥 Total Unique Users: ${totalUniqueUsers.size}`);
+		// 		logger.legacy(`👤 Total Members (including duplicates): ${totalMembers}`);
+		// 		logger.legacy(`📜 Total Roles: ${totalRoles}`);
+		// 		logger.legacy(`📝 Total Channels: ${totalChannels}`);
+		// 		logger.legacy('\n=== Cache Loading Complete ===');
 
-			} catch (error) {
-				console.error('❌ Error while loading caches:', error);
-			}
-		}
+		// 	} catch (error) {
+		// 		console.error('❌ Error while loading caches:', error);
+		// 	}
+		// }
 
 		logger.log(`${client.config.console.emojis.HOST} >> Bot is ready`.white);
 

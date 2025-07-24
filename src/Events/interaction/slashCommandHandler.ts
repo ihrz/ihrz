@@ -162,9 +162,6 @@ async function handleCommandError(client: Client, interaction: ChatInputCommandI
 		content: block + "**Let me suggest you to report this issue with `/report`.**"
 	});
 
-	const channel = client.channels.cache.get(client.config.core.reportChannelID);
-	if (!channel) return;
-
 	const options = interaction.options as CommandInteractionOptionResolver;
 	const optionsList = options["_hoistedOptions"].map(element => `${element.name}:${element.value}`);
 
@@ -176,7 +173,7 @@ async function handleCommandError(client: Client, interaction: ChatInputCommandI
 	if (subCommand) commandPath += ` ${subCommand}`;
 	if (optionsList.length) commandPath += ` ${optionsList.join(' ')}`;
 
-	await (channel as BaseGuildTextChannel).send({
+	client.func.method.channelSend(client.config.core.reportChannelID, {
 		embeds: [
 			new EmbedBuilder()
 				.setTitle(`SLASH_CMD_CRASH_NOT_HANDLE`)
@@ -196,8 +193,8 @@ async function handleCommandError(client: Client, interaction: ChatInputCommandI
 						value: `/${commandPath}\n\n`
 					},
 				)
-		]
-	});
+		],
+	})
 }
 
 export const event: BotEvent = {

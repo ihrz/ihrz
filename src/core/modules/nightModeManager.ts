@@ -28,12 +28,6 @@ type nightModeData = { guildId: string, data: DatabaseStructure.NightMode | unde
 type checked_nightmode_response = "started" | "ended";
 
 class NightModeManager {
-	client: Client;
-
-	constructor(client: Client) {
-		this.client = client;
-	}
-
 	public async init() {
 		this.Refresh(await this.GetNightModeData());
 		setInterval(async () => {
@@ -42,12 +36,12 @@ class NightModeManager {
 	}
 
 	private async GetNightModeData(): Promise<nightModeData> {
-		const all = await this.client.db.all();
+		const all = await client.db.all();
 		return all
-			.filter(v => Number(v.id))
+			.filter(v => Number(v.id) && client.inShard(v.id))
 			.map(v => {
 				const guildObject = v.value as DatabaseStructure.DbInId;
-				return { guildId: v.id, data: guildObject.UTILS?.NIGHT_MODE.enabled ? guildObject.UTILS?.NIGHT_MODE : undefined };
+				return { guildId: v.id, data: guildObject.UTILS?.NIGHT_MODE?.enabled ? guildObject.UTILS?.NIGHT_MODE : undefined };
 			})
 			.filter(v => v.data);
 	}
@@ -55,13 +49,13 @@ class NightModeManager {
 	private async Refresh(nightModeData: nightModeData) {
 		for (const guildObject of nightModeData) {
 			try {
-				const guild = this.client.guilds.cache.get(guildObject.guildId);
+				const guild = await client.guilds.fetch(guildObject.guildId).catch(() => null);
 				if (!guild) continue;
 
 				// Check if the time is between the start and end of the night
 				const response = await this.calculate_window_time(guildObject.data!);
 				if (response === "started" && !await this.isAlreadyHandled("started", guild)) {
-					const lang = await this.client.func.getLanguageData(guild.id);
+					const lang = await client.func.getLanguageData(guild.id);
 
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
@@ -70,7 +64,7 @@ class NightModeManager {
 					// Remove all PA
 					await this.Remove_All_PA(guild, guildObject, lang);
 				} else if (response === "ended" && !await this.isAlreadyHandled("ended", guild)) {
-					const lang = await this.client.func.getLanguageData(guild.id);
+					const lang = await client.func.getLanguageData(guild.id);
 
 					// If the owner should be notified
 					if (guildObject.data?.notify) {
@@ -147,7 +141,7 @@ class NightModeManager {
 		let changed_roles: string[] = [];
 		if (!all_changed_roles) return;
 		for (const role of all_changed_roles) {
-			const roleObject = guild.roles.cache.get(role) || await guild.roles.fetch(role);
+			const roleObject = await guild.roles.fetch(role).catch(() => null);
 			if (!roleObject) continue;
 			changed_roles.push(roleObject.name);
 			await roleObject.setPermissions(new PermissionsBitField(roleObject.permissions).add(PermissionFlagsBits.Administrator));
@@ -309,7 +303,7 @@ class NightModeManager {
 
 	public async isAlreadyHandled(type: checked_nightmode_response, guild: Guild): Promise<boolean> {
 		// Get night mode config for this guild
-		const nightModeData: DatabaseStructure.NightMode | undefined = await this.client.db.get(`${guild.id}.UTILS.NIGHT_MODE`);
+		const nightModeData: DatabaseStructure.NightMode | undefined = await client.db.get(`${guild.id}.UTILS.NIGHT_MODE`);
 		if (!nightModeData) return false;
 
 		// If last action is the same as the current one, no need to repeat it

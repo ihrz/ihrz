@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (Il proprietario del ser
 # /banner
 banner_guild_embed: "**¡Este es el banner del servidor del gremio!**"
 banner_user_embed: "**¡Este es el banner de ${user?.username}!**"
+banner_guild_no_banner: "El servidor no tiene banner."
+banner_user_no_banner: "Este usuario no tiene banner."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** Usuario(s) __han recibido__ el rol ${role}\n**${s}** Usuario(s) __ya tenían__ el rol ${role}\niHorizon __no pudo__ agregar el rol a **${e}** Usuario(s)."
@@ -941,11 +943,14 @@ all_bots_embed_title: "Lista de todos los bot(s) | Página ${i / usersPerPage + 
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} No puedes añadir un rol a un usuario que tiene un rol más alto que tú..."
 utils_addrole_command_ok: "${author.toString()} ha añadido con éxito el rol ${role?.toString()} a ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | El rol que deseas añadir al usuario no está en la lista blanca. Un administrador debe añadirlo primero! (usando `/utils wlroles`)"
+utils_addrole_cant_level: "El usuario no es admin y ¿quieres darle un rol de admin? ¿Estás de broma? ¿Quieres romper el servidor?"
+utils_addrole_try2brain: "El bot está demasiado abajo en la jerarquía de roles. No puedo darle ese rol tonto."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} No puedes eliminar un rol de un usuario que tiene un rol más alto que tú..."
 utils_delrole_command_ok: "${author.toString()} ha eliminado con éxito el rol ${role?.toString()} de ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | El rol que deseas eliminar del usuario no está en la lista blanca. Un administrador debe añadirlo primero! (usando `/utils wlroles`)"
+utils_delrole_try2brain: "El bot está demasiado abajo en la jerarquía de roles. No puedo quitar ese rol tonto."
 
 # /utils wlroles
 utils_wlroles_embed_title: "Roles en la lista blanca"
@@ -2631,3 +2636,14 @@ addrolereact_adding_role: "Agregando rol {role} en progreso..."
 addrolereact_adding_role_progress: "Agregando rol {role} en progreso para {count} usuarios..."
 addrolereact_role_added: "Rol {role} agregado. {count} usuarios recibieron el rol."
 addrolereact_error: "Error al ejecutar el comando."
+
+# es-ES.yml (Spanish - Spain)
+new_guild_embed_title:
+  - "¡Bienvenidos a vuestro servidor! 🎉"
+  - "¡Saludos, compañeros de Discord! 👋"
+  - "¡iHorizon se ha unido al chat! 💬"
+  - "¡Es un pájaro, es un avión, no, es iHorizon! 🦸‍♂"
+  - "¡Démosle una cálida bienvenida a iHorizon! 🔥"
+  - "¡Una nueva aventura comienza! 🚀"
+  - "¡Un miembro fantástico ha llegado! ✨"
+new_guild_embed_desc: "## ${randomMessage}\n¡Hola, queridos amigos!\n\nSoy iHorizon, un bot avanzado diseñado para hacer que vuestra experiencia en Discord sea extraordinaria y llena de diversión.\n\n✨ **Lo que puedo hacer por vosotros:**\n• Gestión del servidor con inteligencia y profesionalidad\n• Juegos interactivos y entretenimiento ilimitado\n• Herramientas útiles para la organización de la comunidad\n• Soporte técnico disponible 24/7\n\nExplorad mis comandos y sumergíos en un mundo de posibilidades infinitas.\n¡Juntos construiremos una comunidad fantástica llena de hermosos recuerdos!\n\n¡Gracias por elegirme, comencemos esta increíble aventura! 🌟"

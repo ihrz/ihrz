@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import commandsSync from './commandsSync.js';
+import { synchronizeCommands } from './commandsSync.js';
 import logger from "./logger.js";
 
 import * as errorManager from './modules/errorManager.js';
@@ -36,9 +36,7 @@ import fs from 'fs';
 
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
-import getToken from './functions/getToken.js';
 import { StreamNotifier } from './StreamNotifier.js';
-import { setMaxListeners } from 'node:events';
 import { version } from '../version.js';
 import { InitData } from '../../types/initDataType.js';
 import { getDatabaseInstance } from './database.js';
@@ -51,7 +49,7 @@ import config from '../files/config.js';
 import { Client_Functions } from '../../types/client_functions.js';
 import { AnotherCommand } from '../../types/anotherCommand.js';
 import { EmojisManager } from './modules/emojisManager.js';
-import { cache_storage_data, cache_storage_update } from './cache.js';
+import { cache_storage_data } from './cache.js';
 import { NightModeManager } from './modules/nightModeManager.js';
 import { GithubLinesManager } from './modules/githubLinesManager.js';
 import { DiscordSlashLogParser } from './converters/slashLog.js';
@@ -91,29 +89,26 @@ export async function main(client: Client) {
 		});
 	};
 
-	setMaxListeners(0)
-
-	global.client = client;
 	client.commands = new Collection<string, Command>();
 	client.subCommands = new Collection<string, Command>();
 	client.message_commands = new Collection<string, Command>();
-	client.memberCountManager = new MemberCountModule(client);
-	client.autoRenewManager = new AutoRenew(client);
+	client.memberCountManager = new MemberCountModule();
+	client.autoRenewManager = new AutoRenew();
 	client.owners = [];
 	client.content = [];
 	client.category = [];
 	client.invites = new Collection();
 	client.timeCalculator = new iHorizonTimeCalculator();
 	client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
-	client.ownihrz = new OwnIHRZ(client, client.config.core.devMode);
+	client.ownihrz = new OwnIHRZ(client.config.core.devMode);
 	client.kdenlive = new KdenLive();
 	client.selectmenu = new Collection<string, Function>();
 	client.buttons = new Collection<string, Function>();
 	client.func = {} as typeof Client_Functions;
 	client.htmlfiles = {};
 	client.applicationsCommands = new Collection<string, AnotherCommand>();
-	client.emojisManager = new EmojisManager(client);
-	client.nightmodeManager = new NightModeManager(client);
+	client.emojisManager = new EmojisManager();
+	client.nightmodeManager = new NightModeManager();
 
 	process.on('SIGINT', async () => {
 		// if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
@@ -127,18 +122,6 @@ export async function main(client: Client) {
 	if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
 	if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
 
-	errorManager.uncaughtExceptionHandler(client);
-	client.db = getDatabaseInstance();
-	client.notifier = new StreamNotifier(client,
-		process.env.TWITCH_APPLICATION_ID || "",
-		process.env.TWITCH_APPLICATION_SECRET || "",
-		process.env.YOUTUBE_API_KEY || ""
-	);
-	client.githubLinesManager = new GithubLinesManager(process.env.GITHUB_API_KEY)
-
-	assetsCalc(client);
-	playerManager(client);
-
 	const handlerPath = path.join(__dirname, '..', 'core', 'handlers');
 	const handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));
 
@@ -149,8 +132,24 @@ export async function main(client: Client) {
 		}
 	}
 
+	login()
 
-	client.login(await getToken() || process.env.BOT_TOKEN || client.config.discord.token).then(async () => {
+	errorManager.uncaughtExceptionHandler(client);
+	client.db = getDatabaseInstance();
+
+	client.notifier = new StreamNotifier(
+		process.env.TWITCH_APPLICATION_ID || "",
+		process.env.TWITCH_APPLICATION_SECRET || "",
+		process.env.YOUTUBE_API_KEY || ""
+	);
+	client.githubLinesManager = new GithubLinesManager(process.env.GITHUB_API_KEY)
+
+	assetsCalc(client);
+	playerManager(client);
+};
+
+function login() {
+	client.login(process.env.BOT_TOKEN || client.config.discord.token).then(async () => {
 		const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
 
 		if (process.platform === 'win32') {
@@ -159,7 +158,7 @@ export async function main(client: Client) {
 			process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
 		};
 
-		commandsSync(client).then(() => {
+		synchronizeCommands(client).then(() => {
 			logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
 			logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
 			logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
@@ -167,7 +166,7 @@ export async function main(client: Client) {
 			logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta);
 		});
 	});
-};
+}
 
 export function dataInitializer() {
 	const baseData: InitData = {
@@ -178,9 +177,8 @@ export function dataInitializer() {
 		}
 	}
 	cache_storage_data["stored_data"] = baseData;
-	cache_storage_update();
 
-	logger.log(`${config.console.emojis.OK} >> Timestamp Generated in .uptime`);
+	logger.log(`${config.console.emojis.OK} >> dataInitializer:: Timestamp Generated in .uptime`);
 }
 
 export function getCacheStorage(): InitData {

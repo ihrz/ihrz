@@ -24,6 +24,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { BotEvent } from '../../../types/event.js';
 import { ParsedSavedCommand } from '../../core/converters/slashLog.js';
+import logger from '../../core/logger.js';
 
 /**
  * Safe JSON logger that handles concurrent writes without blocking the event loop
@@ -167,17 +168,17 @@ class SafeJSONLogger {
 	}
 }
 
-const logger = new SafeJSONLogger(path.join(process.cwd(), 'src', 'files', 'slash.log.json'));
+const loggerX = new SafeJSONLogger(path.join(process.cwd(), 'src', 'files', 'slash.log.json'));
 
 process.on('SIGINT', async () => {
-	console.log('Flushing command logs before shutdown...');
-	await logger.forceFlush();
+	logger.log('Flushing command logs before shutdown...');
+	await loggerX.forceFlush();
 	process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-	console.log('Flushing command logs before shutdown...');
-	await logger.forceFlush();
+	logger.log('Flushing command logs before shutdown...');
+	await loggerX.forceFlush();
 	process.exit(0);
 });
 
@@ -207,6 +208,6 @@ export const event: BotEvent = {
 			channelId: interaction.channelId
 		};
 
-		logger.addCommand(commandLog);
+		loggerX.addCommand(commandLog);
 	},
 };

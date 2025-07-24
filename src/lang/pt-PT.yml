@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (O proprietário do serv
 # /banner
 banner_guild_embed: "**Este é o banner do servidor da guilda!**"
 banner_user_embed: "**Este é o banner de ${user?.username}!**"
+banner_guild_no_banner: "O servidor não tem banner."
+banner_user_no_banner: "Este utilizador não tem banner."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon executou o comando massiverole.\n\n**${a}** Usuário(s) __receberam__ a função ${role}\n**${s}** Usuário(s) __já tinham__ a função ${role}\niHorizon __falhou__ ao adicionar a função para **${e}** Usuário(s)."
@@ -941,11 +943,14 @@ all_bots_embed_title: "Lista de todos os bot(s) | Página ${i / usersPerPage + 1
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Você não pode adicionar um cargo a um usuário que tem um cargo superior ao seu..."
 utils_addrole_command_ok: "${author.toString()} adicionou com sucesso o cargo ${role?.toString()} a ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | O cargo que você deseja adicionar ao usuário não está na lista de permissões. Um administrador deve adicioná-lo primeiro! (usando `/utils wlroles`)"
+utils_addrole_cant_level: "Esse utilizador não é admin e queres dar-lhe um cargo de admin? Estás a gozar comigo? Queres lixar o servidor?"
+utils_addrole_try2brain: "O bot está demasiado abaixo na hierarquia de cargos. Não consigo atribuir esse cargo estúpido."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Você não pode remover um cargo de um usuário que tem um cargo superior ao seu..."
 utils_delrole_command_ok: "${author.toString()} removeu com sucesso o cargo ${role?.toString()} de ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | O cargo que você deseja remover do usuário não está na lista de permissões. Um administrador deve adicioná-lo primeiro! (usando `/utils wlroles`)"
+utils_delrole_try2brain: "O bot está demasiado abaixo na hierarquia de cargos. Não consigo remover esse cargo estúpido."
 
 # /utils wlroles
 utils_wlroles_embed_title: "Cargos Permitidos"
@@ -2631,3 +2636,14 @@ addrolereact_adding_role: "Adicionando o cargo {role}..."
 addrolereact_adding_role_progress: "Adicionando o cargo {role} para {count} utilizadores..."
 addrolereact_role_added: "Cargo {role} adicionado. {count} utilizadores receberam o cargo."
 addrolereact_error: "Erro ao executar o comando."
+
+# pt-PT.yml (Portuguese - Portugal)
+new_guild_embed_title:
+  - "Bem-vindos ao vosso servidor! 🎉"
+  - "Saudações, queridos amigos do Discord! 👋"
+  - "iHorizon juntou-se ao chat! 💬"
+  - "É um pássaro, é um avião, não, é o iHorizon! 🦸‍♂"
+  - "Vamos dar as boas-vindas ao iHorizon! 🔥"
+  - "Uma nova aventura começa! 🚀"
+  - "Um membro fantástico chegou! ✨"
+new_guild_embed_desc: "## ${randomMessage}\nOlá, amigos extraordinários!\n\nSou o iHorizon, um bot avançado concebido para tornar a vossa experiência no Discord excecional e cheia de diversão.\n\n✨ **O que posso fazer por vós:**\n• Gestão do servidor com inteligência e profissionalismo\n• Jogos interativos e entretenimento ilimitado\n• Ferramentas úteis para organização da comunidade\n• Suporte técnico disponível 24/7\n\nExplorai os meus comandos e mergulhai num mundo de possibilidades infinitas.\nJuntos construiremos uma comunidade fantástica cheia de belas memórias!\n\nObrigado por me escolherem, vamos começar esta incrível aventura! 🌟"

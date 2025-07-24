@@ -887,6 +887,8 @@ blockbot_logs_disable_description: "${interaction.user} (Владелец сер
 # /banner
 banner_guild_embed: "**Это баннер сервера!**"
 banner_user_embed: "**Это баннер ${user?.username}!**"
+banner_guild_no_banner: "На сервере нет баннера."
+banner_user_no_banner: "У этого пользователя нет баннера."
 
 # /massiverole
 massiverole_add_command_work: "${interaction.user}, iHorizon выполнил команду массовой выдачи роли.\n\n**${a}** пользователю(ям) выдана роль ${role}\n**${s}** пользователю(ям) уже имеют роль ${role}\niHorizon не смог выдать роль **${e}** пользователю(ям)."
@@ -941,11 +943,14 @@ all_bots_embed_title: "Список всех бот(ов) | Страница ${i
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Вы не можете добавить роль пользователю, у которого роль выше вашей..."
 utils_addrole_command_ok: "${author.toString()} успешно добавил роль ${role?.toString()} пользователю ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | Роль, которую вы хотите добавить пользователю, не внесена в белый список. Администратор должен сначала добавить её! (используйте `/utils wlroles`)"
+utils_addrole_cant_level: "Пользователь не админ, а ты хочешь дать ему роль админа? Ты издеваешься? Хочешь сломать сервер?"
+utils_addrole_try2brain: "У бота слишком низкая позиция в иерархии. Я не могу выдать эту глупую роль."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Вы не можете удалить роль у пользователя, у которого роль выше вашей..."
 utils_delrole_command_ok: "${author.toString()} успешно удалил роль ${role?.toString()} у пользователя ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | Роль, которую вы хотите удалить у пользователя, не внесена в белый список. Администратор должен сначала добавить её! (используйте `/utils wlroles`)"
+utils_delrole_try2brain: "У бота слишком низкая позиция в иерархии. Я не могу убрать эту глупую роль."
 
 # /utils wlroles
 utils_wlroles_embed_title: "Роли в белом списке"
@@ -2631,3 +2636,14 @@ addrolereact_adding_role: "Добавление роли {role}..."
 addrolereact_adding_role_progress: "Добавление роли {role} для {count} пользователей..."
 addrolereact_role_added: "Роль {role} добавлена. {count} пользователей получили роль."
 addrolereact_error: "Ошибка при выполнении команды."
+
+# ru-RU.yml (Russian - Russia)
+new_guild_embed_title:
+  - "Добро пожаловать на ваш сервер! 🎉"
+  - "Приветствую, дорогие друзья Discord! 👋"
+  - "iHorizon присоединился к чату! 💬"
+  - "Это птица, это самолёт, нет, это iHorizon! 🦸‍♂"
+  - "Давайте тепло поприветствуем iHorizon! 🔥"
+  - "Новое приключение начинается! 🚀"
+  - "Фантастический участник прибыл! ✨"
+new_guild_embed_desc: "## ${randomMessage}\nПривет, удивительные друзья!\n\nЯ iHorizon, продвинутый бот, созданный для того, чтобы сделать ваш Discord опыт исключительным и полным веселья.\n\n✨ **Что я могу сделать для вас:**\n• Управление сервером с интеллектом и профессионализмом\n• Интерактивные игры и безграничные развлечения\n• Полезные инструменты для организации сообщества\n• Техническая поддержка 24/7\n\nИсследуйте мои команды и погрузитесь в мир бесконечных возможностей.\nВместе мы построим фантастическое сообщество, полное прекрасных воспоминаний!\n\nСпасибо за то, что выбрали меня, давайте начнём это невероятное приключение! 🌟"

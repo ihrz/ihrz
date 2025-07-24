@@ -1,16 +1,21 @@
 {
 	"name": "ihrz",
-	"version": "2025.7.2",
+	"version": "2025.7.3",
 	"description": "iHrz in ts!",
 	"main": "./src/index.js",
 	"scripts": {
 		"start": "node ./src/index.js",
 		"auto-build": "npx tsc -w",
-		"build": "npx tsc"
+		"build": "npx tsc",
+		"type:func": "bun run tools/Client_Func_Typator.ts",
+		"type:lang": "bun run tools/LangsChecker-Tools.ts --type 2",
+		"check:licence": "bun run tools/Licence_Workspace_Checker.ts",
+		"check:lines": "bun run tools/Lines_Count.ts",
+		"check:lc": "bun run check:lines"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://gitlab.com/ihrz/ihrz.git"
+		"url": "https://gitlab.com/ihrz/ihrz"
 	},
 	"keywords": [
 		"discordbot"
@@ -27,25 +32,26 @@
 		"discord-html-transcripts": "^3.2.0",
 		"discord-rebackup": "^4.1.0",
 		"discord.js": "^14.21.0",
+		"dotenv": "^17.2.0",
 		"gifwrap": "^0.10.1",
 		"jimp": "0.22.12",
 		"js-yaml": "^4.1.0",
 		"jszip": "^3.10.1",
 		"lavalink-client": "^2.5.7",
-		"pallas-db": "^1.2.2",
-		"puppeteer": "^24.14.0",
-		"sharp": "^0.34.3",
-		"typescript-eslint": "^8.37.0",
+		"pallas-db": "^1.5.1",
+		"puppeteer": "^24.15.0",
+		"redis": "^5.6.1",
+		"typescript-eslint": "^8.38.0",
 		"ws": "^8.18.3"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.31.0",
-		"@types/bun": "^1.2.18",
+		"@types/bun": "^1.2.19",
 		"@types/js-yaml": "^4.0.9",
-		"@types/node": "^24.0.14",
+		"@types/node": "^24.1.0",
 		"@types/ws": "^8.18.1",
-		"@typescript-eslint/eslint-plugin": "^8.37.0",
-		"@typescript-eslint/parser": "^8.37.0",
+		"@typescript-eslint/eslint-plugin": "^8.38.0",
+		"@typescript-eslint/parser": "^8.38.0",
 		"eslint": "^9.31.0",
 		"eslint-plugin-unused-imports": "^4.1.4",
 		"tslib": "^2.8.1",

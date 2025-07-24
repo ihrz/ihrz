@@ -26,6 +26,10 @@ import * as ClientVersion from "../version.js";
 import * as core from './core.js';
 
 import config from "../files/config.js";
+import { configDotenv } from 'dotenv';
+import { setMaxListeners } from 'events';
+configDotenv({ debug: false, quiet: true })
+setMaxListeners(0)
 
 const client = new Client({
 	intents: [
@@ -61,9 +65,16 @@ const client = new Client({
 		Partials.ThreadMember
 	],
 	enforceNonce: true
-})
+}); global.client = client;
 
 client.db = await initializeDatabase(config);
 client.version = ClientVersion
 client.config = config;
+client.inShard = function (guildId: string): boolean {
+	const shardId = client.shard?.ids?.[0] ?? 0;
+	const totalShards = client.options.shardCount ?? 1;
+
+	const guildShard = Number((BigInt(guildId) >> 22n) % BigInt(totalShards));
+	return guildShard === shardId;
+}
 core.main(client);

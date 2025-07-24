@@ -21,6 +21,7 @@
 
 import { AuditLogEvent, Client, EmbedBuilder, GuildMember, PermissionsBitField } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
+import { handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
@@ -36,7 +37,13 @@ export const event: BotEvent = {
 			type: AuditLogEvent.BotAdd,
 		});
 
-		const filteredLog = fetchedLogs.entries.filter(x => x.targetId === member.id).first();
+		const filteredLog = fetchedLogs.entries.filter(x => x.targetId === member.id).first()!;
+
+		if (handledAuditLogEntrie_logs.has(filteredLog?.id)) {
+			return;
+		}
+
+		handledAuditLogEntrie_logs.add(filteredLog?.id);
 
 		if (data === true && member.user.bot && filteredLog?.executorId !== member.guild.ownerId) {
 			await member.ban({ reason: 'The BlockBot function are enable!' });

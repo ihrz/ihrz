@@ -25,13 +25,13 @@ import {
 	PermissionFlagsBits,
 } from 'discord.js'
 
-import { Command } from '../../../../types/command.js';
+import { Command } from '../../../../../types/command.js';
 
 
 export const command: Command = {
-	name: "bulkunban",
+	name: "unban-all",
 	name_localizations: {
-		"fr": 'unban'
+		"fr": 'unbanall'
 	},
 
 	aliases: ["massunban"],

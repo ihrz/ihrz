@@ -24,6 +24,7 @@ import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedCha
 import logger from "../../core/logger.js";
 
 import { BotEvent } from '../../../types/event.js';
+import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 
 export const event: BotEvent = {
 	name: "guildCreate",
@@ -90,28 +91,16 @@ export const event: BotEvent = {
 		}
 
 		async function messageToServer() {
-			const welcomeMessage = [
-				"Welcome to our server! 🎉",
-				"Greetings, fellow Discordians! 👋",
-				"iHorizon has joined the chat! 💬",
-				"It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂",
-				"Let's give a warm welcome to iHorizon! 🔥",
-			];
+			const lang = await client.func.getLanguageData(guild.id);
+			const welcomeMessage = lang.new_guild_embed_title || [];
 
 			const embed = new EmbedBuilder()
-				.setColor(2829617)
+				.setColor("#2134ff")
 				.setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" })
-				.setDescription(
-					`## ${welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]}\n` +
-					`Hi there! I'm excited to join your server and be a part of your community.\n` +
-					`My name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\n` +
-					`If you have any questions or run into any issues, don't hesitate to reach out to me.\n` +
-					`I'm here to make your experience on this server the best it can be.\n` +
-					`Thanks for choosing me and let's have some fun together!\n`
-				)
-				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`);
+				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`)
+				.setDescription(lang.new_guild_embed_desc.replace('${randomMessage}', welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]))
 
-			const buttons = new ActionRowBuilder<ButtonBuilder>()
+			const buttons1 = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents(
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Crown)
@@ -122,7 +111,7 @@ export const event: BotEvent = {
 						.setEmoji(client.iHorizon_Emojis.Sparkles)
 						.setLabel('iHorizon Website')
 						.setStyle(ButtonStyle.Link)
-						.setURL('https://ihorizon.org'),
+						.setURL('https://www.ihorizon.org'),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Search)
 						.setLabel('iHorizon Search')
@@ -130,14 +119,26 @@ export const event: BotEvent = {
 						.setURL('https://search.ihorizon.org')
 				)
 				;
-
+			const buttons2 = new ActionRowBuilder<ButtonBuilder>()
+				.addComponents(
+					new ButtonBuilder()
+						.setEmoji(client.iHorizon_Emojis.GitLab_Logo)
+						.setLabel('iHorizon Repositories')
+						.setStyle(ButtonStyle.Link)
+						.setURL(`https://gitlab.com/ihrz/ihrz`),
+					new ButtonBuilder()
+						.setEmoji(client.iHorizon_Emojis.Logo)
+						.setLabel('Support Server')
+						.setStyle(ButtonStyle.Link)
+						.setURL('https://discord.gg/ihorizon')
+				)
+				;
 			if (!channel) return;
 
 			(channel as TextChannel).send({
 				embeds: [embed],
-				content: 'discord.gg/ihorizon\ndiscord.com/application-directory/945202900907470899',
 				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)],
-				components: [buttons]
+				components: [buttons1, buttons2]
 			}).catch(() => { });
 		}
 
@@ -165,7 +166,7 @@ export const event: BotEvent = {
 				}
 			}
 
-			const usersize = client.guilds.cache.reduce((a, b) => a + b.memberCount, 0);
+			const stats = await getShardStats(client);
 
 			const embed = new EmbedBuilder()
 				.setColor("#00FF00")
@@ -177,19 +178,17 @@ export const event: BotEvent = {
 					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
 					{ name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
 					{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
-					{ name: "🍻・New guilds total", value: client.guilds.cache.size.toString(), inline: true },
-					{ name: "🥛・New members total", value: `${usersize} members`, inline: true },
+					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
+					{ name: "🥛・New members total", value: `${stats.users.toString()} members`, inline: true },
 
 				)
 				.setThumbnail(guild.iconURL())
 				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" });
 
-			const logsChannel = client.channels.cache.get(client.config.core.guildLogsChannelID) as TextChannel | null;
-
-			logsChannel?.send({
+			client.func.method.channelSend(client.config.core.guildLogsChannelID, {
 				embeds: [embed],
 				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-			}).catch(() => { });
+			})
 		};
 
 		async function setLangByRegion() {
@@ -229,6 +228,6 @@ export const event: BotEvent = {
 
 		// let c = await antiPoubelle();
 		const d = await blacklistLeave();
-		if (d) await Promise.all([ownerLogs(), messageToServer(), getInvites(), setLangByRegion()]);
+		if (d) await Promise.all([ownerLogs(), setLangByRegion(), messageToServer(), getInvites()]);
 	},
 };

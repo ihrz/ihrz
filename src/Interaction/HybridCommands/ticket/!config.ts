@@ -22,6 +22,7 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
+	Message,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
@@ -30,31 +31,35 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		const type = interaction.options.getString('action');
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var type = interaction.options.getString('action');
+		} else {
+			var type = client.func.method.string(args!, 0);
+		}
 
 		if (type === "off") {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.disableticket_logs_embed_title_disable,
-				description: lang.disableticket_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.user.id)
+				description: lang.disableticket_logs_embed_description_disable.replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
 			});
 
 			await client.db.set(`${interaction.guildId}.GUILD.TICKET.disable`, true);
-			await interaction.editReply({ content: lang.disableticket_command_work_disable });
+			await client.func.method.interactionSend(interaction, { content: lang.disableticket_command_work_disable });
 			return;
 		} else if (type === "on") {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.disableticket_logs_embed_title_enable,
-				description: lang.disableticket_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.user.id)
+				description: lang.disableticket_logs_embed_description_enable.replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
 			});
 
 			await client.db.set(`${interaction.guildId}.GUILD.TICKET.disable`, false);
-			await interaction.editReply({ content: lang.disableticket_command_work_enable });
+			await client.func.method.interactionSend(interaction, { content: lang.disableticket_command_work_enable });
 			return;
 		};
 	},

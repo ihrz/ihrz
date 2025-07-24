@@ -25,13 +25,8 @@ import path from 'node:path';
 import logger from '../logger.ts';
 
 class EmojisManager {
-	private client: Client;
 	private emojisPath = path.join(process.cwd(), "src", "assets", "emojis");
 	private final_appEmojis: Record<string, string> = {};
-
-	constructor(client: Client) {
-		this.client = client;
-	}
 
 	public async startSync() {
 		const appEmojis = await this.fetchCurrentApplicationEmojis();
@@ -51,7 +46,7 @@ class EmojisManager {
 				result.skiped++;
 			} else {
 				try {
-					const res = await this.client.application?.emojis.create({
+					const res = await client.application?.emojis.create({
 						name: local_emoji.Name,
 						attachment: readFileSync(path.join(this.emojisPath, `${local_emoji.Name}.${local_emoji.Extension}`))
 					});
@@ -65,7 +60,7 @@ class EmojisManager {
 			}
 		}
 
-		logger.log(`${this.client.config.console.emojis.OK} >> ${result.skiped} emojis skiped, ${result.writed} emojis created.`);
+		logger.log(`${client.config.console.emojis.OK} >> ${result.skiped} emojis skiped, ${result.writed} emojis created.`);
 		(result.cant >= 1) ? logger.warn(`I got issue with ${result.cant} emoji(s)!`) : null;
 		this.writeInClient();
 		this.writeFinalJSON();
@@ -86,7 +81,7 @@ class EmojisManager {
 	}
 
 	private async fetchCurrentApplicationEmojis() {
-		const fetched_emojis_data = await this.client.application?.emojis.fetch();
+		const fetched_emojis_data = await client.application?.emojis.fetch();
 		const filtered_emojis_data = fetched_emojis_data ? Array.from(fetched_emojis_data.values())
 			.map(x => {
 				return {
@@ -110,7 +105,7 @@ class EmojisManager {
 	}
 
 	private writeInClient() {
-		this.client.iHorizon_Emojis = this.final_appEmojis as any;
+		client.iHorizon_Emojis = this.final_appEmojis as any;
 	}
 }
 

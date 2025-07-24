@@ -57,7 +57,6 @@ export async function getLyrics(query: string, author?: User) {
 
 	const response = await node?.lyrics.get(res?.tracks[0]!);
 
-	console.log(response)
 	if (!response) {
 		return null;
 	}

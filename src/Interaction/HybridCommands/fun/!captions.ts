@@ -22,57 +22,43 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder,
 	Message,
-	User
-} from 'discord.js';
+} from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { axios } from '../../../core/functions/axios.js';
-
-
-
 import { SubCommand } from '../../../../types/command.js';
+import { isValidImageType } from '../../SlashCommands/guildconfig/!footer-pfp.js';
+import { captions } from '../../../core/images.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var user: User | undefined = interaction.options.getUser('user') || interaction.user;
+			var image = interaction.options.getAttachment("image", true);
+			var query = interaction.options.getString("query", true);
 		} else {
+			var image = interaction.attachments.first()!;
+			var query = client.func.method.longString(args!, 1)!;
+		}
 
-			var user: User | undefined = await client.func.method.user(interaction, args!, 0) || interaction.author;
-		};
+		if (!isValidImageType(image.contentType)) {
+			client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.No })
+			return
+		}
 
-		let format = 'png';
+		try {
+			const res = await captions(image.url!, query);
 
-		const config = {
-			headers: {
-				Authorization: `Bot ${client.token}`
-			}
-		};
-
-		const user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, config))?.data;
-		const banner = user_1?.banner;
-
-		if (banner !== null && banner?.startsWith('a_')) {
-			format = 'gif'
-		};
-
-		const embed = new EmbedBuilder()
-			.setColor('#c4afed')
-			.setTitle(lang.banner_user_embed.replace('${user?.username}', user?.username))
-			.setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
-			.setThumbnail(user?.displayAvatarURL() as string)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
-
-		await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-		});
-		return;
+			client.func.method.interactionSend(interaction, {
+				files: [
+					{
+						name: "captions.gif",
+						attachment: res
+					}
+				]
+			});
+		} catch (error) {
+			throw 'Failed to create GIF:' + error
+		}
 	},
 };

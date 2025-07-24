@@ -20,39 +20,44 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-} from 'discord.js';
+	Message,
+} from 'discord.js'
 
 import { LanguageData } from '../../../../types/languageData.js';
-
-
 import { SubCommand } from '../../../../types/command.js';
+import { isValidImageType } from '../../SlashCommands/guildconfig/!footer-pfp.js';
+import { bubbles } from '../../../core/images.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
-		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await interaction.editReply({ content: lang.ticket_disabled_command });
-			return;
-		};
-
-		if (!await client.func.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
-			await interaction.editReply({ content: lang.delete_not_in_ticket });
-			return;
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var image = interaction.options.getAttachment("image", true);
+		} else {
+			var image = interaction.attachments.first()!;
 		}
 
-		const name = interaction.options.getString('name')!;
+		if (!isValidImageType(image.contentType)) {
+			client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.No })
+			return
+		}
 
-		interaction.channel.setName(name).then(async () => {
-			await interaction.editReply({ content: lang.ticket_rename_ok });
-		}).catch(async () => {
-			await interaction.editReply({ content: lang.ticket_rename_error });
-		});
+		try {
+			const res = await bubbles(image.url!);
+
+			client.func.method.interactionSend(interaction, {
+				files: [
+					{
+						name: "bubbles.gif",
+						attachment: res
+					}
+				]
+			});
+		} catch (error) {
+			throw 'Failed to create GIF:' + error
+		}
 	},
 };
