@@ -36,45 +36,6 @@ class InfrastructureMonitoring {
 	private evaluating: string;
 	private lastResult: Record<string, ResponseResult>;
 
-	constructor() {
-		this.online = client.iHorizon_Emojis.Online;
-		this.down = client.iHorizon_Emojis.DND;
-		this.evaluating = client.iHorizon_Emojis.Invisible;
-
-		this.statusEmbed = new EmbedBuilder()
-			.setColor("#ff40c4")
-			.setTitle("iHorizon Status Panel")
-			.setDescription("This embed refresh every 1 minutes for showing the latest informations about iHorizon infrastructure")
-			// .setFooter(await client.func.displayBotName.footerBuilder(message))
-			.setFields(
-				{
-					name: "iHorizon (Public Bot)",
-					value: this.evaluating,
-					inline: false
-				},
-				{
-					name: "HorizonGateway (Public/Private API)",
-					value: this.evaluating,
-					inline: false
-				},
-				{
-					name: `ClusterManager ${client.config.core.cluster.map((x, _) => "#" + _)}`,
-					value: this.evaluating,
-					inline: false
-				},
-				{
-					name: `Lavalink (Music Player)`,
-					value: this.evaluating,
-					inline: false
-				},
-				{
-					name: `iHorizon Website`,
-					value: this.evaluating,
-					inline: false
-				}
-			);
-	}
-
 	private async HorizonGateway(): Promise<ResponseResult> {
 		const HorizonGatewayURL = client.config.api.HorizonGateway;
 		if (HorizonGatewayURL) {
@@ -288,6 +249,43 @@ class InfrastructureMonitoring {
 	}
 
 	public async init() {
+		this.online = client.iHorizon_Emojis.Online;
+		this.down = client.iHorizon_Emojis.DND;
+		this.evaluating = client.iHorizon_Emojis.Invisible;
+
+		this.statusEmbed = new EmbedBuilder()
+			.setColor("#ff40c4")
+			.setTitle("iHorizon Status Panel")
+			.setDescription("This embed refresh every 1 minutes for showing the latest informations about iHorizon infrastructure")
+			// .setFooter(await client.func.displayBotName.footerBuilder(message))
+			.setFields(
+				{
+					name: "iHorizon (Public Bot)",
+					value: this.evaluating,
+					inline: false
+				},
+				{
+					name: "HorizonGateway (Public/Private API)",
+					value: this.evaluating,
+					inline: false
+				},
+				{
+					name: `ClusterManager ${client.config.core.cluster.map((x, _) => "#" + _)}`,
+					value: this.evaluating,
+					inline: false
+				},
+				{
+					name: `Lavalink (Music Player)`,
+					value: this.evaluating,
+					inline: false
+				},
+				{
+					name: `iHorizon Website`,
+					value: this.evaluating,
+					inline: false
+				}
+			);
+
 		try {
 			const all_guilds = await client.db.get("MISC.statusEmbed") || {};
 
@@ -326,7 +324,7 @@ class InfrastructureMonitoring {
 	}
 
 	// Method to start periodic monitoring
-	public startMonitoring(intervalMinutes: number = 1): void {
+	public async startMonitoring(intervalMinutes: number = 1): Promise<void> {
 		// Run initial check
 		this.init();
 

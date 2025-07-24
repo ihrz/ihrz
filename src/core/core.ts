@@ -54,6 +54,8 @@ import { NightModeManager } from './modules/nightModeManager.js';
 import { GithubLinesManager } from './modules/githubLinesManager.js';
 import { DiscordSlashLogParser } from './converters/slashLog.js';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { InfrastructureMonitoring } from './modules/infrastructureMonitoringManager.js';
+import { GiveawayManager } from './modules/giveawaysManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -109,6 +111,19 @@ export async function main(client: Client) {
 	client.applicationsCommands = new Collection<string, AnotherCommand>();
 	client.emojisManager = new EmojisManager();
 	client.nightmodeManager = new NightModeManager();
+	client.infrastructureMonitoring = new InfrastructureMonitoring();
+	client.giveawaysManager = new GiveawayManager(client, {
+		storage: `${process.cwd()}/src/files/giveaways/`,
+		config: {
+			botsCanWin: false,
+			embedColor: '#9a5af2',
+			embedColorEnd: '#2f3136',
+			reaction: '🎉',
+			botName: "iHorizon",
+			forceUpdateEvery: 3600,
+			endedGiveawaysLifetime: 345_600_000,
+		},
+	});
 
 	process.on('SIGINT', async () => {
 		// if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();

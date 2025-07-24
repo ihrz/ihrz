@@ -27,7 +27,7 @@ import logger from './logger.js';
 import path from 'path';
 import fs from 'fs';
 
-type db = PallasDB | Client.HorizonDatabase
+export type db = PallasDB | Client.HorizonDatabase
 let dbInstance: db | null = null;
 
 export const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
@@ -195,7 +195,7 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 				resolve(new Client.HorizonDatabase(`ws://${config.database?.horizon_db?.host}:${config.database?.horizon_db?.port}`, {
 					login: config.database?.horizon_db?.login!,
 					password: config.database?.horizon_db?.password!,
-					enableVerboses: true,
+					enableVerboses: false,
 					tables
 				}));
 			});
@@ -209,33 +209,6 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 	}
 
 	dbInstance = await dbPromise;
-
-	// Setup graceful shutdown for Redis connections
-	if (dbInstance && (dbInstance as any).getCacheSyncInfo) {
-		const syncInfo = (dbInstance as any).getCacheSyncInfo();
-		if (syncInfo?.enabled) {
-			process.on('SIGINT', async () => {
-				logger.log(`${config.console?.emojis?.HOST || '🔧'} >> Disconnecting Redis cache sync...`.yellow);
-				try {
-					await dbInstance!.disconnect();
-					logger.log(`${config.console?.emojis?.HOST || '🔧'} >> Redis disconnected successfully`.green);
-				} catch (error) {
-					logger.err(`Failed to disconnect Redis: ${error}`);
-				}
-			});
-
-			process.on('SIGTERM', async () => {
-				logger.log(`${config.console?.emojis?.HOST || '🔧'} >> Disconnecting Redis cache sync...`.yellow);
-				try {
-					await dbInstance!.disconnect();
-					logger.log(`${config.console?.emojis?.HOST || '🔧'} >> Redis disconnected successfully`.green);
-				} catch (error) {
-					logger.err(`Failed to disconnect Redis: ${error}`);
-				}
-			});
-		}
-	}
-
 	return dbInstance;
 }
 

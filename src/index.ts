@@ -39,28 +39,6 @@ conf({ debug: false, quiet: true });
 
 let server: Server.HorizonDatabase;
 if (config.database?.method === "HORIZONDB") {
-	console.log({
-		database: {
-			login: {
-				username: config.database.horizon_db?.login!,
-				password: config.database.horizon_db?.password!,
-			},
-			default_table: "json",
-			flush_interval: 60_000 * 5
-		},
-		server: {
-			enableVerboses: true,
-			host: config.database.horizon_db?.host,
-			port: config.database.horizon_db?.port
-		},
-		to: {
-			host: config.database.mySQL?.host!,
-			port: config.database.mySQL?.port!,
-			database: config.database.mySQL?.database!,
-			username: config.database.mySQL?.user!,
-			password: config.database.mySQL?.password!
-		}
-	})
 	server = new Server.HorizonDatabase({
 		database: {
 			login: {

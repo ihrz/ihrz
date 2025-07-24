@@ -46,7 +46,7 @@ import { EmojisManager } from "../src/core/modules/emojisManager.ts";
 import { InfrastructureMonitoring } from "../src/core/modules/infrastructureMonitoringManager.ts";
 import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
 import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
-import { PallasDB } from "pallas-db";
+import type { db } from "../src/core/database.ts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -60,7 +60,7 @@ declare module 'discord.js' {
 		vanityInvites: Collection<Snowflake, VanityInviteData>,
 		buttons: Collection<string, Function>,
 		selectmenu: Collection<string, Function>,
-		db: PallasDB,
+		db: db,
 		applicationsCommands: Collection<string, AnotherCommand>,
 		iHorizon_Emojis: typeof emojis,
 		giveawaysManager: GiveawayManager,
