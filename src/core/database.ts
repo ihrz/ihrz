@@ -195,7 +195,7 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 				resolve(new Client.HorizonDatabase(`ws://${config.database?.horizon_db?.host}:${config.database?.horizon_db?.port}`, {
 					login: config.database?.horizon_db?.login!,
 					password: config.database?.horizon_db?.password!,
-					enableVerboses: true,
+					enableVerboses: false,
 					tables
 				}));
 			});
