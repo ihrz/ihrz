@@ -23,7 +23,7 @@ import { Client, PermissionsBitField, ChannelType, Message, GuildMember, AutoMod
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { axios } from '../../core/functions/axios.js';
-import { PallasDB } from 'pallas-db';
+import { db } from '../../core/database.js';
 
 /**
  * Apply sanctions to a member based on the configured punishment type
@@ -33,7 +33,7 @@ import { PallasDB } from 'pallas-db';
  * @param LOG Punishment configuration
  * @param table Database table for temporary data
  */
-async function applySanction(client: Client, message: Message, member: GuildMember, LOG: DatabaseStructure.PunishPubSchema, table: PallasDB): Promise<void> {
+async function applySanction(client: Client, message: Message, member: GuildMember, LOG: DatabaseStructure.PunishPubSchema, table: db): Promise<void> {
 	try {
 		switch (LOG.punishementType) {
 			case 'ban':
