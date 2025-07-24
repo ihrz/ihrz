@@ -27,15 +27,14 @@ import status from "../../files/status.json" with { "type": "json" }
 import logger from "../../core/logger.js";
 
 import { BotEvent } from '../../../types/event.js';
-import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { recoverActiveSessions } from '../stats/onVoiceUpdate.js';
-import { InfrastructureMonitoring } from '../../core/modules/infrastructureMonitoringManager.js';
 import { writeFileSync } from 'node:fs';
 import { removePermissionProperties } from '../../core/commandsSync.js';
 import { getCacheStorage } from '../../core/core.js';
 import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
+import { isNumber } from '../../core/functions/method.js';
 
 export const event: BotEvent = {
 	name: "ready",
@@ -153,7 +152,10 @@ export const event: BotEvent = {
 			const currentTime = Date.now();
 			const fourteenDaysInMillis = 30 * 24 * 60 * 60 * 1000;
 
-			(await client.db.all()).forEach(async (index, value) => {
+			((await client.db.all())
+				.filter(x => isNumber(x.id))
+				.filter(x => client.inShard(x.id))
+			).forEach(async (index, value) => {
 				const guild = index.value as DatabaseStructure.DbInId;
 				const stats = guild.STATS?.USER;
 
@@ -177,33 +179,17 @@ export const event: BotEvent = {
 			});
 		}
 
-		client.giveawaysManager = new GiveawayManager(client, {
-			storage: `${process.cwd()}/src/files/giveaways/`,
-			config: {
-				botsCanWin: false,
-				embedColor: '#9a5af2',
-				embedColorEnd: '#2f3136',
-				reaction: '🎉',
-				botName: "iHorizon",
-				forceUpdateEvery: 3600,
-				endedGiveawaysLifetime: 345_600_000,
-			},
-		});
+		client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id }).then(() => { })
+		recoverActiveSessions(client).then(() => { })
+		recoverCustomVoiceChannels(client).then(() => { })
+		client.memberCountManager.init().then(() => { })
+		client.autoRenewManager.init().then(() => { })
+		client.nightmodeManager.init().then(() => { })
+		client.notifier.start().then(() => { })
+		client.infrastructureMonitoring.startMonitoring().then(() => { })
 
-		await client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id });
-
-		await recoverActiveSessions(client);
-		await recoverCustomVoiceChannels(client);
-		await client.memberCountManager.init();
-		await client.autoRenewManager.init();
-		await client.nightmodeManager.init();
-		// await client.ownihrz.Start_Refresh();
-		await client.notifier.start();
-
-		client.infrastructureMonitoring = new InfrastructureMonitoring();
-		await client.infrastructureMonitoring.startMonitoring();
-
-		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000), setInterval(refreshBotData, 45_000);
+		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000)
+		if (client.shard?.ids[0] === 0) setInterval(refreshBotData, 45_000);
 
 		fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), refreshBotData(), statsRefresher();
 
@@ -238,73 +224,6 @@ export const event: BotEvent = {
 
 			initData._cache.version = newV;
 		}
-
-		// if (client.version.env === "production") {
-		// 	try {
-		// 		// Global counters
-		// 		let totalGuilds = 0;
-		// 		let totalRoles = 0;
-		// 		let totalChannels = 0;
-		// 		let totalMembers = 0;
-		// 		const totalUniqueUsers = new Set();
-
-		// 		// Fetch all guilds
-		// 		const guilds = (await client.guilds.fetch()).filter(x => client.inShard(x.id));
-
-		// 		logger.legacy('\n=== Starting Cache Loading Process ===\n');
-
-		// 		for (const [guildId, guild] of guilds) {
-		// 			totalGuilds++;
-		// 			logger.legacy(`📋 Processing Guild: ${guild.name} (${guild.id})`);
-
-		// 			// Load complete guild
-		// 			const fullGuild = await guild.fetch();
-
-		// 			// Load roles
-		// 			const roles = await fullGuild.roles.fetch();
-		// 			totalRoles += roles.size;
-		// 			logger.legacy(`   ┣━ Roles Loaded: ${roles.size}`);
-
-		// 			// Load channels
-		// 			const channels = await fullGuild.channels.fetch();
-		// 			totalChannels += channels.size;
-		// 			logger.legacy(`   ┣━ Channels Loaded: ${channels.size}`);
-
-		// 			// Load members with chunking
-		// 			try {
-		// 				// Request guild members chunking
-		// 				await fullGuild.members.fetch()
-		// 					.then(members => {
-		// 						totalMembers += members.size;
-		// 						members.forEach(member => totalUniqueUsers.add(member.user.id));
-		// 						logger.legacy(`   ┗━ Members Loaded: ${members.size}`);
-		// 					})
-		// 					.catch(error => {
-		// 						if (error.code === 'GuildMembersTimeout') {
-		// 							logger.legacy(`   ┗━ ⚠️ Partial Members Load: Timeout occurred for ${fullGuild.name}`);
-		// 						} else {
-		// 							throw error;
-		// 						}
-		// 					});
-		// 			} catch (memberError) {
-		// 				console.error(`   ┗━ ❌ Error loading members for ${fullGuild.name}:`, memberError);
-		// 			}
-		// 			logger.legacy(''); // Empty line for readability
-		// 		}
-
-		// 		// Print global statistics
-		// 		logger.legacy('=== Global Cache Statistics ===');
-		// 		logger.legacy(`📊 Total Guilds: ${totalGuilds}`);
-		// 		logger.legacy(`👥 Total Unique Users: ${totalUniqueUsers.size}`);
-		// 		logger.legacy(`👤 Total Members (including duplicates): ${totalMembers}`);
-		// 		logger.legacy(`📜 Total Roles: ${totalRoles}`);
-		// 		logger.legacy(`📝 Total Channels: ${totalChannels}`);
-		// 		logger.legacy('\n=== Cache Loading Complete ===');
-
-		// 	} catch (error) {
-		// 		console.error('❌ Error while loading caches:', error);
-		// 	}
-		// }
 
 		logger.log(`${client.config.console.emojis.HOST} >> Bot is ready`.white);
 

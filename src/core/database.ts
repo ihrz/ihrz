@@ -27,7 +27,7 @@ import logger from './logger.js';
 import path from 'path';
 import fs from 'fs';
 
-type db = PallasDB | Client.HorizonDatabase
+export type db = PallasDB | Client.HorizonDatabase
 let dbInstance: db | null = null;
 
 export const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
