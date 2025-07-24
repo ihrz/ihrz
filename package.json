@@ -34,7 +34,7 @@
 		"discord.js": "^14.21.0",
 		"dotenv": "^17.2.1",
 		"gifwrap": "^0.10.1",
-		"horizon.db": "^1.1.4",
+		"horizon.db": "^1.1.5",
 		"jimp": "0.22.12",
 		"js-yaml": "^4.1.0",
 		"jszip": "^3.10.1",
