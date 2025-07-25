@@ -27,7 +27,7 @@ import logger from './logger.js';
 import path from 'path';
 import fs from 'fs';
 
-export type db = PallasDB | Client.HorizonDatabase
+export type db = PallasDB | Client.HorizonDatabase;
 let dbInstance: db | null = null;
 
 export const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
@@ -190,14 +190,17 @@ export async function initializeDatabase(config: ConfigData): Promise<db> {
 			break;
 
 		case "HORIZONDB":
-			dbPromise = new Promise<Client.HorizonDatabase>((resolve, reject) => {
+			dbPromise = new Promise<Client.HorizonDatabase>(async (resolve, reject) => {
 				logger.log(`${config.console.emojis.HOST} >> Connected to the database (${config.database?.method}) !`.green);
-				resolve(new Client.HorizonDatabase(`ws://${config.database?.horizon_db?.host}:${config.database?.horizon_db?.port}`, {
+				const db = new Client.HorizonDatabase(`ws://${config.database?.horizon_db?.host}:${config.database?.horizon_db?.port}`, {
 					login: config.database?.horizon_db?.login!,
 					password: config.database?.horizon_db?.password!,
-					enableVerboses: false,
+					enableVerboses: process.env.DEV === "true" ? true : false,
 					tables
-				}));
+				});
+
+				await db.waitUntilReady();
+				resolve(db);
 			});
 			break;
 		default:
