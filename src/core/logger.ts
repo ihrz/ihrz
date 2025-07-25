@@ -24,7 +24,7 @@ import { log as _ } from 'console';
 import "./functions/colors.js";
 
 function getCurrentTime(): string {
-	return (new Date()).toLocaleString()
+	return `SHARD#${global.client?.shard?.ids[0] || "X"} ` + (new Date()).toLocaleString()
 };
 
 const logger: Logger = {
