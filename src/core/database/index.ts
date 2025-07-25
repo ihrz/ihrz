@@ -39,6 +39,12 @@ export const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'AP
 export const readOnlyTables = ["AUTHRESTORE", "OWNIHRZ", 'API'];
 export const databasePath = `${process.cwd()}/src/files/`;
 
+export const overwriteLastLine = (message: string) => {
+	process.stdout.write('\u001B[2K');
+	process.stdout.write('\u001B[G');
+	process.stdout.write(message);
+};
+
 if (!fs.existsSync(databasePath)) {
 	fs.mkdirSync(databasePath, { recursive: true });
 }
@@ -77,6 +83,83 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			enableVerboses: process.env.DEV === "true" ? true : false,
 			tables
 		});
+	} else if (database.method === "cached_postgres") {
+		logger.log(`${client.config.console.emojis.HOST} >> Initializing cached Postgres database setup (${database?.method}) !`.green);
+
+		const postgresDb = new Postgres({
+			connectionString: `postgres://${database.mySQL?.user}:${encodeURIComponent(database.mySQL?.password!)}@${database.mySQL?.host}:${database.mySQL?.port}/${database.mySQL?.database}`,
+			table: "json"
+		});
+
+		dbInstance = new Memory();
+
+		for (const table of tables) {
+			const memoryTable = await dbInstance.table(table);
+			const postgresTable = await postgresDb.table(table);
+			const allData = await postgresTable.all();
+
+			for (const { id, value } of allData) {
+				await memoryTable.set(id, value);
+			}
+		}
+
+		const syncToPostgres = async () => {
+			for (const table of tables) {
+				const postgresTable = await postgresDb.table(table);
+				const memoryTable = await dbInstance!.table(table);
+
+				const postgresData = await postgresTable.all();
+				const memoryData = await memoryTable.all();
+
+				const postgresMap = new Map(postgresData.map(item => [item.id, item.value]));
+				const memoryMap = new Map(memoryData.map(item => [item.id, item.value]));
+
+				for (const [id, value] of memoryMap) {
+					const postgresValue = postgresMap.get(id);
+					if (!postgresValue || JSON.stringify(postgresValue) !== JSON.stringify(value)) {
+						try {
+							if (readOnlyTables.includes(table)) {
+								for (const { id, value } of postgresData) {
+									await memoryTable.set(id, value);
+								}
+							} else {
+								await postgresTable.set(id, value);
+							}
+						} catch (error) {
+							logger.err(error as any);
+						}
+					}
+				}
+
+				if (!readOnlyTables.includes(table)) {
+					for (const id of postgresMap.keys()) {
+						if (!memoryMap.has(id)) {
+							try {
+								await postgresTable.delete(id);
+							} catch (error) {
+								logger.err(error as any);
+							}
+						}
+					}
+				}
+
+				if (readOnlyTables.includes(table)) {
+					for (const id of memoryMap.keys()) {
+						if (!postgresMap.has(id)) {
+							try {
+								await memoryTable.delete(id);
+							} catch (error) {
+								logger.err(error as any);
+							}
+						}
+					}
+				}
+			}
+
+			overwriteLastLine(logger.returnLog(`${client.config.console.emojis.HOST} >> Synchronized memory database to Postgres !`));
+		};
+
+		setInterval(syncToPostgres, 60000 * 5);
 	} else {
 		dbInstance = new Sqlite({
 			filePath: path.join(databasePath, "db.sqlite")
