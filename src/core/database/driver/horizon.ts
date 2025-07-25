@@ -145,8 +145,12 @@ export class Horizon {
 		}
 	}
 
-	private async sendMessage(data: Omit<PacketMessage, 'id' | 'type' | 'table' | 'sessionId'>): Promise<any> {
-		await this.waitForReady();
+	private async sendMessage(
+		data: Omit<PacketMessage, 'id' | 'type' | 'table' | 'sessionId'>,
+		waitReady: boolean = true
+	): Promise<any> {
+		if (waitReady) await this.waitForReady();
+
 		return new Promise((resolve, reject) => {
 			const id = this.generateId();
 			const message: PacketMessage = {
@@ -182,6 +186,7 @@ export class Horizon {
 			login: this.login!,
 			password: this.password!
 		}).then(result => {
+		}, false).then(result => {
 			if (!result.success) throw new Error("Authentication failed");
 			this.sessionId = result.sessionId;
 			this.console("log", "Authenticated");
