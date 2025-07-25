@@ -11,7 +11,6 @@ export class Postgres<D = any> {
 	private ownsConnection: boolean;
 
 	constructor(options: PostgresOptions) {
-
 		if (options.sql) {
 			this.sql = options.sql;
 			this.ownsConnection = false;
@@ -23,7 +22,7 @@ export class Postgres<D = any> {
 
 			throw new Error("Either 'connectionString' or 'sql' must be provided to Postgres constructor.");
 		}
-		this.tableName = options.table ?? "json";
+		this.tableName = options.table ? options.table.toLowerCase() : "json";
 	}
 
 	private createError(message: string, kind: ErrorKind): Error {
@@ -57,14 +56,14 @@ export class Postgres<D = any> {
 	private async ensureTableExists(tableName: string): Promise<void> {
 		try {
 			await this.sql`
-                CREATE TABLE IF NOT EXISTS ${this.sql.unsafe(tableName)} (
+                CREATE TABLE IF NOT EXISTS ${this.sql.unsafe(tableName.toLowerCase())} (
                     "id" VARCHAR(255) PRIMARY KEY,
                     "value" TEXT NOT NULL
                 )
             `;
 		} catch (err) {
-			console.error(`Error ensuring table ${tableName} exists:`, err);
-			throw new Error(`Failed to ensure table ${tableName} exists`);
+			console.error(`Error ensuring table ${tableName.toLowerCase()} exists:`, err);
+			throw new Error(`Failed to ensure table ${tableName.toLowerCase()} exists`);
 		}
 	}
 
@@ -72,18 +71,18 @@ export class Postgres<D = any> {
 	private async getAllRows(
 		table: string
 	): Promise<{ id: string; value: any }[]> {
-		await this.ensureTableExists(table);
+		await this.ensureTableExists(table.toLowerCase());
 		try {
 			const rows = await this.sql`
-                SELECT "id", "value" FROM ${this.sql.unsafe(table)}
+                SELECT "id", "value" FROM ${this.sql.unsafe(table.toLowerCase())}
             `;
 			return rows.map((row: any) => ({
 				id: row.id,
 				value: typeof row.value === 'string' ? JSON.parse(row.value) : row.value
 			}));
 		} catch (err) {
-			console.error(`Error getting all rows from ${table}:`, err);
-			throw new Error(`Failed to get rows from ${table}`);
+			console.error(`Error getting all rows from ${table.toLowerCase()}:`, err);
+			throw new Error(`Failed to get rows from ${table.toLowerCase()}`);
 		}
 	}
 
@@ -95,7 +94,7 @@ export class Postgres<D = any> {
 		try {
 
 			const rows = await this.sql`
-                SELECT "value" FROM ${this.sql.unsafe(table)} WHERE "id" = ${key}
+                SELECT "value" FROM ${this.sql.unsafe(table.toLowerCase())} WHERE "id" = ${key}
             `;
 			if (rows.length === 0) {
 				return [null, false];
@@ -103,7 +102,7 @@ export class Postgres<D = any> {
 			const val = typeof rows[0].value === 'string' ? JSON.parse(rows[0].value) : rows[0].value;
 			return [val as T, true];
 		} catch (err) {
-			console.error(`Error getting row by key ${key} from ${table}:`, err);
+			console.error(`Error getting row by key ${key} from ${table.toLowerCase()}:`, err);
 			return [null, false];
 		}
 	}
@@ -116,14 +115,14 @@ export class Postgres<D = any> {
 		await this.ensureTableExists(table);
 		try {
 			const rows = await this.sql`
-                SELECT "id", "value" FROM ${this.sql.unsafe(table)} WHERE "id" LIKE ${query + '%'}
+                SELECT "id", "value" FROM ${this.sql.unsafe(table.toLowerCase())} WHERE "id" LIKE ${query + '%'}
             `;
 			return rows.map((row: any) => ({
 				id: row.id,
 				value: typeof row.value === 'string' ? JSON.parse(row.value) : row.value
 			}));
 		} catch (err) {
-			console.error(`Error getting rows starting with ${query} from ${table}:`, err);
+			console.error(`Error getting rows starting with ${query} from ${table.toLowerCase()}:`, err);
 			return [];
 		}
 	}
@@ -135,11 +134,11 @@ export class Postgres<D = any> {
 		value: any,
 		_update: boolean
 	): Promise<T> {
-		await this.ensureTableExists(table);
+		await this.ensureTableExists(table.toLowerCase());
 		try {
 			const valueString = JSON.stringify(value);
 			await this.sql`
-                INSERT INTO ${this.sql.unsafe(table)} ("id", "value")
+                INSERT INTO ${this.sql.unsafe(table.toLowerCase())} ("id", "value")
                 VALUES (${key}, ${valueString})
                 ON CONFLICT ("id")
                 DO UPDATE SET "value" = EXCLUDED."value"
@@ -149,46 +148,46 @@ export class Postgres<D = any> {
 			}
 			return value as T;
 		} catch (err) {
-			console.error(`Error setting row by key ${key} in ${table}:`, err);
+			console.error(`Error setting row by key ${key} in ${table.toLowerCase()}:`, err);
 			throw new Error(`Failed to set value for key ${key}`);
 		}
 	}
 
 
 	private async deleteAllRows(table: string): Promise<number> {
-		await this.ensureTableExists(table);
+		await this.ensureTableExists(table.toLowerCase());
 		try {
 
 			const result = await this.sql`
-                DELETE FROM ${this.sql.unsafe(table)}
+                DELETE FROM ${this.sql.unsafe(table.toLowerCase())}
             `;
 
 			const deletedCount = result.count ?? result.affectedRows ?? 0;
 			for (const mirror of this.mirrors) {
-				await mirror.deleteAllRows(table);
+				await mirror.deleteAllRows(table.toLowerCase());
 			}
 			return deletedCount;
 		} catch (err) {
-			console.error(`Error deleting all rows from ${table}:`, err);
-			throw new Error(`Failed to delete all rows from ${table}`);
+			console.error(`Error deleting all rows from ${table.toLowerCase()}:`, err);
+			throw new Error(`Failed to delete all rows from ${table.toLowerCase()}`);
 		}
 	}
 
 
 	private async deleteRowByKey(table: string, key: string): Promise<number> {
-		await this.ensureTableExists(table);
+		await this.ensureTableExists(table.toLowerCase());
 		try {
 			const result = await this.sql`
-                DELETE FROM ${this.sql.unsafe(table)} WHERE "id" = ${key}
+                DELETE FROM ${this.sql.unsafe(table.toLowerCase())} WHERE "id" = ${key}
             `;
 
 			const deletedCount = result.count ?? result.affectedRows ?? 0;
 			for (const mirror of this.mirrors) {
-				await mirror.deleteRowByKey(table, key);
+				await mirror.deleteRowByKey(table.toLowerCase(), key);
 			}
 			return deletedCount;
 		} catch (err) {
-			console.error(`Error deleting row by key ${key} from ${table}:`, err);
+			console.error(`Error deleting row by key ${key} from ${table.toLowerCase()}:`, err);
 			throw new Error(`Failed to delete row with key ${key}`);
 		}
 	}
@@ -494,12 +493,11 @@ export class Postgres<D = any> {
 		}
 
 		const newDB = new Postgres<T>({
-			table: tableName,
+			table: tableName.toLowerCase(),
 			sql: this.sql
-
 		});
 
-		await newDB.ensureTableExists(tableName);
+		await newDB.ensureTableExists(tableName.toLowerCase());
 		return newDB;
 	}
 
