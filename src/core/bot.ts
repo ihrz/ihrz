@@ -67,9 +67,9 @@ const client = new Client({
 	enforceNonce: true
 }); global.client = client;
 
-client.db = await initializeDatabase(config.database);
 client.version = ClientVersion
 client.config = config;
+client.db = await initializeDatabase(config.database);
 client.inShard = function (guildId: string): boolean {
 	const shardId = client.shard?.ids?.[0] ?? 0;
 	const totalShards = client.options.shardCount ?? 1;
