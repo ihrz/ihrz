@@ -1,25 +1,29 @@
 
 import { get_property, set_property, unset_property } from "../lodash.ts";
-import { ErrorKind } from "../types.ts";
+import { ErrorKind, PostgresOptions } from "../types.ts";
 import { SQL } from "bun";
-
-type PostgresOptions = {
-	table?: string;
-	connectionString: string;
-};
 
 export class Postgres<D = any> {
 	private tableName: string;
-	private connectionString: string;
+	private connectionString: string | undefined;
 	private sql: SQL;
 	private mirrors: Postgres[] = [];
+	private ownsConnection: boolean;
 
 	constructor(options: PostgresOptions) {
-		this.connectionString = options.connectionString;
-		this.tableName = options.table ?? "json";
-		this.sql = new SQL(this.connectionString);
 
-		this.ensureTableExists(this.tableName).catch(console.error);
+		if (options.sql) {
+			this.sql = options.sql;
+			this.ownsConnection = false;
+		} else if (options.connectionString) {
+			this.connectionString = options.connectionString;
+			this.sql = new SQL(this.connectionString);
+			this.ownsConnection = true;
+		} else {
+
+			throw new Error("Either 'connectionString' or 'sql' must be provided to Postgres constructor.");
+		}
+		this.tableName = options.table ?? "json";
 	}
 
 	private createError(message: string, kind: ErrorKind): Error {
@@ -36,7 +40,6 @@ export class Postgres<D = any> {
 	public async export(): Promise<{ id: string; value: any }[]> {
 		await this.ensureTableExists(this.tableName);
 		try {
-
 			const rows = await this.sql`
                 SELECT "id", "value" FROM ${this.sql.unsafe(this.tableName)}
             `;
@@ -53,8 +56,6 @@ export class Postgres<D = any> {
 
 	private async ensureTableExists(tableName: string): Promise<void> {
 		try {
-
-
 			await this.sql`
                 CREATE TABLE IF NOT EXISTS ${this.sql.unsafe(tableName)} (
                     "id" VARCHAR(255) PRIMARY KEY,
@@ -73,7 +74,6 @@ export class Postgres<D = any> {
 	): Promise<{ id: string; value: any }[]> {
 		await this.ensureTableExists(table);
 		try {
-
 			const rows = await this.sql`
                 SELECT "id", "value" FROM ${this.sql.unsafe(table)}
             `;
@@ -104,7 +104,6 @@ export class Postgres<D = any> {
 			return [val as T, true];
 		} catch (err) {
 			console.error(`Error getting row by key ${key} from ${table}:`, err);
-
 			return [null, false];
 		}
 	}
@@ -116,8 +115,6 @@ export class Postgres<D = any> {
 	): Promise<{ id: string; value: any }[]> {
 		await this.ensureTableExists(table);
 		try {
-
-
 			const rows = await this.sql`
                 SELECT "id", "value" FROM ${this.sql.unsafe(table)} WHERE "id" LIKE ${query + '%'}
             `;
@@ -141,8 +138,6 @@ export class Postgres<D = any> {
 		await this.ensureTableExists(table);
 		try {
 			const valueString = JSON.stringify(value);
-
-
 			await this.sql`
                 INSERT INTO ${this.sql.unsafe(table)} ("id", "value")
                 VALUES (${key}, ${valueString})
@@ -183,7 +178,6 @@ export class Postgres<D = any> {
 	private async deleteRowByKey(table: string, key: string): Promise<number> {
 		await this.ensureTableExists(table);
 		try {
-
 			const result = await this.sql`
                 DELETE FROM ${this.sql.unsafe(table)} WHERE "id" = ${key}
             `;
@@ -364,8 +358,6 @@ export class Postgres<D = any> {
 			unset_property(obj, keySplit.slice(1).join("."));
 
 			return this.set(keySplit[0], obj) as unknown as number;
-
-
 		}
 		return this.deleteRowByKey(this.tableName, key);
 	}
@@ -501,11 +493,10 @@ export class Postgres<D = any> {
 			);
 		}
 
-
-
 		const newDB = new Postgres<T>({
 			table: tableName,
-			connectionString: this?.connectionString || "fallback_connection_string_if_needed"
+			sql: this.sql
+
 		});
 
 		await newDB.ensureTableExists(tableName);
@@ -516,7 +507,6 @@ export class Postgres<D = any> {
 
 	public async close(): Promise<void> {
 		try {
-
 			if (this.sql && typeof this.sql.end === 'function') {
 				await this.sql.end();
 			}
