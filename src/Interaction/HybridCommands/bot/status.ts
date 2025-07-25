@@ -34,7 +34,6 @@ import { Command } from '../../../../types/command.js';
 import os from 'node:os';
 import { existsSync, readFile } from 'node:fs';
 import { exec } from 'node:child_process';
-import { getCacheStorage } from '../../../core/core.js';
 
 function niceBytes(kb: number) {
 	let bytes = kb * 1024;
@@ -173,7 +172,7 @@ export const command: Command = {
 				{ name: "Cpu", value: `${os.cpus()[0].model} (${os.machine()})`, inline: false },
 				{ name: "Memory", value: `${niceBytes(memInfo["MemTotal"] - memInfo["MemAvailable"])}/${niceBytes(memInfo["MemTotal"])}`, inline: false },
 				{ name: "Machine Uptime", value: `${time(new Date(Date.now() - os.uptime() * 1000), 'd')}`, inline: false },
-				{ name: "Bot Uptime", value: `${time(new Date(getCacheStorage()?.initialized_timestamp!), 'd')}` },
+				{ name: "Bot Uptime", value: time(new Date(Date.now() - process.uptime() * 1000), 'd') },
 				{ name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
 				{ name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },
 				{ name: `${client.iHorizon_Emojis.Bun} Bun Version`, value: `${Bun.version}`, inline: false }

@@ -49,7 +49,6 @@ import config from '../files/config.js';
 import { Client_Functions } from '../../types/client_functions.js';
 import { AnotherCommand } from '../../types/anotherCommand.js';
 import { EmojisManager } from './modules/emojisManager.js';
-import { cache_storage_data } from './cache.js';
 import { NightModeManager } from './modules/nightModeManager.js';
 import { GithubLinesManager } from './modules/githubLinesManager.js';
 import { DiscordSlashLogParser } from './converters/slashLog.js';
@@ -77,8 +76,6 @@ if (fs.existsSync(old_slash_logs_file)) {
 backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
-	dataInitializer();
-
 	if (client.config.discord.phonePresence) {
 
 		const { identifyProperties } = DefaultWebSocketManagerOptions;
@@ -181,21 +178,4 @@ function login() {
 			logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta);
 		});
 	});
-}
-
-export function dataInitializer() {
-	const baseData: InitData = {
-		initialized_timestamp: Date.now(),
-		_cache: {
-			version: getCacheStorage()?._cache.version || version,
-			updateChannelId: getCacheStorage()?._cache.updateChannelId || "None"
-		}
-	}
-	cache_storage_data["stored_data"] = baseData;
-
-	logger.log(`${config.console.emojis.OK} >> dataInitializer:: Timestamp Generated in .uptime`);
-}
-
-export function getCacheStorage(): InitData {
-	return cache_storage_data["stored_data"]
 }

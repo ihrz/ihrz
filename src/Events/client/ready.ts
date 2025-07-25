@@ -31,7 +31,6 @@ import { DatabaseStructure } from '../../../types/database_structure.js';
 import { recoverActiveSessions } from '../stats/onVoiceUpdate.js';
 import { writeFileSync } from 'node:fs';
 import { removePermissionProperties } from '../../core/commandsSync.js';
-import { getCacheStorage } from '../../core/core.js';
 import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 import { isNumber } from '../../core/functions/method.js';
@@ -194,36 +193,6 @@ export const event: BotEvent = {
 		fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), refreshBotData(), statsRefresher();
 
 		PfpsManager_Init(client);
-
-		const initData = getCacheStorage();
-
-		const oldV = initData?._cache.version;
-		const newV = client.version.version;
-
-		if (oldV !== newV) {
-			const sendingContent = {
-				content: "@everyone **New update available !**",
-				embeds: [
-					new EmbedBuilder()
-						.setTimestamp()
-						.setURL(`https://gitlab.com/ihrz/ihrz/compare/${oldV}...${newV}`)
-						.setTitle(`Click me to see the changelog [${oldV} -> ${newV}]`)
-				]
-			};
-
-			if (client.version.env !== "dev" && client.version.env !== "production") {
-				Array.from(new Set([client.config.owner.ownerid1, client.config.owner.ownerid2])).forEach(async usr => {
-					const user = await client.users.fetch(usr);
-					sendingContent.content = "**New update available !**"
-					user.send(sendingContent).catch(() => false);
-				});
-			} else {
-				const channel_to_send = client.channels.cache.get(initData?._cache.updateChannelId || "00") as BaseGuildTextChannel | undefined;
-				channel_to_send?.send(sendingContent).catch(() => false);
-			}
-
-			initData._cache.version = newV;
-		}
 
 		logger.log(`${client.config.console.emojis.HOST} >> Bot is ready`.white);
 
