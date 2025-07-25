@@ -185,7 +185,6 @@ export class Horizon {
 			operation: "login",
 			login: this.login!,
 			password: this.password!
-		}).then(result => {
 		}, false).then(result => {
 			if (!result.success) throw new Error("Authentication failed");
 			this.sessionId = result.sessionId;
