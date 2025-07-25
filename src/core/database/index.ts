@@ -77,6 +77,8 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			enableVerboses: process.env.DEV === "true" ? true : false,
 			tables
 		});
+
+		await dbInstance.waitUntilReady();
 	} else {
 		dbInstance = new Sqlite({
 			filePath: path.join(databasePath, "db.sqlite")
