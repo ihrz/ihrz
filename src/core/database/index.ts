@@ -26,8 +26,8 @@ import logger from '../logger.js';
 import path from 'path';
 import fs from 'fs';
 
-import { HorizonDatabaseClient } from './driver/horizon.js';
 import { Postgres } from './driver/postgres.js';
+import { Horizon } from './driver/horizon.js';
 import { Memory } from './driver/memory.js';
 import { Sqlite } from './driver/sqlite.js';
 import { Json } from './driver/json.js';
@@ -71,14 +71,12 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			table: "json"
 		});
 	} else if (database.method === "horizon") {
-		dbInstance = new HorizonDatabaseClient(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
+		dbInstance = new Horizon(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
 			login: database?.horizon_db?.login!,
 			password: database?.horizon_db?.password!,
 			enableVerboses: process.env.DEV === "true" ? true : false,
 			tables
 		});
-
-		await dbInstance.waitUntilReady();
 	} else {
 		dbInstance = new Sqlite({
 			filePath: path.join(databasePath, "db.sqlite")
