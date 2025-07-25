@@ -41,7 +41,7 @@ export const subCommand: SubCommand = {
 			var member = await client.func.method.user(interaction, args!, 0) || interaction.author;
 		};
 
-		const tableProfil = client.db.table('USER_PROFIL');
+		const tableProfil = await client.db.table('USER_PROFIL');
 
 		let description = await tableProfil.get(`${member.id}.desc`);
 		if (!description) description = lang.profil_not_description_set;

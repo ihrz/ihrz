@@ -303,7 +303,7 @@ class NightModeManager {
 
 	public async isAlreadyHandled(type: checked_nightmode_response, guild: Guild): Promise<boolean> {
 		// Get night mode config for this guild
-		const nightModeData: DatabaseStructure.NightMode | undefined = await client.db.get(`${guild.id}.UTILS.NIGHT_MODE`);
+		const nightModeData = await (client.db.get(`${guild.id}.UTILS.NIGHT_MODE`)) as DatabaseStructure.NightMode | undefined;
 		if (!nightModeData) return false;
 
 		// If last action is the same as the current one, no need to repeat it

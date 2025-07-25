@@ -75,7 +75,7 @@ export const event: BotEvent = {
 				.setTimestamp()
 				.setFooter(await guild.client.func.displayBotName.footerBuilder(guild.id))
 
-			const table = client.db.table('BLACKLIST')
+			const table = await client.db.table('BLACKLIST')
 			const isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
 
 			if (isBL) {

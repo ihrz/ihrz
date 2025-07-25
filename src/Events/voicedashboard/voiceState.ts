@@ -33,7 +33,7 @@ export const event: BotEvent = {
 		// Avoid some troubles
 		if (newState.channelId === oldState.channelId) return;
 
-		const table = client.db.table('TEMP');
+		const table = await client.db.table('TEMP');
 
 		const allChannel = await table.get(`CUSTOM_VOICE.${newState.guild.id}`);
 
@@ -166,7 +166,7 @@ export const event: BotEvent = {
 
 export async function recoverCustomVoiceChannels(client: Client) {
 	for (const guild of client.guilds.cache.values()) {
-		const table = client.db.table('TEMP');
+		const table = await client.db.table('TEMP');
 		const allCustomChannels = await table.get(`CUSTOM_VOICE.${guild.id}`);
 
 		// If no custom voice channels exist for this guild, skip

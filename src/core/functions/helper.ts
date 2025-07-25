@@ -20,11 +20,11 @@
 */
 
 import { Message } from "discord.js";
-import { PallasDB } from "pallas-db";
+import { DB } from "../database/types.ts";
 
 export async function coolDown(message: Message, method: string, ms: number) {
 	const tn = Date.now();
-	const table = message.client.db.table("TEMP");
+	const table = await message.client.db.table("TEMP");
 	const fetch = await table.get(`COOLDOWN.${method}.${message.author.id}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;
 
@@ -32,9 +32,9 @@ export async function coolDown(message: Message, method: string, ms: number) {
 	return false;
 };
 
-export async function hardCooldown(database: PallasDB, method: string, ms: number) {
+export async function hardCooldown(database: DB, method: string, ms: number) {
 	const tn = Date.now();
-	const table = database.table("TEMP");
+	const table = await database.table("TEMP");
 	const fetch = await table.get(`COOLDOWN.${method}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;
 

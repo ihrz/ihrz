@@ -224,7 +224,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		const table = client.db.table("AUTHRESTORE");
+		const table = await client.db.table("AUTHRESTORE");
 		const savedUsers: oauth2Member[] = await table.get("saved_users") || [];
 		const fetchedUser = savedUsers.find((x) => x.id === member.id);
 

@@ -62,7 +62,7 @@ export const event: BotEvent = {
 
 		async function refreshDatabaseModel() {
 			// await client.db.table(`TEMP`).deleteAll();
-			const table = client.db.table('OWNER');
+			const table = await client.db.table('OWNER');
 
 			const owners = [...new Set([...client.owners, ...(await table.all()).map(x => x.id)])];
 
@@ -83,7 +83,7 @@ export const event: BotEvent = {
 		};
 
 		async function refreshSchedule() {
-			const table = client.db.table("SCHEDULE");
+			const table = await client.db.table("SCHEDULE");
 			const listAll = await table.all();
 
 			const dateNow = Date.now();
@@ -121,7 +121,7 @@ export const event: BotEvent = {
 		};
 
 		async function refreshBotData() {
-			const ownihrz_table = client.db.table("OWNIHRZ");
+			const ownihrz_table = await client.db.table("OWNIHRZ");
 			const ownihrz_data = await ownihrz_table.get("CLUSTER")
 			const result = await getShardStats(client);
 

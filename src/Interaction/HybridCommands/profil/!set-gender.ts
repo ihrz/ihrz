@@ -40,7 +40,7 @@ export const subCommand: SubCommand = {
 			var user = interaction.author;
 		};
 
-		const tableProfil = client.db.table('USER_PROFIL');
+		const tableProfil = await client.db.table('USER_PROFIL');
 
 		switch (gender) {
 			case "female":

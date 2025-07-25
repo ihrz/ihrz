@@ -65,7 +65,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const tableOwner = client.db.table('OWNER');
+		const tableOwner = await client.db.table('OWNER');
 
 		let text = "";
 		const char = await tableOwner.all();

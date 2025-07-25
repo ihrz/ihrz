@@ -40,7 +40,7 @@ import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-		const tableProfil = client.db.table('USER_PROFIL');
+		const tableProfil = await client.db.table('USER_PROFIL');
 		const birthday = await tableProfil.get(`${interaction.member?.user.id}.birthday`) || {
 			day: null,
 			month: null,

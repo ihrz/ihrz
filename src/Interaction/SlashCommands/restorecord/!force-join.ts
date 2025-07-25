@@ -42,7 +42,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		const secretCode = interaction.options.getString("key")!;
-		const table = client.db.table("AUTHRESTORE");
+		const table = await client.db.table("AUTHRESTORE");
 		const Data = getGuildDataPerSecretCode(await table.all(), secretCode);
 
 		if (!Data) return client.func.method.interactionSend(interaction, {

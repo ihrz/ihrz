@@ -68,14 +68,14 @@ export const command: Command = {
 			})
 		}
 
-		let baseData: DatabaseStructure.NightMode = await client.db.get(`${interaction.guildId}.UTILS.NIGHT_MODE`) || {
+		let baseData = (await client.db.get(`${interaction.guildId}.UTILS.NIGHT_MODE`) || {
 			enabled: true,
 			notify: true,
 			time: [21, 0, 9, 0],
 			wlBots: [],
 			derankBot: true,
 			utc: 1
-		};
+		}) as DatabaseStructure.NightMode;
 
 		let check = client.nightmodeManager.Basics_Check(interaction.guild!);
 		let warn_msg = (await interaction.guild!.fetchOwner()).toString();

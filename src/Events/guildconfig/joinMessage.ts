@@ -178,7 +178,7 @@ export const event: BotEvent = {
 
 			if (!wChan || !channel) return;
 
-			const CustomVanityInvite = await (client.db.table('API')).get(`VANITY.${member.guild.id}`)
+			const CustomVanityInvite = await (await client.db.table('API')).get(`VANITY.${member.guild.id}`)
 			if (inviter.id === client.user?.id && CustomVanityInvite.invite === invite.code) {
 				isCustomVanity = true;
 			}

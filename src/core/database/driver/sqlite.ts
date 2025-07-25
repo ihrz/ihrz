@@ -1,0 +1,440 @@
+import { get_property, set_property, unset_property } from "../lodash.ts";
+import { ErrorKind } from "../types.ts";
+import { Database } from 'bun:sqlite';
+
+export class Sqlite<D = any> {
+	private tableName: string;
+	private path: string;
+	private db: Database;
+	private mirrors: Sqlite[] = [];
+
+	constructor(options: {
+		table?: string;
+		filePath?: string;
+	} = {}) {
+		options.table ??= "json";
+		options.filePath ??= "db.sqlite";
+		this.tableName = options.table;
+		this.path = options.filePath;
+		this.db = new Database(this.path);
+		this.initDatabase();
+	}
+
+	private initDatabase(): void {
+
+		this.db.exec(`CREATE TABLE IF NOT EXISTS ${this.tableName} (ID TEXT PRIMARY KEY, json TEXT)`);
+	}
+
+	private createError(message: string, kind: ErrorKind): Error {
+		const error = new Error(message);
+		error.name = kind;
+		Object.defineProperty(error, 'kind', {
+			value: kind,
+			writable: false
+		});
+		return error;
+	}
+
+	private async snapshot(): Promise<void> {
+
+
+	}
+
+	private async prepare(table: string): Promise<void> {
+		this.db.exec(`CREATE TABLE IF NOT EXISTS ${table} (ID TEXT PRIMARY KEY, json TEXT)`);
+		for (const mirror of this.mirrors) {
+			await mirror.prepare(table);
+		}
+	}
+
+	private async getAllRows(
+		table: string
+	): Promise<{ id: string; value: any }[]> {
+		const stmt = this.db.prepare(`SELECT ID, json FROM ${table} `);
+		const rows = stmt.all() as { ID: string; json: string }[];
+		return rows.map(row => ({ id: row.ID, value: JSON.parse(row.json) }));
+	}
+
+	private async getRowByKey<T>(
+		table: string,
+		key: string
+	): Promise<[T | null, boolean]> {
+		const stmt = this.db.prepare(`SELECT json FROM ${table} WHERE ID = ? `);
+		const row = stmt.get(key) as { json: string } | null;
+		if (row) {
+			return [JSON.parse(row.json) as T, true];
+		} else {
+			return [null, false];
+		}
+	}
+
+	private async getStartsWith(
+		table: string,
+		query: string
+	): Promise<{ id: string; value: any }[]> {
+		const stmt = this.db.prepare(`SELECT ID, json FROM ${table} WHERE ID LIKE ? `);
+		const rows = stmt.all(`${query}% `) as { ID: string; json: string }[];
+		return rows.map(row => ({ id: row.ID, value: JSON.parse(row.json) }));
+	}
+
+	private async setRowByKey<T>(
+		table: string,
+		key: string,
+		value: any,
+		update: boolean
+	): Promise<T> {
+		const jsonValue = JSON.stringify(value);
+		if (update) {
+			const stmt = this.db.prepare(`UPDATE ${table} SET json = ? WHERE ID = ? `);
+			stmt.run(jsonValue, key);
+		} else {
+			try {
+				const stmt = this.db.prepare(`INSERT INTO ${table} (ID, json) VALUES(?, ?)`);
+				stmt.run(key, jsonValue);
+			} catch (e: any) {
+
+				if (e?.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
+					const stmt = this.db.prepare(`UPDATE ${table} SET json = ? WHERE ID = ? `);
+					stmt.run(jsonValue, key);
+				} else {
+					throw e;
+				}
+			}
+		}
+		await this.snapshot();
+		for (const mirror of this.mirrors) {
+			await mirror.setRowByKey(table, key, value, update);
+		}
+		return value as T;
+	}
+
+	private async deleteAllRows(table: string): Promise<number> {
+		const stmt = this.db.prepare(`DELETE FROM ${table} `);
+		const result = stmt.run();
+		await this.snapshot();
+		for (const mirror of this.mirrors) {
+			await mirror.deleteAllRows(table);
+		}
+
+
+
+		return 1;
+	}
+
+	private async deleteRowByKey(table: string, key: string): Promise<number> {
+		const stmt = this.db.prepare(`DELETE FROM ${table} WHERE ID = ? `);
+		const result = stmt.run(key);
+		await this.snapshot();
+		for (const mirror of this.mirrors) {
+			await mirror.deleteRowByKey(table, key);
+		}
+
+
+		return (result.changes > 0) ? 1 : 0;
+	}
+
+	private async addSubtract(
+		key: string,
+		value: number,
+		sub = false
+	): Promise<number> {
+		if (typeof key != "string") {
+			throw this.createError(
+				`First argument(key) needs to be a string received "${typeof key}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		if (value == null) {
+			throw this.createError(
+				"Missing second argument (value)",
+				ErrorKind.MissingValue
+			);
+		}
+		let currentNumber = await this.get<number>(key);
+		if (currentNumber == null) currentNumber = 0;
+		if (typeof currentNumber != "number") {
+			try {
+				currentNumber = parseFloat(currentNumber as string);
+			} catch (_) {
+				throw this.createError(
+					`Current value with key: (${key}) is not a number and couldn't be parsed to a number`,
+					ErrorKind.InvalidType
+				);
+			}
+		}
+		if (typeof value != "number") {
+			try {
+				value = parseFloat(value as string);
+			} catch (_) {
+				throw this.createError(
+					`Value to add/subtract with key: (${key}) is not a number and couldn't be parsed to a number`,
+					ErrorKind.InvalidType
+				);
+			}
+		}
+		sub ? (currentNumber -= value) : (currentNumber += value);
+		await this.set<number>(key, currentNumber);
+		return currentNumber;
+	}
+
+	private async getArray<T = D>(key: string): Promise<T[]> {
+		const currentArr = (await this.get<T[]>(key)) ?? [];
+		if (!Array.isArray(currentArr)) {
+			throw this.createError(
+				`Current value with key: (${key}) is not an array`,
+				ErrorKind.InvalidType
+			);
+		}
+		return currentArr;
+	}
+
+	async all<T = D>(): Promise<{ id: string; value: T }[]> {
+		return this.getAllRows(this.tableName);
+	}
+
+	async get<T = D>(key: string): Promise<T | null> {
+		if (typeof key != "string") {
+			throw this.createError(
+				`First argument (key) needs to be a string received "${typeof key}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		if (key.includes(".")) {
+			const keySplit = key.split(".");
+			const [result] = await this.getRowByKey<T>(
+				this.tableName,
+				keySplit[0]
+			);
+			return get_property(result, keySplit.slice(1).join("."));
+		}
+		const [result] = await this.getRowByKey<T>(this.tableName, key);
+		return result;
+	}
+
+	async set<T = D>(key: string, value: T): Promise<T> {
+		if (typeof key != "string") {
+			throw this.createError(
+				`First argument (key) needs to be a string received "${typeof key}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		if (value == null) {
+			throw this.createError(
+				"Missing second argument (value)",
+				ErrorKind.MissingValue
+			);
+		}
+		if (key.includes(".")) {
+			const keySplit = key.split(".");
+			const [result, exist] = await this.getRowByKey(
+				this.tableName,
+				keySplit[0]
+			);
+			let obj: object;
+			if (result instanceof Object == false) {
+				obj = {};
+			} else {
+				obj = result as object;
+			}
+			const valueSet = set_property(
+				obj ?? {},
+				keySplit.slice(1).join("."),
+				value
+			);
+			return this.setRowByKey(
+				this.tableName,
+				keySplit[0],
+				valueSet,
+				exist
+			);
+		}
+		const [, exist] = await this.getRowByKey(this.tableName, key);
+		return this.setRowByKey(this.tableName, key, value, exist);
+	}
+
+	async update<T = D>(key: string, object: object): Promise<T> {
+		if (typeof key != "string") {
+			throw this.createError(
+				`First argument (key) needs to be a string received "${typeof key}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		if (typeof object != "object" || object == null) {
+			throw this.createError(
+				`Second argument (object) needs to be an object received "${typeof object}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		const data = (await this.get<any>(key)) ?? {};
+		if (typeof data != "object" || Array.isArray(data)) {
+			throw this.createError(
+				`The current data is not an object, update only works on objects`,
+				ErrorKind.InvalidType
+			);
+		}
+		for (const [k, v] of Object.entries(object)) {
+			data[k] = v;
+		}
+		return await this.set(key, data);
+	}
+
+	async has(key: string): Promise<boolean> {
+		return (await this.get(key)) != null;
+	}
+
+	async delete(key: string): Promise<number> {
+		if (typeof key != "string") {
+			throw this.createError(
+				`First argument (key) needs to be a string received "${typeof key}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		if (key.includes(".")) {
+			const keySplit = key.split(".");
+			const obj = (await this.get<any>(keySplit[0])) ?? {};
+			unset_property(obj, keySplit.slice(1).join("."));
+
+			return await this.set(keySplit[0], obj) as unknown as number;
+		}
+		return this.deleteRowByKey(this.tableName, key);
+	}
+
+	async deleteAll(): Promise<number> {
+		return this.deleteAllRows(this.tableName);
+	}
+
+	async add(key: string, value: number): Promise<number> {
+		return this.addSubtract(key, value);
+	}
+
+	async sub(key: string, value: number): Promise<number> {
+		return this.addSubtract(key, value, true);
+	}
+
+	async push<T = D>(key: string, ...values: T[]): Promise<T[]> {
+		if (typeof key != "string") {
+			throw this.createError(
+				`First argument (key) needs to be a string received "${typeof key}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		if (values.length === 0) {
+			throw this.createError(
+				"Missing second argument (value)",
+				ErrorKind.MissingValue
+			);
+		}
+		const currentArr = await this.getArray<T>(key);
+		currentArr.push(...values);
+		return this.set(key, currentArr);
+	}
+
+	async unshift<T = D>(key: string, value: T | T[]): Promise<T[]> {
+		if (typeof key != "string") {
+			throw this.createError(
+				`First argument (key) needs to be a string received "${typeof key}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		if (value == null) {
+			throw this.createError(
+				"Missing second argument (value)",
+				ErrorKind.InvalidType
+			);
+		}
+		let currentArr = await this.getArray<T>(key);
+		if (Array.isArray(value)) currentArr = value.concat(currentArr);
+		else currentArr.unshift(value);
+		return await this.set(key, currentArr);
+	}
+
+	async pop<T = D>(key: string): Promise<T | undefined> {
+		if (typeof key != "string") {
+			throw this.createError(
+				`First argument (key) needs to be a string received "${typeof key}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		const currentArr = await this.getArray<T>(key);
+		const value = currentArr.pop();
+		await this.set(key, currentArr);
+		return value;
+	}
+
+	async shift<T = D>(key: string): Promise<T | undefined> {
+		if (typeof key != "string") {
+			throw this.createError(
+				`First argument (key) needs to be a string received "${typeof key}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		const currentArr = await this.getArray<T>(key);
+		const value = currentArr.shift();
+		await this.set(key, currentArr);
+		return value;
+	}
+
+	async pull<T = D>(
+		key: string,
+		value: T | T[] | ((data: T, index: string) => boolean),
+		once = false
+	): Promise<T[]> {
+		if (typeof key != "string") {
+			throw this.createError(
+				`First argument (key) needs to be a string received "${typeof key}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		if (value == null) {
+			throw this.createError(
+				"Missing second argument (value)",
+				ErrorKind.MissingValue
+			);
+		}
+		const currentArr = await this.getArray<T>(key);
+		if (!Array.isArray(value) && typeof value != "function")
+			value = [value];
+		const data = [];
+		for (const i in currentArr) {
+			if (
+				Array.isArray(value)
+					? value.includes(currentArr[i])
+					: (value as any)(currentArr[i], i)
+			)
+				continue;
+			data.push(currentArr[i]);
+			if (once) break;
+		}
+		return await this.set(key, data);
+	}
+
+	async startsWith<T = D>(
+		query: string
+	): Promise<{ id: string; value: T }[]> {
+		if (typeof query != "string") {
+			throw this.createError(
+				`First argument (query) needs to be a string received "${typeof query}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		const results = await this.getStartsWith(this.tableName, query);
+		return results;
+	}
+
+	async table<T = D>(table: string): Promise<Sqlite<T>> {
+		if (typeof table != "string") {
+			throw this.createError(
+				`First argument (table) needs to be a string received "${typeof table}"`,
+				ErrorKind.InvalidType
+			);
+		}
+		const newDB = new Sqlite({
+			table: table,
+			filePath: this.path
+		});
+
+
+		await newDB.prepare(table);
+		return newDB;
+	}
+}

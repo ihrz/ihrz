@@ -45,8 +45,8 @@ export const subCommand: SubCommand = {
 		const OwnerOne = interaction.options.getUser('owner_one')!.id;
 		const OwnerTwo = interaction.options.getUser('owner_two')?.id || OwnerOne;
 
-		const tempTable = client.db.table('TEMP');
-		const table = client.db.table('OWNIHRZ');
+		const tempTable = await client.db.table('TEMP');
+		const table = await client.db.table('OWNIHRZ');
 
 		const allData = await table.get("CLUSTER");
 

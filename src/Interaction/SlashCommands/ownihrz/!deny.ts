@@ -40,7 +40,7 @@ export const subCommand: SubCommand = {
 
 		const id_1 = interaction.options.getString('id');
 
-		const table_1 = client.db.table("TEMP");
+		const table_1 = await client.db.table("TEMP");
 		let id_2 = await table_1.get(`OWNIHRZ.${interaction.user.id}.${id_1}`);
 
 		for (const i in id_2) {

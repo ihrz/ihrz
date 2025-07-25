@@ -29,7 +29,7 @@ const timeout: number = 1000;
 
 async function cooldDown(client: Client, interaction: Interaction) {
 	const tn = Date.now();
-	const table = client.db.table("TEMP");
+	const table = await client.db.table("TEMP");
 	const fetch = await table.get(`COOLDOWN.${interaction.user.id}`);
 	if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
@@ -244,7 +244,7 @@ export const event: BotEvent = {
 			return await interaction.reply({ content: data.Msg_cooldown, flags: [1 << 6] });
 		}
 
-		if (await client.db.table('BLACKLIST').get(`${interaction.user.id}.blacklisted`)) {
+		if (await (await client.db.table('BLACKLIST')).get(`${interaction.user.id}.blacklisted`)) {
 			return await interaction.reply({
 				embeds: [
 					new EmbedBuilder()

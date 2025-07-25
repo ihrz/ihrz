@@ -38,7 +38,7 @@ export const subCommand: SubCommand = {
 		const secretCode = interaction.options.getString("key")!;
 		const role = interaction.options.getRole("roles")!;
 
-		const table = client.db.table("AUTHRESTORE");
+		const table = await client.db.table("AUTHRESTORE");
 		const data = getGuildDataPerSecretCode(await table.all(), secretCode);
 
 		if (!data) return client.func.method.interactionSend(interaction, {

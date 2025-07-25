@@ -48,7 +48,7 @@ export const command: Command = {
 
 	category: "owner",
 	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
-		const tableOwner = client.db.table('OWNER');
+		const tableOwner = await client.db.table('OWNER');
 
 		if (!await tableOwner.get(`${message.author.id}.owner`)) {
 			await client.func.method.interactionSend(message, { content: lang.blacklist_not_owner });

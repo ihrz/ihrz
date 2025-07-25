@@ -198,7 +198,7 @@ export const event: BotEvent = {
 			return;
 		}
 
-		if (await client.db.table('BLACKLIST').get(`${message.author.id}.blacklisted`)) {
+		if (await (await client.db.table('BLACKLIST')).get(`${message.author.id}.blacklisted`)) {
 			return;
 		}
 

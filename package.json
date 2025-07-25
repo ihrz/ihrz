@@ -33,12 +33,10 @@
 		"discord.js": "^14.21.0",
 		"dotenv": "^17.2.1",
 		"gifwrap": "^0.10.1",
-		"horizon.db": "^1.1.8",
 		"jimp": "0.22.12",
 		"js-yaml": "^4.1.0",
 		"jszip": "^3.10.1",
 		"lavalink-client": "^2.5.8",
-		"pallas-db": "^1.4.2",
 		"puppeteer": "^24.15.0",
 		"typescript-eslint": "^8.38.0"
 	},

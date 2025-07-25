@@ -24,7 +24,7 @@ import { ActionRowBuilder, ButtonInteraction, ComponentType, EmbedBuilder, Guild
 export default async function (interaction: ButtonInteraction<"cached">) {
 
 	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	const table = interaction.client.db.table('TEMP');
+	const table = await interaction.client.db.table('TEMP');
 
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 	const member = interaction.member as GuildMember;

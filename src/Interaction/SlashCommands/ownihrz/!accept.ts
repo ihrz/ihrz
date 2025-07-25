@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 		const cluster = parseInt(interaction.options.getString("cluster")!);
 		const id = interaction.options.getString('id')!;
 
-		const table = client.db.table("TEMP");
+		const table = await client.db.table("TEMP");
 		const allData = await table.get(`OWNIHRZ`);
 
 		function getData() {

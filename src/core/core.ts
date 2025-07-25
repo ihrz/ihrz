@@ -39,7 +39,7 @@ import assetsCalc from "./functions/assetsCalc.js";
 import { StreamNotifier } from './StreamNotifier.js';
 import { version } from '../version.js';
 import { InitData } from '../../types/initDataType.js';
-import { getDatabaseInstance } from './database.js';
+import { getDatabaseInstance } from './database';
 import { KdenLive } from './functions/kdenliveManipulator.js';
 import { Command } from '../../types/command.js';
 import { mkdir, readdir } from 'node:fs/promises';

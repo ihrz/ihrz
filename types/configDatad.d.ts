@@ -90,12 +90,9 @@ export interface ConfigData {
 
 	database?: {
 		method:
-		'JSON' | // JSON with Quick.DB
-		'SQLITE' | // Sqlite for BunDB
-		"POSTGRES2" | // PallasDB for postgres
-		"MYSQL" | // PallasDB with MySQL/MariaDB
-		"CACHED_POSTGRES2" | // Quick.DB Memory Cached with PallasDB postgres 
-		"HORIZONDB" // use horizondb
+		'json' | 'sqlite'
+		| 'memory' | 'postgresql'
+		| 'horizon'
 
 		mongoDb?: string;
 
