@@ -27,7 +27,10 @@ export class Horizon {
 
 	private reconnectAttempts: number = 0;
 	private maxReconnectAttempts: number = 5;
-	private reconnectDelay: number = 1000; // ms
+	private initialReconnectDelay: number = 1000; // ms - Initial reconnection delay
+	private currentReconnectDelay: number; // Current reconnection delay, which will increase
+	private maxReconnectDelay: number = 30000; // ms - Maximum reconnection delay (30 seconds)
+	private reconnectBackoffFactor: number = 1.5; // Factor by which reconnection delay increases
 	private reconnectTimeout: NodeJS.Timeout | null = null;
 
 	// Request timeout configuration
@@ -47,6 +50,9 @@ export class Horizon {
 			this.currentTable = options.tables[0] || "json";
 		}
 		this.enableVerboses = options.enableVerboses || false;
+
+		// Initialize currentReconnectDelay with the initial value
+		this.currentReconnectDelay = this.initialReconnectDelay;
 
 		// Initialize connection and auth promise
 		this.initializeClient();
@@ -78,6 +84,7 @@ export class Horizon {
 	}
 
 	private connect(): Promise<void> {
+		// If a connection promise already exists and is not null, return it
 		if (this.connectionPromise) return this.connectionPromise;
 
 		this.connectionPromise = new Promise((resolve, reject) => {
@@ -85,18 +92,26 @@ export class Horizon {
 			const timeout = setTimeout(() => {
 				ws.close();
 				reject(new Error("Connection timeout"));
-			}, 10_000);
+			}, 10_000); // 10 seconds timeout for initial connection
 
 			ws.onopen = () => {
 				clearTimeout(timeout);
 				this.ws = ws;
 				this.connected = true;
 				this.console("log", "Connected");
+				// Reset reconnect attempts and currentReconnectDelay on successful connection
+				this.reconnectAttempts = 0;
+				this.currentReconnectDelay = this.initialReconnectDelay;
+				if (this.reconnectTimeout) {
+					clearTimeout(this.reconnectTimeout);
+					this.reconnectTimeout = null;
+				}
 				resolve();
 			};
 
 			ws.onerror = err => {
 				clearTimeout(timeout);
+				// Reject the connection promise if an error occurs during connection attempt
 				reject(err);
 			};
 
@@ -108,13 +123,23 @@ export class Horizon {
 	}
 
 	private handleMessage(event: MessageEvent): void {
+		// Use setImmediate to process messages asynchronously, preventing blocking
 		setImmediate(() => {
 			try {
 				const { id, type, data, error }: PacketMessage = JSON.parse(event.data);
 				const pending = this.pendingRequests.get(id);
+
+				// If no pending request found for the ID, it might be an unsolicited message or already handled
 				if (!pending) return;
-				clearTimeout(pending.timer);
+
+				// Clear the timeout for this specific request
+				if (pending.timer) {
+					clearTimeout(pending.timer);
+				}
+				// Remove the request from pending map
 				this.pendingRequests.delete(id);
+
+				// Resolve or reject the promise based on the message type
 				type === "response" ? pending.resolve(data) : pending.reject(new Error(error));
 			} catch (e) {
 				this.console("err", "Invalid server message:", e);
@@ -122,26 +147,58 @@ export class Horizon {
 		});
 	}
 
-	private handleClose(): void {
-		this.console("warn", "WebSocket closed. Reconnecting...");
+	/**
+	 * Cleans up connection-related states and pending requests.
+	 * This function is called when the WebSocket connection is closed or when disconnecting.
+	 */
+	private cleanupConnection(): void {
+		this.console("log", "Cleaning up connection...");
+
+		// Clear any existing reconnect timeout
+		if (this.reconnectTimeout) {
+			clearTimeout(this.reconnectTimeout);
+			this.reconnectTimeout = null;
+		}
+
+		// Reject and clear all pending requests
+		for (const [id, { reject, timer }] of this.pendingRequests.entries()) {
+			if (timer) clearTimeout(timer); // Clear timeout associated with the request
+			reject(new Error("Connection closed or client disconnecting")); // Reject the promise
+			this.pendingRequests.delete(id); // Remove from map
+		}
+		this.pendingRequests.clear(); // Ensure the map is completely empty
+
+		// Reset connection-related states
 		this.connected = false;
 		this.ws = null;
 		this.sessionId = null;
-		this.readyPromise = null;
-		this.authPromise = null;
-		this.connectionPromise = null;
+		this.connectionPromise = null; // Clear the connection promise to allow new connection attempts
+		this.authPromise = null; // Clear the authentication promise
+		this.readyPromise = null; // Clear the ready promise
+		this.isReady = false; // Mark client as not ready
+	}
 
-		for (const [_, pending] of this.pendingRequests.entries()) {
-			clearTimeout(pending.timer);
-			pending.reject(new Error("Connection closed"));
-		}
-		this.pendingRequests.clear();
+	private handleClose(): void {
+		this.console("warn", "WebSocket closed. Attempting to reconnect...");
+		// Call the cleanup function to reset states and clear pending requests
+		this.cleanupConnection();
 
+		// Increment reconnect attempts
 		this.reconnectAttempts++;
+
+		// Attempt to reconnect if within max attempts
 		if (this.reconnectAttempts <= this.maxReconnectAttempts) {
-			setTimeout(() => this.initializeClient(), this.reconnectDelay);
+			this.reconnectTimeout = setTimeout(() => {
+				this.console("log", `Reconnecting attempt ${this.reconnectAttempts} with delay ${this.currentReconnectDelay}ms...`);
+				this.initializeClient(); // Re-initialize the client to attempt connection
+				// Increase the reconnect delay for the next attempt (exponential backoff)
+				this.currentReconnectDelay = Math.min(
+					this.currentReconnectDelay * this.reconnectBackoffFactor,
+					this.maxReconnectDelay
+				);
+			}, this.currentReconnectDelay);
 		} else {
-			this.console("err", "Max reconnect attempts reached");
+			this.console("err", "Max reconnect attempts reached. Connection will not be re-established automatically.");
 		}
 	}
 
@@ -149,6 +206,7 @@ export class Horizon {
 		data: Omit<PacketMessage, 'id' | 'type' | 'table' | 'sessionId'>,
 		waitReady: boolean = true
 	): Promise<any> {
+		// Wait for the client to be ready (connected and authenticated if credentials provided)
 		if (waitReady) await this.waitForReady();
 
 		return new Promise((resolve, reject) => {
@@ -157,39 +215,53 @@ export class Horizon {
 				id,
 				type: "request",
 				table: this.currentTable,
-				sessionId: this.sessionId || undefined,
+				sessionId: this.sessionId || undefined, // Include sessionId if available
 				...data
 			};
 
+			// Set a timeout for the request
 			const timer = setTimeout(() => {
-				this.pendingRequests.delete(id);
-				reject(new Error("Request timeout"));
+				this.pendingRequests.delete(id); // Remove the request if it times out
+				reject(new Error(`Request timeout for operation: ${data.operation}`));
 			}, this.requestTimeout);
 
+			// Store the resolve/reject functions and the timer for this request
 			this.pendingRequests.set(id, { resolve, reject, timer });
 
+			// Check if WebSocket is open before sending
 			if (this.ws?.readyState === WebSocket.OPEN) {
 				this.ws.send(JSON.stringify(message));
 			} else {
+				// If WebSocket is not open, reject immediately and clean up
 				clearTimeout(timer);
 				this.pendingRequests.delete(id);
-				reject(new Error("WebSocket is not open"));
+				reject(new Error("WebSocket is not open. Cannot send message."));
 			}
 		});
 	}
 
 	private authenticate(): Promise<void> {
+		// If an authentication promise already exists, return it
 		if (this.authPromise) return this.authPromise;
 
 		this.authPromise = this.sendMessage({
 			operation: "login",
 			login: this.login!,
 			password: this.password!
-		}, false).then(result => {
-			if (!result.success) throw new Error("Authentication failed");
-			this.sessionId = result.sessionId;
-			this.console("log", "Authenticated");
-		});
+		}, false) // Do not wait for ready state for authentication itself
+			.then(result => {
+				if (!result.success) {
+					throw new Error("Authentication failed");
+				}
+				this.sessionId = result.sessionId;
+				this.console("log", "Authenticated successfully.");
+			})
+			.catch(err => {
+				this.console("err", "Authentication failed:", err);
+				// Clear authPromise on failure so it can be retried
+				this.authPromise = null;
+				throw err; // Re-throw to propagate the error
+			});
 
 		return this.authPromise;
 	}
@@ -238,18 +310,24 @@ export class Horizon {
 
 			return result;
 		} catch (error: any) {
+			this.console('err', 'Logout failed:', error);
 			return { success: false };
 		}
 	}
 
 	public table(tableName: string): Horizon {
+		// Add table name if it's new and tables array is managed
 		if (this.tables.length > 0 && !this.tables.includes(tableName)) {
 			this.tables.push(tableName);
 		}
 
+		// Create a new instance to allow chaining without modifying the original client's table
 		const newInstance = Object.create(Object.getPrototypeOf(this));
-		Object.assign(newInstance, this);
-		newInstance.currentTable = tableName;
+		Object.assign(newInstance, this); // Copy properties
+		newInstance.currentTable = tableName; // Set the new table name
+		// Important: Share pendingRequests map across instances if they are meant to share the same connection
+		// If each `table()` call should create an isolated set of pending requests, then clone it.
+		// Given the current implementation, sharing `pendingRequests` is implied for a single connection.
 		newInstance.pendingRequests = this.pendingRequests;
 
 		return newInstance;
@@ -304,28 +382,15 @@ export class Horizon {
 	}
 
 	public async disconnect(): Promise<void> {
-		if (this.reconnectTimeout) {
-			clearTimeout(this.reconnectTimeout);
-			this.reconnectTimeout = null;
-		}
+		this.console("log", "Disconnecting client...");
+		// Perform a full cleanup of the connection state
+		this.cleanupConnection();
 
-		// Clear all pending requests
-		for (const [id, { reject, timer }] of this.pendingRequests.entries()) {
-			if (timer) clearTimeout(timer);
-			reject(new Error('Client disconnecting'));
-		}
-		this.pendingRequests.clear();
-
-		if (this.ws) {
+		// Explicitly close the WebSocket if it's still open
+		if (this.ws && this.ws.readyState === WebSocket.OPEN) {
 			this.ws.close();
-			this.ws = null;
-			this.connected = false;
-			this.isReady = false;
-			this.connectionPromise = null;
-			this.authPromise = null;
-			this.readyPromise = null;
-			this.sessionId = null;
 		}
+		this.ws = null; // Ensure ws is null after closing
 	}
 
 	public isConnected(): boolean {
@@ -343,10 +408,18 @@ export class Horizon {
 
 	// Configuration methods
 	public setRequestTimeout(timeout: number): void {
-		this.requestTimeout = timeout;
+		if (timeout > 0) {
+			this.requestTimeout = timeout;
+		} else {
+			this.console("warn", "Request timeout must be a positive number.");
+		}
 	}
 
 	public setMaxReconnectAttempts(attempts: number): void {
-		this.maxReconnectAttempts = attempts;
+		if (attempts >= 0) {
+			this.maxReconnectAttempts = attempts;
+		} else {
+			this.console("warn", "Max reconnect attempts must be a non-negative number.");
+		}
 	}
 }

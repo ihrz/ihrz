@@ -49,12 +49,6 @@ if (!fs.existsSync(databasePath)) {
 	fs.mkdirSync(databasePath, { recursive: true });
 }
 
-// export const overwriteLastLine = (message: string) => {
-// 	process.stdout.write('\u001B[2K');
-// 	process.stdout.write('\u001B[G');
-// 	process.stdout.write(message);
-// };
-
 export async function initializeDatabase(database: ConfigData["database"]): Promise<DB> {
 	if (!database) throw new Error("invalid database object")
 	if (dbInstance !== null) {
