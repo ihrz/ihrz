@@ -15,6 +15,7 @@ export class Horizon {
 		resolve: Function;
 		reject: Function;
 		timer?: NodeJS.Timeout;
+		timestamp: number; // Track when request was made
 	}>();
 	private connected: boolean = false;
 	private connectionPromise: Promise<void> | null = null;
@@ -27,18 +28,29 @@ export class Horizon {
 
 	private reconnectAttempts: number = 0;
 	private maxReconnectAttempts: number = 5;
-	private initialReconnectDelay: number = 1000; // ms - Initial reconnection delay
-	private currentReconnectDelay: number; // Current reconnection delay, which will increase
-	private maxReconnectDelay: number = 30000; // ms - Maximum reconnection delay (30 seconds)
-	private reconnectBackoffFactor: number = 1.5; // Factor by which reconnection delay increases
+	private initialReconnectDelay: number = 1000;
+	private currentReconnectDelay: number;
+	private maxReconnectDelay: number = 30000;
+	private reconnectBackoffFactor: number = 1.5;
 	private reconnectTimeout: NodeJS.Timeout | null = null;
 
-	// Request timeout configuration
-	private requestTimeout: number = 30000; // 30 seconds default
+	// Request timeout configuration - Increased from 30s to 60s
+	private requestTimeout: number = 60000;
 
 	// Ready state tracking
 	private isReady: boolean = false;
 	private readyPromise: Promise<void> | null = null;
+
+	// Rate limiting to prevent overwhelming the server
+	private requestQueue: Array<() => void> = [];
+	private activeRequests: number = 0;
+	private maxConcurrentRequests: number = 10; // Limit concurrent requests
+	private isProcessingQueue: boolean = false;
+
+	// Health check mechanism
+	private healthCheckInterval: NodeJS.Timeout | null = null;
+	private lastSuccessfulRequest: number = Date.now();
+	private healthCheckIntervalMs: number = 30000; // 30 seconds
 
 	constructor(url: string = 'ws://localhost:3000', options: HorizonDatabaseClientOptions) {
 		this.url = url;
@@ -51,25 +63,58 @@ export class Horizon {
 		}
 		this.enableVerboses = options.enableVerboses || false;
 
-		// Initialize currentReconnectDelay with the initial value
 		this.currentReconnectDelay = this.initialReconnectDelay;
 
-		// Initialize connection and auth promise
+		// Initialize client with better error handling
 		this.initializeClient();
+		this.startHealthCheck();
 	}
 
 	private generateId(): string {
 		return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 	}
 
-	// Initialize client with connection and optional authentication
+	// Start health check to monitor connection
+	private startHealthCheck(): void {
+		if (this.healthCheckInterval) {
+			clearInterval(this.healthCheckInterval);
+		}
+
+		this.healthCheckInterval = setInterval(() => {
+			const timeSinceLastSuccess = Date.now() - this.lastSuccessfulRequest;
+
+			// If no successful request in the last 2 minutes, check connection health
+			if (timeSinceLastSuccess > 120000 && this.connected) {
+				this.console('warn', 'No successful requests in 2 minutes, checking connection health');
+				this.checkConnectionHealth();
+			}
+		}, this.healthCheckIntervalMs);
+	}
+
+	// Health check by sending a simple ping
+	private async checkConnectionHealth(): Promise<void> {
+		try {
+			// Send a simple has operation to check if connection is alive
+			await this.sendMessage({
+				operation: 'has',
+				key: '__health_check__'
+			}, false, 5000); // Short timeout for health check
+
+			this.lastSuccessfulRequest = Date.now();
+			this.console('log', 'Connection health check passed');
+		} catch (error) {
+			this.console('warn', 'Connection health check failed, triggering reconnection');
+			this.handleClose();
+		}
+	}
+
 	private initializeClient(): void {
 		this.readyPromise = this.connect().then(async () => {
-			// If credentials are provided, authenticate before marking as ready
 			if (this.login && this.password) {
 				await this.authenticate();
 			}
 			this.isReady = true;
+			this.lastSuccessfulRequest = Date.now();
 		}).catch(err => {
 			this.console('err', 'Client initialization failed:', err);
 			throw err;
@@ -84,7 +129,6 @@ export class Horizon {
 	}
 
 	private connect(): Promise<void> {
-		// If a connection promise already exists and is not null, return it
 		if (this.connectionPromise) return this.connectionPromise;
 
 		this.connectionPromise = new Promise((resolve, reject) => {
@@ -92,26 +136,26 @@ export class Horizon {
 			const timeout = setTimeout(() => {
 				ws.close();
 				reject(new Error("Connection timeout"));
-			}, 10_000); // 10 seconds timeout for initial connection
+			}, 15000); // Increased connection timeout to 15 seconds
 
 			ws.onopen = () => {
 				clearTimeout(timeout);
 				this.ws = ws;
 				this.connected = true;
 				this.console("log", "Connected");
-				// Reset reconnect attempts and currentReconnectDelay on successful connection
 				this.reconnectAttempts = 0;
 				this.currentReconnectDelay = this.initialReconnectDelay;
 				if (this.reconnectTimeout) {
 					clearTimeout(this.reconnectTimeout);
 					this.reconnectTimeout = null;
 				}
+				this.lastSuccessfulRequest = Date.now();
 				resolve();
 			};
 
 			ws.onerror = err => {
 				clearTimeout(timeout);
-				// Reject the connection promise if an error occurs during connection attempt
+				this.console('err', 'WebSocket error:', err);
 				reject(err);
 			};
 
@@ -123,75 +167,96 @@ export class Horizon {
 	}
 
 	private handleMessage(event: MessageEvent): void {
-		// Use setImmediate to process messages asynchronously, preventing blocking
 		setImmediate(() => {
 			try {
 				const { id, type, data, error }: PacketMessage = JSON.parse(event.data);
 				const pending = this.pendingRequests.get(id);
 
-				// If no pending request found for the ID, it might be an unsolicited message or already handled
 				if (!pending) return;
 
-				// Clear the timeout for this specific request
 				if (pending.timer) {
 					clearTimeout(pending.timer);
 				}
-				// Remove the request from pending map
 				this.pendingRequests.delete(id);
+				this.activeRequests = Math.max(0, this.activeRequests - 1);
 
-				// Resolve or reject the promise based on the message type
-				type === "response" ? pending.resolve(data) : pending.reject(new Error(error));
+				if (type === "response") {
+					this.lastSuccessfulRequest = Date.now();
+					pending.resolve(data);
+				} else {
+					pending.reject(new Error(error));
+				}
+
+				// Process next request in queue
+				this.processRequestQueue();
 			} catch (e) {
 				this.console("err", "Invalid server message:", e);
 			}
 		});
 	}
 
-	/**
-	 * Cleans up connection-related states and pending requests.
-	 * This function is called when the WebSocket connection is closed or when disconnecting.
-	 */
+	// Process request queue to manage concurrent requests
+	private processRequestQueue(): void {
+		if (this.isProcessingQueue || this.requestQueue.length === 0) {
+			return;
+		}
+
+		if (this.activeRequests < this.maxConcurrentRequests) {
+			this.isProcessingQueue = true;
+			const nextRequest = this.requestQueue.shift();
+			if (nextRequest) {
+				nextRequest();
+			}
+			this.isProcessingQueue = false;
+		}
+	}
+
 	private cleanupConnection(): void {
 		this.console("log", "Cleaning up connection...");
 
-		// Clear any existing reconnect timeout
 		if (this.reconnectTimeout) {
 			clearTimeout(this.reconnectTimeout);
 			this.reconnectTimeout = null;
 		}
 
-		// Reject and clear all pending requests
-		for (const [id, { reject, timer }] of this.pendingRequests.entries()) {
-			if (timer) clearTimeout(timer); // Clear timeout associated with the request
-			reject(new Error("Connection closed or client disconnecting")); // Reject the promise
-			this.pendingRequests.delete(id); // Remove from map
+		if (this.healthCheckInterval) {
+			clearInterval(this.healthCheckInterval);
+			this.healthCheckInterval = null;
 		}
-		this.pendingRequests.clear(); // Ensure the map is completely empty
 
-		// Reset connection-related states
+		// Reject all pending requests with more specific error
+		for (const [id, { reject, timer }] of this.pendingRequests.entries()) {
+			if (timer) clearTimeout(timer);
+			reject(new Error("Connection lost - request cancelled"));
+			this.pendingRequests.delete(id);
+		}
+		this.pendingRequests.clear();
+
+		// Clear request queue
+		this.requestQueue.length = 0;
+		this.activeRequests = 0;
+
 		this.connected = false;
 		this.ws = null;
 		this.sessionId = null;
-		this.connectionPromise = null; // Clear the connection promise to allow new connection attempts
-		this.authPromise = null; // Clear the authentication promise
-		this.readyPromise = null; // Clear the ready promise
-		this.isReady = false; // Mark client as not ready
+		this.connectionPromise = null;
+		this.authPromise = null;
+		this.readyPromise = null;
+		this.isReady = false;
 	}
 
 	private handleClose(): void {
 		this.console("warn", "WebSocket closed. Attempting to reconnect...");
-		// Call the cleanup function to reset states and clear pending requests
 		this.cleanupConnection();
 
-		// Increment reconnect attempts
 		this.reconnectAttempts++;
 
-		// Attempt to reconnect if within max attempts
 		if (this.reconnectAttempts <= this.maxReconnectAttempts) {
 			this.reconnectTimeout = setTimeout(() => {
 				this.console("log", `Reconnecting attempt ${this.reconnectAttempts} with delay ${this.currentReconnectDelay}ms...`);
-				this.initializeClient(); // Re-initialize the client to attempt connection
-				// Increase the reconnect delay for the next attempt (exponential backoff)
+				this.initializeClient();
+				// Restart health check after reconnection
+				this.startHealthCheck();
 				this.currentReconnectDelay = Math.min(
 					this.currentReconnectDelay * this.reconnectBackoffFactor,
 					this.maxReconnectDelay
@@ -204,51 +269,78 @@ export class Horizon {
 
 	private async sendMessage(
 		data: Omit<PacketMessage, 'id' | 'type' | 'table' | 'sessionId'>,
-		waitReady: boolean = true
+		waitReady: boolean = true,
+		customTimeout?: number
 	): Promise<any> {
-		// Wait for the client to be ready (connected and authenticated if credentials provided)
 		if (waitReady) await this.waitForReady();
 
 		return new Promise((resolve, reject) => {
-			const id = this.generateId();
-			const message: PacketMessage = {
-				id,
-				type: "request",
-				table: this.currentTable,
-				sessionId: this.sessionId || undefined, // Include sessionId if available
-				...data
-			};
-
-			// Set a timeout for the request
-			const timer = setTimeout(() => {
-				this.pendingRequests.delete(id); // Remove the request if it times out
-				reject(new Error(`Request timeout for operation: ${data.operation}`));
-			}, this.requestTimeout);
-
-			// Store the resolve/reject functions and the timer for this request
-			this.pendingRequests.set(id, { resolve, reject, timer });
-
-			// Check if WebSocket is open before sending
-			if (this.ws?.readyState === WebSocket.OPEN) {
-				this.ws.send(JSON.stringify(message));
-			} else {
-				// If WebSocket is not open, reject immediately and clean up
-				clearTimeout(timer);
-				this.pendingRequests.delete(id);
-				reject(new Error("WebSocket is not open. Cannot send message."));
+			// If we have too many concurrent requests, queue this one
+			if (this.activeRequests >= this.maxConcurrentRequests) {
+				this.requestQueue.push(() => {
+					this.executeSendMessage(data, resolve, reject, customTimeout);
+				});
+				return;
 			}
+
+			this.executeSendMessage(data, resolve, reject, customTimeout);
 		});
 	}
 
+	private executeSendMessage(
+		data: Omit<PacketMessage, 'id' | 'type' | 'table' | 'sessionId'>,
+		resolve: Function,
+		reject: Function,
+		customTimeout?: number
+	): void {
+		const id = this.generateId();
+		const message: PacketMessage = {
+			id,
+			type: "request",
+			table: this.currentTable,
+			sessionId: this.sessionId || undefined,
+			...data
+		};
+
+		const timeout = customTimeout || this.requestTimeout;
+		const timer = setTimeout(() => {
+			const pending = this.pendingRequests.get(id);
+			if (pending) {
+				this.pendingRequests.delete(id);
+				this.activeRequests = Math.max(0, this.activeRequests - 1);
+				this.console('warn', `Request timeout for operation: ${data.operation} (${timeout}ms) - Active requests: ${this.activeRequests}`);
+				reject(new Error(`Request timeout for operation: ${data.operation} after ${timeout}ms`));
+				this.processRequestQueue(); // Process next request in queue
+			}
+		}, timeout);
+
+		this.pendingRequests.set(id, {
+			resolve,
+			reject,
+			timer,
+			timestamp: Date.now()
+		});
+		this.activeRequests++;
+
+		if (this.ws?.readyState === WebSocket.OPEN) {
+			this.ws.send(JSON.stringify(message));
+		} else {
+			clearTimeout(timer);
+			this.pendingRequests.delete(id);
+			this.activeRequests = Math.max(0, this.activeRequests - 1);
+			reject(new Error("WebSocket is not open. Cannot send message."));
+			this.processRequestQueue();
+		}
+	}
+
 	private authenticate(): Promise<void> {
-		// If an authentication promise already exists, return it
 		if (this.authPromise) return this.authPromise;
 
 		this.authPromise = this.sendMessage({
 			operation: "login",
 			login: this.login!,
 			password: this.password!
-		}, false) // Do not wait for ready state for authentication itself
+		}, false)
 			.then(result => {
 				if (!result.success) {
 					throw new Error("Authentication failed");
@@ -258,9 +350,8 @@ export class Horizon {
 			})
 			.catch(err => {
 				this.console("err", "Authentication failed:", err);
-				// Clear authPromise on failure so it can be retried
 				this.authPromise = null;
-				throw err; // Re-throw to propagate the error
+				throw err;
 			});
 
 		return this.authPromise;
@@ -268,7 +359,6 @@ export class Horizon {
 
 	private console(TYPE: "log" | "warn" | "err", message?: any, ...optionalParams: any[]) {
 		if (this.enableVerboses) {
-			// Use setImmediate to ensure console operations don't block
 			setImmediate(() => {
 				switch (TYPE) {
 					case "err":
@@ -297,6 +387,30 @@ export class Horizon {
 		}
 	}
 
+	// Add retry mechanism for critical operations
+	private async retryOperation<T>(
+		operation: () => Promise<T>,
+		maxRetries: number = 3,
+		delay: number = 1000
+	): Promise<T> {
+		let lastError: Error;
+
+		for (let attempt = 1; attempt <= maxRetries; attempt++) {
+			try {
+				return await operation();
+			} catch (error: any) {
+				lastError = error;
+				this.console('warn', `Operation failed on attempt ${attempt}/${maxRetries}:`, error.message);
+
+				if (attempt < maxRetries) {
+					await new Promise(resolve => setTimeout(resolve, delay * attempt));
+				}
+			}
+		}
+
+		throw lastError!;
+	}
+
 	public async logout(): Promise<{ success: boolean }> {
 		try {
 			const result = await this.sendMessage({
@@ -316,35 +430,36 @@ export class Horizon {
 	}
 
 	public table(tableName: string): Horizon {
-		// Add table name if it's new and tables array is managed
 		if (this.tables.length > 0 && !this.tables.includes(tableName)) {
 			this.tables.push(tableName);
 		}
 
-		// Create a new instance to allow chaining without modifying the original client's table
 		const newInstance = Object.create(Object.getPrototypeOf(this));
-		Object.assign(newInstance, this); // Copy properties
-		newInstance.currentTable = tableName; // Set the new table name
-		// Important: Share pendingRequests map across instances if they are meant to share the same connection
-		// If each `table()` call should create an isolated set of pending requests, then clone it.
-		// Given the current implementation, sharing `pendingRequests` is implied for a single connection.
+		Object.assign(newInstance, this);
+		newInstance.currentTable = tableName;
 		newInstance.pendingRequests = this.pendingRequests;
 
 		return newInstance;
 	}
 
-	// All public methods wait for ready state before executing
+	// Enhanced public methods with retry logic for critical operations
 	public async get(key: string, defaultValue: any = undefined): Promise<any> {
-		const result = await this.sendMessage({ operation: 'get', key, defaultValue });
-		return result;
+		return this.retryOperation(async () => {
+			const result = await this.sendMessage({ operation: 'get', key, defaultValue });
+			return result;
+		});
 	}
 
 	public async set(key: string, value: any): Promise<void> {
-		await this.sendMessage({ operation: 'set', key, value });
+		return this.retryOperation(async () => {
+			await this.sendMessage({ operation: 'set', key, value });
+		});
 	}
 
 	public async delete(key: string): Promise<void> {
-		await this.sendMessage({ operation: 'delete', key });
+		return this.retryOperation(async () => {
+			await this.sendMessage({ operation: 'delete', key });
+		});
 	}
 
 	public async add(key: string, amount: number): Promise<void> {
@@ -383,30 +498,27 @@ export class Horizon {
 
 	public async disconnect(): Promise<void> {
 		this.console("log", "Disconnecting client...");
-		// Perform a full cleanup of the connection state
 		this.cleanupConnection();
 
-		// Explicitly close the WebSocket if it's still open
 		if (this.ws && this.ws.readyState === WebSocket.OPEN) {
 			this.ws.close();
 		}
-		this.ws = null; // Ensure ws is null after closing
+		this.ws = null;
 	}
 
 	public isConnected(): boolean {
-		return this.connected;
+		return this.connected && this.ws?.readyState === WebSocket.OPEN;
 	}
 
 	public isAuthenticated(): boolean {
 		return this.sessionId !== null;
 	}
 
-	// Wait for the client to be fully ready
 	public async waitUntilReady(): Promise<void> {
 		await this.waitForReady();
 	}
 
-	// Configuration methods
+	// Enhanced configuration methods
 	public setRequestTimeout(timeout: number): void {
 		if (timeout > 0) {
 			this.requestTimeout = timeout;
@@ -421,5 +533,32 @@ export class Horizon {
 		} else {
 			this.console("warn", "Max reconnect attempts must be a non-negative number.");
 		}
+	}
+
+	public setMaxConcurrentRequests(max: number): void {
+		if (max > 0) {
+			this.maxConcurrentRequests = max;
+		} else {
+			this.console("warn", "Max concurrent requests must be a positive number.");
+		}
+	}
+
+	// Get connection statistics
+	public getConnectionStats(): {
+		connected: boolean;
+		authenticated: boolean;
+		activeRequests: number;
+		queuedRequests: number;
+		reconnectAttempts: number;
+		lastSuccessfulRequest: number;
+	} {
+		return {
+			connected: this.connected,
+			authenticated: this.isAuthenticated(),
+			activeRequests: this.activeRequests,
+			queuedRequests: this.requestQueue.length,
+			reconnectAttempts: this.reconnectAttempts,
+			lastSuccessfulRequest: this.lastSuccessfulRequest
+		};
 	}
 }
