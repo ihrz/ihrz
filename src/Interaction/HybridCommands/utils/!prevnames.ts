@@ -48,7 +48,7 @@ export const subCommand: SubCommand = {
 			var user = await client.func.method.user(interaction, args!, 0) || interaction.member.user;
 		};
 
-		const table = client.db.table("PREVNAMES")
+		const table = await client.db.table("PREVNAMES")
 		const char: Array<string> = await table.get(`${user.id}`) || [];
 
 		if (char.length == 0) {
@@ -122,7 +122,7 @@ export const subCommand: SubCommand = {
 			} else if (interaction_2.customId === 'trash-prevnames-embed') {
 
 				if (interaction.member?.user.id === user.id) {
-					const table = client.db.table("PREVNAMES");
+					const table = await client.db.table("PREVNAMES");
 
 					await table.delete(`${user.id}`);
 

@@ -72,8 +72,8 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const tableOwner = client.db.table('OWNER');
-		const tableBlacklist = client.db.table('BLACKLIST');
+		const tableOwner = await client.db.table('OWNER');
+		const tableBlacklist = await client.db.table('BLACKLIST');
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var user = interaction.options.getUser('user', true);

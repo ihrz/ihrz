@@ -20,7 +20,7 @@
 */
 
 import { Client, Partials, GatewayIntentBits } from 'discord.js';
-import { initializeDatabase } from './database.js';
+import { initializeDatabase } from './database';
 
 import * as ClientVersion from "../version.js";
 import * as core from './core.js';
@@ -67,7 +67,7 @@ const client = new Client({
 	enforceNonce: true
 }); global.client = client;
 
-client.db = await initializeDatabase(config);
+client.db = await initializeDatabase(config.database);
 client.version = ClientVersion
 client.config = config;
 client.inShard = function (guildId: string): boolean {

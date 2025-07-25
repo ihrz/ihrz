@@ -28,7 +28,7 @@ export const event: BotEvent = {
 	run: async (client: Client, member: GuildMember) => {
 
 		try {
-			const table = client.db.table('BLACKLIST')
+			const table = await client.db.table('BLACKLIST')
 
 			const data = await table.get(`${member.user.id}`);
 			if (data.blacklisted === true) {

@@ -33,7 +33,7 @@ import { PasswordOptions } from '../src/core/functions/random.ts';
 import { command } from '../src/core/functions/permissonsCalculator.ts';
 import { DetailedGuildData, GuildData } from '../src/core/functions/shard_helper.ts';
 import { BatchProcessorOptions, BatchProcessorResult } from '../src/core/functions/batchProcessor.ts';
-import { PallasDB } from 'pallas-db';
+import { DB } from '../src/core/database/types.ts';
 
 declare namespace Client_Functions {
 
@@ -301,7 +301,7 @@ declare namespace Client_Functions {
 	// From helper.ts
 	export namespace helper {
 		export function coolDown(message: Message<boolean>, method: string, ms: number): any;
-		export function hardCooldown(database: PallasDB, method: string, ms: number): any;
+		export function hardCooldown(database: DB, method: string, ms: number): any;
 	}
 
 	// From ihorizon_logs.ts

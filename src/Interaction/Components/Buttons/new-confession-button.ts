@@ -39,7 +39,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	)) return;
 
 	const allDataConfession = await interaction.client.db.get(`${interaction.guildId}.GUILD.CONFESSION`) as DatabaseStructure.ConfessionSchema;
-	const confessionTime = await interaction.client.db.table('TEMP').get(`CONFESSION_COOLDOWN.${interaction.user.id}`);
+	const confessionTime = await (await interaction.client.db.table('TEMP')).get(`CONFESSION_COOLDOWN.${interaction.user.id}`);
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
 	const timeout = allDataConfession.cooldown!;
@@ -136,7 +136,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		private: view,
 	});
 
-	await interaction.client.db.table('TEMP').set(`CONFESSION_COOLDOWN.${interaction.user.id}`, Date.now());
+	await (await interaction.client.db.table('TEMP')).set(`CONFESSION_COOLDOWN.${interaction.user.id}`, Date.now());
 
 	const panelMessage = await interaction.channel?.messages.fetch(allDataConfession.panel?.messageId!);
 	const embedFromPanelMessage = panelMessage?.embeds[0];

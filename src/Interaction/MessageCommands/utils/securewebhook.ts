@@ -132,7 +132,7 @@ export const command: Command = {
 			})
 
 		} else if (action == "delete") {
-			const API_TABLE = client.db.table("API");
+			const API_TABLE = await client.db.table("API");
 
 			const data = await API_TABLE.get("WH_SEC") || {};
 
@@ -179,7 +179,7 @@ export const command: Command = {
 			message.react('✅').catch(() => { client.func.method.interactionSend(message, { content: "✅" }) });
 
 		} else if (action == "list") {
-			const API_TABLE = client.db.table("API");
+			const API_TABLE = await client.db.table("API");
 
 			const data = await API_TABLE.get("WH_SEC") || {};
 

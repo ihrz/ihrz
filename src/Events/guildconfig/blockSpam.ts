@@ -23,7 +23,7 @@ import { Client, PermissionsBitField, ChannelType, Message, GuildMember, AutoMod
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { axios } from '../../core/functions/axios.js';
-import { db } from '../../core/database.js';
+import { DB } from '../../core/database/types.js';
 
 /**
  * Apply sanctions to a member based on the configured punishment type
@@ -33,7 +33,7 @@ import { db } from '../../core/database.js';
  * @param LOG Punishment configuration
  * @param table Database table for temporary data
  */
-async function applySanction(client: Client, message: Message, member: GuildMember, LOG: DatabaseStructure.PunishPubSchema, table: db): Promise<void> {
+async function applySanction(client: Client, message: Message, member: GuildMember, LOG: DatabaseStructure.PunishPubSchema, table: DB): Promise<void> {
 	try {
 		switch (LOG.punishementType) {
 			case 'ban':
@@ -158,7 +158,7 @@ export const event: BotEvent = {
 		if (type === "on") {
 			// Get punishment configuration and user data
 			const LOG = await client.db.get(`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`) as DatabaseStructure.PunishPubSchema;
-			const table = client.db.table("TEMP");
+			const table = await client.db.table("TEMP");
 			const LOGfetched = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}`);
 
 			// Check if user has already reached max flags and should be sanctioned

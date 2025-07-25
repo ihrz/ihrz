@@ -43,9 +43,9 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		const secretCode = interaction.options.getString("key")!;
-		const table = client.db.table("AUTHRESTORE");
+		const table = await client.db.table("AUTHRESTORE");
 		const Data = getGuildDataPerSecretCode(await table.all(), secretCode);
-		const AllUsersData = await (client.db.table("AUTHRESTORE")).get("saved_users") as SavedMembersAuthRestore;
+		const AllUsersData = await (await client.db.table("AUTHRESTORE")).get("saved_users") as SavedMembersAuthRestore;
 
 		if (!Data) return client.func.method.interactionSend(interaction, {
 			content: lang.rc_key_doesnt_exist

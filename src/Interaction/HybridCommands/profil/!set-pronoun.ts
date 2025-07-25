@@ -38,7 +38,7 @@ export const subCommand: SubCommand = {
 			var pronoun = client.func.method.string(args!, 0) || lang.var_none;
 		};
 
-		const tableProfil = client.db.table('USER_PROFIL');
+		const tableProfil = await client.db.table('USER_PROFIL');
 
 		await tableProfil.set(`${interaction.member?.user.id}.pronoun`, pronoun);
 

@@ -24,7 +24,7 @@ import { ButtonInteraction, EmbedBuilder, GuildMember } from 'discord.js';
 export default async function (interaction: ButtonInteraction<"cached">) {
 
 	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	const table = interaction.client.db.table('TEMP');
+	const table = await interaction.client.db.table('TEMP');
 
 	const targetedChannel = (interaction.member as GuildMember).voice.channel;
 

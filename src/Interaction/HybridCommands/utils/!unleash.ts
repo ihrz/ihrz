@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0)!;
 		}
 
-		const fetchedData: DatabaseStructure.LeashData[] = await client.db.get(`${interaction.guildId}.UTILS.LEASH`);
+		const fetchedData = (await client.db.get(`${interaction.guildId}.UTILS.LEASH`) || []) as DatabaseStructure.LeashData[];
 
 		const pairingToRemove = fetchedData?.find(x =>
 			(x.dom === interaction.member?.user.id && x.sub === user.id)

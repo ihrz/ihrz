@@ -43,8 +43,8 @@ export const subCommand: SubCommand = {
 
 		const botId = interaction.options.getString('bot_code')!;
 		const newToken = interaction.options.getString('new_discord_bot_token')!;
-		const tempTable = client.db.table('TEMP');
-		const table = client.db.table('OWNIHRZ');
+		const tempTable = await client.db.table('TEMP');
+		const table = await client.db.table('OWNIHRZ');
 
 		const allData = await table.get("CLUSTER");
 

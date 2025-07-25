@@ -21,7 +21,7 @@
 
 import { readFile } from 'node:fs/promises';
 import { LanguageData } from '../../../types/languageData.js';
-import { getDatabaseInstance } from '../database.js';
+import { getDatabaseInstance } from '../database';
 
 import yaml from 'js-yaml';
 

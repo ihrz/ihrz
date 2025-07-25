@@ -150,7 +150,7 @@ class OwnIHRZ {
 	private async Refresh(): Promise<void> {
 		try {
 			this.debug ?? logger.log("Running notification refresh check");
-			const ownihrzTable = client.db.table("OWNIHRZ");
+			const ownihrzTable = await client.db.table("OWNIHRZ");
 			const ownihrzData = await ownihrzTable.get("CLUSTER") as BotCollection;
 
 			// Count for logging purposes
@@ -204,7 +204,7 @@ class OwnIHRZ {
 	}
 
 	async Startup_Container() {
-		const table_1 = client.db.table("OWNIHRZ");
+		const table_1 = await client.db.table("OWNIHRZ");
 
 		(await table_1.all()).forEach(async owner_one => {
 			const cluster_ownihrz = owner_one.value;
@@ -364,7 +364,7 @@ class OwnIHRZ {
 	}
 
 	async GetOwnersList() {
-		const ownihrzTable = client.db.table("OWNIHRZ");
+		const ownihrzTable = await client.db.table("OWNIHRZ");
 		const ownihrzData = await ownihrzTable.get("CLUSTER") as BotCollection;
 
 		const owners: string[] = [];

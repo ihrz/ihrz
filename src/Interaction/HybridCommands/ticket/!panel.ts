@@ -94,7 +94,7 @@ export const subCommand: SubCommand = {
 		}
 
 		// get panel data or initialize it
-		const baseData: TicketPanel = await client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panel_id}`) || {
+		const baseData = (await client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panel_id}`) || {
 			panelCode: generatePassword({ length: 10, uppercase: true, numbers: true }),
 			relatedEmbedId: null,
 			category: null,
@@ -108,7 +108,7 @@ export const subCommand: SubCommand = {
 				deleteButton: true,
 				transcriptButton: true
 			}
-		};
+		}) as TicketPanel;
 
 		panel_id = baseData.panelCode;
 

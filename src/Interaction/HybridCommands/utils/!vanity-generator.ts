@@ -65,7 +65,7 @@ export const subCommand: SubCommand = {
 			var VanityCode = client.func.method.string(args!, 0) as string;
 		};
 
-		const db = client.db.table('API');
+		const db = await client.db.table('API');
 
 		const get = await db.get('VANITY');
 

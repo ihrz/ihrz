@@ -60,7 +60,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const table = client.db.table("SCHEDULE");
+		const table = await client.db.table("SCHEDULE");
 
 		const select = new StringSelectMenuBuilder()
 			.setCustomId('starter')

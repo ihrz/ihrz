@@ -31,7 +31,7 @@ export const event: BotEvent = {
 
 		const oldUsertag = oldUser.username;
 		const oldUserGlbl = oldUser.globalName || oldUser.displayName;
-		const table = client.db.table("PREVNAMES");
+		const table = await client.db.table("PREVNAMES");
 
 		if (!oldUser) return;
 

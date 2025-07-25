@@ -105,7 +105,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		const tableOWNIHRZ = client.db.table("OWNIHRZ")
+		const tableOWNIHRZ = await client.db.table("OWNIHRZ")
 		const ownihrzClusterData = await tableOWNIHRZ.get('CLUSTER');
 
 		// Working with Cluster
@@ -176,7 +176,7 @@ export const subCommand: SubCommand = {
 				}
 			}
 		} else if (action_to_do === 'ls') {
-			const tableOWNIHRZ = client.db.table("OWNIHRZ");
+			const tableOWNIHRZ = await client.db.table("OWNIHRZ");
 			const ownihrzClusterData = await tableOWNIHRZ.get('CLUSTER');
 
 			const botList: Array<{ userId: string; botCode: string; data: BotData; }> = [];
