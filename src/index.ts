@@ -33,36 +33,8 @@ import logger from './core/logger.js';
 
 import { ShardingManager } from 'discord.js';
 import { config as conf } from 'dotenv';
-import { Server } from 'horizon.db';
 
 conf({ debug: false, quiet: true });
-
-let server: Server.HorizonDatabase;
-if (config.database?.method === "HORIZONDB") {
-	server = new Server.HorizonDatabase({
-		database: {
-			login: {
-				username: config.database.horizon_db?.login!,
-				password: config.database.horizon_db?.password!,
-			},
-			default_table: "json",
-			flush_interval: 60_000 * 5
-		},
-		server: {
-			enableVerboses: true,
-			host: config.database.horizon_db?.host,
-			port: config.database.horizon_db?.port
-		},
-		to: {
-			host: config.database.mySQL?.host!,
-			port: config.database.mySQL?.port!,
-			database: config.database.mySQL?.database!,
-			username: config.database.mySQL?.user!,
-			password: config.database.mySQL?.password!
-		}
-	});
-	server.start();
-}
 
 logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
 logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
