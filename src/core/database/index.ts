@@ -20,14 +20,18 @@
 */
 
 import { ConfigData } from '../../../types/configDatad.js';
+import { DB } from './types.js';
+
 import logger from '../logger.js';
 import path from 'path';
 import fs from 'fs';
-import { DB } from './types.js';
-import { Json } from './driver/json.js';
-import { Sqlite } from './driver/sqlite.js';
-import { Memory } from './driver/memory.js';
+
+import { HorizonDatabaseClient } from './driver/horizon.js';
 import { Postgres } from './driver/postgres.js';
+import { Memory } from './driver/memory.js';
+import { Sqlite } from './driver/sqlite.js';
+import { Json } from './driver/json.js';
+
 
 let dbInstance: DB | null = null;
 
@@ -66,6 +70,15 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			connectionString: `postgres://${database.mySQL?.user}:${encodeURIComponent(database.mySQL?.password!)}@${database.mySQL?.host}:${database.mySQL?.port}/${database.mySQL?.database}`,
 			table: "json"
 		});
+	} else if (database.method === "horizon") {
+		dbInstance = new HorizonDatabaseClient(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
+			login: database?.horizon_db?.login!,
+			password: database?.horizon_db?.password!,
+			enableVerboses: process.env.DEV === "true" ? true : false,
+			tables
+		});
+
+		await dbInstance.waitUntilReady();
 	} else {
 		dbInstance = new Sqlite({
 			filePath: path.join(databasePath, "db.sqlite")
