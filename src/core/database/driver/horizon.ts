@@ -57,9 +57,12 @@ export class Horizon {
 
 		if (options.login) this.login = options.login;
 		if (options.password) this.password = options.password;
-		if (options.tables && options.tables.length > 0) {
-			this.tables = options.tables;
-			this.currentTable = options.tables[0] || "json";
+		if (!options.tables) {
+			throw new Error("tables is missing in the Horizon's class constructor")
+		}
+		if (options.tables.length > 0) {
+			this.tables = options.tables.map(x => x.toLowerCase());
+			this.currentTable = options.tables[0].toLowerCase() || "json";
 		}
 		this.enableVerboses = options.enableVerboses || false;
 
@@ -430,8 +433,9 @@ export class Horizon {
 	}
 
 	public table(tableName: string): Horizon {
-		if (this.tables.length > 0 && !this.tables.includes(tableName)) {
-			this.tables.push(tableName);
+		tableName = tableName.toLowerCase();
+		if (!this.tables.includes(tableName)) {
+			throw new Error(`Table '${tableName}' is not in constructor of Horizon. aborting.`)
 		}
 
 		const newInstance = Object.create(Object.getPrototypeOf(this));
