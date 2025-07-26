@@ -55,6 +55,7 @@ import { DiscordSlashLogParser } from './converters/slashLog.js';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { InfrastructureMonitoring } from './modules/infrastructureMonitoringManager.js';
 import { GiveawayManager } from './modules/giveawaysManager.js';
+import { isNumber } from './functions/method.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -129,10 +130,10 @@ export async function main(client: Client) {
 	});
 
 	client.config.owner.owners?.forEach(owner => {
-		if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
+		if (isNumber(owner)) client.owners.push(owner);
 	});
-	if (!Number.isNaN(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
-	if (!Number.isNaN(Number.parseInt(client.config.owner.ownerid2))) client.owners.push(client.config.owner.ownerid2)
+	if (isNumber(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
+	if (isNumber(client.config.owner.ownerid2)) client.owners.push(client.config.owner.ownerid2)
 
 	const handlerPath = path.join(__dirname, '..', 'core', 'handlers');
 	const handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));
