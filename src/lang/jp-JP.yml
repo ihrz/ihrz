@@ -974,6 +974,8 @@ utils_piconly_modal1_fields1_label: "ミュート時間"
 utils_piconly_modal2_title: "画像のみ - しきい値設定"
 utils_piconly_modal2_fields1_placeholder: "ミュート前のしきい値"
 utils_piconly_modal2_fields1_label: "しきい値"
+utils_piconly_embed_fields2_placeholder: "画像の下にスレッドを作成"
+utils_piconly_var_thread_name: "{name}のスレッド"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "絵文字を管理する権限がありません。"

@@ -359,6 +359,7 @@ export namespace DatabaseStructure {
 	export interface PicOnlyConfig {
 		threshold?: number;
 		muteTime?: number;
+		createThread?: 'yes' | 'no';
 	}
 
 	export interface LeashConfig {

@@ -750,6 +750,8 @@ export interface LanguageData {
 	utils_piconly_modal2_title: string;
 	utils_piconly_modal2_fields1_placeholder: string;
 	utils_piconly_modal2_fields1_label: string;
+	utils_piconly_embed_fields2_placeholder: string;
+	utils_piconly_var_thread_name: string;
 	zip_emojis_doesnt_have_perm: string;
 	zip_emojis_command_work: string;
 	zip_emojis_command_error: string;

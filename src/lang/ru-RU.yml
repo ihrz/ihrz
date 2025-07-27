@@ -974,6 +974,8 @@ utils_piconly_modal1_fields1_label: "Время мута"
 utils_piconly_modal2_title: "ТолькоКартинки - Настройка порога"
 utils_piconly_modal2_fields1_placeholder: "порог перед мутом"
 utils_piconly_modal2_fields1_label: "Порог"
+utils_piconly_embed_fields2_placeholder: "Создать ветку под изображением"
+utils_piconly_var_thread_name: "Ветка {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "У вас нет разрешения на управление эмодзи."

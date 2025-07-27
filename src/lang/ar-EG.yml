@@ -975,6 +975,8 @@ utils_piconly_modal1_fields1_label: "وقت الكتم"
 utils_piconly_modal2_title: "الصور فقط - إعداد الحد الأقصى"
 utils_piconly_modal2_fields1_placeholder: "الحد الأقصى قبل الكتم"
 utils_piconly_modal2_fields1_label: "الحد الأقصى"
+utils_piconly_embed_fields2_placeholder: "إنشاء موضوع تحت الصورة"
+utils_piconly_var_thread_name: "موضوع {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "ليس لديك إذن لإدارة الرموز التعبيرية."

@@ -976,6 +976,8 @@ utils_piconly_modal1_fields1_label: "Durée du Mute"
 utils_piconly_modal2_title: "PicOnly - Configuration du Seuil"
 utils_piconly_modal2_fields1_placeholder: "le seuil avant le mute"
 utils_piconly_modal2_fields1_label: "Seuil"
+utils_piconly_embed_fields2_placeholder: "Créer un fil de discussion sous l'image"
+utils_piconly_var_thread_name: "Fil de {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "Vous n'avez pas la permission de gérer les émojis."

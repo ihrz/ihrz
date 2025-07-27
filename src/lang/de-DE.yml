@@ -974,6 +974,8 @@ utils_piconly_modal1_fields1_label: "Stummschaltungszeit"
 utils_piconly_modal2_title: "NurBilder - Schwellenwert-Konfiguration"
 utils_piconly_modal2_fields1_placeholder: "der Schwellenwert vor der Stummschaltung"
 utils_piconly_modal2_fields1_label: "Schwellenwert"
+utils_piconly_embed_fields2_placeholder: "Thread unter dem Bild erstellen"
+utils_piconly_var_thread_name: "Thread von {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "Sie haben keine Berechtigung, Emojis zu verwalten."
