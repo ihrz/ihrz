@@ -29,10 +29,8 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { Custom_iHorizon } from '../../../../types/ownihrz.js';
 
 import logger from '../../../core/logger.js';
-
-
-
 import { SubCommand } from '../../../../types/command.js';
+import { tempTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -43,7 +41,6 @@ export const subCommand: SubCommand = {
 
 		const botId = interaction.options.getString('bot_code')!;
 		const newToken = interaction.options.getString('new_discord_bot_token')!;
-		const tempTable = await client.db.table('TEMP');
 		const table = await client.db.table('OWNIHRZ');
 
 		const allData = await table.get("CLUSTER");

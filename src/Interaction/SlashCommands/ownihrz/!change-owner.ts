@@ -33,6 +33,7 @@ import logger from '../../../core/logger.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
+import { tempTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -44,8 +45,6 @@ export const subCommand: SubCommand = {
 		const botId = interaction.options.getString('bot_code')!;
 		const OwnerOne = interaction.options.getUser('owner_one')!.id;
 		const OwnerTwo = interaction.options.getUser('owner_two')?.id || OwnerOne;
-
-		const tempTable = await client.db.table('TEMP');
 		const table = await client.db.table('OWNIHRZ');
 
 		const allData = await table.get("CLUSTER");

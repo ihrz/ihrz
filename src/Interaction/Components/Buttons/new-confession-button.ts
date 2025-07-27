@@ -24,6 +24,7 @@ import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js'
 import maskLink from '../../../core/functions/maskLink.js';
+import { tempTable } from '../../../Events/client/ready.js';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
@@ -39,7 +40,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	)) return;
 
 	const allDataConfession = await interaction.client.db.get(`${interaction.guildId}.GUILD.CONFESSION`) as DatabaseStructure.ConfessionSchema;
-	const confessionTime = await (await interaction.client.db.table('TEMP')).get(`CONFESSION_COOLDOWN.${interaction.user.id}`);
+	const confessionTime = await tempTable.get(`CONFESSION_COOLDOWN.${interaction.user.id}`);
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
 	const timeout = allDataConfession.cooldown!;
@@ -136,7 +137,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		private: view,
 	});
 
-	await (await interaction.client.db.table('TEMP')).set(`CONFESSION_COOLDOWN.${interaction.user.id}`, Date.now());
+	await tempTable.set(`CONFESSION_COOLDOWN.${interaction.user.id}`, Date.now());
 
 	const panelMessage = await interaction.channel?.messages.fetch(allDataConfession.panel?.messageId!);
 	const embedFromPanelMessage = panelMessage?.embeds[0];

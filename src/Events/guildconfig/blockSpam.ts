@@ -24,6 +24,7 @@ import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { axios } from '../../core/functions/axios.js';
 import { DB } from '../../core/database/types.js';
+import { tempTable } from '../client/ready.js';
 
 /**
  * Apply sanctions to a member based on the configured punishment type
@@ -158,12 +159,11 @@ export const event: BotEvent = {
 		if (type === "on") {
 			// Get punishment configuration and user data
 			const LOG = await client.db.get(`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`) as DatabaseStructure.PunishPubSchema;
-			const table = await client.db.table("TEMP");
-			const LOGfetched = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}`);
+			const LOGfetched = await tempTable.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}`);
 
 			// Check if user has already reached max flags and should be sanctioned
 			if (LOG?.amountMax === LOGfetched?.flags && LOG?.state === "true") {
-				await applySanction(client, message, member!, LOG, table);
+				await applySanction(client, message, member!, LOG, tempTable);
 			}
 
 			try {
@@ -192,7 +192,7 @@ export const event: BotEvent = {
 				if (shouldSanction) {
 					try {
 						// Get current flags count
-						let FLAGS_FETCH = await table.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`);
+						let FLAGS_FETCH = await tempTable.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`);
 						FLAGS_FETCH = FLAGS_FETCH || 0;
 
 						// Increment flags count
@@ -202,11 +202,11 @@ export const event: BotEvent = {
 						await message.delete();
 
 						// Then update the database with the new flags count
-						await table.set(`${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: newFlagsCount });
+						await tempTable.set(`${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: newFlagsCount });
 
 						// Check if we need to apply sanctions immediately after updating
 						if (LOG?.amountMax === newFlagsCount && LOG?.state === "true") {
-							await applySanction(client, message, member!, LOG, table);
+							await applySanction(client, message, member!, LOG, tempTable);
 						}
 					} catch (error) {
 					}

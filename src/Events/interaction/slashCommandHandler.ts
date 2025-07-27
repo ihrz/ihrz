@@ -24,16 +24,16 @@ import { LanguageData } from '../../../types/languageData.js';
 import { BotEvent } from '../../../types/event.js';
 import { Command } from '../../../types/command.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
+import { tempTable } from '../client/ready.js';
 
 const timeout: number = 1000;
 
 async function cooldDown(client: Client, interaction: Interaction) {
 	const tn = Date.now();
-	const table = await client.db.table("TEMP");
-	const fetch = await table.get(`COOLDOWN.${interaction.user.id}`);
+	const fetch = await tempTable.get(`COOLDOWN.${interaction.user.id}`);
 	if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
-	await table.set(`COOLDOWN.${interaction.user.id}`, tn);
+	await tempTable.set(`COOLDOWN.${interaction.user.id}`, tn);
 	return false;
 };
 
