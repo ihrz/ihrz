@@ -340,7 +340,7 @@ export class Horizon {
 		}
 	}
 
-	// Add retry mechanism for critical operations
+	// Retry mechanism for all database operations
 	private async retryOperation<T>(
 		operation: () => Promise<T>,
 		maxRetries: number = 3,
@@ -378,7 +378,7 @@ export class Horizon {
 		return newInstance;
 	}
 
-	// Enhanced public methods with retry logic for critical operations
+	// All public methods with retry logic for robustness
 	public async get(key: string, defaultValue: any = undefined): Promise<any> {
 		return this.retryOperation(async () => {
 			const result = await this.sendMessage({ operation: 'get', key, defaultValue });
@@ -399,37 +399,53 @@ export class Horizon {
 	}
 
 	public async add(key: string, amount: number): Promise<void> {
-		await this.sendMessage({ operation: 'add', key, amount });
+		return this.retryOperation(async () => {
+			await this.sendMessage({ operation: 'add', key, amount });
+		});
 	}
 
 	public async sub(key: string, amount: number): Promise<void> {
-		await this.sendMessage({ operation: 'sub', key, amount });
+		return this.retryOperation(async () => {
+			await this.sendMessage({ operation: 'sub', key, amount });
+		});
 	}
 
 	public async push(key: string, element: any): Promise<void> {
-		await this.sendMessage({ operation: 'push', key, element });
+		return this.retryOperation(async () => {
+			await this.sendMessage({ operation: 'push', key, element });
+		});
 	}
 
 	public async pull(key: string, element: any): Promise<void> {
-		await this.sendMessage({ operation: 'pull', key, element });
+		return this.retryOperation(async () => {
+			await this.sendMessage({ operation: 'pull', key, element });
+		});
 	}
 
 	public async has(key: string): Promise<boolean> {
-		const result = await this.sendMessage({ operation: 'has', key });
-		return result;
+		return this.retryOperation(async () => {
+			const result = await this.sendMessage({ operation: 'has', key });
+			return result;
+		});
 	}
 
 	public async all(): Promise<Array<{ id: string; value: any }>> {
-		const result = await this.sendMessage({ operation: 'all' });
-		return result;
+		return this.retryOperation(async () => {
+			const result = await this.sendMessage({ operation: 'all' });
+			return result;
+		});
 	}
 
 	public async deleteAll(): Promise<void> {
-		await this.sendMessage({ operation: 'deleteAll' });
+		return this.retryOperation(async () => {
+			await this.sendMessage({ operation: 'deleteAll' });
+		});
 	}
 
 	public async cache(key: string, value: any, time: number): Promise<void> {
-		await this.sendMessage({ operation: 'cache', key, value, time });
+		return this.retryOperation(async () => {
+			await this.sendMessage({ operation: 'cache', key, value, time });
+		});
 	}
 
 	public async disconnect(): Promise<void> {
