@@ -68,9 +68,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const tableOwner = await client.db.table('OWNER');
-
-		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
+		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_owner });
 			return;
 		};

@@ -36,7 +36,7 @@ import { format } from '../../../core/functions/date_and_time.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
-import { blacklistTable } from '../../../Events/client/ready.js';
+import { blacklistTable, ownerTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'blinfo',
@@ -73,15 +73,13 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const tableOwner = await client.db.table('OWNER');
-
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var user = interaction.options.getUser('user', true);
 		} else {
 			var user = (await client.func.method.user(interaction, args!, 0))!;
 		};
 
-		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
+		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
 			return;
 		};

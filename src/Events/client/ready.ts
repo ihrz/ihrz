@@ -38,6 +38,7 @@ import { isNumber } from '../../core/functions/method.js';
 export const tempTable = await client.db.table("TEMP");
 export const blacklistTable = await client.db.table("BLACKLIST");
 export const ownihrzTable = await client.db.table("OWNIHRZ");
+export const ownerTable = await client.db.table('OWNER');
 
 export const event: BotEvent = {
 	name: "ready",
@@ -65,18 +66,16 @@ export const event: BotEvent = {
 
 		async function refreshDatabaseModel() {
 			// await client.db.table(`TEMP`).deleteAll();
-			const table = await client.db.table('OWNER');
-
-			const owners = [...new Set([...client.owners, ...(await table.all()).map(x => x.id)])];
+			const owners = [...new Set([...client.owners, ...(await ownerTable.all()).map(x => x.id)])];
 
 			owners.forEach(async ownerId => {
 				try {
 					const user = await client.users?.fetch(ownerId);
 					if (user) {
-						await table.set(user.id, { owner: true });
+						await ownerTable.set(user.id, { owner: true });
 					}
 				} catch {
-					await table.delete(ownerId);
+					await ownerTable.delete(ownerId);
 				}
 			});
 		};
