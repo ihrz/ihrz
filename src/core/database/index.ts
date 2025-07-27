@@ -31,6 +31,7 @@ import { Horizon } from './driver/horizon.js';
 import { Memory } from './driver/memory.js';
 import { Sqlite } from './driver/sqlite.js';
 import { Json } from './driver/json.js';
+import { Redis } from './driver/redis.js';
 
 
 let dbInstance: DB | null = null;
@@ -68,7 +69,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 	} else if (database.method === "postgresql") {
 		dbInstance = new Postgres({
 			connectionString: `postgres://${database.mySQL?.user}:${encodeURIComponent(database.mySQL?.password!)}@${database.mySQL?.host}:${database.mySQL?.port}/${database.mySQL?.database}`,
-			table: "json"
+			table: tables[0]
 		});
 	} else if (database.method === "horizon") {
 		dbInstance = new Horizon(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
@@ -82,7 +83,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 
 		const postgresDb = new Postgres({
 			connectionString: `postgres://${database.mySQL?.user}:${encodeURIComponent(database.mySQL?.password!)}@${database.mySQL?.host}:${database.mySQL?.port}/${database.mySQL?.database}`,
-			table: "json"
+			table: tables[0]
 		});
 
 		dbInstance = new Memory();
@@ -154,6 +155,14 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		};
 
 		setInterval(syncToPostgres, 60000 * 5);
+	} else if (database.method === "redis") {
+		dbInstance = new Redis({
+			table: tables[0],
+			connectionOptions: {
+				connectionTimeout: 5000,
+				autoReconnect: true
+			}
+		});
 	} else {
 		dbInstance = new Sqlite({
 			filePath: path.join(databasePath, "db.sqlite")
