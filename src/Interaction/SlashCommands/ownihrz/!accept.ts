@@ -33,6 +33,7 @@ import logger from '../../../core/logger.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
+import { tempTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -44,8 +45,7 @@ export const subCommand: SubCommand = {
 		const cluster = parseInt(interaction.options.getString("cluster")!);
 		const id = interaction.options.getString('id')!;
 
-		const table = await client.db.table("TEMP");
-		const allData = await table.get(`OWNIHRZ`);
+		const allData = await tempTable.get(`OWNIHRZ`);
 
 		function getData() {
 			for (const ownerId in allData) {
@@ -106,7 +106,7 @@ export const subCommand: SubCommand = {
 
 			try {
 				client.ownihrz.Create_Container(cluster, id_2).then(async () => {
-					await table.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
+					await tempTable.delete(`OWNIHRZ.${interaction.user.id}.${id}`);
 				});
 
 			} catch (error: any) {

@@ -28,6 +28,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
+import { apiTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'securewebhook',
@@ -132,9 +133,7 @@ export const command: Command = {
 			})
 
 		} else if (action == "delete") {
-			const API_TABLE = await client.db.table("API");
-
-			const data = await API_TABLE.get("WH_SEC") || {};
+			const data = await apiTable.get("WH_SEC") || {};
 
 			const datas = Object.values(data) || [];
 
@@ -179,9 +178,7 @@ export const command: Command = {
 			message.react('✅').catch(() => { client.func.method.interactionSend(message, { content: "✅" }) });
 
 		} else if (action == "list") {
-			const API_TABLE = await client.db.table("API");
-
-			const data = await API_TABLE.get("WH_SEC") || {};
+			const data = await apiTable.get("WH_SEC") || {};
 
 			const datas = Object.values(data) || [];
 

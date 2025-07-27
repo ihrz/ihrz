@@ -35,6 +35,16 @@ import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 import { isNumber } from '../../core/functions/method.js';
 
+export const tempTable = await client.db.table("TEMP");
+export const blacklistTable = await client.db.table("BLACKLIST");
+export const ownihrzTable = await client.db.table("OWNIHRZ");
+export const ownerTable = await client.db.table('OWNER');
+export const profilTable = await client.db.table('USER_PROFIL');
+export const authRestoreTable = await client.db.table("AUTHRESTORE");
+export const prevnamesTable = await client.db.table("PREVNAMES");
+export const apiTable = await client.db.table("API");
+export const scheduleTable = await client.db.table("SCHEDULE");
+
 export const event: BotEvent = {
 	name: "ready",
 	run: async (client: Client) => {
@@ -60,19 +70,17 @@ export const event: BotEvent = {
 		};
 
 		async function refreshDatabaseModel() {
-			// await client.db.table(`TEMP`).deleteAll();
-			const table = await client.db.table('OWNER');
-
-			const owners = [...new Set([...client.owners, ...(await table.all()).map(x => x.id)])];
+			// await tempTable.deleteAll();
+			const owners = [...new Set([...client.owners, ...(await ownerTable.all()).map(x => x.id)])];
 
 			owners.forEach(async ownerId => {
 				try {
 					const user = await client.users?.fetch(ownerId);
 					if (user) {
-						await table.set(user.id, { owner: true });
+						await ownerTable.set(user.id, { owner: true });
 					}
 				} catch {
-					await table.delete(ownerId);
+					await ownerTable.delete(ownerId);
 				}
 			});
 		};
@@ -82,8 +90,7 @@ export const event: BotEvent = {
 		};
 
 		async function refreshSchedule() {
-			const table = await client.db.table("SCHEDULE");
-			const listAll = await table.all();
+			const listAll = await scheduleTable.all();
 
 			const dateNow = Date.now();
 			let desc: string = '';
@@ -112,7 +119,7 @@ export const event: BotEvent = {
 							files: [await client.func.displayBotName.footerAttachmentBuilder()]
 						}).catch(() => { });
 
-						await table.delete(`${array.id}.${ScheduleId}`);
+						await scheduleTable.delete(`${array.id}.${ScheduleId}`);
 					};
 
 				}
@@ -120,8 +127,7 @@ export const event: BotEvent = {
 		};
 
 		async function refreshBotData() {
-			const ownihrz_table = await client.db.table("OWNIHRZ");
-			const ownihrz_data = await ownihrz_table.get("CLUSTER")
+			const ownihrz_data = await ownihrzTable.get("CLUSTER")
 			const result = await getShardStats(client);
 
 			await client.db.set("BOT", {

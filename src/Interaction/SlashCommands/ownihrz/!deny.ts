@@ -30,6 +30,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
+import { tempTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -40,8 +41,7 @@ export const subCommand: SubCommand = {
 
 		const id_1 = interaction.options.getString('id');
 
-		const table_1 = await client.db.table("TEMP");
-		let id_2 = await table_1.get(`OWNIHRZ.${interaction.user.id}.${id_1}`);
+		let id_2 = await tempTable.get(`OWNIHRZ.${interaction.user.id}.${id_1}`);
 
 		for (const i in id_2) {
 			for (const j in id_2[i]) {
@@ -94,7 +94,7 @@ export const subCommand: SubCommand = {
 				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 			});
 
-			await table_1.delete(`OWNIHRZ.${interaction.user.id}`);
+			await tempTable.delete(`OWNIHRZ.${interaction.user.id}`);
 			return;
 		};
 	},

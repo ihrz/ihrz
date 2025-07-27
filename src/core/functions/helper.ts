@@ -21,23 +21,22 @@
 
 import { Message } from "discord.js";
 import { DB } from "../database/types.ts";
+import { tempTable } from "../../Events/client/ready.ts";
 
 export async function coolDown(message: Message, method: string, ms: number) {
 	const tn = Date.now();
-	const table = await message.client.db.table("TEMP");
-	const fetch = await table.get(`COOLDOWN.${method}.${message.author.id}`);
+	const fetch = await tempTable.get(`COOLDOWN.${method}.${message.author.id}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;
 
-	await table.set(`COOLDOWN.${method}.${message.author.id}`, tn);
+	await tempTable.set(`COOLDOWN.${method}.${message.author.id}`, tn);
 	return false;
 };
 
 export async function hardCooldown(database: DB, method: string, ms: number) {
 	const tn = Date.now();
-	const table = await database.table("TEMP");
-	const fetch = await table.get(`COOLDOWN.${method}`);
+	const fetch = await tempTable.get(`COOLDOWN.${method}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;
 
-	await table.set(`COOLDOWN.${method}`, tn);
+	await tempTable.set(`COOLDOWN.${method}`, tn);
 	return false;
 };

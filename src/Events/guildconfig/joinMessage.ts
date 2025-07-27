@@ -22,6 +22,7 @@
 import { AttachmentBuilder, BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
+import { apiTable } from '../client/ready.js';
 
 export async function generateJoinImage(member: GuildMember, optionalOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
 	let htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
@@ -178,7 +179,7 @@ export const event: BotEvent = {
 
 			if (!wChan || !channel) return;
 
-			const CustomVanityInvite = await (await client.db.table('API')).get(`VANITY.${member.guild.id}`)
+			const CustomVanityInvite = await apiTable.get(`VANITY.${member.guild.id}`)
 			if (inviter.id === client.user?.id && CustomVanityInvite.invite === invite.code) {
 				isCustomVanity = true;
 			}

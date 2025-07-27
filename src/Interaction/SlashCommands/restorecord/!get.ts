@@ -35,6 +35,7 @@ import { discordLocales } from '../../../files/locales.js';
 import { format } from '../../../core/functions/date_and_time.js';
 
 import { SubCommand } from '../../../../types/command.js';
+import { authRestoreTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -43,9 +44,8 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		const secretCode = interaction.options.getString("key")!;
-		const table = await client.db.table("AUTHRESTORE");
-		const Data = getGuildDataPerSecretCode(await table.all(), secretCode);
-		const AllUsersData = await (await client.db.table("AUTHRESTORE")).get("saved_users") as SavedMembersAuthRestore;
+		const Data = getGuildDataPerSecretCode(await authRestoreTable.all(), secretCode);
+		const AllUsersData = await authRestoreTable.get("saved_users") as SavedMembersAuthRestore;
 
 		if (!Data) return client.func.method.interactionSend(interaction, {
 			content: lang.rc_key_doesnt_exist

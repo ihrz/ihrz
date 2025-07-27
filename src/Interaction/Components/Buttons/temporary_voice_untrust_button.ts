@@ -20,17 +20,16 @@
 */
 
 import { ActionRowBuilder, BaseGuildVoiceChannel, ButtonInteraction, ComponentType, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
+import { tempTable } from '../../../Events/client/ready.ts';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
 	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	const table = await interaction.client.db.table('TEMP');
-
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 	const member = interaction.member as GuildMember;
 
 	const targetedChannel = (interaction.member as GuildMember).voice.channel;
-	const getChannelOwner = await table.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+	const getChannelOwner = await tempTable.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
 	if (!result) return await interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId

@@ -27,6 +27,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 
 import { SubCommand } from '../../../../types/command.js';
+import { profilTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -40,9 +41,7 @@ export const subCommand: SubCommand = {
 			var user = interaction.author;
 		};
 
-		const tableProfil = await client.db.table('USER_PROFIL');
-
-		await tableProfil.set(`${user.id}.age`, age);
+		await profilTable.set(`${user.id}.age`, age);
 
 		await client.func.method.interactionSend(interaction, { content: lang.setprofilage_command_work, flags: [1 << 6] });
 		return;

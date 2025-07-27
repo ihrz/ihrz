@@ -24,16 +24,16 @@ import { LanguageData } from '../../../types/languageData.js';
 import { BotEvent } from '../../../types/event.js';
 import { Command } from '../../../types/command.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
+import { blacklistTable, tempTable } from '../client/ready.js';
 
 const timeout: number = 1000;
 
 async function cooldDown(client: Client, interaction: Interaction) {
 	const tn = Date.now();
-	const table = await client.db.table("TEMP");
-	const fetch = await table.get(`COOLDOWN.${interaction.user.id}`);
+	const fetch = await tempTable.get(`COOLDOWN.${interaction.user.id}`);
 	if (fetch !== null && timeout - (tn - fetch) > 0) return true;
 
-	await table.set(`COOLDOWN.${interaction.user.id}`, tn);
+	await tempTable.set(`COOLDOWN.${interaction.user.id}`, tn);
 	return false;
 };
 
@@ -244,7 +244,7 @@ export const event: BotEvent = {
 			return await interaction.reply({ content: data.Msg_cooldown, flags: [1 << 6] });
 		}
 
-		if (await (await client.db.table('BLACKLIST')).get(`${interaction.user.id}.blacklisted`)) {
+		if (await blacklistTable.get(`${interaction.user.id}.blacklisted`)) {
 			return await interaction.reply({
 				embeds: [
 					new EmbedBuilder()

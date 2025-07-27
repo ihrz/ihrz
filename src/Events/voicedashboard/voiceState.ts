@@ -23,6 +23,7 @@ import { Client, VoiceState, CategoryChannel, ChannelType, GuildChannel } from '
 
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
+import { tempTable } from '../client/ready.js';
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
@@ -33,9 +34,7 @@ export const event: BotEvent = {
 		// Avoid some troubles
 		if (newState.channelId === oldState.channelId) return;
 
-		const table = await client.db.table('TEMP');
-
-		const allChannel = await table.get(`CUSTOM_VOICE.${newState.guild.id}`);
+		const allChannel = await tempTable.get(`CUSTOM_VOICE.${newState.guild.id}`);
 
 		const baseData = await client.db.get(`${newState.guild.id}.VOICE_INTERFACE`) as DatabaseStructure.VoiceData | null | undefined;
 
@@ -45,7 +44,7 @@ export const event: BotEvent = {
 			return;
 		}
 
-		const ChannelDB = await table.get(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
+		const ChannelDB = await tempTable.get(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 
 		const channel_db_fetched = newState.guild.channels.cache.get(ChannelDB) as GuildChannel;
 		const result_channel = newState.guild.channels.cache.get(baseData.voice_channel);
@@ -54,7 +53,7 @@ export const event: BotEvent = {
 		// If the user leave their own empty channel
 		if (oldState.channelId === ChannelDB && channel_db_fetched?.members.size === 0) {
 			await channel_db_fetched?.delete().catch(() => { });
-			await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
+			await tempTable.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 			return;
 		};
 
@@ -74,7 +73,7 @@ export const event: BotEvent = {
 
 				if (oldState.channelId === channelId) {
 					await userChannel?.delete();
-					await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${userId}`);
+					await tempTable.delete(`CUSTOM_VOICE.${newState.guild.id}.${userId}`);
 					return;
 				}
 			}
@@ -93,7 +92,7 @@ export const event: BotEvent = {
 				permissionOverwrites: category_channel.permissionOverwrites.cache,
 				type: ChannelType.GuildVoice,
 			}).then(async chann => {
-				await table.set(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`, chann.id);
+				await tempTable.set(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`, chann.id);
 				if (PotentialCategory?.id) {
 					chann.setParent(PotentialCategory.id)
 				}
@@ -116,7 +115,7 @@ export const event: BotEvent = {
 					.then(async () => {
 						if ((await chann.fetch()).members.size === 0) {
 							await chann.delete()
-							await table.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
+							await tempTable.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 							return;
 						} else {
 							chann.permissionOverwrites.edit(newState.member?.user.id as string,
@@ -166,8 +165,7 @@ export const event: BotEvent = {
 
 export async function recoverCustomVoiceChannels(client: Client) {
 	for (const guild of client.guilds.cache.values()) {
-		const table = await client.db.table('TEMP');
-		const allCustomChannels = await table.get(`CUSTOM_VOICE.${guild.id}`);
+		const allCustomChannels = await tempTable.get(`CUSTOM_VOICE.${guild.id}`);
 
 		// If no custom voice channels exist for this guild, skip
 		if (!allCustomChannels) continue;
@@ -182,7 +180,7 @@ export async function recoverCustomVoiceChannels(client: Client) {
 
 				// If channel doesn't exist anymore, clean up database
 				if (!channel) {
-					await table.delete(`CUSTOM_VOICE.${guild.id}.${userId}`);
+					await tempTable.delete(`CUSTOM_VOICE.${guild.id}.${userId}`);
 					continue;
 				}
 
@@ -191,11 +189,11 @@ export async function recoverCustomVoiceChannels(client: Client) {
 					// Delete the empty custom voice channel
 					await channel.delete().catch(() => { });
 					// Clean up database entry
-					await table.delete(`CUSTOM_VOICE.${guild.id}.${userId}`);
+					await tempTable.delete(`CUSTOM_VOICE.${guild.id}.${userId}`);
 				}
 			} catch (error) {
 				// If any error occurs, clean up the database entry
-				await table.delete(`CUSTOM_VOICE.${guild.id}.${userId}`);
+				await tempTable.delete(`CUSTOM_VOICE.${guild.id}.${userId}`);
 			}
 		}
 	}

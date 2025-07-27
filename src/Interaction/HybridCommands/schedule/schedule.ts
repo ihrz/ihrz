@@ -43,6 +43,7 @@ import { Command } from '../../../../types/command.js';
 import { generatePassword } from '../../../core/functions/random.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
+import { scheduleTable } from '../../../Events/client/ready.js';
 
 
 export const command: Command = {
@@ -59,8 +60,6 @@ export const command: Command = {
 
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-		const table = await client.db.table("SCHEDULE");
 
 		const select = new StringSelectMenuBuilder()
 			.setCustomId('starter')
@@ -196,7 +195,7 @@ export const command: Command = {
 			};
 
 			async function __1(arg0: string) {
-				const fetched = await table.get(`${interaction.member?.user.id}`);
+				const fetched = await scheduleTable.get(`${interaction.member?.user.id}`);
 
 				if (!fetched || !fetched[arg0]) {
 					await original_interaction.edit({
@@ -218,7 +217,7 @@ export const command: Command = {
 						.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 						.setTimestamp();
 
-					await table.delete(`${interaction.member?.user.id}.${arg0}`);
+					await scheduleTable.delete(`${interaction.member?.user.id}.${arg0}`);
 					await original_interaction.edit({
 						content: lang.schedule_delete_confirm, embeds: [embed],
 						files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
@@ -229,7 +228,7 @@ export const command: Command = {
 
 			async function __2(arg0: boolean) {
 				if (arg0) {
-					await table.delete(`${interaction.member?.user.id}`);
+					await scheduleTable.delete(`${interaction.member?.user.id}`);
 
 					const embed = new EmbedBuilder()
 						.setColor('#ff0a0a')
@@ -257,7 +256,7 @@ export const command: Command = {
 			};
 
 			async function __3() {
-				const fetched = await table.get(`${interaction.member?.user.id}`);
+				const fetched = await scheduleTable.get(`${interaction.member?.user.id}`);
 
 				if (!fetched) {
 					await original_interaction.edit({ content: lang.schedule_list_not_schedule, embeds: [], files: [] });
@@ -350,7 +349,7 @@ export const command: Command = {
 							.replace('${scheduleCode}', scheduleCode)
 					});
 
-					await table.set(`${user.id}.${scheduleCode}`,
+					await scheduleTable.set(`${user.id}.${scheduleCode}`,
 						{
 							title: collection.get('name')?.value,
 							description: collection.get('desc')?.value,

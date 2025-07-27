@@ -89,6 +89,7 @@ function createListEmbed(
 }
 
 import { SubCommand } from '../../../../types/command.js';
+import { ownihrzTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -105,8 +106,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		const tableOWNIHRZ = await client.db.table("OWNIHRZ")
-		const ownihrzClusterData = await tableOWNIHRZ.get('CLUSTER');
+		const ownihrzClusterData = await ownihrzTable.get('CLUSTER');
 
 		// Working with Cluster
 		if (action_to_do === 'shutdown') {
@@ -120,7 +120,7 @@ export const subCommand: SubCommand = {
 				const botData = ownihrzClusterData[userId];
 				for (const botId in botData) {
 					if (botId === id_to_bot) {
-						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const fetch = await ownihrzTable.get(`CLUSTER.${userId}.${id_to_bot}`);
 
 						if (fetch.PowerOff) {
 							await interaction.editReply({ content: `OwnIHRZ of <@${userId}>, is already shutdown...` });
@@ -148,7 +148,7 @@ export const subCommand: SubCommand = {
 				const botData = ownihrzClusterData[userId];
 				for (const botId in botData) {
 					if (botId === id_to_bot) {
-						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const fetch = await ownihrzTable.get(`CLUSTER.${userId}.${id_to_bot}`);
 
 						if (!fetch.PowerOff) {
 							await interaction.editReply({ content: `OwnIHRZ of <@${userId}>, is already up...` });
@@ -166,7 +166,7 @@ export const subCommand: SubCommand = {
 				const botData = ownihrzClusterData[userId];
 				for (const botId in botData) {
 					if (botId === id_to_bot) {
-						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const fetch = await ownihrzTable.get(`CLUSTER.${userId}.${id_to_bot}`);
 
 						await interaction.editReply({
 							content: `OwnIHRZ of <@${userId}>, with id of:\`${id_to_bot}\` are now deleted.\nThe bot container has been entierly erased...`,
@@ -176,8 +176,7 @@ export const subCommand: SubCommand = {
 				}
 			}
 		} else if (action_to_do === 'ls') {
-			const tableOWNIHRZ = await client.db.table("OWNIHRZ");
-			const ownihrzClusterData = await tableOWNIHRZ.get('CLUSTER');
+			const ownihrzClusterData = await ownihrzTable.get('CLUSTER');
 
 			const botList: Array<{ userId: string; botCode: string; data: BotData; }> = [];
 
@@ -280,7 +279,7 @@ export const subCommand: SubCommand = {
 			for (const userId in ownihrzClusterData as any) {
 				for (const botId in ownihrzClusterData[userId]) {
 					if (botId === id_to_bot) {
-						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const fetch = await ownihrzTable.get(`CLUSTER.${userId}.${id_to_bot}`);
 						const time = interaction.options.getString('time') || '0d';
 
 						if (!client.timeCalculator.to_ms(time)) {
@@ -293,7 +292,7 @@ export const subCommand: SubCommand = {
 							ms: client.timeCalculator.to_ms(time)!
 						})
 
-						const ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
+						const ExpireIn = await ownihrzTable.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
 						let expire: string | null = null;
 
 						if (ExpireIn !== null) {
@@ -310,7 +309,7 @@ export const subCommand: SubCommand = {
 			for (const userId in ownihrzClusterData as any) {
 				for (const botId in ownihrzClusterData[userId]) {
 					if (botId === id_to_bot) {
-						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const fetch = await ownihrzTable.get(`CLUSTER.${userId}.${id_to_bot}`);
 						const time = interaction.options.getString('time') || '0d';
 
 						if (!client.timeCalculator.to_ms(time)) {
@@ -323,7 +322,7 @@ export const subCommand: SubCommand = {
 							ms: client.timeCalculator.to_ms(time)!
 						})
 
-						const ExpireIn = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
+						const ExpireIn = await ownihrzTable.get(`CLUSTER.${userId}.${id_to_bot}.ExpireIn`);
 						let expire: string | null = null;
 
 						if (ExpireIn !== null) {
@@ -341,7 +340,7 @@ export const subCommand: SubCommand = {
 			for (const userId in ownihrzClusterData as any) {
 				for (const botId in ownihrzClusterData[userId]) {
 					if (botId === id_to_bot) {
-						const fetch = await tableOWNIHRZ.get(`CLUSTER.${userId}.${id_to_bot}`);
+						const fetch = await ownihrzTable.get(`CLUSTER.${userId}.${id_to_bot}`);
 						let expire: string | null = null;
 
 						if (fetch.ExpireIn) {

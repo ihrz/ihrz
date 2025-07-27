@@ -50,6 +50,7 @@ async function VanityCodeAlreadyExist(AllVanityGuild: any, code: string): Promis
 }
 
 import { SubCommand } from '../../../../types/command.js';
+import { apiTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -65,9 +66,7 @@ export const subCommand: SubCommand = {
 			var VanityCode = client.func.method.string(args!, 0) as string;
 		};
 
-		const db = await client.db.table('API');
-
-		const get = await db.get('VANITY');
+		const get = await apiTable.get('VANITY');
 
 		const guildGet = get?.[`${interaction.guildId}`]?.['code'];
 

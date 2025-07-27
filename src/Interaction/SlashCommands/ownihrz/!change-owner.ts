@@ -33,6 +33,7 @@ import logger from '../../../core/logger.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
+import { ownihrzTable, tempTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -45,10 +46,7 @@ export const subCommand: SubCommand = {
 		const OwnerOne = interaction.options.getUser('owner_one')!.id;
 		const OwnerTwo = interaction.options.getUser('owner_two')?.id || OwnerOne;
 
-		const tempTable = await client.db.table('TEMP');
-		const table = await client.db.table('OWNIHRZ');
-
-		const allData = await table.get("CLUSTER");
+		const allData = await ownihrzTable.get("CLUSTER");
 
 		const timeout: number = 3600000;
 		const executingBefore = await tempTable.get(`OWNIHRZ_CHANGE_OWNER.${botId}.timeout`);
