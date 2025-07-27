@@ -479,6 +479,10 @@ export class Horizon {
 		return this.sessionId !== null;
 	}
 
+	public async waitUntilReady(): Promise<void> {
+		await this.waitForReady();
+	}
+
 	// Get connection statistics
 	public getConnectionStats(): {
 		connected: boolean;
