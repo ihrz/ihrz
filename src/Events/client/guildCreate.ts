@@ -25,6 +25,7 @@ import logger from "../../core/logger.js";
 
 import { BotEvent } from '../../../types/event.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
+import { blacklistTable } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildCreate",
@@ -75,8 +76,7 @@ export const event: BotEvent = {
 				.setTimestamp()
 				.setFooter(await guild.client.func.displayBotName.footerBuilder(guild.id))
 
-			const table = await client.db.table('BLACKLIST')
-			const isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
+			const isBL = await blacklistTable.get(`${guild.ownerId}.blacklisted`) || false;
 
 			if (isBL) {
 				await (channelHr as GuildTextBasedChannel).send({

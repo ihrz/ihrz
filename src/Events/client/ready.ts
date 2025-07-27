@@ -36,6 +36,7 @@ import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 import { isNumber } from '../../core/functions/method.js';
 
 export const tempTable = await client.db.table("TEMP");
+export const blacklistTable = await client.db.table("BLACKLIST");
 
 export const event: BotEvent = {
 	name: "ready",

@@ -24,7 +24,7 @@ import { LanguageData } from '../../../types/languageData.js';
 import { BotEvent } from '../../../types/event.js';
 import { Command } from '../../../types/command.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
-import { tempTable } from '../client/ready.js';
+import { blacklistTable, tempTable } from '../client/ready.js';
 
 const timeout: number = 1000;
 
@@ -244,7 +244,7 @@ export const event: BotEvent = {
 			return await interaction.reply({ content: data.Msg_cooldown, flags: [1 << 6] });
 		}
 
-		if (await (await client.db.table('BLACKLIST')).get(`${interaction.user.id}.blacklisted`)) {
+		if (await blacklistTable.get(`${interaction.user.id}.blacklisted`)) {
 			return await interaction.reply({
 				embeds: [
 					new EmbedBuilder()
