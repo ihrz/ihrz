@@ -37,6 +37,7 @@ import { isNumber } from '../../core/functions/method.js';
 
 export const tempTable = await client.db.table("TEMP");
 export const blacklistTable = await client.db.table("BLACKLIST");
+export const ownihrzTable = await client.db.table("OWNIHRZ");
 
 export const event: BotEvent = {
 	name: "ready",
@@ -123,8 +124,7 @@ export const event: BotEvent = {
 		};
 
 		async function refreshBotData() {
-			const ownihrz_table = await client.db.table("OWNIHRZ");
-			const ownihrz_data = await ownihrz_table.get("CLUSTER")
+			const ownihrz_data = await ownihrzTable.get("CLUSTER")
 			const result = await getShardStats(client);
 
 			await client.db.set("BOT", {

@@ -27,6 +27,7 @@ import { BotCollection, Custom_iHorizon, OwnIHRZ_New_Expire_Time_Object, OwnIHRZ
 import { OwnIhrzCluster, ClusterMethod } from "../functions/apiUrlParser.js";
 import { AxiosResponse, axios } from "../functions/axios.js";
 import logger from "../logger.js";
+import { ownihrzTable } from '../../Events/client/ready.js';
 
 interface CacheEntry {
 	type: "1h" | "3d" | "1d";
@@ -150,7 +151,6 @@ class OwnIHRZ {
 	private async Refresh(): Promise<void> {
 		try {
 			this.debug ?? logger.log("Running notification refresh check");
-			const ownihrzTable = await client.db.table("OWNIHRZ");
 			const ownihrzData = await ownihrzTable.get("CLUSTER") as BotCollection;
 
 			// Count for logging purposes
@@ -204,9 +204,7 @@ class OwnIHRZ {
 	}
 
 	async Startup_Container() {
-		const table_1 = await client.db.table("OWNIHRZ");
-
-		(await table_1.all()).forEach(async owner_one => {
+		(await ownihrzTable.all()).forEach(async owner_one => {
 			const cluster_ownihrz = owner_one.value;
 
 			for (const owner_id in cluster_ownihrz) {
@@ -364,7 +362,6 @@ class OwnIHRZ {
 	}
 
 	async GetOwnersList() {
-		const ownihrzTable = await client.db.table("OWNIHRZ");
 		const ownihrzData = await ownihrzTable.get("CLUSTER") as BotCollection;
 
 		const owners: string[] = [];
