@@ -31,7 +31,7 @@ import {
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
-import { blacklistTable } from '../../../Events/client/ready.js';
+import { blacklistTable, ownerTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'unblacklist',

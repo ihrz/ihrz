@@ -39,6 +39,7 @@ export const tempTable = await client.db.table("TEMP");
 export const blacklistTable = await client.db.table("BLACKLIST");
 export const ownihrzTable = await client.db.table("OWNIHRZ");
 export const ownerTable = await client.db.table('OWNER');
+export const profilTable = await client.db.table('USER_PROFIL');
 
 export const event: BotEvent = {
 	name: "ready",
