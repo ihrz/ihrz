@@ -148,7 +148,6 @@ export async function main(client: Client) {
 	login()
 
 	errorManager.uncaughtExceptionHandler(client);
-	client.db = getDatabaseInstance();
 
 	client.notifier = new StreamNotifier(
 		process.env.TWITCH_APPLICATION_ID || "",
