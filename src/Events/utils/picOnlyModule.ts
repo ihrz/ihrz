@@ -101,6 +101,13 @@ export const event: BotEvent = {
 					}).catch(() => false);
 				}
 			}
+
+			if (picOnlyConfig?.createThread === "yes") {
+				message.startThread({
+					name: lang.utils_piconly_var_thread_name.replace('{name}', String(message.member?.displayName || message.member?.nickname)),
+					reason: "Pic Only"
+				})
+			}
 		}
 	}
 };

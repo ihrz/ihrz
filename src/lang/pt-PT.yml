@@ -974,6 +974,8 @@ utils_piconly_modal1_fields1_label: "Tempo de Silenciamento"
 utils_piconly_modal2_title: "SóImagens - Configuração de Limite"
 utils_piconly_modal2_fields1_placeholder: "o limite antes do silenciamento"
 utils_piconly_modal2_fields1_label: "Limite"
+utils_piconly_embed_fields2_placeholder: "Criar uma conversa sob a imagem"
+utils_piconly_var_thread_name: "Conversa de {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "Não tem permissão para gerir emojis."
