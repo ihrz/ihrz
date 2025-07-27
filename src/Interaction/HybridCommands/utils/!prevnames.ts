@@ -34,6 +34,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
+import { prevnamesTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -48,8 +49,7 @@ export const subCommand: SubCommand = {
 			var user = await client.func.method.user(interaction, args!, 0) || interaction.member.user;
 		};
 
-		const table = await client.db.table("PREVNAMES")
-		const char: Array<string> = await table.get(`${user.id}`) || [];
+		const char: Array<string> = await prevnamesTable.get(`${user.id}`) || [];
 
 		if (char.length == 0) {
 			await client.func.method.interactionSend(interaction, { content: lang.prevnames_undetected });
@@ -122,9 +122,7 @@ export const subCommand: SubCommand = {
 			} else if (interaction_2.customId === 'trash-prevnames-embed') {
 
 				if (interaction.member?.user.id === user.id) {
-					const table = await client.db.table("PREVNAMES");
-
-					await table.delete(`${user.id}`);
+					await prevnamesTable.delete(`${user.id}`);
 
 					messageEmbed.edit({
 						embeds: [],
