@@ -42,6 +42,7 @@ export const ownerTable = await client.db.table('OWNER');
 export const profilTable = await client.db.table('USER_PROFIL');
 export const authRestoreTable = await client.db.table("AUTHRESTORE");
 export const prevnamesTable = await client.db.table("PREVNAMES");
+export const apiTable = await client.db.table("API");
 
 export const event: BotEvent = {
 	name: "ready",
