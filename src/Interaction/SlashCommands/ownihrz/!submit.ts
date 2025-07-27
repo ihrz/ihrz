@@ -50,7 +50,6 @@ export const subCommand: SubCommand = {
 		// } else {
 		// 	const code = generatePassword({ length: 8, numbers: true })
 
-		// 	const table_1 = await client.db.table("TEMP");
 		// 	await table_1.set(`OWNIHRZ.${interaction.user.id}.${code}`,
 		// 		{
 		// 			Auth: discord_bot_token,

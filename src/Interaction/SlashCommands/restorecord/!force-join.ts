@@ -34,6 +34,7 @@ import { forceJoinAuthRestore, getGuildDataPerSecretCode } from '../../../core/f
 import { LanguageData } from '../../../../types/languageData.js';
 
 import { SubCommand } from '../../../../types/command.js';
+import { authRestoreTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -42,8 +43,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		const secretCode = interaction.options.getString("key")!;
-		const table = await client.db.table("AUTHRESTORE");
-		const Data = getGuildDataPerSecretCode(await table.all(), secretCode);
+		const Data = getGuildDataPerSecretCode(await authRestoreTable.all(), secretCode);
 
 		if (!Data) return client.func.method.interactionSend(interaction, {
 			content: lang.rc_key_doesnt_exist

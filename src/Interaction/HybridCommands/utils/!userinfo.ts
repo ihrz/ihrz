@@ -37,6 +37,7 @@ import { SubCommand } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { createOauth2LinkWithoutGuild, oauth2Member } from '../../../core/functions/authRestoreHelper.js';
 import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
+import { authRestoreTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -224,8 +225,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		const table = await client.db.table("AUTHRESTORE");
-		const savedUsers: oauth2Member[] = await table.get("saved_users") || [];
+		const savedUsers: oauth2Member[] = await authRestoreTable.get("saved_users") || [];
 		const fetchedUser = savedUsers.find((x) => x.id === member.id);
 
 		async function GetNitro(): Promise<{ badge: string; type: string; }> {

@@ -29,6 +29,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
+import { authRestoreTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -38,8 +39,7 @@ export const subCommand: SubCommand = {
 		const secretCode = interaction.options.getString("key")!;
 		const role = interaction.options.getRole("roles")!;
 
-		const table = await client.db.table("AUTHRESTORE");
-		const data = getGuildDataPerSecretCode(await table.all(), secretCode);
+		const data = getGuildDataPerSecretCode(await authRestoreTable.all(), secretCode);
 
 		if (!data) return client.func.method.interactionSend(interaction, {
 			content: lang.rc_key_doesnt_exist
