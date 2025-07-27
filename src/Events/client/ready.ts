@@ -34,20 +34,40 @@ import { removePermissionProperties } from '../../core/commandsSync.js';
 import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 import { isNumber } from '../../core/functions/method.js';
+import { DB } from '../../core/database/types.js';
 
-export const tempTable = await client.db.table("TEMP");
-export const blacklistTable = await client.db.table("BLACKLIST");
-export const ownihrzTable = await client.db.table("OWNIHRZ");
-export const ownerTable = await client.db.table('OWNER');
-export const profilTable = await client.db.table('USER_PROFIL');
-export const authRestoreTable = await client.db.table("AUTHRESTORE");
-export const prevnamesTable = await client.db.table("PREVNAMES");
-export const apiTable = await client.db.table("API");
-export const scheduleTable = await client.db.table("SCHEDULE");
+// @ts-ignore
+export let tempTable: DB = null;
+// @ts-ignore
+export let blacklistTable: DB = null;
+// @ts-ignore
+export let ownihrzTable: DB = null;
+// @ts-ignore
+export let ownerTable: DB = null;
+// @ts-ignore
+export let profilTable: DB = null;
+// @ts-ignore
+export let authRestoreTable: DB = null;
+// @ts-ignore
+export let prevnamesTable: DB = null;
+// @ts-ignore
+export let apiTable: DB = null;
+// @ts-ignore
+export let scheduleTable: DB = null;
 
 export const event: BotEvent = {
 	name: "ready",
 	run: async (client: Client) => {
+		tempTable = await client.db.table("TEMP");
+		blacklistTable = await client.db.table("BLACKLIST");
+		ownihrzTable = await client.db.table("OWNIHRZ");
+		ownerTable = await client.db.table("OWNER");
+		profilTable = await client.db.table("USER_PROFIL");
+		authRestoreTable = await client.db.table("AUTHRESTORE");
+		prevnamesTable = await client.db.table("PREVNAMES");
+		apiTable = await client.db.table("API");
+		scheduleTable = await client.db.table("SCHEDULE");
+
 		await client.emojisManager.startSync();
 
 		async function fetchInvites() {
