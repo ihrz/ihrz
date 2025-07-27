@@ -20,18 +20,21 @@
 */
 
 import { get_property, set_property, unset_property } from "../lodash.ts";
-import { DataLike, ErrorKind, Table } from "../types.ts";
+import { DataLike, ErrorKind } from "../types.ts";
+import { RedisClient, RedisOptions } from "bun";
 
-export class Memory<D = any> {
+export class Redis<D = any> {
 	private tableName: string;
-	private store = new Map<string, Table>();
-	private mirrors: Memory[] = [];
+	private client: RedisClient;
+	private mirrors: Redis[] = [];
 
 	constructor(options: {
 		table?: string;
-	} = {}) {
-		options.table ??= "memory";
-		this.tableName = options.table;
+		redisUrl: string;
+		connectionOptions?: RedisOptions;
+	}) {
+		this.tableName = (options.table || "json").toLowerCase();
+		this.client = new RedisClient(options.redisUrl, options.connectionOptions);
 	}
 
 	private createError(message: string, kind: ErrorKind): Error {
@@ -44,55 +47,113 @@ export class Memory<D = any> {
 		return error;
 	}
 
+	private getTableKey(key: string): string {
+		return `${this.tableName}:${key}`;
+	}
+
+	private getTablePattern(): string {
+		return `${this.tableName}:*`;
+	}
+
 	public async export(): Promise<Record<string, DataLike[]>> {
 		const val: Record<string, DataLike[]> = {};
-		for (const tableName of this.store.keys()) {
+
+		// Get all tables by scanning for different table prefixes
+		const keys = await this.client.send("KEYS", ["*"]);
+		const tables = new Set<string>();
+
+		for (const key of keys) {
+			const parts = key.split(":");
+			if (parts.length >= 2) {
+				tables.add(parts[0]);
+			}
+		}
+
+		for (const tableName of tables) {
 			val[tableName] = await this.getAllRows(tableName);
 		}
+
 		return val;
-	}
-
-	private getOrCreateTable(name: string): Table {
-		const table = this.store.get(name);
-		if (table) return table;
-		const newTable = new Map();
-		this.store.set(name, newTable);
-		return newTable;
-	}
-
-	private async prepare(table: string): Promise<void> {
-		this.getOrCreateTable(table);
-		for (const mirror of this.mirrors) {
-			await mirror.prepare(table);
-		}
 	}
 
 	private async getAllRows(
 		table: string
 	): Promise<{ id: string; value: any }[]> {
-		const store = this.getOrCreateTable(table);
-		return [...store.entries()].map(([k, v]) => ({ id: k, value: v }));
+		const pattern = `${table}:*`;
+		const keys = await this.client.send("KEYS", [pattern]);
+		const results: { id: string; value: any }[] = [];
+
+		if (keys.length === 0) return results;
+
+		// Use mget for better performance when getting multiple values
+		const values = await this.client.send("MGET", keys);
+
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
+			const value = values[i];
+			const id = key.substring(table.length + 1); // Remove table prefix
+
+			if (value !== null) {
+				try {
+					results.push({ id, value: JSON.parse(value) });
+				} catch {
+					// If parsing fails, store as string
+					results.push({ id, value });
+				}
+			}
+		}
+
+		return results;
 	}
 
 	private async getRowByKey<T>(
 		table: string,
 		key: string
 	): Promise<[T | null, boolean]> {
-		const store = this.getOrCreateTable(table);
-		const val = store.get(key) as T;
-		return [val == null ? null : val, val == null ? false : true];
+		const redisKey = `${table}:${key}`;
+		const value = await this.client.get(redisKey);
+
+		if (value === null) {
+			return [null, false];
+		}
+
+		try {
+			const parsed = JSON.parse(value);
+			return [parsed as T, true];
+		} catch {
+			// If parsing fails, return as string
+			return [value as T, true];
+		}
 	}
 
 	private async getStartsWith(
 		table: string,
 		query: string
 	): Promise<{ id: string; value: any }[]> {
-		const store = this.getOrCreateTable(table);
-		return [...store.entries()]
-			.filter(([k]) => k.startsWith(query))
-			.map(([k, v]) => ({ id: k, value: v }));
-	}
+		const pattern = `${table}:${query}*`;
+		const keys = await this.client.send("KEYS", [pattern]);
+		const results: { id: string; value: any }[] = [];
 
+		if (keys.length === 0) return results;
+
+		const values = await this.client.send("MGET", keys);
+
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
+			const value = values[i];
+			const id = key.substring(table.length + 1);
+
+			if (value !== null) {
+				try {
+					results.push({ id, value: JSON.parse(value) });
+				} catch {
+					results.push({ id, value });
+				}
+			}
+		}
+
+		return results;
+	}
 
 	private async setRowByKey<T>(
 		table: string,
@@ -100,36 +161,45 @@ export class Memory<D = any> {
 		value: any,
 		update: boolean
 	): Promise<T> {
-		const store = this.getOrCreateTable(table);
-		store.set(key, value);
+		const redisKey = `${table}:${key}`;
+		const serialized = JSON.stringify(value);
 
+		await this.client.set(redisKey, serialized);
+
+		// Mirror to other Redis instances
 		for (const mirror of this.mirrors) {
 			await mirror.setRowByKey(table, key, value, update);
 		}
+
 		return value as T;
 	}
 
-
 	private async deleteAllRows(table: string): Promise<number> {
-		const store = this.getOrCreateTable(table);
-		const size = store.size;
-		store.clear();
+		const pattern = `${table}:*`;
+		const keys = await this.client.send("KEYS", [pattern]);
 
+		if (keys.length === 0) return 0;
+
+		await this.client.send("DEL", keys);
+
+		// Mirror to other Redis instances
 		for (const mirror of this.mirrors) {
 			await mirror.deleteAllRows(table);
 		}
-		return size;
+
+		return keys.length;
 	}
 
-
 	private async deleteRowByKey(table: string, key: string): Promise<number> {
-		const store = this.getOrCreateTable(table);
-		const deleted = store.delete(key) ? 1 : 0;
+		const redisKey = `${table}:${key}`;
+		const deleted = await this.client.del(redisKey);
 
+		// Mirror to other Redis instances
 		for (const mirror of this.mirrors) {
 			await mirror.deleteRowByKey(table, key);
 		}
-		return deleted;
+
+		return deleted ? 1 : 0;
 	}
 
 	private async addSubtract(
@@ -149,8 +219,10 @@ export class Memory<D = any> {
 				ErrorKind.MissingValue
 			);
 		}
+
 		let currentNumber = await this.get<number>(key);
 		if (currentNumber == null) currentNumber = 0;
+
 		if (typeof currentNumber != "number") {
 			try {
 				currentNumber = parseFloat(currentNumber as string);
@@ -161,6 +233,7 @@ export class Memory<D = any> {
 				);
 			}
 		}
+
 		if (typeof value != "number") {
 			try {
 				value = parseFloat(value as string);
@@ -171,6 +244,7 @@ export class Memory<D = any> {
 				);
 			}
 		}
+
 		sub ? (currentNumber -= value) : (currentNumber += value);
 		await this.set<number>(key, currentNumber);
 		return currentNumber;
@@ -187,6 +261,21 @@ export class Memory<D = any> {
 		return currentArr;
 	}
 
+	// Close the Redis connection
+	public close(): void {
+		this.client.close();
+	}
+
+	// Check if connected to Redis
+	public get connected(): boolean {
+		return this.client.connected;
+	}
+
+	// Connect to Redis manually
+	public async connect(): Promise<void> {
+		await this.client.connect();
+	}
+
 	async all<T = D>(): Promise<{ id: string; value: T }[]> {
 		return this.getAllRows(this.tableName);
 	}
@@ -198,6 +287,7 @@ export class Memory<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
+
 		if (key.includes(".")) {
 			const keySplit = key.split(".");
 			const [result] = await this.getRowByKey<T>(
@@ -206,6 +296,7 @@ export class Memory<D = any> {
 			);
 			return get_property(result, keySplit.slice(1).join("."));
 		}
+
 		const [result] = await this.getRowByKey<T>(this.tableName, key);
 		return result;
 	}
@@ -223,6 +314,7 @@ export class Memory<D = any> {
 				ErrorKind.MissingValue
 			);
 		}
+
 		if (key.includes(".")) {
 			const keySplit = key.split(".");
 			const [result, exist] = await this.getRowByKey(
@@ -247,6 +339,7 @@ export class Memory<D = any> {
 				exist
 			);
 		}
+
 		const exist = (await this.getRowByKey(this.tableName, key))[1];
 		return this.setRowByKey(this.tableName, key, value, exist);
 	}
@@ -264,6 +357,7 @@ export class Memory<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
+
 		const data = (await this.get<any>(key)) ?? {};
 		if (typeof data != "object" || Array.isArray(data)) {
 			throw this.createError(
@@ -271,9 +365,11 @@ export class Memory<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
+
 		for (const [k, v] of Object.entries(object)) {
 			data[k] = v;
 		}
+
 		return await this.set(key, data);
 	}
 
@@ -288,12 +384,14 @@ export class Memory<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
+
 		if (key.includes(".")) {
 			const keySplit = key.split(".");
 			const obj = (await this.get<any>(keySplit[0])) ?? {};
 			unset_property(obj, keySplit.slice(1).join("."));
 			return this.set(keySplit[0], obj);
 		}
+
 		return this.deleteRowByKey(this.tableName, key);
 	}
 
@@ -322,6 +420,7 @@ export class Memory<D = any> {
 				ErrorKind.MissingValue
 			);
 		}
+
 		const currentArr = await this.getArray<T>(key);
 		currentArr.push(...values);
 		return this.set(key, currentArr);
@@ -340,6 +439,7 @@ export class Memory<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
+
 		let currentArr = await this.getArray<T>(key);
 		if (Array.isArray(value)) currentArr = value.concat(currentArr);
 		else currentArr.unshift(value);
@@ -353,6 +453,7 @@ export class Memory<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
+
 		const currentArr = await this.getArray<T>(key);
 		const value = currentArr.pop();
 		await this.set(key, currentArr);
@@ -366,6 +467,7 @@ export class Memory<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
+
 		const currentArr = await this.getArray<T>(key);
 		const value = currentArr.shift();
 		await this.set(key, currentArr);
@@ -389,9 +491,11 @@ export class Memory<D = any> {
 				ErrorKind.MissingValue
 			);
 		}
+
 		const currentArr = await this.getArray<T>(key);
 		if (!Array.isArray(value) && typeof value != "function")
 			value = [value];
+
 		const data = [];
 		for (const i in currentArr) {
 			if (
@@ -403,6 +507,7 @@ export class Memory<D = any> {
 			data.push(currentArr[i]);
 			if (once) break;
 		}
+
 		return await this.set(key, data);
 	}
 
@@ -415,24 +520,24 @@ export class Memory<D = any> {
 				ErrorKind.InvalidType
 			);
 		}
+
 		const results = await this.getStartsWith(this.tableName, query);
 		return results;
 	}
 
-	async table<T = D>(table: string): Promise<Memory<T>> {
-		if (typeof table != "string") {
+	async table<T = D>(tableName: string): Promise<Redis<T>> {
+		tableName = tableName.toLowerCase();
+		if (typeof tableName != "string") {
 			throw this.createError(
-				`First argument (table) needs to be a string received "${typeof table}"`,
+				`First argument (table) needs to be a string received "${typeof tableName}"`,
 				ErrorKind.InvalidType
 			);
 		}
 
-		const newDB = new Memory({
-			table: table,
+		// Create a new instance with the same client connection but different table
+		const newDB = Object.assign(Object.create(Object.getPrototypeOf(this)), this) as Redis<T>;
+		newDB.tableName = tableName;
 
-		});
-		newDB.store = this.store;
-		await newDB.prepare(table);
 		return newDB;
 	}
 }

@@ -145,7 +145,7 @@ const config: ConfigData = {
 	},
 
 	database: {
-		method: 'SQLITE',
+		method: 'sqlite',
 		// The method you want for the database
 
 		mySQL: {
