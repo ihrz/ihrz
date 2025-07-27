@@ -157,6 +157,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		setInterval(syncToPostgres, 60000 * 5);
 	} else if (database.method === "redis") {
 		dbInstance = new Redis({
+			redisUrl: "redis://localhost:6379",
 			table: tables[0],
 			connectionOptions: {
 				connectionTimeout: 5000,

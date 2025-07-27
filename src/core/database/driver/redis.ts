@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { RedisClient } from "bun";
 import { get_property, set_property, unset_property } from "../lodash.ts";
 import { DataLike, ErrorKind } from "../types.ts";
+import { RedisClient, RedisOptions } from "bun";
 
 export class Redis<D = any> {
 	private tableName: string;
@@ -30,18 +30,11 @@ export class Redis<D = any> {
 
 	constructor(options: {
 		table?: string;
-		redisUrl?: string;
-		connectionOptions?: any;
-	} = {}) {
-		options.table ??= "memory";
-		this.tableName = options.table.toLowerCase();
-
-		// Initialize Redis client with custom URL or default environment settings
-		if (options.redisUrl) {
-			this.client = new RedisClient(options.redisUrl, options.connectionOptions);
-		} else {
-			this.client = new RedisClient(options.connectionOptions);
-		}
+		redisUrl: string;
+		connectionOptions?: RedisOptions;
+	}) {
+		this.tableName = (options.table || "json").toLowerCase();
+		this.client = new RedisClient(options.redisUrl, options.connectionOptions);
 	}
 
 	private createError(message: string, kind: ErrorKind): Error {
@@ -66,7 +59,6 @@ export class Redis<D = any> {
 		const val: Record<string, DataLike[]> = {};
 
 		// Get all tables by scanning for different table prefixes
-		// This is a simplified approach - in production you might want to maintain a separate index
 		const keys = await this.client.send("KEYS", ["*"]);
 		const tables = new Set<string>();
 
@@ -82,18 +74,6 @@ export class Redis<D = any> {
 		}
 
 		return val;
-	}
-
-	private async prepare(table: string): Promise<void> {
-		// Redis doesn't require table preparation like SQL databases
-		// We just ensure the connection is ready
-		if (!this.client.connected) {
-			await this.client.connect();
-		}
-
-		for (const mirror of this.mirrors) {
-			await mirror.prepare(table);
-		}
 	}
 
 	private async getAllRows(
@@ -545,22 +525,19 @@ export class Redis<D = any> {
 		return results;
 	}
 
-	async table<T = D>(table: string): Promise<Redis<T>> {
-		table = table.toLowerCase()
-		if (typeof table != "string") {
+	async table<T = D>(tableName: string): Promise<Redis<T>> {
+		tableName = tableName.toLowerCase();
+		if (typeof tableName != "string") {
 			throw this.createError(
-				`First argument (table) needs to be a string received "${typeof table}"`,
+				`First argument (table) needs to be a string received "${typeof tableName}"`,
 				ErrorKind.InvalidType
 			);
 		}
 
-		const newDB = new Redis<T>({
-			table: table,
-		});
+		// Create a new instance with the same client connection but different table
+		const newDB = Object.assign(Object.create(Object.getPrototypeOf(this)), this) as Redis<T>;
+		newDB.tableName = tableName;
 
-		// Share the same Redis client instance for better connection management
-		newDB.client = this.client;
-		await newDB.prepare(table);
 		return newDB;
 	}
 }
