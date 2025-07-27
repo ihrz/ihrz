@@ -98,6 +98,10 @@ function envBool(value: any): boolean {
 	return value === "1" || value?.toLowerCase() === "true";
 }
 
+logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
+logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
+logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
+
 if (process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE !== null && envBool(process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE)) {
 	dbInstance = await new Promise<DB>(async (resolve, reject) => {
 		logger.log(`${config.console.emojis.HOST} >> Initializing cached Postgres database setup for multi-shard !`.green);
@@ -106,7 +110,14 @@ if (process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE !== null && envBool(process.e
 			connectionString: `postgres://${config.database!.mySQL?.user}:${encodeURIComponent(config.database!.mySQL?.password!)}@${config.database!.mySQL?.host}:${config.database!.mySQL?.port}/${config.database!.mySQL?.database}`,
 		});
 
-		const memoryDB = new Redis();
+		const memoryDB = new Redis({
+			redisUrl: "redis://localhost:6379",
+			table: tables[0],
+			connectionOptions: {
+				connectionTimeout: 5000,
+				autoReconnect: true
+			}
+		});
 
 		for (const table of tables) {
 			const memoryTable = await memoryDB.table(table);
@@ -179,10 +190,6 @@ if (process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE !== null && envBool(process.e
 		resolve(memoryDB);
 	});
 }
-
-logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
-logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
-logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
 
 const manager = new ShardingManager('./src/core/bot.ts', {
 	totalShards: "auto",
