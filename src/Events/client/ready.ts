@@ -43,6 +43,7 @@ export const profilTable = await client.db.table('USER_PROFIL');
 export const authRestoreTable = await client.db.table("AUTHRESTORE");
 export const prevnamesTable = await client.db.table("PREVNAMES");
 export const apiTable = await client.db.table("API");
+export const scheduleTable = await client.db.table("SCHEDULE");
 
 export const event: BotEvent = {
 	name: "ready",
@@ -89,8 +90,7 @@ export const event: BotEvent = {
 		};
 
 		async function refreshSchedule() {
-			const table = await client.db.table("SCHEDULE");
-			const listAll = await table.all();
+			const listAll = await scheduleTable.all();
 
 			const dateNow = Date.now();
 			let desc: string = '';
@@ -119,7 +119,7 @@ export const event: BotEvent = {
 							files: [await client.func.displayBotName.footerAttachmentBuilder()]
 						}).catch(() => { });
 
-						await table.delete(`${array.id}.${ScheduleId}`);
+						await scheduleTable.delete(`${array.id}.${ScheduleId}`);
 					};
 
 				}
