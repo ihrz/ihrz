@@ -47,11 +47,6 @@ export class Horizon {
 	private maxConcurrentRequests: number = 10; // Limit concurrent requests
 	private isProcessingQueue: boolean = false;
 
-	// Health check mechanism
-	private healthCheckInterval: NodeJS.Timeout | null = null;
-	private lastSuccessfulRequest: number = Date.now();
-	private healthCheckIntervalMs: number = 30000; // 30 seconds
-
 	constructor(url: string = 'ws://localhost:3000', options: HorizonDatabaseClientOptions) {
 		this.url = url;
 
@@ -70,45 +65,10 @@ export class Horizon {
 
 		// Initialize client with better error handling
 		this.initializeClient();
-		this.startHealthCheck();
 	}
 
 	private generateId(): string {
 		return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-	}
-
-	// Start health check to monitor connection
-	private startHealthCheck(): void {
-		if (this.healthCheckInterval) {
-			clearInterval(this.healthCheckInterval);
-		}
-
-		this.healthCheckInterval = setInterval(() => {
-			const timeSinceLastSuccess = Date.now() - this.lastSuccessfulRequest;
-
-			// If no successful request in the last 2 minutes, check connection health
-			if (timeSinceLastSuccess > 120000 && this.connected) {
-				this.console('warn', 'No successful requests in 2 minutes, checking connection health');
-				this.checkConnectionHealth();
-			}
-		}, this.healthCheckIntervalMs);
-	}
-
-	// Health check by sending a simple ping
-	private async checkConnectionHealth(): Promise<void> {
-		try {
-			// Send a simple has operation to check if connection is alive
-			await this.sendMessage({
-				operation: 'has',
-				key: '__health_check__'
-			}, false, 5000); // Short timeout for health check
-
-			this.lastSuccessfulRequest = Date.now();
-			this.console('log', 'Connection health check passed');
-		} catch (error) {
-			this.console('warn', 'Connection health check failed, triggering reconnection');
-			this.handleClose();
-		}
 	}
 
 	private initializeClient(): void {
@@ -117,7 +77,6 @@ export class Horizon {
 				await this.authenticate();
 			}
 			this.isReady = true;
-			this.lastSuccessfulRequest = Date.now();
 		}).catch(err => {
 			this.console('err', 'Client initialization failed:', err);
 			throw err;
@@ -152,7 +111,6 @@ export class Horizon {
 					clearTimeout(this.reconnectTimeout);
 					this.reconnectTimeout = null;
 				}
-				this.lastSuccessfulRequest = Date.now();
 				resolve();
 			};
 
@@ -184,7 +142,6 @@ export class Horizon {
 				this.activeRequests = Math.max(0, this.activeRequests - 1);
 
 				if (type === "response") {
-					this.lastSuccessfulRequest = Date.now();
 					pending.resolve(data);
 				} else {
 					pending.reject(new Error(error));
@@ -222,11 +179,6 @@ export class Horizon {
 			this.reconnectTimeout = null;
 		}
 
-		if (this.healthCheckInterval) {
-			clearInterval(this.healthCheckInterval);
-			this.healthCheckInterval = null;
-		}
-
 		// Reject all pending requests with more specific error
 		for (const [id, { reject, timer }] of this.pendingRequests.entries()) {
 			if (timer) clearTimeout(timer);
@@ -258,8 +210,6 @@ export class Horizon {
 			this.reconnectTimeout = setTimeout(() => {
 				this.console("log", `Reconnecting attempt ${this.reconnectAttempts} with delay ${this.currentReconnectDelay}ms...`);
 				this.initializeClient();
-				// Restart health check after reconnection
-				this.startHealthCheck();
 				this.currentReconnectDelay = Math.min(
 					this.currentReconnectDelay * this.reconnectBackoffFactor,
 					this.maxReconnectDelay
@@ -414,24 +364,6 @@ export class Horizon {
 		throw lastError!;
 	}
 
-	public async logout(): Promise<{ success: boolean }> {
-		try {
-			const result = await this.sendMessage({
-				operation: 'logout'
-			});
-
-			if (result.success) {
-				this.sessionId = null;
-				this.console('log', 'Logged out successfully');
-			}
-
-			return result;
-		} catch (error: any) {
-			this.console('err', 'Logout failed:', error);
-			return { success: false };
-		}
-	}
-
 	public table(tableName: string): Horizon {
 		tableName = tableName.toLowerCase();
 		if (!this.tables.includes(tableName)) {
@@ -502,6 +434,19 @@ export class Horizon {
 
 	public async disconnect(): Promise<void> {
 		this.console("log", "Disconnecting client...");
+
+		// Logout if authenticated
+		if (this.sessionId) {
+			try {
+				await this.sendMessage({
+					operation: 'logout'
+				});
+				this.console('log', 'Logged out successfully');
+			} catch (error: any) {
+				this.console('err', 'Logout failed:', error);
+			}
+		}
+
 		this.cleanupConnection();
 
 		if (this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -518,35 +463,6 @@ export class Horizon {
 		return this.sessionId !== null;
 	}
 
-	public async waitUntilReady(): Promise<void> {
-		await this.waitForReady();
-	}
-
-	// Enhanced configuration methods
-	public setRequestTimeout(timeout: number): void {
-		if (timeout > 0) {
-			this.requestTimeout = timeout;
-		} else {
-			this.console("warn", "Request timeout must be a positive number.");
-		}
-	}
-
-	public setMaxReconnectAttempts(attempts: number): void {
-		if (attempts >= 0) {
-			this.maxReconnectAttempts = attempts;
-		} else {
-			this.console("warn", "Max reconnect attempts must be a non-negative number.");
-		}
-	}
-
-	public setMaxConcurrentRequests(max: number): void {
-		if (max > 0) {
-			this.maxConcurrentRequests = max;
-		} else {
-			this.console("warn", "Max concurrent requests must be a positive number.");
-		}
-	}
-
 	// Get connection statistics
 	public getConnectionStats(): {
 		connected: boolean;
@@ -554,15 +470,13 @@ export class Horizon {
 		activeRequests: number;
 		queuedRequests: number;
 		reconnectAttempts: number;
-		lastSuccessfulRequest: number;
 	} {
 		return {
 			connected: this.connected,
 			authenticated: this.isAuthenticated(),
 			activeRequests: this.activeRequests,
 			queuedRequests: this.requestQueue.length,
-			reconnectAttempts: this.reconnectAttempts,
-			lastSuccessfulRequest: this.lastSuccessfulRequest
+			reconnectAttempts: this.reconnectAttempts
 		};
 	}
 }
