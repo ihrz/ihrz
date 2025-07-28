@@ -658,6 +658,23 @@ fun_caracteres_final_embed_title: "🎨 النص المحول - النمط: ${se
 fun_caracteres_final_embed_field1_name: "📝 النص الأصلي"
 fun_caracteres_final_embed_field2_name: "✨ النص المحول"
 
+# /fun random dice
+fun_dice_embed_title: "🎲 نتيجة رمي النرد"
+fun_dice_var_rolled_dices: "**النرد المرمي:**"
+fun_dice_var_results: "**النتائج:**"
+fun_dice_var_total: "**المجموع:**"
+
+# /fun random heads-tails
+fun_coinflip_embed_title: "🪙 صورة أم كتابة"
+fun_coinflip_result_text: "النتيجة هي:"
+fun_coinflip_result_heads: "صورة"
+fun_coinflip_result_tails: "كتابة"
+
+# /fun random number
+fun_random_embed_title: "🔢 رقم عشوائي"
+fun_random_result_text: "الرقم المولد هو:"
+fun_random_between: "بين"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 

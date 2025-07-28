@@ -658,6 +658,23 @@ fun_caracteres_final_embed_title: "🎨 Преобразованный текс�
 fun_caracteres_final_embed_field1_name: "📝 Исходный текст"
 fun_caracteres_final_embed_field2_name: "✨ Преобразованный текст"
 
+# /fun random dice
+fun_dice_embed_title: "🎲 Результат броска костей"
+fun_dice_var_rolled_dices: "**Брошенные кости:**"
+fun_dice_var_results: "**Результаты:**"
+fun_dice_var_total: "**Итого:**"
+
+# /fun random heads-tails
+fun_coinflip_embed_title: "🪙 Орёл или решка"
+fun_coinflip_result_text: "Результат:"
+fun_coinflip_result_heads: "Орёл"
+fun_coinflip_result_tails: "Решка"
+
+# /fun random number
+fun_random_embed_title: "🔢 Случайное число"
+fun_random_result_text: "Сгенерированное число:"
+fun_random_between: "между"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 

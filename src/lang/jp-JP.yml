@@ -658,6 +658,23 @@ fun_caracteres_final_embed_title: "🎨 変換されたテキスト - スタイ�
 fun_caracteres_final_embed_field1_name: "📝 元のテキスト"
 fun_caracteres_final_embed_field2_name: "✨ 変換後のテキスト"
 
+# /fun random dice
+fun_dice_embed_title: "🎲 サイコロの結果"
+fun_dice_var_rolled_dices: "**振ったサイコロ:**"
+fun_dice_var_results: "**結果:**"
+fun_dice_var_total: "**合計:**"
+
+# /fun random heads-tails
+fun_coinflip_embed_title: "🪙 コイントス"
+fun_coinflip_result_text: "結果は:"
+fun_coinflip_result_heads: "表"
+fun_coinflip_result_tails: "裏"
+
+# /fun random number
+fun_random_embed_title: "🔢 ランダムな数字"
+fun_random_result_text: "生成された数字は:"
+fun_random_between: "の間"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 

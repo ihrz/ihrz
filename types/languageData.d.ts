@@ -529,6 +529,17 @@ export interface LanguageData {
 	fun_caracteres_final_embed_title: string;
 	fun_caracteres_final_embed_field1_name: string;
 	fun_caracteres_final_embed_field2_name: string;
+	fun_dice_embed_title: string;
+	fun_dice_var_rolled_dices: string;
+	fun_dice_var_results: string;
+	fun_dice_var_total: string;
+	fun_coinflip_embed_title: string;
+	fun_coinflip_result_text: string;
+	fun_coinflip_result_heads: string;
+	fun_coinflip_result_tails: string;
+	fun_random_embed_title: string;
+	fun_random_result_text: string;
+	fun_random_between: string;
 	economy_cooldown_error: string;
 	addmoney_not_admin: string;
 	addmoney_logs_embed_title: string;

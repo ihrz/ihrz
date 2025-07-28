@@ -20,6 +20,7 @@
 */
 
 import {
+	APIApplicationCommandPermissionsConstant,
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	PermissionFlagsBits,
@@ -27,6 +28,16 @@ import {
 
 import { Command } from "../../../../types/command.js";
 
+function to(x: number) {
+	const result = [];
+	for (let i = 1; i <= x; i++) {
+		result.push({
+			name: `Amount: ${i}`,
+			value: `${i}`
+		});
+	}
+	return result;
+}
 
 export const command: Command = {
 	name: "fun",
@@ -649,6 +660,128 @@ export const command: Command = {
 
 					permission: null,
 				},
+			],
+
+			type: ApplicationCommandOptionType.SubcommandGroup,
+			permission: null
+		},
+		{
+			name: "random",
+			name_localizations: {
+				"fr": "hasard"
+			},
+
+			description: "Fun slash related to luck (chance)",
+			description_localizations: {
+				"fr": "Commande liée au hasard"
+			},
+
+			options: [
+				{
+					name: "dice",
+					name_localizations: {
+						"fr": "dé"
+					},
+
+					description: "Make a dice roll",
+					description_localizations: {
+						"fr": "Lance un ou plusieurs dés"
+					},
+
+					options: [
+						{
+							name: "number",
+							name_localizations: {
+								"fr": "nombre"
+							},
+
+							description: "Number of dice to roll",
+							description_localizations: {
+								"fr": "Nombre de dés à lancer"
+							},
+
+							choices: to(7),
+
+							type: ApplicationCommandOptionType.Number,
+							permission: null
+						},
+						{
+							name: "faces",
+							name_localizations: {
+								"fr": "faces"
+							},
+
+							description: "Number of faces on the dice",
+							description_localizations: {
+								"fr": "Nombre de faces sur le(s) dé(s)"
+							},
+
+							choices: to(12),
+
+							type: ApplicationCommandOptionType.Number,
+							permission: null
+						}
+					],
+
+					type: ApplicationCommandOptionType.Subcommand,
+					permission: null
+				},
+				{
+					name: "heads-tails",
+					name_localizations: {
+						"fr": "pile-ou-face"
+					},
+
+					description: 'Heads or tail?',
+					description_localizations: {
+						"fr": "Pile ou face ?"
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					permission: null
+				},
+				{
+					name: "number",
+					name_localizations: { fr: "nombre" },
+
+					description: "Generate a random number between two values",
+					description_localizations: {
+						fr: "Génère un nombre aléatoire entre deux valeurs"
+					},
+
+					options: [
+						{
+							name: "min",
+							name_localizations: { fr: "minimum" },
+
+							description: "Minimum value",
+							description_localizations: {
+								fr: "Valeur minimale"
+							},
+							type: ApplicationCommandOptionType.Number,
+
+							required: false,
+							permission: null
+						},
+						{
+							name: "max",
+							name_localizations: { fr: "maximum" },
+
+							description: "Maximum value",
+							description_localizations: {
+								fr: "Valeur maximale"
+							},
+
+							type: ApplicationCommandOptionType.Number,
+
+							required: false,
+							permission: null
+						}
+					],
+
+					type: ApplicationCommandOptionType.Subcommand,
+					permission: null
+				}
 			],
 
 			type: ApplicationCommandOptionType.SubcommandGroup,

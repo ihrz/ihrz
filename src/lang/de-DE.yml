@@ -658,6 +658,23 @@ fun_caracteres_final_embed_title: "🎨 Transformierter Text - Stil: ${selectedS
 fun_caracteres_final_embed_field1_name: "📝 Originaltext"
 fun_caracteres_final_embed_field2_name: "✨ Transformierter Text"
 
+# /fun random dice
+fun_dice_embed_title: "🎲 Würfelergebnis"
+fun_dice_var_rolled_dices: "**Geworfene Würfel:**"
+fun_dice_var_results: "**Ergebnisse:**"
+fun_dice_var_total: "**Gesamt:**"
+
+# /fun random heads-tails
+fun_coinflip_embed_title: "🪙 Kopf oder Zahl"
+fun_coinflip_result_text: "Das Ergebnis ist:"
+fun_coinflip_result_heads: "Kopf"
+fun_coinflip_result_tails: "Zahl"
+
+# /fun random number
+fun_random_embed_title: "🔢 Zufallszahl"
+fun_random_result_text: "Die generierte Zahl ist:"
+fun_random_between: "zwischen"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
