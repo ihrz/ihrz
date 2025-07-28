@@ -227,6 +227,9 @@ async function PunishUsers(
 export const event: BotEvent = {
 	name: 'messageCreate',
 	run: async (client: Client, message: Message) => {
+
+		if (!message.guild?.members.me?.permissions.has([PermissionFlagsBits.Administrator])) return;
+
 		const options = await client.db.get(`${message.guildId}.GUILD.ANTISPAM`) as DatabaseStructure.DbGuildObject['ANTISPAM'];
 
 		if (!options) return;
