@@ -57,11 +57,11 @@ export const event: BotEvent = {
 				}
 			}
 
-			shouldSanction ?? (async () => {
+			shouldSanction && (async () => {
 				await ban.guild.bans.remove(ban.user.id);
 
 				await client.func.method.punish(data, user);
-			})
+			})()
 		}
 	},
 };

@@ -59,7 +59,7 @@ export const event: BotEvent = {
 				};
 			}
 
-			shouldSanction ?? (async () => {
+			shouldSanction && (async () => {
 
 				await client.func.method.punish(data, user);
 
@@ -96,7 +96,7 @@ export const event: BotEvent = {
 				if (oldGuild.premiumProgressBarEnabled !== newGuild.premiumProgressBarEnabled) {
 					await newGuild.setPremiumProgressBarEnabled(oldGuild.premiumProgressBarEnabled).catch(() => false);
 				}
-			})
+			})()
 		}
 	},
 };

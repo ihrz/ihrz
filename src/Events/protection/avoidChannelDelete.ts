@@ -61,7 +61,7 @@ export const event: BotEvent = {
 				}
 			}
 
-			shouldSanction ?? (async () => {
+			shouldSanction && (async () => {
 				if (!user) return;
 
 				client.func.method.punish(data, user);
@@ -139,7 +139,7 @@ export const event: BotEvent = {
 				restorationInProgress.set(guildId, restorationPromise);
 
 				await restorationPromise;
-			})
+			})()
 		}
 
 	},

@@ -56,7 +56,7 @@ export const event: BotEvent = {
 					shouldSanction = true;
 				};
 
-				shouldSanction ?? (async () => {
+				shouldSanction && (async () => {
 					await client.func.method.punish(data, user);
 
 					const editOptions: GuildChannelEditOptions = {
@@ -79,7 +79,7 @@ export const event: BotEvent = {
 					}
 
 					await newChannel.edit(editOptions);
-				})
+				})()
 			}
 		}
 	},

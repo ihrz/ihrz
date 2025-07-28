@@ -83,11 +83,11 @@ export const event: BotEvent = {
 				};
 			}
 
-			shouldSanction ?? (async () => {
+			shouldSanction && (async () => {
 				await client.func.method.punish(data, user);
 
 				await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid (try to gave admin role)").catch(() => false);
-			})
+			})()
 
 		}
 	},
