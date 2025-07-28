@@ -51,10 +51,6 @@ export interface ConfigData {
 		guildLogsChannelID: string;
 		reportChannelID: string;
 		lavalinkLogsChannelID?: string;
-
-		cluster: string[];
-
-		shutdownClusterWhenStop: boolean;
 	};
 
 	command: {

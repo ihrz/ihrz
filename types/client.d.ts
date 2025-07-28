@@ -37,7 +37,6 @@ import * as ClientVersion from "../src/version.js";
 import { Assets } from "./assets.js";
 import { ConfigData } from "./configDatad.js";
 import { StreamNotifier } from "../src/core/StreamNotifier.js";
-import { OwnIHRZ } from "../src/core/modules/ownihrzManager.js";
 import { KdenLive } from "../src/core/functions/kdenliveManipulator.js";
 import { MemberCountModule } from "../src/core/modules/memberCountManager.js";
 import type { Client_Functions } from "./client_functions.d.ts";
@@ -72,7 +71,6 @@ declare module 'discord.js' {
 		isModuled?: boolean,
 		owners: string[],
 		notifier: StreamNotifier,
-		ownihrz: OwnIHRZ,
 		kdenlive: KdenLive,
 		htmlfiles: Record<string, string>,
 		memberCountManager: MemberCountModule,

@@ -19,49 +19,32 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-export interface Custom_iHorizon {
-	Auth: string;
-	AdminKey: string;
-	OwnerOne: string;
-	OwnerTwo: string;
-	Cluster?: number;
-	Prefix: string | null;
-	Bot: {
-		Id: string;
-		Name: string;
-		Public: boolean;
-	};
-	Code: string;
-	ExpireIn: string;
-	PowerOff?: boolean;
-}
+import {
+	ChatInputCommandInteraction,
+	Client,
+	Message,
+	EmbedBuilder
+} from 'discord.js';
 
-export interface OwnIHRZ_New_Owner_Object {
-	OldOwnerOne: string;
-	NewOwnerOne: string;
-	NewOwnerTwo: string;
-}
+import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommand } from '../../../../types/command.js';
 
-export interface OwnIHRZ_New_Expire_Time_Object {
-	method: "sub" | "add",
-	ms: number;
-}
+export const subCommand: SubCommand = {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		const isHead = Math.random() < 0.5;
 
-export interface BotInstance {
-	Path: string;
-	Auth: string;
-	port?: number;
-	Cluster: string | number;
-	OwnerOne: string;
-	OwnerTwo: string;
-	ExpireIn: number;
-	Bot: {
-		Name: string;
-		Id: string;
-		Public: boolean;
+		const result = isHead ? lang.fun_coinflip_result_heads : lang.fun_coinflip_result_tails;
+
+		const embed = new EmbedBuilder()
+			.setTitle(lang.fun_coinflip_embed_title)
+			.setDescription(`${lang.fun_coinflip_result_text} ${result}`)
+			.setColor("Random");
+
+		await client.func.method.interactionSend(interaction, { embeds: [embed] });
 	}
-	Code: string;
-	PowerOff?: boolean;
-}
-
-export type BotCollection = Record<string, Record<string, BotInstance>>;
+};

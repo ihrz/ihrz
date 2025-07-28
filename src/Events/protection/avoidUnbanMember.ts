@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildBan, PermissionsBitField } from 'discord.js'
+import { Client, AuditLogEvent, GuildBan, PermissionsBitField, GuildMember } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildBanRemove",
@@ -30,40 +30,39 @@ export const event: BotEvent = {
 		const data = await client.db.get(`${ban.guild.id}.PROTECTION`);
 		if (!data) return;
 
-		if (data.unbanmembers && data.unbanmembers.mode === 'allowlist') {
+		if (data.unbanmembers) {
 
 			if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
 				PermissionsBitField.Flags.ViewAuditLog,
 				PermissionsBitField.Flags.ManageGuild
 			])) return;
 
-			const fetchedLogs = await ban.guild.fetchAuditLogs({
-				type: AuditLogEvent.MemberBanRemove,
-				limit: 5,
-			});
+			const relevantLog = await getLogs(ban.guild, ban.user.id, AuditLogEvent.MemberBanRemove);
+			if (!relevantLog) return;
 
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === ban.user.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
 
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
+			if (data.unbanmembers.mode === 'allowlist') {
+				const baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+
+				if (!baseData) {
+					user = ban.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
+			} else if (data.unbanmembers.mode === 'nobody') {
+
+				if (relevantLog.executorId !== ban.guild.ownerId) {
+					user = ban.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
 			}
 
-			handledAuditLogEntries.add(relevantLog.id);
+			shouldSanction && (async () => {
+				await client.func.method.punish(data, user);
 
-			const baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
-
-			if (!baseData) {
-				const member = ban.guild.members.cache.get(relevantLog?.executorId!);
 				await ban.guild.members.ban(ban.user.id);
-				await client.func.method.punish(data, member);
-			};
+			})()
 		}
 	},
 };

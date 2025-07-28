@@ -23,10 +23,10 @@
 ... (Your copyright and license information)
 */
 
-import { Client, AuditLogEvent, Guild, PermissionFlagsBits } from 'discord.js';
+import { Client, AuditLogEvent, Guild, PermissionFlagsBits, GuildMember } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildUpdate",
@@ -38,68 +38,65 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		if (data.updateguild && data.updateguild.mode === 'allowlist') {
-			const fetchedLogs = await newGuild.fetchAuditLogs({
-				type: AuditLogEvent.GuildUpdate,
-				limit: 1,
-			});
+		if (data.updateguild) {
+			const relevantLog = await getLogs(newGuild, newGuild.id, AuditLogEvent.GuildUpdate);
+			if (!relevantLog) return;
 
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === newGuild.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
 
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
+			if (data.updateguild.mode === 'allowlist') {
+				const baseData = await client.db.get(`${newGuild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+
+				if (!baseData) {
+					user = newGuild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
+			} else if (data.updateguild.mode === 'nobody') {
+				if (relevantLog.executorId !== newGuild.ownerId) {
+					user = newGuild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
 			}
 
-			handledAuditLogEntries.add(relevantLog.id);
+			shouldSanction && (async () => {
 
-			const baseData = await client.db.get(`${newGuild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
-			if (baseData) return;
+				await client.func.method.punish(data, user);
 
-			const member = newGuild.members.cache.get(relevantLog?.executorId!);
-			if (!member) return;
-
-			await client.func.method.punish(data, member);
-
-			if (oldGuild.afkChannel !== newGuild.afkChannel) {
-				await newGuild.setAFKChannel(oldGuild.afkChannel).catch(() => false);
-			}
-			if (oldGuild.afkTimeout !== newGuild.afkTimeout) {
-				await newGuild.setAFKTimeout(oldGuild.afkTimeout).catch(() => false);
-			}
-			if (oldGuild.banner !== newGuild.banner) {
-				await newGuild.setBanner(oldGuild.banner).catch(() => false);
-			}
-			if (oldGuild.defaultMessageNotifications !== newGuild.defaultMessageNotifications) {
-				await newGuild.setDefaultMessageNotifications(oldGuild.defaultMessageNotifications).catch(() => false);
-			}
-			if (oldGuild.discoverySplash !== newGuild.discoverySplash) {
-				await newGuild.setDiscoverySplash(oldGuild.discoverySplash).catch(() => false);
-			}
-			if (oldGuild.explicitContentFilter !== newGuild.explicitContentFilter) {
-				await newGuild.setExplicitContentFilter(oldGuild.explicitContentFilter).catch(() => false);
-			}
-			if (oldGuild.icon !== newGuild.icon) {
-				await newGuild.setIcon(oldGuild.icon).catch(() => false);
-			}
-			if (oldGuild.mfaLevel !== newGuild.mfaLevel) {
-				await newGuild.setMFALevel(oldGuild.mfaLevel).catch(() => false);
-			}
-			if (oldGuild.name !== newGuild.name) {
-				await newGuild.setName(oldGuild.name).catch(() => false);
-			}
-			if (oldGuild.preferredLocale !== newGuild.preferredLocale) {
-				await newGuild.setPreferredLocale(oldGuild.preferredLocale).catch(() => false);
-			}
-			if (oldGuild.premiumProgressBarEnabled !== newGuild.premiumProgressBarEnabled) {
-				await newGuild.setPremiumProgressBarEnabled(oldGuild.premiumProgressBarEnabled).catch(() => false);
-			}
+				if (oldGuild.afkChannel !== newGuild.afkChannel) {
+					await newGuild.setAFKChannel(oldGuild.afkChannel).catch(() => false);
+				}
+				if (oldGuild.afkTimeout !== newGuild.afkTimeout) {
+					await newGuild.setAFKTimeout(oldGuild.afkTimeout).catch(() => false);
+				}
+				if (oldGuild.banner !== newGuild.banner) {
+					await newGuild.setBanner(oldGuild.banner).catch(() => false);
+				}
+				if (oldGuild.defaultMessageNotifications !== newGuild.defaultMessageNotifications) {
+					await newGuild.setDefaultMessageNotifications(oldGuild.defaultMessageNotifications).catch(() => false);
+				}
+				if (oldGuild.discoverySplash !== newGuild.discoverySplash) {
+					await newGuild.setDiscoverySplash(oldGuild.discoverySplash).catch(() => false);
+				}
+				if (oldGuild.explicitContentFilter !== newGuild.explicitContentFilter) {
+					await newGuild.setExplicitContentFilter(oldGuild.explicitContentFilter).catch(() => false);
+				}
+				if (oldGuild.icon !== newGuild.icon) {
+					await newGuild.setIcon(oldGuild.icon).catch(() => false);
+				}
+				if (oldGuild.mfaLevel !== newGuild.mfaLevel) {
+					await newGuild.setMFALevel(oldGuild.mfaLevel).catch(() => false);
+				}
+				if (oldGuild.name !== newGuild.name) {
+					await newGuild.setName(oldGuild.name).catch(() => false);
+				}
+				if (oldGuild.preferredLocale !== newGuild.preferredLocale) {
+					await newGuild.setPreferredLocale(oldGuild.preferredLocale).catch(() => false);
+				}
+				if (oldGuild.premiumProgressBarEnabled !== newGuild.premiumProgressBarEnabled) {
+					await newGuild.setPremiumProgressBarEnabled(oldGuild.premiumProgressBarEnabled).catch(() => false);
+				}
+			})()
 		}
 	},
 };

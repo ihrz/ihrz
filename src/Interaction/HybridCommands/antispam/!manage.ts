@@ -416,10 +416,10 @@ export const subCommand: SubCommand = {
 							.setPlaceholder(choicesGet.description)
 							.addOptions(
 								new StringSelectMenuOptionBuilder()
-									.setLabel(lang.mybot_submit_utils_msg_yes)
+									.setLabel(lang.var_yes)
 									.setValue("antispam-manage-yes"),
 								new StringSelectMenuOptionBuilder()
-									.setLabel(lang.mybot_submit_utils_msg_no)
+									.setLabel(lang.var_no)
 									.setValue("antispam-manage-no")
 							)
 						),

@@ -77,33 +77,6 @@ class InfrastructureMonitoring {
 		};
 	}
 
-	private async ClusterManager(): Promise<ResponseResult> {
-		const ClusterManagers = client.config.core.cluster;
-		if (ClusterManagers.length >= 1) {
-			// Assuming ClusterManagers contains URLs or endpoints
-			try {
-				const startTime = Date.now();
-				const response = await axios.get(ClusterManagers[0], { timeout: this.timeout });
-				const latency = Date.now() - startTime;
-
-				return {
-					up: true,
-					latency: latency
-				};
-			} catch (error) {
-				return {
-					up: false,
-					latency: 0
-				};
-			}
-		}
-
-		return {
-			up: false,
-			latency: 0
-		};
-	}
-
 	private async iHorizonWebsite(): Promise<ResponseResult> {
 		const iHorizonWebsiteURL = "https://www.ihorizon.org";
 
@@ -193,7 +166,6 @@ class InfrastructureMonitoring {
 		const results = await Promise.all([
 			this.PublicBot().then(result => ({ name: 'PublicBot', result })),
 			this.HorizonGateway().then(result => ({ name: 'HorizonGateway', result })),
-			this.ClusterManager().then(result => ({ name: 'ClusterManager', result })),
 			this.Lavalink().then(result => ({ name: 'Lavalink', result })),
 			this.iHorizonWebsite().then(result => ({ name: 'iHorizonWebsite', result }))
 		]);
@@ -225,11 +197,6 @@ class InfrastructureMonitoring {
 			{
 				name: "HorizonGateway (Public/Private API)",
 				value: results.HorizonGateway ? this.formatStatus(results.HorizonGateway) : this.evaluating,
-				inline: false
-			},
-			{
-				name: `ClusterManager ${client.config.core.cluster.map((x, i) => "#" + i)}`,
-				value: results.ClusterManager ? this.formatStatus(results.ClusterManager) : this.evaluating,
 				inline: false
 			},
 			{
@@ -266,11 +233,6 @@ class InfrastructureMonitoring {
 				},
 				{
 					name: "HorizonGateway (Public/Private API)",
-					value: this.evaluating,
-					inline: false
-				},
-				{
-					name: `ClusterManager ${client.config.core.cluster.map((x, _) => "#" + _)}`,
 					value: this.evaluating,
 					inline: false
 				},

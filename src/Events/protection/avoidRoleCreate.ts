@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
+import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "roleCreate",
@@ -35,34 +35,31 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		if (data.createrole && data.createrole.mode === 'allowlist') {
-			const fetchedLogs = await role.guild.fetchAuditLogs({
-				type: AuditLogEvent.RoleCreate,
-				limit: 5,
-			});
+		if (data.createrole) {
+			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleCreate);
+			if (!relevantLog) return;
 
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === role.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
 
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
+			if (data.createrole.mode === 'allowlist') {
+				const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+
+				if (!baseData) {
+					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
+			} else if (data.createrole.mode === 'nobody') {
+				if (relevantLog.executorId !== role.guild.ownerId) {
+					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
 			}
 
-			handledAuditLogEntries.add(relevantLog.id);
-			const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
-
-			if (!baseData) {
-				const member = role.guild.members.cache.get(relevantLog?.executorId as string);
-				await client.func.method.punish(data, member);
-
+			shouldSanction && (async () => {
+				await client.func.method.punish(data, user);
 				await role.delete('Protect!');
-			};
+			})()
 		}
 	},
 };

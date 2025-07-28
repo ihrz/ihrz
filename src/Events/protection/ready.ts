@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, GuildBasedChannel, CategoryChannel, ChannelType, PermissionOverwrites, GuildChannel, PermissionsBitField } from 'discord.js';
+import { Client, GuildBasedChannel, CategoryChannel, ChannelType, PermissionOverwrites, GuildChannel, PermissionsBitField, AuditLogEvent, Guild } from 'discord.js';
 
 export type BackupChannel = {
 	id: string;
@@ -106,6 +106,30 @@ async function backupGuildStructure(client: Client) {
 
 export const handledAuditLogEntries = new Set<string>();
 export const handledAuditLogEntrie_logs = new Set<string>();
+
+export async function getLogs(guild: Guild, args: string, type: AuditLogEvent) {
+	const fetchedLogs = await guild.fetchAuditLogs({
+		type,
+		limit: 5
+	});
+
+	const relevantLog = fetchedLogs.entries.find(entry =>
+		entry.targetId === args &&
+		entry.executorId !== client.user?.id &&
+		entry.executorId
+		// Window time for avoiding recursive:
+		&& entry.createdTimestamp > (Date.now() - 10_000)
+	);
+
+	// Avoiding double action by filtering the user
+	if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
+		return undefined;
+	}
+
+	handledAuditLogEntries.add(relevantLog.id);
+
+	return relevantLog;
+}
 
 export const event = {
 	name: 'ready',

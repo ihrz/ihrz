@@ -68,11 +68,6 @@ export const command: Command = {
 						inline: false
 					},
 					{
-						name: `ClusterManager ${client.config.core.cluster.map((x, _) => "#" + _)}`,
-						value: online,
-						inline: false
-					},
-					{
 						name: `Lavalink (Music Player)`,
 						value: online,
 						inline: false

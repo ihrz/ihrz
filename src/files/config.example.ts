@@ -81,19 +81,6 @@ const config: ConfigData = {
 		reportChannelID: "The Discord Channel's ID for logs when bugs/message are reported",
 		// The channel where the robot informs of a bug reported by a user of the bot.
 
-		cluster: [
-			"http://localhost:9030"
-		],
-		// The Clusters's URL for the OwnIHRZ-ClusterManager
-
-		shutdownClusterWhenStop: false
-		/*
-		This option permit to,
-	    
-		* Every OWNIhrz which are hosted by a Cluster to be shutdown
-		When the bot are stoped
-		*/
-
 	},
 
 	command: {

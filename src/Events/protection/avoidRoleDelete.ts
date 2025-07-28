@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
+import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries, protectionCache } from './ready.js';
+import { getLogs, protectionCache } from './ready.js';
 
 export const event: BotEvent = {
 	name: "roleDelete",
@@ -35,31 +35,30 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		if (data.deleterole && data.deleterole.mode === 'allowlist') {
-			const fetchedLogs = await role.guild.fetchAuditLogs({
-				type: AuditLogEvent.RoleDelete,
-				limit: 5,
-			});
+		if (data.deleterole) {
+			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleDelete);
+			if (!relevantLog) return;
 
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === role.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
 
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
+			if (data.deleterole.mode === 'allowlist') {
+				const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+
+				if (!baseData) {
+					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
+
+			} else if (data.deleterole.mode === 'nobody') {
+				if (relevantLog.executorId !== role.guild.ownerId) {
+					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
 			}
 
-			handledAuditLogEntries.add(relevantLog.id);
-			const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
-
-			if (!baseData) {
-				const member = role.guild.members.cache.get(relevantLog?.executorId as string);
-				await client.func.method.punish(data, member);
+			shouldSanction && (async () => {
+				await client.func.method.punish(data, user);
 
 				const newRole = await role.guild.roles.create({
 					...role, reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
@@ -76,7 +75,7 @@ export const event: BotEvent = {
 						}
 					}
 				}
-			};
+			})()
 		}
 	},
 };

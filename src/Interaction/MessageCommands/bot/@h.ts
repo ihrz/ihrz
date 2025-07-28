@@ -295,7 +295,6 @@ export const command: Command = {
 			const commands = client.content.filter(c =>
 				c.category === cat.categoryName
 				&& (c.messageCmd == 2 || c.messageCmd == 1)
-				&& !(c.category === "ownihrz")
 			);
 
 			if (commands.length > 0) {
