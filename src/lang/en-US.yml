@@ -2535,6 +2535,10 @@ temporary_voice_channel_name: "{nickname}'s Channel"
 # Event message
 
 protection_avoid_channel_delete: "**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel has been re-created, <@${firstEntry.executorId}> attempted to delete the channel!"
+protection_blockbot_embed_title: "⚠️ Danger in ${member.guild.name} ⚠️"
+protection_blockbot_embed_desc: "# BotAdd Warning\nSomeone have try to add discord bot."
+var_target_bot: "Target bot"
+var_not_detected: "Not detected"
 
 # AntiSpam Module
 # Event message

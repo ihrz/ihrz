@@ -27,7 +27,7 @@ export default async function send(
 		title: string;
 		description: string;
 	}
-) {
+): Promise<void> {
 	try {
 		const logEmbed = new EmbedBuilder()
 			.setColor("#bf0bb9")

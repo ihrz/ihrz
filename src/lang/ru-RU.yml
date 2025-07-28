@@ -2533,6 +2533,10 @@ temporary_voice_channel_name: "Канал {nickname}"
 # Сообщение о событии
 
 protection_avoid_channel_delete: "**РЕЖИМ ЗАЩИТЫ ВКЛЮЧЕН**\n<@${channel.guild.ownerId}>, канал был воссоздан, <@${firstEntry.executorId}> пытался удалить канал!"
+protection_blockbot_embed_title: "⚠️ Опасность в ${member.guild.name} ⚠️"
+protection_blockbot_embed_desc: "# Предупреждение о добавлении бота\nКто-то попытался добавить Discord бота."
+var_target_bot: "Целевой бот"
+var_not_detected: "Не обнаружен"
 
 # Модуль AntiSpam
 # Событийное сообщение

@@ -23,7 +23,7 @@ import { Message } from "discord.js";
 import { DB } from "../database/types.ts";
 import { tempTable } from "../../Events/client/ready.ts";
 
-export async function coolDown(message: Message, method: string, ms: number) {
+export async function coolDown(message: Message, method: string, ms: number): Promise<boolean> {
 	const tn = Date.now();
 	const fetch = await tempTable.get(`COOLDOWN.${method}.${message.author.id}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;
@@ -32,7 +32,7 @@ export async function coolDown(message: Message, method: string, ms: number) {
 	return false;
 };
 
-export async function hardCooldown(database: DB, method: string, ms: number) {
+export async function hardCooldown(database: DB, method: string, ms: number): Promise<boolean> {
 	const tn = Date.now();
 	const fetch = await tempTable.get(`COOLDOWN.${method}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;

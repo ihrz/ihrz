@@ -21,11 +21,14 @@
 
 import { AuditLogEvent, Client, EmbedBuilder, GuildMember, PermissionsBitField } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
+import { getLogs, handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
+
+		// Avoid all upside down if user is not bot
+		if (member.user.bot === true) return;
 
 		const data = await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`) || false;
 
@@ -33,33 +36,23 @@ export const event: BotEvent = {
 			PermissionsBitField.Flags.Administrator
 		])) return;
 
-		const fetchedLogs = await member.guild.fetchAuditLogs({
-			type: AuditLogEvent.BotAdd,
-		});
+		const filteredLog = await getLogs(member.guild, member.id, AuditLogEvent.BotAdd, 2);
+		const executor = member.guild.members.cache.get(filteredLog?.executorId!);
 
-		const filteredLog = fetchedLogs.entries.filter(x => x.targetId === member.id).first()!;
-
-		if (handledAuditLogEntrie_logs.has(filteredLog?.id)) {
-			return;
-		}
-
-		handledAuditLogEntrie_logs.add(filteredLog?.id);
-
-		if (data === true && member.user.bot && filteredLog?.executorId !== member.guild.ownerId) {
+		if (data === true && filteredLog?.executorId !== member.guild.ownerId) {
 			await member.ban({ reason: 'The BlockBot function are enable!' });
-
-			const executor = member.guild.members.cache.get(filteredLog?.executorId!);
-
 			await client.func.method.punish({ SANCTION: "simply+derank" }, executor, "Attempt to add an discord bot into this guild! -> Derank");
 
 			const owner = member.guild.members.cache.get(member.guild.ownerId);
+			const lang = await client.func.getLanguageData(member.guild.id);
+
 			const embed = new EmbedBuilder()
 				.setColor(2829617)
-				.setTitle(`⚠️ Danger in ${member.guild.name} ⚠️`)
-				.setDescription(`# BotAdd Warning\nSomeone have try to add discord bot.`)
+				.setTitle(lang.protection_blockbot_embed_title.replace("${member.guild.name}", member.guild.name))
+				.setDescription(lang.protection_blockbot_embed_desc)
 				.setFields(
-					{ name: "User", value: filteredLog?.executor?.toString() || '`Not detected`', inline: true },
-					{ name: "Target bot", value: member.toString(), inline: true },
+					{ name: lang.var_user, value: filteredLog?.executor?.toString() || `\`${lang.var_not_detected}\``, inline: true },
+					{ name: lang.var_target_bot, value: member.toString(), inline: true },
 				)
 				.setTimestamp()
 				.setFooter(await client.func.displayBotName.footerBuilder(member.guild.id));

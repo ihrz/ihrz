@@ -2528,6 +2528,10 @@ temporary_voice_channel_name: "قناة {nickname}"
 # رسالة الحدث
 
 protection_avoid_channel_delete: "**وضع الحماية مفعل**\n<@${channel.guild.ownerId}>, تم إعادة إنشاء القناة، <@${firstEntry.executorId}> حاول حذف القناة!"
+protection_blockbot_embed_title: "⚠️ خطر في ${member.guild.name} ⚠️"
+protection_blockbot_embed_desc: "# تحذير إضافة بوت\nشخص ما حاول إضافة بوت ديسكورد."
+var_target_bot: "البوت المستهدف"
+var_not_detected: "غير مكتشف"
 
 # وحدة مكافحة الرسائل المزعجة
 # رسالة التحذير الأساسية

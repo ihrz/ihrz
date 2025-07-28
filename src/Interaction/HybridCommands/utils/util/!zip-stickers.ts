@@ -25,10 +25,10 @@ import {
 	Message,
 } from 'discord.js';
 import JSZip from 'jszip';
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from '../../../../../types/languageData.js';
+import { SubCommand } from '../../../../../types/command.js';
 
-import { axios } from '../../../core/functions/axios.js';
+import { axios } from '../../../../core/functions/axios.js';
 
 export const subCommand: SubCommand = {
 	run: async (

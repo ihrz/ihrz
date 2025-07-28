@@ -2533,6 +2533,10 @@ temporary_voice_channel_name: "{nickname}のチャンネル"
 # イベントメッセージ
 
 protection_avoid_channel_delete: "**保護モードオン**\n<@${channel.guild.ownerId}>, チャンネルが再作成されました, <@${firstEntry.executorId}> がチャンネルを削除しようとしました!"
+protection_blockbot_embed_title: "⚠️ ${member.guild.name}で危険 ⚠️"
+protection_blockbot_embed_desc: "# ボット追加警告\n誰かがDiscordボットを追加しようとしました。"
+var_target_bot: "対象ボット"
+var_not_detected: "検出されませんでした"
 
 # アンチスパムモジュール
 # イベントメッセージ
