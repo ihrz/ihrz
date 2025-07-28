@@ -21,7 +21,6 @@
 
 import { ButtonInteraction, ChatInputCommandInteraction, Guild, GuildMember, Interaction, Message, StringSelectMenuInteraction, UserContextMenuCommandInteraction } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
-import db from "./DatabaseModel.js";
 
 export async function footerBuilder(guildId: string = ""): Promise<{
 	text: string;
