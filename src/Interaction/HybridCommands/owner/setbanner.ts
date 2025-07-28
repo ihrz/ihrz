@@ -35,6 +35,7 @@ import logger from '../../../core/logger.js';
 
 import { axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { ownerTable, tempTable } from '../../../Events/client/ready.js';
 
 var timeout: number = 1_800_000;
 
@@ -84,9 +85,7 @@ export const command: Command = {
 			var action_2 = client.func.method.string(args!, 0);
 		};
 
-		let table = client.db.table('OWNER');
-
-		if (await table.get(`${interaction.member.user.id}.owner`)
+		if (await ownerTable.get(`${interaction.member.user.id}.owner`)
 			!== true) {
 
 			await client.func.method.interactionSend(interaction, { content: lang.owner_not_owner, ephemeral: true });
@@ -95,7 +94,7 @@ export const command: Command = {
 
 		if (await client.func.helper.hardCooldown(client.db, "setbanner", 1_800_000)) {
 			let time = client.timeCalculator.to_beautiful_string(1_800_000 - (Date.now() -
-				await (client.db.table("TEMP")).get(`COOLDOWN.setbanner`)
+				await tempTable.get(`COOLDOWN.setbanner`)
 			), lang);
 
 			await interaction.reply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });

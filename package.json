@@ -28,7 +28,6 @@
 	},
 	"homepage": "https://gitlab.com/ihrz/ihrz#readme",
 	"dependencies": {
-		"bun.db": "^1.1.2",
 		"discord-html-transcripts": "^3.2.0",
 		"discord-rebackup": "^4.1.0",
 		"discord.js": "^14.21.0",

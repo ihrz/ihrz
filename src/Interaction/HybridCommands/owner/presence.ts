@@ -30,6 +30,7 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { ownerTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'presence',
@@ -126,9 +127,7 @@ export const command: Command = {
 			var action_3 = client.func.method.longString(args!, 2) || "anaissaraiva"
 		};
 
-		let table = client.db.table('OWNER');
-
-		if (await table.get(`${interaction.member.user.id}.owner`)
+		if (await ownerTable.get(`${interaction.member.user.id}.owner`)
 			!== true) {
 			await client.func.method.interactionSend(interaction, { content: lang.owner_not_owner });
 			return;

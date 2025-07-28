@@ -43,16 +43,8 @@ declare namespace Client_Functions {
 	// From date_and_time.ts
 	export function date_and_time(date: number | Date, formatString: string): string;
 
-	// From ms.ts
-	export namespace ms {
-	}
-
 	// From assetsCalc.ts
 	export function assetsCalc(client: Client<boolean>): Promise<void>;
-
-	// From DatabaseModel.ts
-	export namespace DatabaseModel {
-	}
 
 	// From emojiChecker.ts
 	export namespace emojiChecker {
@@ -288,20 +280,21 @@ declare namespace Client_Functions {
 	}
 
 	// From image_dominant_color.ts
-	export function image_dominant_color(input: string | Buffer): Promise<string>;
+	export function image_dominant_color(input: string | Buffer<ArrayBufferLike>): Promise<string>;
 
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
 
 	// From mediaManipulation.ts
 	export namespace mediaManipulation {
-		export function convertToPng(buffer: Buffer): Promise<Buffer>;
-		export function adjustImageQuality(imagePath: string): any;
-		export function resizeImage(inputImage: Buffer, outputPath: string, width?: number, height?: number): any;
-	}
-
-	// From kdenliveManipulator.ts
-	export namespace kdenliveManipulator {
+		export function convertToPng(buffer: Buffer<ArrayBufferLike>): Promise<Buffer<ArrayBufferLike>>;
+		export function adjustImageQuality(imagePath: string): Promise<void>;
+		export function resizeImage(
+			inputImage: Buffer<ArrayBufferLike>,
+			outputPath: string,
+			width?: number,
+			height?: number
+		): Promise<{ width: number; height: number; }>;
 	}
 }
 

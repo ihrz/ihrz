@@ -24,6 +24,7 @@ import * as core from './src/core/core.js';
 import config from './src/files/config.js';
 import * as ClientVersion from './src/version.js';
 import logger from "./src/core/logger.js";
+import { initializeDatabase } from "./src/core/database/index.js";
 
 logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
 logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
@@ -67,6 +68,7 @@ let client = new Client({
 
 client.version = ClientVersion;
 client.config = config;
+client.db = await initializeDatabase({ method: "sqlite" });
 client.inShard = function (guildId: string): boolean {
 	const shardId = client.shard?.ids?.[0] ?? 0;
 	const totalShards = client.options.shardCount ?? 1;
