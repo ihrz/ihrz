@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, TextChannel, GuildChannelEditOptions, ChannelType, VoiceChannel, PermissionFlagsBits } from 'discord.js'
+import { Client, AuditLogEvent, GuildChannel, TextChannel, GuildChannelEditOptions, ChannelType, VoiceChannel, PermissionFlagsBits, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
 import { getLogs } from './ready.js';
@@ -39,39 +39,25 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(oldChannel.guild, newChannel.id, AuditLogEvent.ChannelUpdate);
 			if (!relevantLog) return;
 
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
+
 			if (data.updatechannel.mode === 'allowlist') {
 				const baseData = await client.db.get(`${newChannel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 				if (!baseData) {
-					const member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
-					await client.func.method.punish(data, member);
-
-					const editOptions: GuildChannelEditOptions = {
-						name: oldChannel.name,
-						permissionOverwrites: [...oldChannel.permissionOverwrites.cache.values()],
-						parent: oldChannel.parent,
-						position: oldChannel.position
-					};
-
-					if (oldChannel.type === ChannelType.GuildText) {
-						editOptions.topic = (oldChannel as TextChannel).topic;
-						editOptions.nsfw = (oldChannel as TextChannel).nsfw;
-						editOptions.rateLimitPerUser = (oldChannel as TextChannel).rateLimitPerUser;
-					}
-
-					if (oldChannel.type === ChannelType.GuildVoice) {
-						editOptions.bitrate = (oldChannel as VoiceChannel).bitrate;
-						editOptions.userLimit = (oldChannel as VoiceChannel).userLimit;
-						editOptions.rtcRegion = (oldChannel as VoiceChannel).rtcRegion;
-					}
-
-					await newChannel.edit(editOptions);
+					user = newChannel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				};
 
 			} else if (data.updatechannel.mode === 'nobody') {
 				if (relevantLog.executorId !== oldChannel.guild.ownerId) {
-					const member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
-					await client.func.method.punish(data, member);
+					user = newChannel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
+
+				shouldSanction ?? (async () => {
+					await client.func.method.punish(data, user);
 
 					const editOptions: GuildChannelEditOptions = {
 						name: oldChannel.name,
@@ -93,8 +79,7 @@ export const event: BotEvent = {
 					}
 
 					await newChannel.edit(editOptions);
-				};
-
+				})
 			}
 		}
 	},

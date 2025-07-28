@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, PermissionFlagsBits } from 'discord.js'
+import { Client, AuditLogEvent, GuildChannel, PermissionFlagsBits, GuildMember } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
 import { getLogs } from './ready.js';
 
@@ -39,23 +39,28 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelCreate);
 			if (!relevantLog) return;
 
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
+
 			if (data.createchannel.mode === 'allowlist') {
 				const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 				if (!baseData) {
-					const member = channel.guild.members.cache.get(relevantLog?.executorId!);
-					await client.func.method.punish(data, member);
-
-					await channel.delete();
+					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				}
 			} else if (data.createchannel.mode === 'nobody') {
 				if (relevantLog.executorId !== channel.guild.ownerId) {
-					const member = channel.guild.members.cache.get(relevantLog?.executorId!);
-					await client.func.method.punish(data, member);
-
-					await channel.delete();
+					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				}
 			}
+
+			shouldSanction ?? (async () => {
+				await client.func.method.punish(data, user);
+
+				await channel.delete();
+			})
 		}
 	},
 };

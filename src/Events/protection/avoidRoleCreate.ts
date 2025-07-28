@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
+import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
 import { getLogs } from './ready.js';
@@ -40,22 +40,25 @@ export const event: BotEvent = {
 			if (!relevantLog) return;
 			const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
+
 			if (data.createrole.mode === 'allowlist') {
 				if (!baseData) {
-					const member = role.guild.members.cache.get(relevantLog?.executorId as string);
-					await client.func.method.punish(data, member);
-
-					await role.delete('Protect!');
+					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				};
 			} else if (data.createrole.mode === 'nobody') {
 				if (relevantLog.executorId !== role.guild.ownerId) {
-					const member = role.guild.members.cache.get(relevantLog?.executorId as string);
-					await client.func.method.punish(data, member);
-
-					await role.delete('Protect!');
+					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				};
 			}
 
+			shouldSanction ?? (async () => {
+				await client.func.method.punish(data, user);
+				await role.delete('Protect!');
+			})
 		}
 	},
 };

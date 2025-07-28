@@ -47,19 +47,26 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(member.guild, member.id, AuditLogEvent.MemberKick);
 			if (!relevantLog) return;
 
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
+
 			if (data.kickmember.mode === 'allowlist') {
 				const baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 				if (!baseData) {
-					const user = member.guild.members.cache.get(relevantLog?.executorId!);
-					await client.func.method.punish(data, user);
+					user = member.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				}
 			} else if (data.kickmember.mode === 'nobody') {
 				if (relevantLog.executorId !== member.guild.ownerId) {
-					const user = member.guild.members.cache.get(relevantLog?.executorId!);
-					await client.func.method.punish(data, user);
+					user = member.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				}
 			}
+
+			shouldSanction ?? (async () => {
+				await client.func.method.punish(data, user);
+			})
 		}
 	},
 };

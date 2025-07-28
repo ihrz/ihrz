@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
+import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
 import { getLogs, protectionCache } from './ready.js';
@@ -39,52 +39,43 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleDelete);
 			if (!relevantLog) return;
 
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
+
 			if (data.deleterole.mode === 'allowlist') {
 				const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 				if (!baseData) {
-					const member = role.guild.members.cache.get(relevantLog?.executorId as string);
-					await client.func.method.punish(data, member);
-
-					const newRole = await role.guild.roles.create({
-						...role, reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
-					});
-
-					await newRole.setPosition(role.rawPosition);
-
-					let fetched_data = protectionCache.data.get(role.guild.id)?.roles.find(x => x.id === role.id)?.members || [];
-					if (fetched_data) {
-						for (let entry of fetched_data) {
-							let user = role.guild.members.cache.get(entry);
-							if (user) {
-								user.roles.add(newRole.id);
-							}
-						}
-					}
+					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				};
 
 			} else if (data.deleterole.mode === 'nobody') {
 				if (relevantLog.executorId !== role.guild.ownerId) {
-					const member = role.guild.members.cache.get(relevantLog?.executorId as string);
-					await client.func.method.punish(data, member);
-
-					const newRole = await role.guild.roles.create({
-						...role, reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
-					});
-
-					await newRole.setPosition(role.rawPosition);
-
-					let fetched_data = protectionCache.data.get(role.guild.id)?.roles.find(x => x.id === role.id)?.members || [];
-					if (fetched_data) {
-						for (let entry of fetched_data) {
-							let user = role.guild.members.cache.get(entry);
-							if (user) {
-								user.roles.add(newRole.id);
-							}
-						}
-					}
+					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				};
 			}
+
+			shouldSanction ?? (async () => {
+				await client.func.method.punish(data, user);
+
+				const newRole = await role.guild.roles.create({
+					...role, reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
+				});
+
+				await newRole.setPosition(role.rawPosition);
+
+				let fetched_data = protectionCache.data.get(role.guild.id)?.roles.find(x => x.id === role.id)?.members || [];
+				if (fetched_data) {
+					for (let entry of fetched_data) {
+						let user = role.guild.members.cache.get(entry);
+						if (user) {
+							user.roles.add(newRole.id);
+						}
+					}
+				}
+			})
 		}
 	},
 };

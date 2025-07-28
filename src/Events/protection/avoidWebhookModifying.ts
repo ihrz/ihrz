@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, PermissionFlagsBits } from 'discord.js'
+import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, PermissionFlagsBits, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
 import { getLogs } from './ready.js';
@@ -39,30 +39,31 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.WebhookCreate);
 			if (!relevantLog) return;
 
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
+
 			if (data.webhook.mode === 'allowlist') {
 				const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 				if (!baseData) {
-					const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
-					const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog.targetId!);
-
-					for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
-
-					const member = channel.guild.members.cache.get(relevantLog.executorId as string);
-					await client.func.method.punish(data, member);
+					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				};
 			} else if (data.webhook.mode === 'nobody') {
 				if (relevantLog.executorId !== channel.guild.ownerId) {
-					const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
-					const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.targetId!);
-
-					for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
-
-					const member = channel.guild.members.cache.get(relevantLog.executorId as string);
-					await client.func.method.punish(data, member);
+					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				};
 			}
 
+			shouldSanction ?? (async () => {
+				await client.func.method.punish(data, user);
+
+				const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
+				const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.targetId!);
+
+				for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
+			})
 		}
 	},
 };

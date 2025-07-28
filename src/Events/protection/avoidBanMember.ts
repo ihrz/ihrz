@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildBan, PermissionsBitField } from 'discord.js'
+import { Client, AuditLogEvent, GuildBan, PermissionsBitField, GuildMember } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
 import { getLogs } from './ready.js';
 
@@ -39,24 +39,29 @@ export const event: BotEvent = {
 				PermissionsBitField.Flags.ManageGuild
 			])) return;
 
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
+
 			if (data.banmembers.mode === 'allowlist') {
 				const baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 				if (!baseData) {
-					const user = ban.guild.members.cache.get(relevantLog?.executorId!);
-					await ban.guild.bans.remove(ban.user.id);
-
-					await client.func.method.punish(data, user);
+					user = ban.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				}
 			} else if (data.banmembers.mode === 'nobody') {
 
 				if (relevantLog.executorId !== ban.guild.ownerId) {
-					const user = ban.guild.members.cache.get(relevantLog?.executorId!);
-					await ban.guild.bans.remove(ban.user.id);
-
-					await client.func.method.punish(data, user);
+					user = ban.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				}
 			}
+
+			shouldSanction ?? (async () => {
+				await ban.guild.bans.remove(ban.user.id);
+
+				await client.func.method.punish(data, user);
+			})
 		}
 	},
 };

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
+import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
 import { getLogs } from './ready.js';
@@ -39,28 +39,31 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(newRole.guild, oldRole.id, AuditLogEvent.RoleUpdate);
 			if (!relevantLog) return;
 
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
+
 			if (data.updaterole.mode === 'allowlist') {
 				const baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 				if (!baseData) {
-					await newRole.edit({
-						...oldRole
-					});
-
-					const member = newRole.guild.members.cache.get(relevantLog?.executorId as string);
-					await client.func.method.punish(data, member);
+					user = newRole.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				};
 
 			} else if (data.updaterole.mode === 'nobody') {
 				if (relevantLog.executorId !== newRole.guild.ownerId) {
-					await newRole.edit({
-						...oldRole
-					});
-
-					const member = newRole.guild.members.cache.get(relevantLog?.executorId as string);
-					await client.func.method.punish(data, member);
+					user = newRole.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				};
 			}
+
+			shouldSanction ?? (async () => {
+				await client.func.method.punish(data, user);
+
+				await newRole.edit({
+					...oldRole
+				});
+			})
 		}
 	},
 };

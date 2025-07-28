@@ -66,24 +66,28 @@ export const event: BotEvent = {
 				return;
 			}
 
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
+
 			if (data.add_admin_roles.mode === 'allowlist') {
 				const baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 				if (!baseData) {
-					const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
-
-					await client.func.method.punish(data, user);
-					await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid (try to gave admin role)").catch(() => false);
+					user = newMember.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				}
 
 			} else if (data.add_admin_roles.mode === 'nobody') {
-
 				if (relevantLog.executorId !== oldMember.guild.ownerId) {
-					const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
-					await client.func.method.punish(data, user);
-
-					await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid (try to gave admin role)").catch(() => false);
+					user = newMember.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
 				};
 			}
+
+			shouldSanction ?? (async () => {
+				await client.func.method.punish(data, user);
+
+				await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid (try to gave admin role)").catch(() => false);
+			})
 
 		}
 	},
