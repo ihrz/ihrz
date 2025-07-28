@@ -107,7 +107,7 @@ async function backupGuildStructure(client: Client) {
 export const handledAuditLogEntries = new Set<string>();
 export const handledAuditLogEntrie_logs = new Set<string>();
 
-export async function getLogs(guild: Guild, args: string, type: AuditLogEvent) {
+export async function getLogs(guild: Guild, args: string, type: AuditLogEvent, l: 1 | 2 = 1) {
 	const fetchedLogs = await guild.fetchAuditLogs({
 		type,
 		limit: 5
@@ -122,11 +122,11 @@ export async function getLogs(guild: Guild, args: string, type: AuditLogEvent) {
 	);
 
 	// Avoiding double action by filtering the user
-	if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
+	if (!relevantLog || relevantLog.executor?.id === client.user?.id || (l === 1 ? handledAuditLogEntries.has(relevantLog.id) : handledAuditLogEntrie_logs.has(relevantLog.id))) {
 		return undefined;
-	}
+	};
 
-	handledAuditLogEntries.add(relevantLog.id);
+	(l === 1 ? handledAuditLogEntries : handledAuditLogEntrie_logs).add(relevantLog.id);
 
 	return relevantLog;
 }
