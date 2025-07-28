@@ -259,23 +259,6 @@ export class FunctionAnalyzer {
 		return typeNode.getText();
 	}
 
-	private getRelativeImportPath(fromPath: string, toPath: string): string | null {
-		if (toPath.includes('node_modules')) {
-			const nodeModulesIndex = toPath.indexOf('node_modules');
-			return toPath.slice(nodeModulesIndex + 13).replace(/\\/g, '/').replace(/\.d\.ts$/, '').replace(/\.ts$/, '');
-		}
-
-		let relativePath = path.relative(path.dirname(fromPath), toPath)
-			.replace(/\\/g, '/')
-			.replace(/\.ts$/, '');
-
-		if (!relativePath.startsWith('.')) {
-			relativePath = './' + relativePath;
-		}
-
-		return relativePath;
-	}
-
 	public generateInterfaces(): string {
 		const fileMetadata = this.analyzeFunctions();
 		let output = '';
