@@ -35,7 +35,6 @@ import fs from 'fs';
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
 import { setMaxListeners } from 'node:events';
-import DatabaseModel from './functions/DatabaseModel.js';
 import { Command } from '../../types/command.js';
 import { mkdir, readdir } from 'node:fs/promises';
 import { MemberCountModule } from './modules/memberCountManager.js';
