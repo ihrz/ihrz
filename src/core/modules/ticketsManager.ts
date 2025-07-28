@@ -379,10 +379,10 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 			.setCustomId('ticket-sethere-reason')
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.mybot_submit_utils_msg_yes)
+					.setLabel(lang.var_yes)
 					.setValue('yes'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.mybot_submit_utils_msg_no)
+					.setLabel(lang.var_no)
 					.setValue('no')
 			)
 

@@ -16,7 +16,6 @@ var_roles: "Papéis"
 var_names: "Nomes"
 var_text_channel: "Canal de texto"
 var_voice_channel: "Canal de voz"
-var_ownihrz: "OWNIHRZ"
 var_creator: "Criador"
 var_doesnt_have_permissions: "Você não está autorizado a fazer isso. Você precisa da permissão {permission}."
 var_ihorizon: "iHorizon"
@@ -557,8 +556,6 @@ help_antispam_dsc: "> *Cansado de spam? Ótimo! O iHorizon está aqui para moder
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "Estatísticas do usuário"
 help_stats_dsc: "> *Veja a quantidade de mensagens e a atividade de voz de um usuário em uma guilda*"
-help_ownihrz_dsc: "> *Hospede e gerencie seu bot iHorizon personalizado! (OWNIHRZ)*"
-help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "> *Seja notificado quando um Youtuber ou Streamer publicar um vídeo!*"
 help_notifier_fields: "Notificador"
 help_authrestore_fields: "AuthRestore"
@@ -2156,46 +2153,6 @@ tag_use_command_work: "A tag `${tag_name}` foi enviada."
 
 # /tag edit
 tag_edit_error_perm: "Para modificar a tag, precisas de permissões de administrador ou de ser o proprietário da tag."
-
-# Módulo OWNIHRZ
-# /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
-
-# /mybot submit
-mybot_submit_token_invalid: "O token inserido é inválido. Não podemos prosseguir."
-mybot_submit_utils_msg: "__ID do Bot__ `${bot_1.bot.id}`\n__Nome de usuário do Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Sim' : 'Não'}`"
-mybot_submit_utils_msg_yes: "Sim"
-mybot_submit_utils_msg_no: "Não"
-mybot_submit_embed_title: "Hospede seu próprio iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "Sua solicitação foi registrada com sucesso, seu identificador único é: **${code}**\nNão compartilhe com ninguém!\n**Entre no servidor de suporte** [Clique Aqui](https://discord.gg/ihorizon), e abra um ticket para continuar a compra.\n\n${utils_msg}"
-
-# /mybot list
-mybot_list_embed0_title: "Lista de todos os seus bots"
-mybot_list_utils_msg: "__ID do Bot__ `${data_2[i].bot.id}`\n__Nome de usuário do Bot__ `${data_2[i].bot.username}`\n__Bot Público__ `${data_2[i].bot_public ? 'Sim' : 'Não'}`"
-mybot_list_utils_msg_yes: "Sim"
-mybot_list_utils_msg_no: "Não"
-mybot_list_embed1_title: "Seu próprio iHorizon: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "Seu código do bot: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **Não compartilhe com ninguém**!\n**Expira em**: `${expire}`\n**Entre no servidor de suporte** [Clique Aqui](https://discord.gg/ihorizon), se você tiver problemas com seu bot.\n\n${utils_msg}"
-
-# /mybot manage accept
-mybot_manage_accept_not_found: "O bot no DB não pode ser encontrado. Não podemos prosseguir."
-mybot_manage_accept_token_error: "O token no DB é inválido. Não podemos prosseguir."
-mybot_manage_accept_utils_msg: "__ID do Bot__ `${bot_1.bot.id}`\n__Nome de usuário do Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Sim' : 'Não'}`"
-mybot_manage_accept_utiis_yes: "Sim"
-mybot_manage_accept_utils_no: "Não"
-mybot_manage_accept_embed_title: "Hospede seu próprio iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_manage_accept_embed_desc: "O bot foi aceito\n\n${utils_msg}"
-
-# /mybot change-owner
-mybot_change_owner: "Os OWNIHRZ agora têm um novo proprietário: <@${OwnerOne}>, <@${OwnerTwo}>"
-
-# /mybot instance deny
-mybot_instance_deny_not_foud: "O bot no DB não pode ser encontrado. Não podemos prosseguir."
-mybot_instance_deny_token_error: "O token no DB é inválido. Não podemos prosseguir."
-mybot_instance_deny_utils_msg: "__ID do Bot__ `${bot_1.bot.id}`\n__Nome de usuário do Bot__ `${bot_1.bot.username}`\n__Bot Público__ `${bot_1.bot_public ? 'Sim' : 'Não'}`"
-mybot_instance_deny_utils_msg_yes: "Sim"
-mybot_instance_deny_utils_msg_no: "Não"
-mybot_instance_deny_embed_title: "Hospede seu próprio iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_instance_deny_embed_desc: "O bot foi recusado\n\n${utils_msg}"
 
 # Módulo TempVoice
 # /text, /voice, /status, /staff

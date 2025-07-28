@@ -16,7 +16,6 @@ var_roles: "役割"
 var_names: "名前"
 var_text_channel: "テキストチャンネル"
 var_voice_channel: "ボイスチャンネル"
-var_ownihrz: "OWNIHRZ"
 var_creator: "作成者"
 var_doesnt_have_permissions: "この操作を行う権限がありません。{permission} 権限が必要です。"
 var_ihorizon: "iHorizon"
@@ -557,8 +556,6 @@ help_antispam_dsc: "> *スパムにうんざり？大丈夫！iHorizonがスパ�
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "ユーザースタッツ"
 help_stats_dsc: "> *サーバー内のユーザーのメッセージ数と音声アクティビティを確認する*"
-help_ownihrz_dsc: "> *カスタムiHorizonボットをホストして管理しよう！ (OWNIHRZ)*"
-help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "> *YouTuberやストリーマーが動画を公開したら通知を受け取ろう！*"
 help_notifier_fields: "通知機能"
 help_authrestore_fields: "AuthRestore"
@@ -2156,46 +2153,6 @@ tag_use_command_work: "タグ `${tag_name}` が送信されました。"
 
 # /tag edit
 tag_edit_error_perm: "タグを編集するには、管理者権限を持っているか、タグの所有者である必要があります。"
-
-# モジュール OWNHRZ
-# /mybot 提出、... 一覧、/mybot 管理 承認、... 拒否、... インスタンス
-
-# /mybot 提出
-mybot_submit_token_invalid: "入力されたトークンは無効です。進行できません。"
-mybot_submit_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot ユーザー名__ `${bot_1.bot.username}`\n__パブリック Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_submit_utils_msg_yes: "はい"
-mybot_submit_utils_msg_no: "いいえ"
-mybot_submit_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "リクエストは正常に登録され、一意の識別子は次のとおりです: **${code}**！\n他の人と共有しないでください！\n**サポートサーバーに参加** [ここをクリック](https://discord.gg/ihorizon) してから、購入を続行するためのチケットを開いてください。\n\n${utils_msg}"
-
-# /mybot 一覧
-mybot_list_embed0_title: "すべてのボットの一覧"
-mybot_list_utils_msg: "__Bot ID__ `${data_2[i].bot.id}`\n__Bot ユーザー名__ `${data_2[i].bot.username}`\n__パブリック Bot__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
-mybot_list_utils_msg_yes: "はい"
-mybot_list_utils_msg_no: "いいえ"
-mybot_list_embed1_title: "あなた自身の iHorizon: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "あなたのボットコード: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **他の人と共有しないでください**！\n**有効期限**：`${expire}`\nあなたのボットに問題がある場合、**サポートサーバーに参加** [ここをクリック](https://discord.gg/ihorizon) してください。\n\n${utils_msg}"
-
-# /mybot 管理 承認
-mybot_manage_accept_not_found: "データベース内のボットが見つかりません。進行できません。"
-mybot_manage_accept_token_error: "データベース内のトークンは無効です。進行できません。"
-mybot_manage_accept_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot ユーザー名__ `${bot_1.bot.username}`\n__パブリック Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_manage_accept_utiis_yes: "はい"
-mybot_manage_accept_utils_no: "いいえ"
-mybot_manage_accept_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_manage_accept_embed_desc: "ボットは承認されました\n\n${utils_msg}"
-
-# /mybot change-owner
-mybot_change_owner: "OWNIHRZの新しい所有者は次の通りです：<@${OwnerOne}>, <@${OwnerTwo}>"
-
-# /mybot インスタンス 拒否
-mybot_instance_deny_not_foud: "データベース内のボットが見つかりません。進行できません。"
-mybot_instance_deny_token_error: "データベース内のトークンは無効です。進行できません。"
-mybot_instance_deny_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot ユーザー名__ `${bot_1.bot.username}`\n__パブリック Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_instance_deny_utils_msg_yes: "はい"
-mybot_instance_deny_utils_msg_no: "いいえ"
-mybot_instance_deny_embed_title: "独自の iHorizon をホストする: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_instance_deny_embed_desc: "ボットは拒否されました\n\n${utils_msg}"
 
 # TempVoiceモジュール
 # /text, /voice, /status, /staff

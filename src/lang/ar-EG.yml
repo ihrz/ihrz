@@ -16,7 +16,6 @@ var_roles: "أدوار"
 var_names: "أسماء"
 var_text_channel: "قناة نصية"
 var_voice_channel: "قناة صوتية"
-var_ownihrz: "OWNIHRZ"
 var_creator: "مؤسس"
 var_doesnt_have_permissions: "أنت غير مصرح لك بذلك. تحتاج إلى إذن {permission}."
 var_ihorizon: "iHorizon"
@@ -557,8 +556,6 @@ help_antispam_dsc: "> *هل سئمت من الرسائل المزعجة؟ حسن
 help_antispam_fields: "مكافحة الرسائل المزعجة"
 help_stats_fields: "إحصائيات المستخدم"
 help_stats_dsc: "> *شوف عدد الرسائل ونشاط الصوت الخاص بالمستخدم في السيرفر*"
-help_ownihrz_dsc: "> *استضيف وادير بوت iHorizon المخصص بتاعك ! (OWNIHRZ)*"
-help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "> *خليك متبلغ لما يوتيوبر أو ستريمر ينشر فيديو!*"
 help_notifier_fields: "المُبلغ"
 help_authrestore_fields: "استعادة كورد"
@@ -2156,46 +2153,6 @@ tag_use_command_work: "تم إرسال الوسم `${tag_name}`."
 
 # /tag edit
 tag_edit_error_perm: "لتعديل الوسم، تحتاج إلى الحصول على أذونات المدير أو أن تكون مالك الوسم."
-
-# OWNIHRZ Module
-# /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
-
-# /mybot submit
-mybot_submit_token_invalid: "التوكن المدخل غير صالح. لا يمكننا متابعة العملية."
-mybot_submit_utils_msg: "__معرّف البوت__ `${bot_1.bot.id}`\n__اسم البوت__ `${bot_1.bot.username}`\n__بوت عام__ `${bot_1.bot_public ? 'نعم' : 'لا'}`"
-mybot_submit_utils_msg_yes: "نعم"
-mybot_submit_utils_msg_no: "لا"
-mybot_submit_embed_title: "استضاف بوت iHorizon الخاص بك: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "تم تسجيل طلبك بنجاح، معرّفك الفريد هو: **${code}**\nلا تشاركه مع أي شخص!\n**انضم إلى خادم الدعم** [اضغط هنا](https://discord.gg/ihorizon)، ثم افتح تذكرة لمتابعة الشراء.\n\n${utils_msg}"
-
-# /mybot list
-mybot_list_embed0_title: "قائمة جميع بوتاتك"
-mybot_list_utils_msg: "__معرّف البوت__ `${data_2[i].bot.id}`\n__اسم البوت__ `${data_2[i].bot.username}`\n__بوت عام__ `${data_2[i].bot_public ? 'نعم' : 'لا'}`"
-mybot_list_utils_msg_yes: "نعم"
-mybot_list_utils_msg_no: "لا"
-mybot_list_embed1_title: "iHorizon الخاص بك: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "رمز بوتك: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **لا تشاركه مع أي شخص**!\n**ينتهي في**: `${expire}`\n**انضم إلى خادم الدعم** [اضغط هنا](https://discord.gg/ihorizon)، إذا كنت تواجه مشاكل مع بوتك.\n\n${utils_msg}"
-
-# /mybot manage accept
-mybot_manage_accept_not_found: "لا يمكن العثور على البوت في قاعدة البيانات. لا يمكننا متابعة العملية."
-mybot_manage_accept_token_error: "التوكن في قاعدة البيانات غير صالح. لا يمكننا متابعة العملية."
-mybot_manage_accept_utils_msg: "__معرّف البوت__ `${bot_1.bot.id}`\n__اسم البوت__ `${bot_1.bot.username}`\n__بوت عام__ `${bot_1.bot_public ? 'نعم' : 'لا'}`"
-mybot_manage_accept_utiis_yes: "نعم"
-mybot_manage_accept_utils_no: "لا"
-mybot_manage_accept_embed_title: "استضاف بوت iHorizon الخاص بك: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_manage_accept_embed_desc: "تم قبول البوت\n\n${utils_msg}"
-
-# /mybot change-owner
-mybot_change_owner: "الـ OWNIHRZ الآن له مالك جديد: <@${OwnerOne}>, <@${OwnerTwo}>"
-
-# /mybot instance deny
-mybot_instance_deny_not_foud: "لا يمكن العثور على البوت في قاعدة البيانات. لا يمكننا متابعة العملية."
-mybot_instance_deny_token_error: "التوكن في قاعدة البيانات غير صالح. لا يمكننا متابعة العملية."
-mybot_instance_deny_utils_msg: "__معرّف البوت__ `${bot_1.bot.id}`\n__اسم البوت__ `${bot_1.bot.username}`\n__بوت عام__ `${bot_1.bot_public ? 'نعم' : 'لا'}`"
-mybot_instance_deny_utils_msg_yes: "نعم"
-mybot_instance_deny_utils_msg_no: "لا"
-mybot_instance_deny_embed_title: "استضاف بوت iHorizon الخاص بك: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_instance_deny_embed_desc: "تم رفض البوت\n\n${utils_msg}"
 
 # TempVoice Module
 # /text, /voice, /status, /staff

@@ -1300,43 +1300,6 @@ allowlist_delete_cant_remove_owner: "Неможливо видалити вла�
 allowlist_delete_isnt_in: "Учасник, якого ви хочете видалити зі списку дозволів, не знаходиться там!"
 allowlist_delete_command_work: "${member.user} був видалений зі списку дозволів!"
 
-# OWNIHRZ Module
-# /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
-
-# /mybot submit
-mybot_submit_token_invalid: "Введений токен є недійсним. Ми не можемо продовжувати."
-mybot_submit_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Ім'я користувача бота__ `${bot_1.bot.username}`\n__Публічний бот__ `${bot_1.bot_public ? 'Так' : 'Ні'}"
-mybot_submit_utils_msg_yes: "Так"
-mybot_submit_utils_msg_no: "Ні"
-mybot_submit_embed_title: "Подайте свого власного iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "Ваш запит було успішно зареєстровано, ваш унікальний ідентифікатор: **${code}**\nНе діліться ним з ніким!\n**Приєднуйтесь до серверу підтримки** [Натисніть тут](https://discord.gg/ihorizon), потім відкрийте заявку, щоб продовжити покупку.\n\n${utils_msg}"
-
-# /mybot list
-mybot_list_embed0_title: "Список всіх ваших ботів"
-mybot_list_utils_msg: "__ID бота__ `${data_2[i].bot.id}`\n__Ім'я користувача бота__ `${data_2[i].bot.username}`\n__Публічний бот__ `${data_2[i].bot_public ? 'Так' : 'Ні'}"
-mybot_list_utils_msg_yes: "Так"
-mybot_list_utils_msg_no: "Ні"
-mybot_list_embed1_title: "Ваш власний iHorizon: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "Код вашого бота: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **Не діліться ним з ніким**! \n**Термін дії** : `${expire}`\n**Приєднуйтесь до серверу підтримки** [Натисніть тут](https://discord.gg/ihorizon), якщо у вас виникли проблеми з вашим ботом.\n\n${utils_msg}"
-
-# /mybot manage accept
-mybot_manage_accept_not_found: "Бот в базі даних не може бути знайдений. Ми не можемо продовжувати."
-mybot_manage_accept_token_error: "Токен у базі даних недійсний. Ми не можемо продовжувати."
-mybot_manage_accept_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Ім'я користувача бота__ `${bot_1.bot.username}`\n__Публічний бот__ `${bot_1.bot_public ? 'Так' : 'Ні'}"
-mybot_manage_accept_utiis_yes: "Так"
-mybot_manage_accept_utils_no: "Ні"
-mybot_manage_accept_embed_title: "Розмістіть свій власний iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_manage_accept_embed_desc: "Бот був прийнятий\n\n${utils_msg}"
-
-# /mybot instance deny
-mybot_instance_deny_not_foud: "Бот в базі даних не може бути знайдений. Ми не можемо продовжувати."
-mybot_instance_deny_token_error: "Токен у базі даних недійсний. Ми не можемо продовжувати."
-mybot_instance_deny_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Ім'я користувача бота__ `${bot_1.bot.username}`\n__Публічний бот__ `${bot_1.bot_public ? 'Так' : 'Ні'}"
-mybot_instance_deny_utils_msg_yes: "Так"
-mybot_instance_deny_utils_msg_no: "Ні"
-mybot_instance_deny_embed_title: "Розмістіть свій власний iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_instance_deny_embed_desc: "Бот був відхилений\n\n${utils_msg}"
-
 # TempVoice Module
 # /text, /voice, /status, /staff
 

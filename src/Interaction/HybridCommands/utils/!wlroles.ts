@@ -218,11 +218,11 @@ export const subCommand: SubCommand = {
 					new ButtonBuilder()
 						.setCustomId('dangerous_roles_confirm_yes')
 						.setStyle(ButtonStyle.Danger)
-						.setLabel(lang.mybot_submit_utils_msg_yes),
+						.setLabel(lang.var_yes),
 					new ButtonBuilder()
 						.setCustomId('dangerous_roles_confirm_no')
 						.setStyle(ButtonStyle.Secondary)
-						.setLabel(lang.mybot_submit_utils_msg_no)
+						.setLabel(lang.var_no)
 				);
 
 			const warn_msg = await roleInteraction.reply({ embeds: [dangerous_embed], components: [confirm_buttons], flags: [1 << 6] });

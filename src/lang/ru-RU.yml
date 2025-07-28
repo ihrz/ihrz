@@ -16,7 +16,6 @@ var_roles: "Роли"
 var_names: "Имена"
 var_text_channel: "Текстовый канал"
 var_voice_channel: "Голосовой канал"
-var_ownihrz: "OWNIHRZ"
 var_creator: "Создатель"
 var_doesnt_have_permissions: "У вас нет прав на выполнение этого действия. Вам требуется разрешение {permission}."
 var_ihorizon: "iHorizon"
@@ -557,8 +556,6 @@ help_antispam_dsc: "> *Надоел спам? Отлично! iHorizon здес�
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "Статистика пользователя"
 help_stats_dsc: "> *Посмотреть количество сообщений и голосовую активность пользователя в гильдии*"
-help_ownihrz_dsc: "> *Хостите и управляйте своим собственным ботом iHorizon! (OWNIHRZ)*"
-help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "> *Получайте уведомления, когда ютубер или стример публикует видео!*"
 help_notifier_fields: "Уведомитель"
 help_authrestore_fields: "AuthRestore"
@@ -2156,46 +2153,6 @@ tag_use_command_work: "Тег `${tag_name}` был отправлен."
 
 # /tag edit
 tag_edit_error_perm: "Чтобы изменить тег, вам нужны права администратора или вы должны быть владельцем тега."
-
-# Модуль OWNIHRZ
-# /mybot отправить, ... список, /mybot управление принять, ... отказать, ... экземпляр
-
-# /mybot отправить
-mybot_submit_token_invalid: "Введенный токен недействителен. Мы не можем продолжать."
-mybot_submit_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Имя пользователя бота__ `${bot_1.bot.username}`\n__Публичный бот__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_submit_utils_msg_yes: "Да"
-mybot_submit_utils_msg_no: "Нет"
-mybot_submit_embed_title: "Разместите свой собственный iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "Ваш запрос был успешно зарегистрирован, ваш уникальный идентификатор: **${code}**\nНе делятесь им ни с кем!\n**Присоединитесь к серверу поддержки** [Нажмите здесь](https://discord.gg/ihorizon), затем откройте заявку, чтобы продолжить покупку.\n\n${utils_msg}"
-
-# /mybot список
-mybot_list_embed0_title: "Список всех ваших ботов"
-mybot_list_utils_msg: "__ID бота__ `${data_2[i].bot.id}`\n__Имя пользователя бота__ `${data_2[i].bot.username}`\n__Публичный бот__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
-mybot_list_utils_msg_yes: "Да"
-mybot_list_utils_msg_no: "Нет"
-mybot_list_embed1_title: "Ваш собственный iHorizon: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "Код вашего бота: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **Не делятесь им ни с кем**! \n**Истекает через** : `${expire}`\n**Присоединитесь к серверу поддержки** [Нажмите здесь](https://discord.gg/ihorizon), если у вас есть проблемы с вашим ботом.\n\n${utils_msg}"
-
-# /mybot управление принять
-mybot_manage_accept_not_found: "Бот в базе данных не может быть найден. Мы не можем продолжать."
-mybot_manage_accept_token_error: "Токен в базе данных недействителен. Мы не можем продолжать."
-mybot_manage_accept_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Имя пользователя бота__ `${bot_1.bot.username}`\n__Публичный бот__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_manage_accept_utiis_yes: "Да"
-mybot_manage_accept_utils_no: "Нет"
-mybot_manage_accept_embed_title: "Разместите свой собственный iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_manage_accept_embed_desc: "Бот был принят\n\n${utils_msg}"
-
-# /mybot change-owner
-mybot_change_owner: "У OWNIHRZ теперь новый владелец: <@${OwnerOne}>, <@${OwnerTwo}>"
-
-# /mybot экземпляр отказать
-mybot_instance_deny_not_foud: "Бот в базе данных не может быть найден. Мы не можем продолжать."
-mybot_instance_deny_token_error: "Токен в базе данных недействителен. Мы не можем продолжать."
-mybot_instance_deny_utils_msg: "__ID бота__ `${bot_1.bot.id}`\n__Имя пользователя бота__ `${bot_1.bot.username}`\n__Публичный бот__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_instance_deny_utils_msg_yes: "Да"
-mybot_instance_deny_utils_msg_no: "Нет"
-mybot_instance_deny_embed_title: "Разместите свой собственный iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_instance_deny_embed_desc: "Бот был отклонен\n\n${utils_msg}"
 
 # Модуль временного голосового канала
 # /текст, /голос, /статус, /персонал

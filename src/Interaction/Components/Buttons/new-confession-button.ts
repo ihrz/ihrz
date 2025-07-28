@@ -79,7 +79,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			{
 				customId: 'case_private',
 				label: lang.confession_module_modal_components2_label,
-				placeHolder: `${lang.mybot_submit_utils_msg_yes} / ${lang.mybot_submit_utils_msg_no}`,
+				placeHolder: `${lang.var_yes} / ${lang.var_no}`,
 				style: TextInputStyle.Short,
 				required: true,
 				minLength: 2,
@@ -112,7 +112,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		.setTimestamp()
 		;
 
-	if (view.toLowerCase().includes('no') || view.toLowerCase().includes(lang.mybot_submit_utils_msg_no)) {
+	if (view.toLowerCase().includes('no') || view.toLowerCase().includes(lang.var_no)) {
 		view = false;
 
 		body.files.push({ attachment: interaction.user.avatarURL({ size: 512 })!, name: "user_icon.png" });
@@ -121,7 +121,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			text: interaction.user.globalName || interaction.user.username,
 			iconURL: "attachment://user_icon.png"
 		});
-	} else if (view.toLowerCase().includes(lang.mybot_submit_utils_msg_yes)) {
+	} else if (view.toLowerCase().includes(lang.var_yes)) {
 		view = true;
 	} else {
 		view = false;

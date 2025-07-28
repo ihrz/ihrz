@@ -16,7 +16,6 @@ var_roles: "Rôles"
 var_names: "Noms"
 var_text_channel: "Canal texte"
 var_voice_channel: "Canal vocal"
-var_ownihrz: "OWNIHRZ"
 var_creator: "Créateur"
 var_doesnt_have_permissions: "Vous n'êtes pas autorisé à faire cela. Vous avez besoin de la permission {permission}."
 var_ihorizon: "iHorizon"
@@ -557,8 +556,6 @@ help_antispam_dsc: "> *Fatigué du spam ? Super ! iHorizon est là pour modérer
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "Statistiques de l'utilisateur"
 help_stats_dsc: "> *Voir le nombre de messages et l'activité vocale d'un utilisateur dans une guilde*"
-help_ownihrz_dsc: "> *Hébergez et gérez votre propre bot iHorizon personnalisé ! (OWNIHRZ)*"
-help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "> *Soyez notifié lorsque un Youtuber ou Streamer publie une vidéo !*"
 help_notifier_fields: "Notificateur"
 help_authrestore_fields: "AuthRestore"
@@ -2156,46 +2153,6 @@ tag_use_command_work: "Le tag `${tag_name}` a été envoyé."
 
 # /tag edit
 tag_edit_error_perm: "Pour modifier le tag, vous devez avoir les permissions d'administrateur ou être le propriétaire du tag."
-
-# Module OWNIHRZ
-# /mybot soumettre, ... liste, /mybot gérer accepter, ... refuser, ... instance
-
-# /mybot soumettre
-mybot_submit_token_invalid: "Le jeton saisi est invalide. Nous ne pouvons pas continuer."
-mybot_submit_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_submit_utils_msg_yes: "Oui"
-mybot_submit_utils_msg_no: "Non"
-mybot_submit_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "Votre demande a été enregistrée avec succès, votre identifiant unique est : **${code}**\nNe le partagez avec personne !\n**Rejoignez le serveur de support** [Cliquez ici](https://discord.gg/ihorizon), puis ouvrez un ticket pour poursuivre l'achat.\n\n${utils_msg}"
-
-# /mybot liste
-mybot_list_embed0_title: "Liste de tous vos bots"
-mybot_list_utils_msg: "__ID du Bot__ `${data_2[i].bot.id}`\n__Nom d'utilisateur du Bot__ `${data_2[i].bot.username}`\n__Bot Public__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
-mybot_list_utils_msg_yes: "Oui"
-mybot_list_utils_msg_no: "Non"
-mybot_list_embed1_title: "Votre propre iHorizon : ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "Le code de votre bot : ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **Ne le partagez avec personne** !\n**Expire dans** : `${expire}`\n**Rejoignez le serveur de support** [Cliquez ici](https://discord.gg/ihorizon), si vous rencontrez des problèmes avec votre bot.\n\n${utils_msg}"
-
-# /mybot gérer accepter
-mybot_manage_accept_not_found: "Le bot dans la base de données est introuvable. Nous ne pouvons pas continuer."
-mybot_manage_accept_token_error: "Le jeton dans la base de données est invalide. Nous ne pouvons pas continuer."
-mybot_manage_accept_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_manage_accept_utiis_yes: "Oui"
-mybot_manage_accept_utils_no: "Non"
-mybot_manage_accept_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_manage_accept_embed_desc: "Le bot a été accepté\n\n${utils_msg}"
-
-# /mybot change-owner
-mybot_change_owner: "Les OWNIHRZ ont maintenant un nouveau propriétaire : <@${OwnerOne}>, <@${OwnerTwo}>"
-
-# /mybot instance refuser
-mybot_instance_deny_not_foud: "Le bot dans la base de données est introuvable. Nous ne pouvons pas continuer."
-mybot_instance_deny_token_error: "Le jeton dans la base de données est invalide. Nous ne pouvons pas continuer."
-mybot_instance_deny_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_instance_deny_utils_msg_yes: "Oui"
-mybot_instance_deny_utils_msg_no: "Non"
-mybot_instance_deny_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_instance_deny_embed_desc: "Le bot a été refusé\n\n${utils_msg}"
 
 # Module TempVoice
 # /texte, /voix, /statut, /personnel
