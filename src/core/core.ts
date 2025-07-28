@@ -82,7 +82,6 @@ export async function main(client: Client) {
 
 	setMaxListeners(0);
 	errorManager.uncaughtExceptionHandler(client);
-	client.db = DatabaseModel;
 	global.client = client;
 	client.commands = new Collection<string, Command>();
 	client.subCommands = new Collection<string, Command>();
