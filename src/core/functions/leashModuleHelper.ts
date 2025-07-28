@@ -21,7 +21,7 @@
 
 import { GuildMember, VoiceBasedChannel } from "discord.js";
 
-export function isInVoiceChannel(member: GuildMember) {
+export function isInVoiceChannel(member: GuildMember): boolean {
 	return member.voice.channel ? true : false;
 }
 

@@ -77,7 +77,7 @@ import { AuthRestore_EntryType, AuthRestore_ResponseType, GuildAuthRestore, Auth
 import { Command } from './command.js';
 import { Option } from './option.js';
 import { PasswordOptions } from '../src/core/functions/random.ts';
-import { command } from '../src/core/functions/permissonsCalculator.ts';
+import { command, PermissionValue } from '../src/core/functions/permissonsCalculator.ts';
 import { DetailedGuildData, GuildData } from '../src/core/functions/shard_helper.ts';
 import { BatchProcessorOptions, BatchProcessorResult } from '../src/core/functions/batchProcessor.ts';
 import { Sqlite } from '../src/core/database/driver/sqlite.ts';

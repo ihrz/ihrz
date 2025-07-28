@@ -30,7 +30,7 @@ import { AuthRestore_EntryType, AuthRestore_ResponseType, GuildAuthRestore, Auth
 import { Command } from './command.js';
 import { Option } from './option.js';
 import { PasswordOptions } from '../src/core/functions/random.ts';
-import { command } from '../src/core/functions/permissonsCalculator.ts';
+import { command, PermissionValue } from '../src/core/functions/permissonsCalculator.ts';
 import { DetailedGuildData, GuildData } from '../src/core/functions/shard_helper.ts';
 import { BatchProcessorOptions, BatchProcessorResult } from '../src/core/functions/batchProcessor.ts';
 import { Sqlite } from '../src/core/database/driver/sqlite.ts';
@@ -74,13 +74,13 @@ declare namespace Client_Functions {
 	// From mediaManipulation.ts
 	export namespace mediaManipulation {
 		export function convertToPng(buffer: Buffer<ArrayBufferLike>): Promise<Buffer<ArrayBufferLike>>;
-		export function adjustImageQuality(imagePath: string): any;
+		export function adjustImageQuality(imagePath: string): Promise<void>;
 		export function resizeImage(
 			inputImage: Buffer<ArrayBufferLike>,
 			outputPath: string,
 			width?: number,
 			height?: number
-		): any;
+		): Promise<{ width: number; height: number; }>;
 	}
 
 	// From numberBeautifuer.ts
@@ -96,7 +96,7 @@ declare namespace Client_Functions {
 	export function awaitingResponse(
 		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
 		opt: LangForPrompt
-	): any;
+	): Promise<boolean>;
 
 	// From authRestoreHelper.ts
 	export namespace authRestoreHelper {
@@ -120,8 +120,8 @@ declare namespace Client_Functions {
 			interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
 			lang: LanguageData,
 			permissionData: { users: string[]; roles: string[]; level: number; }
-		): any;
-		export function getPermissionByValue(value: bigint | Array<bigint>): any;
+		): Promise<Message<boolean>>;
+		export function getPermissionByValue(value: bigint | Array<bigint>): PermissionValue | Array<PermissionValue> | null;
 	}
 
 	// From shard_helper.ts
@@ -187,7 +187,7 @@ declare namespace Client_Functions {
 			data: DatabaseStructure.ProtectionData,
 			user: GuildMember | undefined,
 			reason?: string
-		): any;
+		): Promise<void>;
 		export function generateCustomMessagePreview(
 			message: string,
 			input: { guild: Guild; user: User; guildLocal: string; inviter?: { user: { username: string; mention: string; }; invitesAmount: number; }; ranks?: { level: number; }; notifier?: { artistAuthor: string; artistLink: string; mediaURL: string; }; }
@@ -257,12 +257,12 @@ declare namespace Client_Functions {
 		export function getChannelMinutesCount(channelId: string, voices: Array<DatabaseStructure.StatsVoice>): number;
 		export function getStatsLeaderboard(
 			data: Array<{ member: User | undefined; dailyMessages: number; weeklyMessages: number; monthlyMessages: number; dailyVoiceActivity: number; weeklyVoiceActivity: number; monthlyVoiceActivity: number; }>
-		): any;
+		): Array<{ member: User | undefined; dailyMessages: number; weeklyMessages: number; monthlyMessages: number; dailyVoiceActivity: number; weeklyVoiceActivity: number; monthlyVoiceActivity: number; }>;
 	}
 
 	// From leashModuleHelper.ts
 	export namespace leashModuleHelper {
-		export function isInVoiceChannel(member: GuildMember): any;
+		export function isInVoiceChannel(member: GuildMember): boolean;
 		export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
 	}
 
@@ -274,10 +274,10 @@ declare namespace Client_Functions {
 
 	// From displayBotName.ts
 	export namespace displayBotName {
-		export function footerBuilder(guildId: string): any;
+		export function footerBuilder(guildId: string): Promise<{ text: string; iconURL: string; }>;
 		export function footerAttachmentBuilder(
 			entry?: Interaction | ChatInputCommandInteraction<"cached"> | Message<boolean> | GuildMember | Guild
-		): any;
+		): Promise<{ attachment: string | Buffer<ArrayBuffer>; name: string; }>;
 		export function displayBotPP(guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
 	}
 
@@ -289,19 +289,19 @@ declare namespace Client_Functions {
 
 	// From helper.ts
 	export namespace helper {
-		export function coolDown(message: Message<boolean>, method: string, ms: number): any;
+		export function coolDown(message: Message<boolean>, method: string, ms: number): Promise<boolean>;
 		export function hardCooldown(
 			database: Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon,
 			method: string,
 			ms: number
-		): any;
+		): Promise<boolean>;
 	}
 
 	// From ihorizon_logs.ts
 	export function ihorizon_logs(
 		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
 		embed: { title: string; description: string; }
-	): any;
+	): Promise<void>;
 
 	// From image64.ts
 	export namespace image64 {

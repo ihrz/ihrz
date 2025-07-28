@@ -57,7 +57,7 @@ export async function convertToPng(buffer: Buffer): Promise<Buffer> {
 	}
 }
 
-export async function adjustImageQuality(imagePath: string) {
+export async function adjustImageQuality(imagePath: string): Promise<void> {
 	let stats = fs.statSync(imagePath);
 	let quality = 100;
 
@@ -71,7 +71,10 @@ export async function adjustImageQuality(imagePath: string) {
 	}
 }
 
-export async function resizeImage(inputImage: Buffer, outputPath: string, width?: number, height?: number) {
+export async function resizeImage(inputImage: Buffer, outputPath: string, width?: number, height?: number): Promise<{
+	width: number;
+	height: number;
+}> {
 	const image = await Jimp.read(inputImage);
 	const metadata = { width: image.getWidth(), height: image.getHeight() };
 
