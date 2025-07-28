@@ -34,7 +34,7 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		if (data.kickmember && data.kickmember.mode === 'allowlist') {
+		if (data.kickmember) {
 
 			if (!member.guild) return;
 			if (!member.guild.members.me) return;
@@ -47,29 +47,18 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(member.guild, member.id, AuditLogEvent.MemberKick);
 			if (!relevantLog) return;
 
-			const baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.kickmember.mode === 'allowlist') {
+				const baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
-			if (!baseData) {
-				const user = member.guild.members.cache.get(relevantLog?.executorId!);
-				await client.func.method.punish(data, user);
-			}
-		} else if (data.kickmember && data.kickmember.mode === 'allowlist') {
-
-
-			if (!member.guild) return;
-			if (!member.guild.members.me) return;
-
-			if (!member.guild.members.me.permissions.has([
-				PermissionsBitField.Flags.ViewAuditLog,
-				PermissionsBitField.Flags.ManageGuild
-			])) return;
-
-			const relevantLog = await getLogs(member.guild, member.id, AuditLogEvent.MemberKick);
-			if (!relevantLog) return;
-
-			if (relevantLog.executorId !== member.guild.ownerId) {
-				const user = member.guild.members.cache.get(relevantLog?.executorId!);
-				await client.func.method.punish(data, user);
+				if (!baseData) {
+					const user = member.guild.members.cache.get(relevantLog?.executorId!);
+					await client.func.method.punish(data, user);
+				}
+			} else if (data.kickmember.mode === 'nobody') {
+				if (relevantLog.executorId !== member.guild.ownerId) {
+					const user = member.guild.members.cache.get(relevantLog?.executorId!);
+					await client.func.method.punish(data, user);
+				}
 			}
 		}
 	},

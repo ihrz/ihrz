@@ -35,27 +35,27 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		if (data.createrole && data.createrole.mode === 'allowlist') {
+		if (data.createrole) {
 			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleCreate);
 			if (!relevantLog) return;
 			const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
-			if (!baseData) {
-				const member = role.guild.members.cache.get(relevantLog?.executorId as string);
-				await client.func.method.punish(data, member);
+			if (data.createrole.mode === 'allowlist') {
+				if (!baseData) {
+					const member = role.guild.members.cache.get(relevantLog?.executorId as string);
+					await client.func.method.punish(data, member);
 
-				await role.delete('Protect!');
-			};
-		} else if (data.createrole && data.createrole.mode === 'nobody') {
-			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleCreate);
-			if (!relevantLog) return;
+					await role.delete('Protect!');
+				};
+			} else if (data.createrole.mode === 'nobody') {
+				if (relevantLog.executorId !== role.guild.ownerId) {
+					const member = role.guild.members.cache.get(relevantLog?.executorId as string);
+					await client.func.method.punish(data, member);
 
-			if (relevantLog.executorId !== role.guild.ownerId) {
-				const member = role.guild.members.cache.get(relevantLog?.executorId as string);
-				await client.func.method.punish(data, member);
+					await role.delete('Protect!');
+				};
+			}
 
-				await role.delete('Protect!');
-			};
 		}
 	},
 };

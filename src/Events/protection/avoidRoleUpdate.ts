@@ -35,32 +35,32 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		if (data.updaterole && data.updaterole.mode === 'allowlist') {
+		if (data.updaterole) {
 			const relevantLog = await getLogs(newRole.guild, oldRole.id, AuditLogEvent.RoleUpdate);
 			if (!relevantLog) return;
 
-			const baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.updaterole.mode === 'allowlist') {
+				const baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
-			if (!baseData) {
-				await newRole.edit({
-					...oldRole
-				});
+				if (!baseData) {
+					await newRole.edit({
+						...oldRole
+					});
 
-				const member = newRole.guild.members.cache.get(relevantLog?.executorId as string);
-				await client.func.method.punish(data, member);
-			};
-		} else if (data.updaterole && data.updaterole.mode === 'nobody') {
-			const relevantLog = await getLogs(newRole.guild, oldRole.id, AuditLogEvent.RoleUpdate);
-			if (!relevantLog) return;
+					const member = newRole.guild.members.cache.get(relevantLog?.executorId as string);
+					await client.func.method.punish(data, member);
+				};
 
-			if (relevantLog.executorId !== newRole.guild.ownerId) {
-				await newRole.edit({
-					...oldRole
-				});
+			} else if (data.updaterole.mode === 'nobody') {
+				if (relevantLog.executorId !== newRole.guild.ownerId) {
+					await newRole.edit({
+						...oldRole
+					});
 
-				const member = newRole.guild.members.cache.get(relevantLog?.executorId as string);
-				await client.func.method.punish(data, member);
-			};
+					const member = newRole.guild.members.cache.get(relevantLog?.executorId as string);
+					await client.func.method.punish(data, member);
+				};
+			}
 		}
 	},
 };

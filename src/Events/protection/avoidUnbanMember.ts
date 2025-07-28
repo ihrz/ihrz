@@ -30,7 +30,7 @@ export const event: BotEvent = {
 		const data = await client.db.get(`${ban.guild.id}.PROTECTION`);
 		if (!data) return;
 
-		if (data.unbanmembers && data.unbanmembers.mode === 'allowlist') {
+		if (data.unbanmembers) {
 
 			if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
 				PermissionsBitField.Flags.ViewAuditLog,
@@ -40,28 +40,22 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(ban.guild, ban.user.id, AuditLogEvent.MemberBanRemove);
 			if (!relevantLog) return;
 
-			const baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.unbanmembers.mode === 'allowlist') {
+				const baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
-			if (!baseData) {
-				const member = ban.guild.members.cache.get(relevantLog?.executorId!);
-				await ban.guild.members.ban(ban.user.id);
-				await client.func.method.punish(data, member);
-			};
-		} else if (data.unbanmembers && data.unbanmembers.mode === 'nobody') {
+				if (!baseData) {
+					const member = ban.guild.members.cache.get(relevantLog?.executorId!);
+					await ban.guild.members.ban(ban.user.id);
+					await client.func.method.punish(data, member);
+				};
+			} else if (data.unbanmembers.mode === 'nobody') {
 
-			if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
-				PermissionsBitField.Flags.ViewAuditLog,
-				PermissionsBitField.Flags.ManageGuild
-			])) return;
-
-			const relevantLog = await getLogs(ban.guild, ban.user.id, AuditLogEvent.MemberBanRemove);
-			if (!relevantLog) return;
-
-			if (relevantLog.executorId !== ban.guild.ownerId) {
-				const member = ban.guild.members.cache.get(relevantLog?.executorId!);
-				await ban.guild.members.ban(ban.user.id);
-				await client.func.method.punish(data, member);
-			};
+				if (relevantLog.executorId !== ban.guild.ownerId) {
+					const member = ban.guild.members.cache.get(relevantLog?.executorId!);
+					await ban.guild.members.ban(ban.user.id);
+					await client.func.method.punish(data, member);
+				};
+			}
 		}
 	},
 };

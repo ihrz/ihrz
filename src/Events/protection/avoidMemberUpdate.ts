@@ -32,28 +32,28 @@ export const event: BotEvent = {
 		if (!data) return;
 
 
-		if (data.updatemember && data.updatemember.mode === 'allowlist') {
+		if (data.updatemember) {
 			const relevantLog = await getLogs(oldMember.guild, oldMember.id, AuditLogEvent.MemberRoleUpdate);
 			if (!relevantLog) return;
 
-			const baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.updatemember.mode === 'allowlist') {
+				const baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
-			if (!baseData) {
-				const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
-				await client.func.method.punish(data, user);
+				if (!baseData) {
+					const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
+					await client.func.method.punish(data, user);
 
-				await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid").catch(() => false);
-			};
-		} else if (data.updatemember && data.updatemember.mode === 'nobody') {
-			const relevantLog = await getLogs(oldMember.guild, oldMember.id, AuditLogEvent.MemberRoleUpdate);
-			if (!relevantLog) return;
+					await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid").catch(() => false);
+				};
+			} else if (data.updatemember.mode === 'nobody') {
+				if (relevantLog.executorId !== newMember.guild.ownerId) {
+					const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
+					await client.func.method.punish(data, user);
 
-			if (relevantLog.executorId !== newMember.guild.ownerId) {
-				const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
-				await client.func.method.punish(data, user);
+					await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid").catch(() => false);
+				};
+			}
 
-				await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid").catch(() => false);
-			};
 		}
 	},
 };

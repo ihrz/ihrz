@@ -42,172 +42,174 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelDelete);
 			if (!relevantLog) return;
 
-			const baseData = await client.db.get(`${guildId}.ALLOWLIST.list.${relevantLog.executorId}`);
 
-			if (!baseData) {
-				const user = channel.guild.members.cache.get(relevantLog.executorId!);
-				if (!user) return;
+			if (data.deletechannel.mode === 'allowlist') {
+				const baseData = await client.db.get(`${guildId}.ALLOWLIST.list.${relevantLog.executorId}`);
 
-				client.func.method.punish(data, user);
+				if (!baseData) {
+					const user = channel.guild.members.cache.get(relevantLog.executorId!);
+					if (!user) return;
 
-				const existingRestoration = restorationInProgress.get(guildId);
-				if (existingRestoration) {
-					await existingRestoration;
-					return;
+					client.func.method.punish(data, user);
+
+					const existingRestoration = restorationInProgress.get(guildId);
+					if (existingRestoration) {
+						await existingRestoration;
+						return;
+					}
+
+					const restorationPromise = (async () => {
+						try {
+							const backup = protectionCache.data.get(guildId);
+							if (!backup) return;
+
+							const categoryMap = new Map<string, CategoryChannel>();
+
+							for (const categoryBackup of backup.categories) {
+								const existingCategory = channel.guild.channels.cache.get(categoryBackup.id) as CategoryChannel;
+
+								if (existingCategory) {
+									categoryMap.set(categoryBackup.id, existingCategory);
+								} else {
+									try {
+										const newCategory = await channel.guild.channels.create({
+											name: categoryBackup.name,
+											type: ChannelType.GuildCategory,
+											position: categoryBackup.position,
+											reason: `Category re-created by Protect (${relevantLog.executorId})`
+										});
+										categoryMap.set(categoryBackup.id, newCategory);
+										await wait(300);
+									} catch {
+									}
+								}
+							}
+
+							for (const categoryBackup of backup.categories) {
+								const category = categoryMap.get(categoryBackup.id);
+								if (!category) continue;
+
+								for (const channelBackup of categoryBackup.channels) {
+									const existingChannel = channel.guild.channels.cache.get(channelBackup.id);
+
+									if (!existingChannel) {
+										try {
+											await channel.guild.channels.create({
+												name: channelBackup.name,
+												type: channelBackup.type as any,
+												parent: category.id,
+												position: channelBackup.position,
+												permissionOverwrites: channelBackup.permissions,
+												reason: `Restoration by Protect (${relevantLog.executorId})`
+											});
+											await wait(300);
+										} catch {
+										}
+									} else if (existingChannel.parentId !== category.id) {
+										try {
+											await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false });
+											await (existingChannel as GuildChannel).setPosition(channelBackup.position);
+											await wait(300);
+										} catch {
+										}
+									}
+								}
+							}
+
+						} catch {
+						} finally {
+							restorationInProgress.delete(guildId);
+						}
+					})();
+
+					restorationInProgress.set(guildId, restorationPromise);
+
+					await restorationPromise;
 				}
 
-				const restorationPromise = (async () => {
-					try {
-						const backup = protectionCache.data.get(guildId);
-						if (!backup) return;
+			} else if (data.deletechannel.mode === 'nobody') {
+				if (relevantLog.executorId !== channel.guild.ownerId) {
+					const user = channel.guild.members.cache.get(relevantLog.executorId!);
+					if (!user) return;
 
-						const categoryMap = new Map<string, CategoryChannel>();
+					client.func.method.punish(data, user);
 
-						for (const categoryBackup of backup.categories) {
-							const existingCategory = channel.guild.channels.cache.get(categoryBackup.id) as CategoryChannel;
-
-							if (existingCategory) {
-								categoryMap.set(categoryBackup.id, existingCategory);
-							} else {
-								try {
-									const newCategory = await channel.guild.channels.create({
-										name: categoryBackup.name,
-										type: ChannelType.GuildCategory,
-										position: categoryBackup.position,
-										reason: `Category re-created by Protect (${relevantLog.executorId})`
-									});
-									categoryMap.set(categoryBackup.id, newCategory);
-									await wait(300);
-								} catch {
-								}
-							}
-						}
-
-						for (const categoryBackup of backup.categories) {
-							const category = categoryMap.get(categoryBackup.id);
-							if (!category) continue;
-
-							for (const channelBackup of categoryBackup.channels) {
-								const existingChannel = channel.guild.channels.cache.get(channelBackup.id);
-
-								if (!existingChannel) {
-									try {
-										await channel.guild.channels.create({
-											name: channelBackup.name,
-											type: channelBackup.type as any,
-											parent: category.id,
-											position: channelBackup.position,
-											permissionOverwrites: channelBackup.permissions,
-											reason: `Restoration by Protect (${relevantLog.executorId})`
-										});
-										await wait(300);
-									} catch {
-									}
-								} else if (existingChannel.parentId !== category.id) {
-									try {
-										await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false });
-										await (existingChannel as GuildChannel).setPosition(channelBackup.position);
-										await wait(300);
-									} catch {
-									}
-								}
-							}
-						}
-
-					} catch {
-					} finally {
-						restorationInProgress.delete(guildId);
+					const existingRestoration = restorationInProgress.get(guildId);
+					if (existingRestoration) {
+						await existingRestoration;
+						return;
 					}
-				})();
 
-				restorationInProgress.set(guildId, restorationPromise);
+					const restorationPromise = (async () => {
+						try {
+							const backup = protectionCache.data.get(guildId);
+							if (!backup) return;
 
-				await restorationPromise;
-			}
-		} else if (data.deletechannel && data.deletechannel.mode === 'nobody') {
-			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelDelete);
-			if (!relevantLog) return;
+							const categoryMap = new Map<string, CategoryChannel>();
 
-			if (relevantLog.executorId !== channel.guild.ownerId) {
-				const user = channel.guild.members.cache.get(relevantLog.executorId!);
-				if (!user) return;
+							for (const categoryBackup of backup.categories) {
+								const existingCategory = channel.guild.channels.cache.get(categoryBackup.id) as CategoryChannel;
 
-				client.func.method.punish(data, user);
+								if (existingCategory) {
+									categoryMap.set(categoryBackup.id, existingCategory);
+								} else {
+									try {
+										const newCategory = await channel.guild.channels.create({
+											name: categoryBackup.name,
+											type: ChannelType.GuildCategory,
+											position: categoryBackup.position,
+											reason: `Category re-created by Protect (${relevantLog.executorId})`
+										});
+										categoryMap.set(categoryBackup.id, newCategory);
+										await wait(300);
+									} catch {
+									}
+								}
+							}
 
-				const existingRestoration = restorationInProgress.get(guildId);
-				if (existingRestoration) {
-					await existingRestoration;
-					return;
+							for (const categoryBackup of backup.categories) {
+								const category = categoryMap.get(categoryBackup.id);
+								if (!category) continue;
+
+								for (const channelBackup of categoryBackup.channels) {
+									const existingChannel = channel.guild.channels.cache.get(channelBackup.id);
+
+									if (!existingChannel) {
+										try {
+											await channel.guild.channels.create({
+												name: channelBackup.name,
+												type: channelBackup.type as any,
+												parent: category.id,
+												position: channelBackup.position,
+												permissionOverwrites: channelBackup.permissions,
+												reason: `Restoration by Protect (${relevantLog.executorId})`
+											});
+											await wait(300);
+										} catch {
+										}
+									} else if (existingChannel.parentId !== category.id) {
+										try {
+											await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false });
+											await (existingChannel as GuildChannel).setPosition(channelBackup.position);
+											await wait(300);
+										} catch {
+										}
+									}
+								}
+							}
+
+						} catch {
+						} finally {
+							restorationInProgress.delete(guildId);
+						}
+					})();
+
+					restorationInProgress.set(guildId, restorationPromise);
+
+					await restorationPromise;
 				}
-
-				const restorationPromise = (async () => {
-					try {
-						const backup = protectionCache.data.get(guildId);
-						if (!backup) return;
-
-						const categoryMap = new Map<string, CategoryChannel>();
-
-						for (const categoryBackup of backup.categories) {
-							const existingCategory = channel.guild.channels.cache.get(categoryBackup.id) as CategoryChannel;
-
-							if (existingCategory) {
-								categoryMap.set(categoryBackup.id, existingCategory);
-							} else {
-								try {
-									const newCategory = await channel.guild.channels.create({
-										name: categoryBackup.name,
-										type: ChannelType.GuildCategory,
-										position: categoryBackup.position,
-										reason: `Category re-created by Protect (${relevantLog.executorId})`
-									});
-									categoryMap.set(categoryBackup.id, newCategory);
-									await wait(300);
-								} catch {
-								}
-							}
-						}
-
-						for (const categoryBackup of backup.categories) {
-							const category = categoryMap.get(categoryBackup.id);
-							if (!category) continue;
-
-							for (const channelBackup of categoryBackup.channels) {
-								const existingChannel = channel.guild.channels.cache.get(channelBackup.id);
-
-								if (!existingChannel) {
-									try {
-										await channel.guild.channels.create({
-											name: channelBackup.name,
-											type: channelBackup.type as any,
-											parent: category.id,
-											position: channelBackup.position,
-											permissionOverwrites: channelBackup.permissions,
-											reason: `Restoration by Protect (${relevantLog.executorId})`
-										});
-										await wait(300);
-									} catch {
-									}
-								} else if (existingChannel.parentId !== category.id) {
-									try {
-										await (existingChannel as GuildChannel).setParent(category.id, { lockPermissions: false });
-										await (existingChannel as GuildChannel).setPosition(channelBackup.position);
-										await wait(300);
-									} catch {
-									}
-								}
-							}
-						}
-
-					} catch {
-					} finally {
-						restorationInProgress.delete(guildId);
-					}
-				})();
-
-				restorationInProgress.set(guildId, restorationPromise);
-
-				await restorationPromise;
 			}
 		}
+
 	},
 };

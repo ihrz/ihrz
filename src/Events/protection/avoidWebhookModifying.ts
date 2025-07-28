@@ -39,30 +39,30 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.WebhookCreate);
 			if (!relevantLog) return;
 
-			const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.webhook.mode === 'allowlist') {
+				const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
-			if (!baseData) {
-				const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
-				const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog.targetId!);
+				if (!baseData) {
+					const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
+					const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog.targetId!);
 
-				for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
+					for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 
-				const member = channel.guild.members.cache.get(relevantLog.executorId as string);
-				await client.func.method.punish(data, member);
-			};
-		} else if (data.webhook && data.webhook.mode === 'nobody') {
-			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.WebhookCreate);
-			if (!relevantLog) return;
+					const member = channel.guild.members.cache.get(relevantLog.executorId as string);
+					await client.func.method.punish(data, member);
+				};
+			} else if (data.webhook.mode === 'nobody') {
+				if (relevantLog.executorId !== channel.guild.ownerId) {
+					const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
+					const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.targetId!);
 
-			if (relevantLog.executorId !== channel.guild.ownerId) {
-				const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
-				const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.targetId!);
+					for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 
-				for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
+					const member = channel.guild.members.cache.get(relevantLog.executorId as string);
+					await client.func.method.punish(data, member);
+				};
+			}
 
-				const member = channel.guild.members.cache.get(relevantLog.executorId as string);
-				await client.func.method.punish(data, member);
-			};
 		}
 	},
 };

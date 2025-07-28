@@ -34,29 +34,27 @@ export const event: BotEvent = {
 		const data = await client.db.get(`${channel.guild.id}.PROTECTION`);
 		if (!data) return;
 
-		if (data.createchannel && data.createchannel.mode === 'allowlist') {
+		if (data.createchannel) {
 
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelCreate);
 			if (!relevantLog) return;
 
-			const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.createchannel.mode === 'allowlist') {
+				const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
-			if (!baseData) {
-				const member = channel.guild.members.cache.get(relevantLog?.executorId!);
-				await client.func.method.punish(data, member);
+				if (!baseData) {
+					const member = channel.guild.members.cache.get(relevantLog?.executorId!);
+					await client.func.method.punish(data, member);
 
-				await channel.delete();
-			}
-		} else if (data.createchannel && data.createchannel.mode === 'nobody') {
+					await channel.delete();
+				}
+			} else if (data.createchannel.mode === 'nobody') {
+				if (relevantLog.executorId !== channel.guild.ownerId) {
+					const member = channel.guild.members.cache.get(relevantLog?.executorId!);
+					await client.func.method.punish(data, member);
 
-			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelCreate);
-			if (!relevantLog) return;
-
-			if (relevantLog.executorId !== channel.guild.ownerId) {
-				const member = channel.guild.members.cache.get(relevantLog?.executorId!);
-				await client.func.method.punish(data, member);
-
-				await channel.delete();
+					await channel.delete();
+				}
 			}
 		}
 	},

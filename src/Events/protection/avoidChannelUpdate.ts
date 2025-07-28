@@ -35,67 +35,67 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		if (data.updatechannel && data.updatechannel.mode === 'allowlist') {
+		if (data.updatechannel) {
 			const relevantLog = await getLogs(oldChannel.guild, newChannel.id, AuditLogEvent.ChannelUpdate);
 			if (!relevantLog) return;
 
-			const baseData = await client.db.get(`${newChannel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.updatechannel.mode === 'allowlist') {
+				const baseData = await client.db.get(`${newChannel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
-			if (!baseData) {
-				const member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
-				await client.func.method.punish(data, member);
+				if (!baseData) {
+					const member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
+					await client.func.method.punish(data, member);
 
-				const editOptions: GuildChannelEditOptions = {
-					name: oldChannel.name,
-					permissionOverwrites: [...oldChannel.permissionOverwrites.cache.values()],
-					parent: oldChannel.parent,
-					position: oldChannel.position
+					const editOptions: GuildChannelEditOptions = {
+						name: oldChannel.name,
+						permissionOverwrites: [...oldChannel.permissionOverwrites.cache.values()],
+						parent: oldChannel.parent,
+						position: oldChannel.position
+					};
+
+					if (oldChannel.type === ChannelType.GuildText) {
+						editOptions.topic = (oldChannel as TextChannel).topic;
+						editOptions.nsfw = (oldChannel as TextChannel).nsfw;
+						editOptions.rateLimitPerUser = (oldChannel as TextChannel).rateLimitPerUser;
+					}
+
+					if (oldChannel.type === ChannelType.GuildVoice) {
+						editOptions.bitrate = (oldChannel as VoiceChannel).bitrate;
+						editOptions.userLimit = (oldChannel as VoiceChannel).userLimit;
+						editOptions.rtcRegion = (oldChannel as VoiceChannel).rtcRegion;
+					}
+
+					await newChannel.edit(editOptions);
 				};
 
-				if (oldChannel.type === ChannelType.GuildText) {
-					editOptions.topic = (oldChannel as TextChannel).topic;
-					editOptions.nsfw = (oldChannel as TextChannel).nsfw;
-					editOptions.rateLimitPerUser = (oldChannel as TextChannel).rateLimitPerUser;
-				}
+			} else if (data.updatechannel.mode === 'nobody') {
+				if (relevantLog.executorId !== oldChannel.guild.ownerId) {
+					const member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
+					await client.func.method.punish(data, member);
 
-				if (oldChannel.type === ChannelType.GuildVoice) {
-					editOptions.bitrate = (oldChannel as VoiceChannel).bitrate;
-					editOptions.userLimit = (oldChannel as VoiceChannel).userLimit;
-					editOptions.rtcRegion = (oldChannel as VoiceChannel).rtcRegion;
-				}
+					const editOptions: GuildChannelEditOptions = {
+						name: oldChannel.name,
+						permissionOverwrites: [...oldChannel.permissionOverwrites.cache.values()],
+						parent: oldChannel.parent,
+						position: oldChannel.position
+					};
 
-				await newChannel.edit(editOptions);
-			};
-		} else if (data.updatechannel && data.updatechannel.mode === 'nobody') {
+					if (oldChannel.type === ChannelType.GuildText) {
+						editOptions.topic = (oldChannel as TextChannel).topic;
+						editOptions.nsfw = (oldChannel as TextChannel).nsfw;
+						editOptions.rateLimitPerUser = (oldChannel as TextChannel).rateLimitPerUser;
+					}
 
-			const relevantLog = await getLogs(oldChannel.guild, newChannel.id, AuditLogEvent.ChannelUpdate);
-			if (!relevantLog) return;
+					if (oldChannel.type === ChannelType.GuildVoice) {
+						editOptions.bitrate = (oldChannel as VoiceChannel).bitrate;
+						editOptions.userLimit = (oldChannel as VoiceChannel).userLimit;
+						editOptions.rtcRegion = (oldChannel as VoiceChannel).rtcRegion;
+					}
 
-			if (relevantLog.executorId !== oldChannel.guild.ownerId) {
-				const member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
-				await client.func.method.punish(data, member);
-
-				const editOptions: GuildChannelEditOptions = {
-					name: oldChannel.name,
-					permissionOverwrites: [...oldChannel.permissionOverwrites.cache.values()],
-					parent: oldChannel.parent,
-					position: oldChannel.position
+					await newChannel.edit(editOptions);
 				};
 
-				if (oldChannel.type === ChannelType.GuildText) {
-					editOptions.topic = (oldChannel as TextChannel).topic;
-					editOptions.nsfw = (oldChannel as TextChannel).nsfw;
-					editOptions.rateLimitPerUser = (oldChannel as TextChannel).rateLimitPerUser;
-				}
-
-				if (oldChannel.type === ChannelType.GuildVoice) {
-					editOptions.bitrate = (oldChannel as VoiceChannel).bitrate;
-					editOptions.userLimit = (oldChannel as VoiceChannel).userLimit;
-					editOptions.rtcRegion = (oldChannel as VoiceChannel).rtcRegion;
-				}
-
-				await newChannel.edit(editOptions);
-			};
+			}
 		}
 	},
 };
