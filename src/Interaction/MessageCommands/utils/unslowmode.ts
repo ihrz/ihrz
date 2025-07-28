@@ -28,7 +28,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
 
-import { subCommand } from "../../HybridCommands/utils/!cooldown.js";
+import { subCommand } from "../../HybridCommands/utils/util/!cooldown.js";
 
 export const command: Command = {
 	name: 'unslowmode',

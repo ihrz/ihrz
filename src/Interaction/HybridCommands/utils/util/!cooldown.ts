@@ -27,8 +27,8 @@ import {
 	PermissionFlagsBits,
 } from 'discord.js'
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from '../../../../../types/languageData.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 const timeConversion: Record<string, string> = {
 	"0": "0",

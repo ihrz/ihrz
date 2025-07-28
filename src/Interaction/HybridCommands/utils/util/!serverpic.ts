@@ -20,15 +20,16 @@
 */
 
 import {
-	CategoryChannel,
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
 	Message,
-} from 'discord.js'
-
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+} from 'discord.js';
+import { LanguageData } from '../../../../../types/languageData.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -36,40 +37,23 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var category = interaction.options.getChannel("category") as CategoryChannel | null;
-		} else {
-			var category = await client.func.method.channel(interaction, args!, 0) as CategoryChannel | null;
-		};
-
-		const child_channels = category?.children.cache.values()!;
-
-		let changes: string[] | string = [];
-
-		for (const child of child_channels) {
-			if (!child.permissionsLocked) {
-				await child.lockPermissions();
-				changes.push(child.id);
-			}
-		}
-
-		changes = changes.map(x => `• <#${x}>`).join('\n');
-
-		// Create an embed message
 		const embed = new EmbedBuilder()
-			.setColor('#5865F2') // Discord's blurple color
-			.setDescription(
-				changes.length > 0
-					? lang.util_sync_embed_description_1
-						.replace("${category?.name}", String(category?.name))
-						.replace("${changes}", changes)
-					: lang.util_sync_embed_description_0)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-			.setTimestamp();
+			.setImage(interaction.guild.iconURL({ extension: "webp", size: 4096 }))
+			.setColor("#add5ff")
+			.setTitle(interaction.guild.name);
 
-		client.func.method.interactionSend(interaction, {
+		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			components: [
+				new ActionRowBuilder<ButtonBuilder>()
+					.addComponents(
+						new ButtonBuilder()
+							.setStyle(ButtonStyle.Link)
+							.setLabel(lang.pfps_download_guild_button)
+							.setURL(interaction.guild.iconURL({ extension: "webp", size: 4096 }) || "https://ihorizon.org/assets/img/unknown-user.png")
+					)
+			]
 		});
+		return;
 	},
 };
