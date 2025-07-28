@@ -38,12 +38,13 @@ export const event: BotEvent = {
 		if (data.createrole) {
 			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleCreate);
 			if (!relevantLog) return;
-			const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			let user: GuildMember | undefined;
 			let shouldSanction: boolean = false;
 
 			if (data.createrole.mode === 'allowlist') {
+				const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+
 				if (!baseData) {
 					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
 					shouldSanction = true;
