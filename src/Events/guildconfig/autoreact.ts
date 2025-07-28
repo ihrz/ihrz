@@ -38,6 +38,6 @@ export const event: BotEvent = {
 			} catch {
 				continue;
 			}
-		}
+		};
 	},
 };
