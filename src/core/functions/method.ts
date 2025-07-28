@@ -703,7 +703,7 @@ export function isSubCommand(option: Option | Command): boolean {
 	return option.type === ApplicationCommandOptionType.Subcommand;
 }
 
-export async function punish(data: any, user: GuildMember | undefined, reason?: string) {
+export async function punish(data: DatabaseStructure.ProtectionData, user: GuildMember | undefined, reason?: string) {
 	async function derank() {
 		const user_roles = Array.from(user?.roles.cache.values()!);
 		const role_app = user_roles.find(x => x.managed);

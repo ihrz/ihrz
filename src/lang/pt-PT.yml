@@ -2533,6 +2533,10 @@ temporary_voice_channel_name: "Canal de {nickname}"
 # Mensagem de evento
 
 protection_avoid_channel_delete: "**MODO PROTEÇÃO ATIVADO**\n<@${channel.guild.ownerId}>, o canal foi recriado, <@${firstEntry.executorId}> tentou deletar o canal!"
+protection_blockbot_embed_title: "⚠️ Perigo em ${member.guild.name} ⚠️"
+protection_blockbot_embed_desc: "# Aviso de Adição de Bot\nAlguém tentou adicionar um bot do Discord."
+var_target_bot: "Bot alvo"
+var_not_detected: "Não detectado"
 
 # Módulo AntiSpam
 # Mensagem de evento

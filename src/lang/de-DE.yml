@@ -2533,6 +2533,10 @@ temporary_voice_channel_name: "{nickname}s Kanal"
 # Ereignisnachricht
 
 protection_avoid_channel_delete: "**SCHUTZMODUS AKTIV**\n<@${channel.guild.ownerId}>, der Kanal wurde neu erstellt, <@${firstEntry.executorId}> hat versucht, den Kanal zu löschen!"
+protection_blockbot_embed_title: "⚠️ Gefahr in ${member.guild.name} ⚠️"
+protection_blockbot_embed_desc: "# Bot-Hinzufügung Warnung\nJemand hat versucht, einen Discord-Bot hinzuzufügen."
+var_target_bot: "Ziel-Bot"
+var_not_detected: "Nicht erkannt"
 
 # AntiSpam Modul
 # Ereignismeldung

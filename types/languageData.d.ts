@@ -1892,6 +1892,10 @@ export interface LanguageData {
 	temporary_voice_transfer_untrust_placeholder: string;
 	temporary_voice_channel_name: string;
 	protection_avoid_channel_delete: string;
+	protection_blockbot_embed_title: string;
+	protection_blockbot_embed_desc: string;
+	var_target_bot: string;
+	var_not_detected: string;
 	antispam_base_warn_message: string;
 	antispam_more_ban_msg: string;
 	antispam_more_mute_msg: string;
