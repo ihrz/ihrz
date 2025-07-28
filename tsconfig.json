@@ -39,7 +39,6 @@
 		"/.github",
 		"./node_modules",
 		"./src/files/config.example.ts",
-		"./ownihrz",
 		"./draft",
 	]
 }

@@ -68,7 +68,7 @@ let header = `/*
 
 import type { DatabaseStructure } from './database_structure.d.ts';
 import type { LanguageData } from './languageData.d.ts';
-import type { ClusterMethod, GatewayMethod } from '../src/core/functions/apiUrlParser.js';
+import type { GatewayMethod } from '../src/core/functions/apiUrlParser.js';
 import { ModalOptionsBuilder } from '../src/core/functions/modalHelper.js';
 import { AnySelectMenuInteraction, APIModalInteractionResponseCallbackData, AutocompleteInteraction, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, CacheType, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, MessageContextMenuCommandInteraction, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, PrimaryEntryPointCommandInteraction, Role, StringSelectMenuInteraction, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
 import { Assets } from './assets.js';

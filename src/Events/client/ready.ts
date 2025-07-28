@@ -41,8 +41,6 @@ export let tempTable: DB = null;
 // @ts-ignore
 export let blacklistTable: DB = null;
 // @ts-ignore
-export let ownihrzTable: DB = null;
-// @ts-ignore
 export let ownerTable: DB = null;
 // @ts-ignore
 export let profilTable: DB = null;
@@ -60,7 +58,6 @@ export const event: BotEvent = {
 	run: async (client: Client) => {
 		tempTable = await client.db.table("TEMP");
 		blacklistTable = await client.db.table("BLACKLIST");
-		ownihrzTable = await client.db.table("OWNIHRZ");
 		ownerTable = await client.db.table("OWNER");
 		profilTable = await client.db.table("USER_PROFIL");
 		authRestoreTable = await client.db.table("AUTHRESTORE");
@@ -147,7 +144,6 @@ export const event: BotEvent = {
 		};
 
 		async function refreshBotData() {
-			const ownihrz_data = await ownihrzTable.get("CLUSTER")
 			const result = await getShardStats(client);
 
 			await client.db.set("BOT", {
@@ -166,9 +162,6 @@ export const event: BotEvent = {
 					tag: client.user?.tag,
 					id: client.user?.id,
 					discriminator: client.user?.discriminator,
-				},
-				"misc": {
-					ownihrz_instances_length: Object.keys(ownihrz_data || {}).length || 0,
 				}
 			})
 		}

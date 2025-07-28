@@ -35,8 +35,8 @@ import { Json } from './driver/json.js';
 
 let dbInstance: DB | null = null;
 
-export const tables = ['json', 'OWNER', 'OWNIHRZ', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
-export const readOnlyTables = ["AUTHRESTORE", "OWNIHRZ", 'API'];
+export const tables = ['json', 'OWNER', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
+export const readOnlyTables = ["AUTHRESTORE", 'API'];
 export const databasePath = `${process.cwd()}/src/files/`;
 
 export const overwriteLastLine = (message: string) => {

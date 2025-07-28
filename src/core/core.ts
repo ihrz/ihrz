@@ -24,7 +24,6 @@ import logger from "./logger.js";
 
 import * as errorManager from './modules/errorManager.js';
 import playerManager from "./modules/playerManager.js";
-import { OwnIHRZ } from './modules/ownihrzManager.js';
 
 import { VanityInviteData } from '../../types/vanityUrlData.js';
 
@@ -100,7 +99,6 @@ export async function main(client: Client) {
 	client.invites = new Collection();
 	client.timeCalculator = new iHorizonTimeCalculator();
 	client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
-	client.ownihrz = new OwnIHRZ(client.config.core.devMode);
 	client.kdenlive = new KdenLive();
 	client.selectmenu = new Collection<string, Function>();
 	client.buttons = new Collection<string, Function>();
@@ -124,7 +122,6 @@ export async function main(client: Client) {
 	});
 
 	process.on('SIGINT', async () => {
-		// if (client.config.core.shutdownClusterWhenStop) await client.ownihrz.QuitProgram();
 		await client.destroy();
 		process.exit(0);
 	});
