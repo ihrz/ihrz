@@ -362,7 +362,7 @@ export const command: Command = {
 				}
 			],
 
-			aliases: ["delban", "removeban"],
+			aliases: ["delban", "removeban", "deban"],
 
 			permission: PermissionFlagsBits.BanMembers
 		},
