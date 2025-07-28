@@ -1944,4 +1944,5 @@ export interface LanguageData {
 	addrolereact_error: string;
 	new_guild_embed_title: string[];
 	new_guild_embed_desc: string;
+	authorization_actions_nobody: string;
 }

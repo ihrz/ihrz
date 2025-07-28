@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs, handledAuditLogEntries } from './ready.js';
 
 export const event: BotEvent = {
 	name: "webhooksUpdate",
@@ -36,23 +36,8 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.webhook && data.webhook.mode === 'allowlist') {
-			const fetchedLogs = await channel.guild.fetchAuditLogs({
-				type: AuditLogEvent.WebhookCreate,
-				limit: 5,
-			});
-
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.target.channelId === channel.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
-
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
-			}
+			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.WebhookCreate);
+			if (!relevantLog) return;
 
 			handledAuditLogEntries.add(relevantLog.id);
 
@@ -60,7 +45,22 @@ export const event: BotEvent = {
 
 			if (!baseData) {
 				const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
-				const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.target.id);
+				const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog.targetId!);
+
+				for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
+
+				const member = channel.guild.members.cache.get(relevantLog.executorId as string);
+				await client.func.method.punish(data, member);
+			};
+		} else if (data.webhook && data.webhook.mode === 'nobody') {
+			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.WebhookCreate);
+			if (!relevantLog) return;
+
+			handledAuditLogEntries.add(relevantLog.id);
+
+			if (relevantLog.executorId !== channel.guild.ownerId) {
+				const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
+				const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.targetId!);
 
 				for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
 

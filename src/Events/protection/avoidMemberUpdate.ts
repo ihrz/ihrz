@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs, handledAuditLogEntries } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -33,29 +33,26 @@ export const event: BotEvent = {
 
 
 		if (data.updatemember && data.updatemember.mode === 'allowlist') {
-			const fetchedLogs = await oldMember.guild.fetchAuditLogs({
-				type: AuditLogEvent.MemberRoleUpdate,
-				limit: 1,
-			});
-
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === oldMember.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
-
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
-			}
+			const relevantLog = await getLogs(oldMember.guild, oldMember.id, AuditLogEvent.MemberRoleUpdate);
+			if (!relevantLog) return;
 
 			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
+				const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
+				await client.func.method.punish(data, user);
+
+				await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid").catch(() => false);
+			};
+		} else if (data.updatemember && data.updatemember.mode === 'nobody') {
+			const relevantLog = await getLogs(oldMember.guild, oldMember.id, AuditLogEvent.MemberRoleUpdate);
+			if (!relevantLog) return;
+
+			handledAuditLogEntries.add(relevantLog.id);
+
+			if (relevantLog.executorId !== newMember.guild.ownerId) {
 				const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
 				await client.func.method.punish(data, user);
 

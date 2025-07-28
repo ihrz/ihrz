@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, GuildChannel, TextChannel, GuildChannelEditOptions, ChannelType, VoiceChannel, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs, handledAuditLogEntries } from './ready.js';
 
 export const event: BotEvent = {
 	name: "channelUpdate",
@@ -36,28 +36,46 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.updatechannel && data.updatechannel.mode === 'allowlist') {
-			const fetchedLogs = await oldChannel.guild.fetchAuditLogs({
-				type: AuditLogEvent.ChannelUpdate,
-				limit: 5,
-			});
+			const relevantLog = await getLogs(oldChannel.guild, newChannel.id, AuditLogEvent.ChannelUpdate);
+			if (!relevantLog) return;
 
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === newChannel.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
-
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
-			}
 			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${newChannel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
+				const member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
+				await client.func.method.punish(data, member);
+
+				const editOptions: GuildChannelEditOptions = {
+					name: oldChannel.name,
+					permissionOverwrites: [...oldChannel.permissionOverwrites.cache.values()],
+					parent: oldChannel.parent,
+					position: oldChannel.position
+				};
+
+				if (oldChannel.type === ChannelType.GuildText) {
+					editOptions.topic = (oldChannel as TextChannel).topic;
+					editOptions.nsfw = (oldChannel as TextChannel).nsfw;
+					editOptions.rateLimitPerUser = (oldChannel as TextChannel).rateLimitPerUser;
+				}
+
+				if (oldChannel.type === ChannelType.GuildVoice) {
+					editOptions.bitrate = (oldChannel as VoiceChannel).bitrate;
+					editOptions.userLimit = (oldChannel as VoiceChannel).userLimit;
+					editOptions.rtcRegion = (oldChannel as VoiceChannel).rtcRegion;
+				}
+
+				await newChannel.edit(editOptions);
+			};
+		} else if (data.updatechannel && data.updatechannel.mode === 'nobody') {
+
+			const relevantLog = await getLogs(oldChannel.guild, newChannel.id, AuditLogEvent.ChannelUpdate);
+			if (!relevantLog) return;
+
+			handledAuditLogEntries.add(relevantLog.id);
+
+			if (relevantLog.executorId !== oldChannel.guild.ownerId) {
 				const member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);
 				await client.func.method.punish(data, member);
 

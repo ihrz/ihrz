@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs, handledAuditLogEntries } from './ready.js';
 
 export const event: BotEvent = {
 	name: "roleUpdate",
@@ -36,29 +36,28 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.updaterole && data.updaterole.mode === 'allowlist') {
-			const fetchedLogs = await newRole.guild.fetchAuditLogs({
-				type: AuditLogEvent.RoleUpdate,
-				limit: 5,
-			});
-
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === oldRole.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
-
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
-			}
+			const relevantLog = await getLogs(newRole.guild, oldRole.id, AuditLogEvent.RoleUpdate);
+			if (!relevantLog) return;
 
 			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
+				await newRole.edit({
+					...oldRole
+				});
+
+				const member = newRole.guild.members.cache.get(relevantLog?.executorId as string);
+				await client.func.method.punish(data, member);
+			};
+		} else if (data.updaterole && data.updaterole.mode === 'nobody') {
+			const relevantLog = await getLogs(newRole.guild, oldRole.id, AuditLogEvent.RoleUpdate);
+			if (!relevantLog) return;
+
+			handledAuditLogEntries.add(relevantLog.id);
+
+			if (relevantLog.executorId !== newRole.guild.ownerId) {
 				await newRole.edit({
 					...oldRole
 				});

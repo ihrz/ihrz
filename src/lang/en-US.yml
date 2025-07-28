@@ -2076,6 +2076,7 @@ pfps_channel_command_error: "${interaction.user}, the command return an error. P
 authorization_actions_not_permited: "Only the Owner of the server can edit the authorization rule about the protection module!"
 authorization_actions_everyone: "Everyone"
 authorization_actions_allowlist: "Member(s) of allowlist"
+authorization_actions_nobody: "Nobody. (Except server owner)"
 authorization_actions_rule_set: "${interaction.user}, the rule for `${rule.toUpperCase()}` are been set. **${allow}** are allowed to bypass-it!"
 authorization_actions_rule_clear: "${interaction.user}, all of the rule for `${interaction.guild.name}` are been deleted. Protection module is now disabled!"
 

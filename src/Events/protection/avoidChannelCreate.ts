@@ -21,7 +21,7 @@
 
 import { Client, AuditLogEvent, GuildChannel, PermissionFlagsBits } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs, handledAuditLogEntries } from './ready.js';
 
 export const event: BotEvent = {
 	name: "channelCreate",
@@ -36,28 +36,27 @@ export const event: BotEvent = {
 
 		if (data.createchannel && data.createchannel.mode === 'allowlist') {
 
-			const fetchedLogs = await channel.guild.fetchAuditLogs({
-				type: AuditLogEvent.ChannelCreate,
-				limit: 5,
-			});
+			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelCreate);
+			if (!relevantLog) return;
 
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === channel.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
-
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
-			}
 			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
+				const member = channel.guild.members.cache.get(relevantLog?.executorId!);
+				await client.func.method.punish(data, member);
+
+				await channel.delete();
+			}
+		} else if (data.createchannel && data.createchannel.mode === 'nobody') {
+
+			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelCreate);
+			if (!relevantLog) return;
+
+			handledAuditLogEntries.add(relevantLog.id);
+
+			if (relevantLog.executorId !== channel.guild.ownerId) {
 				const member = channel.guild.members.cache.get(relevantLog?.executorId!);
 				await client.func.method.punish(data, member);
 

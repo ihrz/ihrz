@@ -144,6 +144,10 @@ export const command: Command = {
 						{
 							name: 'All of member',
 							value: 'member'
+						},
+						{
+							name: 'Nobody (except guild owner)',
+							value: 'nobody'
 						}
 					],
 
