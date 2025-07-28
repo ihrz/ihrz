@@ -126,6 +126,8 @@ export async function getLogs(guild: Guild, args: string, type: AuditLogEvent) {
 		return undefined;
 	}
 
+	handledAuditLogEntries.add(relevantLog.id);
+
 	return relevantLog;
 }
 

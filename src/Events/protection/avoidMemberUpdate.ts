@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -36,8 +36,6 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(oldMember.guild, oldMember.id, AuditLogEvent.MemberRoleUpdate);
 			if (!relevantLog) return;
 
-			handledAuditLogEntries.add(relevantLog.id);
-
 			const baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
@@ -49,8 +47,6 @@ export const event: BotEvent = {
 		} else if (data.updatemember && data.updatemember.mode === 'nobody') {
 			const relevantLog = await getLogs(oldMember.guild, oldMember.id, AuditLogEvent.MemberRoleUpdate);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			if (relevantLog.executorId !== newMember.guild.ownerId) {
 				const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);

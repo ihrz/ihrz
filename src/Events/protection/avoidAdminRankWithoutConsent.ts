@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, GuildMember, Role, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -41,7 +41,6 @@ export const event: BotEvent = {
 			if (!search_for_a_add) {
 				return;
 			}
-			handledAuditLogEntries.add(relevantLog.id);
 
 			// If the "raid" ocure on phone, the array is not with only one object 
 			// (cause on phone we have the way) to add/remove multiple roles.
@@ -84,7 +83,6 @@ export const event: BotEvent = {
 			if (!search_for_a_add) {
 				return;
 			}
-			handledAuditLogEntries.add(relevantLog.id);
 
 			// If the "raid" ocure on phone, the array is not with only one object 
 			// (cause on phone we have the way) to add/remove multiple roles.

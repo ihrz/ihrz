@@ -21,7 +21,7 @@
 
 import { Client, AuditLogEvent, GuildMember, PermissionsBitField, PermissionFlagsBits } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -47,8 +47,6 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(member.guild, member.id, AuditLogEvent.MemberKick);
 			if (!relevantLog) return;
 
-			handledAuditLogEntries.add(relevantLog.id);
-
 			const baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
@@ -68,8 +66,6 @@ export const event: BotEvent = {
 
 			const relevantLog = await getLogs(member.guild, member.id, AuditLogEvent.MemberKick);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			if (relevantLog.executorId !== member.guild.ownerId) {
 				const user = member.guild.members.cache.get(relevantLog?.executorId!);

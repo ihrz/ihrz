@@ -26,7 +26,7 @@
 import { Client, AuditLogEvent, Guild, PermissionFlagsBits } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildUpdate",
@@ -41,8 +41,6 @@ export const event: BotEvent = {
 		if (data.updateguild && data.updateguild.mode === 'allowlist') {
 			const relevantLog = await getLogs(newGuild, newGuild.id, AuditLogEvent.GuildUpdate);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${newGuild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 			if (baseData) return;
@@ -88,8 +86,6 @@ export const event: BotEvent = {
 		} else if (data.updateguild && data.updateguild.mode === 'nobody') {
 			const relevantLog = await getLogs(newGuild, newGuild.id, AuditLogEvent.GuildUpdate);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			if (relevantLog.executorId !== newGuild.ownerId) return;
 

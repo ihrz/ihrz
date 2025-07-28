@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "webhooksUpdate",
@@ -39,8 +39,6 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.WebhookCreate);
 			if (!relevantLog) return;
 
-			handledAuditLogEntries.add(relevantLog.id);
-
 			const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
@@ -55,8 +53,6 @@ export const event: BotEvent = {
 		} else if (data.webhook && data.webhook.mode === 'nobody') {
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.WebhookCreate);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			if (relevantLog.executorId !== channel.guild.ownerId) {
 				const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();

@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, GuildChannel, TextChannel, GuildChannelEditOptions, ChannelType, VoiceChannel, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "channelUpdate",
@@ -38,8 +38,6 @@ export const event: BotEvent = {
 		if (data.updatechannel && data.updatechannel.mode === 'allowlist') {
 			const relevantLog = await getLogs(oldChannel.guild, newChannel.id, AuditLogEvent.ChannelUpdate);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			const baseData = await client.db.get(`${newChannel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
@@ -72,8 +70,6 @@ export const event: BotEvent = {
 
 			const relevantLog = await getLogs(oldChannel.guild, newChannel.id, AuditLogEvent.ChannelUpdate);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			if (relevantLog.executorId !== oldChannel.guild.ownerId) {
 				const member = newChannel.guild.members.cache.get(relevantLog?.executorId as string);

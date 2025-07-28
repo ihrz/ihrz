@@ -21,7 +21,7 @@
 
 import { Client, AuditLogEvent, GuildChannel, PermissionFlagsBits } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "channelCreate",
@@ -39,8 +39,6 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelCreate);
 			if (!relevantLog) return;
 
-			handledAuditLogEntries.add(relevantLog.id);
-
 			const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
@@ -53,8 +51,6 @@ export const event: BotEvent = {
 
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelCreate);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			if (relevantLog.executorId !== channel.guild.ownerId) {
 				const member = channel.guild.members.cache.get(relevantLog?.executorId!);

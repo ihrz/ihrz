@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "roleCreate",
@@ -38,8 +38,6 @@ export const event: BotEvent = {
 		if (data.createrole && data.createrole.mode === 'allowlist') {
 			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleCreate);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 			const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
@@ -51,8 +49,6 @@ export const event: BotEvent = {
 		} else if (data.createrole && data.createrole.mode === 'nobody') {
 			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleCreate);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			if (relevantLog.executorId !== role.guild.ownerId) {
 				const member = role.guild.members.cache.get(relevantLog?.executorId as string);

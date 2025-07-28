@@ -21,7 +21,7 @@
 
 import { Client, AuditLogEvent, GuildBan, PermissionsBitField } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildBanAdd",
@@ -39,7 +39,6 @@ export const event: BotEvent = {
 				PermissionsBitField.Flags.ManageGuild
 			])) return;
 
-			handledAuditLogEntries.add(relevantLog.id);
 			const baseData = await client.db.get(`${ban.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
@@ -56,8 +55,6 @@ export const event: BotEvent = {
 
 			const relevantLog = await getLogs(ban.guild, ban.user.id, AuditLogEvent.MemberBanAdd);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			if (relevantLog.executorId !== ban.guild.ownerId) {
 				const user = ban.guild.members.cache.get(relevantLog?.executorId!);

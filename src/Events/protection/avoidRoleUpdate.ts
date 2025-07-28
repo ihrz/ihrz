@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "roleUpdate",
@@ -39,8 +39,6 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(newRole.guild, oldRole.id, AuditLogEvent.RoleUpdate);
 			if (!relevantLog) return;
 
-			handledAuditLogEntries.add(relevantLog.id);
-
 			const baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
@@ -54,8 +52,6 @@ export const event: BotEvent = {
 		} else if (data.updaterole && data.updaterole.mode === 'nobody') {
 			const relevantLog = await getLogs(newRole.guild, oldRole.id, AuditLogEvent.RoleUpdate);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			if (relevantLog.executorId !== newRole.guild.ownerId) {
 				await newRole.edit({

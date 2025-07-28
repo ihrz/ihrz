@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, Role, PermissionFlagsBits } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntries, protectionCache } from './ready.js';
+import { getLogs, protectionCache } from './ready.js';
 
 export const event: BotEvent = {
 	name: "roleDelete",
@@ -39,7 +39,6 @@ export const event: BotEvent = {
 			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleDelete);
 			if (!relevantLog) return;
 
-			handledAuditLogEntries.add(relevantLog.id);
 			const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
 
 			if (!baseData) {
@@ -65,8 +64,6 @@ export const event: BotEvent = {
 		} else if (data.deleterole && data.deleterole.mode === 'nobody') {
 			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleDelete);
 			if (!relevantLog) return;
-
-			handledAuditLogEntries.add(relevantLog.id);
 
 			if (relevantLog.executorId !== role.guild.ownerId) {
 				const member = role.guild.members.cache.get(relevantLog?.executorId as string);
