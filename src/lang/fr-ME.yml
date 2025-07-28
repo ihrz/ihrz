@@ -16,7 +16,6 @@ var_roles: "Roes"
 var_names: "Blazes"
 var_text_channel: "salon"
 var_voice_channel: "voc"
-var_ownihrz: "OWNIHRZ"
 var_creator: "Chef"
 var_doesnt_have_permissions: "Ta pas les perms gros. (Y te faut la perm {perm} gros, déso)"
 var_ihorizon: "iHorizon"
@@ -557,8 +556,6 @@ help_antispam_dsc: "> *Fatigué du spam ? Super ! iHorizon est là pour modérer
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "Statistiques de l'utilisateur"
 help_stats_dsc: "> *Voir le nombre de messages et l'activité vocale d'un utilisateur dans une guilde*"
-help_ownihrz_dsc: "> *Hébergez et gérez votre propre bot iHorizon personnalisé ! (OWNIHRZ)*"
-help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "> *Soyez notifié lorsque un Youtuber ou Streamer publie une vidéo !*"
 help_notifier_fields: "Notificateur"
 help_authrestore_fields: "AuthRestore"
@@ -659,6 +656,23 @@ fun_caracteres_select_menu_placeholder: "Choisissez un style de police..."
 fun_caracteres_final_embed_title: "🎨 Texte transformé - Style: ${selectedStyle}"
 fun_caracteres_final_embed_field1_name: "📝 Texte original"
 fun_caracteres_final_embed_field2_name: "✨ Texte transformé"
+
+# /fun random dice
+fun_dice_embed_title: "🎲 Résultat du lancer de dés"
+fun_dice_var_rolled_dices: "**Dé(s) lancé(s) :**"
+fun_dice_var_results: "**Résultats :**"
+fun_dice_var_total: "**Total :**"
+
+# /fun random heads-tails
+fun_coinflip_embed_title: "🪙 Pile ou face"
+fun_coinflip_result_text: "Le résultat est :"
+fun_coinflip_result_heads: "Pile"
+fun_coinflip_result_tails: "Face"
+
+# /fun random number
+fun_random_embed_title: "🔢 Nombre aléatoire"
+fun_random_result_text: "Le nombre généré est :"
+fun_random_between: "entre"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -945,11 +959,14 @@ all_bots_embed_title: "Liste de tous les bot(s) | Page ${i / usersPerPage + 1}"
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Vous ne pouvez pas ajouter un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
 utils_addrole_command_ok: "${author.toString()} a ajouté avec succès le rôle ${role?.toString()} à ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | Le rôle que vous souhaitez ajouter à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
+utils_addrole_cant_level: "bha chef le gars est pas admin et tu veux lui ajouter un rôle admin, t'essaye de me niquer ouu? tu veux pine le serveur mon frère?"
+utils_addrole_try2brain: "le bot est trop bas par rapport au rôles. je ne peux pas l'ajouter sont rôle de con là"
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Vous ne pouvez pas supprimer un rôle à un utilisateur qui a un rôle supérieur au vôtre..."
 utils_delrole_command_ok: "${author.toString()} a supprimé avec succès le rôle ${role?.toString()} à ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | Le rôle que vous souhaitez supprimer à l'utilisateur n'est pas dans la liste blanche. Un administrateur doit d'abord l'ajouter ! (en utilisant `/utils wlroles`)"
+utils_delrole_try2brain: "le bot est trop bas par rapport au rôles. je ne peux pas supprimer sont rôle de con là"
 
 # /utils wlroles
 utils_wlroles_embed_title: "Rôles dans la liste blanche"
@@ -973,6 +990,8 @@ utils_piconly_modal1_fields1_label: "Durée du Mute"
 utils_piconly_modal2_title: "PicOnly - Configuration du Seuil"
 utils_piconly_modal2_fields1_placeholder: "le seuil avant le mute"
 utils_piconly_modal2_fields1_label: "Seuil"
+utils_piconly_embed_fields2_placeholder: "Créer un fil de discussion sous l'image"
+utils_piconly_var_thread_name: "Fil de {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "Vous n'avez pas la permission de gérer les émojis."
@@ -2057,6 +2076,7 @@ pfps_channel_command_error: "${interaction.user}, la commande a renvoyé une err
 authorization_actions_not_permited: "Seul le propriétaire du serveur peut modifier les règles d'autorisation du module de protection !"
 authorization_actions_everyone: "Tout les con"
 authorization_actions_allowlist: "Membre(s) de la liste blanche"
+authorization_actions_nobody: "Personne. (Sauf le propriétaire du serveur)"
 authorization_actions_rule_set: "${interaction.user}, la règle pour `${rule.toUpperCase()}` a été définie. **${allow}** sont autorisés à la contourner !"
 authorization_actions_rule_clear: "${interaction.user}, toutes les règles pour `${interaction.guild.name}` ont été supprimées. Le module de protection est maintenant désactivé !"
 
@@ -2136,46 +2156,6 @@ tag_use_command_work: "Le tag `${tag_name}` a été envoyé."
 
 # /tag edit
 tag_edit_error_perm: "Pour modifier le tag, vous devez avoir les permissions d'administrateur ou être le propriétaire du tag."
-
-# Module OWNIHRZ
-# /mybot soumettre, ... liste, /mybot gérer accepter, ... refuser, ... instance
-
-# /mybot soumettre
-mybot_submit_token_invalid: "Le jeton saisi est invalide. Nous ne pouvons pas continuer."
-mybot_submit_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_submit_utils_msg_yes: "Oui"
-mybot_submit_utils_msg_no: "Non"
-mybot_submit_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "Votre demande a été enregistrée avec succès, votre identifiant unique est : **${code}**\nNe le partagez avec personne !\n**Rejoignez le serveur de support** [Cliquez ici](https://discord.gg/ihorizon), puis ouvrez un ticket pour poursuivre l'achat.\n\n${utils_msg}"
-
-# /mybot liste
-mybot_list_embed0_title: "Liste de tous vos bots"
-mybot_list_utils_msg: "__ID du Bot__ `${data_2[i].bot.id}`\n__Nom d'utilisateur du Bot__ `${data_2[i].bot.username}`\n__Bot Public__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
-mybot_list_utils_msg_yes: "Oui"
-mybot_list_utils_msg_no: "Non"
-mybot_list_embed1_title: "Votre propre iHorizon : ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "Le code de votre bot : ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **Ne le partagez avec personne** !\n**Expire dans** : `${expire}`\n**Rejoignez le serveur de support** [Cliquez ici](https://discord.gg/ihorizon), si vous rencontrez des problèmes avec votre bot.\n\n${utils_msg}"
-
-# /mybot gérer accepter
-mybot_manage_accept_not_found: "Le bot dans la base de données est introuvable. Nous ne pouvons pas continuer."
-mybot_manage_accept_token_error: "Le jeton dans la base de données est invalide. Nous ne pouvons pas continuer."
-mybot_manage_accept_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_manage_accept_utiis_yes: "Oui"
-mybot_manage_accept_utils_no: "Non"
-mybot_manage_accept_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_manage_accept_embed_desc: "Le bot a été accepté\n\n${utils_msg}"
-
-# /mybot change-owner
-mybot_change_owner: "Les OWNIHRZ ont maintenant un nouveau propriétaire : <@${OwnerOne}>, <@${OwnerTwo}>"
-
-# /mybot instance refuser
-mybot_instance_deny_not_foud: "Le bot dans la base de données est introuvable. Nous ne pouvons pas continuer."
-mybot_instance_deny_token_error: "Le jeton dans la base de données est invalide. Nous ne pouvons pas continuer."
-mybot_instance_deny_utils_msg: "__ID du Bot__ `${bot_1.bot.id}`\n__Nom d'utilisateur du Bot__ `${bot_1.bot.username}`\n__Bot Public__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_instance_deny_utils_msg_yes: "Oui"
-mybot_instance_deny_utils_msg_no: "Non"
-mybot_instance_deny_embed_title: "Hébergez votre propre iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_instance_deny_embed_desc: "Le bot a été refusé\n\n${utils_msg}"
 
 # Module TempVoice
 # /texte, /voix, /statut, /personnel
@@ -2555,6 +2535,10 @@ temporary_voice_channel_name: "Salon de {nickname}"
 # Message d'événement
 
 protection_avoid_channel_delete: "**MODE PROTECTION ACTIVÉ**\n<@${channel.guild.ownerId}>, le salon a été recréé, <@${firstEntry.executorId}> a tenté de supprimer le salon!"
+protection_blockbot_embed_title: "⚠️ Danger dans ${member.guild.name} ⚠️"
+protection_blockbot_embed_desc: "# Avertissement d'ajout de bot\nQuelqu'un a essayé d'ajouter un bot Discord."
+var_target_bot: "Bot ciblé"
+var_not_detected: "Non détecté"
 
 # Module AntiSpam
 # Message d'événement

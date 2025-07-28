@@ -29,6 +29,7 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { ownerTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'unowner',
@@ -62,9 +63,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const tableOwner = client.db.table('OWNER');
-
-		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
+		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unowner_not_owner });
 			return;
 		};
@@ -80,7 +79,7 @@ export const command: Command = {
 			return;
 		};
 
-		await tableOwner.delete(`${member?.id}`);
+		await ownerTable.delete(`${member?.id}`);
 		client.owners = client.owners.filter((id: string) => id !== member?.id);
 
 		await client.func.method.interactionSend(interaction, { content: lang.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });

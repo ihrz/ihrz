@@ -54,7 +54,6 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		// @ts-ignore
 		backup.create(interaction.guild, {
 			maxMessagesPerChannel: svMsg === "yes" ? 10 : 0,
 			jsonBeautify: true,

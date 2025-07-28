@@ -21,7 +21,7 @@
 
 import { Client, AuditLogEvent, GuildMember, PermissionsBitField, PermissionFlagsBits } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -34,7 +34,7 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		if (data.kickmember && data.kickmember.mode === 'allowlist') {
+		if (data.kickmember) {
 
 			if (!member.guild) return;
 			if (!member.guild.members.me) return;
@@ -44,32 +44,29 @@ export const event: BotEvent = {
 				PermissionsBitField.Flags.ManageGuild
 			])) return;
 
-			const fetchedLogs = await member.guild.fetchAuditLogs({
-				type: AuditLogEvent.MemberKick,
-				limit: 5,
-			});
+			const relevantLog = await getLogs(member.guild, member.id, AuditLogEvent.MemberKick);
+			if (!relevantLog) return;
 
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === member.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
 
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
+			if (data.kickmember.mode === 'allowlist') {
+				const baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+
+				if (!baseData) {
+					user = member.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				}
+			} else if (data.kickmember.mode === 'nobody') {
+				if (relevantLog.executorId !== member.guild.ownerId) {
+					user = member.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				}
 			}
 
-			handledAuditLogEntries.add(relevantLog.id);
-
-			const baseData = await client.db.get(`${member.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
-
-			if (!baseData) {
-				const user = member.guild.members.cache.get(relevantLog?.executorId!);
+			shouldSanction && (async () => {
 				await client.func.method.punish(data, user);
-			}
+			})()
 		}
 	},
 };

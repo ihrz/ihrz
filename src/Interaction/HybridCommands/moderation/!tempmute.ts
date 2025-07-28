@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
 		if (!mutetime || !tomute || !mutetime) { return; };
 
 		let mutetimeMS = client.timeCalculator.to_ms(mutetime);
-		const max_time = 3600 * 24 * 7;
+		const max_time = client.timeCalculator.to_ms("2weeks")
 
 		if (mutetimeMS > max_time) {
 			mutetimeMS = max_time;

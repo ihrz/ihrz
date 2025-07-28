@@ -16,7 +16,6 @@ var_roles: "Roles"
 var_names: "Names"
 var_text_channel: "Text Channel"
 var_voice_channel: "Voice Channel"
-var_ownihrz: "OWNIHRZ"
 var_creator: "Creator"
 var_doesnt_have_permissions: "You are not allowed to do this. You need the {permission} permission."
 var_ihorizon: "iHorizon"
@@ -341,7 +340,7 @@ ranks_leaderboard_embed_footer: "Page ${cPage} of ${totalPages} • Ranked by To
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "Ranks Module Configurations"
-ranks_ignorechannels_embed_desc: "When new message are sent in one of this channels, Ranks Module ignore it."
+ranks_ignorechannels_embed_desc: "When new messages are sent in one of these channels, the Ranks Module ignore it."
 
 # /ranks set-message
 ranksSetMessage_not_admin: ":x: | You must be an administrator of this server to use these commands!"
@@ -401,18 +400,18 @@ ranks_config_remove_command_work: "Role for level ${levelToRemove} has been remo
 # /owner
 owner_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
 owner_already_owner: "This user is already owner !"
-owner_is_now_owner: "${member.user.username} is now an owner of the iHorizon Projects!"
+owner_is_now_owner: "${member.user.username} is now an owner of the iHorizon Project!"
 
 # /unowner
-unowner_not_owner: "You are not an owner of the iHorizon Projects. You can't use this command."
-unowner_cant_unowner_creator: "It is not possible to remove this user, it's the creator of the iHorizon Projects."
+unowner_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
+unowner_cant_unowner_creator: "It is not possible to remove this user, it's the creator of the iHorizon Project."
 unowner_command_work: "${member.username} is no longer an owner"
 
 # /blacklist
-blacklist_not_owner: "You are not an owner of the iHorizon Projects. You can't use this command."
+blacklist_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
 blacklist_bot_lol: "Can't blacklist myself x)"
 blacklist_command_work: "${member.user.username} is now blacklisted"
-blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.No} is now blacklisted, can't ban this member here, missing permission?"
+blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.No} is now blacklisted. I can't ban this member here, missing permission?"
 blacklist_already_blacklisted: "${member.user.username} is already blacklisted !"
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} no one blacklisted found!"
 blacklist_var_no_reason: "No reason found"
@@ -422,14 +421,14 @@ blacklist_embed_title: "Blacklist - Page ${i / usersPerPage + 1}"
 unblacklist_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
 unblacklist_command_work: "<@${member.id}> is no longer blacklisted"
 unblacklist_not_blacklisted: "<@${member.id}> was not blacklisted"
-unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} is now unblacklisted, Can't unban this member here, missing permission or already unban?"
+unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} is now unblacklisted. I Can't unban this member here, missing permission or already unban?"
 unblacklist_user_is_not_exist: "I couldn't find the user"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites
 
 # /addinvites
-addinvites_not_admin_embed_description: "You need to be an admin to use this command!"
+addinvites_not_admin_embed_description: "You need to be an administrator to use this command!"
 addinvites_confirmation_embed_description: "Added ${amount} invites for ${user}"
 addinvites_logs_embed_title: "Invite Manager Logs"
 addinvites_logs_embed_description: "<@${interaction.user.id}> Added ${amount} invites to <@${user.id}> !"
@@ -452,7 +451,7 @@ removeinvites_logs_embed_title: "Invite Manager Logs"
 removeinvites_logs_embed_description: "<@${interaction.user.id}> removed ${amount} invites to <@${user.id}> !"
 
 # /invites reset-all
-resetallinvites_warning_msg: "**Are you really sure to delete all of the data of the Invite Manager?\nThis action is permanent and you can't roll it back.**\n**This action is destructive!!**"
+resetallinvites_warning_msg: "**Are you really sure to delete all of the Invite Manager's data?\nThis action is permanent and you can't roll it back.**\n**This action is destructive!!**"
 resetallinvites_yes_button: "Delete all"
 resetallinvites_no_button: "Undo action"
 resetallinvites_succes_on_delete: "Successfully deleted!"
@@ -557,8 +556,6 @@ help_antispam_dsc: "> *Borring of spamming ? Noice! iHorizon is here, to moderat
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "User Stats"
 help_stats_dsc: "> *See messages amount and the voice activity on an user in a guild*"
-help_ownihrz_dsc: "> *Host and manage your custom iHorizon bot ! (OWNIHRZ)*"
-help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "> *Be notified when a Youtuber, Streamer publish a video!*"
 help_notifier_fields: "Notifier"
 help_authrestore_fields: "AuthRestore"
@@ -658,6 +655,23 @@ fun_caracteres_final_embed_title: "🎨 Transformed Text - Style: ${selectedStyl
 fun_caracteres_final_embed_field1_name: "📝 Original Text"
 fun_caracteres_final_embed_field2_name: "✨ Transformed Text"
 
+# /fun random dice
+fun_dice_embed_title: "🎲 Dice Roll Result"
+fun_dice_var_rolled_dices: "**Rolled Dice:**"
+fun_dice_var_results: "**Results:**"
+fun_dice_var_total: "**Total:**"
+
+# /fun random heads-tails
+fun_coinflip_embed_title: "🪙 Heads or Tails"
+fun_coinflip_result_text: "The result is:"
+fun_coinflip_result_heads: "Heads"
+fun_coinflip_result_tails: "Tails"
+
+# /fun random number
+fun_random_embed_title: "🔢 Random Number"
+fun_random_result_text: "The generated number is:"
+fun_random_between: "between"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
@@ -678,13 +692,13 @@ balance_embed_fields1_name: "Bank"
 balance_embed_fields2_name: "In Balance"
 
 # /daily
-daily_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+daily_cooldown_error: "Sorry, you must wait **${time}** before running this command!"
 daily_embed_title: "Daily"
 daily_embed_description: "**Daily Reward**"
 daily_embed_fields: "Collected"
 
 # /monthly
-monthly_cooldown_error: "Sorry you must wait **${time}** before running this command!"
+monthly_cooldown_error: "Sorry, you must wait **${time}** before running this command!"
 monthly_embed_title: "Monthly"
 monthly_embed_description: "**Monthly Reward**"
 monthly_embed_fields: "Collected"
@@ -726,7 +740,7 @@ withdraw_embed_desc: "${interaction.user}, you withdrew ${toWithdraw}${client.iH
 withdraw_embed_fields1_name: "Bank"
 
 # /deposit
-deposit_cannot_abuse: "${client.iHorizon_Emojis.No} | You cannot deposit a larger amount of coin as you have in your wallet!"
+deposit_cannot_abuse: "${client.iHorizon_Emojis.No} | You cannot deposit a larger amount of coins as you have in your wallet!"
 deposit_embed_title: "Deposit into your bank"
 deposit_embed_desc: "${interaction.user}, you have deposited ${toDeposit}${client.iHorizon_Emojis.Coin} in your `bank`"
 deposit_embed_fields1_name: "Bank"
@@ -901,8 +915,8 @@ nickrole_sub_command_work: "${interaction.user}, iHorizon has executed the massi
 nickrole_too_much_member: "Too many members, cannot proceed due to possible rate limit!"
 
 # /emoji
-emoji_send_new_emoji: "__Created new emoji__ with name **${emoji.name}**! (${emoji})"
-emoji_send_err_emoji: "__Error when create new emoji__ with name **${emoji.name}**!"
+emoji_send_new_emoji: "__Created new emoji__ with the following name: **${emoji.name}**! (${emoji})"
+emoji_send_err_emoji: "__Error when create new emoji__ with the following name: **${emoji.name}**!"
 emoji_embed_desc_work: "__Created **${cnt}** emoji(s) in `${interaction.guild.name}`__\n(${nemj})"
 
 # /derank
@@ -943,11 +957,14 @@ all_bots_embed_title: "List of all bot(s) | Page ${i / usersPerPage + 1}"
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot add role to user who have higher role than you..."
 utils_addrole_command_ok: "${author.toString()} have succefully added the ${role?.toString()} role to ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | The role you want to add to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
+utils_addrole_cant_level: "The user isn’t an admin and you’re trying to give them an admin role? You trying to mess with me? You wanna crash the server or what?"
+utils_addrole_try2brain: "The bot’s role is too low in the hierarchy. I can’t assign that dumb role, sorry."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot remove role to user who have higher role than you..."
 utils_delrole_command_ok: "${author.toString()} have succefully removed the ${role?.toString()} role to ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | The role you want to delete to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
+utils_delrole_try2brain: "The bot’s role is too low in the hierarchy. I can’t remove that dumb role, sorry."
 
 # /utils wlroles
 utils_wlroles_embed_title: "Whitelist Role"
@@ -961,7 +978,7 @@ utils_dm_cant: "${client.iHorizon_Emojis.No} I couldn't send a message to ${targ
 
 # /utils pic-only
 utils_pic_only_embed_title: "Pic Only Channels"
-utils_pic_only_emnbed_desc: "Channel where picture/image are the only one things allowed. Another content are blocked by the bot"
+utils_pic_only_emnbed_desc: "Channel where pictures/images are the only things allowed. Other contents (like plain text messages) are blocked by the bot"
 
 # /utils pic-only
 utils_piconly_embed_fields_3_name: "Timeout Time"
@@ -973,6 +990,8 @@ utils_piconly_modal1_fields1_label: "Mute Time"
 utils_piconly_modal2_title: "PicOnly - Threshold Configuration"
 utils_piconly_modal2_fields1_placeholder: "the threshold before mute"
 utils_piconly_modal2_fields1_label: "Threshold"
+utils_piconly_embed_fields2_placeholder: "Create a thread under the image"
+utils_piconly_var_thread_name: "Thread by {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "You don't have the permission to manage emojis."
@@ -2057,6 +2076,7 @@ pfps_channel_command_error: "${interaction.user}, the command return an error. P
 authorization_actions_not_permited: "Only the Owner of the server can edit the authorization rule about the protection module!"
 authorization_actions_everyone: "Everyone"
 authorization_actions_allowlist: "Member(s) of allowlist"
+authorization_actions_nobody: "Nobody. (Except server owner)"
 authorization_actions_rule_set: "${interaction.user}, the rule for `${rule.toUpperCase()}` are been set. **${allow}** are allowed to bypass-it!"
 authorization_actions_rule_clear: "${interaction.user}, all of the rule for `${interaction.guild.name}` are been deleted. Protection module is now disabled!"
 
@@ -2136,46 +2156,6 @@ tag_use_command_work: "Tag `${tag_name}` has been sent."
 
 # /tag edit
 tag_edit_error_perm: "To modify the tag, you need to have Administrator permissions or be the tag's owner."
-
-# OWNIHRZ Module
-# /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
-
-# /mybot submit
-mybot_submit_token_invalid: "The token entered is invalid. We cannot proceed further."
-mybot_submit_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot username__ `${bot_1.bot.username}`\n__Public Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_submit_utils_msg_yes: "Yes"
-mybot_submit_utils_msg_no: "No"
-mybot_submit_embed_title: "Host your own iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "Your request has been successfully registered, your unique identifier is: **${code}**\nDo not share it with anyone!\n**Join the support server** [Click Here](https://discord.gg/ihorizon), then open a ticket to continue the purchase.\n\n${utils_msg}"
-
-# /mybot list
-mybot_list_embed0_title: "List of all your bot(s)"
-mybot_list_utils_msg: "__Bot ID__ `${data_2[i].bot.id}`\n__Bot username__ `${data_2[i].bot.username}`\n__Public Bot__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
-mybot_list_utils_msg_yes: "Yes"
-mybot_list_utils_msg_no: "No"
-mybot_list_embed1_title: "Your own iHorizon: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "Your bot code: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **Do not share it with anyone**!\n**Expires in**: `${expire}`\n**Join the support server** [Click Here](https://discord.gg/ihorizon), if you have problems with your bot.\n\n${utils_msg}"
-
-# /mybot manage accept
-mybot_manage_accept_not_found: "The bot in the DB cannot be found. We cannot proceed further."
-mybot_manage_accept_token_error: "The token in the DB is invalid. We cannot proceed further."
-mybot_manage_accept_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot username__ `${bot_1.bot.username}`\n__Public Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_manage_accept_utiis_yes: "Yes"
-mybot_manage_accept_utils_no: "No"
-mybot_manage_accept_embed_title: "Host your own iHorizon : ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_manage_accept_embed_desc: "The bot has been accepted\n\n${utils_msg}"
-
-# /mybot change-owner
-mybot_change_owner: "The OWNIHRZ have now new owner: <@${OwnerOne}>, <@${OwnerTwo}>"
-
-# /mybot instance deny
-mybot_instance_deny_not_foud: "The bot in the DB cannot be found. We cannot proceed further."
-mybot_instance_deny_token_error: "The token in the DB is invalid. We cannot proceed further."
-mybot_instance_deny_utils_msg: "__Bot ID__ `${bot_1.bot.id}`\n__Bot username__ `${bot_1.bot.username}`\n__Public Bot__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_instance_deny_utils_msg_yes: "Yes"
-mybot_instance_deny_utils_msg_no: "No"
-mybot_instance_deny_embed_title: "Host your own iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_instance_deny_embed_desc: "The bot has been refused\n\n${utils_msg}"
 
 # TempVoice Module
 # /text, /voice, /status, /staff
@@ -2555,6 +2535,10 @@ temporary_voice_channel_name: "{nickname}'s Channel"
 # Event message
 
 protection_avoid_channel_delete: "**PROTECT MODE ON**\n<@${channel.guild.ownerId}>, the channel has been re-created, <@${firstEntry.executorId}> attempted to delete the channel!"
+protection_blockbot_embed_title: "⚠️ Danger in ${member.guild.name} ⚠️"
+protection_blockbot_embed_desc: "# BotAdd Warning\nSomeone have try to add discord bot."
+var_target_bot: "Target bot"
+var_not_detected: "Not detected"
 
 # AntiSpam Module
 # Event message

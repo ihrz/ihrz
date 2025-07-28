@@ -27,7 +27,7 @@ export default async function send(
 		title: string;
 		description: string;
 	}
-) {
+): Promise<void> {
 	try {
 		let logEmbed = new EmbedBuilder()
 			.setColor(await interaction.client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")

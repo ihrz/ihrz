@@ -379,10 +379,10 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 			.setCustomId('ticket-sethere-reason')
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.mybot_submit_utils_msg_yes)
+					.setLabel(lang.var_yes)
 					.setValue('yes'),
 				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.mybot_submit_utils_msg_no)
+					.setLabel(lang.var_no)
 					.setValue('no')
 			)
 
@@ -940,8 +940,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached"> | 
 
 				interaction.channel.messages.fetch().then(async () => {
 
-					//@ts-ignore
-					const attachment = await discordTranscripts.createTranscript(interaction.channel, {
+					const attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
 						limit: -1,
 						filename: `${interaction.guildId}-transcript.html`,
 						footerText: "Exported {number} message{s}",
@@ -1000,7 +999,6 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 
 			if (channel === interaction.channel?.id) {
 
-				//@ts-ignore
 				const attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
 					limit: -1,
 					filename: `${interaction.guildId}-transcript.html`,
@@ -1169,7 +1167,6 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 					TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 
 					if (TicketLogsChannel) {
-						//@ts-ignore
 						const attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
 							limit: -1,
 							filename: `${interaction.guildId}-transcript.html`,

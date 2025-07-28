@@ -76,12 +76,24 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id) {
+		if (
+			((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id)
+			&&
+			interaction.guild.ownerId !== interaction.member.user.id
+		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.utils_delrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
 			});
 			return;
 		};
+
+
+		if (interaction.guild.members.me.roles.highest.position <= role?.position!) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.utils_delrole_try2brain
+			})
+			return;
+		}
 
 		await user.roles.remove(role?.id!, `[DelRole] Author: ${author.id}`);
 

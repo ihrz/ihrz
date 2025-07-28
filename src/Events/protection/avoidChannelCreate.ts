@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, PermissionFlagsBits } from 'discord.js'
+import { Client, AuditLogEvent, GuildChannel, PermissionFlagsBits, GuildMember } from 'discord.js'
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "channelCreate",
@@ -34,35 +34,33 @@ export const event: BotEvent = {
 		const data = await client.db.get(`${channel.guild.id}.PROTECTION`);
 		if (!data) return;
 
-		if (data.createchannel && data.createchannel.mode === 'allowlist') {
+		if (data.createchannel) {
 
-			const fetchedLogs = await channel.guild.fetchAuditLogs({
-				type: AuditLogEvent.ChannelCreate,
-				limit: 5,
-			});
+			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelCreate);
+			if (!relevantLog) return;
 
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === channel.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
 
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
+			if (data.createchannel.mode === 'allowlist') {
+				const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+
+				if (!baseData) {
+					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				}
+			} else if (data.createchannel.mode === 'nobody') {
+				if (relevantLog.executorId !== channel.guild.ownerId) {
+					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				}
 			}
-			handledAuditLogEntries.add(relevantLog.id);
 
-			const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
-
-			if (!baseData) {
-				const member = channel.guild.members.cache.get(relevantLog?.executorId!);
-				await client.func.method.punish(data, member);
+			shouldSanction && (async () => {
+				await client.func.method.punish(data, user);
 
 				await channel.delete();
-			}
+			})()
 		}
 	},
 };

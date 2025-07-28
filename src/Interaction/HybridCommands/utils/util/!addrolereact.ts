@@ -27,8 +27,8 @@ import {
 	User,
 } from 'discord.js';
 
-import { SubCommand } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommand } from '../../../../../types/command.js';
+import { LanguageData } from '../../../../../types/languageData.js';
 
 export const subCommand: SubCommand = {
 	run: async (

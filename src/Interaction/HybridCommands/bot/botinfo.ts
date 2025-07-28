@@ -33,30 +33,64 @@ import { LanguageData } from '../../../../types/languageData.js';
 // Get statistics from all shards
 export const getShardStats = async (client: Client) => {
 	if (!client.shard) {
-		// No sharding - use local cache
+		// No sharding - use local cache with the 3 verification methods
+
+		// Method 1: Filter out problematic guilds before reduce
+		const availableGuilds = client.guilds.cache.filter(guild =>
+			guild.available && // Method 3: Check if guild is available
+			(guild.memberCount || guild.approximateMemberCount) && // Has some member count data
+			!isNaN(guild.memberCount || guild.approximateMemberCount || 0) // Not NaN
+		);
+
+		// Calculate users with the 3 methods applied
+		const users = availableGuilds.reduce((total, guild) => {
+			// Method 2: Use approximateMemberCount as fallback + Method 3: Check available
+			const memberCount = guild.memberCount || guild.approximateMemberCount || 0;
+			return total + memberCount;
+		}, 0);
+
 		return {
 			guilds: client.guilds.cache.size,
 			channels: client.channels.cache.size,
-			users: client.users.cache.size
+			users: users
 		};
 	}
 
-	// With sharding - broadcast to all shards
+	// With sharding - broadcast to all shards with improved logic
 	const shardResults = await client.shard.broadcastEval(client => {
+		// Method 1: Filter out problematic guilds before reduce
+		const availableGuilds = client.guilds.cache.filter(guild =>
+			guild.available && // Method 3: Check if guild is available
+			(guild.memberCount || guild.approximateMemberCount) && // Has some member count data
+			!isNaN(guild.memberCount || guild.approximateMemberCount || 0) // Not NaN
+		);
+
+		// Calculate users with improved method
+		const users = availableGuilds.reduce((total, guild) => {
+			// Method 2: Use approximateMemberCount as fallback
+			const memberCount = guild.memberCount || guild.approximateMemberCount || 0;
+			return total + memberCount;
+		}, 0);
+
+		// Calculate channels from available guilds only
+		const channels = availableGuilds.reduce((acc, guild) => acc + guild.channels.cache.size, 0);
+
 		return {
-			guilds: client.guilds.cache.size,
-			channels: client.guilds.cache.reduce((acc, guild) => acc + guild.channels.cache.size, 0),
-			users: client.guilds.cache.reduce((a, b) => a + b.memberCount, 0)
+			guilds: client.guilds.cache.size, // Keep total guilds count (including unavailable)
+			availableGuilds: availableGuilds.size, // Add available guilds count
+			channels: channels,
+			users: users
 		};
 	});
 
 	// Sum up all results from all shards
 	return shardResults.reduce((total, shard) => {
 		total.guilds += shard.guilds;
+		total.availableGuilds += shard.availableGuilds;
 		total.channels += shard.channels;
 		total.users += shard.users;
 		return total;
-	}, { guilds: 0, channels: 0, users: 0 });
+	}, { guilds: 0, availableGuilds: 0, channels: 0, users: 0 });
 };
 
 export const command: Command = {

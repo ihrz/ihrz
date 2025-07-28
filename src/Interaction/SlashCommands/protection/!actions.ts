@@ -56,6 +56,7 @@ export const subCommand: SubCommand = {
 
 			if (allow === 'member') allow = lang.authorization_actions_everyone;
 			if (allow === 'allowlist') allow = lang.authorization_actions_allowlist;
+			if (allow === "nobody") allow = lang.authorization_actions_nobody
 
 			await interaction.editReply({
 				content: lang.authorization_actions_rule_set
@@ -69,6 +70,7 @@ export const subCommand: SubCommand = {
 
 			if (allow === 'member') allow = lang.authorization_actions_everyone;
 			if (allow === 'allowlist') allow = lang.authorization_actions_allowlist;
+			if (allow === "nobody") allow = lang.authorization_actions_nobody
 
 			await interaction.editReply({
 				content: lang.authorization_actions_rule_set

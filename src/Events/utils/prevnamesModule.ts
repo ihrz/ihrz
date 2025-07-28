@@ -22,6 +22,7 @@
 import { Client, User, time } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
+import { prevnamesTable } from '../client/ready.js';
 
 export const event: BotEvent = {
 	name: "userUpdate",
@@ -31,17 +32,16 @@ export const event: BotEvent = {
 
 		const oldUsertag = oldUser.username;
 		const oldUserGlbl = oldUser.globalName || oldUser.displayName;
-		const table = client.db.table("PREVNAMES");
 
 		if (!oldUser) return;
 
 		if (oldUser.globalName !== newUser.globalName) {
 
-			await table.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
+			await prevnamesTable.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
 
 		} else if (oldUser.username !== newUser.username) {
 
-			await table.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
+			await prevnamesTable.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
 		};
 	},
 };

@@ -39,7 +39,6 @@ export const event: BotEvent = {
 				TicketLogsChannel = member.guild?.channels.cache.get(TicketLogsChannel);
 				if (!TicketLogsChannel) return;
 
-				// @ts-ignore
 				const attachment = await createTranscript(channel as TextChannel, {
 					limit: -1,
 					filename: `${member.guild.id}-transcript.html`,

@@ -58,7 +58,6 @@ export const event: BotEvent = {
 
 		// const data = await req.json();
 
-		// console.log(data)
 		// // If not, sanction them
 		// const member = newGuild.members.cache.get(author?.id!);
 

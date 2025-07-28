@@ -166,16 +166,23 @@ async function processCommandOptions(
 
 async function loadSubCommandModule(directoryPath: string, commandName: string): Promise<SubCommandModule | null> {
 	try {
-		return await import(`${directoryPath}/!${commandName}.ts`) as SubCommandModule;
+		// Use path.join for cross-platform compatibility and convert to file:// URL for Windows
+		const modulePath = path.join(directoryPath, `!${commandName}.ts`);
+		const moduleURL = process.platform === 'win32'
+			? `file:///${modulePath.replace(/\\/g, '/')}`
+			: `file://${modulePath}`;
+
+		return await import(moduleURL) as SubCommandModule;
 	} catch (error) {
 		logger.err(`Failed to load subcommand module: ${commandName}`);
+		console.error(error)
 		return null;
 	}
 }
 
 async function processCommand(
 	command: Command,
-	path: string,
+	filePath: string,
 	client: Client
 ): Promise<void> {
 	if (!command.options) return;
@@ -183,7 +190,8 @@ async function processCommand(
 	await processOptions(command.options, command.category, command.name, client);
 
 	if (argsHelper.hasSubCommand(command.options) || argsHelper.hasSubCommandGroup(command.options)) {
-		const directoryPath = path.substring(0, path.lastIndexOf('/'));
+		// Use path.dirname for cross-platform directory extraction
+		const directoryPath = path.dirname(filePath);
 		await processCommandOptions(
 			command.options,
 			command.category,

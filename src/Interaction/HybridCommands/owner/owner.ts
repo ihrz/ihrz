@@ -30,6 +30,7 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { ownerTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'owner',
@@ -65,16 +66,14 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const tableOwner = client.db.table('OWNER');
-
 		let text = "";
-		const char = await tableOwner.all();
+		const char = await ownerTable.all();
 
 		for (const entry of char) {
 			text += `<@${entry.id}>\n`;
 		}
 
-		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
+		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.owner_not_owner });
 			return;
 		};
@@ -97,14 +96,14 @@ export const command: Command = {
 		};
 
 
-		const is_owner = await tableOwner.get(`${member.id}.owner`);
+		const is_owner = await ownerTable.get(`${member.id}.owner`);
 
 		if (is_owner) {
 			await client.func.method.interactionSend(interaction, { content: lang.owner_already_owner });
 			return;
 		};
 
-		await tableOwner.set(`${member.id}`, { owner: true });
+		await ownerTable.set(`${member.id}`, { owner: true });
 		client.owners.push(member.id);
 		client.owners = [...new Set(client.owners)];
 

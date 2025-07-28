@@ -166,7 +166,15 @@ export function getStatsLeaderboard(data: {
 	dailyVoiceActivity: number,
 	weeklyVoiceActivity: number,
 	monthlyVoiceActivity: number
-}[]) {
+}[]): {
+	member: User | undefined;
+	dailyMessages: number;
+	weeklyMessages: number;
+	monthlyMessages: number;
+	dailyVoiceActivity: number;
+	weeklyVoiceActivity: number;
+	monthlyVoiceActivity: number;
+}[] {
 	const compare = (a: {
 		member: User | undefined,
 		dailyMessages: number,

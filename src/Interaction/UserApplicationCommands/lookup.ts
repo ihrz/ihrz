@@ -31,7 +31,6 @@ export const command: AnotherCommand = {
 	thinking: false,
 	permission: PermissionFlagsBits.Administrator,
 	run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
-		// @ts-ignore
-		subCommand.run(client, interaction, await getLanguageData(interaction.guildId!));
+		subCommand.run(client, interaction as any, await getLanguageData(interaction.guildId!));
 	},
 };

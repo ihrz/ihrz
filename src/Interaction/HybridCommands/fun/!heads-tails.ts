@@ -19,25 +19,32 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import path from 'node:path';
-import fs from "node:fs";
+import {
+	ChatInputCommandInteraction,
+	Client,
+	Message,
+	EmbedBuilder
+} from 'discord.js';
 
-const cache_storage_path = path.join(process.cwd(), "src", "files", ".ihrz-cache");
-const format = { format: "2025-07" };
+import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommand } from '../../../../types/command.js';
 
-export var cache_storage_data: any = {};
-export const cache_storage_update = () => {
-	fs.writeFileSync(cache_storage_path, JSON.stringify(cache_storage_data, null, 4));
+export const subCommand: SubCommand = {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		const isHead = Math.random() < 0.5;
+
+		const result = isHead ? lang.fun_coinflip_result_heads : lang.fun_coinflip_result_tails;
+
+		const embed = new EmbedBuilder()
+			.setTitle(lang.fun_coinflip_embed_title)
+			.setDescription(`${lang.fun_coinflip_result_text} ${result}`)
+			.setColor("Random");
+
+		await client.func.method.interactionSend(interaction, { embeds: [embed] });
+	}
 };
-
-// if not cache founded, let create them
-if (!fs.existsSync(cache_storage_path)) {
-	fs.writeFileSync(cache_storage_path, JSON.stringify(format, null, 4));
-} else {
-	cache_storage_data = JSON.parse(fs.readFileSync(cache_storage_path, 'utf-8'));
-
-	if (cache_storage_data?.["format"] !== "2025-07") {
-		cache_storage_data = format;
-	};
-	cache_storage_update()
-}

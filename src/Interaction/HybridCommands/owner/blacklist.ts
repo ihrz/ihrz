@@ -36,6 +36,7 @@ import { format } from '../../../core/functions/date_and_time.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
+import { blacklistTable, ownerTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'blacklist',
@@ -85,15 +86,12 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const tableOwner = client.db.table('OWNER');
-		const tableBlacklist = client.db.table('BLACKLIST');
-
-		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
+		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
 			return;
 		};
 
-		const blacklistedUsers = await tableBlacklist.all();
+		const blacklistedUsers = await blacklistTable.all();
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getMember('user') as GuildMember | null;
@@ -203,10 +201,10 @@ export const command: Command = {
 				return;
 			};
 
-			const fetched = await tableBlacklist.get(`${member.user.id}`);
+			const fetched = await blacklistTable.get(`${member.user.id}`);
 
 			if (fetched && reason) {
-				await tableBlacklist.set(`${member.user.id}.reason`, reason);
+				await blacklistTable.set(`${member.user.id}.reason`, reason);
 				await client.func.method.interactionSend(interaction, {
 					content: lang.var_succes
 				})
@@ -219,7 +217,7 @@ export const command: Command = {
 				return;
 			};
 
-			await tableBlacklist.set(`${member.user.id}`, {
+			await blacklistTable.set(`${member.user.id}`, {
 				blacklisted: true,
 				reason,
 				owner: interaction.member.user.id,
@@ -258,7 +256,7 @@ export const command: Command = {
 
 					const batchPromises = batch.map(async (guildId) => {
 						const guild = client.guilds.cache.find(g => g.id === guildId);
-						if (guild) {
+						if (guild && guild.memberCount <= 500) {
 							try {
 								await guild.members.ban(member?.user.id!, { reason });
 								return true;
@@ -290,7 +288,7 @@ export const command: Command = {
 				return;
 			};
 
-			const fetched = await tableBlacklist.get(`${user.id}`);
+			const fetched = await blacklistTable.get(`${user.id}`);
 
 			if (fetched) {
 				await client.func.method.interactionSend(interaction, {
@@ -300,7 +298,7 @@ export const command: Command = {
 				return;
 			}
 
-			await tableBlacklist.set(`${user.id}`, {
+			await blacklistTable.set(`${user.id}`, {
 				blacklisted: true,
 				reason,
 				owner: interaction.member.user.id,
@@ -332,7 +330,7 @@ export const command: Command = {
 
 					const batchPromises = batch.map(async (guildId) => {
 						const guild = client.guilds.cache.find(g => g.id === guildId);
-						if (guild) {
+						if (guild && guild.memberCount <= 500) {
 							try {
 								await guild.members.ban(user?.id!, { reason });
 								return true;

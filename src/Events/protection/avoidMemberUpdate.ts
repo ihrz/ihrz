@@ -22,7 +22,7 @@
 import { Client, AuditLogEvent, GuildMember } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries } from './ready.js';
+import { getLogs } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -32,35 +32,32 @@ export const event: BotEvent = {
 		if (!data) return;
 
 
-		if (data.updatemember && data.updatemember.mode === 'allowlist') {
-			const fetchedLogs = await oldMember.guild.fetchAuditLogs({
-				type: AuditLogEvent.MemberRoleUpdate,
-				limit: 1,
-			});
+		if (data.updatemember) {
+			const relevantLog = await getLogs(oldMember.guild, oldMember.id, AuditLogEvent.MemberRoleUpdate);
+			if (!relevantLog) return;
 
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === oldMember.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
 
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
+			if (data.updatemember.mode === 'allowlist') {
+				const baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+
+				if (!baseData) {
+					user = newMember.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
+			} else if (data.updatemember.mode === 'nobody') {
+				if (relevantLog.executorId !== newMember.guild.ownerId) {
+					user = newMember.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				};
 			}
 
-			handledAuditLogEntries.add(relevantLog.id);
-
-			const baseData = await client.db.get(`${newMember.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
-
-			if (!baseData) {
-				const user = newMember.guild.members.cache.get(relevantLog?.executorId as string);
+			shouldSanction && (async () => {
 				await client.func.method.punish(data, user);
-
 				await newMember.roles.set(oldMember.roles.cache, "[Protection] AntiRaid").catch(() => false);
-			};
+			})()
+
 		}
 	},
 };

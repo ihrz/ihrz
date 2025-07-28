@@ -31,6 +31,7 @@ import {
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
+import { blacklistTable, ownerTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'unblacklist',
@@ -67,10 +68,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const tableOwner = client.db.table('OWNER');
-		const tableBlacklist = client.db.table('BLACKLIST');
-
-		if (!await tableOwner.get(`${interaction.member.user.id}.owner`)) {
+		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_owner });
 			return;
 		};
@@ -82,7 +80,7 @@ export const command: Command = {
 			var member = await client.func.method.user(interaction, args!, 0);
 		};
 
-		const fetched = await tableBlacklist.get(`${member?.id}`);
+		const fetched = await blacklistTable.get(`${member?.id}`);
 		const guilds = client.guilds.cache.map(guild => guild.id);
 
 		if (!fetched) {
@@ -98,7 +96,7 @@ export const command: Command = {
 				return;
 			};
 
-			await tableBlacklist.delete(`${member?.id}`);
+			await blacklistTable.delete(`${member?.id}`);
 			await interaction.guild.members.unban(bannedMember);
 
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
@@ -116,7 +114,7 @@ export const command: Command = {
 			processBatchAsync(
 				guildObjects,
 				async (guild) => {
-					if (guild.members.me?.permissions.has("BanMembers")) {
+					if (guild.members.me?.permissions.has("BanMembers") && guild.memberCount <= 500) {
 						try {
 							await guild.members.unban(bannedMember.id!, "iHorizon Unblacklist");
 							return true;
@@ -137,7 +135,7 @@ export const command: Command = {
 
 			return;
 		} catch (e) {
-			await tableBlacklist.delete(`${member?.id}`);
+			await blacklistTable.delete(`${member?.id}`);
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unblacklist_unblacklisted_but_can_unban_him.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});

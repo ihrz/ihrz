@@ -16,7 +16,6 @@ var_roles: "أدوار"
 var_names: "أسماء"
 var_text_channel: "قناة نصية"
 var_voice_channel: "قناة صوتية"
-var_ownihrz: "OWNIHRZ"
 var_creator: "مؤسس"
 var_doesnt_have_permissions: "أنت غير مصرح لك بذلك. تحتاج إلى إذن {permission}."
 var_ihorizon: "iHorizon"
@@ -557,8 +556,6 @@ help_antispam_dsc: "> *هل سئمت من الرسائل المزعجة؟ حسن
 help_antispam_fields: "مكافحة الرسائل المزعجة"
 help_stats_fields: "إحصائيات المستخدم"
 help_stats_dsc: "> *شوف عدد الرسائل ونشاط الصوت الخاص بالمستخدم في السيرفر*"
-help_ownihrz_dsc: "> *استضيف وادير بوت iHorizon المخصص بتاعك ! (OWNIHRZ)*"
-help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "> *خليك متبلغ لما يوتيوبر أو ستريمر ينشر فيديو!*"
 help_notifier_fields: "المُبلغ"
 help_authrestore_fields: "استعادة كورد"
@@ -657,6 +654,23 @@ fun_caracteres_select_menu_placeholder: "اختر نمط الخط..."
 fun_caracteres_final_embed_title: "🎨 النص المحول - النمط: ${selectedStyle}"
 fun_caracteres_final_embed_field1_name: "📝 النص الأصلي"
 fun_caracteres_final_embed_field2_name: "✨ النص المحول"
+
+# /fun random dice
+fun_dice_embed_title: "🎲 نتيجة رمي النرد"
+fun_dice_var_rolled_dices: "**النرد المرمي:**"
+fun_dice_var_results: "**النتائج:**"
+fun_dice_var_total: "**المجموع:**"
+
+# /fun random heads-tails
+fun_coinflip_embed_title: "🪙 صورة أم كتابة"
+fun_coinflip_result_text: "النتيجة هي:"
+fun_coinflip_result_heads: "صورة"
+fun_coinflip_result_tails: "كتابة"
+
+# /fun random number
+fun_random_embed_title: "🔢 رقم عشوائي"
+fun_random_result_text: "الرقم المولد هو:"
+fun_random_between: "بين"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -944,11 +958,14 @@ all_bots_embed_title: "قائمة جميع البوتات | الصفحة ${i / u
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} لا يمكنك إضافة دور إلى مستخدم يمتلك دورًا أعلى منك..."
 utils_addrole_command_ok: "${author.toString()} قام بإضافة الدور ${role?.toString()} بنجاح إلى ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | الدور الذي تريد إضافته للمستخدم غير مدرج في القائمة البيضاء. يجب على المسؤول إضافته أولاً! (باستخدام `/utils wlroles`)"
+utils_addrole_cant_level: "العضو مش أدمن، وعايز تديه دور أدمن؟ أنت بتهزر؟ عايز تفجر السيرفر؟"
+utils_addrole_try2brain: "البوت مكانه تحت في ترتيب الأدوار. مش قادر أديه الدور ده حتى لو شكله بايخ."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} لا يمكنك إزالة دور من مستخدم يمتلك دورًا أعلى منك..."
 utils_delrole_command_ok: "${author.toString()} قام بإزالة الدور ${role?.toString()} بنجاح من ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | الدور الذي تريد حذفه من المستخدم غير مدرج في القائمة البيضاء. يجب على المسؤول إضافته أولاً! (باستخدام `/utils wlroles`)"
+utils_delrole_try2brain: "البوت مكانه تحت في ترتيب الأدوار. مش قادر أشيل الدور الغبي ده."
 
 # /utils wlroles
 utils_wlroles_embed_title: "الأدوار المسموح بها"
@@ -972,6 +989,8 @@ utils_piconly_modal1_fields1_label: "وقت الكتم"
 utils_piconly_modal2_title: "الصور فقط - إعداد الحد الأقصى"
 utils_piconly_modal2_fields1_placeholder: "الحد الأقصى قبل الكتم"
 utils_piconly_modal2_fields1_label: "الحد الأقصى"
+utils_piconly_embed_fields2_placeholder: "إنشاء موضوع تحت الصورة"
+utils_piconly_var_thread_name: "موضوع {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "ليس لديك إذن لإدارة الرموز التعبيرية."
@@ -2055,6 +2074,7 @@ pfps_channel_command_error: "${interaction.user}, الأمر أرجع خطأ. ي
 authorization_actions_not_permited: "فقط مالك الخادم يمكنه تعديل قاعدة الإذن المتعلقة بوحدة الحماية!"
 authorization_actions_everyone: "الجميع"
 authorization_actions_allowlist: "الأعضاء في القائمة المسموحة"
+authorization_actions_nobody: "لا أحد. (باستثناء صاحب الخادم)"
 authorization_actions_rule_set: "${interaction.user}, تم تعيين القاعدة لـ `${rule.toUpperCase()}`. **${allow}** مسموح لهم بتجاوزها!"
 authorization_actions_rule_clear: "${interaction.user}, تم حذف جميع القواعد لـ `${interaction.guild.name}`. وحدة الحماية الآن موقوفة!"
 
@@ -2134,46 +2154,6 @@ tag_use_command_work: "تم إرسال الوسم `${tag_name}`."
 
 # /tag edit
 tag_edit_error_perm: "لتعديل الوسم، تحتاج إلى الحصول على أذونات المدير أو أن تكون مالك الوسم."
-
-# OWNIHRZ Module
-# /mybot submit, ... list, /mybot manage accept, ... ... deny, ... ... instance
-
-# /mybot submit
-mybot_submit_token_invalid: "التوكن المدخل غير صالح. لا يمكننا متابعة العملية."
-mybot_submit_utils_msg: "__معرّف البوت__ `${bot_1.bot.id}`\n__اسم البوت__ `${bot_1.bot.username}`\n__بوت عام__ `${bot_1.bot_public ? 'نعم' : 'لا'}`"
-mybot_submit_utils_msg_yes: "نعم"
-mybot_submit_utils_msg_no: "لا"
-mybot_submit_embed_title: "استضاف بوت iHorizon الخاص بك: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "تم تسجيل طلبك بنجاح، معرّفك الفريد هو: **${code}**\nلا تشاركه مع أي شخص!\n**انضم إلى خادم الدعم** [اضغط هنا](https://discord.gg/ihorizon)، ثم افتح تذكرة لمتابعة الشراء.\n\n${utils_msg}"
-
-# /mybot list
-mybot_list_embed0_title: "قائمة جميع بوتاتك"
-mybot_list_utils_msg: "__معرّف البوت__ `${data_2[i].bot.id}`\n__اسم البوت__ `${data_2[i].bot.username}`\n__بوت عام__ `${data_2[i].bot_public ? 'نعم' : 'لا'}`"
-mybot_list_utils_msg_yes: "نعم"
-mybot_list_utils_msg_no: "لا"
-mybot_list_embed1_title: "iHorizon الخاص بك: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "رمز بوتك: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **لا تشاركه مع أي شخص**!\n**ينتهي في**: `${expire}`\n**انضم إلى خادم الدعم** [اضغط هنا](https://discord.gg/ihorizon)، إذا كنت تواجه مشاكل مع بوتك.\n\n${utils_msg}"
-
-# /mybot manage accept
-mybot_manage_accept_not_found: "لا يمكن العثور على البوت في قاعدة البيانات. لا يمكننا متابعة العملية."
-mybot_manage_accept_token_error: "التوكن في قاعدة البيانات غير صالح. لا يمكننا متابعة العملية."
-mybot_manage_accept_utils_msg: "__معرّف البوت__ `${bot_1.bot.id}`\n__اسم البوت__ `${bot_1.bot.username}`\n__بوت عام__ `${bot_1.bot_public ? 'نعم' : 'لا'}`"
-mybot_manage_accept_utiis_yes: "نعم"
-mybot_manage_accept_utils_no: "لا"
-mybot_manage_accept_embed_title: "استضاف بوت iHorizon الخاص بك: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_manage_accept_embed_desc: "تم قبول البوت\n\n${utils_msg}"
-
-# /mybot change-owner
-mybot_change_owner: "الـ OWNIHRZ الآن له مالك جديد: <@${OwnerOne}>, <@${OwnerTwo}>"
-
-# /mybot instance deny
-mybot_instance_deny_not_foud: "لا يمكن العثور على البوت في قاعدة البيانات. لا يمكننا متابعة العملية."
-mybot_instance_deny_token_error: "التوكن في قاعدة البيانات غير صالح. لا يمكننا متابعة العملية."
-mybot_instance_deny_utils_msg: "__معرّف البوت__ `${bot_1.bot.id}`\n__اسم البوت__ `${bot_1.bot.username}`\n__بوت عام__ `${bot_1.bot_public ? 'نعم' : 'لا'}`"
-mybot_instance_deny_utils_msg_yes: "نعم"
-mybot_instance_deny_utils_msg_no: "لا"
-mybot_instance_deny_embed_title: "استضاف بوت iHorizon الخاص بك: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_instance_deny_embed_desc: "تم رفض البوت\n\n${utils_msg}"
 
 # TempVoice Module
 # /text, /voice, /status, /staff
@@ -2548,6 +2528,10 @@ temporary_voice_channel_name: "قناة {nickname}"
 # رسالة الحدث
 
 protection_avoid_channel_delete: "**وضع الحماية مفعل**\n<@${channel.guild.ownerId}>, تم إعادة إنشاء القناة، <@${firstEntry.executorId}> حاول حذف القناة!"
+protection_blockbot_embed_title: "⚠️ خطر في ${member.guild.name} ⚠️"
+protection_blockbot_embed_desc: "# تحذير إضافة بوت\nشخص ما حاول إضافة بوت ديسكورد."
+var_target_bot: "البوت المستهدف"
+var_not_detected: "غير مكتشف"
 
 # وحدة مكافحة الرسائل المزعجة
 # رسالة التحذير الأساسية

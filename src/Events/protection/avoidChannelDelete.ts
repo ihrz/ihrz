@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, ChannelType, CategoryChannel, PermissionFlagsBits } from 'discord.js';
+import { Client, AuditLogEvent, GuildChannel, ChannelType, CategoryChannel, PermissionFlagsBits, GuildMember } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntries, protectionCache } from './ready.js';
+import { getLogs, protectionCache } from './ready.js';
 import wait from '../../core/functions/wait.js';
 
 const restorationInProgress = new Map<string, Promise<void>>();
@@ -39,28 +39,29 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
-			const fetchedLogs = await channel.guild.fetchAuditLogs({
-				type: AuditLogEvent.ChannelDelete,
-				limit: 5,
-			});
-			const relevantLog = fetchedLogs.entries.find(entry =>
-				entry.targetId === channel.id &&
-				entry.executorId !== client.user?.id &&
-				entry.executorId
-				// Window time for avoiding recursive:
-				&& entry.createdTimestamp > (Date.now() - 10_000)
-			);
+			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelDelete);
+			if (!relevantLog) return;
 
-			// Avoiding double action by filtering the user
-			if (!relevantLog || relevantLog.executor?.id === client.user?.id || handledAuditLogEntries.has(relevantLog.id)) {
-				return;
+
+			let user: GuildMember | undefined;
+			let shouldSanction: boolean = false;
+
+			if (data.deletechannel.mode === 'allowlist') {
+				const baseData = await client.db.get(`${guildId}.ALLOWLIST.list.${relevantLog.executorId}`);
+
+				if (!baseData) {
+					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				}
+
+			} else if (data.deletechannel.mode === 'nobody') {
+				if (relevantLog.executorId !== channel.guild.ownerId) {
+					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					shouldSanction = true;
+				}
 			}
-			handledAuditLogEntries.add(relevantLog.id);
 
-			const baseData = await client.db.get(`${guildId}.ALLOWLIST.list.${relevantLog.executorId}`);
-
-			if (!baseData) {
-				const user = channel.guild.members.cache.get(relevantLog.executorId!);
+			shouldSanction && (async () => {
 				if (!user) return;
 
 				client.func.method.punish(data, user);
@@ -138,7 +139,8 @@ export const event: BotEvent = {
 				restorationInProgress.set(guildId, restorationPromise);
 
 				await restorationPromise;
-			}
+			})()
 		}
+
 	},
 };

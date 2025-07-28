@@ -50,14 +50,10 @@ export function removePermissionProperties(obj: any): any {
 	return cleanedObj;
 }
 
-const synchronizeCommands = async (client: Client): Promise<void> => {
+export async function synchronizeCommands(client: Client): Promise<void> {
 	return new Promise(async (resolve, reject) => {
 		try {
 			const rest = new REST().setToken(process.env.BOT_TOKEN || client.config.discord.token);
-
-			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`.white);
-			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`.white);
-
 			const appCmds = client.applicationsCommands.map((command) => ({
 				name: command.name,
 				type: command.type,
@@ -78,12 +74,16 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
 
 			const allCommands = [...slashCommands, ...appCmds];
 
+			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`.white);
+			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`.white);
+
 			const data = await rest.put(
 				Routes.applicationCommands(client.user?.id!),
 				{ body: allCommands }
 			);
 
 			logger.log(`${client.config.console.emojis.OK} >> Currently, ${(data as unknown as ApplicationCommand<{}>[]).length} applications are now synchronized.`.white);
+
 			resolve();
 		} catch (error: any) {
 			logger.err(error);
@@ -91,5 +91,3 @@ const synchronizeCommands = async (client: Client): Promise<void> => {
 		}
 	});
 };
-
-export default synchronizeCommands;

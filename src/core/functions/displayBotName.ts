@@ -23,7 +23,10 @@ import { ButtonInteraction, ChatInputCommandInteraction, Guild, GuildMember, Int
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import db from "./DatabaseModel.js";
 
-export async function footerBuilder(guildId: string = "") {
+export async function footerBuilder(guildId: string = ""): Promise<{
+	text: string;
+	iconURL: string;
+}> {
 	let botName = await global.client.db.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
 
 	if (!botName) {
@@ -36,8 +39,12 @@ export async function footerBuilder(guildId: string = "") {
 	}
 }
 
-export async function footerAttachmentBuilder(entry?: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild
-) {
+export async function footerAttachmentBuilder(
+	entry?: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild
+): Promise<{
+	attachment: string | Buffer<ArrayBuffer>;
+	name: string;
+}> {
 
 	const res = await displayBotPP(
 		entry instanceof Guild

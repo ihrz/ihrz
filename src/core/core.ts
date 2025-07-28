@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import commandsSync from './commandsSync.js';
+import { synchronizeCommands } from './commandsSync.js';
 import logger from "./logger.js";
 
 import * as errorManager from './modules/errorManager.js';
@@ -47,11 +47,13 @@ import config from '../files/config.js';
 import { Client_Functions } from '../../types/client_functions.js';
 import { AnotherCommand } from '../../types/anotherCommand.js';
 import { EmojisManager } from './modules/emojisManager.js';
-import { cache_storage_data, cache_storage_update } from './cache.js';
 import { NightModeManager } from './modules/nightModeManager.js';
 import { GithubLinesManager } from './modules/githubLinesManager.js';
 import { DiscordSlashLogParser } from './converters/slashLog.js';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { InfrastructureMonitoring } from './modules/infrastructureMonitoringManager.js';
+import { GiveawayManager } from './modules/giveawaysManager.js';
+import { isNumber } from './functions/method.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,7 +75,6 @@ if (fs.existsSync(old_slash_logs_file)) {
 backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
-	dataInitializer();
 
 	process.on('SIGINT', async () => {
 		await client.destroy();
@@ -108,6 +109,18 @@ export async function main(client: Client) {
 	client.applicationsCommands = new Collection<string, AnotherCommand>();
 	client.emojisManager = new EmojisManager();
 	client.nightmodeManager = new NightModeManager();
+	client.giveawaysManager = new GiveawayManager(client, {
+		storage: `${process.cwd()}/src/files/giveaways/`,
+		config: {
+			botsCanWin: false,
+			embedColor: '#9a5af2',
+			embedColorEnd: '#2f3136',
+			reaction: '🎉',
+			botName: "iHorizon",
+			forceUpdateEvery: 3600,
+			endedGiveawaysLifetime: 345_600_000,
+		},
+	});
 
 	assetsCalc(client);
 
@@ -130,7 +143,7 @@ export async function main(client: Client) {
 			process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
 		};
 
-		commandsSync(client).then(() => {
+		synchronizeCommands(client).then(() => {
 			logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
 			logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
 			logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
@@ -138,22 +151,4 @@ export async function main(client: Client) {
 			logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta);
 		});
 	});
-}
-
-export function dataInitializer() {
-	const baseData: InitData = {
-		initialized_timestamp: Date.now(),
-		_cache: {
-			version: getCacheStorage()?._cache.version || version,
-			updateChannelId: getCacheStorage()?._cache.updateChannelId || "None"
-		}
-	}
-	cache_storage_data["stored_data"] = baseData;
-	cache_storage_update();
-
-	logger.log(`${config.console.emojis.OK} >> Timestamp Generated in .uptime`);
-}
-
-export function getCacheStorage(): InitData {
-	return cache_storage_data["stored_data"]
 }

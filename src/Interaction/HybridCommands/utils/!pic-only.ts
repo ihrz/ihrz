@@ -53,7 +53,8 @@ export const subCommand: SubCommand = {
 		let all_channels = await client.db.get(`${interaction.guildId}.UTILS.picOnly`) || [] as DatabaseStructure.UtilsData["picOnly"];
 		const baseData: DatabaseStructure.PicOnlyConfig = await client.db.get(`${interaction.guildId}.UTILS.picOnlyConfig`) || {
 			threshold: 3,
-			muteTime: 600000
+			muteTime: 600000,
+			createThread: 'yes'
 		};
 
 		const embed = new EmbedBuilder()
@@ -77,6 +78,11 @@ export const subCommand: SubCommand = {
 					value: String(client.timeCalculator.to_beautiful_string(baseData.muteTime!, lang) || client.timeCalculator.to_beautiful_string("10m", lang)),
 					inline: true
 				},
+				{
+					name: lang.utils_piconly_embed_fields2_placeholder,
+					value: baseData.createThread === 'yes' ? lang.var_yes : lang.var_no,
+					inline: true
+				},
 			);
 
 		const channelSelectMenu = new ChannelSelectMenuBuilder()
@@ -93,7 +99,10 @@ export const subCommand: SubCommand = {
 					.setValue("utils-picOnly-option-change-time"),
 				new StringSelectMenuOptionBuilder()
 					.setLabel(lang.utils_piconly_select1_option2_label)
-					.setValue("utils-picOnly-option-change-threshold")
+					.setValue("utils-picOnly-option-change-threshold"),
+				new StringSelectMenuOptionBuilder()
+					.setLabel(lang.utils_piconly_embed_fields2_placeholder)
+					.setValue("utils-picOnly-option-change-create-thread")
 			);
 
 		if (all_channels !== undefined && all_channels?.length >= 1) {
@@ -203,6 +212,16 @@ export const subCommand: SubCommand = {
 				updateEmbed(embed, all_channels, lang);
 				await og_response.edit({ embeds: [embed] });
 				await client.db.set(`${interaction.guildId}.UTILS.picOnlyConfig`, baseData);
+			} else if (stringInteraction.values[0] === "utils-picOnly-option-change-create-thread") {
+				stringInteraction.deferUpdate();
+				if (baseData.createThread === "no") {
+					baseData.createThread = "yes"
+				} else {
+					baseData.createThread = "no"
+				}
+				updateEmbed(embed, all_channels, lang);
+				await og_response.edit({ embeds: [embed] });
+				await client.db.set(`${interaction.guildId}.UTILS.picOnlyConfig`, baseData)
 			}
 		});
 
@@ -245,7 +264,8 @@ export const subCommand: SubCommand = {
 			embed.setFields(
 				{
 					name: lang.joinghostping_add_ok_embed_fields_name,
-					value: roles.map(role => `<#${role}>`).join(', ') || lang.setjoinroles_var_none
+					value: roles.map(role => `<#${role}>`).join(', ') || lang.setjoinroles_var_none,
+					inline: false
 				},
 				{
 					name: lang.antispam_manage_choices_12_label,
@@ -256,7 +276,12 @@ export const subCommand: SubCommand = {
 					name: lang.utils_piconly_embed_fields_3_name,
 					value: String(client.timeCalculator.to_beautiful_string(baseData.muteTime!, lang) || client.timeCalculator.to_beautiful_string("10m", lang)),
 					inline: true
-				}
+				},
+				{
+					name: lang.utils_piconly_embed_fields2_placeholder,
+					value: baseData.createThread === 'yes' ? lang.var_yes : lang.var_no,
+					inline: true
+				},
 			);
 		};
 	},

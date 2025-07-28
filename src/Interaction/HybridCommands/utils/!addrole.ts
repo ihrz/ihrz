@@ -26,6 +26,7 @@ import {
 	GuildMember,
 	GuildMemberRoleManager,
 	Message,
+	PermissionFlagsBits,
 	PermissionsBitField,
 } from 'discord.js'
 
@@ -47,7 +48,6 @@ export const subCommand: SubCommand = {
 			var role = interaction.options.getRole("role");
 			var author = interaction.member as GuildMember;
 		} else {
-
 			var user = client.func.method.member(interaction, args!, 0)! as GuildMember;
 			var role = client.func.method.role(interaction, args!, 1);
 			var author = interaction.member as GuildMember;
@@ -76,12 +76,30 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id) {
+		if (
+			((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id)
+			&&
+			interaction.guild.ownerId !== interaction.member.user.id
+		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.utils_addrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
 			});
 			return;
 		};
+
+		if (role?.permissions.has(PermissionFlagsBits.Administrator) && !user.permissions.has(PermissionFlagsBits.Administrator)) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.utils_addrole_cant_level
+			})
+			return;
+		}
+
+		if (interaction.guild.members.me.roles.highest.position <= role?.position!) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.utils_addrole_try2brain
+			})
+			return;
+		}
 
 		await user.roles.add(role?.id!, `[AddRole] Author: ${author.id}`);
 

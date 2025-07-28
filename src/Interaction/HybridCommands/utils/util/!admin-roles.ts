@@ -27,12 +27,14 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
+	PermissionFlagsBits,
+	PermissionsBitField
 } from 'discord.js'
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from '../../../../../types/languageData.js';
 
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -41,48 +43,36 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var role = interaction.options.getRole('role', true);
-		} else {
-			var role = client.func.method.role(interaction, args!, 0)!;
-		}
-
-		if (!role) {
-			return await client.func.method.interactionSend(interaction, {
-				content: lang.addrolereact_role_not_found
-			})
-		}
-
-		const roles_members = Array.from(role.members
+		const all_admin_roles = Array.from(interaction.guild.roles.cache
+			.filter(x => x.permissions.has(PermissionFlagsBits.Administrator))
 			.values()
 		) || [];
 
-		if (roles_members.length == 0) {
-			await client.func.method.interactionSend(interaction, { content: lang.util_role_members_no_one });
+		if (all_admin_roles.length == 0) {
+			await client.func.method.interactionSend(interaction, { content: lang.admin_roles_nobody_roles });
 			return;
 		};
 
 		let currentPage = 0;
-		const usersPerPage = 5;
+		const rolesPerPage = 5;
 		const pages: { title: string; description: string; }[] = [];
 
-		for (let i = 0; i < roles_members.length; i += usersPerPage) {
-			const pageUsers = roles_members.slice(i, i + usersPerPage);
-			const pageContent = pageUsers.map((member) => {
-				if (member.user.bot) {
-					return member.toString() + "🤖 (BOT)"
-				}
-				return member.toString()
+		for (let i = 0; i < all_admin_roles.length; i += rolesPerPage) {
+			const pageRoles = all_admin_roles.slice(i, i + rolesPerPage);
+			const pageContent = pageRoles.map((role) => {
+				// Add a bot emoji for managed roles
+				return role.managed ? `${role} 🤖 (BOT)` : `${role}`;
 			}).join('\n');
 			pages.push({
-				title: lang.util_role_members,
+				title: lang.admin_roles_embed_title
+					.replace("${i / rolesPerPage + 1}", String(i / rolesPerPage + 1)),
 				description: pageContent,
 			});
 		};
 
-		const createEmbed = () => {
+		const createEmbed = async () => {
 			return new EmbedBuilder()
-				.setColor("#000000")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
 				.setTitle(pages[currentPage].title)
 				.setDescription(pages[currentPage].description)
 				.setFooter({
@@ -102,11 +92,16 @@ export const subCommand: SubCommand = {
 			new ButtonBuilder()
 				.setCustomId('nextPage')
 				.setLabel('>>>')
-				.setStyle(ButtonStyle.Secondary)
+				.setStyle(ButtonStyle.Secondary),
+			new ButtonBuilder()
+				.setCustomId("trash-button-embed")
+				.setLabel(lang.admin_roles_remove_button_label)
+				.setEmoji("🗑️")
+				.setStyle(ButtonStyle.Danger)
 		);
 
 		const messageEmbed = await client.func.method.interactionSend(interaction, {
-			embeds: [createEmbed()],
+			embeds: [await createEmbed()],
 			components: [row],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
@@ -131,9 +126,62 @@ export const subCommand: SubCommand = {
 				await interaction_2.deferUpdate();
 				currentPage = (currentPage + 1) % pages.length;
 
-			}
+			} else if (interaction_2.customId === 'trash-button-embed') {
 
-			messageEmbed.edit({ embeds: [createEmbed()] });
+				if (interaction_2.user.id === interaction_2.guild?.ownerId) {
+					let good = 0;
+					let bad = 0;
+
+					await interaction_2.deferUpdate();
+					messageEmbed.edit({
+						content: client.iHorizon_Emojis.Discord_Loading,
+						embeds: [],
+						files: [],
+						components: []
+					})
+
+					const to_remove_admin_roles = all_admin_roles;
+
+					for (const role of to_remove_admin_roles) {
+						try {
+							// Create new permissions without Administrator
+							const newPermissions = new PermissionsBitField(role.permissions);
+							newPermissions.remove(PermissionFlagsBits.Administrator);
+
+							await role.setPermissions(newPermissions, `[AdminRoles] removing admin permission from role`);
+							good++;
+						} catch (err) {
+							bad++;
+						}
+					}
+
+					const embed = new EmbedBuilder()
+						.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+						.setColor('#007fff')
+						.setTimestamp()
+						.setThumbnail(interaction.guild?.iconURL()!)
+						.setDescription(lang.admin_roles_remove_embed_desc
+							.replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
+							.replace("${good}", good.toString())
+							.replace("${bad}", bad.toString())
+						)
+
+					await messageEmbed.edit({
+						content: null,
+						embeds: [embed],
+						files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+					})
+
+					collector.stop();
+					return;
+
+				} else {
+					await interaction_2.reply({ content: lang.admin_roles_remove_not_owner });
+					collector.stop();
+				}
+			};
+
+			messageEmbed.edit({ embeds: [await createEmbed()] });
 		});
 
 		collector.on('end', async () => {

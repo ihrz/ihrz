@@ -22,19 +22,6 @@
 import { Assets } from "../../../types/assets.js";
 import config from "../../files/config.js";
 
-export enum ClusterMethod {
-	CreateContainer = 0,
-	DeleteContainer = 1,
-	StartupContainer = 2,
-	ShutdownContainer = 3,
-	PowerOnContainer = 4,
-	ChangeTokenContainer = 5,
-	ChangeOwnerContainer = 6,
-	ChangeExpireTime = 7,
-	StartupCluster = 8,
-	ShutDownCluster = 9
-};
-
 export enum GatewayMethod {
 	GenerateOauthLink = 0,
 	CreateAuthRestoreGuild = 1,

@@ -30,6 +30,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 
 import { SubCommand } from '../../../../types/command.js';
+import { profilTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -41,9 +42,7 @@ export const subCommand: SubCommand = {
 			var member = await client.func.method.user(interaction, args!, 0) || interaction.author;
 		};
 
-		const tableProfil = client.db.table('USER_PROFIL');
-
-		let description = await tableProfil.get(`${member.id}.desc`);
+		let description = await profilTable.get(`${member.id}.desc`);
 		if (!description) description = lang.profil_not_description_set;
 
 		let level = await client.db.get(`${interaction.guildId}.USER.${member.id}.XP_LEVELING.level`);
@@ -52,16 +51,16 @@ export const subCommand: SubCommand = {
 		let balance = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY.money`);
 		if (!balance) balance = 0;
 
-		let age = await tableProfil.get(`${member.id}.age`);
+		let age = await profilTable.get(`${member.id}.age`);
 		if (!age) age = lang.profil_unknown;
 
-		let gender = await tableProfil.get(`${member.id}.gender`);
+		let gender = await profilTable.get(`${member.id}.gender`);
 		if (!gender) gender = lang.profil_unknown;
 
-		let pronoun = await tableProfil.get(`${member.id}.pronoun`);
+		let pronoun = await profilTable.get(`${member.id}.pronoun`);
 		if (!pronoun) pronoun = lang.profil_unknown;
 
-		let birthday = await tableProfil.get(`${member.id}.birthday`);
+		let birthday = await profilTable.get(`${member.id}.birthday`);
 		if (!birthday) {
 			birthday = lang.profil_unknown;
 		} else {

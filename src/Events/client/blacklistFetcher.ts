@@ -22,15 +22,14 @@
 import { Client, GuildMember } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
+import { blacklistTable } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
 
 		try {
-			const table = client.db.table('BLACKLIST')
-
-			const data = await table.get(`${member.user.id}`);
+			const data = await blacklistTable.get(`${member.user.id}`);
 			if (data.blacklisted === true) {
 				member.send({ content: "You have been banned, because you are blacklisted from iHorizon. \nReason: \`" + data.reason + '\`' })
 					.catch(() => { })

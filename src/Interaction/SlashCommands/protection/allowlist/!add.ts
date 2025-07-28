@@ -37,8 +37,8 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		let baseData = (await client.db.get(`${interaction.guildId}.ALLOWLIST`) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
-		let member = interaction.options.getMember('member') as GuildMember;
+		const baseData = (await client.db.get(`${interaction.guildId}.ALLOWLIST`) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
+		const member = interaction.options.getMember('member') as GuildMember;
 
 		if (interaction.user.id !== interaction.guild.ownerId && !client.owners.includes(interaction.user.id)) {
 			await interaction.reply({ content: lang.allowlist_add_not_owner });

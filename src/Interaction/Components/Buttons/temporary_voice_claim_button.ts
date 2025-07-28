@@ -20,17 +20,17 @@
 */
 
 import { ButtonInteraction, EmbedBuilder, Guild, GuildMember } from 'discord.js';
+import { tempTable } from '../../../Events/client/ready.ts';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
 	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	const table = interaction.client.db.table('TEMP');
 
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 	const member = interaction.member as GuildMember;
 
 	const targetedChannel = (interaction.member as GuildMember).voice.channel;
-	const allChannel = await table.get(`CUSTOM_VOICE.${interaction.guildId}`);
+	const allChannel = await tempTable.get(`CUSTOM_VOICE.${interaction.guildId}`);
 
 	if (!result || !allChannel) return await interaction.deferUpdate();
 	if (result.channelId !== interaction.channelId) return await interaction.deferUpdate();
@@ -67,8 +67,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	} else {
 
 		// change ownership now
-		await table.delete(`CUSTOM_VOICE.${interaction.guildId}.${previousOwner?.user.id}`);
-		await table.set(`CUSTOM_VOICE.${interaction.guildId}.${interaction?.user?.id}`, targetedChannel?.id)
+		await tempTable.delete(`CUSTOM_VOICE.${interaction.guildId}.${previousOwner?.user.id}`);
+		await tempTable.set(`CUSTOM_VOICE.${interaction.guildId}.${interaction?.user?.id}`, targetedChannel?.id)
 
 		// change the voice channel name
 		targetedChannel?.setName(lang.temporary_voice_channel_name.replace("{nickname}", `${interaction.user.displayName || interaction.user.username}`));

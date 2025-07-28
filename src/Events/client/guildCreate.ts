@@ -25,6 +25,7 @@ import logger from "../../core/logger.js";
 
 import { BotEvent } from '../../../types/event.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
+import { blacklistTable } from './ready.js';
 
 export const event: BotEvent = {
 	name: "guildCreate",
@@ -75,8 +76,7 @@ export const event: BotEvent = {
 				.setTimestamp()
 				.setFooter(await guild.client.func.displayBotName.footerBuilder(guild.id))
 
-			const table = client.db.table('BLACKLIST')
-			const isBL = await table.get(`${guild.ownerId}.blacklisted`) || false;
+			const isBL = await blacklistTable.get(`${guild.ownerId}.blacklisted`) || false;
 
 			if (isBL) {
 				await (channelHr as GuildTextBasedChannel).send({
@@ -94,13 +94,10 @@ export const event: BotEvent = {
 			const lang = await client.func.getLanguageData(guild.id);
 			const welcomeMessage = lang.new_guild_embed_title || [];
 
-			const embed_header = new EmbedBuilder()
-				.setColor("#2134ffff")
-				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`);
-
 			const embed = new EmbedBuilder()
-				.setColor(2829617)
+				.setColor("#2134ff")
 				.setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" })
+				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`)
 				.setDescription(lang.new_guild_embed_desc.replace('${randomMessage}', welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]))
 
 			const buttons1 = new ActionRowBuilder<ButtonBuilder>()

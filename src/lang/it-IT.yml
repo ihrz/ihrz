@@ -16,7 +16,6 @@ var_roles: "Ruoli"
 var_names: "Nomi"
 var_text_channel: "Canale testo"
 var_voice_channel: "Canale voce"
-var_ownihrz: "OWNIHRZ"
 var_creator: "Creatore"
 var_doesnt_have_permissions: "Non sei autorizzato a fare questo. Hai bisogno del permesso {permission}."
 var_ihorizon: "iHorizon"
@@ -557,8 +556,6 @@ help_antispam_dsc: "> *Stanco dello spam? Ottimo! iHorizon è qui per moderare l
 help_antispam_fields: "AntiSpam"
 help_stats_fields: "Statistiche utente"
 help_stats_dsc: "> *Visualizza il numero di messaggi e l'attività vocale di un utente in una gilda*"
-help_ownihrz_dsc: "> *Ospita e gestisci il tuo bot personalizzato di iHorizon! (OWNIHRZ)*"
-help_ownihrz_fields: "OWNIHRZ"
 help_notifier_dsc: "> *Ricevi una notifica quando un Youtuber o Streamer pubblica un video!*"
 help_notifier_fields: "Notificatore"
 help_authrestore_fields: "AuthRestore"
@@ -657,6 +654,23 @@ fun_caracteres_select_menu_placeholder: "Scegli uno stile di carattere..."
 fun_caracteres_final_embed_title: "🎨 Testo trasformato - Stile: ${selectedStyle}"
 fun_caracteres_final_embed_field1_name: "📝 Testo originale"
 fun_caracteres_final_embed_field2_name: "✨ Testo trasformato"
+
+# /fun random dice
+fun_dice_embed_title: "🎲 Risultato del lancio dei dadi"
+fun_dice_var_rolled_dices: "**Dadi lanciati:**"
+fun_dice_var_results: "**Risultati:**"
+fun_dice_var_total: "**Totale:**"
+
+# /fun random heads-tails
+fun_coinflip_embed_title: "🪙 Testa o croce"
+fun_coinflip_result_text: "Il risultato è:"
+fun_coinflip_result_heads: "Testa"
+fun_coinflip_result_tails: "Croce"
+
+# /fun random number
+fun_random_embed_title: "🔢 Numero casuale"
+fun_random_result_text: "Il numero generato è:"
+fun_random_between: "tra"
 
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
@@ -943,11 +957,14 @@ all_bots_embed_title: "Elenco di tutti i bot | Pagina ${i / usersPerPage + 1}"
 utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Non puoi aggiungere un ruolo a un utente che ha un ruolo più alto del tuo..."
 utils_addrole_command_ok: "${author.toString()} ha aggiunto con successo il ruolo ${role?.toString()} a ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | Il ruolo che vuoi aggiungere all'utente non è nella whitelist. Un amministratore deve aggiungerlo prima! (usando `/utils wlroles`)"
+utils_addrole_cant_level: "L’utente non è admin e vuoi dargli un ruolo da admin? Ma sei serio? Vuoi far saltare il server?"
+utils_addrole_try2brain: "Il bot è troppo in basso nella gerarchia dei ruoli. Non posso assegnargli quel ruolo ridicolo."
 
 # /delrole
 utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} Non puoi rimuovere un ruolo a un utente che ha un ruolo più alto del tuo..."
 utils_delrole_command_ok: "${author.toString()} ha rimosso con successo il ruolo ${role?.toString()} da ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | Il ruolo che vuoi rimuovere dall'utente non è nella whitelist. Un amministratore deve aggiungerlo prima! (usando `/utils wlroles`)"
+utils_delrole_try2brain: "Il bot è troppo in basso nella gerarchia dei ruoli. Non posso rimuovere quel ruolo ridicolo."
 
 # /utils wlroles
 utils_wlroles_embed_title: "Ruoli nella Whitelist"
@@ -971,6 +988,8 @@ utils_piconly_modal1_fields1_label: "Tempo di Muto"
 utils_piconly_modal2_title: "SoloFoto - Configurazione Soglia"
 utils_piconly_modal2_fields1_placeholder: "la soglia prima del muto"
 utils_piconly_modal2_fields1_label: "Soglia"
+utils_piconly_embed_fields2_placeholder: "Crea un thread sotto l'immagine"
+utils_piconly_var_thread_name: "Thread di {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "Non hai il permesso di gestire le emoji."
@@ -2055,6 +2074,7 @@ pfps_channel_command_error: "${interaction.user}, il comando ha restituito un er
 authorization_actions_not_permited: "Solo il proprietario del server può modificare la regola di autorizzazione del modulo di protezione!"
 authorization_actions_everyone: "Tutti"
 authorization_actions_allowlist: "Membro(i) della lista bianca"
+authorization_actions_nobody: "Nessuno. (Tranne il proprietario del server)"
 authorization_actions_rule_set: "${interaction.user}, la regola per `${rule.toUpperCase()}` è stata impostata. **${allow}** possono superarla!"
 authorization_actions_rule_clear: "${interaction.user}, tutte le regole per `${interaction.guild.name}` sono state cancellate. Il modulo di protezione è ora disabilitato!"
 
@@ -2134,46 +2154,6 @@ tag_use_command_work: "Il tag `${tag_name}` è stato inviato."
 
 # /tag edit
 tag_edit_error_perm: "Per modificare il tag, devi avere i permessi di amministratore o essere il proprietario del tag."
-
-# Modulo OWNIHRZ
-# /mybot invia, ... elenco, /mybot gestisci accetta, ... rifiuta, ... istanza
-
-# /mybot invia
-mybot_submit_token_invalid: "Il token inserito non è valido. Non possiamo procedere."
-mybot_submit_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nome utente del Bot__ `${bot_1.bot.username}`\n__Bot Pubblico__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_submit_utils_msg_yes: "Sì"
-mybot_submit_utils_msg_no: "No"
-mybot_submit_embed_title: "Ospita il tuo iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_submit_embed_desc: "La tua richiesta è stata registrata con successo, il tuo identificatore unico è: **${code}**\nNon condividerlo con nessuno!\n**Unisciti al server di supporto** [Clicca qui](https://discord.gg/ihorizon), quindi apri un ticket per continuare l'acquisto.\n\n${utils_msg}"
-
-# /mybot elenco
-mybot_list_embed0_title: "Elenco di tutti i tuoi bot"
-mybot_list_utils_msg: "__ID del Bot__ `${data_2[i].bot.id}`\n__Nome utente del Bot__ `${data_2[i].bot.username}`\n__Bot Pubblico__ `${data_2[i].bot_public ? 'Yes' : 'No'}`"
-mybot_list_utils_msg_yes: "Sì"
-mybot_list_utils_msg_no: "No"
-mybot_list_embed1_title: "Il tuo iHorizon personale: ${data_2[i].bot.username}"
-mybot_list_embed1_desc: "Il codice del tuo bot: ||**${data_2[i].code}**|| ${client.iHorizon_Emojis.Warning_Icon} **Non condividerlo con nessuno** !\n**Scade in**: `${expire}`\n**Unisciti al server di supporto** [Clicca qui](https://discord.gg/ihorizon), se hai problemi con il tuo bot.\n\n${utils_msg}"
-
-# /mybot gestisci accetta
-mybot_manage_accept_not_found: "Il bot nel database non può essere trovato. Non possiamo procedere."
-mybot_manage_accept_token_error: "Il token nel database non è valido. Non possiamo procedere."
-mybot_manage_accept_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nome utente del Bot__ `${bot_1.bot.username}`\n__Bot Pubblico__ `${bot_1.bot_public ? 'Yes' : 'No'}`"
-mybot_manage_accept_utiis_yes: "Sì"
-mybot_manage_accept_utils_no: "No"
-mybot_manage_accept_embed_title: "Ospita il tuo iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_manage_accept_embed_desc: "Il bot è stato accettato\n\n${utils_msg}"
-
-# /mybot change-owner
-mybot_change_owner: "Gli OWNIHRZ hanno ora un nuovo proprietario: <@${OwnerOne}>, <@${OwnerTwo}>"
-
-# /mybot istanza rifiuta
-mybot_instance_deny_not_foud: "Il bot nel database non può essere trovato. Non possiamo procedere."
-mybot_instance_deny_token_error: "Il token nel database non è valido. Non possiamo procedere."
-mybot_instance_deny_utils_msg: "__ID del Bot__ `${bot_1.bot.id}`\n__Nome utente del Bot__ `${bot_1.bot.username}`\n__Bot Pubblico__ `${bot_1.bot_public ? 'Sì' : 'No'}`"
-mybot_instance_deny_utils_msg_yes: "Sì"
-mybot_instance_deny_utils_msg_no: "No"
-mybot_instance_deny_embed_title: "Ospita il tuo iHorizon: ${bot_1.bot.username}#${bot_1.bot.discriminator}"
-mybot_instance_deny_embed_desc: "Il bot è stato rifiutato\n\n${utils_msg}"
 
 # Modulo TempVoice
 # /testo, /voce, /stato, /personale
@@ -2553,6 +2533,10 @@ temporary_voice_channel_name: "Canale di {nickname}"
 # Messaggio di evento
 
 protection_avoid_channel_delete: "**MODALITÀ PROTEZIONE ATTIVA**\n<@${channel.guild.ownerId}>, il canale è stato ricreato, <@${firstEntry.executorId}> ha tentato di eliminare il canale!"
+protection_blockbot_embed_title: "⚠️ Pericolo in ${member.guild.name} ⚠️"
+protection_blockbot_embed_desc: "# Avviso Aggiunta Bot\nQualcuno ha cercato di aggiungere un bot Discord."
+var_target_bot: "Bot di destinazione"
+var_not_detected: "Non rilevato"
 
 # Modulo AntiSpam
 # Evento messaggio

@@ -25,6 +25,7 @@ import { Command } from '../../../types/command.js';
 import { BotEvent } from '../../../types/event.js';
 import { Option } from '../../../types/option.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
+import { blacklistTable } from '../client/ready.js';
 
 type MessageCommandResponse = {
 	success: boolean,
@@ -168,7 +169,7 @@ export const event: BotEvent = {
 			return;
 		}
 
-		if (await client.db.table('BLACKLIST').get(`${message.author.id}.blacklisted`)) {
+		if (await blacklistTable.get(`${message.author.id}.blacklisted`)) {
 			return;
 		}
 

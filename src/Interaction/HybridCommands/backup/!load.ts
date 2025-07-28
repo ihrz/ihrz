@@ -87,8 +87,7 @@ export const subCommand: SubCommand = {
 		});
 
 		backup.fetch(backupID).then(async () => {
-			// @ts-ignore
-			backup.load(backupID, interaction.guild).then(() => false).catch((err) => {
+			backup.load(backupID, interaction.guild!).then(() => false).catch((err) => {
 				client.func.method.channelSend(interaction, { content: lang.backup_error_on_load.replace("${backupID}", backupID) });
 				return;
 			});

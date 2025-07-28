@@ -191,7 +191,7 @@ export async function sendErrorMessage(
 	interaction: ChatInputCommandInteraction<"cached"> | Message,
 	lang: LanguageData,
 	permissionData: command
-) {
+): Promise<Message<boolean>> {
 	let neededPerm: string = "";
 
 	if (permissionData) {
@@ -415,16 +415,21 @@ export const PERMISSION_MAPPING = {
 	}
 } as const;
 
-export function getPermissionByValue(value: bigint | bigint[]) {
+export type PermissionMapping = typeof PERMISSION_MAPPING;
+export type PermissionValue = PermissionMapping[keyof PermissionMapping];
+
+export function getPermissionByValue(value: bigint | bigint[]): PermissionValue | PermissionValue[] | null {
 	// If value is an array, we need to handle each permission separately
 	if (Array.isArray(value)) {
 		// For arrays, return an array of permission objects
-		const permissions = value.map(singleValue => {
-			const key = Object.keys(PERMISSION_MAPPING).find(
-				k => PERMISSION_MAPPING[k as keyof typeof PERMISSION_MAPPING].value === singleValue
-			);
-			return key ? PERMISSION_MAPPING[key as keyof typeof PERMISSION_MAPPING] : null;
-		}).filter(Boolean); // Filter out nulls
+		const permissions = value
+			.map(singleValue => {
+				const key = Object.keys(PERMISSION_MAPPING).find(
+					k => PERMISSION_MAPPING[k as keyof typeof PERMISSION_MAPPING].value === singleValue
+				) as keyof typeof PERMISSION_MAPPING | undefined;
+				return key ? PERMISSION_MAPPING[key] : null;
+			})
+			.filter((perm): perm is PermissionValue => perm !== null); // Type guard to filter out nulls
 
 		return permissions.length > 0 ? permissions : null;
 	}
@@ -432,6 +437,7 @@ export function getPermissionByValue(value: bigint | bigint[]) {
 	// Original behavior for single bigint
 	const key = Object.keys(PERMISSION_MAPPING).find(
 		k => PERMISSION_MAPPING[k as keyof typeof PERMISSION_MAPPING].value === value
-	);
-	return key ? PERMISSION_MAPPING[key as keyof typeof PERMISSION_MAPPING] : null;
-};
+	) as keyof typeof PERMISSION_MAPPING | undefined;
+
+	return key ? PERMISSION_MAPPING[key] : null;
+}

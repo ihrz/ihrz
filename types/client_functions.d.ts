@@ -21,7 +21,7 @@
 
 import type { DatabaseStructure } from './database_structure.d.ts';
 import type { LanguageData } from './languageData.d.ts';
-import type { ClusterMethod, GatewayMethod } from '../src/core/functions/apiUrlParser.js';
+import type { GatewayMethod } from '../src/core/functions/apiUrlParser.js';
 import { ModalOptionsBuilder } from '../src/core/functions/modalHelper.js';
 import { AnySelectMenuInteraction, APIModalInteractionResponseCallbackData, AutocompleteInteraction, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, CacheType, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, MessageContextMenuCommandInteraction, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, PrimaryEntryPointCommandInteraction, Role, StringSelectMenuInteraction, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
 import { Assets } from './assets.js';
@@ -29,29 +29,16 @@ import { LangForPrompt } from '../src/core/functions/awaitingResponse.js';
 import { Command } from './command.js';
 import { Option } from './option.js';
 import { PasswordOptions } from '../src/core/functions/random.ts';
-import { command } from '../src/core/functions/permissonsCalculator.ts';
+import { command, PermissionValue } from '../src/core/functions/permissonsCalculator.ts';
 import { DetailedGuildData, GuildData } from '../src/core/functions/shard_helper.ts';
 import { BatchProcessorOptions, BatchProcessorResult } from '../src/core/functions/batchProcessor.ts';
-import { PallasDB } from 'pallas-db';
+import { Sqlite } from '../src/core/database/driver/sqlite.ts';
+import { Json } from '../src/core/database/driver/json.ts';
+import { Memory } from '../src/core/database/driver/memory.ts';
+import { Postgres } from '../src/core/database/driver/postgres.ts';
+import { Horizon } from '../src/core/database/driver/horizon.ts';
 
 declare namespace Client_Functions {
-
-	// From colors.ts
-	export namespace colors {
-	}
-
-	// From axios.ts
-	export namespace axios {
-	}
-
-	// From encryptDecryptMethod.ts
-	export namespace encryptDecryptMethod {
-		export function encrypt(k: string, text: string): string;
-		export function decrypt(k: string, text: string): string | undefined;
-	}
-
-	// From getToken.ts
-	export function getToken(): Promise<string | undefined>;
 
 	// From date_and_time.ts
 	export function date_and_time(date: number | Date, formatString: string): string;
@@ -101,7 +88,7 @@ declare namespace Client_Functions {
 	export function awaitingResponse(
 		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
 		opt: LangForPrompt
-	): any;
+	): Promise<boolean>;
 
 	// From permissonsCalculator.ts
 	export namespace permissonsCalculator {
@@ -114,8 +101,8 @@ declare namespace Client_Functions {
 			interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
 			lang: LanguageData,
 			permissionData: { users: string[]; roles: string[]; level: number; }
-		): any;
-		export function getPermissionByValue(value: bigint | Array<bigint>): any;
+		): Promise<Message<boolean>>;
+		export function getPermissionByValue(value: bigint | Array<bigint>): PermissionValue | Array<PermissionValue> | null;
 	}
 
 	// From shard_helper.ts
@@ -137,6 +124,65 @@ declare namespace Client_Functions {
 			options: BatchProcessorOptions,
 			onComplete?: (result: BatchProcessorResult) => void
 		): void;
+	}
+
+	// From method.ts
+	export namespace method {
+		export function isNumber(str: string): boolean;
+		export function user(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<User | null>;
+		export function member(interaction: Message<boolean>, args: Array<string>, argsNumber: number): GuildMember | null;
+		export function voiceChannel(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<BaseGuildVoiceChannel | null>;
+		export function channel(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<Channel | null>;
+		export function role(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Role | null;
+		export function string(args: Array<string>, argsNumber: number): string | null;
+		export function longString(args: Array<string>, argsNumber: number): string | null;
+		export function number(args: Array<string>, argsNumber: number): number;
+		export function getArgumentOptionNameWithOptions(o: Option): string;
+		export function stringifyOption(option: Array<Option>): string;
+		export function boldStringifyOption(option: Array<Option>): string;
+		export function createAwesomeEmbed(
+			lang: LanguageData,
+			command: Command,
+			client: Client<boolean>,
+			interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>
+		): Promise<EmbedBuilder>;
+		export function checkCommandArgs(
+			message: Message<boolean>,
+			command: Command,
+			args: Array<string>,
+			lang: LanguageData
+		): Promise<boolean>;
+		export function interactionSend(
+			interaction: ChatInputCommandInteraction<CacheType> | ChatInputCommandInteraction<"cached"> | Message<boolean>,
+			options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
+		): Promise<Message<boolean>>;
+		export function channelSend(
+			interaction: string | ChatInputCommandInteraction<"cached"> | Message<boolean> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel,
+			options: string | MessageReplyOptions | MessageEditOptions
+		): Promise<Message<boolean>>;
+		export function reply(message: Message<boolean>, options: string | MessageReplyOptions): Promise<Message<boolean>>;
+		export function hasSubCommand(options: Array<Option> | undefined): boolean;
+		export function hasSubCommandGroup(options: Array<Option> | undefined): boolean;
+		export function isSubCommand(option: Option | Command): boolean;
+		export function punish(
+			data: DatabaseStructure.ProtectionData,
+			user: GuildMember | undefined,
+			reason?: string
+		): Promise<void>;
+		export function generateCustomMessagePreview(
+			message: string,
+			input: { guild: Guild; user: User; guildLocal: string; inviter?: { user: { username: string; mention: string; }; invitesAmount: number; }; ranks?: { level: number; }; notifier?: { artistAuthor: string; artistLink: string; mediaURL: string; }; }
+		): string;
+		export function findOptionRecursively(options: Array<Option>, subcommandName: string): Option | undefined;
+		export function buttonReact(msg: Message<boolean>, button: ButtonBuilder): Promise<Message<boolean>>;
+		export function buttonUnreact(msg: Message<boolean>, buttonEmoji: string): Promise<Message<boolean>>;
+		export function isAnimated(attachmentUrl: string): boolean;
+		export function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string>;
+		export function getDangerousPermissions(lang: LanguageData): Array<{ flag: bigint; name: string; }>;
+		export function addCoins(member: GuildMember, coins: number): Promise<void>;
+		export function subCoins(member: GuildMember, coins: number): Promise<void>;
+		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
+		export function isValidDiscordInvite(input: string): boolean;
 	}
 
 	// From wait.ts
@@ -189,76 +235,27 @@ declare namespace Client_Functions {
 		export function getChannelMinutesCount(channelId: string, voices: Array<DatabaseStructure.StatsVoice>): number;
 		export function getStatsLeaderboard(
 			data: Array<{ member: User | undefined; dailyMessages: number; weeklyMessages: number; monthlyMessages: number; dailyVoiceActivity: number; weeklyVoiceActivity: number; monthlyVoiceActivity: number; }>
-		): any;
-	}
-
-	// From method.ts
-	export namespace method {
-		export function isNumber(str: string): boolean;
-		export function user(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<User | null>;
-		export function member(interaction: Message<boolean>, args: Array<string>, argsNumber: number): GuildMember | null;
-		export function voiceChannel(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<BaseGuildVoiceChannel | null>;
-		export function channel(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<Channel | null>;
-		export function role(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Role | null;
-		export function string(args: Array<string>, argsNumber: number): string | null;
-		export function longString(args: Array<string>, argsNumber: number): string | null;
-		export function number(args: Array<string>, argsNumber: number): number;
-		export function getArgumentOptionNameWithOptions(o: Option): string;
-		export function stringifyOption(option: Array<Option>): string;
-		export function boldStringifyOption(option: Array<Option>): string;
-		export function createAwesomeEmbed(
-			lang: LanguageData,
-			command: Command,
-			client: Client<boolean>,
-			interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>
-		): Promise<EmbedBuilder>;
-		export function checkCommandArgs(
-			message: Message<boolean>,
-			command: Command,
-			args: Array<string>,
-			lang: LanguageData
-		): Promise<boolean>;
-		export function interactionSend(
-			interaction: ChatInputCommandInteraction<CacheType> | ChatInputCommandInteraction<"cached"> | Message<boolean>,
-			options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
-		): Promise<Message<boolean>>;
-		export function channelSend(
-			interaction: ChatInputCommandInteraction<"cached"> | Message<boolean> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel,
-			options: string | MessageReplyOptions | MessageEditOptions
-		): Promise<Message<boolean>>;
-		export function reply(message: Message<boolean>, options: string | MessageReplyOptions): Promise<Message<boolean>>;
-		export function hasSubCommand(options: Array<Option> | undefined): boolean;
-		export function hasSubCommandGroup(options: Array<Option> | undefined): boolean;
-		export function isSubCommand(option: Option | Command): boolean;
-		export function punish(data: any, user: GuildMember | undefined, reason?: string): any;
-		export function generateCustomMessagePreview(
-			message: string,
-			input: { guild: Guild; user: User; guildLocal: string; inviter?: { user: { username: string; mention: string; }; invitesAmount: number; }; ranks?: { level: number; }; notifier?: { artistAuthor: string; artistLink: string; mediaURL: string; }; }
-		): string;
-		export function findOptionRecursively(options: Array<Option>, subcommandName: string): Option | undefined;
-		export function buttonReact(msg: Message<boolean>, button: ButtonBuilder): Promise<Message<boolean>>;
-		export function buttonUnreact(msg: Message<boolean>, buttonEmoji: string): Promise<Message<boolean>>;
-		export function isAnimated(attachmentUrl: string): boolean;
-		export function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string>;
-		export function getDangerousPermissions(lang: LanguageData): Array<{ flag: bigint; name: string; }>;
-		export function addCoins(member: GuildMember, coins: number): Promise<void>;
-		export function subCoins(member: GuildMember, coins: number): Promise<void>;
-		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
-		export function isValidDiscordInvite(input: string): boolean;
+		): Array<{ member: User | undefined; dailyMessages: number; weeklyMessages: number; monthlyMessages: number; dailyVoiceActivity: number; weeklyVoiceActivity: number; monthlyVoiceActivity: number; }>;
 	}
 
 	// From leashModuleHelper.ts
 	export namespace leashModuleHelper {
-		export function isInVoiceChannel(member: GuildMember): any;
+		export function isInVoiceChannel(member: GuildMember): boolean;
 		export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
+	}
+
+	// From encryptDecryptMethod.ts
+	export namespace encryptDecryptMethod {
+		export function encrypt(k: string, text: string): string;
+		export function decrypt(k: string, text: string): string | undefined;
 	}
 
 	// From displayBotName.ts
 	export namespace displayBotName {
-		export function footerBuilder(guildId: string): any;
+		export function footerBuilder(guildId: string): Promise<{ text: string; iconURL: string; }>;
 		export function footerAttachmentBuilder(
 			entry?: Interaction | ChatInputCommandInteraction<"cached"> | Message<boolean> | GuildMember | Guild
-		): any;
+		): Promise<{ attachment: string | Buffer<ArrayBuffer>; name: string; }>;
 		export function displayBotPP(guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
 	}
 
@@ -270,15 +267,19 @@ declare namespace Client_Functions {
 
 	// From helper.ts
 	export namespace helper {
-		export function coolDown(message: Message<boolean>, method: string, ms: number): any;
-		export function hardCooldown(database: PallasDB, method: string, ms: number): any;
+		export function coolDown(message: Message<boolean>, method: string, ms: number): Promise<boolean>;
+		export function hardCooldown(
+			database: Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon,
+			method: string,
+			ms: number
+		): Promise<boolean>;
 	}
 
 	// From ihorizon_logs.ts
 	export function ihorizon_logs(
 		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
 		embed: { title: string; description: string; }
-	): any;
+	): Promise<void>;
 
 	// From image64.ts
 	export namespace image64 {

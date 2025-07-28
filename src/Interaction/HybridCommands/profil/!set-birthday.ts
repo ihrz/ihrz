@@ -36,12 +36,12 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 import { SubCommand } from '../../../../types/command.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
+import { profilTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
-		const tableProfil = client.db.table('USER_PROFIL');
-		const birthday = await tableProfil.get(`${interaction.member?.user.id}.birthday`) || {
+		const birthday = await profilTable.get(`${interaction.member?.user.id}.birthday`) || {
 			day: null,
 			month: null,
 			year: null
@@ -198,7 +198,7 @@ export const subCommand: SubCommand = {
 			};
 
 			// set the year
-			await tableProfil.set(`${buttonInteraction.user.id}.birthday.year`, year);
+			await profilTable.set(`${buttonInteraction.user.id}.birthday.year`, year);
 			birthday.year = year;
 
 			// send a confirmation message
@@ -251,7 +251,7 @@ export const subCommand: SubCommand = {
 			};
 
 			// set the month
-			await tableProfil.set(`${buttonInteraction.user.id}.birthday.month`, month);
+			await profilTable.set(`${buttonInteraction.user.id}.birthday.month`, month);
 			birthday.month = month;
 
 			// send a confirmation message
@@ -303,7 +303,7 @@ export const subCommand: SubCommand = {
 			};
 
 			// set the day
-			await tableProfil.set(`${buttonInteraction.user.id}.birthday.day`, day);
+			await profilTable.set(`${buttonInteraction.user.id}.birthday.day`, day);
 			birthday.day = day;
 
 			// send a confirmation message

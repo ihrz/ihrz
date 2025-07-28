@@ -27,17 +27,42 @@ import status from "../../files/status.json" with { "type": "json" }
 import logger from "../../core/logger.js";
 
 import { BotEvent } from '../../../types/event.js';
-import { GiveawayManager } from '../../core/modules/giveawaysManager.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { recoverActiveSessions } from '../stats/onVoiceUpdate.js';
-import { getCacheStorage } from '../../core/core.js';
-import { cache_storage_update } from '../../core/cache.js';
 import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
+import { isNumber } from '../../core/functions/method.js';
+import { DB } from '../../core/database/types.js';
+
+// @ts-ignore
+export let tempTable: DB = null;
+// @ts-ignore
+export let blacklistTable: DB = null;
+// @ts-ignore
+export let ownerTable: DB = null;
+// @ts-ignore
+export let profilTable: DB = null;
+// @ts-ignore
+export let authRestoreTable: DB = null;
+// @ts-ignore
+export let prevnamesTable: DB = null;
+// @ts-ignore
+export let apiTable: DB = null;
+// @ts-ignore
+export let scheduleTable: DB = null;
 
 export const event: BotEvent = {
 	name: "ready",
 	run: async (client: Client) => {
+		tempTable = await client.db.table("TEMP");
+		blacklistTable = await client.db.table("BLACKLIST");
+		ownerTable = await client.db.table("OWNER");
+		profilTable = await client.db.table("USER_PROFIL");
+		authRestoreTable = await client.db.table("AUTHRESTORE");
+		prevnamesTable = await client.db.table("PREVNAMES");
+		apiTable = await client.db.table("API");
+		scheduleTable = await client.db.table("SCHEDULE");
+
 		await client.emojisManager.startSync();
 
 		async function fetchInvites() {
@@ -60,19 +85,17 @@ export const event: BotEvent = {
 		};
 
 		async function refreshDatabaseModel() {
-			// await client.db.table(`TEMP`).deleteAll();
-			const table = client.db.table('OWNER');
-
-			const owners = [...new Set([...client.owners, ...(await table.all()).map(x => x.id)])];
+			// await tempTable.deleteAll();
+			const owners = [...new Set([...client.owners, ...(await ownerTable.all()).map(x => x.id)])];
 
 			owners.forEach(async ownerId => {
 				try {
 					const user = await client.users?.fetch(ownerId);
 					if (user) {
-						await table.set(user.id, { owner: true });
+						await ownerTable.set(user.id, { owner: true });
 					}
 				} catch {
-					await table.delete(ownerId);
+					await ownerTable.delete(ownerId);
 				}
 			});
 		};
@@ -97,8 +120,7 @@ export const event: BotEvent = {
 		};
 
 		async function refreshSchedule() {
-			const table = client.db.table("SCHEDULE");
-			const listAll = await table.all();
+			const listAll = await scheduleTable.all();
 
 			const dateNow = Date.now();
 			let desc: string = '';
@@ -127,7 +149,7 @@ export const event: BotEvent = {
 							files: [await client.func.displayBotName.footerAttachmentBuilder()]
 						}).catch(() => { });
 
-						await table.delete(`${array.id}.${ScheduleId}`);
+						await scheduleTable.delete(`${array.id}.${ScheduleId}`);
 					};
 
 				}
@@ -138,7 +160,10 @@ export const event: BotEvent = {
 			const currentTime = Date.now();
 			const fourteenDaysInMillis = 30 * 24 * 60 * 60 * 1000;
 
-			(await client.db.all()).forEach(async (index, value) => {
+			((await client.db.all())
+				.filter(x => isNumber(x.id))
+				.filter(x => client.inShard(x.id))
+			).forEach(async (index, value) => {
 				const guild = index.value as DatabaseStructure.DbInId;
 				const stats = guild.STATS?.USER;
 
@@ -162,19 +187,6 @@ export const event: BotEvent = {
 			});
 		}
 
-		client.giveawaysManager = new GiveawayManager(client, {
-			storage: `${process.cwd()}/src/files/giveaways/`,
-			config: {
-				botsCanWin: false,
-				embedColor: '#9a5af2',
-				embedColorEnd: '#2f3136',
-				reaction: '🎉',
-				botName: client.user?.username!,
-				forceUpdateEvery: 3600,
-				endedGiveawaysLifetime: 345_600_000,
-			},
-		});
-
 		client.emojisManager.startSync();
 
 		setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);
@@ -187,117 +199,6 @@ export const event: BotEvent = {
 		await recoverCustomVoiceChannels(client);
 		await client.memberCountManager.init();
 		await client.autoRenewManager.init();
-		let initData = getCacheStorage();
-
-		const oldV = initData?._cache.version;
-		const newV = client.version.version;
-
-		let ANNONCE_IMPORTANTE =
-			`# lis moi IMPORTANTE
-Votre bot ${client.user?.toString()} seras supprimer dans <t:1753653600:R>.
-
-# iHorizon abbandone l'hébergement de bot custom.
-
-Liser donc ceci:
-https://discord.com/channels/972538524790304788/1394398246012453065
-https://discord.gg/ihorizon
-(Prenez le rôle Français dans la catégorie vérification)
-
-
-	`
-		if (oldV !== newV) {
-			const sendingContent = {
-				content: ANNONCE_IMPORTANTE + "@everyone **New update available !**",
-				embeds: [
-					new EmbedBuilder()
-						.setTimestamp()
-						.setURL(`https://gitlab.com/ihrz/ihrz/compare/${oldV}...${newV}`)
-						.setTitle(`Click me to see the changelog [${oldV} -> ${newV}]`)
-				]
-			};
-
-			if (client.version.env !== "dev" && client.version.env !== "production") {
-				Array.from(new Set([client.config.owner.ownerid1, client.config.owner.ownerid2])).forEach(async usr => {
-					let user = await client.users.fetch(usr);
-					sendingContent.content = "**Your ownihrz have successfully upgraded to the new version !**"
-					user.send(sendingContent).catch(() => false);
-				});
-			} else {
-				const channel_to_send = client.channels.cache.get(initData?._cache.updateChannelId || "00") as BaseGuildTextChannel | undefined;
-				channel_to_send?.send(sendingContent).catch(() => false);
-			}
-
-			initData._cache.version = newV;
-			cache_storage_update();
-
-		}
-
-		// if (client.version.env === "production") {
-		// 	try {
-		// 		// Global counters
-		// 		let totalGuilds = 0;
-		// 		let totalRoles = 0;
-		// 		let totalChannels = 0;
-		// 		let totalMembers = 0;
-		// 		const totalUniqueUsers = new Set();
-
-		// 		// Fetch all guilds
-		// 		const guilds = (await client.guilds.fetch()).filter(x => client.inShard(x.id));
-
-		// 		logger.legacy('\n=== Starting Cache Loading Process ===\n');
-
-		// 		for (const [guildId, guild] of guilds) {
-		// 			totalGuilds++;
-		// 			logger.legacy(`📋 Processing Guild: ${guild.name} (${guild.id})`);
-
-		// 			// Load complete guild
-		// 			const fullGuild = await guild.fetch();
-
-		// 			// Load roles
-		// 			const roles = await fullGuild.roles.fetch();
-		// 			totalRoles += roles.size;
-		// 			logger.legacy(`   ┣━ Roles Loaded: ${roles.size}`);
-
-		// 			// Load channels
-		// 			const channels = await fullGuild.channels.fetch();
-		// 			totalChannels += channels.size;
-		// 			logger.legacy(`   ┣━ Channels Loaded: ${channels.size}`);
-
-		// 			// Load members with chunking
-		// 			try {
-		// 				// Request guild members chunking
-		// 				await fullGuild.members.fetch()
-		// 					.then(members => {
-		// 						totalMembers += members.size;
-		// 						members.forEach(member => totalUniqueUsers.add(member.user.id));
-		// 						logger.legacy(`   ┗━ Members Loaded: ${members.size}`);
-		// 					})
-		// 					.catch(error => {
-		// 						if (error.code === 'GuildMembersTimeout') {
-		// 							logger.legacy(`   ┗━ ⚠️ Partial Members Load: Timeout occurred for ${fullGuild.name}`);
-		// 						} else {
-		// 							throw error;
-		// 						}
-		// 					});
-		// 			} catch (memberError) {
-		// 				console.error(`   ┗━ ❌ Error loading members for ${fullGuild.name}:`, memberError);
-		// 			}
-		// 			logger.legacy(''); // Empty line for readability
-		// 		}
-
-		// 		// Print global statistics
-		// 		logger.legacy('=== Global Cache Statistics ===');
-		// 		logger.legacy(`📊 Total Guilds: ${totalGuilds}`);
-		// 		logger.legacy(`👥 Total Unique Users: ${totalUniqueUsers.size}`);
-		// 		logger.legacy(`👤 Total Members (including duplicates): ${totalMembers}`);
-		// 		logger.legacy(`📜 Total Roles: ${totalRoles}`);
-		// 		logger.legacy(`📝 Total Channels: ${totalChannels}`);
-		// 		logger.legacy('\n=== Cache Loading Complete ===');
-
-		// 	} catch (error) {
-		// 		console.error('❌ Error while loading caches:', error);
-		// 	}
-		// }
 
 		logger.log(`${client.config.console.emojis.HOST} >> Bot is ready`.white);
 	},

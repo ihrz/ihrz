@@ -89,11 +89,9 @@ export interface ConfigData {
 
 	database?: {
 		method:
-		'JSON' | // JSON with Quick.DB
-		'SQLITE' | // Sqlite for BunDB
-		"POSTGRES2" | // PallasDB for postgres
-		"CACHED_POSTGRES2" | // Quick.DB Memory Cached with PallasDB postgres 
-		"POSTGRES_REDIS"
+		'json' | 'sqlite'
+		| 'memory' | 'postgresql'
+		| 'horizon' | 'cached_postgres'
 
 		mongoDb?: string;
 
@@ -112,6 +110,13 @@ export interface ConfigData {
 			password?: string;
 			db?: number;
 		};
+
+		horizon_db?: {
+			host: string;
+			port: number;
+			login: string;
+			password: string;
+		}
 	};
 
 }

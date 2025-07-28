@@ -42,7 +42,7 @@ import { AutoRenew } from "../src/core/modules/autorenewManager.js";
 import { EmojisManager } from "../src/core/modules/emojisManager.ts";
 import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
 import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
-import { PallasDB } from "pallas-db";
+import { DB } from "../src/core/database/types.ts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -55,7 +55,7 @@ declare module 'discord.js' {
 		vanityInvites: Collection<Snowflake, VanityInviteData>,
 		buttons: Collection<string, Function>,
 		selectmenu: Collection<string, Function>,
-		db: PallasDB,
+		db: DB,
 		applicationsCommands: Collection<string, AnotherCommand>,
 		iHorizon_Emojis: typeof emojis,
 		giveawaysManager: GiveawayManager,
@@ -66,7 +66,6 @@ declare module 'discord.js' {
 		config: ConfigData,
 		isModuled?: boolean,
 		owners: string[],
-		kdenlive: KdenLive,
 		htmlfiles: Record<string, string>,
 		memberCountManager: MemberCountModule,
 		autoRenewManager: AutoRenew,
