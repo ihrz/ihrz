@@ -41,172 +41,618 @@ export const command: Command = {
 
 	options: [
 		{
-			name: "caracteres",
+			name: "animals",
 			name_localizations: {
-				fr: "caractères",
+				"fr": "animaux"
 			},
 
-			description: "Transform a string into a DarkSasuke!",
+			description: "Fun commands related to animals",
 			description_localizations: {
-				fr: "Transformez une chaîne de caractères en DarkSasuke",
+				"fr": "commande liée au animaux"
 			},
 
-			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: "nickname",
-					type: ApplicationCommandOptionType.String,
-
-					description: "your cool nickname to transform !",
-					description_localizations: {
-						fr: "ton surnom cool à transformer",
+					name: "cat",
+					name_localizations: {
+						fr: "chat",
 					},
 
-					required: true,
+					description: "Get a picture of cat!",
+					description_localizations: {
+						fr: "Obtenez une photo du chat",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
+				{
+					name: "dog",
+					name_localizations: {
+						fr: "chien",
+					},
+
+					description: "Get a picture of dog!",
+					description_localizations: {
+						fr: "Obtenez une photo du chien",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
+				{
+					name: "duck",
+					name_localizations: {
+						fr: "cannard",
+					},
+
+					description: "Get a picture of duck!",
+					description_localizations: {
+						fr: "Obtenez une photo de cannard",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
+			],
+			type: ApplicationCommandOptionType.SubcommandGroup,
+			permission: null
+		},
+		{
+			name: "image",
+
+			description: "Fun commands related about image",
+			description_localizations: {
+				"fr": "Commande lié à des manipulation d'image"
+			},
+
+			options: [
+				{
+					name: "catsay",
+					name_localizations: {
+						fr: "le-chat-à-dis",
+					},
+
+					description: "Cat say (insert text here)",
+					description_localizations: {
+						fr: "le chat à dit (insérer le texte ici)",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "text",
+
+							description: "The cat say...",
+							description_localizations: {
+								fr: "Le chat dit...",
+							},
+
+							required: true,
+							type: ApplicationCommandOptionType.String,
+
+							permission: null,
+						},
+					],
+
+					permission: null,
+				},
+				{
+					name: "togif",
+
+					description: "Transform image to gif",
+					description_localizations: {
+						fr: "Transformer une image vers un gif",
+					},
+
+					options: [
+						{
+							name: "image",
+
+							description: "image file",
+							description_localizations: {
+								fr: "fichier image"
+							},
+
+							permission: null,
+							type: ApplicationCommandOptionType.Attachment,
+							required: true
+						}
+					],
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
+				{
+					name: "captions",
+
+					description: "Add text on top of your own image",
+					description_localizations: {
+						fr: "ajouter du texte au dessus de votre image",
+					},
+
+					options: [
+						{
+							name: "image",
+
+							description: "image file",
+							description_localizations: {
+								fr: "fichier image"
+							},
+
+							permission: null,
+							type: ApplicationCommandOptionType.Attachment,
+							required: true
+						},
+						{
+							name: "query",
+
+							description: "your captions",
+							description_localizations: {
+								fr: "votre texte"
+							},
+
+							permission: null,
+							type: ApplicationCommandOptionType.String,
+							required: true
+						}
+					],
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
+				{
+					name: "bubbles",
+
+					description: "Add bubble on top of your own image",
+					description_localizations: {
+						fr: "ajouter une bulle au dessus de votre image",
+					},
+
+					options: [
+						{
+							name: "image",
+
+							description: "image file",
+							description_localizations: {
+								fr: "fichier image"
+							},
+
+							permission: null,
+							type: ApplicationCommandOptionType.Attachment,
+							required: true
+						}
+					],
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
+				{
+					name: "youtube",
+
+					description: "Permit to send custom youtube comment (real) !",
+					description_localizations: {
+						fr: "Permis d'envoyer un commentaire YouTube personnalisé (réel)",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "user",
+
+							description: "The user",
+							description_localizations: {
+								fr: "L'utilisateur",
+							},
+
+							required: true,
+							type: ApplicationCommandOptionType.User,
+
+							permission: null,
+						},
+						{
+							name: "comment",
+
+							description: "The comment",
+							description_localizations: {
+								fr: "Le commentaire",
+							},
+
+							required: true,
+							type: ApplicationCommandOptionType.String,
+
+							permission: null,
+						},
+					],
+
+					permission: null,
+				},
+				{
+					name: "tweet",
+
+					description: "Permit to send custom tweet !",
+					description_localizations: {
+						fr: "Permis d'envoyer un tweet personnalisé",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "user",
+
+							description: "The user",
+							description_localizations: {
+								fr: "L'utilisateur",
+							},
+
+							required: true,
+							type: ApplicationCommandOptionType.User,
+
+							permission: null,
+						},
+						{
+							name: "comment",
+
+							description: "The comment",
+							description_localizations: {
+								fr: "Le commentaire",
+							},
+
+							required: true,
+							type: ApplicationCommandOptionType.String,
+
+							permission: null,
+						},
+					],
+
+					permission: null,
+				},
+				{
+					name: "transgender",
+					name_localizations: {
+						fr: "transgenre",
+					},
+
+					description: "all humans have rights",
+					description_localizations: {
+						fr: "tous les humains ont des droits",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "user",
+
+							description: "the user",
+							description_localizations: {
+								fr: "l'utilisateur",
+							},
+
+							required: true,
+							type: ApplicationCommandOptionType.User,
+
+							permission: null,
+						},
+					],
 
 					permission: null,
 				},
 			],
 
-			permission: null,
+			type: ApplicationCommandOptionType.SubcommandGroup,
+			permission: null
 		},
 		{
-			name: "cat",
-			name_localizations: {
-				fr: "chat",
-			},
+			name: "interaction",
 
-			description: "Get a picture of cat!",
+			description: "Interaction between users",
 			description_localizations: {
-				fr: "Obtenez une photo du chat",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: null,
-		},
-		{
-			name: "dog",
-			name_localizations: {
-				fr: "chien",
-			},
-
-			description: "Get a picture of dog!",
-			description_localizations: {
-				fr: "Obtenez une photo du chien",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: null,
-		},
-		{
-			name: "duck",
-			name_localizations: {
-				fr: "cannard",
-			},
-
-			description: "Get a picture of duck!",
-			description_localizations: {
-				fr: "Obtenez une photo de cannard",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: null,
-		},
-		{
-			name: "togif",
-
-			description: "Transform image to gif",
-			description_localizations: {
-				fr: "Transformer une image vers un gif",
+				"fr": "Interaction entre utilisateurs"
 			},
 
 			options: [
 				{
-					name: "image",
-
-					description: "image file",
-					description_localizations: {
-						fr: "fichier image"
+					name: "hack",
+					name_localizations: {
+						fr: "piratage",
 					},
 
-					permission: null,
-					type: ApplicationCommandOptionType.Attachment,
-					required: true
-				}
-			],
-
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: null,
-		},
-		{
-			name: "captions",
-
-			description: "Add text on top of your own image",
-			description_localizations: {
-				fr: "ajouter du texte au dessus de votre image",
-			},
-
-			options: [
-				{
-					name: "image",
-
-					description: "image file",
+					description: "Hack a user!",
 					description_localizations: {
-						fr: "fichier image"
+						fr: "Pirater un discordiens",
 					},
 
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "user",
+							type: ApplicationCommandOptionType.User,
+
+							description: "The user you want to hack",
+							description_localizations: {
+								fr: "L'utilisateur que vous souhaitez pirater",
+							},
+
+							required: true,
+
+							permission: null,
+						},
+					],
+
 					permission: null,
-					type: ApplicationCommandOptionType.Attachment,
-					required: true
 				},
 				{
-					name: "query",
-
-					description: "your captions",
-					description_localizations: {
-						fr: "votre texte"
+					name: "kiss",
+					name_localizations: {
+						fr: "bisous",
 					},
 
+					description: "Kiss a user!",
+					description_localizations: {
+						fr: "Embrasser un utilisateur",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "user",
+							type: ApplicationCommandOptionType.User,
+
+							description: "The user you want to kiss",
+							description_localizations: {
+								fr: "L'utilisateur que vous voulez embrasser",
+							},
+
+							required: true,
+
+							permission: null,
+						},
+					],
+
 					permission: null,
-					type: ApplicationCommandOptionType.String,
-					required: true
-				}
+				},
+				{
+					name: "love",
+					name_localizations: {
+						fr: "amour",
+					},
+
+					description: "Show your love compatibilty with the user!",
+					description_localizations: {
+						fr: "Montrez votre compatibilité amoureuse avec l'utilisateur",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "user1",
+							type: ApplicationCommandOptionType.User,
+
+							description: "The user you want to know your love compatibility",
+							description_localizations: {
+								fr: "L'utilisateur avec qui vous souhaitez connaître votre compatibilité amoureuse",
+							},
+
+							required: false,
+
+							permission: null,
+						},
+						{
+							name: "user2",
+							type: ApplicationCommandOptionType.User,
+
+							description: "The user with whom you want to know love compatibility",
+							description_localizations: {
+								fr: "L'utilisateur avec qui vous voulez connaître la compatibilité amoureuse",
+							},
+
+							required: false,
+
+							permission: null,
+						},
+					],
+
+					permission: null,
+				},
+				{
+					name: "poll",
+					name_localizations: {
+						fr: "sondage",
+					},
+
+					description: "Create a poll!",
+					description_localizations: {
+						fr: "Créer un sondage",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "message",
+							type: ApplicationCommandOptionType.String,
+
+							description: "The message displayed on the survey",
+							description_localizations: {
+								fr: "Le message affiché sur le sondage",
+							},
+
+							required: true,
+
+							permission: null,
+						},
+					],
+
+					permission: PermissionFlagsBits.Administrator,
+				},
+				{
+					name: "question",
+
+					description: "Ask a question to the bot !",
+					description_localizations: {
+						fr: "Poser une question au bot",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "question",
+							type: ApplicationCommandOptionType.String,
+
+							description: "The question you want to give for the bot",
+							description_localizations: {
+								fr: "La question que vous souhaitez poser au bot",
+							},
+
+							required: true,
+
+							permission: null,
+						},
+					],
+
+					permission: null,
+				},
+				{
+					name: "slap",
+					name_localizations: {
+						fr: "giflé",
+					},
+
+					description: "Slap a user!",
+					description_localizations: {
+						fr: "Gifler un utilisateur",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "user",
+							type: ApplicationCommandOptionType.User,
+
+							description: "The user you want to slap",
+							description_localizations: {
+								fr: "L'utilisateur que vous voulez gifler",
+							},
+
+							required: true,
+
+							permission: null,
+						},
+					],
+
+					permission: null,
+				},
+
+				{
+					name: "hug",
+					name_localizations: {
+						fr: "calin",
+					},
+
+					description: "Hug a user!",
+					description_localizations: {
+						fr: "Faire un calin d'un utilisateur",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "user",
+							type: ApplicationCommandOptionType.User,
+
+							description: "The user you want to hug",
+							description_localizations: {
+								fr: "L'utilisateur que vous souhaitez faire un calin",
+							},
+
+							required: true,
+
+							permission: null,
+						},
+					],
+
+					permission: null,
+				},
 			],
 
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: null,
+			type: ApplicationCommandOptionType.SubcommandGroup,
+			permission: null
 		},
 		{
-			name: "bubbles",
+			name: "style",
 
-			description: "Add bubble on top of your own image",
+			description: "Fun commands related about text style",
 			description_localizations: {
-				fr: "ajouter une bulle au dessus de votre image",
+				"fr": "Commandes fun à propos de la stylisation du texte"
 			},
 
 			options: [
 				{
-					name: "image",
-
-					description: "image file",
-					description_localizations: {
-						fr: "fichier image"
+					name: "caracteres",
+					name_localizations: {
+						fr: "caractères",
 					},
 
+					description: "Transform a string into a DarkSasuke!",
+					description_localizations: {
+						fr: "Transformez une chaîne de caractères en DarkSasuke",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "nickname",
+							type: ApplicationCommandOptionType.String,
+
+							description: "your cool nickname to transform !",
+							description_localizations: {
+								fr: "ton surnom cool à transformer",
+							},
+
+							required: true,
+
+							permission: null,
+						},
+					],
+
 					permission: null,
-					type: ApplicationCommandOptionType.Attachment,
-					required: true
-				}
+				},
+				{
+					name: "morse",
+
+					description: "Transform a string into a Morse!",
+					description_localizations: {
+						fr: "Transformer une chaîne en Morse",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "input",
+							type: ApplicationCommandOptionType.String,
+
+							description: "Enter your input to encrypt/decrypt in morse",
+							description_localizations: {
+								fr: "Entrez votre entrée pour crypter/décrypter en morse",
+							},
+
+							required: true,
+
+							permission: null,
+						},
+					],
+
+					permission: null,
+				},
 			],
 
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: null,
+			type: ApplicationCommandOptionType.SubcommandGroup,
+			permission: null
 		},
 		{
 			name: "disable",
@@ -246,393 +692,6 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.Administrator,
-		},
-		{
-			name: "hack",
-			name_localizations: {
-				fr: "piratage",
-			},
-
-			description: "Hack a user!",
-			description_localizations: {
-				fr: "Pirater un discordiens",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "user",
-					type: ApplicationCommandOptionType.User,
-
-					description: "The user you want to hack",
-					description_localizations: {
-						fr: "L'utilisateur que vous souhaitez pirater",
-					},
-
-					required: true,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
-		},
-		{
-			name: "hug",
-			name_localizations: {
-				fr: "calin",
-			},
-
-			description: "Hug a user!",
-			description_localizations: {
-				fr: "Faire un calin d'un utilisateur",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "user",
-					type: ApplicationCommandOptionType.User,
-
-					description: "The user you want to hug",
-					description_localizations: {
-						fr: "L'utilisateur que vous souhaitez faire un calin",
-					},
-
-					required: true,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
-		},
-		{
-			name: "kiss",
-			name_localizations: {
-				fr: "bisous",
-			},
-
-			description: "Kiss a user!",
-			description_localizations: {
-				fr: "Embrasser un utilisateur",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "user",
-					type: ApplicationCommandOptionType.User,
-
-					description: "The user you want to kiss",
-					description_localizations: {
-						fr: "L'utilisateur que vous voulez embrasser",
-					},
-
-					required: true,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
-		},
-		{
-			name: "love",
-			name_localizations: {
-				fr: "amour",
-			},
-
-			description: "Show your love compatibilty with the user!",
-			description_localizations: {
-				fr: "Montrez votre compatibilité amoureuse avec l'utilisateur",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "user1",
-					type: ApplicationCommandOptionType.User,
-
-					description: "The user you want to know your love compatibility",
-					description_localizations: {
-						fr: "L'utilisateur avec qui vous souhaitez connaître votre compatibilité amoureuse",
-					},
-
-					required: false,
-
-					permission: null,
-				},
-				{
-					name: "user2",
-					type: ApplicationCommandOptionType.User,
-
-					description: "The user with whom you want to know love compatibility",
-					description_localizations: {
-						fr: "L'utilisateur avec qui vous voulez connaître la compatibilité amoureuse",
-					},
-
-					required: false,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
-		},
-		{
-			name: "morse",
-
-			description: "Transform a string into a Morse!",
-			description_localizations: {
-				fr: "Transformer une chaîne en Morse",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "input",
-					type: ApplicationCommandOptionType.String,
-
-					description: "Enter your input to encrypt/decrypt in morse",
-					description_localizations: {
-						fr: "Entrez votre entrée pour crypter/décrypter en morse",
-					},
-
-					required: true,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
-		},
-		{
-			name: "poll",
-			name_localizations: {
-				fr: "sondage",
-			},
-
-			description: "Create a poll!",
-			description_localizations: {
-				fr: "Créer un sondage",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "message",
-					type: ApplicationCommandOptionType.String,
-
-					description: "The message displayed on the survey",
-					description_localizations: {
-						fr: "Le message affiché sur le sondage",
-					},
-
-					required: true,
-
-					permission: null,
-				},
-			],
-
-			permission: PermissionFlagsBits.Administrator,
-		},
-		{
-			name: "question",
-
-			description: "Ask a question to the bot !",
-			description_localizations: {
-				fr: "Poser une question au bot",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "question",
-					type: ApplicationCommandOptionType.String,
-
-					description: "The question you want to give for the bot",
-					description_localizations: {
-						fr: "La question que vous souhaitez poser au bot",
-					},
-
-					required: true,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
-		},
-		{
-			name: "slap",
-			name_localizations: {
-				fr: "giflé",
-			},
-
-			description: "Slap a user!",
-			description_localizations: {
-				fr: "Gifler un utilisateur",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "user",
-					type: ApplicationCommandOptionType.User,
-
-					description: "The user you want to slap",
-					description_localizations: {
-						fr: "L'utilisateur que vous voulez gifler",
-					},
-
-					required: true,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
-		},
-		{
-			name: "youtube",
-
-			description: "Permit to send custom youtube comment (real) !",
-			description_localizations: {
-				fr: "Permis d'envoyer un commentaire YouTube personnalisé (réel)",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "user",
-
-					description: "The user",
-					description_localizations: {
-						fr: "L'utilisateur",
-					},
-
-					required: true,
-					type: ApplicationCommandOptionType.User,
-
-					permission: null,
-				},
-				{
-					name: "comment",
-
-					description: "The comment",
-					description_localizations: {
-						fr: "Le commentaire",
-					},
-
-					required: true,
-					type: ApplicationCommandOptionType.String,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
-		},
-		{
-			name: "tweet",
-
-			description: "Permit to send custom tweet !",
-			description_localizations: {
-				fr: "Permis d'envoyer un tweet personnalisé",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "user",
-
-					description: "The user",
-					description_localizations: {
-						fr: "L'utilisateur",
-					},
-
-					required: true,
-					type: ApplicationCommandOptionType.User,
-
-					permission: null,
-				},
-				{
-					name: "comment",
-
-					description: "The comment",
-					description_localizations: {
-						fr: "Le commentaire",
-					},
-
-					required: true,
-					type: ApplicationCommandOptionType.String,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
-		},
-		{
-			name: "transgender",
-			name_localizations: {
-				fr: "transgenre",
-			},
-
-			description: "all humans have rights",
-			description_localizations: {
-				fr: "tous les humains ont des droits",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "user",
-
-					description: "the user",
-					description_localizations: {
-						fr: "l'utilisateur",
-					},
-
-					required: true,
-					type: ApplicationCommandOptionType.User,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
-		},
-		{
-			name: "catsay",
-			name_localizations: {
-				fr: "le-chat-à-dis",
-			},
-
-			description: "Cat say (insert text here)",
-			description_localizations: {
-				fr: "le chat à dit (insérer le texte ici)",
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-			options: [
-				{
-					name: "text",
-
-					description: "The cat say...",
-					description_localizations: {
-						fr: "Le chat dit...",
-					},
-
-					required: true,
-					type: ApplicationCommandOptionType.String,
-
-					permission: null,
-				},
-			],
-
-			permission: null,
 		},
 	],
 	integration_types: [0, 1],
