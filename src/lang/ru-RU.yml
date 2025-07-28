@@ -2074,6 +2074,7 @@ pfps_channel_command_error: "${interaction.user}, команда вернула 
 authorization_actions_not_permited: "Только владелец сервера может редактировать правило авторизации модуля защиты!"
 authorization_actions_everyone: "Все"
 authorization_actions_allowlist: "Участник(ы) списка разрешений"
+authorization_actions_nobody: "Никто. (Кроме владельца сервера)"
 authorization_actions_rule_set: "${interaction.user}, правило для `${rule.toUpperCase()}` установлено. **${allow}** могут его обойти!"
 authorization_actions_rule_clear: "${interaction.user}, все правила для `${interaction.guild.name}` были удалены. Модуль защиты теперь отключен!"
 

@@ -2076,6 +2076,7 @@ pfps_channel_command_error: "${interaction.user}, la commande a renvoyé une err
 authorization_actions_not_permited: "Seul le propriétaire du serveur peut modifier les règles d'autorisation du module de protection !"
 authorization_actions_everyone: "Tout les con"
 authorization_actions_allowlist: "Membre(s) de la liste blanche"
+authorization_actions_nobody: "Personne. (Sauf le propriétaire du serveur)"
 authorization_actions_rule_set: "${interaction.user}, la règle pour `${rule.toUpperCase()}` a été définie. **${allow}** sont autorisés à la contourner !"
 authorization_actions_rule_clear: "${interaction.user}, toutes les règles pour `${interaction.guild.name}` ont été supprimées. Le module de protection est maintenant désactivé !"
 

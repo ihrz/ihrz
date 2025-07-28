@@ -1587,6 +1587,7 @@ export interface LanguageData {
 	authorization_actions_not_permited: string;
 	authorization_actions_everyone: string;
 	authorization_actions_allowlist: string;
+	authorization_actions_nobody: string;
 	authorization_actions_rule_set: string;
 	authorization_actions_rule_clear: string;
 	authorization_sanction_not_permited: string;
@@ -1944,5 +1945,4 @@ export interface LanguageData {
 	addrolereact_error: string;
 	new_guild_embed_title: string[];
 	new_guild_embed_desc: string;
-	authorization_actions_nobody: string;
 }

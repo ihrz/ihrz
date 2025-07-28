@@ -2074,6 +2074,7 @@ pfps_channel_command_error: "${interaction.user}, الأمر أرجع خطأ. ي
 authorization_actions_not_permited: "فقط مالك الخادم يمكنه تعديل قاعدة الإذن المتعلقة بوحدة الحماية!"
 authorization_actions_everyone: "الجميع"
 authorization_actions_allowlist: "الأعضاء في القائمة المسموحة"
+authorization_actions_nobody: "لا أحد. (باستثناء صاحب الخادم)"
 authorization_actions_rule_set: "${interaction.user}, تم تعيين القاعدة لـ `${rule.toUpperCase()}`. **${allow}** مسموح لهم بتجاوزها!"
 authorization_actions_rule_clear: "${interaction.user}, تم حذف جميع القواعد لـ `${interaction.guild.name}`. وحدة الحماية الآن موقوفة!"
 

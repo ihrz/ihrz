@@ -2074,6 +2074,7 @@ pfps_channel_command_error: "${interaction.user}、コマンドがエラーを�
 authorization_actions_not_permited: "この保護モジュールの認証ルールを編集できるのはサーバーのオーナーだけです！"
 authorization_actions_everyone: "誰でも"
 authorization_actions_allowlist: "許可リストのメンバー"
+authorization_actions_nobody: "誰も。(サーバーオーナーを除く)"
 authorization_actions_rule_set: "${interaction.user}、`${rule.toUpperCase()}` のルールが設定されました。**${allow}** はこれをバイパスできます！"
 authorization_actions_rule_clear: "${interaction.user}、`${interaction.guild.name}` のすべてのルールが削除されました。保護モジュールは無効になりました！"
 

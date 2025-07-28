@@ -2074,6 +2074,7 @@ pfps_channel_command_error: "${interaction.user}, o comando retornou um erro. Po
 authorization_actions_not_permited: "Apenas o dono do servidor pode editar a regra de autorização sobre o módulo de proteção!"
 authorization_actions_everyone: "Todos"
 authorization_actions_allowlist: "Membro(s) da lista de permissões"
+authorization_actions_nobody: "Ninguém. (Exceto o proprietário do servidor)"
 authorization_actions_rule_set: "${interaction.user}, a regra para `${rule.toUpperCase()}` foi definida. **${allow}** estão autorizados a ignorá-la!"
 authorization_actions_rule_clear: "${interaction.user}, todas as regras para `${interaction.guild.name}` foram deletadas. O módulo de proteção está agora desativado!"
 

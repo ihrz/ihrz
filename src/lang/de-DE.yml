@@ -2074,6 +2074,7 @@ pfps_channel_command_error: "${interaction.user}, der Befehl hat einen Fehler zu
 authorization_actions_not_permited: "Nur der Besitzer des Servers kann die Autorisierungsregel für das Schutzmodul bearbeiten!"
 authorization_actions_everyone: "Jeder"
 authorization_actions_allowlist: "Mitglied(er) der Allowlist"
+authorization_actions_nobody: "Niemand. (Außer Serverbesitzer)"
 authorization_actions_rule_set: "${interaction.user}, die Regel für `${rule.toUpperCase()}` wurde festgelegt. **${allow}** dürfen sie umgehen!"
 authorization_actions_rule_clear: "${interaction.user}, alle Regeln für `${interaction.guild.name}` wurden gelöscht. Das Schutzmodul ist jetzt deaktiviert!"
 
