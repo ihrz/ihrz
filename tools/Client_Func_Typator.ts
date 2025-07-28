@@ -80,7 +80,11 @@ import { PasswordOptions } from '../src/core/functions/random.ts';
 import { command } from '../src/core/functions/permissonsCalculator.ts';
 import { DetailedGuildData, GuildData } from '../src/core/functions/shard_helper.ts';
 import { BatchProcessorOptions, BatchProcessorResult } from '../src/core/functions/batchProcessor.ts';
-import { DB } from '../src/core/database/types.ts';
+import { Sqlite } from '../src/core/database/driver/sqlite.ts';
+import { Json } from '../src/core/database/driver/json.ts';
+import { Memory } from '../src/core/database/driver/memory.ts';
+import { Postgres } from '../src/core/database/driver/postgres.ts';
+import { Horizon } from '../src/core/database/driver/horizon.ts';
 `
 export class FunctionAnalyzer {
 	private program: ts.Program;
@@ -88,8 +92,10 @@ export class FunctionAnalyzer {
 	private importedTypes: Set<string> = new Set();
 
 	constructor(private rootDir: string) {
+		this.rootDir = path.resolve(rootDir);
+
 		const configPath = ts.findConfigFile(
-			rootDir,
+			this.rootDir,
 			ts.sys.fileExists,
 			'tsconfig.json'
 		);
@@ -111,12 +117,20 @@ export class FunctionAnalyzer {
 
 	public analyzeFunctions(): FileMetadata[] {
 		const sourceFiles = this.program.getSourceFiles()
-			.filter(sourceFile =>
-				!sourceFile.fileName.includes('node_modules') &&
-				sourceFile.fileName.startsWith(this.rootDir)
-			);
+			.filter(sourceFile => {
+				// Normalize paths for cross-platform comparison
+				const normalizedFileName = path.resolve(sourceFile.fileName);
+				const normalizedRootDir = path.resolve(this.rootDir);
 
-		return sourceFiles.map(sourceFile => this.analyzeSourceFile(sourceFile));
+				const isNotNodeModules = !sourceFile.fileName.includes('node_modules');
+				const isInRootDir = normalizedFileName.startsWith(normalizedRootDir);
+
+				return isNotNodeModules && isInRootDir;
+			});
+
+
+		const results = sourceFiles.map(sourceFile => this.analyzeSourceFile(sourceFile));
+		return results;
 	}
 
 	private isNodeExported(node: ts.FunctionDeclaration | ts.MethodDeclaration): boolean {
@@ -162,8 +176,11 @@ export class FunctionAnalyzer {
 
 		ts.forEachChild(sourceFile, visit);
 
+		// Use path.relative with normalized paths
+		const relativePath = path.relative(this.rootDir, sourceFile.fileName);
+
 		return {
-			fileName: path.relative(this.rootDir, sourceFile.fileName),
+			fileName: relativePath,
 			functions
 		};
 	}
@@ -217,7 +234,6 @@ export class FunctionAnalyzer {
 				? this.getFullTypeText(param.type)
 				: 'any';
 
-
 			return {
 				name: param.name.getText(),
 				type: paramType,
@@ -268,7 +284,15 @@ export class FunctionAnalyzer {
 
 		output += `declare namespace ${namespaceName} {\n`;
 
+		// Check if we have any functions to process
+		let totalFunctions = 0;
+		fileMetadata.forEach(file => totalFunctions += file.functions.length);
+
+		if (totalFunctions === 0) {
+			console.warn('No exported functions found in any files!');
+		}
 		for (const file of fileMetadata) {
+			if (file.functions.length === 0) continue; // Skip files with no functions
 			output += `\n  // From ${file.fileName}\n`;
 
 			if (file.functions.length === 1) {
@@ -281,7 +305,7 @@ export class FunctionAnalyzer {
 					: '';
 
 				const params = this.generateParameterList(func.parameters);
-				const functionName = this.sanitizeIdentifier(file.fileName.split('.')[0]);
+				const functionName = this.sanitizeIdentifier(path.parse(file.fileName).name);
 
 				if (params.length > 80) {
 					output += `  export function ${functionName}${typeParamsStr}(\n`;
@@ -293,7 +317,7 @@ export class FunctionAnalyzer {
 					output += `  export function ${functionName}${typeParamsStr}(${params}): ${func.returnType};\n`;
 				}
 			} else {
-				const moduleNamespace = this.sanitizeIdentifier(path.basename(file.fileName, '.ts'));
+				const moduleNamespace = this.sanitizeIdentifier(path.parse(file.fileName).name);
 				output += `  export namespace ${moduleNamespace} {\n`;
 
 				for (const func of file.functions) {
@@ -373,13 +397,41 @@ export function generateFunctionInterfaces(
 	sourceDir: string,
 	outputPath: string
 ): void {
-	const analyzer = new FunctionAnalyzer(sourceDir);
-	let interfaces = header;
-	interfaces += "\n";
-	interfaces += formatTypeScriptCode(analyzer.generateInterfaces(), readVSCodeConfig(path.join(process.cwd(), ".vscode", "settings.json")));
+	try {
 
-	writeFileSync(outputPath, interfaces, 'utf-8');
-	logger.log(`Generated interfaces written to ${outputPath}`);
+		// Check if source directory exists
+		const fs = require('fs');
+		if (!fs.existsSync(sourceDir)) {
+			throw new Error(`Source directory does not exist: ${sourceDir}`);
+		}
+
+		const analyzer = new FunctionAnalyzer(sourceDir);
+		let interfaces = header;
+		interfaces += "\n";
+
+		const generatedInterfaces = analyzer.generateInterfaces();
+
+		// Try to format the code, but don't fail if formatter is not available
+		try {
+			interfaces += formatTypeScriptCode(generatedInterfaces, readVSCodeConfig(path.join(process.cwd(), ".vscode", "settings.json")));
+		} catch (formatterError) {
+			console.warn('Formatter failed, using unformatted code:', formatterError);
+			interfaces += generatedInterfaces;
+		}
+
+		// Ensure output directory exists
+		const outputDir = path.dirname(outputPath);
+		if (!fs.existsSync(outputDir)) {
+			fs.mkdirSync(outputDir, { recursive: true });
+		}
+
+		writeFileSync(outputPath, interfaces, 'utf-8');
+
+		logger.log(`Generated interfaces written to ${outputPath}`);
+	} catch (error) {
+		console.error('Error generating function interfaces:', error);
+		throw error;
+	}
 }
 
 generateFunctionInterfaces(
