@@ -41,7 +41,7 @@ export const subCommand: SubCommand = {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var name = interaction.options.getString('name')!;
 		} else {
-			var name = client.func.method.string(args!, 0)!;
+			var name = client.func.method.longString(args!, 0)!;
 		}
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
