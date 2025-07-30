@@ -2564,6 +2564,7 @@ hybridcommands_embed_help_fields_value: "**Псевдонимы:** ${aliases}\n*
 hybridcommands_embed_footer_text: "Параметры в [...] обязательны, а параметры в <...> — необязательны.\nИспользуйте команду: ${botPrefix}help [command] для получения дополнительной информации."
 
 ping_bot_show_info_msg: "Привет ${message.author.toString()}, я на 100% используюсь в `Slash Command` (${client.iHorizon_Emojis.Slash_Bot_Badge}) и более чем на 85% в командном префиксе. Мой префикс на **этом сервере** — `${prefix}` !"
+ping_bot_show_info_msg_about_change_prefix: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Не нравится мой префикс? Используй **`/guildconfig bot prefix`**, чтобы изменить его!"
 
 # Модуль уведомлений
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** опубликовал новое видео [Нажмите здесь]({mediaURL})"
