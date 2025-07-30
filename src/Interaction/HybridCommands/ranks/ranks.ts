@@ -39,15 +39,15 @@ export const command: Command = {
 
 	options: [
 		{
-			name: "config",
-			prefixName: "ranks-config",
+			name: "roles",
+			prefixName: "ranks-roles",
 
 			description: "When user earn a ranks's level, give it a role!",
 			description_localizations: {
 				fr: "Lorsque l'utilisateur atteint un niveau de rang, attribuez-lui un rôle !",
 			},
 
-			aliases: ["rconfig"],
+			aliases: ["rroles"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 			thinking: true,
@@ -55,12 +55,12 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator,
 		},
 		{
-			name: "disable",
-			prefixName: "ranks-disable",
+			name: "config",
+			prefixName: "rconfig",
 
-			description: "Disable the message when user earn new xp level message!",
+			description: "Config the message when user earn new xp level message!",
 			description_localizations: {
-				fr: "Désactivez le message lorsque l'utilisateur gagne un nouveau message de niveau XP",
+				fr: "Configurer le message lorsque l'utilisateur gagne un nouveau message de niveau XP",
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

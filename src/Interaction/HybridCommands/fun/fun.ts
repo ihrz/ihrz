@@ -788,8 +788,8 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: "disable",
-			prefixName: "fdisable",
+			name: "config",
+			prefixName: "fconfig",
 
 			description: "Disable the fun category",
 			description_localizations: {
