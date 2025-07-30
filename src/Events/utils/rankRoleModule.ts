@@ -38,11 +38,16 @@ export const event: BotEvent = {
 
 		const dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES`) as DatabaseStructure.DbGuildObject['RANK_ROLES'];
 		const prefix = (await guildPrefix(client, message.guildId!)).string;
-		const text = lang.ping_bot_show_info_msg
+		var text = lang.ping_bot_show_info_msg
 			.replace("${prefix}", prefix)
 			.replace("${message.author.toString()}", message.author.toString())
 			.replace("${client.iHorizon_Emojis.Slash_Bot_Badge}", client.iHorizon_Emojis.Slash_Bot_Badge)
 			;
+
+		// 1 chance sur 8
+		if ((Math.floor(Math.random() * 8) === 0)) {
+			text += lang.ping_bot_show_info_msg_about_change_prefix.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat)
+		}
 
 		if (!dbGet || !dbGet.roles) {
 			if (!await client.func.helper.coolDown(message, "ping_bot", 7000) && message.member?.permissions.has(PermissionsBitField.Flags.UseApplicationCommands)) {

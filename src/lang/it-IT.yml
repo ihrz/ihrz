@@ -2564,6 +2564,7 @@ hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Uso:** ${use}"
 hybridcommands_embed_footer_text: "Le opzioni tra [...] sono obbligatorie, mentre quelle tra <...> sono facoltative.\nUsa il comando: ${botPrefix}help [command] per ulteriori informazioni."
 
 ping_bot_show_info_msg: "Ciao ${message.author.toString()}, sono al 100% in `Slash Command` (${client.iHorizon_Emojis.Slash_Bot_Badge}) e utilizzabile al 85% in comando prefisso. Il mio prefisso su **questo server** è `${prefix}` !"
+ping_bot_show_info_msg_about_change_prefix: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Il mio prefisso ti dà fastidio? Usa **`/guildconfig bot prefix`** per cambiarlo!"
 
 # Modulo di Notifica
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** ha pubblicato un nuovo video [Clicca qui]({mediaURL})"
