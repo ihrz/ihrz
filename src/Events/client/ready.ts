@@ -35,6 +35,7 @@ import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 import { isNumber } from '../../core/functions/method.js';
 import { DB } from '../../core/database/types.js';
+import { Horizon } from '../../core/database/driver/horizon.js';
 
 // @ts-ignore
 export let tempTable: DB = null;
@@ -232,6 +233,28 @@ export const event: BotEvent = {
 					ephemeral: x.ephemeral,
 				}
 			}), null, 4))
+		}
+
+		if (client.config.database?.method === "horizon" && client.version.env === "production" && client.shard?.ids[0] === 0) {
+			setInterval(async () => {
+				await client.db.set("LAST_WRITE", Date.now());
+
+				const databaseLatency = await client.func.database_latency();
+				const stats = (client.db as Horizon).getConnectionStats();
+				const channel = process.env.DB_STATS_CHANNEL;
+
+				if (channel) {
+					await client.func.method.channelSend(channel, {
+						embeds: [
+							new EmbedBuilder()
+								.setTimestamp()
+								.setTitle("Database Metrics - Ping: " + databaseLatency)
+								.setDescription('```' + JSON.stringify(stats, null, 2) + '```')
+								.setColor("#000000")
+						]
+					})
+				}
+			}, 45_000);
 		}
 	},
 };
