@@ -272,6 +272,9 @@ declare namespace Client_Functions {
 		export function decrypt(k: string, text: string): string | undefined;
 	}
 
+	// From database_latency.ts
+	export function database_latency(): Promise<number>;
+
 	// From displayBotName.ts
 	export namespace displayBotName {
 		export function footerBuilder(guildId: string): Promise<{ text: string; iconURL: string; }>;
@@ -291,7 +294,7 @@ declare namespace Client_Functions {
 	export namespace helper {
 		export function coolDown(message: Message<boolean>, method: string, ms: number): Promise<boolean>;
 		export function hardCooldown(
-			database: Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon,
+			database: Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon | Redis<any>,
 			method: string,
 			ms: number
 		): Promise<boolean>;

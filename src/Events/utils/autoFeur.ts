@@ -74,6 +74,9 @@ export const event: BotEvent = {
 
 		if (guildLang === "fr-ME") {
 			if (auto_respond[message.content.toLowerCase()]) {
+				if (await client.func.helper.coolDown(message, "autofeur", 8000)) {
+					return;
+				}
 				var msg = auto_respond[message.content.toLowerCase()];
 				// 1 chance sur 8
 				if (!await client.db.has(`${message.guildId}.UTILS.autoFeur`) && (Math.floor(Math.random() * 8) === 0)) {
