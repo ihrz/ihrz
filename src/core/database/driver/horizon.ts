@@ -36,8 +36,8 @@ export class Horizon {
 	private reconnectTimeout: NodeJS.Timeout | null = null;
 
 	// Optimized timeouts - Much shorter for better responsiveness
-	private fastOperationTimeout: number = 2000;  // 2s for simple operations (get, set, has)
-	private slowOperationTimeout: number = 5000;  // 5s for complex operations (all, deleteAll)
+	private fastOperationTimeout: number = 40_000;  // 2s for simple operations (get, set, has)
+	private slowOperationTimeout: number = 120_000;  // 5s for complex operations (all, deleteAll)
 	private authTimeout: number = 10000;          // 10s for authentication
 
 	// Ready state tracking
