@@ -192,7 +192,7 @@ if (process.env.SHOULD_USE_REDIS_MULTI_SHARD_CACHE !== null && envBool(process.e
 }
 
 const manager = new ShardingManager('./src/core/bot.ts', {
-	totalShards: "auto",
+	totalShards: (process.env.TOTAL_SHARDS as number | 'auto' | undefined) || "auto",
 	token: process.env.BOT_TOKEN || config.discord.token
 });
 manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is now launched :) !`.green));
