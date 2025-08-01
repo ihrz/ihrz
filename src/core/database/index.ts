@@ -37,7 +37,7 @@ import UltraFastHorizon from './driver/horizon2.js';
 
 let dbInstance: DB | null = null;
 
-export const tables = ['json', 'OWNER', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"];
+export const tables = ['json', 'OWNER', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"].map(x => x.toLowerCase())
 export const readOnlyTables = ["AUTHRESTORE", 'API'];
 export const databasePath = `${process.cwd()}/src/files/`;
 

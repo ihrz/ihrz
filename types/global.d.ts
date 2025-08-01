@@ -20,9 +20,11 @@
 */
 
 import { Client } from "discord.js";
+import { Logger } from "./logger";
 
 declare global {
 	var client: Client;
+	var logger: Logger;
 }
 
 export { }

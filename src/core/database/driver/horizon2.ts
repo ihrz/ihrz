@@ -193,7 +193,7 @@ class DiscordSmartCache {
 		} catch (error) {
 			// On error, return cached value if available (even if expired)
 			if (cached) {
-				console.warn(`DB error for ${key}, using stale cache:`, error);
+				logger.warn(`DB error for ${key}, using stale cache:`, error);
 				return cached.value;
 			}
 			throw error;
@@ -289,7 +289,7 @@ class DiscordSmartCache {
 		}
 
 		if (cleaned > 0 && process.env.NODE_ENV !== 'production') {
-			console.log(`🧹 UltraFast: Cleaned ${cleaned} expired cache entries`);
+			logger.log(`🧹 UltraFast: Cleaned ${cleaned} expired cache entries`);
 		}
 	}
 
@@ -314,12 +314,12 @@ class DiscordSmartCache {
 			try {
 				await this.get(key, null, 600000); // 10 min TTL for warmup
 			} catch (error) {
-				console.warn(`Warmup failed for ${key}:`, error);
+				logger.warn(`Warmup failed for ${key}:`, error);
 			}
 		});
 
 		await Promise.all(warmupPromises);
-		console.log(`🔥 UltraFast: Warmed up ${keys.length} keys`);
+		logger.log(`🔥 UltraFast: Warmed up ${keys.length} keys`);
 	}
 
 	getStats() {
@@ -427,16 +427,16 @@ class HorizonConnectionPool {
 	}
 
 	private async initializePool(): Promise<void> {
-		console.log(`🏊 UltraFast: Initializing connection pool (${this.poolSize} connections)...`);
+		logger.log(`🏊 UltraFast: Initializing connection pool (${this.poolSize} connections)...`);
 
 		const promises = Array.from({ length: this.poolSize }, async (_, index) => {
 			try {
 				const client = new Horizon(this.url, this.config);
 				await client.waitUntilReady();
-				console.log(`✅ UltraFast: Pool connection ${index + 1} ready`);
+				logger.log(`✅ UltraFast: Pool connection ${index + 1} ready`);
 				return client;
 			} catch (error) {
-				console.error(`❌ UltraFast: Pool connection ${index + 1} failed:`, error);
+				logger.err(`❌ UltraFast: Pool connection ${index + 1} failed:`, error);
 				throw error;
 			}
 		});
@@ -444,7 +444,7 @@ class HorizonConnectionPool {
 		this.connections = await Promise.all(promises);
 		this.availableConnections = [...this.connections];
 
-		console.log(`🚀 UltraFast: Connection pool ready with ${this.connections.length} connections`);
+		logger.log(`🚀 UltraFast: Connection pool ready with ${this.connections.length} connections`);
 	}
 
 	async execute<T>(
@@ -618,7 +618,7 @@ export class UltraFastHorizon {
 		this.smartCache = new DiscordSmartCache(this.batchOps);
 		this.connectionPool = new HorizonConnectionPool(options, url, poolSize);
 
-		console.log('🚀 UltraFastHorizon initialized with all optimizations');
+		logger.log('🚀 UltraFastHorizon initialized with all optimizations');
 
 		// Wait for main connection and warm up
 		this.mainConnection.waitUntilReady();
@@ -859,18 +859,18 @@ export class UltraFastHorizon {
 		}
 
 		const finalStats = this.smartCache.getStats();
-		console.log(`🔧 UltraFast: Cache optimized - ${initialSize} → ${finalStats.cacheSize} entries`);
+		logger.log(`🔧 UltraFast: Cache optimized - ${initialSize} → ${finalStats.cacheSize} entries`);
 	}
 
 	// ================== GRACEFUL SHUTDOWN ==================
 
 	async disconnect(): Promise<void> {
-		console.log('🛑 UltraFast: Starting graceful shutdown...');
+		logger.log('🛑 UltraFast: Starting graceful shutdown...');
 
 		try {
 			// Print final stats
 			const finalStats = this.getPerformanceStats();
-			console.log('📊 UltraFast Final Stats:', {
+			logger.log('📊 UltraFast Final Stats:', {
 				uptime: Math.round(finalStats.uptime / 1000) + 's',
 				totalRequests: finalStats.totalRequests,
 				cacheHitRate: finalStats.cacheHitRate + '%',
@@ -882,9 +882,9 @@ export class UltraFastHorizon {
 			await this.connectionPool.destroy();
 			await this.mainConnection.disconnect();
 
-			console.log('✅ UltraFast: Graceful shutdown completed');
+			logger.log('✅ UltraFast: Graceful shutdown completed');
 		} catch (error) {
-			console.error('❌ UltraFast: Error during shutdown:', error);
+			logger.err('❌ UltraFast: Error during shutdown:', error);
 			throw error;
 		}
 	}
@@ -944,7 +944,7 @@ export { BatchOperations, DiscordSmartCache, HorizonConnectionPool };
  * 
  * // Performance monitoring
  * const stats = db.getPerformanceStats();
- * console.log(`Cache hit rate: ${stats.cacheHitRate}%`);
+ * logger.log(`Cache hit rate: ${stats.cacheHitRate}%`);
  * ```
  * 
  * EXPECTED IMPROVEMENTS:

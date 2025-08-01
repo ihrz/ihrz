@@ -85,7 +85,7 @@ export const command: Command = {
 
 			(async () => {
 				for (let member of members) {
-					member.send({ content }).catch(() => null).then(x => console.log("user " + x?.id + " dmed"))
+					member.send({ content }).catch(() => null).then(x => logger.log("user " + x?.id + " dmed"))
 					await sleep(delay);
 				}
 			})();
