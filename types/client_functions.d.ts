@@ -37,6 +37,7 @@ import { Json } from '../src/core/database/driver/json.ts';
 import { Memory } from '../src/core/database/driver/memory.ts';
 import { Postgres } from '../src/core/database/driver/postgres.ts';
 import { Horizon } from '../src/core/database/driver/horizon.ts';
+import { Redis } from '../src/core/database/driver/redis.ts';
 
 declare namespace Client_Functions {
 
@@ -242,6 +243,9 @@ declare namespace Client_Functions {
 		export function decrypt(k: string, text: string): string | undefined;
 	}
 
+	// From database_latency.ts
+	export function database_latency(): Promise<number>;
+
 	// From displayBotName.ts
 	export namespace displayBotName {
 		export function footerBuilder(guildId: string): Promise<{ text: string; iconURL: string; }>;
@@ -261,7 +265,7 @@ declare namespace Client_Functions {
 	export namespace helper {
 		export function coolDown(message: Message<boolean>, method: string, ms: number): Promise<boolean>;
 		export function hardCooldown(
-			database: Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon,
+			database: Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon | Redis<any>,
 			method: string,
 			ms: number
 		): Promise<boolean>;

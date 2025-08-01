@@ -1909,6 +1909,7 @@ export interface LanguageData {
 	hybridcommands_embed_help_fields_value: string;
 	hybridcommands_embed_footer_text: string;
 	ping_bot_show_info_msg: string;
+	ping_bot_show_info_msg_about_change_prefix: string;
 	notifier_on_new_media_default_message: string;
 	notifier_on_new_media_default_button_label: string;
 	notifier_generateAuthorsEmbed_embed_desc: string;

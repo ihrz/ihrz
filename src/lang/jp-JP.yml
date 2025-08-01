@@ -2564,6 +2564,7 @@ hybridcommands_embed_help_fields_value: "**エイリアス:** ${aliases}\n**使�
 hybridcommands_embed_footer_text: "［...］内のオプションは必須で、<...>内のオプションは任意です。\n詳しくは、コマンド: ${botPrefix}help [command] を使用してください。"
 
 ping_bot_show_info_msg: "こんにちは ${message.author.toString()}、私は `Slash Command` (${client.iHorizon_Emojis.Slash_Bot_Badge}) で100%使用可能で、プレフィックスコマンドで85%以上使用可能です。このサーバーのプレフィックスは `${prefix}` です！"
+ping_bot_show_info_msg_about_change_prefix: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} プレフィックスが気に入らない？ **`/guildconfig bot prefix`** を使って変更してね！"
 
 # 通知モジュール
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** が新しい動画を公開しました [ここをクリック]({mediaURL})"

@@ -89,9 +89,14 @@ export interface ConfigData {
 
 	database?: {
 		method:
-		'json' | 'sqlite'
-		| 'memory' | 'postgresql'
-		| 'horizon' | 'cached_postgres'
+		'json'
+		| 'sqlite'
+		| 'memory'
+		| 'postgresql'
+		| 'horizon'
+		| 'cached_postgres'
+		| 'redis'
+		| 'horizon2'
 
 		mongoDb?: string;
 

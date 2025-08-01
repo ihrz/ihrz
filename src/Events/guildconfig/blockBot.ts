@@ -28,7 +28,7 @@ export const event: BotEvent = {
 	run: async (client: Client, member: GuildMember) => {
 
 		// Avoid all upside down if user is not bot
-		if (member.user.bot === true) return;
+		if (!member.user.bot) return;
 
 		const data = await client.db.get(`${member.guild.id}.GUILD.BLOCK_BOT`) || false;
 
@@ -37,11 +37,12 @@ export const event: BotEvent = {
 		])) return;
 
 		const filteredLog = await getLogs(member.guild, member.id, AuditLogEvent.BotAdd, 2);
-		const executor = member.guild.members.cache.get(filteredLog?.executorId!);
 
 		if (data === true && filteredLog?.executorId !== member.guild.ownerId) {
 			await member.ban({ reason: 'The BlockBot function are enable!' });
-			await client.func.method.punish({ SANCTION: "simply+derank" }, executor, "Attempt to add an discord bot into this guild! -> Derank");
+			const executor = filteredLog ? member.guild.members.cache.get(filteredLog?.executorId!) : undefined;
+
+			executor && (await client.func.method.punish({ SANCTION: "simply+derank" }, executor, "Attempt to add an discord bot into this guild! -> Derank"));
 
 			const owner = member.guild.members.cache.get(member.guild.ownerId);
 			const lang = await client.func.getLanguageData(member.guild.id);

@@ -2557,6 +2557,7 @@ hybridcommands_embed_help_fields_value: "**الألقاب:** ${aliases}\n**ال�
 hybridcommands_embed_footer_text: "الخيارات داخل [...] مطلوبة، بينما الخيارات داخل <...> اختيارية.\nاستخدم الأمر: ${botPrefix}help [command] لمزيد من المعلومات."
 
 ping_bot_show_info_msg: "مرحبًا ${message.author.toString()}, أنا 100% في `أوامر التفاعل` (${client.iHorizon_Emojis.Slash_Bot_Badge}) وقابل للاستخدام بنسبة 85% عبر الأوامر البادئة. بادئتي على **هذا الخادم** هي `${prefix}`!"
+ping_bot_show_info_msg_about_change_prefix: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} مش عاجبك البريفكس؟ استخدم **`/guildconfig bot prefix`** لتغييره!"
 
 # وحدة التنبيه
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** نشر فيديو جديد **[اضغط هنا]({mediaURL})"

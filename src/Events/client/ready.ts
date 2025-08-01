@@ -33,6 +33,7 @@ import { recoverCustomVoiceChannels } from '../voicedashboard/voiceState.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 import { isNumber } from '../../core/functions/method.js';
 import { DB } from '../../core/database/types.js';
+import { Horizon } from '../../core/database/driver/horizon.js';
 
 // @ts-ignore
 export let tempTable: DB = null;
