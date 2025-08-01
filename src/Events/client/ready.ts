@@ -237,7 +237,9 @@ export const event: BotEvent = {
 
 		if (client.config.database?.method === "horizon" && client.version.env === "production" && client.shard?.ids[0] === 0) {
 			setInterval(async () => {
-				await client.db.set("LAST_WRITE", Date.now());
+				try {
+					await client.db.set("LAST_WRITE", Date.now());
+				} catch { }
 
 				const databaseLatency = await client.func.database_latency();
 				const stats = (client.db as Horizon).getConnectionStats();
