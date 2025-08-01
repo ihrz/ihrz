@@ -93,6 +93,7 @@ export interface ConfigData {
 		| 'horizon'
 		| 'cached_postgres'
 		| 'redis'
+		| 'horizon2'
 
 		mongoDb?: string;
 

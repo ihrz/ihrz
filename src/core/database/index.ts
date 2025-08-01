@@ -32,6 +32,7 @@ import { Memory } from './driver/memory.js';
 import { Sqlite } from './driver/sqlite.js';
 import { Json } from './driver/json.js';
 import { Redis } from './driver/redis.js';
+import UltraFastHorizon from './driver/horizon2.js';
 
 
 let dbInstance: DB | null = null;
@@ -163,6 +164,13 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 				connectionTimeout: 5000,
 				autoReconnect: true
 			}
+		});
+	} else if (database.method === "horizon2") {
+		dbInstance = new UltraFastHorizon(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
+			login: database?.horizon_db?.login!,
+			password: database?.horizon_db?.password!,
+			enableVerboses: process.env.DEV === "true" ? true : false,
+			tables
 		});
 	} else {
 		dbInstance = new Sqlite({
