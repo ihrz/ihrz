@@ -21,6 +21,8 @@
 
 export default async function databaseLatency(): Promise<number> {
 	let _0 = Date.now();
-	await client.db.get("LAST_WRITE");
+	try {
+		await client.db.get("LAST_WRITE");
+	} catch { }
 	return Date.now() - _0;
 }
