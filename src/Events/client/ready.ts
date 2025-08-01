@@ -239,7 +239,7 @@ export const event: BotEvent = {
 			}), null, 4))
 		}
 
-		if (client.config.database?.method === "horizon" && client.version.env === "production" && client.shard?.ids[0] === 0) {
+		if (client.config.database?.method.includes("horizon") && client.version.env === "production" && client.shard?.ids[0] === 0) {
 			setInterval(async () => {
 				try {
 					await client.db.set("LAST_WRITE", Date.now());
