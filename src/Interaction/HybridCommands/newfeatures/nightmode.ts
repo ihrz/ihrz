@@ -224,7 +224,6 @@ export const command: Command = {
 
 
 		collector2wish.on('end', async () => {
-			collector2wish.stop();
 			collector2merde.stop();
 			await ogResponse.edit({
 				components: getComponent(true)
@@ -276,7 +275,7 @@ export const command: Command = {
 			});
 
 			let collector2con = interaction.channel!.createMessageComponentCollector({
-				time: 60_000,
+				time,
 				componentType: ComponentType.StringSelect
 			});
 
