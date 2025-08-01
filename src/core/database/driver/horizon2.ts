@@ -288,7 +288,7 @@ class DiscordSmartCache {
 			}
 		}
 
-		if (cleaned > 0 && process.env.NODE_ENV !== 'production') {
+		if (cleaned > 0) {
 			logger.log(`🧹 UltraFast: Cleaned ${cleaned} expired cache entries`);
 		}
 	}
