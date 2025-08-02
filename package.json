@@ -37,6 +37,7 @@
 		"js-yaml": "^4.1.0",
 		"jszip": "^3.10.1",
 		"lavalink-client": "^2.5.8",
+		"pg-hstore": "^2.3.4",
 		"puppeteer": "^24.15.0",
 		"typescript-eslint": "^8.38.0"
 	},
