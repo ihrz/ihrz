@@ -75,7 +75,7 @@ export const event: BotEvent = {
 		msg.startThread({
 			name: `#${suggestCode}`,
 			reason: "[Suggestion] Module"
-		})
+		}).then(x => x.edit({ invitable: true, locked: false, archived: false }))
 
 		await msg.react(client.iHorizon_Emojis.Yes);
 		await msg.react(client.iHorizon_Emojis.No);
