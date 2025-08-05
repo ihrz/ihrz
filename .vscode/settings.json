@@ -4,5 +4,6 @@
 	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,
 	"editor.tabSize": 4,
-	"editor.detectIndentation": false
+	"editor.detectIndentation": false,
+	"files.eol": "\n"
 }
