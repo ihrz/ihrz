@@ -688,6 +688,8 @@ export const command: Command = {
 						"fr": "Lance un ou plusieurs dés"
 					},
 
+					aliases: ["dé"],
+
 					options: [
 						{
 							name: "number",
@@ -736,6 +738,8 @@ export const command: Command = {
 					description_localizations: {
 						"fr": "Pile ou face ?"
 					},
+
+					aliases: ["pileouface", "pile-ou-face"],
 
 					type: ApplicationCommandOptionType.Subcommand,
 					permission: null

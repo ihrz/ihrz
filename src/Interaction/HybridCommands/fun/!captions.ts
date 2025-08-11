@@ -28,7 +28,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
 import { isValidImageType } from '../../SlashCommands/guildconfig/!footer-pfp.js';
-import { captions } from '../../../core/images.js';
+import { gifCaptions, captions } from '../../../core/images.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -38,7 +38,7 @@ export const subCommand: SubCommand = {
 			var query = interaction.options.getString("query", true);
 		} else {
 			var image = interaction.attachments.first()!;
-			var query = client.func.method.longString(args!, 1)!;
+			var query = client.func.method.longString(args!, 0)!;
 		}
 
 		if (!isValidImageType(image.contentType)) {
@@ -46,8 +46,14 @@ export const subCommand: SubCommand = {
 			return
 		}
 
+		console.log(image.contentType)
+
 		try {
-			const res = await captions(image.url!, query);
+			if (image.contentType?.includes("gif")) {
+				var res = await gifCaptions(image.url, query)
+			} else {
+				var res = await captions(image.url!, query);
+			}
 
 			client.func.method.interactionSend(interaction, {
 				files: [

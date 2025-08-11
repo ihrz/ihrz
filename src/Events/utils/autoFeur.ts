@@ -74,7 +74,7 @@ export const event: BotEvent = {
 
 		if (guildLang === "fr-ME") {
 			if (auto_respond[message.content.toLowerCase()]) {
-				if (await client.func.helper.coolDown(message, "autofeur", 8000)) {
+				if (await client.func.helper.coolDown(message, "autofeur", 3000)) {
 					return;
 				}
 				var msg = auto_respond[message.content.toLowerCase()];
