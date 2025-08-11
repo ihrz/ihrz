@@ -739,6 +739,8 @@ export const command: Command = {
 						"fr": "Pile ou face ?"
 					},
 
+					aliases: ["pileouface", "pile-ou-face"],
+
 					type: ApplicationCommandOptionType.Subcommand,
 					permission: null
 				},
