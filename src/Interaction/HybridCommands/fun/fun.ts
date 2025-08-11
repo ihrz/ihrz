@@ -688,6 +688,8 @@ export const command: Command = {
 						"fr": "Lance un ou plusieurs dés"
 					},
 
+					aliases: ["dé"],
+
 					options: [
 						{
 							name: "number",
