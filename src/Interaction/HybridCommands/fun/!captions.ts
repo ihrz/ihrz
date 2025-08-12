@@ -28,7 +28,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
 import { isValidImageType } from '../../SlashCommands/guildconfig/!footer-pfp.js';
-import { gifCaptions, captions } from '../../../core/images.js';
+import { captions } from '../../../core/images.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -49,11 +49,7 @@ export const subCommand: SubCommand = {
 		console.log(image.contentType)
 
 		try {
-			if (image.contentType?.includes("gif")) {
-				var res = await gifCaptions(image.url, query)
-			} else {
-				var res = await captions(image.url!, query);
-			}
+			var res = await captions(image.url!, query);
 
 			client.func.method.interactionSend(interaction, {
 				files: [
