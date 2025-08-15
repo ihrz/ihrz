@@ -38,7 +38,7 @@ import UltraFastHorizon from './driver/horizon2.js';
 let dbInstance: DB | null = null;
 
 export const tables = ['json', 'OWNER', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"].map(x => x.toLowerCase())
-export const readOnlyTables = ["AUTHRESTORE", 'API'];
+export const readOnlyTables = ["AUTHRESTORE", 'API'].map(x => x.toLowerCase());
 export const databasePath = `${process.cwd()}/src/files/`;
 
 export const overwriteLastLine = (message: string) => {
@@ -87,11 +87,13 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			table: tables[0]
 		});
 
+
+
 		dbInstance = new Memory();
 
 		for (const table of tables) {
-			const memoryTable = await dbInstance.table(table);
 			const postgresTable = await postgresDb.table(table);
+			const memoryTable = await dbInstance.table(table);
 			const allData = await postgresTable.all();
 
 			for (const { id, value } of allData) {
