@@ -23,6 +23,7 @@ export class Postgres<D = any> {
 			throw new Error("Either 'connectionString' or 'sql' must be provided to Postgres constructor.");
 		}
 		this.tableName = options.table ? options.table.toLowerCase() : "json";
+		this.sql.connect()
 	}
 
 	private createError(message: string, kind: ErrorKind): Error {

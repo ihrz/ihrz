@@ -61,14 +61,14 @@ export const event: BotEvent = {
 			await (client.db as Horizon).waitUntilReady();
 		}
 
-		tempTable = await client.db.table("TEMP");
-		blacklistTable = await client.db.table("BLACKLIST");
-		ownerTable = await client.db.table("OWNER");
-		profilTable = await client.db.table("USER_PROFIL");
-		authRestoreTable = await client.db.table("AUTHRESTORE");
-		prevnamesTable = await client.db.table("PREVNAMES");
-		apiTable = await client.db.table("API");
-		scheduleTable = await client.db.table("SCHEDULE");
+		tempTable = await client.db.table("temp");
+		blacklistTable = await client.db.table("blacklist");
+		ownerTable = await client.db.table("owner");
+		profilTable = await client.db.table("user_profil");
+		authRestoreTable = await client.db.table("authrestore");
+		prevnamesTable = await client.db.table("prevnames");
+		apiTable = await client.db.table("api");
+		scheduleTable = await client.db.table("schedule");
 
 		await client.emojisManager.startSync();
 
