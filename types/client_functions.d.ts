@@ -38,7 +38,6 @@ import { Json } from '../src/core/database/driver/json.ts';
 import { Memory } from '../src/core/database/driver/memory.ts';
 import { Postgres } from '../src/core/database/driver/postgres.ts';
 import { Horizon } from '../src/core/database/driver/horizon.ts';
-import { Redis } from '../src/core/database/driver/redis.ts';
 
 declare namespace Client_Functions {
 
@@ -295,7 +294,7 @@ declare namespace Client_Functions {
 	export namespace helper {
 		export function coolDown(message: Message<boolean>, method: string, ms: number): Promise<boolean>;
 		export function hardCooldown(
-			database: Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon | Redis<any>,
+			database: Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon,
 			method: string,
 			ms: number
 		): Promise<boolean>;

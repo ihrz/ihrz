@@ -31,7 +31,6 @@ import { Horizon } from './driver/horizon.js';
 import { Memory } from './driver/memory.js';
 import { Sqlite } from './driver/sqlite.js';
 import { Json } from './driver/json.js';
-import { Redis } from './driver/redis.js';
 import UltraFastHorizon from './driver/horizon2.js';
 
 
@@ -158,15 +157,6 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		};
 
 		setInterval(syncToPostgres, 60000 * 5);
-	} else if (database.method === "redis") {
-		dbInstance = new Redis({
-			redisUrl: "redis://localhost:6379",
-			table: tables[0],
-			connectionOptions: {
-				connectionTimeout: 5000,
-				autoReconnect: true
-			}
-		});
 	} else if (database.method === "horizon2") {
 		dbInstance = new UltraFastHorizon(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
 			login: database?.horizon_db?.login!,
