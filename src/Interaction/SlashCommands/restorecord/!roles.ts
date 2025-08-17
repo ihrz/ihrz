@@ -39,7 +39,7 @@ export const subCommand: SubCommand = {
 		const secretCode = interaction.options.getString("key")!;
 		const role = interaction.options.getRole("roles")!;
 
-		const data = getGuildDataPerSecretCode(await authRestoreTable.all(), secretCode);
+		const data = await getGuildDataPerSecretCode(secretCode);
 
 		if (!data) return client.func.method.interactionSend(interaction, {
 			content: lang.rc_key_doesnt_exist

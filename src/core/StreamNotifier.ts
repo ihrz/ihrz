@@ -175,17 +175,15 @@ export class StreamNotifier {
 			);
 	}
 
-	public async authorExist(platform: Platform, author_id_or_username: string): Promise<boolean> {
-		const allGuildsData = await this.getGuildsData();
+	public async authorExist(guildId: string, platform: Platform, author_id_or_username: string): Promise<boolean> {
+		const allGuildsData = await client.db.get(`${guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema;
 
-		for (const entry of allGuildsData) {
-			const users = entry.value.users || [];
-			const userExists = users.some(user =>
-				user.platform === platform && user.id_or_username === author_id_or_username
-			);
-			if (userExists) {
-				return true;
-			}
+		const users = allGuildsData.users || [];
+		const userExists = users.some(user =>
+			user.platform === platform && user.id_or_username === author_id_or_username
+		);
+		if (userExists) {
+			return true;
 		}
 
 		return false;
