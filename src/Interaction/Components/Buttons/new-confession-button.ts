@@ -43,7 +43,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	const confessionTime = await tempTable.get(`CONFESSION_COOLDOWN.${interaction.user.id}`);
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
-	const timeout = allDataConfession.cooldown!;
+	const timeout = allDataConfession?.cooldown || client.timeCalculator.to_ms("5min");
 	const panel = allDataConfession.panel;
 
 	if (confessionTime !== null && timeout - (Date.now() - confessionTime) > 0) {
