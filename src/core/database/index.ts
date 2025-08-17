@@ -31,8 +31,6 @@ import { Horizon } from './driver/horizon.js';
 import { Memory } from './driver/memory.js';
 import { Sqlite } from './driver/sqlite.js';
 import { Json } from './driver/json.js';
-import UltraFastHorizon from './driver/horizon2.js';
-
 
 let dbInstance: DB | null = null;
 
@@ -59,10 +57,6 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 	if (database.method === "json") {
 		dbInstance = new Json({
 			filePath: path.join(databasePath, "db.json")
-		});
-	} else if (database.method === "sqlite") {
-		dbInstance = new Sqlite({
-			filePath: path.join(databasePath, "db.sqlite")
 		});
 	} else if (database.method === "memory") {
 		dbInstance = new Memory();
@@ -157,13 +151,6 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		};
 
 		setInterval(syncToPostgres, 60000 * 5);
-	} else if (database.method === "horizon2") {
-		dbInstance = new UltraFastHorizon(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
-			login: database?.horizon_db?.login!,
-			password: database?.horizon_db?.password!,
-			enableVerboses: process.env.DEV === "true" ? true : false,
-			tables
-		});
 	} else {
 		dbInstance = new Sqlite({
 			filePath: path.join(databasePath, "db.sqlite")

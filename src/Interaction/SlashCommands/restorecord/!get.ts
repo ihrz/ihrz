@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		const secretCode = interaction.options.getString("key")!;
-		const Data = getGuildDataPerSecretCode(await authRestoreTable.all(), secretCode);
+		const Data = await getGuildDataPerSecretCode(secretCode);
 		const AllUsersData = await authRestoreTable.get("saved_users") as SavedMembersAuthRestore;
 
 		if (!Data) return client.func.method.interactionSend(interaction, {
