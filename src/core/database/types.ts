@@ -4,7 +4,6 @@ import { Memory } from "./driver/memory.ts";
 import { Postgres } from "./driver/postgres.ts";
 import { Sqlite } from "./driver/sqlite.ts";
 import { Horizon } from "./driver/horizon.ts";
-import { UltraFastHorizon } from "./driver/horizon2.ts";
 
 export enum ErrorKind {
 	MissingValue = "MISSING_VALUE",
@@ -15,7 +14,7 @@ export enum ErrorKind {
 export type DataLike<T = any> = { id: string; value: T };
 export type Table = Map<string, any>;
 
-export type DB = Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon | UltraFastHorizon;
+export type DB = Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon;
 
 export type PostgresOptions = {
 	table?: string;
