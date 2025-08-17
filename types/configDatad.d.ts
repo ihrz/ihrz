@@ -91,8 +91,7 @@ export interface ConfigData {
 		| 'memory'
 		| 'postgresql'
 		| 'horizon'
-		| 'cached_postgres'
-		| 'horizon2'
+		| 'cached_postgres';
 
 		mongoDb?: string;
 
