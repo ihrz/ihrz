@@ -127,8 +127,15 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		view = false;
 	}
 
-	(body.embeds as EmbedBuilder[]).push(embed);
-	await (channel as BaseGuildTextChannel).send(body);
+	body.embeds.push(embed);
+	const msg = await (channel as BaseGuildTextChannel).send(body);
+
+	if (allDataConfession.thread === "yes") {
+		msg.startThread({
+			name: `${lang.help_confession_fields} #${code}`,
+			reason: "Pic Only"
+		}).then(x => x.edit({ invitable: true, locked: false, archived: false }))
+	}
 
 	await interaction.client.db.push(`${interaction.guildId}.GUILD.CONFESSION.ALL_CONFESSIONS`, {
 		code: code,
