@@ -2201,6 +2201,10 @@ confession_log_embed_title_on_enable: "Bekenntnis Ein-/Ausschalten"
 confession_log_embed_desc_on_enable: "${interaction.user} hat das Bekenntnismodul aktiviert!"
 confession_log_embed_desc_on_disabled: "${interaction.user} hat das Bekenntnismodul deaktiviert!"
 
+# /confession thread
+confession_thread_enabled: "Von nun an erstelle ich einen Diskussionsthread unter dem Embed, wenn jemand beichtet."
+confession_thread_disabled: "Ich erstelle keinen Diskussionsthread unter dem Embed."
+
 # AntiSpam Modul
 # /antispam manage
 
