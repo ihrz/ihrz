@@ -408,7 +408,7 @@ export const subCommand: SubCommand = {
 				await i.deferUpdate();
 
 				await originalResponse.edit({
-					content: `${interaction.member.user.toString()}`,
+					content: interaction.member.user.toString()!,
 					components: [
 						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(false)),
 						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(new StringSelectMenuBuilder()
@@ -476,7 +476,7 @@ export const subCommand: SubCommand = {
 				await i.deferUpdate();
 
 				await originalResponse.edit({
-					content: `${interaction.member.user.toString()}`,
+					content: interaction.member.user.toString(),
 					components: [
 						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select.setDisabled(false)),
 						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(new StringSelectMenuBuilder()
