@@ -58,7 +58,7 @@ export const event: BotEvent = {
 		};
 
 		// If the member leave their own channel for trying to create another one
-		if (newState.channelId === baseData.voice_channel && oldState.channelId === ChannelDB) {
+		if (newState.channelId === baseData.voice_channel && (oldState.channelId === ChannelDB && newState.guild.channels.cache.get(ChannelDB))) {
 			await newState.member?.voice.disconnect();
 			return;
 		};
