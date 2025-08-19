@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "Давай разбудим ${user.toString()} !"
 util_leash_too_naugthy: "Шалунишка, ты не можешь привязать больше 3 человек :D"
 util_leah_already_owned: "Шалунишка, у тебя уже есть эти маленькие чудеса :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Участник, которого ты хочешь привязать, не находится в голосовом канале!\n${client.iHorizon_Emojis.Warning_Icon} | Ты уверен, что хочешь выполнить это действие?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Настройка поводка отменена"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Вы успешно привязали пользователя на поводок в этом сервере :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "Время между обновлением канала должно быть более 1 минуты"

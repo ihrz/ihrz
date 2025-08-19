@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "¡Vamos a despertar a ${user.toString()} !"
 util_leash_too_naugthy: "Pequeño travieso, no puedes poner a más de 3 personas en la correa :D"
 util_leah_already_owned: "Pequeño travieso, ya posees estas pequeñas maravillas :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | ¡El miembro que quieres poner en la correa no está en un canal de voz!\n${client.iHorizon_Emojis.Warning_Icon} | ¿Estás seguro de que quieres realizar esta acción?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuración de correa cancelada"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Has atado con éxito al usuario en este servidor :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "El tiempo entre una renovación de canal debe ser más de 1 minuto"

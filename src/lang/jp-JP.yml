@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "${user.toString()}を起こしに行くぞ！"
 util_leash_too_naugthy: "やんちゃ坊主、3人以上はリードに繋げないよ :D"
 util_leah_already_owned: "やんちゃ坊主、もうその小さな宝物を持ってるじゃないか :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | リードに繋げたいメンバーはボイスチャンネルにいません！\n${client.iHorizon_Emojis.Warning_Icon} | この操作を実行してもよろしいですか？"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | リーシュの設定がキャンセルされました"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | このサーバーでユーザーのリーシュに成功しました :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "チャンネルの更新間隔は1分以上である必要があります"

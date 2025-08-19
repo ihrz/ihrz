@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "Bora acordar o ${user.toString()} !"
 util_leash_too_naugthy: "Pecadorzinho, não podes colocar mais de 3 pessoas na trela :D"
 util_leah_already_owned: "Pecadorzinho, já possuis estas pequenas maravilhas :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | O membro que queres colocar na trela não está num canal de voz!\n${client.iHorizon_Emojis.Warning_Icon} | Tens a certeza de que queres proceder com esta ação?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuração da trela cancelada"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Você colocou a trela no usuário com sucesso neste servidor :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "O tempo entre uma renovação de canal deve ser superior a 1 minuto"

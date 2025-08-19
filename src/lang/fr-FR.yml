@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "C'est partiiiiit pour le réveil de ${user.toString()
 util_leash_too_naugthy: "Petit coquin, tu ne peux pas mettre plus de 3 personnes en laisse :D"
 util_leah_already_owned: "Petit coquin, tu possèdes déjà ces petites merveilles :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Le membre que tu veux mettre en laisse n'est pas dans un canal vocal !\n${client.iHorizon_Emojis.Warning_Icon} | Es-tu sûr de vouloir effectuer cette action ?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuration de laisse annulée"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Vous avez mis en laisse l'utilisateur avec succès dans ce serveur :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "Le temps entre chaque renouvellement de salon doit être supérieur à 1 minute"

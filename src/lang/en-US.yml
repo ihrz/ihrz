@@ -1034,6 +1034,8 @@ util_wakeup_command_work: "Let's go wake up ${user.toString()} !"
 util_leash_too_naugthy: "You little rascal, you can't leash more than 3 people :D"
 util_leah_already_owned: "You little rascal, you already own these little wonders :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | The member you want to leash isn't in a voice channel!\n${client.iHorizon_Emojis.Warning_Icon} | Are you sure you want to proceed with this action?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Leash configurations canceled"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | You have sucessfuly leashed the user in this guild :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "The time between a channel renew must be more than 1 minutes"
