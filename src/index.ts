@@ -41,7 +41,11 @@ logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Comm
 logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
 
 const manager = new ShardingManager('./src/core/bot.ts', {
-	totalShards: (process.env.TOTAL_SHARDS as number | 'auto' | undefined) || "auto",
+	totalShards: process.env.TOTAL_SHARDS
+		? isNaN(Number(process.env.TOTAL_SHARDS))
+			? 'auto'
+			: Number(process.env.TOTAL_SHARDS)
+		: 'auto',
 	token: process.env.BOT_TOKEN || config.discord.token
 });
 manager.on("shardCreate", (shard) => logger.log(`${config.console.emojis.HOST} >> The Shard number ${shard.id} is now launched :) !`.green));
