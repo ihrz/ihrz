@@ -20,31 +20,32 @@
 */
 
 import {
+	ApplicationCommandType,
 	ChatInputCommandInteraction,
-	Client
-} from 'discord.js';
+	Client,
+	EmbedBuilder,
+	Message,
+} from 'discord.js'
+
+import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { subCommand } from '../../SlashCommands/guildconfig/!prefix.js';
 
+export const command: Command = {
+	name: 'prefix',
 
-import { SubCommand } from '../../../../types/command.js';
+	description: 'Change the bot prefix on the guild',
+	description_localizations: {
+		"fr": "Changer le préfixe du bot sur le serveur"
+	},
 
-export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	aliases: ["setprefix", "changeprefix"],
 
-
-		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-		const role = interaction.options.getRole("role");
-
-		await client.db.set(`${interaction.guildId}.SECURITY.role`, role?.id);
-
-		await client.func.method.interactionSend(interaction, {
-			content: lang.security_role_to_give_command_work
-				.replace('${interaction.user}', interaction.user.toString())
-				.replace('${role}', role?.toString()!)
-		});
-
-		return;
+	category: 'bot',
+	thinking: false,
+	type: ApplicationCommandType.ChatInput,
+	permission: null,
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
+		subCommand.run(client, interaction, lang, args)
 	},
 };

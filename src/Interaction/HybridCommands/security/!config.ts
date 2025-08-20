@@ -39,7 +39,7 @@ export const subCommand: SubCommand = {
 
 		if (action === 'on') {
 			await client.db.set(`${interaction.guildId}.SECURITY.disable`, false);
-			await interaction.reply({
+			await client.func.method.interactionSend(interaction, {
 				content: lang.security_disable_pw_on
 					.replace('${interaction.user}', interaction.user.toString())
 			});
@@ -47,7 +47,7 @@ export const subCommand: SubCommand = {
 			return;
 		} else if (action === 'off') {
 			await client.db.set(`${interaction.guildId}.SECURITY.disable`, true);
-			await interaction.reply({
+			await client.func.method.interactionSend(interaction, {
 				content: lang.security_disable_pw_off
 					.replace('${interaction.user}', interaction.user.toString())
 			});

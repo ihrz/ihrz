@@ -790,6 +790,8 @@ export interface LanguageData {
 	util_leash_too_naugthy: string;
 	util_leah_already_owned: string;
 	util_leash_confirm_message: string;
+	util_leash_canceled_leash: string;
+	util_leash_confirmed_leash: string;
 	util_autorenew_time_too_short: string;
 	util_autorenew_time_too_long: string;
 	util_autorenew_command_ok: string;

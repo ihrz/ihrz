@@ -35,7 +35,7 @@ export const subCommand: SubCommand = {
 		await client.db.set(`${interaction.guildId}.UTILS.git_lines`, !state);
 
 		const newState = !state;
-		await interaction.reply({
+		await client.func.method.interactionSend(interaction, {
 			content: newState ? lang.git_lines_work : lang.git_lines_work_disabled,
 			allowedMentions: { repliedUser: false }
 		});

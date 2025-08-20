@@ -21,22 +21,32 @@
 
 import * as crypto from 'crypto';
 
-const ALGORITHM = 'aes-256-cbc';
-const IV_LENGTH = 16;
+const ALGORITHM = 'aes-256-gcm';
+const IV_LENGTH = 12;
+const SALT_LENGTH = 16;
+const KEY_LENGTH = 32;
+const ITERATIONS = 100_000;
 
 /**
  * Function to encrypt a string
  * @param text - The string to encrypt
  * @returns The encrypted string
  */
-export function encrypt(k: string, text: string): string {
-	const key = crypto.createHash('sha256').update(k).digest();
-
+export function encrypt(password: string, text: string): string {
+	const salt = crypto.randomBytes(SALT_LENGTH);
 	const iv = crypto.randomBytes(IV_LENGTH);
+	const key = crypto.pbkdf2Sync(password, salt, ITERATIONS, KEY_LENGTH, 'sha256');
+
 	const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
-	let encrypted = cipher.update(text, 'utf8', 'hex');
-	encrypted += cipher.final('hex');
-	return iv.toString('hex') + ':' + encrypted;
+	const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+	const authTag = cipher.getAuthTag();
+
+	return [
+		salt.toString('hex'),
+		iv.toString('hex'),
+		encrypted.toString('hex'),
+		authTag.toString('hex')
+	].join(':');
 }
 
 /**
@@ -44,17 +54,21 @@ export function encrypt(k: string, text: string): string {
  * @param text - The string to decrypt
  * @returns The decrypted string
  */
-export function decrypt(k: string, text: string): string | undefined {
+export function decrypt(password: string, data: string): string | undefined {
 	try {
-		const key = crypto.createHash('sha256').update(k).digest();
+		const [saltHex, ivHex, encryptedHex, authTagHex] = data.split(':');
+		const salt = Buffer.from(saltHex, 'hex');
+		const iv = Buffer.from(ivHex, 'hex');
+		const encrypted = Buffer.from(encryptedHex, 'hex');
+		const authTag = Buffer.from(authTagHex, 'hex');
 
-		const textParts = text.split(':');
-		const iv = Buffer.from(textParts.shift()!, 'hex');
-		const encryptedText = textParts.join(':');
+		const key = crypto.pbkdf2Sync(password, salt, ITERATIONS, KEY_LENGTH, 'sha256');
+
 		const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-		let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-		decrypted += decipher.final('utf8');
-		return decrypted;
+		decipher.setAuthTag(authTag);
+
+		const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+		return decrypted.toString('utf8');
 	} catch {
 		return undefined;
 	}
