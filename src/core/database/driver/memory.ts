@@ -30,7 +30,7 @@ export class Memory<D = any> {
 	constructor(options: {
 		table?: string;
 	} = {}) {
-		options.table ??= "memory";
+		options.table ??= "json";
 		this.tableName = options.table;
 	}
 

@@ -19,6 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { authRestoreTable } from "../../Events/client/ready.js";
 import * as apiUrlParser from "./apiUrlParser.js";
 import { axios } from "./axios.js";
 
@@ -126,7 +127,8 @@ export async function createAuthRestore(data: AuthRestore_EntryType): Promise<Au
 	)).data || {}
 }
 
-export function getGuildDataPerSecretCode(data: { id: string; value: any }[], secretCode: string): { id: string, data: GuildAuthRestore } | null {
+export async function getGuildDataPerSecretCode(secretCode: string): Promise<{ id: string, data: GuildAuthRestore } | null> {
+	const data = await authRestoreTable.all()
 	for (const index in data) {
 		const entry = data[index];
 

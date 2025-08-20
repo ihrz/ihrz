@@ -2201,6 +2201,10 @@ confession_log_embed_title_on_enable: "تفعيل/تعطيل الاعترافا�
 confession_log_embed_desc_on_enable: "${interaction.user} قام بتفعيل وحدة الاعترافات!"
 confession_log_embed_desc_on_disabled: "${interaction.user} قام بتعطيل وحدة الاعترافات!"
 
+# /confession thread
+confession_thread_enabled: "من الآن فصاعداً، عندما يعترف شخص ما، سأقوم بإنشاء موضوع نقاش تحت الرسالة المضمنة."
+confession_thread_disabled: "لن أقوم بإنشاء موضوع نقاش تحت الرسالة المضمنة."
+
 # AntiSpam Module
 # /antispam manage
 

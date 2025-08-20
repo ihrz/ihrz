@@ -43,7 +43,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	const confessionTime = await tempTable.get(`CONFESSION_COOLDOWN.${interaction.user.id}`);
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
-	const timeout = allDataConfession.cooldown!;
+	const timeout = allDataConfession?.cooldown || client.timeCalculator.to_ms("5min");
 	const panel = allDataConfession.panel;
 
 	if (confessionTime !== null && timeout - (Date.now() - confessionTime) > 0) {
@@ -127,8 +127,15 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		view = false;
 	}
 
-	(body.embeds as EmbedBuilder[]).push(embed);
-	await (channel as BaseGuildTextChannel).send(body);
+	body.embeds.push(embed);
+	const msg = await (channel as BaseGuildTextChannel).send(body);
+
+	if (allDataConfession.thread === "yes") {
+		msg.startThread({
+			name: `${lang.help_confession_fields} #${code}`,
+			reason: "Pic Only"
+		}).then(x => x.edit({ invitable: true, locked: false, archived: false }))
+	}
 
 	await interaction.client.db.push(`${interaction.guildId}.GUILD.CONFESSION.ALL_CONFESSIONS`, {
 		code: code,

@@ -91,9 +91,7 @@ export interface ConfigData {
 		| 'memory'
 		| 'postgresql'
 		| 'horizon'
-		| 'cached_postgres'
-		| 'redis'
-		| 'horizon2'
+		| 'cached_postgres';
 
 		mongoDb?: string;
 
@@ -104,13 +102,6 @@ export interface ConfigData {
 			password: string;
 			database: string;
 			port?: number;
-		};
-
-		redis?: {
-			host?: string;
-			port?: number;
-			password?: string;
-			db?: number;
 		};
 
 		horizon_db?: {

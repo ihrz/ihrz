@@ -2201,6 +2201,10 @@ confession_log_embed_title_on_enable: "Включение/Отключение �
 confession_log_embed_desc_on_enable: "${interaction.user} включил модуль исповедей!"
 confession_log_embed_desc_on_disabled: "${interaction.user} отключил модуль исповедей!"
 
+# /confession thread
+confession_thread_enabled: "Отныне, когда кто-то признается, я создаю ветку обсуждения под встраиваемым сообщением."
+confession_thread_disabled: "Я не создаю ветку обсуждения под встраиваемым сообщением."
+
 # Модуль AntiSpam
 # /antispam manage
 

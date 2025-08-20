@@ -2201,6 +2201,10 @@ confession_log_embed_title_on_enable: "Activer/Désactiver Confession"
 confession_log_embed_desc_on_enable: "${interaction.user} a activé le module de confession!"
 confession_log_embed_desc_on_disabled: "${interaction.user} a désactivé le module de confession!"
 
+# /confession thread
+confession_thread_enabled: "Désormais, quand quelqu'un confesse, je créer un fil de discussion en dessous de l'embed."
+confession_thread_disabled: "Je ne créer pas de fil de discussion en dessous de l'embed."
+
 # Module AntiSpam
 # /antispam manage
 

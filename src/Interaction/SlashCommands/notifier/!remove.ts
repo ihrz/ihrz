@@ -41,7 +41,7 @@ export const subCommand: SubCommand = {
 		const platform = interaction.options.getString("platform") as Platform;
 		const author = interaction.options.getString("author") as string;
 
-		if (await client.notifier.authorExist(platform, author)) {
+		if (await client.notifier.authorExist(interaction.guildId, platform, author)) {
 			const fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema | null;
 			const fetchedUsers = fetched?.users || [];
 

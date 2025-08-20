@@ -31,14 +31,11 @@ import { Horizon } from './driver/horizon.js';
 import { Memory } from './driver/memory.js';
 import { Sqlite } from './driver/sqlite.js';
 import { Json } from './driver/json.js';
-import { Redis } from './driver/redis.js';
-import UltraFastHorizon from './driver/horizon2.js';
-
 
 let dbInstance: DB | null = null;
 
 export const tables = ['json', 'OWNER', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"].map(x => x.toLowerCase())
-export const readOnlyTables = ["AUTHRESTORE", 'API'];
+export const readOnlyTables = ["AUTHRESTORE", 'API'].map(x => x.toLowerCase());
 export const databasePath = `${process.cwd()}/src/files/`;
 
 export const overwriteLastLine = (message: string) => {
@@ -60,10 +57,6 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 	if (database.method === "json") {
 		dbInstance = new Json({
 			filePath: path.join(databasePath, "db.json")
-		});
-	} else if (database.method === "sqlite") {
-		dbInstance = new Sqlite({
-			filePath: path.join(databasePath, "db.sqlite")
 		});
 	} else if (database.method === "memory") {
 		dbInstance = new Memory();
@@ -87,11 +80,13 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			table: tables[0]
 		});
 
+
+
 		dbInstance = new Memory();
 
 		for (const table of tables) {
-			const memoryTable = await dbInstance.table(table);
 			const postgresTable = await postgresDb.table(table);
+			const memoryTable = await dbInstance.table(table);
 			const allData = await postgresTable.all();
 
 			for (const { id, value } of allData) {
@@ -156,22 +151,6 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		};
 
 		setInterval(syncToPostgres, 60000 * 5);
-	} else if (database.method === "redis") {
-		dbInstance = new Redis({
-			redisUrl: "redis://localhost:6379",
-			table: tables[0],
-			connectionOptions: {
-				connectionTimeout: 5000,
-				autoReconnect: true
-			}
-		});
-	} else if (database.method === "horizon2") {
-		dbInstance = new UltraFastHorizon(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
-			login: database?.horizon_db?.login!,
-			password: database?.horizon_db?.password!,
-			enableVerboses: process.env.DEV === "true" ? true : false,
-			tables
-		});
 	} else {
 		dbInstance = new Sqlite({
 			filePath: path.join(databasePath, "db.sqlite")

@@ -2201,6 +2201,10 @@ confession_log_embed_title_on_enable: "告白の有効化/無効化"
 confession_log_embed_desc_on_enable: "${interaction.user}が告白モジュールを有効にしました！"
 confession_log_embed_desc_on_disabled: "${interaction.user}が告白モジュールを無効にしました！"
 
+# /confession thread
+confession_thread_enabled: "今後、誰かが告白したとき、埋め込みの下にディスカッションスレッドを作成します。"
+confession_thread_disabled: "埋め込みの下にディスカッションスレッドを作成しません。"
+
 # アンチスパムモジュール
 # /antispam manage
 
