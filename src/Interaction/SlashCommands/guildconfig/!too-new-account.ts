@@ -62,6 +62,7 @@ export const subCommand: SubCommand = {
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${beautifulTime}', beautifulTime.toString())
 					.replace('${interaction.guild?.name}', beautifulTime.toString())
+					.replace('${maxJoin}', String(maximumJoin))
 			});
 
 			await client.db.set(`${interaction.guildId}.GUILD.BLOCK_NEW_ACCOUNT`, {
