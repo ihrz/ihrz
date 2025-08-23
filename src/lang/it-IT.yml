@@ -2625,6 +2625,20 @@ addrolereact_adding_role_progress: "Aggiunta del ruolo {role} in corso per {coun
 addrolereact_role_added: "Ruolo {role} aggiunto. {count} utenti hanno ricevuto il ruolo."
 addrolereact_error: "Errore durante l'esecuzione del comando."
 
+# Comandi nascondi/mostra canali
+channel_hide_in_progress: "Nascondendo il canale corrente..."
+channel_hide_success: "Il canale è stato nascosto per @everyone"
+channel_hide_already_hidden: "Questo canale è già nascosto per @everyone"
+channel_unhide_in_progress: "Mostrando il canale corrente..."
+channel_unhide_success: "Il canale è ora visibile per @everyone"
+channel_unhide_already_visible: "Questo canale è già visibile per @everyone"
+channel_hideall_in_progress: "Nascondendo tutti i canali in corso..."
+channel_hideall_success: "**Nascondimento completato!**\n**Statistiche:**\n• **{hiddenCount}** canali nascosti\n• **{errorCount}** errori riscontrati"
+channel_hideall_error: "Si è verificato un errore durante il nascondimento dei canali."
+channel_unhideall_in_progress: "Mostrando tutti i canali in corso..."
+channel_unhideall_success: "**Visualizzazione completata!**\n**Statistiche:**\n• **{unhiddenCount}** canali mostrati\n• **{errorCount}** errori riscontrati"
+channel_unhideall_error: "Si è verificato un errore durante la visualizzazione dei canali."
+
 # it-IT.yml (Italian - Italy)
 new_guild_embed_title:
   - "Benvenuti nel vostro server! 🎉"

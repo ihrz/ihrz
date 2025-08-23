@@ -2627,6 +2627,20 @@ addrolereact_adding_role_progress: "Jdonne le rôle {role} à {count} mecs qui o
 addrolereact_role_added: "J'ai donné le rôle {role} à {count} mecs qui ont réagi"
 addrolereact_error: "Une erreur de merde est survenue, réessaye plus tard"
 
+# Commandes de masquage/démasquage des salons - Version familière
+channel_hide_in_progress: "J'masque le salon là..."
+channel_hide_success: "Le salon est maintenant caché pour @everyone, tranquille"
+channel_hide_already_hidden: "Le salon est déjà caché pour @everyone, t'es con ou quoi"
+channel_unhide_in_progress: "J'démasque le salon là..."
+channel_unhide_success: "Le salon est maintenant visible pour @everyone, c'est bon"
+channel_unhide_already_visible: "Le salon est déjà visible pour @everyone, t'es aveugle ou quoi"
+channel_hideall_in_progress: "J'masque tous les salons, ça va prendre du temps..."
+channel_hideall_success: "**Masquage terminé, tranquille !**\n**Les stats :**\n• **{hiddenCount}** salons masqués\n• **{errorCount}** erreurs de merde"
+channel_hideall_error: "Une erreur de merde est survenue pendant le masquage des salons."
+channel_unhideall_in_progress: "J'démasque tous les salons, patience..."
+channel_unhideall_success: "**Démasquage terminé, c'est bon !**\n**Les stats :**\n• **{unhiddenCount}** salons démasqués\n• **{errorCount}** erreurs de merde"
+channel_unhideall_error: "Une erreur de merde est survenue pendant le démasquage des salons."
+
 # fr-FR.yml (French - France)
 new_guild_embed_title:
   - "Bienvenue sur votre serveur ! 🎉"

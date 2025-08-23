@@ -2625,6 +2625,20 @@ addrolereact_adding_role_progress: "Добавление роли {role} для 
 addrolereact_role_added: "Роль {role} добавлена. {count} пользователей получили роль."
 addrolereact_error: "Ошибка при выполнении команды."
 
+# Команды скрытия/показа каналов
+channel_hide_in_progress: "Скрытие текущего канала..."
+channel_hide_success: "Канал был скрыт от @everyone"
+channel_hide_already_hidden: "Этот канал уже скрыт от @everyone"
+channel_unhide_in_progress: "Показ текущего канала..."
+channel_unhide_success: "Канал теперь виден для @everyone"
+channel_unhide_already_visible: "Этот канал уже виден для @everyone"
+channel_hideall_in_progress: "Скрытие всех каналов в процессе..."
+channel_hideall_success: "**Скрытие завершено!**\n**Статистика:**\n• **{hiddenCount}** каналов скрыто\n• **{errorCount}** ошибок обнаружено"
+channel_hideall_error: "Произошла ошибка при скрытии каналов."
+channel_unhideall_in_progress: "Показ всех каналов в процессе..."
+channel_unhideall_success: "**Показ завершен!**\n**Статистика:**\n• **{unhiddenCount}** каналов показано\n• **{errorCount}** ошибок обнаружено"
+channel_unhideall_error: "Произошла ошибка при показе каналов."
+
 # ru-RU.yml (Russian - Russia)
 new_guild_embed_title:
   - "Добро пожаловать на ваш сервер! 🎉"
