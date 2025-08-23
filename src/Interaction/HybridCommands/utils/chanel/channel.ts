@@ -70,6 +70,16 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.Administrator
 		},
+		{
+			name: 'hideall',
+			description: 'Hide all channels in the server from everyone',
+			description_localizations: {
+				"fr": "Masquer tous les salons du serveur pour everyone"
+			},
+			aliases: ["masquer-tout"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.Administrator
+		},
 	],
 
 	category: 'utils',
