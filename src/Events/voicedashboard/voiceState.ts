@@ -51,17 +51,20 @@ export const event: BotEvent = {
 		const category_channel = newState.guild.channels.cache.get(result_channel?.parentId as string) as CategoryChannel;
 
 		// If the user leave their own empty channel
+		let toReturn = false;
+
 		if (oldState.channelId === ChannelDB && channel_db_fetched?.members.size === 0) {
 			await channel_db_fetched?.delete().catch(() => { });
 			await tempTable.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
-			return;
+			toReturn = true;
 		};
 
 		// If the member leave their own channel for trying to create another one
-		if (newState.channelId === baseData.voice_channel && (oldState.channelId === ChannelDB && newState.guild.channels.cache.get(ChannelDB))) {
+		if (newState.channelId === baseData.voice_channel && (ChannelDB !== null && oldState.channelId === ChannelDB)) {
 			await newState.member?.voice.disconnect();
-			return;
+			toReturn = true;
 		};
+		if (toReturn) return;
 
 		// If the user leave annother empty channel
 		if (oldState.channel?.members.size === 0 && allChannel) {
@@ -82,7 +85,7 @@ export const event: BotEvent = {
 		const lang = await client.func.getLanguageData(newState.guild.id);
 
 		// If the user join the Create's Channel
-		if (newState.channelId === baseData.voice_channel && oldState.channelId !== ChannelDB) {
+		if (newState.channelId === baseData.voice_channel) {
 			const PotentialCategory = oldState.guild.channels.cache.get(baseData?.voice_channel_category || "") || await oldState.guild.channels.fetch(baseData?.voice_channel_category || "");
 			const username = newState.member?.displayName || newState.member?.nickname;
 
