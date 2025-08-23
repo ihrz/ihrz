@@ -32,7 +32,7 @@ import { LanguageData } from '../../../../../types/languageData.js';
 import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, _lang: LanguageData, _args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, _args?: string[]) => {
 
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
 			let errorCount = 0;
 
 			await client.func.method.interactionSend(interaction, {
-				content: "Démasquage de tous les salons en cours..."
+				content: lang.channel_unhideall_in_progress
 			});
 
 			for (const [_channelId, channel] of allChannels) {
@@ -70,16 +70,15 @@ export const subCommand: SubCommand = {
 				}
 			}
 
-			await client.func.method.interactionSend(interaction, { //temp msg
-				content: `**Démasquage terminé !**\n` +
-					`**Statistiques :**\n` +
-					`• **${unhiddenCount}** salons démasqués\n` +
-					`• **${errorCount}** erreurs rencontrées`
+			await client.func.method.interactionSend(interaction, {
+				content: lang.channel_unhideall_success
+					.replace('{unhiddenCount}', unhiddenCount.toString())
+					.replace('{errorCount}', errorCount.toString())
 			});
 
 		} catch (error) {
 			await client.func.method.interactionSend(interaction, {
-				content: "Une erreur est survenue lors du démasquage des salons." // temp msg
+				content: lang.channel_unhideall_error
 			});
 		}
 	},

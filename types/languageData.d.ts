@@ -1952,6 +1952,18 @@ export interface LanguageData {
 	addrolereact_adding_role_progress: string;
 	addrolereact_role_added: string;
 	addrolereact_error: string;
+	channel_hide_in_progress: string;
+	channel_hide_success: string;
+	channel_hide_already_hidden: string;
+	channel_unhide_in_progress: string;
+	channel_unhide_success: string;
+	channel_unhide_already_visible: string;
+	channel_hideall_in_progress: string;
+	channel_hideall_success: string;
+	channel_hideall_error: string;
+	channel_unhideall_in_progress: string;
+	channel_unhideall_success: string;
+	channel_unhideall_error: string;
 	new_guild_embed_title: string[];
 	new_guild_embed_desc: string;
 }

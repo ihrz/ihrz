@@ -52,14 +52,14 @@ export const subCommand: SubCommand = {
 			const everyoneOverwrite = channel.permissionOverwrites.cache.get(interaction.guild.id);
 			if (everyoneOverwrite && everyoneOverwrite.deny.has('ViewChannel')) {
 				await client.func.method.interactionSend(interaction, {
-					content: "Ce salon est déjà masqué pour @everyone" // temp msg
+					content: lang.channel_hide_already_hidden
 				});
 				return;
 			}
 
 			if (everyoneOverwrite && everyoneOverwrite.allow.has('ViewChannel') === false && everyoneOverwrite.deny.has('ViewChannel') === true) {
 				await client.func.method.interactionSend(interaction, {
-					content: "Ce salon est déjà masqué pour @everyone" // temp msg
+					content: lang.channel_hide_already_hidden
 				});
 				return;
 			}
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 			});
 
 			await client.func.method.interactionSend(interaction, {
-				content: "Channel has been hidden from @everyone" // temp msg
+				content: lang.channel_hide_success
 			});
 
 		} catch (error) {

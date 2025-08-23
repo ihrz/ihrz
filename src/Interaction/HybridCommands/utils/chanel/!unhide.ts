@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
 
 			if (!everyoneOverwrite || !everyoneOverwrite.deny.has('ViewChannel')) {
 				await client.func.method.interactionSend(interaction, {
-					content: "Ce salon est déjà visible pour @everyone" // temp msg
+					content: lang.channel_unhide_already_visible
 				});
 				return;
 			}
@@ -64,7 +64,7 @@ export const subCommand: SubCommand = {
 
 			// Send success message
 			await client.func.method.interactionSend(interaction, {
-				content: "Le salon est maintenant visible pour @everyone" // temp msg
+				content: lang.channel_unhide_success
 			});
 
 		} catch (error) {

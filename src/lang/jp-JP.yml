@@ -2625,6 +2625,20 @@ addrolereact_adding_role_progress: "役割 {role} を追加中..."
 addrolereact_role_added: "役割 {role} を追加しました。"
 addrolereact_error: "コマンドの実行中にエラーが発生しました。"
 
+# チャンネル非表示/表示コマンド
+channel_hide_in_progress: "現在のチャンネルを非表示にしています..."
+channel_hide_success: "チャンネルが@everyoneから非表示になりました"
+channel_hide_already_hidden: "このチャンネルは既に@everyoneから非表示になっています"
+channel_unhide_in_progress: "現在のチャンネルを表示しています..."
+channel_unhide_success: "チャンネルが@everyoneに表示されるようになりました"
+channel_unhide_already_visible: "このチャンネルは既に@everyoneに表示されています"
+channel_hideall_in_progress: "すべてのチャンネルを非表示にしています..."
+channel_hideall_success: "**非表示完了！**\n**統計:**\n• **{hiddenCount}** チャンネルが非表示になりました\n• **{errorCount}** エラーが発生しました"
+channel_hideall_error: "チャンネルの非表示中にエラーが発生しました。"
+channel_unhideall_in_progress: "すべてのチャンネルを表示しています..."
+channel_unhideall_success: "**表示完了！**\n**統計:**\n• **{unhiddenCount}** チャンネルが表示されました\n• **{errorCount}** エラーが発生しました"
+channel_unhideall_error: "チャンネルの表示中にエラーが発生しました。"
+
 # jp-JP.yml (Japanese - Japan)
 new_guild_embed_title:
   - "あなたのサーバーへようこそ！🎉"
