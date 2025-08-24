@@ -2627,6 +2627,20 @@ addrolereact_adding_role_progress: "Adding role {role} in progress for {count} u
 addrolereact_role_added: "Role {role} added. {count} users received the role."
 addrolereact_error: "Error executing the command."
 
+# Channel hide/unhide commands
+channel_hide_in_progress: "Hiding the current channel..."
+channel_hide_success: "Channel has been hidden from @everyone"
+channel_hide_already_hidden: "This channel is already hidden from @everyone"
+channel_unhide_in_progress: "Unhiding the current channel..."
+channel_unhide_success: "The channel is now visible to @everyone"
+channel_unhide_already_visible: "This channel is already visible to @everyone"
+channel_hideall_in_progress: "Hiding all channels in progress..."
+channel_hideall_success: "**Hiding completed!**\n**Statistics:**\n• **{hiddenCount}** channels hidden\n• **{errorCount}** errors encountered"
+channel_hideall_error: "An error occurred while hiding channels."
+channel_unhideall_in_progress: "Unhiding all channels in progress..."
+channel_unhideall_success: "**Unhiding completed!**\n**Statistics:**\n• **{unhiddenCount}** channels unhidden\n• **{errorCount}** errors encountered"
+channel_unhideall_error: "An error occurred while unhiding channels."
+
 # New guild event
 new_guild_embed_title:
   - "Welcome to our server! 🎉"

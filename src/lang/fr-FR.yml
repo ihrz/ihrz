@@ -2625,6 +2625,20 @@ addrolereact_adding_role_progress: "Ajout du rôle {role} en cours pour {count} 
 addrolereact_role_added: "Ajout du rôle {role} terminé. {count} utilisateurs ont reçu le rôle."
 addrolereact_error: "Erreur lors de l'exécution de la commande."
 
+# Commandes de masquage/démasquage des salons
+channel_hide_in_progress: "Masquage du salon actuel en cours..."
+channel_hide_success: "Le salon a été masqué pour @everyone"
+channel_hide_already_hidden: "Ce salon est déjà masqué pour @everyone"
+channel_unhide_in_progress: "Démasquage du salon actuel en cours..."
+channel_unhide_success: "Le salon est maintenant visible pour @everyone"
+channel_unhide_already_visible: "Ce salon est déjà visible pour @everyone"
+channel_hideall_in_progress: "Masquage de tous les salons en cours..."
+channel_hideall_success: "**Masquage terminé !**\n**Statistiques :**\n• **{hiddenCount}** salons masqués\n• **{errorCount}** erreurs rencontrées"
+channel_hideall_error: "Une erreur est survenue lors du masquage des salons."
+channel_unhideall_in_progress: "Démasquage de tous les salons en cours..."
+channel_unhideall_success: "**Démasquage terminé !**\n**Statistiques :**\n• **{unhiddenCount}** salons démasqués\n• **{errorCount}** erreurs rencontrées"
+channel_unhideall_error: "Une erreur est survenue lors du démasquage des salons."
+
 # fr-FR.yml (French - France)
 new_guild_embed_title:
   - "Bienvenue sur votre serveur ! 🎉"

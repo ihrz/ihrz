@@ -2618,6 +2618,20 @@ addrolereact_adding_role_progress: "Ajout du rôle {role} en cours pour {count} 
 addrolereact_role_added: "Ajout du rôle {role} terminé. {count} utilisateurs ont reçu le rôle."
 addrolereact_error: "Erreur lors de l'exécution de la commande."
 
+# أوامر إخفاء/إظهار القنوات
+channel_hide_in_progress: "...جاري إخفاء القناة الحالية"
+channel_hide_success: "تم إخفاء القناة عن @everyone"
+channel_hide_already_hidden: "هذه القناة مخفية بالفعل عن @everyone"
+channel_unhide_in_progress: "...جاري إظهار القناة الحالية"
+channel_unhide_success: "القناة مرئية الآن لـ @everyone"
+channel_unhide_already_visible: "هذه القناة مرئية بالفعل لـ @everyone"
+channel_hideall_in_progress: "...جاري إخفاء جميع القنوات"
+channel_hideall_success: "!**تم الإخفاء**\n:**الإحصائيات**\n• **{hiddenCount}** قناة تم إخفاؤها\n• **{errorCount}** أخطاء واجهتها"
+channel_hideall_error: ".حدث خطأ أثناء إخفاء القنوات"
+channel_unhideall_in_progress: "...جاري إظهار جميع القنوات"
+channel_unhideall_success: "!**تم الإظهار**\n:**الإحصائيات**\n• **{unhiddenCount}** قناة تم إظهارها\n• **{errorCount}** أخطاء واجهتها"
+channel_unhideall_error: ".حدث خطأ أثناء إظهار القنوات"
+
 # ar-EG.yml (Arabic - Egypt)
 new_guild_embed_title:
   - "!أهلاً وسهلاً بكم في خادمكم 🎉"

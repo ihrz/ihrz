@@ -2625,6 +2625,20 @@ addrolereact_adding_role_progress: "Agregando rol {role} en progreso para {count
 addrolereact_role_added: "Rol {role} agregado. {count} usuarios recibieron el rol."
 addrolereact_error: "Error al ejecutar el comando."
 
+# Comandos de ocultar/mostrar canales
+channel_hide_in_progress: "Ocultando el canal actual..."
+channel_hide_success: "El canal ha sido ocultado para @everyone"
+channel_hide_already_hidden: "Este canal ya está oculto para @everyone"
+channel_unhide_in_progress: "Mostrando el canal actual..."
+channel_unhide_success: "El canal ahora es visible para @everyone"
+channel_unhide_already_visible: "Este canal ya es visible para @everyone"
+channel_hideall_in_progress: "Ocultando todos los canales en progreso..."
+channel_hideall_success: "**¡Ocultación completada!**\n**Estadísticas:**\n• **{hiddenCount}** canales ocultados\n• **{errorCount}** errores encontrados"
+channel_hideall_error: "Ocurrió un error al ocultar los canales."
+channel_unhideall_in_progress: "Mostrando todos los canales en progreso..."
+channel_unhideall_success: "**¡Mostrar completado!**\n**Estadísticas:**\n• **{unhiddenCount}** canales mostrados\n• **{errorCount}** errores encontrados"
+channel_unhideall_error: "Ocurrió un error al mostrar los canales."
+
 # es-ES.yml (Spanish - Spain)
 new_guild_embed_title:
   - "¡Bienvenidos a vuestro servidor! 🎉"

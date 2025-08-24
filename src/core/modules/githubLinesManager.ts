@@ -157,6 +157,9 @@ class GithubLinesManager {
 		}
 
 		let extension = (filename.includes(".") ? filename.split(".") : [""]).pop();
+		if (extension) {
+			extension = extension.split("?")[0];
+		}
 		if (!extension || /[^0-9a-z]/i.test(extension)) extension = "";
 
 		return new LineData(lineLength, extension, toDisplay);

@@ -1570,6 +1570,20 @@ antispam_more_ban_msg: " Якщо ви продовжите, вас буде з�
 antispam_more_mute_msg: " Якщо ви продовжите, вас буде вимкнено."
 antispam_more_kick_msg: " Якщо ви продовжите, вас буде вилучено з сервера."
 
+# Команди приховування/показу каналів
+channel_hide_in_progress: "Приховування поточного каналу..."
+channel_hide_success: "Канал був прихований від @everyone"
+channel_hide_already_hidden: "Цей канал уже прихований від @everyone"
+channel_unhide_in_progress: "Показ поточного каналу..."
+channel_unhide_success: "Канал тепер видимий для @everyone"
+channel_unhide_already_visible: "Цей канал уже видимий для @everyone"
+channel_hideall_in_progress: "Приховування всіх каналів в процесі..."
+channel_hideall_success: "**Приховування завершено!**\n**Статистика:**\n• **{hiddenCount}** каналів приховано\n• **{errorCount}** помилок виявлено"
+channel_hideall_error: "Сталася помилка під час приховування каналів."
+channel_unhideall_in_progress: "Показ всіх каналів в процесі..."
+channel_unhideall_success: "**Показ завершено!**\n**Статистика:**\n• **{unhiddenCount}** каналів показано\n• **{errorCount}** помилок виявлено"
+channel_unhideall_error: "Сталася помилка під час показу каналів."
+
 # Встроенные логи AntiSpam
 antispam_log_embed_title: "[АнтіСпам] Новий ${actionType}"
 antispam_log_embed_desc: "${client.user?.toString()} **${actionType}** ${user.toString()}"
