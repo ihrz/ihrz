@@ -138,7 +138,7 @@ export async function getLogs(guild: Guild, args: string, type: AuditLogEvent, l
 }
 
 export const event = {
-	name: 'ready',
+	name: 'clientReady',
 	run: async (client: Client) => {
 		await backupGuildStructure(client);
 		setInterval(() => backupGuildStructure(client), 60 * 1000);

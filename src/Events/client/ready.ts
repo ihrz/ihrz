@@ -55,7 +55,7 @@ export let apiTable: DB = null;
 export let scheduleTable: DB = null;
 
 export const event: BotEvent = {
-	name: "ready",
+	name: "clientReady",
 	run: async (client: Client) => {
 		if (client.config.database?.method.includes("horizon")) {
 			await (client.db as Horizon).waitUntilReady();
