@@ -26,34 +26,19 @@
 import { AuditLogEvent, Client, GuildMember, Role, Collection } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
-import { handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
+import { getLogs, handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
 	run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
 		try {
 			// Get the latest audit log entry for this member role update
-			const auditLogs = await newMember.guild.fetchAuditLogs({
-				type: AuditLogEvent.MemberRoleUpdate,
-				limit: 5
-			});
-
-			// Find the most recent log entry for this user
-			const relevantLog = auditLogs.entries.find(
-				entry => entry.targetId === newMember.id &&
-					Date.now() - entry.createdTimestamp < 5000 // Events from the last 5 seconds
-			);
+			const relevantLog = await getLogs(newMember.guild, newMember.id, AuditLogEvent.MemberRoleUpdate, 3);
 
 			// If no relevant audit log was found, exit
 			if (!relevantLog) {
 				return;
 			}
-
-			if (handledAuditLogEntrie_logs.has(relevantLog?.id)) {
-				return;
-			}
-
-			handledAuditLogEntrie_logs.add(relevantLog?.id);
 
 			// Extract role changes from the audit log
 			const changes = relevantLog.changes;
