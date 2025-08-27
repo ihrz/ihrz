@@ -22,7 +22,7 @@
 import { EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
+import { getLogs, handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -38,32 +38,21 @@ export const event: BotEvent = {
 			PermissionsBitField.Flags.ManageGuild
 		])) return;
 
-		const fetchedLogs = await member.guild.fetchAuditLogs({
-			type: AuditLogEvent.MemberKick,
-			limit: 1,
-		});
-
-		const firstEntry = fetchedLogs.entries.first()!;
-
-		if (handledAuditLogEntrie_logs.has(firstEntry?.id)) {
-			return;
-		}
-
-		handledAuditLogEntrie_logs.add(firstEntry?.id);
-
-		if (!firstEntry || !firstEntry.target || member.id !== firstEntry.target.id) return;
-
 		const someinfo = await client.db.get(`${member.guild.id}.GUILD.SERVER_LOGS.moderation`);
 		if (!someinfo) return;
 
 		const Msgchannel = member.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
+		const firstEntry = await getLogs(member.guild, member.id, AuditLogEvent.MemberKick, 2);
+		if (!firstEntry) return;
+
+
 		const logsEmbed = new EmbedBuilder()
 			.setColor("#000000")
 			.setDescription(data.event_srvLogs_guildMemberRemove_description
 				.replace("${firstEntry.executor.id}", firstEntry.executor?.id!)
-				.replace("${firstEntry.target.id}", firstEntry.target.id)
+				.replace("${firstEntry.target.id}", firstEntry.targetId!)
 			)
 			.addFields({
 				name: data.event_srvLogs_banAdd_fields_name,
