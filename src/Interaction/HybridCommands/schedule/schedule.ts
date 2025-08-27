@@ -319,7 +319,7 @@ export const command: Command = {
 				dateCollector?.on('collect', async (message) => {
 					await message.delete() && u.delete();
 					dateCollector?.stop();
-					__0(client.timeCalculator.to_ms(message.content)!, collection);
+					__0(client.timeCalculator.to_ms(message.content)!, collection as any);
 				});
 
 
