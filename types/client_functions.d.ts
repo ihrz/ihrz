@@ -97,6 +97,27 @@ declare namespace Client_Functions {
 		export function getPermissionByValue(value: bigint | Array<bigint>): PermissionValue | Array<PermissionValue> | null;
 	}
 
+	// From shard_helper.ts
+	export namespace shard_helper {
+		export function getGuildData(client: Client<boolean>, guildId: string): Promise<GuildData | null>;
+		export function getDetailedGuildData(client: Client<boolean>, guildId: string): Promise<DetailedGuildData | null>;
+	}
+
+	// From batchProcessor.ts
+	export namespace batchProcessor {
+		export function processBatch<T>(
+			items: Array<T>,
+			processor: (item: T) => Promise<boolean>,
+			options: BatchProcessorOptions
+		): Promise<BatchProcessorResult>;
+		export function processBatchAsync<T>(
+			items: Array<T>,
+			processor: (item: T) => Promise<boolean>,
+			options: BatchProcessorOptions,
+			onComplete?: (result: BatchProcessorResult) => void
+		): void;
+	}
+
 	// From method.ts
 	export namespace method {
 		export function isNumber(str: string): boolean;
@@ -154,38 +175,6 @@ declare namespace Client_Functions {
 		export function subCoins(member: GuildMember, coins: number): Promise<void>;
 		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function isValidDiscordInvite(input: string): boolean;
-	}
-
-	// From authRestoreHelper.ts
-	export namespace authRestoreHelper {
-		export function createOauth2LinkWithGuild(data: AuthRestore_EntryType): string;
-		export function createOauth2LinkWithoutGuild(data: Oauth2_Link_Entry): string;
-		export function createAuthRestore(data: AuthRestore_EntryType): Promise<AuthRestore_ResponseType>;
-		export function getGuildDataPerSecretCode(secretCode: string): Promise<{ id: string; data: GuildAuthRestore; } | null>;
-		export function forceJoinAuthRestore(data: AuthRestore_ForceJoin_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
-		export function securityCodeUpdate(data: AuthRestore_KeyUpdate_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
-		export function changeRoleAuthRestore(data: AuthRestore_RoleUpdate_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
-	}
-
-	// From shard_helper.ts
-	export namespace shard_helper {
-		export function getGuildData(client: Client<boolean>, guildId: string): Promise<GuildData | null>;
-		export function getDetailedGuildData(client: Client<boolean>, guildId: string): Promise<DetailedGuildData | null>;
-	}
-
-	// From batchProcessor.ts
-	export namespace batchProcessor {
-		export function processBatch<T>(
-			items: Array<T>,
-			processor: (item: T) => Promise<boolean>,
-			options: BatchProcessorOptions
-		): Promise<BatchProcessorResult>;
-		export function processBatchAsync<T>(
-			items: Array<T>,
-			processor: (item: T) => Promise<boolean>,
-			options: BatchProcessorOptions,
-			onComplete?: (result: BatchProcessorResult) => void
-		): void;
 	}
 
 	// From wait.ts
