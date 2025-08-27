@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "Bora acordar o ${user.toString()} !"
 util_leash_too_naugthy: "Pecadorzinho, não podes colocar mais de 3 pessoas na trela :D"
 util_leah_already_owned: "Pecadorzinho, já possuis estas pequenas maravilhas :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | O membro que queres colocar na trela não está num canal de voz!\n${client.iHorizon_Emojis.Warning_Icon} | Tens a certeza de que queres proceder com esta ação?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuração da trela cancelada"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Você colocou a trela no usuário com sucesso neste servidor :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "O tempo entre uma renovação de canal deve ser superior a 1 minuto"
@@ -2201,6 +2203,10 @@ confession_log_embed_title_on_enable: "Ativar/Desativar Confissão"
 confession_log_embed_desc_on_enable: "${interaction.user} ativou o Módulo de Confissão!"
 confession_log_embed_desc_on_disabled: "${interaction.user} desativou o Módulo de Confissão!"
 
+# /confession thread
+confession_thread_enabled: "A partir de agora, quando alguém confessar, crio uma discussão abaixo do embed."
+confession_thread_disabled: "Não crio uma discussão abaixo do embed."
+
 # Módulo AntiSpam
 # /antispam manage
 
@@ -2618,6 +2624,20 @@ addrolereact_adding_role: "Adicionando o cargo {role}..."
 addrolereact_adding_role_progress: "Adicionando o cargo {role} para {count} utilizadores..."
 addrolereact_role_added: "Cargo {role} adicionado. {count} utilizadores receberam o cargo."
 addrolereact_error: "Erro ao executar o comando."
+
+# Comandos de ocultar/mostrar canais
+channel_hide_in_progress: "A ocultar o canal atual..."
+channel_hide_success: "O canal foi ocultado para @everyone"
+channel_hide_already_hidden: "Este canal já está oculto para @everyone"
+channel_unhide_in_progress: "A mostrar o canal atual..."
+channel_unhide_success: "O canal agora está visível para @everyone"
+channel_unhide_already_visible: "Este canal já está visível para @everyone"
+channel_hideall_in_progress: "A ocultar todos os canais..."
+channel_hideall_success: "**Ocultação concluída!**\n**Estatísticas:**\n• **{hiddenCount}** canais ocultados\n• **{errorCount}** erros encontrados"
+channel_hideall_error: "Ocorreu um erro ao ocultar os canais."
+channel_unhideall_in_progress: "A mostrar todos os canais..."
+channel_unhideall_success: "**Visualização concluída!**\n**Estatísticas:**\n• **{unhiddenCount}** canais mostrados\n• **{errorCount}** erros encontrados"
+channel_unhideall_error: "Ocorreu um erro ao mostrar os canais."
 
 # pt-PT.yml (Portuguese - Portugal)
 new_guild_embed_title:

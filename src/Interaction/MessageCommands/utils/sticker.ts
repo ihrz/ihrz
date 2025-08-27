@@ -52,12 +52,18 @@ export const command: Command = {
 				});
 			} else {
 				const sticker = msg.stickers.first()!;
+				var cool_name = sticker.name;
+
+				if (message.guild.vanityURLCode !== null) {
+					cool_name += ` /${message.guild.vanityURLCode}`
+				};
 
 				await message.guild.stickers.create({
 					file: sticker.url,
-					name: sticker.name,
-					description: sticker.description,
-					tags: sticker?.tags || "copied"
+					name: cool_name,
+					description: sticker.description || lang.var_no_set,
+					tags: sticker?.tags || "copied",
+					reason: "Sticker command executed by " + message.author.id
 				}).then(async x => {
 					await client.func.method.interactionSend(message, {
 						content: lang.sticket_command_work.replace("${x.name}", x.name)

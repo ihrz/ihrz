@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "C'est partiiiiit pour le réveil de ${user.toString()
 util_leash_too_naugthy: "Petit coquin, tu ne peux pas mettre plus de 3 personnes en laisse :D"
 util_leah_already_owned: "Petit coquin, tu possèdes déjà ces petites merveilles :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Le membre que tu veux mettre en laisse n'est pas dans un canal vocal !\n${client.iHorizon_Emojis.Warning_Icon} | Es-tu sûr de vouloir effectuer cette action ?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuration de laisse annulée"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Vous avez mis en laisse l'utilisateur avec succès dans ce serveur :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "Le temps entre chaque renouvellement de salon doit être supérieur à 1 minute"
@@ -2201,6 +2203,10 @@ confession_log_embed_title_on_enable: "Activer/Désactiver Confession"
 confession_log_embed_desc_on_enable: "${interaction.user} a activé le module de confession!"
 confession_log_embed_desc_on_disabled: "${interaction.user} a désactivé le module de confession!"
 
+# /confession thread
+confession_thread_enabled: "Désormais, quand quelqu'un confesse, je créer un fil de discussion en dessous de l'embed."
+confession_thread_disabled: "Je ne créer pas de fil de discussion en dessous de l'embed."
+
 # Module AntiSpam
 # /antispam manage
 
@@ -2618,6 +2624,20 @@ addrolereact_adding_role: "Ajout du rôle {role} en cours..."
 addrolereact_adding_role_progress: "Ajout du rôle {role} en cours pour {count} utilisateurs..."
 addrolereact_role_added: "Ajout du rôle {role} terminé. {count} utilisateurs ont reçu le rôle."
 addrolereact_error: "Erreur lors de l'exécution de la commande."
+
+# Commandes de masquage/démasquage des salons
+channel_hide_in_progress: "Masquage du salon actuel en cours..."
+channel_hide_success: "Le salon a été masqué pour @everyone"
+channel_hide_already_hidden: "Ce salon est déjà masqué pour @everyone"
+channel_unhide_in_progress: "Démasquage du salon actuel en cours..."
+channel_unhide_success: "Le salon est maintenant visible pour @everyone"
+channel_unhide_already_visible: "Ce salon est déjà visible pour @everyone"
+channel_hideall_in_progress: "Masquage de tous les salons en cours..."
+channel_hideall_success: "**Masquage terminé !**\n**Statistiques :**\n• **{hiddenCount}** salons masqués\n• **{errorCount}** erreurs rencontrées"
+channel_hideall_error: "Une erreur est survenue lors du masquage des salons."
+channel_unhideall_in_progress: "Démasquage de tous les salons en cours..."
+channel_unhideall_success: "**Démasquage terminé !**\n**Statistiques :**\n• **{unhiddenCount}** salons démasqués\n• **{errorCount}** erreurs rencontrées"
+channel_unhideall_error: "Une erreur est survenue lors du démasquage des salons."
 
 # fr-FR.yml (French - France)
 new_guild_embed_title:

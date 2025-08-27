@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "Давай разбудим ${user.toString()} !"
 util_leash_too_naugthy: "Шалунишка, ты не можешь привязать больше 3 человек :D"
 util_leah_already_owned: "Шалунишка, у тебя уже есть эти маленькие чудеса :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Участник, которого ты хочешь привязать, не находится в голосовом канале!\n${client.iHorizon_Emojis.Warning_Icon} | Ты уверен, что хочешь выполнить это действие?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Настройка поводка отменена"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Вы успешно привязали пользователя на поводок в этом сервере :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "Время между обновлением канала должно быть более 1 минуты"
@@ -2201,6 +2203,10 @@ confession_log_embed_title_on_enable: "Включение/Отключение �
 confession_log_embed_desc_on_enable: "${interaction.user} включил модуль исповедей!"
 confession_log_embed_desc_on_disabled: "${interaction.user} отключил модуль исповедей!"
 
+# /confession thread
+confession_thread_enabled: "Отныне, когда кто-то признается, я создаю ветку обсуждения под встраиваемым сообщением."
+confession_thread_disabled: "Я не создаю ветку обсуждения под встраиваемым сообщением."
+
 # Модуль AntiSpam
 # /antispam manage
 
@@ -2618,6 +2624,20 @@ addrolereact_adding_role: "Добавление роли {role}..."
 addrolereact_adding_role_progress: "Добавление роли {role} для {count} пользователей..."
 addrolereact_role_added: "Роль {role} добавлена. {count} пользователей получили роль."
 addrolereact_error: "Ошибка при выполнении команды."
+
+# Команды скрытия/показа каналов
+channel_hide_in_progress: "Скрытие текущего канала..."
+channel_hide_success: "Канал был скрыт от @everyone"
+channel_hide_already_hidden: "Этот канал уже скрыт от @everyone"
+channel_unhide_in_progress: "Показ текущего канала..."
+channel_unhide_success: "Канал теперь виден для @everyone"
+channel_unhide_already_visible: "Этот канал уже виден для @everyone"
+channel_hideall_in_progress: "Скрытие всех каналов в процессе..."
+channel_hideall_success: "**Скрытие завершено!**\n**Статистика:**\n• **{hiddenCount}** каналов скрыто\n• **{errorCount}** ошибок обнаружено"
+channel_hideall_error: "Произошла ошибка при скрытии каналов."
+channel_unhideall_in_progress: "Показ всех каналов в процессе..."
+channel_unhideall_success: "**Показ завершен!**\n**Статистика:**\n• **{unhiddenCount}** каналов показано\n• **{errorCount}** ошибок обнаружено"
+channel_unhideall_error: "Произошла ошибка при показе каналов."
 
 # ru-RU.yml (Russian - Russia)
 new_guild_embed_title:

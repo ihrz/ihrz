@@ -38,7 +38,7 @@ export const subCommand: SubCommand = {
 			var query = interaction.options.getString("query", true);
 		} else {
 			var image = interaction.attachments.first()!;
-			var query = client.func.method.longString(args!, 1)!;
+			var query = client.func.method.longString(args!, 0)!;
 		}
 
 		if (!isValidImageType(image.contentType)) {
@@ -46,8 +46,10 @@ export const subCommand: SubCommand = {
 			return
 		}
 
+		console.log(image.contentType)
+
 		try {
-			const res = await captions(image.url!, query);
+			var res = await captions(image.url!, query);
 
 			client.func.method.interactionSend(interaction, {
 				files: [

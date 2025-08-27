@@ -191,6 +191,7 @@ export namespace DatabaseStructure {
 			}
 		}
 		cooldown?: number
+		thread?: 'yes' | 'no';
 	}
 
 	export interface MemberCountSchema {

@@ -25,7 +25,7 @@ import { Command } from '../../../types/command.js';
 import { BotEvent } from '../../../types/event.js';
 import { Option } from '../../../types/option.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
-import { blacklistTable } from '../client/ready.js';
+import { blacklistTable, ownerTable } from '../client/ready.js';
 
 type MessageCommandResponse = {
 	success: boolean,
@@ -174,6 +174,9 @@ export const event: BotEvent = {
 		}
 
 		const result = await parseMessageCommand(client, message);
+		if (result.command?.category === "owner" && (!client.owners.includes(message.author.id) || !(await ownerTable.get(`${message.author.id}.owner`)))) {
+			return;
+		}
 		if (!result.success) return;
 
 		try {

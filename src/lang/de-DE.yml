@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "Los geht's mit dem Wecken von ${user.toString()} !"
 util_leash_too_naugthy: "Du kleiner Frechdachs, du kannst nicht mehr als 3 Personen an die Leine nehmen :D"
 util_leah_already_owned: "Du kleiner Frechdachs, du besitzt diese kleinen Wunder schon :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Das Mitglied, das du an die Leine legen möchtest, ist nicht in einem Sprachkanal!\n${client.iHorizon_Emojis.Warning_Icon} | Bist du sicher, dass du diese Aktion ausführen möchtest?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Leine-Konfiguration abgebrochen"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Sie haben den Benutzer erfolgreich an die Leine gelegt in diesem Server :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "Die Zeit zwischen einer Kanalerneuerung muss mehr als 1 Minute betragen"
@@ -2201,6 +2203,10 @@ confession_log_embed_title_on_enable: "Bekenntnis Ein-/Ausschalten"
 confession_log_embed_desc_on_enable: "${interaction.user} hat das Bekenntnismodul aktiviert!"
 confession_log_embed_desc_on_disabled: "${interaction.user} hat das Bekenntnismodul deaktiviert!"
 
+# /confession thread
+confession_thread_enabled: "Von nun an erstelle ich einen Diskussionsthread unter dem Embed, wenn jemand beichtet."
+confession_thread_disabled: "Ich erstelle keinen Diskussionsthread unter dem Embed."
+
 # AntiSpam Modul
 # /antispam manage
 
@@ -2618,6 +2624,20 @@ addrolereact_adding_role: "Rolle {role} wird hinzugefügt..."
 addrolereact_adding_role_progress: "Rolle {role} wird für {count} Benutzer hinzugefügt..."
 addrolereact_role_added: "Rolle {role} hinzugefügt. {count} Benutzer haben die Rolle erhalten."
 addrolereact_error: "Fehler bei der Ausführung des Befehls."
+
+# Kanal ausblenden/einblenden Befehle
+channel_hide_in_progress: "Aktueller Kanal wird ausgeblendet..."
+channel_hide_success: "Kanal wurde für @everyone ausgeblendet"
+channel_hide_already_hidden: "Dieser Kanal ist bereits für @everyone ausgeblendet"
+channel_unhide_in_progress: "Aktueller Kanal wird eingeblendet..."
+channel_unhide_success: "Der Kanal ist jetzt für @everyone sichtbar"
+channel_unhide_already_visible: "Dieser Kanal ist bereits für @everyone sichtbar"
+channel_hideall_in_progress: "Alle Kanäle werden ausgeblendet..."
+channel_hideall_success: "**Ausblenden abgeschlossen!**\n**Statistiken:**\n• **{hiddenCount}** Kanäle ausgeblendet\n• **{errorCount}** Fehler aufgetreten"
+channel_hideall_error: "Ein Fehler ist beim Ausblenden der Kanäle aufgetreten."
+channel_unhideall_in_progress: "Alle Kanäle werden eingeblendet..."
+channel_unhideall_success: "**Einblenden abgeschlossen!**\n**Statistiken:**\n• **{unhiddenCount}** Kanäle eingeblendet\n• **{errorCount}** Fehler aufgetreten"
+channel_unhideall_error: "Ein Fehler ist beim Einblenden der Kanäle aufgetreten."
 
 # de-DE.yml (German - Germany)
 new_guild_embed_title:

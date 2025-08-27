@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "${user.toString()}を起こしに行くぞ！"
 util_leash_too_naugthy: "やんちゃ坊主、3人以上はリードに繋げないよ :D"
 util_leah_already_owned: "やんちゃ坊主、もうその小さな宝物を持ってるじゃないか :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | リードに繋げたいメンバーはボイスチャンネルにいません！\n${client.iHorizon_Emojis.Warning_Icon} | この操作を実行してもよろしいですか？"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | リーシュの設定がキャンセルされました"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | このサーバーでユーザーのリーシュに成功しました :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "チャンネルの更新間隔は1分以上である必要があります"
@@ -2201,6 +2203,10 @@ confession_log_embed_title_on_enable: "告白の有効化/無効化"
 confession_log_embed_desc_on_enable: "${interaction.user}が告白モジュールを有効にしました！"
 confession_log_embed_desc_on_disabled: "${interaction.user}が告白モジュールを無効にしました！"
 
+# /confession thread
+confession_thread_enabled: "今後、誰かが告白したとき、埋め込みの下にディスカッションスレッドを作成します。"
+confession_thread_disabled: "埋め込みの下にディスカッションスレッドを作成しません。"
+
 # アンチスパムモジュール
 # /antispam manage
 
@@ -2618,6 +2624,20 @@ addrolereact_adding_role: "役割 {role} を追加中..."
 addrolereact_adding_role_progress: "役割 {role} を追加中..."
 addrolereact_role_added: "役割 {role} を追加しました。"
 addrolereact_error: "コマンドの実行中にエラーが発生しました。"
+
+# チャンネル非表示/表示コマンド
+channel_hide_in_progress: "現在のチャンネルを非表示にしています..."
+channel_hide_success: "チャンネルが@everyoneから非表示になりました"
+channel_hide_already_hidden: "このチャンネルは既に@everyoneから非表示になっています"
+channel_unhide_in_progress: "現在のチャンネルを表示しています..."
+channel_unhide_success: "チャンネルが@everyoneに表示されるようになりました"
+channel_unhide_already_visible: "このチャンネルは既に@everyoneに表示されています"
+channel_hideall_in_progress: "すべてのチャンネルを非表示にしています..."
+channel_hideall_success: "**非表示完了！**\n**統計:**\n• **{hiddenCount}** チャンネルが非表示になりました\n• **{errorCount}** エラーが発生しました"
+channel_hideall_error: "チャンネルの非表示中にエラーが発生しました。"
+channel_unhideall_in_progress: "すべてのチャンネルを表示しています..."
+channel_unhideall_success: "**表示完了！**\n**統計:**\n• **{unhiddenCount}** チャンネルが表示されました\n• **{errorCount}** エラーが発生しました"
+channel_unhideall_error: "チャンネルの表示中にエラーが発生しました。"
 
 # jp-JP.yml (Japanese - Japan)
 new_guild_embed_title:

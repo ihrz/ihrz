@@ -201,9 +201,9 @@ export interface LanguageData {
 	disableticket_not_admin: string;
 	disableticket_logs_embed_title_disable: string;
 	disableticket_logs_embed_description_disable: string;
-	disableticket_command_work_disable: string;
 	disableticket_logs_embed_title_enable: string;
 	disableticket_logs_embed_description_enable: string;
+	disableticket_command_work_disable: string;
 	disableticket_command_work_enable: string;
 	setticketcategory_not_admin: string;
 	setticketcategory_disabled_command: string;
@@ -790,6 +790,8 @@ export interface LanguageData {
 	util_leash_too_naugthy: string;
 	util_leah_already_owned: string;
 	util_leash_confirm_message: string;
+	util_leash_canceled_leash: string;
+	util_leash_confirmed_leash: string;
 	util_autorenew_time_too_short: string;
 	util_autorenew_time_too_long: string;
 	util_autorenew_command_ok: string;
@@ -1665,6 +1667,8 @@ export interface LanguageData {
 	confession_log_embed_title_on_enable: string;
 	confession_log_embed_desc_on_enable: string;
 	confession_log_embed_desc_on_disabled: string;
+	confession_thread_enabled: string;
+	confession_thread_disabled: string;
 	antispam_manage_embed_title: string;
 	antispam_manage_choices_1_label: string;
 	antispam_manage_choices_1_desc: string;
@@ -1700,11 +1704,11 @@ export interface LanguageData {
 	antispam_ignorechannels_embed_desc: string;
 	header_h1_value: string;
 	messages_word: string;
-	voice_activity: string;
 	minutes_word: string;
 	top_voice: string;
 	top_message: string;
 	activity_under_30d: string;
+	voice_activity: string;
 	notifier_author_add_author_doesnt_exist: string;
 	notifier_config_channel_logsEmbed_title: string;
 	notifier_config_channel_logsEmbed_desc: string;
@@ -1948,6 +1952,18 @@ export interface LanguageData {
 	addrolereact_adding_role_progress: string;
 	addrolereact_role_added: string;
 	addrolereact_error: string;
+	channel_hide_in_progress: string;
+	channel_hide_success: string;
+	channel_hide_already_hidden: string;
+	channel_unhide_in_progress: string;
+	channel_unhide_success: string;
+	channel_unhide_already_visible: string;
+	channel_hideall_in_progress: string;
+	channel_hideall_success: string;
+	channel_hideall_error: string;
+	channel_unhideall_in_progress: string;
+	channel_unhideall_success: string;
+	channel_unhideall_error: string;
 	new_guild_embed_title: string[];
 	new_guild_embed_desc: string;
 }

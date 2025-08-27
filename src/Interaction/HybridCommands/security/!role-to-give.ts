@@ -39,7 +39,7 @@ export const subCommand: SubCommand = {
 
 		await client.db.set(`${interaction.guildId}.SECURITY.role`, role?.id);
 
-		await interaction.reply({
+		await client.func.method.interactionSend(interaction, {
 			content: lang.security_role_to_give_command_work
 				.replace('${interaction.user}', interaction.user.toString())
 				.replace('${role}', role?.toString()!)

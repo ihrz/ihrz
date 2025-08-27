@@ -1033,6 +1033,8 @@ util_wakeup_command_work: "يبدأ الآن الإيقاظ لـ ${user.toString
 util_leash_too_naugthy: "أيها الشقي الصغير، لا يمكنك وضع أكثر من 3 أشخاص في الحبل :D"
 util_leah_already_owned: "أيها الشقي الصغير، أنت تمتلك هؤلاء بالفعل :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | العضو الذي تريد وضعه في الحبل ليس في قناة صوتية!\n${client.iHorizon_Emojis.Warning_Icon} | هل أنت متأكد أنك تريد القيام بهذا الإجراء؟"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | تم إلغاء إعدادات المقود"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | لقد نجحت في ربط المستخدم بالمقود في هذا الخادم :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "يجب أن يكون الوقت بين تجديد القناة أكثر من دقيقة واحدة"
@@ -2201,6 +2203,10 @@ confession_log_embed_title_on_enable: "تفعيل/تعطيل الاعترافا�
 confession_log_embed_desc_on_enable: "${interaction.user} قام بتفعيل وحدة الاعترافات!"
 confession_log_embed_desc_on_disabled: "${interaction.user} قام بتعطيل وحدة الاعترافات!"
 
+# /confession thread
+confession_thread_enabled: "من الآن فصاعداً، عندما يعترف شخص ما، سأقوم بإنشاء موضوع نقاش تحت الرسالة المضمنة."
+confession_thread_disabled: "لن أقوم بإنشاء موضوع نقاش تحت الرسالة المضمنة."
+
 # AntiSpam Module
 # /antispam manage
 
@@ -2611,6 +2617,20 @@ addrolereact_adding_role: "Ajout du rôle {role} en cours..."
 addrolereact_adding_role_progress: "Ajout du rôle {role} en cours pour {count} utilisateurs..."
 addrolereact_role_added: "Ajout du rôle {role} terminé. {count} utilisateurs ont reçu le rôle."
 addrolereact_error: "Erreur lors de l'exécution de la commande."
+
+# أوامر إخفاء/إظهار القنوات
+channel_hide_in_progress: "...جاري إخفاء القناة الحالية"
+channel_hide_success: "تم إخفاء القناة عن @everyone"
+channel_hide_already_hidden: "هذه القناة مخفية بالفعل عن @everyone"
+channel_unhide_in_progress: "...جاري إظهار القناة الحالية"
+channel_unhide_success: "القناة مرئية الآن لـ @everyone"
+channel_unhide_already_visible: "هذه القناة مرئية بالفعل لـ @everyone"
+channel_hideall_in_progress: "...جاري إخفاء جميع القنوات"
+channel_hideall_success: "!**تم الإخفاء**\n:**الإحصائيات**\n• **{hiddenCount}** قناة تم إخفاؤها\n• **{errorCount}** أخطاء واجهتها"
+channel_hideall_error: ".حدث خطأ أثناء إخفاء القنوات"
+channel_unhideall_in_progress: "...جاري إظهار جميع القنوات"
+channel_unhideall_success: "!**تم الإظهار**\n:**الإحصائيات**\n• **{unhiddenCount}** قناة تم إظهارها\n• **{errorCount}** أخطاء واجهتها"
+channel_unhideall_error: ".حدث خطأ أثناء إظهار القنوات"
 
 # ar-EG.yml (Arabic - Egypt)
 new_guild_embed_title:

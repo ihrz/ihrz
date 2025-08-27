@@ -22,7 +22,7 @@
 import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, PermissionFlagsBits } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { LanguageData } from '../../../types/languageData.js';
-import { handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
+import { getLogs, handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
 
 function getDiff(
 	oldChannel: GuildChannel,
@@ -102,23 +102,13 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		const fetchedLogs = await newChannel.guild.fetchAuditLogs({
-			type: AuditLogEvent.ChannelUpdate,
-			limit: 1,
-		});
+		const relevantLog = await getLogs(newChannel.guild, newChannel.id, AuditLogEvent.ChannelUpdate, 2)
 
 		if (oldChannel.position !== newChannel.position) return;
 
-		const firstEntry = fetchedLogs.entries.first()!;
-
-		if (handledAuditLogEntrie_logs.has(firstEntry?.id)) {
-			return;
-		}
-
-		handledAuditLogEntrie_logs.add(firstEntry?.id);
-
 		// check if the author is the bot
-		if (firstEntry?.executor?.id === client.user?.id) return;
+		if (!relevantLog) return;
+		if (relevantLog?.executor?.id === client.user?.id) return;
 
 		const someinfo = await client.db.get(`${oldChannel.guildId}.GUILD.SERVER_LOGS.channel`);
 		if (!someinfo) return;
@@ -136,11 +126,11 @@ export const event: BotEvent = {
 			changes = changes.substring(0, 1021) + "...";
 		}
 
-		const icon = firstEntry?.executor?.displayAvatarURL();
+		const icon = relevantLog?.executor?.displayAvatarURL();
 
 		const logsEmbed = new EmbedBuilder()
 			.setColor(await client.db.get(`${oldChannel.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
-			.setAuthor({ name: firstEntry?.executor?.username || lang.var_unknown, iconURL: icon })
+			.setAuthor({ name: relevantLog?.executor?.username || lang.var_unknown, iconURL: icon })
 			.setDescription(`${newChannel.toString()} are updated`)
 			.addFields({ name: lang.event_srvLogs_messageUpdate_footer_2, value: changes });
 

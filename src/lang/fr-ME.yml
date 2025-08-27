@@ -1034,6 +1034,8 @@ util_wakeup_command_work: "C'est partiiiiit pour le réveil de ${user.toString()
 util_leash_too_naugthy: "Petit coquin, tu ne peux pas mettre plus de 3 personnes en laisse :D"
 util_leah_already_owned: "Petit coquin, tu possèdes déjà ces petites merveilles :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Le membre que tu veux mettre en laisse n'est pas dans un voc !\n${client.iHorizon_Emojis.Warning_Icon} | Es-tu sûr de vouloir effectuer cette action ?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuration de laisse annulée"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Vous avez mis en laisse l'utilisateur avec succès dans ce serveur :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "Le temps entre chaque renouvellement de salon doit être supérieur à 1 minute"
@@ -2203,6 +2205,10 @@ confession_log_embed_title_on_enable: "Activer/Désactiver Confession"
 confession_log_embed_desc_on_enable: "${interaction.user} a activé le module de confession!"
 confession_log_embed_desc_on_disabled: "${interaction.user} a désactivé le module de confession!"
 
+# /confession thread
+confession_thread_enabled: "Désormais, quand quelqu'un confesse, je crée un fil de discussion en dessous de l'embed."
+confession_thread_disabled: "Je ne crée pas de fil de discussion en dessous de l'embed."
+
 # Module AntiSpam
 # /antispam manage
 
@@ -2620,6 +2626,20 @@ addrolereact_adding_role: "Jvais donner le rôle {role} à tous les mecs qui ont
 addrolereact_adding_role_progress: "Jdonne le rôle {role} à {count} mecs qui ont réagi"
 addrolereact_role_added: "J'ai donné le rôle {role} à {count} mecs qui ont réagi"
 addrolereact_error: "Une erreur de merde est survenue, réessaye plus tard"
+
+# Commandes de masquage/démasquage des salons - Version familière
+channel_hide_in_progress: "J'masque le salon là..."
+channel_hide_success: "Le salon est maintenant caché pour @everyone, tranquille"
+channel_hide_already_hidden: "Le salon est déjà caché pour @everyone, t'es con ou quoi"
+channel_unhide_in_progress: "J'démasque le salon là..."
+channel_unhide_success: "Le salon est maintenant visible pour @everyone, c'est bon"
+channel_unhide_already_visible: "Le salon est déjà visible pour @everyone, t'es aveugle ou quoi"
+channel_hideall_in_progress: "J'masque tous les salons, ça va prendre du temps..."
+channel_hideall_success: "**Masquage terminé, tranquille !**\n**Les stats :**\n• **{hiddenCount}** salons masqués\n• **{errorCount}** erreurs de merde"
+channel_hideall_error: "Une erreur de merde est survenue pendant le masquage des salons."
+channel_unhideall_in_progress: "J'démasque tous les salons, patience..."
+channel_unhideall_success: "**Démasquage terminé, c'est bon !**\n**Les stats :**\n• **{unhiddenCount}** salons démasqués\n• **{errorCount}** erreurs de merde"
+channel_unhideall_error: "Une erreur de merde est survenue pendant le démasquage des salons."
 
 # fr-FR.yml (French - France)
 new_guild_embed_title:

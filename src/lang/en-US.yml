@@ -1034,6 +1034,8 @@ util_wakeup_command_work: "Let's go wake up ${user.toString()} !"
 util_leash_too_naugthy: "You little rascal, you can't leash more than 3 people :D"
 util_leah_already_owned: "You little rascal, you already own these little wonders :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | The member you want to leash isn't in a voice channel!\n${client.iHorizon_Emojis.Warning_Icon} | Are you sure you want to proceed with this action?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Leash configurations canceled"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | You have sucessfuly leashed the user in this guild :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "The time between a channel renew must be more than 1 minutes"
@@ -2203,6 +2205,10 @@ confession_log_embed_title_on_enable: "Confession Enable/Disable"
 confession_log_embed_desc_on_enable: "${interaction.user} have enabled the Confession Module !"
 confession_log_embed_desc_on_disabled: "${interaction.user} have disabled the Confession Module !"
 
+# /confession thread
+confession_thread_enabled: "From now on, when someone confesses, I create a discussion thread below the embed."
+confession_thread_disabled: "I don't create a discussion thread below the embed."
+
 # AntiSpam Module
 # /antispam manage
 
@@ -2620,6 +2626,20 @@ addrolereact_adding_role: "Adding role {role} in progress..."
 addrolereact_adding_role_progress: "Adding role {role} in progress for {count} users..."
 addrolereact_role_added: "Role {role} added. {count} users received the role."
 addrolereact_error: "Error executing the command."
+
+# Channel hide/unhide commands
+channel_hide_in_progress: "Hiding the current channel..."
+channel_hide_success: "Channel has been hidden from @everyone"
+channel_hide_already_hidden: "This channel is already hidden from @everyone"
+channel_unhide_in_progress: "Unhiding the current channel..."
+channel_unhide_success: "The channel is now visible to @everyone"
+channel_unhide_already_visible: "This channel is already visible to @everyone"
+channel_hideall_in_progress: "Hiding all channels in progress..."
+channel_hideall_success: "**Hiding completed!**\n**Statistics:**\n• **{hiddenCount}** channels hidden\n• **{errorCount}** errors encountered"
+channel_hideall_error: "An error occurred while hiding channels."
+channel_unhideall_in_progress: "Unhiding all channels in progress..."
+channel_unhideall_success: "**Unhiding completed!**\n**Statistics:**\n• **{unhiddenCount}** channels unhidden\n• **{errorCount}** errors encountered"
+channel_unhideall_error: "An error occurred while unhiding channels."
 
 # New guild event
 new_guild_embed_title:

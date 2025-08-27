@@ -22,7 +22,7 @@
 import { EmbedBuilder, PermissionsBitField, AuditLogEvent, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
+import { getLogs, handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
@@ -35,28 +35,17 @@ export const event: BotEvent = {
 			PermissionsBitField.Flags.ManageGuild
 		])) return;
 
-		const fetchedLogs = await newMember.guild.fetchAuditLogs({
-			type: AuditLogEvent.MemberRoleUpdate,
-			limit: 1,
-		});
+		const someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
+		const Msgchannel = newMember.guild.channels.cache.get(someinfo);
 
-		const firstEntry = fetchedLogs.entries.first()!;
+		if (!someinfo || !Msgchannel) return;
 
-		if (handledAuditLogEntrie_logs.has(firstEntry?.id)) {
-			return;
-		}
-
-		handledAuditLogEntrie_logs.add(firstEntry?.id);
+		const firstEntry = await getLogs(newMember.guild, newMember.user.id, AuditLogEvent.MemberRoleUpdate, 2);
 
 		if (!firstEntry
 			|| firstEntry.executorId == client.user?.id
 			|| firstEntry.targetId !== newMember.user.id
 		) return;
-
-		const someinfo = await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.roles`);
-		const Msgchannel = newMember.guild.channels.cache.get(someinfo);
-
-		if (!someinfo || !Msgchannel) return;
 
 		interface CustomObject {
 			id: string;
@@ -75,10 +64,11 @@ export const event: BotEvent = {
 
 		const newObjectsnewObjectIds: string[] = newObjects.map((obj) => obj.id);
 		const removeObjectIds: string[] = removeObjects.map((obj) => obj.id);
+		let user = newMember.guild.members.cache.get(firstEntry.targetId);
 
 		let logsEmbed = new EmbedBuilder()
 			.setColor(await client.db.get(`${oldMember.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
-			.setAuthor({ name: firstEntry.target?.username as string, iconURL: firstEntry.target?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
+			.setAuthor({ name: user?.user.username!, iconURL: user?.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
 			.setTimestamp();
 
 		let desc = ' ';
@@ -87,14 +77,14 @@ export const event: BotEvent = {
 			desc += data.event_srvLogs_guildMemberUpdate_description
 				.replace("${firstEntry.executor.id}", firstEntry.executor?.id!)
 				.replace("${removedRoles}", removeObjectIds.map(value => `<@&${value}>`).toString())
-				.replace("${oldMember.user.username}", firstEntry.target?.username!) + '\n';
+				.replace("${oldMember.user.username}", user?.user?.username!) + '\n';
 		};
 
 		if (newObjects.length >= 1) {
 			desc += data.event_srvLogs_guildMemberUpdate_2_description
 				.replace("${firstEntry.executor.id}", firstEntry.executor?.id!)
 				.replace("${addedRoles}", newObjectsnewObjectIds.map(value => `<@&${value}>`).toString())
-				.replace("${oldMember.user.username}", firstEntry.target?.username!);
+				.replace("${oldMember.user.username}", user?.user?.username!);
 		};
 		logsEmbed.setDescription(desc);
 

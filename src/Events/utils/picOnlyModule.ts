@@ -106,7 +106,7 @@ export const event: BotEvent = {
 				message.startThread({
 					name: lang.utils_piconly_var_thread_name.replace('{name}', String(message.member?.displayName || message.member?.nickname)),
 					reason: "Pic Only"
-				})
+				}).then(x => x.edit({ invitable: true, locked: false, archived: false }))
 			}
 		}
 	}

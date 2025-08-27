@@ -107,7 +107,7 @@ async function backupGuildStructure(client: Client) {
 export const handledAuditLogEntries = new Set<string>();
 export const handledAuditLogEntrie_logs = new Set<string>();
 
-export async function getLogs(guild: Guild, args: string, type: AuditLogEvent, l: 1 | 2 = 1) {
+export async function getLogs(guild: Guild, args: string, type: AuditLogEvent, l: 1 | 2 | 3 = 1) {
 	const fetchedLogs = await guild.fetchAuditLogs({
 		type,
 		limit: 5
@@ -122,17 +122,23 @@ export async function getLogs(guild: Guild, args: string, type: AuditLogEvent, l
 	);
 
 	// Avoiding double action by filtering the user
-	if (!relevantLog || relevantLog.executor?.id === client.user?.id || (l === 1 ? handledAuditLogEntries.has(relevantLog.id) : handledAuditLogEntrie_logs.has(relevantLog.id))) {
+	if (!relevantLog
+		|| relevantLog.executor?.id === client.user?.id
+		|| (l === 1 ?
+			handledAuditLogEntries.has(relevantLog.id)
+			: l === 2 ?
+				handledAuditLogEntrie_logs.has(relevantLog.id)
+				: false)) {
 		return undefined;
 	};
 
-	(l === 1 ? handledAuditLogEntries : handledAuditLogEntrie_logs).add(relevantLog.id);
+	(l === 1 ? handledAuditLogEntries : l === 2 ? handledAuditLogEntrie_logs : null)?.add(relevantLog.id);
 
 	return relevantLog;
 }
 
 export const event = {
-	name: 'ready',
+	name: 'clientReady',
 	run: async (client: Client) => {
 		await backupGuildStructure(client);
 		setInterval(() => backupGuildStructure(client), 60 * 1000);

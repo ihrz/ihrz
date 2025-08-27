@@ -120,6 +120,44 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
+			name: "thread",
+			prefixName: "confthread",
+
+			description: "Create an thread upside the confession ?",
+			description_localizations: {
+				"fr": "Créer un fil de discussion en dessous de la confession ?"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			options: [
+				{
+					name: 'action',
+					type: ApplicationCommandOptionType.String,
+
+					description: 'What do you want to do ?',
+					description_localizations: {
+						"fr": "Que voulez-vous faire ?"
+					},
+
+					required: true,
+					choices: [
+						{
+							name: 'Create thread',
+							value: "yes"
+						},
+						{
+							name: "Don´t create thread",
+							value: "no"
+						},
+					],
+
+					permission: null
+				}
+			],
+
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
 			name: "cooldown",
 			prefixName: "confess-cooldown",
 

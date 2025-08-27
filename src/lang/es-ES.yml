@@ -1032,6 +1032,8 @@ util_wakeup_command_work: "¡Vamos a despertar a ${user.toString()} !"
 util_leash_too_naugthy: "Pequeño travieso, no puedes poner a más de 3 personas en la correa :D"
 util_leah_already_owned: "Pequeño travieso, ya posees estas pequeñas maravillas :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | ¡El miembro que quieres poner en la correa no está en un canal de voz!\n${client.iHorizon_Emojis.Warning_Icon} | ¿Estás seguro de que quieres realizar esta acción?"
+util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuración de correa cancelada"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Has atado con éxito al usuario en este servidor :smirk:"
 
 # /util autorenew
 util_autorenew_time_too_short: "El tiempo entre una renovación de canal debe ser más de 1 minuto"
@@ -2201,6 +2203,10 @@ confession_log_embed_title_on_enable: "Habilitar/Deshabilitar Confesión"
 confession_log_embed_desc_on_enable: "${interaction.user} ha habilitado el módulo de confesión!"
 confession_log_embed_desc_on_disabled: "${interaction.user} ha deshabilitado el módulo de confesión!"
 
+# /confession thread
+confession_thread_enabled: "A partir de ahora, cuando alguien confiese, creo un hilo de discusión debajo del embed."
+confession_thread_disabled: "No creo un hilo de discusión debajo del embed."
+
 # Módulo AntiSpam
 # /antispam manage
 
@@ -2618,6 +2624,20 @@ addrolereact_adding_role: "Agregando rol {role} en progreso..."
 addrolereact_adding_role_progress: "Agregando rol {role} en progreso para {count} usuarios..."
 addrolereact_role_added: "Rol {role} agregado. {count} usuarios recibieron el rol."
 addrolereact_error: "Error al ejecutar el comando."
+
+# Comandos de ocultar/mostrar canales
+channel_hide_in_progress: "Ocultando el canal actual..."
+channel_hide_success: "El canal ha sido ocultado para @everyone"
+channel_hide_already_hidden: "Este canal ya está oculto para @everyone"
+channel_unhide_in_progress: "Mostrando el canal actual..."
+channel_unhide_success: "El canal ahora es visible para @everyone"
+channel_unhide_already_visible: "Este canal ya es visible para @everyone"
+channel_hideall_in_progress: "Ocultando todos los canales en progreso..."
+channel_hideall_success: "**¡Ocultación completada!**\n**Estadísticas:**\n• **{hiddenCount}** canales ocultados\n• **{errorCount}** errores encontrados"
+channel_hideall_error: "Ocurrió un error al ocultar los canales."
+channel_unhideall_in_progress: "Mostrando todos los canales en progreso..."
+channel_unhideall_success: "**¡Mostrar completado!**\n**Estadísticas:**\n• **{unhiddenCount}** canales mostrados\n• **{errorCount}** errores encontrados"
+channel_unhideall_error: "Ocurrió un error al mostrar los canales."
 
 # es-ES.yml (Spanish - Spain)
 new_guild_embed_title:

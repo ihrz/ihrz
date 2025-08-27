@@ -77,6 +77,8 @@ export const subCommand: SubCommand = {
 
 		const res = await client.db.get(`${interaction.guildId}.STATS`) as DatabaseStructure.GuildStats | null;
 
+		const msg = await client.func.method.interactionSend(interaction, client.iHorizon_Emojis.Discord_Loading);
+
 		const memberStats: { [memberId: string]: MemberStats } = {};
 		const channelStats: { [channelId: string]: ChannelStats } = {};
 
@@ -245,6 +247,6 @@ export const subCommand: SubCommand = {
 
 		const attachment = new AttachmentBuilder(image, { name: 'image.png' });
 
-		await client.func.method.interactionSend(interaction, { files: [attachment] });
+		msg.edit({ content: null, files: [attachment] });
 	},
 };

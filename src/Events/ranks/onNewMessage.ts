@@ -64,22 +64,46 @@ export const event: BotEvent = {
 
 			const newLevel = await client.db.get(`${message.guild.id}.USER.${message.author.id}.XP_LEVELING.level`);
 
+			// Check if the rank roles configuration exists
 			if (ranksConfig?.ranksRoles) {
-				const roleToAssign = Object.entries(ranksConfig.ranksRoles)
-					.filter(([roleLevel]) => parseInt(roleLevel) <= newLevel)
-					.sort(([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA))[0]?.[1];
 
+				// Find the appropriate role for the user's new level
+				const roleToAssign = Object.entries(ranksConfig.ranksRoles)
+					// Filter roles that are less than or equal to the user's level
+					.filter(([roleLevel]) => parseInt(roleLevel) <= newLevel)
+					// Sort them from highest to lowest level
+					.sort(([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA))
+					// Get the highest applicable role
+					?.[0]?.[1];
+
+				// If a role to assign was found
 				if (roleToAssign) {
 					try {
+						// Fetch the member from the guild using the message author
 						const member = await message.guild.members.fetch(message.author.id);
-						const rolesToRemove = Object.values(ranksConfig.ranksRoles).filter(role => member.roles.cache.has(role));
 
+						// Get the member's current roles
+						const currentRoles = member.roles.cache;
+
+						// Check if the member already has the correct role
+						const hasCorrectRole = currentRoles.has(roleToAssign);
+
+						// Identify old rank roles that should be removed (excluding the correct one)
+						const rolesToRemove = Object.values(ranksConfig.ranksRoles).filter(
+							role => currentRoles.has(role) && role !== roleToAssign
+						);
+
+						// Remove outdated rank roles, if any
 						if (rolesToRemove.length > 0) {
 							await member.roles.remove(rolesToRemove, "Removal of old rank roles");
 						}
 
-						await member.roles.add(roleToAssign, "Rank Role Assignment");
+						// Assign the new rank role only if the member doesn't already have it
+						if (!hasCorrectRole) {
+							await member.roles.add(roleToAssign, "Rank Role Assignment");
+						}
 					} catch {
+						// Silently catch errors (e.g., missing permissions or failed fetch)
 					}
 				}
 			}

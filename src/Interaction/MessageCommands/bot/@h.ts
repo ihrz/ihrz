@@ -122,7 +122,6 @@ export function setupHelpCategoryCollector(
 ) {
 	const categoryChunks = chunkCategories(categories);
 	let currentPageIndex = 0;
-	let selectedCategory: string | undefined;
 
 	const collector = helpMessage.createMessageComponentCollector({
 		componentType: ComponentType.StringSelect,
@@ -180,7 +179,6 @@ export function setupHelpCategoryCollector(
 		}
 
 		const selectedCategoryValue = interaction.values[0];
-		selectedCategory = selectedCategoryValue;
 
 		const matchedCategory = categories.find(
 			cat => cat.name.toLowerCase().replace(/\s+/g, '_') === selectedCategoryValue
@@ -211,11 +209,9 @@ export function setupHelpCategoryCollector(
 
 		if (interaction.customId === 'help_prev_page' && currentPageIndex > 0) {
 			currentPageIndex--;
-			selectedCategory = undefined; // Reset selection when changing pages
 			await updateMessagePage(interaction, currentPageIndex);
 		} else if (interaction.customId === 'help_next_page' && currentPageIndex < categoryChunks.length - 1) {
 			currentPageIndex++;
-			selectedCategory = undefined; // Reset selection when changing pages
 			await updateMessagePage(interaction, currentPageIndex);
 		}
 	});
@@ -358,24 +354,45 @@ export const command: Command = {
 				});
 
 				suiteCategories.forEach(suite => {
-					const suiteEmbed = new EmbedBuilder()
+					const suiteEmbedPages: EmbedBuilder[] = [];
+					let suiteFieldCount = 0;
+					let currentSuiteEmbed = new EmbedBuilder()
 						.setTitle(suite.name)
 						.setDescription(lang.h_suite_desc)
 						.setColor(skidBot.color as ColorResolvable)
 						.setFooter({ text: skidBot.footer });
 
-					suite.commands.forEach(cmd => {
+					suite.commands.forEach((cmd, cmdIndex) => {
+						// Discord embeds have a maximum of 25 fields
+						if (suiteFieldCount >= 24) {
+							suiteEmbedPages.push(currentSuiteEmbed);
+
+							// Create new embed for remaining commands
+							currentSuiteEmbed = new EmbedBuilder()
+								.setTitle(`${suite.name} (Page ${suiteEmbedPages.length + 1})`)
+								.setDescription(lang.h_suite_desc)
+								.setColor(skidBot.color as ColorResolvable)
+								.setFooter({ text: skidBot.footer });
+							suiteFieldCount = 0;
+						}
+
 						let fields_name = `\`${skidBot.botPrefix}${cmd.prefixCmd || cmd.cmd}`;
 						if (cmd.usage) fields_name += " " + cmd.usage;
 						fields_name += "`";
 
-						suiteEmbed.addFields({
+						currentSuiteEmbed.addFields({
 							name: fields_name,
 							value: (skidBot.lang.startsWith("fr") ? cmd.desc_localized["fr"] : cmd.desc)
 						});
+						suiteFieldCount++;
+
+						// Add the last embed when we reach the end
+						if (cmdIndex === suite.commands.length - 1) {
+							suiteEmbedPages.push(currentSuiteEmbed);
+						}
 					});
 
-					categoryEmbeds[suite.name.toLowerCase().replace(/\s+/g, '_')] = [suiteEmbed];
+					categoryEmbeds[suite.name.toLowerCase().replace(/\s+/g, '_')] = suiteEmbedPages;
 
 					categories.push({
 						name: suite.name,

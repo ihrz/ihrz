@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan, PermissionFlagsBits } from 'discord.js';
+import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan, PermissionFlagsBits, User } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
-import { handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
+import { getLogs, handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
 
 export const event: BotEvent = {
 	name: "guildBanRemove",
@@ -36,19 +36,6 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		const fetchedLogs = await ban.guild.fetchAuditLogs({
-			type: AuditLogEvent.MemberBanRemove,
-			limit: 1,
-		});
-
-		const firstEntry = fetchedLogs.entries.first()!;
-
-		if (handledAuditLogEntrie_logs.has(firstEntry?.id)) {
-			return;
-		}
-
-		handledAuditLogEntrie_logs.add(firstEntry?.id);
-
 		const someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
 
 		if (!someinfo) return;
@@ -56,15 +43,23 @@ export const event: BotEvent = {
 		const Msgchannel = ban.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
-		let logsEmbed = new EmbedBuilder()
+		const relevantLog = await getLogs(ban.guild, ban.user.id, AuditLogEvent.MemberBanRemove, 2);
+
+		if (!relevantLog) {
+			return;
+		}
+
+		let user = relevantLog.target as User;
+
+		const logsEmbed = new EmbedBuilder()
 			.setColor(await client.db.get(`${ban.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
 			.setDescription(data.event_srvLogs_banRemove_description
-				.replace("${firstEntry.executor.id}", firstEntry?.executor?.id!)
-				.replace("${firstEntry.target.username}", firstEntry?.target?.username!)
+				.replace("${firstEntry.executor.id}", relevantLog?.executor?.id!)
+				.replace("${firstEntry.target.username}", user.username)
 			)
 			.addFields({
 				name: data.event_srvLogs_banAdd_fields_name,
-				value: data.event_srvLogs_banAdd_fields_value.replace('{reason}', firstEntry?.reason || data.blacklist_var_no_reason)
+				value: data.event_srvLogs_banAdd_fields_value.replace('{reason}', relevantLog?.reason || data.blacklist_var_no_reason)
 			})
 			.setTimestamp();
 

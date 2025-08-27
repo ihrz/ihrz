@@ -40,9 +40,12 @@ export async function user(interaction: Message, args: string[], argsNumber: num
 			|| null;
 	}
 
-	const userId = args[argsNumber]?.replace(/[<@!>]/g, '');
-	return interaction.mentions.parsedUsers.map(x => x)?.[argsNumber] ||
-		(userId ? interaction.client.users.fetch(userId).catch(() => null) : null);
+	const userId = /[<@!>]/g.test(args[argsNumber])
+
+	return interaction.mentions.parsedUsers.map(x => x)?.[argsNumber]
+		||
+		(userId && interaction.client.users.fetch(args[argsNumber].replace(/[<@!>]/g, '')).catch(() => null))
+		|| (interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber])?.user);
 }
 
 export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | null {

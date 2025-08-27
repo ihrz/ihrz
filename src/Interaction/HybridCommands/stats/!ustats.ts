@@ -60,15 +60,14 @@ export const subCommand: SubCommand = {
 			return;
 
 		let member: GuildMember;
-		let user;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			member = (interaction.options.getMember('member') || interaction.member) as GuildMember;
-			user = interaction.user;
 		} else {
 			member = (client.func.method.member(interaction, args!, 0) || interaction.member) as GuildMember;
-			user = interaction.author;
 		}
+
+		const msg = await client.func.method.interactionSend(interaction, client.iHorizon_Emojis.Discord_Loading);
 
 		const res = (await client.db.get(`${interaction.guildId}.STATS.USER.${member.user.id}`)) as DatabaseStructure.UserStats | null;
 
@@ -228,6 +227,6 @@ export const subCommand: SubCommand = {
 
 		const attachment = new AttachmentBuilder(image, { name: 'image.png' });
 
-		await client.func.method.interactionSend(interaction, { files: [attachment] });
+		msg.edit({ content: null, files: [attachment] });
 	},
 };
