@@ -92,7 +92,7 @@ export const subCommand: SubCommand = {
 
 			const embed = new EmbedBuilder()
 				.setTitle(response.track!.info.title || lang.lyrics_embed_title_unknown)
-				.setURL(response.track!.info.uri || "https://spotify.com")
+				.setURL(response.track!.info.uri || "https://www.ihorizon.org")
 				.setTimestamp()
 				.setThumbnail(response.track!.info.artworkUrl || null)
 				.setAuthor({
