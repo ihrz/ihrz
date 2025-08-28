@@ -26,9 +26,9 @@ import {
 } from 'discord.js';
 
 
-import backup from 'discord-rebackup';
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
+import { backup } from '../../../core/backup/src/index.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
