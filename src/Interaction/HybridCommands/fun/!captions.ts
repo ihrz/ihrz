@@ -46,8 +46,6 @@ export const subCommand: SubCommand = {
 			return
 		}
 
-		console.log(image.contentType)
-
 		try {
 			var res = await captions(image.url!, query);
 

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember } from 'discord.js'
+import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember, ColorResolvable } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
 import { getLogs } from './ready.js';
@@ -61,7 +61,12 @@ export const event: BotEvent = {
 				await client.func.method.punish(data, user);
 
 				await newRole.edit({
-					...oldRole
+					...oldRole,
+					colors: {
+						primaryColor: oldRole.colors.primaryColor,
+						secondaryColor: oldRole.colors.secondaryColor as ColorResolvable,
+						tertiaryColor: oldRole.colors.tertiaryColor as ColorResolvable
+					}
 				});
 			})()
 		}
