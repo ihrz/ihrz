@@ -30,7 +30,7 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
-import backup from "discord-rebackup";
+import { backup } from '../../../core/backup/src/index.js';
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {

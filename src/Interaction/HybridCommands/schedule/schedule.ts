@@ -31,10 +31,10 @@ import {
 	ChatInputCommandInteraction,
 	StringSelectMenuInteraction,
 	ModalSubmitInteraction,
-	TextInputComponent,
 	ApplicationCommandType,
 	Message,
-	User
+	User,
+	TextInputModalData
 } from 'discord.js';
 
 import { format } from '../../../core/functions/date_and_time.js';
@@ -323,7 +323,7 @@ export const command: Command = {
 				});
 
 
-				async function __0(date0: number, collection: Collection<string, TextInputComponent>) {
+				async function __0(date0: number, collection: Collection<string, TextInputModalData>) {
 					const scheduleCode = generatePassword({ length: 16 });
 
 					if (Number.isNaN(date0)) {

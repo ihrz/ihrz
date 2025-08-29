@@ -2174,7 +2174,7 @@ tempvoice_if_text_fields_value_block: "${client.iHorizon_Emojis.VC_Block} **Bloc
 tempvoice_if_text_fields_value_unblock: "${client.iHorizon_Emojis.VC_Unblock} **Unblock**"
 tempvoice_if_text_fields_value_claim: "${client.iHorizon_Emojis.VC_Claim} **Claim**"
 tempvoice_if_text_fields_value_privacy: "${client.iHorizon_Emojis.VC_Privacy} **Privacy**"
-tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.VC_Transfer} **VC_Transfer**"
+tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.VC_Transfer} **Transfer**"
 tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.VC_Delete} **Delete**"
 
 # /voice inteface set-voice-channel
