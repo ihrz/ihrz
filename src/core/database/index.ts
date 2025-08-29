@@ -83,15 +83,12 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 	} else if (database.method === "cached_postgres") {
 		logger.log(`${client.config.console.emojis.HOST} >> Initializing cached Postgres database setup (${database?.method}) !`.green);
 
-		const postgresDb = new Postgres({
-			connectionString: `postgres://${database.mySQL?.[0].user}:${encodeURIComponent(database.mySQL?.[0].password!)}@${database.mySQL?.[0].host}:${database.mySQL?.[0].port}/${database.mySQL?.[0].database}`,
-			table: tables[0]
-		});
-
-
-
 		dbInstance = {
-			x: new Memory()
+			x: new Memory(),
+			og: new Postgres({
+				connectionString: `postgres://${database.mySQL?.[0].user}:${encodeURIComponent(database.mySQL?.[0].password!)}@${database.mySQL?.[0].host}:${database.mySQL?.[0].port}/${database.mySQL?.[0].database}`,
+				table: tables[0]
+			})
 		};
 
 		if (database.mySQL?.[1]) {
@@ -107,7 +104,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			// do bi-separated db stuff
 
 			/** Cache the json table for first database */
-			const postgresTable = await postgresDb.table("json");
+			const postgresTable = await dbInstance.og!.table("json");
 			const memoryTable = await dbInstance.x.table("json");
 			const allData = await postgresTable.all();
 
@@ -120,7 +117,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			let _tables = tables.filter(x => x !== "json"); // We doesn't want the json table
 
 			for (const table of _tables) {
-				const postgresTable = await postgresDb.table(table);
+				const postgresTable = await dbInstance.og!.table(table);
 				const memoryTable = await dbInstance.x.table(table);
 				const allData = await postgresTable.all();
 
@@ -130,7 +127,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			}
 		} else /* Else, only one postgres. Load all tables in memory */ {
 			for (const table of tables) {
-				const postgresTable = await postgresDb.table(table);
+				const postgresTable = await dbInstance.og!.table(table);
 				const memoryTable = await dbInstance.x.table(table);
 				const allData = await postgresTable.all();
 
@@ -139,62 +136,6 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 				}
 			}
 		}
-
-		const syncToPostgres = async () => {
-			for (const table of tables) {
-				const postgresTable = await postgresDb.table(table);
-				const memoryTable = await dbInstance!.x.table(table);
-
-				const postgresData = await postgresTable.all();
-				const memoryData = await memoryTable.all();
-
-				const postgresMap = new Map(postgresData.map(item => [item.id, item.value]));
-				const memoryMap = new Map(memoryData.map(item => [item.id, item.value]));
-
-				for (const [id, value] of memoryMap) {
-					const postgresValue = postgresMap.get(id);
-					if (!postgresValue || JSON.stringify(postgresValue) !== JSON.stringify(value)) {
-						try {
-							if (readOnlyTables.includes(table)) {
-								for (const { id, value } of postgresData) {
-									await memoryTable.set(id, value);
-								}
-							} else {
-								await postgresTable.set(id, value);
-							}
-						} catch (error) {
-							logger.err(error as any);
-						}
-					}
-				}
-
-				if (!readOnlyTables.includes(table)) {
-					for (const id of postgresMap.keys()) {
-						if (!memoryMap.has(id)) {
-							try {
-								await postgresTable.delete(id);
-							} catch (error) {
-								logger.err(error as any);
-							}
-						}
-					}
-				}
-
-				if (readOnlyTables.includes(table)) {
-					for (const id of memoryMap.keys()) {
-						if (!postgresMap.has(id)) {
-							try {
-								await memoryTable.delete(id);
-							} catch (error) {
-								logger.err(error as any);
-							}
-						}
-					}
-				}
-			}
-
-			overwriteLastLine(logger.returnLog(`${client.config.console.emojis.HOST} >> Synchronized memory database to Postgres !`));
-		};
 
 		setInterval(syncToPostgres, 60000 * 5);
 	} else {
@@ -208,3 +149,62 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 	logger.log(`${client.config.console.emojis.HOST} >> Connected to the database (${client.config.database?.method}) !`.green);
 	return dbInstance;
 }
+
+
+const syncToPostgres = async () => {
+	if (!dbInstance) process.exit(1);
+
+	for (const table of tables) {
+		const postgresTable = await dbInstance.og!.table(table);
+		const memoryTable = await dbInstance!.x.table(table);
+
+		const postgresData = await postgresTable.all();
+		const memoryData = await memoryTable.all();
+
+		const postgresMap = new Map(postgresData.map(item => [item.id, item.value]));
+		const memoryMap = new Map(memoryData.map(item => [item.id, item.value]));
+
+		for (const [id, value] of memoryMap) {
+			const postgresValue = postgresMap.get(id);
+			if (!postgresValue || JSON.stringify(postgresValue) !== JSON.stringify(value)) {
+				try {
+					if (readOnlyTables.includes(table)) {
+						for (const { id, value } of postgresData) {
+							await memoryTable.set(id, value);
+						}
+					} else {
+						await postgresTable.set(id, value);
+					}
+				} catch (error) {
+					logger.err(error as any);
+				}
+			}
+		}
+
+		if (!readOnlyTables.includes(table)) {
+			for (const id of postgresMap.keys()) {
+				if (!memoryMap.has(id)) {
+					try {
+						await postgresTable.delete(id);
+					} catch (error) {
+						logger.err(error as any);
+					}
+				}
+			}
+		}
+
+		if (readOnlyTables.includes(table)) {
+			for (const id of memoryMap.keys()) {
+				if (!postgresMap.has(id)) {
+					try {
+						await memoryTable.delete(id);
+					} catch (error) {
+						logger.err(error as any);
+					}
+				}
+			}
+		}
+	}
+
+	overwriteLastLine(logger.returnLog(`${client.config.console.emojis.HOST} >> Synchronized memory database to Postgres !`));
+};
