@@ -160,10 +160,3 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 	logger.log(`${client.config.console.emojis.HOST} >> Connected to the database (${client.config.database?.method}) !`.green);
 	return dbInstance;
 }
-
-export function getDatabaseInstance(): DB {
-	if (!dbInstance) {
-		throw new Error('Database has not been initialized. Call initializeDatabase first.');
-	}
-	return dbInstance;
-}
