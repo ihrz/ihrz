@@ -116,8 +116,8 @@ declare namespace Client_Functions {
 	// From method.ts
 	export namespace method {
 		export function isNumber(str: string): boolean;
-		export function user(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<User | null>;
-		export function member(interaction: Message<boolean>, args: Array<string>, argsNumber: number): GuildMember | null;
+		export function user(message: Message<boolean>, args: Array<string>, argsNumber: number): Promise<User | null>;
+		export function member(message: Message<boolean>, args: Array<string>, argsNumber: number): GuildMember | null;
 		export function voiceChannel(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<BaseGuildVoiceChannel | null>;
 		export function channel(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<Channel | null>;
 		export function role(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Role | null;
