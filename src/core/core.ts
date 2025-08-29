@@ -28,7 +28,7 @@ import playerManager from "./modules/playerManager.js";
 import { VanityInviteData } from '../../types/vanityUrlData.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
-import backup from 'discord-rebackup';
+import { backup } from './backup/src/index.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
