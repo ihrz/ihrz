@@ -1,24 +1,24 @@
-import type { BackupData, BackupInfos, CreateOptions, LoadOptions } from './types/';
-import type { Guild } from 'discord.js';
-import { SnowflakeUtil, IntentsBitField } from 'discord.js';
+/*
+・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
-import { sep } from 'path';
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
 
-import { existsSync, mkdirSync, statSync, unlinkSync } from 'fs';
-import { writeFile, readdir } from 'fs/promises';
+	・   Under the following terms:
 
-import * as createMaster from './create';
-import * as loadMaster from './load';
-import * as utilMaster from './util';
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-let backups = process.cwd() + "/backups";
-if (!existsSync(backups)) {
-	mkdirSync(backups);
-}
+		・ NonCommercial — You may not use the material for commercial purposes.
 
-/**
- * Checks if a backup exists and returns its data
- */
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
+
+・ Copyright © 2020-2025 iHorizon
+*/
+
 const getBackupData = async (backupID: string) => {
 	return new Promise<BackupData>(async (resolve, reject) => {
 		const files = await readdir(backups); // Read "backups" directory
