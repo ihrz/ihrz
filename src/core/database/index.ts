@@ -94,6 +94,14 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			x: new Memory()
 		};
 
+		if (database.mySQL?.[1]) {
+			dbInstance.y = new Postgres({
+				connectionString: `postgres://${database.mySQL?.[1].user}:${encodeURIComponent(database.mySQL?.[1].password!)}@${database.mySQL?.[1].host}:${database.mySQL?.[1].port}/${database.mySQL?.[1].database}`,
+				table: tables[0]
+			});
+			logger.log(`${client.config.console.emojis.LOAD} >> Initializing bi-separated postgres database.`)
+		}
+
 		for (const table of tables) {
 			const postgresTable = await postgresDb.table(table);
 			const memoryTable = await dbInstance.x.table(table);
