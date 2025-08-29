@@ -62,7 +62,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		dbInstance = new Memory();
 	} else if (database.method === "postgresql") {
 		dbInstance = new Postgres({
-			connectionString: `postgres://${database.mySQL?.user}:${encodeURIComponent(database.mySQL?.password!)}@${database.mySQL?.host}:${database.mySQL?.port}/${database.mySQL?.database}`,
+			connectionString: `postgres://${database.mySQL?.[0].user}:${encodeURIComponent(database.mySQL?.[0].password!)}@${database.mySQL?.[0].host}:${database.mySQL?.[0].port}/${database.mySQL?.[0].database}`,
 			table: tables[0]
 		});
 	} else if (database.method === "horizon") {
@@ -76,7 +76,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		logger.log(`${client.config.console.emojis.HOST} >> Initializing cached Postgres database setup (${database?.method}) !`.green);
 
 		const postgresDb = new Postgres({
-			connectionString: `postgres://${database.mySQL?.user}:${encodeURIComponent(database.mySQL?.password!)}@${database.mySQL?.host}:${database.mySQL?.port}/${database.mySQL?.database}`,
+			connectionString: `postgres://${database.mySQL?.[0].user}:${encodeURIComponent(database.mySQL?.[0].password!)}@${database.mySQL?.[0].host}:${database.mySQL?.[0].port}/${database.mySQL?.[0].database}`,
 			table: tables[0]
 		});
 
