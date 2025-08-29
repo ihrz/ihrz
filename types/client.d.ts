@@ -61,7 +61,7 @@ declare module 'discord.js' {
 		buttons: Collection<string, Function>,
 		selectmenu: Collection<string, Function>,
 		db: DB,
-		db2: Postgres,
+		db2: Postgres | undefined,
 		applicationsCommands: Collection<string, AnotherCommand>,
 		iHorizon_Emojis: typeof emojis,
 		giveawaysManager: GiveawayManager,
