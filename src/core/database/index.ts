@@ -153,8 +153,9 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 
 const syncToPostgres = async () => {
 	if (!dbInstance) process.exit(1);
+	let _tables = dbInstance.y ? ['json'] : tables;
 
-	for (const table of tables) {
+	for (const table of _tables) {
 		const postgresTable = await dbInstance.og!.table(table);
 		const memoryTable = await dbInstance!.x.table(table);
 
