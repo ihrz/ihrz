@@ -36,6 +36,7 @@ export type DataLike<T = any> = { id: string; value: T };
 export type Table = Map<string, any>;
 
 export type DB = Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon;
+export type MultiDB = { x: DB, y?: Postgres };
 
 export type PostgresOptions = {
 	table?: string;

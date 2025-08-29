@@ -20,7 +20,7 @@
 */
 
 import { ConfigData } from '../../../types/configDatad.js';
-import { DB } from './types.js';
+import { DB, MultiDB } from './types.js';
 
 import logger from '../logger.js';
 import path from 'path';
@@ -32,10 +32,10 @@ import { Memory } from './driver/memory.js';
 import { Sqlite } from './driver/sqlite.js';
 import { Json } from './driver/json.js';
 
-let dbInstance: DB | null = null;
+let dbInstance: MultiDB | null = null;
 
-export const tables = ['json', 'OWNER', 'BLACKLIST', 'PREVNAMES', 'API', 'TEMP', 'SCHEDULE', 'USER_PROFIL', "AUTHRESTORE"].map(x => x.toLowerCase())
-export const readOnlyTables = ["AUTHRESTORE", 'API'].map(x => x.toLowerCase());
+export const tables = ['json', 'owner', 'blacklist', 'prevnames', 'api', 'temp', 'schedule', 'user_profil', "authrestore"];
+export const readOnlyTables = ["authrestore", 'api'];
 export const databasePath = `${process.cwd()}/src/files/`;
 
 export const overwriteLastLine = (message: string) => {
@@ -48,30 +48,38 @@ if (!fs.existsSync(databasePath)) {
 	fs.mkdirSync(databasePath, { recursive: true });
 }
 
-export async function initializeDatabase(database: ConfigData["database"]): Promise<DB> {
+export async function initializeDatabase(database: ConfigData["database"]): Promise<MultiDB> {
 	if (!database) throw new Error("invalid database object")
 	if (dbInstance !== null) {
 		return dbInstance;
 	}
 
 	if (database.method === "json") {
-		dbInstance = new Json({
-			filePath: path.join(databasePath, "db.json")
-		});
+		dbInstance = {
+			x: new Json({
+				filePath: path.join(databasePath, "db.json")
+			})
+		}
 	} else if (database.method === "memory") {
-		dbInstance = new Memory();
+		dbInstance = {
+			x: new Memory()
+		};
 	} else if (database.method === "postgresql") {
-		dbInstance = new Postgres({
-			connectionString: `postgres://${database.mySQL?.[0].user}:${encodeURIComponent(database.mySQL?.[0].password!)}@${database.mySQL?.[0].host}:${database.mySQL?.[0].port}/${database.mySQL?.[0].database}`,
-			table: tables[0]
-		});
+		dbInstance = {
+			x: new Postgres({
+				connectionString: `postgres://${database.mySQL?.[0].user}:${encodeURIComponent(database.mySQL?.[0].password!)}@${database.mySQL?.[0].host}:${database.mySQL?.[0].port}/${database.mySQL?.[0].database}`,
+				table: tables[0]
+			})
+		};
 	} else if (database.method === "horizon") {
-		dbInstance = new Horizon(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
-			login: database?.horizon_db?.login!,
-			password: database?.horizon_db?.password!,
-			enableVerboses: process.env.DEV === "true" ? true : false,
-			tables
-		});
+		dbInstance = {
+			x: new Horizon(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
+				login: database?.horizon_db?.login!,
+				password: database?.horizon_db?.password!,
+				enableVerboses: process.env.DEV === "true" ? true : false,
+				tables
+			})
+		};
 	} else if (database.method === "cached_postgres") {
 		logger.log(`${client.config.console.emojis.HOST} >> Initializing cached Postgres database setup (${database?.method}) !`.green);
 
@@ -82,11 +90,13 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 
 
 
-		dbInstance = new Memory();
+		dbInstance = {
+			x: new Memory()
+		};
 
 		for (const table of tables) {
 			const postgresTable = await postgresDb.table(table);
-			const memoryTable = await dbInstance.table(table);
+			const memoryTable = await dbInstance.x.table(table);
 			const allData = await postgresTable.all();
 
 			for (const { id, value } of allData) {
@@ -97,7 +107,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		const syncToPostgres = async () => {
 			for (const table of tables) {
 				const postgresTable = await postgresDb.table(table);
-				const memoryTable = await dbInstance!.table(table);
+				const memoryTable = await dbInstance!.x.table(table);
 
 				const postgresData = await postgresTable.all();
 				const memoryData = await memoryTable.all();
@@ -152,9 +162,11 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 
 		setInterval(syncToPostgres, 60000 * 5);
 	} else {
-		dbInstance = new Sqlite({
-			filePath: path.join(databasePath, "db.sqlite")
-		});
+		dbInstance = {
+			x: new Sqlite({
+				filePath: path.join(databasePath, "db.sqlite")
+			})
+		};
 	}
 
 	logger.log(`${client.config.console.emojis.HOST} >> Connected to the database (${client.config.database?.method}) !`.green);
