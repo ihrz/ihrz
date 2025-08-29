@@ -102,13 +102,41 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			logger.log(`${client.config.console.emojis.LOAD} >> Initializing bi-separated postgres database.`)
 		}
 
-		for (const table of tables) {
-			const postgresTable = await postgresDb.table(table);
-			const memoryTable = await dbInstance.x.table(table);
+
+		if (dbInstance.y) {
+			// do bi-separated db stuff
+
+			/** Cache the json table for first database */
+			const postgresTable = await postgresDb.table("json");
+			const memoryTable = await dbInstance.x.table("json");
 			const allData = await postgresTable.all();
 
 			for (const { id, value } of allData) {
-				await memoryTable.set(id, value);
+				/** Only needed to cache the guilds record which is in the shard (avoid to much useless storing) */
+				if (client.inShard(id)) await memoryTable.set(id, value);
+			}
+
+			/** Cache the second bi-separated database with anothers database */
+			let _tables = tables.filter(x => x !== "json"); // We doesn't want the json table
+
+			for (const table of _tables) {
+				const postgresTable = await postgresDb.table(table);
+				const memoryTable = await dbInstance.x.table(table);
+				const allData = await postgresTable.all();
+
+				for (const { id, value } of allData) {
+					await memoryTable.set(id, value);
+				}
+			}
+		} else /* Else, only one postgres. Load all tables in memory */ {
+			for (const table of tables) {
+				const postgresTable = await postgresDb.table(table);
+				const memoryTable = await dbInstance.x.table(table);
+				const allData = await postgresTable.all();
+
+				for (const { id, value } of allData) {
+					await memoryTable.set(id, value);
+				}
 			}
 		}
 
