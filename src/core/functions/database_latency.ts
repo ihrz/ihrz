@@ -19,10 +19,12 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { metasTable } from "../../Events/client/ready.ts";
+
 export default async function databaseLatency(): Promise<number> {
 	let _0 = Date.now();
 	try {
-		await client.db.get("LAST_WRITE");
+		await metasTable.get("LAST_WRITE");
 	} catch { }
 	return Date.now() - _0;
 }

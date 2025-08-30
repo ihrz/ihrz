@@ -34,8 +34,8 @@ import { Json } from './driver/json.js';
 
 let dbInstance: MultiDB | null = null;
 
-export const tables = ['json', 'owner', 'blacklist', 'prevnames', 'api', 'temp', 'schedule', 'user_profil', "authrestore"];
-export const readOnlyTables = ["authrestore", 'api'];
+export const tables = ['json', 'owner', 'blacklist', 'prevnames', 'api', 'temp', 'schedule', 'user_profil', "authrestore", "metas"];
+export const readOnlyTables = ["authrestore", 'api', 'metas'];
 export const databasePath = `${process.cwd()}/src/files/`;
 
 export const overwriteLastLine = (message: string) => {

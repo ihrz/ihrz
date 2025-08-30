@@ -46,6 +46,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { SubCommand } from '../../../../types/command.js';
+import { metasTable } from '../../../Events/client/ready.js';
 
 // Types
 type Attachment = { attachment: string; name: string; };
@@ -362,18 +363,18 @@ class EmbedManager {
 
 	// Optimized embed operations
 	private async saveEmbed(arg?: string): Promise<string> {
-		const potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
+		const potentialEmbed = await metasTable.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
 
 		if (potentialEmbed?.embedOwner !== this.interaction.member?.user.id! || !arg) {
 			const password = generatePassword({ length: 16 });
-			await client.db.set(`EMBED.${password}`, {
+			await metasTable.set(`EMBED.${password}`, {
 				embedOwner: this.interaction.member?.user.id!,
 				embedSource: this.embed.toJSON()
 			});
 			return password;
 		}
 
-		await client.db.set(`EMBED.${arg}`, {
+		await metasTable.set(`EMBED.${arg}`, {
 			embedOwner: this.interaction.member?.user.id!,
 			embedSource: this.embed.toJSON()
 		});
@@ -540,7 +541,7 @@ class EmbedManager {
 	// Main run method
 	async run(arg?: string): Promise<void> {
 		// Load existing embed if available
-		const potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
+		const potentialEmbed = await metasTable.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
 		if (potentialEmbed) {
 			this.embed = new EmbedBuilder(potentialEmbed.embedSource);
 		}

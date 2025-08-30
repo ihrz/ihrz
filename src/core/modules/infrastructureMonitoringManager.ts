@@ -22,6 +22,7 @@
 import { BaseGuildTextChannel, Client, EmbedBuilder, time } from "discord.js";
 import net from "node:net";
 import { axios } from "../functions/axios.ts";
+import { metasTable } from "../../Events/client/ready.ts";
 
 interface ResponseResult {
 	up: boolean;
@@ -249,7 +250,7 @@ class InfrastructureMonitoring {
 			);
 
 		try {
-			const all_guilds = await client.db.get("MISC.statusEmbed") || {};
+			const all_guilds = await metasTable.get("MISC.statusEmbed") || {};
 
 			// Check all services and update the embed
 			this.lastResult = await this.checkAllServices();
