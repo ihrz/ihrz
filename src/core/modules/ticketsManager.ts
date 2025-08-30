@@ -58,6 +58,7 @@ import logger from '../logger.js';
 import { TicketPanel } from '../../Interaction/HybridCommands/ticket/!panel.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import getLanguageData from '../functions/getLanguageData.js';
+import { metasTable } from '../../Events/client/ready.js';
 
 interface CreatePanelData {
 	name: string | null;
@@ -806,7 +807,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		if (result.ticketChannelPanel) {
-			var embed_from_db = (await interaction.client.db.get(`EMBED.${result.ticketChannelPanel}.embedSource`));
+			var embed_from_db = (await metasTable.get(`EMBED.${result.ticketChannelPanel}.embedSource`));
 			// do this hack for replacing category in descriptions, fields ,etc
 			embed_from_db = JSON.parse(JSON.stringify(embed_from_db).replaceAll('{category}', categoryName?.name!)) as APIEmbed | null;
 

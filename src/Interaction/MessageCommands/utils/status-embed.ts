@@ -29,6 +29,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
+import { metasTable } from '../../../Events/client/ready.js';
 
 
 export const command: Command = {
@@ -88,7 +89,7 @@ export const command: Command = {
 				embeds: [embed]
 			});
 
-			await client.db.set(`MISC.statusEmbed.${message.guildId}`, {
+			await metasTable.set(`MISC.statusEmbed.${message.guildId}`, {
 				message_id: res.id,
 				guild_id: res.guildId,
 				channel_id: channelId

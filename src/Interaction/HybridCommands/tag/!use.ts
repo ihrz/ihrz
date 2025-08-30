@@ -30,6 +30,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 import { SubCommand } from '../../../../types/command.js';
+import { metasTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -74,7 +75,7 @@ export const subCommand: SubCommand = {
 		}
 
 		// send the tag content
-		const embed = await client.db.get(`EMBED.${tag.embedId}`);
+		const embed = await metasTable.get(`EMBED.${tag.embedId}`);
 
 		if (interaction.channel.isSendable()) {
 			if (message_id) {

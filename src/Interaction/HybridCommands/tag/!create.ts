@@ -30,6 +30,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 import { SubCommand } from '../../../../types/command.js';
+import { metasTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -76,7 +77,7 @@ export const subCommand: SubCommand = {
 		}
 
 		// Check if the embed exists
-		const embed = await client.db.get(`EMBED.${embed_id}`);
+		const embed = await metasTable.get(`EMBED.${embed_id}`);
 
 		if (!embed) {
 			await client.func.method.interactionSend(interaction, {

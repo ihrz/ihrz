@@ -73,6 +73,7 @@ export interface TicketPanel {
 
 import { SubCommand } from '../../../../types/command.js';
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
+import { metasTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -583,7 +584,7 @@ export const subCommand: SubCommand = {
 				};
 
 				const channel = i.values[0];
-				const relatedEmbed = await client.db.get(`EMBED.${baseData.relatedEmbedId}`);
+				const relatedEmbed = await metasTable.get(`EMBED.${baseData.relatedEmbedId}`);
 
 				if (!relatedEmbed || !relatedEmbed.embedSource) {
 					return i.reply({ flags: [1 << 6], content: lang.ticket_panel_related_embed_dont_exist });
@@ -765,7 +766,7 @@ export const subCommand: SubCommand = {
 			const embed_id = modal.fields.getTextInputValue("embed_id");
 
 			// check if the embed exists
-			const embed = await client.db.get(`EMBED.${embed_id}`);
+			const embed = await metasTable.get(`EMBED.${embed_id}`);
 
 			if (!embed) {
 				return modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
@@ -813,7 +814,7 @@ export const subCommand: SubCommand = {
 			let embed_id: string | undefined = modal.fields.getTextInputValue("embed_id");
 
 			// check if the embed exists
-			const embed = await client.db.get(`EMBED.${embed_id}`);
+			const embed = await metasTable.get(`EMBED.${embed_id}`);
 
 			if (!embed) {
 				modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
@@ -1221,7 +1222,7 @@ export const subCommand: SubCommand = {
 		}
 
 		async function preview(i: StringSelectMenuInteraction<CacheType>) {
-			const relatedEmbed = await client.db.get(`EMBED.${baseData.relatedEmbedId}`);
+			const relatedEmbed = await metasTable.get(`EMBED.${baseData.relatedEmbedId}`);
 
 			if (!relatedEmbed || !relatedEmbed.embedSource) {
 				await originalResponse.edit({
