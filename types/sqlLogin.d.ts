@@ -19,29 +19,10 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { LanguageData } from '../../../types/languageData.js';
-
-interface LangsData {
-	[lang: string]: LanguageData;
+export interface MySQL {
+	host: string;
+	user: string;
+	password: string;
+	database: string;
+	port?: number;
 }
-
-const LangsData: LangsData = {};
-
-export default async function getLanguageData(arg: string | undefined | null): Promise<LanguageData> {
-
-	let lang = await client.db.get(`${arg}.GUILD.LANG.lang`) as string;
-
-	if (!lang) {
-		lang = 'en-US';
-	};
-
-	let dat = LangsData[lang];
-
-	if (!dat) {
-
-		dat = await import(process.cwd() + "/src/lang/" + lang + ".yml") as LanguageData;
-		LangsData[lang] = dat;
-	};
-
-	return dat;
-};
