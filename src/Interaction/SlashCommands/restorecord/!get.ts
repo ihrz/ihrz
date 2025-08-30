@@ -47,7 +47,12 @@ export const subCommand: SubCommand = {
 		const Data = await getGuildDataPerSecretCode(secretCode);
 		const AllUsersData = await authRestoreTable.get("saved_users") as SavedMembersAuthRestore;
 
-		if (!Data) return client.func.method.interactionSend(interaction, {
+		if (!Data
+			||
+			!Data.id
+			||
+			!Data.data.members
+		) return client.func.method.interactionSend(interaction, {
 			content: lang.rc_key_doesnt_exist
 				.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 				.replace("${secretCode}", secretCode),
