@@ -53,6 +53,8 @@ export let prevnamesTable: DB = null;
 export let apiTable: DB = null;
 // @ts-ignore
 export let scheduleTable: DB = null;
+// @ts-ignore
+export let metasTable: DB = null;
 
 export const event: BotEvent = {
 	name: "clientReady",
@@ -69,6 +71,7 @@ export const event: BotEvent = {
 		prevnamesTable = await db.table("prevnames");
 		apiTable = await db.table("api");
 		scheduleTable = await db.table("schedule");
+		metasTable = await db.table("metas");
 
 		await client.emojisManager.startSync();
 
@@ -151,7 +154,7 @@ export const event: BotEvent = {
 		async function refreshBotData() {
 			const result = await getShardStats(client);
 
-			await client.db.set("BOT", {
+			await metasTable.set("BOT", {
 				"info": {
 					members: result.users,
 					servers: result.guilds,
@@ -242,7 +245,7 @@ export const event: BotEvent = {
 		if (client.config.database?.method.includes("horizon") && client.version.env === "production" && client.shard?.ids[0] === 0) {
 			setInterval(async () => {
 				try {
-					await client.db.set("LAST_WRITE", Date.now());
+					await metasTable.set("LAST_WRITE", Date.now());
 				} catch { }
 
 				const databaseLatency = await client.func.database_latency();
