@@ -113,6 +113,7 @@ class EmbedManager {
 	private embed: EmbedBuilder;
 	private files: EmbedFiles;
 	private response: Message;
+	private time_maximum: number = 1_420_000;
 
 	constructor(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData) {
 		this.interaction = interaction;
@@ -219,7 +220,7 @@ class EmbedManager {
 		const messageCollector = (this.interaction.channel as BaseGuildTextChannel)?.createMessageCollector({
 			filter: (m) => m.author.id === this.interaction.member?.user.id!,
 			max: 1,
-			time: 300_000
+			time: this.time_maximum
 		});
 
 		messageCollector?.on('collect', async (message) => {
@@ -398,7 +399,7 @@ class EmbedManager {
 		const seCollector = (this.interaction.channel as BaseGuildTextChannel)?.createMessageComponentCollector({
 			filter: (m) => m.user.id === this.interaction.member?.user.id! && m.customId === 'embed-save-channel',
 			max: 1,
-			time: 300_000,
+			time: this.time_maximum,
 			componentType: ComponentType.ChannelSelect
 		});
 
@@ -439,7 +440,7 @@ class EmbedManager {
 		const response2 = await (this.interaction.channel as BaseGuildTextChannel)?.awaitMessages({
 			filter: (m) => m.author.id === this.interaction.member?.user.id!,
 			max: 1,
-			time: 300_000,
+			time: this.time_maximum,
 		});
 
 		const message = response2.first();
@@ -555,7 +556,7 @@ class EmbedManager {
 		// String select collector
 		const selectCollector = this.response.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
-			time: 1_420_000
+			time: this.time_maximum
 		});
 
 		selectCollector.on('collect', async (i: StringSelectMenuInteraction<"cached">) => {
@@ -569,7 +570,7 @@ class EmbedManager {
 		// Button collector
 		const buttonCollector = this.response.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			time: 300_000
+			time: this.time_maximum
 		});
 
 		buttonCollector.on('collect', async (confirmation: ButtonInteraction<"cached">) => {
