@@ -42,7 +42,7 @@ export const command: Command = {
 
 			description: "Manage voice's interface",
 			description_localizations: {
-				"fr": "Gérer les intefaces de créations de vocal"
+				"fr": "Gérer les interfaces de créations de canaux vocaux"
 			},
 
 			options: [
@@ -52,7 +52,7 @@ export const command: Command = {
 
 					description: "Set the channel for Join4Create!",
 					description_localizations: {
-						"fr": "Définis le salon où le membre ce connecte pour créer son propre channel"
+						"fr": "Définit le salon où le membre se connecte pour créer son propre canal"
 					},
 
 					options: [
@@ -77,7 +77,7 @@ export const command: Command = {
 					name: "set-text-channel",
 					type: ApplicationCommandOptionType.Subcommand,
 
-					description: "Send an interface to the channel for manage them own voice channel",
+					description: "Send an interface to the channel to manage their own voice channel",
 					description_localizations: {
 						"fr": "Envoyer une interface au canal pour gérer son propre canal vocal"
 					},
@@ -88,9 +88,9 @@ export const command: Command = {
 							type: ApplicationCommandOptionType.Channel,
 							channel_types: [ChannelType.GuildText],
 
-							description: "The channel you want the dashboard interface are sended",
+							description: "The channel you want the dashboard interface are sent",
 							description_localizations: {
-								"fr": "Le salon où l'interface seras envoyer"
+								"fr": "Le salon où l'interface sera envoyée"
 							},
 
 							required: true,
@@ -116,7 +116,7 @@ export const command: Command = {
 
 							description: "The role for the staff to bypass permission into the TempChannels",
 							description_localizations: {
-								"fr": "Le rôle du personnel pour contourner l'autorisation dans les TempChannel"
+								"fr": "Le rôle du staff pour contourner l'autorisation dans les TempChannel"
 							},
 
 							required: true,
@@ -130,9 +130,9 @@ export const command: Command = {
 					name: "set-voice-channel-catgory",
 					type: ApplicationCommandOptionType.Subcommand,
 
-					description: "Set the channel where the voice channel will be create!",
+					description: "Set the channel where the voice channel will be created!",
 					description_localizations: {
-						"fr": "Définis la catégorie où le canal perso vas être créer"
+						"fr": "Définit la catégorie où le canal perso va être créé"
 					},
 
 					options: [
@@ -143,7 +143,7 @@ export const command: Command = {
 
 							description: "The category you want",
 							description_localizations: {
-								"fr": "La category"
+								"fr": "La catégorie que vous voulez"
 							},
 
 							required: true,
@@ -157,9 +157,9 @@ export const command: Command = {
 					name: "set-voice-channel-position",
 					type: ApplicationCommandOptionType.Subcommand,
 
-					description: "Set the voice channel position in the category when it will be create!",
+					description: "Set the voice channel position in the category when it will be created!",
 					description_localizations: {
-						"fr": "Définis la position du salon où le canal perso vas être créer dans la catégorie"
+						"fr": "Définit la position du salon où le canal perso va être créé dans la catégorie"
 					},
 
 					options: [
@@ -169,7 +169,7 @@ export const command: Command = {
 
 							description: "The position type you want",
 							description_localizations: {
-								"fr": "dans quel position tu veux le salon"
+								"fr": "Quelle position veux-tu pour le salon ?"
 							},
 
 							choices: [
@@ -194,9 +194,9 @@ export const command: Command = {
 					name: "set-voice-channel-name",
 					type: ApplicationCommandOptionType.Subcommand,
 
-					description: "Set the voice channel name when it will be create!",
+					description: "Set the voice channel name when it will be created!",
 					description_localizations: {
-						"fr": "Définis le nom du salon où le canal quand il vas être créer"
+						"fr": "Définit le nom du salon où le canal va être créé"
 					},
 
 					options: [
@@ -206,7 +206,7 @@ export const command: Command = {
 
 							description: "The name you want | Variable: {Username}",
 							description_localizations: {
-								"fr": "le nom que tu veux | Variable: {Username}"
+								"fr": "Le nom que tu veux | Variable: {Username}"
 							},
 
 							required: true,
@@ -224,7 +224,7 @@ export const command: Command = {
 
 	description: "Subcommand group for voice's manager",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la gestion de channel vocal"
+		"fr": "Commande sous-groupé pour la gestion de canaux vocaux"
 	},
 
 	category: 'voicedashboard',
