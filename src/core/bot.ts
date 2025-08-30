@@ -31,7 +31,7 @@ import { setMaxListeners } from 'events';
 configDotenv({ debug: false, quiet: true })
 setMaxListeners(0)
 
-const client = new Client({
+global.client = new Client({
 	intents: [
 		GatewayIntentBits.AutoModerationConfiguration,
 		GatewayIntentBits.AutoModerationExecution,
@@ -65,11 +65,15 @@ const client = new Client({
 		Partials.ThreadMember
 	],
 	enforceNonce: true
-}); global.client = client;
+});
 
 client.version = ClientVersion
 client.config = config;
-client.db = await initializeDatabase(config.database);
+
+const { x, y } = await initializeDatabase(config.database);
+client.db = x;
+if (y) client.db2 = y;
+
 client.inShard = function (guildId: string): boolean {
 	const shardId = client.shard?.ids?.[0] ?? 0;
 	const totalShards = client.options.shardCount ?? 1;

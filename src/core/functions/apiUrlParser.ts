@@ -20,7 +20,6 @@
 */
 
 import { Assets } from "../../../types/assets.js";
-import config from "../../files/config.js";
 
 export enum GatewayMethod {
 	GenerateOauthLink = 0,
@@ -39,7 +38,7 @@ export function assetsFinder(body: Assets, type: string): string {
 };
 
 export function HorizonGateway(gateway_method: GatewayMethod): string {
-	let data = config.api.HorizonGateway;
+	let data = client.config.api.HorizonGateway;
 
 	if (!data) throw "Error: HorizonGateway empty in the configurations files";
 

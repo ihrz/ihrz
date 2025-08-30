@@ -29,7 +29,6 @@ import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { encrypt } from '../../../core/functions/encryptDecryptMethod.js';
 
 import { SubCommand } from '../../../../types/command.js';
-import { env } from '../../../version.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -38,7 +37,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		if (env === 'production' || env === "dev") {
+		if (client.version.env === 'production' || client.version.env === "dev") {
 			await interaction.editReply({ content: lang.guildconfig_config_save_check_dm });
 			const link = apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.ServerBackup);
 
