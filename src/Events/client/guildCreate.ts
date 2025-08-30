@@ -130,7 +130,12 @@ export const event: BotEvent = {
 						.setEmoji(client.iHorizon_Emojis.Logo)
 						.setLabel('Support Server')
 						.setStyle(ButtonStyle.Link)
-						.setURL('https://discord.gg/ihorizon')
+						.setURL('https://discord.gg/ihorizon'),
+					new ButtonBuilder()
+						.setEmoji(client.iHorizon_Emojis.Documentation)
+						.setLabel('iHorizon Documentation')
+						.setStyle(ButtonStyle.Link)
+						.setURL('https://docs.ihorizon.org')
 				)
 				;
 			if (!channel) return;
