@@ -78,7 +78,7 @@ export const command: Command = {
 		let amount = client.func.method.number(options!, 0) || 1;
 
 		if (amount > 275000) {
-			amount = 275000;
+			amount = 10_000;
 		}
 
 		if (interaction.guild.preferredLocale.includes("fr")) {
