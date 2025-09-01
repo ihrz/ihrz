@@ -19,6 +19,14 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { Guild, SnowflakeUtil } from "discord.js";
+import { readdir, statSync, writeFile, unlinkSync, existsSync, mkdirSync } from "fs";
+import { sep } from "path";
+import { BackupData } from "./types/BackupData.ts";
+import { BackupInfos } from "./types/BackupInfos.ts";
+import { CreateOptions } from "./types/CreateOptions.ts";
+import { LoadOptions } from "./types/LoadOptions.ts";
+
 const getBackupData = async (backupID: string) => {
 	return new Promise<BackupData>(async (resolve, reject) => {
 		const files = await readdir(backups); // Read "backups" directory
