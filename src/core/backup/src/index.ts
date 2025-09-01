@@ -19,14 +19,27 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Guild, SnowflakeUtil } from "discord.js";
-import { readdir, statSync, writeFile, unlinkSync, existsSync, mkdirSync } from "fs";
-import { sep } from "path";
-import { BackupData } from "./types/BackupData.ts";
-import { BackupInfos } from "./types/BackupInfos.ts";
-import { CreateOptions } from "./types/CreateOptions.ts";
-import { LoadOptions } from "./types/LoadOptions.ts";
+import type { BackupData, BackupInfos, CreateOptions, LoadOptions } from './types/';
+import type { Guild } from 'discord.js';
+import { SnowflakeUtil, IntentsBitField } from 'discord.js';
 
+import { sep } from 'path';
+
+import { existsSync, mkdirSync, statSync, unlinkSync } from 'fs';
+import { writeFile, readdir } from 'fs/promises';
+
+import * as createMaster from './create';
+import * as loadMaster from './load';
+import * as utilMaster from './util';
+
+let backups = process.cwd() + "/backups";
+if (!existsSync(backups)) {
+	mkdirSync(backups);
+}
+
+/**
+ * Checks if a backup exists and returns its data
+ */
 const getBackupData = async (backupID: string) => {
 	return new Promise<BackupData>(async (resolve, reject) => {
 		const files = await readdir(backups); // Read "backups" directory
