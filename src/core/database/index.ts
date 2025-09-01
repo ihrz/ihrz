@@ -174,7 +174,11 @@ const syncToPostgres = async () => {
 							await memoryTable.set(id, value);
 						}
 					} else {
-						await postgresTable.set(id, value);
+						if (table === "json") {
+							if (client.inShard(id)) await postgresTable.set(id, value);
+						} else {
+							await postgresTable.set(id, value);
+						}
 					}
 				} catch (error) {
 					logger.err(error as any);
@@ -186,7 +190,11 @@ const syncToPostgres = async () => {
 			for (const id of postgresMap.keys()) {
 				if (!memoryMap.has(id)) {
 					try {
-						await postgresTable.delete(id);
+						if (table === "json") {
+							if (client.inShard(id)) await postgresTable.delete(id);
+						} else {
+							await postgresTable.delete(id);
+						}
 					} catch (error) {
 						logger.err(error as any);
 					}
