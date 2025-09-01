@@ -70,8 +70,13 @@ global.client = new Client({
 client.inShard = function (guildId: string): boolean {
 	const shardId = client.shard?.ids?.[0] ?? 0;
 	const totalShards = client.options.shardCount ?? 1;
+	let guildShard: number | null = null;
 
-	const guildShard = Number((BigInt(guildId) >> 22n) % BigInt(totalShards));
+	try {
+		guildShard = Number((BigInt(guildId) >> 22n) % BigInt(totalShards));
+	} catch {
+		guildShard = shardId;
+	}
 	return guildShard === shardId;
 }
 
