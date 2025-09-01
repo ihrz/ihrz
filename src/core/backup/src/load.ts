@@ -19,6 +19,14 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import type { BackupData, LoadOptions } from './types';
+import type { NewsChannel, TextChannel, ForumChannel, VoiceBasedChannel } from 'discord.js';
+import { ChannelType, Emoji, Guild, GuildFeature, Role, VoiceChannel } from 'discord.js';
+import { loadCategory, loadChannel } from './util';
+
+/**
+ * Restores the guild configuration
+ */
 export const loadConfig = (guild: Guild, backupData: BackupData): Promise<Guild[]> => {
 	const configPromises: Promise<Guild>[] = [];
 	if (backupData.name) {

@@ -34,8 +34,8 @@
 		"gifwrap": "^0.10.1",
 		"jimp": "0.22.12",
 		"jszip": "^3.10.1",
-		"lavalink-client": "^2.6.0",
-		"puppeteer": "^24.17.0",
+		"lavalink-client": "^2.6.1",
+		"puppeteer": "^24.18.0",
 		"typescript-eslint": "^8.41.0"
 	},
 	"devDependencies": {
