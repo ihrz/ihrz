@@ -199,15 +199,14 @@ export const event: BotEvent = {
 			return;
 		}
 
-		if (await blacklistTable.get(`${message.author.id}.blacklisted`)) {
-			return;
-		}
-
 		const result = await parseMessageCommand(client, message);
+		if (!result.success) return;
 		if (result.command?.category === "owner" && (!client.owners.includes(message.author.id) || !(await ownerTable.get(`${message.author.id}.owner`)))) {
 			return;
 		}
-		if (!result.success) return;
+		if (await blacklistTable.get(`${message.author.id}.blacklisted`)) {
+			return;
+		}
 
 		try {
 			const lang = await client.func.getLanguageData(message.guildId);
