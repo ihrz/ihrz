@@ -31,7 +31,7 @@ export const event: BotEvent = {
 		if (member.guild.members.me?.permissions.has(PermissionFlagsBits.BanMembers)) {
 			const data = await blacklistTable.get(`${member.user.id}`);
 
-			if (data.blacklisted === true) {
+			if (data?.blacklisted === true) {
 				member.send({ content: "You have been banned, because you are blacklisted from iHorizon. \nReason: \`" + data.reason + '\`' })
 					.catch(() => { })
 					.then(() => { });
