@@ -26,13 +26,13 @@ import {
 import { LanguageData } from '../../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../../types/database_structure.js';
 import { SubCommand } from '../../../../../types/command.js';
+import { permissionsRole } from './perm.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		const roles = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8"];
 		const existingRoles = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {} as DatabaseStructure.UtilsRoleData;
 
 		if (interaction.member.id !== interaction.guild.ownerId) {
@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 			const updatedRoles: DatabaseStructure.UtilsRoleData = {};
 			const createdRoles: string[] = [];
 
-			for (let i = 0; i < roles.length; i++) {
+			for (let i = 0; i < permissionsRole.length; i++) {
 				const permLevel = i + 1;
 				const existingRoleId = existingRoles[permLevel];
 
@@ -58,9 +58,9 @@ export const subCommand: SubCommand = {
 					}
 				}
 
-				const newRole = await interaction.guild!.roles.create({ name: roles[i] });
+				const newRole = await interaction.guild!.roles.create({ name: permissionsRole[i] });
 				updatedRoles[permLevel as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8] = newRole.id;
-				createdRoles.push(roles[i]);
+				createdRoles.push(permissionsRole[i]);
 			}
 
 			await client.db.set(`${interaction.guildId}.UTILS.roles`, updatedRoles);
