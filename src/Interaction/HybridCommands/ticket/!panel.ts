@@ -58,18 +58,22 @@ export interface TicketPanel {
 			value: string;
 			emoji?: string;
 			categoryId?: string;
+			panelId?: string;
+			form?: TicketForms[];
 		}[];
 		pingUser: boolean;
-		form: {
-			questionId: number;
-			questionTitle: string;
-			questionPlaceholder?: string;
-		}[];
+		form: TicketForms[];
 		userSelectPanel?: boolean;
 		deleteButton?: boolean;
 		transcriptButton?: boolean;
 	}
 };
+
+export interface TicketForms {
+	questionId: number;
+	questionTitle: string;
+	questionPlaceholder?: string;
+}
 
 import { SubCommand } from '../../../../types/command.js';
 import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
@@ -228,6 +232,12 @@ export const subCommand: SubCommand = {
 				new StringSelectMenuOptionBuilder()
 					.setLabel(lang.ticket_panel_panel_14_label)
 					.setValue("change_ticket_button_transcript_panel"),
+				new StringSelectMenuOptionBuilder()
+					.setLabel("Changer l'embed de canal pour une option spécifique")
+					.setValue("change_ticket_channel_panel_options"),
+				new StringSelectMenuOptionBuilder()
+					.setLabel("Changer les formulaire pour une option spécifique")
+					.setValue("change_ticket_forms_options")
 			);
 
 		const panelButton = [
@@ -366,7 +376,12 @@ export const subCommand: SubCommand = {
 					i.deferUpdate();
 					await change_ticket_button_transcript_panel();
 					break;
-
+				case "change_ticket_channel_panel_options":
+					await change_ticket_channel_panel_options(i);
+					break;
+				case "change_ticket_forms_options":
+					await change_ticket_forms_options(i);
+					break;
 			}
 		});
 
@@ -1309,6 +1324,14 @@ export const subCommand: SubCommand = {
 				embeds: [panelEmbed],
 				components,
 			});
+		}
+
+		async function change_ticket_channel_panel_options(i: StringSelectMenuInteraction<CacheType>) {
+			// do the logs here
+		}
+
+		async function change_ticket_forms_options(i: StringSelectMenuInteraction<CacheType>) {
+			// do the logs here
 		}
 
 		og_select_collector.on("end", async (_, reason) => {
