@@ -235,6 +235,49 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
+			name: 'edit-roles',
+
+			description: 'edit the permission roles into the guild',
+			description_localizations: {
+				"fr": "Modifier les rôle Perm du serveur"
+			},
+
+			options: [
+				{
+					name: "perm_level",
+					name_localizations: {
+						"fr": "niveau_perm"
+					},
+
+					description: "Permission level to edit",
+					description_localizations: {
+						"fr": "Niveau de permission à modifier"
+					},
+
+					choices: permissionLevel.filter(x => x.value !== "0"),
+					permission: null,
+					required: true,
+					type: ApplicationCommandOptionType.String
+				},
+				{
+					name: "perm_role",
+
+					description: "Role Permission to edit",
+					description_localizations: {
+						"fr": "Rôle de niveau de permission à modifier"
+					},
+
+					permission: null,
+					required: true,
+					type: ApplicationCommandOptionType.Role
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
 			name: 'create-roles',
 
 			description: 'Create roles for the permission',

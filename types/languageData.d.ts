@@ -1100,6 +1100,7 @@ export interface LanguageData {
 	perm_roles_already_upate: string;
 	perm_roles_error: string;
 	perm_roles_not_owner: string;
+	perm_edit_roles_command_ok: string;
 	toggle_react_command_work: string;
 	toggle_react_doesnt_react: string;
 	toggle_react_react: string;

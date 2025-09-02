@@ -1421,6 +1421,9 @@ perm_roles_already_upate: "كل الأدوار موجودة وحديثة."
 perm_roles_error: "حصل خطأ أثناء إنشاء أو تحديث الأدوار."
 perm_roles_not_owner: "مالك الخادم فقط يمكنه إضافة أدوار مستوى الإذن."
 
+# /perm edit-roles
+perm_edit_roles_command_ok: "تم تعديل دور الإذن ${permName} إلى ${strRole}"
+
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, الآن عندما يرسل أحد الأعضاء رسالة ترحيب، البوت **{activeMsg}**"
 toggle_react_doesnt_react: "لن يتفاعل بعد الآن"

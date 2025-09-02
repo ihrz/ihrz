@@ -1420,6 +1420,9 @@ perm_roles_already_upate: "Все роли уже существуют и акт
 perm_roles_error: "Произошла ошибка при создании или обновлении ролей."
 perm_roles_not_owner: "Apenas o proprietário do servidor pode adicionar funções de nível de permissão."
 
+# /perm edit-roles
+perm_edit_roles_command_ok: "A permissão ${permName} teve o seu papel alterado para ${strRole}"
+
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, agora quando um membro enviar uma mensagem de boas-vindas, o bot **{activeMsg}**"
 toggle_react_doesnt_react: "não reagirá mais"

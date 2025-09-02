@@ -1420,6 +1420,9 @@ perm_roles_already_upate: "Tutti i ruoli esistono già e sono aggiornati."
 perm_roles_error: "Si è verificato un errore durante la creazione o l'aggiornamento dei ruoli."
 perm_roles_not_owner: "Solo il proprietario del server può aggiungere ruoli di livello di autorizzazione."
 
+# /perm edit-roles
+perm_edit_roles_command_ok: "Il permesso ${permName} ha visto il suo ruolo modificato in ${strRole}"
+
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia un messaggio di benvenuto, il bot **{activeMsg}**"
 toggle_react_doesnt_react: "non reagirà più"

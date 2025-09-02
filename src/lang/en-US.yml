@@ -1422,6 +1422,9 @@ perm_roles_already_upate: "All roles already exist and are up to date."
 perm_roles_error: "An error occurred while creating or updating the roles."
 perm_roles_not_owner: "Only the server owner can add permission level roles."
 
+# /perm edit-roles
+perm_edit_roles_command_ok: "The permission ${permName} has had its role changed to ${strRole}"
+
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, now when a member sends a welcome message, the bot will **{activeMsg}**"
 toggle_react_doesnt_react: "no longer react"
