@@ -283,7 +283,7 @@ ticket_panel_channel_panel_embed_id: "Ticket Channel Embed ID"
 ticket_panel_panel_11_label: "Change ticket channel embed panel"
 ticket_panel_select_user: "Menu to add members to the ticket"
 ticket_panel_button_delete: "Button to delete the ticket"
-ticket_panel_button_transcript: "Button to delete the transcript"
+ticket_panel_button_transcript: "Button to create a transcript"
 ticket_panel_panel_12_label: "Show menu to add/remove members from a ticket"
 ticket_panel_panel_13_label: "Show button to delete a ticket"
 ticket_panel_panel_14_label: "Show transcript button"
@@ -1421,6 +1421,9 @@ perm_roles_created_role: "The following roles have been created: ${createdRoles.
 perm_roles_already_upate: "All roles already exist and are up to date."
 perm_roles_error: "An error occurred while creating or updating the roles."
 perm_roles_not_owner: "Only the server owner can add permission level roles."
+
+# /perm edit-roles
+perm_edit_roles_command_ok: "The permission ${permName} has had its role changed to ${strRole}"
 
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, now when a member sends a welcome message, the bot will **{activeMsg}**"

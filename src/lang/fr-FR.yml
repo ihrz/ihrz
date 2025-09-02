@@ -283,7 +283,7 @@ ticket_panel_channel_panel_embed_id: "ID d'intégration du canal de tickets"
 ticket_panel_panel_11_label: "Modifier le panneau d'intégration du canal de tickets"
 ticket_panel_select_user: "Menu ajouter des membres dans le ticket"
 ticket_panel_button_delete: "Bouton pour supprimer le ticket"
-ticket_panel_button_transcript: "Bouton pour supprimer le transcript"
+ticket_panel_button_transcript: "Bouton pour créer une transcription"
 ticket_panel_panel_12_label: "Afficher le menu ajout/supression de membre dans un ticket"
 ticket_panel_panel_13_label: "Afficher le bouton supprimer un ticket"
 ticket_panel_panel_14_label: "Afficher le bouton transcript"
@@ -1419,6 +1419,9 @@ perm_roles_created_role: "Les rôles suivants ont été créés : ${createdRoles
 perm_roles_already_upate: "Tous les rôles existent déjà et sont à jour."
 perm_roles_error: "Une erreur s'est produite lors de la création ou de la mise à jour des rôles."
 perm_roles_not_owner: "Seul le propriétaire du serveur peut ajouter des rôles de niveau de permission."
+
+# /perm edit-roles
+perm_edit_roles_command_ok: "La permission ${permName} a vu son rôle modifié pour ${strRole}"
 
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, maintenant quad un membre envoie un message de bienvenue, le bot **{activeMsg}**"

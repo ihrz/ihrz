@@ -283,7 +283,7 @@ ticket_panel_channel_panel_embed_id: "ID встраивания канала т�
 ticket_panel_panel_11_label: "Изменить панель встраивания канала тикетов"
 ticket_panel_select_user: "Меню для добавления участников в тикет"
 ticket_panel_button_delete: "Кнопка для удаления тикета"
-ticket_panel_button_transcript: "Кнопка для удаления стенограммы"
+ticket_panel_button_transcript: "Кнопка для создания транскрипта"
 ticket_panel_panel_12_label: "Показать меню для добавления/удаления участников тикета"
 ticket_panel_panel_13_label: "Показать кнопку удаления тикета"
 ticket_panel_panel_14_label: "Показать кнопку стенограммы"
@@ -1419,6 +1419,9 @@ perm_roles_created_role: "Созданы следующие роли: ${createdR
 perm_roles_already_upate: "Все роли уже существуют и актуальны."
 perm_roles_error: "Произошла ошибка при создании или обновлении ролей."
 perm_roles_not_owner: "Только владелец сервера может добавлять роли уровня разрешений."
+
+# /perm edit-roles
+perm_edit_roles_command_ok: "Разрешение ${permName} было изменено на роль ${strRole}"
 
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, теперь, когда участник отправляет приветственное сообщение, бот **{activeMsg}**"

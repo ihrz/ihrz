@@ -283,7 +283,7 @@ ticket_panel_channel_panel_embed_id: "معرف تضمين قناة التذاك�
 ticket_panel_panel_11_label: "تغيير لوحة تضمين قناة التذاكر"
 ticket_panel_select_user: "قائمة لإضافة أعضاء إلى التذكرة"
 ticket_panel_button_delete: "زر لحذف التذكرة"
-ticket_panel_button_transcript: "زر لحذف النص المحفوظ"
+ticket_panel_button_transcript: "زر لإنشاء محضر"
 ticket_panel_panel_12_label: "عرض قائمة إضافة/إزالة الأعضاء من التذكرة"
 ticket_panel_panel_13_label: "عرض زر حذف التذكرة"
 ticket_panel_panel_14_label: "عرض زر النص المحفوظ"
@@ -1420,6 +1420,9 @@ perm_roles_created_role: "الأدوار اللي اتعملت: ${createdRoles.j
 perm_roles_already_upate: "كل الأدوار موجودة وحديثة."
 perm_roles_error: "حصل خطأ أثناء إنشاء أو تحديث الأدوار."
 perm_roles_not_owner: "مالك الخادم فقط يمكنه إضافة أدوار مستوى الإذن."
+
+# /perm edit-roles
+perm_edit_roles_command_ok: "تم تعديل دور الإذن ${permName} إلى ${strRole}"
 
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, الآن عندما يرسل أحد الأعضاء رسالة ترحيب، البوت **{activeMsg}**"

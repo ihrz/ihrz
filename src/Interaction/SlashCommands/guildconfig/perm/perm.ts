@@ -28,6 +28,45 @@ import {
 import { Command } from '../../../../../types/command.js';
 import { Option } from '../../../../../types/option.js';
 
+export const permissionsRole = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8"];
+export const permissionLevel = [
+	{
+		name: "Default",
+		value: "0"
+	},
+	{
+		name: "Perm 1",
+		value: "1"
+	},
+	{
+		name: "Perm 2",
+		value: "2"
+	},
+	{
+		name: "Perm 3",
+		value: "3"
+	},
+	{
+		name: "Perm 4",
+		value: "4"
+	},
+	{
+		name: "Perm 5",
+		value: "5"
+	},
+	{
+		name: "Perm 6",
+		value: "6"
+	},
+	{
+		name: "Perm 7",
+		value: "7"
+	},
+	{
+		name: "Perm 8",
+		value: "8"
+	}
+];
 export const command: Command = {
 	name: "perm",
 
@@ -68,44 +107,7 @@ export const command: Command = {
 						"fr": "La permission que vous souhaiter modifier au membre"
 					},
 
-					choices: [
-						{
-							name: "Default",
-							value: "0"
-						},
-						{
-							name: "Perm 1",
-							value: "1"
-						},
-						{
-							name: "Perm 2",
-							value: "2"
-						},
-						{
-							name: "Perm 3",
-							value: "3"
-						},
-						{
-							name: "Perm 4",
-							value: "4"
-						},
-						{
-							name: "Perm 5",
-							value: "5"
-						},
-						{
-							name: "Perm 6",
-							value: "6"
-						},
-						{
-							name: "Perm 7",
-							value: "7"
-						},
-						{
-							name: "Perm 8",
-							value: "8"
-						}
-					],
+					choices: permissionLevel,
 
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -180,45 +182,7 @@ export const command: Command = {
 						"fr": "La permission pour la commande choisie"
 					},
 
-					choices: [
-						{
-							name: "Default",
-							value: "0"
-						},
-						{
-							name: "Perm 1",
-							value: "1"
-						},
-						{
-							name: "Perm 2",
-							value: "2"
-						},
-						{
-							name: "Perm 3",
-							value: "3"
-						},
-						{
-							name: "Perm 4",
-							value: "4"
-						},
-						{
-							name: "Perm 5",
-							value: "5"
-						},
-						{
-							name: "Perm 6",
-							value: "6"
-						},
-						{
-							name: "Perm 7",
-							value: "7"
-						},
-						{
-							name: "Perm 8",
-							value: "8"
-						}
-					],
-
+					choices: permissionLevel,
 					type: ApplicationCommandOptionType.String,
 					required: false,
 
@@ -265,6 +229,49 @@ export const command: Command = {
 			description_localizations: {
 				"fr": "Afficher toute les permission d'utilisateur du serveur"
 			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: 'edit-roles',
+
+			description: 'edit the permission roles into the guild',
+			description_localizations: {
+				"fr": "Modifier les rôle Perm du serveur"
+			},
+
+			options: [
+				{
+					name: "perm_level",
+					name_localizations: {
+						"fr": "niveau_perm"
+					},
+
+					description: "Permission level to edit",
+					description_localizations: {
+						"fr": "Niveau de permission à modifier"
+					},
+
+					choices: permissionLevel.filter(x => x.value !== "0"),
+					permission: null,
+					required: true,
+					type: ApplicationCommandOptionType.String
+				},
+				{
+					name: "perm_role",
+
+					description: "Role Permission to edit",
+					description_localizations: {
+						"fr": "Rôle de niveau de permission à modifier"
+					},
+
+					permission: null,
+					required: true,
+					type: ApplicationCommandOptionType.Role
+				}
+			],
 
 			type: ApplicationCommandOptionType.Subcommand,
 

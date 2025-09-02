@@ -283,7 +283,7 @@ ticket_panel_channel_panel_embed_id: "Ticket-Kanal-Embed-ID"
 ticket_panel_panel_11_label: "Ticket-Kanal-Embed-Panel ändern"
 ticket_panel_select_user: "Menü zum Hinzufügen von Mitgliedern zum Ticket"
 ticket_panel_button_delete: "Schaltfläche zum Löschen des Tickets"
-ticket_panel_button_transcript: "Schaltfläche zum Löschen des Transkripts"
+ticket_panel_button_transcript: "Schaltfläche zum Erstellen eines Transkripts"
 ticket_panel_panel_12_label: "Menü zum Hinzufügen/Entfernen von Mitgliedern im Ticket anzeigen"
 ticket_panel_panel_13_label: "Schaltfläche zum Löschen eines Tickets anzeigen"
 ticket_panel_panel_14_label: "Schaltfläche für das Transkript anzeigen"
@@ -1419,6 +1419,9 @@ perm_roles_created_role: "Folgende Rollen wurden erstellt: ${createdRoles.join('
 perm_roles_already_upate: "Alle Rollen existieren bereits und sind auf dem neuesten Stand."
 perm_roles_error: "Bei der Erstellung oder Aktualisierung der Rollen ist ein Fehler aufgetreten."
 perm_roles_not_owner: "Nur der Serverbesitzer kann Berechtigungsstufen-Rollen hinzufügen."
+
+# /perm edit-roles
+perm_edit_roles_command_ok: "Die Berechtigung ${permName} wurde auf die Rolle ${strRole} geändert"
 
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, jetzt wenn ein Mitglied eine Begrüßungsnachricht sendet, wird der Bot **{activeMsg}**"
