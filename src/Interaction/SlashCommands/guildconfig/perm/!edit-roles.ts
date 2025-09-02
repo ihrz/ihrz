@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 		const perm_role = interaction.options.getRole("perm_role", true);
 
 		try {
-			const updatedRoles: DatabaseStructure.UtilsRoleData = {};
+			const updatedRoles: DatabaseStructure.UtilsRoleData = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {};
 
 			updatedRoles[perm_level as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8] = perm_role.id;
 
@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 			let strRole = perm_role.toString();
 
 			client.func.method.interactionSend(interaction, {
-				content: lang.perm_edit_roles_command_ok.replace("${permName}", permName).replace("${strRole}", strRole)
+				content: lang.perm_edit_roles_command_ok.replace("${permName}", String(permName)).replace("${strRole}", strRole)
 			})
 		} catch (error) {
 			await client.func.method.interactionSend(interaction, {
