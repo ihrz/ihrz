@@ -524,7 +524,7 @@ class GiveawayManager {
 				filter: (i) => {
 					i.deferUpdate();
 					return interaction.member?.user.id === i.user.id;
-				}, time: 60000
+				}, time: 60_000 * 15
 			});
 
 			collector.on('collect', (interaction: { customId: string; }) => {

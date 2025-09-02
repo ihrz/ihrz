@@ -250,7 +250,7 @@ export const subCommand: SubCommand = {
 			withResponse: true
 		});
 
-		const collector = message.createMessageComponentCollector({ time: 60000 });
+		const collector = message.createMessageComponentCollector({ time: 60_000 * 15 });
 
 		collector.on('collect', async (i) => {
 			if (i.user.id !== interaction.user.id) return;
