@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>YouTube Comment</title>
+	<!-- Google Fonts - Roboto (used by YouTube and Google) -->
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Roboto', Arial, sans-serif;
+			background-color: #0f0f0f;
+			color: #f1f1f1;
+			padding: 20px;
+			line-height: 1.4;
+		}
+
+		/* YouTube comment container */
+		.youtube-container {
+			max-width: 1000px;
+			margin: 0 auto;
+			padding: 24px;
+		}
+
+		/* Main comment structure */
+		.comment {
+			display: flex;
+			margin-bottom: 16px;
+			background-color: #0f0f0f;
+		}
+
+		/* Profile picture styling */
+		.avatar {
+			width: 40px;
+			height: 40px;
+			margin-right: 16px;
+			flex-shrink: 0;
+		}
+
+		/* Comment content area */
+		.comment-body {
+			flex: 1;
+			min-width: 0;
+		}
+
+		/* Header with username and timestamp */
+		.comment-header {
+			display: flex;
+			align-items: baseline;
+			margin-bottom: 2px;
+		}
+
+		.username {
+			font-size: 13px;
+			font-weight: 500;
+			color: #f1f1f1;
+			text-decoration: none;
+			margin-right: 8px;
+			cursor: pointer;
+		}
+
+		.username:hover {
+			color: #3ea6ff;
+		}
+
+		.timestamp {
+			font-size: 12px;
+			color: #aaaaaa;
+			font-weight: 400;
+		}
+
+		/* Comment text styling */
+		.comment-text {
+			font-size: 14px;
+			color: #f1f1f1;
+			margin-bottom: 8px;
+			word-wrap: break-word;
+			white-space: pre-wrap;
+			line-height: 1.4;
+		}
+
+		/* Action buttons container */
+		.comment-actions {
+			display: flex;
+			align-items: center;
+			gap: 0;
+		}
+
+		/* Action button styling */
+		.action-btn {
+			display: flex;
+			align-items: center;
+			padding: 8px;
+			background: none;
+			border: none;
+			color: #aaaaaa;
+			font-size: 12px;
+			font-weight: 500;
+			cursor: pointer;
+			border-radius: 18px;
+			transition: background-color 0.05s ease;
+			min-height: 36px;
+			font-family: 'Roboto', Arial, sans-serif;
+		}
+
+		.action-btn:hover {
+			background-color: rgba(255, 255, 255, 0.1);
+		}
+
+		.action-btn:active {
+			background-color: rgba(255, 255, 255, 0.2);
+		}
+
+		/* Like and dislike button specific styling */
+		.like-btn,
+		.dislike-btn {
+			padding: 8px 12px 8px 8px;
+			gap: 6px;
+		}
+
+		.dislike-btn {
+			padding: 8px 8px 8px 12px;
+			margin-right: 8px;
+		}
+
+		/* Icon styling */
+		.action-icon {
+			width: 16px;
+			height: 16px;
+			object-fit: contain;
+			filter: brightness(0) invert(0.7);
+			/* Make icons gray like YouTube */
+		}
+
+		.action-btn:hover .action-icon {
+			filter: brightness(0) invert(0.9);
+			/* Lighter on hover */
+		}
+
+		/* Like count styling */
+		.like-count {
+			font-size: 12px;
+			color: #aaaaaa;
+			font-weight: 400;
+		}
+
+		/* Reply button styling */
+		.reply-btn {
+			font-size: 12px;
+			font-weight: 500;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			color: #aaaaaa;
+		}
+
+		.reply-btn:hover {
+			color: #f1f1f1;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="youtube-container">
+		<div class="comment">
+			<!-- Profile Picture -->
+			<div class="avatar">
+				<img src="{pfp}" alt="Avatar" class="avatar">
+			</div>
+
+			<!-- Comment Content -->
+			<div class="comment-body">
+				<!-- Username and Timestamp -->
+				<div class="comment-header">
+					<a href="#" class="username">{displayname}</a>
+					<span class="timestamp">{ago}</span>
+				</div>
+
+				<!-- Comment Text -->
+				<div class="comment-text">{comment}</div>
+
+				<!-- Action Buttons -->
+				<div class="comment-actions">
+					<!-- Like Button -->
+					<button class="action-btn like-btn">
+						<img src="https://www.ihorizon.org/assets/img/socials/ytb_like.png" alt="Like"
+							class="action-icon">
+						<span class="like-count">{likes}</span>
+					</button>
+
+					<!-- Dislike Button -->
+					<button class="action-btn dislike-btn">
+						<img src="https://www.ihorizon.org/assets/img/socials/ytb_dislike.png" alt="Dislike"
+							class="action-icon">
+					</button>
+
+					<!-- Reply Button -->
+					<button class="action-btn reply-btn">{reply}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

@@ -64,7 +64,24 @@ export const subCommand: SubCommand = {
 			username = username.substring(0, 15);
 		};
 
-		const link = `https://some-random-api.com/canvas/misc/youtube-comment?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent(sanitizing(username))}&comment=${encodeURIComponent(sanitizing(messageArgs.join(' ')))}`;
+		const random = Math.floor(Math.random() * (90_000 - 1 + 1)) + 1;
+
+		let code = client.htmlfiles["youtubeCommentCard"]
+			.replace("{comment}", sanitizing(messageArgs.join(' ')))
+			.replace("{ago}", "2 hours ago")
+			.replace("{pfp}", user.displayAvatarURL({ extension: 'png', size: 1024 }))
+			.replace("{displayname}", sanitizing(username))
+			.replace("{likes}", client.func.numberBeautifuer(random))
+			.replace("{reply}", "REPLY");
+
+		const img = await client.func.html2png(code, {
+			omitBackground: true,
+			selectElement: true,
+			elementSelector: ".comment",
+			width: 800,
+			height: 200,
+			scaleSize: 1.2,
+		});
 
 		const embed = new EmbedBuilder()
 			.setColor('#000000')
@@ -72,12 +89,8 @@ export const subCommand: SubCommand = {
 			.setTimestamp()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-		let imgs: AttachmentBuilder;
-
-		await axios.get(link, { responseType: 'arrayBuffer' }).then((response: AxiosResponse) => {
-			imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'youtube.png' });
-			embed.setImage(`attachment://youtube.png`);
-		});
+		let imgs = new AttachmentBuilder(img, { name: 'youtube.png' });
+		embed.setImage(`attachment://youtube.png`);
 
 		await client.func.method.interactionSend(interaction, { embeds: [embed], files: [imgs!, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
 		return;
