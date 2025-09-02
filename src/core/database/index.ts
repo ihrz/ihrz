@@ -94,7 +94,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		if (database.mySQL?.[1]) {
 			dbInstance.y = new Postgres({
 				connectionString: `postgres://${database.mySQL?.[1].user}:${encodeURIComponent(database.mySQL?.[1].password!)}@${database.mySQL?.[1].host}:${database.mySQL?.[1].port}/${database.mySQL?.[1].database}`,
-				table: tables[0]
+				table: tables[9] // Chose metas table at default 
 			});
 			logger.log(`${client.config.console.emojis.LOAD} >> Initializing bi-separated postgres database.`)
 		}
@@ -111,19 +111,6 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			for (const { id, value } of allData) {
 				/** Only needed to cache the guilds record which is in the shard (avoid to much useless storing) */
 				if (client.inShard(id)) await memoryTable.set(id, value);
-			}
-
-			/** Cache the second bi-separated database with anothers database */
-			let _tables = tables.filter(x => x !== "json"); // We doesn't want the json table
-
-			for (const table of _tables) {
-				const postgresTable = await dbInstance.og!.table(table);
-				const memoryTable = await dbInstance.x.table(table);
-				const allData = await postgresTable.all();
-
-				for (const { id, value } of allData) {
-					await memoryTable.set(id, value);
-				}
 			}
 		} else /* Else, only one postgres. Load all tables in memory */ {
 			for (const table of tables) {
