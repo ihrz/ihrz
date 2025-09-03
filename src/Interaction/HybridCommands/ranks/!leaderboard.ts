@@ -194,7 +194,7 @@ export const subCommand: SubCommand = {
 
 		const collector = message.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			time: 60000
+			time: 60_000 * 15
 		});
 
 		collector.on('collect', async (buttonInteraction) => {

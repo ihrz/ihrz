@@ -708,11 +708,45 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 	let values: ModalResultArray = [];
 	let reasonInteraction: ModalSubmitInteraction<"cached">;
 
+	// get categoryName from the values of the select menu
+	// find the category from the values of the select menu
+	const chosenCategory = result.config.optionFields?.find(item => item.value === interaction.values[0]);
+
 	const category =
 		result.config.optionFields.find(item => item.value === interaction.values[0])?.categoryId
 		|| result.category;
 
-	if (result.config.form.length >= 1) {
+	if (chosenCategory?.form?.length! >= 1) {
+		const modalFields = chosenCategory?.form!.map((field) => {
+			return {
+				customId: field.questionId.toString(),
+				label: field.questionTitle.substring(0, 45),
+				style: TextInputStyle.Short,
+				required: true,
+				placeHolder: field.questionPlaceholder?.substring(0, 60),
+				maxLength: 240,
+				minLength: 1
+			}
+		});
+
+		const modal = await iHorizonModalResolve({
+			customId: 'ticket_reason_modal',
+			title: lang.event_ticket_create_reason_modal_fields_1_label,
+			deferUpdate: false,
+			fields: modalFields!
+		}, interaction);
+
+		if (!modal) return;
+		reasonInteraction = modal;
+
+		// get the values from the modal
+		values = modal.fields.fields.map((field) => {
+			return {
+				questonPlaceholder: modalFields!.find((x) => x.customId === field.customId)?.label,
+				questionValue: modal.fields.getTextInputValue(field.customId)
+			}
+		});
+	} else if (result.config.form.length >= 1) {
 		const modalFields = result.config.form.map((field) => {
 			return {
 				customId: field.questionId.toString(),
@@ -792,24 +826,47 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 		const embeds: EmbedBuilder[] = []
 		const files: any[] = [];
 
-		// get categoryName from the values of the select menu
-		// find the category name from the values of the select menu
-		const categoryName = result.config.optionFields?.find(item => item.value === interaction.values[0]);
-
 		const og_embed = new EmbedBuilder()
 			.setColor(2829617)
 			.setDescription(
 				lang.sethereticket_panel_select_embed_desc
 					.replace('${result.panelName}', result.placeholder)
 					.replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
-					.replace('{category}', categoryName?.name!)
+					.replace('{category}', chosenCategory?.name!)
 			)
 			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-		if (result.ticketChannelPanel) {
+		if (chosenCategory?.panelId) {
+			var embed_from_db = (await metasTable.get(`EMBED.${chosenCategory?.panelId}.embedSource`));
+			// do this hack for replacing category in descriptions, fields ,etc
+			embed_from_db = JSON.parse(client.func.method.generateCustomMessagePreview(
+				JSON.stringify(embed_from_db),
+				{
+					user: interaction.user,
+					guild: interaction.guild,
+					guildLocal: interaction.guildLocale
+				}).replaceAll('{category}', chosenCategory?.name!)
+			) as APIEmbed | null;
+
+			if (embed_from_db) {
+				embeds.push(
+					EmbedBuilder.from(embed_from_db)
+				);
+			} else {
+				files.push(await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction));
+				embeds.push(og_embed);
+			}
+		} else if (result.ticketChannelPanel) {
 			var embed_from_db = (await metasTable.get(`EMBED.${result.ticketChannelPanel}.embedSource`));
 			// do this hack for replacing category in descriptions, fields ,etc
-			embed_from_db = JSON.parse(JSON.stringify(embed_from_db).replaceAll('{category}', categoryName?.name!)) as APIEmbed | null;
+			embed_from_db = JSON.parse(client.func.method.generateCustomMessagePreview(
+				JSON.stringify(embed_from_db),
+				{
+					user: interaction.user,
+					guild: interaction.guild,
+					guildLocal: interaction.guildLocale
+				}).replaceAll('{category}', chosenCategory?.name!)
+			) as APIEmbed | null;
 
 			if (embed_from_db) {
 				embeds.push(
@@ -923,7 +980,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			return;
 		} catch (e) { return };
 	}).catch((e) => {
-		logger.log(e)
+		console.error(e)
 	});
 };
 

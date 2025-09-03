@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 		};
 
 		const embed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setAuthor({ name: lang.allowlist_show_embed_author })
 			.setDescription(`${text}`)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))

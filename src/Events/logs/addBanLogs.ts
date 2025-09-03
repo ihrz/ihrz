@@ -46,7 +46,7 @@ export const event: BotEvent = {
 		if (!relevantLog) return;
 
 		const logsEmbed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setDescription(data.event_srvLogs_banAdd_description
 				.replace("${firstEntry.executor.id}", relevantLog?.executor?.id!)
 				.replace("${firstEntry.target.id}", relevantLog?.targetId!)

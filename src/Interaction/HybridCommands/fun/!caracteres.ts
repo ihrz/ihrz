@@ -138,7 +138,7 @@ export const subCommand: SubCommand = {
 
 		const collector = response.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
-			time: 60000 // 1 minute
+			time: 60_000 * 7 // 7 minute
 		});
 
 		collector.on('collect', async (selectInteraction) => {

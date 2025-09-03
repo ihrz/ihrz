@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 
 		const createEmbed = () => {
 			return new EmbedBuilder()
-				.setColor("#000000")
+				.setColor("#010101")
 				.setTitle(pages[currentPage].title)
 				.setDescription(pages[currentPage].description)
 				.setFooter({

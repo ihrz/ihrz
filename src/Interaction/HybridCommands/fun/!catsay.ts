@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 		}
 
 		const embed = new EmbedBuilder()
-			.setColor('#000000')
+			.setColor("#010101")
 			.setImage('attachment://catsay.png')
 			.setTimestamp()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));

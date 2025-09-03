@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 		};
 
 		const setupEmbed = new EmbedBuilder()
-			.setColor('#000000')
+			.setColor("#010101")
 			.setTitle(lang.setsuggest_channel_embed_title)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setDescription(lang.setsuggest_channel_embed_desc);

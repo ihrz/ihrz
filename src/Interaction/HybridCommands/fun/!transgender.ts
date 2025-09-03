@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
 		const link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
 
 		const embed = new EmbedBuilder()
-			.setColor('#000000')
+			.setColor("#010101")
 			.setImage('attachment://transgender.png')
 			.setTimestamp()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));

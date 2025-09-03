@@ -223,7 +223,8 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'perm-list',
+			name: 'list',
+			prefixName: "perm-list",
 
 			description: 'show all granted user in the guild',
 			description_localizations: {

@@ -41,7 +41,7 @@ export const event: BotEvent = {
 		const iconURL = message.author.displayAvatarURL();
 		const saves_emb: EmbedBuilder[] = [];
 		const logsEmbed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setAuthor({
 				name: message.author.username,
 				iconURL: iconURL

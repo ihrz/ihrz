@@ -240,7 +240,7 @@ export const subCommand: SubCommand = {
 			// Create embed for current page
 			const createEmbed = (page: number) => {
 				const embed = new EmbedBuilder()
-					.setColor("#000000")
+					.setColor("#010101")
 					.setTitle(`${lang.var_permission} (${page + 1}/${pages})`)
 					.setTimestamp();
 

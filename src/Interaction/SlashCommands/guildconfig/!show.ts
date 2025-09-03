@@ -237,7 +237,7 @@ export const subCommand: SubCommand = {
 
 		const collector = interaction.channel?.createMessageComponentCollector({
 			filter: (i) => originalResponse.id == i.message.id && i.user.id === i.user.id,
-			time: 60000
+			time: 60_000 * 15
 		});
 
 		collector?.on('collect', async interaction => {

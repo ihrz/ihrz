@@ -52,7 +52,7 @@ export const event: BotEvent = {
 		let user = relevantLog.target as User;
 
 		const logsEmbed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setDescription(data.event_srvLogs_banRemove_description
 				.replace("${firstEntry.executor.id}", relevantLog?.executor?.id!)
 				.replace("${firstEntry.target.username}", user.username)

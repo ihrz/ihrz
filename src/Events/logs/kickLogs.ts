@@ -49,7 +49,7 @@ export const event: BotEvent = {
 
 
 		const logsEmbed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setDescription(data.event_srvLogs_guildMemberRemove_description
 				.replace("${firstEntry.executor.id}", firstEntry.executor?.id!)
 				.replace("${firstEntry.target.id}", firstEntry.targetId!)

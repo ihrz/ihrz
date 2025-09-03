@@ -121,7 +121,7 @@ export const subCommand: SubCommand = {
 
 		if (canFitOnOnePage) return;
 
-		const collector = embedMessage.createMessageComponentCollector({ filter: (i) => i.customId === 'previous' || i.customId === 'next', componentType: ComponentType.Button, time: 60000 });
+		const collector = embedMessage.createMessageComponentCollector({ filter: (i) => i.customId === 'previous' || i.customId === 'next', componentType: ComponentType.Button, time: 60_000 * 15 });
 
 		let currentIndex = 0;
 		collector.on('collect', async (i) => {

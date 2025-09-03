@@ -71,7 +71,7 @@ export const subCommand: SubCommand = {
 
 		const createEmbed = () => {
 			return new EmbedBuilder()
-				.setColor("#000000")
+				.setColor("#010101")
 				.setTitle(pages[currentPage].title)
 				.setDescription(pages[currentPage].description)
 				.setFooter({
@@ -108,7 +108,7 @@ export const subCommand: SubCommand = {
 			filter: async (i) => {
 				await i.deferUpdate();
 				return interaction.member?.user.id === i.user.id;
-			}, time: 60000
+			}, time: 60_000 * 15
 		});
 
 		collector.on('collect', async (interaction_2: { customId: string; }) => {

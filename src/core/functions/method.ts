@@ -795,7 +795,6 @@ export function generateCustomMessagePreview(
 		.replaceAll('{inviterMention}', input.inviter?.user.mention || `@unknow_user`)
 		.replaceAll('{invitesCount}', input.inviter?.invitesAmount.toString() || '1337')
 		.replaceAll('{xpLevel}', input.ranks?.level.toString() || "1337")
-		.replaceAll("\\n", '\n')
 		.replaceAll('{artistAuthor}', input.notifier?.artistAuthor || "Ninja")
 		.replaceAll('{artistLink}', input.notifier?.artistLink || "https://twitch.tv/Ninja")
 		.replaceAll('{mediaURL}', input.notifier?.mediaURL || "https://twitch.tv/Ninja/media");
