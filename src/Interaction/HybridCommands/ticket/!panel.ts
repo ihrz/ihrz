@@ -262,11 +262,10 @@ export const subCommand: SubCommand = {
 
 		function stringifyTicketPanelOption(fields: TicketPanel["config"]["optionFields"]): string | undefined {
 			if (!fields || fields?.length === 0) return undefined;
-			let i = 0;
 			let _ = "```\n";
 
 			for (const field of fields) {
-				_ += `${i++} - ${field.name}\n`
+				_ += `- ${field.name}\n`
 				field.desc ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field2_label}: ${field.desc}\n`) : null;
 				field.emoji ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field3_label}: ${field.emoji}\n`) : null;
 				field.categoryId ? (_ += `  ┖  📂: ${interaction.guild!.channels.cache.get(field.categoryId)?.name}\n`) : null;
