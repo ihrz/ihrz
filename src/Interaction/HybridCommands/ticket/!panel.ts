@@ -31,6 +31,7 @@ import {
 	ComponentType,
 	EmbedBuilder,
 	Message,
+	MessageFlags,
 	RoleSelectMenuBuilder,
 	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
@@ -222,7 +223,7 @@ export const subCommand: SubCommand = {
 				case 'change_ticket_button_delete_panel': i.deferUpdate(); await changeTicketButtonDeletePanel(); break;
 				case 'change_ticket_button_transcript_panel': i.deferUpdate(); await changeTicketButtonTranscriptPanel(); break;
 				case 'change_ticket_channel_panel_options': await changeTicketChannelPanelOptions(i); break;
-				case 'change_ticket_forms_options': await changeTicketFormsOptions(i); break;
+				case 'change_ticket_forms_options': i.deferUpdate(); await changeTicketFormsOptions(i); break;
 			}
 		});
 
@@ -373,11 +374,16 @@ export const subCommand: SubCommand = {
 			const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 300_000 });
 			collector.on('collect', async (subI) => {
 				if (subI.user.id !== interaction.member!.user.id) return subI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				await subI.deferUpdate();
 
 				const idx = parseInt(subI.values[0]);
 				const option = baseData.config.optionFields[idx];
+				if (isNaN(idx) || !baseData.config.optionFields[idx]) {
+					await subI.reply({ content: '❌ Option invalide.', flags: MessageFlags.Ephemeral });
+					return;
+				}
+				console.log(subI.values[0], baseData.config.optionFields[idx])
 
+				subI.deferUpdate();
 				// Sous-menu pour ajouter/modifier/supprimer
 				const actionSelect = new StringSelectMenuBuilder()
 					.setCustomId('form_action')
@@ -395,8 +401,8 @@ export const subCommand: SubCommand = {
 				const actionCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 });
 				actionCollector.on('collect', async (actionI) => {
 					if (actionI.user.id !== interaction.member!.user.id) return actionI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-					await actionI.deferUpdate();
 
+					console.log(actionI.values[0])
 					if (actionI.values[0] === 'add') {
 						if (!option.form) option.form = [];
 
@@ -411,7 +417,7 @@ export const subCommand: SubCommand = {
 								{ customId: 'title', label: 'Titre', style: TextInputStyle.Short, required: true, maxLength: 128 },
 								{ customId: 'placeholder', label: 'Placeholder', style: TextInputStyle.Short, required: false, maxLength: 100 },
 							],
-							deferUpdate: false
+							deferUpdate: true
 						}, actionI);
 
 						if (!modal) return;
