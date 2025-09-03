@@ -270,6 +270,7 @@ export const subCommand: SubCommand = {
 				field.desc ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field2_label}: ${field.desc}\n`) : null;
 				field.emoji ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field3_label}: ${field.emoji}\n`) : null;
 				field.categoryId ? (_ += `  ┖  📂: ${interaction.guild!.channels.cache.get(field.categoryId)?.name}\n`) : null;
+				field.panelId ? (_ += `  ┖  🆔: ${lang.ticket_panel_channel_panel_embed_id}: ${field.panelId}\n`) : null;
 				_ += "\n"
 			}
 			return _ + "```";
@@ -1327,7 +1328,82 @@ export const subCommand: SubCommand = {
 		}
 
 		async function change_ticket_channel_panel_options(i: StringSelectMenuInteraction<CacheType>) {
-			// do the logs here
+			// get the option with string select menu
+			if (baseData.config.optionFields.length === 0) {
+				return originalResponse.edit({
+					content: "There is no option(s) to edit the channel panel embed id.",
+					embeds: [panelEmbed],
+					components
+				});
+			}
+
+			const select = new StringSelectMenuBuilder()
+				.setCustomId("change_channel_panel_id_for_option")
+				.setPlaceholder("Chose the category to edit the channel panel id.")
+				.addOptions(
+					...baseData.config.optionFields.map((x, i) => {
+						return new StringSelectMenuOptionBuilder()
+							.setLabel(x.name)
+							.setValue(i.toString())
+					})
+				);
+
+			const select_interaction = await originalResponse.edit({
+				components: [
+					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
+				],
+				embeds: [],
+				content: "Select an option to change the channel panel embed id."
+			});
+
+			// collector for string select
+			const select_collector = select_interaction.createMessageComponentCollector({
+				componentType: ComponentType.StringSelect,
+				time: 60_000 * 5,
+			});
+
+			select_collector.on("collect", async (i) => {
+				if (i.user.id !== interaction.member!.user.id) {
+					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+				};
+
+				const choice = i.values[0];
+				const option = baseData.config.optionFields[parseInt(choice)];
+
+				const modal = await iHorizonModalResolve({
+					customId: "change_panel_channel_id",
+					deferUpdate: false,
+					fields: [
+						{
+							customId: "embed_id",
+							maxLength: 32,
+							label: "Embed id",
+							required: true,
+							style: TextInputStyle.Short,
+							minLength: 8,
+							placeHolder: "ID saved with /utils embed"
+						}
+					],
+					title: "Enter embed if for the option"
+
+				}, i);
+
+				const category = i.values[0];
+				await i.deferUpdate();
+
+				option.panelId = category;
+				is_saved = false;
+				panelEmbed.data.fields![0].value = "🔴";
+
+				panelEmbed.data.fields![7].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
+
+				await originalResponse.edit({
+					embeds: [panelEmbed],
+					components
+				});
+
+				select_collector.stop("legitEnd");
+			});
 		}
 
 		async function change_ticket_forms_options(i: StringSelectMenuInteraction<CacheType>) {
