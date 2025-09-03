@@ -42,32 +42,36 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 import { generatePassword } from '../../../core/functions/random.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
+import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
+import { metasTable } from '../../../Events/client/ready.js';
+import { SubCommand } from '../../../../types/command.js';
 
 export interface TicketPanel {
 	panelCode: string;
-	relatedEmbedId: string;
+	relatedEmbedId: string | null;
 	placeholder: string;
 	category?: string;
-	ticketChannelPanel?: string;
-
+	ticketChannelPanel?: string | null;
 	config: {
 		rolesToPing: string[];
-		optionFields: {
-			name: string;
-			desc?: string;
-			value: string;
-			emoji?: string;
-			categoryId?: string;
-			panelId?: string;
-			form?: TicketForms[];
-		}[];
+		optionFields: TicketOption[];
 		pingUser: boolean;
 		form: TicketForms[];
-		userSelectPanel?: boolean;
-		deleteButton?: boolean;
-		transcriptButton?: boolean;
-	}
-};
+		userSelectPanel: boolean;
+		deleteButton: boolean;
+		transcriptButton: boolean;
+	};
+}
+
+export interface TicketOption {
+	name: string;
+	desc?: string;
+	value: string;
+	emoji?: string;
+	categoryId?: string;
+	panelId?: string;
+	form?: TicketForms[];
+}
 
 export interface TicketForms {
 	questionId: number;
@@ -75,30 +79,28 @@ export interface TicketForms {
 	questionPlaceholder?: string;
 }
 
-import { SubCommand } from '../../../../types/command.js';
-import { isDiscordEmoji, isSingleEmoji } from '../../../core/functions/emojiChecker.js';
-import { metasTable } from '../../../Events/client/ready.js';
-
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
-		// Guard's Typing
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<'cached'> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		// Guard checks
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
 		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
 			await client.func.method.interactionSend(interaction, { content: lang.open_disabled_command });
 			return;
-		};
-
-		// check panel id
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var panel_id = interaction.options.getString("panel_id");
-		} else {
-			var panel_id = client.func.method.string(args!, 0);
 		}
 
-		// get panel data or initialize it
+		// Récupération de l'ID du panel
+		const panel_id =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getString('panel_id')
+				: client.func.method.string(args!, 0);
+
+		// Chargement ou création du panel
 		const baseData = (await client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panel_id}`) || {
 			panelCode: generatePassword({ length: 10, uppercase: true, numbers: true }),
 			relatedEmbedId: null,
@@ -111,286 +113,359 @@ export const subCommand: SubCommand = {
 				form: [],
 				userSelectPanel: true,
 				deleteButton: true,
-				transcriptButton: true
-			}
+				transcriptButton: true,
+			},
 		}) as TicketPanel;
 
-		panel_id = baseData.panelCode;
+		const panelCode = baseData.panelCode;
+		let isSaved = false;
 
-		let is_saved = true;
-
+		// Embed principal
 		const panelEmbed = new EmbedBuilder()
-			.setTitle(lang.ticket_panel_embed_title + panel_id)
+			.setTitle(lang.ticket_panel_embed_title + panelCode)
 			.setDescription(lang.ticket_panel_embed_desc)
 			.setFields(
-				{
-					name: lang.ticket_panel_saved_conf,
-					value: is_saved ? "🟢" : "🔴",
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_related_embed,
-					value: baseData.relatedEmbedId || lang.var_no_set,
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_channel_panel_embed_id,
-					value: baseData.ticketChannelPanel || lang.var_no_set,
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_role_to_ping,
-					value: baseData.config.rolesToPing.length >= 1 ? baseData.config.rolesToPing.map(x => `<@&${x}>`).join("") : lang.var_no_set,
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_ping_user,
-					value: baseData.config.pingUser ? "🟢" : "🔴",
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_placeholder,
-					value: baseData.placeholder || lang.var_no_set,
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_category,
-					value: interaction.guild.channels.cache.get(baseData.category || "")?.toString() || lang.var_no_set,
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_option_fields,
-					value: stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set,
-					inline: false
-				},
-				{
-					name: lang.ticket_panel_form,
-					value: stringifyTicketPanelForm(baseData.config.form) || lang.var_no_set,
-					inline: false
-				},
-				{
-					name: lang.ticket_panel_select_user,
-					value: baseData.config.userSelectPanel ? "🟢" : "🔴",
-					inline: true,
-				},
-				{
-					name: lang.ticket_panel_button_delete,
-					value: baseData.config.deleteButton ? "🟢" : "🔴",
-					inline: true,
-				},
-				{
-					name: lang.ticket_panel_button_transcript,
-					value: baseData.config.transcriptButton ? "🟢" : "🔴",
-					inline: true,
-				}
+				{ name: lang.ticket_panel_saved_conf, value: isSaved ? '🟢' : '🔴', inline: true },
+				{ name: lang.ticket_panel_related_embed, value: baseData.relatedEmbedId || lang.var_no_set, inline: true },
+				{ name: lang.ticket_panel_channel_panel_embed_id, value: baseData.ticketChannelPanel || lang.var_no_set, inline: true },
+				{ name: lang.ticket_panel_role_to_ping, value: formatRoles(baseData.config.rolesToPing, lang), inline: true },
+				{ name: lang.ticket_panel_ping_user, value: baseData.config.pingUser ? '🟢' : '🔴', inline: true },
+				{ name: lang.ticket_panel_placeholder, value: baseData.placeholder || lang.var_no_set, inline: true },
+				{ name: lang.ticket_panel_category, value: formatCategory(baseData.category, interaction.guild), inline: true },
+				{ name: lang.ticket_panel_option_fields, value: stringifyOptions(baseData.config.optionFields) || lang.var_no_set, inline: false },
+				{ name: lang.ticket_panel_form, value: stringifyForm(baseData.config.form) || lang.var_no_set, inline: false },
+				{ name: lang.ticket_panel_select_user, value: baseData.config.userSelectPanel ? '🟢' : '🔴', inline: true },
+				{ name: lang.ticket_panel_button_delete, value: baseData.config.deleteButton ? '🟢' : '🔴', inline: true },
+				{ name: lang.ticket_panel_button_transcript, value: baseData.config.transcriptButton ? '🟢' : '🔴', inline: true }
 			);
-		;
 
-		const panelSelec2t = new StringSelectMenuBuilder()
-			.setCustomId("panelSelect")
+		// Menu de sélection
+		const panelSelect = new StringSelectMenuBuilder()
+			.setCustomId('panelSelect')
 			.setPlaceholder(lang.ticket_panel_panel_placeholder)
-			.addOptions(
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_1_label)
-					.setValue("save"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_2_label)
-					.setValue("preview"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_3_label)
-					.setValue("change_embed"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_4_label)
-					.setValue("change_role"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_5_label)
-					.setValue("change_placeholder"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_6_label)
-					.setValue("change_category"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_10_label)
-					.setValue("change_category_2"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_7_label)
-					.setValue("change_ping"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_8_label)
-					.setValue("change_option"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_9_label)
-					.setValue("change_form"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_11_label)
-					.setValue("change_ticket_channel_panel"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_12_label)
-					.setValue("change_ticket_user_select_panel"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_13_label)
-					.setValue("change_ticket_button_delete_panel"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_14_label)
-					.setValue("change_ticket_button_transcript_panel"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel("Changer l'embed de canal pour une option spécifique")
-					.setValue("change_ticket_channel_panel_options"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel("Changer les formulaire pour une option spécifique")
-					.setValue("change_ticket_forms_options")
-			);
+			.addOptions([
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_1_label).setValue('save'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_2_label).setValue('preview'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_3_label).setValue('change_embed'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_4_label).setValue('change_role'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_5_label).setValue('change_placeholder'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_6_label).setValue('change_category'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_10_label).setValue('change_category_2'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_7_label).setValue('change_ping'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_8_label).setValue('change_option'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_9_label).setValue('change_form'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_11_label).setValue('change_ticket_channel_panel'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_12_label).setValue('change_ticket_user_select_panel'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_13_label).setValue('change_ticket_button_delete_panel'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_14_label).setValue('change_ticket_button_transcript_panel'),
+				new StringSelectMenuOptionBuilder().setLabel('Configurer un embed par option').setValue('change_ticket_channel_panel_options'),
+				new StringSelectMenuOptionBuilder().setLabel('Configurer un formulaire par option').setValue('change_ticket_forms_options'),
+			]);
 
-		const panelButton = [
-			new ButtonBuilder()
-				.setCustomId("send_embed")
-				.setLabel(lang.ticket_panel_button_send)
-				.setStyle(ButtonStyle.Primary)
-				.setEmoji(client.iHorizon_Emojis.GreenTick),
-		];
+		const sendButton = new ButtonBuilder()
+			.setCustomId('send_embed')
+			.setLabel(lang.ticket_panel_button_send)
+			.setStyle(ButtonStyle.Primary)
+			.setEmoji(client.iHorizon_Emojis.GreenTick);
 
 		const components = [
-			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(panelSelec2t),
-			new ActionRowBuilder<ButtonBuilder>().addComponents(panelButton)
+			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(panelSelect),
+			new ActionRowBuilder<ButtonBuilder>().addComponents(sendButton),
 		];
 
 		const originalResponse = await client.func.method.interactionSend(interaction, {
 			embeds: [panelEmbed],
-			components
+			components,
 		});
 
-		if (interaction instanceof ChatInputCommandInteraction) await interaction.followUp({ content: "https://youtu.be/TehLPQ_WCwQ", flags: [1 << 6] });
+		if (interaction instanceof ChatInputCommandInteraction)
+			await interaction.followUp({ content: 'https://youtu.be/TehLPQ_WCwQ', flags: [1 << 6] });
 
-		function stringifyTicketPanelOption(fields: TicketPanel["config"]["optionFields"]): string | undefined {
-			if (!fields || fields?.length === 0) return undefined;
-			let _ = "```\n";
-
-			for (const field of fields) {
-				_ += `- ${field.name}\n`
-				field.desc ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field2_label}: ${field.desc}\n`) : null;
-				field.emoji ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field3_label}: ${field.emoji}\n`) : null;
-				field.categoryId ? (_ += `  ┖  📂: ${interaction.guild!.channels.cache.get(field.categoryId)?.name}\n`) : null;
-				field.panelId ? (_ += `  ┖  🆔: ${lang.ticket_panel_channel_panel_embed_id}: ${field.panelId}\n`) : null;
-				field.form ? (_ += `  ┖  📚: ${lang.var_form}:\n${field.form.map(x => {
-					return `   `.repeat(2) + "┖" + " 🔹: " + x.questionTitle +
-						"\n"
-						+ `   `.repeat(2) + "┖" + " 🔹: " + x.questionPlaceholder
-				})}\n`) : null;
-				_ += "\n"
-			}
-			return _ + "```";
-		}
-
-		function stringifyTicketPanelForm(fields: TicketPanel["config"]["form"]): string | undefined {
-			if (!fields || fields?.length === 0) return undefined;
-			let _ = "```\n";
-			let i = 0;
-
-			for (const field of fields) {
-				_ += `${i++} - ${field.questionTitle}\n`
-				field.questionPlaceholder ? (_ += `  ┖  ${field.questionPlaceholder}\n`) : null;
-				_ += "\n"
-			}
-			return _ + "```";
-		}
-
-		// collector for string select
-		const og_select_collector = originalResponse.createMessageComponentCollector({
+		// Collecteurs
+		const selectCollector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			time: 1_250_000,
 		});
 
-		// collector for button
-		const button_collector = originalResponse.createMessageComponentCollector({
+		const buttonCollector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.Button,
 			time: 1_250_000,
 		});
 
-		button_collector.on("collect", async (i) => {
-			if (i.user.id !== interaction.member!.user.id) {
-				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-			};
+		// Gestion des boutons
+		buttonCollector.on('collect', async (i) => {
+			if (i.user.id !== interaction.member!.user.id) return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+			i.deferUpdate();
+			if (i.customId === 'send_embed') await sendEmbed();
+		});
 
-			const choice = i.customId;
+		// Gestion des menus
+		selectCollector.on('collect', async (i: StringSelectMenuInteraction) => {
+			if (i.user.id !== interaction.member!.user.id)
+				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+
+			const choice = i.values[0];
 			i.deferUpdate();
 
 			switch (choice) {
-				case "send_embed":
-					await send_embed();
-					break;
+				case 'save': await save(); selectCollector.stop('legitEnd'); break;
+				case 'preview': await preview(i); break;
+				case 'change_embed': await changeEmbed(i); break;
+				case 'change_role': await changeRole(); break;
+				case 'change_ping': await changePing(); break;
+				case 'change_option': await changeOption(); break;
+				case 'change_category_2': await changeCategoryForOption(i); break;
+				case 'change_form': await changeForm(); break;
+				case 'change_placeholder': await changePlaceholder(i); break;
+				case 'change_category': await changeCategory(); break;
+				case 'change_ticket_channel_panel': await changeTicketChannelPanel(i); break;
+				case 'change_ticket_user_select_panel': await changeTicketUserSelectPanel(); break;
+				case 'change_ticket_button_delete_panel': await changeTicketButtonDeletePanel(); break;
+				case 'change_ticket_button_transcript_panel': await changeTicketButtonTranscriptPanel(); break;
+				case 'change_ticket_channel_panel_options': await changeTicketChannelPanelOptions(i); break;
+				case 'change_ticket_forms_options': await changeTicketFormsOptions(i); break;
 			}
 		});
 
-		og_select_collector.on("collect", async (i) => {
-			if (i.user.id !== interaction.member!.user.id) {
-				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-			};
-
-			const choice = i.values[0];
-
-			switch (choice) {
-				case "save":
-					i.deferUpdate();
-					await save();
-					og_select_collector.stop("legitEnd");
-					break;
-				case "change_embed":
-					change_embed(i);
-					break;
-				case "change_role":
-					i.deferUpdate();
-					await change_role();
-					break;
-				case "change_ping":
-					i.deferUpdate();
-					await change_ping();
-					break;
-				case "change_option":
-					i.deferUpdate();
-					await change_option();
-					break;
-				case "change_category_2":
-					i.deferUpdate();
-					await change_category_for_option(i);
-					break;
-				case "change_form":
-					i.deferUpdate();
-					await change_form();
-					break;
-				case "preview":
-					await preview(i);
-					break;
-				case "change_placeholder":
-					await change_placeholder(i);
-					break;
-				case "change_category":
-					i.deferUpdate();
-					await change_category();
-					break;
-				case "change_ticket_channel_panel":
-					await change_ticket_channel_panel(i);
-					break;
-				case "change_ticket_user_select_panel":
-					i.deferUpdate();
-					await change_ticket_user_select_panel();
-					break;
-				case "change_ticket_button_delete_panel":
-					i.deferUpdate();
-					await change_ticket_button_delete_panel();
-					break;
-				case "change_ticket_button_transcript_panel":
-					i.deferUpdate();
-					await change_ticket_button_transcript_panel();
-					break;
-				case "change_ticket_channel_panel_options":
-					await change_ticket_channel_panel_options(i);
-					break;
-				case "change_ticket_forms_options":
-					await change_ticket_forms_options(i);
-					break;
+		// Fin du collecteur
+		selectCollector.on('end', (_, reason) => {
+			if (reason !== 'legitEnd') {
+				originalResponse.edit({ components: [], embeds: [panelEmbed] });
 			}
 		});
 
-		async function change_category_for_option(i: StringSelectMenuInteraction<CacheType>) {
+		// === Fonctions ===
+
+		function formatRoles(roles: string[], lang: LanguageData) {
+			return roles.length ? roles.map(r => `<@&${r}>`).join(' ') : lang.var_no_set;
+		}
+
+		function formatCategory(id: string | undefined, guild: any) {
+			return id ? guild.channels.cache.get(id)?.toString() || lang.var_no_set : lang.var_no_set;
+		}
+
+		function stringifyOptions(options: TicketOption[]): string {
+			if (!options.length) return '';
+			let str = '```\n';
+			options.forEach(opt => {
+				str += `- ${opt.name}\n`;
+				if (opt.desc) str += `  ┖ ${lang.ticket_panel_add_option_modal_field2_label}: ${opt.desc}\n`;
+				if (opt.emoji) str += `  ┖ ${lang.ticket_panel_add_option_modal_field3_label}: ${opt.emoji}\n`;
+				if (opt.categoryId) str += `  ┖ 📂: ${formatCategory(opt.categoryId, interaction.guild)}\n`;
+				if (opt.panelId) str += `  ┖ 🆔: ${lang.ticket_panel_channel_panel_embed_id}: ${opt.panelId}\n`;
+				if (opt.form?.length) {
+					str += `  ┖ 📚 ${lang.var_form}:\n`;
+					opt.form.forEach(f => {
+						str += `     ┖ 🔹 ${f.questionTitle}\n`;
+						if (f.questionPlaceholder) str += `       ┖ ${f.questionPlaceholder}\n`;
+					});
+				}
+				str += '\n';
+			});
+			return str + '```';
+		}
+
+		function stringifyForm(forms: TicketForms[]): string {
+			if (!forms.length) return '';
+			let str = '```\n';
+			forms.forEach((f, i) => {
+				str += `${i} - ${f.questionTitle}\n`;
+				if (f.questionPlaceholder) str += `  ┖ ${f.questionPlaceholder}\n`;
+				str += '\n';
+			});
+			return str + '```';
+		}
+
+		async function save() {
+			await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`, baseData);
+			panelEmbed.data.fields![0].value = '🟢';
+			isSaved = true;
+			await originalResponse.edit({
+				embeds: [panelEmbed],
+				content: lang.ticket_panel_successfully_saved,
+				components: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setCustomId('saved')
+							.setLabel('Saved')
+							.setStyle(ButtonStyle.Success)
+							.setEmoji(client.iHorizon_Emojis.Yes)
+							.setDisabled(true)
+					),
+				],
+			});
+		}
+
+		async function sendEmbed() {
+			if (!isSaved) return originalResponse.edit({ content: lang.ticket_panel_need_save_config, components });
+			if (baseData.config.optionFields.length === 0) return originalResponse.edit({ content: lang.ticket_panel_need_1_option, embeds: [panelEmbed], components });
+
+			const channelSelect = new ChannelSelectMenuBuilder()
+				.setCustomId('send_embed')
+				.setPlaceholder(lang.ticket_panel_select_channel_to_send)
+				.setChannelTypes(ChannelType.GuildText);
+
+			const msg = await originalResponse.edit({
+				components: [new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect)],
+				embeds: [],
+				content: lang.ticket_panel_select_channel_to_send,
+			});
+
+			const collector = msg.createMessageComponentCollector({ componentType: ComponentType.ChannelSelect, time: 60_000 });
+			collector.on('collect', async i => {
+				if (i.user.id !== interaction.member!.user.id) return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+				const channel = await i.guild?.channels.fetch(i.values[0]);
+				if (!channel?.isSendable()) return i.reply({ flags: [1 << 6], content: lang.ticket_panel_channel_error });
+
+				const embedData = await metasTable.get(`EMBED.${baseData.relatedEmbedId}`);
+				if (!embedData?.embedSource) return i.reply({ flags: [1 << 6], content: lang.ticket_panel_related_embed_dont_exist });
+
+				const embed = EmbedBuilder.from(embedData.embedSource);
+				const selectMenu = new StringSelectMenuBuilder()
+					.setCustomId('ticket-open-selection-v2')
+					.setPlaceholder(baseData.placeholder)
+					.addOptions(baseData.config.optionFields.map(opt => {
+						const builder = new StringSelectMenuOptionBuilder()
+							.setLabel(opt.name)
+							.setValue(opt.value);
+						if (opt.desc) builder.setDescription(opt.desc);
+						if (opt.emoji) builder.setEmoji(opt.emoji);
+						return builder;
+					}));
+
+				await channel.send({ embeds: [embed], components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)] });
+				await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${channel.id}`, panelCode);
+
+				await originalResponse.edit({
+					content: lang.ticket_panel_embed_been_send,
+					embeds: [panelEmbed],
+					components: [],
+				});
+				collector.stop('legitEnd');
+				selectCollector.stop('legitEnd');
+			});
+		}
+
+		// === Implémentation de change_ticket_forms_options ===
+		async function changeTicketFormsOptions(i: StringSelectMenuInteraction) {
+			if (baseData.config.optionFields.length === 0) {
+				return originalResponse.edit({
+					content: lang.ticket_panel_remove_option_empty,
+					embeds: [panelEmbed],
+					components,
+				});
+			}
+
+			const select = new StringSelectMenuBuilder()
+				.setCustomId('select_option_form')
+				.setPlaceholder('Choisissez une option')
+				.addOptions(baseData.config.optionFields.map((opt, idx) =>
+					new StringSelectMenuOptionBuilder()
+						.setLabel(opt.name)
+						.setValue(idx.toString())
+				));
+
+			const msg = await originalResponse.edit({
+				components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)],
+				embeds: [],
+				content: 'Sélectionnez une option pour configurer son formulaire.',
+			});
+
+			const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 300_000 });
+			collector.on('collect', async (subI) => {
+				if (subI.user.id !== interaction.member!.user.id) return subI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+				await subI.deferUpdate();
+
+				const idx = parseInt(subI.values[0]);
+				const option = baseData.config.optionFields[idx];
+
+				// Sous-menu pour ajouter/modifier/supprimer
+				const actionSelect = new StringSelectMenuBuilder()
+					.setCustomId('form_action')
+					.setPlaceholder('Action')
+					.addOptions(
+						new StringSelectMenuOptionBuilder().setLabel('Ajouter une question').setValue('add'),
+						new StringSelectMenuOptionBuilder().setLabel('Supprimer une question').setValue('remove')
+					);
+
+				await originalResponse.edit({
+					components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(actionSelect)],
+					content: `Gérer le formulaire pour l'option : **${option.name}**`,
+				});
+
+				const actionCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 });
+				actionCollector.on('collect', async (actionI) => {
+					if (actionI.user.id !== interaction.member!.user.id) return actionI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+					await actionI.deferUpdate();
+
+					if (actionI.values[0] === 'add') {
+						if (!option.form) option.form = [];
+
+						if (option.form.length >= 3) {
+							return actionI.followUp({ content: lang.ticket_panel_add_form_max_3, ephemeral: true });
+						}
+
+						const modal = await iHorizonModalResolve({
+							customId: 'add_form_opt',
+							title: 'Ajouter une question',
+							fields: [
+								{ customId: 'title', label: 'Titre', style: TextInputStyle.Short, required: true, maxLength: 128 },
+								{ customId: 'placeholder', label: 'Placeholder', style: TextInputStyle.Short, required: false, maxLength: 100 },
+							],
+							deferUpdate: false
+						}, actionI);
+
+						if (!modal) return;
+
+						const title = modal.fields.getTextInputValue('title');
+						const placeholder = modal.fields.getTextInputValue('placeholder');
+
+						option.form.push({
+							questionId: option.form.length,
+							questionTitle: title,
+							questionPlaceholder: placeholder,
+						});
+
+						isSaved = false;
+						panelEmbed.data.fields![0].value = '🔴';
+						panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
+						await originalResponse.edit({ embeds: [panelEmbed], components });
+						actionCollector.stop('legitEnd');
+					} else if (actionI.values[0] === 'remove') {
+						if (!option.form || option.form.length === 0) {
+							return actionI.reply({ content: 'Aucune question à supprimer.', ephemeral: true });
+						}
+
+						const formSelect = new StringSelectMenuBuilder()
+							.setCustomId('remove_form_opt')
+							.setPlaceholder('Choisissez une question')
+							.addOptions(option.form.map((f, i) =>
+								new StringSelectMenuOptionBuilder().setLabel(f.questionTitle).setValue(i.toString())
+							));
+
+						await originalResponse.edit({
+							components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(formSelect)],
+							content: 'Sélectionnez une question à supprimer.',
+						});
+
+						const removeCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 });
+						removeCollector.on('collect', async (rmI) => {
+							if (rmI.user.id !== interaction.member!.user.id) return rmI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+							const fid = parseInt(rmI.values[0]);
+							option.form!.splice(fid, 1);
+							isSaved = false;
+							panelEmbed.data.fields![0].value = '🔴';
+							panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
+							await originalResponse.edit({ embeds: [panelEmbed], components });
+							removeCollector.stop('legitEnd');
+							actionCollector.stop('legitEnd');
+						});
+					}
+				});
+			});
+		}
+
+		async function changeCategoryForOption(i: StringSelectMenuInteraction<CacheType>) {
 			// get the option with string select menu
 			if (baseData.config.optionFields.length === 0) {
 				return originalResponse.edit({
@@ -464,10 +539,10 @@ export const subCommand: SubCommand = {
 					await i.deferUpdate();
 
 					option.categoryId = category;
-					is_saved = false;
+					isSaved = false;
 					panelEmbed.data.fields![0].value = "🔴";
 
-					panelEmbed.data.fields![7].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
+					panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
 
 					await originalResponse.edit({
 						embeds: [panelEmbed],
@@ -481,7 +556,7 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		async function change_category() {
+		async function changeCategory() {
 			const channelSelect = new ChannelSelectMenuBuilder()
 				.setCustomId("change_category")
 				.setChannelTypes(ChannelType.GuildCategory)
@@ -513,7 +588,7 @@ export const subCommand: SubCommand = {
 				const fetchChannel = await i.guild?.channels.fetch(category)!;
 
 				baseData.category = category;
-				is_saved = false;
+				isSaved = false;
 				panelEmbed.data.fields![0].value = "🔴";
 
 				panelEmbed.data.fields![6].value = fetchChannel!.toString();
@@ -527,7 +602,7 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		async function change_placeholder(i: StringSelectMenuInteraction<CacheType>) {
+		async function changePlaceholder(i: StringSelectMenuInteraction<CacheType>) {
 			const modal = await iHorizonModalResolve({
 				customId: "change_placeholder",
 				deferUpdate: false,
@@ -549,7 +624,7 @@ export const subCommand: SubCommand = {
 			const placeholder = modal.fields.getTextInputValue("placeholder");
 
 			baseData.placeholder = placeholder;
-			is_saved = false;
+			isSaved = false;
 			panelEmbed.data.fields![0].value = "🔴";
 
 			panelEmbed.data.fields![5].value = baseData.placeholder;
@@ -568,7 +643,7 @@ export const subCommand: SubCommand = {
 				.setPlaceholder("Select a channel")
 				.setChannelTypes([ChannelType.GuildText]);
 
-			if (!is_saved) {
+			if (!isSaved) {
 				return originalResponse.edit({
 					content: lang.ticket_panel_need_save_config,
 					components
@@ -656,7 +731,7 @@ export const subCommand: SubCommand = {
 					components: []
 				});
 
-				og_select_collector.stop("legitEnd");
+				selectCollector.stop("legitEnd");
 				channelCollector.stop("legitEnd");
 			});
 
@@ -670,28 +745,7 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		async function save() {
-			await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${panel_id}`, baseData);
-
-			panelEmbed.data.fields![0].value = "🟢";
-			is_saved = true;
-
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				content: lang.ticket_panel_successfully_saved,
-				components: [
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						new ButtonBuilder()
-							.setCustomId("saved")
-							.setStyle(ButtonStyle.Success)
-							.setEmoji(client.iHorizon_Emojis.Yes)
-							.setDisabled(true)
-					)
-				]
-			});
-		}
-
-		async function change_role() {
+		async function changeRole() {
 			const roleSelect = new RoleSelectMenuBuilder()
 				.setPlaceholder(lang.ticket_panel_change_role_roleSelect_placeholder)
 				.setCustomId("change_role")
@@ -723,7 +777,7 @@ export const subCommand: SubCommand = {
 				};
 
 				baseData.config.rolesToPing = i.values;
-				is_saved = false;
+				isSaved = false;
 				panelEmbed.data.fields![0].value = "🔴";
 
 				// modify the panelEmbed to show the new role
@@ -750,9 +804,9 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		async function change_ping() {
+		async function changePing() {
 			baseData.config.pingUser = !baseData.config.pingUser;
-			is_saved = false;
+			isSaved = false;
 			panelEmbed.data.fields![0].value = "🔴";
 
 			panelEmbed.data.fields![4].value = baseData.config.pingUser ? "🟢" : "🔴";
@@ -763,7 +817,7 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		async function change_embed(i: StringSelectMenuInteraction<CacheType>) {
+		async function changeEmbed(i: StringSelectMenuInteraction<CacheType>) {
 			const modal = await iHorizonModalResolve({
 				customId: "change_embed",
 				deferUpdate: false,
@@ -793,7 +847,7 @@ export const subCommand: SubCommand = {
 			}
 
 			baseData.relatedEmbedId = embed_id;
-			is_saved = false;
+			isSaved = false;
 			panelEmbed.data.fields![0].value = "🔴";
 
 			panelEmbed.data.fields![1].value = baseData.relatedEmbedId;
@@ -806,7 +860,7 @@ export const subCommand: SubCommand = {
 
 		}
 
-		async function change_ticket_channel_panel(i: StringSelectMenuInteraction<CacheType>) {
+		async function changeTicketChannelPanel(i: StringSelectMenuInteraction<CacheType>) {
 			const modal = await iHorizonModalResolve({
 				customId: "change_embed2",
 				deferUpdate: false,
@@ -842,7 +896,7 @@ export const subCommand: SubCommand = {
 			}
 
 			baseData.ticketChannelPanel = embed_id;
-			is_saved = false;
+			isSaved = false;
 			panelEmbed.data.fields![0].value = "🔴";
 
 			panelEmbed.data.fields![2].value = baseData.ticketChannelPanel || lang.var_no_set;
@@ -854,7 +908,7 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		async function change_option() {
+		async function changeOption() {
 			const select = new StringSelectMenuBuilder()
 				.setCustomId("change_option")
 				.setPlaceholder(lang.ticket_panel_change_option_select_placeholder)
@@ -972,10 +1026,10 @@ export const subCommand: SubCommand = {
 				value: (baseData.config.optionFields.length - 1).toString()
 			});
 
-			is_saved = false;
+			isSaved = false;
 			panelEmbed.data.fields![0].value = "🔴";
 
-			panelEmbed.data.fields![7].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
+			panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
 
 			modal.deferUpdate();
 
@@ -1027,10 +1081,10 @@ export const subCommand: SubCommand = {
 				const choice = i.values[0];
 				baseData.config.optionFields.splice(parseInt(choice), 1);
 
-				is_saved = false;
+				isSaved = false;
 				panelEmbed.data.fields![0].value = "🔴";
 
-				panelEmbed.data.fields![7].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
+				panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
 
 				await i.deferUpdate();
 
@@ -1053,7 +1107,7 @@ export const subCommand: SubCommand = {
 			})
 		};
 
-		async function change_form() {
+		async function changeForm() {
 			const select = new StringSelectMenuBuilder()
 				.setCustomId("change_form")
 				.setPlaceholder(lang.ticket_panel_change_option_select_placeholder)
@@ -1156,10 +1210,10 @@ export const subCommand: SubCommand = {
 				questionPlaceholder
 			});
 
-			is_saved = false;
+			isSaved = false;
 			panelEmbed.data.fields![0].value = "🔴";
 
-			panelEmbed.data.fields![8].value = stringifyTicketPanelForm(baseData.config.form) || lang.var_no_set;
+			panelEmbed.data.fields![8].value = stringifyForm(baseData.config.form) || lang.var_no_set;
 
 			modal.deferUpdate();
 
@@ -1215,10 +1269,10 @@ export const subCommand: SubCommand = {
 				const choice = i.values[0];
 				baseData.config.form.splice(parseInt(choice), 1);
 
-				is_saved = false;
+				isSaved = false;
 				panelEmbed.data.fields![0].value = "🔴";
 
-				panelEmbed.data.fields![8].value = stringifyTicketPanelForm(baseData.config.form) || lang.var_no_set;
+				panelEmbed.data.fields![8].value = stringifyForm(baseData.config.form) || lang.var_no_set;
 
 				await i.deferUpdate();
 
@@ -1292,9 +1346,9 @@ export const subCommand: SubCommand = {
 			})
 		}
 
-		async function change_ticket_user_select_panel() {
+		async function changeTicketUserSelectPanel() {
 			baseData.config.userSelectPanel = !baseData.config.userSelectPanel;
-			is_saved = false;
+			isSaved = false;
 			panelEmbed.data.fields![0].value = "🔴";
 
 			panelEmbed.data.fields![9].value = baseData.config.userSelectPanel ? "🟢" : "🔴";
@@ -1305,9 +1359,9 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		async function change_ticket_button_delete_panel() {
+		async function changeTicketButtonDeletePanel() {
 			baseData.config.deleteButton = !baseData.config.deleteButton;
-			is_saved = false;
+			isSaved = false;
 			panelEmbed.data.fields![0].value = "🔴";
 
 			panelEmbed.data.fields![10].value = baseData.config.deleteButton ? "🟢" : "🔴";
@@ -1318,9 +1372,9 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		async function change_ticket_button_transcript_panel() {
+		async function changeTicketButtonTranscriptPanel() {
 			baseData.config.transcriptButton = !baseData.config.transcriptButton;
-			is_saved = false;
+			isSaved = false;
 			panelEmbed.data.fields![0].value = "🔴";
 
 			panelEmbed.data.fields![11].value = baseData.config.transcriptButton ? "🟢" : "🔴";
@@ -1331,7 +1385,7 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		async function change_ticket_channel_panel_options(i: StringSelectMenuInteraction<CacheType>) {
+		async function changeTicketChannelPanelOptions(i: StringSelectMenuInteraction<CacheType>) {
 			// get the option with string select menu
 			if (baseData.config.optionFields.length === 0) {
 				return originalResponse.edit({
@@ -1396,10 +1450,10 @@ export const subCommand: SubCommand = {
 				await i.deferUpdate();
 
 				option.panelId = category;
-				is_saved = false;
+				isSaved = false;
 				panelEmbed.data.fields![0].value = "🔴";
 
-				panelEmbed.data.fields![7].value = stringifyTicketPanelOption(baseData.config.optionFields) || lang.var_no_set;
+				panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
 
 				await originalResponse.edit({
 					embeds: [panelEmbed],
@@ -1409,18 +1463,5 @@ export const subCommand: SubCommand = {
 				select_collector.stop("legitEnd");
 			});
 		}
-
-		async function change_ticket_forms_options(i: StringSelectMenuInteraction<CacheType>) {
-			// do the logs here
-		}
-
-		og_select_collector.on("end", async (_, reason) => {
-			if (reason === "legitEnd") return;
-
-			await originalResponse.edit({
-				components: [],
-				embeds: [panelEmbed]
-			});
-		});
 	},
 };
