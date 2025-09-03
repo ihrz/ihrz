@@ -297,8 +297,11 @@ export const subCommand: SubCommand = {
 		}
 
 		async function sendEmbed() {
-			if (!isSaved) return originalResponse.edit({ content: lang.ticket_panel_need_save_config, components });
 			if (baseData.config.optionFields.length === 0) return originalResponse.edit({ content: lang.ticket_panel_need_1_option, embeds: [panelEmbed], components });
+
+			// if (!isSaved) return originalResponse.edit({ content: lang.ticket_panel_need_save_config, components });
+			await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`, baseData);
+			isSaved = true;
 
 			const channelSelect = new ChannelSelectMenuBuilder()
 				.setCustomId('send_embed')
@@ -333,16 +336,17 @@ export const subCommand: SubCommand = {
 						return builder;
 					}));
 
-				await channel.send({ embeds: [embed], components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)] });
-				await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${channel.id}`, panelCode);
+				let sentPanel = await channel.send({ embeds: [embed], components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)] });
+				await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${sentPanel.id}`, panelCode);
 
-				await originalResponse.edit({
-					content: lang.ticket_panel_embed_been_send,
-					embeds: [panelEmbed],
-					components: [],
-				});
 				collector.stop('legitEnd');
 				selectCollector.stop('legitEnd');
+				await originalResponse.edit({
+					content: `Le panel de ticket #${panelCode} est bien envoyer dans ${channel.toString()}. Veuillez garder le code quelque part, au cas où vous devez modifier le panel.`,
+					embeds: [],
+					files: [],
+					components: []
+				});
 			});
 		}
 
@@ -649,114 +653,6 @@ export const subCommand: SubCommand = {
 			await originalResponse.edit({
 				embeds: [panelEmbed],
 				components
-			});
-		}
-
-		async function send_embed() {
-			const channelSelect = new ChannelSelectMenuBuilder()
-				.setCustomId("send_embed")
-				.setPlaceholder("Select a channel")
-				.setChannelTypes([ChannelType.GuildText]);
-
-			if (!isSaved) {
-				return originalResponse.edit({
-					content: lang.ticket_panel_need_save_config,
-					components
-				});
-			}
-
-			// if 0 option fields
-			if (baseData.config.optionFields.length === 0) {
-				return originalResponse.edit({
-					content: lang.ticket_panel_need_1_option,
-					embeds: [panelEmbed],
-					components
-				});
-			}
-
-			const send_embed_interaction = await originalResponse.edit({
-				components: [
-					new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect)
-				],
-				embeds: [],
-				content: lang.ticket_panel_select_channel_to_send
-			});
-
-			// collector for channel select
-			const channelCollector = send_embed_interaction.createMessageComponentCollector({
-				componentType: ComponentType.ChannelSelect,
-				time: 60_000,
-			});
-
-			channelCollector.on("collect", async (i) => {
-				if (i.user.id !== interaction.member!.user.id) {
-					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				};
-
-				const channel = i.values[0];
-				const relatedEmbed = await metasTable.get(`EMBED.${baseData.relatedEmbedId}`);
-
-				if (!relatedEmbed || !relatedEmbed.embedSource) {
-					return i.reply({ flags: [1 << 6], content: lang.ticket_panel_related_embed_dont_exist });
-				}
-
-				const embed = EmbedBuilder.from(relatedEmbed.embedSource);
-
-				const selectMenu = new StringSelectMenuBuilder()
-					.setCustomId("ticket-open-selection-v2")
-					.setPlaceholder(baseData.placeholder)
-					.addOptions(
-						baseData.config.optionFields.map(x => {
-							const optionBuilder = new StringSelectMenuOptionBuilder()
-								.setLabel(x.name)
-								.setValue(x.value);
-
-							if (x.desc) {
-								optionBuilder.setDescription(x.desc);
-							}
-
-							if (x.emoji) {
-								optionBuilder.setEmoji(x.emoji);
-							}
-
-							return optionBuilder;
-						})
-					);
-
-				const fetchChannel = await i.guild?.channels.fetch(channel);
-
-				if (!fetchChannel || !fetchChannel.isSendable()) {
-					return i.reply({ flags: [1 << 6], content: lang.ticket_panel_channel_error });
-				}
-
-				i.deferUpdate();
-
-				const send_embed_interaction = await fetchChannel.send({
-					embeds: [embed],
-					components: [
-						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)
-					]
-				});
-
-				await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${send_embed_interaction.id}`, baseData.panelCode);
-
-				await originalResponse.edit({
-					content: lang.ticket_panel_embed_been_send,
-					embeds: [panelEmbed],
-					components: []
-				});
-
-				selectCollector.stop("legitEnd");
-				channelCollector.stop("legitEnd");
-			});
-
-			channelCollector.on("end", async (_, reason) => {
-				if (reason === "legitEnd") return;
-
-				await send_embed_interaction.edit({
-					components,
-					embeds: [panelEmbed]
-				});
 			});
 		}
 
