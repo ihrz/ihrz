@@ -399,7 +399,7 @@ export const subCommand: SubCommand = {
 				});
 
 				collector.stop();
-				const actionCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 });
+				const actionCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 * 15 });
 				actionCollector.on('collect', async (actionI) => {
 					if (actionI.user.id !== interaction.member!.user.id) return actionI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 
@@ -408,7 +408,7 @@ export const subCommand: SubCommand = {
 						if (!option.form) option.form = [];
 
 						if (option.form.length >= 3) {
-							return actionI.followUp({ content: lang.ticket_panel_add_form_max_3, ephemeral: true });
+							return actionI.followUp({ content: lang.ticket_panel_add_form_max_3, flags: MessageFlags.Ephemeral });
 						}
 
 						const modal = await iHorizonModalResolve({
@@ -439,7 +439,10 @@ export const subCommand: SubCommand = {
 						actionCollector.stop('legitEnd');
 					} else if (actionI.values[0] === 'remove') {
 						if (!option.form || option.form.length === 0) {
-							return actionI.reply({ content: 'Aucune question à supprimer.', ephemeral: true });
+							await originalResponse.edit({ embeds: [panelEmbed], components });
+							actionCollector.stop('legitEnd');
+
+							return actionI.reply({ content: 'Aucune question à supprimer.', flags: MessageFlags.Ephemeral });
 						}
 
 						const formSelect = new StringSelectMenuBuilder()
@@ -449,13 +452,19 @@ export const subCommand: SubCommand = {
 								new StringSelectMenuOptionBuilder().setLabel(f.questionTitle).setValue(i.toString())
 							));
 
+						actionI.deferUpdate();
+
 						await originalResponse.edit({
 							components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(formSelect)],
 							content: 'Sélectionnez une question à supprimer.',
 						});
 
-						const removeCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 });
+						actionCollector.stop();
+
+						const removeCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 * 5 });
 						removeCollector.on('collect', async (rmI) => {
+							removeCollector.stop();
+							rmI.deferUpdate();
 							if (rmI.user.id !== interaction.member!.user.id) return rmI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 							const fid = parseInt(rmI.values[0]);
 							option.form!.splice(fid, 1);
