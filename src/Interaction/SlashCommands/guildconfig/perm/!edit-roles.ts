@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 			let strRole = perm_role.toString();
 
 			client.func.method.interactionSend(interaction, {
-				content: lang.perm_edit_roles_command_ok.replace("${permName}", permName).replace("${strRole}", strRole)
+				content: lang.perm_edit_roles_command_ok.replace("${permName}", String(permName)).replace("${strRole}", strRole)
 			})
 		} catch (error) {
 			await client.func.method.interactionSend(interaction, {
