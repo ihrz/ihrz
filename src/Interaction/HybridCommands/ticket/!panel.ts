@@ -159,8 +159,8 @@ export const subCommand: SubCommand = {
 				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_12_label).setValue('change_ticket_user_select_panel'),
 				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_13_label).setValue('change_ticket_button_delete_panel'),
 				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_14_label).setValue('change_ticket_button_transcript_panel'),
-				new StringSelectMenuOptionBuilder().setLabel('Configurer un embed par option').setValue('change_ticket_channel_panel_options'),
-				new StringSelectMenuOptionBuilder().setLabel('Configurer un formulaire par option').setValue('change_ticket_forms_options'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_15_label).setValue('change_ticket_channel_panel_options'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_16_label).setValue('change_ticket_forms_options'),
 			]);
 
 		const sendButton = new ButtonBuilder()
@@ -179,10 +179,10 @@ export const subCommand: SubCommand = {
 			components,
 		});
 
-		if (interaction instanceof ChatInputCommandInteraction)
+		if (interaction instanceof ChatInputCommandInteraction) {
 			await interaction.followUp({ content: 'https://youtu.be/TehLPQ_WCwQ', flags: [1 << 6] });
+		}
 
-		// Collecteurs
 		const selectCollector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			time: 1_250_000,
@@ -193,14 +193,12 @@ export const subCommand: SubCommand = {
 			time: 1_250_000,
 		});
 
-		// Gestion des boutons
 		buttonCollector.on('collect', async (i) => {
 			if (i.user.id !== interaction.member!.user.id) return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 			i.deferUpdate();
 			if (i.customId === 'send_embed') await sendEmbed();
 		});
 
-		// Gestion des menus
 		selectCollector.on('collect', async (i: StringSelectMenuInteraction) => {
 			if (i.user.id !== interaction.member!.user.id)
 				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
@@ -227,14 +225,11 @@ export const subCommand: SubCommand = {
 			}
 		});
 
-		// Fin du collecteur
 		selectCollector.on('end', (_, reason) => {
 			if (reason !== 'legitEnd') {
 				originalResponse.edit({ components: [], embeds: [panelEmbed] });
 			}
 		});
-
-		// === Fonctions ===
 
 		function formatRoles(roles: string[], lang: LanguageData) {
 			return roles.length ? roles.map(r => `<@&${r}>`).join(' ') : lang.var_no_set;
@@ -342,7 +337,7 @@ export const subCommand: SubCommand = {
 				collector.stop('legitEnd');
 				selectCollector.stop('legitEnd');
 				await originalResponse.edit({
-					content: `Le panel de ticket #${panelCode} est bien envoyer dans ${channel.toString()}. Veuillez garder le code quelque part, au cas où vous devez modifier le panel.`,
+					content: lang.ticket_panel_saved_and_sended_panel.replace("${panelCode}", panelCode).replace("${channel.toString()}", channel.toString()),
 					embeds: [],
 					files: [],
 					components: []
@@ -350,7 +345,6 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		// === Implémentation de change_ticket_forms_options ===
 		async function changeTicketFormsOptions(i: StringSelectMenuInteraction) {
 			if (baseData.config.optionFields.length === 0) {
 				return originalResponse.edit({
@@ -362,7 +356,7 @@ export const subCommand: SubCommand = {
 
 			const select = new StringSelectMenuBuilder()
 				.setCustomId('select_option_form')
-				.setPlaceholder('Choisissez une option')
+				.setPlaceholder(lang.var_chose_option)
 				.addOptions(baseData.config.optionFields.map((opt, idx) =>
 					new StringSelectMenuOptionBuilder()
 						.setLabel(opt.name)
@@ -372,7 +366,7 @@ export const subCommand: SubCommand = {
 			const msg = await originalResponse.edit({
 				components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)],
 				embeds: [],
-				content: 'Sélectionnez une option pour configurer son formulaire.',
+				content: lang.ticket_panel_chose_option_to_form,
 			});
 
 			const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 300_000 });
@@ -382,7 +376,7 @@ export const subCommand: SubCommand = {
 				const idx = parseInt(subI.values[0]);
 				const option = baseData.config.optionFields[idx];
 				if (isNaN(idx) || !baseData.config.optionFields[idx]) {
-					await subI.reply({ content: '❌ Option invalide.', flags: MessageFlags.Ephemeral });
+					await subI.reply({ content: lang.ticket_panel_option_invalid, flags: MessageFlags.Ephemeral });
 					return;
 				}
 				console.log(subI.values[0], baseData.config.optionFields[idx])
@@ -391,15 +385,15 @@ export const subCommand: SubCommand = {
 				// Sous-menu pour ajouter/modifier/supprimer
 				const actionSelect = new StringSelectMenuBuilder()
 					.setCustomId('form_action')
-					.setPlaceholder('Action')
+					.setPlaceholder(lang.var_action)
 					.addOptions(
-						new StringSelectMenuOptionBuilder().setLabel('Ajouter une question').setValue('add'),
-						new StringSelectMenuOptionBuilder().setLabel('Supprimer une question').setValue('remove')
+						new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_add_a_question).setValue('add'),
+						new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_remove_a_question).setValue('remove')
 					);
 
 				await originalResponse.edit({
 					components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(actionSelect)],
-					content: `Gérer le formulaire pour l'option : **${option.name}**`,
+					content: lang.ticket_panel_manage_form_title.replace("${option.name}", option.name),
 				});
 
 				collector.stop();
@@ -417,10 +411,10 @@ export const subCommand: SubCommand = {
 
 						const modal = await iHorizonModalResolve({
 							customId: 'add_form_opt',
-							title: 'Ajouter une question',
+							title: lang.ticket_panel_add_a_question,
 							fields: [
-								{ customId: 'title', label: 'Titre', style: TextInputStyle.Short, required: true, maxLength: 128 },
-								{ customId: 'placeholder', label: 'Placeholder', style: TextInputStyle.Short, required: false, maxLength: 100 },
+								{ customId: 'title', label: lang.var_title, style: TextInputStyle.Short, required: true, maxLength: 128 },
+								{ customId: 'placeholder', label: lang.roleselect_modal2_label, style: TextInputStyle.Short, required: false, maxLength: 100 },
 							],
 							deferUpdate: true
 						}, actionI);
@@ -446,12 +440,12 @@ export const subCommand: SubCommand = {
 							await originalResponse.edit({ embeds: [panelEmbed], components });
 							actionCollector.stop('legitEnd');
 
-							return actionI.reply({ content: 'Aucune question à supprimer.', flags: MessageFlags.Ephemeral });
+							return actionI.reply({ content: lang.ticket_panel_no_question_to_delete, flags: MessageFlags.Ephemeral });
 						}
 
 						const formSelect = new StringSelectMenuBuilder()
 							.setCustomId('remove_form_opt')
-							.setPlaceholder('Choisissez une question')
+							.setPlaceholder(lang.ticket_panel_chose_a_question)
 							.addOptions(option.form.map((f, i) =>
 								new StringSelectMenuOptionBuilder().setLabel(f.questionTitle).setValue(i.toString())
 							));
@@ -460,7 +454,7 @@ export const subCommand: SubCommand = {
 
 						await originalResponse.edit({
 							components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(formSelect)],
-							content: 'Sélectionnez une question à supprimer.',
+							content: lang.ticket_panel_select_question_to_delete,
 						});
 
 						actionCollector.stop();
@@ -792,7 +786,7 @@ export const subCommand: SubCommand = {
 
 			i.followUp({
 				content: lang.ticket_panel_tip_about_variable1.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat),
-				flags: "Ephemeral"
+				flags: MessageFlags.Ephemeral
 			})
 
 			// get the embed id
@@ -1300,7 +1294,7 @@ export const subCommand: SubCommand = {
 			// get the option with string select menu
 			if (baseData.config.optionFields.length === 0) {
 				return originalResponse.edit({
-					content: "There is no option(s) to edit the channel panel embed id.",
+					content: lang.ticket_panel_change_embed_options_null,
 					embeds: [panelEmbed],
 					components
 				});
@@ -1308,7 +1302,7 @@ export const subCommand: SubCommand = {
 
 			const select = new StringSelectMenuBuilder()
 				.setCustomId("change_channel_panel_id_for_option")
-				.setPlaceholder("Chose the category to edit the channel panel id.")
+				.setPlaceholder(lang.ticket_panel_change_embed_options_chose)
 				.addOptions(
 					...baseData.config.optionFields.map((x, i) => {
 						return new StringSelectMenuOptionBuilder()
@@ -1322,7 +1316,7 @@ export const subCommand: SubCommand = {
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
 				],
 				embeds: [],
-				content: "Select an option to change the channel panel embed id."
+				content: lang.ticket_panel_change_embed_options
 			});
 
 			// collector for string select
@@ -1346,14 +1340,14 @@ export const subCommand: SubCommand = {
 						{
 							customId: "embed_id",
 							maxLength: 32,
-							label: "Embed id",
+							label: lang.ticket_panel_change_embed_modal_placeholder,
 							required: true,
 							style: TextInputStyle.Short,
 							minLength: 8,
-							placeHolder: "ID saved with /utils embed"
+							placeHolder: lang.ticket_panel_channel_panel_embed_id
 						}
 					],
-					title: "Enter embed if for the option"
+					title: lang.ticket_panel_change_embed_modal_placeholder
 
 				}, i);
 
