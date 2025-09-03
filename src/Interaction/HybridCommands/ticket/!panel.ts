@@ -222,7 +222,7 @@ export const subCommand: SubCommand = {
 				case 'change_ticket_user_select_panel': i.deferUpdate(); await changeTicketUserSelectPanel(); break;
 				case 'change_ticket_button_delete_panel': i.deferUpdate(); await changeTicketButtonDeletePanel(); break;
 				case 'change_ticket_button_transcript_panel': i.deferUpdate(); await changeTicketButtonTranscriptPanel(); break;
-				case 'change_ticket_channel_panel_options': await changeTicketChannelPanelOptions(i); break;
+				case 'change_ticket_channel_panel_options': i.deferUpdate(); await changeTicketChannelPanelOptions(i); break;
 				case 'change_ticket_forms_options': i.deferUpdate(); await changeTicketFormsOptions(i); break;
 			}
 		});
@@ -252,7 +252,7 @@ export const subCommand: SubCommand = {
 				if (opt.desc) str += `  ┖ ${lang.ticket_panel_add_option_modal_field2_label}: ${opt.desc}\n`;
 				if (opt.emoji) str += `  ┖ ${lang.ticket_panel_add_option_modal_field3_label}: ${opt.emoji}\n`;
 				if (opt.categoryId) str += `  ┖ 📂: ${formatCategory(opt.categoryId, interaction.guild)}\n`;
-				if (opt.panelId) str += `  ┖ 🆔: ${lang.ticket_panel_channel_panel_embed_id}: ${opt.panelId}\n`;
+				if (opt.panelId) str += `  ┖ ${lang.ticket_panel_change_embed_modal_placeholder}: ${opt.panelId}\n`;
 				if (opt.form?.length) {
 					str += `  ┖ 📚 ${lang.var_form}:\n`;
 					opt.form.forEach(f => {
@@ -1445,7 +1445,7 @@ export const subCommand: SubCommand = {
 
 				const modal = await iHorizonModalResolve({
 					customId: "change_panel_channel_id",
-					deferUpdate: false,
+					deferUpdate: true,
 					fields: [
 						{
 							customId: "embed_id",
@@ -1461,10 +1461,18 @@ export const subCommand: SubCommand = {
 
 				}, i);
 
-				const category = i.values[0];
-				await i.deferUpdate();
+				let embed_id = modal?.fields.getTextInputValue("embed_id");
 
-				option.panelId = category;
+				// check if the embed exists
+				const embed = await metasTable.get(`EMBED.${embed_id}`);
+
+				if (!embed) {
+					await originalResponse.edit({ embeds: [panelEmbed], components });
+					select_collector.stop('legitEnd');
+					return i.followUp({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
+				}
+
+				option.panelId = embed_id;
 				isSaved = false;
 				panelEmbed.data.fields![0].value = "🔴";
 
