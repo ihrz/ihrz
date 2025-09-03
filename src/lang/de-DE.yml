@@ -79,6 +79,7 @@ var_guild_banner: "Server-Banner"
 var_guild_splash: "Server-Splash"
 var_unknown_guild_name: "Unbekannter Servername"
 var_preview: "Vorschau"
+var_form: "Formular"
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"

@@ -79,6 +79,7 @@ var_guild_banner: "Bannière du serveur"
 var_guild_splash: "Écran d’accueil du serveur"
 var_unknown_guild_name: "Nom de serveur inconnu"
 var_preview: "Aperçue"
+var_form: "Formulaire"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Créer une invitation"

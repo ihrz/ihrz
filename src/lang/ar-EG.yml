@@ -79,6 +79,7 @@ var_guild_banner: "راية الخادم"
 var_guild_splash: "صورة البداية للخادم"
 var_unknown_guild_name: "اسم خادم غير معروف"
 var_preview: "معاينة"
+var_form: "نموذج"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "إنشاء دعوة فورية"

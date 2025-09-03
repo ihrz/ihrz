@@ -79,6 +79,7 @@ var_guild_banner: "サーバーバナー"
 var_guild_splash: "サーバースプラッシュ"
 var_unknown_guild_name: "不明なサーバー名"
 var_preview: "プレビュー"
+var_form: "フォーム"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
