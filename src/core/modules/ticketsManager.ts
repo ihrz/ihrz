@@ -839,7 +839,14 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 		if (chosenCategory?.panelId) {
 			var embed_from_db = (await metasTable.get(`EMBED.${chosenCategory?.panelId}.embedSource`));
 			// do this hack for replacing category in descriptions, fields ,etc
-			embed_from_db = JSON.parse(JSON.stringify(embed_from_db).replaceAll('{category}', chosenCategory?.name!)) as APIEmbed | null;
+			embed_from_db = JSON.parse(client.func.method.generateCustomMessagePreview(
+				JSON.stringify(embed_from_db),
+				{
+					user: interaction.user,
+					guild: interaction.guild,
+					guildLocal: interaction.guildLocale
+				}).replaceAll('{category}', chosenCategory?.name!)
+			) as APIEmbed | null;
 
 			if (embed_from_db) {
 				embeds.push(
@@ -852,7 +859,14 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 		} else if (result.ticketChannelPanel) {
 			var embed_from_db = (await metasTable.get(`EMBED.${result.ticketChannelPanel}.embedSource`));
 			// do this hack for replacing category in descriptions, fields ,etc
-			embed_from_db = JSON.parse(JSON.stringify(embed_from_db).replaceAll('{category}', chosenCategory?.name!)) as APIEmbed | null;
+			embed_from_db = JSON.parse(client.func.method.generateCustomMessagePreview(
+				JSON.stringify(embed_from_db),
+				{
+					user: interaction.user,
+					guild: interaction.guild,
+					guildLocal: interaction.guildLocale
+				}).replaceAll('{category}', chosenCategory?.name!)
+			) as APIEmbed | null;
 
 			if (embed_from_db) {
 				embeds.push(
@@ -966,7 +980,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			return;
 		} catch (e) { return };
 	}).catch((e) => {
-		logger.log(e)
+		console.error(e)
 	});
 };
 
