@@ -806,7 +806,20 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			)
 			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-		if (result.ticketChannelPanel) {
+		if (categoryName?.panelId) {
+			var embed_from_db = (await metasTable.get(`EMBED.${categoryName?.panelId}.embedSource`));
+			// do this hack for replacing category in descriptions, fields ,etc
+			embed_from_db = JSON.parse(JSON.stringify(embed_from_db).replaceAll('{category}', categoryName?.name!)) as APIEmbed | null;
+
+			if (embed_from_db) {
+				embeds.push(
+					EmbedBuilder.from(embed_from_db)
+				);
+			} else {
+				files.push(await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction));
+				embeds.push(og_embed);
+			}
+		} else if (result.ticketChannelPanel) {
 			var embed_from_db = (await metasTable.get(`EMBED.${result.ticketChannelPanel}.embedSource`));
 			// do this hack for replacing category in descriptions, fields ,etc
 			embed_from_db = JSON.parse(JSON.stringify(embed_from_db).replaceAll('{category}', categoryName?.name!)) as APIEmbed | null;
