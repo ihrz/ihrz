@@ -398,6 +398,7 @@ export const subCommand: SubCommand = {
 					content: `Gérer le formulaire pour l'option : **${option.name}**`,
 				});
 
+				collector.stop();
 				const actionCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 });
 				actionCollector.on('collect', async (actionI) => {
 					if (actionI.user.id !== interaction.member!.user.id) return actionI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
