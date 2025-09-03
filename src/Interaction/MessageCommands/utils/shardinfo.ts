@@ -147,7 +147,7 @@ Total members: ${guildStats.totalMembers.toLocaleString()}`;
 			const embed = new EmbedBuilder()
 				.setTitle('Advanced Shard Information')
 				.setDescription(msg)
-				.setColor('#00ff00')
+				.setColor("#010101")
 				.setTimestamp();
 
 			message.reply({ embeds: [embed] });

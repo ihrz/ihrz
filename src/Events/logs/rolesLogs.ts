@@ -67,7 +67,7 @@ export const event: BotEvent = {
 		let user = newMember.guild.members.cache.get(firstEntry.targetId);
 
 		const logsEmbed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setAuthor({ name: user?.user.username!, iconURL: user?.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
 			.setTimestamp();
 

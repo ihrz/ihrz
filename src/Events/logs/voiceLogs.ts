@@ -52,7 +52,7 @@ export const event: BotEvent = {
 		const iconURL = targetUser.displayAvatarURL();
 
 		const logsEmbed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setAuthor({ name: targetUser.username, iconURL: iconURL })
 			.setTimestamp();
 

@@ -73,14 +73,14 @@ export const subCommand: SubCommand = {
 		text2 += lang.authorization_configshow_punishement.replace('${okay}', okay);
 
 		const embed1 = new EmbedBuilder()
-			.setColor('#000000')
+			.setColor("#010101")
 			.setAuthor({ name: lang.authorization_configshow_embed1_author })
 			.setDescription(text2)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp();
 
 		const embed2 = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setAuthor({ name: lang.authorization_configshow_embed2_author })
 			.setDescription(text)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))

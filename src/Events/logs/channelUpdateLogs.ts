@@ -129,7 +129,7 @@ export const event: BotEvent = {
 		const icon = relevantLog?.executor?.displayAvatarURL();
 
 		const logsEmbed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setAuthor({ name: relevantLog?.executor?.username || lang.var_unknown, iconURL: icon })
 			.setDescription(`${newChannel.toString()} are updated`)
 			.addFields({ name: lang.event_srvLogs_messageUpdate_footer_2, value: changes });

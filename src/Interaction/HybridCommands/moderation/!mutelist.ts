@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 
 		const createEmbed = () => {
 			return new EmbedBuilder()
-				.setColor("#000000")
+				.setColor("#010101")
 				.setDescription(pages[currentPage].description)
 				.setFooter({
 					text: lang.prevnames_embed_footer_text

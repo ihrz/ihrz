@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
 		const link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent(sanitizing(username.toLowerCase()))}&comment=${encodeURIComponent(sanitizing(messageArgs.join(' ')))}&displayname=${encodeURIComponent(sanitizing(displayname || username))}`;
 
 		const embed = new EmbedBuilder()
-			.setColor('#000000')
+			.setColor("#010101")
 			.setImage('attachment://tweet.png')
 			.setTimestamp()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));

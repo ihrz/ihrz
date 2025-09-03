@@ -68,7 +68,7 @@ export const command: Command = {
 
 		const createEmbed = () => {
 			return new EmbedBuilder()
-				.setColor("#000000")
+				.setColor("#010101")
 				.setDescription(pages[currentPage])
 				.setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://footer_icon.png" })
 				.setTimestamp()

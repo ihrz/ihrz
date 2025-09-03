@@ -259,7 +259,7 @@ export const event: BotEvent = {
 								.setTimestamp()
 								.setTitle("Database Metrics - Ping: " + databaseLatency)
 								.setDescription('```' + JSON.stringify(stats, null, 2) + '```')
-								.setColor("#000000")
+								.setColor("#010101")
 						]
 					})
 				}

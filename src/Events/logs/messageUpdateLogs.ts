@@ -104,7 +104,7 @@ export const event: BotEvent = {
 		}
 
 		const logsEmbed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setAuthor({ name: newMessage.author.username, iconURL: icon })
 			.setDescription(data.event_srvLogs_messageUpdate_description
 				.replace("${oldMessage.channelId}", oldMessage.channelId)

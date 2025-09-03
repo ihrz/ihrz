@@ -96,7 +96,7 @@ export const command: Command = {
 		let time = client.timeCalculator.to_ms("30m");
 
 		const embed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setDescription(lang.nightmode_embed_desc)
 			.setFields(
 				{
