@@ -271,6 +271,11 @@ export const subCommand: SubCommand = {
 				field.emoji ? (_ += `  ┖  ${lang.ticket_panel_add_option_modal_field3_label}: ${field.emoji}\n`) : null;
 				field.categoryId ? (_ += `  ┖  📂: ${interaction.guild!.channels.cache.get(field.categoryId)?.name}\n`) : null;
 				field.panelId ? (_ += `  ┖  🆔: ${lang.ticket_panel_channel_panel_embed_id}: ${field.panelId}\n`) : null;
+				field.form ? (_ += `  ┖  📚: ${lang.var_form}:\n${field.form.map(x => {
+					return `   `.repeat(2) + "┖" + " 🔹: " + x.questionTitle +
+						"\n"
+						+ `   `.repeat(2) + "┖" + " 🔹: " + x.questionPlaceholder
+				})}\n`) : null;
 				_ += "\n"
 			}
 			return _ + "```";
