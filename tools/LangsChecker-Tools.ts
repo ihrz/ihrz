@@ -288,7 +288,7 @@ async function main() {
 				const actualData = langData.default || langData;
 				langsData[langCode] = actualData;
 			} catch (err) {
-				console.log(err);
+				logger.log(err);
 				logger.warn(`Error when loading ${langFile} language file`);
 			}
 		}
