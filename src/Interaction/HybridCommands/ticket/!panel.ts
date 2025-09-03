@@ -205,23 +205,22 @@ export const subCommand: SubCommand = {
 				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 
 			const choice = i.values[0];
-			i.deferUpdate();
 
 			switch (choice) {
-				case 'save': await save(); selectCollector.stop('legitEnd'); break;
+				case 'save': i.deferUpdate(); await save(); selectCollector.stop('legitEnd'); break;
 				case 'preview': await preview(i); break;
 				case 'change_embed': await changeEmbed(i); break;
-				case 'change_role': await changeRole(); break;
-				case 'change_ping': await changePing(); break;
-				case 'change_option': await changeOption(); break;
-				case 'change_category_2': await changeCategoryForOption(i); break;
-				case 'change_form': await changeForm(); break;
+				case 'change_role': i.deferUpdate(); await changeRole(); break;
+				case 'change_ping': i.deferUpdate(); await changePing(); break;
+				case 'change_option': i.deferUpdate(); await changeOption(); break;
+				case 'change_category_2': i.deferUpdate(); await changeCategoryForOption(i); break;
+				case 'change_form': i.deferUpdate(); await changeForm(); break;
 				case 'change_placeholder': await changePlaceholder(i); break;
-				case 'change_category': await changeCategory(); break;
+				case 'change_category': i.deferUpdate(); await changeCategory(); break;
 				case 'change_ticket_channel_panel': await changeTicketChannelPanel(i); break;
-				case 'change_ticket_user_select_panel': await changeTicketUserSelectPanel(); break;
-				case 'change_ticket_button_delete_panel': await changeTicketButtonDeletePanel(); break;
-				case 'change_ticket_button_transcript_panel': await changeTicketButtonTranscriptPanel(); break;
+				case 'change_ticket_user_select_panel': i.deferUpdate(); await changeTicketUserSelectPanel(); break;
+				case 'change_ticket_button_delete_panel': i.deferUpdate(); await changeTicketButtonDeletePanel(); break;
+				case 'change_ticket_button_transcript_panel': i.deferUpdate(); await changeTicketButtonTranscriptPanel(); break;
 				case 'change_ticket_channel_panel_options': await changeTicketChannelPanelOptions(i); break;
 				case 'change_ticket_forms_options': await changeTicketFormsOptions(i); break;
 			}
