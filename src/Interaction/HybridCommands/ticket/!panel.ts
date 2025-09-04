@@ -379,7 +379,6 @@ export const subCommand: SubCommand = {
 					await subI.reply({ content: lang.ticket_panel_option_invalid, flags: MessageFlags.Ephemeral });
 					return;
 				}
-				console.log(subI.values[0], baseData.config.optionFields[idx])
 
 				subI.deferUpdate();
 				// Sous-menu pour ajouter/modifier/supprimer
@@ -401,7 +400,6 @@ export const subCommand: SubCommand = {
 				actionCollector.on('collect', async (actionI) => {
 					if (actionI.user.id !== interaction.member!.user.id) return actionI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 
-					console.log(actionI.values[0])
 					if (actionI.values[0] === 'add') {
 						if (!option.form) option.form = [];
 
