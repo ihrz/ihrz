@@ -135,15 +135,15 @@ perm_useexternalapps_name: "Utiliser des applications pas du serv"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
-ticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+ticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 
 # /add
-add_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+add_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 add_command_work: "le mec ${member.tag} jlai bien ajouté au ticket !"
 add_command_error: "Erreur de merde , ressaie dans 1 ans."
 
 # /close
-close_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+close_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 close_title_sourcebin: "Transcription du ticket par iHorizon la bakaa"
 close_description_sourcebin: " "
 close_error_command: "Erreur de merde , ressaie dans 1 ans."
@@ -153,11 +153,11 @@ close_command_error: "Erreur de merde , ressaie dans 1 ans."
 close_not_in_ticket: "Tu peux pas utilisé cte commande si t pas dans un salon de ticket."
 
 # /delete
-delete_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+delete_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 delete_not_in_ticket: "Wsh t con tu peux pas utiliser la commande dans un autre salon qu'un salon de ticket !"
 
 # /sethereticket
-sethereticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+sethereticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 sethereticket_not_admin: ":x: | T'a trop cru t'es le proprio pour faire ca , allez dégage sale locataire."
 sethereticket_description_embed: "Clique sur cte icone si tu veux ouvrir un ticket pour devenir un puant de discord📩"
 sethereticket_command_work: "Wé c bon le paneau de ticket est config ma saoul pas."
@@ -182,19 +182,19 @@ sethereticket_modal_2_fields_2_title: "Description de l'incorporation"
 sethereticket_panel_select_embed_desc: "# Nom du panneau\n```${result.panelName}```\n{msg}\n\n## Catégorie\n```{category}```\n"
 
 # /open
-open_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+open_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 open_command_work: "Le ticket ${interaction.channel} a été réouvert avec succès."
 open_command_error: "Une erreur est survenue, réessaye bouffon"
 open_not_in_ticket: "Tu ne peux pas utiliser cette commande en dehors d'un salon de ticket t'es vraiment autiste toi !"
 
 # /remove
-remove_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+remove_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 remove_not_in_ticket: "Tu ne peux pas utiliser cette commande en dehors d'un salon de ticket !"
 remove_command_error: "Une erreur est survenue, Veuille réessayer !"
 remove_command_work: "${member.tag} a été retiré avec succès de ton ticket !"
 
 # /transript
-transript_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+transript_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Transcription du chat de ticket pour ${channel.name}"
 transript_command_error: "Erreur de merde , ressaie dans 1 ans."
@@ -212,7 +212,7 @@ disableticket_command_work_enable: "GG ta activé les commandes de ticket we we 
 
 # /setticketcategory
 setticketcategory_not_admin: ":x: | Tu dois avoir perm admin , et ouais va sucer les owners il te rankeront peut etre!"
-setticketcategory_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+setticketcategory_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 setticketcategory_not_a_category: "C pas une catégorie refait , sois moin con un peu nan en vrai?"
 setticketcategory_command_work: "<@${interaction.user.id}>, tu as défini la catégorie du salon de ticket sur `${category.name}` !"
 
