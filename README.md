@@ -106,7 +106,7 @@ Working: [See more](https://npmjs.com/ihrz)
 🤖 [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)  
 
 📌 Need help? Contact the owner via Discord:  
-👤 `kisakay` and `irisbylolirock`
+👤 [kisakay](https://discord.com/users/171356978310938624) and `irisbylolirock`
 
 # 👤 About the Owner  
 
