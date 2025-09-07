@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var duration = interaction.options.getString("cooldown", true);
+			var duration = interaction.options.getString("duration", true);
 		} else {
 			var duration = client.func.method.string(args!, 0)!
 		}

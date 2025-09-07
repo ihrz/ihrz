@@ -175,6 +175,7 @@ export const subCommand: SubCommand = {
 		];
 
 		const originalResponse = await client.func.method.interactionSend(interaction, {
+			content: generateDetailedContent() || null,
 			embeds: [panelEmbed],
 			components,
 		});
@@ -239,8 +240,95 @@ export const subCommand: SubCommand = {
 			return id ? guild.channels.cache.get(id)?.toString() || lang.var_no_set : lang.var_no_set;
 		}
 
+		async function save() {
+			await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`, baseData);
+			panelEmbed.data.fields![0].value = '🟢';
+			isSaved = true;
+			await originalResponse.edit({
+				embeds: [panelEmbed],
+				content: generateDetailedContent() || null,
+				components: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setCustomId('saved')
+							.setLabel('Saved')
+							.setStyle(ButtonStyle.Success)
+							.setEmoji(client.iHorizon_Emojis.Yes)
+							.setDisabled(true)
+					),
+				],
+			});
+		}
+
+		// Replace the stringifyOptions function with this improved version
 		function stringifyOptions(options: TicketOption[]): string {
 			if (!options.length) return '';
+			let str = '```\n';
+			options.forEach(opt => {
+				str += `- ${opt.name}\n`;
+				if (opt.desc) str += `  ┖ ${lang.ticket_panel_add_option_modal_field2_label}: ${opt.desc}\n`;
+				if (opt.emoji) str += `  ┖ ${lang.ticket_panel_add_option_modal_field3_label}: ${opt.emoji}\n`;
+				if (opt.categoryId) str += `  ┖ 📂: ${formatCategory(opt.categoryId, interaction.guild)}\n`;
+				if (opt.panelId) str += `  ┖ ${lang.ticket_panel_change_embed_modal_placeholder}: ${opt.panelId}\n`;
+				if (opt.form?.length) {
+					str += `  ┖ 📚 ${lang.var_form}:\n`;
+					opt.form.forEach(f => {
+						str += `     ┖ 🔹 ${f.questionTitle}\n`;
+						if (f.questionPlaceholder) str += `       ┖ ${f.questionPlaceholder}\n`;
+					});
+				}
+				str += '\n';
+			});
+			str += '```';
+
+			// Check if the string exceeds Discord's field limit (1024 characters)
+			if (str.length > 1024) {
+				return 'Options list too long - check message content';
+			}
+
+			return str;
+		}
+
+		// Also replace the stringifyForm function
+		function stringifyForm(forms: TicketForms[]): string {
+			if (!forms.length) return '';
+			let str = '```\n';
+			forms.forEach((f, i) => {
+				str += `${i} - ${f.questionTitle}\n`;
+				if (f.questionPlaceholder) str += `  ┖ ${f.questionPlaceholder}\n`;
+				str += '\n';
+			});
+			str += '```';
+
+			// Check if the string exceeds Discord's field limit
+			if (str.length > 1024) {
+				return 'Forms list too long - check message content';
+			}
+
+			return str;
+		}
+
+		// Create a function to generate detailed content when needed
+		function generateDetailedContent(): string {
+			let content = '';
+
+			// Check if options are too long for embed
+			const optionsStr = stringifyOptionsDetailed(baseData.config.optionFields);
+			if (optionsStr.length > 1024) {
+				content += `**${lang.ticket_panel_option_fields}:**\n${optionsStr}\n\n`;
+			}
+
+			// Check if forms are too long for embed
+			const formsStr = stringifyFormDetailed(baseData.config.form);
+			if (formsStr.length > 1024) {
+				content += `**${lang.ticket_panel_form}:**\n${formsStr}\n\n`;
+			}
+
+			return content;
+		}
+
+		function stringifyOptionsDetailed(options: TicketOption[]): string {
+			if (!options.length) return lang.var_no_set;
 			let str = '```\n';
 			options.forEach(opt => {
 				str += `- ${opt.name}\n`;
@@ -260,8 +348,8 @@ export const subCommand: SubCommand = {
 			return str + '```';
 		}
 
-		function stringifyForm(forms: TicketForms[]): string {
-			if (!forms.length) return '';
+		function stringifyFormDetailed(forms: TicketForms[]): string {
+			if (!forms.length) return lang.var_no_set;
 			let str = '```\n';
 			forms.forEach((f, i) => {
 				str += `${i} - ${f.questionTitle}\n`;
@@ -271,25 +359,6 @@ export const subCommand: SubCommand = {
 			return str + '```';
 		}
 
-		async function save() {
-			await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`, baseData);
-			panelEmbed.data.fields![0].value = '🟢';
-			isSaved = true;
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				content: lang.ticket_panel_successfully_saved,
-				components: [
-					new ActionRowBuilder<ButtonBuilder>().addComponents(
-						new ButtonBuilder()
-							.setCustomId('saved')
-							.setLabel('Saved')
-							.setStyle(ButtonStyle.Success)
-							.setEmoji(client.iHorizon_Emojis.Yes)
-							.setDisabled(true)
-					),
-				],
-			});
-		}
 
 		async function sendEmbed() {
 			if (baseData.config.optionFields.length === 0) return originalResponse.edit({ content: lang.ticket_panel_need_1_option, embeds: [panelEmbed], components });
@@ -379,7 +448,6 @@ export const subCommand: SubCommand = {
 					await subI.reply({ content: lang.ticket_panel_option_invalid, flags: MessageFlags.Ephemeral });
 					return;
 				}
-				console.log(subI.values[0], baseData.config.optionFields[idx])
 
 				subI.deferUpdate();
 				// Sous-menu pour ajouter/modifier/supprimer
@@ -399,14 +467,15 @@ export const subCommand: SubCommand = {
 				collector.stop();
 				const actionCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 * 15 });
 				actionCollector.on('collect', async (actionI) => {
-					if (actionI.user.id !== interaction.member!.user.id) return actionI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+					if (actionI.user.id !== interaction.member!.user.id) {
+						return actionI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+					}
 
-					console.log(actionI.values[0])
 					if (actionI.values[0] === 'add') {
 						if (!option.form) option.form = [];
 
 						if (option.form.length >= 3) {
-							return actionI.followUp({ content: lang.ticket_panel_add_form_max_3, flags: MessageFlags.Ephemeral });
+							return actionI.reply({ content: lang.ticket_panel_add_form_max_3, flags: MessageFlags.Ephemeral });
 						}
 
 						const modal = await iHorizonModalResolve({
@@ -433,11 +502,15 @@ export const subCommand: SubCommand = {
 						isSaved = false;
 						panelEmbed.data.fields![0].value = '🔴';
 						panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
-						await originalResponse.edit({ embeds: [panelEmbed], components });
+						await originalResponse.edit({
+							embeds: [panelEmbed], components, content: generateDetailedContent() || null,
+						});
 						actionCollector.stop('legitEnd');
 					} else if (actionI.values[0] === 'remove') {
 						if (!option.form || option.form.length === 0) {
-							await originalResponse.edit({ embeds: [panelEmbed], components });
+							await originalResponse.edit({
+								embeds: [panelEmbed], components, content: generateDetailedContent() || null,
+							});
 							actionCollector.stop('legitEnd');
 
 							return actionI.reply({ content: lang.ticket_panel_no_question_to_delete, flags: MessageFlags.Ephemeral });
@@ -469,7 +542,9 @@ export const subCommand: SubCommand = {
 							isSaved = false;
 							panelEmbed.data.fields![0].value = '🔴';
 							panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
-							await originalResponse.edit({ embeds: [panelEmbed], components });
+							await originalResponse.edit({
+								embeds: [panelEmbed], components, content: generateDetailedContent() || null,
+							});
 							removeCollector.stop('legitEnd');
 							actionCollector.stop('legitEnd');
 						});
@@ -484,7 +559,7 @@ export const subCommand: SubCommand = {
 				return originalResponse.edit({
 					content: lang.ticket_panel_remove_option_empty,
 					embeds: [panelEmbed],
-					components
+					components,
 				});
 			}
 
@@ -559,7 +634,8 @@ export const subCommand: SubCommand = {
 
 					await originalResponse.edit({
 						embeds: [panelEmbed],
-						components
+						components,
+						content: generateDetailedContent() || null,
 					});
 
 					channelCollector.stop("legitEnd");
@@ -608,7 +684,7 @@ export const subCommand: SubCommand = {
 
 				await originalResponse.edit({
 					embeds: [panelEmbed],
-					components
+					components,
 				});
 
 				channelCollector.stop("legitEnd");
@@ -810,6 +886,7 @@ export const subCommand: SubCommand = {
 			await originalResponse.edit({
 				embeds: [panelEmbed],
 				components,
+				content: generateDetailedContent() || null,
 			});
 		}
 
@@ -875,6 +952,7 @@ export const subCommand: SubCommand = {
 			if (baseData.config.optionFields.length >= 10) {
 				await originalResponse.edit({
 					embeds: [panelEmbed],
+					content: generateDetailedContent() || null,
 					components
 				});
 
@@ -941,6 +1019,7 @@ export const subCommand: SubCommand = {
 			await originalResponse.edit({
 				embeds: [panelEmbed],
 				components,
+				content: generateDetailedContent() || null,
 			});
 		}
 
@@ -1074,7 +1153,8 @@ export const subCommand: SubCommand = {
 			if (baseData.config.form.length >= 3) {
 				await originalResponse.edit({
 					embeds: [panelEmbed],
-					components
+					components,
+					content: generateDetailedContent() || null,
 				});
 
 				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_add_form_max_3 });
@@ -1124,7 +1204,8 @@ export const subCommand: SubCommand = {
 
 			await originalResponse.edit({
 				embeds: [panelEmbed],
-				components
+				components,
+				content: generateDetailedContent() || null,
 			});
 		}
 
@@ -1132,12 +1213,13 @@ export const subCommand: SubCommand = {
 			if (baseData.config.form.length === 0) {
 				await originalResponse.edit({
 					embeds: [panelEmbed],
-					components
+					components,
+					content: generateDetailedContent() || null,
 				});
 
 				return originalResponse.edit({
 					content: lang.ticket_panel_remove_option_empty,
-					components
+					components,
 				});
 			}
 
@@ -1184,7 +1266,7 @@ export const subCommand: SubCommand = {
 				await originalResponse.edit({
 					embeds: [panelEmbed],
 					components,
-					content: null
+					content: generateDetailedContent() || null,
 				});
 
 				select_collector.stop("legitEnd");
@@ -1205,7 +1287,7 @@ export const subCommand: SubCommand = {
 
 			if (!relatedEmbed || !relatedEmbed.embedSource) {
 				await originalResponse.edit({
-					content: null,
+					content: generateDetailedContent() || null,
 					components,
 					embeds: [panelEmbed]
 				});
@@ -1357,7 +1439,9 @@ export const subCommand: SubCommand = {
 				const embed = await metasTable.get(`EMBED.${embed_id}`);
 
 				if (!embed) {
-					await originalResponse.edit({ embeds: [panelEmbed], components });
+					await originalResponse.edit({
+						embeds: [panelEmbed], components, content: generateDetailedContent() || null,
+					});
 					select_collector.stop('legitEnd');
 					return i.followUp({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
 				}
