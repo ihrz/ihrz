@@ -29,7 +29,8 @@ import {
 	ChatInputCommandInteraction,
 	GuildMember,
 	ApplicationCommandType,
-	Message
+	Message,
+	User
 } from 'discord.js'
 
 import { format } from '../../../core/functions/date_and_time.js';
@@ -80,6 +81,7 @@ export const command: Command = {
 	thinking: false,
 	category: 'owner',
 	type: ApplicationCommandType.ChatInput,
+	permission: null,
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
@@ -94,21 +96,21 @@ export const command: Command = {
 		const blacklistedUsers = await blacklistTable.all();
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember('user') as GuildMember | null;
-			var user = interaction.options.getUser('user');
+			var targetUser = interaction.options.getUser('user', true);
 			var reason = "iHorizon Project Blacklist - " + (interaction.options.getString('reason') || 'blacklisted!');
 		} else {
-			var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
-			var user = await client.func.method.user(interaction, args!, 0);
+			var targetUser = (await client.func.method.user(interaction, args!, 0))!;
 			var reason = "iHorizon Project Blacklist - " + (client.func.method.longString(args!, 1) || 'blacklisted!');
 		};
+
+		const member = interaction.guild.members.cache.get(targetUser.id);
 
 		if (client.config.owner.ownerid1 === member?.id || client.config.owner.ownerid2 === member?.id) {
 			await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
 			return;
 		};
 
-		if (!member && !user) {
+		if (!member && !targetUser) {
 			if (!blacklistedUsers.length) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.blacklist_no_one_blacklist
@@ -281,24 +283,24 @@ export const command: Command = {
 					content: `✅ ${member?.user.username} banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)`
 				});
 			});
-		} else if (user) {
+		} else if (targetUser) {
 
-			if (user.id === client.user.id) {
+			if (targetUser.id === client.user.id) {
 				await client.func.method.interactionSend(interaction, { content: lang.blacklist_bot_lol });
 				return;
 			};
 
-			const fetched = await blacklistTable.get(`${user.id}`);
+			const fetched = await blacklistTable.get(`${targetUser.id}`);
 
 			if (fetched) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.blacklist_already_blacklisted
-						.replace(/\${member\.user\.username}/g, user.globalName || user.username)
+						.replace(/\${member\.user\.username}/g, targetUser.globalName || targetUser.username)
 				});
 				return;
 			}
 
-			await blacklistTable.set(`${user.id}`, {
+			await blacklistTable.set(`${targetUser.id}`, {
 				blacklisted: true,
 				reason,
 				owner: interaction.member.user.id,
@@ -307,7 +309,7 @@ export const command: Command = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.blacklist_command_work
-					.replace(/\${member\.user\.username}/g, user.globalName || user.username)
+					.replace(/\${member\.user\.username}/g, targetUser.globalName || targetUser.username)
 			});
 
 			// Batch processing to avoid blocking the main process
@@ -317,7 +319,7 @@ export const command: Command = {
 			// Immediate response to user
 			await client.func.method.channelSend(interaction, {
 				content: lang.batch_ban_process
-					.replace("${member.user.username}", user.globalName || user.username)
+					.replace("${member.user.username}", targetUser.globalName || targetUser.username)
 					.replace("${guilds.length}", guilds.length.toString())
 			});
 
@@ -332,7 +334,7 @@ export const command: Command = {
 						const guild = client.guilds.cache.find(g => g.id === guildId);
 						if (guild && guild.memberCount <= 500) {
 							try {
-								await guild.members.ban(user?.id!, { reason });
+								await guild.members.ban(targetUser?.id!, { reason });
 								return true;
 							} catch {
 								return false;
@@ -352,10 +354,9 @@ export const command: Command = {
 
 				// Final notification
 				await client.func.method.channelSend(interaction, {
-					content: `✅ ${user?.globalName || user?.username} banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)`
+					content: `✅ ${targetUser?.globalName || targetUser?.username} banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)`
 				});
 			});
 		}
 	},
-	permission: null
 };
