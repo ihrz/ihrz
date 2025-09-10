@@ -31,8 +31,7 @@ let allTokens = (await readFile(tokensPath, 'utf-8')).split('\n');
 
 // Développeurs autorisés
 const DEVELOPERS = [
-	'1181123770845503600',
-	'233657223190937601'
+	'1181123770845503600'
 ];
 
 const main_bot = "1266794768088956959"
