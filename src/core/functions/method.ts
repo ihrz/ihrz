@@ -49,8 +49,8 @@ export async function user(message: Message, args: string[], argsNumber: number)
 	} else if (userId) {
 		user = await (message.client.users.fetch(args[argsNumber].replace(/[<@!>]/g, '')).catch(() => null));
 		// if the user sent a id
-	} else if (isNumber(args[argsNumber]) && message.guild?.members.cache.get(args[argsNumber])) {
-		user = message.guild?.members.cache.get(args[argsNumber])?.user || null;
+	} else if (isNumber(args[argsNumber])) {
+		user = await client.users.fetch(args[argsNumber]).catch(() => null)
 		// if the user sent a username of the user in the command argument
 	} else if ((message.guild?.members.cache.find(x => x.user.username === args[argsNumber])?.user)) {
 		user = (message.guild?.members.cache.find(x => x.user.username === args[argsNumber])?.user) || null;
