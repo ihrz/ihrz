@@ -24,6 +24,7 @@ import {
 	Client,
 	GuildMember,
 	Message,
+	PermissionFlagsBits,
 	PermissionsBitField,
 } from 'discord.js';
 
@@ -49,10 +50,12 @@ export const subCommand: SubCommand = {
 		if (!mutetime || !tomute || !mutetime) { return; };
 
 		let mutetimeMS = client.timeCalculator.to_ms(mutetime);
-		const max_time = client.timeCalculator.to_ms("2weeks")
+		const max_time = client.timeCalculator.to_ms("2weeks");
+		let overflow = false;
 
 		if (mutetimeMS > max_time) {
 			mutetimeMS = max_time;
+			overflow = true;
 		}
 
 		if (!mutetimeMS) {
@@ -74,6 +77,22 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
+		if (tomute.permissions.has(PermissionFlagsBits.Administrator)) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.tempmute_tomute_is_admin.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+			});
+			return;
+		}
+
+		if (tomute.roles.highest.position >= interaction.guild.members.me.roles.highest.position) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.tempmute_tomute_highest_role_or_same
+					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+					.replace("${tomute.toString()}", tomute.toString())
+			});
+			return;
+		}
+
 		if (tomute.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempmute_cannot_mute_yourself.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
@@ -88,11 +107,15 @@ export const subCommand: SubCommand = {
 
 		await (tomute.timeout(mutetimeMS, lang.tempmute_logs_embed_title)).catch(() => { });
 
-		await client.func.method.interactionSend(interaction, lang.tempmute_command_work
+		let content = lang.tempmute_command_work
 			.replace("${tomute.id}", tomute.id)
 			.replace("${ms(ms(mutetime))}", mutetimeString)
-			.replace("${reason}", reason || lang.var_no_set)
-		);
+			.replace("${reason}", reason || lang.var_no_set);
+
+		if (overflow) {
+			content += lang.tempmute_tomute_max_time_passed.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat)
+		}
+		await client.func.method.interactionSend(interaction, content);
 
 		setTimeout(async () => {
 			if (tomute?.isCommunicationDisabled() === true) {

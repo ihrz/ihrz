@@ -1291,6 +1291,9 @@ export interface LanguageData {
 	tempmute_logs_embed_title: string;
 	tempmute_logs_embed_description: string;
 	tempmute_reason_create_roles: string;
+	tempmute_tomute_is_admin: string;
+	tempmute_tomute_highest_role_or_same: string;
+	tempmute_tomute_max_time_passed: string;
 	unmute_dont_have_permission: string;
 	unmute_attempt_mute_your_self: string;
 	unmute_i_dont_have_permission: string;

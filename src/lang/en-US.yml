@@ -1690,6 +1690,9 @@ tempmute_unmuted_by_time: "<@${tomute.id}> has been unmuted!"
 tempmute_logs_embed_title: "Tempmute Logs"
 tempmute_logs_embed_description: "<@${interaction.user.id}> mute <@${tomute.id}> for ${ms(ms(mutetime))}\n**Reason**: `${reason}`"
 tempmute_reason_create_roles: "Create tempmute muted role!"
+tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | The user has administrator permissions, I cannot mute them."
+tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **My role on this server is lower or equal to ${tomute.toString()}. I cannot moderate this member.**"
+tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discord has a limit of 14 days for a mute. I have applied 14 days."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | You don't have permission to tempmute members."
