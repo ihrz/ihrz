@@ -1688,6 +1688,9 @@ tempmute_unmuted_by_time: "<@${tomute.id}> был разблокирован!"
 tempmute_logs_embed_title: "Логи временной блокировки"
 tempmute_logs_embed_description: "<@${interaction.user.id}> замутил <@${tomute.id}> на ${ms(ms(mutetime))}\n**Причина**: `${reason}`"
 tempmute_reason_create_roles: "Создана роль для временной блокировки!"
+tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | У пользователя есть права администратора, я не могу его замьютить."
+tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Моя роль на этом сервере ниже или равна ${tomute.toString()}. Я не могу модерировать этого участника.**"
+tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} В Discord действует ограничение в 14 дней для мута. Я применил 14 дней."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас нет разрешения на разблокировку участников."

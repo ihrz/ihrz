@@ -1688,6 +1688,9 @@ tempmute_unmuted_by_time: "<@${tomute.id}> foi desilenciado!"
 tempmute_logs_embed_title: "Logs de Silenciamento Temporário"
 tempmute_logs_embed_description: "<@${interaction.user.id}> silenciou <@${tomute.id}> por ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
 tempmute_reason_create_roles: "Criar cargo de silenciamento temporário!"
+tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | O utilizador tem permissões de administrador, não o posso silenciar."
+tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **O meu cargo neste servidor é inferior ou igual a ${tomute.toString()}. Não consigo moderar este membro.**"
+tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} O Discord tem um limite de 14 dias para um mute. Apliquei 14 dias."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Você não tem permissão para desilenciar membros."
