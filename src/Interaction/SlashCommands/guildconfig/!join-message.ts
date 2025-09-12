@@ -32,7 +32,9 @@ import {
 	StringSelectMenuOptionBuilder,
 	TextInputStyle,
 	MessageComponentInteraction,
-	Interaction
+	Interaction,
+	StringSelectMenuInteraction,
+	CacheType
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
@@ -44,12 +46,14 @@ import { SubCommand } from '../../../../types/command.js';
 // Constants
 const COLLECTOR_TIMEOUT = 800_000;
 const SELECT_TIMEOUT = 1_250_000;
-const DEFAULT_IMAGE_CONFIG = {
+const DEFAULT_IMAGE_CONFIG: Exclude<DatabaseStructure.JoinMessageOptions, "message"> = {
 	backgroundURL: "https://img.freepik.com/vecteurs-libre/fond-courbe-bleue_53876-113112.jpg",
 	profilePictureRound: "status" as const,
 	textColour: "#000000",
 	textSize: "40px",
-	avatarSize: "140px"
+	avatarSize: "140px",
+	type: 2,
+	message: ''
 };
 
 // Utility functions
@@ -76,21 +80,12 @@ const createEmbedFields = (joinMessage: string | null, lang: LanguageData, clien
 	}
 ];
 
-interface ImageConfig {
-	backgroundURL: string;
-	profilePictureRound: string;
-	textColour: string;
-	message: string;
-	textSize: string;
-	avatarSize: string;
-}
-
 class JoinMessageHandler {
 	private client: Client;
 	private interaction: ChatInputCommandInteraction<"cached">;
 	private lang: LanguageData;
 	private guildLocal: string;
-	private imageConfig: DatabaseStructure.JoinBannerOptions;
+	private imageConfig: DatabaseStructure.JoinMessageOptions;
 	private imageBannerStates: string;
 
 	constructor(
@@ -98,7 +93,7 @@ class JoinMessageHandler {
 		interaction: ChatInputCommandInteraction<"cached">,
 		lang: LanguageData,
 		guildLocal: string,
-		imageConfig: DatabaseStructure.JoinBannerOptions,
+		imageConfig: DatabaseStructure.JoinMessageOptions,
 		imageBannerStates: string
 	) {
 		this.client = client;
@@ -376,6 +371,9 @@ class JoinMessageHandler {
 		}
 	}
 
+	async handleOnlyImage(selectInteraction: StringSelectMenuInteraction<CacheType>) {
+
+	}
 	// Handle message text change
 	async handleMessageChange(selectInteraction: MessageComponentInteraction) {
 		const modalRes = await iHorizonModalResolve({
@@ -566,6 +564,8 @@ class JoinMessageHandler {
 				case "change_avatar_size":
 					await this.handleSizeSelection(selectInteraction, 'avatar');
 					break;
+				case "only_image":
+					await this.handleOnlyImage(selectInteraction);
 			}
 
 			await this.saveImageConfig();
@@ -603,18 +603,19 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		// Get database values
-		const ImageBannerOptions = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
+		const ImageBannerOptions = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinMessageOptions | undefined;
 		const ImageBannerStates = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinbannerStates`) || "on";
 		const guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
 
 		// Initialize image configuration
-		const imageConfig: DatabaseStructure.JoinBannerOptions = {
+		const imageConfig: DatabaseStructure.JoinMessageOptions = {
 			backgroundURL: ImageBannerOptions?.backgroundURL || DEFAULT_IMAGE_CONFIG.backgroundURL,
 			profilePictureRound: ImageBannerOptions?.profilePictureRound || DEFAULT_IMAGE_CONFIG.profilePictureRound,
 			textColour: ImageBannerOptions?.textColour || DEFAULT_IMAGE_CONFIG.textColour,
 			message: ImageBannerOptions?.message || lang.setjoinmessage_image_default_text,
 			textSize: ImageBannerOptions?.textSize || DEFAULT_IMAGE_CONFIG.textSize,
-			avatarSize: ImageBannerOptions?.avatarSize || DEFAULT_IMAGE_CONFIG.avatarSize
+			avatarSize: ImageBannerOptions?.avatarSize || DEFAULT_IMAGE_CONFIG.avatarSize,
+			type: ImageBannerOptions?.type || DEFAULT_IMAGE_CONFIG.type
 		};
 
 		// Save initial configuration

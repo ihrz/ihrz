@@ -24,9 +24,9 @@ import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { apiTable } from '../client/ready.js';
 
-export async function generateJoinImage(member: GuildMember, optionalOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
+export async function generateJoinImage(member: GuildMember, optionalOptions?: DatabaseStructure.JoinMessageOptions): Promise<AttachmentBuilder> {
 	let htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
-	const ImageBannerOptions = await member.client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
+	const ImageBannerOptions = await member.client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinMessageOptions | undefined;
 
 	let backgroundURL = member.guild.bannerURL({ size: 512 }) || member.user.bannerURL({ size: 512 }) || ""
 	let profilePictureRound = member.displayHexColor;

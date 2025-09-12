@@ -442,18 +442,26 @@ export namespace DatabaseStructure {
 
 	export type WarnsData = { timestamp: number; reason: string; authorID: string; id: string; };
 
-	export interface JoinBannerOptions {
+	export interface JoinMessageOptions {
 		backgroundURL: string;
 		profilePictureRound: "hexProfileColor" | "status";
 		message: string;
 		textColour: string;
 		textSize: string;
 		avatarSize: string;
+		type?: JoinMessageType;
+		embedId?: string;
+	}
+
+	export enum JoinMessageType {
+		onlyImage = 1,
+		generalMessage = 2,
+		embedMessage = 3
 	}
 
 	export interface GuildConfigSchema {
 		joinmessage?: string;
-		joinbanner?: JoinBannerOptions;
+		joinbanner?: JoinMessageOptions;
 		joinbannerStates?: string;
 		join?: string;
 		leave?: string;
