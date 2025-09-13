@@ -38,7 +38,7 @@ export const command: Command = {
 		"fr": "Définir le module welcomer"
 	},
 
-	aliases: ["welcomer", "leaver"],
+	aliases: ["leaver"],
 
 	thinking: true,
 	category: 'guildconfig',
