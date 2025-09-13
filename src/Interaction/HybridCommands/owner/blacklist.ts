@@ -96,14 +96,14 @@ export const command: Command = {
 		const blacklistedUsers = await blacklistTable.all();
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var targetUser = interaction.options.getUser('user', true);
+			var targetUser = interaction.options.getUser('user', false);
 			var reason = "iHorizon Project Blacklist - " + (interaction.options.getString('reason') || 'blacklisted!');
 		} else {
-			var targetUser = (await client.func.method.user(interaction, args!, 0))!;
+			var targetUser = (await client.func.method.user(interaction, args!, 0));
 			var reason = "iHorizon Project Blacklist - " + (client.func.method.longString(args!, 1) || 'blacklisted!');
 		};
 
-		const member = interaction.guild.members.cache.get(targetUser.id);
+		const member = targetUser ? interaction.guild.members.cache.get(targetUser?.id) : null;
 
 		if (client.config.owner.ownerid1 === member?.id || client.config.owner.ownerid2 === member?.id) {
 			await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
