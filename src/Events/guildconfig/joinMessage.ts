@@ -94,7 +94,7 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
 		.replaceAll("USERNAME", member.user.globalName || member.user.displayName)
 		.replaceAll("SERVERNAME", member.guild.name)
 		.replaceAll("XXX", member.guild.memberCount.toString())
-		.replaceAll("#000000", profilePictureRound)
+		.replaceAll("#010101", profilePictureRound)
 		.replaceAll("BACKGROUNDURL", `url('${backgroundURL}')`)
 		.replaceAll("#aa9999", textColour)
 		.replaceAll("MSG", member.client.func.method.generateCustomMessagePreview(textMessage, {

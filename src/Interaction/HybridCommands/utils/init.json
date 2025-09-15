@@ -1,7 +1,7 @@
 {
 	"categoryInitializer": {
 		"categoryName": "utils",
-		"categoryColor": "#000000",
+		"categoryColor": "#010101",
 		"options": {
 			"description": "help_utils_dsc",
 			"emoji": "🧰",
