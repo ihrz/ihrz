@@ -107,7 +107,7 @@ export const subCommand: SubCommand = {
 		});
 
 		const collector = ogInteraction.createMessageComponentCollector({
-			time: 60000,
+			time: 60_000 * 15,
 			componentType: ComponentType.StringSelect
 		});
 

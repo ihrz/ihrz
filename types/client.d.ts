@@ -43,6 +43,7 @@ import { EmojisManager } from "../src/core/modules/emojisManager.ts";
 import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
 import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
 import { DB } from "../src/core/database/types.ts";
+import { Postgres } from "../src/core/database/driver/postgres.ts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -56,6 +57,7 @@ declare module 'discord.js' {
 		buttons: Collection<string, Function>,
 		selectmenu: Collection<string, Function>,
 		db: DB,
+		db2: Postgres | undefined,
 		applicationsCommands: Collection<string, AnotherCommand>,
 		iHorizon_Emojis: typeof emojis,
 		giveawaysManager: GiveawayManager,

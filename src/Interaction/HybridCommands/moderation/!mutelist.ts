@@ -60,7 +60,7 @@ export const subCommand: SubCommand = {
 
 		const createEmbed = async () => {
 			return new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#010101")
 				.setDescription(pages[currentPage].description)
 				.setFooter({
 					text: lang.prevnames_embed_footer_text

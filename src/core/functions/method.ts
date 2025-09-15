@@ -31,34 +31,61 @@ export function isNumber(str: string): boolean {
 	return !isNaN(Number(str)) && str.trim() !== "";
 }
 
-export async function user(interaction: Message, args: string[], argsNumber: number): Promise<User | null> {
-	if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
-		return interaction.mentions.parsedUsers
-			.map(x => x)
-			.filter(x => x.id !== interaction.client.user?.id!)[argsNumber]
-			|| interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber])
-			|| null;
-	}
-
+export async function user(message: Message, args: string[], argsNumber: number): Promise<User | null> {
 	const userId = /[<@!>]/g.test(args[argsNumber])
 
-	return interaction.mentions.parsedUsers.map(x => x)?.[argsNumber]
-		||
-		(userId && interaction.client.users.fetch(args[argsNumber].replace(/[<@!>]/g, '')).catch(() => null))
-		|| (interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber])?.user);
-}
+	let user: User | null = null;
 
-export function member(interaction: Message, args: string[], argsNumber: number): GuildMember | null {
-	// For prefix with the bot mention, need to slice one from the start to avoid to use the bot mention as the targeted user
-	if (interaction.content.startsWith(`<@${interaction.client.user.id}`)) {
-		return interaction.mentions.members?.map(x => x)
-			.filter(x => x.id !== interaction.client.user?.id!)?.[argsNumber] || interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber]) || null;;
+	if (message.mentions.parsedUsers.size >= 1) {
+
+		// if the prefix is the bot mention we have to do a specific traitment
+		let prefix_mention = message.content.startsWith(`<@${client.user?.id}`);
+		if (prefix_mention) {
+			user = message.mentions.parsedUsers.map(x => x).filter(x => x.id !== client.user?.id!)[argsNumber];
+		} else {
+			user = message.mentions.parsedUsers.map(x => x)?.[argsNumber];
+		}
+		// if the command argument is a <@ID>
+	} else if (userId) {
+		user = await (message.client.users.fetch(args[argsNumber].replace(/[<@!>]/g, '')).catch(() => null));
+		// if the user sent a id
+	} else if (isNumber(args[argsNumber])) {
+		user = await client.users.fetch(args[argsNumber]).catch(() => null)
+		// if the user sent a username of the user in the command argument
+	} else if ((message.guild?.members.cache.find(x => x.user.username === args[argsNumber])?.user)) {
+		user = (message.guild?.members.cache.find(x => x.user.username === args[argsNumber])?.user) || null;
 	}
 
-	const memberId = args[argsNumber]?.replace(/[<@!>]/g, '');
-	return interaction.mentions.members?.map(x => x)[argsNumber] ||
-		(memberId ? interaction.guild?.members.cache.get(memberId) : null) || interaction.guild?.members.cache.find(x => x.user.username === args[argsNumber])
-		|| null;
+	return user;
+}
+
+export function member(message: Message, args: string[], argsNumber: number): GuildMember | null {
+	const userId = /[<@!>]/g.test(args[argsNumber])
+
+	let user: GuildMember | null = null;
+
+	if ((message.mentions.members?.size || 0) >= 1) {
+
+		// if the prefix is the bot mention we have to do a specific traitment
+		let prefix_mention = message.content.startsWith(`<@${client.user?.id}`);
+		if (prefix_mention) {
+			user = message.mentions.members?.map(x => x).filter(x => x.id !== client.user?.id!)[argsNumber] || null;
+		} else {
+			user = message.mentions.members?.map(x => x)?.[argsNumber] || null;
+		}
+		// if the command argument is a <@ID>
+	} else if (userId) {
+		user = message.guild?.members.cache.get((args[argsNumber]).replace(/[<@!>]/g, '')) || null
+		// if the user sent a id
+	} else if (isNumber(args[argsNumber]) && message.guild?.members.cache.get(args[argsNumber])) {
+		user = message.guild?.members.cache.get(args[argsNumber]) || null;
+		// if the user sent a username of the user in the command argument
+	} else if ((message.guild?.members.cache.find(x => x.user.username === args[argsNumber]))) {
+		user = (message.guild?.members.cache.find(x => x.user.username === args[argsNumber])) || null;
+	}
+
+	return user;
+
 }
 
 export async function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null> {
@@ -768,7 +795,6 @@ export function generateCustomMessagePreview(
 		.replaceAll('{inviterMention}', input.inviter?.user.mention || `@unknow_user`)
 		.replaceAll('{invitesCount}', input.inviter?.invitesAmount.toString() || '1337')
 		.replaceAll('{xpLevel}', input.ranks?.level.toString() || "1337")
-		.replaceAll("\\n", '\n')
 		.replaceAll('{artistAuthor}', input.notifier?.artistAuthor || "Ninja")
 		.replaceAll('{artistLink}', input.notifier?.artistLink || "https://twitch.tv/Ninja")
 		.replaceAll('{mediaURL}', input.notifier?.mediaURL || "https://twitch.tv/Ninja/media");

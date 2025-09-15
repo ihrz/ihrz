@@ -52,7 +52,7 @@ export const event: BotEvent = {
 		const iconURL = targetUser.displayAvatarURL();
 
 		let logsEmbed = new EmbedBuilder()
-			.setColor(await client.db.get(`${newState.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
+			.setColor(await client.db.get(`${newState.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#010101")
 			.setAuthor({ name: targetUser.username, iconURL: iconURL })
 			.setTimestamp();
 

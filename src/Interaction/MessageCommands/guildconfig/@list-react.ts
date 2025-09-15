@@ -68,7 +68,7 @@ export const command: Command = {
 
 		let createEmbed = async () => {
 			return new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
+				.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#010101")
 				.setDescription(pages[currentPage])
 				.setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://footer_icon.png" })
 				.setTimestamp()

@@ -85,7 +85,7 @@ export const subCommand: SubCommand = {
 
 		const createEmbed = async () => {
 			return new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
+				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#010101")
 				.setTitle(pages[currentPage].title)
 				.setDescription(pages[currentPage].description)
 				.setFooter({
@@ -118,7 +118,7 @@ export const subCommand: SubCommand = {
 			filter: async (i) => {
 				await i.deferUpdate();
 				return interaction.member?.user.id === i.user.id;
-			}, time: 60000
+			}, time: 60_000 * 15
 		});
 
 		collector.on('collect', async (interaction_2: { customId: string; }) => {

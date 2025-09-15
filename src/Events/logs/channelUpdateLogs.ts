@@ -129,7 +129,7 @@ export const event: BotEvent = {
 		const icon = relevantLog?.executor?.displayAvatarURL();
 
 		const logsEmbed = new EmbedBuilder()
-			.setColor(await client.db.get(`${oldChannel.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
+			.setColor(await client.db.get(`${oldChannel.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#010101")
 			.setAuthor({ name: relevantLog?.executor?.username || lang.var_unknown, iconURL: icon })
 			.setDescription(`${newChannel.toString()} are updated`)
 			.addFields({ name: lang.event_srvLogs_messageUpdate_footer_2, value: changes });

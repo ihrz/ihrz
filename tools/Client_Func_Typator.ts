@@ -41,7 +41,7 @@ export interface FileMetadata {
 import ts from 'typescript';
 import path from 'path';
 
-import { writeFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import logger from '../src/core/logger.js';
 import { formatTypeScriptCode, readVSCodeConfig } from './formatter.js';
 
@@ -398,10 +398,7 @@ export function generateFunctionInterfaces(
 	outputPath: string
 ): void {
 	try {
-
-		// Check if source directory exists
-		const fs = require('fs');
-		if (!fs.existsSync(sourceDir)) {
+		if (!existsSync(sourceDir)) {
 			throw new Error(`Source directory does not exist: ${sourceDir}`);
 		}
 
@@ -421,8 +418,8 @@ export function generateFunctionInterfaces(
 
 		// Ensure output directory exists
 		const outputDir = path.dirname(outputPath);
-		if (!fs.existsSync(outputDir)) {
-			fs.mkdirSync(outputDir, { recursive: true });
+		if (!existsSync(outputDir)) {
+			mkdirSync(outputDir, { recursive: true });
 		}
 
 		writeFileSync(outputPath, interfaces, 'utf-8');

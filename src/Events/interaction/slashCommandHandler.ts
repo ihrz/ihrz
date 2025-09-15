@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { ActionRowBuilder, BaseGuildTextChannel, ButtonBuilder, ButtonStyle, ChannelType, ChatInputCommandInteraction, Client, CommandInteractionOptionResolver, EmbedBuilder, GuildMember, Interaction, PermissionFlagsBits } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ChatInputCommandInteraction, Client, CommandInteractionOptionResolver, EmbedBuilder, GuildMember, Interaction, PermissionFlagsBits } from 'discord.js';
 import { LanguageData } from '../../../types/languageData.js';
 import { BotEvent } from '../../../types/event.js';
 import { Command } from '../../../types/command.js';
@@ -28,7 +28,7 @@ import { blacklistTable, tempTable } from '../client/ready.js';
 
 const timeout: number = 1000;
 
-async function cooldDown(client: Client, interaction: Interaction) {
+async function cooldDown(interaction: Interaction) {
 	const tn = Date.now();
 	const fetch = await tempTable.get(`COOLDOWN.${interaction.user.id}`);
 	if (fetch !== null && timeout - (tn - fetch) > 0) return true;
@@ -205,7 +205,7 @@ export const event: BotEvent = {
 			});
 		}
 
-		if (await cooldDown(client, interaction)) {
+		if (await cooldDown(interaction)) {
 			const data = await client.func.getLanguageData(interaction.guild?.id);
 			return await interaction.reply({ content: data.Msg_cooldown, flags: [1 << 6] });
 		}

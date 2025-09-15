@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { MySQL } from "./sqlLogin";
+
 interface LavalinkNodeOptions {
 	retryAmount?: number;
 	retryDelay?: number;
@@ -96,16 +98,7 @@ export interface ConfigData {
 		| 'horizon'
 		| 'cached_postgres';
 
-		mongoDb?: string;
-
-		mySQL?: {
-			host?: string;
-			hostname?: string;
-			user: string;
-			password: string;
-			database: string;
-			port?: number;
-		};
+		mySQL?: MySQL[]
 
 		horizon_db?: {
 			host: string;

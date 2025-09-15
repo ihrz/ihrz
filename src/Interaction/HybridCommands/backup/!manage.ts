@@ -27,6 +27,7 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 
 import { SubCommand } from '../../../../types/command.js';
+import { metasTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -55,7 +56,7 @@ export const subCommand: SubCommand = {
 			state = false;
 		}
 
-		await client.db.set(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`, state);
+		await metasTable.set(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`, state);
 
 		const allowed_user_string = state ? lang.backup_manage_owner : lang.backup_manage_admin;
 

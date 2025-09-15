@@ -79,6 +79,7 @@ var_guild_banner: "Bannière du serveur"
 var_guild_splash: "Écran d’accueil du serveur"
 var_unknown_guild_name: "Nom de serveur inconnu"
 var_preview: "Aperçue"
+var_form: "Formulaire"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Faire une inv"
@@ -134,15 +135,15 @@ perm_useexternalapps_name: "Utiliser des applications pas du serv"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
-ticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+ticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 
 # /add
-add_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+add_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 add_command_work: "le mec ${member.tag} jlai bien ajouté au ticket !"
 add_command_error: "Erreur de merde , ressaie dans 1 ans."
 
 # /close
-close_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+close_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 close_title_sourcebin: "Transcription du ticket par iHorizon la bakaa"
 close_description_sourcebin: " "
 close_error_command: "Erreur de merde , ressaie dans 1 ans."
@@ -152,11 +153,11 @@ close_command_error: "Erreur de merde , ressaie dans 1 ans."
 close_not_in_ticket: "Tu peux pas utilisé cte commande si t pas dans un salon de ticket."
 
 # /delete
-delete_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+delete_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 delete_not_in_ticket: "Wsh t con tu peux pas utiliser la commande dans un autre salon qu'un salon de ticket !"
 
 # /sethereticket
-sethereticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+sethereticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 sethereticket_not_admin: ":x: | T'a trop cru t'es le proprio pour faire ca , allez dégage sale locataire."
 sethereticket_description_embed: "Clique sur cte icone si tu veux ouvrir un ticket pour devenir un puant de discord📩"
 sethereticket_command_work: "Wé c bon le paneau de ticket est config ma saoul pas."
@@ -181,19 +182,19 @@ sethereticket_modal_2_fields_2_title: "Description de l'incorporation"
 sethereticket_panel_select_embed_desc: "# Nom du panneau\n```${result.panelName}```\n{msg}\n\n## Catégorie\n```{category}```\n"
 
 # /open
-open_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+open_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 open_command_work: "Le ticket ${interaction.channel} a été réouvert avec succès."
 open_command_error: "Une erreur est survenue, réessaye bouffon"
 open_not_in_ticket: "Tu ne peux pas utiliser cette commande en dehors d'un salon de ticket t'es vraiment autiste toi !"
 
 # /remove
-remove_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+remove_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 remove_not_in_ticket: "Tu ne peux pas utiliser cette commande en dehors d'un salon de ticket !"
 remove_command_error: "Une erreur est survenue, Veuille réessayer !"
 remove_command_work: "${member.tag} a été retiré avec succès de ton ticket !"
 
 # /transript
-transript_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+transript_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Transcription du chat de ticket pour ${channel.name}"
 transript_command_error: "Erreur de merde , ressaie dans 1 ans."
@@ -211,7 +212,7 @@ disableticket_command_work_enable: "GG ta activé les commandes de ticket we we 
 
 # /setticketcategory
 setticketcategory_not_admin: ":x: | Tu dois avoir perm admin , et ouais va sucer les owners il te rankeront peut etre!"
-setticketcategory_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur l'a désactivé !"
+setticketcategory_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 setticketcategory_not_a_category: "C pas une catégorie refait , sois moin con un peu nan en vrai?"
 setticketcategory_command_work: "<@${interaction.user.id}>, tu as défini la catégorie du salon de ticket sur `${category.name}` !"
 
@@ -283,11 +284,28 @@ ticket_panel_channel_panel_embed_id: "ID d'intégration du canal de tickets"
 ticket_panel_panel_11_label: "Modifier le panneau d'intégration du canal de tickets"
 ticket_panel_select_user: "Menu ajouter des membres dans le ticket"
 ticket_panel_button_delete: "Bouton pour supprimer le ticket"
-ticket_panel_button_transcript: "Bouton pour supprimer le transcript"
+ticket_panel_button_transcript: "Bouton pour créer une transcription"
 ticket_panel_panel_12_label: "Afficher le menu ajout/supression de membre dans un ticket"
 ticket_panel_panel_13_label: "Afficher le bouton supprimer un ticket"
 ticket_panel_panel_14_label: "Afficher le bouton transcript"
 ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Le saviez-vous ?** Quand vous utilisez `/utils embed` pour générer un embed, vous pouvez y introduire la variable **`{category}`**, qui sera remplacée par la catégorie choisie par l'utilisateur."
+ticket_panel_no_question_to_delete: "Aucune question à supprimer."
+ticket_panel_chose_a_question: "Choisissez une question"
+ticket_panel_select_question_to_delete: "Sélectionnez une question à supprimer."
+ticket_panel_panel_15_label: "Configurer un embed par option"
+ticket_panel_panel_16_label: "Configurer un formulaire par option"
+ticket_panel_manage_form_title: "Gérer le formulaire pour l'option : **${option.name}**"
+ticket_panel_change_embed_options: "Sélectionnez une option pour modifier l’ID d’intégration du panneau de canal."
+ticket_panel_change_embed_options_null: "There is no option(s) to edit the channel panel embed id."
+ticket_panel_change_embed_options_chose: "Chose the category to edit the channel panel id."
+ticket_panel_add_a_question: "Ajouter une question"
+ticket_panel_remove_a_question: "Supprimer une question"
+ticket_panel_option_invalid: "❌ Option invalide."
+ticket_panel_chose_option_to_form: "Sélectionnez une option pour configurer son formulaire."
+var_chose_option: "Choisissez une option"
+ticket_panel_saved_and_sended_panel: "Le panel de ticket #${panelCode} est bien envoyer dans ${channel.toString()}. Veuillez garder le code quelque part, au cas où vous devez modifier le panel."
+var_title: "Titre"
+var_action: "Action"
 
 # /ticket rename
 ticket_rename_ok: "Le salon du ticket a été renommé !"
@@ -1422,6 +1440,9 @@ perm_roles_already_upate: "Tous les rôles existent déjà et sont à jour."
 perm_roles_error: "Une erreur s'est produite lors de la création ou de la mise à jour des rôles."
 perm_roles_not_owner: "Seul le propriétaire du serveur peut ajouter des rôles de niveau de permission."
 
+# /perm edit-roles
+perm_edit_roles_command_ok: "La permission ${permName} a vu son rôle modifié pour ${strRole}"
+
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, maintenant quad un membre envoie un message de bienvenue, le bot **{activeMsg}**"
 toggle_react_doesnt_react: "ne réagira plus"
@@ -1669,6 +1690,9 @@ tempmute_unmuted_by_time: "<@${tomute.id}> a été réactivé!"
 tempmute_logs_embed_title: "Logs de Tempmute"
 tempmute_logs_embed_description: "<@${interaction.user.id}> a rendu muet <@${tomute.id}> pendant ${ms(ms(mutetime))}\n**Raison**: `${reason}`"
 tempmute_reason_create_roles: "Faire le rôle de mute temporaire !"
+tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | L'utilisateur as les permissions administrateur, je ne peux pas le mute."
+tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Mon rôle sur ce serveur est plus bas ou égal à ${tomute.toString()}. Je ne peux pas modérer ce membre.**"
+tempmute_tomute_max_time_passed: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Discord as une limite de 14 jours pour un mute. J'ai appliquer 14 jours."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Tu n'avez pas la permission de retirer temporairement la sourdine aux membres."
@@ -1862,8 +1886,8 @@ embed_placeholder_option_edit_image: "Modifier l'image"
 embed_placeholder_option_edit_titleurl: "Modifier l'URL du titre"
 embed_placeholder_option_edit_color: "Modifier la couleur"
 embed_placeholder_option_delete_color: "Supprimer la couleur"
-embed_btn_save: "Save Embed"
-embed_btn_send: "Send Embed"
+embed_btn_save: "Sauvegarder l'embed"
+embed_btn_send: "Envoyer l'embed"
 embed_btn_cancel: "Annuler"
 embed_interaction_not_for_you: "This interaction is not for you"
 embed_first_message: "Que veux tu faire ?"
@@ -2566,7 +2590,7 @@ antispam_log_embed_desc: "${client.user?.toString()} a **${actionType}** ${user.
 
 hybridcommands_global_prefix_mention: "`@Ping-Moi`"
 hybridcommands_global_prefix_cleaned_mention: "@Ping-Moi "
-hybridcommands_args_error_embed_desc: "```ts\nNom de la commande : ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErreur lors de l'envoi de l'argument \"${wrongArgumentName}\".\n```"
+hybridcommands_args_error_embed_desc: "```ts\nNom de la commande : ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nErreur lors de lʼenvoi de lʼargument \"${wrongArgumentName}\".\n```"
 hybridcommands_embed_help_title: "${commandName} Aide en Intégration"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 hybridcommands_embed_footer_text: "Les options entre [...] sont obligatoires, tandis que celles entre <...> sont facultatives.\nUtilisez la commande : ${botPrefix}help [command] pour plus d'informations."

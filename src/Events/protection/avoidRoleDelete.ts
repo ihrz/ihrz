@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember } from 'discord.js'
+import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember, ColorResolvable } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
 import { getLogs, protectionCache } from './ready.js';
@@ -61,7 +61,13 @@ export const event: BotEvent = {
 				await client.func.method.punish(data, user);
 
 				const newRole = await role.guild.roles.create({
-					...role, reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
+					...role,
+					reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
+					colors: {
+						primaryColor: role.colors.primaryColor,
+						secondaryColor: role.colors.secondaryColor as ColorResolvable,
+						tertiaryColor: role.colors.tertiaryColor as ColorResolvable
+					}
 				});
 
 				await newRole.setPosition(role.rawPosition);

@@ -23,6 +23,7 @@ import {
 	Client,
 	ApplicationCommandType,
 	Message,
+	PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command.js';
@@ -37,12 +38,12 @@ export const command: Command = {
 		"fr": "Définir le module welcomer"
 	},
 
-	aliases: ["welcomer", "leaver"],
+	aliases: ["leaver"],
 
 	thinking: true,
 	category: 'guildconfig',
 	type: ApplicationCommandType.ChatInput,
-	permission: null,
+	permission: PermissionFlagsBits.Administrator,
 	run: async (client: Client, interaction: Message, lang: LanguageData, args?: string[]) => {
 		subCommand.run(client, interaction, lang)
 	},

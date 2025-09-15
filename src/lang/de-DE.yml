@@ -79,6 +79,7 @@ var_guild_banner: "Server-Banner"
 var_guild_splash: "Server-Splash"
 var_unknown_guild_name: "Unbekannter Servername"
 var_preview: "Vorschau"
+var_form: "Formular"
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"
@@ -283,11 +284,28 @@ ticket_panel_channel_panel_embed_id: "Ticket-Kanal-Embed-ID"
 ticket_panel_panel_11_label: "Ticket-Kanal-Embed-Panel ändern"
 ticket_panel_select_user: "Menü zum Hinzufügen von Mitgliedern zum Ticket"
 ticket_panel_button_delete: "Schaltfläche zum Löschen des Tickets"
-ticket_panel_button_transcript: "Schaltfläche zum Löschen des Transkripts"
+ticket_panel_button_transcript: "Schaltfläche zum Erstellen eines Transkripts"
 ticket_panel_panel_12_label: "Menü zum Hinzufügen/Entfernen von Mitgliedern im Ticket anzeigen"
 ticket_panel_panel_13_label: "Schaltfläche zum Löschen eines Tickets anzeigen"
 ticket_panel_panel_14_label: "Schaltfläche für das Transkript anzeigen"
 ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Wussten Sie schon?** Wenn Sie `/utils embed` verwenden, um ein Embed zu erstellen, können Sie die Variable **`{category}`** einfügen, die durch die vom Benutzer gewählte Kategorie ersetzt wird."
+ticket_panel_no_question_to_delete: "Keine Frage zum Löschen vorhanden."
+ticket_panel_chose_a_question: "Wähle eine Frage"
+ticket_panel_select_question_to_delete: "Wähle eine Frage zum Löschen aus."
+ticket_panel_panel_15_label: "Embed pro Option konfigurieren"
+ticket_panel_panel_16_label: "Formular pro Option konfigurieren"
+ticket_panel_manage_form_title: "Formular verwalten für Option: **${option.name}**"
+ticket_panel_change_embed_options: "Wähle eine Option, um die Embed-ID des Kanal-Panels zu ändern."
+ticket_panel_change_embed_options_null: "Es gibt keine Optionen zum Bearbeiten der Kanal-Panel-Embed-ID."
+ticket_panel_change_embed_options_chose: "Wähle die Kategorie, um die Kanal-Panel-ID zu ändern."
+ticket_panel_add_a_question: "Frage hinzufügen"
+ticket_panel_remove_a_question: "Frage löschen"
+ticket_panel_option_invalid: "❌ Ungültige Option."
+ticket_panel_chose_option_to_form: "Wähle eine Option, um ihr Formular zu konfigurieren."
+var_chose_option: "Wähle eine Option"
+ticket_panel_saved_and_sended_panel: "Das Ticket-Panel #${panelCode} wurde erfolgreich in ${channel.toString()} gesendet. Bitte bewahre den Code auf, falls du das Panel ändern musst."
+var_title: "Titel"
+var_action: "Aktion"
 
 # /ticket rename
 ticket_rename_ok: "Ticket-Kanal wurde umbenannt!"
@@ -1420,6 +1438,9 @@ perm_roles_already_upate: "Alle Rollen existieren bereits und sind auf dem neues
 perm_roles_error: "Bei der Erstellung oder Aktualisierung der Rollen ist ein Fehler aufgetreten."
 perm_roles_not_owner: "Nur der Serverbesitzer kann Berechtigungsstufen-Rollen hinzufügen."
 
+# /perm edit-roles
+perm_edit_roles_command_ok: "Die Berechtigung ${permName} wurde auf die Rolle ${strRole} geändert"
+
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, jetzt wenn ein Mitglied eine Begrüßungsnachricht sendet, wird der Bot **{activeMsg}**"
 toggle_react_doesnt_react: "nicht mehr reagieren"
@@ -1667,6 +1688,9 @@ tempmute_unmuted_by_time: "<@${tomute.id}> wurde wieder freigeschaltet!"
 tempmute_logs_embed_title: "Tempmute-Protokolle"
 tempmute_logs_embed_description: "<@${interaction.user.id}> stummschaltete <@${tomute.id}> für ${ms(ms(mutetime))}\n**Grund**: `${reason}`"
 tempmute_reason_create_roles: "Erstellen von temporären stummschaltbaren Rollen!"
+tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | Der Benutzer hat Administratorrechte, ich kann ihn nicht stummschalten."
+tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Meine Rolle auf diesem Server ist niedriger oder gleich ${tomute.toString()}. Ich kann dieses Mitglied nicht moderieren.**"
+tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discord hat ein Limit von 14 Tagen für einen Mute. Ich habe 14 Tage angewendet."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Du hast keine Berechtigung, Mitglieder temporär zu entstummschalten."

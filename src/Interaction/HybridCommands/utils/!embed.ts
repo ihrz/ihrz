@@ -46,6 +46,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { SubCommand } from '../../../../types/command.js';
+import { metasTable } from '../../../Events/client/ready.js';
 
 // Types
 type Attachment = { attachment: string; name: string; };
@@ -113,6 +114,7 @@ class EmbedManager {
 	private embed: EmbedBuilder;
 	private files: EmbedFiles;
 	private response: Message;
+	private time_maximum: number = 1_420_000;
 
 	constructor(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData) {
 		this.interaction = interaction;
@@ -219,7 +221,7 @@ class EmbedManager {
 		const messageCollector = (this.interaction.channel as BaseGuildTextChannel)?.createMessageCollector({
 			filter: (m) => m.author.id === this.interaction.member?.user.id!,
 			max: 1,
-			time: 300_000
+			time: this.time_maximum
 		});
 
 		messageCollector?.on('collect', async (message) => {
@@ -361,18 +363,18 @@ class EmbedManager {
 
 	// Optimized embed operations
 	private async saveEmbed(arg?: string): Promise<string> {
-		const potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
+		const potentialEmbed = await metasTable.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
 
 		if (potentialEmbed?.embedOwner !== this.interaction.member?.user.id! || !arg) {
 			const password = generatePassword({ length: 16 });
-			await client.db.set(`EMBED.${password}`, {
+			await metasTable.set(`EMBED.${password}`, {
 				embedOwner: this.interaction.member?.user.id!,
 				embedSource: this.embed.toJSON()
 			});
 			return password;
 		}
 
-		await client.db.set(`EMBED.${arg}`, {
+		await metasTable.set(`EMBED.${arg}`, {
 			embedOwner: this.interaction.member?.user.id!,
 			embedSource: this.embed.toJSON()
 		});
@@ -398,7 +400,7 @@ class EmbedManager {
 		const seCollector = (this.interaction.channel as BaseGuildTextChannel)?.createMessageComponentCollector({
 			filter: (m) => m.user.id === this.interaction.member?.user.id! && m.customId === 'embed-save-channel',
 			max: 1,
-			time: 300_000,
+			time: this.time_maximum,
 			componentType: ComponentType.ChannelSelect
 		});
 
@@ -439,7 +441,7 @@ class EmbedManager {
 		const response2 = await (this.interaction.channel as BaseGuildTextChannel)?.awaitMessages({
 			filter: (m) => m.author.id === this.interaction.member?.user.id!,
 			max: 1,
-			time: 300_000,
+			time: this.time_maximum,
 		});
 
 		const message = response2.first();
@@ -539,7 +541,7 @@ class EmbedManager {
 	// Main run method
 	async run(arg?: string): Promise<void> {
 		// Load existing embed if available
-		const potentialEmbed = await client.db.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
+		const potentialEmbed = await metasTable.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
 		if (potentialEmbed) {
 			this.embed = new EmbedBuilder(potentialEmbed.embedSource);
 		}
@@ -555,7 +557,7 @@ class EmbedManager {
 		// String select collector
 		const selectCollector = this.response.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
-			time: 1_420_000
+			time: this.time_maximum
 		});
 
 		selectCollector.on('collect', async (i: StringSelectMenuInteraction<"cached">) => {
@@ -569,7 +571,7 @@ class EmbedManager {
 		// Button collector
 		const buttonCollector = this.response.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			time: 300_000
+			time: this.time_maximum
 		});
 
 		buttonCollector.on('collect', async (confirmation: ButtonInteraction<"cached">) => {

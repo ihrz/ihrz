@@ -35,6 +35,7 @@ import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generateTagInfoEmbed } from './tag.js';
 
 import { SubCommand } from '../../../../types/command.js';
+import { metasTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -58,7 +59,7 @@ export const subCommand: SubCommand = {
 		for (const [id, info] of tags) {
 			const embed = await generateTagInfoEmbed(interaction, lang, id, info);
 
-			const embedData = await client.db.get(`EMBED.${info.embedId}`);
+			const embedData = await metasTable.get(`EMBED.${info.embedId}`);
 			if (embedData) {
 				arrayEmbeds.push([embed, embedData.embedSource]);
 			} else {

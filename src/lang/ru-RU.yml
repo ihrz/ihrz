@@ -79,6 +79,7 @@ var_guild_banner: "Баннер сервера"
 var_guild_splash: "Заставка сервера"
 var_unknown_guild_name: "Неизвестное имя сервера"
 var_preview: "Предпросмотр"
+var_form: "Форма"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"
@@ -283,11 +284,28 @@ ticket_panel_channel_panel_embed_id: "ID встраивания канала т�
 ticket_panel_panel_11_label: "Изменить панель встраивания канала тикетов"
 ticket_panel_select_user: "Меню для добавления участников в тикет"
 ticket_panel_button_delete: "Кнопка для удаления тикета"
-ticket_panel_button_transcript: "Кнопка для удаления стенограммы"
+ticket_panel_button_transcript: "Кнопка для создания транскрипта"
 ticket_panel_panel_12_label: "Показать меню для добавления/удаления участников тикета"
 ticket_panel_panel_13_label: "Показать кнопку удаления тикета"
 ticket_panel_panel_14_label: "Показать кнопку стенограммы"
 ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Знали ли вы?** Когда вы используете `/utils embed` для создания embed, вы можете ввести переменную **`{category}`**, которая будет заменена категорией, выбранной пользователем."
+ticket_panel_no_question_to_delete: "Нет вопросов для удаления."
+ticket_panel_chose_a_question: "Выберите вопрос"
+ticket_panel_select_question_to_delete: "Выберите вопрос для удаления."
+ticket_panel_panel_15_label: "Настроить embed для каждой опции"
+ticket_panel_panel_16_label: "Настроить форму для каждой опции"
+ticket_panel_manage_form_title: "Управление формой для опции: **${option.name}**"
+ticket_panel_change_embed_options: "Выберите опцию, чтобы изменить ID embed панели канала."
+ticket_panel_change_embed_options_null: "Нет опций для изменения ID embed панели канала."
+ticket_panel_change_embed_options_chose: "Выберите категорию, чтобы изменить ID панели канала."
+ticket_panel_add_a_question: "Добавить вопрос"
+ticket_panel_remove_a_question: "Удалить вопрос"
+ticket_panel_option_invalid: "❌ Неверная опция."
+ticket_panel_chose_option_to_form: "Выберите опцию для настройки её формы."
+var_chose_option: "Выберите опцию"
+ticket_panel_saved_and_sended_panel: "Панель тикетов #${panelCode} успешно отправлена в ${channel.toString()}. Пожалуйста, сохраните код на случай, если нужно будет изменить панель."
+var_title: "Заголовок"
+var_action: "Действие"
 
 # /ticket rename
 ticket_rename_ok: "Канал тикета был переименован!"
@@ -1420,6 +1438,9 @@ perm_roles_already_upate: "Все роли уже существуют и акт
 perm_roles_error: "Произошла ошибка при создании или обновлении ролей."
 perm_roles_not_owner: "Только владелец сервера может добавлять роли уровня разрешений."
 
+# /perm edit-roles
+perm_edit_roles_command_ok: "Разрешение ${permName} было изменено на роль ${strRole}"
+
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, теперь, когда участник отправляет приветственное сообщение, бот **{activeMsg}**"
 toggle_react_doesnt_react: "больше не будет реагировать"
@@ -1667,6 +1688,9 @@ tempmute_unmuted_by_time: "<@${tomute.id}> был разблокирован!"
 tempmute_logs_embed_title: "Логи временной блокировки"
 tempmute_logs_embed_description: "<@${interaction.user.id}> замутил <@${tomute.id}> на ${ms(ms(mutetime))}\n**Причина**: `${reason}`"
 tempmute_reason_create_roles: "Создана роль для временной блокировки!"
+tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | У пользователя есть права администратора, я не могу его замьютить."
+tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Моя роль на этом сервере ниже или равна ${tomute.toString()}. Я не могу модерировать этого участника.**"
+tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} В Discord действует ограничение в 14 дней для мута. Я применил 14 дней."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас нет разрешения на разблокировку участников."

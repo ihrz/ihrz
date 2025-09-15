@@ -79,6 +79,7 @@ var_guild_banner: "Guild Banner"
 var_guild_splash: "Guild Splash"
 var_unknown_guild_name: "Unknown Guild Name"
 var_preview: "Preview"
+var_form: "Form"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Create Instant Invite"
@@ -283,11 +284,28 @@ ticket_panel_channel_panel_embed_id: "Ticket Channel Embed ID"
 ticket_panel_panel_11_label: "Change ticket channel embed panel"
 ticket_panel_select_user: "Menu to add members to the ticket"
 ticket_panel_button_delete: "Button to delete the ticket"
-ticket_panel_button_transcript: "Button to delete the transcript"
+ticket_panel_button_transcript: "Button to create a transcript"
 ticket_panel_panel_12_label: "Show menu to add/remove members from a ticket"
 ticket_panel_panel_13_label: "Show button to delete a ticket"
 ticket_panel_panel_14_label: "Show transcript button"
 ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Did you know?** When you use `/utils embed` to generate an embed, you can introduce the **`{category}`** variable, which will be replaced by the category chosen by the user."
+ticket_panel_no_question_to_delete: "No questions to delete."
+ticket_panel_chose_a_question: "Choose a question"
+ticket_panel_select_question_to_delete: "Select a question to delete."
+ticket_panel_panel_15_label: "Configure an embed per option"
+ticket_panel_panel_16_label: "Configure a form per option"
+ticket_panel_manage_form_title: "Manage the form for option: **${option.name}**"
+ticket_panel_change_embed_options: "Select an option to edit the channel panel embed ID."
+ticket_panel_change_embed_options_null: "There are no options to edit the channel panel embed ID."
+ticket_panel_change_embed_options_chose: "Choose the category to edit the channel panel ID."
+ticket_panel_add_a_question: "Add a question"
+ticket_panel_remove_a_question: "Remove a question"
+ticket_panel_option_invalid: "❌ Invalid option."
+ticket_panel_chose_option_to_form: "Select an option to configure its form."
+var_chose_option: "Choose an option"
+ticket_panel_saved_and_sended_panel: "The ticket panel #${panelCode} has been successfully sent in ${channel.toString()}. Please keep the code somewhere in case you need to modify the panel."
+var_title: "Title"
+var_action: "Action"
 
 # /ticket rename
 ticket_rename_ok: "Ticket channel has been renamed !"
@@ -1422,6 +1440,9 @@ perm_roles_already_upate: "All roles already exist and are up to date."
 perm_roles_error: "An error occurred while creating or updating the roles."
 perm_roles_not_owner: "Only the server owner can add permission level roles."
 
+# /perm edit-roles
+perm_edit_roles_command_ok: "The permission ${permName} has had its role changed to ${strRole}"
+
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, now when a member sends a welcome message, the bot will **{activeMsg}**"
 toggle_react_doesnt_react: "no longer react"
@@ -1669,6 +1690,9 @@ tempmute_unmuted_by_time: "<@${tomute.id}> has been unmuted!"
 tempmute_logs_embed_title: "Tempmute Logs"
 tempmute_logs_embed_description: "<@${interaction.user.id}> mute <@${tomute.id}> for ${ms(ms(mutetime))}\n**Reason**: `${reason}`"
 tempmute_reason_create_roles: "Create tempmute muted role!"
+tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | The user has administrator permissions, I cannot mute them."
+tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **My role on this server is lower or equal to ${tomute.toString()}. I cannot moderate this member.**"
+tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discord has a limit of 14 days for a mute. I have applied 14 days."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | You don't have permission to tempmute members."
@@ -2174,7 +2198,7 @@ tempvoice_if_text_fields_value_block: "${client.iHorizon_Emojis.VC_Block} **Bloc
 tempvoice_if_text_fields_value_unblock: "${client.iHorizon_Emojis.VC_Unblock} **Unblock**"
 tempvoice_if_text_fields_value_claim: "${client.iHorizon_Emojis.VC_Claim} **Claim**"
 tempvoice_if_text_fields_value_privacy: "${client.iHorizon_Emojis.VC_Privacy} **Privacy**"
-tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.VC_Transfer} **VC_Transfer**"
+tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.VC_Transfer} **Transfer**"
 tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.VC_Delete} **Delete**"
 
 # /voice inteface set-voice-channel

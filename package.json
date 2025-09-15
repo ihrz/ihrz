@@ -29,14 +29,13 @@
 	"homepage": "https://gitlab.com/ihrz/ihrz#readme",
 	"dependencies": {
 		"discord-html-transcripts": "^3.2.0",
-		"discord-rebackup": "^4.1.0",
 		"discord.js": "^14.22.1",
 		"dotenv": "^17.2.1",
 		"gifwrap": "^0.10.1",
 		"jimp": "0.22.12",
 		"jszip": "^3.10.1",
-		"lavalink-client": "^2.6.0",
-		"puppeteer": "^24.17.0",
+		"lavalink-client": "^2.6.1",
+		"puppeteer": "^24.18.0",
 		"typescript-eslint": "^8.41.0"
 	},
 	"devDependencies": {

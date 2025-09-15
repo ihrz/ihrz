@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, GuildMember } from 'discord.js';
+import { Client, GuildMember, PermissionFlagsBits } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
 import { blacklistTable } from './ready.js';
@@ -28,9 +28,10 @@ export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
 
-		try {
+		if (member.guild.members.me?.permissions.has(PermissionFlagsBits.BanMembers)) {
 			const data = await blacklistTable.get(`${member.user.id}`);
-			if (data.blacklisted === true) {
+
+			if (data?.blacklisted === true) {
 				member.send({ content: "You have been banned, because you are blacklisted from iHorizon. \nReason: \`" + data.reason + '\`' })
 					.catch(() => { })
 					.then(() => { });
@@ -38,7 +39,6 @@ export const event: BotEvent = {
 					.catch(() => { })
 					.then(() => { });
 			}
-
-		} catch { }
+		}
 	},
 };

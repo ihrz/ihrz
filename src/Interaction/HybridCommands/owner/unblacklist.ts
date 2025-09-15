@@ -88,8 +88,13 @@ export const command: Command = {
 			return;
 		};
 
+		if (String(fetched.reason).toLowerCase().includes("transphobia")) {
+			await client.func.method.interactionSend(interaction, client.iHorizon_Emojis.No + " | **Transphobia is a dangerous behavior, and in this case, it was even directed towards project staff. I will not remove him from the blacklist.**")
+			return;
+		}
+
 		try {
-			const bannedMember = await client.users.fetch(member?.id as UserResolvable);
+			const bannedMember = await client.users.fetch(member?.id as UserResolvable).catch(() => null);
 
 			if (!bannedMember) {
 				await client.func.method.interactionSend(interaction, { content: lang.unblacklist_user_is_not_exist });

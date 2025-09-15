@@ -29,7 +29,6 @@ import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 import { encrypt } from '../../../core/functions/encryptDecryptMethod.js';
 
 import { SubCommand } from '../../../../types/command.js';
-import { env } from '../../../version.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {

@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 		}
 
 		const embed = new EmbedBuilder()
-			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#000000")
+			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#010101")
 			.setImage('attachment://catsay.png')
 			.setTimestamp()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));

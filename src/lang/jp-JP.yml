@@ -79,6 +79,7 @@ var_guild_banner: "サーバーバナー"
 var_guild_splash: "サーバースプラッシュ"
 var_unknown_guild_name: "不明なサーバー名"
 var_preview: "プレビュー"
+var_form: "フォーム"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
@@ -283,11 +284,28 @@ ticket_panel_channel_panel_embed_id: "チケットチャンネル埋め込みID"
 ticket_panel_panel_11_label: "チケットチャンネル埋め込みパネルを変更"
 ticket_panel_select_user: "チケットにメンバーを追加するメニュー"
 ticket_panel_button_delete: "チケットを削除するボタン"
-ticket_panel_button_transcript: "記録を削除するボタン"
+ticket_panel_button_transcript: "トランスクリプトを作成するボタン"
 ticket_panel_panel_12_label: "チケット内でメンバーを追加/削除するメニューを表示"
 ticket_panel_panel_13_label: "チケットを削除するボタンを表示"
 ticket_panel_panel_14_label: "記録ボタンを表示"
 ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **ご存知でしたか？** `/utils embed` を使用してembedを生成する際、**`{category}`** 変数を導入することができ、これはユーザーが選択したカテゴリに置き換えられます。"
+ticket_panel_no_question_to_delete: "削除する質問はありません。"
+ticket_panel_chose_a_question: "質問を選択"
+ticket_panel_select_question_to_delete: "削除する質問を選択してください。"
+ticket_panel_panel_15_label: "オプションごとに埋め込みを設定"
+ticket_panel_panel_16_label: "オプションごとにフォームを設定"
+ticket_panel_manage_form_title: "オプションのフォームを管理: **${option.name}**"
+ticket_panel_change_embed_options: "チャンネルパネルの埋め込みIDを編集するオプションを選択してください。"
+ticket_panel_change_embed_options_null: "チャンネルパネルの埋め込みIDを編集するオプションがありません。"
+ticket_panel_change_embed_options_chose: "チャンネルパネルIDを編集するカテゴリを選択してください。"
+ticket_panel_add_a_question: "質問を追加"
+ticket_panel_remove_a_question: "質問を削除"
+ticket_panel_option_invalid: "❌ 無効なオプション。"
+ticket_panel_chose_option_to_form: "フォームを設定するオプションを選択してください。"
+var_chose_option: "オプションを選択"
+ticket_panel_saved_and_sended_panel: "チケットパネル #${panelCode} は ${channel.toString()} に正常に送信されました。パネルを変更する必要がある場合に備えて、コードをどこかに保存してください。"
+var_title: "タイトル"
+var_action: "アクション"
 
 # /ticket rename
 ticket_rename_ok: "チケットチャンネルの名前が変更されました！"
@@ -1420,6 +1438,9 @@ perm_roles_already_upate: "すべての役割が既に存在し、最新の状�
 perm_roles_error: "役割の作成または更新中にエラーが発生しました。"
 perm_roles_not_owner: "サーバーの所有者のみが権限レベルのロールを追加できます。"
 
+# /perm edit-roles
+perm_edit_roles_command_ok: "権限 ${permName} のロールが ${strRole} に変更されました"
+
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, メンバーが歓迎メッセージを送信すると、ボットは **{activeMsg}**"
 toggle_react_doesnt_react: "もう反応しません"
@@ -1667,6 +1688,9 @@ tempmute_unmuted_by_time: "<@${tomute.id}>さんがミュート解除されま�
 tempmute_logs_embed_title: "Tempmute Logs"
 tempmute_logs_embed_description: "<@${interaction.user.id}> が <@${tomute.id}> を ${ms(ms(mutetime))} の間ミュートしました\n**理由**: `${reason}`"
 tempmute_reason_create_roles: "一時ミュートのミュート役職を作成してください！"
+tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | ユーザーは管理者権限を持っているため、ミュートできません。"
+tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **このサーバーでの私の役職は ${tomute.toString()} と同じかそれ以下です。このメンバーをモデレートできません。**"
+tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discordではミュートの制限は14日です。14日を適用しました。"
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをミュート解除する権限がありません。"

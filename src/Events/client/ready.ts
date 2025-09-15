@@ -51,6 +51,8 @@ export let prevnamesTable: DB = null;
 export let apiTable: DB = null;
 // @ts-ignore
 export let scheduleTable: DB = null;
+// @ts-ignore
+export let metasTable: DB = null;
 
 export const event: BotEvent = {
 	name: "clientReady",
@@ -58,15 +60,16 @@ export const event: BotEvent = {
 		if (client.config.database?.method.includes("horizon")) {
 			await (client.db as Horizon).waitUntilReady();
 		}
-
-		tempTable = await client.db.table("temp");
-		blacklistTable = await client.db.table("blacklist");
-		ownerTable = await client.db.table("owner");
-		profilTable = await client.db.table("user_profil");
-		authRestoreTable = await client.db.table("authrestore");
-		prevnamesTable = await client.db.table("prevnames");
-		apiTable = await client.db.table("api");
-		scheduleTable = await client.db.table("schedule");
+		let db = (client.db2 ? client.db2 : client.db);
+		tempTable = await db.table("temp");
+		blacklistTable = await db.table("blacklist");
+		ownerTable = await db.table("owner");
+		profilTable = await db.table("user_profil");
+		authRestoreTable = await db.table("authrestore");
+		prevnamesTable = await db.table("prevnames");
+		apiTable = await db.table("api");
+		scheduleTable = await db.table("schedule");
+		metasTable = await db.table("metas");
 
 		await client.emojisManager.startSync();
 

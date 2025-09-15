@@ -69,7 +69,7 @@ export const command: Command = {
 		}
 
 		let baseData = (await client.db.get(`${interaction.guildId}.UTILS.NIGHT_MODE`) || {
-			enabled: true,
+			enabled: false,
 			notify: true,
 			time: [21, 0, 9, 0],
 			wlBots: [],
@@ -96,7 +96,7 @@ export const command: Command = {
 		let time = client.timeCalculator.to_ms("30m");
 
 		const embed = new EmbedBuilder()
-			.setColor("#000000")
+			.setColor("#010101")
 			.setDescription(lang.nightmode_embed_desc)
 			.setFields(
 				{

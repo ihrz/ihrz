@@ -240,7 +240,7 @@ export const subCommand: SubCommand = {
 			// Create embed for current page
 			const createEmbed = async (page: number) => {
 				const embed = new EmbedBuilder()
-					.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#000000")
+					.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#010101")
 					.setTitle(`${lang.var_permission} (${page + 1}/${pages})`)
 					.setTimestamp();
 

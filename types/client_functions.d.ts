@@ -67,21 +67,6 @@ declare namespace Client_Functions {
 		export function generateMultiplePasswords(amount: number, options: PasswordOptions): Array<string>;
 	}
 
-	// From getLanguageData.ts
-	export function getLanguageData(arg: string | null | undefined): Promise<LanguageData>;
-
-	// From numberBeautifuer.ts
-	export function numberBeautifuer(num: number): string;
-
-	// From apiUrlParser.ts
-	export function apiUrlParser(body: Assets, type: string): string;
-
-	// From awaitingResponse.ts
-	export function awaitingResponse(
-		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
-		opt: LangForPrompt
-	): Promise<boolean>;
-
 	// From permissonsCalculator.ts
 	export namespace permissonsCalculator {
 		export function checkCommandPermission(
@@ -97,32 +82,11 @@ declare namespace Client_Functions {
 		export function getPermissionByValue(value: bigint | Array<bigint>): PermissionValue | Array<PermissionValue> | null;
 	}
 
-	// From shard_helper.ts
-	export namespace shard_helper {
-		export function getGuildData(client: Client<boolean>, guildId: string): Promise<GuildData | null>;
-		export function getDetailedGuildData(client: Client<boolean>, guildId: string): Promise<DetailedGuildData | null>;
-	}
-
-	// From batchProcessor.ts
-	export namespace batchProcessor {
-		export function processBatch<T>(
-			items: Array<T>,
-			processor: (item: T) => Promise<boolean>,
-			options: BatchProcessorOptions
-		): Promise<BatchProcessorResult>;
-		export function processBatchAsync<T>(
-			items: Array<T>,
-			processor: (item: T) => Promise<boolean>,
-			options: BatchProcessorOptions,
-			onComplete?: (result: BatchProcessorResult) => void
-		): void;
-	}
-
 	// From method.ts
 	export namespace method {
 		export function isNumber(str: string): boolean;
-		export function user(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<User | null>;
-		export function member(interaction: Message<boolean>, args: Array<string>, argsNumber: number): GuildMember | null;
+		export function user(message: Message<boolean>, args: Array<string>, argsNumber: number): Promise<User | null>;
+		export function member(message: Message<boolean>, args: Array<string>, argsNumber: number): GuildMember | null;
 		export function voiceChannel(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<BaseGuildVoiceChannel | null>;
 		export function channel(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Promise<Channel | null>;
 		export function role(interaction: Message<boolean>, args: Array<string>, argsNumber: number): Role | null;
@@ -175,6 +139,42 @@ declare namespace Client_Functions {
 		export function subCoins(member: GuildMember, coins: number): Promise<void>;
 		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function isValidDiscordInvite(input: string): boolean;
+	}
+
+	// From getLanguageData.ts
+	export function getLanguageData(arg: string | null | undefined): Promise<LanguageData>;
+
+	// From numberBeautifuer.ts
+	export function numberBeautifuer(num: number): string;
+
+	// From apiUrlParser.ts
+	export function apiUrlParser(body: Assets, type: string): string;
+
+	// From awaitingResponse.ts
+	export function awaitingResponse(
+		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
+		opt: LangForPrompt
+	): Promise<boolean>;
+
+	// From shard_helper.ts
+	export namespace shard_helper {
+		export function getGuildData(client: Client<boolean>, guildId: string): Promise<GuildData | null>;
+		export function getDetailedGuildData(client: Client<boolean>, guildId: string): Promise<DetailedGuildData | null>;
+	}
+
+	// From batchProcessor.ts
+	export namespace batchProcessor {
+		export function processBatch<T>(
+			items: Array<T>,
+			processor: (item: T) => Promise<boolean>,
+			options: BatchProcessorOptions
+		): Promise<BatchProcessorResult>;
+		export function processBatchAsync<T>(
+			items: Array<T>,
+			processor: (item: T) => Promise<boolean>,
+			options: BatchProcessorOptions,
+			onComplete?: (result: BatchProcessorResult) => void
+		): void;
 	}
 
 	// From wait.ts

@@ -79,6 +79,7 @@ var_guild_banner: "Banner do servidor"
 var_guild_splash: "Tela inicial do servidor"
 var_unknown_guild_name: "Nome de servidor desconhecido"
 var_preview: "Pré-visualização"
+var_form: "Formulário"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Criar Convite Instantâneo"
@@ -283,11 +284,28 @@ ticket_panel_channel_panel_embed_id: "ID de incorporação do canal de tickets"
 ticket_panel_panel_11_label: "Alterar painel de incorporação do canal de tickets"
 ticket_panel_select_user: "Menu para adicionar membros ao ticket"
 ticket_panel_button_delete: "Botão para apagar o ticket"
-ticket_panel_button_transcript: "Botão para apagar a transcrição"
+ticket_panel_button_transcript: "Botão para criar uma transcrição"
 ticket_panel_panel_12_label: "Mostrar menu para adicionar/remover membros de um ticket"
 ticket_panel_panel_13_label: "Mostrar botão para apagar um ticket"
 ticket_panel_panel_14_label: "Mostrar botão de transcrição"
 ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Sabia que?** Quando usa `/utils embed` para gerar um embed, pode introduzir a variável **`{category}`**, que será substituída pela categoria escolhida pelo utilizador."
+ticket_panel_no_question_to_delete: "Não há perguntas para apagar."
+ticket_panel_chose_a_question: "Escolhe uma pergunta"
+ticket_panel_select_question_to_delete: "Seleciona uma pergunta para apagar."
+ticket_panel_panel_15_label: "Configurar um embed por opção"
+ticket_panel_panel_16_label: "Configurar um formulário por opção"
+ticket_panel_manage_form_title: "Gerir o formulário para a opção: **${option.name}**"
+ticket_panel_change_embed_options: "Seleciona uma opção para editar o ID de embed do painel do canal."
+ticket_panel_change_embed_options_null: "Não há opções para editar o ID de embed do painel do canal."
+ticket_panel_change_embed_options_chose: "Escolhe a categoria para editar o ID do painel do canal."
+ticket_panel_add_a_question: "Adicionar uma pergunta"
+ticket_panel_remove_a_question: "Remover uma pergunta"
+ticket_panel_option_invalid: "❌ Opção inválida."
+ticket_panel_chose_option_to_form: "Seleciona uma opção para configurar o seu formulário."
+var_chose_option: "Escolhe uma opção"
+ticket_panel_saved_and_sended_panel: "O painel de tickets #${panelCode} foi enviado com sucesso em ${channel.toString()}. Guarda o código caso precises de modificar o painel."
+var_title: "Título"
+var_action: "Ação"
 
 # /ticket rename
 ticket_rename_ok: "O canal do ticket foi renomeado!"
@@ -1420,6 +1438,9 @@ perm_roles_already_upate: "Все роли уже существуют и акт
 perm_roles_error: "Произошла ошибка при создании или обновлении ролей."
 perm_roles_not_owner: "Apenas o proprietário do servidor pode adicionar funções de nível de permissão."
 
+# /perm edit-roles
+perm_edit_roles_command_ok: "A permissão ${permName} teve o seu papel alterado para ${strRole}"
+
 # /toggle-react
 toggle_react_command_work: "<@${interaction.member?.id}>, agora quando um membro enviar uma mensagem de boas-vindas, o bot **{activeMsg}**"
 toggle_react_doesnt_react: "não reagirá mais"
@@ -1667,6 +1688,9 @@ tempmute_unmuted_by_time: "<@${tomute.id}> foi desilenciado!"
 tempmute_logs_embed_title: "Logs de Silenciamento Temporário"
 tempmute_logs_embed_description: "<@${interaction.user.id}> silenciou <@${tomute.id}> por ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
 tempmute_reason_create_roles: "Criar cargo de silenciamento temporário!"
+tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | O utilizador tem permissões de administrador, não o posso silenciar."
+tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **O meu cargo neste servidor é inferior ou igual a ${tomute.toString()}. Não consigo moderar este membro.**"
+tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} O Discord tem um limite de 14 dias para um mute. Apliquei 14 dias."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Você não tem permissão para desilenciar membros."

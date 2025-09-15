@@ -67,7 +67,7 @@ export const event: BotEvent = {
 		let user = newMember.guild.members.cache.get(firstEntry.targetId);
 
 		let logsEmbed = new EmbedBuilder()
-			.setColor(await client.db.get(`${oldMember.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#000000")
+			.setColor(await client.db.get(`${oldMember.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#010101")
 			.setAuthor({ name: user?.user.username!, iconURL: user?.user?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
 			.setTimestamp();
 
