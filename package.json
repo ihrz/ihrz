@@ -1,6 +1,6 @@
 {
 	"name": "ihrz",
-	"version": "2025.8.0",
+	"version": "2025.9.0",
 	"description": "iHrz in ts!",
 	"main": "./src/index.ts",
 	"scripts": {
