@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
 
 			const ellData = { guildName: backupData.name, categoryCount: i, channelCount: j };
 
-			await client.db.set(`BACKUPS.${interaction.member?.user.id}.${backupData.id}`, ellData);
+			await metasTable.set(`BACKUPS.${interaction.member?.user.id}.${backupData.id}`, ellData);
 
 			client.func.method.channelSend(interaction, { content: lang.backup_command_work_on_creation });
 

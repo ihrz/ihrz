@@ -32,6 +32,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 import { backup } from '../../../core/backup/src/index.js';
 import { SubCommand } from '../../../../types/command.js';
+import { metasTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -47,14 +48,14 @@ export const subCommand: SubCommand = {
 			var backupID = client.func.method.string(args!, 0) as string;
 		};
 
-		if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
+		if (backupID && !await metasTable.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};
 
-		const data_2 = await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`);
+		const data_2 = await metasTable.get(`BACKUPS.${interaction.member.user.id}.${backupID}`);
 
 		if (!data_2) {
 			await client.func.method.interactionSend(interaction, { content: lang.backup_backup_doesnt_exist });
@@ -103,7 +104,7 @@ export const subCommand: SubCommand = {
 				used = true;
 
 				backup.remove(backupID);
-				await client.db.delete(`BACKUPS.${interaction.user.id}.${backupID}`);
+				await metasTable.delete(`BACKUPS.${interaction.user.id}.${backupID}`);
 
 				em.setTitle(lang.backup_embed_title_succefully_deleted
 					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
