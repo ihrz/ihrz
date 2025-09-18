@@ -183,7 +183,8 @@ export const event: BotEvent = {
 					"x.com",
 					"youtube.com",
 					"github.com",
-					"gilab.com"
+					"gilab.com",
+					"cdn.discordapp.com"
 				];
 
 				// Check if message should be sanctioned

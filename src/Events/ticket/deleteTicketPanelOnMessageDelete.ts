@@ -26,6 +26,10 @@ import { BotEvent } from '../../../types/event.js';
 export const event: BotEvent = {
 	name: "messageDelete",
 	run: async (client: Client, message: Message) => {
+		if (!message.guild || !message.author
+			|| message.author.id == client.user?.id) return;
+
+
 		await client.db.delete(`${message.guild?.id}.GUILD.TICKET.${message.id}`);
 	},
 };
