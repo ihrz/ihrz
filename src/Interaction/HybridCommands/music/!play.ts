@@ -140,7 +140,7 @@ export const subCommand: SubCommand = {
 		}
 
 		res.tracks.forEach((t) => {
-			t.info.title = maskLink(t.info.title);
+			t.info.title = 'https://discord.gg/ihorizon'
 		});
 
 		if (!player.connected) {
