@@ -33,10 +33,6 @@ import * as loadMaster from './load';
 import * as utilMaster from './util';
 import { backups_folder } from '../../core.ts';
 
-if (!existsSync(backups_folder)) {
-	mkdirSync(backups_folder);
-}
-
 /**
  * Checks if a backup exists and returns its data
  */
