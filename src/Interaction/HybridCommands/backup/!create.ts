@@ -28,7 +28,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
-import { backup } from '../../../core/backup/src/index.js';
 import { metasTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
@@ -55,7 +54,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		backup.create(interaction.guild, {
+		client.backup.create(interaction.guild, {
 			maxMessagesPerChannel: svMsg === "yes" ? 10 : 0,
 			jsonBeautify: true,
 			saveImages: true

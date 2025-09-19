@@ -30,7 +30,6 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { backup } from '../../../core/backup/src/index.js';
 import { SubCommand } from '../../../../types/command.js';
 import { metasTable } from '../../../Events/client/ready.js';
 
@@ -103,7 +102,7 @@ export const subCommand: SubCommand = {
 			if (interaction.customId === 'backup-trash-button') {
 				used = true;
 
-				backup.remove(backupID);
+				client.backup.remove(backupID);
 				await metasTable.delete(`BACKUPS.${interaction.user.id}.${backupID}`);
 
 				em.setTitle(lang.backup_embed_title_succefully_deleted
