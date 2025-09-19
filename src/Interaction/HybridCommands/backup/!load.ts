@@ -26,7 +26,6 @@ import {
 	PermissionsBitField,
 } from 'discord.js';
 
-import { backup } from '../../../core/backup/src/index.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
@@ -87,8 +86,8 @@ export const subCommand: SubCommand = {
 			components: []
 		});
 
-		backup.fetchBackup(backupID).then(async () => {
-			backup.load(backupID, interaction.guild!).then(() => false).catch((err) => {
+		client.backup.fetchBackup(backupID).then(async () => {
+			client.backup.load(backupID, interaction.guild!).then(() => false).catch((err) => {
 				client.func.method.channelSend(interaction, { content: lang.backup_error_on_load.replace("${backupID}", backupID) });
 				return;
 			});

@@ -28,7 +28,6 @@ import playerManager from "./modules/playerManager.js";
 import { VanityInviteData } from '../../types/vanityUrlData.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
-import { backup } from './backup/src/index.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
@@ -51,11 +50,12 @@ import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { InfrastructureMonitoring } from './modules/infrastructureMonitoringManager.js';
 import { GiveawayManager } from './modules/giveawaysManager.js';
 import { isNumber } from './functions/method.js';
+import * as backup from "./backup/src";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const backups_folder = `${process.cwd()}/src/files/backups`;
+export const backups_folder = `${process.cwd()}/src/files/backups`;
 const old_slash_logs_file = `${process.cwd()}/src/files/slash.log`;
 const slash_logs_file = `${process.cwd()}/src/files/slash.log.json`;
 
@@ -68,8 +68,6 @@ if (fs.existsSync(old_slash_logs_file)) {
 	writeFileSync(slash_logs_file, JSON.stringify(_));
 	rmSync(old_slash_logs_file);
 }
-
-backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
 	if (client.config.discord.phonePresence) {
@@ -116,6 +114,7 @@ export async function main(client: Client) {
 			endedGiveawaysLifetime: 345_600_000,
 		},
 	});
+	client.backup = backup;
 
 	process.on('SIGINT', async () => {
 		await client.destroy();
