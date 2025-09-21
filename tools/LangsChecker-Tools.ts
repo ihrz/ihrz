@@ -21,7 +21,7 @@
 
 import logger from '../src/core/logger.js'
 import '../src/core/functions/colors.js';
-import { readdirSync, readFileSync, writeFileSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'path';
 import readline from 'readline';
 import { formatTypeScriptCode, readVSCodeConfig } from './formatter.js';

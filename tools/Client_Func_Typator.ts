@@ -41,7 +41,7 @@ export interface FileMetadata {
 import ts from 'typescript';
 import path from 'path';
 
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import logger from '../src/core/logger.js';
 import { formatTypeScriptCode, readVSCodeConfig } from './formatter.js';
 

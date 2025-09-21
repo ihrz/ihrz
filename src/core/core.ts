@@ -30,7 +30,7 @@ import { VanityInviteData } from '../../types/vanityUrlData.js';
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import fs from 'fs';
+import fs from 'node:fs';
 
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { readFileSync } from "fs";
+import { readFileSync } from 'node:fs';
 
 const pkg = JSON.parse(readFileSync(process.cwd() + "/package.json", 'utf-8'));
 

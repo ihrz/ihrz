@@ -21,7 +21,7 @@
 
 import { get_property, set_property, unset_property } from "../lodash.ts";
 import { DataLike, ErrorKind, Table } from "../types.ts";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync } from 'node:fs';
 
 export class Json<D = any> {
 	private tableName: string;
