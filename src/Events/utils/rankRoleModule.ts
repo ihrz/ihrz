@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser, SnowflakeUtil } from 'discord.js';
+import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser, SnowflakeUtil, GuildChannel } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { guildPrefix } from '../../core/functions/prefix.js';
@@ -49,8 +49,12 @@ export const event: BotEvent = {
 			text += lang.ping_bot_show_info_msg_about_change_prefix.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat)
 		}
 
+		const channel = message.channel as GuildChannel;
+		const permissions = channel.permissionsFor(message.member!);
+		const canUseCommands = permissions.has(PermissionsBitField.Flags.UseApplicationCommands);
+
 		if (!dbGet || !dbGet.roles) {
-			if (!await client.func.helper.coolDown(message, "ping_bot", 7000) && message.member?.permissions.has(PermissionsBitField.Flags.UseApplicationCommands)) {
+			if (!await client.func.helper.coolDown(message, "ping_bot", 7000) && canUseCommands) {
 				return await client.func.method.interactionSend(message, { content: text });
 			}
 			return;
