@@ -22,7 +22,6 @@
 import { Client, EmbedBuilder, GuildMember, TextChannel } from 'discord.js'
 
 import { BotEvent } from '../../../types/event.js';
-import { createTranscript } from 'discord-html-transcripts';
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -39,7 +38,7 @@ export const event: BotEvent = {
 				TicketLogsChannel = member.guild?.channels.cache.get(TicketLogsChannel);
 				if (!TicketLogsChannel) return;
 
-				const attachment = await createTranscript(channel as TextChannel, {
+				const attachment = await client.discordTranscripts.createTranscript(channel as TextChannel, {
 					limit: -1,
 					filename: `${member.guild.id}-transcript.html`,
 					footerText: "Exported {number} message{s}",
