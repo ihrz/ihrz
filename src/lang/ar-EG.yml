@@ -1504,7 +1504,7 @@ p_not_in_voice_channel: "يجب أن تكون متصلاً بقناة صوتية
 p_embed_title: "لا توجد نتائج"
 p_loading_message: "${client.iHorizon_Emojis.Timer} جارٍ تحميل: **{result}**!"
 p_duration: "المدة: "
-p_not_allowed: "الرابط الذي أرسلته غير مدعوم من قبل هذا البوت. يرجى استخدام خدمات بث الموسيقى المعتمدة مثل Deezer و Spotify و Youtube، إلخ."
+p_not_allowed: "الرابط الذي أرسلته غير مدعوم من قبل هذا البوت. يرجى استخدام خدمات بث الموسيقى المعتمدة مثل Deezer و Spotify و Soundcloud، إلخ."
 
 # /loop
 loop_no_queue: "لا توجد قائمة تشغيل!"

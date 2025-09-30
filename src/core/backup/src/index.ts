@@ -25,7 +25,7 @@ import { SnowflakeUtil, IntentsBitField } from 'discord.js';
 
 import { sep } from 'path';
 
-import { existsSync, mkdirSync, statSync, unlinkSync } from 'fs';
+import { existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs';
 import { writeFile, readdir } from 'fs/promises';
 
 import * as createMaster from './create';

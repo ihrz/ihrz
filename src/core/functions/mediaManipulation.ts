@@ -21,7 +21,7 @@
 
 import Jimp from 'jimp';
 import path from 'path';
-import fs from 'fs';
+import fs from 'node:fs';
 import os from 'os';
 import { mkdir } from 'fs/promises';
 

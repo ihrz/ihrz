@@ -30,7 +30,7 @@ import { VanityInviteData } from '../../types/vanityUrlData.js';
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import fs from 'fs';
+import fs from 'node:fs';
 
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
@@ -51,6 +51,7 @@ import { InfrastructureMonitoring } from './modules/infrastructureMonitoringMana
 import { GiveawayManager } from './modules/giveawaysManager.js';
 import { isNumber } from './functions/method.js';
 import * as backup from "./backup/src";
+import * as discordTranscripts from "discord-html-transcripts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -115,6 +116,7 @@ export async function main(client: Client) {
 		},
 	});
 	client.backup = backup;
+	client.discordTranscripts = discordTranscripts;
 
 	process.on('SIGINT', async () => {
 		await client.destroy();
