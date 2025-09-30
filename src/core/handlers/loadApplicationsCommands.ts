@@ -43,7 +43,9 @@ export default async (client: Client) => {
 				run: command.run,
 				name: command.name,
 				thinking: command.thinking,
-				permission: command.permission
+				permission: command.permission,
+				integration_types: command.integration_types || [0],
+				contexts: command.contexts
 			});
 		}
 	};
