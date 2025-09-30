@@ -38,6 +38,7 @@ import { Json } from '../src/core/database/driver/json.ts';
 import { Memory } from '../src/core/database/driver/memory.ts';
 import { Postgres } from '../src/core/database/driver/postgres.ts';
 import { Horizon } from '../src/core/database/driver/horizon.ts';
+import { Track } from '../src/core/functions/music_proximity.ts';
 
 declare namespace Client_Functions {
 
@@ -270,6 +271,13 @@ declare namespace Client_Functions {
 	export namespace shard_helper {
 		export function getGuildData(client: Client<boolean>, guildId: string): Promise<GuildData | null>;
 		export function getDetailedGuildData(client: Client<boolean>, guildId: string): Promise<DetailedGuildData | null>;
+	}
+
+	// From music_proximity.ts
+	export namespace music_proximity {
+		export function levenshtein(a: string, b: string): number;
+		export function similarity(a: string, b: string): number;
+		export function isSimilar(query: string, track: Track, threshold: any): boolean;
 	}
 
 	// From database_latency.ts
