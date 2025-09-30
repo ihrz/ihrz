@@ -1503,7 +1503,7 @@ p_not_in_voice_channel: "Sie müssen mit einem Sprachkanal verbunden sein, um di
 p_embed_title: "Keine Ergebnisse"
 p_loading_message: "${client.iHorizon_Emojis.Timer} Lade ein: **{result}** !"
 p_duration: "Dauer: "
-p_not_allowed: "Der von Ihnen gesendete Link wird von diesem Bot nicht unterstützt. Bitte verwenden Sie autorisierte Musik-Streaming-Dienste wie Deezer, Spotify, Youtube usw."
+p_not_allowed: "Der von Ihnen gesendete Link wird von diesem Bot nicht unterstützt. Bitte verwenden Sie autorisierte Musik-Streaming-Dienste wie Deezer, Spotify, Soundcloud usw."
 
 # /loop
 loop_no_queue: "Es gibt keine Warteschlange!"

@@ -1505,7 +1505,7 @@ p_not_in_voice_channel: "Tu devez être connecté à un voc pour utiliser cette 
 p_embed_title: "Aucun résultat"
 p_loading_message: "${client.iHorizon_Emojis.Timer} Chargement de : {result} !"
 p_duration: "Durée : "
-p_not_allowed: "Le lien que tu as envoyé n'est pas pris en charge par ce bot. Veuille utiliser les services de streaming audio autorisés tels que Deezer, Spotify, Youtube, etc."
+p_not_allowed: "Le lien que tu as envoyé n'est pas pris en charge par ce bot. Veuille utiliser les services de streaming audio autorisés tels que Deezer, Spotify, Soundcloud etc."
 
 # /loop
 loop_no_queue: "Il n'y a pas de file d'attente !"
