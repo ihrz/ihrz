@@ -73,7 +73,26 @@ export const subCommand: SubCommand = {
 		for (const _node of client.player.nodeManager.nodes.values()) {
 			if (_node.connected === false) continue;
 
-			res = await _node?.search({ query }, interaction.member.user)
+			res = await _node?.search({ query, source: 'spotify' }, interaction.member.user);
+
+			// If spotify search dont feel similar enough, search on deezer
+			if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5)) {
+				console.log("Not similar enough, searching on deezer...");
+				res = await _node?.search({ query, source: 'deezer' }, interaction.member.user);
+			}
+			// If deezer search dont feel similar enough, fallback to default provider
+			if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5)) {
+				console.log("Not similar enough, searching on default provider...");
+				res = await _node?.search({ query }, interaction.member.user);
+				res.tracks.forEach((t) => {
+					t.info.uri = "https://discord.gg/ihorizon"
+				});
+			};
+			// If default provider search dont feel similar enough, search on soundcloud
+			if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5)) {
+				console.log("Not similar enough, searching on soundcloud...");
+				res = await _node?.search({ query, source: 'soundcloud' }, interaction.member.user);
+			};
 
 			if (res?.tracks.length! > 0) {
 				node = _node;
@@ -141,8 +160,6 @@ export const subCommand: SubCommand = {
 
 		res.tracks.forEach((t) => {
 			t.info.title = maskLink(t.info.title);
-			t.info.uri = "https://discord.gg/ihorizon"
-
 		});
 
 		if (!player.connected) {
