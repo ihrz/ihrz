@@ -26,7 +26,7 @@ export const event: BotEvent = {
 	name: "interactionCreate",
 	run: async (client: Client, interaction: Interaction) => {
 		if (!interaction.isContextMenuCommand()
-			|| !interaction.guild?.channels
+			// || !interaction.guild?.channels
 			|| interaction.user.bot) return;
 
 		const cmd = client.applicationsCommands.get(interaction.commandName);

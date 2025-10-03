@@ -57,6 +57,8 @@ export async function synchronizeCommands(client: Client): Promise<void> {
 			const appCmds = client.applicationsCommands.map((command) => ({
 				name: command.name,
 				type: command.type,
+				integration_types: command.integration_types,
+				contexts: command.contexts
 			}));
 
 			const slashCommands = client.commands?.map((command) => {
