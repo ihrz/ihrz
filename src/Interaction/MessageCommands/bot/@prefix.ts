@@ -25,6 +25,7 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
+	PermissionFlagsBits,
 } from 'discord.js'
 
 import { Command } from '../../../../types/command.js';
@@ -44,7 +45,7 @@ export const command: Command = {
 	category: 'bot',
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
-	permission: null,
+	permission: PermissionFlagsBits.Administrator,
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 		subCommand.run(client, interaction, lang, args)
 	},
