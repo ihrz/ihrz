@@ -434,6 +434,7 @@ blacklist_already_blacklisted: "${member.user.username} est déjà sur liste noi
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} Aucun utilisateur trouvé dans la liste noire !"
 blacklist_var_no_reason: "Aucune raison trouvée"
 blacklist_embed_title: "Liste Noire - Page ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} banni sur **${totalSuccess}** serveur(s) à travers tous les shards (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "Vous n'êtes pas propriétaire du robot. Vous ne pouvez pas utiliser cette commande."
@@ -441,6 +442,7 @@ unblacklist_command_work: "<@${member.id}> n'est plus sur liste noire."
 unblacklist_not_blacklisted: "<@${member.id}> n'était pas sur liste noire."
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} a été retiré de la liste noire, impossible de débannir ce membre ici, permission manquante ou déjà débanni ?"
 unblacklist_user_is_not_exist: "Je n'ai pas pu trouver l'utilisateur"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} a été débanni sur **${totalSuccess}** serveur(s) à travers tous les shards (`${score}`)"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites
@@ -1932,7 +1934,7 @@ rolesaver_on_off_embed_fields_1_name: "Activer"
 
 # /nigthmode
 var_nm_role_app_dont_exist: "${client.iHorizon_Emojis.Warning_Icon} Le bot n'as pas de rôle application. Veuillez re-ajouter le bot correctement.\n"
-var_nm_role_app_not_high: "${client.iHorizon_Emojis.Warning_Icon} Le bot n'a pas le rôle le plus haut de la hiérarchie. Veuillez le mettre tout en haut de ce denier.\n"
+var_nm_role_app_not_high: "${client.iHorizon_Emojis.Warning_Icon} Le bot n'a pas le rôle le plus haut de la hiérarchie. Veuillez le mettre tout en haut de ce dernier.\n"
 var_nm_role_app_not_admin: "${client.iHorizon_Emojis.Warning_Icon} Le rôle du bot n'a pas de permissions Administrateur.\n"
 var_nm_end_main: "Le mode nuit se termine.\n\n"
 var_nm_start_main: "Le mode nuit touche à commencer.\n\n"

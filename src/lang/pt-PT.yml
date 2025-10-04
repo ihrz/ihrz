@@ -434,6 +434,7 @@ blacklist_already_blacklisted: "${member.user.username} já está na lista negra
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} Não foram encontrados usuários na lista negra!"
 blacklist_var_no_reason: "Nenhum motivo encontrado"
 blacklist_embed_title: "Lista Negra - Página ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} foi banido em **${totalSuccess}** servidor(es) em todos os shards (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "Você não é dono dos Projetos iHorizon. Você não pode usar este comando."
@@ -441,6 +442,7 @@ unblacklist_command_work: "<@${member.id}> não está mais na lista negra"
 unblacklist_not_blacklisted: "<@${member.id}> não estava na lista negra"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} Agora está fora da lista negra, não consigo remover o banimento deste membro aqui, falta permissão ou já foi removido?"
 unblacklist_user_is_not_exist: "Não consegui encontrar o usuário"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} foi desbanido em **${totalSuccess}** servidor(es) em todos os shards (`${score}`)"
 
 # Comandos do Gerenciador de Convites
 # /addinvites, /invites, /leaderboard, /removeinvites

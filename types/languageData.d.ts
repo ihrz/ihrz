@@ -395,11 +395,13 @@ export interface LanguageData {
 	blacklist_no_one_blacklist: string;
 	blacklist_var_no_reason: string;
 	blacklist_embed_title: string;
+	blacklist_command_work_shard: string;
 	unblacklist_not_owner: string;
 	unblacklist_command_work: string;
 	unblacklist_not_blacklisted: string;
 	unblacklist_unblacklisted_but_can_unban_him: string;
 	unblacklist_user_is_not_exist: string;
+	unblacklist_command_work_across_all_shard: string;
 	addinvites_not_admin_embed_description: string;
 	addinvites_confirmation_embed_description: string;
 	addinvites_logs_embed_title: string;

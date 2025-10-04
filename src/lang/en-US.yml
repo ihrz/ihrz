@@ -434,6 +434,7 @@ blacklist_already_blacklisted: "${member.user.username} is already blacklisted !
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} no one blacklisted found!"
 blacklist_var_no_reason: "No reason found"
 blacklist_embed_title: "Blacklist - Page ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} banned on **${totalSuccess}** server(s) across all shards (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
@@ -441,6 +442,7 @@ unblacklist_command_work: "<@${member.id}> is no longer blacklisted"
 unblacklist_not_blacklisted: "<@${member.id}> was not blacklisted"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} is now unblacklisted. I Can't unban this member here, missing permission or already unban?"
 unblacklist_user_is_not_exist: "I couldn't find the user"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} is now unbanned on **${totalSuccess}** server(s) across all shards (`${score}`)"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites

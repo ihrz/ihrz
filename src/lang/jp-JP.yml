@@ -434,6 +434,7 @@ blacklist_already_blacklisted: "${member.user.username}はすでにブラック�
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} ブラックリストに誰も見つかりませんでした！"
 blacklist_var_no_reason: "理由が見つかりません"
 blacklist_embed_title: "ブラックリスト - ページ ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} は全シャードで **${totalSuccess}** サーバーからBANされました (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。"
@@ -441,6 +442,7 @@ unblacklist_command_work: "<@${member.id}>はもうブラックリストに登�
 unblacklist_not_blacklisted: "<@${member.id}>はブラックリストに登録されていませんでした。"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} 現在ブラックリストから削除されています。このメンバーをここでアンバンすることはできません。パーミッションが足りませんか？またはすでにアンバンされていますか？"
 unblacklist_user_is_not_exist: "ユーザーを見つけることができませんでした。"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} は全シャードで **${totalSuccess}** サーバーからBAN解除されました (`${score}`)"
 
 # Invite Managerコマンド
 # /addinvites、/invites、/leaderboard、/removeinvites

@@ -434,6 +434,7 @@ blacklist_already_blacklisted: "${member.user.username} محظور بالفعل!
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} لم يتم العثور على أي شخص محظور!"
 blacklist_var_no_reason: "لم يتم العثور على سبب"
 blacklist_embed_title: "القائمة السوداء - الصفحة ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ تم حظر ${username} في **${totalSuccess}** خادم عبر جميع الشظايا (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "أنت لست مالك مشاريع iHorizon. لا يمكنك استخدام هذا الأمر."
@@ -441,6 +442,7 @@ unblacklist_command_work: "<@${member.id}> لم يعد محظورًا"
 unblacklist_not_blacklisted: "<@${member.id}> لم يكن محظورًا"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} تم إزالة الحظر عنه، لا يمكن رفع الحظر عن هذا العضو هنا، هل تفتقد الإذن أو تم رفع الحظر بالفعل؟"
 unblacklist_user_is_not_exist: "لم أتمكن من العثور على المستخدم"
+unblacklist_command_work_across_all_shard: "✅ تم رفع الحظر عن ${bannedMember.username} في **${totalSuccess}** خادم عبر جميع الشظايا (`${score}`)"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites

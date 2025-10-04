@@ -434,6 +434,7 @@ blacklist_already_blacklisted: "${member.user.username} est déjà blacklist trd
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} Aucun utilisateur trouvé dans la liste noire !"
 blacklist_var_no_reason: "Aucune raison trouvée"
 blacklist_embed_title: "Liste Noire - Page ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} banni sur **${totalSuccess}** serveur(s) à travers tous les shards (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "T'es pas le boss du projet iHorizon. Cette commande est pour les vrais boss seulement."
@@ -441,6 +442,7 @@ unblacklist_command_work: "<@${member.id}> n'est plus sur la liste noire"
 unblacklist_not_blacklisted: "<@${member.id}> n'était pas sur la liste noire"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} A été retiré de la liste noire, impossible de débannir ce membre ici, permission manquante ou déjà débanni ?"
 unblacklist_user_is_not_exist: "Je n'ai pas pu trouver l'utilisateur , surement a cause de son QI négatif"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} a été débanni sur **${totalSuccess}** serveur(s) à travers tous les shards (`${score}`)"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites
