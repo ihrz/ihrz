@@ -122,7 +122,6 @@ export const command: Command = {
 						});
 
 						const batchResults = await Promise.all(batchPromises);
-						console.log(batchResults)
 						successCount += batchResults.filter(r => r).length;
 
 						if (i + batchSize < guildIds.length) {

@@ -77,12 +77,10 @@ export const subCommand: SubCommand = {
 
 			// If spotify search dont feel similar enough, search on deezer
 			if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5)) {
-				console.log("Not similar enough, searching on deezer...");
 				res = await _node?.search({ query, source: 'deezer' }, interaction.member.user);
 			}
 			// If deezer search dont feel similar enough, fallback to default provider
 			if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5)) {
-				console.log("Not similar enough, searching on default provider...");
 				res = await _node?.search({ query }, interaction.member.user);
 				res.tracks.forEach((t) => {
 					t.info.uri = "https://discord.gg/ihorizon"
@@ -90,7 +88,6 @@ export const subCommand: SubCommand = {
 			};
 			// If default provider search dont feel similar enough, search on soundcloud
 			if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5)) {
-				console.log("Not similar enough, searching on soundcloud...");
 				res = await _node?.search({ query, source: 'soundcloud' }, interaction.member.user);
 			};
 
