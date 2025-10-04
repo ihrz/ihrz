@@ -304,6 +304,7 @@ export const command: Command = {
 					content: lang.blacklist_command_work_shard
 						.replace("{score}", score)
 						.replace("{username}", username)
+						.replace("${totalSuccess}", totalSuccess.toString())
 				});
 			});
 
@@ -354,6 +355,7 @@ export const command: Command = {
 					content: lang.blacklist_command_work_shard
 						.replace("{score}", score)
 						.replace("{username}", username)
+						.replace("${totalSuccess}", totalSuccess.toString())
 				});
 			});
 		}
