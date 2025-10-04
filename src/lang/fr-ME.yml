@@ -442,6 +442,7 @@ unblacklist_command_work: "<@${member.id}> n'est plus sur la liste noire"
 unblacklist_not_blacklisted: "<@${member.id}> n'était pas sur la liste noire"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} A été retiré de la liste noire, impossible de débannir ce membre ici, permission manquante ou déjà débanni ?"
 unblacklist_user_is_not_exist: "Je n'ai pas pu trouver l'utilisateur , surement a cause de son QI négatif"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} a été débanni sur **${totalSuccess}** serveur(s) à travers tous les shards (`${score}`)"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites

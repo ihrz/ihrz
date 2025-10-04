@@ -442,6 +442,7 @@ unblacklist_command_work: "<@${member.id}>はもうブラックリストに登�
 unblacklist_not_blacklisted: "<@${member.id}>はブラックリストに登録されていませんでした。"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} 現在ブラックリストから削除されています。このメンバーをここでアンバンすることはできません。パーミッションが足りませんか？またはすでにアンバンされていますか？"
 unblacklist_user_is_not_exist: "ユーザーを見つけることができませんでした。"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} は全シャードで **${totalSuccess}** サーバーからBAN解除されました (`${score}`)"
 
 # Invite Managerコマンド
 # /addinvites、/invites、/leaderboard、/removeinvites

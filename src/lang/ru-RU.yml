@@ -442,6 +442,7 @@ unblacklist_command_work: "<@${member.id}> больше не в черном с�
 unblacklist_not_blacklisted: "<@${member.id}> не был в черном списке"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} Теперь не в черном списке, нельзя разблокировать этого участника здесь, отсутствуют разрешения или он уже разблокирован?"
 unblacklist_user_is_not_exist: "Я не могу найти этого пользователя"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} разбанен на **${totalSuccess}** сервере(ах) во всех шардах (`${score}`)"
 
 # Команды менеджера приглашений
 # /addinvites, /invites, /leaderboard, /removeinvites

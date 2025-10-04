@@ -442,6 +442,7 @@ unblacklist_command_work: "<@${member.id}> ya no está en la lista negra"
 unblacklist_not_blacklisted: "<@${member.id}> no estaba en la lista negra"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} Ahora no está en la lista negra, no se puede desbanear a este miembro aquí, ¿faltan permisos o ya está desbaned?"
 unblacklist_user_is_not_exist: "No pude encontrar al usuario"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} fue desbaneado en **${totalSuccess}** servidor(es) en todos los shards (`${score}`)"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites

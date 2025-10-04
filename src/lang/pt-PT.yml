@@ -442,6 +442,7 @@ unblacklist_command_work: "<@${member.id}> não está mais na lista negra"
 unblacklist_not_blacklisted: "<@${member.id}> não estava na lista negra"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} Agora está fora da lista negra, não consigo remover o banimento deste membro aqui, falta permissão ou já foi removido?"
 unblacklist_user_is_not_exist: "Não consegui encontrar o usuário"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} foi desbanido em **${totalSuccess}** servidor(es) em todos os shards (`${score}`)"
 
 # Comandos do Gerenciador de Convites
 # /addinvites, /invites, /leaderboard, /removeinvites

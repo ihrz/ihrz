@@ -1989,4 +1989,5 @@ export interface LanguageData {
 	channel_unhideall_error: string;
 	new_guild_embed_title: string[];
 	new_guild_embed_desc: string;
+	unblacklist_command_work_across_all_shard: string;
 }
