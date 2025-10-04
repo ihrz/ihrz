@@ -401,6 +401,7 @@ export interface LanguageData {
 	unblacklist_not_blacklisted: string;
 	unblacklist_unblacklisted_but_can_unban_him: string;
 	unblacklist_user_is_not_exist: string;
+	unblacklist_command_work_across_all_shard: string;
 	addinvites_not_admin_embed_description: string;
 	addinvites_confirmation_embed_description: string;
 	addinvites_logs_embed_title: string;
@@ -1989,5 +1990,4 @@ export interface LanguageData {
 	channel_unhideall_error: string;
 	new_guild_embed_title: string[];
 	new_guild_embed_desc: string;
-	unblacklist_command_work_across_all_shard: string;
 }
