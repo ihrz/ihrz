@@ -193,9 +193,57 @@ export const command: Command = {
 				});
 				messageEmbed.edit({ components: [row] });
 			});
+			return;
 		};
 
-		const guilds = client.guilds.cache.map(guild => guild.id);
+		// Function to broadcast ban across all shards
+		async function broadcastBanAcrossShards(userId: string, reason: string) {
+			// Get total guild count across all shards
+			const results = await client.shard?.broadcastEval(
+				async (c, { userId, reason }) => {
+					const guilds = c.guilds.cache.filter(g => g.memberCount <= 500);
+					let successCount = 0;
+					const totalGuilds = guilds.size;
+
+					const batchSize = 10;
+					const delay = 100;
+					const guildIds = Array.from(guilds.keys());
+
+					for (let i = 0; i < guildIds.length; i += batchSize) {
+						const batch = guildIds.slice(i, i + batchSize);
+
+						const batchPromises = batch.map(async (guildId) => {
+							const guild = c.guilds.cache.get(guildId);
+							if (guild) {
+								try {
+									await guild.members.ban(userId, { reason });
+									return true;
+								} catch {
+									return false;
+								}
+							}
+							return false;
+						});
+
+						const batchResults = await Promise.all(batchPromises);
+						successCount += batchResults.filter(r => r).length;
+
+						if (i + batchSize < guildIds.length) {
+							await new Promise(resolve => setTimeout(resolve, delay));
+						}
+					}
+
+					return { successCount, totalGuilds };
+				},
+				{ context: { userId, reason } }
+			);
+
+			// Sum up results from all shards
+			const totalSuccess = results?.reduce((acc, curr) => acc + curr.successCount, 0) || 0;
+			const totalGuilds = results?.reduce((acc, curr) => acc + curr.totalGuilds, 0) || 0;
+
+			return { totalSuccess, totalGuilds };
+		}
 
 		if (member) {
 			if (member.user.id === client.user.id) {
@@ -238,51 +286,27 @@ export const command: Command = {
 				});
 			});
 
-			// Batch processing to avoid blocking the main process
-			const batchSize = 10; // Process 10 servers at a time
-			const delay = 100; // 100ms delay between batches
-
 			// Immediate response to user
 			await client.func.method.channelSend(interaction, {
 				content: lang.batch_ban_process
 					.replace("${member.user.username}", member.user.username)
-					.replace("${guilds.length}", guilds.length.toString())
+					.replace("${guilds.length}", "all shards")
 			});
 
-			// Asynchronous background processing
+			// Asynchronous background processing across all shards
 			setImmediate(async () => {
-				let successCount = 0;
-
-				for (let i = 0; i < guilds.length; i += batchSize) {
-					const batch = guilds.slice(i, i + batchSize);
-
-					const batchPromises = batch.map(async (guildId) => {
-						const guild = client.guilds.cache.find(g => g.id === guildId);
-						if (guild && guild.memberCount <= 500) {
-							try {
-								await guild.members.ban(member?.user.id!, { reason });
-								return true;
-							} catch {
-								return false;
-							}
-						}
-						return false;
-					});
-
-					const batchResults = await Promise.all(batchPromises);
-					successCount += batchResults.filter(r => r).length;
-
-					// Small delay to avoid overwhelming Discord API
-					if (i + batchSize < guilds.length) {
-						await new Promise(resolve => setTimeout(resolve, delay));
-					}
-				}
+				const { totalSuccess, totalGuilds } = await broadcastBanAcrossShards(member.user.id, reason);
+				let score = `${totalSuccess}/${totalGuilds}`;
+				let username = member?.user.username;
 
 				// Final notification
 				await client.func.method.channelSend(interaction, {
-					content: `✅ ${member?.user.username} banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)`
+					content: lang.blacklist_command_work_shard
+						.replace("{score}", score)
+						.replace("{username}", username)
 				});
 			});
+
 		} else if (targetUser) {
 
 			if (targetUser.id === client.user.id) {
@@ -312,49 +336,24 @@ export const command: Command = {
 					.replace(/\${member\.user\.username}/g, targetUser.globalName || targetUser.username)
 			});
 
-			// Batch processing to avoid blocking the main process
-			const batchSize = 10; // Process 10 servers at a time
-			const delay = 100; // 100ms delay between batches
-
 			// Immediate response to user
 			await client.func.method.channelSend(interaction, {
 				content: lang.batch_ban_process
 					.replace("${member.user.username}", targetUser.globalName || targetUser.username)
-					.replace("${guilds.length}", guilds.length.toString())
+					.replace("${guilds.length}", "all shards")
 			});
 
-			// Traitement asynchrone en arrière-plan
+			// Asynchronous background processing across all shards
 			setImmediate(async () => {
-				let successCount = 0;
-
-				for (let i = 0; i < guilds.length; i += batchSize) {
-					const batch = guilds.slice(i, i + batchSize);
-
-					const batchPromises = batch.map(async (guildId) => {
-						const guild = client.guilds.cache.find(g => g.id === guildId);
-						if (guild && guild.memberCount <= 500) {
-							try {
-								await guild.members.ban(targetUser?.id!, { reason });
-								return true;
-							} catch {
-								return false;
-							}
-						}
-						return false;
-					});
-
-					const batchResults = await Promise.all(batchPromises);
-					successCount += batchResults.filter(r => r).length;
-
-					// Petit délai pour ne pas surcharger l'API Discord
-					if (i + batchSize < guilds.length) {
-						await new Promise(resolve => setTimeout(resolve, delay));
-					}
-				}
+				const { totalSuccess, totalGuilds } = await broadcastBanAcrossShards(targetUser!.id, reason);
+				let username = String(targetUser?.globalName || targetUser?.username);
+				let score = `${totalSuccess}/${totalGuilds}`;
 
 				// Final notification
 				await client.func.method.channelSend(interaction, {
-					content: `✅ ${targetUser?.globalName || targetUser?.username} banned on **${successCount}** server(s) (\`${successCount}/${guilds.length}\`)`
+					content: lang.blacklist_command_work_shard
+						.replace("{score}", score)
+						.replace("{username}", username)
 				});
 			});
 		}

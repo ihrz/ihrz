@@ -434,6 +434,7 @@ blacklist_already_blacklisted: "${member.user.username} já está na lista negra
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} Não foram encontrados usuários na lista negra!"
 blacklist_var_no_reason: "Nenhum motivo encontrado"
 blacklist_embed_title: "Lista Negra - Página ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} foi banido em **${totalSuccess}** servidor(es) em todos os shards (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "Você não é dono dos Projetos iHorizon. Você não pode usar este comando."

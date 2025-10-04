@@ -434,6 +434,7 @@ blacklist_already_blacklisted: "${member.user.username}はすでにブラック�
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} ブラックリストに誰も見つかりませんでした！"
 blacklist_var_no_reason: "理由が見つかりません"
 blacklist_embed_title: "ブラックリスト - ページ ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} は全シャードで **${totalSuccess}** サーバーからBANされました (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。"

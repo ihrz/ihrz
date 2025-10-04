@@ -395,6 +395,7 @@ export interface LanguageData {
 	blacklist_no_one_blacklist: string;
 	blacklist_var_no_reason: string;
 	blacklist_embed_title: string;
+	blacklist_command_work_shard: string;
 	unblacklist_not_owner: string;
 	unblacklist_command_work: string;
 	unblacklist_not_blacklisted: string;
