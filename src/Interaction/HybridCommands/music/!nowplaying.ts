@@ -39,7 +39,6 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 import { SubCommand } from '../../../../types/command.js';
 import getTopTwoColors from '../../../core/functions/image_dominant_color.js';
-import { getLyrics } from './!lyrics.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -182,7 +181,7 @@ export const subCommand: SubCommand = {
 							case "lyrics":
 								await i.deferReply({ flags: [1 << 6] });
 
-								var lyrics = await getLyrics(`${player.queue.current?.info?.title} - ${player.queue.current?.info?.author}`)
+								var lyrics = await client.func.searchLyrics(`${player.queue.current?.info?.title} - ${player.queue.current?.info?.author}`)
 
 								if (!lyrics) {
 									i.editReply({ content: lang.nowplaying_lyrics_button });

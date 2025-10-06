@@ -3,7 +3,7 @@ export interface TrackInfo {
 	author: string;
 }
 
-export interface Track {
+export interface TrackEmbbeded {
 	info: TrackInfo;
 }
 
@@ -42,7 +42,7 @@ export function similarity(a: string, b: string): number {
 /**
  * Checks if the query is similar enough to a track (title + author).
  */
-export function isSimilar(query: string, track: Track = { info: { author: '', title: '' } }, threshold = 0.5): boolean {
+export function isSimilar(query: string, track: TrackEmbbeded = { info: { author: '', title: '' } }, threshold = 0.5): boolean {
 	const fullTitle = `${track.info.author} - ${track.info.title}`;
 	const score = similarity(query, fullTitle);
 	return score >= threshold;

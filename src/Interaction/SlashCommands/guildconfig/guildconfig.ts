@@ -262,7 +262,6 @@ export const command: Command = {
 
 							description: "What do you want to do ?",
 							description_localizations: {
-								"fr": "Que voulez-vous faire ?"
 							},
 
 							choices: [

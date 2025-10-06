@@ -38,7 +38,8 @@ import { Json } from '../src/core/database/driver/json.ts';
 import { Memory } from '../src/core/database/driver/memory.ts';
 import { Postgres } from '../src/core/database/driver/postgres.ts';
 import { Horizon } from '../src/core/database/driver/horizon.ts';
-import { Track } from '../src/core/functions/music_proximity.ts';
+import { TrackEmbbeded } from '../src/core/functions/music_proximity.ts';
+import { LyricsResult, SearchResult, Track } from "lavalink-client";
 
 declare namespace Client_Functions {
 
@@ -277,7 +278,7 @@ declare namespace Client_Functions {
 	export namespace music_proximity {
 		export function levenshtein(a: string, b: string): number;
 		export function similarity(a: string, b: string): number;
-		export function isSimilar(query: string, track: Track, threshold: any): boolean;
+		export function isSimilar(query: string, track: TrackEmbbeded, threshold: any): boolean;
 	}
 
 	// From database_latency.ts
@@ -338,6 +339,9 @@ declare namespace Client_Functions {
 
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
+
+	// From searchLyrics.ts
+	export function searchLyrics(query: string, author?: User): Promise<{ track: Track | undefined; res: LyricsResult; } | null>;
 
 	// From tagHelper.ts
 	export function tagHelper(
