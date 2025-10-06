@@ -29,7 +29,8 @@ export async function changeGuildBotName(guild: Guild, nick: string): Promise<bo
 		method: "PATCH",
 		headers: {
 			"Authorization": `Bot ${client.token}`,
-			"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON"
+			"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
+			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
 			nick
@@ -45,7 +46,8 @@ export async function changeGuildBotBanner(guild: Guild, banner: string): Promis
 		method: "PATCH",
 		headers: {
 			"Authorization": `Bot ${client.token}`,
-			"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON"
+			"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
+			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
 			banner
@@ -61,7 +63,8 @@ export async function changeGuildBotAvatar(guild: Guild, avatar: string): Promis
 		method: "PATCH",
 		headers: {
 			"Authorization": `Bot ${client.token}`,
-			"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON"
+			"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
+			"Content-Type": "application/json"
 		},
 		body: JSON.stringify({
 			avatar

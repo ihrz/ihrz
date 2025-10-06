@@ -281,6 +281,13 @@ declare namespace Client_Functions {
 		export function isSimilar(query: string, track: TrackEmbbeded, threshold: any): boolean;
 	}
 
+	// From customProfileHelper.ts
+	export namespace customProfileHelper {
+		export function changeGuildBotName(guild: Guild, nick: string): Promise<boolean>;
+		export function changeGuildBotBanner(guild: Guild, banner: string): Promise<boolean>;
+		export function changeGuildBotAvatar(guild: Guild, avatar: string): Promise<boolean>;
+	}
+
 	// From database_latency.ts
 	export function database_latency(): Promise<number>;
 
