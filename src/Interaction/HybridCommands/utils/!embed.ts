@@ -493,7 +493,7 @@ class EmbedManager {
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_description).setEmoji("📝").setValue('4'),
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_author).setEmoji("🕵️").setValue('5'),
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_author).setEmoji("✂").setValue('6'),
-						new StringSelectMenuOptionBuilder().setLabel("Changer l'icône du footer").setEmoji("🖼️").setValue('7bis'),
+						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholde_option_change_footer_image).setEmoji("🖼️").setValue('7bis'),
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_footer).setEmoji("🔻").setValue('7'),
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_footer).setEmoji("🔺").setValue('8'),
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_thumbnail).setEmoji("🔳").setValue('9'),

@@ -1437,6 +1437,7 @@ export interface LanguageData {
 	embed_placeholder_option_delete_description: string;
 	embed_placeholder_option_edit_author: string;
 	embed_placeholder_option_delete_author: string;
+	embed_placeholde_option_change_footer_image: string;
 	embed_placeholder_option_edit_footer: string;
 	embed_placeholder_option_delete_footer: string;
 	embed_placeholder_option_edit_thumbnail: string;
