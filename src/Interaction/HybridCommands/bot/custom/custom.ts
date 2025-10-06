@@ -139,7 +139,7 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'banner',
+			name: 'bot-banner',
 
 			description: 'Set the bot banner into your server',
 			description_localizations: {
