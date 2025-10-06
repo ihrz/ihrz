@@ -594,6 +594,16 @@ say_footer_msg: "\n\nأُرسل من `/say` بواسطة ${interaction.user}"
 ping_down_msg: "**غير متصل**"
 ping_embed_desc: "# بونج! إحصائيات الشبكة لـ ${interaction.client.user.username}:\n\n**[Ping موقع Discord]** >> `${_net03}` مللي ثانية.\n**[Ping Cloudflare]** >> `${_net02}` مللي ثانية.\n**[Ping Google]** >> `${_net01}` مللي ثانية.\n\n${client.iHorizon_Emojis.Crown} **[Ping موقع iHorizon]** >> `${_net04}` مللي ثانية.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` مللي ثانية.\n\n## ${client.iHorizon_Emojis.Pointer} **[المتوسط]** >> (avg)`${averagePing}` مللي ثانية."
 
+# /custom
+custom_avatar_reset: "لقد قررت إعادة تعيين صورة ملف تعريف البوت على الخادم. ستعود تذييلات الرسائل المضمنة إلى حالتها الافتراضية، بالإضافة إلى صورة ملف تعريف البوت على الخادم."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير صورة ملف تعريف البوت على الخادم. تم الآن تعديل تذييلات الرسائل المضمنة، بالإضافة إلى صورة ملف تعريف البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${x}`"
+custom_name_reset: "لقد قررت إعادة تعيين اسم البوت على الخادم. ستعود تذييلات الرسائل المضمنة إلى حالتها الافتراضية، بالإضافة إلى اسم البوت على الخادم."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير اسم البوت على الخادم. تم الآن تعديل تذييلات الرسائل المضمنة، بالإضافة إلى اسم البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${name}`"
+custom_desc_reset: "لقد قررت إعادة تعيين وصف البوت على الخادم. ستعود تذييلات الرسائل المضمنة إلى حالتها الافتراضية، بالإضافة إلى وصف البوت على الخادم."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير وصف البوت على الخادم. تم الآن تعديل تذييلات الرسائل المضمنة، بالإضافة إلى وصف البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${desc}`"
+custom_banner_reset: "لقد قررت إعادة تعيين لافتة البوت على الخادم."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير لافتة البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${x}`"
+
 # أوامر المرح
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 
@@ -1879,6 +1889,7 @@ embed_placeholder_option_edit_description: "تعديل الوصف"
 embed_placeholder_option_delete_description: "حذف الوصف"
 embed_placeholder_option_edit_author: "تعديل المؤلف"
 embed_placeholder_option_delete_author: "حذف المؤلف"
+embed_placeholde_option_change_footer_image: "تغيير أيقونة التذييل"
 embed_placeholder_option_edit_footer: "تعديل التذييل"
 embed_placeholder_option_delete_footer: "حذف التذييل"
 embed_placeholder_option_edit_thumbnail: "تعديل الصورة المصغرة"

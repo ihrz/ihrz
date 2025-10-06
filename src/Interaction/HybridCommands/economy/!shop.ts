@@ -30,7 +30,6 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { getMemberBoost } from './economy.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -58,7 +57,7 @@ export const subCommand: SubCommand = {
 			bank: 0,
 			ownedRoles: []
 		}) as DatabaseStructure.EconomyUserSchema;
-		const possibleBoost = await getMemberBoost(interaction.member!);
+		const possibleBoost = await client.func.economyHelper.getMemberBoost(interaction.member!);
 
 		baseData.money = baseData.money || 0;
 		baseData.bank = baseData.bank || 0;

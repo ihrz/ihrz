@@ -20,43 +20,23 @@
 */
 
 import {
-	ChatInputCommandInteraction,
 	Client,
 	Message,
-} from 'discord.js'
-
+} from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
-import { bubbles } from '../../../core/images.js';
+import { Command } from '../../../../types/command.js';
 
-export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var image = interaction.options.getAttachment("image", true);
-		} else {
-			var image = interaction.attachments.first()!;
-		}
-
-		if (!client.func.validImageType(image.contentType)) {
-			client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.No })
-			return
-		}
-
-		try {
-			const res = await bubbles(image.url!);
-
-			client.func.method.interactionSend(interaction, {
-				files: [
-					{
-						name: "bubbles.gif",
-						attachment: res
-					}
-				]
-			});
-		} catch (error) {
-			throw 'Failed to create GIF:' + error
-		}
+export const command: Command = {
+	name: 'grosbg',
+	description: '...',
+	description_localizations: {
+		"fr": "..."
 	},
+	thinking: false,
+	category: '404',
+	type: "PREFIX_IHORIZON_COMMAND",
+	permission: null,
+	run: async (client: Client, interaction: Message, lang: LanguageData, args?: string[]) => {
+		await interaction.reply({ content: "kly ( @bonnefoi ) le plus beau" })
+	}
 };

@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 			var backupID = client.func.method.string(args!, 0)!;
 		};
 
-		const state = await metasTable.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
+		const state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
 		if ((state && interaction.guild.ownerId !== interaction.member.user.id) || ((state === undefined || state === null)) && interaction.guild.ownerId !== interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_manage_nique_tes_mort

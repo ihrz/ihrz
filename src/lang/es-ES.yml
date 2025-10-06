@@ -594,6 +594,16 @@ say_footer_msg: "\n\nEnviado desde `/say` por ${interaction.user}"
 ping_down_msg: "**INACTIVO**"
 ping_embed_desc: "# ¡Pong! Estadísticas de red de ${interaction.client.user.username}:\n\n**[Ping del sitio web de Discord]** >> `${_net03}` ms.\n**[Ping de Cloudflare]** >> `${_net02}` ms.\n**[Ping de Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[Ping del sitio web de iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Ping del websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Promedio]** >> (prom)`${averagePing}` ms."
 
+# /custom
+custom_avatar_reset: "Has decidido restablecer la foto de perfil del bot en el servidor. Los pies de página de los embeds volverán a su estado predeterminado, así como la foto de perfil del bot en el servidor."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Has decidido cambiar la foto de perfil del bot en el servidor. Los pies de página de los embeds ahora están modificados, así como la foto de perfil del bot en el servidor.**\n${client.iHorizon_Emojis.Crown} Nuevo valor: `${x}`"
+custom_name_reset: "Has decidido restablecer el nombre del bot en el servidor. Los pies de página de los embeds volverán a su estado predeterminado, así como el nombre del bot en el servidor."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **Has decidido cambiar el nombre del bot en el servidor. Los pies de página de los embeds ahora están modificados, así como el nombre del bot en el servidor.**\n${client.iHorizon_Emojis.Crown} Nuevo valor: `${name}`"
+custom_desc_reset: "Has decidido restablecer la descripción del bot en el servidor. Los pies de página de los embeds volverán a su estado predeterminado, así como la descripción del bot en el servidor."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **Has decidido cambiar la descripción del bot en el servidor. Los pies de página de los embeds ahora están modificados, así como la descripción del bot en el servidor.**\n${client.iHorizon_Emojis.Crown} Nuevo valor: `${desc}`"
+custom_banner_reset: "Has decidido restablecer el banner del bot en el servidor."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **Has decidido cambiar el banner del bot en el servidor.**\n${client.iHorizon_Emojis.Crown} Nuevo valor: `${x}`"
+
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 
@@ -1879,6 +1889,7 @@ embed_placeholder_option_edit_description: "Editar la descripción"
 embed_placeholder_option_delete_description: "Eliminar la descripción"
 embed_placeholder_option_edit_author: "Editar el autor"
 embed_placeholder_option_delete_author: "Eliminar el autor"
+embed_placeholde_option_change_footer_image: "Cambiar el icono del pie de página"
 embed_placeholder_option_edit_footer: "Editar el pie de página"
 embed_placeholder_option_delete_footer: "Eliminar el pie de página"
 embed_placeholder_option_edit_thumbnail: "Editar la miniatura"

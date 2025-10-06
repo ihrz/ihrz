@@ -594,6 +594,16 @@ say_footer_msg: "\n\nSent from `/say` by ${interaction.user}"
 ping_down_msg: "**DOWN**"
 ping_embed_desc: "# Pong! ${interaction.client.user.username}'s Network Stats:\n\n**[Discord Website Ping]** >> `${_net03}` ms.\n**[Cloudflare Ping]** >> `${_net02}` ms.\n**[Google Ping]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[iHorizon Website Ping]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Average]** >> (avg)`${averagePing}` ms."
 
+# /custom
+custom_avatar_reset: "You have decided to reset the bot's profile picture on the server. Embed footers will return to their default state, as well as the bot's profile picture on the server."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's profile picture on the server. Embed footers are now modified, as well as the bot's profile picture on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${x}`"
+custom_name_reset: "You have decided to reset the bot's name on the server. Embed footers will return to their default state, as well as the bot's name on the server."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's name on the server. Embed footers are now modified, as well as the bot's name on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${name}`"
+custom_desc_reset: "You have decided to reset the bot's description on the server. Embed footers will return to their default state, as well as the bot's description on the server."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's description on the server. Embed footers are now modified, as well as the bot's description on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${desc}`"
+custom_banner_reset: "You have decided to reset the bot's banner on the server."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's banner on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${x}`"
+
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 
@@ -1880,6 +1890,7 @@ embed_placeholder_option_delete_title: "Delete the title"
 embed_placeholder_option_edit_description: "Edit the description"
 embed_placeholder_option_delete_description: "Delete the description"
 embed_placeholder_option_edit_author: "Edit the author"
+embed_placeholde_option_change_footer_image: "Change footer icon"
 embed_placeholder_option_delete_author: "Delete the author"
 embed_placeholder_option_edit_footer: "Edit the footer"
 embed_placeholder_option_delete_footer: "Delete the footer"

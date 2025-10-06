@@ -35,38 +35,6 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
 import { SearchResult } from 'lavalink-client';
 
-export async function getLyrics(query: string, author?: User) {
-
-	let res: SearchResult | undefined;
-	let node;
-
-	for (const _node of client.player.nodeManager.nodes.values()) {
-		if (_node.connected === false) continue;
-
-		res = await _node?.search({ query }, author || client.user)
-
-		if (res?.tracks.length! > 0) {
-			node = _node;
-			break;
-		}
-	}
-
-	if (res?.tracks.length === 0) {
-		return null;
-	}
-
-	const response = await node?.lyrics.get(res?.tracks[0]!);
-
-	if (!response) {
-		return null;
-	}
-
-	return {
-		track: res?.tracks[0],
-		res: response
-	}
-}
-
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
@@ -81,7 +49,7 @@ export const subCommand: SubCommand = {
 		}
 
 		try {
-			const response = await getLyrics(title);
+			const response = await client.func.searchLyrics(title);
 
 			if (!response?.res.text) {
 				await client.func.method.interactionSend(interaction, { content: lang.lyrics_not_found });

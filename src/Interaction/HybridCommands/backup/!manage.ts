@@ -56,7 +56,7 @@ export const subCommand: SubCommand = {
 			state = false;
 		}
 
-		await metasTable.set(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`, state);
+		await client.db.set(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`, state);
 
 		const allowed_user_string = state ? lang.backup_manage_owner : lang.backup_manage_admin;
 

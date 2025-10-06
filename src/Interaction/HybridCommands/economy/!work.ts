@@ -28,7 +28,6 @@ import {
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { getMemberBoost } from './economy.js';
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
@@ -59,7 +58,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		const amount = (Math.floor(Math.random() * 1024) + 1) * await getMemberBoost(interaction.member);
+		const amount = (Math.floor(Math.random() * 1024) + 1) * await client.func.economyHelper.getMemberBoost(interaction.member);
 
 		const embed = new EmbedBuilder()
 			.setAuthor({

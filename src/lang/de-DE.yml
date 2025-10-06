@@ -594,6 +594,16 @@ say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
 ping_down_msg: "**DOWN**"
 ping_embed_desc: "# Pong! Netzwerkstatistiken von ${interaction.client.user.username}:\n\n**[Discord Website Ping]** >> `${_net03}` ms.\n**[Cloudflare Ping]** >> `${_net02}` ms.\n**[Google Ping]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[iHorizon Website Ping]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Durchschnitt]** >> (Durchschn.)`${averagePing}` ms."
 
+# /custom
+custom_avatar_reset: "Sie haben sich entschieden, das Profilbild des Bots auf dem Server zurückzusetzen. Embed-Fußzeilen kehren zu ihrem Standardzustand zurück, ebenso wie das Profilbild des Bots auf dem Server."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Sie haben sich entschieden, das Profilbild des Bots auf dem Server zu ändern. Embed-Fußzeilen sind jetzt geändert, ebenso wie das Profilbild des Bots auf dem Server.**\n${client.iHorizon_Emojis.Crown} Neuer Wert: `${x}`"
+custom_name_reset: "Sie haben sich entschieden, den Namen des Bots auf dem Server zurückzusetzen. Embed-Fußzeilen kehren zu ihrem Standardzustand zurück, ebenso wie der Name des Bots auf dem Server."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **Sie haben sich entschieden, den Namen des Bots auf dem Server zu ändern. Embed-Fußzeilen sind jetzt geändert, ebenso wie der Name des Bots auf dem Server.**\n${client.iHorizon_Emojis.Crown} Neuer Wert: `${name}`"
+custom_desc_reset: "Sie haben sich entschieden, die Beschreibung des Bots auf dem Server zurückzusetzen. Embed-Fußzeilen kehren zu ihrem Standardzustand zurück, ebenso wie die Beschreibung des Bots auf dem Server."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **Sie haben sich entschieden, die Beschreibung des Bots auf dem Server zu ändern. Embed-Fußzeilen sind jetzt geändert, ebenso wie die Beschreibung des Bots auf dem Server.**\n${client.iHorizon_Emojis.Crown} Neuer Wert: `${desc}`"
+custom_banner_reset: "Sie haben sich entschieden, das Banner des Bots auf dem Server zurückzusetzen."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **Sie haben sich entschieden, das Banner des Bots auf dem Server zu ändern.**\n${client.iHorizon_Emojis.Crown} Neuer Wert: `${x}`"
+
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 
@@ -1879,6 +1889,7 @@ embed_placeholder_option_edit_description: "Beschreibung bearbeiten"
 embed_placeholder_option_delete_description: "Beschreibung löschen"
 embed_placeholder_option_edit_author: "Autor bearbeiten"
 embed_placeholder_option_delete_author: "Autor löschen"
+embed_placeholde_option_change_footer_image: "Footer-Symbol ändern"
 embed_placeholder_option_edit_footer: "Fußzeile bearbeiten"
 embed_placeholder_option_delete_footer: "Fußzeile löschen"
 embed_placeholder_option_edit_thumbnail: "Miniaturbild bearbeiten"

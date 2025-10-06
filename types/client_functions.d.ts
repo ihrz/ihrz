@@ -38,7 +38,8 @@ import { Json } from '../src/core/database/driver/json.ts';
 import { Memory } from '../src/core/database/driver/memory.ts';
 import { Postgres } from '../src/core/database/driver/postgres.ts';
 import { Horizon } from '../src/core/database/driver/horizon.ts';
-import { Track } from '../src/core/functions/music_proximity.ts';
+import { TrackEmbbeded } from '../src/core/functions/music_proximity.ts';
+import { LyricsResult, SearchResult, Track } from "lavalink-client";
 
 declare namespace Client_Functions {
 
@@ -277,7 +278,15 @@ declare namespace Client_Functions {
 	export namespace music_proximity {
 		export function levenshtein(a: string, b: string): number;
 		export function similarity(a: string, b: string): number;
-		export function isSimilar(query: string, track: Track, threshold: any): boolean;
+		export function isSimilar(query: string, track: TrackEmbbeded, threshold: any): boolean;
+	}
+
+	// From customProfileHelper.ts
+	export namespace customProfileHelper {
+		export function changeGuildBotName(guild: Guild, nick: string): Promise<boolean>;
+		export function changeGuildBotBanner(guild: Guild, banner: string): Promise<boolean>;
+		export function changeGuildBotAvatar(guild: Guild, avatar: string): Promise<boolean>;
+		export function changeGuildBotBio(guild: Guild, bio: string): Promise<boolean>;
 	}
 
 	// From database_latency.ts
@@ -290,6 +299,22 @@ declare namespace Client_Functions {
 			entry?: Interaction | ChatInputCommandInteraction<"cached"> | Message<boolean> | GuildMember | Guild
 		): Promise<{ attachment: string | Buffer<ArrayBuffer>; name: string; }>;
 		export function displayBotPP(guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
+	}
+
+	// From economyHelper.ts
+	export namespace economyHelper {
+		export function getMemberBoost(member: GuildMember): Promise<number>;
+		export function generateRoleFields(
+			roleData: Record<string, DatabaseStructure.EconomyRole> | undefined,
+			lang: LanguageData
+		): any;
+	}
+
+	// From embedHelper.ts
+	export namespace embedHelper {
+		export function isValidLink(url: string): boolean;
+		export function isValidColor(color: string): boolean;
+		export function getMediaByMessage(message: Message<boolean>): { name: string; attachment: string; };
 	}
 
 	// From generateProgressBar.ts
@@ -322,6 +347,20 @@ declare namespace Client_Functions {
 
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
+
+	// From searchLyrics.ts
+	export function searchLyrics(query: string, author?: User): Promise<{ track: Track | undefined; res: LyricsResult; } | null>;
+
+	// From tagHelper.ts
+	export function tagHelper(
+		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
+		lang: LanguageData,
+		tag_id: string,
+		tag: DatabaseStructure.TagInfo
+	): EmbedBuilder;
+
+	// From validImageType.ts
+	export function validImageType(contentType: string | null): boolean;
 }
 
 export { Client_Functions };

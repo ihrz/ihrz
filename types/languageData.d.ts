@@ -510,6 +510,14 @@ export interface LanguageData {
 	say_footer_msg: string;
 	ping_down_msg: string;
 	ping_embed_desc: string;
+	custom_avatar_reset: string;
+	custom_avatar_set: string;
+	custom_name_reset: string;
+	custom_name_set: string;
+	custom_desc_reset: string;
+	custom_desc_set: string;
+	custom_banner_reset: string;
+	custom_banner_set: string;
 	fun_var_down_api: string;
 	fun_var_good_sentence: string;
 	cats_embed_title: string;
@@ -1437,6 +1445,7 @@ export interface LanguageData {
 	embed_placeholder_option_delete_description: string;
 	embed_placeholder_option_edit_author: string;
 	embed_placeholder_option_delete_author: string;
+	embed_placeholde_option_change_footer_image: string;
 	embed_placeholder_option_edit_footer: string;
 	embed_placeholder_option_delete_footer: string;
 	embed_placeholder_option_edit_thumbnail: string;
