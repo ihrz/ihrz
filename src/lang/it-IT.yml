@@ -594,6 +594,16 @@ say_footer_msg: "\n\nInviato da `/say` da ${interaction.user}"
 ping_down_msg: "**DOWN**"
 ping_embed_desc: "# Pong! Statistiche di rete di ${interaction.client.user.username}:\n\n**[Discord Website Ping]** >> `${_net03}` ms.\n**[Cloudflare Ping]** >> `${_net02}` ms.\n**[Google Ping]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[iHorizon Website Ping]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Media]** >> (Media)`${averagePing}` ms."
 
+# /custom
+custom_avatar_reset: "Hai deciso di ripristinare l'immagine del profilo del bot sul server. I piè di pagina degli embed torneranno al loro stato predefinito, così come l'immagine del profilo del bot sul server."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Hai deciso di cambiare l'immagine del profilo del bot sul server. I piè di pagina degli embed sono ora modificati, così come l'immagine del profilo del bot sul server.**\n${client.iHorizon_Emojis.Crown} Nuovo valore: `${x}`"
+custom_name_reset: "Hai deciso di ripristinare il nome del bot sul server. I piè di pagina degli embed torneranno al loro stato predefinito, così come il nome del bot sul server."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **Hai deciso di cambiare il nome del bot sul server. I piè di pagina degli embed sono ora modificati, così come il nome del bot sul server.**\n${client.iHorizon_Emojis.Crown} Nuovo valore: `${name}`"
+custom_desc_reset: "Hai deciso di ripristinare la descrizione del bot sul server. I piè di pagina degli embed torneranno al loro stato predefinito, così come la descrizione del bot sul server."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **Hai deciso di cambiare la descrizione del bot sul server. I piè di pagina degli embed sono ora modificati, così come la descrizione del bot sul server.**\n${client.iHorizon_Emojis.Crown} Nuovo valore: `${desc}`"
+custom_banner_reset: "Hai deciso di ripristinare il banner del bot sul server."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **Hai deciso di cambiare il banner del bot sul server.**\n${client.iHorizon_Emojis.Crown} Nuovo valore: `${x}`"
+
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 

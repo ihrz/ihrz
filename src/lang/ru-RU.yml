@@ -594,6 +594,16 @@ say_footer_msg: "\n\nОтправлено из `/говорить` от ${intera
 ping_down_msg: "**НЕДОСТУПНО**"
 ping_embed_desc: "# Понг! Статистика сети ${interaction.client.user.username}:\n\n**[Пинг веб-сайта Discord]** >> `${_net03}` мс.\n**[Пинг Cloudflare]** >> `${_net02}` мс.\n**[Пинг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.Crown} **[Пинг веб-сайта iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.Crown} **[Пинг веб-сокета]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.Pointer} **[Среднее]** >> (ср)`${averagePing}` мс."
 
+# /custom
+custom_avatar_reset: "Вы решили сбросить изображение профиля бота на сервере. Нижние колонтитулы встроенных сообщений вернутся к состоянию по умолчанию, а также изображение профиля бота на сервере."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Вы решили изменить изображение профиля бота на сервере. Нижние колонтитулы встроенных сообщений теперь изменены, а также изображение профиля бота на сервере.**\n${client.iHorizon_Emojis.Crown} Новое значение: `${x}`"
+custom_name_reset: "Вы решили сбросить имя бота на сервере. Нижние колонтитулы встроенных сообщений вернутся к состоянию по умолчанию, а также имя бота на сервере."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **Вы решили изменить имя бота на сервере. Нижние колонтитулы встроенных сообщений теперь изменены, а также имя бота на сервере.**\n${client.iHorizon_Emojis.Crown} Новое значение: `${name}`"
+custom_desc_reset: "Вы решили сбросить описание бота на сервере. Нижние колонтитулы встроенных сообщений вернутся к состоянию по умолчанию, а также описание бота на сервере."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **Вы решили изменить описание бота на сервере. Нижние колонтитулы встроенных сообщений теперь изменены, а также описание бота на сервере.**\n${client.iHorizon_Emojis.Crown} Новое значение: `${desc}`"
+custom_banner_reset: "Вы решили сбросить баннер бота на сервере."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **Вы решили изменить баннер бота на сервере.**\n${client.iHorizon_Emojis.Crown} Новое значение: `${x}`"
+
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 

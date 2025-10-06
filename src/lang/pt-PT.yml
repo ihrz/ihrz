@@ -594,6 +594,16 @@ say_footer_msg: "\n\nEnviado de `/say` por ${interaction.user}"
 ping_down_msg: "**FORA DO AR**"
 ping_embed_desc: "# Pong! Estatísticas de Rede do ${interaction.client.user.username}:\n\n**[Ping do site do Discord]** >> `${_net03}` ms.\n**[Ping do Cloudflare]** >> `${_net02}` ms.\n**[Ping do Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[Ping do site do iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Ping do Websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Média]** >> (avg)`${averagePing}` ms."
 
+# /custom
+custom_avatar_reset: "Decidiu redefinir a foto de perfil do bot no servidor. Os rodapés dos embeds voltarão ao seu estado padrão, assim como a foto de perfil do bot no servidor."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Decidiu alterar a foto de perfil do bot no servidor. Os rodapés dos embeds estão agora modificados, assim como a foto de perfil do bot no servidor.**\n${client.iHorizon_Emojis.Crown} Novo valor: `${x}`"
+custom_name_reset: "Decidiu redefinir o nome do bot no servidor. Os rodapés dos embeds voltarão ao seu estado padrão, assim como o nome do bot no servidor."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **Decidiu alterar o nome do bot no servidor. Os rodapés dos embeds estão agora modificados, assim como o nome do bot no servidor.**\n${client.iHorizon_Emojis.Crown} Novo valor: `${name}`"
+custom_desc_reset: "Decidiu redefinir a descrição do bot no servidor. Os rodapés dos embeds voltarão ao seu estado padrão, assim como a descrição do bot no servidor."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **Decidiu alterar a descrição do bot no servidor. Os rodapés dos embeds estão agora modificados, assim como a descrição do bot no servidor.**\n${client.iHorizon_Emojis.Crown} Novo valor: `${desc}`"
+custom_banner_reset: "Decidiu redefinir o banner do bot no servidor."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **Decidiu alterar o banner do bot no servidor.**\n${client.iHorizon_Emojis.Crown} Novo valor: `${x}`"
+
 # Comandos divertidos
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 
