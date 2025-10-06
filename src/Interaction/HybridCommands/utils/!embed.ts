@@ -65,29 +65,6 @@ interface DiscordUrlParts {
 	messageId: string;
 }
 
-// Utility functions
-export function isValidLink(url: string): boolean {
-	return ["https://", "http://"].some(protocol => url.startsWith(protocol));
-}
-
-export function isValidColor(color: string): boolean {
-	return /^#([0-9a-f]{3}){1,2}$/i.test(color);
-}
-
-export function getMediaByMessage(message: Message): { name: string; attachment: string; } {
-	if (isValidLink(message.content)) {
-		return { name: "url", attachment: message.content };
-	}
-
-	const attachment = message.attachments.first();
-	if (attachment?.contentType?.startsWith("image/")) {
-		const name = client.func.method.isAnimated(attachment.url) ? "image.gif" : "image.png";
-		return { attachment: attachment.url, name };
-	}
-
-	return { name: "none", attachment: "" };
-}
-
 function extractDiscordUrlParts(url: string): DiscordUrlParts {
 	try {
 		const urlObj = new URL(url);
@@ -133,7 +110,7 @@ class EmbedManager {
 	}
 
 	private updateMedia(type: FileType, message: Message): void {
-		const { name, attachment } = getMediaByMessage(message);
+		const { name, attachment } = client.func.embedHelper.getMediaByMessage(message);
 
 		// Clear previous file of this type
 		this.setFile(type, null);
@@ -330,7 +307,7 @@ class EmbedManager {
 			},
 			'11': async () => {
 				await this.handleCollector(i, 'embed_choose_11', (message) => {
-					if (isValidLink(message.content)) {
+					if (client.func.embedHelper.isValidLink(message.content)) {
 						this.embed.setURL(message.content);
 						this.updateResponse();
 					}
@@ -338,7 +315,7 @@ class EmbedManager {
 			},
 			'12': async () => {
 				await this.handleCollector(i, 'embed_choose_12', async (message) => {
-					if (isValidColor(message.content)) {
+					if (client.func.embedHelper.isValidColor(message.content)) {
 						this.embed.setColor(message.content as ColorResolvable);
 						this.updateResponse();
 					} else {

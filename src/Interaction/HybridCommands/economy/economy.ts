@@ -30,43 +30,6 @@ import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-export function generateRoleFields(
-	roleData: DatabaseStructure.EconomyModel["buyableRoles"],
-	lang: LanguageData,
-) {
-	return Object.entries(roleData || {})
-		.sort(([, amountA], [, amountB]) => Number(amountB) - Number(amountA))
-		.map(([roleID, roleData], index) => ({
-			name: `Role ${index + 1}`,
-			value: `${lang.var_roles}: <@&${roleID}>\n${lang.var_price}: ${roleData.price}\nBoost: x${roleData.boost || 1}`,
-			amount: roleData.price,
-			inline: true,
-		}));
-}
-
-export async function getMemberBoost(member: GuildMember): Promise<number> {
-	try {
-		const economyConfig = (await member.guild.client.db.get(
-			`${member.guild.id}.ECONOMY`,
-		)) as DatabaseStructure.EconomyModel;
-
-		// get the roles that the user has
-		const role = Object.entries(economyConfig?.buyableRoles || [])
-			.filter(([roleID]) => member?.roles.cache.has(roleID))
-			.map(([roleID]) => roleID);
-
-		// get the role with the highest boost
-		const highestBoost = role
-			.map((r) => economyConfig?.buyableRoles?.[r]?.boost ?? 0)
-			.sort((a, b) => b - a)[0];
-
-		// calculate the new money amount and add it to the user
-		return highestBoost || 1;
-	} catch {
-		return 1;
-	}
-}
-
 export const command: Command = {
 	name: "economy",
 	name_localizations: {

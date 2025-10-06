@@ -292,6 +292,22 @@ declare namespace Client_Functions {
 		export function displayBotPP(guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
 	}
 
+	// From economyHelper.ts
+	export namespace economyHelper {
+		export function getMemberBoost(member: GuildMember): Promise<number>;
+		export function generateRoleFields(
+			roleData: Record<string, DatabaseStructure.EconomyRole> | undefined,
+			lang: LanguageData
+		): any;
+	}
+
+	// From embedHelper.ts
+	export namespace embedHelper {
+		export function isValidLink(url: string): boolean;
+		export function isValidColor(color: string): boolean;
+		export function getMediaByMessage(message: Message<boolean>): { name: string; attachment: string; };
+	}
+
 	// From generateProgressBar.ts
 	export function generateProgressBar(emojis: any, currentTimeMs: number, totalTimeMs: number): { bar: string; currentTime: string; totalTime: string; };
 
@@ -322,6 +338,9 @@ declare namespace Client_Functions {
 
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
+
+	// From validImageType.ts
+	export function validImageType(contentType: string | null): boolean;
 }
 
 export { Client_Functions };

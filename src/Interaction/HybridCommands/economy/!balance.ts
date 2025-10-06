@@ -27,7 +27,6 @@ import {
 	Message
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { getMemberBoost } from './economy.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { SubCommand } from '../../../../types/command.js';
 
@@ -55,7 +54,7 @@ export const subCommand: SubCommand = {
 
 		const baseData: DatabaseStructure.EconomyUserSchema = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY`) || { money: 0, bank: 0, ownedRoles: [] };
 
-		const possibleBoost = await getMemberBoost(interaction.member!);
+		const possibleBoost = await client.func.economyHelper.getMemberBoost(interaction.member!);
 		const totalWallet = (baseData.money || 0) + (baseData.bank || 0);
 
 		const embed = new EmbedBuilder()
