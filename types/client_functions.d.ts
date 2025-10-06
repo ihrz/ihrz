@@ -339,6 +339,14 @@ declare namespace Client_Functions {
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
 
+	// From tagHelper.ts
+	export function tagHelper(
+		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
+		lang: LanguageData,
+		tag_id: string,
+		tag: DatabaseStructure.TagInfo
+	): EmbedBuilder;
+
 	// From validImageType.ts
 	export function validImageType(contentType: string | null): boolean;
 }

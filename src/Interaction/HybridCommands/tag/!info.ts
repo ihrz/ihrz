@@ -27,7 +27,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { generateTagInfoEmbed } from './tag.js';
 
 import { SubCommand } from '../../../../types/command.js';
 import { metasTable } from '../../../Events/client/ready.js';
@@ -56,7 +55,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const embed = generateTagInfoEmbed(interaction, lang, tag_name, baseData)
+		const embed = client.func.tagHelper(interaction, lang, tag_name, baseData)
 
 		const embed2 = await metasTable.get(`EMBED.${baseData.embedId}`);
 
