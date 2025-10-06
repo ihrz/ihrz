@@ -286,6 +286,7 @@ declare namespace Client_Functions {
 		export function changeGuildBotName(guild: Guild, nick: string): Promise<boolean>;
 		export function changeGuildBotBanner(guild: Guild, banner: string): Promise<boolean>;
 		export function changeGuildBotAvatar(guild: Guild, avatar: string): Promise<boolean>;
+		export function changeGuildBotBio(guild: Guild, bio: string): Promise<boolean>;
 	}
 
 	// From database_latency.ts

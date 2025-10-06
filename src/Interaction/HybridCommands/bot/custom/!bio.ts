@@ -37,21 +37,18 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
 		const action = interaction.options.getString("action");
-		const desc = interaction.options.getString('name');
+		const desc = interaction.options.getString('bio');
 
 
 
 		if (action === "reset") {
-			await client.db.delete(`${interaction.guildId}.BOT.botName`);
-
 			await interaction.editReply({ content: lang.custom_desc_reset });
-			await client.func.customProfileHelper.changeGuildBotName(interaction.guild, client.user.displayName);
+			await client.func.customProfileHelper.changeGuildBotBio(interaction.guild, client.user.displayName);
 			return;
 		} else if (desc) {
 			if (desc.length >= 32) return await interaction.editReply({ content: lang.guildconfig_setbot_footername_footer_too_long_msg });
 
-			await client.db.set(`${interaction.guildId}.BOT.botName`, desc);
-			await client.func.customProfileHelper.changeGuildBotName(interaction.guild, desc);
+			await client.func.customProfileHelper.changeGuildBotBio(interaction.guild, desc);
 
 			await interaction.editReply({
 				content: lang.custom_desc_set

@@ -181,7 +181,57 @@ export const command: Command = {
 					type: ApplicationCommandOptionType.Attachment,
 					required: false,
 					permission: null
-				}
+				},
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: 'bio',
+
+			description: 'Set the bot bio into your server',
+			description_localizations: {
+				"fr": "Définir la bio de profil du bot sur votre serveur discord"
+			},
+
+			options: [
+				{
+					name: "action",
+
+					description: "What do you want to do ?",
+					description_localizations: {
+						"fr": "Que voulez-vous faire ?"
+					},
+
+					choices: [
+						{
+							name: "Default Bot Description",
+							value: "reset"
+						},
+						{
+							name: "Set one",
+							value: "set"
+						}
+					],
+
+					type: ApplicationCommandOptionType.String,
+					required: true,
+					permission: null
+				},
+				{
+					name: "bio",
+
+					description: "The description",
+					description_localizations: {
+						"fr": "La bio du bot"
+					},
+
+					type: ApplicationCommandOptionType.String,
+					required: false,
+					permission: null
+				},
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
