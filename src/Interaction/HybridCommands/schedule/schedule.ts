@@ -34,7 +34,7 @@ import {
 	ApplicationCommandType,
 	Message,
 	User,
-	TextInputModalData
+	ModalData
 } from 'discord.js';
 
 import { format } from '../../../core/functions/date_and_time.js';
@@ -292,8 +292,8 @@ export const command: Command = {
 
 			async function executeAfterModal(i: ModalSubmitInteraction<"cached">) {
 				const collection = i.fields.fields;
-				const nameValue = collection.get('name')?.value;
-				const descValue = collection.get('desc')?.value;
+				const nameValue = collection.get('name');
+				const descValue = collection.get('desc');
 
 				const embed = new EmbedBuilder()
 					.setDescription(`\`\`\`${nameValue}\`\`\`\`\`\`${descValue}\`\`\``)
@@ -323,7 +323,7 @@ export const command: Command = {
 				});
 
 
-				async function __0(date0: number, collection: Collection<string, TextInputModalData>) {
+				async function __0(date0: number, collection: Collection<string, ModalData>) {
 					const scheduleCode = generatePassword({ length: 16 });
 
 					if (Number.isNaN(date0)) {
@@ -351,8 +351,8 @@ export const command: Command = {
 
 					await scheduleTable.set(`${user.id}.${scheduleCode}`,
 						{
-							title: collection.get('name')?.value,
-							description: collection.get('desc')?.value,
+							title: collection.get('name'),
+							description: collection.get('desc'),
 							expired: Date.now() + date0
 						}
 					);
