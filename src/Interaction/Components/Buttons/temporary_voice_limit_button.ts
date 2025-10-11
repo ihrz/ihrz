@@ -60,7 +60,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		if (!response) return;
 
 		const channel = (interaction.member as GuildMember).voice.channel;
-		const userLimit = parseInt(response.fields.getField('name').value);
+		const userLimit = parseInt(response.fields.getTextInputValue('name'));
 
 		if (!userLimit) {
 			await response.reply({
@@ -83,7 +83,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 					.setFields(
 						{
 							name: lang.temporary_voice_new_userlimit,
-							value: `${interaction.client.iHorizon_Emojis.VC_Limit} **${response.fields.getField('name').value}**`,
+							value: `${interaction.client.iHorizon_Emojis.VC_Limit} **${response.fields.getTextInputValue('name')}**`,
 							inline: true
 						},
 					)
