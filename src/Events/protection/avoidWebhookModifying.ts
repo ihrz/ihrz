@@ -35,7 +35,7 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		if (data.webhook && data.webhook.mode === 'allowlist') {
+		if (data.webhook) {
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.WebhookCreate);
 			if (!relevantLog) return;
 
