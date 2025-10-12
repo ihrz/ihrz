@@ -135,11 +135,11 @@ perm_useexternalapps_name: "Utiliser des applications externes"
 
 # Ticket commands
 # /add, /close, /delete, /sethereticket, /open, /remove, /transript, /disableticket
-ticket_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket!"
+ticket_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket !"
 
 # /add
-add_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket!"
-add_command_work: "Membre ${member.tag} ajouté avec succès au ticket!"
+add_disabled_command: "Vous ne pouvez pas utiliser cette commande car un administrateur a désactivé les commandes de ticket !"
+add_command_work: "Le membre ${member.tag} a été ajouté avec succès au ticket !"
 add_command_error: "Une erreur est survenue, veuillez réessayer."
 
 # /close
@@ -157,7 +157,7 @@ delete_disabled_command: "Vous ne pouvez pas utiliser cette commande, car un adm
 delete_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un ticket !"
 
 # /sethereticket
-sethereticket_disabled_command: "Vous ne pouvez pas utiliser cette commande car un autre administrateur a désactivé cette commande !"
+sethereticket_disabled_command: "Vous ne pouvez pas utiliser cette commande car un autre administrateur l'a désactivée !"
 sethereticket_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour exécuter cette commande !"
 sethereticket_description_embed: "Pour créer un nouveau ticket, veuillez réagir avec 📩"
 sethereticket_command_work: "Le panneau de ticket a été configuré avec succès !"
@@ -506,7 +506,7 @@ kisakay_message: "${client.iHorizon_Emojis.Sparkles} Kisakay est à la fois ma c
 andru_message: 'Andru est un collaborateur et développeur. "L''homme à tout faire", il gère le marketing, la communauté...'
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.Sparkles} Ether est un contributeur d'iHorizon. Il est fasciné par Linux et la cybersécurité et s'improvise comme assistant support pour le bot iHorizon."
+ether_message: "${client.iHorizon_Emojis.Sparkles} Ether est un contributeur d'iHorizon. Il s'improvise comme assistant support pour le bot iHorizon et est le responsable de la ✨ nouvelle documentation d'iHorizon ✨ !"
 
 # /Irisweb
 irisweb_message: "😼IrisWeb est ma seconde développeuse/contributrice , IrisWeb x Kisakay ❤️"
@@ -595,14 +595,14 @@ ping_down_msg: "**INDISPONIBLE**"
 ping_embed_desc: "# Pong ! Statistiques du réseau de ${interaction.client.user.username} :\n\n**[Ping du site web Discord]** >> `${_net03}` ms.\n**[Ping Cloudflare]** >> `${_net02}` ms.\n**[Ping Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[Ping du site web iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Ping du Websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Moyenne]** >> (moy)`${averagePing}` ms."
 
 # /custom
-custom_avatar_reset: "Vous avez décider de réinstialiser la photo de profil du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que la photo de profil du bot sur le serveur."
-custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer la photo de profil du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que la photo de profil du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
-custom_name_reset: "Vous avez décider de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
-custom_name_set: "`${client.iHorizon_Emojis.Yes} **Vous avez décider de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${name}`"
-custom_desc_reset: "Vous avez décider de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
-custom_desc_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${desc}`"
-custom_banner_reset: "Vous avez décider de réinstialiser la bannière du bot sur le serveur."
-custom_banner_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer la bannière du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
+custom_avatar_reset: "Vous avez décidé de réinstialiser la photo de profil du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que la photo de profil du bot sur le serveur."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Vous avez décidé de changer la photo de profil du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que la photo de profil du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
+custom_name_reset: "Vous avez décidé de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
+custom_name_set: "`${client.iHorizon_Emojis.Yes} **Vous avez décidé de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${name}`"
+custom_desc_reset: "Vous avez décidé de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **Vous avez décidé de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${desc}`"
+custom_banner_reset: "Vous avez décidé de réinstialiser la bannière du bot sur le serveur."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **Vous avez décidé de changer la bannière du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -881,7 +881,7 @@ serverinfo_embed_fields_joinat: "🚲・**Rejoint le** :"
 serverinfo_embed_fields_createat: "⚓・**Créé le** :"
 
 # /setrankroles
-setrankroles_not_admin: "${client.iHorizon_Emojis.No} Vous n'êtes pas administrateur de ce serveur. Vous ne pouvez pas exécuter cette commande !"
+setrankroles_not_admin: "${client.iHorizon_Emojis.No} Vous n'êtes pas administrateur de ce serveur, vous ne pouvez donc pas exécuter cette commande !"
 setrankroles_already_this_in_db: "${client.iHorizon_Emojis.No} Les rôles de classement sont déjà enregistrés dans la base de données de ce serveur."
 setrankroles_not_roles_typed: "${client.iHorizon_Emojis.No} Vous n'avez spécifié aucun rôle dans votre commande !"
 setrankroles_command_work: "Maintenant, lorsque vous me mentionnez `@iHorizon`, je vais ajouter les rôles suivants : <@&${argsid}>"
@@ -922,11 +922,11 @@ prevnames_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}
 # /blockbot
 blockbot_not_owner: ":x: **Vous n'êtes pas le propriétaire du serveur !**"
 blockbot_logs_enable_title: "Journal BlockBot"
-blockbot_logs_enable_description: "${interaction.user} (Le propriétaire du serveur) a __activé__ `BlockBot`. Maintenant, le bot ne peut **pas** être ajouté à ce serveur !"
-blockbot_command_work_on_enable: "**Vous avez activé `BlockBot`**\nMaintenant, le bot ne peut **pas** être ajouté à ce serveur !"
-blockbot_command_work_on_disable: "**Vous avez désactivé `BlockBot`**\nMaintenant, le bot peut être ajouté à ce serveur !"
+blockbot_logs_enable_description: "${interaction.user} (Le propriétaire du serveur) a __activé__ `BlockBot`. Maintenant, les bots ne pourront **plus** être ajoutés à ce serveur !"
+blockbot_command_work_on_enable: "**Vous avez activé `BlockBot`**\nMaintenant, les bots ne pourront **plus** être ajoutés à ce serveur !"
+blockbot_command_work_on_disable: "**Vous avez désactivé `BlockBot`**\nMaintenant, les bots pourront être ajoutés à ce serveur !"
 blockbot_logs_disable_commmand_work: "Journal BlockBot"
-blockbot_logs_disable_description: "${interaction.user} (Le propriétaire du serveur) a __désactivé__ `BlockBot`. Maintenant, le bot peut être ajouté à ce serveur !"
+blockbot_logs_disable_description: "${interaction.user} (Le propriétaire du serveur) a __désactivé__ `BlockBot`. Maintenant, les bots pourront être ajoutés à ce serveur !"
 
 # /banner
 banner_guild_embed: "**Ceci est la bannière du serveur !**"
@@ -955,7 +955,7 @@ derank_msg_failed: "Une erreur s'est produite lors de la suppression des rôles.
 derank_no_role: "Ce membre n'a aucun rôle à supprimer."
 
 # /action débannir tous
-action_unban_all_embed_desc: "## Débannir tous les membres de la guilde\n${client.iHorizon_Emojis.Yes} | J'ai réussi à lever l'interdiction de `${unbanned_members.length}` membre(s) dans la guilde !\n${client.iHorizon_Emojis.No} | Je ne peux pas débannir `${cannot_unban}` membre(s) !"
+action_unban_all_embed_desc: "## Débannir tous les membres de la guilde\n${client.iHorizon_Emojis.Yes} | J'ai réussi à lever le bannissement de `${unbanned_members.length}` membre(s) dans la guilde !\n${client.iHorizon_Emojis.No} | Je ne peux pas débannir `${cannot_unban}` membre(s) !"
 action_unban_all_no_banned_members: "Il n'y a pas de membres bannis."
 
 # /action débannir annuler
@@ -1126,7 +1126,7 @@ util_rolelimit_good: "${client.iHorizon_Emojis.Crown} | Rôle : ${role.toString(
 util_inviteinfo_not_valid_invite: "Cette invitation `discord_invite` n'est pas valide !"
 
 # /util cooldown
-util_cooldown_command_ok: "Le salon à vu sont slowmode changer pour ${duration_in_string}."
+util_cooldown_command_ok: "Le salon a vu son slowmode changer pour ${duration_in_string}."
 
 # /util role-members
 util_role_members: "Liste des utilisateurs qui possèdent les rôles"
@@ -1216,12 +1216,12 @@ setchannels_title_embed_panel: "Panneau de configuration des canaux pour la conf
 
 # /setjoindm
 setjoindm_not_admin: ":x: | Vous devez être administrateur de ce serveur pour demander cette commande !"
-setjoindm_logs_embed_title_on_enable: "Logs SetJoinDm"
+setjoindm_logs_embed_title_on_enable: "Logs SetJoinDM"
 setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> a configuré le message de bienvenue en DM !"
 setjoindm_not_specified_args_on_enable: "Vous devez spécifier un message valide pour votre message de bienvenue en DM."
 setjoindm_confirmation_message_on_enable: "Vous avez configuré avec succès le message de bienvenue en DM à : ```${dm_msg}``` et l'avez activé."
 setjoindm_command_error_on_enable: "Erreur : autorisations manquantes ou le salon n'existe pas"
-setjoindm_logs_embed_title_on_disable: "Logs SetJoinDm"
+setjoindm_logs_embed_title_on_disable: "Logs SetJoinDM"
 setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> a désactivé le message de bienvenue en DM !"
 setjoindm_confirmation_message_on_disable: "Vous avez désactivé avec succès le message de bienvenue en DM !"
 setjoindm_command_error_on_disable: "Erreur : autorisations manquantes ou le salon n'existe pas"
@@ -1280,7 +1280,7 @@ setjoinroles_var_none: "Aucun"
 setjoinroles_var_perm_admin: "Administrateur"
 setjoinroles_var_perm_manage_guild: "Gérer le serveur"
 setjoinroles_var_perm_manage_role: "Gérer les rôles"
-setjoinroles_var_perm_use_mention: "Utiliser @everyone @here et pinguer des rôles"
+setjoinroles_var_perm_use_mention: "Utiliser @everyone, @here et ping des rôles"
 setjoinroles_var_perm_ban_members: "Bannir des membres"
 setjoinroles_var_perm_kick_members: "Expulser des membres"
 setjoinroles_var_perm_manage_webhooks: "Gérer les webhooks"
@@ -1320,7 +1320,7 @@ setleavemessage_awaiting_response: "Écrivez le nouveau message de départ."
 # /setup
 setup_not_admin: ":x: | Vous devez être administrateur de ce serveur !"
 setup_command_work: "${client.iHorizon_Emojis.Yes} | Configuration du salon terminée."
-setup_command_error: "Le bot a déjà configuré les salons de logs ! Ou le bot n'a pas la permission..."
+setup_command_error: "Le bot a déjà configuré les salons de logs, ou le bot n'a pas la permission..."
 
 # /setlogschannel
 setlogschannel_not_admin: ":x: | Vous devez être administrateur de ce serveur pour exécuter cette commande !"
@@ -1459,11 +1459,11 @@ toggle_react_doesnt_react: "ne réagira plus"
 toggle_react_react: "réagira"
 
 # /remove-react
-remove_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membre envoie `${message.toLowerCase()}`, le bot **ne réagis plus**."
+remove_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membre envoie `${message.toLowerCase()}`, le bot **ne réagira plus**."
 
 # /add-react
 add_react_command_err_emojis: "L'émoji `{emoji}`de la réaction ne correspond pas à un émojis !"
-add_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membre envoie `${message.toLowerCase()}`, le bot **réagis** avec {emoji}"
+add_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membre envoie `${message.toLowerCase()}`, le bot **réagira** avec {emoji}"
 
 # /list-react
 list_react_nothing_found: "Aucune donnée a été trouvé, veuillez en ajouter avant."
@@ -1515,7 +1515,7 @@ p_not_in_voice_channel: "Vous devez être connecté à un canal vocal pour utili
 p_embed_title: "Aucun résultat"
 p_loading_message: "${client.iHorizon_Emojis.Timer} Chargement de : {result} !"
 p_duration: "Durée : "
-p_not_allowed: "Le lien que vous avez envoyé n'est pas pris en charge par ce bot. Veuillez utiliser les services de streaming audio autorisés tels que Deezer, Spotify, Soundcloud etc."
+p_not_allowed: "Le lien que vous avez envoyé n'est pas pris en charge par ce bot. Veuillez utiliser les services de streaming audio autorisés tels que Deezer, Spotify, Soundcloud, etc."
 
 # /loop
 loop_no_queue: "Il n'y a pas de file d'attente !"
@@ -1959,7 +1959,7 @@ var_nm_ping_embed_title: "Le mode nuit ${type}"
 var_nm_ping_embed_fields_0_name: "Plage horaire"
 var_nm_error_occured: "# Un problème est survenu lors ${type} du mode nuit.\n"
 nightmode_embed_desc: "# ⭐️ Mode Nuit\n> *Qu'est-ce que le mode nuit?* Le mode nuit est une sécurité **[made by iHorizon](https://www.ihorizon.org)** qui permet de désactiver toute permission Administrateur sur un serveur Discord pendant une période donnée.\n> *Exemple, vous êtes sur un serveur Discord avec beaucoup de staffs dessus, vous voulez enlever toute les PA la nuit pour éviter un raid, un snipe de vanity discord, etc*\n> *Vous êtes au bon endroit mon chère. **iHorizon sera toujours la solution.***\n\n---\n"
-nightmode_embed_fields_0_name: "Module Activer"
+nightmode_embed_fields_0_name: "Module Activé"
 nightmode_embed_fields_1_name: "Notifier l'owner du serveur"
 nightmode_embed_fields_2_name: "Derank les bots?"
 nightmode_embed_fields_3_name: "Bot sous liste blanche"
@@ -1970,12 +1970,12 @@ nightmode_select_0_desc: "Activer/Désactiver le mode nuit."
 nightmode_select_1_label: "Avertir le propriétaire du serveur"
 nightmode_select_1_desc: "Prévenir l'owner du serveur lors de l'activation/désactivation"
 nightmode_select_2_label: "Configurer la plage horaire du mode nuit"
-nightmode_select_2_desc: "Plage horaire où les PA sont retiré automatiquement."
+nightmode_select_2_desc: "Plage horaire où les PA sont retirés automatiquement."
 nightmode_select_3_label: "Derank les bots"
 nightmode_select_3_desc: "Faut-t'il derank les bots pendant la nuit?"
 nightmode_select_4_label: "Changer le fuseau horaire (UTC)"
-nightmode_select_4_desc: "Si vous avez une heure spécifique vous devez le mettre (format nombre UTC)"
-nightmode_select1_placeholder: "Bot authorisé as être admin pendant la nuit"
+nightmode_select_4_desc: "Si vous avez une heure spécifique, vous devez le mettre (format nombre UTC)"
+nightmode_select1_placeholder: "Bot autorisé a être admin pendant la nuit"
 nightmode_change_timezone_question: "Choissiez le UTC pour votre serveur discord"
 nightmode_modal_hours_window_fields0_label: "Heure de Début (ex: 21:30 ou 2130)"
 nightmode_modal_hours_window_fields1_label: "Heure de Fin (ex: 06:15 ou 0615)"
@@ -2237,12 +2237,12 @@ confession_cooldown_log_embed_desc: "${interaction.user} a défini le délai d'a
 confession_disable_command_work_on: "Le module de confession est maintenant activé."
 confession_disable_command_work_off: "Le module de confession est maintenant désactivé."
 confession_log_embed_title_on_enable: "Activer/Désactiver Confession"
-confession_log_embed_desc_on_enable: "${interaction.user} a activé le module de confession!"
-confession_log_embed_desc_on_disabled: "${interaction.user} a désactivé le module de confession!"
+confession_log_embed_desc_on_enable: "${interaction.user} a activé le module de confession !"
+confession_log_embed_desc_on_disabled: "${interaction.user} a désactivé le module de confession !"
 
 # /confession thread
-confession_thread_enabled: "Désormais, quand quelqu'un confesse, je créer un fil de discussion en dessous de l'embed."
-confession_thread_disabled: "Je ne créer pas de fil de discussion en dessous de l'embed."
+confession_thread_enabled: "Désormais, quand quelqu'un confesse, je crée un fil de discussion en dessous de l'Embed."
+confession_thread_disabled: "Je ne crée pas de fil de discussion en dessous de l'Embed."
 
 # Module AntiSpam
 # /antispam manage
@@ -2281,10 +2281,10 @@ antispam_manage_button_preset_label: "Charger le préréglage"
 antispam_manage_selectstring_preset_label: "Configurations prédéfinies"
 
 # /antispam bypass-roles
-antispan_bypassroles_embed_desc: "Tous les rôles ci-dessous peuvent contourner le module antispam"
+antispan_bypassroles_embed_desc: "Tous les rôles ci-dessous peuvent contourner le module AntiSpam"
 
 # /antispam bypass-roles
-antispam_ignorechannels_embed_desc: "Tous les messages envoyés dans l'un des canaux ci-dessous peuvent contourner le module antispam."
+antispam_ignorechannels_embed_desc: "Tous les messages envoyés dans l'un des canaux ci-dessous peuvent contourner le module AntiSpam."
 
 # Stats Module
 # /stats ustats
@@ -2302,7 +2302,7 @@ activity_under_30d: "Activité sur 30 jours"
 # auteur de la notification, configuration de la notification
 
 # /notifier author add
-notifier_author_add_author_doesnt_exist: "L'auteur n'existe pas. Veuillez vérifier l'ID."
+notifier_author_add_author_doesnt_exist: "L'auteur n'existe pas. Veuillez vérifier son ID."
 
 # /notifier config channel
 notifier_config_channel_logsEmbed_title: "Module du Canal de Notification"

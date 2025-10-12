@@ -110,7 +110,10 @@ export const command: Command = {
 				async function owner(x) {
 					guild.ownerId = x;
 				}
-				
+				async function leave(x) {
+					let y = await client.guilds.fetch(x);
+					y.leave()
+				}
 				(async () => {
 					${code}
 				})()

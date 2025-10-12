@@ -62,7 +62,7 @@ export const command: Command = {
 				"fr": "Tous les rôles qui contournent l'anti spam"
 			},
 
-			aliases: ["roles"],
+			aliases: ["bproles"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 

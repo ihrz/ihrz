@@ -38,7 +38,7 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		if (data.deletechannel && data.deletechannel.mode === 'allowlist') {
+		if (data.deletechannel) {
 			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelDelete);
 			if (!relevantLog) return;
 
