@@ -110,7 +110,7 @@ export const handledAuditLogEntrie_logs = new Set<string>();
 export async function getLogs(guild: Guild, args: string, type: AuditLogEvent, l: 1 | 2 | 3 = 1) {
 	const fetchedLogs = await guild.fetchAuditLogs({
 		type,
-		limit: 5
+		limit: 20
 	});
 
 	const relevantLog = fetchedLogs.entries.find(entry =>

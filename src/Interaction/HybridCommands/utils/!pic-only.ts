@@ -239,6 +239,7 @@ export const subCommand: SubCommand = {
 				await og_response.edit({ components: [newComp_2] });
 
 				await client.db.set(`${interaction.guildId}.UTILS.picOnly`, all_channels);
+				await client.db.set(`${interaction.guildId}.UTILS.picOnlyConfig`, baseData);
 				collector.stop();
 				buttonCollector.stop();
 			}
