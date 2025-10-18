@@ -41,7 +41,7 @@ import { blacklistTable, ownerTable } from '../../../Events/client/ready.js';
 export const command: Command = {
 	name: 'bledit',
 
-	description: 'edit blacklist reaso',
+	description: 'edit blacklist reason',
 	description_localizations: {
 		"fr": "modifier la raison d'un blacklist"
 	},
