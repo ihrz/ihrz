@@ -299,6 +299,8 @@ export interface LanguageData {
 	var_action: string;
 	ticket_rename_ok: string;
 	ticket_rename_error: string;
+	ticket_unlink_command_ok: string;
+	ticket_unlink_panel_edited_content: string;
 	disablexp_not_admin: string;
 	disablexp_logs_embed_title_disable: string;
 	disablexp_logs_embed_description_disable: string;

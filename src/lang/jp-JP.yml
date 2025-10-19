@@ -311,6 +311,10 @@ var_action: "アクション"
 ticket_rename_ok: "チケットチャンネルの名前が変更されました！"
 ticket_rename_error: "テキストチャンネルの名前を変更中にエラーが発生しました。"
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **このチャンネルはチケットモジュールからリンク解除されました。**"
+ticket_unlink_panel_edited_content: "このチャンネルは以前のチケットでした。ユーザー {user} がこのチャンネルのリンクを解除しました。"
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 

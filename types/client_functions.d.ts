@@ -138,6 +138,7 @@ declare namespace Client_Functions {
 		export function addCoins(member: GuildMember, coins: number): Promise<void>;
 		export function subCoins(member: GuildMember, coins: number): Promise<void>;
 		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
+		export function deleteTicketChannelFromDatabase(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function isValidDiscordInvite(input: string): boolean;
 	}
 

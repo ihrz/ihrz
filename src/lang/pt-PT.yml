@@ -311,6 +311,10 @@ var_action: "Ação"
 ticket_rename_ok: "O canal do ticket foi renomeado!"
 ticket_rename_error: "Erro ao renomear o canal de texto."
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **O canal foi desvinculado do módulo de tickets.**"
+ticket_unlink_panel_edited_content: "Este canal era um ticket antigo. O utilizador {user} desvinculou este canal."
+
 # Comandos de Níveis
 # /level, /setxpchannels, /disablexp
 
