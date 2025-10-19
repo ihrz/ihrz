@@ -25,9 +25,6 @@ import config from './files/config.js';
 import logger from './core/logger.js';
 
 import { ShardingManager } from 'discord.js';
-import { config as conf } from 'dotenv';
-
-conf({ debug: false, quiet: true });
 
 const manager = new ShardingManager('./src/core/bot.ts', {
 	totalShards: process.env.TOTAL_SHARDS

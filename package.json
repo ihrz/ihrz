@@ -30,7 +30,6 @@
 	"dependencies": {
 		"discord-html-transcripts": "^3.3.0",
 		"discord.js": "^14.23.2",
-		"dotenv": "^17.2.3",
 		"gifwrap": "^0.10.1",
 		"jimp": "0.22.12",
 		"jszip": "^3.10.1",

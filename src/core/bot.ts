@@ -26,9 +26,7 @@ import * as ClientVersion from "../version.js";
 import * as core from './core.js';
 
 import config from "../files/config.js";
-import { configDotenv } from 'dotenv';
 import { setMaxListeners } from 'events';
-configDotenv({ debug: false, quiet: true })
 setMaxListeners(0)
 
 global.client = new Client({
