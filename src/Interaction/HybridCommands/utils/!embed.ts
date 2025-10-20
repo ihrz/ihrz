@@ -181,8 +181,11 @@ class EmbedManager {
 	}
 
 	private updateResponse(): void {
+		const { select, buttons } = this.createComponents();
+
 		this.response.edit({
 			embeds: [this.embed],
+			components: [select, buttons],
 			files: this.getFilesArray()
 		});
 	}
