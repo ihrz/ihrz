@@ -53,7 +53,7 @@ export const command: Command = {
 			if (firstMessage) {
 				client.func.method.channelSend(
 					message,
-					lang.utis_top_command_ok.replace("${link}", link),
+					lang.utils_top_command_ok.replace("${link}", link),
 				);
 			} else {
 				client.func.method.channelSend(message, lang.utils_top_no_message);
