@@ -944,6 +944,30 @@ export async function isTicketChannel(channel: BaseGuildTextChannel): Promise<bo
 	return false;
 }
 
+export async function deleteTicketChannelFromDatabase(channel: BaseGuildTextChannel): Promise<boolean> {
+	const allTickets = await channel.client.db.get(`${channel.guild.id}.TICKET_ALL`);
+
+	if (!allTickets || typeof allTickets !== "object") {
+		return false;
+	}
+
+	for (const authorId of Object.keys(allTickets)) {
+		const ticketsByAuthor = allTickets[authorId];
+
+		if (ticketsByAuthor && typeof ticketsByAuthor === "object") {
+			for (const ticketId of Object.keys(ticketsByAuthor)) {
+				const ticketData = ticketsByAuthor[ticketId];
+
+				if (ticketData && ticketData.channel === channel.id) {
+					await client.db.delete(`${channel.guild.id}.TICKET_ALL.${authorId}.${ticketId}`);
+					return ticketData?.channel === channel.id;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 export function isValidDiscordInvite(input: string): boolean {
 	// Clean input by removing whitespace
 	const trimmed = input.trim();

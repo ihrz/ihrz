@@ -311,6 +311,10 @@ var_action: "Action"
 ticket_rename_ok: "Ticket channel has been renamed !"
 ticket_rename_error: "Error when renaming the text channel"
 
+# /ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **The channel is now unlinked from the ticket module.**"
+ticket_unlink_panel_edited_content: "This channel was an old ticket. The user {user} has unlinked this channel."
+
 # Ranks commands
 # /level, /setxpchannels, /disablexp
 

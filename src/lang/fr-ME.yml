@@ -311,6 +311,10 @@ var_action: "Action"
 ticket_rename_ok: "Le salon du ticket a été renommé !"
 ticket_rename_error: "Alors j'sais pas ce que j'ai consommer mais frr elle est bonne hyn. j'me suis endormis sur le keyboard jcrois. Ya un monde où ton salon c'est dla merde"
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Le salon est maintenant dissocié du module de tickets.**"
+ticket_unlink_panel_edited_content: "Ce salon était un ancien ticket. L’utilisateur {user} a dissocié ce salon."
+
 # Ranks commandsa
 # /xp, /setxpchannels, /disablexp
 

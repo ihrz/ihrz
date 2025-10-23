@@ -32,9 +32,6 @@ import config from './files/config.js';
 import logger from './core/logger.js';
 
 import { ShardingManager } from 'discord.js';
-import { config as conf } from 'dotenv';
-
-conf({ debug: false, quiet: true });
 
 logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
 logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);

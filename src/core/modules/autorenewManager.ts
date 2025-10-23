@@ -91,6 +91,8 @@ class AutoRenew {
 								reason: `Channel re-create by Auto-Renew`
 							});
 
+							if (guild.systemChannel?.id === channel.id) guild.setSystemChannel(newChannel.id);
+
 							if (newChannel) {
 								await Promise.all([
 									client.db.set(`${guild.id}.UTILS.renew_channel.${newChannel.id}`, {

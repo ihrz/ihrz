@@ -345,6 +345,18 @@ export const command: Command = {
 
 			permission: null
 		},
+		{
+			name: "unlink",
+
+			description: "Unlink a ticket!",
+			description_localizations: {
+				"fr": "Transforme le salon de ticket en salon classique auprès du bot."
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.ManageChannels
+		},
 	],
 	thinking: true,
 	category: 'ticket',

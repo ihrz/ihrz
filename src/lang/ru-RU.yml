@@ -311,6 +311,10 @@ var_action: "Действие"
 ticket_rename_ok: "Канал тикета был переименован!"
 ticket_rename_error: "Ошибка при переименовании текстового канала."
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Канал был отвязан от модуля тикетов.**"
+ticket_unlink_panel_edited_content: "Этот канал был старым тикетом. Пользователь {user} отвязал этот канал."
+
 # Команды для рангов
 # /level, /setxpchannels, /disablexp
 

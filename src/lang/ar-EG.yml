@@ -311,6 +311,10 @@ var_action: "الإجراء"
 ticket_rename_ok: "تم تغيير اسم قناة التذكرة!"
 ticket_rename_error: "حدث خطأ أثناء إعادة تسمية القناة النصية."
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **تم فصل القناة عن نظام التذاكر.**"
+ticket_unlink_panel_edited_content: "كانت هذه القناة تذكرة قديمة. قام المستخدم {user} بفصل هذه القناة."
+
 # Ranks commands
 # /level, /setxpchannels, /disablexp
 
