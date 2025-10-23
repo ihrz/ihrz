@@ -1137,6 +1137,10 @@ util_cooldown_command_ok: "تم تغيير وضع البطء في القناة �
 util_role_members: "قائمة المستخدمين الذين لديهم الأدوار"
 util_role_members_no_one: "لا يوجد أي شخص لديه هذا الدور في الخادم"
 
+# +top
+utils_top_no_message: "لا توجد رسائل في هذه القناة"
+utils_top_command_ok: "الرسالة الأولى في هذه القناة موجودة [هنا](${link})"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

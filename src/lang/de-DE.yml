@@ -1136,6 +1136,10 @@ util_cooldown_command_ok: "Der Slowmode des Kanals wurde auf ${duration_in_strin
 util_role_members: "Liste der Benutzer mit den Rollen"
 util_role_members_no_one: "Niemand auf dem Server hat diese Rolle"
 
+# +top
+utils_top_no_message: "Keine Nachrichten in diesem Kanal gefunden"
+utils_top_command_ok: "Die erste Nachricht in diesem Kanal ist [hier](${link})"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

@@ -48,15 +48,15 @@ export const command: Command = {
 		const channel = message.channel;
 		channel.messages.fetch({ after: "0", limit: 1 }).then((messages) => {
 			const firstMessage = messages.first();
-			const link = `https://discord.com/channels/${message.guild?.id}/${channel.id}`;
+			const link = `https://discord.com/channels/${message.guild?.id}/${channel.id}/${firstMessage?.id}`;
 
 			if (firstMessage) {
 				client.func.method.channelSend(
 					message,
-					`The first message in this channel is [here](${link}/${firstMessage.id})`,
+					lang.utis_top_command_ok.replace("${link}", link),
 				);
 			} else {
-				client.func.method.channelSend(message, "No messages found in this channel");
+				client.func.method.channelSend(message, lang.utils_top_no_message);
 			}
 		});
 	},
