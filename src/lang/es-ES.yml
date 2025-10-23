@@ -1136,6 +1136,10 @@ util_cooldown_command_ok: "El modo lento del canal se ha establecido en ${durati
 util_role_members: "Lista de usuarios que tienen los roles"
 util_role_members_no_one: "No hay nadie con ese rol en el servidor"
 
+# +top
+utils_top_no_message: "No se encontraron mensajes en este canal"
+utils_top_command_ok: "El primer mensaje en este canal está [aquí](${link})"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

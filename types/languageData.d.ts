@@ -865,6 +865,8 @@ export interface LanguageData {
 	util_cooldown_command_ok: string;
 	util_role_members: string;
 	util_role_members_no_one: string;
+	utils_top_no_message: string;
+	utils_top_command_ok: string;
 	blockpub_not_admin: string;
 	blockpub_now_enable: string;
 	blockpub_now_disable: string;
