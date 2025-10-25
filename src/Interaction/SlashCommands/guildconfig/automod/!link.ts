@@ -123,10 +123,12 @@ export const subCommand: SubCommand = {
 					.replace('${logs_channel}', (logs_channel?.toString() || 'None'))
 			});
 			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`, false);
+			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "on");
 
 			return;
 		} else if (turn === "off") {
 			await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`);
+			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "off");
 			await KeywordPresetRule?.setEnabled(false);
 
 			await interaction.editReply({
