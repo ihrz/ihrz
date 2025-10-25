@@ -114,7 +114,6 @@ export const subCommand: SubCommand = {
 				});
 			};
 
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "on");
 			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`, true);
 			await interaction.editReply({
 				content: lang.automod_block_pub_command_on
@@ -126,7 +125,6 @@ export const subCommand: SubCommand = {
 		} else if (turn === "off") {
 			await KeywordPresetRule?.setEnabled(false);
 
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.antipub`, "off");
 			await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`);
 			await interaction.editReply({
 				content: lang.automod_block_pub_command_off
