@@ -118,7 +118,7 @@ export async function getLogs(guild: Guild, args: string, type: AuditLogEvent, l
 		entry.executorId !== client.user?.id &&
 		entry.executorId
 		// Window time for avoiding recursive:
-		&& entry.createdTimestamp > (Date.now() - 10_000)
+		&& entry.createdTimestamp > (Date.now() - 20_000)
 	);
 
 	// Avoiding double action by filtering the user
