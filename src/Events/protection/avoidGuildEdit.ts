@@ -40,6 +40,7 @@ export const event: BotEvent = {
 
 		if (data.updateguild) {
 			const relevantLog = await getLogs(newGuild, newGuild.id, AuditLogEvent.GuildUpdate);
+			console.log(relevantLog?.toJSON());
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;

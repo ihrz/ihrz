@@ -120,11 +120,8 @@ declare namespace Client_Functions {
 		export function hasSubCommand(options: Array<Option> | undefined): boolean;
 		export function hasSubCommandGroup(options: Array<Option> | undefined): boolean;
 		export function isSubCommand(option: Option | Command): boolean;
-		export function punish(
-			data: DatabaseStructure.ProtectionData,
-			user: GuildMember | undefined,
-			reason?: string
-		): Promise<void>;
+		export function derank(user: GuildMember, reason?: string): Promise<void>;
+		export function punish(data: DatabaseStructure.ProtectionData, user: GuildMember, reason?: string): Promise<void>;
 		export function generateCustomMessagePreview(
 			message: string,
 			input: { guild: Guild; user: User; guildLocal: string; inviter?: { user: { username: string; mention: string; }; invitesAmount: number; }; ranks?: { level: number; }; notifier?: { artistAuthor: string; artistLink: string; mediaURL: string; }; }
