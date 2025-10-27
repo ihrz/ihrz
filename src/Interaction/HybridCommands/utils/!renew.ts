@@ -60,8 +60,8 @@ export const subCommand: SubCommand = {
 				reason: `Channel re-create by ${interaction.member.user} (${interaction.member.user.id})`
 			});
 
-			await here.setPosition(channel.rawPosition);
 			await channel.delete();
+			await here.setPosition(channel.rawPosition);
 
 			here.send({ content: lang.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
 			return;
