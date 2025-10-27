@@ -77,7 +77,7 @@ export const subCommand = {
 						.replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "online").size}', memberStats.online.toString())
 						.replaceAll('${client.iHorizon_Emojis.Idle}', client.iHorizon_Emojis.Idle)
 						.replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}', memberStats.idle.toString())
-						.replaceAll('${client.iHorizon_Emojis.iHorizon_Idle}', client.iHorizon_Emojis.Invisible)
+						.replaceAll('${client.iHorizon_Emojis.iHorizon_Invisible}', client.iHorizon_Emojis.Invisible)
 						.replaceAll('${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}', memberStats.invisible.toString())
 						.replaceAll('${interaction.guild?.premiumSubscriptionCount}', guild.premiumSubscriptionCount?.toString() || '0')
 						.replaceAll('${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}', boosters.join(', '))

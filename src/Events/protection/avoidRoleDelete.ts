@@ -58,7 +58,7 @@ export const event: BotEvent = {
 			}
 
 			shouldSanction && (async () => {
-				await client.func.method.punish(data, user);
+				await client.func.method.punish(data, user!);
 
 				const newRole = await role.guild.roles.create({
 					...role,

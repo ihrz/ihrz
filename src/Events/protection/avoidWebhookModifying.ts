@@ -57,7 +57,7 @@ export const event: BotEvent = {
 			}
 
 			shouldSanction && (async () => {
-				await client.func.method.punish(data, user);
+				await client.func.method.punish(data, user!);
 
 				const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
 				const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.targetId!);

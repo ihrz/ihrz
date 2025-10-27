@@ -44,6 +44,7 @@ export const command: Command = {
 	options: [
 		{
 			name: "balance-add",
+			prefixName: "addmoney",
 
 			description: "Add money to a user!",
 			description_localizations: {
@@ -84,6 +85,7 @@ export const command: Command = {
 		},
 		{
 			name: "balance-remove",
+			prefixName: "removemoney",
 
 			description: "Remove money from a user!",
 			description_localizations: {
@@ -129,6 +131,8 @@ export const command: Command = {
 				fr: "Obtenir le solde d'un utilisateur",
 			},
 
+			aliases: ["wallet", "coins"],
+
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
@@ -151,7 +155,7 @@ export const command: Command = {
 		},
 		{
 			name: "config",
-			prefixName: "economy-config",
+			prefixName: "ecconfig",
 
 			description: "Disable the economy module into your guild",
 			description_localizations: {
@@ -378,7 +382,7 @@ export const command: Command = {
 		},
 		{
 			name: "role",
-			prefixName: "economy-role",
+			prefixName: "ecrole",
 
 			description: "Set a role for a certain amount of money!",
 			description_localizations: {
