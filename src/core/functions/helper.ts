@@ -40,3 +40,7 @@ export async function hardCooldown(database: DB, method: string, ms: number): Pr
 	await tempTable.set(`COOLDOWN.${method}`, tn);
 	return false;
 };
+
+export function capitalizeFirstLetter(string: string): string {
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}

@@ -992,3 +992,15 @@ export function isValidDiscordInvite(input: string): boolean {
 	// Check if input matches any of the patterns
 	return patterns.some(pattern => pattern.test(trimmed));
 }
+
+export function isValidDiscordInviteCode(VanityCode: string) {
+	if (VanityCode.length > 32) {
+		return false;
+	}
+	const regex = /^[a-z0-9]+(-[a-z0-9]+)*$/i;
+	if (!regex.test(VanityCode)) {
+		return false;
+	}
+
+	return true;
+}

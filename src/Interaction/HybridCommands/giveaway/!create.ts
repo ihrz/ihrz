@@ -30,17 +30,6 @@ import {
 import { axios } from '../../../core/functions/axios.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-
-
-async function isImageUrl(url: string): Promise<boolean> {
-	try {
-		const response = await axios.head(url);
-		const contentType = response.headers.get("content-type");
-		return contentType.startsWith("image/");
-	} catch (error) {
-		return false;
-	}
-};
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
@@ -108,7 +97,7 @@ export const subCommand: SubCommand = {
 			prize: giveawayPrize as string,
 			winnerCount: giveawayNumberWinners as number,
 			hostedBy: interaction.member.user.id,
-			embedImageURL: await isImageUrl(imageUrl) ? imageUrl : null,
+			embedImageURL: await client.func.mediaManipulation.isImageUrl(imageUrl) ? imageUrl : null,
 			requirement: { type: giveawayRequirement, value: giveawayRequirementValue }
 		});
 
