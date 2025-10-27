@@ -653,6 +653,7 @@ question_s:
     "Oui.",
     "sah je men tape de ta question",
     "aupire nique ta mère nan?",
+    "Tu veux pas j'tencule aupire?",
   ]
 question_fields_input_embed: ":question: **Question**"
 question_fields_output_embed: ":grey_exclamation: **Réponse:**"
@@ -1038,14 +1039,14 @@ zip_stickers_command_work: "🎉 Exportation terminée en **${calcTime}**ms ! Vo
 zip_stickers_command_error: "Une erreur est survenue lors de l'exportation des stickers."
 
 # +sticker
-sticket_no_sticker: "Aucun autocollant trouvé dans le message auquel vous avez répondu."
+sticket_no_sticker: "gros j'ai pas envie de t'insulter mais t'a l'air d'un vieux tocard de merde. Jpeut créer des stickers ouais, mais à condition que tu prenne un message avec. fdp"
 sticket_command_work: "L'autocollant `${x.name}` a été créé avec succès."
 sticker_command_error: "Impossible de créer l'autocollant. Une erreur s'est produite : `${err.message}`."
 sticket_command_error2: "Veuille répondre à un message contenant un autocollant."
 
 # /util nick-kicker
 util_nick_kicker_embed_title: "Expulseur de Pseudos"
-util_nick_kicker_embed_desc: "Un mec te clc avec sa team de saloppe? pas de soucis, iHorizon est là pour les expulser !"
+util_nick_kicker_embed_desc: "Un mec te clc avec sa team de saloppe? pas de soucis, iHorizon est là pour les expulser comme un ptn de raciste!"
 util_nick_kicker_words: "mots"
 util_nick_kicker_select_to_remove: "Sélectionnez un mot à supprimer"
 util_nick_kicker_remove_word: "Supprimer ce mot"
@@ -1094,7 +1095,7 @@ util_allwebhooks_deleted: "**`${u}`** webhook(s) supprimé(s) !"
 # /util unzip-emojis
 util_unzip_emojis_command_work: "🎉 Décompression terminée en ${calcTime}ms ! J'ai créé ${emojiCount} emoji(s) dans la guilde."
 util_unzip_emojis_command_error: "Une erreur s'est produite lors de la décompression des emojis."
-util_unzip_emojis_command_no_file: "Veuille joindre un fichier zip contenant des emojis."
+util_unzip_emojis_command_no_file: "gros jmen fou des nudes de ta soeur. jveux un fichier zip moi pour les recover la conne de ta race."
 
 # /util vkick
 vkick_member_not_in_guild: "Le membre n'est pas dans le serveur mec."
@@ -1139,7 +1140,7 @@ util_role_members: "Liste des utilisateurs qui possèdent les rôles"
 util_role_members_no_one: "Personne ne possède ce rôle sur le serveur"
 
 # +top
-utils_top_no_message: "Aucun message trouvé dans ce canal"
+utils_top_no_message: "jcrois ce salon c'est un peu la rue. ya 0 message ma gueule."
 utils_top_command_ok: "Le premier message de ce canal se trouve [ici](${link})"
 
 # Guild Config commands
@@ -1578,7 +1579,7 @@ history_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
 
 # /music lyrics
 lyrics_embed_title_unknown: "Titre inconnu"
-lyrics_embed_author_name_unknown: "Auteur inconnu"
+lyrics_embed_author_name_unknown: "Auteur inconnu, c'est un ptn de random"
 lyrics_not_found: "Paroles non trouvées"
 
 # Giveaway commands
@@ -1639,7 +1640,7 @@ gw_doesnt_exit: "Les cadeaux sont inaccessibles ou n'existent pas. rohhh nike sa
 # /unban, /tempmute, /unmute
 
 # /avatar
-avatar_embed_description: "Regardez cet incroyable avatar ! :D"
+avatar_embed_description: "ya des seins sur l'avatar? ! :D"
 avatar_embed_title: "__**Avatar**__: `${mentionedUser.username}`"
 
 # /ban
