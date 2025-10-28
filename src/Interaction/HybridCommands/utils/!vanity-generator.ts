@@ -29,18 +29,6 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
 
-function VerifyVanityCode(VanityCode: string) {
-	if (VanityCode.length > 32) {
-		return false;
-	}
-	const regex = /^[a-z0-9]+(-[a-z0-9]+)*$/i;
-	if (!regex.test(VanityCode)) {
-		return false;
-	}
-
-	return true;
-}
-
 async function VanityCodeAlreadyExist(AllVanityGuild: any, code: string): Promise<boolean> {
 	let _ = false;
 	for (const guildId in AllVanityGuild) {
@@ -68,9 +56,7 @@ export const subCommand: SubCommand = {
 
 		const get = await apiTable.get('VANITY');
 
-		const guildGet = get?.[`${interaction.guildId}`]?.['code'];
-
-		if (!VerifyVanityCode(VanityCode)) {
+		if (!client.func.method.isValidDiscordInviteCode(VanityCode)) {
 			await client.func.method.interactionSend(interaction, { content: `The URL Vanity code \`${VanityCode}\` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
 			return;
 		};

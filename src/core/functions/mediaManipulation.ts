@@ -24,6 +24,7 @@ import path from 'path';
 import fs from 'node:fs';
 import os from 'os';
 import { mkdir } from 'fs/promises';
+import { axios } from './axios.ts';
 
 const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15 MB
 export const tempDir = path.join(os.tmpdir(), 'media-manipulation');
@@ -114,3 +115,13 @@ export async function resizeImage(inputImage: Buffer, outputPath: string, width?
 
 	return metadata;
 }
+
+export async function isImageUrl(url: string): Promise<boolean> {
+	try {
+		const response = await axios.head(url);
+		const contentType = response.headers.get("content-type");
+		return contentType.startsWith("image/");
+	} catch (error) {
+		return false;
+	}
+};

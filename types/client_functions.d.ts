@@ -137,6 +137,7 @@ declare namespace Client_Functions {
 		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function deleteTicketChannelFromDatabase(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function isValidDiscordInvite(input: string): boolean;
+		export function isValidDiscordInviteCode(VanityCode: string): any;
 	}
 
 	// From getLanguageData.ts
@@ -255,6 +256,7 @@ declare namespace Client_Functions {
 			width?: number,
 			height?: number
 		): Promise<{ width: number; height: number; }>;
+		export function isImageUrl(url: string): Promise<boolean>;
 	}
 
 	// From encryptDecryptMethod.ts
@@ -329,6 +331,7 @@ declare namespace Client_Functions {
 			method: string,
 			ms: number
 		): Promise<boolean>;
+		export function capitalizeFirstLetter(string: string): string;
 	}
 
 	// From ihorizon_logs.ts
@@ -345,6 +348,12 @@ declare namespace Client_Functions {
 
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
+
+	// From os_utils.ts
+	export namespace os_utils {
+		export function niceBytes(kb: number): any;
+		export function getMemoryInfo(): Promise<{ MemTotal: number; MemFree: number; MemAvailable: number; }>;
+	}
 
 	// From searchLyrics.ts
 	export function searchLyrics(query: string, author?: User): Promise<{ track: Track | undefined; res: LyricsResult; } | null>;

@@ -30,114 +30,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
-
 import os from 'node:os';
-import { existsSync, readFile } from 'node:fs';
-import { exec } from 'node:child_process';
-
-function niceBytes(kb: number) {
-	let bytes = kb * 1024;
-
-	const units = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-	let unitIndex = 0;
-
-	while (bytes >= 1024 && unitIndex < units.length - 1) {
-		bytes /= 1024;
-		unitIndex++;
-	}
-
-	return `${bytes < 10 && unitIndex > 0 ? bytes.toFixed(2) : bytes.toFixed(0)} ${units[unitIndex]}`;
-}
-
-function getMemoryInfo(): Promise<{
-	MemTotal: number,
-	MemFree: number,
-	MemAvailable: number,
-}> {
-	if (existsSync('/proc/meminfo')) {
-		return new Promise((resolve, reject) => {
-			readFile('/proc/meminfo', 'utf8', (err, data) => {
-				if (err) {
-					reject(err);
-					return;
-				}
-
-				const memInfo: Record<string, number> = {};
-				const lines = data.split('\n');
-
-				lines.forEach(line => {
-					const parts = line.split(':');
-					if (parts.length === 2) {
-						const key = parts[0].trim();
-						const valueStr = parts[1].trim().split(' ')[0];
-						const value = parseInt(valueStr, 10);
-
-						memInfo[key] = value;
-					}
-				});
-
-				resolve({
-					MemTotal: memInfo['MemTotal'],
-					MemFree: memInfo['MemFree'],
-					MemAvailable: memInfo['MemAvailable'],
-				});
-			});
-		});
-		// On macOS
-	} else {
-		return new Promise((resolve, reject) => {
-			// Get total memory with macOS Method
-			try {
-				exec('sysctl -n hw.memsize', (err: any, stdout: string) => {
-					if (err) {
-						reject(err);
-						return;
-					}
-
-					const totalBytes = parseInt(stdout.trim(), 10);
-					const totalKB = Math.floor(totalBytes / 1024);
-
-					// Get memory pressure info
-					exec('vm_stat', (err2: any, stdout2: string) => {
-						if (err2) {
-							reject(err2);
-							return;
-						}
-
-						const lines = stdout2.split('\n');
-						let freePages = 0;
-						let inactivePages = 0;
-
-						lines.forEach(line => {
-							if (line.includes('Pages free:')) {
-								freePages = parseInt(line.match(/\d+/)?.[0] || '0', 10);
-							} else if (line.includes('Pages inactive:')) {
-								inactivePages = parseInt(line.match(/\d+/)?.[0] || '0', 10);
-							}
-						});
-
-						// Each page is typically 4KB on macOS
-						const pageSize = 4096;
-						const freeKB = Math.floor((freePages * pageSize) / 1024);
-						const availableKB = Math.floor(((freePages + inactivePages) * pageSize) / 1024);
-
-						resolve({
-							MemTotal: totalKB,
-							MemFree: freeKB,
-							MemAvailable: availableKB,
-						});
-					});
-				});
-			} catch {
-				Promise.resolve({
-					MemTotal: os.totalmem(),
-					MemFree: os.freemem(),
-					MemAvailable: os.totalmem() - os.freemem(),
-				})
-			}
-		});
-	}
-}
 
 export const command: Command = {
 	name: 'status',
@@ -164,13 +57,13 @@ export const command: Command = {
 		//     return;
 		// };
 
-		const memInfo = await getMemoryInfo();
+		const memInfo = await client.func.os_utils.getMemoryInfo();
 
 		const embed = new EmbedBuilder()
 			.setColor("#82cda8")
 			.setFields(
 				{ name: "Cpu", value: `${os.cpus()[0].model} (${os.machine()})`, inline: false },
-				{ name: "Memory", value: `${niceBytes(memInfo["MemTotal"] - memInfo["MemAvailable"])}/${niceBytes(memInfo["MemTotal"])}`, inline: false },
+				{ name: "Memory", value: `${client.func.os_utils.niceBytes(memInfo["MemTotal"] - memInfo["MemAvailable"])}/${client.func.os_utils.niceBytes(memInfo["MemTotal"])}`, inline: false },
 				{ name: "Machine Uptime", value: `${time(new Date(Date.now() - os.uptime() * 1000), 'd')}`, inline: false },
 				{ name: "Bot Uptime", value: time(new Date(Date.now() - process.uptime() * 1000), 'd') },
 				{ name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
