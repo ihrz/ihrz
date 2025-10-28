@@ -45,6 +45,8 @@ import { NightModeManager } from './modules/nightModeManager.js';
 import { DiscordSlashLogParser } from './converters/slashLog.js';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { GiveawayManager } from './modules/giveawaysManager.js';
+import * as discordTranscripts from "discord-html-transcripts";
+import * as backup from "./backup/src";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
