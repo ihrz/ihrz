@@ -105,6 +105,10 @@ class AxiosClass {
 		return this.request({ ...config, url, method: 'POST', data });
 	}
 
+	put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+		return this.request({ ...config, url, method: 'PUT', data });
+	}
+
 	private handleRequestError<T = any>(error: any): AxiosError<T> {
 		return error;
 	}
