@@ -27,7 +27,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
-import { isValidImageType } from '../../SlashCommands/guildconfig/!footer-pfp.js';
 import { bubbles } from '../../../core/images.js';
 
 export const subCommand: SubCommand = {
@@ -40,7 +39,7 @@ export const subCommand: SubCommand = {
 			var image = interaction.attachments.first()!;
 		}
 
-		if (!isValidImageType(image.contentType)) {
+		if (!client.func.validImageType(image.contentType)) {
 			client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.No })
 			return
 		}

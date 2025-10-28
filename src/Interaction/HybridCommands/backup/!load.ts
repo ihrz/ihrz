@@ -26,7 +26,6 @@ import {
 	PermissionsBitField,
 } from 'discord.js';
 
-import { backup } from '../../../core/backup/src/index.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
@@ -45,7 +44,7 @@ export const subCommand: SubCommand = {
 			var backupID = client.func.method.string(args!, 0)!;
 		};
 
-		const state = await metasTable.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
+		const state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
 		if ((state && interaction.guild.ownerId !== interaction.member.user.id) || ((state === undefined || state === null)) && interaction.guild.ownerId !== interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_manage_nique_tes_mort
@@ -63,7 +62,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
+		if (backupID && !await metasTable.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
@@ -87,8 +86,8 @@ export const subCommand: SubCommand = {
 			components: []
 		});
 
-		backup.fetchBackup(backupID).then(async () => {
-			backup.load(backupID, interaction.guild! as any).then(() => false).catch((err) => {
+		client.backup.fetchBackup(backupID).then(async () => {
+			client.backup.load(backupID, interaction.guild!).then(() => false).catch((err) => {
 				client.func.method.channelSend(interaction, { content: lang.backup_error_on_load.replace("${backupID}", backupID) });
 				return;
 			});

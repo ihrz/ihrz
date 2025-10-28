@@ -113,7 +113,7 @@ function createNavigationRow(currentPage: number, totalPages: number, lang: Lang
 	return navigationRow;
 }
 
-export function setupHelpCategoryCollector(
+function setupHelpCategoryCollector(
 	helpMessage: Message,
 	categoryEmbeds: { [key: string]: EmbedBuilder[] },
 	categories: CategoryData[],

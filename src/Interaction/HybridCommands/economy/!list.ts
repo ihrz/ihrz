@@ -29,7 +29,6 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { generateRoleFields } from './economy.js';
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
@@ -62,7 +61,7 @@ export const subCommand: SubCommand = {
 		const embed = new EmbedBuilder()
 			.setTitle("Economy System - Buyable Roles")
 			.setDescription("All buyable roles are listed below.")
-			.setFields(generateRoleFields(roleData, lang))
+			.setFields(client.func.economyHelper.generateRoleFields(roleData, lang))
 			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0097ff")
 			.setTimestamp()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));

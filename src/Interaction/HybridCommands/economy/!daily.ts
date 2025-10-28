@@ -29,7 +29,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 
-import { getMemberBoost } from './economy.js';
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
@@ -40,7 +39,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
 		const timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.cooldown`) || 86400000);
-		const amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.amount`) || 500) * await getMemberBoost(interaction.member);
+		const amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.daily.amount`) || 500) * await client.func.economyHelper.getMemberBoost(interaction.member);
 		const daily = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.daily`);
 
 		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {

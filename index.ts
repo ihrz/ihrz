@@ -30,7 +30,10 @@ logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
 logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
 logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
 
-globalThis.client = new Client({
+import { setMaxListeners } from 'events';
+setMaxListeners(0)
+
+global.client = new Client({
 	intents: [
 		GatewayIntentBits.AutoModerationConfiguration,
 		GatewayIntentBits.AutoModerationExecution,

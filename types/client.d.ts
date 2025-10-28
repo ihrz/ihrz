@@ -44,6 +44,8 @@ import { NightModeManager } from "../src/core/modules/nightModeManager.ts";
 import { GithubLinesManager } from "../src/core/modules/githubLinesManager.ts";
 import { DB } from "../src/core/database/types.ts";
 import { Postgres } from "../src/core/database/driver/postgres.ts";
+import * as backup from "../src/core/backup/src/";
+import * as discordTranscripts from "discord-html-transcripts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -74,7 +76,9 @@ declare module 'discord.js' {
 		emojisManager: EmojisManager,
 		nightmodeManager: NightModeManager,
 		githubLinesManager: GithubLinesManager,
+		backup: typeof backup;
 		// IN SHARD
-		inShard: (guildId: string) => boolean
+		inShard: (guildId: string) => boolean;
+		discordTranscripts: typeof discordTranscripts;
 	}
 }

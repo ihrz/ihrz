@@ -299,6 +299,8 @@ export interface LanguageData {
 	var_action: string;
 	ticket_rename_ok: string;
 	ticket_rename_error: string;
+	ticket_unlink_command_ok: string;
+	ticket_unlink_panel_edited_content: string;
 	disablexp_not_admin: string;
 	disablexp_logs_embed_title_disable: string;
 	disablexp_logs_embed_description_disable: string;
@@ -395,11 +397,13 @@ export interface LanguageData {
 	blacklist_no_one_blacklist: string;
 	blacklist_var_no_reason: string;
 	blacklist_embed_title: string;
+	blacklist_command_work_shard: string;
 	unblacklist_not_owner: string;
 	unblacklist_command_work: string;
 	unblacklist_not_blacklisted: string;
 	unblacklist_unblacklisted_but_can_unban_him: string;
 	unblacklist_user_is_not_exist: string;
+	unblacklist_command_work_across_all_shard: string;
 	addinvites_not_admin_embed_description: string;
 	addinvites_confirmation_embed_description: string;
 	addinvites_logs_embed_title: string;
@@ -508,6 +512,14 @@ export interface LanguageData {
 	say_footer_msg: string;
 	ping_down_msg: string;
 	ping_embed_desc: string;
+	custom_avatar_reset: string;
+	custom_avatar_set: string;
+	custom_name_reset: string;
+	custom_name_set: string;
+	custom_desc_reset: string;
+	custom_desc_set: string;
+	custom_banner_reset: string;
+	custom_banner_set: string;
 	fun_var_down_api: string;
 	fun_var_good_sentence: string;
 	cats_embed_title: string;
@@ -853,6 +865,8 @@ export interface LanguageData {
 	util_cooldown_command_ok: string;
 	util_role_members: string;
 	util_role_members_no_one: string;
+	utils_top_no_message: string;
+	utils_top_command_ok: string;
 	blockpub_not_admin: string;
 	blockpub_now_enable: string;
 	blockpub_now_disable: string;
@@ -1435,6 +1449,7 @@ export interface LanguageData {
 	embed_placeholder_option_delete_description: string;
 	embed_placeholder_option_edit_author: string;
 	embed_placeholder_option_delete_author: string;
+	embed_placeholde_option_change_footer_image: string;
 	embed_placeholder_option_edit_footer: string;
 	embed_placeholder_option_delete_footer: string;
 	embed_placeholder_option_edit_thumbnail: string;

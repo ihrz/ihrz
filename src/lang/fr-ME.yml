@@ -311,6 +311,10 @@ var_action: "Action"
 ticket_rename_ok: "Le salon du ticket a été renommé !"
 ticket_rename_error: "Alors j'sais pas ce que j'ai consommer mais frr elle est bonne hyn. j'me suis endormis sur le keyboard jcrois. Ya un monde où ton salon c'est dla merde"
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Le salon est maintenant dissocié du module de tickets.**"
+ticket_unlink_panel_edited_content: "Ce salon était un ancien ticket. L’utilisateur {user} a dissocié ce salon."
+
 # Ranks commandsa
 # /xp, /setxpchannels, /disablexp
 
@@ -434,6 +438,7 @@ blacklist_already_blacklisted: "${member.user.username} est déjà blacklist trd
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} Aucun utilisateur trouvé dans la liste noire !"
 blacklist_var_no_reason: "Aucune raison trouvée"
 blacklist_embed_title: "Liste Noire - Page ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} banni sur **${totalSuccess}** serveur(s) à travers tous les shards (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "T'es pas le boss du projet iHorizon. Cette commande est pour les vrais boss seulement."
@@ -441,6 +446,7 @@ unblacklist_command_work: "<@${member.id}> n'est plus sur la liste noire"
 unblacklist_not_blacklisted: "<@${member.id}> n'était pas sur la liste noire"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} A été retiré de la liste noire, impossible de débannir ce membre ici, permission manquante ou déjà débanni ?"
 unblacklist_user_is_not_exist: "Je n'ai pas pu trouver l'utilisateur , surement a cause de son QI négatif"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} a été débanni sur **${totalSuccess}** serveur(s) à travers tous les shards (`${score}`)"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites
@@ -504,7 +510,7 @@ kisakay_message: "Wsh c ma owner, elle est blg et a un vrai beau cul, elle m'a c
 andru_message: 'Andru est un collaborateur et développeur. "L''homme à tout faire", il gère le marketing, la communauté...'
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.Sparkles} Eh we Ether le gros bg modo discord puant qui passe son temps sur VSCode et Discord 24/24h mais oklm c un gars chill W'Allah, lvdm il suce trop linux et vencord :rofl:"
+ether_message: "${client.iHorizon_Emojis.Sparkles} mmh ether...comment le décrire ce mec... trop uhq? 1337? le choix est dur mais bon c un mec qui prend surement pas de douche...nan en vrai c un mec bien ether"
 
 # /Irisweb
 irisweb_message: "😼Iris c ma seconde dev , jladore surtout sa chatte la miam , elle ma crée en version comme ca et pour ca je me soumet a elle❤️"
@@ -592,6 +598,16 @@ say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
 ping_down_msg: "**INDISPONIBLE* miskina on sfé ddos jpp*"
 ping_embed_desc: "# Pong ! Statistiques du réseau de ${interaction.client.user.username} :\n\n**[Ping du site web Discord]** >> `${_net03}` ms.\n**[Ping Cloudflare]** >> `${_net02}` ms.\n**[Ping Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[Ping du site web iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Ping du Websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Moyenne]** >> (moy)`${averagePing}` ms."
 
+# /custom
+custom_avatar_reset: "Vous avez décider de réinstialiser la photo de profil du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que la photo de profil du bot sur le serveur."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer la photo de profil du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que la photo de profil du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
+custom_name_reset: "Vous avez décider de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
+custom_name_set: "`${client.iHorizon_Emojis.Yes} **Vous avez décider de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${name}`"
+custom_desc_reset: "Vous avez décider de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${desc}`"
+custom_banner_reset: "Vous avez décider de réinstialiser la bannière du bot sur le serveur."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer la bannière du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
+
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 
@@ -637,6 +653,7 @@ question_s:
     "Oui.",
     "sah je men tape de ta question",
     "aupire nique ta mère nan?",
+    "Tu veux pas j'tencule aupire?",
   ]
 question_fields_input_embed: ":question: **Question**"
 question_fields_output_embed: ":grey_exclamation: **Réponse:**"
@@ -1022,14 +1039,14 @@ zip_stickers_command_work: "🎉 Exportation terminée en **${calcTime}**ms ! Vo
 zip_stickers_command_error: "Une erreur est survenue lors de l'exportation des stickers."
 
 # +sticker
-sticket_no_sticker: "Aucun autocollant trouvé dans le message auquel vous avez répondu."
+sticket_no_sticker: "gros j'ai pas envie de t'insulter mais t'a l'air d'un vieux tocard de merde. Jpeut créer des stickers ouais, mais à condition que tu prenne un message avec. fdp"
 sticket_command_work: "L'autocollant `${x.name}` a été créé avec succès."
 sticker_command_error: "Impossible de créer l'autocollant. Une erreur s'est produite : `${err.message}`."
 sticket_command_error2: "Veuille répondre à un message contenant un autocollant."
 
 # /util nick-kicker
 util_nick_kicker_embed_title: "Expulseur de Pseudos"
-util_nick_kicker_embed_desc: "Un mec te clc avec sa team de saloppe? pas de soucis, iHorizon est là pour les expulser !"
+util_nick_kicker_embed_desc: "Un mec te clc avec sa team de saloppe? pas de soucis, iHorizon est là pour les expulser comme un ptn de raciste!"
 util_nick_kicker_words: "mots"
 util_nick_kicker_select_to_remove: "Sélectionnez un mot à supprimer"
 util_nick_kicker_remove_word: "Supprimer ce mot"
@@ -1078,7 +1095,7 @@ util_allwebhooks_deleted: "**`${u}`** webhook(s) supprimé(s) !"
 # /util unzip-emojis
 util_unzip_emojis_command_work: "🎉 Décompression terminée en ${calcTime}ms ! J'ai créé ${emojiCount} emoji(s) dans la guilde."
 util_unzip_emojis_command_error: "Une erreur s'est produite lors de la décompression des emojis."
-util_unzip_emojis_command_no_file: "Veuille joindre un fichier zip contenant des emojis."
+util_unzip_emojis_command_no_file: "gros jmen fou des nudes de ta soeur. jveux un fichier zip moi pour les recover la conne de ta race."
 
 # /util vkick
 vkick_member_not_in_guild: "Le membre n'est pas dans le serveur mec."
@@ -1121,6 +1138,10 @@ util_cooldown_command_ok: "Le salon à vu sont slowmode changer pour ${duration_
 # /util role-members
 util_role_members: "Liste des utilisateurs qui possèdent les rôles"
 util_role_members_no_one: "Personne ne possède ce rôle sur le serveur"
+
+# +top
+utils_top_no_message: "jcrois ce salon c'est un peu la rue. ya 0 message ma gueule."
+utils_top_command_ok: "Le premier message de ce canal se trouve [ici](${link})"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1505,7 +1526,7 @@ p_not_in_voice_channel: "Tu devez être connecté à un voc pour utiliser cette 
 p_embed_title: "Aucun résultat"
 p_loading_message: "${client.iHorizon_Emojis.Timer} Chargement de : {result} !"
 p_duration: "Durée : "
-p_not_allowed: "Le lien que tu as envoyé n'est pas pris en charge par ce bot. Veuille utiliser les services de streaming audio autorisés tels que Deezer, Spotify, Youtube, etc."
+p_not_allowed: "Le lien que tu as envoyé n'est pas pris en charge par ce bot. Veuille utiliser les services de streaming audio autorisés tels que Deezer, Spotify, Soundcloud etc."
 
 # /loop
 loop_no_queue: "Il n'y a pas de file d'attente !"
@@ -1558,7 +1579,7 @@ history_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
 
 # /music lyrics
 lyrics_embed_title_unknown: "Titre inconnu"
-lyrics_embed_author_name_unknown: "Auteur inconnu"
+lyrics_embed_author_name_unknown: "Auteur inconnu, c'est un ptn de random"
 lyrics_not_found: "Paroles non trouvées"
 
 # Giveaway commands
@@ -1619,7 +1640,7 @@ gw_doesnt_exit: "Les cadeaux sont inaccessibles ou n'existent pas. rohhh nike sa
 # /unban, /tempmute, /unmute
 
 # /avatar
-avatar_embed_description: "Regardez cet incroyable avatar ! :D"
+avatar_embed_description: "ya des seins sur l'avatar? ! :D"
 avatar_embed_title: "__**Avatar**__: `${mentionedUser.username}`"
 
 # /ban
@@ -1879,6 +1900,7 @@ embed_placeholder_option_edit_description: "Modifier la description"
 embed_placeholder_option_delete_description: "Supprimer la description"
 embed_placeholder_option_edit_author: "Modifier l'auteur"
 embed_placeholder_option_delete_author: "Supprimer l'auteur"
+embed_placeholde_option_change_footer_image: "Changer l'icône du footer"
 embed_placeholder_option_edit_footer: "Modifier le footer"
 embed_placeholder_option_delete_footer: "Supprimer le footer"
 embed_placeholder_option_edit_thumbnail: "Modifier le thumbnail"

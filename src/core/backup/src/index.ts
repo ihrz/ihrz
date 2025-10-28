@@ -25,29 +25,25 @@ import { SnowflakeUtil, IntentsBitField } from 'discord.js';
 
 import { sep } from 'path';
 
-import { existsSync, mkdirSync, statSync, unlinkSync } from 'fs';
+import { existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs';
 import { writeFile, readdir } from 'fs/promises';
 
 import * as createMaster from './create';
 import * as loadMaster from './load';
 import * as utilMaster from './util';
-
-let backups = process.cwd() + "/backups";
-if (!existsSync(backups)) {
-	mkdirSync(backups);
-}
+import { backups_folder } from '../../core.ts';
 
 /**
  * Checks if a backup exists and returns its data
  */
 const getBackupData = async (backupID: string) => {
 	return new Promise<BackupData>(async (resolve, reject) => {
-		const files = await readdir(backups); // Read "backups" directory
+		const files = await readdir(backups_folder); // Read "backups" directory
 		// Try to get the json file
 		const file = files.filter((f) => f.split('.').pop() === 'json').find((f) => f === `${backupID}.json`);
 		if (file) {
 			// If the file exists
-			const backupData: BackupData = require(`${backups}${sep}${file}`);
+			const backupData: BackupData = require(`${backups_folder}${sep}${file}`);
 			// Returns backup informations
 			resolve(backupData);
 		} else {
@@ -64,7 +60,7 @@ export const fetchBackup = (backupID: string) => {
 	return new Promise<BackupInfos>(async (resolve, reject) => {
 		getBackupData(backupID)
 			.then((backupData) => {
-				const size = statSync(`${backups}${sep}${backupID}.json`).size; // Gets the size of the file using fs
+				const size = statSync(`${backups_folder}${sep}${backupID}.json`).size; // Gets the size of the file using fs
 				const backupInfos: BackupInfos = {
 					data: backupData,
 					id: backupID,
@@ -272,7 +268,7 @@ export const create = async (
 					? JSON.stringify(backupData, null, 4)
 					: JSON.stringify(backupData);
 				// Save the backup
-				await writeFile(`${backups}${sep}${backupData.id}.json`, backupJSON, 'utf-8');
+				await writeFile(`${backups_folder}${sep}${backupData.id}.json`, backupJSON, 'utf-8');
 			} catch (saveError) {
 				console.error(`Error while saving backup: ${saveError}`);
 				// Continue and return data anyway
@@ -340,8 +336,8 @@ export const load = async (
 export const remove = async (backupID: string) => {
 	return new Promise<void>((resolve, reject) => {
 		try {
-			require(`${backups}${sep}${backupID}.json`);
-			unlinkSync(`${backups}${sep}${backupID}.json`);
+			require(`${backups_folder}${sep}${backupID}.json`);
+			unlinkSync(`${backups_folder}${sep}${backupID}.json`);
 			resolve();
 		} catch (error) {
 			reject('Backup not found');
@@ -353,28 +349,6 @@ export const remove = async (backupID: string) => {
  * Returns the list of all backup
  */
 export const list = async () => {
-	const files = await readdir(backups); // Read "backups" directory
+	const files = await readdir(backups_folder); // Read "backups" directory
 	return files.map((f) => f.split('.')[0]);
-};
-
-/**
- * Change the storage path
- */
-export const setStorageFolder = (path: string) => {
-	if (path.endsWith(sep)) {
-		path = path.substr(0, path.length - 1);
-	}
-	backups = path;
-	if (!existsSync(backups)) {
-		mkdirSync(backups);
-	}
-};
-
-export const backup = {
-	create,
-	fetchBackup,
-	list,
-	load,
-	remove,
-	setStorageFolder
 };

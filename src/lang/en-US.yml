@@ -153,7 +153,7 @@ close_command_error: "Error occurred, please try again!"
 close_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 
 # /delete
-delete_disabled_command: "You cannot use this command because an administrator has disabled it"
+delete_disabled_command: "You cannot use this command because an administrator disabled it"
 delete_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 
 # /sethereticket
@@ -198,7 +198,7 @@ transript_disabled_command: "You cannot use this command because an administrato
 transript_name_sourcebin: " "
 transript_title_sourcebin: "Ticket Chat transcript for ${channel.name}"
 transript_command_error: "Error occurred, please try again!"
-transript_command_work: "You have closed your ticket. iHorizon sent you a transcript of the content of your ticket."
+transript_command_work: "You closed your ticket. iHorizon sent you a transcript of the content of your ticket."
 transript_not_in_ticket: "You cannot use this command outside of a ticket channel !"
 
 # /disableticket
@@ -212,7 +212,7 @@ disableticket_command_work_enable: "You have successfully enabled the ticket com
 
 # /setticketcategory
 setticketcategory_not_admin: ":x: | You must be an administrator of this server to use this command!"
-setticketcategory_disabled_command: "You can't use this command because an Administrator disable the ticket commands !"
+setticketcategory_disabled_command: "You can't use this command because an Administrator disabled the ticket commands !"
 setticketcategory_not_a_category: "The channel specified is not a category, please try again."
 setticketcategory_command_work: "<@${interaction.user.id}>, you have set the Category for the ticket channels to `${category.name}` !"
 
@@ -310,6 +310,10 @@ var_action: "Action"
 # /ticket rename
 ticket_rename_ok: "Ticket channel has been renamed !"
 ticket_rename_error: "Error when renaming the text channel"
+
+# /ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **The channel is now unlinked from the ticket module.**"
+ticket_unlink_panel_edited_content: "This channel was an old ticket. The user {user} has unlinked this channel."
 
 # Ranks commands
 # /level, /setxpchannels, /disablexp
@@ -434,6 +438,7 @@ blacklist_already_blacklisted: "${member.user.username} is already blacklisted !
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} no one blacklisted found!"
 blacklist_var_no_reason: "No reason found"
 blacklist_embed_title: "Blacklist - Page ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} banned on **${totalSuccess}** server(s) across all shards (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
@@ -441,6 +446,7 @@ unblacklist_command_work: "<@${member.id}> is no longer blacklisted"
 unblacklist_not_blacklisted: "<@${member.id}> was not blacklisted"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} is now unblacklisted. I Can't unban this member here, missing permission or already unban?"
 unblacklist_user_is_not_exist: "I couldn't find the user"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} is now unbanned on **${totalSuccess}** server(s) across all shards (`${score}`)"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites
@@ -592,6 +598,16 @@ say_footer_msg: "\n\nSent from `/say` by ${interaction.user}"
 ping_down_msg: "**DOWN**"
 ping_embed_desc: "# Pong! ${interaction.client.user.username}'s Network Stats:\n\n**[Discord Website Ping]** >> `${_net03}` ms.\n**[Cloudflare Ping]** >> `${_net02}` ms.\n**[Google Ping]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[iHorizon Website Ping]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Average]** >> (avg)`${averagePing}` ms."
 
+# /custom
+custom_avatar_reset: "You have decided to reset the bot's profile picture on the server. Embed footers will return to their default state, as well as the bot's profile picture on the server."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's profile picture on the server. Embed footers are now modified, as well as the bot's profile picture on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${x}`"
+custom_name_reset: "You have decided to reset the bot's name on the server. Embed footers will return to their default state, as well as the bot's name on the server."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's name on the server. Embed footers are now modified, as well as the bot's name on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${name}`"
+custom_desc_reset: "You have decided to reset the bot's description on the server. Embed footers will return to their default state, as well as the bot's description on the server."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's description on the server. Embed footers are now modified, as well as the bot's description on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${desc}`"
+custom_banner_reset: "You have decided to reset the bot's banner on the server."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's banner on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${x}`"
+
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
 
@@ -631,7 +647,7 @@ question_s:
     "No.",
     "I don't know.",
     "I am not sure !",
-    "You'r crazy!",
+    "You're crazy!",
     "No thanks.",
     "No.",
     "Yes.",
@@ -1059,8 +1075,8 @@ util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | You have sucessfuly
 util_autorenew_time_too_short: "The time between a channel renew must be more than 1 minutes"
 util_autorenew_time_too_long: "The time between a channel renew must be more than 30 days"
 util_autorenew_command_ok: "${client.iHorizon_Emojis.Yes} Now, the ${channel.toString()} channel is automaticaly deleted-created (renewed) every ${time} !\nFor stoping the channel to be renewed, just delete it by yourself."
-event_autorenew_channel_renewed: "The AutoRenew have renewed the channel!"
-event_autorenew_channel_warning: "The AutoRenew module is config to renew this channel. Futur renew in ${time}."
+event_autorenew_channel_renewed: "The AutoRenew had renewed the channel!"
+event_autorenew_channel_warning: "The AutoRenew module is config to renew this channel. Futur renew is ${time}."
 
 # /util where
 util_where_deaf: "Self deaf"
@@ -1121,6 +1137,10 @@ util_cooldown_command_ok: "The channel's slowmode has been set to ${duration_in_
 # /util role-members
 util_role_members: "List of users who have the roles"
 util_role_members_no_one: "There is nobody with that role on the server"
+
+# +top
+utils_top_no_message: "No messages found in this channel"
+utils_top_command_ok: "The first message in this channel is [here](${link})"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1505,7 +1525,7 @@ p_not_in_voice_channel: "You must be connected to a voice channel to use this co
 p_embed_title: "No results"
 p_loading_message: "${client.iHorizon_Emojis.Timer} Loading a : **{result}** !"
 p_duration: "Duration: "
-p_not_allowed: "The link you sent is not supported by this bot. Please use authorized music streaming services such as Deezer, Spotify, Youtube, etc."
+p_not_allowed: "The link you sent is not supported by this bot. Please use authorized music streaming services such as Deezer, Spotify, Soundcloud, etc."
 
 # /loop
 loop_no_queue: "There is no queue!"
@@ -1878,6 +1898,7 @@ embed_placeholder_option_delete_title: "Delete the title"
 embed_placeholder_option_edit_description: "Edit the description"
 embed_placeholder_option_delete_description: "Delete the description"
 embed_placeholder_option_edit_author: "Edit the author"
+embed_placeholde_option_change_footer_image: "Change footer icon"
 embed_placeholder_option_delete_author: "Delete the author"
 embed_placeholder_option_edit_footer: "Edit the footer"
 embed_placeholder_option_delete_footer: "Delete the footer"

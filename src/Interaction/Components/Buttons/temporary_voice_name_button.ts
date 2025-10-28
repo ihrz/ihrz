@@ -60,7 +60,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		if (!response) return;
 
 		const channel = (interaction.member as GuildMember).voice.channel;
-		channel?.setName(response.fields.getField('name').value);
+		channel?.setName(response.fields.getTextInputValue('name'));
 
 		await response.reply({
 			embeds: [
@@ -70,7 +70,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 					.setFields(
 						{
 							name: lang.temporary_voice_new_name,
-							value: `${interaction.client.iHorizon_Emojis.VC_Name} **${response.fields.getField('name').value}**`,
+							value: `${interaction.client.iHorizon_Emojis.VC_Name} **${response.fields.getTextInputValue('name')}**`,
 							inline: true
 						},
 					)

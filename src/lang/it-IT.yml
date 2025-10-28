@@ -311,6 +311,10 @@ var_action: "Azione"
 ticket_rename_ok: "Il canale del ticket è stato rinominato!"
 ticket_rename_error: "Errore durante la rinomina del canale di testo."
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Il canale è ora scollegato dal modulo ticket.**"
+ticket_unlink_panel_edited_content: "Questo canale era un vecchio ticket. L’utente {user} ha scollegato questo canale."
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 
@@ -434,6 +438,7 @@ blacklist_already_blacklisted: "${member.user.username} è già nella lista nera
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} Nessuno trovato nella lista nera!"
 blacklist_var_no_reason: "Nessuna motivazione trovata"
 blacklist_embed_title: "Lista Nera - Pagina ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} è stato bannato su **${totalSuccess}** server in tutti gli shard (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "Non sei il proprietario del progetto iHorizon. Non puoi utilizzare questo comando."
@@ -441,6 +446,7 @@ unblacklist_command_work: "<@${member.id}> non è più nella lista nera"
 unblacklist_not_blacklisted: "<@${member.id}> non era nella lista nera"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} È stato rimosso dalla lista nera, ma non è possibile sbloccare questo utente qui. Manca il permesso o è già stato sbloccato?"
 unblacklist_user_is_not_exist: "Non ho potuto trovare l'utente"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} è stato sbannato su **${totalSuccess}** server in tutti gli shard (`${score}`)"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites
@@ -591,6 +597,16 @@ say_footer_msg: "\n\nInviato da `/say` da ${interaction.user}"
 # /ping
 ping_down_msg: "**DOWN**"
 ping_embed_desc: "# Pong! Statistiche di rete di ${interaction.client.user.username}:\n\n**[Discord Website Ping]** >> `${_net03}` ms.\n**[Cloudflare Ping]** >> `${_net02}` ms.\n**[Google Ping]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[iHorizon Website Ping]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Media]** >> (Media)`${averagePing}` ms."
+
+# /custom
+custom_avatar_reset: "Hai deciso di ripristinare l'immagine del profilo del bot sul server. I piè di pagina degli embed torneranno al loro stato predefinito, così come l'immagine del profilo del bot sul server."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Hai deciso di cambiare l'immagine del profilo del bot sul server. I piè di pagina degli embed sono ora modificati, così come l'immagine del profilo del bot sul server.**\n${client.iHorizon_Emojis.Crown} Nuovo valore: `${x}`"
+custom_name_reset: "Hai deciso di ripristinare il nome del bot sul server. I piè di pagina degli embed torneranno al loro stato predefinito, così come il nome del bot sul server."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **Hai deciso di cambiare il nome del bot sul server. I piè di pagina degli embed sono ora modificati, così come il nome del bot sul server.**\n${client.iHorizon_Emojis.Crown} Nuovo valore: `${name}`"
+custom_desc_reset: "Hai deciso di ripristinare la descrizione del bot sul server. I piè di pagina degli embed torneranno al loro stato predefinito, così come la descrizione del bot sul server."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **Hai deciso di cambiare la descrizione del bot sul server. I piè di pagina degli embed sono ora modificati, così come la descrizione del bot sul server.**\n${client.iHorizon_Emojis.Crown} Nuovo valore: `${desc}`"
+custom_banner_reset: "Hai deciso di ripristinare il banner del bot sul server."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **Hai deciso di cambiare il banner del bot sul server.**\n${client.iHorizon_Emojis.Crown} Nuovo valore: `${x}`"
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -1120,6 +1136,10 @@ util_cooldown_command_ok: "La modalità lenta del canale è stata impostata a ${
 util_role_members: "Elenco degli utenti che hanno i ruoli"
 util_role_members_no_one: "Non c'è nessuno con quel ruolo sul server"
 
+# +top
+utils_top_no_message: "Nessun messaggio trovato in questo canale"
+utils_top_command_ok: "Il primo messaggio in questo canale si trova [qui](${link})"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1503,7 +1523,7 @@ p_not_in_voice_channel: "Devi essere connesso a un canale vocale per utilizzare 
 p_embed_title: "Nessun risultato"
 p_loading_message: "${client.iHorizon_Emojis.Timer} Caricamento in corso di: {result} !"
 p_duration: "Durata: "
-p_not_allowed: "Il link che hai inviato non è supportato da questo bot. Si prega di utilizzare i servizi di streaming audio autorizzati come Deezer, Spotify, Youtube, ecc."
+p_not_allowed: "Il link che hai inviato non è supportato da questo bot. Si prega di utilizzare i servizi di streaming audio autorizzati come Deezer, Spotify, Soundcloud, ecc."
 
 # /loop
 loop_no_queue: "Non c'è coda!"
@@ -1877,6 +1897,7 @@ embed_placeholder_option_edit_description: "Modifica la descrizione"
 embed_placeholder_option_delete_description: "Elimina la descrizione"
 embed_placeholder_option_edit_author: "Modifica l'autore"
 embed_placeholder_option_delete_author: "Elimina l'autore"
+embed_placeholde_option_change_footer_image: "Cambia l'icona del footer"
 embed_placeholder_option_edit_footer: "Modifica il piè di pagina"
 embed_placeholder_option_delete_footer: "Elimina il piè di pagina"
 embed_placeholder_option_edit_thumbnail: "Modifica l'immagine in miniatura"

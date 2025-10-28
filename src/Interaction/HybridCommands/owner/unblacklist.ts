@@ -30,7 +30,6 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
 import { blacklistTable, ownerTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
@@ -62,6 +61,7 @@ export const command: Command = {
 	thinking: false,
 	category: 'owner',
 	type: ApplicationCommandType.ChatInput,
+	permission: null,
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
@@ -76,12 +76,10 @@ export const command: Command = {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getUser('user');
 		} else {
-
 			var member = await client.func.method.user(interaction, args!, 0);
 		};
 
 		const fetched = await blacklistTable.get(`${member?.id}`);
-		const guilds = client.guilds.cache.map(guild => guild.id);
 
 		if (!fetched) {
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", member?.id!) });
@@ -91,6 +89,56 @@ export const command: Command = {
 		if (String(fetched.reason).toLowerCase().includes("transphobia")) {
 			await client.func.method.interactionSend(interaction, client.iHorizon_Emojis.No + " | **Transphobia is a dangerous behavior, and in this case, it was even directed towards project staff. I will not remove him from the blacklist.**")
 			return;
+		}
+
+		// Function to broadcast unban across all shards
+		async function broadcastUnbanAcrossShards(userId: string, username: string) {
+			const results = await client.shard?.broadcastEval(
+				async (c, { userId, username }) => {
+					const guilds = c.guilds.cache.filter(g =>
+						g.members.me?.permissions.has("BanMembers") && g.memberCount <= 500
+					);
+					let successCount = 0;
+					const totalGuilds = guilds.size;
+
+					const batchSize = 10;
+					const delay = 100;
+					const guildIds = Array.from(guilds.keys());
+
+					for (let i = 0; i < guildIds.length; i += batchSize) {
+						const batch = guildIds.slice(i, i + batchSize);
+
+						const batchPromises = batch.map(async (guildId) => {
+							const guild = c.guilds.cache.get(guildId);
+							if (guild) {
+								try {
+									await guild.members.unban(userId, "iHorizon Unblacklist").catch(() => { })
+									return true;
+								} catch {
+									return false;
+								}
+							}
+							return false;
+						});
+
+						const batchResults = await Promise.all(batchPromises);
+						successCount += batchResults.filter(r => r).length;
+
+						if (i + batchSize < guildIds.length) {
+							await new Promise(resolve => setTimeout(resolve, delay));
+						}
+					}
+
+					return { successCount, totalGuilds };
+				},
+				{ context: { userId, username } }
+			);
+
+			// Sum up results from all shards
+			const totalSuccess = results?.reduce((acc, curr) => acc + curr.successCount, 0) || 0;
+			const totalGuilds = results?.reduce((acc, curr) => acc + curr.totalGuilds, 0) || 0;
+
+			return { totalSuccess, totalGuilds };
 		}
 
 		try {
@@ -104,39 +152,34 @@ export const command: Command = {
 			await blacklistTable.delete(`${member?.id}`);
 			await interaction.guild.members.unban(bannedMember);
 
-			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!) });
-
-			const guildObjects = guilds.map(guildId => client.guilds.cache.find(guild => guild.id === guildId)).filter(guild => guild !== undefined);
+			await client.func.method.interactionSend(interaction, {
+				content: lang.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!)
+			});
 
 			// Send immediate response
 			await client.func.method.channelSend(interaction, {
 				content: lang.batch_unblacklist_process
 					.replace("${bannedMember.username}", bannedMember.username)
-					.replace("${guildObjects.length}", guildObjects.length.toString())
+					.replace("${guildObjects.length}", "all shards")
 			});
 
-			// Process unbans in batches asynchronously
-			processBatchAsync(
-				guildObjects,
-				async (guild) => {
-					if (guild.members.me?.permissions.has("BanMembers") && guild.memberCount <= 500) {
-						try {
-							await guild.members.unban(bannedMember.id!, "iHorizon Unblacklist");
-							return true;
-						} catch {
-							return false;
-						}
-					}
-					return false;
-				},
-				{ batchSize: 10, delay: 100 },
-				async (result) => {
-					// Send final result when processing is complete
-					await client.func.method.channelSend(interaction, {
-						content: `✅ ${bannedMember.username} is now unbanned on **${result.success}** server(s) (\`${result.success}/${guildObjects.length}\`)`
-					});
-				}
-			);
+			// Process unbans across all shards asynchronously
+			setImmediate(async () => {
+				const { totalSuccess, totalGuilds } = await broadcastUnbanAcrossShards(
+					bannedMember.id,
+					bannedMember.username
+				);
+				let score = `${totalSuccess}/${totalGuilds}`;
+
+
+				// Send final result when processing is complete
+				await client.func.method.channelSend(interaction, {
+					content: lang.unblacklist_command_work_across_all_shard
+						.replace("${bannedMember.username}", bannedMember.username)
+						.replace("${totalSuccess}", totalSuccess.toString())
+						.replace("${score}", score)
+				});
+			});
 
 			return;
 		} catch (e) {
@@ -147,5 +190,4 @@ export const command: Command = {
 			return;
 		};
 	},
-	permission: null
 };

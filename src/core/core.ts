@@ -27,10 +27,9 @@ import * as errorManager from './modules/errorManager.js';
 import { VanityInviteData } from '../../types/vanityUrlData.js';
 
 import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
-import { backup } from './backup/src/index.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import fs from 'fs';
+import fs from 'node:fs';
 
 import { iHorizonTimeCalculator } from './functions/ms.js';
 import assetsCalc from "./functions/assetsCalc.js";
@@ -50,7 +49,7 @@ import { GiveawayManager } from './modules/giveawaysManager.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const backups_folder = `${process.cwd()}/src/files/backups`;
+export const backups_folder = `${process.cwd()}/src/files/backups`;
 const old_slash_logs_file = `${process.cwd()}/src/files/slash.log`;
 const slash_logs_file = `${process.cwd()}/src/files/slash.log.json`;
 
@@ -63,8 +62,6 @@ if (fs.existsSync(old_slash_logs_file)) {
 	writeFileSync(slash_logs_file, JSON.stringify(_));
 	rmSync(old_slash_logs_file);
 }
-
-backup.setStorageFolder(backups_folder);
 
 export async function main(client: Client) {
 
@@ -112,6 +109,8 @@ export async function main(client: Client) {
 			endedGiveawaysLifetime: 345_600_000,
 		},
 	});
+	client.backup = backup;
+	client.discordTranscripts = discordTranscripts;
 
 	assetsCalc(client);
 

@@ -41,7 +41,7 @@ export interface FileMetadata {
 import ts from 'typescript';
 import path from 'path';
 
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import logger from '../src/core/logger.js';
 import { formatTypeScriptCode, readVSCodeConfig } from './formatter.js';
 
@@ -85,6 +85,8 @@ import { Json } from '../src/core/database/driver/json.ts';
 import { Memory } from '../src/core/database/driver/memory.ts';
 import { Postgres } from '../src/core/database/driver/postgres.ts';
 import { Horizon } from '../src/core/database/driver/horizon.ts';
+import { TrackEmbbeded } from '../src/core/functions/music_proximity.ts';
+import { LyricsResult, SearchResult, Track } from "lavalink-client";
 `
 export class FunctionAnalyzer {
 	private program: ts.Program;

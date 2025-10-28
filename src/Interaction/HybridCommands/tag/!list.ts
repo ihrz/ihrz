@@ -32,7 +32,6 @@ import {
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { generateTagInfoEmbed } from './tag.js';
 
 import { SubCommand } from '../../../../types/command.js';
 import { metasTable } from '../../../Events/client/ready.js';
@@ -57,7 +56,7 @@ export const subCommand: SubCommand = {
 
 		// Generate embeds for each tag
 		for (const [id, info] of tags) {
-			const embed = await generateTagInfoEmbed(interaction, lang, id, info);
+			const embed = client.func.tagHelper(interaction, lang, id, info);
 
 			const embedData = await metasTable.get(`EMBED.${info.embedId}`);
 			if (embedData) {

@@ -20,7 +20,7 @@
 */
 
 import { Client, CommandInteractionOptionResolver, Interaction, ChatInputCommandInteraction, BaseGuildTextChannel } from 'discord.js';
-import { promises as fs } from 'fs';
+import { promises as fs } from 'node:fs';
 import path from 'path';
 import { BotEvent } from '../../../types/event.js';
 import { ParsedSavedCommand } from '../../core/converters/slashLog.js';

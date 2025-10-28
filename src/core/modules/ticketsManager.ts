@@ -53,7 +53,6 @@ import {
 
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
 import { iHorizonModalResolve } from '../functions/modalHelper.js';
-import * as discordTranscripts from 'discord-html-transcripts';
 import logger from '../logger.js';
 import { TicketPanel } from '../../Interaction/HybridCommands/ticket/!panel.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
@@ -998,7 +997,7 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached"> | 
 
 				interaction.channel.messages.fetch().then(async () => {
 
-					const attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
+					const attachment = await client.discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
 						limit: -1,
 						filename: `${interaction.guildId}-transcript.html`,
 						footerText: "Exported {number} message{s}",
@@ -1057,7 +1056,7 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 
 			if (channel === interaction.channel?.id) {
 
-				const attachment = await discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
+				const attachment = await client.discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
 					limit: -1,
 					filename: `${interaction.guildId}-transcript.html`,
 					footerText: "Exported {number} message{s}",
@@ -1225,7 +1224,7 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 					TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
 
 					if (TicketLogsChannel) {
-						const attachment = await discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
+						const attachment = await client.discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
 							limit: -1,
 							filename: `${interaction.guildId}-transcript.html`,
 							footerText: "Exported {number} message{s}",

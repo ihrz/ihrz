@@ -22,7 +22,7 @@
 import { Client, GatewayIntentBits, ActivityType, BaseGuildTextChannel } from 'discord.js';
 import { log as Ox } from 'console';
 import { readFile } from "fs/promises";
-import { writeFileSync } from "fs";
+import { writeFileSync } from 'node:fs';
 import { generatePassword } from '../src/core/functions/random.js';
 
 // Définir le chemin des tokens

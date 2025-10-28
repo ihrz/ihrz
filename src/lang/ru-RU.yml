@@ -311,6 +311,10 @@ var_action: "Действие"
 ticket_rename_ok: "Канал тикета был переименован!"
 ticket_rename_error: "Ошибка при переименовании текстового канала."
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Канал был отвязан от модуля тикетов.**"
+ticket_unlink_panel_edited_content: "Этот канал был старым тикетом. Пользователь {user} отвязал этот канал."
+
 # Команды для рангов
 # /level, /setxpchannels, /disablexp
 
@@ -434,6 +438,7 @@ blacklist_already_blacklisted: "${member.user.username} уже в черном �
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} Никого не найдено в черном списке!"
 blacklist_var_no_reason: "Причина не найдена"
 blacklist_embed_title: "Черный список - Страница ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} забанен на **${totalSuccess}** сервере(ах) во всех шардах (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "Вы не являетесь владельцем проекта iHorizon. Вы не можете использовать эту команду."
@@ -441,6 +446,7 @@ unblacklist_command_work: "<@${member.id}> больше не в черном с�
 unblacklist_not_blacklisted: "<@${member.id}> не был в черном списке"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} Теперь не в черном списке, нельзя разблокировать этого участника здесь, отсутствуют разрешения или он уже разблокирован?"
 unblacklist_user_is_not_exist: "Я не могу найти этого пользователя"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} разбанен на **${totalSuccess}** сервере(ах) во всех шардах (`${score}`)"
 
 # Команды менеджера приглашений
 # /addinvites, /invites, /leaderboard, /removeinvites
@@ -591,6 +597,16 @@ say_footer_msg: "\n\nОтправлено из `/говорить` от ${intera
 # /ping
 ping_down_msg: "**НЕДОСТУПНО**"
 ping_embed_desc: "# Понг! Статистика сети ${interaction.client.user.username}:\n\n**[Пинг веб-сайта Discord]** >> `${_net03}` мс.\n**[Пинг Cloudflare]** >> `${_net02}` мс.\n**[Пинг Google]** >> `${_net01}` мс.\n\n${client.iHorizon_Emojis.Crown} **[Пинг веб-сайта iHorizon]** >> `${_net04}` мс.\n${client.iHorizon_Emojis.Crown} **[Пинг веб-сокета]** `${client.ws.ping}` мс.\n\n## ${client.iHorizon_Emojis.Pointer} **[Среднее]** >> (ср)`${averagePing}` мс."
+
+# /custom
+custom_avatar_reset: "Вы решили сбросить изображение профиля бота на сервере. Нижние колонтитулы встроенных сообщений вернутся к состоянию по умолчанию, а также изображение профиля бота на сервере."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Вы решили изменить изображение профиля бота на сервере. Нижние колонтитулы встроенных сообщений теперь изменены, а также изображение профиля бота на сервере.**\n${client.iHorizon_Emojis.Crown} Новое значение: `${x}`"
+custom_name_reset: "Вы решили сбросить имя бота на сервере. Нижние колонтитулы встроенных сообщений вернутся к состоянию по умолчанию, а также имя бота на сервере."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **Вы решили изменить имя бота на сервере. Нижние колонтитулы встроенных сообщений теперь изменены, а также имя бота на сервере.**\n${client.iHorizon_Emojis.Crown} Новое значение: `${name}`"
+custom_desc_reset: "Вы решили сбросить описание бота на сервере. Нижние колонтитулы встроенных сообщений вернутся к состоянию по умолчанию, а также описание бота на сервере."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **Вы решили изменить описание бота на сервере. Нижние колонтитулы встроенных сообщений теперь изменены, а также описание бота на сервере.**\n${client.iHorizon_Emojis.Crown} Новое значение: `${desc}`"
+custom_banner_reset: "Вы решили сбросить баннер бота на сервере."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **Вы решили изменить баннер бота на сервере.**\n${client.iHorizon_Emojis.Crown} Новое значение: `${x}`"
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -1120,6 +1136,10 @@ util_cooldown_command_ok: "Медленный режим канала устан
 util_role_members: "Список пользователей с этими ролями"
 util_role_members_no_one: "На сервере нет никого с этой ролью"
 
+# +top
+utils_top_no_message: "В этом канале не найдено сообщений"
+utils_top_command_ok: "Первое сообщение в этом канале находится [здесь](${link})"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1503,7 +1523,7 @@ p_not_in_voice_channel: "Вы должны находиться в голосо�
 p_embed_title: "Нет результатов"
 p_loading_message: "${client.iHorizon_Emojis.Timer} Загружается : **{result}** !"
 p_duration: "Продолжительность: "
-p_not_allowed: "Ссылка, которую вы отправили, не поддерживается этим ботом. Пожалуйста, используйте авторизованные музыкальные сервисы, такие как Deezer, Spotify, Youtube и т. д."
+p_not_allowed: "Ссылка, которую вы отправили, не поддерживается этим ботом. Пожалуйста, используйте авторизованные музыкальные сервисы, такие как Deezer, Spotify, Soundcloud и т. д."
 
 # /loop
 loop_no_queue: "Очереди нет!"
@@ -1877,6 +1897,7 @@ embed_placeholder_option_edit_description: "Изменить описание"
 embed_placeholder_option_delete_description: "Удалить описание"
 embed_placeholder_option_edit_author: "Изменить автора"
 embed_placeholder_option_delete_author: "Удалить автора"
+embed_placeholde_option_change_footer_image: "Изменить значок нижнего колонтитула"
 embed_placeholder_option_edit_footer: "Изменить нижний колонтитул"
 embed_placeholder_option_delete_footer: "Удалить нижний колонтитул"
 embed_placeholder_option_edit_thumbnail: "Изменить миниатюру"

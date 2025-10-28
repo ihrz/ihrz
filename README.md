@@ -94,8 +94,8 @@ Working: [See more](https://npmjs.com/ihrz)
 
 # 🔥 About the Bot  
 
-🔹 Trusted by more than 330,000 users  
-🔹 Used in 1,000+ servers 🎉  
+🔹 Trusted by more than 360,000 users  
+🔹 Used in 2,000+ servers 🎉  
 <br>
 🔹 Certified by Discord and growing fast!  
 

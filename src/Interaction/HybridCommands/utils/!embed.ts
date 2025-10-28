@@ -65,29 +65,6 @@ interface DiscordUrlParts {
 	messageId: string;
 }
 
-// Utility functions
-export function isValidLink(url: string): boolean {
-	return ["https://", "http://"].some(protocol => url.startsWith(protocol));
-}
-
-export function isValidColor(color: string): boolean {
-	return /^#([0-9a-f]{3}){1,2}$/i.test(color);
-}
-
-export function getMediaByMessage(message: Message): { name: string; attachment: string; } {
-	if (isValidLink(message.content)) {
-		return { name: "url", attachment: message.content };
-	}
-
-	const attachment = message.attachments.first();
-	if (attachment?.contentType?.startsWith("image/")) {
-		const name = client.func.method.isAnimated(attachment.url) ? "image.gif" : "image.png";
-		return { attachment: attachment.url, name };
-	}
-
-	return { name: "none", attachment: "" };
-}
-
 function extractDiscordUrlParts(url: string): DiscordUrlParts {
 	try {
 		const urlObj = new URL(url);
@@ -133,7 +110,7 @@ class EmbedManager {
 	}
 
 	private updateMedia(type: FileType, message: Message): void {
-		const { name, attachment } = getMediaByMessage(message);
+		const { name, attachment } = client.func.embedHelper.getMediaByMessage(message);
 
 		// Clear previous file of this type
 		this.setFile(type, null);
@@ -204,8 +181,11 @@ class EmbedManager {
 	}
 
 	private updateResponse(): void {
+		const { select, buttons } = this.createComponents();
+
 		this.response.edit({
 			embeds: [this.embed],
+			components: [select, buttons],
 			files: this.getFilesArray()
 		});
 	}
@@ -330,7 +310,7 @@ class EmbedManager {
 			},
 			'11': async () => {
 				await this.handleCollector(i, 'embed_choose_11', (message) => {
-					if (isValidLink(message.content)) {
+					if (client.func.embedHelper.isValidLink(message.content)) {
 						this.embed.setURL(message.content);
 						this.updateResponse();
 					}
@@ -338,7 +318,7 @@ class EmbedManager {
 			},
 			'12': async () => {
 				await this.handleCollector(i, 'embed_choose_12', async (message) => {
-					if (isValidColor(message.content)) {
+					if (client.func.embedHelper.isValidColor(message.content)) {
 						this.embed.setColor(message.content as ColorResolvable);
 						this.updateResponse();
 					} else {
@@ -516,7 +496,7 @@ class EmbedManager {
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_description).setEmoji("📝").setValue('4'),
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_author).setEmoji("🕵️").setValue('5'),
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_author).setEmoji("✂").setValue('6'),
-						new StringSelectMenuOptionBuilder().setLabel("Changer l'icône du footer").setEmoji("🖼️").setValue('7bis'),
+						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholde_option_change_footer_image).setEmoji("🖼️").setValue('7bis'),
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_footer).setEmoji("🔻").setValue('7'),
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_footer).setEmoji("🔺").setValue('8'),
 						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_thumbnail).setEmoji("🔳").setValue('9'),

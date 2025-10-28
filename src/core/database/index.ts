@@ -24,7 +24,7 @@ import { DB, MultiDB } from './types.js';
 
 import logger from '../logger.js';
 import path from 'path';
-import fs from 'fs';
+import fs from 'node:fs';
 
 import { Postgres } from './driver/postgres.js';
 import { Horizon } from './driver/horizon.js';

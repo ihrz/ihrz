@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import * as path from 'path';
 import logger from '../src/core/logger.ts';
 

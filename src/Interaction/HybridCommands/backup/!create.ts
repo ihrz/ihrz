@@ -28,7 +28,6 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
-import { backup } from '../../../core/backup/src/index.js';
 import { metasTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
@@ -46,7 +45,7 @@ export const subCommand: SubCommand = {
 			var svMsg = client.func.method.string(args!, 0)!;
 		};
 
-		const state = await metasTable.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
+		const state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
 		if ((state && interaction.guild.ownerId !== interaction.member.user.id)
 			|| ((state === undefined || state === null) && interaction.guild.ownerId !== interaction.member.user.id)) {
 			await client.func.method.interactionSend(interaction, {
@@ -55,7 +54,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		backup.create(interaction.guild as any, {
+		client.backup.create(interaction.guild, {
 			maxMessagesPerChannel: svMsg === "yes" ? 10 : 0,
 			jsonBeautify: true,
 			saveImages: true
@@ -70,7 +69,7 @@ export const subCommand: SubCommand = {
 
 			const ellData = { guildName: backupData.name, categoryCount: i, channelCount: j };
 
-			await client.db.set(`BACKUPS.${interaction.member?.user.id}.${backupData.id}`, ellData);
+			await metasTable.set(`BACKUPS.${interaction.member?.user.id}.${backupData.id}`, ellData);
 
 			client.func.method.channelSend(interaction, { content: lang.backup_command_work_on_creation });
 

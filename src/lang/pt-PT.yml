@@ -311,6 +311,10 @@ var_action: "Ação"
 ticket_rename_ok: "O canal do ticket foi renomeado!"
 ticket_rename_error: "Erro ao renomear o canal de texto."
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **O canal foi desvinculado do módulo de tickets.**"
+ticket_unlink_panel_edited_content: "Este canal era um ticket antigo. O utilizador {user} desvinculou este canal."
+
 # Comandos de Níveis
 # /level, /setxpchannels, /disablexp
 
@@ -434,6 +438,7 @@ blacklist_already_blacklisted: "${member.user.username} já está na lista negra
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} Não foram encontrados usuários na lista negra!"
 blacklist_var_no_reason: "Nenhum motivo encontrado"
 blacklist_embed_title: "Lista Negra - Página ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} foi banido em **${totalSuccess}** servidor(es) em todos os shards (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "Você não é dono dos Projetos iHorizon. Você não pode usar este comando."
@@ -441,6 +446,7 @@ unblacklist_command_work: "<@${member.id}> não está mais na lista negra"
 unblacklist_not_blacklisted: "<@${member.id}> não estava na lista negra"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} Agora está fora da lista negra, não consigo remover o banimento deste membro aqui, falta permissão ou já foi removido?"
 unblacklist_user_is_not_exist: "Não consegui encontrar o usuário"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} foi desbanido em **${totalSuccess}** servidor(es) em todos os shards (`${score}`)"
 
 # Comandos do Gerenciador de Convites
 # /addinvites, /invites, /leaderboard, /removeinvites
@@ -591,6 +597,16 @@ say_footer_msg: "\n\nEnviado de `/say` por ${interaction.user}"
 # /ping
 ping_down_msg: "**FORA DO AR**"
 ping_embed_desc: "# Pong! Estatísticas de Rede do ${interaction.client.user.username}:\n\n**[Ping do site do Discord]** >> `${_net03}` ms.\n**[Ping do Cloudflare]** >> `${_net02}` ms.\n**[Ping do Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[Ping do site do iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Ping do Websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Média]** >> (avg)`${averagePing}` ms."
+
+# /custom
+custom_avatar_reset: "Decidiu redefinir a foto de perfil do bot no servidor. Os rodapés dos embeds voltarão ao seu estado padrão, assim como a foto de perfil do bot no servidor."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Decidiu alterar a foto de perfil do bot no servidor. Os rodapés dos embeds estão agora modificados, assim como a foto de perfil do bot no servidor.**\n${client.iHorizon_Emojis.Crown} Novo valor: `${x}`"
+custom_name_reset: "Decidiu redefinir o nome do bot no servidor. Os rodapés dos embeds voltarão ao seu estado padrão, assim como o nome do bot no servidor."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **Decidiu alterar o nome do bot no servidor. Os rodapés dos embeds estão agora modificados, assim como o nome do bot no servidor.**\n${client.iHorizon_Emojis.Crown} Novo valor: `${name}`"
+custom_desc_reset: "Decidiu redefinir a descrição do bot no servidor. Os rodapés dos embeds voltarão ao seu estado padrão, assim como a descrição do bot no servidor."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **Decidiu alterar a descrição do bot no servidor. Os rodapés dos embeds estão agora modificados, assim como a descrição do bot no servidor.**\n${client.iHorizon_Emojis.Crown} Novo valor: `${desc}`"
+custom_banner_reset: "Decidiu redefinir o banner do bot no servidor."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **Decidiu alterar o banner do bot no servidor.**\n${client.iHorizon_Emojis.Crown} Novo valor: `${x}`"
 
 # Comandos divertidos
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -1120,6 +1136,10 @@ util_cooldown_command_ok: "O modo lento do canal foi definido para ${duration_in
 util_role_members: "Lista de utilizadores que têm os cargos"
 util_role_members_no_one: "Não há ninguém com esse cargo no servidor"
 
+# +top
+utils_top_no_message: "Nenhuma mensagem encontrada neste canal"
+utils_top_command_ok: "A primeira mensagem neste canal está [aqui](${link})"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1503,7 +1523,7 @@ p_not_in_voice_channel: "You must be connected to a voice channel to use this co
 p_embed_title: "No results"
 p_loading_message: "${client.iHorizon_Emojis.Timer} Loading a : **{result}** !"
 p_duration: "Duration: "
-p_not_allowed: "The link you sent is not supported by this bot. Please use authorized music streaming services such as Deezer, Spotify, Youtube, etc."
+p_not_allowed: "The link you sent is not supported by this bot. Please use authorized music streaming services such as Deezer, Spotify, Soundcloud, etc."
 
 # /loop
 loop_no_queue: "There is no queue!"
@@ -1877,6 +1897,7 @@ embed_placeholder_option_edit_description: "Editar a descrição"
 embed_placeholder_option_delete_description: "Excluir a descrição"
 embed_placeholder_option_edit_author: "Editar o autor"
 embed_placeholder_option_delete_author: "Excluir o autor"
+embed_placeholde_option_change_footer_image: "Alterar o ícone do rodapé"
 embed_placeholder_option_edit_footer: "Editar o rodapé"
 embed_placeholder_option_delete_footer: "Excluir o rodapé"
 embed_placeholder_option_edit_thumbnail: "Editar a miniatura"

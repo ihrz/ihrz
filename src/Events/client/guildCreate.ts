@@ -31,6 +31,7 @@ export const event: BotEvent = {
 	name: "guildCreate",
 	run: async (client: Client, guild: Guild) => {
 		if (!guild) return;
+		await setLangByRegion();
 
 		let highestPositionChannel: TextChannel | null = null;
 
@@ -238,6 +239,6 @@ export const event: BotEvent = {
 
 		// let c = await antiPoubelle();
 		const d = await blacklistLeave();
-		if (d) await Promise.all([ownerLogs(), setLangByRegion(), messageToServer(), getInvites()]);
+		if (d) await Promise.all([ownerLogs(), messageToServer(), getInvites()]);
 	},
 };

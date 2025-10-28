@@ -311,6 +311,10 @@ var_action: "アクション"
 ticket_rename_ok: "チケットチャンネルの名前が変更されました！"
 ticket_rename_error: "テキストチャンネルの名前を変更中にエラーが発生しました。"
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **このチャンネルはチケットモジュールからリンク解除されました。**"
+ticket_unlink_panel_edited_content: "このチャンネルは以前のチケットでした。ユーザー {user} がこのチャンネルのリンクを解除しました。"
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 
@@ -434,6 +438,7 @@ blacklist_already_blacklisted: "${member.user.username}はすでにブラック�
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} ブラックリストに誰も見つかりませんでした！"
 blacklist_var_no_reason: "理由が見つかりません"
 blacklist_embed_title: "ブラックリスト - ページ ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ ${username} は全シャードで **${totalSuccess}** サーバーからBANされました (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "あなたはiHorizonプロジェクトの所有者ではありません。このコマンドを使用することはできません。"
@@ -441,6 +446,7 @@ unblacklist_command_work: "<@${member.id}>はもうブラックリストに登�
 unblacklist_not_blacklisted: "<@${member.id}>はブラックリストに登録されていませんでした。"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} 現在ブラックリストから削除されています。このメンバーをここでアンバンすることはできません。パーミッションが足りませんか？またはすでにアンバンされていますか？"
 unblacklist_user_is_not_exist: "ユーザーを見つけることができませんでした。"
+unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} は全シャードで **${totalSuccess}** サーバーからBAN解除されました (`${score}`)"
 
 # Invite Managerコマンド
 # /addinvites、/invites、/leaderboard、/removeinvites
@@ -591,6 +597,16 @@ say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
 # /ping
 ping_down_msg: "**ダウン**"
 ping_embed_desc: "# Pong！${interaction.client.user.username}のネットワーク統計:\n\n**[Discord ウェブサイトの Ping]** >> `${_net03}` ms\n**[Cloudflare の Ping]** >> `${_net02}` ms\n**[Google の Ping]** >> `${_net01}` ms\n\n${client.iHorizon_Emojis.Crown} **[iHorizon ウェブサイトの Ping]** >> `${_net04}` ms\n${client.iHorizon_Emojis.Crown} **[Websocket の Ping]** `${client.ws.ping}` ms\n\n## ${client.iHorizon_Emojis.Pointer} **[平均]** >> (平均)`${averagePing}` ms"
+
+# /custom
+custom_avatar_reset: "サーバー上のボットのプロフィール画像をリセットすることにしました。埋め込みのフッターはデフォルト状態に戻り、サーバー上のボットのプロフィール画像も同様です。"
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **サーバー上のボットのプロフィール画像を変更することにしました。埋め込みのフッターが変更され、サーバー上のボットのプロフィール画像も同様です。**\n${client.iHorizon_Emojis.Crown} 新しい値: `${x}`"
+custom_name_reset: "サーバー上のボットの名前をリセットすることにしました。埋め込みのフッターはデフォルト状態に戻り、サーバー上のボットの名前も同様です。"
+custom_name_set: "${client.iHorizon_Emojis.Yes} **サーバー上のボットの名前を変更することにしました。埋め込みのフッターが変更され、サーバー上のボットの名前も同様です。**\n${client.iHorizon_Emojis.Crown} 新しい値: `${name}`"
+custom_desc_reset: "サーバー上のボットの説明をリセットすることにしました。埋め込みのフッターはデフォルト状態に戻り、サーバー上のボットの説明も同様です。"
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **サーバー上のボットの説明を変更することにしました。埋め込みのフッターが変更され、サーバー上のボットの説明も同様です。**\n${client.iHorizon_Emojis.Crown} 新しい値: `${desc}`"
+custom_banner_reset: "サーバー上のボットのバナーをリセットすることにしました。"
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **サーバー上のボットのバナーを変更することにしました。**\n${client.iHorizon_Emojis.Crown} 新しい値: `${x}`"
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -1120,6 +1136,10 @@ util_cooldown_command_ok: "チャンネルのスローモードが ${duration_in
 util_role_members: "そのロールを持っているユーザーの一覧"
 util_role_members_no_one: "サーバーにそのロールを持つ人はいません"
 
+# +top
+utils_top_no_message: "このチャンネルにメッセージが見つかりません"
+utils_top_command_ok: "このチャンネルの最初のメッセージは[こちら](${link})"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1503,7 +1523,7 @@ p_not_in_voice_channel: "このコマンドを使用するには、ボイスチ�
 p_embed_title: "検索結果がありません"
 p_loading_message: "${client.iHorizon_Emojis.Timer}  {result}をロード中！"
 p_duration: "再生時間："
-p_not_allowed: "このボットではサポートされていないリンクを送信しようとしました。Deezer、Spotify、Youtubeなど、許可された音楽ストリーミングサービスを使用してください。"
+p_not_allowed: "このボットではサポートされていないリンクを送信しようとしました。Deezer、Spotify、Soundcloudなど、許可された音楽ストリーミングサービスを使用してください。"
 
 # /loop
 loop_no_queue: "キューがありません！"
@@ -1877,6 +1897,7 @@ embed_placeholder_option_edit_description: "説明を編集"
 embed_placeholder_option_delete_description: "説明を削除"
 embed_placeholder_option_edit_author: "著者を編集"
 embed_placeholder_option_delete_author: "著者を削除"
+embed_placeholde_option_change_footer_image: "フッターアイコンを変更"
 embed_placeholder_option_edit_footer: "フッターを編集"
 embed_placeholder_option_delete_footer: "フッターを削除"
 embed_placeholder_option_edit_thumbnail: "サムネイルを編集"

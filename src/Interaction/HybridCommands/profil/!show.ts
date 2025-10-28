@@ -55,6 +55,12 @@ export const subCommand: SubCommand = {
 		if (!age) age = lang.profil_unknown;
 
 		let gender = await profilTable.get(`${member.id}.gender`);
+
+		if (await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) === "fr-ME") {
+			if (gender === "♀ Female") gender = "une grosse teuch"
+			if (gender === "♂ Male") gender = "une belle bite wAllah"
+			if (gender === "⚧ Non-binary") gender = "jsp"
+		}
 		if (!gender) gender = lang.profil_unknown;
 
 		let pronoun = await profilTable.get(`${member.id}.pronoun`);

@@ -733,28 +733,33 @@ export function isSubCommand(option: Option | Command): boolean {
 	return option.type === ApplicationCommandOptionType.Subcommand;
 }
 
-export async function punish(data: DatabaseStructure.ProtectionData, user: GuildMember | undefined, reason?: string): Promise<void> {
-	async function derank() {
-		const user_roles = Array.from(user?.roles.cache.values()!);
-		const role_app = user_roles.find(x => x.managed);
-		if (role_app) {
-			await role_app.setPermissions(PermissionFlagsBits.ViewChannel);
-		}
-
-		user_roles
-			.filter(x => !x.managed && x.position < x.guild.members.me?.roles.highest.position! && x.id !== x.guild.roles.everyone.id)
-			.forEach(async role => {
-				await user?.roles.remove(role.id, reason || "Protection").catch(() => { })
-			});
+export async function derank(user: GuildMember, reason?: string): Promise<void> {
+	const user_roles = Array.from(user?.roles.cache.values() || []);
+	const role_app = user_roles.find(x => x.managed);
+	if (role_app) {
+		await role_app.setPermissions(PermissionFlagsBits.ViewChannel);
 	}
+
+	user_roles
+		.filter(x => !x.managed && x.position < x.guild.members.me?.roles.highest.position! && x.id !== x.guild.roles.everyone.id)
+		.forEach(async role => {
+			await user?.roles.remove(role.id, reason || "Protection").catch(() => { })
+		});
+};
+
+export async function punish(data: DatabaseStructure.ProtectionData, user: GuildMember, reason?: string): Promise<void> {
+
 	switch (data?.['SANCTION']) {
 		case 'simply':
 			break;
 		case 'simply+derank':
-			await derank();
+			await derank(user, reason);
 			break;
 		case 'simply+ban':
-			user?.ban({ reason: reason || 'Protect!' }).catch(async () => await derank().catch(() => false));
+			user?.ban({ reason: reason || 'Protect!' })
+				.catch(async () => {
+					await derank(user, reason).catch(() => false);
+				});
 			break;
 		default:
 			return;
@@ -944,6 +949,30 @@ export async function isTicketChannel(channel: BaseGuildTextChannel): Promise<bo
 	return false;
 }
 
+export async function deleteTicketChannelFromDatabase(channel: BaseGuildTextChannel): Promise<boolean> {
+	const allTickets = await channel.client.db.get(`${channel.guild.id}.TICKET_ALL`);
+
+	if (!allTickets || typeof allTickets !== "object") {
+		return false;
+	}
+
+	for (const authorId of Object.keys(allTickets)) {
+		const ticketsByAuthor = allTickets[authorId];
+
+		if (ticketsByAuthor && typeof ticketsByAuthor === "object") {
+			for (const ticketId of Object.keys(ticketsByAuthor)) {
+				const ticketData = ticketsByAuthor[ticketId];
+
+				if (ticketData && ticketData.channel === channel.id) {
+					await client.db.delete(`${channel.guild.id}.TICKET_ALL.${authorId}.${ticketId}`);
+					return ticketData?.channel === channel.id;
+				}
+			}
+		}
+	}
+	return false;
+}
+
 export function isValidDiscordInvite(input: string): boolean {
 	// Clean input by removing whitespace
 	const trimmed = input.trim();
@@ -962,4 +991,16 @@ export function isValidDiscordInvite(input: string): boolean {
 
 	// Check if input matches any of the patterns
 	return patterns.some(pattern => pattern.test(trimmed));
+}
+
+export function isValidDiscordInviteCode(VanityCode: string) {
+	if (VanityCode.length > 32) {
+		return false;
+	}
+	const regex = /^[a-z0-9]+(-[a-z0-9]+)*$/i;
+	if (!regex.test(VanityCode)) {
+		return false;
+	}
+
+	return true;
 }

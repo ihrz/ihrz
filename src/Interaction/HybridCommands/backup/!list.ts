@@ -38,6 +38,7 @@ import { DatabaseStructure } from '../../../../types/database_structure.js';
 const itemsPerPage = 5;
 
 import { SubCommand } from '../../../../types/command.js';
+import { metasTable } from '../../../Events/client/ready.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -52,14 +53,14 @@ export const subCommand: SubCommand = {
 			var backupID = client.func.method.string(args!, 0);
 		};
 
-		if (backupID && !await client.db.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
+		if (backupID && !await metasTable.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		};
 
-		const data2 = await client.db.get(`BACKUPS.${interaction.member.user.id}`) as DatabaseStructure.DbBackupsUserObject;
+		const data2 = await metasTable.get(`BACKUPS.${interaction.member.user.id}`) as DatabaseStructure.DbBackupsUserObject;
 		const backups: {
 			name: string;
 			value: string

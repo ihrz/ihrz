@@ -311,6 +311,10 @@ var_action: "الإجراء"
 ticket_rename_ok: "تم تغيير اسم قناة التذكرة!"
 ticket_rename_error: "حدث خطأ أثناء إعادة تسمية القناة النصية."
 
+#/ticket unlink
+ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **تم فصل القناة عن نظام التذاكر.**"
+ticket_unlink_panel_edited_content: "كانت هذه القناة تذكرة قديمة. قام المستخدم {user} بفصل هذه القناة."
+
 # Ranks commands
 # /level, /setxpchannels, /disablexp
 
@@ -434,6 +438,7 @@ blacklist_already_blacklisted: "${member.user.username} محظور بالفعل!
 blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} لم يتم العثور على أي شخص محظور!"
 blacklist_var_no_reason: "لم يتم العثور على سبب"
 blacklist_embed_title: "القائمة السوداء - الصفحة ${i / usersPerPage + 1}"
+blacklist_command_work_shard: "✅ تم حظر ${username} في **${totalSuccess}** خادم عبر جميع الشظايا (`{score}`)"
 
 # /unblacklist
 unblacklist_not_owner: "أنت لست مالك مشاريع iHorizon. لا يمكنك استخدام هذا الأمر."
@@ -441,6 +446,7 @@ unblacklist_command_work: "<@${member.id}> لم يعد محظورًا"
 unblacklist_not_blacklisted: "<@${member.id}> لم يكن محظورًا"
 unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} تم إزالة الحظر عنه، لا يمكن رفع الحظر عن هذا العضو هنا، هل تفتقد الإذن أو تم رفع الحظر بالفعل؟"
 unblacklist_user_is_not_exist: "لم أتمكن من العثور على المستخدم"
+unblacklist_command_work_across_all_shard: "✅ تم رفع الحظر عن ${bannedMember.username} في **${totalSuccess}** خادم عبر جميع الشظايا (`${score}`)"
 
 # Invite Manager commands
 # /addinvites, /invites, /leaderboard, /removeinvites
@@ -591,6 +597,16 @@ say_footer_msg: "\n\nأُرسل من `/say` بواسطة ${interaction.user}"
 # /ping
 ping_down_msg: "**غير متصل**"
 ping_embed_desc: "# بونج! إحصائيات الشبكة لـ ${interaction.client.user.username}:\n\n**[Ping موقع Discord]** >> `${_net03}` مللي ثانية.\n**[Ping Cloudflare]** >> `${_net02}` مللي ثانية.\n**[Ping Google]** >> `${_net01}` مللي ثانية.\n\n${client.iHorizon_Emojis.Crown} **[Ping موقع iHorizon]** >> `${_net04}` مللي ثانية.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` مللي ثانية.\n\n## ${client.iHorizon_Emojis.Pointer} **[المتوسط]** >> (avg)`${averagePing}` مللي ثانية."
+
+# /custom
+custom_avatar_reset: "لقد قررت إعادة تعيين صورة ملف تعريف البوت على الخادم. ستعود تذييلات الرسائل المضمنة إلى حالتها الافتراضية، بالإضافة إلى صورة ملف تعريف البوت على الخادم."
+custom_avatar_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير صورة ملف تعريف البوت على الخادم. تم الآن تعديل تذييلات الرسائل المضمنة، بالإضافة إلى صورة ملف تعريف البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${x}`"
+custom_name_reset: "لقد قررت إعادة تعيين اسم البوت على الخادم. ستعود تذييلات الرسائل المضمنة إلى حالتها الافتراضية، بالإضافة إلى اسم البوت على الخادم."
+custom_name_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير اسم البوت على الخادم. تم الآن تعديل تذييلات الرسائل المضمنة، بالإضافة إلى اسم البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${name}`"
+custom_desc_reset: "لقد قررت إعادة تعيين وصف البوت على الخادم. ستعود تذييلات الرسائل المضمنة إلى حالتها الافتراضية، بالإضافة إلى وصف البوت على الخادم."
+custom_desc_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير وصف البوت على الخادم. تم الآن تعديل تذييلات الرسائل المضمنة، بالإضافة إلى وصف البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${desc}`"
+custom_banner_reset: "لقد قررت إعادة تعيين لافتة البوت على الخادم."
+custom_banner_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير لافتة البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${x}`"
 
 # أوامر المرح
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -1121,6 +1137,10 @@ util_cooldown_command_ok: "تم تغيير وضع البطء في القناة �
 util_role_members: "قائمة المستخدمين الذين لديهم الأدوار"
 util_role_members_no_one: "لا يوجد أي شخص لديه هذا الدور في الخادم"
 
+# +top
+utils_top_no_message: "لا توجد رسائل في هذه القناة"
+utils_top_command_ok: "الرسالة الأولى في هذه القناة موجودة [هنا](${link})"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1504,7 +1524,7 @@ p_not_in_voice_channel: "يجب أن تكون متصلاً بقناة صوتية
 p_embed_title: "لا توجد نتائج"
 p_loading_message: "${client.iHorizon_Emojis.Timer} جارٍ تحميل: **{result}**!"
 p_duration: "المدة: "
-p_not_allowed: "الرابط الذي أرسلته غير مدعوم من قبل هذا البوت. يرجى استخدام خدمات بث الموسيقى المعتمدة مثل Deezer و Spotify و Youtube، إلخ."
+p_not_allowed: "الرابط الذي أرسلته غير مدعوم من قبل هذا البوت. يرجى استخدام خدمات بث الموسيقى المعتمدة مثل Deezer و Spotify و Soundcloud، إلخ."
 
 # /loop
 loop_no_queue: "لا توجد قائمة تشغيل!"
@@ -1877,6 +1897,7 @@ embed_placeholder_option_edit_description: "تعديل الوصف"
 embed_placeholder_option_delete_description: "حذف الوصف"
 embed_placeholder_option_edit_author: "تعديل المؤلف"
 embed_placeholder_option_delete_author: "حذف المؤلف"
+embed_placeholde_option_change_footer_image: "تغيير أيقونة التذييل"
 embed_placeholder_option_edit_footer: "تعديل التذييل"
 embed_placeholder_option_delete_footer: "حذف التذييل"
 embed_placeholder_option_edit_thumbnail: "تعديل الصورة المصغرة"

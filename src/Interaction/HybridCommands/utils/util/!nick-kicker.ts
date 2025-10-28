@@ -37,10 +37,6 @@ import { LanguageData } from '../../../../../types/languageData.js';
 import { iHorizonModalResolve } from '../../../../core/functions/modalHelper.js';
 import { DatabaseStructure } from '../../../../../types/database_structure.js';
 
-function capitalizeFirstLetter(string: string): string {
-	return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
 import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
@@ -183,7 +179,7 @@ export const subCommand: SubCommand = {
 				fields: [
 					{
 						customId: "word",
-						label: capitalizeFirstLetter(lang.util_nick_kicker_words),
+						label: client.func.helper.capitalizeFirstLetter(lang.util_nick_kicker_words),
 						style: TextInputStyle.Short,
 						required: true,
 						maxLength: 20,

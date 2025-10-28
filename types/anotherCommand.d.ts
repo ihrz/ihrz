@@ -32,5 +32,7 @@ export interface AnotherCommand {
 	type: ApplicationCommandType,
 	thinking: boolean,
 	permission: bigint | bigint[] | null,
+	integration_types?: number[],
+	contexts?: number[],
 	run(client: Client, interaction: MessageContextMenuCommandInteraction<CacheType> | UserContextMenuCommandInteraction<CacheType>): Promise<any>
 }

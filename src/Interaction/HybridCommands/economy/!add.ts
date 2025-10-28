@@ -30,7 +30,6 @@ import {
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
-import { generateRoleFields } from './economy.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -98,7 +97,7 @@ export const subCommand: SubCommand = {
 		const embed = new EmbedBuilder()
 			.setTitle(lang.economy_boost_embed_title)
 			.setDescription(lang.economy_boost_embed_desc)
-			.setFields(generateRoleFields(roleData, lang))
+			.setFields(client.func.economyHelper.generateRoleFields(roleData, lang))
 			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0097ff")
 			.setTimestamp()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));

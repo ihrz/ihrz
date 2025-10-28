@@ -26,6 +26,7 @@ import { ModalOptionsBuilder } from '../src/core/functions/modalHelper.js';
 import { AnySelectMenuInteraction, APIModalInteractionResponseCallbackData, AutocompleteInteraction, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, CacheType, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, MessageContextMenuCommandInteraction, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, PrimaryEntryPointCommandInteraction, Role, StringSelectMenuInteraction, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
 import { Assets } from './assets.js';
 import { LangForPrompt } from '../src/core/functions/awaitingResponse.js';
+import { AuthRestore_EntryType, AuthRestore_ResponseType, GuildAuthRestore, AuthRestore_ForceJoin_EntryType, AuthRestore_ForceJoin_ResponseType, AuthRestore_KeyUpdate_EntryType, AuthRestore_RoleUpdate_EntryType, Oauth2_Link_Entry } from '../src/core/functions/authRestoreHelper.ts';
 import { Command } from './command.js';
 import { Option } from './option.js';
 import { PasswordOptions } from '../src/core/functions/random.ts';
@@ -37,6 +38,8 @@ import { Json } from '../src/core/database/driver/json.ts';
 import { Memory } from '../src/core/database/driver/memory.ts';
 import { Postgres } from '../src/core/database/driver/postgres.ts';
 import { Horizon } from '../src/core/database/driver/horizon.ts';
+import { TrackEmbbeded } from '../src/core/functions/music_proximity.ts';
+import { LyricsResult, SearchResult, Track } from "lavalink-client";
 
 declare namespace Client_Functions {
 
@@ -120,11 +123,8 @@ declare namespace Client_Functions {
 		export function hasSubCommand(options: Array<Option> | undefined): boolean;
 		export function hasSubCommandGroup(options: Array<Option> | undefined): boolean;
 		export function isSubCommand(option: Option | Command): boolean;
-		export function punish(
-			data: DatabaseStructure.ProtectionData,
-			user: GuildMember | undefined,
-			reason?: string
-		): Promise<void>;
+		export function derank(user: GuildMember, reason?: string): Promise<void>;
+		export function punish(data: DatabaseStructure.ProtectionData, user: GuildMember, reason?: string): Promise<void>;
 		export function generateCustomMessagePreview(
 			message: string,
 			input: { guild: Guild; user: User; guildLocal: string; inviter?: { user: { username: string; mention: string; }; invitesAmount: number; }; ranks?: { level: number; }; notifier?: { artistAuthor: string; artistLink: string; mediaURL: string; }; }
@@ -138,7 +138,9 @@ declare namespace Client_Functions {
 		export function addCoins(member: GuildMember, coins: number): Promise<void>;
 		export function subCoins(member: GuildMember, coins: number): Promise<void>;
 		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
+		export function deleteTicketChannelFromDatabase(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function isValidDiscordInvite(input: string): boolean;
+		export function isValidDiscordInviteCode(VanityCode: string): any;
 	}
 
 	// From getLanguageData.ts
@@ -177,6 +179,13 @@ declare namespace Client_Functions {
 		): void;
 	}
 
+	// From music_proximity.ts
+	export namespace music_proximity {
+		export function levenshtein(a: string, b: string): number;
+		export function similarity(a: string, b: string): number;
+		export function isSimilar(query: string, track: TrackEmbbeded, threshold: any): boolean;
+	}
+
 	// From wait.ts
 	export function wait(milliseconds: number): Promise<void>;
 
@@ -197,6 +206,9 @@ declare namespace Client_Functions {
 
 	// From sanitizer.ts
 	export function sanitizer(text: string | undefined): string;
+
+	// From image_dominant_color.ts
+	export function image_dominant_color(input: string | Buffer<ArrayBufferLike>): Promise<string>;
 
 	// From userStatsUtils.ts
 	export namespace userStatsUtils {
@@ -242,6 +254,14 @@ declare namespace Client_Functions {
 		export function decrypt(password: string, data: string): string | undefined;
 	}
 
+	// From customProfileHelper.ts
+	export namespace customProfileHelper {
+		export function changeGuildBotName(guild: Guild, nick: string): Promise<boolean>;
+		export function changeGuildBotBanner(guild: Guild, banner: string): Promise<boolean>;
+		export function changeGuildBotAvatar(guild: Guild, avatar: string): Promise<boolean>;
+		export function changeGuildBotBio(guild: Guild, bio: string): Promise<boolean>;
+	}
+
 	// From database_latency.ts
 	export function database_latency(): Promise<number>;
 
@@ -252,6 +272,22 @@ declare namespace Client_Functions {
 			entry?: Interaction | ChatInputCommandInteraction<"cached"> | Message<boolean> | GuildMember | Guild
 		): Promise<{ attachment: string | Buffer<ArrayBuffer>; name: string; }>;
 		export function displayBotPP(guildId?: string): Promise<{ type: 1 | 2; string: string; }>;
+	}
+
+	// From economyHelper.ts
+	export namespace economyHelper {
+		export function getMemberBoost(member: GuildMember): Promise<number>;
+		export function generateRoleFields(
+			roleData: Record<string, DatabaseStructure.EconomyRole> | undefined,
+			lang: LanguageData
+		): any;
+	}
+
+	// From embedHelper.ts
+	export namespace embedHelper {
+		export function isValidLink(url: string): boolean;
+		export function isValidColor(color: string): boolean;
+		export function getMediaByMessage(message: Message<boolean>): { name: string; attachment: string; };
 	}
 
 	// From generateProgressBar.ts
@@ -268,6 +304,7 @@ declare namespace Client_Functions {
 			method: string,
 			ms: number
 		): Promise<boolean>;
+		export function capitalizeFirstLetter(string: string): string;
 	}
 
 	// From ihorizon_logs.ts
@@ -282,9 +319,6 @@ declare namespace Client_Functions {
 		export function image64(arg: string): Promise<Buffer<ArrayBufferLike> | undefined>;
 	}
 
-	// From image_dominant_color.ts
-	export function image_dominant_color(input: string | Buffer<ArrayBufferLike>): Promise<string>;
-
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
 
@@ -298,7 +332,25 @@ declare namespace Client_Functions {
 			width?: number,
 			height?: number
 		): Promise<{ width: number; height: number; }>;
+		export function isImageUrl(url: string): Promise<boolean>;
 	}
+
+	// From os_utils.ts
+	export namespace os_utils {
+		export function niceBytes(kb: number): any;
+		export function getMemoryInfo(): Promise<{ MemTotal: number; MemFree: number; MemAvailable: number; }>;
+	}
+
+	// From tagHelper.ts
+	export function tagHelper(
+		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
+		lang: LanguageData,
+		tag_id: string,
+		tag: DatabaseStructure.TagInfo
+	): EmbedBuilder;
+
+	// From validImageType.ts
+	export function validImageType(contentType: string | null): boolean;
 }
 
 export { Client_Functions };
