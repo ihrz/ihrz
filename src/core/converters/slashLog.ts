@@ -62,15 +62,12 @@ class DiscordSlashLogParser {
 		// Convert timestamp to Unix timestamp
 		const timestamp = this.parseTimestamp(timestampStr);
 
-		// Extract or generate channel ID
-		const channelId = this.extractChannelId(channelName);
-
 		return {
 			guildName: guildName.trim(),
 			executorUsername: executorUsername.trim(),
 			timestamp,
 			channelName: channelName.trim(),
-			channelId,
+			channelId: "0",
 			command: command.trim()
 		};
 	}
@@ -89,50 +86,6 @@ class DiscordSlashLogParser {
 		return date.getTime();
 	}
 
-	/**
-	 * Extract channel ID from channel name
-	 * Uses predefined mapping or generates a consistent ID
-	 * @param channelName - Name of the Discord channel
-	 * @returns Channel ID as string
-	 */
-	private extractChannelId(channelName: string): string {
-		// Predefined channel name to ID mapping
-		// In a real scenario, these would come from your Discord bot's data
-		const channelIds: { [key: string]: string } = {
-			'général': '1395410967525064967',
-			'🌍．chat': '1320122624470290536',
-			'smash-or-pass': '1368265657807798524',
-			'temp-chat': '1234567890123456789',
-			'commandes': '1234567890123456790',
-			'🏠．accueil': '1234567890123456791',
-			'🧩・ voc 1': '1234567890123456792',
-			'⛔．chat-owner': '1234567890123456793',
-			'💬・chat-évent': '1234567890123456794',
-			'⭐〃tropher': '1234567890123456795',
-			'🌷˚⋆𝐜𝐡𝐚t⋆˚🌷': '1234567890123456796',
-			'🌊・𝐃𝐢𝐬𝐜𝐮𝐬𝐬𝐢𝐨𝐧': '1234567890123456797',
-			'logs-raid': '1234567890123456798'
-		};
-
-		return channelIds[channelName] || this.generateChannelId(channelName);
-	}
-
-	/**
-	 * Generate a consistent channel ID based on channel name
-	 * Uses a simple hash function to create reproducible IDs
-	 * @param channelName - Name of the channel
-	 * @returns Generated channel ID as string
-	 */
-	private generateChannelId(channelName: string): string {
-		// Simple hash function for consistent ID generation
-		let hash = 0;
-		for (let i = 0; i < channelName.length; i++) {
-			const char = channelName.charCodeAt(i);
-			hash = ((hash << 5) - hash) + char;
-			hash = hash & hash; // Convert to 32-bit integer
-		}
-		return Math.abs(hash).toString().padStart(18, '1');
-	}
 
 	/**
 	 * Parse complete Discord log text into structured commands
