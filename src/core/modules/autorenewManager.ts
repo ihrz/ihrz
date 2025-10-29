@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
 
 	・   Under the following terms:
 
@@ -99,8 +99,8 @@ class AutoRenew {
 										maxTime: data.maxTime
 									}),
 									client.db.delete(`${guild.id}.UTILS.renew_channel.${channel.id}`),
+									channel.delete(),
 									newChannel.setPosition(channel.rawPosition),
-									channel.delete()
 								]);
 
 								await newChannel.send({

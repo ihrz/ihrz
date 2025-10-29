@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
 
 	・   Under the following terms:
 
@@ -103,6 +103,10 @@ class AxiosClass {
 
 	post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
 		return this.request({ ...config, url, method: 'POST', data });
+	}
+
+	put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+		return this.request({ ...config, url, method: 'PUT', data });
 	}
 
 	private handleRequestError<T = any>(error: any): AxiosError<T> {
