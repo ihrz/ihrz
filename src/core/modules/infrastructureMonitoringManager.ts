@@ -393,12 +393,12 @@ class InfrastructureMonitoring {
 	}
 
 	// Method to start periodic monitoring
-	public async startMonitoring(intervalMinutes: number = 1): Promise<void> {
+	public async startMonitoring(): Promise<void> {
 		// Run initial check
 		await this.refresh();
 
 		// Set interval for periodic checks (converted to milliseconds)
-		const intervalMs = intervalMinutes * 60 * 1000;
+		const intervalMs = 60_000;
 		setInterval(() => this.refresh(), intervalMs);
 	}
 }
