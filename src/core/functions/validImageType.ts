@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
 
 	・   Under the following terms:
 
@@ -18,7 +18,6 @@
 
 ・ Copyright © 2020-2025 iHorizon
 */
-
 
 export default function isValidImageType(contentType: string | null): boolean {
 	if (!contentType) return false;

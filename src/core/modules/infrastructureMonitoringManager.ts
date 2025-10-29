@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
 
 	・   Under the following terms:
 
@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder, time } from "discord.js";
+import { AttachmentBuilder, BaseGuildTextChannel, EmbedBuilder, MessageEditOptions, time } from "discord.js";
 import net from "node:net";
 import { axios } from "../functions/axios.ts";
 import { metasTable } from "../../Events/client/ready.ts";
@@ -29,6 +29,11 @@ interface ResponseResult {
 	latency: number;
 }
 
+interface PingHistoryEntry {
+	timestamp: Date;
+	ping: number;
+}
+
 class InfrastructureMonitoring {
 	private timeout = 5000; // 5 seconds timeout for requests
 	private statusEmbed: EmbedBuilder;
@@ -36,6 +41,9 @@ class InfrastructureMonitoring {
 	private down: string;
 	private evaluating: string;
 	private lastResult: Record<string, ResponseResult>;
+
+	private pingHistory: PingHistoryEntry[] = [];
+	private readonly MAX_PING_HISTORY = 60;
 
 	private async HorizonGateway(): Promise<ResponseResult> {
 		const HorizonGatewayURL = client.config.api.HorizonGateway;
@@ -162,6 +170,82 @@ class InfrastructureMonitoring {
 		});
 	}
 
+	private addPingToHistory(ping: number): void {
+		const entry: PingHistoryEntry = {
+			timestamp: new Date(),
+			ping: ping
+		};
+
+		this.pingHistory.push(entry);
+
+		if (this.pingHistory.length > this.MAX_PING_HISTORY) {
+			this.pingHistory.shift();
+		}
+	}
+
+	private generatePingChartData(): { pingData: number[], timeLabels: string[] } {
+		const pingData: number[] = [];
+		const timeLabels: string[] = [];
+
+		const missingEntries = this.MAX_PING_HISTORY - this.pingHistory.length;
+		for (let i = 0; i < missingEntries; i++) {
+			pingData.push(0);
+			timeLabels.push(`-${this.MAX_PING_HISTORY - i}m`);
+		}
+
+		this.pingHistory.forEach((entry, index) => {
+			pingData.push(entry.ping);
+			const minutesAgo = this.pingHistory.length - index - 1;
+			timeLabels.push(minutesAgo === 0 ? 'Now' : `-${minutesAgo}m`);
+		});
+
+		return { pingData, timeLabels };
+	}
+
+	private calculatePingStats(): { current: number, avg: number, max: number } {
+		if (this.pingHistory.length === 0) {
+			return { current: 0, avg: 0, max: 0 };
+		}
+
+		const validPings = this.pingHistory.filter(entry => entry.ping > 0);
+
+		if (validPings.length === 0) {
+			return { current: 0, avg: 0, max: 0 };
+		}
+
+		const current = validPings[validPings.length - 1]?.ping || 0;
+		const sum = validPings.reduce((acc, entry) => acc + entry.ping, 0);
+		const avg = Math.round(sum / validPings.length);
+		const max = Math.max(...validPings.map(entry => entry.ping));
+
+		return { current, avg, max };
+	}
+
+	private async generatePingChart(): Promise<Buffer> {
+		let htmlContent = client.htmlfiles["botLatencyMonitoring"];
+
+		const { pingData, timeLabels } = this.generatePingChartData();
+		const stats = this.calculatePingStats();
+
+		htmlContent = htmlContent
+			.replace('{bot_name}', client.user?.username || 'iHorizon')
+			.replace('{current_ping}', stats.current.toString())
+			.replace('{avg_ping}', stats.avg.toString())
+			.replace('{max_ping}', stats.max.toString())
+			.replace('{ ping_data }', JSON.stringify(pingData))
+			.replace('{ time_labels }', JSON.stringify(timeLabels));
+
+		const image = await client.func.html2png(htmlContent, {
+			elementSelector: 'body',
+			omitBackground: true,
+			selectElement: false,
+			width: 1024,
+			height: 512
+		});
+
+		return image;
+	}
+
 	// Method to check all services at once
 	public async checkAllServices(): Promise<Record<string, ResponseResult>> {
 		const results = await Promise.all([
@@ -256,6 +340,19 @@ class InfrastructureMonitoring {
 			this.lastResult = await this.checkAllServices();
 			this.updateStatusEmbed(this.lastResult);
 
+			if (this.lastResult.PublicBot?.latency) {
+				this.addPingToHistory(this.lastResult.PublicBot.latency);
+			}
+
+			let pingChartAttachment: AttachmentBuilder | null = null;
+			try {
+				const pingChartImage = await this.generatePingChart();
+				pingChartAttachment = new AttachmentBuilder(pingChartImage, { name: 'ping-chart.png' });
+				this.statusEmbed.setImage('attachment://ping-chart.png');
+			} catch (error) {
+				console.error("Failed to generate ping chart:", error);
+			}
+
 			// Update all status messages in configured channels
 			for (const [guild_id, data] of Object.entries(all_guilds)) {
 				try {
@@ -268,10 +365,16 @@ class InfrastructureMonitoring {
 							const msg = await textChannel?.messages.fetch(channelData.message_id);
 
 							if (msg) {
-								await msg.edit({
+								const editOptions: MessageEditOptions = {
 									content: `**Last update:** ${time(new Date(), "R")}`,
 									embeds: [this.statusEmbed]
-								});
+								};
+
+								if (pingChartAttachment) {
+									editOptions.files = [pingChartAttachment];
+								}
+
+								await msg.edit(editOptions);
 							}
 						} catch (msgError) {
 							console.error(`Failed to update status message in guild ${guild_id}: ${msgError}`);
@@ -289,7 +392,7 @@ class InfrastructureMonitoring {
 	// Method to start periodic monitoring
 	public async startMonitoring(intervalMinutes: number = 1): Promise<void> {
 		// Run initial check
-		this.init();
+		await this.init();
 
 		// Set interval for periodic checks (converted to milliseconds)
 		const intervalMs = intervalMinutes * 60 * 1000;

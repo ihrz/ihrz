@@ -29,7 +29,7 @@ import logger from '../src/core/logger.ts';
 const EXPECTED_HEADER = `/*
 ・ iHorizon Discord Bot (${pkg.repository.url})
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (${pkg.license})
 
 	・   Under the following terms:
 
@@ -42,7 +42,7 @@ const EXPECTED_HEADER = `/*
 		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
-・ Mainly developed by Kisakay (https://gitlab.com/${pkg.author})
+・ Mainly developed by ${pkg.author} (https://gitlab.com/${pkg.author})
 
 ・ Copyright © 2020-${new Date().getFullYear()} iHorizon
 */`;
