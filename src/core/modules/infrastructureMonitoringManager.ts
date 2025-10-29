@@ -368,12 +368,9 @@ class InfrastructureMonitoring {
 							if (msg) {
 								const editOptions: MessageEditOptions = {
 									content: `**Last update:** ${time(new Date(), "R")}`,
-									embeds: [this.statusEmbed]
+									embeds: [this.statusEmbed],
+									files: pingChartAttachment ? [pingChartAttachment] : []
 								};
-
-								if (pingChartAttachment) {
-									editOptions.files = [pingChartAttachment];
-								}
 
 								await msg.edit(editOptions);
 							} else {
