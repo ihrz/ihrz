@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<style>
+		:root {
+			--primary: #5865F2;
+			--primary-glow: rgba(88, 101, 242, 0.3);
+			--success: #3BA55C;
+			--warning: #FAA61A;
+			--danger: #ED4245;
+			--bg-dark: #0B0C0F;
+			--bg-medium: #1A1C23;
+			--bg-light: #23252E;
+			--text-bright: #FFFFFF;
+			--text-muted: #8B8E98;
+			--border: rgba(255, 255, 255, 0.06);
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Inter', sans-serif;
+			background: linear-gradient(135deg, var(--bg-dark) 0%, #151820 100%);
+			color: var(--text-bright);
+			width: 1024px;
+			height: 512px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+		}
+
+		.container {
+			width: 100%;
+			height: 100%;
+			background: var(--bg-medium);
+			border-radius: 20px;
+			box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
+				0 0 0 1px var(--border);
+			overflow: hidden;
+			position: relative;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.container::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 3px;
+			background: linear-gradient(90deg, var(--primary), var(--success), var(--warning));
+			box-shadow: 0 0 20px var(--primary-glow);
+		}
+
+		.header {
+			padding: 20px 30px;
+			background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-medium) 100%);
+			border-bottom: 1px solid var(--border);
+			position: relative;
+		}
+
+		.header::after {
+			content: '';
+			position: absolute;
+			bottom: -1px;
+			left: 30px;
+			right: 30px;
+			height: 1px;
+			background: linear-gradient(90deg,
+					transparent 0%,
+					var(--primary) 50%,
+					transparent 100%);
+			opacity: 0.5;
+		}
+
+		.title {
+			font-size: 22px;
+			font-weight: 800;
+			background: linear-gradient(135deg, var(--text-bright) 0%, var(--text-muted) 100%);
+			-webkit-background-clip: text;
+			background-clip: text;
+			-webkit-text-fill-color: transparent;
+			margin-bottom: 4px;
+			letter-spacing: -0.5px;
+		}
+
+		.subtitle {
+			font-size: 13px;
+			color: var(--text-muted);
+			font-weight: 500;
+		}
+
+		.stats-row {
+			display: flex;
+			gap: 15px;
+			padding: 20px 30px;
+			background: var(--bg-medium);
+			border-bottom: 1px solid var(--border);
+		}
+
+		.stat-card {
+			flex: 1;
+			background: var(--bg-light);
+			border-radius: 12px;
+			padding: 16px;
+			border: 1px solid var(--border);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.stat-card::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 4px;
+			height: 100%;
+			background: var(--primary);
+		}
+
+		.stat-card:nth-child(1)::before {
+			background: var(--success);
+		}
+
+		.stat-card:nth-child(2)::before {
+			background: var(--primary);
+		}
+
+		.stat-card:nth-child(3)::before {
+			background: var(--danger);
+		}
+
+		.stat-label {
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			color: var(--text-muted);
+			margin-bottom: 6px;
+		}
+
+		.stat-value {
+			font-size: 28px;
+			font-weight: 800;
+			color: var(--text-bright);
+			line-height: 1;
+		}
+
+		.stat-unit {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--text-muted);
+			margin-left: 3px;
+		}
+
+		.chart-wrapper {
+			flex: 1;
+			padding: 20px 30px 30px;
+			background: var(--bg-medium);
+			display: flex;
+			flex-direction: column;
+		}
+
+		.chart-container {
+			flex: 1;
+			background: var(--bg-light);
+			border-radius: 16px;
+			padding: 20px;
+			border: 1px solid var(--border);
+			box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+			position: relative;
+		}
+
+		.chart-container::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: radial-gradient(circle at 50% 0%,
+					rgba(88, 101, 242, 0.05) 0%,
+					transparent 50%);
+			pointer-events: none;
+		}
+
+		canvas {
+			position: relative;
+			z-index: 1;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="header">
+			<div class="title">⚡ WebSocket Ping - {bot_name}</div>
+			<div class="subtitle">History of the last hour</div>
+		</div>
+
+		<div class="stats-row">
+			<div class="stat-card">
+				<div class="stat-label">Actual</div>
+				<div>
+					<span class="stat-value">{current_ping}</span>
+					<span class="stat-unit">ms</span>
+				</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-label">Average</div>
+				<div>
+					<span class="stat-value">{avg_ping}</span>
+					<span class="stat-unit">ms</span>
+				</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-label">Maximum</div>
+				<div>
+					<span class="stat-value">{max_ping}</span>
+					<span class="stat-unit">ms</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="chart-wrapper">
+			<div class="chart-container">
+				<canvas id="pingChart"></canvas>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const pingData = { ping_data };
+		const timeLabels = { time_labels };
+
+		const ctx = document.getElementById('pingChart').getContext('2d');
+
+		const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+		gradient.addColorStop(0, 'rgba(88, 101, 242, 0.4)');
+		gradient.addColorStop(0.5, 'rgba(88, 101, 242, 0.2)');
+		gradient.addColorStop(1, 'rgba(88, 101, 242, 0)');
+
+		new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: timeLabels,
+				datasets: [{
+					label: 'Ping (ms)',
+					data: pingData,
+					borderColor: '#5865F2',
+					backgroundColor: gradient,
+					fill: true,
+					tension: 0.4,
+					borderWidth: 2.5,
+					pointRadius: 0,
+					pointHoverRadius: 5,
+					pointHoverBackgroundColor: '#5865F2',
+					pointHoverBorderColor: '#fff',
+					pointHoverBorderWidth: 2
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				interaction: {
+					mode: 'index',
+					intersect: false,
+				},
+				plugins: {
+					legend: {
+						display: false
+					},
+					tooltip: {
+						enabled: true,
+						backgroundColor: 'rgba(26, 28, 35, 0.95)',
+						titleColor: '#fff',
+						bodyColor: '#8B8E98',
+						titleFont: {
+							family: 'Inter',
+							size: 12,
+							weight: '700'
+						},
+						bodyFont: {
+							family: 'Inter',
+							size: 11,
+							weight: '500'
+						},
+						padding: 10,
+						borderColor: 'rgba(255, 255, 255, 0.1)',
+						borderWidth: 1,
+						displayColors: false,
+						callbacks: {
+							title: function (context) {
+								return context[0].label;
+							},
+							label: function (context) {
+								return `Ping: ${context.parsed.y} ms`;
+							}
+						}
+					}
+				},
+				scales: {
+					x: {
+						grid: {
+							color: 'rgba(255, 255, 255, 0.03)',
+							drawBorder: false
+						},
+						ticks: {
+							color: '#8B8E98',
+							font: {
+								family: 'Inter',
+								size: 9,
+								weight: '600'
+							},
+							maxRotation: 0,
+							autoSkip: true,
+							maxTicksLimit: 10
+						}
+					},
+					y: {
+						beginAtZero: true,
+						grid: {
+							color: 'rgba(255, 255, 255, 0.03)',
+							drawBorder: false
+						},
+						ticks: {
+							color: '#8B8E98',
+							font: {
+								family: 'Inter',
+								size: 10,
+								weight: '600'
+							},
+							callback: function (value) {
+								return value + ' ms';
+							}
+						}
+					}
+				}
+			}
+		});
+	</script>
+</body>
+
+</html>
