@@ -398,7 +398,7 @@ class InfrastructureMonitoring {
 		await this.refresh();
 
 		// Set interval for periodic checks (converted to milliseconds)
-		const intervalMs = intervalMinutes * 4000;
+		const intervalMs = intervalMinutes * 60 * 1000;
 		setInterval(() => this.refresh(), intervalMs);
 	}
 }
