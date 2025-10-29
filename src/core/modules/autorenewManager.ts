@@ -99,8 +99,8 @@ class AutoRenew {
 										maxTime: data.maxTime
 									}),
 									client.db.delete(`${guild.id}.UTILS.renew_channel.${channel.id}`),
+									channel.delete(),
 									newChannel.setPosition(channel.rawPosition),
-									channel.delete()
 								]);
 
 								await newChannel.send({
