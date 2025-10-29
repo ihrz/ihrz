@@ -38,7 +38,6 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
-import getTopTwoColors from '../../../core/functions/image_dominant_color.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -75,13 +74,13 @@ export const subCommand: SubCommand = {
 		const progress = client.func.generateProgressBar(client.iHorizon_Emojis, player.position, player.queue.current?.info.duration!)
 
 		let htmlContent = client.htmlfiles["nowPlaying"];
-		const dominant_color = (await getTopTwoColors(player.queue.current?.info.artworkUrl as string)).split(" ");
+		const dominant_color = (await client.func.image_dominant_color(player.queue.current?.info.artworkUrl as string));
 
 		htmlContent = htmlContent.replace("{album_cover}", player.queue.current?.info.artworkUrl as string)
 			.replace("{song_title}", player.queue.current?.info.title as string)
 			.replace("{song_author}", player.queue.current?.info.author as string)
-			.replace("{color1}", dominant_color[0])
-			.replace("{color2}", dominant_color[1])
+			.replace("{color1}", dominant_color.color1)
+			.replace("{color2}", dominant_color.color2)
 			.replace("{time0}", String((player.position / player.queue.current?.info.duration!) * 100))
 			.replace("{time1}", progress.currentTime)
 			.replace("{time2}", progress.totalTime);
@@ -122,8 +121,8 @@ export const subCommand: SubCommand = {
 					.replace("{album_cover}", player.queue.current?.info.artworkUrl as string)
 					.replace("{song_title}", player.queue.current?.info.title as string)
 					.replace("{song_author}", player.queue.current?.info.author as string)
-					.replace("{color1}", dominant_color[0])
-					.replace("{color2}", dominant_color[1])
+					.replace("{color1}", dominant_color.color1)
+					.replace("{color2}", dominant_color.color2)
 					.replace("{time0}", String((player.position / player.queue.current?.info.duration!) * 100))
 					.replace("{time1}", progress.currentTime)
 					.replace("{time2}", progress.totalTime);
