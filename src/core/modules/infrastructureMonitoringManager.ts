@@ -203,23 +203,24 @@ class InfrastructureMonitoring {
 		return { pingData, timeLabels };
 	}
 
-	private calculatePingStats(): { current: number, avg: number, max: number } {
+	private calculatePingStats(): { current: number, avg: number, max: number, min: number } {
 		if (this.pingHistory.length === 0) {
-			return { current: 0, avg: 0, max: 0 };
+			return { current: 0, avg: 0, max: 0, min: 0 };
 		}
 
 		const validPings = this.pingHistory.filter(entry => entry.ping > 0);
 
 		if (validPings.length === 0) {
-			return { current: 0, avg: 0, max: 0 };
+			return { current: 0, avg: 0, max: 0, min: 0 };
 		}
 
 		const current = validPings[validPings.length - 1]?.ping || 0;
 		const sum = validPings.reduce((acc, entry) => acc + entry.ping, 0);
 		const avg = Math.round(sum / validPings.length);
 		const max = Math.max(...validPings.map(entry => entry.ping));
+		const min = Math.min(...validPings.map(entry => entry.ping));
 
-		return { current, avg, max };
+		return { current, avg, max, min };
 	}
 
 	private async generatePingChart(): Promise<Buffer> {
@@ -233,6 +234,7 @@ class InfrastructureMonitoring {
 			.replace('{current_ping}', stats.current.toString())
 			.replace('{avg_ping}', stats.avg.toString())
 			.replace('{max_ping}', stats.max.toString())
+			.replace('{min_ping}', stats.min.toString())
 			.replace('{ ping_data }', JSON.stringify(pingData))
 			.replace('{ time_labels }', JSON.stringify(timeLabels));
 
@@ -301,7 +303,7 @@ class InfrastructureMonitoring {
 		this.statusEmbed.setTimestamp(new Date());
 	}
 
-	public async init() {
+	public async refresh() {
 		this.online = client.iHorizon_Emojis.Online;
 		this.down = client.iHorizon_Emojis.DND;
 		this.evaluating = client.iHorizon_Emojis.Invisible;
@@ -368,14 +370,13 @@ class InfrastructureMonitoring {
 							if (msg) {
 								const editOptions: MessageEditOptions = {
 									content: `**Last update:** ${time(new Date(), "R")}`,
-									embeds: [this.statusEmbed]
+									embeds: [this.statusEmbed],
+									files: pingChartAttachment ? [pingChartAttachment] : []
 								};
 
-								if (pingChartAttachment) {
-									editOptions.files = [pingChartAttachment];
-								}
-
 								await msg.edit(editOptions);
+							} else {
+								await metasTable.delete(`MISC.statusEmbed.${guild_id}`);
 							}
 						} catch (msgError) {
 							console.error(`Failed to update status message in guild ${guild_id}: ${msgError}`);
@@ -391,13 +392,13 @@ class InfrastructureMonitoring {
 	}
 
 	// Method to start periodic monitoring
-	public async startMonitoring(intervalMinutes: number = 1): Promise<void> {
+	public async startMonitoring(): Promise<void> {
 		// Run initial check
-		await this.init();
+		await this.refresh();
 
 		// Set interval for periodic checks (converted to milliseconds)
-		const intervalMs = intervalMinutes * 4000;
-		setInterval(() => this.init(), intervalMs);
+		const intervalMs = 60_000;
+		setInterval(() => this.refresh(), intervalMs);
 	}
 }
 

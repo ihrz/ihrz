@@ -140,6 +140,10 @@
 		}
 
 		.stat-card:nth-child(3)::before {
+			background: var(--warning);
+		}
+
+		.stat-card:nth-child(4)::before {
 			background: var(--danger);
 		}
 
@@ -223,6 +227,13 @@
 				<div class="stat-label">Average</div>
 				<div>
 					<span class="stat-value">{avg_ping}</span>
+					<span class="stat-unit">ms</span>
+				</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-label">Minimum</div>
+				<div>
+					<span class="stat-value">{min_ping}</span>
 					<span class="stat-unit">ms</span>
 				</div>
 			</div>
