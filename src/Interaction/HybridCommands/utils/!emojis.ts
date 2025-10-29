@@ -31,6 +31,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../types/command.js';
+import { sleep } from 'bun';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -70,6 +71,8 @@ export const subCommand: SubCommand = {
 						.replace('${emoji.name}', emoji)
 					);
 				});
+
+				await sleep(6000);
 			}
 		}
 
