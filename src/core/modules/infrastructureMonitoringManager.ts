@@ -301,7 +301,7 @@ class InfrastructureMonitoring {
 		this.statusEmbed.setTimestamp(new Date());
 	}
 
-	public async init() {
+	public async refresh() {
 		this.online = client.iHorizon_Emojis.Online;
 		this.down = client.iHorizon_Emojis.DND;
 		this.evaluating = client.iHorizon_Emojis.Invisible;
@@ -376,6 +376,8 @@ class InfrastructureMonitoring {
 								}
 
 								await msg.edit(editOptions);
+							} else {
+								await metasTable.delete(`MISC.statusEmbed.${guild_id}`);
 							}
 						} catch (msgError) {
 							console.error(`Failed to update status message in guild ${guild_id}: ${msgError}`);
@@ -393,11 +395,11 @@ class InfrastructureMonitoring {
 	// Method to start periodic monitoring
 	public async startMonitoring(intervalMinutes: number = 1): Promise<void> {
 		// Run initial check
-		await this.init();
+		await this.refresh();
 
 		// Set interval for periodic checks (converted to milliseconds)
 		const intervalMs = intervalMinutes * 4000;
-		setInterval(() => this.init(), intervalMs);
+		setInterval(() => this.refresh(), intervalMs);
 	}
 }
 
