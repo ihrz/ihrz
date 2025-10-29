@@ -2617,7 +2617,7 @@ hybridcommands_embed_help_title: "${commandName} Aide en Intégration"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 hybridcommands_embed_footer_text: "Les options entre [...] sont obligatoires, tandis que celles entre <...> sont facultatives.\nUtilisez la commande : ${botPrefix}help [command] pour plus d'informations."
 
-ping_bot_show_info_msg: "Hey ${message.author.toString()}, je suis 100% en `Slash Command` (${client.iHorizon_Emojis.Slash_Bot_Badge}) et utilisable à plus de 85% en commande préfixe. Mon préfixe sur **ce serveur** est `${prefix}` !"
+ping_bot_show_info_msg: "Oh la conne de ta soeur à me ping!!! Sah2sah jsuis iHorizon le bot de fdp qui vas niquer ta mère si tu l'utilise pas partout. Bref si tu veux m'utiliser mon préfix c'est **${prefix}**"
 ping_bot_show_info_msg_about_change_prefix: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Mon prefix te dérange? Fait **`/guildconfig bot prefix`** pour changer de préfixe!"
 
 # Module de Notification
