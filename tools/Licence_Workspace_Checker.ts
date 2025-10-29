@@ -22,30 +22,8 @@
 import * as fs from 'node:fs';
 import * as path from 'path';
 import * as readline from 'readline';
-import pkg from "../package.json";
 import logger from '../src/core/logger.ts';
-
-// Expected license header (first 20 lines)
-const EXPECTED_HEADER = `/*
-・ iHorizon Discord Bot (${pkg.repository.url})
-
-・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (${pkg.license})
-
-	・   Under the following terms:
-
-		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-
-		・ NonCommercial — You may not use the material for commercial purposes.
-
-		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
-
-		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
-
-
-・ Mainly developed by ${pkg.author} (https://gitlab.com/${pkg.author})
-
-・ Copyright © 2020-${new Date().getFullYear()} iHorizon
-*/`;
+import { LICENCE_HEADER } from './LicenceHeader.ts';
 
 // Array of paths to search recursively
 const SEARCH_PATHS: string[] = [
@@ -93,7 +71,7 @@ function getHeadersLineCount(filePath: string): string {
 	try {
 		const content = fs.readFileSync(filePath, 'utf-8');
 		const lines = content.split('\n');
-		return lines.slice(0, EXPECTED_HEADER.split('\n').length).join('\n');
+		return lines.slice(0, LICENCE_HEADER.split('\n').length).join('\n');
 	} catch (error) {
 		throw new Error(`Failed to read file: ${error}`);
 	}
@@ -105,7 +83,7 @@ function getHeadersLineCount(filePath: string): string {
 function hasCorrectLicenseHeader(filePath: string): boolean {
 	try {
 		const first20Lines = getHeadersLineCount(filePath);
-		return first20Lines.trim() === EXPECTED_HEADER.trim();
+		return first20Lines.trim() === LICENCE_HEADER.trim();
 	} catch (error) {
 		console.error(`Error checking file ${filePath}: ${error}`);
 		return false;
@@ -135,7 +113,7 @@ function fixLicenseHeader(filePath: string): void {
 		}
 
 		const remainingContent = lines.slice(startIndex).join('\n');
-		const newContent = EXPECTED_HEADER + '\n\n' + remainingContent;
+		const newContent = LICENCE_HEADER + '\n\n' + remainingContent;
 
 		fs.writeFileSync(filePath, newContent, 'utf-8');
 		logger.legacy(`✓ Fixed: ${filePath}`);
