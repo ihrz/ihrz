@@ -171,6 +171,10 @@ class InfrastructureMonitoring {
 	}
 
 	private addPingToHistory(ping: number): void {
+		if (ping <= 0 || ping === -1) {
+			return;
+		}
+
 		const entry: PingHistoryEntry = {
 			timestamp: new Date(),
 			ping: ping
@@ -183,21 +187,18 @@ class InfrastructureMonitoring {
 		}
 	}
 
-	private generatePingChartData(): { pingData: number[], timeLabels: string[] } {
-		const pingData: number[] = [];
+	private generatePingChartData(): { pingData: (number | null)[], timeLabels: string[] } {
+		const pingData: (number | null)[] = new Array(this.MAX_PING_HISTORY).fill(null);
 		const timeLabels: string[] = [];
 
-		const missingEntries = this.MAX_PING_HISTORY - this.pingHistory.length;
-		for (let i = 0; i < missingEntries; i++) {
-			pingData.push(0);
-			timeLabels.push(`-${this.MAX_PING_HISTORY - i}m`);
+		for (let i = this.MAX_PING_HISTORY - 1; i >= 0; i--) {
+			timeLabels.push(i === 0 ? "Now" : `${i}m`);
 		}
 
-		this.pingHistory.forEach((entry, index) => {
-			pingData.push(entry.ping);
-			const minutesAgo = this.pingHistory.length - index - 1;
-			timeLabels.push(minutesAgo === 0 ? 'Now' : `-${minutesAgo}m`);
-		});
+		const startIndex = this.MAX_PING_HISTORY - this.pingHistory.length;
+		for (let i = 0; i < this.pingHistory.length; i++) {
+			pingData[startIndex + i] = this.pingHistory[i].ping;
+		}
 
 		return { pingData, timeLabels };
 	}
@@ -395,7 +396,7 @@ class InfrastructureMonitoring {
 		await this.init();
 
 		// Set interval for periodic checks (converted to milliseconds)
-		const intervalMs = intervalMinutes * 60 * 1000;
+		const intervalMs = intervalMinutes * 4000;
 		setInterval(() => this.init(), intervalMs);
 	}
 }
