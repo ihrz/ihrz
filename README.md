@@ -10,6 +10,10 @@ It offers a **large variety of features**, including:
 ✅ Music playback  
 ✅ Giveaways  
 ✅ Backups  
+✅ Server Backup  
+✅ Member Backup (oauth2)  
+✅ Rolereaction/button/select menue  
+✅ Tickets  
 ... and much more!  
 
 ![GitHub Release](https://img.shields.io/github/v/release/ihrz/ihrz)  
