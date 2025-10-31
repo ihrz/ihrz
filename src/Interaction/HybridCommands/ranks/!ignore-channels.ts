@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const all_channels = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING`) as DatabaseStructure.DbGuildXpLeveling["bypassChannels"];
+		const all_channels = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING`) || [] as DatabaseStructure.DbGuildXpLeveling["bypassChannels"];
 
 		const embed = new EmbedBuilder()
 			.setColor("#6666ff")
