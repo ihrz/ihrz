@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { BaseGuildTextChannel, ButtonInteraction, EmbedBuilder, TextInputStyle, SnowflakeUtil, MessageReplyOptions } from 'discord.js';
+import { BaseGuildTextChannel, ButtonInteraction, EmbedBuilder, TextInputStyle, SnowflakeUtil, MessageReplyOptions, ButtonBuilder, ButtonStyle, APIMessageTopLevelComponent, ActionRowData, JSONEncodable, MessageActionRowComponentBuilder, MessageActionRowComponentData, TopLevelComponentData, ActionRowBuilder } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { generatePassword } from '../../../core/functions/random.js'
@@ -98,11 +98,13 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		embeds: EmbedBuilder[],
 		files: { attachment: Buffer | string, name: string }[],
 		enforceNonce: boolean,
-		nonce: string
+		nonce: string;
+		components: (APIMessageTopLevelComponent | JSONEncodable<APIMessageTopLevelComponent> | TopLevelComponentData | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder>)[]
 	} = {
 		embeds: [],
 		files: [],
 		enforceNonce: true,
+		components: [],
 		nonce: nonce
 	}
 
@@ -127,14 +129,27 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		view = false;
 	}
 
+	allDataConfession.thread === "yes" && (async () => {
+		const respondButton = new ButtonBuilder()
+			.setStyle(ButtonStyle.Secondary)
+			.setLabel(lang.confession_channel_button_name)
+			.setCustomId(`confessionres%${code}`);
+
+		body.components.push(new ActionRowBuilder<ButtonBuilder>().addComponents(respondButton))
+	})();
+
 	body.embeds.push(embed);
 	const msg = await (channel as BaseGuildTextChannel).send(body);
+	let threadChannel: string | null = null;
 
 	if (allDataConfession.thread === "yes") {
 		msg.startThread({
 			name: `${lang.help_confession_fields} #${code}`,
 			reason: "Pic Only"
-		}).then(x => x.edit({ invitable: true, locked: false, archived: false }))
+		}).then(x => {
+			x.edit({ invitable: true, locked: false, archived: false })
+			threadChannel = x.id;
+		})
 	}
 
 	await interaction.client.db.push(`${interaction.guildId}.GUILD.CONFESSION.ALL_CONFESSIONS`, {
@@ -142,6 +157,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		userId: interaction.user.id,
 		timestamp: Date.now(),
 		private: view,
+		threadChannel,
+		messageId: msg.id
 	});
 
 	await tempTable.set(`CONFESSION_COOLDOWN.${interaction.user.id}`, Date.now());
@@ -166,5 +183,34 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			messageId
 		});
 	})
+
+	const someinfo = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.confession`);
+	if (someinfo) {
+		let channel = interaction.guild.channels.cache.get(someinfo) || await interaction.guild.channels.fetch(someinfo).catch(() => null);
+		let components: (APIMessageTopLevelComponent | JSONEncodable<APIMessageTopLevelComponent> | TopLevelComponentData | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder>)[] = [];
+
+		if (!channel) {
+			await client.db.delete(`${interaction.guildId}.GUILD.SERVER_LOGS.confession`);
+			return;
+		}
+
+		let msg = `## ${lang.confession_embed_logs_title}: ${code}
+${name}`;
+
+		components.push(new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setStyle(ButtonStyle.Link)
+				.setURL(`https://discordapp.com/users/${interaction.user.id}`)
+				.setLabel(lang.userinfo_button_label)
+		));
+
+		let embed = new EmbedBuilder()
+			.setColor("#010101")
+			.setDescription(msg)
+			.setTimestamp()
+			;
+		(channel as BaseGuildTextChannel).send({ embeds: [embed], components });
+	}
+
 	return;
 };

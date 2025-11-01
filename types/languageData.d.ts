@@ -1059,6 +1059,7 @@ export interface LanguageData {
 	setlogschannel_var_tickets: string;
 	setlogschannel_var_antispam: string;
 	setlogschannel_var_channel: string;
+	setlogschannel_var_confession: string;
 	joinghostping_add_already_set: string;
 	joinghostping_add_sent_to_channel: string;
 	joinghostping_add_ok_embed_title: string;
@@ -2003,4 +2004,7 @@ export interface LanguageData {
 	channel_unhideall_error: string;
 	new_guild_embed_title: string[];
 	new_guild_embed_desc: string;
+	confession_embed_logs_title: string;
+	confession_channel_button_name: string;
+	confession_1_embed_log_title: string;
 }

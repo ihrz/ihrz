@@ -65,6 +65,7 @@ export const command: Command = {
 				{ name: "Roles Logs", value: "roles" },
 				{ name: "Ticket Logs", value: "ticket" },
 				{ name: "Voice Logs", value: "voice" },
+				{ name: "Confession Logs", value: "confession" }
 			],
 
 			permission: null
@@ -100,7 +101,8 @@ export const command: Command = {
 			{ id: "roles", value: lang.setlogschannel_var_roles },
 			{ id: "ticket-log-channel", value: lang.setlogschannel_var_tickets },
 			{ id: "antispam", value: lang.setlogschannel_var_antispam },
-			{ id: "channel", value: lang.setlogschannel_var_channel }
+			{ id: "channel", value: lang.setlogschannel_var_channel },
+			{ id: "confession", value: lang.setlogschannel_var_confession }
 		];
 
 		if (interaction instanceof ChatInputCommandInteraction) {
@@ -269,6 +271,7 @@ export const command: Command = {
 			"ticket": lang.setlogschannel_var_tickets,
 			"antispam": lang.setlogschannel_var_antispam,
 			"channel": lang.setlogschannel_var_channel,
+			"confession": lang.setlogschannel_var_confession
 		};
 
 		if (type && type in typeOfLogsMap) {
