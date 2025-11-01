@@ -285,6 +285,7 @@ export interface LanguageData {
 	ticket_panel_select_question_to_delete: string;
 	ticket_panel_panel_15_label: string;
 	ticket_panel_panel_16_label: string;
+	ticket_panel_panel_17_label: string;
 	ticket_panel_manage_form_title: string;
 	ticket_panel_change_embed_options: string;
 	ticket_panel_change_embed_options_null: string;
