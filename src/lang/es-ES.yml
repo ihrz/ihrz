@@ -1352,6 +1352,7 @@ setlogschannel_var_boost: "Registros de Impulso"
 setlogschannel_var_tickets: "Registros de Tickets"
 setlogschannel_var_antispam: "Registros AntiSpam"
 setlogschannel_var_channel: "Registros del canal"
+setlogschannel_var_confession: "Registros de confesiones"
 
 # /join-ghostping add
 joinghostping_add_already_set: "¡El canal ${channel} ya está configurado!"
@@ -2694,3 +2695,8 @@ new_guild_embed_title:
   - "¡Una nueva aventura comienza! 🚀"
   - "¡Un miembro fantástico ha llegado! ✨"
 new_guild_embed_desc: "## ${randomMessage}\n¡Hola, queridos amigos!\n\nSoy iHorizon, un bot avanzado diseñado para hacer que vuestra experiencia en Discord sea extraordinaria y llena de diversión.\n\n✨ **Lo que puedo hacer por vosotros:**\n• Gestión del servidor con inteligencia y profesionalidad\n• Juegos interactivos y entretenimiento ilimitado\n• Herramientas útiles para la organización de la comunidad\n• Soporte técnico disponible 24/7\n\nExplorad mis comandos y sumergíos en un mundo de posibilidades infinitas.\n¡Juntos construiremos una comunidad fantástica llena de hermosos recuerdos!\n\n¡Gracias por elegirme, comencemos esta increíble aventura! 🌟"
+
+# Confession Event
+confession_embed_logs_title: "Nueva confesión"
+confession_channel_button_name: "Responder anónimamente"
+confession_1_embed_log_title: "Nueva respuesta a la confesión"

@@ -1348,10 +1348,11 @@ setlogschannel_var_roles: "Журналы ролей"
 setlogschannel_var_mods: "Журналы модерации"
 setlogschannel_var_voice: "Журналы голоса"
 setlogschannel_var_msg: "Журналы сообщений"
-setlogschannel_var_boost: "Логи Повышений"
+setlogschannel_var_boost: "Журналы Повышений"
 setlogschannel_var_tickets: "Журналы заявок"
 setlogschannel_var_antispam: "Журналы AntiSpam"
 setlogschannel_var_channel: "Журналы канала"
+setlogschannel_var_confession: "Журналы признаний"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Канал ${channel} уже установлен!"
@@ -2694,3 +2695,8 @@ new_guild_embed_title:
   - "Новое приключение начинается! 🚀"
   - "Фантастический участник прибыл! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nПривет, удивительные друзья!\n\nЯ iHorizon, продвинутый бот, созданный для того, чтобы сделать ваш Discord опыт исключительным и полным веселья.\n\n✨ **Что я могу сделать для вас:**\n• Управление сервером с интеллектом и профессионализмом\n• Интерактивные игры и безграничные развлечения\n• Полезные инструменты для организации сообщества\n• Техническая поддержка 24/7\n\nИсследуйте мои команды и погрузитесь в мир бесконечных возможностей.\nВместе мы построим фантастическое сообщество, полное прекрасных воспоминаний!\n\nСпасибо за то, что выбрали меня, давайте начнём это невероятное приключение! 🌟"
+
+# Confession Event
+confession_embed_logs_title: "Новое признание"
+confession_channel_button_name: "Ответить анонимно"
+confession_1_embed_log_title: "Новый ответ на признание"

@@ -184,13 +184,15 @@ export namespace DatabaseStructure {
 			messageId: string;
 		}
 		disable?: boolean;
-		ALL_CONFESSIONS?: {
-			[confessionId: string]: {
-				userId?: string;
-				timestamp?: number;
-				private?: boolean;
-			}
-		}
+		ALL_CONFESSIONS?:
+		Array<{
+			code: string;
+			userId?: string;
+			timestamp?: number;
+			private?: boolean;
+			threadChannel?: string | null;
+			messageId: string;
+		}>
 		cooldown?: number
 		thread?: 'yes' | 'no';
 	}
