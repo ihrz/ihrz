@@ -109,21 +109,6 @@ export const command: Command = {
 						"fr": "Définir un rôle pour contourner l'autorisation des canaux temporaires"
 					},
 
-					options: [
-						{
-							name: "role",
-							type: ApplicationCommandOptionType.Role,
-
-							description: "The role for the staff to bypass permission into the TempChannels",
-							description_localizations: {
-								"fr": "Le rôle du staff pour contourner l'autorisation dans les TempChannel"
-							},
-
-							required: true,
-							permission: null
-						}
-					],
-
 					permission: PermissionFlagsBits.Administrator
 				},
 				{

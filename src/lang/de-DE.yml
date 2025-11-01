@@ -2225,7 +2225,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, Sie sind nicht berechtigt, d
 
 # /voice Schnittstelle zum Einstellen der Staff-Rolle
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, Sie sind nicht berechtigt, diesen Befehl zu verwenden!"
-tempvoice_staff_desc_embed: "## TempVoice Staff-Rolle\nDie <@&${targetedRole?.id}> kann jetzt den Kanal moderieren!\n"
+tempvoice_staff_desc_embed: "## TempVoice-Personalrolle\nRollen hier können jetzt den Kanal betreten und moderieren!\n"
 
 # Confessionn Modul
 # /cooldown, /disable, /channel

@@ -2225,7 +2225,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, у вас нет прав н
 
 # /голос интерфейс установить роль персонала
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, у вас нет прав на использование этой команды!"
-tempvoice_staff_desc_embed: "## Роль персонала временного голосового канала\nТеперь <@&${targetedRole?.id}> может войти в канал в режиме модератора!\n"
+tempvoice_staff_desc_embed: "## Роль персонала TempVoice\nРоли здесь теперь могут заходить в канал и модерировать!\n"
 
 # Модуль Исповедей
 # /cooldown, /disable, /channel

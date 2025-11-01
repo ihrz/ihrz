@@ -2225,7 +2225,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, ¡no estás autorizado para 
 
 # Interfaz /voz para establecer el rol de personal
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, ¡no estás autorizado para usar este comando!"
-tempvoice_staff_desc_embed: "## Rol de Personal TempVoice\n¡El <@&${targetedRole?.id}> ahora puede moderar el canal!\n"
+tempvoice_staff_desc_embed: "## Rol del personal de TempVoice\n¡Los roles aquí ahora pueden entrar en el canal y moderar!\n"
 
 # Módulo de Confesión
 # /cooldown, /disable, /channel

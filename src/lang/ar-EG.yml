@@ -2225,7 +2225,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, ليس لديك الصلاح
 
 # /voice interface set-staff-role
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, ليس لديك الصلاحية لاستخدام هذا الأمر!"
-tempvoice_staff_desc_embed: "## دور موظفي TempVoice\nيمكن لـ <@&${targetedRole?.id}> الآن الدخول إلى القناة كمشرف!\n"
+tempvoice_staff_desc_embed: "## دور طاقم TempVoice\nيمكن للأدوار هنا الآن دخول القناة والإشراف!\n"
 
 # Confessionn Module
 # /cooldown, /disable, /channel

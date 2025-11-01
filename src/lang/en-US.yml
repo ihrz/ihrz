@@ -2227,7 +2227,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, your are not authorized to u
 
 # /voice interface set-staff-role
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, you are not authorized to use this command !"
-tempvoice_staff_desc_embed: "## TempVoice Staff Role\nThe <@&${targetedRole?.id}> can now enter in the channel moderate!\n"
+tempvoice_staff_desc_embed: "## TempVoice Staff Role\nRoles there can now enter in the channel moderate!\n"
 
 # Confessionn Module
 # /cooldown, /disable, /channel

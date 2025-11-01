@@ -2225,7 +2225,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, non sei autorizzato a usare 
 
 # Interfaccia /voce per impostare il ruolo dello staff
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, non sei autorizzato a usare questo comando!"
-tempvoice_staff_desc_embed: "## Ruolo Staff TempVoice\nIl <@&${targetedRole?.id}> può ora moderare il canale!\n"
+tempvoice_staff_desc_embed: "## Ruolo dello staff TempVoice\nI ruoli qui ora possono entrare nel canale e moderarlo!\n"
 
 # Modulo Confessioni
 # /cooldown, /disable, /channel

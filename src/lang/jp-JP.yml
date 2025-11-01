@@ -2225,7 +2225,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, このコマンドを使用�
 
 # /voice インターフェースを設定する
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, このコマンドを使用する権限がありません！"
-tempvoice_staff_desc_embed: "## TempVoice スタッフロール\n<@&${targetedRole?.id}>は今後、チャンネルをモデレートできます！\n"
+tempvoice_staff_desc_embed: "## TempVoiceスタッフロール\nここにあるロールはチャンネルに入り、モデレートできるようになりました！\n"
 
 # 告白モジュール
 # /cooldown, /disable, /channel

@@ -102,7 +102,7 @@ export namespace DatabaseStructure {
 	}
 
 	export interface VoiceData {
-		staff_role?: string;
+		staff_role?: string[];
 		interface?: {
 			channelId?: string;
 			messageId?: string;
