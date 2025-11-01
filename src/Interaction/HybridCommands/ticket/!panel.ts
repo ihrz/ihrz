@@ -395,7 +395,7 @@ export const subCommand: SubCommand = {
 						const builder = new StringSelectMenuOptionBuilder()
 							.setLabel(opt.name)
 							.setValue(opt.value);
-						if (opt.desc) builder.setDescription(opt.desc);
+						if (opt.desc) builder.setDescription(opt.desc.substring(0, 100));
 						if (opt.emoji) builder.setEmoji(opt.emoji);
 						return builder;
 					}));
@@ -1312,7 +1312,7 @@ export const subCommand: SubCommand = {
 							.setValue(x.value);
 
 						if (x.desc) {
-							optionBuilder.setDescription(x.desc);
+							optionBuilder.setDescription(x.desc.substring(0, 100));
 						}
 
 						if (x.emoji) {
