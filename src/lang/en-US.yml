@@ -1354,6 +1354,7 @@ setlogschannel_var_boost: "Boost Logs"
 setlogschannel_var_tickets: "Ticket Logs"
 setlogschannel_var_antispam: "AntiSpam Logs"
 setlogschannel_var_channel: "Channel Logs"
+setlogschannel_var_confession: "Confession Logs"
 
 # /join-ghostping add
 joinghostping_add_already_set: "The channel ${channel} is already set!"

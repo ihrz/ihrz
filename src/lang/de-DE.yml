@@ -1352,6 +1352,7 @@ setlogschannel_var_boost: "Boost-Protokolle"
 setlogschannel_var_tickets: "Ticketprotokolle"
 setlogschannel_var_antispam: "AntiSpam-Protokolle"
 setlogschannel_var_channel: "Kanalprotokolle"
+setlogschannel_var_confession: "Beichtprotokolle"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Der Kanal ${channel} ist bereits festgelegt!"
