@@ -2004,4 +2004,7 @@ export interface LanguageData {
 	channel_unhideall_error: string;
 	new_guild_embed_title: string[];
 	new_guild_embed_desc: string;
+	confession_embed_logs_title: string;
+	confession_channel_button_name: string;
+	confession_1_embed_log_title: string;
 }

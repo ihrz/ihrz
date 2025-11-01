@@ -2695,3 +2695,8 @@ new_guild_embed_title:
   - "Ein neues Abenteuer beginnt! 🚀"
   - "Ein fantastisches neues Mitglied ist da! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nHallo zusammen, liebe Freunde!\n\nIch bin iHorizon, ein fortschrittlicher Bot, der entwickelt wurde, um euer Discord-Erlebnis außergewöhnlich und voller Spaß zu gestalten.\n\n✨ **Was ich für euch tun kann:**\n• Server-Management mit Intelligenz und Professionalität\n• Interaktive Spiele und grenzenlose Unterhaltung\n• Nützliche Tools zur Community-Organisation\n• 24/7 technischer Support\n\nEntdeckt meine Befehle und taucht ein in eine Welt voller unbegrenzter Möglichkeiten.\nGemeinsam werden wir eine fantastische Community aufbauen, voller wunderschöner Erinnerungen!\n\nDanke, dass ihr mich gewählt habt – lasst uns das Abenteuer beginnen! 🌟"
+
+# Confession Event
+confession_embed_logs_title: "Neues Geständnis"
+confession_channel_button_name: "Anonym antworten"
+confession_1_embed_log_title: "Neue Antwort auf Geständnis"

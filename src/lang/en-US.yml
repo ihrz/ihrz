@@ -2695,3 +2695,8 @@ new_guild_embed_title:
   - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
   - "Let's give a warm welcome to iHorizon! 🔥"
 new_guild_embed_desc: "## ${randomMessage}\nHi there! I'm excited to join your server and be a part of your community.\nMy name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\nIf you have any questions or run into any issues, don't hesitate to reach out to me.\nI'm here to make your experience on this server the best it can be.\nThanks for choosing me and let's have some fun together!\n"
+
+# Confession Event
+confession_embed_logs_title: "New confession"
+confession_channel_button_name: "Respond Anonymously"
+confession_1_embed_log_title: "New confession response"
