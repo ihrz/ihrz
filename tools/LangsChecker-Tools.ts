@@ -25,6 +25,7 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'path';
 import readline from 'readline';
 import { formatTypeScriptCode, readVSCodeConfig } from './formatter.js';
+import { LICENCE_HEADER } from './LicenceHeader.js';
 
 logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
 logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
@@ -248,28 +249,7 @@ async function main() {
 			mergedType = mergeTypes(mergedType, currentType);
 		}
 
-		let interfaceContent = `/*
-・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
-
-・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
-
-	・   Under the following terms:
-
-		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
-
-		・ NonCommercial — You may not use the material for commercial purposes.
-
-		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
-
-		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
-
-
-・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
-
-・ Copyright © 2020-2025 iHorizon
-*/
-
-`;
+		let interfaceContent = LICENCE_HEADER + "\n\n";
 
 		interfaceContent += `export interface LanguageData ${mergedType}`;
 		writeFileSync(outputPath, formatTypeScriptCode(interfaceContent, readVSCodeConfig(path.join(process.cwd(), ".vscode", "settings.json"))), 'utf-8');
