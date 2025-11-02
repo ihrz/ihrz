@@ -294,6 +294,7 @@ ticket_panel_chose_a_question: "Choisissez une question"
 ticket_panel_select_question_to_delete: "Sélectionnez une question à supprimer."
 ticket_panel_panel_15_label: "Configurer un embed par option"
 ticket_panel_panel_16_label: "Configurer un formulaire par option"
+ticket_panel_panel_17_label: "Configurer les rôles à mentionner pour chaque option"
 ticket_panel_manage_form_title: "Gérer le formulaire pour l'option : **${option.name}**"
 ticket_panel_change_embed_options: "Sélectionnez une option pour modifier l’ID d’intégration du panneau de canal."
 ticket_panel_change_embed_options_null: "There is no option(s) to edit the channel panel embed id."
@@ -1143,6 +1144,13 @@ util_role_members_no_one: "Personne ne possède ce rôle sur le serveur"
 utils_top_no_message: "jcrois ce salon c'est un peu la rue. ya 0 message ma gueule."
 utils_top_command_ok: "Le premier message de ce canal se trouve [ici](${link})"
 
+# +bringall
+bringall_no_from_channel: "Por favor, especifica un canal de voz de origen."
+bringall_invalid_category: "Por favor, especifica una categoría válida."
+bringall_no_voice_channels: "La categoría especificada no contiene canales de voz."
+bringall_no_members: "No hay miembros en el canal de voz de origen."
+bringall_results: "${interaction.user}, iHorizon ha distribuido miembros entre los canales de voz.\n\n**${movedCount}** miembro(s) fueron movidos exitosamente desde ${fromChannel} a ${channelCount} canales en ${category}.\n**${errorCount}** miembro(s) no pudieron ser movidos (consulta los registros del servidor para más detalles)."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1355,6 +1363,7 @@ setlogschannel_var_boost: "Logs de Boost"
 setlogschannel_var_tickets: "Logs des Tickets"
 setlogschannel_var_antispam: "Logs AntiSpam"
 setlogschannel_var_channel: "Logs du canal"
+setlogschannel_var_confession: "Logs des confessions"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Le salon ${channel} est déjà défini Mtn je vais pouvoir ping ptdr!"
@@ -2228,7 +2237,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, vous n'êtes pas autorisé �
 
 # Interface /voix pour définir le rôle du personnel
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, vous n'êtes pas autorisé à utiliser cette commande !"
-tempvoice_staff_desc_embed: "## Rôle du Personnel TempVoice\nLe <@&${targetedRole?.id}> peut maintenant modérer le salon !\n"
+tempvoice_staff_desc_embed: "## Rôle du staff TempVoice\nLes rôles ici peuvent maintenant entrer dans le salon et le modérer !\n"
 
 # Module de Confession
 # /cooldown, /disable, /channel
@@ -2617,7 +2626,7 @@ hybridcommands_embed_help_title: "${commandName} Aide en Intégration"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 hybridcommands_embed_footer_text: "Les options entre [...] sont obligatoires, tandis que celles entre <...> sont facultatives.\nUtilisez la commande : ${botPrefix}help [command] pour plus d'informations."
 
-ping_bot_show_info_msg: "Hey ${message.author.toString()}, je suis 100% en `Slash Command` (${client.iHorizon_Emojis.Slash_Bot_Badge}) et utilisable à plus de 85% en commande préfixe. Mon préfixe sur **ce serveur** est `${prefix}` !"
+ping_bot_show_info_msg: "Oh la conne de ta soeur à me ping!!! Sah2sah jsuis iHorizon le bot de fdp qui vas niquer ta mère si tu l'utilise pas partout. Bref si tu veux m'utiliser mon préfix c'est **${prefix}**"
 ping_bot_show_info_msg_about_change_prefix: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Mon prefix te dérange? Fait **`/guildconfig bot prefix`** pour changer de préfixe!"
 
 # Module de Notification
@@ -2697,3 +2706,8 @@ new_guild_embed_title:
   - "Une nouvelle aventure commence ! 🚀"
   - "Un membre fantastique nous a rejoint ! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nSalut les amis extraordinaires !\n\nJe suis iHorizon, un bot avancé conçu pour rendre votre expérience Discord exceptionnelle et pleine de fun.\n\n✨ **Ce que je peux faire pour vous :**\n• Gestion du serveur avec intelligence et professionnalisme\n• Jeux interactifs et divertissement illimité\n• Outils utiles pour l'organisation de la communauté\n• Support technique disponible 24h/24 et 7j/7\n\nExplorez mes commandes et plongez dans un monde de possibilités infinies.\nEnsemble, nous construirons une communauté fantastique remplie de magnifiques souvenirs !\n\nMerci de m'avoir choisi, commençons cette incroyable aventure ! 🌟"
+
+# Confession Event
+confession_embed_logs_title: "Nouvelle confession"
+confession_channel_button_name: "Répondre anonymement"
+confession_1_embed_log_title: "Nouvelle réponse à la confession"

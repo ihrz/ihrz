@@ -136,24 +136,48 @@ export const event: BotEvent = {
 							);
 
 							if (baseData.staff_role) {
-								chann.permissionOverwrites.edit(baseData.staff_role,
-									{
-										ViewChannel: true,
-										Connect: true,
-										Stream: true,
-										Speak: true,
+								if (typeof baseData.staff_role === "string") { // backward compatibility
+									chann.permissionOverwrites.edit(baseData.staff_role,
+										{
+											ViewChannel: true,
+											Connect: true,
+											Stream: true,
+											Speak: true,
 
-										SendMessages: true,
-										UseApplicationCommands: true,
-										AttachFiles: true,
-										AddReactions: true,
+											SendMessages: true,
+											UseApplicationCommands: true,
+											AttachFiles: true,
+											AddReactions: true,
 
-										MuteMembers: true,
-										DeafenMembers: true,
-										PrioritySpeaker: true,
-										KickMembers: true
-									},
-								);
+											MuteMembers: true,
+											DeafenMembers: true,
+											PrioritySpeaker: true,
+											KickMembers: true
+										},
+									);
+								} else {
+									for (let roleId of baseData.staff_role) {
+										if (newState.guild.roles.cache.get(roleId))
+											chann.permissionOverwrites.edit(roleId,
+												{
+													ViewChannel: true,
+													Connect: true,
+													Stream: true,
+													Speak: true,
+
+													SendMessages: true,
+													UseApplicationCommands: true,
+													AttachFiles: true,
+													AddReactions: true,
+
+													MuteMembers: true,
+													DeafenMembers: true,
+													PrioritySpeaker: true,
+													KickMembers: true
+												},
+											);
+									}
+								}
 							}
 						}
 					})

@@ -285,6 +285,7 @@ export interface LanguageData {
 	ticket_panel_select_question_to_delete: string;
 	ticket_panel_panel_15_label: string;
 	ticket_panel_panel_16_label: string;
+	ticket_panel_panel_17_label: string;
 	ticket_panel_manage_form_title: string;
 	ticket_panel_change_embed_options: string;
 	ticket_panel_change_embed_options_null: string;
@@ -867,6 +868,11 @@ export interface LanguageData {
 	util_role_members_no_one: string;
 	utils_top_no_message: string;
 	utils_top_command_ok: string;
+	bringall_no_from_channel: string;
+	bringall_invalid_category: string;
+	bringall_no_voice_channels: string;
+	bringall_no_members: string;
+	bringall_results: string;
 	blockpub_not_admin: string;
 	blockpub_now_enable: string;
 	blockpub_now_disable: string;
@@ -1059,6 +1065,7 @@ export interface LanguageData {
 	setlogschannel_var_tickets: string;
 	setlogschannel_var_antispam: string;
 	setlogschannel_var_channel: string;
+	setlogschannel_var_confession: string;
 	joinghostping_add_already_set: string;
 	joinghostping_add_sent_to_channel: string;
 	joinghostping_add_ok_embed_title: string;
@@ -2003,4 +2010,7 @@ export interface LanguageData {
 	channel_unhideall_error: string;
 	new_guild_embed_title: string[];
 	new_guild_embed_desc: string;
+	confession_embed_logs_title: string;
+	confession_channel_button_name: string;
+	confession_1_embed_log_title: string;
 }

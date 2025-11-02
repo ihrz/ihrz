@@ -294,6 +294,7 @@ ticket_panel_chose_a_question: "Выберите вопрос"
 ticket_panel_select_question_to_delete: "Выберите вопрос для удаления."
 ticket_panel_panel_15_label: "Настроить embed для каждой опции"
 ticket_panel_panel_16_label: "Настроить форму для каждой опции"
+ticket_panel_panel_17_label: "Настройте роли для упоминания для каждого варианта"
 ticket_panel_manage_form_title: "Управление формой для опции: **${option.name}**"
 ticket_panel_change_embed_options: "Выберите опцию, чтобы изменить ID embed панели канала."
 ticket_panel_change_embed_options_null: "Нет опций для изменения ID embed панели канала."
@@ -1140,6 +1141,13 @@ util_role_members_no_one: "На сервере нет никого с этой �
 utils_top_no_message: "В этом канале не найдено сообщений"
 utils_top_command_ok: "Первое сообщение в этом канале находится [здесь](${link})"
 
+# +bringall
+bringall_no_from_channel: "Пожалуйста, укажите исходный голосовой канал."
+bringall_invalid_category: "Пожалуйста, укажите действительную категорию."
+bringall_no_voice_channels: "Указанная категория не содержит голосовых каналов."
+bringall_no_members: "В исходном голосовом канале нет участников."
+bringall_results: "${interaction.user}, iHorizon распределил участников по голосовым каналам.\n\n**${movedCount}** участник(ов) были успешно перемещены из ${fromChannel} в ${channelCount} каналов в ${category}.\n**${errorCount}** участник(ов) не удалось переместить (подробности см. в журналах сервера)."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1348,10 +1356,11 @@ setlogschannel_var_roles: "Журналы ролей"
 setlogschannel_var_mods: "Журналы модерации"
 setlogschannel_var_voice: "Журналы голоса"
 setlogschannel_var_msg: "Журналы сообщений"
-setlogschannel_var_boost: "Логи Повышений"
+setlogschannel_var_boost: "Журналы Повышений"
 setlogschannel_var_tickets: "Журналы заявок"
 setlogschannel_var_antispam: "Журналы AntiSpam"
 setlogschannel_var_channel: "Журналы канала"
+setlogschannel_var_confession: "Журналы признаний"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Канал ${channel} уже установлен!"
@@ -2225,7 +2234,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, у вас нет прав н
 
 # /голос интерфейс установить роль персонала
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, у вас нет прав на использование этой команды!"
-tempvoice_staff_desc_embed: "## Роль персонала временного голосового канала\nТеперь <@&${targetedRole?.id}> может войти в канал в режиме модератора!\n"
+tempvoice_staff_desc_embed: "## Роль персонала TempVoice\nРоли здесь теперь могут заходить в канал и модерировать!\n"
 
 # Модуль Исповедей
 # /cooldown, /disable, /channel
@@ -2694,3 +2703,8 @@ new_guild_embed_title:
   - "Новое приключение начинается! 🚀"
   - "Фантастический участник прибыл! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nПривет, удивительные друзья!\n\nЯ iHorizon, продвинутый бот, созданный для того, чтобы сделать ваш Discord опыт исключительным и полным веселья.\n\n✨ **Что я могу сделать для вас:**\n• Управление сервером с интеллектом и профессионализмом\n• Интерактивные игры и безграничные развлечения\n• Полезные инструменты для организации сообщества\n• Техническая поддержка 24/7\n\nИсследуйте мои команды и погрузитесь в мир бесконечных возможностей.\nВместе мы построим фантастическое сообщество, полное прекрасных воспоминаний!\n\nСпасибо за то, что выбрали меня, давайте начнём это невероятное приключение! 🌟"
+
+# Confession Event
+confession_embed_logs_title: "Новое признание"
+confession_channel_button_name: "Ответить анонимно"
+confession_1_embed_log_title: "Новый ответ на признание"

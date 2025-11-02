@@ -72,6 +72,7 @@ export interface TicketOption {
 	categoryId?: string;
 	panelId?: string;
 	form?: TicketForms[];
+	rolesToPing: string[];
 }
 
 export interface TicketForms {
@@ -161,6 +162,7 @@ export const subCommand: SubCommand = {
 				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_14_label).setValue('change_ticket_button_transcript_panel'),
 				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_15_label).setValue('change_ticket_channel_panel_options'),
 				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_16_label).setValue('change_ticket_forms_options'),
+				new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_panel_17_label).setValue('change_role_to_ping_options')
 			]);
 
 		const sendButton = new ButtonBuilder()
@@ -223,6 +225,7 @@ export const subCommand: SubCommand = {
 				case 'change_ticket_button_transcript_panel': i.deferUpdate(); await changeTicketButtonTranscriptPanel(); break;
 				case 'change_ticket_channel_panel_options': i.deferUpdate(); await changeTicketChannelPanelOptions(i); break;
 				case 'change_ticket_forms_options': i.deferUpdate(); await changeTicketFormsOptions(i); break;
+				case 'change_role_to_ping_options': i.deferUpdate(); await changeRoleToPingOptions(i); break;
 			}
 		});
 
@@ -270,6 +273,15 @@ export const subCommand: SubCommand = {
 				if (opt.emoji) str += `  ┖ ${lang.ticket_panel_add_option_modal_field3_label}: ${opt.emoji}\n`;
 				if (opt.categoryId) str += `  ┖ 📂: ${formatCategory(opt.categoryId, interaction.guild)}\n`;
 				if (opt.panelId) str += `  ┖ ${lang.ticket_panel_change_embed_modal_placeholder}: ${opt.panelId}\n`;
+				if (opt.rolesToPing?.length >= 1) {
+					str += `  ┖ ${lang.ticket_panel_role_to_ping}:\n`;
+					for (let role of opt.rolesToPing) {
+						let r = interaction.guild?.roles.cache.get(role);
+						str += `     ┖ 🔹 ${role} (@${r?.name || lang.var_unknown})\n`
+					}
+					str += '\n';
+				}
+
 				if (opt.form?.length) {
 					str += `  ┖ 📚 ${lang.var_form}:\n`;
 					opt.form.forEach(f => {
@@ -395,7 +407,7 @@ export const subCommand: SubCommand = {
 						const builder = new StringSelectMenuOptionBuilder()
 							.setLabel(opt.name)
 							.setValue(opt.value);
-						if (opt.desc) builder.setDescription(opt.desc);
+						if (opt.desc) builder.setDescription(opt.desc.substring(0, 100));
 						if (opt.emoji) builder.setEmoji(opt.emoji);
 						return builder;
 					}));
@@ -1006,7 +1018,8 @@ export const subCommand: SubCommand = {
 				name,
 				desc,
 				emoji,
-				value: (baseData.config.optionFields.length - 1).toString()
+				value: (baseData.config.optionFields.length - 1).toString(),
+				rolesToPing: []
 			});
 
 			isSaved = false;
@@ -1312,7 +1325,7 @@ export const subCommand: SubCommand = {
 							.setValue(x.value);
 
 						if (x.desc) {
-							optionBuilder.setDescription(x.desc);
+							optionBuilder.setDescription(x.desc.substring(0, 100));
 						}
 
 						if (x.emoji) {
@@ -1458,6 +1471,133 @@ export const subCommand: SubCommand = {
 				});
 
 				select_collector.stop("legitEnd");
+			});
+		}
+
+		async function changeRoleToPingOptions(i: StringSelectMenuInteraction<CacheType>) {
+			// Vérifier qu'il y a des options disponibles
+			if (baseData.config.optionFields.length === 0) {
+				return originalResponse.edit({
+					content: lang.ticket_panel_remove_option_empty,
+					embeds: [panelEmbed],
+					components,
+				});
+			}
+
+			// Créer le menu de sélection pour choisir l'option
+			const select = new StringSelectMenuBuilder()
+				.setCustomId('select_option_role_ping')
+				.setPlaceholder(lang.var_chose_option)
+				.addOptions(baseData.config.optionFields.map((opt, idx) =>
+					new StringSelectMenuOptionBuilder()
+						.setLabel(opt.name)
+						.setValue(idx.toString())
+				));
+
+			const msg = await originalResponse.edit({
+				components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)],
+				embeds: [],
+				content: lang.ticket_panel_chose_option_to_form, // Peut être remplacé par une clé spécifique si disponible
+			});
+
+			const collector = msg.createMessageComponentCollector({
+				componentType: ComponentType.StringSelect,
+				time: 300_000
+			});
+
+			collector.on('collect', async (subI) => {
+				if (subI.user.id !== interaction.member!.user.id) {
+					return subI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+				}
+
+				const idx = parseInt(subI.values[0]);
+				const option = baseData.config.optionFields[idx];
+
+				if (isNaN(idx) || !baseData.config.optionFields[idx]) {
+					await subI.reply({ content: lang.ticket_panel_option_invalid, flags: MessageFlags.Ephemeral });
+					return;
+				}
+
+				// Initialiser le tableau rolesToPing si nécessaire
+				if (!option.rolesToPing) {
+					option.rolesToPing = [];
+				}
+
+				subI.deferUpdate();
+
+				// Créer le sélecteur de rôles
+				const roleSelect = new RoleSelectMenuBuilder()
+					.setPlaceholder(lang.ticket_panel_change_role_roleSelect_placeholder)
+					.setCustomId('change_role_option')
+					.setMaxValues(10)
+					.setMinValues(0);
+
+				// Ajouter les rôles par défaut s'il y en a
+				if (option.rolesToPing.length > 0) {
+					roleSelect.addDefaultRoles(option.rolesToPing);
+				}
+
+				const roleMsg = await originalResponse.edit({
+					components: [
+						new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelect)
+					],
+					embeds: [],
+					content: lang.ticket_panel_change_role_interaction_content.replace('${option.name}', option.name) ||
+						`Sélectionnez les rôles à ping pour l'option: ${option.name}`
+				});
+
+				collector.stop('legitEnd');
+
+				// Collector pour le sélecteur de rôles
+				const roleCollector = roleMsg.createMessageComponentCollector({
+					componentType: ComponentType.RoleSelect,
+					time: 60_000,
+				});
+
+				roleCollector.on('collect', async (roleI) => {
+					if (roleI.user.id !== interaction.member!.user.id) {
+						return roleI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+					}
+
+					// Mettre à jour les rôles pour cette option
+					option.rolesToPing = roleI.values;
+					isSaved = false;
+					panelEmbed.data.fields![0].value = '🔴';
+
+					// Mettre à jour l'affichage des options
+					panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
+
+					await roleI.deferUpdate();
+
+					// Retourner à l'écran principal
+					await originalResponse.edit({
+						embeds: [panelEmbed],
+						components,
+						content: generateDetailedContent() || null
+					});
+
+					roleCollector.stop('legitEnd');
+				});
+
+				roleCollector.on('end', async (_, reason) => {
+					if (reason === 'legitEnd') return;
+
+					await roleMsg.edit({
+						components,
+						embeds: [panelEmbed],
+						content: generateDetailedContent() || null
+					});
+				});
+			});
+
+			collector.on('end', async (_, reason) => {
+				if (reason === 'legitEnd') return;
+
+				await msg.edit({
+					components,
+					embeds: [panelEmbed],
+					content: generateDetailedContent() || null
+				});
 			});
 		}
 	},

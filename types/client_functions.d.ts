@@ -206,9 +206,6 @@ declare namespace Client_Functions {
 	// From sanitizer.ts
 	export function sanitizer(text: string | undefined): string;
 
-	// From image_dominant_color.ts
-	export function image_dominant_color(input: string | Buffer<ArrayBufferLike>): Promise<string>;
-
 	// From userStatsUtils.ts
 	export namespace userStatsUtils {
 		export function calculateMessageTime(
@@ -317,6 +314,9 @@ declare namespace Client_Functions {
 		export function isImageUrl(url: string): Promise<boolean>;
 		export function image64(arg: string): Promise<Buffer<ArrayBufferLike> | undefined>;
 	}
+
+	// From image_dominant_color.ts
+	export function image_dominant_color(input: string | Buffer<ArrayBufferLike>): Promise<{ color1: string; color2: string; }>;
 
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;

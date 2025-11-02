@@ -140,6 +140,10 @@
 		}
 
 		.stat-card:nth-child(3)::before {
+			background: var(--warning);
+		}
+
+		.stat-card:nth-child(4)::before {
 			background: var(--danger);
 		}
 
@@ -223,6 +227,13 @@
 				<div class="stat-label">Average</div>
 				<div>
 					<span class="stat-value">{avg_ping}</span>
+					<span class="stat-unit">ms</span>
+				</div>
+			</div>
+			<div class="stat-card">
+				<div class="stat-label">Minimum</div>
+				<div>
+					<span class="stat-value">{min_ping}</span>
 					<span class="stat-unit">ms</span>
 				</div>
 			</div>
@@ -331,21 +342,10 @@
 						}
 					},
 					y: {
+						display: false,
 						beginAtZero: true,
 						grid: {
-							color: 'rgba(255, 255, 255, 0.03)',
-							drawBorder: false
-						},
-						ticks: {
-							color: '#8B8E98',
-							font: {
-								family: 'Inter',
-								size: 10,
-								weight: '600'
-							},
-							callback: function (value) {
-								return value + ' ms';
-							}
+							display: false
 						}
 					}
 				}

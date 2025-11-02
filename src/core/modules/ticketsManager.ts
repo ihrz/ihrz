@@ -943,6 +943,11 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 			content = interaction.user.toString();
 		};
 
+		if (chosenCategory?.rolesToPing) {
+			chosenCategory?.rolesToPing.forEach((role) => {
+				content += `<@&${role}> `
+			})
+		};
 		if (result.config.rolesToPing) {
 			result.config.rolesToPing.forEach((role) => {
 				content += `<@&${role}> `

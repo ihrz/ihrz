@@ -23,6 +23,7 @@ import {
 	AttachmentBuilder,
 	ChatInputCommandInteraction,
 	Client,
+	ColorResolvable,
 	EmbedBuilder,
 	GuildMember,
 	Message,
@@ -44,6 +45,10 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0) || interaction.member;
 		};
 
+		// USER PFP COLOR
+		const userAvatar = user.displayAvatarURL({ extension: "png", size: 4096 });
+		const { color1, color2 } = await client.func.image_dominant_color(userAvatar);
+
 		const baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
 		const level = baseData?.level || 0;
 		const currentxp = baseData?.xp || 0;
@@ -54,7 +59,7 @@ export const subCommand: SubCommand = {
 		let htmlContent = client.htmlfiles['ranksCard'];
 
 		htmlContent = htmlContent
-			.replace('AVATAR_URL', user.displayAvatarURL({ extension: 'png', size: 128 }))
+			.replace('AVATAR_URL', userAvatar)
 			.replace('USERNAME', user.user.globalName || user.displayName)
 			.replace('LEVEL', level)
 			.replace('PROGRESS_PERCENT', String((currentxp / xpNeeded) * 100))
@@ -65,6 +70,8 @@ export const subCommand: SubCommand = {
 			.replace('{level}', lang.var_level)
 			.replace('{xp_total}', lang.level_xp_total)
 			.replace('{needed_xp}', lang.level_xp_needed_for_new_level)
+			.replaceAll('[color1]', color1)
+			.replaceAll('[color2]', color2)
 			;
 
 		const image = await client.func.html2png(htmlContent, {
@@ -79,7 +86,7 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.level_embed_title
 				.replace('${user.username}', String(user.user.globalName || user.displayName))
 			)
-			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#0014a8')
+			.setColor(color1 as ColorResolvable)
 			.addFields(
 				{
 					name: lang.level_embed_fields1_name, value: lang.level_embed_fields2_value
@@ -95,7 +102,7 @@ export const subCommand: SubCommand = {
 			.setDescription(lang.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp.toString())
 			)
 			.setTimestamp()
-			.setThumbnail(user.avatarURL({ forceStatic: false, size: 4096 }))
+			.setThumbnail(userAvatar)
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
 		await client.func.method.interactionSend(interaction, {

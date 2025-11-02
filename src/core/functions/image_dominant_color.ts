@@ -103,7 +103,7 @@ function getVibrancyScore(hsl: HSL): number {
 /**
  * Extracts a vibrant and a dark dominant color from an image
  */
-export default async function getVibrantAndDarkColors(input: string | Buffer): Promise<string> {
+export default async function getVibrantAndDarkColors(input: string | Buffer): Promise<{ color1: string; color2: string; }> {
 	try {
 		// Handle different input types
 		let image: Jimp;
@@ -175,7 +175,11 @@ export default async function getVibrantAndDarkColors(input: string | Buffer): P
 		const vibrantColor = vibrantColors[0]?.rgb || colors[0].rgb;
 		const darkColor = darkColors[0]?.rgb || colors[colors.length - 1].rgb;
 
-		return `${rgbToHex(vibrantColor)} ${rgbToHex(darkColor)}`;
+
+		return {
+			color1: rgbToHex(vibrantColor),
+			color2: rgbToHex(darkColor)
+		};
 	} catch (error) {
 		console.error("Error analyzing image:", error);
 		throw error;

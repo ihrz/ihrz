@@ -294,6 +294,7 @@ ticket_panel_chose_a_question: "Choose a question"
 ticket_panel_select_question_to_delete: "Select a question to delete."
 ticket_panel_panel_15_label: "Configure an embed per option"
 ticket_panel_panel_16_label: "Configure a form per option"
+ticket_panel_panel_17_label: "Configure a roles to ping per option"
 ticket_panel_manage_form_title: "Manage the form for option: **${option.name}**"
 ticket_panel_change_embed_options: "Select an option to edit the channel panel embed ID."
 ticket_panel_change_embed_options_null: "There are no options to edit the channel panel embed ID."
@@ -1142,6 +1143,13 @@ util_role_members_no_one: "There is nobody with that role on the server"
 utils_top_no_message: "No messages found in this channel"
 utils_top_command_ok: "The first message in this channel is [here](${link})"
 
+# +bringall
+bringall_no_from_channel: "Please specify a source voice channel."
+bringall_invalid_category: "Please specify a valid category."
+bringall_no_voice_channels: "The specified category contains no voice channels."
+bringall_no_members: "There are no members in the source voice channel."
+bringall_results: "${interaction.user}, iHorizon has distributed members across voice channels.\n\n**${movedCount}** member(s) were successfully moved from ${fromChannel} to ${channelCount} channels in ${category}.\n**${errorCount}** member(s) could not be moved (see the server logs for details)."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1354,6 +1362,7 @@ setlogschannel_var_boost: "Boost Logs"
 setlogschannel_var_tickets: "Ticket Logs"
 setlogschannel_var_antispam: "AntiSpam Logs"
 setlogschannel_var_channel: "Channel Logs"
+setlogschannel_var_confession: "Confession Logs"
 
 # /join-ghostping add
 joinghostping_add_already_set: "The channel ${channel} is already set!"
@@ -2227,7 +2236,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, your are not authorized to u
 
 # /voice interface set-staff-role
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, you are not authorized to use this command !"
-tempvoice_staff_desc_embed: "## TempVoice Staff Role\nThe <@&${targetedRole?.id}> can now enter in the channel moderate!\n"
+tempvoice_staff_desc_embed: "## TempVoice Staff Role\nRoles there can now enter in the channel moderate!\n"
 
 # Confessionn Module
 # /cooldown, /disable, /channel
@@ -2694,3 +2703,8 @@ new_guild_embed_title:
   - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
   - "Let's give a warm welcome to iHorizon! 🔥"
 new_guild_embed_desc: "## ${randomMessage}\nHi there! I'm excited to join your server and be a part of your community.\nMy name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\nIf you have any questions or run into any issues, don't hesitate to reach out to me.\nI'm here to make your experience on this server the best it can be.\nThanks for choosing me and let's have some fun together!\n"
+
+# Confession Event
+confession_embed_logs_title: "New confession"
+confession_channel_button_name: "Respond Anonymously"
+confession_1_embed_log_title: "New confession response"

@@ -294,6 +294,7 @@ ticket_panel_chose_a_question: "اختر سؤالاً"
 ticket_panel_select_question_to_delete: "حدد سؤالاً لحذفه."
 ticket_panel_panel_15_label: "إعداد تضمين لكل خيار"
 ticket_panel_panel_16_label: "إعداد نموذج لكل خيار"
+ticket_panel_panel_17_label: "قم بتكوين الأدوار التي سيتم الإشارة إليها لكل خيار"
 ticket_panel_manage_form_title: "إدارة النموذج للخيار: **${option.name}**"
 ticket_panel_change_embed_options: "اختر خيارًا لتعديل معرف التضمين في لوحة القناة."
 ticket_panel_change_embed_options_null: "لا توجد خيارات لتعديل معرف التضمين في لوحة القناة."
@@ -1141,6 +1142,13 @@ util_role_members_no_one: "لا يوجد أي شخص لديه هذا الدور 
 utils_top_no_message: "لا توجد رسائل في هذه القناة"
 utils_top_command_ok: "الرسالة الأولى في هذه القناة موجودة [هنا](${link})"
 
+# +bringall
+bringall_no_from_channel: "الرجاء تحديد قناة صوتية مصدر."
+bringall_invalid_category: "الرجاء تحديد فئة صالحة."
+bringall_no_voice_channels: "الفئة المحددة لا تحتوي على قنوات صوتية."
+bringall_no_members: "لا يوجد أعضاء في القناة الصوتية المصدر."
+bringall_results: "${interaction.user}، قام iHorizon بتوزيع الأعضاء عبر القنوات الصوتية.\n\n**${movedCount}** عضو تم نقلهم بنجاح من ${fromChannel} إلى ${channelCount} قنوات في ${category}.\n**${errorCount}** عضو لم يتمكن من نقلهم (راجع سجلات الخادم للحصول على التفاصيل)."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1353,6 +1361,7 @@ setlogschannel_var_boost: "سجلات التعزيز"
 setlogschannel_var_tickets: "سجلات التذاكر"
 setlogschannel_var_antispam: "سجلات مكافحة الرسائل المزعجة"
 setlogschannel_var_channel: "سجلات القناة"
+setlogschannel_var_confession: "سجلات الاعترافات"
 
 # /join-ghostping add
 joinghostping_add_already_set: "القناة ${channel} تم إعدادها بالفعل!"
@@ -2225,7 +2234,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, ليس لديك الصلاح
 
 # /voice interface set-staff-role
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, ليس لديك الصلاحية لاستخدام هذا الأمر!"
-tempvoice_staff_desc_embed: "## دور موظفي TempVoice\nيمكن لـ <@&${targetedRole?.id}> الآن الدخول إلى القناة كمشرف!\n"
+tempvoice_staff_desc_embed: "## دور طاقم TempVoice\nيمكن للأدوار هنا الآن دخول القناة والإشراف!\n"
 
 # Confessionn Module
 # /cooldown, /disable, /channel
@@ -2687,3 +2696,8 @@ new_guild_embed_title:
   - "!مرحباً بالمغامرة الجديدة 🚀"
   - "!عضو جديد رائع انضم إلينا ✨"
 new_guild_embed_desc: "## ${randomMessage}\n!مرحباً بكم، أصدقائي الأعزاء\n\n.أنا iHorizon، بوت متطور مصمم لجعل تجربتكم على ديسكورد استثنائية ومليئة بالمرح\n\n:✨ ما يمكنني فعله لكم\n• إدارة الخادم بذكاء واحترافية\n• ألعاب تفاعلية وترفيه لا محدود\n• أدوات مفيدة لتنظيم المجتمع\n• دعم فني متاح على مدار الساعة\n\n.استكشفوا أوامري واكتشفوا عالماً من الإمكانيات اللامحدودة\n!معاً سنبني مجتمعاً رائعاً ومليئاً بالذكريات الجميلة\n\n!شكراً لاختياركم لي، فلنبدأ المغامرة 🌟"
+
+# Confession Event
+confession_embed_logs_title: "اعتراف جديد"
+confession_channel_button_name: "الرد بشكل مجهول"
+confession_1_embed_log_title: "رد جديد على الاعتراف"

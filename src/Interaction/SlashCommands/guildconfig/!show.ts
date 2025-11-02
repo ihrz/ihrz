@@ -371,10 +371,25 @@ function securityToString(sec: DatabaseStructure.DbInId["SECURITY"] | undefined,
 }
 
 function voiceDashToString(vc: DatabaseStructure.DbInId["VOICE_INTERFACE"] | undefined, lang: LanguageData) {
+	const formatStaffRoles = () => {
+		if (!vc || !vc.staff_role) return lang.var_no_set;
+
+		// Handle both string (old format) and string[] (new format)
+		if (typeof vc.staff_role === 'string') {
+			return `<@&${vc.staff_role}>`;
+		}
+
+		if (Array.isArray(vc.staff_role) && vc.staff_role.length > 0) {
+			return vc.staff_role.map(roleId => `<@&${roleId}>`).join(', ');
+		}
+
+		return lang.var_no_set;
+	};
+
 	return (vc === undefined) || (!vc.voice_channel) ? lang.var_no_set :
 		`
 \- ${lang.var_voice_channel}: <#${vc.voice_channel}>
 \- ${lang.var_text_channel}: <#${vc.voice_channel}>
-\- 💂‍♀️: ${vc.staff_role ? `<@&${vc.staff_role}>` : lang.var_no_set}
+\- 💂‍♀️: ${formatStaffRoles()}
 `
 }

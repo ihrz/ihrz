@@ -492,6 +492,49 @@ export const command: Command = {
 
 			permission: PermissionFlagsBits.ManageRoles,
 		},
+		{
+			name: 'bringall',
+
+			description: 'Randomly distribute members from a voice channel to all voice channels in a category',
+			description_localizations: {
+				"fr": "Distribue aléatoirement les membres d'un salon vocal dans tous les salons d'une catégorie"
+			},
+
+			thinking: false,
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: [PermissionFlagsBits.MoveMembers, PermissionFlagsBits.ModerateMembers],
+
+			options: [
+				{
+					name: 'from',
+
+					type: ApplicationCommandOptionType.Channel,
+
+					description: 'The source voice channel to move members from',
+					description_localizations: {
+						"fr": "Le salon vocal source depuis lequel déplacer les membres"
+					},
+
+					required: true,
+					channel_types: [ChannelType.GuildVoice, ChannelType.GuildStageVoice],
+					permission: null
+				},
+				{
+					name: 'category',
+
+					type: ApplicationCommandOptionType.Channel,
+
+					description: 'The category containing voice channels to distribute members to',
+					description_localizations: {
+						"fr": "La catégorie contenant les salons vocaux où distribuer les membres"
+					},
+
+					required: true,
+					channel_types: [ChannelType.GuildCategory],
+					permission: null
+				}
+			]
+		}
 	],
 
 	category: 'utils',

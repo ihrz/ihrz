@@ -20,36 +20,140 @@
 */
 
 import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonInteraction,
+	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	EmbedBuilder
+	EmbedBuilder,
+	RoleSelectMenuBuilder,
+	RoleSelectMenuInteraction,
+	ComponentType,
+	Role,
+	Message
 } from 'discord.js';
+
 import { LanguageData } from '../../../../types/languageData.js';
-
-
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
 
-		const targetedRole = interaction.options.getRole('role');
+		let staff_roles: string[] = await client.db.get(`${interaction.guildId}.VOICE_INTERFACE.staff_role`) || [];
+
+		// Convert to array if it's a single string (backward compatibility)
+		if (typeof staff_roles === 'string') {
+			staff_roles = [staff_roles];
+		}
 
 		const embed = new EmbedBuilder()
 			.setColor(2829617)
-			.setDescription(
-				lang.tempvoice_staff_desc_embed
-					.replace('${targetedRole?.id}', targetedRole?.id as string)
-			)
+			.setDescription(lang.tempvoice_staff_desc_embed)
+			.addFields({
+				name: lang.setjoinroles_help_embed_fields_1_name || 'Staff Roles',
+				value: Array.isArray(staff_roles) && staff_roles.length > 0
+					? staff_roles.map(x => `<@&${x}>`).join(', ')
+					: lang.setjoinroles_var_none || 'None'
+			})
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-		await interaction.editReply({
-			embeds: [embed]
+		const roleSelectMenu = new RoleSelectMenuBuilder()
+			.setCustomId('voice-staff-role-selecter')
+			.setMaxValues(8)
+			.setMinValues(0);
+
+		if (staff_roles !== undefined && staff_roles.length >= 1) {
+			roleSelectMenu.setDefaultRoles(staff_roles);
+		}
+
+		const saveButton = new ButtonBuilder()
+			.setCustomId('voice-staff-role-save-button')
+			.setStyle(ButtonStyle.Primary)
+			.setEmoji('💾');
+
+		const comp = new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelectMenu);
+		const comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
+
+		const og_response = await client.func.method.interactionSend(interaction, {
+			embeds: [embed],
+			components: [comp, comp_2]
 		});
 
-		await client.db.set(`${interaction.guildId}.VOICE_INTERFACE.staff_role`, targetedRole?.id);
+		let selectedRoles: Role[] = [];
+
+		const collector = og_response.createMessageComponentCollector({
+			componentType: ComponentType.RoleSelect,
+			time: 240_000,
+			filter: (i) => i.user.id === interaction.member?.user.id
+		});
+
+		const buttonCollector = og_response.createMessageComponentCollector({
+			componentType: ComponentType.Button,
+			time: 240_000,
+			filter: (i) => i.user.id === interaction.member?.user.id
+		});
+
+		collector.on('collect', async (roleInteraction: RoleSelectMenuInteraction) => {
+			selectedRoles = [];
+			staff_roles = [];
+
+			for (const role of roleInteraction.roles) {
+				staff_roles.push(role[1].id);
+				selectedRoles.push(role[1] as Role);
+			}
+
+			await roleInteraction.deferUpdate();
+			updateEmbed(embed, selectedRoles, lang);
+			await og_response.edit({ embeds: [embed] });
+		});
+
+		buttonCollector.on('collect', async (buttonInteraction: ButtonInteraction) => {
+			await buttonInteraction.deferUpdate();
+			if (buttonInteraction.customId === 'voice-staff-role-save-button') {
+				const newComp_2 = new ActionRowBuilder<ButtonBuilder>()
+					.addComponents(
+						saveButton
+							.setStyle(ButtonStyle.Success)
+							.setEmoji(client.iHorizon_Emojis.Yes)
+							.setDisabled(true)
+					);
+
+				await og_response.edit({ components: [newComp_2] });
+
+				await client.func.ihorizon_logs(interaction, {
+					title: lang.setjoinroles_logs_embed_title_on_enable || 'Staff Role Updated',
+					description: (lang.setjoinroles_logs_embed_description_on_enable || 'Staff roles updated by ${interaction.user.id}')
+						.replace("${interaction.user.id}", interaction.member?.user.id!)
+				});
+
+				await client.db.set(`${interaction.guildId}.VOICE_INTERFACE.staff_role`, staff_roles);
+				collector.stop();
+				buttonCollector.stop();
+			}
+		});
+
+		collector.on('end', async () => {
+			comp.components.forEach(x => {
+				x.setDisabled(true);
+			});
+
+			comp_2.components.forEach(x => {
+				x.setDisabled(true);
+			});
+
+			await og_response.edit({ components: [comp, comp_2] });
+		});
+
+		function updateEmbed(embed: EmbedBuilder, roles: Role[], lang: LanguageData) {
+			const roleValues = roles.map(role => `<@&${role.id}>`).join(', ') || lang.setjoinroles_var_none || 'None';
+			embed.setFields({
+				name: lang.setjoinroles_help_embed_fields_1_name || 'Staff Roles',
+				value: roleValues
+			});
+		}
 	},
 };

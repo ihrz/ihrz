@@ -294,6 +294,7 @@ ticket_panel_chose_a_question: "Scegli una domanda"
 ticket_panel_select_question_to_delete: "Seleziona una domanda da eliminare."
 ticket_panel_panel_15_label: "Configura un embed per opzione"
 ticket_panel_panel_16_label: "Configura un modulo per opzione"
+ticket_panel_panel_17_label: "Configura i ruoli da menzionare per ogni opzione"
 ticket_panel_manage_form_title: "Gestisci il modulo per l'opzione: **${option.name}**"
 ticket_panel_change_embed_options: "Seleziona un'opzione per modificare l'ID embed del pannello del canale."
 ticket_panel_change_embed_options_null: "Non ci sono opzioni per modificare l'ID embed del pannello del canale."
@@ -1140,6 +1141,13 @@ util_role_members_no_one: "Non c'è nessuno con quel ruolo sul server"
 utils_top_no_message: "Nessun messaggio trovato in questo canale"
 utils_top_command_ok: "Il primo messaggio in questo canale si trova [qui](${link})"
 
+# +bringall
+bringall_no_from_channel: "Specifica un canale vocale di origine."
+bringall_invalid_category: "Specifica una categoria valida."
+bringall_no_voice_channels: "La categoria specificata non contiene canali vocali."
+bringall_no_members: "Non ci sono membri nel canale vocale di origine."
+bringall_results: "${interaction.user}, iHorizon ha distribuito i membri tra i canali vocali.\n\n**${movedCount}** membro/i sono stati spostati con successo da ${fromChannel} a ${channelCount} canali in ${category}.\n**${errorCount}** membro/i non hanno potuto essere spostati (vedi i log del server per i dettagli)."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1352,6 +1360,7 @@ setlogschannel_var_boost: "Log degli Boost"
 setlogschannel_var_tickets: "Log dei Ticket"
 setlogschannel_var_antispam: "Registri AntiSpam"
 setlogschannel_var_channel: "Registri del canale"
+setlogschannel_var_confession: "Registri delle confessioni"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Il canale ${channel} è già impostato!"
@@ -2225,7 +2234,7 @@ tempvoice_vc_not_admin: "<@${interaction.user.id}>, non sei autorizzato a usare 
 
 # Interfaccia /voce per impostare il ruolo dello staff
 tempvoice_staff_not_admin: "<@${interaction.user.id}>, non sei autorizzato a usare questo comando!"
-tempvoice_staff_desc_embed: "## Ruolo Staff TempVoice\nIl <@&${targetedRole?.id}> può ora moderare il canale!\n"
+tempvoice_staff_desc_embed: "## Ruolo dello staff TempVoice\nI ruoli qui ora possono entrare nel canale e moderarlo!\n"
 
 # Modulo Confessioni
 # /cooldown, /disable, /channel
@@ -2694,3 +2703,8 @@ new_guild_embed_title:
   - "Una nuova avventura inizia! 🚀"
   - "Un membro fantastico è arrivato! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nCiao, amici straordinari!\n\nSono iHorizon, un bot avanzato progettato per rendere la vostra esperienza Discord eccezionale e piena di divertimento.\n\n✨ **Cosa posso fare per voi:**\n• Gestione del server con intelligenza e professionalità\n• Giochi interattivi e intrattenimento illimitato\n• Strumenti utili per l'organizzazione della comunità\n• Supporto tecnico disponibile 24/7\n\nEsplorate i miei comandi e immergetevi in un mondo di possibilità infinite.\nInsieme costruiremo una comunità fantastica piena di bellissimi ricordi!\n\nGrazie per avermi scelto, iniziamo questa incredibile avventura! 🌟"
+
+# Confession Event
+confession_embed_logs_title: "Nuova confessione"
+confession_channel_button_name: "Rispondi in modo anonimo"
+confession_1_embed_log_title: "Nuova risposta alla confessione"
