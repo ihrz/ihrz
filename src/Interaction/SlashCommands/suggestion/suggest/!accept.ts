@@ -46,8 +46,7 @@ export const subCommand: SubCommand = {
 		if (!baseData
 			|| baseData?.channel !== interaction.channel?.id
 			|| baseData?.disable === true) {
-			await interaction.deleteReply();
-			await interaction.followUp({
+			await interaction.editReply({
 				content: lang.suggest_acceptnot_good_channel
 					.replace('${baseData?.channel}', baseData?.channel),
 				flags: [1 << 6]
@@ -57,12 +56,10 @@ export const subCommand: SubCommand = {
 		};
 
 		if (!fetchId) {
-			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_accept_not_found_db, flags: [1 << 6] });
+			await interaction.editReply({ content: lang.suggest_accept_not_found_db, flags: [1 << 6] });
 			return;
 		} else if (fetchId.replied) {
-			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_accept_already_replied, flags: [1 << 6] });
+			await interaction.editReply({ content: lang.suggest_accept_already_replied, flags: [1 << 6] });
 			return;
 		};
 
@@ -86,8 +83,7 @@ export const subCommand: SubCommand = {
 			await msg.edit({ embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)] });
 			await client.db.set(`${interaction.guildId}.SUGGESTION.${id}.replied`, true);
 
-			await interaction.deleteReply();
-			await interaction.followUp({
+			await interaction.editReply({
 				content: lang.suggest_accept_command_work
 					.replace('${interaction.guild.id}', interaction.guildId as string)
 					.replace('${interaction.channel.id}', interaction.channel?.id as string)
@@ -97,7 +93,7 @@ export const subCommand: SubCommand = {
 			return;
 		}).catch(async () => {
 			await interaction.deleteReply();
-			await interaction.followUp({ content: lang.suggest_accept_command_error, flags: [1 << 6] });
+			await interaction.editReply({ content: lang.suggest_accept_command_error, flags: [1 << 6] });
 			return;
 		});
 	},
