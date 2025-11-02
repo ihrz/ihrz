@@ -156,7 +156,7 @@ npm install ihrz
 <b>Kisakay</b><br/>
 <i>Creator & Lead Developer</i><br/>
 <sub>She/Her</sub><br/>
-<a href="https://gitlab.com/Kisakay">GitLab</a> <a href="https://github.com/Kisakay">GitHub</a>
+<a href="https://gitlab.com/Kisakay">GitLab</a> / <a href="https://github.com/Kisakay">GitHub</a>
 </td>
 <td align="center" width="33%">
 <img src="https://github.com/name-shitty-github-profile.png" width="100px" style="border-radius:50%"/><br/>
