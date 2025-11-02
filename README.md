@@ -177,6 +177,57 @@ npm install ihrz
 
 > 💜 **Team Note**: Kisakay has embraced her true identity and now uses she/her pronouns. In the license files, the name Anaïs Saraiva appears as the owner.
 
+## 💝 Contributors's walls
+<table>
+<tr>
+  <td align="center" width="33%">
+    <img src="https://github.com/veryuhq.png" width="100px" style="border-radius:50%"/><br/>
+    <b>Ether</b><br/>
+    <i>#1 Contributor</i><br/>
+    <sub>He/Him</sub><br/>
+    <a href="https://gitlab.com/etherondiscord">GitLab</a> / <a href="https://github.com/veryuhq">GitHub</a>
+  </td>
+
+  <td align="center" width="33%">
+    <img src="https://github.com/ImShizue.png" width="100px" style="border-radius:50%"/><br/>
+    <b>Shizue</b><br/>
+    <i>#2 Contributor</i><br/>
+    <sub>She/Her</sub><br/>
+    <a href="https://github.com/ImShizue">GitHub</a>
+  </td>
+
+  <td align="center" width="33%">
+    <img src="https://github.com/lavecat.png" width="100px" style="border-radius:50%"/><br/>
+    <b>lavecat</b><br/>
+    <i>#3 Contributor</i><br/>
+    <sub>He/Him</sub><br/>
+    <a href="https://github.com/lavecat">GitHub</a>
+  </td>
+</tr>
+
+<tr>
+  <td align="center" width="33%">
+    <img src="https://github.com/Luxinenglish.png" width="100px" style="border-radius:50%"/><br/>
+    <b>Lux_</b><br/>
+    <i>#4 Contributor</i><br/>
+    <sub>He/Him</sub><br/>
+    <a href="https://github.com/Luxinenglish">GitHub</a>
+  </td>
+
+  <td align="center" width="33%">
+    <img src="https://github.com/Mxi1n.png" width="100px" style="border-radius:50%"/><br/>
+    <b>Maxine</b><br/>
+    <i>Old contributor</i><br/>
+    <sub>She/Her</sub><br/>
+    <a href="https://github.com/Mxi1n">GitHub</a>
+  </td>
+
+  <td align="center" width="33%">
+  </td>
+</tr>
+</table>
+
+
 ---
 
 ## 📜 History & Evolution
