@@ -159,18 +159,18 @@ npm install ihrz
 <a href="https://gitlab.com/Kisakay">GitLab</a>
 </td>
 <td align="center" width="33%">
+<img src="https://github.com/name-shitty-github-profile.png" width="100px" style="border-radius:50%"/><br/>
+<b>Noémie</b><br/>
+<i>Creator & Marketing Manager</i><br/>
+<sub>She/Her</sub><br/>
+<a href="https://github.com/name-shitty-github-profile">GitHub</a>
+</td>
+<td align="center" width="33%">
 <img src="https://github.com/irisihrz.png" width="100px" style="border-radius:50%"/><br/>
 <b>IrisWeb</b><br/>
 <i>Core Developer</i><br/>
 <sub>She/Her</sub><br/>
 <a href="https://github.com/irisihrz">GitHub</a>
-</td>
-<td align="center" width="33%">
-<img src="https://github.com/name-shitty-github-profile.png" width="100px" style="border-radius:50%"/><br/>
-<b>Noémie</b><br/>
-<i>Contributor</i><br/>
-<sub>She/Her</sub><br/>
-<a href="https://github.com/name-shitty-github-profile">GitHub</a>
 </td>
 </tr>
 </table>
