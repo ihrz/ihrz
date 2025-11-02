@@ -12,46 +12,21 @@
 
 [**📚 Documentation**](https://docs.ihorizon.org) • [**🔍 Command Search**](https://search.ihorizon.org) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
 
-</div>
-
 ---
 
 ## ✨ Key Features
 
-<table>
-<tr>
-<td width="50%">
-
 ### 🛡️ **Moderation & Security**
-- Complete moderation system
-- Infraction management
-- Anti-spam and auto-moderation
-- Detailed logging
+Complete moderation system • Infraction management • Anti-spam and auto-moderation • Detailed logging
 
 ### 🎉 **Community Engagement**
-- Giveaway system
-- Customizable tickets
-- Role reactions/buttons/menus
-- Invite tracking
-
-</td>
-<td width="50%">
+Giveaway system • Customizable tickets • Role reactions/buttons/menus • Invite tracking
 
 ### 🎮 **Entertainment**
-- Fun and interactive commands
-- Leveling system
-- Built-in music player
-- Mini-games
+Fun and interactive commands • Leveling system • Built-in music player • Mini-games
 
 ### ⚙️ **Administration**
-- Server configuration
-- Complete backup (server & members)
-- OAuth2 backup
-- Customizable commands
-
-</td>
-</tr>
-</table>
+Server configuration • Complete backup (server & members) • OAuth2 backup • Customizable commands
 
 ---
 
@@ -71,8 +46,6 @@ iHorizon supports **10 languages** for an optimal international experience:
 
 ## 📊 Statistics
 
-<div align="center">
-
 ### 🔥 Community Trust
 
 | Metric | Value |
@@ -82,42 +55,38 @@ iHorizon supports **10 languages** for an optimal international experience:
 | ✅ **Discord Certified** | Verified |
 | ⭐ **GitHub Stars** | 48+ |
 
-</div>
-
 ---
 
 ## 🚀 Installation & Self-Hosting
 
 ### 📋 Prerequisites
 
-- **[Bun](https://bun.sh)** (modern and fast JavaScript runtime)
-- **Operating System**: Linux, macOS, or WSL for Windows
+**[Bun](https://bun.sh)** (modern and fast JavaScript runtime)
 
-> ⚠️ **Windows Users**: iHorizon cannot be hosted directly on Windows 10/11.  
-> Use [WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install) for optimal compatibility.
+**Operating System**: Linux, macOS, or Windows
 
 ### ⚙️ Configuration
 
-1. **Download the configuration**
-   ```bash
-   # Clone the GitLab repository (active development)
-   git clone https://gitlab.com/ihrz/ihrz.git
-   cd ihrz
-   ```
+**1. Download the configuration**
+```bash
+# Clone the GitLab repository (active development)
+git clone https://gitlab.com/ihrz/ihrz.git
+cd ihrz
+```
 
-2. **Configure the bot**
-   - Open [`config.example.ts`](https://gitlab.com/ihrz/ihrz/blob/dev/src/files/config.example.ts)
-   - Fill in your information (Discord token, etc.)
-   - Rename the file to `config.ts`
+**2. Configure the bot**
+- Open [`config.example.ts`](https://gitlab.com/ihrz/ihrz/blob/dev/src/files/config.example.ts)
+- Fill in your information (Discord token, etc.)
+- Rename the file to `config.ts`
 
-3. **Install and launch**
-   ```bash
-   # Install dependencies
-   bun install
-   
-   # Start the bot
-   bun start
-   ```
+**3. Install and launch**
+```bash
+# Install dependencies
+bun install
+
+# Start the bot
+bun start
+```
 
 ### 📦 NPM Installation
 
@@ -133,8 +102,6 @@ npm install ihrz
 
 ## 📚 Resources & Links
 
-<div align="center">
-
 | Resource | Link |
 |-----------|------|
 | 📖 **Full Documentation** | [docs.ihorizon.org](https://docs.ihorizon.org) |
@@ -144,8 +111,6 @@ npm install ihrz
 | 🤖 **Invite iHorizon** | [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot) |
 | 🦊 **GitLab (Main)** | [gitlab.com/ihrz](https://gitlab.com/ihrz) |
 | 🐙 **GitHub (Mirror)** | [github.com/ihrz/ihrz](https://github.com/ihrz/ihrz) |
-
-</div>
 
 ---
 
@@ -196,15 +161,15 @@ iHorizon is distributed under **[CC BY-NC-SA 4.0](https://creativecommons.org/li
 
 ### ✅ **Permitted**
 
-- ✔️ **Share**: Copy and redistribute the material
-- ✔️ **Adapt**: Remix, transform, and build upon the material
+✔️ **Share**: Copy and redistribute the material  
+✔️ **Adapt**: Remix, transform, and build upon the material
 
 ### ❌ **Restrictions**
 
-- ❌ **Attribution**: You must credit the work and indicate changes
-- ❌ **Non-Commercial Use**: No commercial use without permission
-- ❌ **Share Alike**: Modifications must retain the same license
-- ❌ **No Additional Restrictions**: No additional legal or technological restrictions
+❌ **Attribution**: You must credit the work and indicate changes  
+❌ **Non-Commercial Use**: No commercial use without permission  
+❌ **Share Alike**: Modifications must retain the same license  
+❌ **No Additional Restrictions**: No additional legal or technological restrictions
 
 ---
 
@@ -212,11 +177,11 @@ iHorizon is distributed under **[CC BY-NC-SA 4.0](https://creativecommons.org/li
 
 Need help? Several options are available:
 
-- **Discord Server**: Join our community at [discord.ihorizon.org](http://discord.ihorizon.org/)
-- **Documentation**: Check [docs.ihorizon.org](https://docs.ihorizon.org)
-- **Direct Contact**: Reach out to the owners via Discord
-  - 👤 [kisakay](https://discord.com/users/171356978310938624)
-  - 👤 irisbylolirock
+**Discord Server**: Join our community at [discord.ihorizon.org](http://discord.ihorizon.org/)  
+**Documentation**: Check [docs.ihorizon.org](https://docs.ihorizon.org)  
+**Direct Contact**: Reach out to the owners via Discord
+- 👤 [kisakay](https://discord.com/users/171356978310938624)
+- 👤 irisbylolirock
 
 ---
 
@@ -227,8 +192,6 @@ Need help? Several options are available:
 🌈 **Inclusivity**: iHorizon is an open and welcoming project for everyone, regardless of origin, gender identity, sexual orientation, or any other characteristic.
 
 ---
-
-<div align="center">
 
 ### 🎉 Thank you for using iHorizon!
 
