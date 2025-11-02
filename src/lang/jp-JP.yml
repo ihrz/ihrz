@@ -622,6 +622,21 @@ cats_embed_title: "ニャー🐱"
 # /duck
 duck_embed_title: "ガーガー :duck:"
 
+# /panda
+panda_embed_title: "ムワァ 🐼"
+
+# /fox
+fox_embed_title: "ワパパパパ 🦊"
+
+# /dolphin
+dolphin_embed_title: "イーイー・クリッククリック 🐬"
+
+# /frog
+frog_embed_title: "ゲロゲロ 🐸"
+
+# /squirrel
+squirrel_embed_title: "チッチッ 🐿️"
+
 # /hack
 hack_embed_description: "<@${victim.id}> が <@${interaction.user.id}> にハックされました！"
 hack_embed_fields_ip: "IPアドレス："

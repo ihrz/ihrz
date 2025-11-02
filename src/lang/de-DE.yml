@@ -622,6 +622,21 @@ cats_embed_title: "Miauw :cat:"
 # /duck
 duck_embed_title: "Quak :duck:"
 
+# /panda
+panda_embed_title: "Mwaa 🐼"
+
+# /fox
+fox_embed_title: "wa-pa-pa-pa-pa 🦊"
+
+# /dolphin
+dolphin_embed_title: "eee-eee-click-click 🐬"
+
+# /frog
+frog_embed_title: "quak-quak 🐸"
+
+# /squirrel
+squirrel_embed_title: "tschilp-tschilp 🐿️"
+
 # /hack
 hack_embed_description: "<@${victim.id}> wurde von <@${interaction.user.id}> gehackt!"
 hack_embed_fields_ip: "IP"
