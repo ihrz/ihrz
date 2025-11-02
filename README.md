@@ -1,131 +1,241 @@
-# 🌐 Official iHorizon Repo  
+<div align="center">
 
-**iHorizon** is a powerful **Discord bot** written in [TypeScript](https://www.typescriptlang.org/) using [discord.js](https://npmjs.com/discord.js)!  
-It offers a **large variety of features**, including:  
+# 🌐 iHorizon
+### *The Bot of the Future*
 
-✅ Moderation  
-✅ Invite management  
-✅ Guild configuration  
-✅ Fun commands  
-✅ Music playback  
-✅ Giveaways  
-✅ Backups  
-✅ Server Backup  
-✅ Member Backup (oauth2)  
-✅ Rolereaction/button/select menue  
-✅ Tickets  
-... and much more!  
+[![GitHub Release](https://img.shields.io/github/v/release/ihrz/ihrz?style=for-the-badge&logo=github&color=5865F2)](https://github.com/ihrz/ihrz/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/ihrz/ihrz?style=for-the-badge&logo=github&color=FFD700)](https://github.com/ihrz/ihrz)
+[![Discord](https://img.shields.io/discord/972538524790304788?style=for-the-badge&logo=discord&color=7289DA&label=Support%20Server)](http://discord.ihorizon.org/)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-orange?style=for-the-badge)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-![GitHub Release](https://img.shields.io/github/v/release/ihrz/ihrz)  
-![GitHub Repo stars](https://img.shields.io/github/stars/ihrz/ihrz)  
+**iHorizon** is a powerful and feature-rich Discord bot built with [TypeScript](https://www.typescriptlang.org/) and [discord.js](https://npmjs.com/discord.js). Designed to simplify Discord server management, it combines stability, performance, and a robust modular architecture.
 
----  
+[**📚 Documentation**](https://docs.ihorizon.org) • [**🔍 Command Search**](https://search.ihorizon.org) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
 
-## 🌍 Supported Languages  
+</div>
 
-- 🇪🇬 Arabic Egyptian  
-- 🇬🇧 English  
-- 🇫🇷 French  
-- 🤬 Rude French (Troll)  
-- 🇮🇹 Italian  
-- 🇩🇪 German  
-- 🇯🇵 Japanese  
-- 🇪🇸 Spanish  
-- 🇷🇺 Russian  
-- 🇵🇹 Portuguese  
+---
 
----  
+## ✨ Key Features
 
-## 🏆 Contributor's Wall  
+<table>
+<tr>
+<td width="50%">
 
-| Contributor | GitHub | Pronouns |
-|------------|--------|----------|
-| **Kisakay** | [GitLab](https://gitlab.com/Kisakay) | She/Her |
-| **IrisWeb** | [GitHub](https://github.com/irisihrz) | She/Her |
-| **Noémie** | [GitHub](https://github.com/name-shitty-github-profile) | She/Her |
+### 🛡️ **Moderation & Security**
+- Complete moderation system
+- Infraction management
+- Anti-spam and auto-moderation
+- Detailed logging
 
----  
+### 🎉 **Community Engagement**
+- Giveaway system
+- Customizable tickets
+- Role reactions/buttons/menus
+- Invite tracking
 
-## 📜 Origin  
+</td>
+<td width="50%">
 
-🚀 The bot was **developed by Kisakay** and was first released in **September 2020** using `discord.js` v12.  
-🎉 It now runs on the **latest version** of `discord.js`, featuring a strong and modular architecture!  
+### 🎮 **Entertainment**
+- Fun and interactive commands
+- Leveling system
+- Built-in music player
+- Mini-games
 
----  
+### ⚙️ **Administration**
+- Server configuration
+- Complete backup (server & members)
+- OAuth2 backup
+- Customizable commands
 
-## 🆓 Is it Free?  
+</td>
+</tr>
+</table>
 
-**iHorizon** is licensed under [`CC BY-NC-SA 4.0`](https://creativecommons.org/licenses/by-nc-sa/4.0/).  
+---
 
-### ✅ Allowed:  
-✔ **Share** — Copy and redistribute in any medium or format  
-✔ **Adapt** — Remix, transform, and build upon it  
+## 🌍 Supported Languages
 
-### ❌ Not Allowed:  
-❌ **Attribution** — You must give proper credit & indicate changes  
-❌ **NonCommercial** — No commercial use allowed  
-❌ **ShareAlike** — Derivatives must keep the same license  
-❌ **No additional restrictions** — No legal or technological barriers  
+iHorizon supports **10 languages** for an optimal international experience:
 
----  
+| Language | Code | Language | Code |
+|--------|------|--------|------|
+| 🇪🇬 Egyptian Arabic | `ar-EG` | 🇯🇵 Japanese | `ja-JP` |
+| 🇬🇧 English | `en-US` | 🇪🇸 Spanish | `es-ES` |
+| 🇫🇷 French | `fr-FR` | 🇷🇺 Russian | `ru-RU` |
+| 🤬 Rude French | `fr-VU` | 🇵🇹 Portuguese | `pt-PT` |
+| 🇮🇹 Italian | `it-IT` | 🇩🇪 German | `de-DE` |
 
-## 🛠 How to Self-Host?  
+---
 
-### 📌 Requirements  
-- [Bun](https://bun.sh)
+## 📊 Statistics
 
-⚠ **Windows users**: iHorizon **can't be hosted directly** on Windows 10/11.  
-👉 Use **[WSL](https://learn.microsoft.com/en-us/windows/wsl/install)** (Windows Subsystem for Linux) instead!  
+<div align="center">
 
-### ⚙ Bot Configuration  
-1️⃣ Open [`config.example.ts`](https://gitlab.com/ihrz/ihrz/blob/dev/src/files/config.example.ts)  
-2️⃣ Enter your details  
-3️⃣ Rename the file to `config.ts`  
+### 🔥 Community Trust
 
-### 🚀 Running on Linux & macOS  
+| Metric | Value |
+|----------|--------|
+| 👥 **Users** | 360,000+ |
+| 🏢 **Servers** | 2,000+ |
+| ✅ **Discord Certified** | Verified |
+| ⭐ **GitHub Stars** | 48+ |
+
+</div>
+
+---
+
+## 🚀 Installation & Self-Hosting
+
+### 📋 Prerequisites
+
+- **[Bun](https://bun.sh)** (modern and fast JavaScript runtime)
+- **Operating System**: Linux, macOS, or WSL for Windows
+
+> ⚠️ **Windows Users**: iHorizon cannot be hosted directly on Windows 10/11.  
+> Use [WSL (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install) for optimal compatibility.
+
+### ⚙️ Configuration
+
+1. **Download the configuration**
+   ```bash
+   # Clone the GitLab repository (active development)
+   git clone https://gitlab.com/ihrz/ihrz.git
+   cd ihrz
+   ```
+
+2. **Configure the bot**
+   - Open [`config.example.ts`](https://gitlab.com/ihrz/ihrz/blob/dev/src/files/config.example.ts)
+   - Fill in your information (Discord token, etc.)
+   - Rename the file to `config.ts`
+
+3. **Install and launch**
+   ```bash
+   # Install dependencies
+   bun install
+   
+   # Start the bot
+   bun start
+   ```
+
+### 📦 NPM Installation
+
+iHorizon is also available on NPM for quick integration:
 
 ```bash
-bun i
-
-# If you see an error, install bun and resource your terminal.
-
-bun .
+npm install ihrz
 ```
 
-## 🚀 NpmJS Method  
+📖 **[Full NPM Documentation](https://npmjs.com/ihrz)**
 
-Working: [See more](https://npmjs.com/ihrz)  
+---
 
-# 🔥 About the Bot  
+## 📚 Resources & Links
 
-🔹 Trusted by more than 360,000 users  
-🔹 Used in 2,000+ servers 🎉  
-<br>
-🔹 Certified by Discord and growing fast!  
+<div align="center">
 
-📌 Join the official iHorizon Discord support server:  
-🌍 [Official Server](http://discord.ihorizon.org/) | 🔗 [Backup Link](https://discord.gg/ZpBPGNsAsu)  
+| Resource | Link |
+|-----------|------|
+| 📖 **Full Documentation** | [docs.ihorizon.org](https://docs.ihorizon.org) |
+| 🔍 **Command Search** | [search.ihorizon.org](https://search.ihorizon.org) |
+| 💬 **Main Discord Server** | [discord.ihorizon.org](http://discord.ihorizon.org/) |
+| 🔗 **Backup Discord Server** | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu) |
+| 🤖 **Invite iHorizon** | [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot) |
+| 🦊 **GitLab (Main)** | [gitlab.com/ihrz](https://gitlab.com/ihrz) |
+| 🐙 **GitHub (Mirror)** | [github.com/ihrz/ihrz](https://github.com/ihrz/ihrz) |
 
-📌 Invite iHorizon to your server:  
-🤖 [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)  
+</div>
 
-📌 Need help? Contact the owner via Discord:  
-👤 [kisakay](https://discord.com/users/171356978310938624) and `irisbylolirock`
+---
 
-# 👤 About the Owner  
+## 🏆 Development Team
 
-💖 **Kisakay** has not changed their identity but embraced who they truly are.  
-💜 She now goes by she/her pronouns.  
+<table>
+<tr>
+<td align="center" width="33%">
+<img src="https://github.com/Kisakay.png" width="100px" style="border-radius:50%"/><br/>
+<b>Kisakay</b><br/>
+<i>Creator & Lead Developer</i><br/>
+<sub>She/Her</sub><br/>
+<a href="https://gitlab.com/Kisakay">GitLab</a>
+</td>
+<td align="center" width="33%">
+<img src="https://github.com/irisihrz.png" width="100px" style="border-radius:50%"/><br/>
+<b>IrisWeb</b><br/>
+<i>Core Developer</i><br/>
+<sub>She/Her</sub><br/>
+<a href="https://github.com/irisihrz">GitHub</a>
+</td>
+<td align="center" width="33%">
+<img src="https://github.com/name-shitty-github-profile.png" width="100px" style="border-radius:50%"/><br/>
+<b>Noémie</b><br/>
+<i>Contributor</i><br/>
+<sub>She/Her</sub><br/>
+<a href="https://github.com/name-shitty-github-profile">GitHub</a>
+</td>
+</tr>
+</table>
 
-📜 In the `LICENSE` files, the name `Anaïs Saraiva` appears as the owner.  
-<br>
-🇨🇦 Noémie : She is even prettier than most :D
+> 💜 **Team Note**: Kisakay has embraced her true identity and now uses she/her pronouns. In the license files, the name Anaïs Saraiva appears as the owner.
 
-🎀 Camille : She is really pretty.
+---
 
-## ❗ Remarks  
+## 📜 History & Evolution
 
-🚨 Any form of hate towards contributors will not be tolerated.<br>
-🚨 Regardless of the type or level of hate.  
+🚀 **September 2020**: Initial project launch with discord.js v12  
+📈 **2021-2023**: Continuous growth and major feature additions  
+🔄 **2024**: Migration to GitLab for better development management  
+⚡ **2025**: Modern architecture with latest discord.js version and Bun runtime
 
-✨ Thank you for using iHorizon!🚀  
+---
+
+## 📄 License & Terms of Use
+
+iHorizon is distributed under **[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)** license.
+
+### ✅ **Permitted**
+
+- ✔️ **Share**: Copy and redistribute the material
+- ✔️ **Adapt**: Remix, transform, and build upon the material
+
+### ❌ **Restrictions**
+
+- ❌ **Attribution**: You must credit the work and indicate changes
+- ❌ **Non-Commercial Use**: No commercial use without permission
+- ❌ **Share Alike**: Modifications must retain the same license
+- ❌ **No Additional Restrictions**: No additional legal or technological restrictions
+
+---
+
+## 💬 Support & Contact
+
+Need help? Several options are available:
+
+- **Discord Server**: Join our community at [discord.ihorizon.org](http://discord.ihorizon.org/)
+- **Documentation**: Check [docs.ihorizon.org](https://docs.ihorizon.org)
+- **Direct Contact**: Reach out to the owners via Discord
+  - 👤 [kisakay](https://discord.com/users/171356978310938624)
+  - 👤 irisbylolirock
+
+---
+
+## ⚠️ Code of Conduct
+
+🚨 **Zero Tolerance for Hate**: Any form of hate towards contributors will not be tolerated, regardless of type or level.
+
+🌈 **Inclusivity**: iHorizon is an open and welcoming project for everyone, regardless of origin, gender identity, sexual orientation, or any other characteristic.
+
+---
+
+<div align="center">
+
+### 🎉 Thank you for using iHorizon!
+
+<sub>Developed with ❤️ by the iHorizon community</sub>
+
+[![Made with TypeScript](https://img.shields.io/badge/Made%20with-TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Powered by discord.js](https://img.shields.io/badge/Powered%20by-discord.js-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.js.org/)
+[![Built with Bun](https://img.shields.io/badge/Built%20with-Bun-000000?style=for-the-badge&logo=bun&logoColor=white)](https://bun.sh/)
+
+</div>
