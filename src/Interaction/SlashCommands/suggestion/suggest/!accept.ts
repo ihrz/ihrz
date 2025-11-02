@@ -29,6 +29,7 @@ import { LanguageData } from '../../../../../types/languageData.js';
 
 
 import { SubCommand } from '../../../../../types/command.js';
+import { DatabaseStructure } from '../../../../../types/database_structure.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
@@ -41,7 +42,7 @@ export const subCommand: SubCommand = {
 		const message = interaction.options.getString("reason");
 
 		const baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
-		const fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`);
+		const fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`) as DatabaseStructure.Suggestion | undefined;
 
 		if (!baseData
 			|| baseData?.channel !== interaction.channel?.id
@@ -58,7 +59,7 @@ export const subCommand: SubCommand = {
 		if (!fetchId) {
 			await interaction.editReply({ content: lang.suggest_accept_not_found_db, flags: [1 << 6] });
 			return;
-		} else if (fetchId.replied) {
+		} else if (fetchId?.replied) {
 			await interaction.editReply({ content: lang.suggest_accept_already_replied, flags: [1 << 6] });
 			return;
 		};
@@ -90,6 +91,8 @@ export const subCommand: SubCommand = {
 					.replace('${fetchId?.msgId}', fetchId?.msgId),
 				flags: [1 << 6]
 			});
+
+			msg.thread?.setLocked(true);
 			return;
 		}).catch(async () => {
 			await interaction.deleteReply();
