@@ -868,6 +868,11 @@ export interface LanguageData {
 	util_role_members_no_one: string;
 	utils_top_no_message: string;
 	utils_top_command_ok: string;
+	bringall_no_from_channel: string;
+	bringall_invalid_category: string;
+	bringall_no_voice_channels: string;
+	bringall_no_members: string;
+	bringall_results: string;
 	blockpub_not_admin: string;
 	blockpub_now_enable: string;
 	blockpub_now_disable: string;

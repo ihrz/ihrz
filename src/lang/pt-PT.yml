@@ -1141,6 +1141,13 @@ util_role_members_no_one: "Não há ninguém com esse cargo no servidor"
 utils_top_no_message: "Nenhuma mensagem encontrada neste canal"
 utils_top_command_ok: "A primeira mensagem neste canal está [aqui](${link})"
 
+# +bringall
+bringall_no_from_channel: "Por favor, especifica um canal de voz de origem."
+bringall_invalid_category: "Por favor, especifica uma categoria válida."
+bringall_no_voice_channels: "A categoria especificada não contém canais de voz."
+bringall_no_members: "Não há membros no canal de voz de origem."
+bringall_results: "${interaction.user}, o iHorizon distribuiu membros pelos canais de voz.\n\n**${movedCount}** membro(s) foram movidos com sucesso de ${fromChannel} para ${channelCount} canais em ${category}.\n**${errorCount}** membro(s) não puderam ser movidos (consulta os registos do servidor para mais detalhes)."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

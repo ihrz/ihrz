@@ -1141,6 +1141,13 @@ util_role_members_no_one: "Niemand auf dem Server hat diese Rolle"
 utils_top_no_message: "Keine Nachrichten in diesem Kanal gefunden"
 utils_top_command_ok: "Die erste Nachricht in diesem Kanal ist [hier](${link})"
 
+# +bringall
+bringall_no_from_channel: "Bitte geben Sie einen Quell-Sprachkanal an."
+bringall_invalid_category: "Bitte geben Sie eine gültige Kategorie an."
+bringall_no_voice_channels: "Die angegebene Kategorie enthält keine Sprachkanäle."
+bringall_no_members: "Es befinden sich keine Mitglieder im Quell-Sprachkanal."
+bringall_results: "${interaction.user}, iHorizon hat Mitglieder auf Sprachkanäle verteilt.\n\n**${movedCount}** Mitglied(er) wurden erfolgreich von ${fromChannel} auf ${channelCount} Kanäle in ${category} verschoben.\n**${errorCount}** Mitglied(er) konnten nicht verschoben werden (siehe Serverprotokolle für Details)."
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
