@@ -84,7 +84,7 @@ iHorizon supports **10 languages** for an optimal international experience:
 | Metric | Value |
 |----------|--------|
 | 👥 **Users** | 360,000+ |
-| 🏢 **Servers** | 2,000+ |
+| 🏢 **Servers** | 2,200+ |
 | ✅ **Discord Certified** | Verified |
 | ⭐ **GitHub Stars** | 48+ |
 
