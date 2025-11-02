@@ -168,7 +168,7 @@ npm install ihrz
 <td align="center" width="33%">
 <img src="https://github.com/irisihrz.png" width="100px" style="border-radius:50%"/><br/>
 <b>IrisWeb</b><br/>
-<i>Core Developer</i><br/>
+<i>Old Core Developer</i><br/>
 <sub>She/Her</sub><br/>
 <a href="https://github.com/irisihrz">GitHub</a>
 </td>
