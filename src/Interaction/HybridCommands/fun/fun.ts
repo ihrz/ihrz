@@ -108,6 +108,66 @@ export const command: Command = {
 
 					permission: null,
 				},
+				{
+					name: "panda",
+
+					description: "Get a picture of panda!",
+					description_localizations: {
+						fr: "Obtenez une photo de panda",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
+				{
+					name: "fox",
+
+					description: "Get a picture of fox!",
+					description_localizations: {
+						fr: "Obtenez une photo de renard",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
+				{
+					name: "dolphin",
+
+					description: "Get a picture of dolphin!",
+					description_localizations: {
+						fr: "Obtenez une photo de dauphin",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
+				{
+					name: "frog",
+
+					description: "Get a picture of frog!",
+					description_localizations: {
+						fr: "Obtenez une photo de grenouille",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
+				{
+					name: "squirrel",
+
+					description: "Get a picture of frog!",
+					description_localizations: {
+						fr: "Obtenez une photo de grenouille",
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+
+					permission: null,
+				},
 			],
 			type: ApplicationCommandOptionType.SubcommandGroup,
 			permission: null

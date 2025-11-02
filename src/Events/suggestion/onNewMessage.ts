@@ -72,7 +72,7 @@ export const event: BotEvent = {
 			enforceNonce: true, nonce: nonce
 		});
 
-		msg.startThread({
+		let thread = await msg.startThread({
 			name: `#${suggestCode}`,
 			reason: "[Suggestion] Module"
 		}).then(x => x.edit({ invitable: true, locked: false, archived: false }))
@@ -83,7 +83,8 @@ export const event: BotEvent = {
 		await client.db.set(`${message.guildId}.SUGGESTION.${suggestCode}`,
 			{
 				author: message.author.id,
-				msgId: msg.id
+				msgId: msg.id,
+				threadId: thread.id
 			}
 		);
 
