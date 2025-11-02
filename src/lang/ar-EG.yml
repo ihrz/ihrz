@@ -294,6 +294,7 @@ ticket_panel_chose_a_question: "اختر سؤالاً"
 ticket_panel_select_question_to_delete: "حدد سؤالاً لحذفه."
 ticket_panel_panel_15_label: "إعداد تضمين لكل خيار"
 ticket_panel_panel_16_label: "إعداد نموذج لكل خيار"
+ticket_panel_panel_17_label: "قم بتكوين الأدوار التي سيتم الإشارة إليها لكل خيار"
 ticket_panel_manage_form_title: "إدارة النموذج للخيار: **${option.name}**"
 ticket_panel_change_embed_options: "اختر خيارًا لتعديل معرف التضمين في لوحة القناة."
 ticket_panel_change_embed_options_null: "لا توجد خيارات لتعديل معرف التضمين في لوحة القناة."
@@ -1140,6 +1141,13 @@ util_role_members_no_one: "لا يوجد أي شخص لديه هذا الدور 
 # +top
 utils_top_no_message: "لا توجد رسائل في هذه القناة"
 utils_top_command_ok: "الرسالة الأولى في هذه القناة موجودة [هنا](${link})"
+
+# +bringall
+bringall_no_from_channel: "الرجاء تحديد قناة صوتية مصدر."
+bringall_invalid_category: "الرجاء تحديد فئة صالحة."
+bringall_no_voice_channels: "الفئة المحددة لا تحتوي على قنوات صوتية."
+bringall_no_members: "لا يوجد أعضاء في القناة الصوتية المصدر."
+bringall_results: "${interaction.user}، قام iHorizon بتوزيع الأعضاء عبر القنوات الصوتية.\n\n**${movedCount}** عضو تم نقلهم بنجاح من ${fromChannel} إلى ${channelCount} قنوات في ${category}.\n**${errorCount}** عضو لم يتمكن من نقلهم (راجع سجلات الخادم للحصول على التفاصيل)."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

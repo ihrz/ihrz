@@ -294,6 +294,7 @@ ticket_panel_chose_a_question: "Escolhe uma pergunta"
 ticket_panel_select_question_to_delete: "Seleciona uma pergunta para apagar."
 ticket_panel_panel_15_label: "Configurar um embed por opção"
 ticket_panel_panel_16_label: "Configurar um formulário por opção"
+ticket_panel_panel_17_label: "Configura os cargos a mencionar por cada opção"
 ticket_panel_manage_form_title: "Gerir o formulário para a opção: **${option.name}**"
 ticket_panel_change_embed_options: "Seleciona uma opção para editar o ID de embed do painel do canal."
 ticket_panel_change_embed_options_null: "Não há opções para editar o ID de embed do painel do canal."
@@ -1139,6 +1140,13 @@ util_role_members_no_one: "Não há ninguém com esse cargo no servidor"
 # +top
 utils_top_no_message: "Nenhuma mensagem encontrada neste canal"
 utils_top_command_ok: "A primeira mensagem neste canal está [aqui](${link})"
+
+# +bringall
+bringall_no_from_channel: "Por favor, especifica um canal de voz de origem."
+bringall_invalid_category: "Por favor, especifica uma categoria válida."
+bringall_no_voice_channels: "A categoria especificada não contém canais de voz."
+bringall_no_members: "Não há membros no canal de voz de origem."
+bringall_results: "${interaction.user}, o iHorizon distribuiu membros pelos canais de voz.\n\n**${movedCount}** membro(s) foram movidos com sucesso de ${fromChannel} para ${channelCount} canais em ${category}.\n**${errorCount}** membro(s) não puderam ser movidos (consulta os registos do servidor para mais detalhes)."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

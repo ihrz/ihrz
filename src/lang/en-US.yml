@@ -294,6 +294,7 @@ ticket_panel_chose_a_question: "Choose a question"
 ticket_panel_select_question_to_delete: "Select a question to delete."
 ticket_panel_panel_15_label: "Configure an embed per option"
 ticket_panel_panel_16_label: "Configure a form per option"
+ticket_panel_panel_17_label: "Configure a roles to ping per option"
 ticket_panel_manage_form_title: "Manage the form for option: **${option.name}**"
 ticket_panel_change_embed_options: "Select an option to edit the channel panel embed ID."
 ticket_panel_change_embed_options_null: "There are no options to edit the channel panel embed ID."
@@ -1141,6 +1142,13 @@ util_role_members_no_one: "There is nobody with that role on the server"
 # +top
 utils_top_no_message: "No messages found in this channel"
 utils_top_command_ok: "The first message in this channel is [here](${link})"
+
+# +bringall
+bringall_no_from_channel: "Please specify a source voice channel."
+bringall_invalid_category: "Please specify a valid category."
+bringall_no_voice_channels: "The specified category contains no voice channels."
+bringall_no_members: "There are no members in the source voice channel."
+bringall_results: "${interaction.user}, iHorizon has distributed members across voice channels.\n\n**${movedCount}** member(s) were successfully moved from ${fromChannel} to ${channelCount} channels in ${category}.\n**${errorCount}** member(s) could not be moved (see the server logs for details)."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

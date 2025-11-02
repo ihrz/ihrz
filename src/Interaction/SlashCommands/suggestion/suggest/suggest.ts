@@ -78,6 +78,7 @@ export const command: Command = {
 				},
 			],
 
+			ephemeral: true,
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
@@ -126,6 +127,7 @@ export const command: Command = {
 				},
 			],
 
+			ephemeral: true,
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
@@ -173,7 +175,7 @@ export const command: Command = {
 					permission: null
 				},
 			],
-
+			ephemeral: true,
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
@@ -205,6 +207,7 @@ export const command: Command = {
 				},
 			],
 
+			ephemeral: true,
 			permission: PermissionFlagsBits.Administrator
 		},
 	],

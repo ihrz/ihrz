@@ -294,6 +294,7 @@ ticket_panel_chose_a_question: "Wähle eine Frage"
 ticket_panel_select_question_to_delete: "Wähle eine Frage zum Löschen aus."
 ticket_panel_panel_15_label: "Embed pro Option konfigurieren"
 ticket_panel_panel_16_label: "Formular pro Option konfigurieren"
+ticket_panel_panel_17_label: "Konfiguriere Rollen, die pro Option erwähnt werden sollen"
 ticket_panel_manage_form_title: "Formular verwalten für Option: **${option.name}**"
 ticket_panel_change_embed_options: "Wähle eine Option, um die Embed-ID des Kanal-Panels zu ändern."
 ticket_panel_change_embed_options_null: "Es gibt keine Optionen zum Bearbeiten der Kanal-Panel-Embed-ID."
@@ -1139,6 +1140,13 @@ util_role_members_no_one: "Niemand auf dem Server hat diese Rolle"
 # +top
 utils_top_no_message: "Keine Nachrichten in diesem Kanal gefunden"
 utils_top_command_ok: "Die erste Nachricht in diesem Kanal ist [hier](${link})"
+
+# +bringall
+bringall_no_from_channel: "Bitte geben Sie einen Quell-Sprachkanal an."
+bringall_invalid_category: "Bitte geben Sie eine gültige Kategorie an."
+bringall_no_voice_channels: "Die angegebene Kategorie enthält keine Sprachkanäle."
+bringall_no_members: "Es befinden sich keine Mitglieder im Quell-Sprachkanal."
+bringall_results: "${interaction.user}, iHorizon hat Mitglieder auf Sprachkanäle verteilt.\n\n**${movedCount}** Mitglied(er) wurden erfolgreich von ${fromChannel} auf ${channelCount} Kanäle in ${category} verschoben.\n**${errorCount}** Mitglied(er) konnten nicht verschoben werden (siehe Serverprotokolle für Details)."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup

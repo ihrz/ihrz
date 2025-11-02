@@ -294,6 +294,7 @@ ticket_panel_chose_a_question: "Выберите вопрос"
 ticket_panel_select_question_to_delete: "Выберите вопрос для удаления."
 ticket_panel_panel_15_label: "Настроить embed для каждой опции"
 ticket_panel_panel_16_label: "Настроить форму для каждой опции"
+ticket_panel_panel_17_label: "Настройте роли для упоминания для каждого варианта"
 ticket_panel_manage_form_title: "Управление формой для опции: **${option.name}**"
 ticket_panel_change_embed_options: "Выберите опцию, чтобы изменить ID embed панели канала."
 ticket_panel_change_embed_options_null: "Нет опций для изменения ID embed панели канала."
@@ -1139,6 +1140,13 @@ util_role_members_no_one: "На сервере нет никого с этой �
 # +top
 utils_top_no_message: "В этом канале не найдено сообщений"
 utils_top_command_ok: "Первое сообщение в этом канале находится [здесь](${link})"
+
+# +bringall
+bringall_no_from_channel: "Пожалуйста, укажите исходный голосовой канал."
+bringall_invalid_category: "Пожалуйста, укажите действительную категорию."
+bringall_no_voice_channels: "Указанная категория не содержит голосовых каналов."
+bringall_no_members: "В исходном голосовом канале нет участников."
+bringall_results: "${interaction.user}, iHorizon распределил участников по голосовым каналам.\n\n**${movedCount}** участник(ов) были успешно перемещены из ${fromChannel} в ${channelCount} каналов в ${category}.\n**${errorCount}** участник(ов) не удалось переместить (подробности см. в журналах сервера)."
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
