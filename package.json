@@ -1,6 +1,6 @@
 {
 	"name": "ihrz",
-	"version": "2025.10.0",
+	"version": "2025.10.1",
 	"description": "Official codebase of iHorizon Discord Bot.",
 	"main": "./src/index.ts",
 	"scripts": {
