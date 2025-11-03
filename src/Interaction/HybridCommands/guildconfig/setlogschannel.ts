@@ -29,6 +29,7 @@ import {
 	PermissionFlagsBits,
 	Message,
 	Channel,
+	CategoryChannel,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command.js';
@@ -188,51 +189,92 @@ export const command: Command = {
 						.replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(","))
 				});
 			} else {
-				const category = await interaction.guild.channels.create({
-					name: "LOGS",
-					type: ChannelType.GuildCategory,
-					permissionOverwrites: [
-						{
-							id: interaction.guild.roles.everyone.id,
-							deny: [
-								PermissionFlagsBits.ViewChannel,
-								PermissionFlagsBits.SendMessages,
-								PermissionFlagsBits.ReadMessageHistory
-							]
-						}
-					]
-				});
+				const existingLogs: { [key: string]: string } = {};
+				let existingCategory: CategoryChannel | null = null;
 
-				if (category) {
-					for (const logType of allLogsPossible) {
-						const channel = await interaction.guild.channels.create({
+				for (const logType of allLogsPossible) {
+					let channelId: string | null = null;
+
+					if (logType.id === 'ticket-log-channel') {
+						channelId = await client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
+					} else {
+						channelId = await client.db.get(`${interaction.guildId}.GUILD.SERVER_LOGS.${logType.id}`);
+					}
+
+					// Vérifier si le salon existe vraiment dans le serveur
+					if (channelId) {
+						const guildChannel = interaction.guild.channels.cache.get(channelId);
+						if (guildChannel) {
+							existingLogs[logType.id] = channelId;
+							// Récupérer la catégorie parente du premier salon trouvé
+							if (!existingCategory && guildChannel.parent) {
+								existingCategory = guildChannel.parent as CategoryChannel;
+							}
+						}
+					}
+				}
+
+				const missingLogs = allLogsPossible.filter(logType => !existingLogs[logType.id]);
+
+				if (missingLogs.length === 0) {
+					await client.func.method.interactionSend(interaction, {
+						content: lang.setlogschannel_all_already_exist
+					});
+					return;
+				}
+
+				if (!existingCategory) {
+					existingCategory = await interaction.guild.channels.create({
+						name: "LOGS",
+						type: ChannelType.GuildCategory,
+						permissionOverwrites: [
+							{
+								id: interaction.guild.roles.everyone.id,
+								deny: [
+									PermissionFlagsBits.ViewChannel,
+									PermissionFlagsBits.SendMessages,
+									PermissionFlagsBits.ReadMessageHistory
+								]
+							}
+						]
+					});
+				}
+
+				if (existingCategory) {
+					for (const logType of missingLogs) {
+						const newChannel = await interaction.guild.channels.create({
 							name: logType.value,
-							parent: category.id,
-							permissionOverwrites: category.permissionOverwrites.cache,
+							parent: existingCategory.id,
+							permissionOverwrites: existingCategory.permissionOverwrites.cache,
 							type: ChannelType.GuildText
 						});
-						if (channel) {
-							allCreatedChannels.push(channel.id);
-							(interaction.guild.channels.cache.get(channel.id) as BaseGuildTextChannel | null)?.send({
+
+						if (newChannel) {
+							allCreatedChannels.push(newChannel.id);
+
+							(interaction.guild.channels.cache.get(newChannel.id) as BaseGuildTextChannel | null)?.send({
 								content: lang.setlogschannel_confirmation_message
 									.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 									.replace("${interaction.user.id}", interaction.member.user.id!)
 									.replace("${typeOfLogs}", logType.value)
 							});
+
 							if (logType.id === 'ticket-log-channel') {
-								await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, channel.id);
+								await client.db.set(`${interaction.guildId}.GUILD.TICKET.logs`, newChannel.id);
 							} else {
-								await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${logType.id}`, channel.id);
+								await client.db.set(`${interaction.guildId}.GUILD.SERVER_LOGS.${logType.id}`, newChannel.id);
 							}
 						}
 					}
 				}
+				if (allCreatedChannels.length > 0) {
+					await client.func.method.interactionSend(interaction, {
+						content: lang.setlogschannel_utils_command_work
+							.replace("${argsid.id}", allCreatedChannels.map(x => `<#${x}>`).join(','))
+							.replace("${typeOfLogs}", missingLogs.map(x => x.value).join(', '))
+					});
+				}
 			}
-			await client.func.method.interactionSend(interaction, {
-				content: lang.setlogschannel_utils_command_work
-					.replace("${argsid.id}", allCreatedChannels.map(x => `<#${x}>`).join(','))
-					.replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(', '))
-			});
 			return;
 		}
 

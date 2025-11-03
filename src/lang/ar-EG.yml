@@ -1377,6 +1377,7 @@ setlogschannel_var_tickets: "سجلات التذاكر"
 setlogschannel_var_antispam: "سجلات مكافحة الرسائل المزعجة"
 setlogschannel_var_channel: "سجلات القناة"
 setlogschannel_var_confession: "سجلات الاعترافات"
+setlogschannel_all_already_exist: "جميع قنوات السجلات مكونة بالفعل!"
 
 # /join-ghostping add
 joinghostping_add_already_set: "القناة ${channel} تم إعدادها بالفعل!"

@@ -1376,6 +1376,7 @@ setlogschannel_var_tickets: "Журналы заявок"
 setlogschannel_var_antispam: "Журналы AntiSpam"
 setlogschannel_var_channel: "Журналы канала"
 setlogschannel_var_confession: "Журналы признаний"
+setlogschannel_all_already_exist: "Все каналы логов уже настроены!"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Канал ${channel} уже установлен!"

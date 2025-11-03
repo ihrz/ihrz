@@ -1376,6 +1376,7 @@ setlogschannel_var_tickets: "Registros de Tickets"
 setlogschannel_var_antispam: "Registros AntiSpam"
 setlogschannel_var_channel: "Registros del canal"
 setlogschannel_var_confession: "Registros de confesiones"
+setlogschannel_all_already_exist: "¡Todos los canales de registros ya están configurados!"
 
 # /join-ghostping add
 joinghostping_add_already_set: "¡El canal ${channel} ya está configurado!"

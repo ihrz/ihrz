@@ -1071,6 +1071,7 @@ export interface LanguageData {
 	setlogschannel_var_antispam: string;
 	setlogschannel_var_channel: string;
 	setlogschannel_var_confession: string;
+	setlogschannel_all_already_exist: string;
 	joinghostping_add_already_set: string;
 	joinghostping_add_sent_to_channel: string;
 	joinghostping_add_ok_embed_title: string;
