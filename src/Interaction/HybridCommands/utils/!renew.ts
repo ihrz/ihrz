@@ -57,11 +57,13 @@ export const subCommand: SubCommand = {
 				topic: (channel as BaseGuildTextChannel).topic!,
 				nsfw: channel.nsfw,
 				rateLimitPerUser: channel.rateLimitPerUser!,
-				reason: `Channel re-create by ${interaction.member.user} (${interaction.member.user.id})`
+				reason: `Channel re-create by ${interaction.member.user} (${interaction.member.user.id})`,
+				position: channel.rawPosition
 			});
 
+			if (channel.guild.systemChannel?.id === channel.id) channel.guild.setSystemChannel(here.id);
+
 			await channel.delete();
-			await here.setPosition(channel.rawPosition);
 
 			here.send({ content: lang.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
 			return;
