@@ -88,7 +88,8 @@ class AutoRenew {
 								parent: channel.parent,
 								permissionOverwrites: channel.permissionOverwrites.cache,
 								nsfw: channel.nsfw,
-								reason: `Channel re-create by Auto-Renew`
+								reason: `Channel re-create by Auto-Renew`,
+								position: channel.rawPosition
 							});
 
 							if (guild.systemChannel?.id === channel.id) guild.setSystemChannel(newChannel.id);
