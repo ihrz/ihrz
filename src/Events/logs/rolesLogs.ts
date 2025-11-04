@@ -40,7 +40,7 @@ export const event: BotEvent = {
 
 		if (!someinfo || !Msgchannel) return;
 
-		const firstEntry = await getLogs(newMember.guild, newMember.user.id, AuditLogEvent.MemberRoleUpdate, 2);
+		const firstEntry = await getLogs({ guild: newMember.guild, target: newMember.user.id, actionType: AuditLogEvent.MemberRoleUpdate, type: "LOGS" });
 
 		if (!firstEntry
 			|| firstEntry.executorId == client.user?.id

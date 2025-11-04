@@ -42,7 +42,7 @@ export const event: BotEvent = {
 		if (!Msgchannel) return;
 
 
-		const relevantLog = await getLogs(ban.guild, ban.user.id, AuditLogEvent.MemberBanAdd, 2)
+		const relevantLog = await getLogs({ guild: ban.guild, target: ban.user.id, actionType: AuditLogEvent.MemberBanAdd, type: 'LOGS' })
 		if (!relevantLog) return;
 
 		const logsEmbed = new EmbedBuilder()

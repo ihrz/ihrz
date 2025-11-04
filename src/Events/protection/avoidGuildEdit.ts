@@ -39,7 +39,7 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.updateguild) {
-			const relevantLog = await getLogs(newGuild, newGuild.id, AuditLogEvent.GuildUpdate);
+			const relevantLog = await getLogs({ guild: newGuild, target: newGuild.id, actionType: AuditLogEvent.GuildUpdate, type: 'PROTECTION' });
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;

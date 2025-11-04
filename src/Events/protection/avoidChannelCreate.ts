@@ -36,7 +36,7 @@ export const event: BotEvent = {
 
 		if (data.createchannel) {
 
-			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelCreate);
+			const relevantLog = await getLogs({ guild: channel.guild, target: channel.id, actionType: AuditLogEvent.ChannelCreate, type: "PROTECTION" });
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;
