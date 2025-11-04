@@ -37,7 +37,7 @@ export const event: BotEvent = {
 				PermissionsBitField.Flags.ManageGuild
 			])) return;
 
-			const relevantLog = await getLogs(ban.guild, ban.user.id, AuditLogEvent.MemberBanRemove);
+			const relevantLog = await getLogs({ guild: ban.guild, target: ban.user.id, actionType: AuditLogEvent.MemberBanRemove, type: "PROTECTION" });
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;

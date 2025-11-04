@@ -622,6 +622,21 @@ cats_embed_title: "مياو :cat:"
 # /duck
 duck_embed_title: ":duck: بطبط"
 
+# /panda
+panda_embed_title: "موا 🐼"
+
+# /fox
+fox_embed_title: "وا-با-با-با-با 🦊"
+
+# /dolphin
+dolphin_embed_title: "يي-يي-كليك-كليك 🐬"
+
+# /frog
+frog_embed_title: "كرواك-كرواك 🐸"
+
+# /squirrel
+squirrel_embed_title: "تشيت-تشيت 🐿️"
+
 # /hack
 hack_embed_description: "<@${victim.id}> تم اختراقه بواسطة <@${interaction.user.id}> !"
 hack_embed_fields_ip: "IP"
@@ -1362,6 +1377,7 @@ setlogschannel_var_tickets: "سجلات التذاكر"
 setlogschannel_var_antispam: "سجلات مكافحة الرسائل المزعجة"
 setlogschannel_var_channel: "سجلات القناة"
 setlogschannel_var_confession: "سجلات الاعترافات"
+setlogschannel_all_already_exist: "جميع قنوات السجلات مكونة بالفعل!"
 
 # /join-ghostping add
 joinghostping_add_already_set: "القناة ${channel} تم إعدادها بالفعل!"

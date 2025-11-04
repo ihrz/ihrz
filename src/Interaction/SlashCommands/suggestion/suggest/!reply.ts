@@ -91,6 +91,9 @@ export const subCommand: SubCommand = {
 					.replace('${fetchId?.msgId}', fetchId?.msgId),
 				flags: [1 << 6]
 			});
+
+			msg.thread?.setLocked(true);
+
 			return;
 		}).catch(async () => {
 			await interaction.editReply({ content: lang.suggest_reply_command_error, flags: [1 << 6] });

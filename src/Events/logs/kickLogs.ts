@@ -44,7 +44,7 @@ export const event: BotEvent = {
 		const Msgchannel = member.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
-		const firstEntry = await getLogs(member.guild, member.id, AuditLogEvent.MemberKick, 2);
+		const firstEntry = await getLogs({ guild: member.guild, target: member.id, actionType: AuditLogEvent.MemberKick, type: "PROTECTION" });
 		if (!firstEntry) return;
 
 

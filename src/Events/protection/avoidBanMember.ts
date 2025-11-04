@@ -31,7 +31,7 @@ export const event: BotEvent = {
 		if (!data) return;
 
 		if (data.banmembers) {
-			const relevantLog = await getLogs(ban.guild, ban.user.id, AuditLogEvent.MemberBanAdd);
+			const relevantLog = await getLogs({ guild: ban.guild, target: ban.user.id, actionType: AuditLogEvent.MemberBanAdd, type: "PROTECTION" });
 			if (!relevantLog) return;
 
 			if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([

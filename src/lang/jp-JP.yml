@@ -622,6 +622,21 @@ cats_embed_title: "ニャー🐱"
 # /duck
 duck_embed_title: "ガーガー :duck:"
 
+# /panda
+panda_embed_title: "ムワァ 🐼"
+
+# /fox
+fox_embed_title: "ワパパパパ 🦊"
+
+# /dolphin
+dolphin_embed_title: "イーイー・クリッククリック 🐬"
+
+# /frog
+frog_embed_title: "ゲロゲロ 🐸"
+
+# /squirrel
+squirrel_embed_title: "チッチッ 🐿️"
+
 # /hack
 hack_embed_description: "<@${victim.id}> が <@${interaction.user.id}> にハックされました！"
 hack_embed_fields_ip: "IPアドレス："
@@ -1361,6 +1376,7 @@ setlogschannel_var_tickets: "チケットログ"
 setlogschannel_var_antispam: "AntiSpam ログ"
 setlogschannel_var_channel: "チャンネルログ"
 setlogschannel_var_confession: "告白ログ"
+setlogschannel_all_already_exist: "すべてのログチャンネルは既に設定されています！"
 
 # /join-ghostping add
 joinghostping_add_already_set: "チャンネル ${channel} はすでに設定されています！"

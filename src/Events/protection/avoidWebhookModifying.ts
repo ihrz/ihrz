@@ -36,7 +36,7 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.webhook) {
-			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.WebhookCreate);
+			const relevantLog = await getLogs({ guild: channel.guild, target: channel.id, actionType: AuditLogEvent.WebhookCreate, type: "PROTECTION" });
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;

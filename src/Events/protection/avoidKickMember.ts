@@ -44,7 +44,7 @@ export const event: BotEvent = {
 				PermissionsBitField.Flags.ManageGuild
 			])) return;
 
-			const relevantLog = await getLogs(member.guild, member.id, AuditLogEvent.MemberKick);
+			const relevantLog = await getLogs({ guild: member.guild, target: member.id, actionType: AuditLogEvent.MemberKick, type: 'PROTECTION' });
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;

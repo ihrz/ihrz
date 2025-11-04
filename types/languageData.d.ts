@@ -525,6 +525,11 @@ export interface LanguageData {
 	fun_var_good_sentence: string;
 	cats_embed_title: string;
 	duck_embed_title: string;
+	panda_embed_title: string;
+	fox_embed_title: string;
+	dolphin_embed_title: string;
+	frog_embed_title: string;
+	squirrel_embed_title: string;
 	hack_embed_description: string;
 	hack_embed_fields_ip: string;
 	hack_embed_fields_email: string;
@@ -1066,6 +1071,7 @@ export interface LanguageData {
 	setlogschannel_var_antispam: string;
 	setlogschannel_var_channel: string;
 	setlogschannel_var_confession: string;
+	setlogschannel_all_already_exist: string;
 	joinghostping_add_already_set: string;
 	joinghostping_add_sent_to_channel: string;
 	joinghostping_add_ok_embed_title: string;

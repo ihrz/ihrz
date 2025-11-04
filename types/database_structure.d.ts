@@ -92,13 +92,14 @@ export namespace DatabaseStructure {
 		disable?: boolean;
 	}
 
-	export interface SuggestionData {
-		[suggestCode: string]: {
-			author: string;
-			msgId: string;
-			replied?: boolean;
-		};
+	export interface Suggestion {
+		author: string;
+		msgId: string;
+		replied?: boolean;
+		threadId: string;
 	}
+
+	export type SuggestionData = Suggestion[];
 
 	export interface VoiceData {
 		staff_role?: string[];

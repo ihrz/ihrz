@@ -39,7 +39,7 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.deletechannel) {
-			const relevantLog = await getLogs(channel.guild, channel.id, AuditLogEvent.ChannelDelete);
+			const relevantLog = await getLogs({ guild: channel.guild, target: channel.id, actionType: AuditLogEvent.ChannelDelete, type: "PROTECTION" });
 			if (!relevantLog) return;
 
 

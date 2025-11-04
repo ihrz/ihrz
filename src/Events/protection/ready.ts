@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, GuildBasedChannel, CategoryChannel, ChannelType, PermissionOverwrites, GuildChannel, PermissionsBitField, AuditLogEvent, Guild } from 'discord.js';
+import { Client, GuildBasedChannel, CategoryChannel, ChannelType, PermissionOverwrites, GuildChannel, PermissionsBitField, AuditLogEvent, Guild, GuildAuditLogsEntry } from 'discord.js';
 
 export type BackupChannel = {
 	id: string;
@@ -107,32 +107,56 @@ async function backupGuildStructure(client: Client) {
 export const handledAuditLogEntries = new Set<string>();
 export const handledAuditLogEntrie_logs = new Set<string>();
 
-export async function getLogs(guild: Guild, args: string, type: AuditLogEvent, l: 1 | 2 | 3 = 1) {
+export interface GetGuildLogPayload {
+	guild: Guild;
+	target: string;
+	type: "PROTECTION" | "LOGS" | "NONE";
+	actionType: AuditLogEvent
+}
+
+const LOG_SETS = {
+	PROTECTION: handledAuditLogEntries,
+	LOGS: handledAuditLogEntrie_logs,
+	NONE: null
+} as const;
+
+const AUDIT_LOG_WINDOW_MS = 20_000;
+const AUDIT_LOG_FETCH_LIMIT = 40;
+
+export async function getLogs(
+	payload: GetGuildLogPayload,
+): Promise<GuildAuditLogsEntry | undefined> {
+	const { guild, target, type } = payload;
+
+	// Fetch recent audit logs
 	const fetchedLogs = await guild.fetchAuditLogs({
-		type,
-		limit: 40
+		type: payload.actionType,
+		limit: AUDIT_LOG_FETCH_LIMIT
 	});
 
-	const relevantLog = fetchedLogs.entries.find(entry =>
-		entry.targetId === args &&
-		entry.executorId !== client.user?.id &&
-		entry.executorId
-		// Window time for avoiding recursive:
-		&& entry.createdTimestamp > (Date.now() - 20_000)
-	);
+	// Find relevant log entry
+	const relevantLog = fetchedLogs.entries.find(entry => {
+		const isTargetMatch = entry.targetId === target;
+		const isNotBot = entry.executorId !== client.user?.id;
+		const hasExecutor = Boolean(entry.executorId);
+		const isRecent = entry.createdTimestamp > Date.now() - AUDIT_LOG_WINDOW_MS;
 
-	// Avoiding double action by filtering the user
-	if (!relevantLog
-		|| relevantLog.executor?.id === client.user?.id
-		|| (l === 1 ?
-			handledAuditLogEntries.has(relevantLog.id)
-			: l === 2 ?
-				handledAuditLogEntrie_logs.has(relevantLog.id)
-				: false)) {
+		return isTargetMatch && isNotBot && hasExecutor && isRecent;
+	});
+
+	// Return early if no log found or executor is the bot
+	if (!relevantLog || relevantLog.executor?.id === client.user?.id) {
 		return undefined;
-	};
+	}
 
-	(l === 1 ? handledAuditLogEntries : l === 2 ? handledAuditLogEntrie_logs : null)?.add(relevantLog.id);
+	// Check if already handled based on type
+	const logSet = LOG_SETS[type];
+	if (logSet?.has(relevantLog.id)) {
+		return undefined;
+	}
+
+	// Mark as handled
+	logSet?.add(relevantLog.id);
 
 	return relevantLog;
 }

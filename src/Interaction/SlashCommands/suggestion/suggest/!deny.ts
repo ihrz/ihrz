@@ -91,6 +91,7 @@ export const subCommand: SubCommand = {
 					.replace('${fetchId?.msgId}', fetchId?.msgId),
 				flags: [1 << 6]
 			});
+			msg.thread?.setLocked(true);
 
 			return;
 		}).catch(async () => {

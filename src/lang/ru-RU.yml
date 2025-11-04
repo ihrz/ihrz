@@ -622,6 +622,21 @@ cats_embed_title: "Мяу :cat:"
 # /duck
 duck_embed_title: "кря-кря :duck:"
 
+# /panda
+panda_embed_title: "Мваа 🐼"
+
+# /fox
+fox_embed_title: "ва-па-па-па-па 🦊"
+
+# /dolphin
+dolphin_embed_title: "ии-ии-клик-клик 🐬"
+
+# /frog
+frog_embed_title: "ква-ква 🐸"
+
+# /squirrel
+squirrel_embed_title: "чит-чит 🐿️"
+
 # /hack
 hack_embed_description: "<@${victim.id}> взломан <@${interaction.user.id}> !"
 hack_embed_fields_ip: "IP"
@@ -1361,6 +1376,7 @@ setlogschannel_var_tickets: "Журналы заявок"
 setlogschannel_var_antispam: "Журналы AntiSpam"
 setlogschannel_var_channel: "Журналы канала"
 setlogschannel_var_confession: "Журналы признаний"
+setlogschannel_all_already_exist: "Все каналы логов уже настроены!"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Канал ${channel} уже установлен!"

@@ -48,11 +48,41 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 	if (message.reference && message.reference.messageId) {
 		const referencedMessage = await message.channel.messages.fetch(message.reference.messageId);
 		if (referencedMessage && referencedMessage.author) {
+
+			// We need to first check if it's a subcommand
+			const potentialSubCommandName = args[0]?.toLowerCase();
 			const mainCommand = client.message_commands.get(commandName);
+
 			if (mainCommand && mainCommand.options) {
-				const userOptionIndex = mainCommand.options.findIndex(opt => opt.type === ApplicationCommandOptionType.User);
-				if (userOptionIndex !== -1 && args.length < mainCommand.options.length) {
-					args.splice(userOptionIndex, 0, referencedMessage.author.id);
+				// Check if the first arg is a subcommand
+				const subCommand = mainCommand.options.find(opt =>
+					(opt.name === potentialSubCommandName ||
+						opt.aliases?.includes(potentialSubCommandName))
+					&&
+					(opt.type === 1 || opt.type === 2) // sub or subgroup
+				);
+
+				if (subCommand) {
+					// It's a subcommand, remove its name from args
+					args.shift();
+
+					// Now look for the User option in the subcommand
+					const userOptionIndex = subCommand.options?.findIndex(opt =>
+						opt.type === ApplicationCommandOptionType.User
+					);
+
+					if (userOptionIndex !== undefined && userOptionIndex !== -1) {
+						args.splice(userOptionIndex, 0, referencedMessage.author.id);
+					}
+				} else {
+					// No subcommand, search in the main command
+					const userOptionIndex = mainCommand.options.findIndex(opt =>
+						opt.type === ApplicationCommandOptionType.User
+					);
+
+					if (userOptionIndex !== -1) {
+						args.splice(userOptionIndex, 0, referencedMessage.author.id);
+					}
 				}
 			}
 		}
