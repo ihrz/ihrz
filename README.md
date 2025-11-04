@@ -98,7 +98,7 @@ iHorizon supports **10 languages** for an optimal international experience:
 | 🇪🇬 Egyptian Arabic | `ar-EG` | 🇯🇵 Japanese   | `ja-JP` |
 | 🇬🇧 English         | `en-US` | 🇪🇸 Spanish    | `es-ES` |
 | 🇫🇷 French          | `fr-FR` | 🇷🇺 Russian    | `ru-RU` |
-| 🤬 Rude French     | `fr-VU` | 🇵🇹 Portuguese | `pt-PT` |
+| 🤬 Rude French     | `fr-ME` | 🇵🇹 Portuguese | `pt-PT` |
 | 🇮🇹 Italian         | `it-IT` | 🇩🇪 German     | `de-DE` |
 
 ---
