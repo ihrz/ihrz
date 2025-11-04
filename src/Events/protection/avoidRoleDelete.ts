@@ -36,7 +36,7 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.deleterole) {
-			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleDelete);
+			const relevantLog = await getLogs({ guild: role.guild, target: role.id, actionType: AuditLogEvent.RoleDelete, type: 'PROTECTION' });
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;

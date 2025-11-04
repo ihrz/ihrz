@@ -43,7 +43,7 @@ export const event: BotEvent = {
 		const Msgchannel = ban.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
-		const relevantLog = await getLogs(ban.guild, ban.user.id, AuditLogEvent.MemberBanRemove, 2);
+		const relevantLog = await getLogs({ guild: ban.guild, target: ban.user.id, actionType: AuditLogEvent.MemberBanRemove, type: "LOGS" });
 
 		if (!relevantLog) {
 			return;

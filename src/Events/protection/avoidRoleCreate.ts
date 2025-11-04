@@ -36,7 +36,7 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.createrole) {
-			const relevantLog = await getLogs(role.guild, role.id, AuditLogEvent.RoleCreate);
+			const relevantLog = await getLogs({ guild: role.guild, target: role.id, actionType: AuditLogEvent.RoleCreate, type: "PROTECTION" });
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;

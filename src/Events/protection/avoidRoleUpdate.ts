@@ -36,7 +36,7 @@ export const event: BotEvent = {
 		])) return;
 
 		if (data.updaterole) {
-			const relevantLog = await getLogs(newRole.guild, oldRole.id, AuditLogEvent.RoleUpdate);
+			const relevantLog = await getLogs({ guild: newRole.guild, target: oldRole.id, actionType: AuditLogEvent.RoleUpdate, type: "PROTECTION" });
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;

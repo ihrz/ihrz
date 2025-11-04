@@ -36,7 +36,7 @@ export const event: BotEvent = {
 			PermissionsBitField.Flags.Administrator
 		])) return;
 
-		const filteredLog = await getLogs(member.guild, member.id, AuditLogEvent.BotAdd, 2);
+		const filteredLog = await getLogs({ guild: member.guild, target: member.id, type: 'NONE', actionType: AuditLogEvent.BotAdd });
 
 		if (data === true && filteredLog?.executorId !== member.guild.ownerId) {
 			await member.ban({ reason: 'The BlockBot function is enabled!' });

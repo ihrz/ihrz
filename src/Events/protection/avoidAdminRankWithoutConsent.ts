@@ -33,7 +33,7 @@ export const event: BotEvent = {
 
 
 		if (data.add_admin_roles) {
-			const relevantLog = await getLogs(oldMember.guild, oldMember.id, AuditLogEvent.MemberRoleUpdate)
+			const relevantLog = await getLogs({ guild: oldMember.guild, target: oldMember.id, actionType: AuditLogEvent.MemberRoleUpdate, type: "PROTECTION" })
 			if (!relevantLog) return;
 
 			// Only check if the event have gave a role; Not a sub;

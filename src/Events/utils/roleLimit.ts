@@ -33,7 +33,7 @@ export const event: BotEvent = {
 	run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
 		try {
 			// Get the latest audit log entry for this member role update
-			const relevantLog = await getLogs(newMember.guild, newMember.id, AuditLogEvent.MemberRoleUpdate, 3);
+			const relevantLog = await getLogs({ guild: newMember.guild, target: newMember.id, actionType: AuditLogEvent.MemberRoleUpdate, type: "NONE" });
 
 			// If no relevant audit log was found, exit
 			if (!relevantLog) {

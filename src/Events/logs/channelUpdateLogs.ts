@@ -102,7 +102,7 @@ export const event: BotEvent = {
 			PermissionFlagsBits.Administrator
 		])) return;
 
-		const relevantLog = await getLogs(newChannel.guild, newChannel.id, AuditLogEvent.ChannelUpdate, 2)
+		const relevantLog = await getLogs({ guild: newChannel.guild, target: newChannel.id, actionType: AuditLogEvent.ChannelUpdate, type: 'LOGS' })
 
 		if (oldChannel.position !== newChannel.position) return;
 
