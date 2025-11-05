@@ -49,7 +49,7 @@ export const command: Command = {
 				"fr": "le screen qui te fait dire que ça va mal",
 			},
 			type: ApplicationCommandOptionType.String,
-			required: false,
+			required: true,
 
 			permission: null
 		},
