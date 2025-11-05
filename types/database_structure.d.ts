@@ -555,6 +555,7 @@ export namespace DatabaseStructure {
 			user?: string;
 			antispam?: string;
 			channel?: string;
+			confession?: string;
 		};
 		SUPPORT?: {
 			input?: string | null;
