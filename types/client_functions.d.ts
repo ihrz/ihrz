@@ -292,6 +292,9 @@ declare namespace Client_Functions {
 	// From getIp.ts
 	export function getIp(useIPv6?: boolean): Promise<string>;
 
+	// From getMessageURL.ts
+	export function getMessageURL(guildId: string, channelId: string, messageId: string): string;
+
 	// From helper.ts
 	export namespace helper {
 		export function coolDown(message: Message<boolean>, method: string, ms: number): Promise<boolean>;

@@ -80,6 +80,8 @@ var_guild_splash: "Tela inicial do servidor"
 var_unknown_guild_name: "Nome de servidor desconhecido"
 var_preview: "Pré-visualização"
 var_form: "Formulário"
+var_original_message: "Mensagem original"
+var_click_here: "Clique aqui"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Criar Convite Instantâneo"
@@ -587,6 +589,8 @@ help_authrestore_fields: "AuthRestore"
 help_authrestore_dsc: "> *Verificação do servidor com oAuth2. Se o seu servidor foi invadido ou excluído, você pode recuperar seus antigos membros com oAuth2!*"
 help_tags_fields: "Tags personalizadas"
 help_tags_dsc: "> *Crie mensagens de tags para o seu servidor e use-as no seu servidor!*"
+help_starboard_dsc: "> *Vê as mensagens mais estreladas de um servidor Discord.*"
+help_starboard_fields: "StarBoard"
 
 # /h
 h_suite: "(Continuação)"
@@ -2330,6 +2334,35 @@ voice_activity: "Atividade de voz"
 top_voice: "Principais canais de voz"
 top_message: "Principais canais de mensagens"
 activity_under_30d: "Atividade nos últimos 30 dias"
+
+# Starboard Module
+# lazy
+
+# /starboard channel
+starboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **O canal do Starboard foi definido como: ${channel.toString()}**. Agora, quando os membros do servidor reagirem com '⭐' e o limite de **`${baseData.threshold}`** for ultrapassado, a mensagem será enviada para ${channel.toString()}!"
+
+# /starboard config
+starboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **O módulo Starboard está agora ${action}**"
+
+# /starboard threshold
+starboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Quando os membros do servidor reagirem com '⭐' e o limite de **`${amount}`** for ultrapassado, a mensagem será enviada para o canal especificado!"
+
+# /starboard create-thread
+starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Quando os membros do servidor reagirem com '⭐' e o limite de **`${amount}`** for ultrapassado, a mensagem será enviada para o canal especificado **`${action}`**"
+starboard_create_thread_yes: "e será criado um tópico de discussão"
+starboard_create_thread_no: "e não será criado nenhum tópico de discussão"
+
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **O canal Skullboard agora está definido como: ${channel.toString()}**. Agora, quando os membros do servidor reagirem com '💀' às mensagens e o limite de **`${baseData.threshold}`** for ultrapassado, a mensagem será enviada para ${channel.toString()}!"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **O módulo Skullboard agora está ${action}**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Agora, quando os membros do servidor reagirem com '💀' às mensagens e o limite de **`${amount}`** for ultrapassado, a mensagem será enviada para o canal especificado!"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Agora, quando os membros do servidor reagirem com '💀' às mensagens e o limite de **`${amount}`** for ultrapassado, a mensagem será enviada para o canal específico **`${action}`**"
 
 # Módulo de Notificação
 # autor da notificação, configuração da notificação

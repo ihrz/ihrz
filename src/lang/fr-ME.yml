@@ -80,6 +80,8 @@ var_guild_splash: "Écran d’accueil du serveur"
 var_unknown_guild_name: "Nom de serveur inconnu"
 var_preview: "Aperçue"
 var_form: "Formulaire"
+var_original_message: "Message original"
+var_click_here: "Cliquez ici"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Faire une inv"
@@ -587,6 +589,8 @@ help_authrestore_fields: "AuthRestore"
 help_authrestore_dsc: "> *Vérification du serveur avec oAuth2. En cas de raid ou de suppression de votre serveur, vous pouvez récupérer vos anciens membres avec oAuth2!*"
 help_tags_fields: "Tags personnalisés"
 help_tags_dsc: "> *Créez des messages de tags pour votre serveur et utilisez-les dans votre serveur !*"
+help_starboard_dsc: "> *Voir les messages les plus étoilés d’un serveur Discord.*"
+help_starboard_fields: "StarBoard"
 
 # /h
 h_suite: "(Suite)"
@@ -2333,6 +2337,35 @@ minutes_word: "Minutes"
 top_voice: "Principaux canaux vocaux"
 top_message: "Principaux canaux de messages"
 activity_under_30d: "Activité sur 30 jours"
+
+# Starboard Module
+# lazy
+
+# /starboard channel
+starboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Le salon Starboard est maintenant défini sur : ${channel.toString()}**. Désormais, lorsque les membres du serveur réagiront avec '⭐' et que le seuil de **`${baseData.threshold}`** sera atteint, le message sera envoyé dans ${channel.toString()} !"
+
+# /starboard config
+starboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Le module Starboard est maintenant ${action}**"
+
+# /starboard threshold
+starboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Désormais, lorsque les membres du serveur réagiront avec '⭐' et que le seuil de **`${amount}`** sera atteint, le message sera envoyé dans le salon spécifié !"
+
+# /starboard create-thread
+starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Désormais, lorsque les membres du serveur réagiront avec '⭐' et que le seuil de **`${amount}`** sera atteint, le message sera envoyé dans le salon spécifié **`${action}`**"
+starboard_create_thread_yes: "et un fil de discussion sera créé"
+starboard_create_thread_no: "et aucun fil de discussion ne sera créé"
+
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Le canal Skullboard est maintenant défini sur : ${channel.toString()}**. Maintenant, lorsque les membres du serveur réagissent avec '💀' aux messages et que le seuil de **`${baseData.threshold}`** est dépassé, le message est envoyé à ${channel.toString()} !"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Le module Skullboard est maintenant ${action}**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Maintenant, lorsque les membres du serveur réagissent avec '💀' aux messages et que le seuil de **`${amount}`** est dépassé, le message est envoyé dans le canal spécifié !"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Maintenant, lorsque les membres du serveur réagissent avec '💀' aux messages et que le seuil de **`${amount}`** est dépassé, le message est envoyé dans le canal spécifié **`${action}`**"
 
 # Module de Notification
 # auteur de la notification, configuration de la notification

@@ -80,6 +80,8 @@ var_guild_splash: "Guild Splash"
 var_unknown_guild_name: "Unknown Guild Name"
 var_preview: "Preview"
 var_form: "Form"
+var_original_message: "Original Message"
+var_click_here: "Click here"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Create Instant Invite"
@@ -587,6 +589,8 @@ help_authrestore_fields: "AuthRestore"
 help_authrestore_dsc: "> *Made server verification with OAuth2. When you server got raided/termed, you can recover your old members !*"
 help_tags_fields: "Custom Tags"
 help_tags_dsc: "> *Create tag messages for your server, and use them in your server!*"
+help_starboard_dsc: "> *See the most stared messages into a discord server.*"
+help_starboard_fields: "StarBoard"
 
 # /h
 h_suite: "(Continued)"
@@ -2332,6 +2336,35 @@ minutes_word: "Minutes"
 top_voice: "Top Voice Channels"
 top_message: "Top Message Channels"
 activity_under_30d: "Activity under 30 days"
+
+# Starboard Module
+# lazy
+
+# /starboard channel
+starboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Starboard channel is now defined to be: ${channel.toString()}**. Now, when server members react '⭐' to messages and the threshold of **`${baseData.threshold}`** is outweigh the message is send to the ${channel.toString()} !"
+
+# /starboard config
+starboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Starboard module is now ${action}**"
+
+# /starboard threshold
+starboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Now, when server members react '⭐' to messages and the threshold of **`${amount}`** is outweigh the message is send to the specific channel!"
+
+# /starboard create-thread
+starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Now, when server members react '⭐' to messages and the threshold of **`${amount}`** is outweigh the message is send to the specific channel **`${action}`**"
+starboard_create_thread_yes: "and a discussion thread will be created"
+starboard_create_thread_no: "and a discussion thread will not be created"
+
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Skullboard channel is now defined to be: ${channel.toString()}**. Now, when server members react '💀' to messages and the threshold of **`${baseData.threshold}`** is outweigh, the message is sent to ${channel.toString()}!"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Skullboard module is now ${action}**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Now, when server members react '💀' to messages and the threshold of **`${amount}`** is outweigh, the message is sent to the specific channel!"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Now, when server members react '💀' to messages and the threshold of **`${amount}`** is outweigh, the message is sent to the specific channel **`${action}`**"
 
 # Notifier Module
 # notifier author, notifier config

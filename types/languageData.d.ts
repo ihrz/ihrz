@@ -98,6 +98,8 @@ export interface LanguageData {
 	var_unknown_guild_name: string;
 	var_preview: string;
 	var_form: string;
+	var_original_message: string;
+	var_click_here: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;
@@ -508,6 +510,8 @@ export interface LanguageData {
 	help_authrestore_dsc: string;
 	help_tags_fields: string;
 	help_tags_dsc: string;
+	help_starboard_dsc: string;
+	help_starboard_fields: string;
 	h_suite: string;
 	h_suite_desc: string;
 	say_footer_msg: string;
@@ -1759,6 +1763,16 @@ export interface LanguageData {
 	top_voice: string;
 	top_message: string;
 	activity_under_30d: string;
+	starboard_channel_command_ok: string;
+	starboard_config_command_ok: string;
+	starboard_threshold_command_ok: string;
+	starboard_create_thread_command_ok: string;
+	starboard_create_thread_yes: string;
+	starboard_create_thread_no: string;
+	skullboard_channel_command_ok: string;
+	skullboard_config_command_ok: string;
+	skullboard_threshold_command_ok: string;
+	skullboard_create_thread_command_ok: string;
 	notifier_author_add_author_doesnt_exist: string;
 	notifier_config_channel_logsEmbed_title: string;
 	notifier_config_channel_logsEmbed_desc: string;
