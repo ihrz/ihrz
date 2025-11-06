@@ -40,6 +40,10 @@ export const event: BotEvent = {
 			if (!reaction.message.guild || user.bot) return;
 			if (reaction.emoji.name !== "⭐") return;
 
+
+			// Avoid to handle bot's message
+			if (reaction.message.author?.bot) return;
+
 			const guildId = reaction.message.guild.id;
 			const baseData: DatabaseStructure.StarboardConfigSchema = await client.db.get(`${guildId}.GUILD.STARBOARD`);
 
