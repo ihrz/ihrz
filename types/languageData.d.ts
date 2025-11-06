@@ -508,6 +508,8 @@ export interface LanguageData {
 	help_authrestore_dsc: string;
 	help_tags_fields: string;
 	help_tags_dsc: string;
+	help_starboard_dsc: string;
+	help_starboard_fields: string;
 	h_suite: string;
 	h_suite_desc: string;
 	say_footer_msg: string;
@@ -1759,6 +1761,12 @@ export interface LanguageData {
 	top_voice: string;
 	top_message: string;
 	activity_under_30d: string;
+	starboard_channel_command_ok: string;
+	starboard_config_command_ok: string;
+	starboard_threshold_command_ok: string;
+	starboard_create_thread_command_ok: string;
+	starboard_create_thread_yes: string;
+	starboard_create_thread_no: string;
 	notifier_author_add_author_doesnt_exist: string;
 	notifier_config_channel_logsEmbed_title: string;
 	notifier_config_channel_logsEmbed_desc: string;

@@ -579,6 +579,7 @@ export namespace DatabaseStructure {
 		ROLE_SELECT?: RoleReactData;
 		BACKUP: BackupConfig;
 		STARBOARD: StarboardConfigSchema;
+		STARBOARD_DATA: StarboardDataSchema;
 	}
 
 	export interface DbTicketConfigurationObject {
@@ -595,7 +596,6 @@ export namespace DatabaseStructure {
 		threshold: number,
 		createThread: boolean,
 		channel: string;
-		datas: StarboardDataSchema
 	}
 
 	export type StarboardDataSchema = Array<StarboardData>

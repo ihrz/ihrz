@@ -587,6 +587,8 @@ help_authrestore_fields: "AuthRestore"
 help_authrestore_dsc: "> *Verificación del servidor con OAuth2. Si tu servidor ha sido atacado o eliminado, ¡puedes recuperar a tus antiguos miembros con OAuth2!*"
 help_tags_fields: "Etiquetas personalizadas"
 help_tags_dsc: "> *Crea mensajes de etiquetas para tu servidor y úsalos en tu servidor.*"
+help_starboard_dsc: "> *Mira los mensajes más destacados de un servidor de Discord.*"
+help_starboard_fields: "StarBoard"
 
 # /h
 h_suite: "(Continuación)"
@@ -2330,6 +2332,23 @@ minutes_word: "Minutos"
 top_voice: "Principales canales de voz"
 top_message: "Principales canales de mensajes"
 activity_under_30d: "Actividad en 30 días"
+
+# Starboard Module
+# lazy
+
+# /starboard channel
+starboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **El canal de Starboard ahora está definido como: ${channel.toString()}**. Cuando los miembros del servidor reaccionen con '⭐' y el umbral de **`${baseData.threshold}`** sea superado, el mensaje se enviará a ${channel.toString()}!"
+
+# /starboard config
+starboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **El módulo Starboard ahora está ${action}**"
+
+# /starboard threshold
+starboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Cuando los miembros del servidor reaccionen con '⭐' y se supere el umbral de **`${amount}`**, el mensaje se enviará al canal especificado!"
+
+# /starboard create-thread
+starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Cuando los miembros del servidor reaccionen con '⭐' y se supere el umbral de **`${amount}`**, el mensaje se enviará al canal especificado **`${action}`**"
+starboard_create_thread_yes: "y se creará un hilo de discusión"
+starboard_create_thread_no: "y no se creará un hilo de discusión"
 
 # Módulo de Notificaciones
 # autor de la notificación, configuración de la notificación

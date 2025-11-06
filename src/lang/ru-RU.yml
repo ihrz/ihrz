@@ -587,6 +587,8 @@ help_authrestore_fields: "AuthRestore"
 help_authrestore_dsc: "> *Проверка сервера с помощью oAuth2. Если ваш сервер был атакован или удален, вы можете восстановить своих старых участников с помощью oAuth2!*"
 help_tags_fields: "Пользовательские теги"
 help_tags_dsc: "> *Создайте сообщения с тегами для вашего сервера и используйте их на своем сервере!*"
+help_starboard_dsc: "> *Посмотреть самые отмеченные звёздами сообщения на сервере Discord.*"
+help_starboard_fields: "StarBoard"
 
 # /h
 h_suite: "(Продолжение)"
@@ -2330,6 +2332,23 @@ top_voice: "Лучшие голосовые каналы"
 top_message: "Лучшие каналы сообщений"
 activity_under_30d: "Активность за 30 дней"
 voice_activity: "Активность в голосовых каналах"
+
+# Starboard Module
+# lazy
+
+# /starboard channel
+starboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Канал Starboard теперь установлен как: ${channel.toString()}**. Когда участники сервера реагируют на сообщение '⭐' и порог **`${baseData.threshold}`** превышен, сообщение будет отправлено в ${channel.toString()}!"
+
+# /starboard config
+starboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Модуль Starboard теперь ${action}**"
+
+# /starboard threshold
+starboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Когда участники сервера реагируют на сообщение '⭐' и порог **`${amount}`** превышен, сообщение будет отправлено в указанный канал!"
+
+# /starboard create-thread
+starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Когда участники сервера реагируют на сообщение '⭐' и порог **`${amount}`** превышен, сообщение будет отправлено в указанный канал **`${action}`**"
+starboard_create_thread_yes: "и будет создана тема для обсуждения"
+starboard_create_thread_no: "и тема для обсуждения не будет создана"
 
 # Модуль уведомлений
 # автор уведомлений, настройка уведомлений

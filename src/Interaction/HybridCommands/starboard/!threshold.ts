@@ -20,6 +20,7 @@
 */
 
 import {
+	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
 	Message,
@@ -27,6 +28,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -34,5 +36,34 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var amount = interaction.options.getNumber("amount", true);
+		} else {
+			var amount = client.func.method.number(args!, 0)!;
+		};
+
+		let baseData: DatabaseStructure.StarboardConfigSchema = await client.db.get(`${interaction.guildId}.GUILD.STARBOARD`) || {
+			channel: null,
+			createThread: false,
+			enabled: false,
+			threshold: 2
+		};
+
+		if (amount > 10) {
+			baseData.threshold = 10;
+			amount = 10;
+		} else if (amount < 2) {
+			baseData.threshold = 2;
+			amount = 2;
+		}
+
+		await client.db.set(`${interaction.guildId}.GUILD.STARBOARD`, baseData);
+
+
+		client.func.method.interactionSend(interaction, {
+			content: lang.starboard_threshold_command_ok
+				.replaceAll("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
+				.replaceAll("${amount}", amount.toString())
+		})
 	},
 };

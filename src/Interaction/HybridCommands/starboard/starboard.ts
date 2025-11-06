@@ -165,7 +165,7 @@ export const command: Command = {
 
 					choices: [
 						{ name: "Create thread", value: "yes" },
-						{ name: "Don't creare thread", value: "no" }
+						{ name: "Don't create thread", value: "no" }
 					],
 
 					type: ApplicationCommandOptionType.String,
@@ -179,11 +179,5 @@ export const command: Command = {
 		}
 	],
 
-	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-	},
+	type: ApplicationCommandType.ChatInput
 };

@@ -587,6 +587,8 @@ help_authrestore_fields: "AuthRestore"
 help_authrestore_dsc: "> *Verifizierung des Servers mit oAuth2. Wenn Ihr Server angegriffen oder gelöscht wurde, können Sie Ihre alten Mitglieder über oAuth2 zurückholen!*"
 help_tags_fields: "Benutzerdefinierte Tags"
 help_tags_dsc: "> *Erstellen Sie Nachrichten-Tags für Ihren Server und verwenden Sie sie auf Ihrem Server!*"
+help_starboard_dsc: "> *Sieh dir die meistbewerteten Nachrichten auf einem Discord-Server an.*"
+help_starboard_fields: "StarBoard"
 
 # /h
 h_suite: "(Fortsetzung)"
@@ -2330,6 +2332,23 @@ voice_activity: "Sprachaktivität"
 top_voice: "Top-Sprachkanäle"
 top_message: "Top-Nachrichtenkanäle"
 activity_under_30d: "Aktivität der letzten 30 Tage"
+
+# Starboard Module
+# lazy
+
+# /starboard channel
+starboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Der Starboard-Kanal wurde auf ${channel.toString()} festgelegt.** Wenn Servermitglieder mit '⭐' auf Nachrichten reagieren und der Schwellenwert von **`${baseData.threshold}`** überschritten wird, wird die Nachricht an ${channel.toString()} gesendet!"
+
+# /starboard config
+starboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Das Starboard-Modul wurde jetzt ${action}**"
+
+# /starboard threshold
+starboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Wenn Servermitglieder mit '⭐' reagieren und der Schwellenwert von **`${amount}`** überschritten wird, wird die Nachricht an den angegebenen Kanal gesendet!"
+
+# /starboard create-thread
+starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Wenn Servermitglieder mit '⭐' reagieren und der Schwellenwert von **`${amount}`** überschritten wird, wird die Nachricht an den angegebenen Kanal gesendet **`${action}`**"
+starboard_create_thread_yes: "und ein Diskussionsthread wird erstellt"
+starboard_create_thread_no: "und es wird kein Diskussionsthread erstellt"
 
 # Benachrichtigungsmodul
 # Benachrichtigungsautor, Benachrichtigungskonfiguration

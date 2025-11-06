@@ -2335,6 +2335,23 @@ top_voice: "Top Voice Channels"
 top_message: "Top Message Channels"
 activity_under_30d: "Activity under 30 days"
 
+# Starboard Module
+# lazy
+
+# /starboard channel
+starboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Starboard channel is now defined to be: ${channel.toString()}**. Now, when server members react '⭐' to messages and the threshold of **`${baseData.threshold}`** is outweigh the message is send to the ${channel.toString()} !"
+
+# /starboard config
+starboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Starboard module is now ${action}**"
+
+# /starboard threshold
+starboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Now, when server members react '⭐' to messages and the threshold of **`${amount}`** is outweigh the message is send to the specific channel!"
+
+# /starboard create-thread
+starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Now, when server members react '⭐' to messages and the threshold of **`${amount}`** is outweigh the message is send to the specific channel **`${action}`**"
+starboard_create_thread_yes: "and a discussion thread will be created"
+starboard_create_thread_no: "and a discussion thread will not be created"
+
 # Notifier Module
 # notifier author, notifier config
 
