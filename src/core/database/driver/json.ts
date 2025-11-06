@@ -104,7 +104,7 @@ export class Json<D = any> {
 
 	private async snapshot(): Promise<void> {
 		const data = await this.export();
-		Bun.write(this.path, JSON.stringify(data));
+		Bun.write(this.path, JSON.stringify(data, null, 4));
 	}
 
 	private getOrCreateTable(name: string): Table {
