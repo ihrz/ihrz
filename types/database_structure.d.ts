@@ -555,6 +555,7 @@ export namespace DatabaseStructure {
 			user?: string;
 			antispam?: string;
 			channel?: string;
+			confession?: string;
 		};
 		SUPPORT?: {
 			input?: string | null;
@@ -577,6 +578,10 @@ export namespace DatabaseStructure {
 		RESTORECORD?: AuthRestoreSchema;
 		ROLE_SELECT?: RoleReactData;
 		BACKUP: BackupConfig;
+		STARBOARD: StarboardConfigSchema;
+		STARBOARD_DATA: StarboardDataSchema;
+		SKULLBOARD: SkullboardConfigSchema;
+		SKULLBOARD_DATA: StarboardDataSchema;
 	}
 
 	export interface DbTicketConfigurationObject {
@@ -586,5 +591,28 @@ export namespace DatabaseStructure {
 		panelName: string;
 		channel: string;
 		messageID: string;
+	}
+
+	export interface StarboardConfigSchema {
+		enabled: 'yes' | 'no',
+		threshold: number,
+		createThread: boolean,
+		channel: string;
+	}
+
+	export interface SkullboardConfigSchema {
+		enabled: 'yes' | 'no',
+		threshold: number,
+		createThread: boolean,
+		channel: string;
+	}
+
+	export type StarboardDataSchema = Array<StarboardData>
+
+	export interface StarboardData {
+		channelId: string;
+		messageId: string;
+		number: string;
+		author: string;
 	}
 }

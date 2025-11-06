@@ -80,6 +80,8 @@ var_guild_splash: "صورة البداية للخادم"
 var_unknown_guild_name: "اسم خادم غير معروف"
 var_preview: "معاينة"
 var_form: "نموذج"
+var_original_message: "الرسالة الأصلية"
+var_click_here: "انقر هنا"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "إنشاء دعوة فورية"
@@ -587,6 +589,8 @@ help_authrestore_fields: "استعادة كورد"
 help_authrestore_dsc: "> *التحقق من الخادم باستخدام oAuth2. عندما يتعرض خادمك لهجوم أو يُلغى، يمكنك استعادة الأعضاء القدامى باستخدام oAuth2!*"
 help_tags_fields: "العلامات المخصصة"
 help_tags_dsc: "> *قم بإنشاء رسائل علامات لخادمك واستخدمها في خادمك!*"
+help_starboard_dsc: "> *عرض أكثر الرسائل حصولاً على نجوم في خادم الديسكورد.*"
+help_starboard_fields: "لوحة النجوم"
 
 # /h
 h_suite: "(تتمة)"
@@ -2330,6 +2334,35 @@ minutes_word: "دقائق"
 top_voice: "أفضل قنوات الصوت"
 top_message: "أفضل قنوات الرسائل"
 activity_under_30d: "النشاط خلال 30 يومًا"
+
+# Starboard Module
+# lazy
+
+# /starboard channel
+starboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **تم تعيين قناة Starboard الآن إلى: ${channel.toString()}**. الآن، عندما يتفاعل أعضاء الخادم برمز '⭐' وتجاوز عدد التفاعلات **`${baseData.threshold}`**، سيتم إرسال الرسالة إلى ${channel.toString()}!"
+
+# /starboard config
+starboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **تم الآن ${action} وحدة Starboard**"
+
+# /starboard threshold
+starboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | الآن، عندما يتفاعل أعضاء الخادم برمز '⭐' وتتجاوز التفاعلات الحد **`${amount}`**، سيتم إرسال الرسالة إلى القناة المحددة!"
+
+# /starboard create-thread
+starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | الآن، عندما يتفاعل أعضاء الخادم برمز '⭐' وتتجاوز التفاعلات الحد **`${amount}`**، سيتم إرسال الرسالة إلى القناة المحددة **`${action}`**"
+starboard_create_thread_yes: "وسيتم إنشاء موضوع مناقشة"
+starboard_create_thread_no: "ولن يتم إنشاء موضوع مناقشة"
+
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **تم تحديد قناة Skullboard لتكون: ${channel.toString()}**. الآن، عندما يقوم أعضاء السيرفر بالرد على الرسائل بـ '💀' ويتجاوز الحد **`${baseData.threshold}`**، يتم إرسال الرسالة إلى ${channel.toString()}!"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **تم الآن ${action} وحدة Skullboard**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | الآن، عندما يقوم أعضاء السيرفر بالرد على الرسائل بـ '💀' ويتجاوز الحد **`${amount}`**، يتم إرسال الرسالة إلى القناة المحددة!"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | الآن، عندما يقوم أعضاء السيرفر بالرد على الرسائل بـ '💀' ويتجاوز الحد **`${amount}`**، يتم إرسال الرسالة إلى القناة المحددة **`${action}`**"
 
 # وحدة التنبيه
 # مؤلف المنبه, إعدادات المنبه

@@ -80,6 +80,8 @@ var_guild_splash: "サーバースプラッシュ"
 var_unknown_guild_name: "不明なサーバー名"
 var_preview: "プレビュー"
 var_form: "フォーム"
+var_original_message: "元のメッセージ"
+var_click_here: "ここをクリック"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
@@ -587,6 +589,8 @@ help_authrestore_fields: "AuthRestore"
 help_authrestore_dsc: "> *oAuth2を使用したサーバー検証。サーバーが攻撃されたり削除された場合でも、oAuth2を使用して古いメンバーを復元できます！*"
 help_tags_fields: "カスタムタグ"
 help_tags_dsc: "> *サーバー用のタグメッセージを作成し、それをサーバー内で使用しましょう！*"
+help_starboard_dsc: "> *Discordサーバーで最もスターを獲得したメッセージを表示します。*"
+help_starboard_fields: "スター掲示板"
 
 # /h
 h_suite: "(続き)"
@@ -2330,6 +2334,35 @@ minutes_word: "分"
 top_voice: "トップ音声チャンネル"
 top_message: "トップメッセージチャンネル"
 activity_under_30d: "30日間のアクティビティ"
+
+# Starboard Module
+# lazy
+
+# /starboard channel
+starboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Starboardチャンネルが${channel.toString()}に設定されました。** サーバーメンバーがメッセージに'⭐'でリアクションし、しきい値 **`${baseData.threshold}`** を超えると、そのメッセージは${channel.toString()}に送信されます！"
+
+# /starboard config
+starboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Starboardモジュールは現在${action}されています**"
+
+# /starboard threshold
+starboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | サーバーメンバーが'⭐'でリアクションし、しきい値 **`${amount}`** を超えると、メッセージは指定されたチャンネルに送信されます！"
+
+# /starboard create-thread
+starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | サーバーメンバーが'⭐'でリアクションし、しきい値 **`${amount}`** を超えると、メッセージは指定されたチャンネルに送信されます **`${action}`**"
+starboard_create_thread_yes: "ディスカッションスレッドが作成されます"
+starboard_create_thread_no: "ディスカッションスレッドは作成されません"
+
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Skullboard チャンネルは ${channel.toString()} に設定されました**。サーバーメンバーがメッセージに '💀' リアクションをし、**`${baseData.threshold}`** の閾値を超えた場合、そのメッセージは ${channel.toString()} に送信されます！"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Skullboard モジュールは ${action} になりました**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | サーバーメンバーがメッセージに '💀' リアクションをし、**`${amount}`** の閾値を超えた場合、そのメッセージは指定されたチャンネルに送信されます！"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | サーバーメンバーがメッセージに '💀' リアクションをし、**`${amount}`** の閾値を超えた場合、そのメッセージは指定されたチャンネル **`${action}`** に送信されます"
 
 # 通知モジュール
 # 通知の作成者, 通知の設定
