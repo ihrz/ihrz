@@ -25,7 +25,7 @@ import { BotEvent } from '../../../types/event.js';
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		if (!message.guild || !message.channel) return;
+		if (!message.guild || !message.channel || message.author.bot) return;
 
 		const reactionData = await client.db.get(`${message.guildId}.GUILD.AUTOREACT.${message.channelId}`);
 		if (!reactionData) return;
