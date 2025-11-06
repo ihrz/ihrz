@@ -2029,4 +2029,8 @@ export interface LanguageData {
 	confession_embed_logs_title: string;
 	confession_channel_button_name: string;
 	confession_1_embed_log_title: string;
+	skullboard_channel_command_ok: string;
+	skullboard_config_command_ok: string;
+	skullboard_threshold_command_ok: string;
+	skullboard_create_thread_command_ok: string;
 }

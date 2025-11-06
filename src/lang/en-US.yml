@@ -2354,6 +2354,18 @@ starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Now, when s
 starboard_create_thread_yes: "and a discussion thread will be created"
 starboard_create_thread_no: "and a discussion thread will not be created"
 
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Skullboard channel is now defined to be: ${channel.toString()}**. Now, when server members react '💀' to messages and the threshold of **`${baseData.threshold}`** is outweigh, the message is sent to ${channel.toString()}!"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Skullboard module is now ${action}**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Now, when server members react '💀' to messages and the threshold of **`${amount}`** is outweigh, the message is sent to the specific channel!"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Now, when server members react '💀' to messages and the threshold of **`${amount}`** is outweigh, the message is sent to the specific channel **`${action}`**"
+
 # Notifier Module
 # notifier author, notifier config
 

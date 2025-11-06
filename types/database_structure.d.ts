@@ -580,6 +580,8 @@ export namespace DatabaseStructure {
 		BACKUP: BackupConfig;
 		STARBOARD: StarboardConfigSchema;
 		STARBOARD_DATA: StarboardDataSchema;
+		SKULLBOARD: SkullboardConfigSchema;
+		SKULLBOARD_DATA: StarboardDataSchema;
 	}
 
 	export interface DbTicketConfigurationObject {
@@ -592,6 +594,13 @@ export namespace DatabaseStructure {
 	}
 
 	export interface StarboardConfigSchema {
+		enabled: 'yes' | 'no',
+		threshold: number,
+		createThread: boolean,
+		channel: string;
+	}
+
+	export interface SkullboardConfigSchema {
 		enabled: 'yes' | 'no',
 		threshold: number,
 		createThread: boolean,
