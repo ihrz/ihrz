@@ -49,7 +49,7 @@ export const command: Command = {
 				"fr": "le screen avant qu'il ce fasse défon",
 			},
 			type: ApplicationCommandOptionType.String,
-			required: true,
+			required: false,
 
 			permission: null
 		},
@@ -60,7 +60,7 @@ export const command: Command = {
 				"fr": "le screen après qu'il ce soit défoncé",
 			},
 			type: ApplicationCommandOptionType.String,
-			required: true,
+			required: false,
 
 			permission: null
 		},
