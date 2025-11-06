@@ -2352,6 +2352,18 @@ starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | الآن، 
 starboard_create_thread_yes: "وسيتم إنشاء موضوع مناقشة"
 starboard_create_thread_no: "ولن يتم إنشاء موضوع مناقشة"
 
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **تم تحديد قناة Skullboard لتكون: ${channel.toString()}**. الآن، عندما يقوم أعضاء السيرفر بالرد على الرسائل بـ '💀' ويتجاوز الحد **`${baseData.threshold}`**، يتم إرسال الرسالة إلى ${channel.toString()}!"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **تم الآن ${action} وحدة Skullboard**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | الآن، عندما يقوم أعضاء السيرفر بالرد على الرسائل بـ '💀' ويتجاوز الحد **`${amount}`**، يتم إرسال الرسالة إلى القناة المحددة!"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | الآن، عندما يقوم أعضاء السيرفر بالرد على الرسائل بـ '💀' ويتجاوز الحد **`${amount}`**، يتم إرسال الرسالة إلى القناة المحددة **`${action}`**"
+
 # وحدة التنبيه
 # مؤلف المنبه, إعدادات المنبه
 

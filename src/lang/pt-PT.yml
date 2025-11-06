@@ -2352,6 +2352,18 @@ starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Quando os m
 starboard_create_thread_yes: "e será criado um tópico de discussão"
 starboard_create_thread_no: "e não será criado nenhum tópico de discussão"
 
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **O canal Skullboard agora está definido como: ${channel.toString()}**. Agora, quando os membros do servidor reagirem com '💀' às mensagens e o limite de **`${baseData.threshold}`** for ultrapassado, a mensagem será enviada para ${channel.toString()}!"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **O módulo Skullboard agora está ${action}**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Agora, quando os membros do servidor reagirem com '💀' às mensagens e o limite de **`${amount}`** for ultrapassado, a mensagem será enviada para o canal especificado!"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Agora, quando os membros do servidor reagirem com '💀' às mensagens e o limite de **`${amount}`** for ultrapassado, a mensagem será enviada para o canal específico **`${action}`**"
+
 # Módulo de Notificação
 # autor da notificação, configuração da notificação
 

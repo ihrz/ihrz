@@ -2352,6 +2352,18 @@ starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Désormais,
 starboard_create_thread_yes: "et un fil de discussion sera créé"
 starboard_create_thread_no: "et aucun fil de discussion ne sera créé"
 
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Le canal Skullboard est maintenant défini sur : ${channel.toString()}**. Maintenant, lorsque les membres du serveur réagissent avec '💀' aux messages et que le seuil de **`${baseData.threshold}`** est dépassé, le message est envoyé à ${channel.toString()} !"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Le module Skullboard est maintenant ${action}**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Maintenant, lorsque les membres du serveur réagissent avec '💀' aux messages et que le seuil de **`${amount}`** est dépassé, le message est envoyé dans le canal spécifié !"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Maintenant, lorsque les membres du serveur réagissent avec '💀' aux messages et que le seuil de **`${amount}`** est dépassé, le message est envoyé dans le canal spécifié **`${action}`**"
+
 # Module de Notification
 # auteur de la notification, configuration de la notification
 

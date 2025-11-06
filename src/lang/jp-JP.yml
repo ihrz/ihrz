@@ -2352,6 +2352,18 @@ starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | サーバ�
 starboard_create_thread_yes: "ディスカッションスレッドが作成されます"
 starboard_create_thread_no: "ディスカッションスレッドは作成されません"
 
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Skullboard チャンネルは ${channel.toString()} に設定されました**。サーバーメンバーがメッセージに '💀' リアクションをし、**`${baseData.threshold}`** の閾値を超えた場合、そのメッセージは ${channel.toString()} に送信されます！"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Skullboard モジュールは ${action} になりました**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | サーバーメンバーがメッセージに '💀' リアクションをし、**`${amount}`** の閾値を超えた場合、そのメッセージは指定されたチャンネルに送信されます！"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | サーバーメンバーがメッセージに '💀' リアクションをし、**`${amount}`** の閾値を超えた場合、そのメッセージは指定されたチャンネル **`${action}`** に送信されます"
+
 # 通知モジュール
 # 通知の作成者, 通知の設定
 

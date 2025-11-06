@@ -1769,6 +1769,10 @@ export interface LanguageData {
 	starboard_create_thread_command_ok: string;
 	starboard_create_thread_yes: string;
 	starboard_create_thread_no: string;
+	skullboard_channel_command_ok: string;
+	skullboard_config_command_ok: string;
+	skullboard_threshold_command_ok: string;
+	skullboard_create_thread_command_ok: string;
 	notifier_author_add_author_doesnt_exist: string;
 	notifier_config_channel_logsEmbed_title: string;
 	notifier_config_channel_logsEmbed_desc: string;
@@ -2029,8 +2033,4 @@ export interface LanguageData {
 	confession_embed_logs_title: string;
 	confession_channel_button_name: string;
 	confession_1_embed_log_title: string;
-	skullboard_channel_command_ok: string;
-	skullboard_config_command_ok: string;
-	skullboard_threshold_command_ok: string;
-	skullboard_create_thread_command_ok: string;
 }

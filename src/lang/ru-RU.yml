@@ -2352,6 +2352,18 @@ starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Когда 
 starboard_create_thread_yes: "и будет создана тема для обсуждения"
 starboard_create_thread_no: "и тема для обсуждения не будет создана"
 
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Канал Skullboard теперь установлен на: ${channel.toString()}**. Теперь, когда участники сервера реагируют на сообщения с '💀' и порог **`${baseData.threshold}`** превышен, сообщение будет отправлено в ${channel.toString()}!"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Модуль Skullboard теперь ${action}**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Теперь, когда участники сервера реагируют на сообщения с '💀' и порог **`${amount}`** превышен, сообщение будет отправлено в указанный канал!"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Теперь, когда участники сервера реагируют на сообщения с '💀' и порог **`${amount}`** превышен, сообщение будет отправлено в указанный канал **`${action}`**"
+
 # Модуль уведомлений
 # автор уведомлений, настройка уведомлений
 

@@ -2352,6 +2352,18 @@ starboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Wenn Server
 starboard_create_thread_yes: "und ein Diskussionsthread wird erstellt"
 starboard_create_thread_no: "und es wird kein Diskussionsthread erstellt"
 
+# /skullboard channel
+skullboard_channel_command_ok: "${client.iHorizon_Emojis.Yes} | **Skullboard-Kanal wurde nun festgelegt auf: ${channel.toString()}**. Jetzt, wenn Servermitglieder auf Nachrichten mit '💀' reagieren und der Schwellenwert von **`${baseData.threshold}`** überschritten wird, wird die Nachricht an ${channel.toString()} gesendet!"
+
+# /skullboard config
+skullboard_config_command_ok: "${client.iHorizon_Emojis.Yes} | **Skullboard-Modul wurde nun ${action}**"
+
+# /skullboard threshold
+skullboard_threshold_command_ok: "${client.iHorizon_Emojis.Yes} | Nun, wenn Servermitglieder auf Nachrichten mit '💀' reagieren und der Schwellenwert von **`${amount}`** überschritten wird, wird die Nachricht an den angegebenen Kanal gesendet!"
+
+# /skullboard create-thread
+skullboard_create_thread_command_ok: "${client.iHorizon_Emojis.Yes} | Nun, wenn Servermitglieder auf Nachrichten mit '💀' reagieren und der Schwellenwert von **`${amount}`** überschritten wird, wird die Nachricht an den angegebenen Kanal **`${action}`** gesendet"
+
 # Benachrichtigungsmodul
 # Benachrichtigungsautor, Benachrichtigungskonfiguration
 
