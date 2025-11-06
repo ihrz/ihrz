@@ -80,6 +80,8 @@ var_guild_splash: "Tela inicial do servidor"
 var_unknown_guild_name: "Nome de servidor desconhecido"
 var_preview: "Pré-visualização"
 var_form: "Formulário"
+var_original_message: "Mensagem original"
+var_click_here: "Clique aqui"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Criar Convite Instantâneo"

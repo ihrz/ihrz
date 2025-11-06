@@ -80,6 +80,8 @@ var_guild_splash: "Guild Splash"
 var_unknown_guild_name: "Unknown Guild Name"
 var_preview: "Preview"
 var_form: "Form"
+var_original_message: "Original Message"
+var_click_here: "Click here"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Create Instant Invite"

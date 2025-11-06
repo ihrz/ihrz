@@ -80,6 +80,8 @@ var_guild_splash: "Заставка сервера"
 var_unknown_guild_name: "Неизвестное имя сервера"
 var_preview: "Предпросмотр"
 var_form: "Форма"
+var_original_message: "Оригинальное сообщение"
+var_click_here: "Нажмите здесь"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"

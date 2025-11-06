@@ -80,6 +80,8 @@ var_guild_splash: "Server-Splash"
 var_unknown_guild_name: "Unbekannter Servername"
 var_preview: "Vorschau"
 var_form: "Formular"
+var_original_message: "Ursprüngliche Nachricht"
+var_click_here: "Hier klicken"
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"

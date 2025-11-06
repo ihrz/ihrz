@@ -98,6 +98,8 @@ export interface LanguageData {
 	var_unknown_guild_name: string;
 	var_preview: string;
 	var_form: string;
+	var_original_message: string;
+	var_click_here: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;
