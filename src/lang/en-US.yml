@@ -587,6 +587,8 @@ help_authrestore_fields: "AuthRestore"
 help_authrestore_dsc: "> *Made server verification with OAuth2. When you server got raided/termed, you can recover your old members !*"
 help_tags_fields: "Custom Tags"
 help_tags_dsc: "> *Create tag messages for your server, and use them in your server!*"
+help_starboard_dsc: "> *See the most stared messages into a discord server.*"
+help_starboard_fields: "StarBoard"
 
 # /h
 h_suite: "(Continued)"

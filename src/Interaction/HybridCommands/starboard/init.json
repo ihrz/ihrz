@@ -1,0 +1,11 @@
+{
+	"categoryInitializer": {
+		"categoryName": "starboard",
+		"categoryColor": "#258bd9",
+		"options": {
+			"description": "help_starboard_dsc",
+			"emoji": "⭐",
+			"placeholder": "help_starboard_fields"
+		}
+	}
+}

@@ -578,6 +578,7 @@ export namespace DatabaseStructure {
 		RESTORECORD?: AuthRestoreSchema;
 		ROLE_SELECT?: RoleReactData;
 		BACKUP: BackupConfig;
+		STARBOARD: StarboardConfigSchema;
 	}
 
 	export interface DbTicketConfigurationObject {
@@ -587,5 +588,22 @@ export namespace DatabaseStructure {
 		panelName: string;
 		channel: string;
 		messageID: string;
+	}
+
+	export interface StarboardConfigSchema {
+		enabled: 'yes' | 'no',
+		threshold: number,
+		createThread: boolean,
+		channel: string;
+		datas: StarboardDataSchema
+	}
+
+	export type StarboardDataSchema = Array<StarboardData>
+
+	export interface StarboardData {
+		channelId: string;
+		messageId: string;
+		number: string;
+		author: string;
 	}
 }
