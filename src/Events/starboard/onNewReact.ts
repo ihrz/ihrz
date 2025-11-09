@@ -135,7 +135,7 @@ export const event: BotEvent = {
 					// Create thread if enabled
 					if (baseData.createThread) {
 						await starboardMessage.startThread({
-							name: `⭐ ${reaction.message.author?.username || 'Unknown'}'s message`,
+							name: '⭐ ' + lang.var_s_message.replace("{nickname}", reaction.message.author?.username || lang.var_unknown),
 							autoArchiveDuration: 1440
 						}).catch(() => null);
 					}

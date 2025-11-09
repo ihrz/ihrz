@@ -100,6 +100,7 @@ export interface LanguageData {
 	var_form: string;
 	var_original_message: string;
 	var_click_here: string;
+	var_s_message: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;

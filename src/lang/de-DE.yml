@@ -82,6 +82,7 @@ var_preview: "Vorschau"
 var_form: "Formular"
 var_original_message: "Ursprüngliche Nachricht"
 var_click_here: "Hier klicken"
+var_s_message: "Nachricht von {nickname}"
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"

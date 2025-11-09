@@ -82,6 +82,7 @@ var_preview: "Vista previa"
 var_form: "Formulario"
 var_original_message: "Mensaje original"
 var_click_here: "Haz clic aquí"
+var_s_message: "mensaje de {nickname}"
 
 # Nombres de Permisos de Discord
 perm_createinstantinvite_name: "Crear invitación instantánea"
