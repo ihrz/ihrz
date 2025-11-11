@@ -255,7 +255,7 @@ export class BloggerNotifier {
 	}
 
 	public async start() {
-		logger.log(`${client.config.console.emojis.LOAD} >> Starting Blogger RSS Notifier...`.green);
+		logger.log(`${client.config.console.emojis.LOAD} >> Starting Blogger RSS Notifier...`.white);
 
 		await this.refresh();
 		setInterval(async () => await this.refresh(), 60_000); // Check every minute
