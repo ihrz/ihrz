@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
 			await client.db.set(`${interaction.guildId}.BLOGGER.blogs`, filteredArray);
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blogger_blog_remove_success?.replace("{blogId}", blogId),
+				content: lang.blogger_blog_remove_success?.replace("${blogId}", blogId),
 				embeds: [
 					await client.blogger.generateBlogsEmbed(interaction.guild)
 				]

@@ -67,9 +67,9 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.blogger_blog_add_success
-					?.replace("{blogName}", validation.name || "Unknown")
-					?.replace("{channel}", channel.toString())
-					?.replace("{blogId}", blogId),
+					?.replace("${validation.name}", validation.name || "Unknown")
+					?.replace("${channel.toString()}", channel.toString())
+					?.replace("${blogId}", blogId),
 				embeds: [
 					await client.blogger.generateBlogsEmbed(interaction.guild)
 				]
