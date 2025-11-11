@@ -49,6 +49,7 @@ import { DB } from "../src/core/database/types.ts";
 import { Postgres } from "../src/core/database/driver/postgres.ts";
 import * as backup from "../src/core/backup/src/";
 import * as discordTranscripts from "discord-html-transcripts";
+import { BloggerNotifier } from "../src/core/Blogger.ts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -87,5 +88,6 @@ declare module 'discord.js' {
 		// IN SHARD
 		inShard: (guildId: string) => boolean;
 		discordTranscripts: typeof discordTranscripts;
+		blogger: BloggerNotifier;
 	}
 }

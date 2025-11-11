@@ -124,7 +124,7 @@ declare namespace Client_Functions {
 		export function punish(data: DatabaseStructure.ProtectionData, user: GuildMember, reason?: string): Promise<void>;
 		export function generateCustomMessagePreview(
 			message: string,
-			input: { guild: Guild; user: User; guildLocal: string; inviter?: { user: { username: string; mention: string; }; invitesAmount: number; }; ranks?: { level: number; }; notifier?: { artistAuthor: string; artistLink: string; mediaURL: string; }; }
+			input: { guild: Guild; user: User; guildLocal: string; inviter?: { user: { username: string; mention: string; }; invitesAmount: number; }; ranks?: { level: number; }; notifier?: { artistAuthor: string; artistLink: string; mediaURL: string; }; blogger?: { articleTitle: string; articleAuthor: string; articleLink: string; blogName: string; }; }
 		): string;
 		export function findOptionRecursively(options: Array<Option>, subcommandName: string): Option | undefined;
 		export function buttonReact(msg: Message<boolean>, button: ButtonBuilder): Promise<Message<boolean>>;

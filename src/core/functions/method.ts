@@ -786,6 +786,12 @@ export function generateCustomMessagePreview(
 			artistAuthor: string;
 			artistLink: string;
 			mediaURL: string;
+		},
+		blogger?: {
+			articleTitle: string;
+			articleAuthor: string;
+			articleLink: string;
+			blogName: string;
 		}
 	}
 ): string {
@@ -802,7 +808,11 @@ export function generateCustomMessagePreview(
 		.replaceAll('{xpLevel}', input.ranks?.level.toString() || "1337")
 		.replaceAll('{artistAuthor}', input.notifier?.artistAuthor || "Ninja")
 		.replaceAll('{artistLink}', input.notifier?.artistLink || "https://twitch.tv/Ninja")
-		.replaceAll('{mediaURL}', input.notifier?.mediaURL || "https://twitch.tv/Ninja/media");
+		.replaceAll('{mediaURL}', input.notifier?.mediaURL || "https://twitch.tv/Ninja/media")
+		.replaceAll('{articleTitle}', input.blogger?.articleTitle || "Unknow Article")
+		.replaceAll('{articleAuthor}', input.blogger?.articleAuthor || "Unknown Author")
+		.replaceAll("{articleLink}", input.blogger?.articleLink || "Unknown Link")
+		.replaceAll("{blogName}", input.blogger?.blogName || "Unknown Blog Name");
 
 }
 

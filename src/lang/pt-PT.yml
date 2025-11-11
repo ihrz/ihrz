@@ -2383,6 +2383,25 @@ notifier_config_message_embed_fields_notifyMessage: "Mensagem de Notificação"
 notifier_config_message_awaiting_response: "Escreva a mensagem de notificação."
 notifier_config_message_command_work_on_enable: "Trabalhando na ativação da mensagem de notificação."
 
+# Módulo de Blogger
+
+blogger_generateBlogsEmbed_embed_desc: "Lista de feeds RSS configurados:\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 Configuração de Blogs RSS"
+blogger_generateConfigurationEmbed_embed_title: "📰 Configuração do Blogger"
+blogger_no_rss: "Nenhum feed RSS configurado."
+blogger_generateConfigurationEmbed_embed_fields_1_name: "Estado"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "Total de Blogs"
+blogger_unknown_blog: "Blog desconhecido"
+blogger_on_new_article_default_message: "📰 Novo artigo publicado!\n**{articleTitle}** por {articleAuthor}\n{articleLink}"
+blogger_config_status_enabled: "✅ O módulo Blogger foi **ativado**. Os feeds RSS serão monitorizados."
+blogger_config_status_disabled: "❌ O módulo Blogger foi **desativado**. Os feeds RSS não serão monitorizados."
+blogger_read_article: "Ler artigo"
+blogger_blog_add_invalid_channel: "Tipo de canal inválido. Por favor, seleciona um canal de texto."
+blogger_blog_add_success: "✅ O feed RSS **${validation.name}** foi adicionado! As notificações serão enviadas para ${channel.toString()} (ID: `${blogId}`)"
+blogger_blog_add_invalid_rss: "❌ O feed RSS fornecido é inválido ou inacessível. Verifica o URL e tenta novamente."
+blogger_blog_remove_success: "✅ O feed RSS com o ID `${blogId}` foi removido."
+blogger_blog_remove_not_found: "❌ Nenhum feed RSS encontrado com esse ID."
+
 # Módulo AuthRestore
 # função, configurar, excluir, obter, adesão forçada
 

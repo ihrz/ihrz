@@ -2383,6 +2383,25 @@ notifier_config_message_embed_fields_notifyMessage: "Сообщение Увед
 notifier_config_message_awaiting_response: "Напишите сообщение уведомления."
 notifier_config_message_command_work_on_enable: "Работа над включением сообщения уведомления."
 
+# Модуль Blogger
+
+blogger_generateBlogsEmbed_embed_desc: "Список настроенных RSS-лент:\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 Настройки RSS-блогов"
+blogger_generateConfigurationEmbed_embed_title: "📰 Конфигурация Blogger"
+blogger_no_rss: "RSS-ленты не настроены."
+blogger_generateConfigurationEmbed_embed_fields_1_name: "Статус"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "Всего блогов"
+blogger_unknown_blog: "Неизвестный блог"
+blogger_on_new_article_default_message: "📰 Опубликована новая статья!\n**{articleTitle}** от {articleAuthor}\n{articleLink}"
+blogger_config_status_enabled: "✅ Модуль Blogger **включён**. RSS-ленты будут отслеживаться."
+blogger_config_status_disabled: "❌ Модуль Blogger **отключён**. RSS-ленты не будут отслеживаться."
+blogger_read_article: "Читать статью"
+blogger_blog_add_invalid_channel: "Недопустимый тип канала. Пожалуйста, выберите текстовый канал."
+blogger_blog_add_success: "✅ RSS-лента **${validation.name}** добавлена! Уведомления будут отправлены в ${channel.toString()} (ID: `${blogId}`)"
+blogger_blog_add_invalid_rss: "❌ Указанная RSS-лента недействительна или недоступна. Проверьте URL и попробуйте снова."
+blogger_blog_remove_success: "✅ RSS-лента с ID `${blogId}` была удалена."
+blogger_blog_remove_not_found: "❌ RSS-лента с таким ID не найдена."
+
 # Модуль AuthRestore
 # роль, установить, удалить, получить, принудительное присоединение
 

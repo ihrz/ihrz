@@ -2385,6 +2385,26 @@ notifier_config_message_embed_fields_notifyMessage: "Notify Message"
 notifier_config_message_awaiting_response: "Wrote the notify message."
 notifier_config_message_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | Successfully set notify message."
 
+# Blogger Module
+
+# blogger
+blogger_generateBlogsEmbed_embed_desc: "List of configured RSS feeds:\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 RSS Blogs Configuration"
+blogger_generateConfigurationEmbed_embed_title: "📰 Blogger Configuation"
+blogger_no_rss: "No RSS feeds configured."
+blogger_generateConfigurationEmbed_embed_fields_1_name: "Status"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "Total Blogs"
+blogger_unknown_blog: "Unknown Blog"
+blogger_on_new_article_default_message: "📰 New article published!\n**{articleTitle}** by {articleAuthor}\n{articleLink}"
+blogger_config_status_enabled: "✅ Blogger module has been **enabled**. RSS feeds will be monitored."
+blogger_config_status_disabled: "❌ Blogger module has been **disabled**. RSS feeds will not be monitored."
+blogger_read_article: "Read Article"
+blogger_blog_add_invalid_channel: "Invalid channel type. Please select a text channel."
+blogger_blog_add_success: "✅ RSS feed **${validation.name}** has been added! Notifications will be sent to ${channel.toString()} (ID: `${blogId}`)"
+blogger_blog_add_invalid_rss: "❌ The provided RSS feed is invalid or unreachable. Please check the URL and try again."
+blogger_blog_remove_success: "✅ RSS feed with ID `${blogId}` has been removed."
+blogger_blog_remove_not_found: "❌ No RSS feed found with this ID."
+
 # AuthRestore Module
 # role, set, delete, get, force-join
 

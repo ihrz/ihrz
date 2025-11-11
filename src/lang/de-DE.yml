@@ -2383,6 +2383,25 @@ notifier_config_message_embed_fields_notifyMessage: "Benachrichtigungsnachricht"
 notifier_config_message_awaiting_response: "Schreibe die Benachrichtigungsnachricht."
 notifier_config_message_command_work_on_enable: "Arbeite an der Aktivierung der Benachrichtigungsnachricht."
 
+# Blogger-Modul
+
+blogger_generateBlogsEmbed_embed_desc: "Liste der konfigurierten RSS-Feeds:\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 RSS-Blog-Konfiguration"
+blogger_generateConfigurationEmbed_embed_title: "📰 Blogger-Konfiguration"
+blogger_no_rss: "Keine RSS-Feeds konfiguriert."
+blogger_generateConfigurationEmbed_embed_fields_1_name: "Status"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "Gesamtblogs"
+blogger_unknown_blog: "Unbekannter Blog"
+blogger_on_new_article_default_message: "📰 Neuer Artikel veröffentlicht!\n**{articleTitle}** von {articleAuthor}\n{articleLink}"
+blogger_config_status_enabled: "✅ Das Blogger-Modul wurde **aktiviert**. RSS-Feeds werden überwacht."
+blogger_config_status_disabled: "❌ Das Blogger-Modul wurde **deaktiviert**. RSS-Feeds werden nicht überwacht."
+blogger_read_article: "Artikel lesen"
+blogger_blog_add_invalid_channel: "Ungültiger Kanaltyp. Bitte wähle einen Textkanal aus."
+blogger_blog_add_success: "✅ RSS-Feed **${validation.name}** wurde hinzugefügt! Benachrichtigungen werden an ${channel.toString()} gesendet (ID: `${blogId}`)"
+blogger_blog_add_invalid_rss: "❌ Der angegebene RSS-Feed ist ungültig oder nicht erreichbar. Bitte überprüfe die URL und versuche es erneut."
+blogger_blog_remove_success: "✅ RSS-Feed mit der ID `${blogId}` wurde entfernt."
+blogger_blog_remove_not_found: "❌ Kein RSS-Feed mit dieser ID gefunden."
+
 # Module AuthRestore
 # role, set, delete, get, force-join
 
