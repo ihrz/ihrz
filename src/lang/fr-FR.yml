@@ -82,6 +82,7 @@ var_preview: "Aperçue"
 var_form: "Formulaire"
 var_original_message: "Message original"
 var_click_here: "Cliquez ici"
+var_s_message: "message de {nickname}"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Créer une invitation"
@@ -591,6 +592,8 @@ help_tags_fields: "Tags personnalisés"
 help_tags_dsc: "> *Créez des messages de tags pour votre serveur et utilisez-les dans votre serveur !*"
 help_starboard_dsc: "> *Voir les messages les plus étoilés d’un serveur Discord.*"
 help_starboard_fields: "StarBoard"
+help_blogger_dsc: "Suis tes flux RSS favoris et sois notifié lorsqu’un nouvel article est publié via iHorizon"
+help_blogger_fields: "Blogger"
 
 # /h
 h_suite: "(Suite)"
@@ -2381,6 +2384,25 @@ notifier_config_message_helpEmbed_desc: "{artistAuthor} => Le nom d'utilisateur 
 notifier_config_message_embed_fields_notifyMessage: "Message de Notification"
 notifier_config_message_awaiting_response: "Écrivez le message de notification."
 notifier_config_message_command_work_on_enable: "Activation du travail sur le message de notification."
+
+# Module Blogger
+
+blogger_generateBlogsEmbed_embed_desc: "Liste des flux RSS configurés :\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 Configuration des blogs RSS"
+blogger_generateConfigurationEmbed_embed_title: "📰 Configuration du module Blogger"
+blogger_no_rss: "Aucun flux RSS configuré."
+blogger_generateConfigurationEmbed_embed_fields_1_name: "Statut"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "Nombre total de blogs"
+blogger_unknown_blog: "Blog inconnu"
+blogger_on_new_article_default_message: "📰 Nouvel article publié !\n**{articleTitle}** par {articleAuthor}\n{articleLink}"
+blogger_config_status_enabled: "✅ Le module Blogger a été **activé**. Les flux RSS seront surveillés."
+blogger_config_status_disabled: "❌ Le module Blogger a été **désactivé**. Les flux RSS ne seront pas surveillés."
+blogger_read_article: "Lire l’article"
+blogger_blog_add_invalid_channel: "Type de canal invalide. Veuillez sélectionner un canal textuel."
+blogger_blog_add_success: "✅ Le flux RSS **${validation.name}** a été ajouté ! Les notifications seront envoyées à ${channel.toString()} (ID : `${blogId}`)"
+blogger_blog_add_invalid_rss: "❌ Le flux RSS fourni est invalide ou inaccessible. Veuillez vérifier l’URL et réessayer."
+blogger_blog_remove_success: "✅ Le flux RSS avec l’ID `${blogId}` a été supprimé."
+blogger_blog_remove_not_found: "❌ Aucun flux RSS trouvé avec cet ID."
 
 # Module AuthRestore
 # role, set, delete, get, force-join

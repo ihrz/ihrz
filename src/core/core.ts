@@ -52,6 +52,7 @@ import { GiveawayManager } from './modules/giveawaysManager.js';
 import { isNumber } from './functions/method.js';
 import * as backup from "./backup/src";
 import * as discordTranscripts from "discord-html-transcripts";
+import { BloggerNotifier } from './Blogger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -148,6 +149,7 @@ export async function main(client: Client) {
 		process.env.TWITCH_APPLICATION_SECRET || "",
 		process.env.YOUTUBE_API_KEY || ""
 	);
+	client.blogger = new BloggerNotifier();
 	client.githubLinesManager = new GithubLinesManager(process.env.GITHUB_API_KEY)
 
 	assetsCalc(client);

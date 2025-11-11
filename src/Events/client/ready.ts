@@ -212,6 +212,7 @@ export const event: BotEvent = {
 		client.autoRenewManager.init().then(() => { })
 		client.nightmodeManager.init().then(() => { })
 		client.notifier.start().then(() => { })
+		client.blogger.start().then(() => { })
 		client.infrastructureMonitoring.startMonitoring().then(() => { })
 
 		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000)

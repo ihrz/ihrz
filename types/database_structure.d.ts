@@ -347,6 +347,7 @@ export namespace DatabaseStructure {
 		VOICE_INTERFACE?: VoiceData;
 		UTILS?: UtilsData;
 		STATS?: GuildStats;
+		BLOGGER: BloggerSchema
 	}
 
 	export interface UtilsRoleData {
@@ -614,5 +615,23 @@ export namespace DatabaseStructure {
 		messageId: string;
 		number: string;
 		author: string;
+	}
+
+	interface BloggerBlogSchema {
+		id: string;
+		rss: string;
+		channelId: string;
+	}
+
+	interface BloggerSchema {
+		enabled: boolean;
+		blogs: BloggerBlogSchema[];
+		lastArticleNotified: BloggerLastNotifiedArticles[];
+	}
+
+	interface BloggerLastNotifiedArticles {
+		blogId: string;
+		articleId: string;
+		timestamp: string;
 	}
 }

@@ -19,25 +19,25 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, Message } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import {
+	ChatInputCommandInteraction,
+	Client,
+} from 'discord.js';
+import { LanguageData } from '../../../../types/languageData.js';
 
-export const event: BotEvent = {
-	name: "messageCreate",
-	run: async (client: Client, message: Message) => {
-		if (!message.guild || !message.channel || message.author.bot) return;
+import { SubCommand } from '../../../../types/command.js';
 
-		const reactionData = await client.db.get(`${message.guildId}.GUILD.AUTOREACT.${message.channelId}`);
-		if (!reactionData) return;
+export const subCommand: SubCommand = {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
 
-		const reactions = Array.isArray(reactionData) ? reactionData : [reactionData];
+		// Guard's Typing
+		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
 
-		for (const reaction of reactions) {
-			try {
-				await message.react(reaction);
-			} catch {
-				continue;
-			}
-		}
+		await client.func.method.interactionSend(interaction, {
+			embeds: [
+				await client.blogger.generateBlogsEmbed(interaction.guild),
+				await client.blogger.generateConfigurationEmbed(interaction.guild)
+			]
+		});
 	},
 };

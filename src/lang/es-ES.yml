@@ -82,6 +82,7 @@ var_preview: "Vista previa"
 var_form: "Formulario"
 var_original_message: "Mensaje original"
 var_click_here: "Haz clic aquí"
+var_s_message: "mensaje de {nickname}"
 
 # Nombres de Permisos de Discord
 perm_createinstantinvite_name: "Crear invitación instantánea"
@@ -591,6 +592,8 @@ help_tags_fields: "Etiquetas personalizadas"
 help_tags_dsc: "> *Crea mensajes de etiquetas para tu servidor y úsalos en tu servidor.*"
 help_starboard_dsc: "> *Mira los mensajes más destacados de un servidor de Discord.*"
 help_starboard_fields: "StarBoard"
+help_blogger_dsc: "Sigue tus fuentes RSS favoritas y recibe notificaciones cuando se publique un nuevo artículo a través de iHorizon"
+help_blogger_fields: "Blogger"
 
 # /h
 h_suite: "(Continuación)"
@@ -2381,6 +2384,25 @@ notifier_config_message_helpEmbed_desc: "{artistAuthor} => El nombre de usuario 
 notifier_config_message_embed_fields_notifyMessage: "Mensaje de Notificación"
 notifier_config_message_awaiting_response: "Escribe el mensaje de notificación."
 notifier_config_message_command_work_on_enable: "Habilitando el trabajo en el mensaje de notificación."
+
+# Módulo de Blogger
+
+blogger_generateBlogsEmbed_embed_desc: "Lista de fuentes RSS configuradas:\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 Configuración de Blogs RSS"
+blogger_generateConfigurationEmbed_embed_title: "📰 Configuración de Blogger"
+blogger_no_rss: "No hay fuentes RSS configuradas."
+blogger_generateConfigurationEmbed_embed_fields_1_name: "Estado"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "Blogs Totales"
+blogger_unknown_blog: "Blog desconocido"
+blogger_on_new_article_default_message: "📰 ¡Nuevo artículo publicado!\n**{articleTitle}** por {articleAuthor}\n{articleLink}"
+blogger_config_status_enabled: "✅ El módulo de Blogger ha sido **habilitado**. Se supervisarán las fuentes RSS."
+blogger_config_status_disabled: "❌ El módulo de Blogger ha sido **deshabilitado**. No se supervisarán las fuentes RSS."
+blogger_read_article: "Leer artículo"
+blogger_blog_add_invalid_channel: "Tipo de canal no válido. Por favor selecciona un canal de texto."
+blogger_blog_add_success: "✅ ¡La fuente RSS **${validation.name}** ha sido añadida! Las notificaciones se enviarán a ${channel.toString()} (ID: `${blogId}`)"
+blogger_blog_add_invalid_rss: "❌ La fuente RSS proporcionada es inválida o inaccesible. Revisa la URL e inténtalo de nuevo."
+blogger_blog_remove_success: "✅ Se ha eliminado la fuente RSS con ID `${blogId}`."
+blogger_blog_remove_not_found: "❌ No se encontró ninguna fuente RSS con este ID."
 
 # Module AuthRestore
 # role, set, delete, get, force-join

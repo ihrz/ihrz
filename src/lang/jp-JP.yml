@@ -82,6 +82,7 @@ var_preview: "プレビュー"
 var_form: "フォーム"
 var_original_message: "元のメッセージ"
 var_click_here: "ここをクリック"
+var_s_message: "{nickname}のメッセージ"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
@@ -591,6 +592,8 @@ help_tags_fields: "カスタムタグ"
 help_tags_dsc: "> *サーバー用のタグメッセージを作成し、それをサーバー内で使用しましょう！*"
 help_starboard_dsc: "> *Discordサーバーで最もスターを獲得したメッセージを表示します。*"
 help_starboard_fields: "スター掲示板"
+help_blogger_dsc: "お気に入りのRSSフィードをフォローし、iHorizonを通じて新しい記事が公開されたときに通知を受け取ります"
+help_blogger_fields: "ブロガー"
 
 # /h
 h_suite: "(続き)"
@@ -2381,6 +2384,25 @@ notifier_config_message_helpEmbed_desc: "{artistAuthor} => ストリーマー/�
 notifier_config_message_embed_fields_notifyMessage: "通知メッセージ"
 notifier_config_message_awaiting_response: "通知メッセージを書いてください。"
 notifier_config_message_command_work_on_enable: "通知メッセージの有効化作業中。"
+
+# ブロガーモジュール
+
+blogger_generateBlogsEmbed_embed_desc: "設定されたRSSフィード一覧:\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 RSSブログ設定"
+blogger_generateConfigurationEmbed_embed_title: "📰 ブロガー設定"
+blogger_no_rss: "設定されたRSSフィードがありません。"
+blogger_generateConfigurationEmbed_embed_fields_1_name: "ステータス"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "合計ブログ数"
+blogger_unknown_blog: "不明なブログ"
+blogger_on_new_article_default_message: "📰 新しい記事が公開されました！\n**{articleTitle}**（{articleAuthor} 著）\n{articleLink}"
+blogger_config_status_enabled: "✅ ブロガーモジュールが**有効化**されました。RSSフィードが監視されます。"
+blogger_config_status_disabled: "❌ ブロガーモジュールが**無効化**されました。RSSフィードは監視されません。"
+blogger_read_article: "記事を読む"
+blogger_blog_add_invalid_channel: "無効なチャンネルタイプです。テキストチャンネルを選択してください。"
+blogger_blog_add_success: "✅ RSSフィード **${validation.name}** が追加されました！通知は ${channel.toString()} に送信されます（ID: `${blogId}`）"
+blogger_blog_add_invalid_rss: "❌ 指定されたRSSフィードは無効またはアクセスできません。URLを確認して再試行してください。"
+blogger_blog_remove_success: "✅ ID `${blogId}` のRSSフィードを削除しました。"
+blogger_blog_remove_not_found: "❌ このIDのRSSフィードが見つかりません。"
 
 # AuthRestore モジュール
 # ロール、設定、削除、取得、強制参加
