@@ -1,9 +1,0 @@
-BLOGGER CAHIER DES CHARGES:
-
-Have to be look likes: Notifier Module
-
-/blogger blog add <rss> <channel>
-/blogger blog remove <id>
-/blogger blog list
-
-/blogger config status <Power On / Power Off>
