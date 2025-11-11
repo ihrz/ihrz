@@ -592,6 +592,8 @@ help_tags_fields: "Benutzerdefinierte Tags"
 help_tags_dsc: "> *Erstellen Sie Nachrichten-Tags für Ihren Server und verwenden Sie sie auf Ihrem Server!*"
 help_starboard_dsc: "> *Sieh dir die meistbewerteten Nachrichten auf einem Discord-Server an.*"
 help_starboard_fields: "StarBoard"
+help_blogger_dsc: "Folge deinen bevorzugten RSS-Feeds und erhalte Benachrichtigungen, wenn über iHorizon neue Artikel veröffentlicht werden"
+help_blogger_fields: "Blogger"
 
 # /h
 h_suite: "(Fortsetzung)"

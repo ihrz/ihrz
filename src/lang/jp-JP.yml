@@ -592,6 +592,8 @@ help_tags_fields: "カスタムタグ"
 help_tags_dsc: "> *サーバー用のタグメッセージを作成し、それをサーバー内で使用しましょう！*"
 help_starboard_dsc: "> *Discordサーバーで最もスターを獲得したメッセージを表示します。*"
 help_starboard_fields: "スター掲示板"
+help_blogger_dsc: "お気に入りのRSSフィードをフォローし、iHorizonを通じて新しい記事が公開されたときに通知を受け取ります"
+help_blogger_fields: "ブロガー"
 
 # /h
 h_suite: "(続き)"

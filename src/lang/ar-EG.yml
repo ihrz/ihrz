@@ -592,6 +592,8 @@ help_tags_fields: "العلامات المخصصة"
 help_tags_dsc: "> *قم بإنشاء رسائل علامات لخادمك واستخدمها في خادمك!*"
 help_starboard_dsc: "> *عرض أكثر الرسائل حصولاً على نجوم في خادم الديسكورد.*"
 help_starboard_fields: "لوحة النجوم"
+help_blogger_dsc: "تابع موجزات RSS المفضلة لديك وتلقَّ الإشعارات عند نشر مقالات جديدة عبر iHorizon"
+help_blogger_fields: "المدونة"
 
 # /h
 h_suite: "(تتمة)"

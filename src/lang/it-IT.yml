@@ -592,6 +592,8 @@ help_tags_fields: "Tag personalizzati"
 help_tags_dsc: "> *Crea messaggi di tag per il tuo server e usali nel tuo server!*"
 help_starboard_dsc: "> *Guarda i messaggi più stellati di un server Discord.*"
 help_starboard_fields: "StarBoard"
+help_blogger_dsc: "Segui i tuoi feed RSS preferiti e ricevi notifiche quando vengono pubblicati nuovi articoli tramite iHorizon"
+help_blogger_fields: "Blogger"
 
 # /h
 h_suite: "(Continua)"

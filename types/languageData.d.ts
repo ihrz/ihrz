@@ -513,6 +513,8 @@ export interface LanguageData {
 	help_tags_dsc: string;
 	help_starboard_dsc: string;
 	help_starboard_fields: string;
+	help_blogger_dsc: string;
+	help_blogger_fields: string;
 	h_suite: string;
 	h_suite_desc: string;
 	say_footer_msg: string;

@@ -1,0 +1,11 @@
+{
+	"categoryInitializer": {
+		"categoryName": "blogger",
+		"categoryColor": "#6a52fb",
+		"options": {
+			"description": "help_blogger_dsc",
+			"emoji": "📣",
+			"placeholder": "help_blogger_fields"
+		}
+	}
+}

@@ -592,6 +592,8 @@ help_tags_fields: "Etiquetas personalizadas"
 help_tags_dsc: "> *Crea mensajes de etiquetas para tu servidor y úsalos en tu servidor.*"
 help_starboard_dsc: "> *Mira los mensajes más destacados de un servidor de Discord.*"
 help_starboard_fields: "StarBoard"
+help_blogger_dsc: "Sigue tus fuentes RSS favoritas y recibe notificaciones cuando se publique un nuevo artículo a través de iHorizon"
+help_blogger_fields: "Blogger"
 
 # /h
 h_suite: "(Continuación)"
