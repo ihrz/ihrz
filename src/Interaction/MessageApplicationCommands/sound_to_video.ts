@@ -103,7 +103,7 @@ export const command: AnotherCommand = {
 				throw new Error("Erreur ffprobe: " + (probeErr as Error).message);
 			}
 
-			const fileTitle = path.parse(attachment.name || "Audio").name;
+			const fileTitle = path.parse(attachment.name || "Audio").base;
 			const escapedTitle = fileTitle.replace(/[\\:]/g, '\\$&').replace(/'/g, "\\'");
 
 			try {
@@ -133,7 +133,7 @@ export const command: AnotherCommand = {
 				const embed = new EmbedBuilder()
 					.setTitle(lang.global_error)
 					.setColor("#ff0000")
-					.setDescription(lang.global_too_heavy_file.replace("${fileSizeMB.toFixed(2)", fileSizeMB.toFixed(2)))
+					.setDescription(lang.global_too_heavy_file.replace("${fileSizeMB.toFixed(2)}", fileSizeMB.toFixed(2)))
 					.setTimestamp();
 				await interaction.editReply({ content: "", embeds: [embed] });
 			} else {
@@ -144,7 +144,7 @@ export const command: AnotherCommand = {
 				const embed = new EmbedBuilder()
 					.setTitle(lang.global_convert_ok)
 					.setColor("#00ff00")
-					.setDescription(lang.global_convert_ok_desc.replace("${fileSizeMB.toFixed(2)", fileSizeMB.toFixed(2)))
+					.setDescription(lang.global_convert_ok_desc.replace("${fileSizeMB.toFixed(2)}", fileSizeMB.toFixed(2)))
 					.setTimestamp();
 
 				await interaction.editReply({
