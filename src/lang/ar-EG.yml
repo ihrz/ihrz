@@ -2772,3 +2772,12 @@ new_guild_embed_desc: "## ${randomMessage}\n!مرحباً بكم، أصدقائ�
 confession_embed_logs_title: "اعتراف جديد"
 confession_channel_button_name: "الرد بشكل مجهول"
 confession_1_embed_log_title: "رد جديد على الاعتراف"
+
+# Context Menu Interaction
+global_unknown_message: "الرسالة غير موجودة."
+global_error: "❌ خطأ"
+global_not_atc: "الرسالة المحددة لا تحتوي على مرفق."
+global_not_valid_atc: "المرفق المحدد ليس ملفًا صوتيًا صالحًا."
+global_too_heavy_file: "ملف MP4 المُولّد كبير جدًا (${fileSizeMB.toFixed(2)} MB). حدّ Discord هو 25 MB."
+global_convert_ok: "✅ تم التحويل بنجاح"
+global_convert_ok_desc: "تم تحويل ملفك الصوتي إلى MP4 (${fileSizeMB.toFixed(2)} MB)."

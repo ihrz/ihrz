@@ -98,7 +98,7 @@ export const event: BotEvent = {
 			const embed = new EmbedBuilder()
 				.setColor("#2134ff")
 				.setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" })
-				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await guild.client.db.get(`${guild.id}.GUILD.LANG.lang`) || 'en-US'}.png`)
+				.setImage(await client.func.bannerGenerator(guild.id))
 				.setDescription(lang.new_guild_embed_desc.replace('${randomMessage}', welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]))
 
 			const buttons1 = new ActionRowBuilder<ButtonBuilder>()
@@ -183,6 +183,7 @@ export const event: BotEvent = {
 					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
 					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
 					{ name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
+					{ name: "👑・Server Owner", value: `(${guild.ownerId}) ${(await guild.fetchOwner().catch(() => null))?.user.username || "Unknown"}`, inline: true },
 					{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
 					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
 					{ name: "🥛・New members total", value: `${stats.users.toString()} members`, inline: true },

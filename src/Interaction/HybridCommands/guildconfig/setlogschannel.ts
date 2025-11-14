@@ -188,6 +188,12 @@ export const command: Command = {
 						.replace("${interaction.user.id}", interaction.member.user.id!)
 						.replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(","))
 				});
+
+				await client.func.method.interactionSend(interaction, {
+					content: lang.setlogschannel_utils_command_work
+						.replace("${argsid.id}", `<#${channel.id}>`)
+						.replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(', '))
+				});
 			} else {
 				const existingLogs: { [key: string]: string } = {};
 				let existingCategory: CategoryChannel | null = null;

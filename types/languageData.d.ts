@@ -2052,4 +2052,11 @@ export interface LanguageData {
 	confession_embed_logs_title: string;
 	confession_channel_button_name: string;
 	confession_1_embed_log_title: string;
+	global_unknown_message: string;
+	global_error: string;
+	global_not_atc: string;
+	global_not_valid_atc: string;
+	global_too_heavy_file: string;
+	global_convert_ok: string;
+	global_convert_ok_desc: string;
 }

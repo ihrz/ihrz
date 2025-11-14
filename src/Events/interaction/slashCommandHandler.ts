@@ -218,7 +218,7 @@ export const event: BotEvent = {
 				embeds: [
 					new EmbedBuilder()
 						.setColor(2829617)
-						.setImage('https://ihorizon.org/assets/img/banner/ihrz_en-US.png')
+						.setImage(await client.func.bannerGenerator(null))
 						.setDescription(`# Uhh Oh!!\n\nIt seems you are using iHorizon in a private conversation.\nI want to clarify that iHorizon can only be used in a Discord server!\n\nTo unleash my full potential, add me!`)
 				],
 				components: [

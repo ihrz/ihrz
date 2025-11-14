@@ -2779,3 +2779,12 @@ new_guild_embed_desc: "## ${randomMessage}\nこんにちは、素晴らしい友
 confession_embed_logs_title: "新しい告白"
 confession_channel_button_name: "匿名で返信"
 confession_1_embed_log_title: "告白への新しい返信"
+
+# Context Menu Interaction
+global_unknown_message: "メッセージが見つかりません。"
+global_error: "❌ エラー"
+global_not_atc: "選択したメッセージには添付ファイルがありません。"
+global_not_valid_atc: "選択した添付ファイルは有効な音声ファイルではありません。"
+global_too_heavy_file: "生成された MP4 ファイルが大きすぎます (${fileSizeMB.toFixed(2)} MB)。Discord の上限は 25 MB です。"
+global_convert_ok: "✅ 変換成功"
+global_convert_ok_desc: "音声ファイルが MP4 に変換されました (${fileSizeMB.toFixed(2)} MB)。"

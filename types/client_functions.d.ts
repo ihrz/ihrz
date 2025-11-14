@@ -278,6 +278,9 @@ declare namespace Client_Functions {
 		export function isSimilar(query: string, track: TrackEmbbeded, threshold: any): boolean;
 	}
 
+	// From bannerGenerator.ts
+	export function bannerGenerator(guildId: string | null): Promise<string>;
+
 	// From customProfileHelper.ts
 	export namespace customProfileHelper {
 		export function changeGuildBotName(guild: Guild, nick: string): Promise<boolean>;

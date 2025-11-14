@@ -122,7 +122,7 @@ async function handleCategorySelect(
 				.replaceAll('${client.iHorizon_Emojis.Slash_Bot_Badge}', client.iHorizon_Emojis.Slash_Bot_Badge)
 			)
 			.setFooter(await client.func.displayBotName.footerBuilder(i.guildId!))
-			.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${i.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+			.setImage(await client.func.bannerGenerator(i.guildId))
 			.setThumbnail("attachment://footer_icon.png")
 			.setTimestamp();
 		await response.edit({
@@ -415,7 +415,7 @@ export const command: Command = {
 					.replaceAll('${client.iHorizon_Emojis.Slash_Bot_Badge}', client.iHorizon_Emojis.Slash_Bot_Badge)
 				)
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-				.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+				.setImage(await client.func.bannerGenerator(interaction.guild.id))
 				.setThumbnail("attachment://footer_icon.png")
 				.setTimestamp();
 
