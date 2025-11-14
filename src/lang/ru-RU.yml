@@ -2779,3 +2779,12 @@ new_guild_embed_desc: "## ${randomMessage}\nПривет, удивительны
 confession_embed_logs_title: "Новое признание"
 confession_channel_button_name: "Ответить анонимно"
 confession_1_embed_log_title: "Новый ответ на признание"
+
+# Context Menu Interaction
+global_unknown_message: "Сообщение не найдено."
+global_error: "❌ Ошибка"
+global_not_atc: "В выбранном сообщении нет вложений."
+global_not_valid_atc: "Выбранное вложение не является допустимым аудиофайлом."
+global_too_heavy_file: "Созданный MP4 файл слишком большой (${fileSizeMB.toFixed(2)} MB). Лимит Discord — 25 MB."
+global_convert_ok: "✅ Конвертация выполнена успешно"
+global_convert_ok_desc: "Ваш аудиофайл был конвертирован в MP4 (${fileSizeMB.toFixed(2)} MB)."

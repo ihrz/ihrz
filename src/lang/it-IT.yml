@@ -2779,3 +2779,12 @@ new_guild_embed_desc: "## ${randomMessage}\nCiao, amici straordinari!\n\nSono iH
 confession_embed_logs_title: "Nuova confessione"
 confession_channel_button_name: "Rispondi in modo anonimo"
 confession_1_embed_log_title: "Nuova risposta alla confessione"
+
+# Context Menu Interaction
+global_unknown_message: "Messaggio non trovato."
+global_error: "❌ Errore"
+global_not_atc: "Il messaggio selezionato non contiene alcun allegato."
+global_not_valid_atc: "L'allegato selezionato non è un file audio valido."
+global_too_heavy_file: "Il file MP4 generato è troppo grande (${fileSizeMB.toFixed(2)} MB). Il limite di Discord è 25 MB."
+global_convert_ok: "✅ Conversione riuscita"
+global_convert_ok_desc: "Il tuo file audio è stato convertito in MP4 (${fileSizeMB.toFixed(2)} MB)."
