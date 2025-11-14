@@ -183,6 +183,7 @@ export const event: BotEvent = {
 					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
 					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
 					{ name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
+					{ name: "👑・Server Owner", value: `(${guild.ownerId}) ${(await guild.fetchOwner().catch(() => null))?.user.username || "Unknown"}`, inline: true },
 					{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
 					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
 					{ name: "🥛・New members total", value: `${stats.users.toString()} members`, inline: true },
