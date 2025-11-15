@@ -27,6 +27,50 @@ interface LangsData {
 
 const LangsData: LangsData = {};
 
+export const AvailableLanguage: { code: string; name: string }[] = [
+	{
+		name: "Arab Egyptian",
+		code: "ar-EG"
+	},
+	{
+		name: "Deutsch",
+		code: "de-DE"
+	},
+	{
+		name: "English",
+		code: "en-US"
+	},
+
+	{
+		name: "French",
+		code: "fr-FR"
+	},
+	{
+		name: "Italian",
+		code: "it-IT"
+	},
+	{
+		name: "Japanese",
+		code: "jp-JP"
+	},
+	{
+		name: "Portuguese",
+		code: "pt-PT"
+	},
+	{
+		name: "Rude French",
+		code: "fr-ME"
+	},
+	{
+		name: "Russian",
+		code: "ru-RU"
+	},
+	{
+		name: "Spanish",
+		code: "es-ES"
+	},
+];
+
 export default async function getLanguageData(arg: string | undefined | null): Promise<LanguageData> {
 
 	let lang = await client.db.get(`${arg}.GUILD.LANG.lang`) as string;

@@ -36,6 +36,7 @@ import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 import { isNumber } from '../../core/functions/method.js';
 import { DB } from '../../core/database/types.js';
 import { Horizon } from '../../core/database/driver/horizon.js';
+import { AvailableLanguage } from '../../core/functions/getLanguageData.js';
 
 // @ts-ignore
 export let tempTable: DB = null;
@@ -163,7 +164,8 @@ export const event: BotEvent = {
 				},
 				"content": {
 					commands: client.commands.size + client.message_commands.size + client.applicationsCommands.size,
-					category: client.category.length
+					category: client.category.length,
+					langs: AvailableLanguage.map(x => x.name)
 				},
 				"user": {
 					username: client.user?.username,
