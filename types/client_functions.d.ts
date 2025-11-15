@@ -328,12 +328,7 @@ declare namespace Client_Functions {
 
 	// From helper.ts
 	export namespace helper {
-		export function coolDown(message: Message<boolean>, method: string, ms: number): Promise<boolean>;
-		export function hardCooldown(
-			database: Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon,
-			method: string,
-			ms: number
-		): Promise<boolean>;
+		export function cooldown(authorId: string, method: string, ms: number): Promise<boolean>;
 		export function capitalizeFirstLetter(string: string): string;
 	}
 
