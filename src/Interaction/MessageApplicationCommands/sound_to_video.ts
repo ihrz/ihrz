@@ -46,6 +46,10 @@ export const command: AnotherCommand = {
 	run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
 		const lang = await client.func.getLanguageData(interaction.guildId);
 
+		if (await client.func.helper.cooldown(interaction.user.id, "convert2mp4", client.timeCalculator.to_ms("1m30s")!)) {
+			return interaction.reply({ content: lang.media_gen_cooldown })
+		};
+
 		try {
 			const message = interaction.targetMessage;
 
