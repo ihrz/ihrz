@@ -19,25 +19,14 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Message } from "discord.js";
-import { DB } from "../database/types.ts";
 import { tempTable } from "../../Events/client/ready.ts";
 
-export async function coolDown(message: Message, method: string, ms: number): Promise<boolean> {
+export async function cooldown(authorId: string, method: string, ms: number): Promise<boolean> {
 	const tn = Date.now();
-	const fetch = await tempTable.get(`COOLDOWN.${method}.${message.author.id}`);
+	const fetch = await tempTable.get(`COOLDOWN.${method}.${authorId}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;
 
-	await tempTable.set(`COOLDOWN.${method}.${message.author.id}`, tn);
-	return false;
-};
-
-export async function hardCooldown(database: DB, method: string, ms: number): Promise<boolean> {
-	const tn = Date.now();
-	const fetch = await tempTable.get(`COOLDOWN.${method}`);
-	if (fetch !== null && ms - (tn - fetch) > 0) return true;
-
-	await tempTable.set(`COOLDOWN.${method}`, tn);
+	await tempTable.set(`COOLDOWN.${method}.${authorId}`, tn);
 	return false;
 };
 

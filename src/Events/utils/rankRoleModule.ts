@@ -54,7 +54,7 @@ export const event: BotEvent = {
 		const canUseCommands = permissions.has(PermissionsBitField.Flags.UseApplicationCommands);
 
 		if (!dbGet || !dbGet.roles) {
-			if (!await client.func.helper.coolDown(message, "ping_bot", 7000) && canUseCommands) {
+			if (!await client.func.helper.cooldown(message.author.id, "ping_bot", 7000) && canUseCommands) {
 				return await client.func.method.interactionSend(message, { content: text });
 			}
 			return;
