@@ -19,13 +19,14 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment, MessagePayload } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment, MessagePayload, ButtonStyle, ActionRowData, APIMessageTopLevelComponent, JSONEncodable, MessageActionRowComponentBuilder, MessageActionRowComponentData, TopLevelComponentData } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { generatePassword } from "./random.js";
 import { getPermissionByValue } from "./permissonsCalculator.js";
+import { apiTable } from "../../Events/client/ready.js";
 
 export function isNumber(str: string): boolean {
 	return !isNaN(Number(str)) && str.trim() !== "";
@@ -466,6 +467,42 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
 	});
 }
 
+export async function shouldAdvertiseTheTopggVoteButton(authorId: string): Promise<boolean> {
+	const lastVoteTimestamp = (await apiTable.get(`togg_vote.${authorId}.timestamp`));
+	if (!lastVoteTimestamp) return true;
+
+	const twelveHours = 12 * 60 * 60 * 1000;
+
+	return Date.now() - lastVoteTimestamp >= twelveHours;
+}
+
+export async function generateTopggActionRow() {
+	return new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setStyle(ButtonStyle.Link)
+			.setURL(`https://top.gg/bot/${client.user?.id}/vote`)
+			.setLabel("Vote for iHorizon")
+			.setEmoji(client.iHorizon_Emojis.TOPGG)
+	)
+}
+
+export type components = readonly (
+	| JSONEncodable<APIMessageTopLevelComponent>
+	| TopLevelComponentData
+	| ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder>
+	| APIMessageTopLevelComponent
+)[];
+
+export async function addTopggButonToTheActualComponents(current: components): Promise<components> {
+	const topggActionRow = await generateTopggActionRow();
+
+	if (!current || current.length === 0) {
+		return [topggActionRow];
+	}
+
+	return [...current, topggActionRow];
+}
+
 export async function interactionSend(
 	interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message,
 	options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
@@ -483,6 +520,9 @@ export async function interactionSend(
 			await interaction.editReply(editOptions as InteractionEditReplyOptions);
 			return await interaction.fetchReply();
 		} else {
+			if (await shouldAdvertiseTheTopggVoteButton(interaction.user.id || "")) {
+				editOptions.components = await addTopggButonToTheActualComponents(editOptions.components || []);
+			}
 			await interaction.reply({ ...editOptions });
 			return await interaction.fetchReply();
 		}
