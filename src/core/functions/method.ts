@@ -514,15 +514,16 @@ export async function interactionSend(
 			? { content: options }
 			: { ...options as InteractionReplyOptions };
 
+		if (await shouldAdvertiseTheTopggVoteButton(interaction.user.id || "")) {
+			editOptions.components = await addTopggButonToTheActualComponents(editOptions.components || []);
+		}
+
 		if (interaction.replied) {
 			return await interaction.editReply(editOptions as InteractionEditReplyOptions);
 		} else if (interaction.deferred) {
 			await interaction.editReply(editOptions as InteractionEditReplyOptions);
 			return await interaction.fetchReply();
 		} else {
-			if (await shouldAdvertiseTheTopggVoteButton(interaction.user.id || "")) {
-				editOptions.components = await addTopggButonToTheActualComponents(editOptions.components || []);
-			}
 			await interaction.reply({ ...editOptions });
 			return await interaction.fetchReply();
 		}
