@@ -134,7 +134,7 @@ export const command: Command = {
 				)
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-			await interaction.reply({ embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+			await client.func.method.interactionSend(interaction, { embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)] });
 			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver`, {
 				enable: true,
 				timeout: timeout,
@@ -146,7 +146,7 @@ export const command: Command = {
 			const state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver.enable`);
 
 			if (!state) {
-				await interaction.reply({ content: lang.rolesaver_on_off_already_set });
+				await client.func.method.interactionSend(interaction, { content: lang.rolesaver_on_off_already_set });
 				return;
 			};
 
@@ -159,7 +159,7 @@ export const command: Command = {
 				)
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-			await interaction.reply({
+			await client.func.method.interactionSend(interaction, {
 				embeds: [embed],
 				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 			});

@@ -40,7 +40,7 @@ export const subCommand: SubCommand = {
 		const channel = interaction.options.getChannel("channel");
 
 		if (!channel || channel.type !== ChannelType.GuildText) {
-			return interaction.reply({ content: lang.blogger_blog_add_invalid_channel, ephemeral: true });
+			return client.func.method.interactionSend(interaction, { content: lang.blogger_blog_add_invalid_channel, ephemeral: true });
 		}
 
 		const validation = await client.blogger.validateRssFeed(rss);
@@ -75,7 +75,7 @@ export const subCommand: SubCommand = {
 				]
 			});
 		} else {
-			return interaction.reply({
+			return client.func.method.interactionSend(interaction, {
 				content: lang.blogger_blog_add_invalid_rss,
 				ephemeral: true
 			});

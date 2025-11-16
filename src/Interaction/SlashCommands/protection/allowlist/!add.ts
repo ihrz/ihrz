@@ -41,27 +41,27 @@ export const subCommand: SubCommand = {
 		const member = interaction.options.getMember('member') as GuildMember;
 
 		if (interaction.user.id !== interaction.guild.ownerId) {
-			await interaction.reply({ content: lang.allowlist_add_not_owner });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_add_not_owner });
 			return;
 		};
 
 		if (interaction.user.id !== interaction.guild.ownerId && baseData?.list?.[interaction.user.id]?.allowed !== true) {
-			await interaction.reply({ content: lang.allowlist_add_not_permited });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_add_not_permited });
 			return;
 		};
 
 		if (!member) {
-			await interaction.reply({ content: lang.allowlist_add_member_unreachable });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_add_member_unreachable });
 			return;
 		};
 
 		if (baseData?.list?.[member.user.id]?.allowed == true) {
-			await interaction.reply({ content: lang.allowlist_add_already_in });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_add_already_in });
 			return;
 		};
 
 		await client.db.set(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`, { allowed: true });
-		await interaction.reply({
+		await client.func.method.interactionSend(interaction, {
 			content: lang.allowlist_add_command_work
 				.replace('${member.user}', member.user.toString())
 		});

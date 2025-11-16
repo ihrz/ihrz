@@ -40,32 +40,32 @@ export const subCommand: SubCommand = {
 		const member = interaction.options.getUser('member') as User;
 
 		if (interaction.user.id !== interaction.guild.ownerId) {
-			await interaction.reply({ content: lang.allowlist_delete_not_owner });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_delete_not_owner });
 			return;
 		};
 
 		if (interaction.user.id !== interaction.guild.ownerId && baseData?.list?.[interaction.user.id]?.allowed !== true) {
-			await interaction.reply({ content: lang.allowlist_delete_not_permited });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_delete_not_permited });
 			return;
 		};
 
 		if (!member) {
-			await interaction.reply({ content: lang.allowlist_delete_member_unreachable });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_delete_member_unreachable });
 			return;
 		};
 
 		if (member.id === interaction.guild.ownerId) {
-			await interaction.reply({ content: lang.allowlist_delete_cant_remove_owner });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_delete_cant_remove_owner });
 			return;
 		};
 
 		if (!baseData.list?.[member.id]?.allowed == true) {
-			await interaction.reply({ content: lang.allowlist_delete_isnt_in });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_delete_isnt_in });
 			return;
 		};
 
 		await client.db.delete(`${interaction.guild.id}.ALLOWLIST.list.${member.id}`);
-		await interaction.reply({
+		await client.func.method.interactionSend(interaction, {
 			content: lang.allowlist_delete_command_work
 				.replace('${member.user}', member.toString())
 		});
