@@ -468,7 +468,7 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
 }
 
 export async function shouldAdvertiseTheTopggVoteButton(authorId: string): Promise<boolean> {
-	const lastVoteTimestamp = (await apiTable.get(`togg_vote.${authorId}.timestamp`));
+	const lastVoteTimestamp = (await apiTable.get(`topgg_vote.${authorId}.timestamp`));
 	if (!lastVoteTimestamp) return true;
 
 	const twelveHours = 12 * 60 * 60 * 1000;
