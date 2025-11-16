@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
 		};
 
 		if (interaction.user.id !== interaction.guild.ownerId && !text.includes(interaction.user.id)) {
-			await interaction.reply({ content: lang.allowlist_show_not_permited });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_show_not_permited });
 			return;
 		};
 
@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 			.setTimestamp();
 
-		await interaction.reply({
+		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
 			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});

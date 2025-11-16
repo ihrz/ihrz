@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 				]
 			})
 		} else {
-			return interaction.reply({ content: lang.notifier_author_add_author_doesnt_exist })
+			return client.func.method.interactionSend(interaction, { content: lang.notifier_author_add_author_doesnt_exist })
 		}
 	},
 };

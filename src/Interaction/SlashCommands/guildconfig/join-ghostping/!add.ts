@@ -45,7 +45,7 @@ export const subCommand: SubCommand = {
 		const all_channels = new Set(allData?.filter(x => interaction.guild?.channels.cache.get(x)));
 
 		if (all_channels?.has(channel.id)) {
-			await interaction.reply({
+			await client.func.method.interactionSend(interaction, {
 				content: lang.joinghostping_add_already_set
 					.replace('${channel}', channel.toString())
 			});
@@ -74,7 +74,7 @@ export const subCommand: SubCommand = {
 				.replace('${channel}', channel.toString())
 		});
 
-		await interaction.reply({ embeds: [embed] });
+		await client.func.method.interactionSend(interaction, { embeds: [embed] });
 		return;
 	},
 };
