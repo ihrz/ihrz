@@ -1296,6 +1296,7 @@ export interface LanguageData {
 	clear_confirmation_message: string;
 	clear_logs_embed_title: string;
 	clear_logs_embed_description: string;
+	clear_command_no_message: string;
 	lock_embed_message_description: string;
 	lock_dont_have_permission: string;
 	lock_logs_embed_title: string;

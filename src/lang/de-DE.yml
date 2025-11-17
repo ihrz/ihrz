@@ -1701,6 +1701,7 @@ clear_channel_message_deleted: "${messages.size} Nachrichten gelöscht!"
 clear_confirmation_message: "${messages.size} Nachrichten wurden gelöscht!"
 clear_logs_embed_title: "Löschen von Nachrichten-Logs"
 clear_logs_embed_description: "<@${interaction.user.id}> hat ${messages.size} Nachrichten in <#${interaction.channel.id}> gelöscht"
+clear_command_no_message: "Keine Nachrichten zum Löschen in diesem Kanal"
 
 # /lock
 lock_embed_message_description: "Der Kanal wurde von <@${interaction.user.id}> gesperrt."

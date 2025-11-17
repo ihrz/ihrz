@@ -1701,6 +1701,7 @@ clear_channel_message_deleted: "Удалено ${messages.size} сообщени
 clear_confirmation_message: "${messages.size} сообщений было удалено!"
 clear_logs_embed_title: "Логи удаления сообщений"
 clear_logs_embed_description: "<@${interaction.user.id}> удалил ${messages.size} сообщений в <#${interaction.channel.id}>"
+clear_command_no_message: "Нет сообщений для удаления в этом канале"
 
 # /lock
 lock_embed_message_description: "Канал заблокирован пользователем <@${interaction.user.id}>."

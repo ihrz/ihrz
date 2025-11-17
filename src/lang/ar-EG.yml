@@ -1701,6 +1701,7 @@ clear_channel_message_deleted: "${messages.size} رسالة تم حذفها!"
 clear_confirmation_message: "${messages.size} رسالة تم حذفها!"
 clear_logs_embed_title: "سجلات حذف الرسائل"
 clear_logs_embed_description: "<@${interaction.user.id}> حذف ${messages.size} رسالة في <#${interaction.channel.id}>"
+clear_command_no_message: "لا توجد رسائل لحذفها في هذه القناة"
 
 # /lock
 lock_embed_message_description: "تم قفل القناة بواسطة <@${interaction.user.id}>."

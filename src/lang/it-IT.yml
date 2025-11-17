@@ -1701,6 +1701,7 @@ clear_channel_message_deleted: "${messages.size} messaggi eliminati!"
 clear_confirmation_message: "${messages.size} messaggi sono stati eliminati!"
 clear_logs_embed_title: "Log eliminazione messaggi"
 clear_logs_embed_description: "<@${interaction.user.id}> ha eliminato ${messages.size} messaggi in <#${interaction.channel.id}>"
+clear_command_no_message: "Non ci sono messaggi da eliminare in questo canale"
 
 # /lock
 lock_embed_message_description: "Il canale è stato bloccato da <@${interaction.user.id}>."

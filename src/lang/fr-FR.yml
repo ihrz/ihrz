@@ -1701,6 +1701,7 @@ clear_channel_message_deleted: "${messages.size} messages supprimés !"
 clear_confirmation_message: "${messages.size} messages ont été supprimés !"
 clear_logs_embed_title: "Logs de suppression de messages"
 clear_logs_embed_description: "<@${interaction.user.id}> a supprimé ${messages.size} messages dans <#${interaction.channel.id}>"
+clear_command_no_message: "Aucun message à supprimer dans ce canal"
 
 # /lock
 lock_embed_message_description: "Le salon a été verrouillé par <@${interaction.user.id}>."

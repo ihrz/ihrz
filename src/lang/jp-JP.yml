@@ -1701,6 +1701,7 @@ clear_channel_message_deleted: "${messages.size} 個のメッセージが削除�
 clear_confirmation_message: "${messages.size} 個のメッセージが削除されました！"
 clear_logs_embed_title: "メッセージクリアログ"
 clear_logs_embed_description: "<@${interaction.user.id}> が <#${interaction.channel.id}> で ${messages.size} 個のメッセージをクリアしました。"
+clear_command_no_message: "このチャンネルには削除できるメッセージがありません"
 
 # /lock
 lock_embed_message_description: "<@${interaction.user.id}> によってチャンネルがロックされました。"
