@@ -2468,6 +2468,7 @@ batch_massiverole_process: "🔄 جاري إضافة دور لـ ${membersToProc
 batch_unmassiverole_process: "🔄 جاري إزالة دور من ${membersToProcess.length} عضو..."
 batch_undo_unban: "🔄 جاري إعادة إلغاء حظر ${unbanned_members.length} عضو..."
 batch_derank_process: "🔄 إزالة ${rolesToRemove.length} من ${member.user.username}..."
+unbanall_undo_command_err: "لا يوجد أعضاء لإعادة حظرهم. استخدم أمر إلغاء الحظر للجميع أولاً."
 
 # -----------------------------/ \-----------------------------
 # Confession Module Events

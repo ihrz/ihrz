@@ -2471,6 +2471,7 @@ batch_massiverole_process: "🔄 Adding role to ${membersToProcess.length} membe
 batch_unmassiverole_process: "🔄 Removing role from ${membersToProcess.length} members in progress..."
 batch_undo_unban: "🔄 Re-unbanning ${unbanned_members.length} members in progress..."
 batch_derank_process: "🔄 Removing ${rolesToRemove.length} roles from ${member.user.username}..."
+unbanall_undo_command_err: "No members to re-ban. Use the unban all command first."
 
 # -----------------------------/ \-----------------------------
 # Confession Module Events

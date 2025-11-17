@@ -139,7 +139,7 @@ export const command: AnotherCommand = {
 					.setColor("#ff0000")
 					.setDescription(lang.global_too_heavy_file.replace("${fileSizeMB.toFixed(2)}", fileSizeMB.toFixed(2)))
 					.setTimestamp();
-				await interaction.editReply({ content: "", embeds: [embed] });
+				await interaction.editReply({ content: null, embeds: [embed] });
 			} else {
 				const mp4Attachment = new AttachmentBuilder(outputPath, {
 					name: `${path.parse(attachment.name || "audio").name}.mp4`
@@ -173,7 +173,7 @@ export const command: AnotherCommand = {
 
 			try {
 				if (interaction.deferred || interaction.replied) {
-					await interaction.editReply({ content: "", embeds: [embed] });
+					await interaction.editReply({ content: null, embeds: [embed] });
 				} else {
 					await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
 				}

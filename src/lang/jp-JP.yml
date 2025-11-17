@@ -2468,6 +2468,7 @@ batch_massiverole_process: "🔄 ${membersToProcess.length}人のメンバーに
 batch_unmassiverole_process: "🔄 ${membersToProcess.length}人のメンバーからロールを削除中..."
 batch_undo_unban: "🔄 ${unbanned_members.length}人のメンバーを再BAN解除中..."
 batch_derank_process: "🔄 ${rolesToRemove.length}人のロールを${member.user.username}から削除中..."
+unbanall_undo_command_err: "再度BANするメンバーがいません。まずは全員のBAN解除コマンドを使用してください。"
 
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント

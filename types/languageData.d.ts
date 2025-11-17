@@ -1845,6 +1845,7 @@ export interface LanguageData {
 	batch_unmassiverole_process: string;
 	batch_undo_unban: string;
 	batch_derank_process: string;
+	unbanall_undo_command_err: string;
 	confession_module_modal_title: string;
 	confession_module_modal_components1_label: string;
 	confession_module_modal_components1_placeholder: string;

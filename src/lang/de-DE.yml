@@ -2468,6 +2468,7 @@ batch_massiverole_process: "🔄 Füge Rolle zu ${membersToProcess.length} Mitgl
 batch_unmassiverole_process: "🔄 Entferne Rolle von ${membersToProcess.length} Mitgliedern..."
 batch_undo_unban: "🔄 Entbanne ${unbanned_members.length} Mitglieder erneut..."
 batch_derank_process: "🔄 Entferne ${rolesToRemove.length} Rollen von ${member.user.username}..."
+unbanall_undo_command_err: "Keine Mitglieder zum erneuten Bannen. Verwende zuerst den Befehl ‚Alle entbannen‘."
 
 # -----------------------------/ \-----------------------------
 # Bekenntnismodul Ereignisse

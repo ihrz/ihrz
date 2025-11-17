@@ -2468,6 +2468,7 @@ batch_massiverole_process: "🔄 Добавляю роль ${membersToProcess.le
 batch_unmassiverole_process: "🔄 Удаляю роль у ${membersToProcess.length} участников..."
 batch_undo_unban: "🔄 Повторно разбаниваю ${unbanned_members.length} участников..."
 batch_derank_process: "🔄 Удаляю ${rolesToRemove.length} ролей у ${member.user.username}..."
+unbanall_undo_command_err: "Нет участников для повторного бана. Сначала используйте команду разбана всех."
 
 # -----------------------------/ \-----------------------------
 # События Модуля Исповедей

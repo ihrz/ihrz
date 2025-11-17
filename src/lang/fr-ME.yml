@@ -2471,6 +2471,7 @@ batch_massiverole_process: "🔄 Ajout de rôle à ${membersToProcess.length} me
 batch_unmassiverole_process: "🔄 Suppression de rôle de ${membersToProcess.length} membres en cours..."
 batch_undo_unban: "🔄 Re-débannissement de ${unbanned_members.length} membres en cours..."
 batch_derank_process: "🔄 Suppression de ${rolesToRemove.length} rôles de ${member.user.username} en cours..."
+unbanall_undo_command_err: "Aucun membre à re-bannir. Utilisez d’abord la commande de débanissement global."
 
 # -----------------------------/ \-----------------------------
 # Événements du Module de Confession
