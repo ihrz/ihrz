@@ -838,6 +838,18 @@ economy_shop_not_set: "Não há papéis disponíveis para compra neste servidor.
 economy_shop_already_owned: "Já possuído"
 economy_shop_menu_placeholder: "Selecione um papel para comprar"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Formato de tempo inválido. Utilize um formato de tempo válido."
+economy_manage_rewards_cooldown_command_ok: "O tempo de cooldown para ${type} foi definido para ${stime} com sucesso."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "O dinheiro para ${type} foi definido com sucesso para ${money}."
+
+# /economy role list
+economy_role_list_no_buyable_roles: "Não há cargos compráveis para mostrar."
+economy_role_list_embed_title: "Sistema de Economia - Cargos Compráveis"
+economy_role_list_embed_desc: "Todos os cargos compráveis estão listados abaixo."
+
 # Comandos de personalização de perfil
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -1092,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | O membro que queres 
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuração da trela cancelada"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Você colocou a trela no usuário com sucesso neste servidor :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Este usuário não está sob seu controle!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Você libertou o usuário com sucesso neste servidor :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "O tempo entre uma renovação de canal deve ser superior a 1 minuto"
 util_autorenew_time_too_long: "O tempo entre uma renovação de canal deve ser inferior a 30 dias"
@@ -1158,6 +1174,11 @@ util_cooldown_command_ok: "O modo lento do canal foi definido para ${duration_in
 # /util role-members
 util_role_members: "Lista de utilizadores que têm os cargos"
 util_role_members_no_one: "Não há ninguém com esse cargo no servidor"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "O código URL Vanity `${VanityCode}` é inválido. A string deve ser alfanumérica e pode incluir hífens entre palavras. O comprimento máximo é de 32 caracteres. Os hífens não podem estar no início ou no fim da string."
+util_vanity_generator_already_claimed: "O código URL Vanity já está em uso! Escolha outro."
+util_vanity_generator_command_err: "Ocorreu um erro ao criar o código vanity. Por favor, tente novamente mais tarde."
 
 # +top
 utils_top_no_message: "Nenhuma mensagem encontrada neste canal"
@@ -1701,6 +1722,7 @@ clear_channel_message_deleted: "${messages.size} mensagens deletadas!"
 clear_confirmation_message: "${messages.size} mensagens foram deletadas!"
 clear_logs_embed_title: "Logs de Mensagens Limpas"
 clear_logs_embed_description: "<@${interaction.user.id}> limpou ${messages.size} mensagens em <#${interaction.channel.id}>"
+clear_command_no_message: "Não há mensagens para apagar neste canal"
 
 # /lock
 lock_embed_message_description: "O canal foi bloqueado por <@${interaction.user.id}>."
@@ -2233,6 +2255,7 @@ tag_use_command_work: "A tag `${tag_name}` foi enviada."
 
 # /tag edit
 tag_edit_error_perm: "Para modificar a tag, precisas de permissões de administrador ou de ser o proprietário da tag."
+tag_edit_command_ok: "O nome da tag atual foi modificado de **`${current_tag_name}`** para **`${new_tag_name}`**"
 
 # Módulo TempVoice
 # /text, /voice, /status, /staff
@@ -2468,6 +2491,7 @@ batch_massiverole_process: "🔄 Adicionando função a ${membersToProcess.lengt
 batch_unmassiverole_process: "🔄 Removendo função de ${membersToProcess.length} membros..."
 batch_undo_unban: "🔄 Re-desbanindo ${unbanned_members.length} membros..."
 batch_derank_process: "🔄 Removendo ${rolesToRemove.length} funções de ${member.user.username}..."
+unbanall_undo_command_err: "Não há membros para voltar a banir. Use primeiro o comando para desbanir todos."
 
 # -----------------------------/ \-----------------------------
 # Eventos do Módulo de Confissões

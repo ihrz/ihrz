@@ -199,8 +199,8 @@ ${name}`;
 
 		components.push(new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
-				.setStyle(ButtonStyle.Link)
-				.setURL(`https://discordapp.com/users/${interaction.user.id}`)
+				.setStyle(ButtonStyle.Secondary)
+				.setCustomId(`confessionauthor%${interaction.user.id}`)
 				.setLabel(lang.userinfo_button_label)
 		));
 

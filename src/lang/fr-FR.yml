@@ -838,6 +838,18 @@ economy_shop_not_set: "Il n'y a aucun rôle disponible à l'achat sur ce serveur
 economy_shop_already_owned: "Déjà possédé"
 economy_shop_menu_placeholder: "Sélectionnez un rôle à acheter"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Format de temps invalide. Veuillez utiliser un format valide."
+economy_manage_rewards_cooldown_command_ok: "Le temps de recharge pour ${type} a été défini sur ${stime} avec succès."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Le montant d'argent pour ${type} a été défini sur ${money} avec succès."
+
+# /economy role list
+economy_role_list_no_buyable_roles: "Il n’y a aucun rôle achetable à afficher."
+economy_role_list_embed_title: "Système d'Économie - Rôles Achetables"
+economy_role_list_embed_desc: "Tous les rôles achetables sont listés ci-dessous."
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -1092,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Le membre que tu veu
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuration de laisse annulée"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Vous avez mis en laisse l'utilisateur avec succès dans ce serveur :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Cet utilisateur n'est pas sous votre contrôle !"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Vous avez libéré cet utilisateur avec succès dans ce serveur :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Le temps entre chaque renouvellement de salon doit être supérieur à 1 minute"
 util_autorenew_time_too_long: "Le temps entre chaque renouvellement de salon doit être inférieur à 30 jours"
@@ -1158,6 +1174,11 @@ util_cooldown_command_ok: "Le salon a vu son slowmode changer pour ${duration_in
 # /util role-members
 util_role_members: "Liste des utilisateurs qui possèdent les rôles"
 util_role_members_no_one: "Personne ne possède ce rôle sur le serveur"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "Le code URL Vanity `${VanityCode}` est invalide. La chaîne doit être alphanumérique et peut contenir des tirets entre les mots. La longueur maximale est de 32 caractères. Les tirets ne peuvent pas être au début ou à la fin de la chaîne."
+util_vanity_generator_already_claimed: "Le code URL Vanity est déjà utilisé ! Choisissez-en un autre."
+util_vanity_generator_command_err: "Une erreur est survenue lors de la création du code vanity. Veuillez réessayer plus tard."
 
 # +top
 utils_top_no_message: "Aucun message trouvé dans ce canal"
@@ -1701,6 +1722,7 @@ clear_channel_message_deleted: "${messages.size} messages supprimés !"
 clear_confirmation_message: "${messages.size} messages ont été supprimés !"
 clear_logs_embed_title: "Logs de suppression de messages"
 clear_logs_embed_description: "<@${interaction.user.id}> a supprimé ${messages.size} messages dans <#${interaction.channel.id}>"
+clear_command_no_message: "Aucun message à supprimer dans ce canal"
 
 # /lock
 lock_embed_message_description: "Le salon a été verrouillé par <@${interaction.user.id}>."
@@ -2233,6 +2255,7 @@ tag_use_command_work: "Le tag `${tag_name}` a été envoyé."
 
 # /tag edit
 tag_edit_error_perm: "Pour modifier le tag, vous devez avoir les permissions d'Administrateur ou être le propriétaire du tag."
+tag_edit_command_ok: "Le nom du tag actuel a été modifié de **`${current_tag_name}`** à **`${new_tag_name}`**"
 
 # Module TempVoice
 # /texte, /voix, /statut, /personnel
@@ -2468,6 +2491,7 @@ batch_massiverole_process: "🔄 Ajout de rôle à ${membersToProcess.length} me
 batch_unmassiverole_process: "🔄 Suppression de rôle de ${membersToProcess.length} membres en cours..."
 batch_undo_unban: "🔄 Re-débannissement de ${unbanned_members.length} membres en cours..."
 batch_derank_process: "🔄 Suppression de ${rolesToRemove.length} rôles de ${member.user.username} en cours..."
+unbanall_undo_command_err: "Aucun membre à re-bannir. Utilisez d’abord la commande de débanissement global."
 
 # -----------------------------/ \-----------------------------
 # Événements du Module de Confession

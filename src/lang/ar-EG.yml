@@ -838,6 +838,18 @@ economy_shop_not_set: "لا توجد أدوار متاحة للشراء في ه�
 economy_shop_already_owned: "تمتلكه بالفعل"
 economy_shop_menu_placeholder: "اختر دورًا للشراء"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "صيغة الوقت غير صالحة. يرجى استخدام صيغة وقت صحيحة."
+economy_manage_rewards_cooldown_command_ok: "تم تعيين وقت الانتظار لـ ${type} إلى ${stime} بنجاح."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "تم تعيين المال لـ ${type} إلى ${money} بنجاح."
+
+# /economy role list
+economy_role_list_no_buyable_roles: "لا توجد رتب قابلة للشراء لعرضها."
+economy_role_list_embed_title: "نظام الاقتصاد - الرتب القابلة للشراء"
+economy_role_list_embed_desc: "جميع الرتب القابلة للشراء مذكورة أدناه."
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -1093,6 +1105,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | العضو الذي 
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | تم إلغاء إعدادات المقود"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | لقد نجحت في ربط المستخدم بالمقود في هذا الخادم :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | هذا المستخدم ليس مربوطاً لديك!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | لقد قمت بتحرير هذا المستخدم بنجاح في هذا السيرفر :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "يجب أن يكون الوقت بين تجديد القناة أكثر من دقيقة واحدة"
 util_autorenew_time_too_long: "يجب أن تكون الفترة الزمنية بين تجديد الصالون أقل من 30 يوماً"
@@ -1159,6 +1175,11 @@ util_cooldown_command_ok: "تم تغيير وضع البطء في القناة �
 # /util role-members
 util_role_members: "قائمة المستخدمين الذين لديهم الأدوار"
 util_role_members_no_one: "لا يوجد أي شخص لديه هذا الدور في الخادم"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "رمز URL Vanity `${VanityCode}` غير صالح. يجب أن تكون السلسلة أبجدية رقمية ويمكن أن تحتوي على شرطات بين الكلمات. الحد الأقصى للطول هو 32 حرفًا. لا يمكن أن تكون الشرطات في بداية أو نهاية السلسلة."
+util_vanity_generator_already_claimed: "رمز URL Vanity هذا مُستخدم بالفعل! اختر رمزًا آخر."
+util_vanity_generator_command_err: "حدث خطأ أثناء إنشاء رمز vanity. يرجى المحاولة مرة أخرى لاحقًا."
 
 # +top
 utils_top_no_message: "لا توجد رسائل في هذه القناة"
@@ -1701,6 +1722,7 @@ clear_channel_message_deleted: "${messages.size} رسالة تم حذفها!"
 clear_confirmation_message: "${messages.size} رسالة تم حذفها!"
 clear_logs_embed_title: "سجلات حذف الرسائل"
 clear_logs_embed_description: "<@${interaction.user.id}> حذف ${messages.size} رسالة في <#${interaction.channel.id}>"
+clear_command_no_message: "لا توجد رسائل لحذفها في هذه القناة"
 
 # /lock
 lock_embed_message_description: "تم قفل القناة بواسطة <@${interaction.user.id}>."
@@ -2233,6 +2255,7 @@ tag_use_command_work: "تم إرسال الوسم `${tag_name}`."
 
 # /tag edit
 tag_edit_error_perm: "لتعديل الوسم، تحتاج إلى الحصول على أذونات المدير أو أن تكون مالك الوسم."
+tag_edit_command_ok: "تم تعديل اسم الوسم الحالي من **`${current_tag_name}`** إلى **`${new_tag_name}`**"
 
 # TempVoice Module
 # /text, /voice, /status, /staff
@@ -2468,6 +2491,7 @@ batch_massiverole_process: "🔄 جاري إضافة دور لـ ${membersToProc
 batch_unmassiverole_process: "🔄 جاري إزالة دور من ${membersToProcess.length} عضو..."
 batch_undo_unban: "🔄 جاري إعادة إلغاء حظر ${unbanned_members.length} عضو..."
 batch_derank_process: "🔄 إزالة ${rolesToRemove.length} من ${member.user.username}..."
+unbanall_undo_command_err: "لا يوجد أعضاء لإعادة حظرهم. استخدم أمر إلغاء الحظر للجميع أولاً."
 
 # -----------------------------/ \-----------------------------
 # Confession Module Events

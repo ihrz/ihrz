@@ -838,6 +838,18 @@ economy_shop_not_set: "There are no roles available for purchase in this server.
 economy_shop_already_owned: "Already owned"
 economy_shop_menu_placeholder: "Select a role to purchase"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Invalid time format. Please use a valid time format."
+economy_manage_rewards_cooldown_command_ok: "Successfully set the cooldown for ${type} to ${stime}"
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Successfully set the money for ${type} to ${money}"
+
+# /economy role list
+economy_role_list_no_buyable_roles: "There are no buyable roles to list."
+economy_role_list_embed_title: "Economy System - Buyable Roles"
+economy_role_list_embed_desc: "All buyable roles are listed below."
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -1094,6 +1106,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | The member you want 
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Leash configurations canceled"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | You have sucessfuly leashed the user in this guild :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | This user is not on your leash!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | You have successfully unleashed the user in this guild :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "The time between a channel renew must be more than 1 minutes"
 util_autorenew_time_too_long: "The time between a channel renew must be more than 30 days"
@@ -1160,6 +1176,11 @@ util_cooldown_command_ok: "The channel's slowmode has been set to ${duration_in_
 # /util role-members
 util_role_members: "List of users who have the roles"
 util_role_members_no_one: "There is nobody with that role on the server"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "The URL Vanity code `${VanityCode}` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string."
+util_vanity_generator_already_claimed: "The URL Vanity code are already taked! Choose an another one."
+util_vanity_generator_command_err: "An error has occurred while creating the vanity code. Please try again later."
 
 # +top
 utils_top_no_message: "No messages found in this channel"
@@ -1703,6 +1724,7 @@ clear_channel_message_deleted: "${messages.size} messages deleted !"
 clear_confirmation_message: "${messages.size} message are been deleted !"
 clear_logs_embed_title: "Clear Message Logs"
 clear_logs_embed_description: "<@${interaction.user.id}> clear ${messages.size} messages in <#${interaction.channel.id}>"
+clear_command_no_message: "No message to delete in this channel"
 
 # /lock
 lock_embed_message_description: "The channel has been locked by <@${interaction.user.id}>."
@@ -2235,6 +2257,7 @@ tag_use_command_work: "Tag `${tag_name}` has been sent."
 
 # /tag edit
 tag_edit_error_perm: "To modify the tag, you need to have Administrator permissions or be the tag's owner."
+tag_edit_command_ok: "The current tag name are now modified by **`${current_tag_name}`** to **`${new_tag_name}`**"
 
 # TempVoice Module
 # /text, /voice, /status, /staff
@@ -2471,6 +2494,7 @@ batch_massiverole_process: "🔄 Adding role to ${membersToProcess.length} membe
 batch_unmassiverole_process: "🔄 Removing role from ${membersToProcess.length} members in progress..."
 batch_undo_unban: "🔄 Re-unbanning ${unbanned_members.length} members in progress..."
 batch_derank_process: "🔄 Removing ${rolesToRemove.length} roles from ${member.user.username}..."
+unbanall_undo_command_err: "No members to re-ban. Use the unban all command first."
 
 # -----------------------------/ \-----------------------------
 # Confession Module Events

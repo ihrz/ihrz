@@ -55,15 +55,17 @@ export const subCommand: SubCommand = {
 
 		if (!time) {
 			await client.func.method.interactionSend(interaction, {
-				content: "Invalid time format. Please use a valid time format."
+				content: lang.economy_manage_rewards_cooldown_invalid_time
 			});
 			return;
 		}
 
 		await client.db.set(`${interaction.guildId}.ECONOMY.settings.${type}.cooldown`, time);
 
+		let stime = client.timeCalculator.to_beautiful_string(time, lang);
+
 		await client.func.method.interactionSend(interaction, {
-			content: `Successfully set the cooldown for ${type} to ${client.timeCalculator.to_beautiful_string(time, lang)}`
+			content: lang.economy_manage_rewards_cooldown_command_ok.replace("${type}", type).replace("${stime}", stime)
 		});
 	},
 };

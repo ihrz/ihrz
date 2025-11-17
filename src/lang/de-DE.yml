@@ -838,6 +838,18 @@ economy_shop_not_set: "Es gibt keine Rollen, die in diesem Server zum Kauf verf�
 economy_shop_already_owned: "Bereits im Besitz"
 economy_shop_menu_placeholder: "Wählen Sie eine Rolle zum Kaufen aus"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Ungültiges Zeitformat. Bitte verwende ein gültiges Zeitformat."
+economy_manage_rewards_cooldown_command_ok: "Die Abklingzeit für ${type} wurde erfolgreich auf ${stime} gesetzt."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Das Geld für ${type} wurde erfolgreich auf ${money} gesetzt."
+
+# /economy role list
+economy_role_list_no_buyable_roles: "Es gibt keine kaufbaren Rollen zum Anzeigen."
+economy_role_list_embed_title: "Wirtschaftssystem – Kaufbare Rollen"
+economy_role_list_embed_desc: "Alle kaufbaren Rollen sind unten aufgelistet."
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -1092,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Das Mitglied, das du
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Leine-Konfiguration abgebrochen"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Sie haben den Benutzer erfolgreich an die Leine gelegt in diesem Server :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Dieser Benutzer ist nicht an deiner Leine!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Du hast den Benutzer in diesem Server erfolgreich losgelassen :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Die Zeit zwischen einer Kanalerneuerung muss mehr als 1 Minute betragen"
 util_autorenew_time_too_long: "Die Zeit zwischen einer Kanalerneuerung muss weniger als 30 Tage betragen"
@@ -1158,6 +1174,11 @@ util_cooldown_command_ok: "Der Slowmode des Kanals wurde auf ${duration_in_strin
 # /util role-members
 util_role_members: "Liste der Benutzer mit den Rollen"
 util_role_members_no_one: "Niemand auf dem Server hat diese Rolle"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "Der URL-Vanity-Code `${VanityCode}` ist ungültig. Der String sollte alphanumerisch sein und Bindestriche zwischen Wörtern enthalten können. Die maximale Länge beträgt 32 Zeichen. Bindestriche dürfen nicht am Anfang oder Ende stehen."
+util_vanity_generator_already_claimed: "Der URL-Vanity-Code ist bereits vergeben! Wähle einen anderen."
+util_vanity_generator_command_err: "Beim Erstellen des Vanity-Codes ist ein Fehler aufgetreten. Bitte versuche es später erneut."
 
 # +top
 utils_top_no_message: "Keine Nachrichten in diesem Kanal gefunden"
@@ -1701,6 +1722,7 @@ clear_channel_message_deleted: "${messages.size} Nachrichten gelöscht!"
 clear_confirmation_message: "${messages.size} Nachrichten wurden gelöscht!"
 clear_logs_embed_title: "Löschen von Nachrichten-Logs"
 clear_logs_embed_description: "<@${interaction.user.id}> hat ${messages.size} Nachrichten in <#${interaction.channel.id}> gelöscht"
+clear_command_no_message: "Keine Nachrichten zum Löschen in diesem Kanal"
 
 # /lock
 lock_embed_message_description: "Der Kanal wurde von <@${interaction.user.id}> gesperrt."
@@ -2233,6 +2255,7 @@ tag_use_command_work: "Tag `${tag_name}` wurde gesendet."
 
 # /tag edit
 tag_edit_error_perm: "Um den Tag zu bearbeiten, benötigen Sie Administratorrechte oder müssen der Besitzer des Tags sein."
+tag_edit_command_ok: "Der aktuelle Tag-Name wurde von **`${current_tag_name}`** auf **`${new_tag_name}`** geändert."
 
 # TempVoice Modul
 # /text, /voice, /status, /staff
@@ -2468,6 +2491,7 @@ batch_massiverole_process: "🔄 Füge Rolle zu ${membersToProcess.length} Mitgl
 batch_unmassiverole_process: "🔄 Entferne Rolle von ${membersToProcess.length} Mitgliedern..."
 batch_undo_unban: "🔄 Entbanne ${unbanned_members.length} Mitglieder erneut..."
 batch_derank_process: "🔄 Entferne ${rolesToRemove.length} Rollen von ${member.user.username}..."
+unbanall_undo_command_err: "Keine Mitglieder zum erneuten Bannen. Verwende zuerst den Befehl ‚Alle entbannen‘."
 
 # -----------------------------/ \-----------------------------
 # Bekenntnismodul Ereignisse

@@ -653,6 +653,12 @@ export interface LanguageData {
 	economy_shop_not_set: string;
 	economy_shop_already_owned: string;
 	economy_shop_menu_placeholder: string;
+	economy_manage_rewards_cooldown_invalid_time: string;
+	economy_manage_rewards_cooldown_command_ok: string;
+	economy_manage_rewards_set_money: string;
+	economy_role_list_no_buyable_roles: string;
+	economy_role_list_embed_title: string;
+	economy_role_list_embed_desc: string;
 	setprofilage_command_work: string;
 	setprofildescriptions_command_work: string;
 	profil_not_description_set: string;
@@ -835,6 +841,8 @@ export interface LanguageData {
 	util_leash_confirm_message: string;
 	util_leash_canceled_leash: string;
 	util_leash_confirmed_leash: string;
+	util_unleash_not_in_leash: string;
+	util_unleash_command_ok: string;
 	util_autorenew_time_too_short: string;
 	util_autorenew_time_too_long: string;
 	util_autorenew_command_ok: string;
@@ -878,6 +886,9 @@ export interface LanguageData {
 	util_cooldown_command_ok: string;
 	util_role_members: string;
 	util_role_members_no_one: string;
+	util_vanity_generator_invalid_code: string;
+	util_vanity_generator_already_claimed: string;
+	util_vanity_generator_command_err: string;
 	utils_top_no_message: string;
 	utils_top_command_ok: string;
 	bringall_no_from_channel: string;
@@ -1296,6 +1307,7 @@ export interface LanguageData {
 	clear_confirmation_message: string;
 	clear_logs_embed_title: string;
 	clear_logs_embed_description: string;
+	clear_command_no_message: string;
 	lock_embed_message_description: string;
 	lock_dont_have_permission: string;
 	lock_logs_embed_title: string;
@@ -1696,6 +1708,7 @@ export interface LanguageData {
 	tag_use_not_allowed: string;
 	tag_use_command_work: string;
 	tag_edit_error_perm: string;
+	tag_edit_command_ok: string;
 	tempvoice_if_text_not_admin: string;
 	tempvoice_if_text_desc_embed: string;
 	tempvoice_if_text_fields_value_limit: string;
@@ -1845,6 +1858,7 @@ export interface LanguageData {
 	batch_unmassiverole_process: string;
 	batch_undo_unban: string;
 	batch_derank_process: string;
+	unbanall_undo_command_err: string;
 	confession_module_modal_title: string;
 	confession_module_modal_components1_label: string;
 	confession_module_modal_components1_placeholder: string;

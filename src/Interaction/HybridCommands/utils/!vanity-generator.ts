@@ -57,12 +57,12 @@ export const subCommand: SubCommand = {
 		const get = await apiTable.get('VANITY');
 
 		if (!client.func.method.isValidDiscordInviteCode(VanityCode)) {
-			await client.func.method.interactionSend(interaction, { content: `The URL Vanity code \`${VanityCode}\` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.` });
+			await client.func.method.interactionSend(interaction, { content: lang.util_vanity_generator_invalid_code.replace("${VanityCode}", VanityCode) });
 			return;
 		};
 
 		if (await VanityCodeAlreadyExist(get, VanityCode)) {
-			await client.func.method.interactionSend(interaction, { content: `The URL Vanity code are already taked! Choose an another one` });
+			await client.func.method.interactionSend(interaction, { content: lang.util_vanity_generator_already_claimed });
 			return;
 		};
 
@@ -82,7 +82,7 @@ export const subCommand: SubCommand = {
 		});
 
 		if (req.status !== 200) {
-			await client.func.method.interactionSend(interaction, { content: `An error has occurred while creating the vanity code. Please try again later.` });
+			await client.func.method.interactionSend(interaction, { content: lang.util_vanity_generator_command_err });
 			return;
 		};
 

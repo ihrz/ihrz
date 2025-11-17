@@ -838,6 +838,18 @@ economy_shop_not_set: "No hay roles disponibles para comprar en este servidor. P
 economy_shop_already_owned: "Ya poseído"
 economy_shop_menu_placeholder: "Selecciona un rol para comprar"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Formato de tiempo inválido. Usa un formato de tiempo válido."
+economy_manage_rewards_cooldown_command_ok: "Se ha establecido correctamente el tiempo de reutilización de ${type} a ${stime}."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Se ha establecido correctamente el dinero de ${type} a ${money}."
+
+# /economy role list
+economy_role_list_no_buyable_roles: "No hay roles comprables para mostrar."
+economy_role_list_embed_title: "Sistema de Economía - Roles Comprables"
+economy_role_list_embed_desc: "Todos los roles comprables se listan abajo."
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -1092,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | ¡El miembro que qui
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuración de correa cancelada"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Has atado con éxito al usuario en este servidor :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | ¡Este usuario no está bajo tu control!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Has liberado al usuario con éxito en este servidor :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "El tiempo entre una renovación de canal debe ser más de 1 minuto"
 util_autorenew_time_too_long: "El tiempo entre una renovación de canal debe ser menos de 30 días"
@@ -1158,6 +1174,11 @@ util_cooldown_command_ok: "El modo lento del canal se ha establecido en ${durati
 # /util role-members
 util_role_members: "Lista de usuarios que tienen los roles"
 util_role_members_no_one: "No hay nadie con ese rol en el servidor"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "El código URL Vanity `${VanityCode}` no es válido. La cadena debe ser alfanumérica y puede incluir guiones entre palabras. La longitud máxima es de 32 caracteres. Los guiones no pueden estar al inicio o al final de la cadena."
+util_vanity_generator_already_claimed: "¡El código URL Vanity ya está tomado! Elige otro."
+util_vanity_generator_command_err: "Ocurrió un error al crear el código vanity. Por favor, inténtalo de nuevo más tarde."
 
 # +top
 utils_top_no_message: "No se encontraron mensajes en este canal"
@@ -1701,6 +1722,7 @@ clear_channel_message_deleted: "¡Se han eliminado ${messages.size} mensajes!"
 clear_confirmation_message: "¡Se han eliminado ${messages.size} mensajes!"
 clear_logs_embed_title: "Registros de eliminación de mensajes"
 clear_logs_embed_description: "<@${interaction.user.id}> ha eliminado ${messages.size} mensajes en <#${interaction.channel.id}>"
+clear_command_no_message: "No hay mensajes para borrar en este canal"
 
 # /lock
 lock_embed_message_description: "El canal ha sido bloqueado por <@${interaction.user.id}>."
@@ -2233,6 +2255,7 @@ tag_use_command_work: "La etiqueta `${tag_name}` ha sido enviada."
 
 # /tag edit
 tag_edit_error_perm: "Para modificar la etiqueta, necesitas tener permisos de administrador o ser el propietario de la etiqueta."
+tag_edit_command_ok: "El nombre de la etiqueta actual se ha modificado de **`${current_tag_name}`** a **`${new_tag_name}`**"
 
 # Módulo TempVoice
 # /texto, /voz, /estado, /personal
@@ -2468,6 +2491,7 @@ batch_massiverole_process: "🔄 Añadiendo rol a ${membersToProcess.length} mie
 batch_unmassiverole_process: "🔄 Eliminando rol de ${membersToProcess.length} miembros..."
 batch_undo_unban: "🔄 Re-desbaneando a ${unbanned_members.length} miembros..."
 batch_derank_process: "🔄 Eliminando ${rolesToRemove.length} roles de ${member.user.username}..."
+unbanall_undo_command_err: "No hay miembros para volver a banear. Usa primero el comando de desbanear a todos."
 
 # -----------------------------/ \-----------------------------
 # Eventos del Módulo de Confesión

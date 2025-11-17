@@ -838,6 +838,18 @@ economy_shop_not_set: "このサーバーでは購入可能なロールがあり
 economy_shop_already_owned: "すでに所有しています"
 economy_shop_menu_placeholder: "購入するロールを選択してください"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "無効な時間形式です。正しい時間形式を使用してください."
+economy_manage_rewards_cooldown_command_ok: "${type} のクールダウンが ${stime} に正常に設定されました。"
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "${type} のお金が ${money} に正常に設定されました。"
+
+# /economy role list
+economy_role_list_no_buyable_roles: "表示できる購入可能なロールはありません。"
+economy_role_list_embed_title: "エコノミーシステム - 購入可能ロール"
+economy_role_list_embed_desc: "購入可能なロールは以下に一覧表示されています。"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -1092,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | リードに繋げ�
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | リーシュの設定がキャンセルされました"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | このサーバーでユーザーのリーシュに成功しました :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | このユーザーはあなたの制御下にありません！"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | このサーバーでユーザーを無事に解放しました :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "チャンネルの更新間隔は1分以上である必要があります"
 util_autorenew_time_too_long: "サロンの更新間隔は30日以内でなければならない"
@@ -1158,6 +1174,11 @@ util_cooldown_command_ok: "チャンネルのスローモードが ${duration_in
 # /util role-members
 util_role_members: "そのロールを持っているユーザーの一覧"
 util_role_members_no_one: "サーバーにそのロールを持つ人はいません"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "URL Vanityコード `${VanityCode}` は無効です。文字列は英数字で、単語間にハイフンを含めることができます。最大長は32文字です。ハイフンは文字列の先頭または末尾に置けません。"
+util_vanity_generator_already_claimed: "このURL Vanityコードはすでに使用されています！別のコードを選んでください。"
+util_vanity_generator_command_err: "Vanityコードの作成中にエラーが発生しました。後でもう一度試してください。"
 
 # +top
 utils_top_no_message: "このチャンネルにメッセージが見つかりません"
@@ -1701,6 +1722,7 @@ clear_channel_message_deleted: "${messages.size} 個のメッセージが削除�
 clear_confirmation_message: "${messages.size} 個のメッセージが削除されました！"
 clear_logs_embed_title: "メッセージクリアログ"
 clear_logs_embed_description: "<@${interaction.user.id}> が <#${interaction.channel.id}> で ${messages.size} 個のメッセージをクリアしました。"
+clear_command_no_message: "このチャンネルには削除できるメッセージがありません"
 
 # /lock
 lock_embed_message_description: "<@${interaction.user.id}> によってチャンネルがロックされました。"
@@ -2233,6 +2255,7 @@ tag_use_command_work: "タグ `${tag_name}` が送信されました。"
 
 # /tag edit
 tag_edit_error_perm: "タグを編集するには、管理者権限を持っているか、タグの所有者である必要があります。"
+tag_edit_command_ok: "現在のタグ名が **`${current_tag_name}`** から **`${new_tag_name}`** に変更されました。"
 
 # TempVoiceモジュール
 # /text, /voice, /status, /staff
@@ -2468,6 +2491,7 @@ batch_massiverole_process: "🔄 ${membersToProcess.length}人のメンバーに
 batch_unmassiverole_process: "🔄 ${membersToProcess.length}人のメンバーからロールを削除中..."
 batch_undo_unban: "🔄 ${unbanned_members.length}人のメンバーを再BAN解除中..."
 batch_derank_process: "🔄 ${rolesToRemove.length}人のロールを${member.user.username}から削除中..."
+unbanall_undo_command_err: "再度BANするメンバーがいません。まずは全員のBAN解除コマンドを使用してください。"
 
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント

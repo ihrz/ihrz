@@ -102,9 +102,9 @@ ${name}`;
 
 			components.push(new ActionRowBuilder<ButtonBuilder>().addComponents(
 				new ButtonBuilder()
-					.setStyle(ButtonStyle.Link)
-					.setURL(`https://discordapp.com/users/${interaction.user.id}`)
+					.setStyle(ButtonStyle.Secondary)
 					.setLabel(lang.userinfo_button_label)
+					.setCustomId(`confessionauthor%${interaction.user.id}`)
 			));
 
 			let embed = new EmbedBuilder()

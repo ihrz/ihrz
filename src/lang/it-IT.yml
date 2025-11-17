@@ -838,6 +838,18 @@ economy_shop_not_set: "Non ci sono ruoli disponibili per l'acquisto su questo se
 economy_shop_already_owned: "Già posseduto"
 economy_shop_menu_placeholder: "Seleziona un ruolo da acquistare"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Formato orario non valido. Usa un formato orario valido."
+economy_manage_rewards_cooldown_command_ok: "Il cooldown per ${type} è stato impostato correttamente a ${stime}."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Il denaro per ${type} è stato impostato correttamente a ${money}."
+
+# /economy role list
+economy_role_list_no_buyable_roles: "Non ci sono ruoli acquistabili da mostrare."
+economy_role_list_embed_title: "Sistema Economico - Ruoli Acquistabili"
+economy_role_list_embed_desc: "Tutti i ruoli acquistabili sono elencati qui sotto."
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -1092,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Il membro che vuoi m
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configurazione del guinzaglio annullata"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Hai messo al guinzaglio con successo l'utente in questo server :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Questo utente non è sotto il tuo controllo!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Hai liberato con successo l'utente in questo server :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Il tempo tra un rinnovo del canale deve essere superiore a 1 minuto"
 util_autorenew_time_too_long: "Il tempo tra un rinnovo del canale deve essere inferiore a 30 giorni"
@@ -1158,6 +1174,11 @@ util_cooldown_command_ok: "La modalità lenta del canale è stata impostata a ${
 # /util role-members
 util_role_members: "Elenco degli utenti che hanno i ruoli"
 util_role_members_no_one: "Non c'è nessuno con quel ruolo sul server"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "Il codice URL Vanity `${VanityCode}` non è valido. La stringa deve essere alfanumerica e può includere trattini tra le parole. La lunghezza massima è di 32 caratteri. I trattini non possono essere all'inizio o alla fine della stringa."
+util_vanity_generator_already_claimed: "Il codice URL Vanity è già stato preso! Scegline un altro."
+util_vanity_generator_command_err: "Si è verificato un errore durante la creazione del codice vanity. Riprova più tardi."
 
 # +top
 utils_top_no_message: "Nessun messaggio trovato in questo canale"
@@ -1701,6 +1722,7 @@ clear_channel_message_deleted: "${messages.size} messaggi eliminati!"
 clear_confirmation_message: "${messages.size} messaggi sono stati eliminati!"
 clear_logs_embed_title: "Log eliminazione messaggi"
 clear_logs_embed_description: "<@${interaction.user.id}> ha eliminato ${messages.size} messaggi in <#${interaction.channel.id}>"
+clear_command_no_message: "Non ci sono messaggi da eliminare in questo canale"
 
 # /lock
 lock_embed_message_description: "Il canale è stato bloccato da <@${interaction.user.id}>."
@@ -2233,6 +2255,7 @@ tag_use_command_work: "Il tag `${tag_name}` è stato inviato."
 
 # /tag edit
 tag_edit_error_perm: "Per modificare il tag, devi avere i permessi di amministratore o essere il proprietario del tag."
+tag_edit_command_ok: "Il nome del tag corrente è stato modificato da **`${current_tag_name}`** a **`${new_tag_name}`**"
 
 # Modulo TempVoice
 # /testo, /voce, /stato, /personale
@@ -2468,6 +2491,7 @@ batch_massiverole_process: "🔄 Aggiungendo ruolo a ${membersToProcess.length} 
 batch_unmassiverole_process: "🔄 Rimuovendo ruolo da ${membersToProcess.length} membri..."
 batch_undo_unban: "🔄 Ri-sbannando ${unbanned_members.length} membri..."
 batch_derank_process: "🔄 Rimuovendo ${rolesToRemove.length} ruoli da ${member.user.username}..."
+unbanall_undo_command_err: "Nessun membro da ribannare. Usa prima il comando per unbanare tutti."
 
 # -----------------------------/ \-----------------------------
 # Eventi del Modulo Confessioni

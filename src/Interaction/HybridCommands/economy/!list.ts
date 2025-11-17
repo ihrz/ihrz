@@ -53,14 +53,14 @@ export const subCommand: SubCommand = {
 
 		if (Object.keys(roleData).length === 0) {
 			await client.func.method.interactionSend(interaction, {
-				content: "There are no buyable roles to list."
+				content: lang.economy_role_list_no_buyable_roles
 			});
 			return;
 		}
 
 		const embed = new EmbedBuilder()
-			.setTitle("Economy System - Buyable Roles")
-			.setDescription("All buyable roles are listed below.")
+			.setTitle(lang.economy_role_list_embed_title)
+			.setDescription(lang.economy_role_list_embed_desc)
 			.setFields(client.func.economyHelper.generateRoleFields(roleData, lang))
 			.setColor("#0097ff")
 			.setTimestamp()

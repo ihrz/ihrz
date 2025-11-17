@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 
 			if (messages.length === 0) {
 				await client.func.method.interactionSend(interaction, {
-					content: "lang.clear_no_messages_found"
+					content: lang.clear_command_no_message
 				});
 				return;
 			}

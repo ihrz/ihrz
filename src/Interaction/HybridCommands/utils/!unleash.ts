@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 
 		if (!pairingToRemove) {
 			await client.func.method.interactionSend(interaction, {
-				content: `${client.iHorizon_Emojis.No} | This user is not on your leash!`
+				content: lang.util_unleash_not_in_leash.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
 			});
 			return;
 		}
@@ -63,7 +63,7 @@ export const subCommand: SubCommand = {
 		await client.db.set(`${interaction.guildId}.UTILS.LEASH`, Array.from(new Set(updatedData)));
 
 		await client.func.method.interactionSend(interaction, {
-			content: `${client.iHorizon_Emojis.Yes} | You have successfully unleashed the user in this guild :)`
+			content: lang.util_unleash_command_ok.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 		});
 	},
 };

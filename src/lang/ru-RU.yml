@@ -838,6 +838,18 @@ economy_shop_not_set: "Нет ролей, доступных для покупк
 economy_shop_already_owned: "Уже есть"
 economy_shop_menu_placeholder: "Выберите роль для покупки"
 
+# /economy role list
+economy_role_list_no_buyable_roles: "Нет доступных для покупки ролей для отображения."
+economy_role_list_embed_title: "Экономическая система – Покупаемые роли"
+economy_role_list_embed_desc: "Все доступные для покупки роли перечислены ниже."
+
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Недействительный формат времени. Пожалуйста, используйте корректный формат."
+economy_manage_rewards_cooldown_command_ok: "Задержка для ${type} успешно установлена на ${stime}."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Деньги для ${type} успешно установлены на ${money}."
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -1092,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Участник, к
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Настройка поводка отменена"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Вы успешно привязали пользователя на поводок в этом сервере :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Этот пользователь не находится под вашим контролем!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Вы успешно освободили пользователя на этом сервере :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Время между обновлением канала должно быть более 1 минуты"
 util_autorenew_time_too_long: "Время между обновлением канала должно быть менее 30 дней"
@@ -1158,6 +1174,11 @@ util_cooldown_command_ok: "Медленный режим канала устан
 # /util role-members
 util_role_members: "Список пользователей с этими ролями"
 util_role_members_no_one: "На сервере нет никого с этой ролью"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "Код URL Vanity `${VanityCode}` недействителен. Строка должна быть буквенно-цифровой и может содержать дефисы между словами. Максимальная длина — 32 символа. Дефисы не могут находиться в начале или конце строки."
+util_vanity_generator_already_claimed: "Этот код URL Vanity уже занят! Выберите другой."
+util_vanity_generator_command_err: "Произошла ошибка при создании vanity-кода. Пожалуйста, попробуйте позже."
 
 # +top
 utils_top_no_message: "В этом канале не найдено сообщений"
@@ -1701,6 +1722,7 @@ clear_channel_message_deleted: "Удалено ${messages.size} сообщени
 clear_confirmation_message: "${messages.size} сообщений было удалено!"
 clear_logs_embed_title: "Логи удаления сообщений"
 clear_logs_embed_description: "<@${interaction.user.id}> удалил ${messages.size} сообщений в <#${interaction.channel.id}>"
+clear_command_no_message: "Нет сообщений для удаления в этом канале"
 
 # /lock
 lock_embed_message_description: "Канал заблокирован пользователем <@${interaction.user.id}>."
@@ -2233,6 +2255,7 @@ tag_use_command_work: "Тег `${tag_name}` был отправлен."
 
 # /tag edit
 tag_edit_error_perm: "Чтобы изменить тег, вам нужны права администратора или вы должны быть владельцем тега."
+tag_edit_command_ok: "Текущее имя тега изменено с **`${current_tag_name}`** на **`${new_tag_name}`**"
 
 # Модуль временного голосового канала
 # /текст, /голос, /статус, /персонал
@@ -2468,6 +2491,7 @@ batch_massiverole_process: "🔄 Добавляю роль ${membersToProcess.le
 batch_unmassiverole_process: "🔄 Удаляю роль у ${membersToProcess.length} участников..."
 batch_undo_unban: "🔄 Повторно разбаниваю ${unbanned_members.length} участников..."
 batch_derank_process: "🔄 Удаляю ${rolesToRemove.length} ролей у ${member.user.username}..."
+unbanall_undo_command_err: "Нет участников для повторного бана. Сначала используйте команду разбана всех."
 
 # -----------------------------/ \-----------------------------
 # События Модуля Исповедей
