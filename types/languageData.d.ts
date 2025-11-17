@@ -653,6 +653,9 @@ export interface LanguageData {
 	economy_shop_not_set: string;
 	economy_shop_already_owned: string;
 	economy_shop_menu_placeholder: string;
+	economy_role_list_no_buyable_roles: string;
+	economy_role_list_embed_title: string;
+	economy_role_list_embed_desc: string;
 	setprofilage_command_work: string;
 	setprofildescriptions_command_work: string;
 	profil_not_description_set: string;

@@ -838,6 +838,11 @@ economy_shop_not_set: "このサーバーでは購入可能なロールがあり
 economy_shop_already_owned: "すでに所有しています"
 economy_shop_menu_placeholder: "購入するロールを選択してください"
 
+# /economy role list
+economy_role_list_no_buyable_roles: "表示できる購入可能なロールはありません。"
+economy_role_list_embed_title: "エコノミーシステム - 購入可能ロール"
+economy_role_list_embed_desc: "購入可能なロールは以下に一覧表示されています。"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 

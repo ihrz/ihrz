@@ -841,6 +841,11 @@ economy_shop_not_set: "Il n'y a aucun rôle disponible à l'achat sur ce serveur
 economy_shop_already_owned: "Déjà possédé"
 economy_shop_menu_placeholder: "Sélectionnez un rôle à acheter"
 
+# /economy role list
+economy_role_list_no_buyable_roles: "Il n’y a aucun rôle achetable à afficher."
+economy_role_list_embed_title: "Système d'Économie - Rôles Achetables"
+economy_role_list_embed_desc: "Tous les rôles achetables sont listés ci-dessous."
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
