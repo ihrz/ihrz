@@ -2246,6 +2246,7 @@ tag_use_command_work: "タグ `${tag_name}` が送信されました。"
 
 # /tag edit
 tag_edit_error_perm: "タグを編集するには、管理者権限を持っているか、タグの所有者である必要があります。"
+tag_edit_command_ok: "現在のタグ名が **`${current_tag_name}`** から **`${new_tag_name}`** に変更されました。"
 
 # TempVoiceモジュール
 # /text, /voice, /status, /staff

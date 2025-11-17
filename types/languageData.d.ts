@@ -1703,6 +1703,7 @@ export interface LanguageData {
 	tag_use_not_allowed: string;
 	tag_use_command_work: string;
 	tag_edit_error_perm: string;
+	tag_edit_command_ok: string;
 	tempvoice_if_text_not_admin: string;
 	tempvoice_if_text_desc_embed: string;
 	tempvoice_if_text_fields_value_limit: string;

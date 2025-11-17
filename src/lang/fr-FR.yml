@@ -2246,6 +2246,7 @@ tag_use_command_work: "Le tag `${tag_name}` a été envoyé."
 
 # /tag edit
 tag_edit_error_perm: "Pour modifier le tag, vous devez avoir les permissions d'Administrateur ou être le propriétaire du tag."
+tag_edit_command_ok: "Le nom du tag actuel a été modifié de **`${current_tag_name}`** à **`${new_tag_name}`**"
 
 # Module TempVoice
 # /texte, /voix, /statut, /personnel

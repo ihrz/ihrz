@@ -2246,6 +2246,7 @@ tag_use_command_work: "تم إرسال الوسم `${tag_name}`."
 
 # /tag edit
 tag_edit_error_perm: "لتعديل الوسم، تحتاج إلى الحصول على أذونات المدير أو أن تكون مالك الوسم."
+tag_edit_command_ok: "تم تعديل اسم الوسم الحالي من **`${current_tag_name}`** إلى **`${new_tag_name}`**"
 
 # TempVoice Module
 # /text, /voice, /status, /staff

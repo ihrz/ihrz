@@ -69,7 +69,9 @@ export const subCommand: SubCommand = {
 		await client.db.set(`${interaction.guildId}.GUILD.TAGS.storedTags.${new_tag_name}`, baseData);
 
 		await client.func.method.interactionSend(interaction, {
-			content: `The current tag name are now modified by **\`${current_tag_name}\`** to **\`${new_tag_name}\`**`
+			content: lang.tag_edit_command_ok
+				.replace("${current_tag_name}", current_tag_name)
+				.replace("${new_tag_name}", new_tag_name)
 		});
 		return;
 	},
