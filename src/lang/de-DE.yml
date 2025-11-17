@@ -838,6 +838,10 @@ economy_shop_not_set: "Es gibt keine Rollen, die in diesem Server zum Kauf verf�
 economy_shop_already_owned: "Bereits im Besitz"
 economy_shop_menu_placeholder: "Wählen Sie eine Rolle zum Kaufen aus"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Ungültiges Zeitformat. Bitte verwende ein gültiges Zeitformat."
+economy_manage_rewards_cooldown_command_ok: "Die Abklingzeit für ${type} wurde erfolgreich auf ${stime} gesetzt."
+
 # /economy role list
 economy_role_list_no_buyable_roles: "Es gibt keine kaufbaren Rollen zum Anzeigen."
 economy_role_list_embed_title: "Wirtschaftssystem – Kaufbare Rollen"

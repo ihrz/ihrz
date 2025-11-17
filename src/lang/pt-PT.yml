@@ -838,6 +838,10 @@ economy_shop_not_set: "Não há papéis disponíveis para compra neste servidor.
 economy_shop_already_owned: "Já possuído"
 economy_shop_menu_placeholder: "Selecione um papel para comprar"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Formato de tempo inválido. Utilize um formato de tempo válido."
+economy_manage_rewards_cooldown_command_ok: "O tempo de cooldown para ${type} foi definido para ${stime} com sucesso."
+
 # /economy role list
 economy_role_list_no_buyable_roles: "Não há cargos compráveis para mostrar."
 economy_role_list_embed_title: "Sistema de Economia - Cargos Compráveis"

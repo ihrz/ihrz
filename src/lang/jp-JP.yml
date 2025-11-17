@@ -838,6 +838,10 @@ economy_shop_not_set: "このサーバーでは購入可能なロールがあり
 economy_shop_already_owned: "すでに所有しています"
 economy_shop_menu_placeholder: "購入するロールを選択してください"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "無効な時間形式です。正しい時間形式を使用してください."
+economy_manage_rewards_cooldown_command_ok: "${type} のクールダウンが ${stime} に正常に設定されました。"
+
 # /economy role list
 economy_role_list_no_buyable_roles: "表示できる購入可能なロールはありません。"
 economy_role_list_embed_title: "エコノミーシステム - 購入可能ロール"

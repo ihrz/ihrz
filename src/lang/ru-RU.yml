@@ -843,6 +843,10 @@ economy_role_list_no_buyable_roles: "Нет доступных для покуп
 economy_role_list_embed_title: "Экономическая система – Покупаемые роли"
 economy_role_list_embed_desc: "Все доступные для покупки роли перечислены ниже."
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Недействительный формат времени. Пожалуйста, используйте корректный формат."
+economy_manage_rewards_cooldown_command_ok: "Задержка для ${type} успешно установлена на ${stime}."
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 

@@ -838,6 +838,10 @@ economy_shop_not_set: "There are no roles available for purchase in this server.
 economy_shop_already_owned: "Already owned"
 economy_shop_menu_placeholder: "Select a role to purchase"
 
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Invalid time format. Please use a valid time format."
+economy_manage_rewards_cooldown_command_ok: "Successfully set the cooldown for ${type} to ${stime}"
+
 # /economy role list
 economy_role_list_no_buyable_roles: "There are no buyable roles to list."
 economy_role_list_embed_title: "Economy System - Buyable Roles"

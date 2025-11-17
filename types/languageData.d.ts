@@ -653,6 +653,8 @@ export interface LanguageData {
 	economy_shop_not_set: string;
 	economy_shop_already_owned: string;
 	economy_shop_menu_placeholder: string;
+	economy_manage_rewards_cooldown_invalid_time: string;
+	economy_manage_rewards_cooldown_command_ok: string;
 	economy_role_list_no_buyable_roles: string;
 	economy_role_list_embed_title: string;
 	economy_role_list_embed_desc: string;
