@@ -842,6 +842,9 @@ economy_shop_menu_placeholder: "اختر دورًا للشراء"
 economy_manage_rewards_cooldown_invalid_time: "صيغة الوقت غير صالحة. يرجى استخدام صيغة وقت صحيحة."
 economy_manage_rewards_cooldown_command_ok: "تم تعيين وقت الانتظار لـ ${type} إلى ${stime} بنجاح."
 
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "تم تعيين المال لـ ${type} إلى ${money} بنجاح."
+
 # /economy role list
 economy_role_list_no_buyable_roles: "لا توجد رتب قابلة للشراء لعرضها."
 economy_role_list_embed_title: "نظام الاقتصاد - الرتب القابلة للشراء"

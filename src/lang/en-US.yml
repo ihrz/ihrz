@@ -842,6 +842,9 @@ economy_shop_menu_placeholder: "Select a role to purchase"
 economy_manage_rewards_cooldown_invalid_time: "Invalid time format. Please use a valid time format."
 economy_manage_rewards_cooldown_command_ok: "Successfully set the cooldown for ${type} to ${stime}"
 
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Successfully set the money for ${type} to ${money}"
+
 # /economy role list
 economy_role_list_no_buyable_roles: "There are no buyable roles to list."
 economy_role_list_embed_title: "Economy System - Buyable Roles"

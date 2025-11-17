@@ -847,6 +847,9 @@ economy_role_list_embed_desc: "Все доступные для покупки �
 economy_manage_rewards_cooldown_invalid_time: "Недействительный формат времени. Пожалуйста, используйте корректный формат."
 economy_manage_rewards_cooldown_command_ok: "Задержка для ${type} успешно установлена на ${stime}."
 
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Деньги для ${type} успешно установлены на ${money}."
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 

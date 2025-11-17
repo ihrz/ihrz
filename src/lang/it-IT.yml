@@ -842,6 +842,9 @@ economy_shop_menu_placeholder: "Seleziona un ruolo da acquistare"
 economy_manage_rewards_cooldown_invalid_time: "Formato orario non valido. Usa un formato orario valido."
 economy_manage_rewards_cooldown_command_ok: "Il cooldown per ${type} è stato impostato correttamente a ${stime}."
 
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Il denaro per ${type} è stato impostato correttamente a ${money}."
+
 # /economy role list
 economy_role_list_no_buyable_roles: "Non ci sono ruoli acquistabili da mostrare."
 economy_role_list_embed_title: "Sistema Economico - Ruoli Acquistabili"
