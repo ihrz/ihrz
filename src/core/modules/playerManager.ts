@@ -182,7 +182,7 @@ Report generated in \`${format(new Date(), 'ddd MMM DD HH:MM (YYYY')}\` less tha
 `;
 
 			lavalink_error_channel.send({
-				content: "<@" + client.config.owner.ownerid1 + ">\nIssue with lavalink founded!",
+				content: '<@' + client.config.owner.ownerid1 + ">\nIssue with lavalink founded!",
 				files: [
 					{
 						name: `logs-${Date.now()}.md`,
