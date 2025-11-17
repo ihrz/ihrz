@@ -1104,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Le membre que tu veu
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuration de laisse annulée"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Vous avez mis en laisse l'utilisateur avec succès dans ce serveur :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Cet utilisateur n'est pas sous votre contrôle !"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Vous avez libéré cet utilisateur avec succès dans ce serveur :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Le temps entre chaque renouvellement de salon doit être supérieur à 1 minute"
 util_autorenew_time_too_long: "Le temps entre chaque renouvellement de salon doit être inférieur à 30 jours"

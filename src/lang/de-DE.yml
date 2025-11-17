@@ -1104,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Das Mitglied, das du
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Leine-Konfiguration abgebrochen"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Sie haben den Benutzer erfolgreich an die Leine gelegt in diesem Server :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Dieser Benutzer ist nicht an deiner Leine!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Du hast den Benutzer in diesem Server erfolgreich losgelassen :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Die Zeit zwischen einer Kanalerneuerung muss mehr als 1 Minute betragen"
 util_autorenew_time_too_long: "Die Zeit zwischen einer Kanalerneuerung muss weniger als 30 Tage betragen"

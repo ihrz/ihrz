@@ -1105,6 +1105,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | العضو الذي 
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | تم إلغاء إعدادات المقود"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | لقد نجحت في ربط المستخدم بالمقود في هذا الخادم :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | هذا المستخدم ليس مربوطاً لديك!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | لقد قمت بتحرير هذا المستخدم بنجاح في هذا السيرفر :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "يجب أن يكون الوقت بين تجديد القناة أكثر من دقيقة واحدة"
 util_autorenew_time_too_long: "يجب أن تكون الفترة الزمنية بين تجديد الصالون أقل من 30 يوماً"

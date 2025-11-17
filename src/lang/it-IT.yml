@@ -1104,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Il membro che vuoi m
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configurazione del guinzaglio annullata"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Hai messo al guinzaglio con successo l'utente in questo server :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Questo utente non è sotto il tuo controllo!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Hai liberato con successo l'utente in questo server :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Il tempo tra un rinnovo del canale deve essere superiore a 1 minuto"
 util_autorenew_time_too_long: "Il tempo tra un rinnovo del canale deve essere inferiore a 30 giorni"

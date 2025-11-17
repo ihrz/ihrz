@@ -1106,6 +1106,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | The member you want 
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Leash configurations canceled"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | You have sucessfuly leashed the user in this guild :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | This user is not on your leash!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | You have successfully unleashed the user in this guild :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "The time between a channel renew must be more than 1 minutes"
 util_autorenew_time_too_long: "The time between a channel renew must be more than 30 days"

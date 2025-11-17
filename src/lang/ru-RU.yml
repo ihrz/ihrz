@@ -1104,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Участник, к
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Настройка поводка отменена"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Вы успешно привязали пользователя на поводок в этом сервере :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Этот пользователь не находится под вашим контролем!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Вы успешно освободили пользователя на этом сервере :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Время между обновлением канала должно быть более 1 минуты"
 util_autorenew_time_too_long: "Время между обновлением канала должно быть менее 30 дней"

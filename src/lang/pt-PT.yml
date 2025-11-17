@@ -1104,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | O membro que queres 
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuração da trela cancelada"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Você colocou a trela no usuário com sucesso neste servidor :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Este usuário não está sob seu controle!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Você libertou o usuário com sucesso neste servidor :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "O tempo entre uma renovação de canal deve ser superior a 1 minuto"
 util_autorenew_time_too_long: "O tempo entre uma renovação de canal deve ser inferior a 30 dias"

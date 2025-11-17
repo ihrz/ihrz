@@ -1104,6 +1104,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | ¡El miembro que qui
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuración de correa cancelada"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Has atado con éxito al usuario en este servidor :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | ¡Este usuario no está bajo tu control!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Has liberado al usuario con éxito en este servidor :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "El tiempo entre una renovación de canal debe ser más de 1 minuto"
 util_autorenew_time_too_long: "El tiempo entre una renovación de canal debe ser menos de 30 días"
