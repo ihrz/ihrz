@@ -1177,6 +1177,11 @@ util_cooldown_command_ok: "The channel's slowmode has been set to ${duration_in_
 util_role_members: "List of users who have the roles"
 util_role_members_no_one: "There is nobody with that role on the server"
 
+# /util vanity-generator
+util_vanity_generator_invalid_code: "The URL Vanity code `${VanityCode}` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string."
+util_vanity_generator_already_claimed: "The URL Vanity code are already taked! Choose an another one."
+util_vanity_generator_command_err: "An error has occurred while creating the vanity code. Please try again later."
+
 # +top
 utils_top_no_message: "No messages found in this channel"
 utils_top_command_ok: "The first message in this channel is [here](${link})"

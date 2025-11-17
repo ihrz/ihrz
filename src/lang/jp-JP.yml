@@ -1175,6 +1175,11 @@ util_cooldown_command_ok: "チャンネルのスローモードが ${duration_in
 util_role_members: "そのロールを持っているユーザーの一覧"
 util_role_members_no_one: "サーバーにそのロールを持つ人はいません"
 
+# /util vanity-generator
+util_vanity_generator_invalid_code: "URL Vanityコード `${VanityCode}` は無効です。文字列は英数字で、単語間にハイフンを含めることができます。最大長は32文字です。ハイフンは文字列の先頭または末尾に置けません。"
+util_vanity_generator_already_claimed: "このURL Vanityコードはすでに使用されています！別のコードを選んでください。"
+util_vanity_generator_command_err: "Vanityコードの作成中にエラーが発生しました。後でもう一度試してください。"
+
 # +top
 utils_top_no_message: "このチャンネルにメッセージが見つかりません"
 utils_top_command_ok: "このチャンネルの最初のメッセージは[こちら](${link})"

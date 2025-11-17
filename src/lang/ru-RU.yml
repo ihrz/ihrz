@@ -1175,6 +1175,11 @@ util_cooldown_command_ok: "Медленный режим канала устан
 util_role_members: "Список пользователей с этими ролями"
 util_role_members_no_one: "На сервере нет никого с этой ролью"
 
+# /util vanity-generator
+util_vanity_generator_invalid_code: "Код URL Vanity `${VanityCode}` недействителен. Строка должна быть буквенно-цифровой и может содержать дефисы между словами. Максимальная длина — 32 символа. Дефисы не могут находиться в начале или конце строки."
+util_vanity_generator_already_claimed: "Этот код URL Vanity уже занят! Выберите другой."
+util_vanity_generator_command_err: "Произошла ошибка при создании vanity-кода. Пожалуйста, попробуйте позже."
+
 # +top
 utils_top_no_message: "В этом канале не найдено сообщений"
 utils_top_command_ok: "Первое сообщение в этом канале находится [здесь](${link})"

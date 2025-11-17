@@ -1175,6 +1175,11 @@ util_cooldown_command_ok: "Der Slowmode des Kanals wurde auf ${duration_in_strin
 util_role_members: "Liste der Benutzer mit den Rollen"
 util_role_members_no_one: "Niemand auf dem Server hat diese Rolle"
 
+# /util vanity-generator
+util_vanity_generator_invalid_code: "Der URL-Vanity-Code `${VanityCode}` ist ungültig. Der String sollte alphanumerisch sein und Bindestriche zwischen Wörtern enthalten können. Die maximale Länge beträgt 32 Zeichen. Bindestriche dürfen nicht am Anfang oder Ende stehen."
+util_vanity_generator_already_claimed: "Der URL-Vanity-Code ist bereits vergeben! Wähle einen anderen."
+util_vanity_generator_command_err: "Beim Erstellen des Vanity-Codes ist ein Fehler aufgetreten. Bitte versuche es später erneut."
+
 # +top
 utils_top_no_message: "Keine Nachrichten in diesem Kanal gefunden"
 utils_top_command_ok: "Die erste Nachricht in diesem Kanal ist [hier](${link})"

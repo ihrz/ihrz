@@ -1175,6 +1175,11 @@ util_cooldown_command_ok: "O modo lento do canal foi definido para ${duration_in
 util_role_members: "Lista de utilizadores que têm os cargos"
 util_role_members_no_one: "Não há ninguém com esse cargo no servidor"
 
+# /util vanity-generator
+util_vanity_generator_invalid_code: "O código URL Vanity `${VanityCode}` é inválido. A string deve ser alfanumérica e pode incluir hífens entre palavras. O comprimento máximo é de 32 caracteres. Os hífens não podem estar no início ou no fim da string."
+util_vanity_generator_already_claimed: "O código URL Vanity já está em uso! Escolha outro."
+util_vanity_generator_command_err: "Ocorreu um erro ao criar o código vanity. Por favor, tente novamente mais tarde."
+
 # +top
 utils_top_no_message: "Nenhuma mensagem encontrada neste canal"
 utils_top_command_ok: "A primeira mensagem neste canal está [aqui](${link})"
