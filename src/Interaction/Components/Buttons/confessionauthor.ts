@@ -47,7 +47,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		interaction.reply({
 			content: `❌`,
 			flags: MessageFlags.Ephemeral
-		})
+		});
 	}
 
 };
