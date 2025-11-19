@@ -145,7 +145,7 @@ for (const token of allTokens) {
 			if (main_bot !== client.user?.id) return message.react('❌').catch(() => false);
 			const timedOutMembers = message.guild.members.cache.filter(member => member.isCommunicationDisabled());
 			if (timedOutMembers.size === 0) {
-				message.reply("Aucun mec à untimeout");
+				message.reply({ content: "Aucun mec à untimeout" });
 			} else {
 				timedOutMembers.forEach(async member => {
 					member.timeout(null)

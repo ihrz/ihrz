@@ -106,7 +106,7 @@ export const command: Command = {
 			await unlink(exported);
 			await unlink(beforeSucksResizedPath);
 		} catch (error) {
-			interaction.reply(`An error occurred: ${(error as any).message}`);
+			interaction.reply({ content: `An error occurred: ${(error as any).message}` });
 		}
 	}
 }
