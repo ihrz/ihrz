@@ -30,6 +30,7 @@ import { Command } from '../../../../types/command.js';
 import { isNumber } from '../../../core/functions/method.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
 import { ownerTable } from '../../../Events/client/ready.js';
+import { AvailableLanguage } from '../../../core/functions/getLanguageData.js';
 
 
 export const command: Command = {
@@ -70,21 +71,6 @@ export const command: Command = {
 			}
 		}
 
-		const all_supported_languages = {
-			"ar-EG": "🇪🇬",
-			"de-DE": "🇩🇪",
-			"en-US": "🇺🇸🇬🇧",
-			"fr-FR": "🇫🇷",
-			"fr-ME": "💥🇫🇷",
-			"en-ES": "🇪🇸",
-			"pt-PT": "🇵🇹",
-			"ru-RU": "🇷🇺",
-			"jp-JP": "🇯🇵",
-			"it-IT": "🇮🇹",
-		} as const;
-
-		type SupportedLang = keyof typeof all_supported_languages;
-
 		const embed = new EmbedBuilder()
 			.setColor(2829617)
 			.setDescription(`# Stats Lang over all iHorizon guilds (${client.guilds.cache.size} guilds)`)
@@ -95,7 +81,7 @@ export const command: Command = {
 			.entries(allLangsStats)
 			.forEach(([code, count]) => {
 				embed.addFields({
-					name: (all_supported_languages[code as SupportedLang] ?? "❔") + ` (${code})`,
+					name: (AvailableLanguage.find(x => x.code === code)?.flag ?? "❔") + ` (${code})`,
 					value: `${count} guilds`,
 					inline: true
 				})
