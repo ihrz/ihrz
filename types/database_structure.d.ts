@@ -359,6 +359,7 @@ export namespace DatabaseStructure {
 		6?: string;
 		7?: string;
 		8?: string;
+		9?: string;
 	}
 
 	export interface PicOnlyConfig {
@@ -415,7 +416,7 @@ export namespace DatabaseStructure {
 		NIGHT_MODE: NightMode;
 	}
 
-	export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+	export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 	export type PermNone = 0;
 
 	export type PermCommandData = {

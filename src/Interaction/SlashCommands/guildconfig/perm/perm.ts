@@ -28,45 +28,21 @@ import {
 import { Command } from '../../../../../types/command.js';
 import { Option } from '../../../../../types/option.js';
 
-export const permissionsRole = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8"];
+export const permissionsRole = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8", "Perm 9"];
 export const permissionLevel = [
 	{
 		name: "Default",
 		value: "0"
 	},
-	{
-		name: "Perm 1",
-		value: "1"
-	},
-	{
-		name: "Perm 2",
-		value: "2"
-	},
-	{
-		name: "Perm 3",
-		value: "3"
-	},
-	{
-		name: "Perm 4",
-		value: "4"
-	},
-	{
-		name: "Perm 5",
-		value: "5"
-	},
-	{
-		name: "Perm 6",
-		value: "6"
-	},
-	{
-		name: "Perm 7",
-		value: "7"
-	},
-	{
-		name: "Perm 8",
-		value: "8"
-	}
+	...
+	permissionsRole.map((x) => {
+		return {
+			name: x,
+			value: x.split(" ")[1]
+		}
+	})
 ];
+
 export const command: Command = {
 	name: "perm",
 
