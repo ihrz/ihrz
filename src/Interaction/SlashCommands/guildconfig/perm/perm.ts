@@ -43,8 +43,6 @@ export const permissionLevel = [
 	})
 ];
 
-console.log(permissionLevel)
-
 export const command: Command = {
 	name: "perm",
 
