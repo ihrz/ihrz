@@ -27,47 +27,57 @@ interface LangsData {
 
 const LangsData: LangsData = {};
 
-export const AvailableLanguage: { code: string; name: string }[] = [
+export const AvailableLanguage: { code: string; name: string, flag: string; }[] = [
 	{
 		name: "Arab Egyptian",
-		code: "ar-EG"
+		code: "ar-EG",
+		flag: "🇪🇬"
 	},
 	{
 		name: "Deutsch",
-		code: "de-DE"
+		code: "de-DE",
+		flag: "🇩🇪",
 	},
 	{
 		name: "English",
-		code: "en-US"
+		code: "en-US",
+		flag: "🇺🇸🇬🇧"
 	},
 
 	{
 		name: "French",
-		code: "fr-FR"
+		code: "fr-FR",
+		flag: "🇫🇷"
 	},
 	{
 		name: "Italian",
-		code: "it-IT"
+		code: "it-IT",
+		flag: "🇮🇹"
 	},
 	{
 		name: "Japanese",
-		code: "jp-JP"
+		code: "jp-JP",
+		flag: "🇯🇵"
 	},
 	{
 		name: "Portuguese",
-		code: "pt-PT"
+		code: "pt-PT",
+		flag: "🇵🇹"
 	},
 	{
 		name: "Rude French",
-		code: "fr-ME"
+		code: "fr-ME",
+		flag: "💥🇫🇷"
 	},
 	{
 		name: "Russian",
-		code: "ru-RU"
+		code: "ru-RU",
+		flag: "🇷🇺"
 	},
 	{
 		name: "Spanish",
-		code: "es-ES"
+		code: "es-ES",
+		flag: "🇪🇸"
 	},
 ];
 
