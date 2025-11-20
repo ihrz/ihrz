@@ -161,7 +161,7 @@ export const subCommand: SubCommand = {
 
 			// Initialize grouping objects
 			const groupedByLevel: Record<DatabaseStructure.PermLevel, string[]> = {
-				1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []
+				1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: []
 			};
 			const groupedByRole: Record<string, string[]> = {};
 			const groupedByUser: Record<string, string[]> = {};
