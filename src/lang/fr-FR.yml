@@ -607,13 +607,13 @@ ping_down_msg: "**INDISPONIBLE**"
 ping_embed_desc: "# Pong ! Statistiques du réseau de ${interaction.client.user.username} :\n\n**[Ping du site web Discord]** >> `${_net03}` ms.\n**[Ping Cloudflare]** >> `${_net02}` ms.\n**[Ping Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[Ping du site web iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Ping du Websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Moyenne]** >> (moy)`${averagePing}` ms."
 
 # /custom
-custom_avatar_reset: "Vous avez décidé de réinstialiser la photo de profil du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que la photo de profil du bot sur le serveur."
+custom_avatar_reset: "Vous avez décidé de réinitialiser la photo de profil du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que la photo de profil du bot sur le serveur."
 custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Vous avez décidé de changer la photo de profil du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que la photo de profil du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
-custom_name_reset: "Vous avez décidé de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
+custom_name_reset: "Vous avez décidé de réinitialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
 custom_name_set: "${client.iHorizon_Emojis.Yes} **Vous avez décidé de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${name}`"
-custom_desc_reset: "Vous avez décidé de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
+custom_desc_reset: "Vous avez décidé de réinitialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **Vous avez décidé de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${desc}`"
-custom_banner_reset: "Vous avez décidé de réinstialiser la bannière du bot sur le serveur."
+custom_banner_reset: "Vous avez décidé de réinitialiser la bannière du bot sur le serveur."
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **Vous avez décidé de changer la bannière du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
 
 # Fun commands
