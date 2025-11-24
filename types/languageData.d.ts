@@ -580,6 +580,7 @@ export interface LanguageData {
 	fun_random_embed_title: string;
 	fun_random_result_text: string;
 	fun_random_between: string;
+	fun_trans_command_ok: string;
 	economy_cooldown_error: string;
 	addmoney_not_admin: string;
 	addmoney_logs_embed_title: string;

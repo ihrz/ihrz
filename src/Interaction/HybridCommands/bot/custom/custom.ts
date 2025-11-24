@@ -90,6 +90,7 @@ export const command: Command = {
 		},
 		{
 			name: 'avatar',
+			prefixName: "botavatar",
 
 			description: 'Set the bot avatar into your server',
 			description_localizations: {

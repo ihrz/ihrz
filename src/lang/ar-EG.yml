@@ -729,6 +729,9 @@ fun_random_embed_title: "🔢 رقم عشوائي"
 fun_random_result_text: "الرقم المولد هو:"
 fun_random_between: "بين"
 
+# +transgender
+fun_trans_command_ok: "المستخدم ${user} هو **${random}%** متحول جنسيًا 🏳️‍⚧️"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
