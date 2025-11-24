@@ -405,7 +405,7 @@ export const command: Command = {
 								fr: "l'utilisateur",
 							},
 
-							required: true,
+							required: false,
 							type: ApplicationCommandOptionType.User,
 
 							permission: null,
