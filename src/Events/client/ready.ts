@@ -172,6 +172,7 @@ export const event: BotEvent = {
 					tag: client.user?.tag,
 					id: client.user?.id,
 					discriminator: client.user?.discriminator,
+					avatar: client.user?.displayAvatarURL({ extension: "png", size: 4096 })
 				}
 			})
 		}
@@ -216,6 +217,7 @@ export const event: BotEvent = {
 		client.notifier.start().then(() => { })
 		client.blogger.start().then(() => { })
 		client.infrastructureMonitoring.startMonitoring().then(() => { })
+		client.temproleManager.init();
 
 		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000)
 		if (client.shard?.ids[0] === 0) setInterval(refreshBotData, 45_000);

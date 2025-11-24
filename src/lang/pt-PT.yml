@@ -1766,6 +1766,19 @@ tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | O utilizador tem permi
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **O meu cargo neste servidor é inferior ou igual a ${tomute.toString()}. Não consigo moderar este membro.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} O Discord tem um limite de 14 dias para um mute. Apliquei 14 dias."
 
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | Não tens permissão para adicionar cargos temporários aos membros."
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | Não tenho permissão."
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | Não podes atribuir um cargo temporário a ti próprio!"
+temprole_already_has_role: "Este utilizador já tem este cargo temporário!"
+temprole_command_work: "<@${tomute.id}> recebeu o cargo por ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
+temprole_removed_by_time: "O cargo temporário de <@${tomute.id}> foi removido!"
+temprole_logs_embed_title: "Registos de Cargos Temporários"
+temprole_logs_embed_description: "<@${interaction.user.id}> atribuiu um cargo temporário a <@${tomute.id}> durante ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | O utilizador tem permissões de administrador, não posso atribuir-lhe um cargo temporário."
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **O meu cargo neste servidor é inferior ou igual a ${tomute.toString()}. Não posso moderar este membro.**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} O tempo máximo para um cargo temporário é 1 ano. Apliquei 1 ano."
+
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Você não tem permissão para desilenciar membros."
 unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | Você não pode silenciar a si mesmo!"

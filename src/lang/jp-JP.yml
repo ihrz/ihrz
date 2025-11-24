@@ -1766,6 +1766,19 @@ tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | ユーザーは管理�
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **このサーバーでの私の役職は ${tomute.toString()} と同じかそれ以下です。このメンバーをモデレートできません。**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discordではミュートの制限は14日です。14日を適用しました。"
 
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーに一時ロールを追加する権限がありません。"
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | 私には権限がありません。"
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | 自分に一時ロールを追加することはできません！"
+temprole_already_has_role: "このユーザーはすでにこの一時ロールを持っています！"
+temprole_command_work: "<@${tomute.id}> に ${ms(ms(mutetime))} の間ロールが付与されました\n**理由**: `${reason}`"
+temprole_removed_by_time: "<@${tomute.id}> の一時ロールが削除されました！"
+temprole_logs_embed_title: "一時ロールログ"
+temprole_logs_embed_description: "<@${interaction.user.id}> が <@${tomute.id}> に ${ms(ms(mutetime))} の一時ロールを追加しました\n**理由**: `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | このユーザーは管理者権限を持っているため、一時ロールを付与できません。"
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **私の役職はこのサーバーで ${tomute.toString()} と同じか下のため、このメンバーを管理できません。**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} 一時ロールの最大期間は1年です。1年を適用しました。"
+
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをミュート解除する権限がありません。"
 unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | 自分自身をミュートすることはできません！"

@@ -607,13 +607,13 @@ ping_down_msg: "**INDISPONIBLE* miskina on sfé ddos jpp*"
 ping_embed_desc: "# Pong ! Statistiques du réseau de ${interaction.client.user.username} :\n\n**[Ping du site web Discord]** >> `${_net03}` ms.\n**[Ping Cloudflare]** >> `${_net02}` ms.\n**[Ping Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[Ping du site web iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Ping du Websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Moyenne]** >> (moy)`${averagePing}` ms."
 
 # /custom
-custom_avatar_reset: "Vous avez décider de réinstialiser la photo de profil du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que la photo de profil du bot sur le serveur."
+custom_avatar_reset: "Vous avez décider de réinitialiser la photo de profil du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que la photo de profil du bot sur le serveur."
 custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer la photo de profil du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que la photo de profil du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
-custom_name_reset: "Vous avez décider de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
+custom_name_reset: "Vous avez décider de réinitialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
 custom_name_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${name}`"
-custom_desc_reset: "Vous avez décider de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
+custom_desc_reset: "Vous avez décider de réinitialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${desc}`"
-custom_banner_reset: "Vous avez décider de réinstialiser la bannière du bot sur le serveur."
+custom_banner_reset: "Vous avez décider de réinitialiser la bannière du bot sur le serveur."
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer la bannière du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
 
 # Fun commands
@@ -1768,6 +1768,19 @@ tempmute_reason_create_roles: "Faire le rôle de mute temporaire !"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | L'utilisateur as les permissions administrateur, je ne peux pas le mute."
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Mon rôle sur ce serveur est plus bas ou égal à ${tomute.toString()}. Je ne peux pas modérer ce membre.**"
 tempmute_tomute_max_time_passed: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Discord as une limite de 14 jours pour un mute. J'ai appliquer 14 jours."
+
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | Vous n'avez pas la permission d'ajouter des rôles temporaires aux membres."
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | Je n'ai pas la permission."
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | Vous ne pouvez pas vous ajouter un rôle temporaire à vous-même !"
+temprole_already_has_role: "Cet utilisateur a déjà ce rôle temporaire !"
+temprole_command_work: "<@${tomute.id}> a reçu le rôle pour ${ms(ms(mutetime))}\n**Raison** : `${reason}`"
+temprole_removed_by_time: "Le rôle temporaire de <@${tomute.id}> a été retiré !"
+temprole_logs_embed_title: "Logs des rôles temporaires"
+temprole_logs_embed_description: "<@${interaction.user.id}> a ajouté un rôle temporaire à <@${tomute.id}> pour ${ms(ms(mutetime))}\n**Raison** : `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | Cet utilisateur a les permissions administrateur, je ne peux pas lui attribuer un rôle temporaire."
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Mon rôle sur ce serveur est inférieur ou égal à celui de ${tomute.toString()}. Je ne peux pas modérer ce membre.**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Le temps maximum pour un rôle temporaire est d'un an. J'ai appliqué un an."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Tu n'avez pas la permission de retirer temporairement la sourdine aux membres."

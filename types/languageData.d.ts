@@ -1340,6 +1340,17 @@ export interface LanguageData {
 	tempmute_tomute_is_admin: string;
 	tempmute_tomute_highest_role_or_same: string;
 	tempmute_tomute_max_time_passed: string;
+	temprole_dont_have_permission: string;
+	temprole_i_dont_have_permission: string;
+	temprole_cannot_add_yourself: string;
+	temprole_already_has_role: string;
+	temprole_command_work: string;
+	temprole_removed_by_time: string;
+	temprole_logs_embed_title: string;
+	temprole_logs_embed_description: string;
+	temprole_tomute_is_admin: string;
+	temprole_tomute_highest_role_or_same: string;
+	temprole_tomute_max_time_passed: string;
 	unmute_dont_have_permission: string;
 	unmute_attempt_mute_your_self: string;
 	unmute_i_dont_have_permission: string;
