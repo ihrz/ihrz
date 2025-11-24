@@ -1826,6 +1826,20 @@ var_ban_date: "Data da banição"
 # /limpar-avisos
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, **`${allWarns.length}`** aviso(s) de ${member?.toString()} foi/foram removido(s)."
 
+# /tempban
+tempban_dont_have_permission: "Não tens permissão para banir membros temporariamente."
+tempban_i_dont_have_permission: "Não tenho permissão para banir membros."
+tempban_cannot_ban_yourself: "Não podes banir-te a ti próprio!"
+tempban_already_banned: "Este utilizador já está temporariamente banido!"
+tempban_command_work: "**<@${user.id}>** foi temporariamente banido por **${duration}**\n**Razão**: `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** foi desbanido!"
+tempban_logs_embed_title: "Registos de banimento temporário"
+tempban_logs_embed_description: "**<@${executor.id}>** baniu temporariamente **<@${user.id}>** por **${duration}**\n**Razão**: `${reason}`"
+tempban_user_is_admin: "O utilizador tem permissões de administrador, não posso bani-lo."
+tempban_user_highest_role_or_same: "O meu cargo neste servidor é inferior ou igual ao de **user_mention**. Não posso moderar este membro."
+tempban_max_time_passed: "\n*O tempo máximo para um banimento temporário é 1 ano. Apliquei 1 ano.*"
+tempban_user_not_in_guild: "Este utilizador não está no servidor mas pode ser banido."
+
 # Comandos de backup
 # /backup
 

@@ -1826,6 +1826,20 @@ var_ban_date: "Дата блокировки"
 # /очистить-предупреждения
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, **`${allWarns.length}`** предупреждение(-я) участника ${member?.toString()} удалено(-ы)."
 
+# /tempban
+tempban_dont_have_permission: "У вас нет прав временно банить участников."
+tempban_i_dont_have_permission: "У меня нет прав банить участников."
+tempban_cannot_ban_yourself: "Вы не можете забанить сами себя!"
+tempban_already_banned: "Этот пользователь уже временно забанен!"
+tempban_command_work: "**<@${user.id}>** был временно забанен на **${duration}**\n**Причина**: `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** был разбанен!"
+tempban_logs_embed_title: "Логи временного бана"
+tempban_logs_embed_description: "**<@${executor.id}>** временно забанил **<@${user.id}>** на **${duration}**\n**Причина**: `${reason}`"
+tempban_user_is_admin: "У пользователя есть права администратора, я не могу его забанить."
+tempban_user_highest_role_or_same: "Моя роль на сервере ниже или равна роли **user_mention**. Я не могу модерировать этого участника."
+tempban_max_time_passed: "\n*Максимальный срок временного бана — 1 год. Я применил 1 год.*"
+tempban_user_not_in_guild: "Этот пользователь не находится на сервере, но его всё равно можно забанить."
+
 # Команды резервного копирования
 # /backup
 

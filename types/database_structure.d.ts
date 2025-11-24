@@ -585,9 +585,13 @@ export namespace DatabaseStructure {
 		SKULLBOARD: SkullboardConfigSchema;
 		SKULLBOARD_DATA: StarboardDataSchema;
 		TEMPROLE: TempRoleSchema;
+		TEMPBAN: TempbanSchema;
+
 	}
 
-	export type TempRoleSchema = Record<string, [{ roleId: string, time: number }]>
+	export type TempRoleSchema = Record<string, [{ roleId: string, time: number }]>;
+	export type TempbanSchema = Record<string, { reason: string, time: number }>;
+
 	export interface DbTicketConfigurationObject {
 		author: string;
 		used: boolean;

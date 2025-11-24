@@ -1826,6 +1826,20 @@ var_ban_date: "Fecha del baneo"
 # /borrar-advertencias
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, se ha(n) eliminado **`${allWarns.length}`** advertencia(s) de ${member?.toString()}"
 
+# /tempban
+tempban_dont_have_permission: "No tienes permiso para banear temporalmente a los miembros."
+tempban_i_dont_have_permission: "No tengo permiso para banear a los miembros."
+tempban_cannot_ban_yourself: "¡No puedes banearte a ti mismo!"
+tempban_already_banned: "¡Este usuario ya está temporalmente baneado!"
+tempban_command_work: "**<@${user.id}>** ha sido baneado temporalmente por **${duration}**\n**Razón**: `${reason}`"
+tempban_unbanned_by_time: "¡**<@${user.id}>** ha sido desbaneado!"
+tempban_logs_embed_title: "Registros de baneo temporal"
+tempban_logs_embed_description: "**<@${executor.id}>** baneó temporalmente a **<@${user.id}>** por **${duration}**\n**Razón**: `${reason}`"
+tempban_user_is_admin: "El usuario tiene permisos de administrador, no puedo banearlo."
+tempban_user_highest_role_or_same: "Mi rol en este servidor es inferior o igual al de **user_mention**. No puedo moderar a este miembro."
+tempban_max_time_passed: "\n*El tiempo máximo para un baneo temporal es 1 año. He aplicado 1 año.*"
+tempban_user_not_in_guild: "Este usuario no está en el servidor pero aun así puede ser baneado."
+
 # Backup commands
 # /backup
 

@@ -1826,6 +1826,20 @@ var_ban_date: "Data del ban"
 # /cancella-avvertimenti
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, **`${allWarns.length}`** avvertimento/i di ${member?.toString()} è/sono stato/i cancellato/i."
 
+# /tempban
+tempban_dont_have_permission: "Non hai il permesso di bannare temporaneamente i membri."
+tempban_i_dont_have_permission: "Non ho il permesso di bannare i membri."
+tempban_cannot_ban_yourself: "Non puoi bannare te stesso!"
+tempban_already_banned: "Questo utente è già temporaneamente bannato!"
+tempban_command_work: "**<@${user.id}>** è stato temporaneamente bannato per **${duration}**\n**Motivo**: `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** è stato sbannato!"
+tempban_logs_embed_title: "Log del ban temporaneo"
+tempban_logs_embed_description: "**<@${executor.id}>** ha bannato temporaneamente **<@${user.id}>** per **${duration}**\n**Motivo**: `${reason}`"
+tempban_user_is_admin: "L'utente ha permessi da amministratore, non posso bannarlo."
+tempban_user_highest_role_or_same: "Il mio ruolo su questo server è inferiore o uguale a quello di **user_mention**. Non posso moderare questo membro."
+tempban_max_time_passed: "\n*Il tempo massimo per un ban temporaneo è 1 anno. Ho applicato 1 anno.*"
+tempban_user_not_in_guild: "Questo utente non è nel server ma può comunque essere bannato."
+
 # Backup commands
 # /backup
 
