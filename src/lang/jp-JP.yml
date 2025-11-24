@@ -1826,6 +1826,20 @@ var_ban_date: "BAN日時"
 # /警告クリア
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}、${member?.toString()} の **`${allWarns.length}`** 件の警告が削除されました。"
 
+# /tempban
+tempban_dont_have_permission: "メンバーを一時的にBANする権限がありません。"
+tempban_i_dont_have_permission: "メンバーをBANする権限がありません。"
+tempban_cannot_ban_yourself: "自分自身をBANすることはできません！"
+tempban_already_banned: "このユーザーはすでに一時的にBANされています！"
+tempban_command_work: "**<@${user.id}>** は **${duration}** の間、一時的にBANされました\n**理由**: `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** のBANが解除されました！"
+tempban_logs_embed_title: "一時BANログ"
+tempban_logs_embed_description: "**<@${executor.id}>** が **<@${user.id}>** を **${duration}** 一時的にBANしました\n**理由**: `${reason}`"
+tempban_user_is_admin: "ユーザーは管理者権限を持っているため、BANできません。"
+tempban_user_highest_role_or_same: "私のサーバーでのロールが **user_mention** と同じか低いため、このメンバーをモデレートできません。"
+tempban_max_time_passed: "\n*一時BANの最長期間は1年です。1年を適用しました。*"
+tempban_user_not_in_guild: "このユーザーはサーバーにいませんが、BANは可能です。"
+
 # Backup commands
 # /backup
 

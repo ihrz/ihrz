@@ -1826,6 +1826,20 @@ var_ban_date: "Date du bannissement"
 # /effacer-avertissements
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, **`${allWarns.length}`** avertissement(s) de ${member?.toString()} a/ont été effacé(s)."
 
+# /tempban
+tempban_dont_have_permission: "Vous n'avez pas la permission de bannir temporairement des membres."
+tempban_i_dont_have_permission: "Je n'ai pas la permission de bannir des membres."
+tempban_cannot_ban_yourself: "Vous ne pouvez pas vous bannir vous-même !"
+tempban_already_banned: "Cet utilisateur est déjà banni temporairement !"
+tempban_command_work: "**<@${user.id}>** a été banni temporairement pour **${duration}**\n**Raison** : `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** a été débanni !"
+tempban_logs_embed_title: "Logs de bannissement temporaire"
+tempban_logs_embed_description: "**<@${executor.id}>** a banni temporairement **<@${user.id}>** pour **${duration}**\n**Raison** : `${reason}`"
+tempban_user_is_admin: "L’utilisateur possède les permissions administrateur, je ne peux pas le bannir."
+tempban_user_highest_role_or_same: "Mon rôle sur ce serveur est inférieur ou égal à celui de **user_mention**. Je ne peux pas modérer ce membre."
+tempban_max_time_passed: "\n*La durée maximale d’un bannissement temporaire est d’un an. J’ai appliqué un an.*"
+tempban_user_not_in_guild: "Cet utilisateur n'est pas sur le serveur mais peut tout de même être banni."
+
 # Backup commands
 # /backup
 

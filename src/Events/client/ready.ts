@@ -160,7 +160,7 @@ export const event: BotEvent = {
 					members: result.users,
 					servers: result.guilds,
 					shards: client.shard?.count,
-					ping: client.ws.ping
+					ping: client.infrastructureMonitoring.getAverageWebsocketPing()
 				},
 				"content": {
 					commands: client.commands.size + client.message_commands.size + client.applicationsCommands.size,
@@ -218,6 +218,7 @@ export const event: BotEvent = {
 		client.blogger.start().then(() => { })
 		client.infrastructureMonitoring.startMonitoring().then(() => { })
 		client.temproleManager.init();
+		client.tempbanManager.init();
 
 		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000)
 		if (client.shard?.ids[0] === 0) setInterval(refreshBotData, 45_000);

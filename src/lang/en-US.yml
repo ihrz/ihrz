@@ -1828,6 +1828,20 @@ var_ban_date: "Ban date"
 # /clearwarn
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, **`${allWarns.length}`** warn(s) of ${member?.toString()} has been cleared."
 
+# /tempban
+tempban_dont_have_permission: "You don't have permission to temporarily ban members."
+tempban_i_dont_have_permission: "I don't have permission to ban members."
+tempban_cannot_ban_yourself: "You cannot ban yourself!"
+tempban_already_banned: "This user is already temporarily banned!"
+tempban_command_work: "**<@${user.id}>** has been temporarily banned for **${duration}**\n**Reason**: `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** has been unbanned!"
+tempban_logs_embed_title: "Tempban Logs"
+tempban_logs_embed_description: "**<@${executor.id}>** temporarily banned **<@${user.id}>** for **${duration}**\n**Reason**: `${reason}`"
+tempban_user_is_admin: "The user has administrator permissions, I cannot ban them."
+tempban_user_highest_role_or_same: "My role on this server is lower or equal to **user_mention**. I cannot moderate this member."
+tempban_max_time_passed: "\n*The maximum time for a temporary ban is 1 year. I have applied 1 year.*"
+tempban_user_not_in_guild: "This user is not in the server but can still be banned."
+
 # Backup commands
 # /backup
 

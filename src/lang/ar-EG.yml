@@ -1826,6 +1826,20 @@ var_ban_date: "تاريخ الحظر"
 # /مسح_التحذيرات
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, تم مسح **`${allWarns.length}`** تحذير(ات) من ${member?.toString()}"
 
+# /tempban
+tempban_dont_have_permission: "ليس لديك صلاحية لحظر الأعضاء مؤقتًا."
+tempban_i_dont_have_permission: "ليس لدي صلاحية لحظر الأعضاء."
+tempban_cannot_ban_yourself: "لا يمكنك حظر نفسك!"
+tempban_already_banned: "هذا المستخدم محظور مؤقتًا بالفعل!"
+tempban_command_work: "**<@${user.id}>** تم حظره مؤقتًا لمدة **${duration}**\n**السبب**: `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** تم رفع الحظر عنه!"
+tempban_logs_embed_title: "سجلات الحظر المؤقت"
+tempban_logs_embed_description: "**<@${executor.id}>** قام بحظر **<@${user.id}>** مؤقتًا لمدة **${duration}**\n**السبب**: `${reason}`"
+tempban_user_is_admin: "هذا المستخدم لديه صلاحيات المدير، لا يمكنني حظره."
+tempban_user_highest_role_or_same: "رتبتي في الخادم أقل أو مساوية لـ **user_mention**. لا يمكنني تنفيذ إجراء على هذا العضو."
+tempban_max_time_passed: "\n*الحد الأقصى للحظر المؤقت هو سنة واحدة. تم تطبيق سنة واحدة.*"
+tempban_user_not_in_guild: "هذا المستخدم ليس في الخادم لكنه ما زال قابلًا للحظر."
+
 # Backup commands
 # /backup
 

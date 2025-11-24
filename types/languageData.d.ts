@@ -1382,6 +1382,18 @@ export interface LanguageData {
 	var_banned_by: string;
 	var_ban_date: string;
 	clearwarn_command_ok: string;
+	tempban_dont_have_permission: string;
+	tempban_i_dont_have_permission: string;
+	tempban_cannot_ban_yourself: string;
+	tempban_already_banned: string;
+	tempban_command_work: string;
+	tempban_unbanned_by_time: string;
+	tempban_logs_embed_title: string;
+	tempban_logs_embed_description: string;
+	tempban_user_is_admin: string;
+	tempban_user_highest_role_or_same: string;
+	tempban_max_time_passed: string;
+	tempban_user_not_in_guild: string;
 	backup_wait_please: string;
 	backup_not_admin: string;
 	backup_i_dont_have_permission: string;
