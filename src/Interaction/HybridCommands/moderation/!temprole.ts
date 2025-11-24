@@ -97,7 +97,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		await client.temproleManager.addrole(memberToAdd, roleToAdd, roletimeMS)
+		await client.temproleManager.addrole(memberToAdd, roleToAdd, roletimeMS, reason!)
 
 		let content = lang.temprole_command_work
 			.replace("${tomute.id}", memberToAdd.id)

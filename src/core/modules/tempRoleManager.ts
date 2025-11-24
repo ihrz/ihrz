@@ -39,10 +39,10 @@ export class TemproleManager {
 	 * @param time The duration in milliseconds
 	 * @returns true if the operation succeeded, false otherwise
 	 */
-	public async addrole(member: GuildMember, role: Role, time: number): Promise<boolean> {
+	public async addrole(member: GuildMember, role: Role, time: number, reason?: string): Promise<boolean> {
 		try {
 			// Add the role to the member
-			await member.roles.add(role);
+			await member.roles.add(role, reason);
 
 			const guildId = member.guild.id;
 			const memberId = member.id;
