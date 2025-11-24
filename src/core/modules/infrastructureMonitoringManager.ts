@@ -223,6 +223,11 @@ class InfrastructureMonitoring {
 		return { current, avg, max, min };
 	}
 
+	public getAverageWebsocketPing(): number {
+		const { avg } = this.calculatePingStats();
+		return avg;
+	}
+
 	private async generatePingChart(): Promise<Buffer> {
 		let htmlContent = client.htmlfiles["botLatencyMonitoring"];
 

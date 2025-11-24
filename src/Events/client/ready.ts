@@ -160,7 +160,7 @@ export const event: BotEvent = {
 					members: result.users,
 					servers: result.guilds,
 					shards: client.shard?.count,
-					ping: client.ws.ping
+					ping: client.infrastructureMonitoring.getAverageWebsocketPing()
 				},
 				"content": {
 					commands: client.commands.size + client.message_commands.size + client.applicationsCommands.size,
