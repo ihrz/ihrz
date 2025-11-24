@@ -1766,6 +1766,19 @@ tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | المستخدم لد�
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **دوري في هذا الخادم أقل أو مساوٍ لـ ${tomute.toString()}. لا أستطيع معاقبة هذا العضو.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} لدى ديسكورد حد أقصى قدره 14 يومًا للكتم. لقد قمت بتطبيق 14 يومًا."
 
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك الإذن لإضافة أدوار مؤقتة للأعضاء."
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لدي الإذن."
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | لا يمكنك إضافة دور مؤقت لنفسك!"
+temprole_already_has_role: "هذا المستخدم لديه هذا الدور المؤقت بالفعل!"
+temprole_command_work: "<@${tomute.id}> تم منحه الدور لمدة ${ms(ms(mutetime))}\n**السبب**: `${reason}`"
+temprole_removed_by_time: "تمت إزالة الدور المؤقت من <@${tomute.id}>!"
+temprole_logs_embed_title: "سجل الأدوار المؤقتة"
+temprole_logs_embed_description: "<@${interaction.user.id}> أضاف دوراً مؤقتاً لـ <@${tomute.id}> لمدة ${ms(ms(mutetime))}\n**السبب**: `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | هذا المستخدم لديه صلاحيات المدير، لا يمكنني إضافة دور مؤقت له."
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **دوري في هذا الخادم أقل أو مساوٍ لـ ${tomute.toString()}. لا يمكنني إدارة هذا العضو.**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} الحد الأقصى لمدة الدور المؤقت هو سنة واحدة. لقد طبقت سنة كاملة."
+
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لرفع الميوت."
 unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | لا يمكنك رفع ميوت نفسك!"

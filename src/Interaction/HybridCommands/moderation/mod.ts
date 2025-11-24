@@ -576,6 +576,69 @@ export const command: Command = {
 			aliases: ["clearallwarns", "clearallwarn", "clearsanctionsall", "clearsanctionall"],
 
 			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: "temprole",
+
+			description: "Give a role temporary to a server member",
+			description_localizations: {
+				"fr": "Donner un rôle temporairement à un membre de votre serveur discord"
+			},
+
+			options: [
+				{
+					name: "member",
+
+					description: "The member you want to add the role",
+					description_localizations: {
+						"fr": "Le membre qui recevras le rôle"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.User,
+					required: true
+				},
+				{
+					name: "role",
+
+					description: "The role you want to add to the member",
+					description_localizations: {
+						"fr": "Le rôle que recevras le membre"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Role,
+					required: true
+				},
+				{
+					name: "time",
+
+					description: "The time the member will keep the role",
+					description_localizations: {
+						"fr": "Le temps que le membre auras ce rôle"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.String,
+					required: true
+				},
+				{
+					name: "reason",
+
+					description: "The reason why you added this role",
+					description_localizations: {
+						"fr": "La raison de l'ajout du rôle"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.String,
+					required: false
+				},
+			],
+			type: ApplicationCommandOptionType.Subcommand,
+
+			aliases: ["addtemprole", "temporaryrole", "temproles"],
+			permission: PermissionFlagsBits.Administrator
 		}
 	],
 	thinking: true,

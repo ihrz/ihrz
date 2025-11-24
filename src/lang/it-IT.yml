@@ -1766,6 +1766,19 @@ tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | L'utente ha i permessi
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Il mio ruolo su questo server è inferiore o uguale a ${tomute.toString()}. Non posso moderare questo membro.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discord ha un limite di 14 giorni per un mute. Ho applicato 14 giorni."
 
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di aggiungere ruoli temporanei ai membri."
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | Non ho il permesso."
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | Non puoi aggiungere un ruolo temporaneo a te stesso!"
+temprole_already_has_role: "Questo utente ha già questo ruolo temporaneo!"
+temprole_command_work: "<@${tomute.id}> ha ricevuto il ruolo per ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
+temprole_removed_by_time: "Il ruolo temporaneo di <@${tomute.id}> è stato rimosso!"
+temprole_logs_embed_title: "Log Ruoli Temporanei"
+temprole_logs_embed_description: "<@${interaction.user.id}> ha aggiunto un ruolo temporaneo a <@${tomute.id}> per ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | L'utente ha permessi da amministratore, non posso assegnargli un ruolo temporaneo."
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Il mio ruolo su questo server è inferiore o uguale a ${tomute.toString()}. Non posso moderare questo membro.**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Il tempo massimo per un ruolo temporaneo è 1 anno. Ho applicato 1 anno."
+
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di smutare i membri."
 unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | Non puoi smutarti da solo!"

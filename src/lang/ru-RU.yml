@@ -1766,6 +1766,19 @@ tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | У пользоват�
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Моя роль на этом сервере ниже или равна ${tomute.toString()}. Я не могу модерировать этого участника.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} В Discord действует ограничение в 14 дней для мута. Я применил 14 дней."
 
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас нет прав для добавления временных ролей участникам."
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | У меня нет прав."
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | Вы не можете выдать временную роль самому себе!"
+temprole_already_has_role: "У этого пользователя уже есть эта временная роль!"
+temprole_command_work: "<@${tomute.id}> получил роль на ${ms(ms(mutetime))}\n**Причина**: `${reason}`"
+temprole_removed_by_time: "Временная роль <@${tomute.id}> была удалена!"
+temprole_logs_embed_title: "Логи временных ролей"
+temprole_logs_embed_description: "<@${interaction.user.id}> выдал временную роль <@${tomute.id}> на ${ms(ms(mutetime))}\n**Причина**: `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | У пользователя есть права администратора, я не могу выдать ему временную роль."
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Моя роль на сервере ниже или равна роли ${tomute.toString()}. Я не могу модерировать этого участника.**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Максимальное время для временной роли — 1 год. Я применил 1 год."
+
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас нет разрешения на разблокировку участников."
 unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | Вы не можете разблокировать сами себя!"

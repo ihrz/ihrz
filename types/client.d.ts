@@ -50,6 +50,7 @@ import { Postgres } from "../src/core/database/driver/postgres.ts";
 import * as backup from "../src/core/backup/src/";
 import * as discordTranscripts from "discord-html-transcripts";
 import { BloggerNotifier } from "../src/core/Blogger.ts";
+import { TemproleManager } from "../src/core/modules/tempRoleManager.ts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -84,6 +85,7 @@ declare module 'discord.js' {
 		infrastructureMonitoring: InfrastructureMonitoring,
 		nightmodeManager: NightModeManager,
 		githubLinesManager: GithubLinesManager,
+		temproleManager: TemproleManager,
 		backup: typeof backup;
 		// IN SHARD
 		inShard: (guildId: string) => boolean;

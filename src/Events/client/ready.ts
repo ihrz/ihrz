@@ -217,6 +217,7 @@ export const event: BotEvent = {
 		client.notifier.start().then(() => { })
 		client.blogger.start().then(() => { })
 		client.infrastructureMonitoring.startMonitoring().then(() => { })
+		client.temproleManager.init();
 
 		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000)
 		if (client.shard?.ids[0] === 0) setInterval(refreshBotData, 45_000);

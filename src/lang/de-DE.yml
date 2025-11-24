@@ -1766,6 +1766,19 @@ tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | Der Benutzer hat Admin
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Meine Rolle auf diesem Server ist niedriger oder gleich ${tomute.toString()}. Ich kann dieses Mitglied nicht moderieren.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discord hat ein Limit von 14 Tagen für einen Mute. Ich habe 14 Tage angewendet."
 
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | Du hast keine Berechtigung, temporäre Rollen hinzuzufügen."
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | Ich habe keine Berechtigung."
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | Du kannst dir selbst keine temporäre Rolle geben!"
+temprole_already_has_role: "Dieser Benutzer hat diese temporäre Rolle bereits!"
+temprole_command_work: "<@${tomute.id}> hat die Rolle für ${ms(ms(mutetime))} erhalten\n**Grund**: `${reason}`"
+temprole_removed_by_time: "Die temporäre Rolle von <@${tomute.id}> wurde entfernt!"
+temprole_logs_embed_title: "Temporäre Rollen Logs"
+temprole_logs_embed_description: "<@${interaction.user.id}> hat <@${tomute.id}> eine temporäre Rolle für ${ms(ms(mutetime))} vergeben\n**Grund**: `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | Der Benutzer hat Administratorrechte, ich kann ihm keine temporäre Rolle geben."
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Meine Rolle auf diesem Server ist niedriger oder gleich wie ${tomute.toString()}. Ich kann dieses Mitglied nicht moderieren.**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Die maximale Dauer für eine temporäre Rolle beträgt 1 Jahr. Ich habe 1 Jahr angewendet."
+
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Du hast keine Berechtigung, Mitglieder temporär zu entstummschalten."
 unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | Du kannst dich nicht selbst stummschalten!"
