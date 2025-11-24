@@ -729,6 +729,9 @@ fun_random_embed_title: "🔢 Random Number"
 fun_random_result_text: "The generated number is:"
 fun_random_between: "between"
 
+# +transgender
+fun_trans_command_ok: "The user ${user} is **${random}%** transgender 🏳️‍⚧️"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 

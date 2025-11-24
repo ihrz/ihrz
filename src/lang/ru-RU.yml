@@ -729,6 +729,9 @@ fun_random_embed_title: "🔢 Случайное число"
 fun_random_result_text: "Сгенерированное число:"
 fun_random_between: "между"
 
+# +transgender
+fun_trans_command_ok: "Пользователь ${user} является трансгендером на **${random}%** 🏳️‍⚧️"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 

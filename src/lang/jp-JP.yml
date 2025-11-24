@@ -729,6 +729,9 @@ fun_random_embed_title: "🔢 ランダムな数字"
 fun_random_result_text: "生成された数字は:"
 fun_random_between: "の間"
 
+# +transgender
+fun_trans_command_ok: "ユーザー ${user} は **${random}%** トランスジェンダーです 🏳️‍⚧️"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
