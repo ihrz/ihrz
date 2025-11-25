@@ -71,6 +71,10 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
+		if (player.queue.current && player.queue.current.info && !player.queue.current.info.artworkUrl) {
+			player.queue.current.info.artworkUrl = "https://www.ihorizon.org/assets/img/unknown-user.png";
+		}
+
 		const progress = client.func.generateProgressBar(client.iHorizon_Emojis, player.position, player.queue.current?.info.duration!)
 
 		let htmlContent = client.htmlfiles["nowPlaying"];
