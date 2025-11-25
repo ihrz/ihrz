@@ -1629,6 +1629,8 @@ shuffle_command_work: "J'ai **mélangé** la file d'attente"
 history_no_entries: "Il n'y a aucune entrée dans cette compétition."
 history_embed_title: "Historique Musical de ${interaction.guild?.name} | Page ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ Historique supprimé"
+history_delete_embed_desc: "L’historique de musique a été supprimé avec succès."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Titre inconnu"

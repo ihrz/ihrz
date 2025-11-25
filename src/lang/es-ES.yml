@@ -1629,6 +1629,8 @@ shuffle_command_work: "He **mezclado** la cola"
 history_no_entries: "No hay ninguna entrada en esta competencia."
 history_embed_title: "Historial de Música de ${interaction.guild?.name} | Página ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | Página ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ Historial eliminado"
+history_delete_embed_desc: "El historial de música se ha eliminado correctamente."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Título desconocido"

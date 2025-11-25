@@ -1629,6 +1629,8 @@ shuffle_command_work: "Я **перемешал** очередь"
 history_no_entries: "В этом конкурсе нет записей."
 history_embed_title: "История Музыки ${interaction.guild?.name} | Страница ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | Страница ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ История удалена"
+history_delete_embed_desc: "История музыки была успешно удалена."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Неизвестный заголовок"

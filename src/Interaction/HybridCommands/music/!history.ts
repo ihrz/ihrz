@@ -40,7 +40,46 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const history = await client.db.get(`${interaction.guildId}.MUSIC_HISTORY`);
+		let history = await client.db.get(`${interaction.guildId}.MUSIC_HISTORY`);
+
+		// Clean history entries older than 30 days
+		if (history && history.embed && history.embed.length > 0) {
+			const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+			const filteredEmbed: string[] = [];
+			const filteredBuffer: string[] = [];
+
+			for (let i = 0; i < history.embed.length; i++) {
+				const entry = history.embed[i];
+				// Assume each entry contains a timestamp (adapt according to your format)
+				// Expected format: something with a parsable date
+				const timestampMatch = entry.match(/<t:(\d+):/);
+
+				if (timestampMatch) {
+					const timestamp = parseInt(timestampMatch[1]) * 1000;
+					if (timestamp >= thirtyDaysAgo) {
+						filteredEmbed.push(entry);
+						if (history.buffer && history.buffer[i]) {
+							filteredBuffer.push(history.buffer[i]);
+						}
+					}
+				} else {
+					// If no timestamp found, keep the entry for safety
+					filteredEmbed.push(entry);
+					if (history.buffer && history.buffer[i]) {
+						filteredBuffer.push(history.buffer[i]);
+					}
+				}
+			}
+
+			// Update history if entries were deleted
+			if (filteredEmbed.length < history.embed.length) {
+				history = {
+					embed: filteredEmbed,
+					buffer: filteredBuffer
+				};
+				await client.db.set(`${interaction.guildId}.MUSIC_HISTORY`, history);
+			}
+		}
 
 		if (!history || !history.embed || history.embed.length == 0) {
 			await client.func.method.interactionSend(interaction, { content: lang.history_no_entries });
@@ -89,7 +128,7 @@ export const subCommand: SubCommand = {
 			new ButtonBuilder()
 				.setCustomId('nextPage')
 				.setLabel('>>>')
-				.setStyle(ButtonStyle.Secondary),
+				.setStyle(ButtonStyle.Secondary)
 		);
 
 		const messageEmbed = await client.func.method.interactionSend(interaction, {
@@ -105,14 +144,40 @@ export const subCommand: SubCommand = {
 			}, time: 60_000 * 15
 		});
 
-		collector.on('collect', (interaction: { customId: string; }) => {
-			if (interaction.customId === 'previousPage') {
+		collector.on('collect', async (buttonInteraction: { customId: string; }) => {
+			if (buttonInteraction.customId === 'previousPage') {
 				currentPage = (currentPage - 1 + pages.length) % pages.length;
-			} else if (interaction.customId === 'nextPage') {
+				await messageEmbed.edit({ embeds: [createEmbed()] });
+			} else if (buttonInteraction.customId === 'nextPage') {
 				currentPage = (currentPage + 1) % pages.length;
-			}
+				await messageEmbed.edit({ embeds: [createEmbed()] });
+			} else if (buttonInteraction.customId === 'deleteHistory') {
+				// Delete history from database
+				await client.db.delete(`${interaction.guildId}.MUSIC_HISTORY`);
 
-			messageEmbed.edit({ embeds: [createEmbed()] });
+				// Create confirmation embed
+				const confirmEmbed = new EmbedBuilder()
+					.setColor('#ff0000')
+					.setTitle(lang.history_delete_embed_title)
+					.setDescription(lang.history_delete_embed_desc)
+					.setTimestamp();
+
+				// Disable all buttons
+				row.components.forEach((component) => {
+					if (component instanceof ButtonBuilder) {
+						component.setDisabled(true);
+					}
+				});
+
+				await messageEmbed.edit({
+					embeds: [confirmEmbed],
+					components: [(row as ActionRowBuilder<ButtonBuilder>)],
+					files: []
+				});
+
+				// Stop the collector
+				collector.stop();
+			}
 		});
 
 		collector.on('end', () => {

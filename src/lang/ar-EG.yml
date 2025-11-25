@@ -1630,6 +1630,8 @@ shuffle_command_work: "قمت بـ **خلط** قائمة التشغيل"
 history_no_entries: "لا توجد إدخالات في هذه المسابقة."
 history_embed_title: "${interaction.guild?.name} تاريخ الموسيقى | الصفحة ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | الصفحة ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ تم حذف السجل"
+history_delete_embed_desc: "تم حذف سجل الموسيقى بنجاح."
 
 # /music lyrics
 lyrics_embed_title_unknown: "العنوان غير معروف"

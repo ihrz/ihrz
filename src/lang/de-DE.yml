@@ -1629,6 +1629,8 @@ shuffle_command_work: "Ich habe die Warteschlange **gemischt**"
 history_no_entries: "Es gibt keinen Eintrag in diesem Wettbewerb."
 history_embed_title: "Musikgeschichte von ${interaction.guild?.name} | Seite ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | Seite ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ Verlauf gelöscht"
+history_delete_embed_desc: "Der Musikverlauf wurde erfolgreich gelöscht."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Unbekannter Titel"

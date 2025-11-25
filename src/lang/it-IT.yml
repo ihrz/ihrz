@@ -1629,6 +1629,8 @@ shuffle_command_work: "I have **shuffled** the queue"
 history_no_entries: "Non ci sono voci in questa competizione."
 history_embed_title: "Storia della Musica di ${interaction.guild?.name} | Pagina ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | Pagina ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ Cronologia eliminata"
+history_delete_embed_desc: "La cronologia musicale è stata eliminata con successo."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Titolo sconosciuto"

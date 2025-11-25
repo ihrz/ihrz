@@ -1629,6 +1629,8 @@ shuffle_command_work: "キューを**シャッフル**しました"
 history_no_entries: "このコンペティションにはエントリーがありません。"
 history_embed_title: "${interaction.guild?.name}の音楽履歴 | ページ ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ 履歴を削除しました"
+history_delete_embed_desc: "音楽の履歴が正常に削除されました。"
 
 # /music lyrics
 lyrics_embed_title_unknown: "不明なタイトル"

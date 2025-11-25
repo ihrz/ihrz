@@ -1629,6 +1629,8 @@ shuffle_command_work: "I have **shuffled** the queue"
 history_no_entries: "There is no entry into this competition."
 history_embed_title: "${interaction.guild?.name} Music's History | Page ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ Histórico apagado"
+history_delete_embed_desc: "O histórico de música foi apagado com sucesso."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Unknown title"
