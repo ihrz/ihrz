@@ -291,9 +291,8 @@ export const command: Command = {
 			};
 
 			async function executeAfterModal(i: ModalSubmitInteraction<"cached">) {
-				const collection = i.fields.fields;
-				const nameValue = collection.get('name');
-				const descValue = collection.get('desc');
+				const nameValue = i.fields.getTextInputValue("name");
+				const descValue = i.fields.getTextInputValue("desc");
 
 				const embed = new EmbedBuilder()
 					.setDescription(`\`\`\`${nameValue}\`\`\`\`\`\`${descValue}\`\`\``)
@@ -319,7 +318,7 @@ export const command: Command = {
 				dateCollector?.on('collect', async (message) => {
 					await message.delete() && u.delete();
 					dateCollector?.stop();
-					__0(client.timeCalculator.to_ms(message.content)!, collection);
+					__0(client.timeCalculator.to_ms(message.content)!, i.fields.fields);
 				});
 
 
