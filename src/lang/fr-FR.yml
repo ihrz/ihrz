@@ -1518,7 +1518,7 @@ perm_roles_not_owner: "Seul le propriétaire du serveur peut ajouter des rôles 
 perm_edit_roles_command_ok: "La permission ${permName} a vu son rôle modifié pour ${strRole}"
 
 # /toggle-react
-toggle_react_command_work: "<@${interaction.member?.id}>, maintenant quad un membre envoie un message de bienvenue, le bot **{activeMsg}**"
+toggle_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membre envoie un message de bienvenue, le bot **{activeMsg}**"
 toggle_react_doesnt_react: "ne réagira plus"
 toggle_react_react: "réagira"
 
