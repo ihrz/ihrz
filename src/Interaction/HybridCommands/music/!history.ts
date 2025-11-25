@@ -128,7 +128,11 @@ export const subCommand: SubCommand = {
 			new ButtonBuilder()
 				.setCustomId('nextPage')
 				.setLabel('>>>')
-				.setStyle(ButtonStyle.Secondary)
+				.setStyle(ButtonStyle.Secondary),
+			new ButtonBuilder()
+				.setCustomId('deleteHistory')
+				.setEmoji("🗑️")
+				.setStyle(ButtonStyle.Danger),
 		);
 
 		const messageEmbed = await client.func.method.interactionSend(interaction, {
