@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, User } from 'discord.js';
+import { AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, User, VoiceBasedChannel } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
 import logger from '../logger.js';
@@ -72,6 +72,7 @@ export default async (client: Client) => {
 		const guild = await client.guilds.fetch(player.guildId).catch(() => null);
 
 		let channel = await guild?.channels.fetch(player.textChannelId!).catch(() => null);
+		let voiceChannel = (await guild?.channels.fetch(player.voiceChannelId!).catch(() => null) as VoiceBasedChannel | null);
 
 		let htmlContent = client.htmlfiles["musicBanner"];
 
@@ -104,6 +105,16 @@ export default async (client: Client) => {
 			files: [attachment]
 		});
 
+		await fetch(`https://discord.com/api/v10/channels/${player.voiceChannelId}/voice-status`, {
+			"method": "PUT",
+			"headers": {
+				"Authorization": `Bot ${client.token}`,
+				"Content-Type": "application/json",
+			},
+			"body": JSON.stringify({
+				status: `:musical_note: ${track?.info.title} - ${track?.info.author}`
+			}),
+		});
 	});
 
 	// ts spam the chat lol
