@@ -481,7 +481,7 @@ export async function shouldAdvertiseTheTopggVoteButton(authorId: string): Promi
 	return Date.now() - lastVoteTimestamp >= twelveHours;
 }
 
-export async function generateTopggActionRow() {
+export function generateTopggActionRow(): ActionRowBuilder<ButtonBuilder> {
 	return new ActionRowBuilder<ButtonBuilder>().addComponents(
 		new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
