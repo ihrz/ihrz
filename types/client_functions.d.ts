@@ -143,7 +143,7 @@ declare namespace Client_Functions {
 		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function deleteTicketChannelFromDatabase(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function isValidDiscordInvite(input: string): boolean;
-		export function isValidDiscordInviteCode(VanityCode: string): any;
+		export function isValidDiscordInviteCode(VanityCode: string): boolean;
 	}
 
 	// From getLanguageData.ts
@@ -313,7 +313,7 @@ declare namespace Client_Functions {
 		export function generateRoleFields(
 			roleData: Record<string, DatabaseStructure.EconomyRole> | undefined,
 			lang: LanguageData
-		): any;
+		): Array<{ name: string; value: string; amount: number; inline: boolean; }>;
 	}
 
 	// From embedHelper.ts
@@ -358,7 +358,7 @@ declare namespace Client_Functions {
 
 	// From os_utils.ts
 	export namespace os_utils {
-		export function niceBytes(kb: number): any;
+		export function niceBytes(kb: number): string;
 		export function getMemoryInfo(): Promise<{ MemTotal: number; MemFree: number; MemAvailable: number; }>;
 	}
 

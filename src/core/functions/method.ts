@@ -1049,7 +1049,7 @@ export function isValidDiscordInvite(input: string): boolean {
 	return patterns.some(pattern => pattern.test(trimmed));
 }
 
-export function isValidDiscordInviteCode(VanityCode: string) {
+export function isValidDiscordInviteCode(VanityCode: string): boolean {
 	if (VanityCode.length > 32) {
 		return false;
 	}
