@@ -104,6 +104,16 @@ export default async (client: Client) => {
 			files: [attachment]
 		});
 
+		await fetch(`https://discord.com/api/v10/channels/${player.voiceChannelId}/voice-status`, {
+			"method": "PUT",
+			"headers": {
+				"Authorization": `Bot ${client.token}`,
+				"Content-Type": "application/json",
+			},
+			"body": JSON.stringify({
+				status: `:musical_note: ${track?.info.title} - ${track?.info.author}`
+			}),
+		});
 	});
 
 	// ts spam the chat lol

@@ -1239,6 +1239,8 @@ export interface LanguageData {
 	history_no_entries: string;
 	history_embed_title: string;
 	history_embed_footer_text: string;
+	history_delete_embed_title: string;
+	history_delete_embed_desc: string;
 	lyrics_embed_title_unknown: string;
 	lyrics_embed_author_name_unknown: string;
 	lyrics_not_found: string;
