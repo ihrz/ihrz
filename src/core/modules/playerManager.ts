@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, User, VoiceBasedChannel } from 'discord.js';
+import { AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, User } from 'discord.js';
 import { LavalinkManager } from "lavalink-client";
 
 import logger from '../logger.js';
@@ -72,7 +72,6 @@ export default async (client: Client) => {
 		const guild = await client.guilds.fetch(player.guildId).catch(() => null);
 
 		let channel = await guild?.channels.fetch(player.textChannelId!).catch(() => null);
-		let voiceChannel = (await guild?.channels.fetch(player.voiceChannelId!).catch(() => null) as VoiceBasedChannel | null);
 
 		let htmlContent = client.htmlfiles["musicBanner"];
 
