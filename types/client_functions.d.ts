@@ -281,7 +281,7 @@ declare namespace Client_Functions {
 	export namespace music_proximity {
 		export function levenshtein(a: string, b: string): number;
 		export function similarity(a: string, b: string): number;
-		export function isSimilar(query: string, track: TrackEmbbeded, threshold: any): boolean;
+		export function isSimilar(query: string, track: TrackEmbbeded, threshold: number): boolean;
 	}
 
 	// From bannerGenerator.ts
