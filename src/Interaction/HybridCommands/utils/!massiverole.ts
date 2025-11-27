@@ -54,7 +54,7 @@ export const subCommand: SubCommand = {
 		let s: number = 0;
 		let e: number = 0;
 
-		if ((interaction.guild as Guild).memberCount >= 5500) {
+		if ((interaction.guild as Guild).memberCount >= 10000) {
 			await client.func.method.interactionSend(interaction, { content: lang.massiverole_too_much_member });
 			return;
 		};
