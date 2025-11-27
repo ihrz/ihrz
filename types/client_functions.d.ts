@@ -23,7 +23,7 @@ import type { DatabaseStructure } from './database_structure.d.ts';
 import type { LanguageData } from './languageData.d.ts';
 import type { GatewayMethod } from '../src/core/functions/apiUrlParser.js';
 import { ModalOptionsBuilder } from '../src/core/functions/modalHelper.js';
-import { AnySelectMenuInteraction, APIModalInteractionResponseCallbackData, AutocompleteInteraction, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, CacheType, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, MessageContextMenuCommandInteraction, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, PrimaryEntryPointCommandInteraction, Role, StringSelectMenuInteraction, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
+import { ActionRowBuilder, ActionRowData, AnySelectMenuInteraction, APIMessageTopLevelComponent, APIModalInteractionResponseCallbackData, AutocompleteInteraction, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, CacheType, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, JSONEncodable, Message, MessageActionRowComponentBuilder, MessageActionRowComponentData, MessageContextMenuCommandInteraction, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, PrimaryEntryPointCommandInteraction, Role, StringSelectMenuInteraction, TopLevelComponentData, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
 import { Assets } from './assets.js';
 import { LangForPrompt } from '../src/core/functions/awaitingResponse.js';
 import { AuthRestore_EntryType, AuthRestore_ResponseType, GuildAuthRestore, AuthRestore_ForceJoin_EntryType, AuthRestore_ForceJoin_ResponseType, AuthRestore_KeyUpdate_EntryType, AuthRestore_RoleUpdate_EntryType, Oauth2_Link_Entry } from '../src/core/functions/authRestoreHelper.ts';
@@ -40,6 +40,7 @@ import { Postgres } from '../src/core/database/driver/postgres.ts';
 import { Horizon } from '../src/core/database/driver/horizon.ts';
 import { TrackEmbbeded } from '../src/core/functions/music_proximity.ts';
 import { LyricsResult, SearchResult, Track } from "lavalink-client";
+import { components } from '../src/core/functions/method.ts';
 
 declare namespace Client_Functions {
 
@@ -108,6 +109,11 @@ declare namespace Client_Functions {
 			args: Array<string>,
 			lang: LanguageData
 		): Promise<boolean>;
+		export function shouldAdvertiseTheTopggVoteButton(authorId: string): Promise<boolean>;
+		export function generateTopggActionRow(): ActionRowBuilder<ButtonBuilder>;
+		export function addTopggButonToTheActualComponents(
+			current: ReadonlyArray<JSONEncodable<APIMessageTopLevelComponent> | TopLevelComponentData | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder> | APIMessageTopLevelComponent>
+		): Promise<components>;
 		export function interactionSend(
 			interaction: ChatInputCommandInteraction<CacheType> | ChatInputCommandInteraction<"cached"> | Message<boolean>,
 			options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
@@ -137,7 +143,7 @@ declare namespace Client_Functions {
 		export function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function deleteTicketChannelFromDatabase(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function isValidDiscordInvite(input: string): boolean;
-		export function isValidDiscordInviteCode(VanityCode: string): any;
+		export function isValidDiscordInviteCode(VanityCode: string): boolean;
 	}
 
 	// From getLanguageData.ts
@@ -275,7 +281,7 @@ declare namespace Client_Functions {
 	export namespace music_proximity {
 		export function levenshtein(a: string, b: string): number;
 		export function similarity(a: string, b: string): number;
-		export function isSimilar(query: string, track: TrackEmbbeded, threshold: any): boolean;
+		export function isSimilar(query: string, track: TrackEmbbeded, threshold: number): boolean;
 	}
 
 	// From bannerGenerator.ts
@@ -307,7 +313,7 @@ declare namespace Client_Functions {
 		export function generateRoleFields(
 			roleData: Record<string, DatabaseStructure.EconomyRole> | undefined,
 			lang: LanguageData
-		): any;
+		): Array<{ name: string; value: string; amount: number; inline: boolean; }>;
 	}
 
 	// From embedHelper.ts
@@ -352,7 +358,7 @@ declare namespace Client_Functions {
 
 	// From os_utils.ts
 	export namespace os_utils {
-		export function niceBytes(kb: number): any;
+		export function niceBytes(kb: number): string;
 		export function getMemoryInfo(): Promise<{ MemTotal: number; MemFree: number; MemAvailable: number; }>;
 	}
 

@@ -49,7 +49,12 @@ export async function getMemberBoost(member: GuildMember): Promise<number> {
 export function generateRoleFields(
 	roleData: DatabaseStructure.EconomyModel["buyableRoles"],
 	lang: LanguageData,
-) {
+): {
+	name: string;
+	value: string;
+	amount: number;
+	inline: boolean;
+}[] {
 	return Object.entries(roleData || {})
 		.sort(([, amountA], [, amountB]) => Number(amountB) - Number(amountA))
 		.map(([roleID, roleData], index) => ({

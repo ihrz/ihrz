@@ -22,7 +22,7 @@
 import { User } from "discord.js";
 import { LyricsResult, SearchResult, Track } from "lavalink-client";
 
-export async function getLyrics(query: string, author?: User): Promise<{
+export default async function getLyrics(query: string, author?: User): Promise<{
 	track: Track | undefined;
 	res: LyricsResult;
 } | null> {
