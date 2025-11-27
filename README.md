@@ -281,7 +281,7 @@ iHorizon is distributed under **[CC BY-NC-SA 4.0](https://creativecommons.org/li
 ### ❌ **Restrictions**
 
 ❌ **Attribution**: You must credit the work and indicate changes  
-❌ **Non-Commercial Use**: No commercial use without permission  
+❌ **Non-Commercial Use**: No commercial use  
 ❌ **Share Alike**: Modifications must retain the same license  
 ❌ **No Additional Restrictions**: No additional legal or technological restrictions
 
