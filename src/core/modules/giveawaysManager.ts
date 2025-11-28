@@ -55,7 +55,6 @@ interface GiveawaysManagerOptions {
 class GiveawayManager {
 	client: Client;
 	options: GiveawaysManagerOptions;
-	private processingGiveaways = new Set<string>();
 
 	constructor(client: Client, options: GiveawaysManagerOptions) {
 		if (!client.options) {
@@ -298,11 +297,6 @@ class GiveawayManager {
 	};
 
 	public async finish(client: Client, giveawayId: string, guildId: string, channelId: string) {
-		if (this.processingGiveaways.has(giveawayId)) {
-			return;
-		}
-		this.processingGiveaways.add(giveawayId);
-
 		try {
 
 			const lang = await getLanguageData(guildId);
@@ -372,9 +366,7 @@ class GiveawayManager {
 			};
 			return;
 		} catch (e) {
-			throw new Error(e)
-		} finally {
-			this.processingGiveaways.delete(giveawayId);
+			console.error(e)
 		}
 	};
 
@@ -565,9 +557,7 @@ class GiveawayManager {
 		const drop_all_db = await db.GetAllGiveawaysData();
 
 		for (const giveawayId in drop_all_db) {
-			const giveawayData = drop_all_db[giveawayId].giveawayData;
-
-			if (giveawayData.ended) continue;
+			const { giveawayData } = drop_all_db[giveawayId];
 
 			const now = new Date().getTime();
 			const gwExp = new Date(giveawayData.expireIn).getTime();
@@ -575,9 +565,7 @@ class GiveawayManager {
 
 			await db.AvoidDoubleEntries(drop_all_db[giveawayId].giveawayId);
 
-			if (now >= gwExp) {
-				await db.SetEnded(drop_all_db[giveawayId].giveawayId, "Processing");
-
+			if (now >= gwExp && !giveawayData.ended) {
 				this.finish(
 					client,
 					drop_all_db[giveawayId].giveawayId,
