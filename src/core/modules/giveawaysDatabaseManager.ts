@@ -20,7 +20,7 @@
 */
 
 import { Giveaway } from '../../../types/giveaways.js';
-
+import { GiveawayEndedStatus } from './giveawaysManager.js';
 import {
 	existsSync,
 	mkdirSync,
@@ -86,7 +86,7 @@ class db {
 		await this.writeGiveawayFile(giveawayId, giveaway);
 	}
 
-	public async SetEnded(giveawayId: string, state: boolean | string) {
+	public async SetEnded(giveawayId: string, state: GiveawayEndedStatus) {
 		const giveaway = (await this.readGiveawayFile(giveawayId))!;
 		giveaway.ended = state;
 		await this.writeGiveawayFile(giveawayId, giveaway);

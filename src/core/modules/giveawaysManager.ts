@@ -35,27 +35,18 @@ import {
 	GuildMember,
 } from 'discord.js';
 
-import { GiveawayCreateOptions, GiveawayFetch } from '../../../types/giveaways.js';
+import { GiveawayCreateOptions, GiveawayFetch, GiveawaysManagerOptions } from '../../../types/giveaways.js';
 import getLanguageData from '../functions/getLanguageData.js';
 import db from './giveawaysDatabaseManager.js';
 
-interface GiveawaysManagerOptions {
-	storage: string,
-	config: {
-		botsCanWin: boolean,
-		embedColor: string,
-		embedColorEnd: string,
-		reaction: string,
-		botName: string,
-		forceUpdateEvery: number,
-		endedGiveawaysLifetime: number,
-	},
-};
+export enum GiveawayEndedStatus {
+	ENDED = 1,
+	NOT_ENDED = 2
+}
 
 class GiveawayManager {
 	client: Client;
 	options: GiveawaysManagerOptions;
-	private processingGiveaways = new Set<string>();
 
 	constructor(client: Client, options: GiveawaysManagerOptions) {
 		if (!client.options) {
@@ -124,7 +115,7 @@ class GiveawayManager {
 						prize: data.prize,
 						hostedBy: data.hostedBy,
 						expireIn: new Date(Date.now() + data.duration),
-						ended: false,
+						ended: GiveawayEndedStatus.NOT_ENDED,
 						entries: [],
 						winners: [],
 						isValid: true,
@@ -280,7 +271,7 @@ class GiveawayManager {
 				const giveawayData = (await db.GetGiveawayData(giveawayId))!;
 
 				if (giveawayData.isValid && !giveawayData.ended) {
-					await db.SetEnded(giveawayId, "End()");
+					await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
 					this.finish(
 						client,
 						giveawayId,
@@ -298,11 +289,6 @@ class GiveawayManager {
 	};
 
 	public async finish(client: Client, giveawayId: string, guildId: string, channelId: string) {
-		if (this.processingGiveaways.has(giveawayId)) {
-			return;
-		}
-		this.processingGiveaways.add(giveawayId);
-
 		try {
 
 			const lang = await getLanguageData(guildId);
@@ -311,9 +297,9 @@ class GiveawayManager {
 
 			if (!fetch) return;
 
-			if (!fetch.ended || fetch.ended === 'End()') {
+			if (!fetch.ended || fetch.ended === GiveawayEndedStatus.NOT_ENDED) {
 				const guild = await client.guilds.fetch(guildId).catch(async () => {
-					await db.DeleteGiveaway(giveawayId)
+					await this.delete(giveawayId)
 				});
 				if (!guild) return;
 
@@ -322,13 +308,13 @@ class GiveawayManager {
 					fetch.winnerCount
 				);
 
-				await db.SetEnded(giveawayId, true)
+				await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED)
 				await db.SetWinners(giveawayId, winner || 'None')
 
-				const channel = await guild.channels.fetch(channelId).catch(() => { db.DeleteGiveaway(giveawayId) })
+				const channel = await guild.channels.fetch(channelId).catch(() => { this.delete(giveawayId) })
 
 				const message = await (channel as GuildTextBasedChannel).messages.fetch(giveawayId).catch(async () => {
-					await db.DeleteGiveaway(giveawayId)
+					await this.delete(giveawayId)
 					return;
 				}) as Message;
 
@@ -372,9 +358,7 @@ class GiveawayManager {
 			};
 			return;
 		} catch (e) {
-			throw new Error(e)
-		} finally {
-			this.processingGiveaways.delete(giveawayId);
+			console.error(e)
 		}
 	};
 
@@ -422,7 +406,7 @@ class GiveawayManager {
 				const lang = await getLanguageData(guild.id);
 
 				const message = await (channel as BaseGuildTextChannel).messages.fetch(giveawayId).catch(async () => {
-					await db.DeleteGiveaway(giveawayId);
+					await this.delete(giveawayId);
 					resolve();
 					return;
 				}) as Message;
@@ -565,9 +549,7 @@ class GiveawayManager {
 		const drop_all_db = await db.GetAllGiveawaysData();
 
 		for (const giveawayId in drop_all_db) {
-			const giveawayData = drop_all_db[giveawayId].giveawayData;
-
-			if (giveawayData.ended) continue;
+			const { giveawayData } = drop_all_db[giveawayId];
 
 			const now = new Date().getTime();
 			const gwExp = new Date(giveawayData.expireIn).getTime();
@@ -575,9 +557,8 @@ class GiveawayManager {
 
 			await db.AvoidDoubleEntries(drop_all_db[giveawayId].giveawayId);
 
-			if (now >= gwExp) {
-				await db.SetEnded(drop_all_db[giveawayId].giveawayId, "Processing");
-
+			if (now >= gwExp && giveawayData.ended === GiveawayEndedStatus.NOT_ENDED) {
+				console.log("j'ai passer la condition fdp")
 				this.finish(
 					client,
 					drop_all_db[giveawayId].giveawayId,
@@ -587,7 +568,7 @@ class GiveawayManager {
 			}
 
 			if (cooldownTime >= this.options.config.endedGiveawaysLifetime) {
-				await db.DeleteGiveaway(drop_all_db[giveawayId].giveawayId);
+				await this.delete(drop_all_db[giveawayId].giveawayId);
 			}
 		}
 	}
