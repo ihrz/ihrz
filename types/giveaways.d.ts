@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { GiveawayEndedStatus } from "../src/core/modules/giveawaysManager.ts";
+
 export interface GiveawayRequirementBody {
 	type: "none" | "invites" | "messages" | "roles";
 	value: string | null;
@@ -35,7 +37,7 @@ export interface Giveaway {
 
 	prize: string;
 	hostedBy: string;
-	ended?: boolean | string;
+	ended: GiveawayEndedStatus;
 
 	expireIn: Date;
 	duration?: number;
@@ -52,6 +54,19 @@ export interface GiveawayCreateOptions {
 	hostedBy: string;
 	embedImageURL: string | null;
 	requirement: GiveawayRequirementBody;
+}
+
+export interface GiveawaysManagerOptions {
+	storage: string,
+	config: {
+		botsCanWin: boolean,
+		embedColor: string,
+		embedColorEnd: string,
+		reaction: string,
+		botName: string,
+		forceUpdateEvery: number,
+		endedGiveawaysLifetime: number,
+	},
 }
 
 export interface GiveawayData {
