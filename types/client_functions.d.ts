@@ -144,6 +144,7 @@ declare namespace Client_Functions {
 		export function deleteTicketChannelFromDatabase(channel: BaseGuildTextChannel): Promise<boolean>;
 		export function isValidDiscordInvite(input: string): boolean;
 		export function isValidDiscordInviteCode(VanityCode: string): boolean;
+		export function changeVoiceChannelStatus(channelId: string, status: string): Promise<boolean>;
 	}
 
 	// From getLanguageData.ts
