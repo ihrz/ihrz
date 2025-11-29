@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment, MessagePayload, ButtonStyle, ActionRowData, APIMessageTopLevelComponent, JSONEncodable, MessageActionRowComponentBuilder, MessageActionRowComponentData, TopLevelComponentData } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment, MessagePayload, ButtonStyle, ActionRowData, APIMessageTopLevelComponent, JSONEncodable, MessageActionRowComponentBuilder, MessageActionRowComponentData, TopLevelComponentData, StringSelectMenuInteraction } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -509,12 +509,12 @@ export async function addTopggButonToTheActualComponents(current: components): P
 }
 
 export async function interactionSend(
-	interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message,
+	interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message | StringSelectMenuInteraction<"cached">,
 	options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
 ): Promise<Message> {
 	const nonce = SnowflakeUtil.generate().toString();
 
-	if (interaction instanceof ChatInputCommandInteraction) {
+	if (interaction instanceof ChatInputCommandInteraction || interaction instanceof StringSelectMenuInteraction) {
 		const editOptions: InteractionReplyOptions = typeof options === 'string'
 			? { content: options }
 			: { ...options as InteractionReplyOptions };

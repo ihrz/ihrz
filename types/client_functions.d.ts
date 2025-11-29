@@ -115,7 +115,7 @@ declare namespace Client_Functions {
 			current: ReadonlyArray<JSONEncodable<APIMessageTopLevelComponent> | TopLevelComponentData | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder> | APIMessageTopLevelComponent>
 		): Promise<components>;
 		export function interactionSend(
-			interaction: ChatInputCommandInteraction<CacheType> | ChatInputCommandInteraction<"cached"> | Message<boolean>,
+			interaction: ChatInputCommandInteraction<CacheType> | ChatInputCommandInteraction<"cached"> | Message<boolean> | StringSelectMenuInteraction<"cached">,
 			options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
 		): Promise<Message<boolean>>;
 		export function channelSend(
