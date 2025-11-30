@@ -558,7 +558,6 @@ class GiveawayManager {
 			await db.AvoidDoubleEntries(drop_all_db[giveawayId].giveawayId);
 
 			if (now >= gwExp && giveawayData.ended === GiveawayEndedStatus.NOT_ENDED) {
-				console.log("j'ai passer la condition fdp")
 				this.finish(
 					client,
 					drop_all_db[giveawayId].giveawayId,

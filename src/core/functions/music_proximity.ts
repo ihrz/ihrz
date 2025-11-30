@@ -63,8 +63,17 @@ export function similarity(a: string, b: string): number {
 /**
  * Checks if the query is similar enough to a track (title + author).
  */
-export function isSimilar(query: string, track: TrackEmbbeded = { info: { author: '', title: '' } }, threshold: number = 0.5): boolean {
-	const fullTitle = `${track.info.author} - ${track.info.title}`;
-	const score = similarity(query, fullTitle);
+export function isSimilar(query: string, track: TrackEmbbeded, threshold = 0.5): boolean {
+	const a = query.toLowerCase().split(/\s+/);
+	const b = `${track.info.author} ${track.info.title}`.toLowerCase().split(/\s+/);
+
+	let matches = 0;
+
+	for (const word of a) {
+		if (b.includes(word)) matches++;
+	}
+
+	const score = matches / a.length;
+
 	return score >= threshold;
 }
