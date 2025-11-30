@@ -1060,3 +1060,19 @@ export function isValidDiscordInviteCode(VanityCode: string): boolean {
 
 	return true;
 }
+
+export async function changeVoiceChannelStatus(channelId: string, status: string): Promise<boolean> {
+	const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/voice-status`, {
+		method: "PUT",
+		headers: {
+			"Authorization": `Bot ${client.token}`,
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			status
+		}),
+	});
+
+	if (res.status === 200) return true;
+	return false;
+}

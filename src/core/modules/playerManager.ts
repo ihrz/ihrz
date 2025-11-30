@@ -104,29 +104,22 @@ export default async (client: Client) => {
 			files: [attachment]
 		});
 
-		await fetch(`https://discord.com/api/v10/channels/${player.voiceChannelId}/voice-status`, {
-			"method": "PUT",
-			"headers": {
-				"Authorization": `Bot ${client.token}`,
-				"Content-Type": "application/json",
-			},
-			"body": JSON.stringify({
-				status: `:musical_note: ${track?.info.title} - ${track?.info.author}`
-			}),
-		});
+		await client.func.method.changeVoiceChannelStatus(player.voiceChannelId!, `:musical_note: ${track?.info.title} - ${track?.info.author}`)
 	});
 
 	// ts spam the chat lol
-	// client.player.on("queueEnd", async player => {
-	// 	const data = await client.func.getLanguageData(player.guildId);
+	client.player.on("queueEnd", async player => {
+		// const data = await client.func.getLanguageData(player.guildId);
 
-	// 	const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
+		// const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
 
-	// 	(channel as BaseGuildTextChannel).send({
-	// 		content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
-	// 	});
-	// 	return;
-	// });
+		// (channel as BaseGuildTextChannel).send({
+		// 	content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
+		// });
+		await client.func.method.changeVoiceChannelStatus(player.voiceChannelId!, ``)
+
+		return;
+	});
 
 	client.player.nodeManager.on("disconnect", (node, reason) => {
 		// logger.warn(`:: DISCONNECT :: ${node.id} Reason: ${reason.reason} (${reason.code})`);
