@@ -27,7 +27,7 @@ export default function isValidImageType(contentType: string | null): boolean {
 		'image/jpeg',
 		'image/jpg',
 		'image/gif',
-		// 'image/webp'lets go fuck webp
+		'image/webp'
 	];
 
 	return supportedTypes.includes(contentType.toLowerCase());
