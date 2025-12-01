@@ -62,18 +62,37 @@ export function similarity(a: string, b: string): number {
 
 /**
  * Checks if the query is similar enough to a track (title + author).
+ * Now with fuzzy matching using Levenshtein distance on individual words.
  */
-export function isSimilar(query: string, track: TrackEmbbeded, threshold = 0.5): boolean {
-	const a = query.toLowerCase().split(/\s+/);
-	const b = `${track?.info.author} ${track?.info.title}`.toLowerCase().split(/\s+/);
+export function isSimilar(
+	query: string,
+	track: TrackEmbbeded,
+	threshold = 0.5,
+	wordThreshold = 0.7 // Similarity threshold for each individual word
+): boolean {
+	const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+	const trackWords = `${track?.info.author} ${track?.info.title}`
+		.toLowerCase()
+		.split(/\s+/)
+		.filter(w => w.length > 0);
 
-	let matches = 0;
+	let totalScore = 0;
 
-	for (const word of a) {
-		if (b.includes(word)) matches++;
+	for (const queryWord of queryWords) {
+		let bestMatch = 0;
+
+		// For each query word, find the best match in the track
+		for (const trackWord of trackWords) {
+			const wordSimilarity = similarity(queryWord, trackWord);
+			bestMatch = Math.max(bestMatch, wordSimilarity);
+		}
+
+		// If the best match exceeds the word threshold, count this word as found
+		if (bestMatch >= wordThreshold) {
+			totalScore++;
+		}
 	}
 
-	const score = matches / a.length;
-
-	return score >= threshold;
+	const finalScore = totalScore / queryWords.length;
+	return finalScore >= threshold;
 }
