@@ -67,8 +67,8 @@ export function similarity(a: string, b: string): number {
 export function isSimilar(
 	query: string,
 	track: TrackEmbbeded,
-	threshold = 0.5,
-	wordThreshold = 0.7 // Similarity threshold for each individual word
+	threshold: number = 0.5,
+	wordThreshold: number = 0.7 // Similarity threshold for each individual word
 ): boolean {
 	const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
 	const trackWords = `${track?.info.author} ${track?.info.title}`
