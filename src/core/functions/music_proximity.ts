@@ -65,7 +65,7 @@ export function similarity(a: string, b: string): number {
  */
 export function isSimilar(query: string, track: TrackEmbbeded, threshold = 0.5): boolean {
 	const a = query.toLowerCase().split(/\s+/);
-	const b = `${track.info.author} ${track.info.title}`.toLowerCase().split(/\s+/);
+	const b = `${track?.info.author} ${track?.info.title}`.toLowerCase().split(/\s+/);
 
 	let matches = 0;
 
