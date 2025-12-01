@@ -79,28 +79,28 @@ export const subCommand: SubCommand = {
 			} else {
 				res = await _node?.search({ query, source: 'spotify' }, interaction.member.user);
 				logger.debug("Searching", query, 'with ', "spotify", "| Result: ", res.tracks[0]?.info)
-				logger.debug("Spotify is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5));
+				logger.debug("Spotify is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
 
 				// If spotify search dont feel similar enough, search on deezer
-				if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5)) {
+				if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)) {
 					res = await _node?.search({ query, source: 'deezer' }, interaction.member.user);
 					logger.debug("Searching", query, "with", 'deezer', "| Result: ", res.tracks[0]?.info);
-					logger.debug("Deezer is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5));
+					logger.debug("Deezer is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
 				}
 				// If deezer search dont feel similar enough, fallback to default provider
-				if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5)) {
+				if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)) {
 					res = await _node?.search({ query }, interaction.member.user);
 					res.tracks.forEach((t) => {
 						t.info.uri = "https://discord.gg/ihorizon"
 					});
 					logger.debug("Searching", query, "with", 'default provider', "| Result: ", res.tracks[0]?.info);
-					logger.debug("Default provider is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5));
+					logger.debug("Default provider is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
 				};
 				// If default provider search dont feel similar enough, search on soundcloud
-				if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5)) {
+				if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)) {
 					res = await _node?.search({ query, source: 'soundcloud' }, interaction.member.user);
 					logger.debug("Searching", query, "with", 'soundcloud', "| Result: ", res.tracks[0]?.info);
-					logger.debug("Soundcloud is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5));
+					logger.debug("Soundcloud is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
 				};
 			}
 			if (res?.tracks.length! > 0) {
