@@ -50,7 +50,7 @@ export const subCommand: SubCommand = {
 			await client.func.customProfileHelper.changeGuildBotBio(interaction.guild, client.user.displayName);
 			return;
 		} else if (desc) {
-			if (desc.length >= 32) return await client.func.method.interactionSend(interaction, { content: lang.guildconfig_setbot_footername_footer_too_long_msg });
+			if (desc.length >= 400) return await client.func.method.interactionSend(interaction, { content: lang.guildconfig_setbot_footername_footer_too_long_msg });
 
 			await client.func.customProfileHelper.changeGuildBotBio(interaction.guild, desc);
 
