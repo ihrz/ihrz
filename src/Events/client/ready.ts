@@ -272,5 +272,19 @@ export const event: BotEvent = {
 				}
 			}, 45_000);
 		}
+
+		if (client.email.connected) {
+			client.email.send(client.email.ownerMail, "Bot Is Ready", `
+=== AUTO-GENERATED MESSAGE ===
+
+iHorizon (${client.user?.tag}) is online 
+
+since ${new Date()}
+
+on shard #${client.shard?.ids[0]}
+
+=== AUTO-GENERATED MESSAGE ===
+`)
+		}
 	},
 };
