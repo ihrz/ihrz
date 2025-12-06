@@ -121,6 +121,7 @@ export const command: Command = {
 					required: true,
 					choices: Object.entries(rules).map(([key, value]) => ({
 						name: value.placeholder,
+						name_localizations: { fr: value.placeholder },
 						value: value.value,
 					})),
 
@@ -139,14 +140,17 @@ export const command: Command = {
 					choices: [
 						{
 							name: 'Only the allowlist',
+							name_localizations: { fr: 'Seulement la liste d\'autorisation' },
 							value: 'allowlist'
 						},
 						{
 							name: 'All of member',
+							name_localizations: { fr: 'Tous les membres' },
 							value: 'member'
 						},
 						{
 							name: 'Nobody (except guild owner)',
+							name_localizations: { fr: 'Personne (sauf le propriétaire du serveur)' },
 							value: 'nobody'
 						}
 					],
@@ -180,14 +184,23 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Simply Cancel Actions",
+							name_localizations: {
+								"fr": "Simplemente annuler les actions"
+							},
 							value: "simply"
 						},
 						{
 							name: "Simply Cancel Actions + Derank",
+							name_localizations: {
+								"fr": "Simplemente annuler les actions + déséléver"
+							},
 							value: "simply+derank"
 						},
 						{
 							name: "Simply Cancel Actions + Ban",
+							name_localizations: {
+								"fr": "Simplemente annuler les actions + bannir"
+							},
 							value: "simply+ban"
 						}
 					],

@@ -68,10 +68,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: 'Off',
+							name_localizations: { fr: 'Désactiver' },
 							value: 'off'
 						},
 						{
 							name: 'On',
+							name_localizations: { fr: 'Activer' },
 							value: 'track'
 						}
 					],
@@ -98,7 +100,7 @@ export const command: Command = {
 
 					description: 'The track title you want',
 					description_localizations: {
-						"fr": "Titre de la musique"
+						"fr": "Titre de la musique que vous souhaitez"
 					},
 
 					required: true,
@@ -132,7 +134,7 @@ export const command: Command = {
 
 			description: 'Get the current playing song!',
 			description_localizations: {
-				"fr": "Obtenez la chanson en cours de lecture"
+				"fr": "Obtenir la chanson en cours de lecture"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -169,7 +171,7 @@ export const command: Command = {
 
 					description: 'The track title you want (you can put URL as you want)',
 					description_localizations: {
-						"fr": "Titre de la musique (URL si vous le voulez)"
+						"fr": "Titre de la musique que vous souhaitez (vous pouvez mettre une URL si vous le voulez)"
 					},
 
 					required: true,

@@ -74,10 +74,12 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Youtube",
+									name_localizations: { fr: 'Youtube' },
 									value: "youtube"
 								},
 								{
 									name: "Twitch",
+									name_localizations: { fr: 'Twitch' },
 									value: "twitch"
 								}
 							],
@@ -129,10 +131,12 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Youtube",
+									name_localizations: { fr: 'Youtube' },
 									value: "youtube"
 								},
 								{
 									name: "Twitch",
+									name_localizations: { fr: 'Twitch' },
 									value: "twitch"
 								}
 							],

@@ -54,10 +54,12 @@ export const command: Command = {
 			choices: [
 				{
 					name: "Power On",
+					name_localizations: { fr: 'Activer' },
 					value: "on"
 				},
 				{
 					name: "Power Off",
+					name_localizations: { fr: 'Désactiver' },
 					value: "off"
 				}
 			],
@@ -77,10 +79,12 @@ export const command: Command = {
 			choices: [
 				{
 					name: "Yes",
+					name_localizations: { fr: 'Oui' },
 					value: "yes"
 				},
 				{
 					name: "No",
+					name_localizations: { fr: 'Non' },
 					value: "no"
 				}
 			],

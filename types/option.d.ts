@@ -25,7 +25,7 @@ import type { DescriptionLocalizations, NameLocalizations } from './command.d.ts
 
 export interface Choice {
 	name: string,
-	name_localizations: string,
+	name_localizations: NameLocalizations,
 	value: string | boolean
 }
 

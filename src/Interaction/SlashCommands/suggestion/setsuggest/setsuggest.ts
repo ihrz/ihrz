@@ -61,11 +61,13 @@ export const command: Command = {
 					choices: [
 						{
 							name: 'Power On the Suggestion Module',
-							value: 'on'
+							name_localizations: { fr: 'Activer le module de suggestion' },
+							value: "on"
 						},
 						{
 							name: 'Power Off the Suggestion Module',
-							value: 'off'
+							name_localizations: { fr: 'Désactiver le module de suggestion' },
+							value: "off"
 						},
 					],
 

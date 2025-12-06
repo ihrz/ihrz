@@ -63,6 +63,7 @@ export const command: Command = {
 			choices: Object.values(AvailableLanguage).map(x => {
 				return {
 					name: x.name,
+					name_localizations: { fr: x.name },
 					value: x.code
 				}
 			}),
