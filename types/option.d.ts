@@ -22,10 +22,6 @@
 import { ApplicationCommandOptionType } from 'discord.js';
 import type { DescriptionLocalizations, NameLocalizations } from './command.d.ts';
 
-export interface Choice {
-	name: string,
-	value: string | boolean
-}
 
 export interface Choice {
 	name: string,
