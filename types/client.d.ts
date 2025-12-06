@@ -52,6 +52,7 @@ import * as discordTranscripts from "discord-html-transcripts";
 import { BloggerNotifier } from "../src/core/Blogger.ts";
 import { TemproleManager } from "../src/core/modules/tempRoleManager.ts";
 import { TempbanManager } from "../src/core/modules/tempbanManager.ts";
+import { Mailer } from "../src/core/Mailer.ts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -93,5 +94,6 @@ declare module 'discord.js' {
 		inShard: (guildId: string) => boolean;
 		discordTranscripts: typeof discordTranscripts;
 		blogger: BloggerNotifier;
+		email: Mailer;
 	}
 }
