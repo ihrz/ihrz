@@ -29,6 +29,7 @@ export interface Choice {
 
 export interface Choice {
 	name: string,
+	name_localizations: string,
 	value: string | boolean
 }
 
