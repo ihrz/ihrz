@@ -39,7 +39,7 @@ export class Mailer {
 	private transport: nodemailer.Transporter;
 	public connected: boolean;
 
-	constructor(useEnv: boolean, config?: MailerConfig) {
+	public async init(useEnv: boolean, config?: MailerConfig) {
 		if (useEnv) {
 			this.config = {
 				auth: {
@@ -57,10 +57,6 @@ export class Mailer {
 			throw new Error("Missing config payload. (useEnv=false)");
 		}
 
-		this.init();
-	}
-
-	private async init() {
 		this.transport = nodemailer.createTransport({
 			host: this.config.host,
 			port: this.config.port,
@@ -84,11 +80,13 @@ export class Mailer {
 		html?: string
 	): Promise<boolean> {
 		try {
+			const normalizedText = text.replace(/\r?\n/g, '\r\n');
+
 			const info = await this.transport.sendMail({
 				from: `"${this.config.fromName}" <${this.config.auth.mail}>`,
 				to,
 				subject,
-				text,
+				text: normalizedText,
 				html: html || text
 			});
 

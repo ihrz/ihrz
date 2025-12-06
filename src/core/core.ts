@@ -123,7 +123,7 @@ export async function main(client: Client) {
 	client.discordTranscripts = discordTranscripts;
 	client.temproleManager = new TemproleManager();
 	client.tempbanManager = new TempbanManager();
-	client.email = new Mailer(true);
+	client.email = new Mailer();
 
 	process.on('SIGINT', async () => {
 		await client.destroy();
