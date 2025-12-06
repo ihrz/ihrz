@@ -59,7 +59,7 @@ export class Mailer {
 		this.init();
 	}
 
-	private init() {
+	private async init() {
 		this.transport = nodemailer.createTransport({
 			host: this.config.host,
 			port: this.config.port,
@@ -72,6 +72,8 @@ export class Mailer {
 				rejectUnauthorized: true
 			}
 		});
+
+		await this.verifyConnection();
 	}
 
 	public async send(
@@ -100,7 +102,7 @@ export class Mailer {
 	public async verifyConnection(): Promise<boolean> {
 		try {
 			await this.transport.verify();
-			logger.debug('SMTP Connection success');
+			logger.log(`${client.config.console.emojis.OK} >> SMTP Connection success`);
 			return true;
 		} catch (error) {
 			logger.err('SMTP Connection Error:', error);
