@@ -27,6 +27,7 @@ export interface MailerConfig {
 	secure: boolean;
 	auth: MailerAuth;
 	fromName?: string;
+	owner: string;
 }
 
 export interface MailerAuth {
@@ -38,6 +39,7 @@ export class Mailer {
 	private config: MailerConfig;
 	private transport: nodemailer.Transporter;
 	public connected: boolean;
+	public ownerMail: string;
 
 	public async init(useEnv: boolean, config?: MailerConfig) {
 		if (useEnv) {
@@ -49,10 +51,14 @@ export class Mailer {
 				host: process.env.SMTP_HOST!,
 				port: Number(process.env.SMTP_PORT),
 				secure: process.env.SMTP_SECURE === 'true',
-				fromName: client.user?.username
+				fromName: client.user?.username,
+				owner: process.env.OWNER_MAIL!
 			};
+
+			this.ownerMail = this.config.owner;
 		} else if (config) {
 			this.config = config;
+			this.ownerMail = this.config.owner;
 		} else {
 			throw new Error("Missing config payload. (useEnv=false)");
 		}
@@ -87,10 +93,10 @@ export class Mailer {
 				to,
 				subject,
 				text: normalizedText,
-				html: html || text
+				html: html || normalizedText.replace(/\r?\n/g, '<br>')
 			});
 
-			logger.debug('Email Sended:', info.messageId);
+			logger.log('Email Sended:', info.messageId);
 			return true;
 		} catch (error) {
 			logger.err('Email Sending Error:', error);
