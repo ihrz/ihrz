@@ -35,8 +35,9 @@ export interface MailerAuth {
 }
 
 export class Mailer {
-	config: MailerConfig;
-	transport: nodemailer.Transporter;
+	private config: MailerConfig;
+	private transport: nodemailer.Transporter;
+	public connected: boolean;
 
 	constructor(useEnv: boolean, config?: MailerConfig) {
 		if (useEnv) {
@@ -99,12 +100,16 @@ export class Mailer {
 		}
 	}
 
-	public async verifyConnection(): Promise<boolean> {
+	private async verifyConnection(): Promise<boolean> {
 		try {
 			await this.transport.verify();
+			this.connected = true;
+
 			logger.log(`${client.config.console.emojis.OK} >> SMTP Connection success`);
 			return true;
 		} catch (error) {
+			this.connected = false;
+
 			logger.err('SMTP Connection Error:', error);
 			return false;
 		}
