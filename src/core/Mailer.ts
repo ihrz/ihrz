@@ -40,6 +40,7 @@ export class Mailer {
 	private transport: nodemailer.Transporter;
 	public connected: boolean;
 	public ownerMail: string;
+	private signature: { text: string; html: string };
 
 	public async init(useEnv: boolean, config?: MailerConfig) {
 		if (useEnv) {
@@ -76,24 +77,58 @@ export class Mailer {
 			}
 		});
 
+		this.initSignature();
+
 		await this.verifyConnection();
+	}
+
+	private initSignature() {
+		this.signature = {
+			text: `\r\n\r\n---\r\n${this.config.fromName}\r\niHorizon Discord Bot\r\nhttps://ihorizon.org`,
+
+			html: `
+                <br><br>
+                <table style="font-family: Arial, sans-serif; color: #333; border-top: 2px solid #5865F2; padding-top: 15px; margin-top: 20px;">
+                    <tr>
+                        <td style="padding-right: 15px;">
+                            <img src="https://www.ihorizon.org/assets/img/ihorizon.png" alt="iHorizon" width="50" height="50" style="border-radius: 8px;">
+                        </td>
+                        <td>
+                            <strong style="color: #5865F2; font-size: 16px;">${this.config.fromName}</strong><br>
+                            <span style="color: #666; font-size: 14px;">iHorizon Discord Bot</span><br>
+                            <a href="https://ihorizon.org" style="color: #5865F2; text-decoration: none;">🌐 ihorizon.org</a> | 
+                            <a href="https://discord.gg/ihorizon" style="color: #5865F2; text-decoration: none;">💬 Discord</a>
+                        </td>
+                    </tr>
+                </table>
+            `
+		};
 	}
 
 	public async send(
 		to: string,
 		subject: string,
 		text: string,
-		html?: string
+		html?: string,
+		withSignature: boolean = true
 	): Promise<boolean> {
 		try {
 			const normalizedText = text.replace(/\r?\n/g, '\r\n');
+
+			const finalText = withSignature
+				? normalizedText + this.signature.text
+				: normalizedText;
+
+			const finalHtml = withSignature
+				? (html || normalizedText.replace(/\r?\n/g, '<br>')) + this.signature.html
+				: (html || normalizedText.replace(/\r?\n/g, '<br>'));
 
 			const info = await this.transport.sendMail({
 				from: `"${this.config.fromName}" <${this.config.auth.mail}>`,
 				to,
 				subject,
-				text: normalizedText,
-				html: html || normalizedText.replace(/\r?\n/g, '<br>')
+				text: finalText,
+				html: finalHtml
 			});
 
 			logger.log('Email Sended:', info.messageId);
