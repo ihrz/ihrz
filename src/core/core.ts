@@ -55,6 +55,7 @@ import * as discordTranscripts from "discord-html-transcripts";
 import { BloggerNotifier } from './Blogger.js';
 import { TemproleManager } from './modules/tempRoleManager.js';
 import { TempbanManager } from './modules/tempbanManager.js';
+import { Mailer } from './Mailer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -122,6 +123,7 @@ export async function main(client: Client) {
 	client.discordTranscripts = discordTranscripts;
 	client.temproleManager = new TemproleManager();
 	client.tempbanManager = new TempbanManager();
+	client.email = new Mailer();
 
 	process.on('SIGINT', async () => {
 		await client.destroy();

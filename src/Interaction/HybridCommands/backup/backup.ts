@@ -66,10 +66,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Yes",
+							name_localizations: { fr: 'Oui' },
 							value: "yes"
 						},
 						{
 							name: "No",
+							name_localizations: { fr: 'Non' },
 							value: "no"
 						}
 					],
@@ -180,10 +182,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Only owner",
+							name_localizations: { fr: 'Seulement le propriétaire' },
 							value: "owner"
 						},
 						{
 							name: "All admin(s)",
+							name_localizations: { fr: 'Tous les administrateurs' },
 							value: "admin"
 						}
 					],

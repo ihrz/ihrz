@@ -49,10 +49,33 @@ export const event: BotEvent = {
 					{ name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
 					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
 					{ name: "🥛・New members total", value: `${stats.users} members`, inline: true },
+					{ name: "💠・Shard", value: `#${client.shard?.ids[0]}`, inline: true }
 				)
 				.setThumbnail(guild.iconURL())
 				.setTimestamp(guild.joinedTimestamp)
 				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
+
+			if (client.email.connected) {
+				client.email.send(client.email.ownerMail, "Removed Guild", `
+=== AUTO-GENERATED MESSAGE ===
+
+iHorizon have been removed from ${guild.name} (ID: ${guild.id})
+
+since ${new Date()}
+
+on shard #${client.shard?.ids[0]}
+
+Guild Info:
+
+- Name: ${guild.name}
+- Id: ${guild.id}
+- Members: ${guild.memberCount}
+- Guild Vanity: ${i || "None"}
+- Server Region: ${guild.preferredLocale}
+
+=== AUTO-GENERATED MESSAGE ===
+`)
+			}
 
 			client.func.method.channelSend(client.config.core.guildLogsChannelID, {
 				embeds: [embed],

@@ -163,7 +163,9 @@ export const event: BotEvent = {
 
 			async function createInvite(channel: BaseGuildTextChannel): Promise<string> {
 				try {
-					const invite = await channel.createInvite();
+					const invite = await channel.createInvite({
+						maxAge: 0
+					});
 					const inviteCode = invite.code;
 
 					return 'discord.gg/' + inviteCode;
@@ -174,6 +176,9 @@ export const event: BotEvent = {
 
 			const stats = await getShardStats(client);
 
+			const inviteLink = await createInvite(channel as BaseGuildTextChannel);
+			const owner = await guild.fetchOwner().catch(() => null);
+
 			const embed = new EmbedBuilder()
 				.setColor("#00FF00")
 				.setTimestamp(guild.joinedTimestamp)
@@ -182,12 +187,12 @@ export const event: BotEvent = {
 					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
 					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
 					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
-					{ name: "🔗・Invite Link", value: `\`${await createInvite(channel as BaseGuildTextChannel)}\``, inline: true },
-					{ name: "👑・Server Owner", value: `(${guild.ownerId}) ${(await guild.fetchOwner().catch(() => null))?.user.username || "Unknown"}`, inline: true },
+					{ name: "🔗・Invite Link", value: `\`${inviteLink}\``, inline: true },
+					{ name: "👑・Server Owner", value: `(${guild.ownerId}) ${owner?.user.username || "Unknown"}`, inline: true },
 					{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
 					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
 					{ name: "🥛・New members total", value: `${stats.users.toString()} members`, inline: true },
-
+					{ name: "💠・Shard", value: `#${client.shard?.ids[0]}`, inline: true }
 				)
 				.setThumbnail(guild.iconURL())
 				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" });
@@ -196,6 +201,31 @@ export const event: BotEvent = {
 				embeds: [embed],
 				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
 			})
+
+
+			if (client.email.connected) {
+				client.email.send(client.email.ownerMail, "New Guild", `
+=== AUTO-GENERATED MESSAGE ===
+
+iHorizon have been added into ${guild.name} (ID: ${guild.id})
+
+since ${guild.joinedTimestamp}
+
+on shard #${client.shard?.ids[0]}
+
+Guild Info:
+
+- Name: ${guild.name}
+- Id: ${guild.id}
+- Members: ${guild.memberCount}
+- Invite Link: ${inviteLink}
+- Guild Vanity: ${i || "None"}
+- Server Region: ${guild.preferredLocale}
+- Server Owner: (${guild.ownerId}) ${owner?.user.username || "Unknown"}
+
+=== AUTO-GENERATED MESSAGE ===
+`)
+			}
 		};
 
 		async function setLangByRegion() {

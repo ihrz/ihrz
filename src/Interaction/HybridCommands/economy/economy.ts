@@ -178,10 +178,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Enable the module",
+							name_localizations: { fr: 'Activer' },
 							value: "on",
 						},
 						{
 							name: "Disable the module",
+							name_localizations: { fr: 'Désactiver' },
 							value: "off",
 						},
 					],
@@ -514,22 +516,27 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Default",
+							name_localizations: { fr: 'Défaut' },
 							value: "1",
 						},
 						{
 							name: "x2",
+							name_localizations: { fr: 'x2' },
 							value: "2",
 						},
 						{
 							name: "x3",
+							name_localizations: { fr: 'x3' },
 							value: "3",
 						},
 						{
 							name: "x4",
+							name_localizations: { fr: 'x4' },
 							value: "4",
 						},
 						{
 							name: "x5",
+							name_localizations: { fr: 'x5' },
 							value: "5",
 						},
 					],
@@ -572,14 +579,17 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Daily",
+									name_localizations: { fr: 'Quotidien' },
 									value: "daily",
 								},
 								{
 									name: "Weekly",
+									name_localizations: { fr: 'Hebdomadaire' },
 									value: "weekly",
 								},
 								{
 									name: "Monthly",
+									name_localizations: { fr: 'Mensuel' },
 									value: "monthly",
 								},
 							],
@@ -620,10 +630,12 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Rob",
+									name_localizations: { fr: 'Voler' },
 									value: "rob",
 								},
 								{
 									name: "Work",
+									name_localizations: { fr: 'Travailler' },
 									value: "work",
 								},
 							],

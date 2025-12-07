@@ -53,10 +53,12 @@ export const command: Command = {
 			choices: [
 				{
 					name: "ON",
+					name_localizations: { fr: 'Activer' },
 					value: "true"
 				},
 				{
 					name: "OFF",
+					name_localizations: { fr: 'Désactiver' },
 					value: "false"
 				}
 			],
@@ -88,14 +90,17 @@ export const command: Command = {
 			choices: [
 				{
 					name: "BAN",
+					name_localizations: { fr: 'Bannir' },
 					value: "ban"
 				},
 				{
 					name: "KICK",
+					name_localizations: { fr: 'Expulser' },
 					value: "kick"
 				},
 				{
 					name: "MUTE",
+					name_localizations: { fr: 'Muter' },
 					value: "mute"
 				}
 			],

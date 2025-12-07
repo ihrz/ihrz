@@ -60,10 +60,12 @@ export const command: Command = {
 			choices: [
 				{
 					name: "Add another",
+					name_localizations: { fr: 'Ajouter un autre' },
 					value: "add"
 				},
 				{
 					name: "Remove one",
+					name_localizations: { fr: 'Supprimer un' },
 					value: "remove"
 				}
 			],

@@ -58,14 +58,17 @@ export const command: Command = {
 			choices: [
 				{
 					name: "create",
+					name_localizations: { fr: 'Créer' },
 					value: "create",
 				},
 				{
 					name: "delete",
+					name_localizations: { fr: 'Supprimer' },
 					value: "delete",
 				},
 				{
 					name: "list",
+					name_localizations: { fr: 'Liste' },
 					value: "list",
 				},
 			],

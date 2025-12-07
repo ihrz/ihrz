@@ -219,6 +219,7 @@ export const event: BotEvent = {
 		client.infrastructureMonitoring.startMonitoring().then(() => { })
 		client.temproleManager.init();
 		client.tempbanManager.init();
+		await client.email.init(true);
 
 		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000)
 		if (client.shard?.ids[0] === 0) setInterval(refreshBotData, 45_000);
@@ -270,6 +271,20 @@ export const event: BotEvent = {
 					})
 				}
 			}, 45_000);
+		}
+
+		if (client.email.connected) {
+			client.email.send(client.email.ownerMail, "Bot Is Ready", `
+=== AUTO-GENERATED MESSAGE ===
+
+iHorizon (${client.user?.tag}) is online 
+
+since ${new Date()}
+
+on shard #${client.shard?.ids[0]}
+
+=== AUTO-GENERATED MESSAGE ===
+`)
 		}
 	},
 };

@@ -56,17 +56,17 @@ export const command: Command = {
 			},
 			required: true,
 			choices: [
-				{ name: "Setup all channels", value: "auto" },
-				{ name: "Delete all settings", value: "off" },
-				{ name: "AntiSpam Logs", value: "antispam" },
-				{ name: "Boost Logs", value: "boost" },
-				{ name: "Channel Logs", value: "channel" },
-				{ name: "Messages Logs", value: "message" },
-				{ name: "Moderation Logs", value: "moderation" },
-				{ name: "Roles Logs", value: "roles" },
-				{ name: "Ticket Logs", value: "ticket" },
-				{ name: "Voice Logs", value: "voice" },
-				{ name: "Confession Logs", value: "confession" }
+				{ name: "Setup all channels", name_localizations: { fr: 'Configurer tous les canaux' }, value: "auto" },
+				{ name: "Delete all settings", name_localizations: { fr: 'Supprimer toutes les configurations' }, value: "off" },
+				{ name: "AntiSpam Logs", name_localizations: { fr: 'Logs AntiSpam' }, value: "antispam" },
+				{ name: "Boost Logs", name_localizations: { fr: 'Logs Boost' }, value: "boost" },
+				{ name: "Channel Logs", name_localizations: { fr: 'Logs Canal' }, value: "channel" },
+				{ name: "Messages Logs", name_localizations: { fr: 'Logs Messages' }, value: "message" },
+				{ name: "Moderation Logs", name_localizations: { fr: 'Logs Modération' }, value: "moderation" },
+				{ name: "Roles Logs", name_localizations: { fr: 'Logs Rôles' }, value: "roles" },
+				{ name: "Ticket Logs", name_localizations: { fr: 'Logs Ticket' }, value: "ticket" },
+				{ name: "Voice Logs", name_localizations: { fr: 'Logs Voice' }, value: "voice" },
+				{ name: "Confession Logs", name_localizations: { fr: 'Logs Confession' }, value: "confession" }
 			],
 
 			permission: null

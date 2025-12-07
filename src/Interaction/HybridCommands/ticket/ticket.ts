@@ -141,10 +141,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Remove the module",
+							name_localizations: { fr: 'Supprimer le module' },
 							value: "off"
 						},
 						{
 							name: 'Power on the module',
+							name_localizations: { fr: 'Activer le module' },
 							value: "on"
 						},
 					],
