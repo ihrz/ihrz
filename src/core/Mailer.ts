@@ -64,6 +64,12 @@ export class Mailer {
 			throw new Error("Missing config payload. (useEnv=false)");
 		}
 
+		if (!this.config.auth.mail
+			|| !this.config.auth.password
+			|| !this.config.host
+			|| Number.isNaN(this.config.port)
+			|| !this.config.owner) return;
+
 		this.transport = nodemailer.createTransport({
 			host: this.config.host,
 			port: this.config.port,
