@@ -203,7 +203,7 @@ export const event: BotEvent = {
 			})
 
 
-			if (client.email.connected) {
+			if (client.email.connected && client.email.notifyNewGuild) {
 				client.email.send(client.email.ownerMail, "New Guild", `
 === AUTO-GENERATED MESSAGE ===
 
