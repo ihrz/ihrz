@@ -28,6 +28,7 @@ export interface MailerConfig {
 	auth: MailerAuth;
 	fromName?: string;
 	owner: string;
+	notifyNewGuild: boolean;
 }
 
 export interface MailerAuth {
@@ -41,6 +42,7 @@ export class Mailer {
 	public connected: boolean;
 	public ownerMail: string;
 	private signature: { text: string; html: string };
+	public notifyNewGuild: boolean;
 
 	public async init(useEnv: boolean, config?: MailerConfig) {
 		if (useEnv) {
@@ -53,13 +55,16 @@ export class Mailer {
 				port: Number(process.env.SMTP_PORT),
 				secure: process.env.SMTP_SECURE === 'true',
 				fromName: client.user?.username,
-				owner: process.env.OWNER_MAIL!
+				owner: process.env.OWNER_MAIL!,
+				notifyNewGuild: process.env.EMAIL_WHEN_CHANGE_GUILD === 'true',
 			};
 
 			this.ownerMail = this.config.owner;
+			this.notifyNewGuild = this.config.notifyNewGuild;
 		} else if (config) {
 			this.config = config;
 			this.ownerMail = this.config.owner;
+			this.notifyNewGuild = this.config.notifyNewGuild;
 		} else {
 			throw new Error("Missing config payload. (useEnv=false)");
 		}

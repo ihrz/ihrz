@@ -55,7 +55,7 @@ export const event: BotEvent = {
 				.setTimestamp(guild.joinedTimestamp)
 				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
 
-			if (client.email.connected) {
+			if (client.email.connected && client.email.notifyNewGuild) {
 				client.email.send(client.email.ownerMail, "Removed Guild", `
 === AUTO-GENERATED MESSAGE ===
 
