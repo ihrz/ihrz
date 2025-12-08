@@ -63,10 +63,10 @@ var_year: "year(s)"
 var_mo: "month(s)"
 var_w: "week(s)"
 var_d: "day(s)"
-var_h: "hour(S)"
+var_h: "hour(s)"
 var_m: "minute(s)"
 var_s: "seconds"
-var_ms: "miliseconds"
+var_ms: "milliseconds"
 var_banned_user: "Banned User(s)"
 var_no_one_banned: "No one is banned in this server."
 var_category: "Category"
@@ -330,19 +330,19 @@ disablexp_command_work_disable: "You have successfully disabled the leveling mes
 disablexp_logs_embed_title_enable: "Disable XP Logs"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> enable xp !"
 disablexp_command_work_enable: "You have successfully enabled the leveling message (XP)"
-disablexp_command_work_disable_entierly: "You have successfully disabled the ranks module ! (No more messages, and users will not earn level)"
+disablexp_command_work_disable_entierly: "You have successfully disabled the ranks module ! (No more messages, and users will not earn levels)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | You must be an administrator of this server to use this command!"
 setxpchannels_logs_embed_title_disable: "SetXpChannels Logs"
 setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> disabled the custom XP channels. I put the default settings..."
-setxpchannels_already_disabled_disable: "The custom xp channels is already disable !"
-setxpchannels_command_work_disable: "You have successfully disable the custom xp channel !"
+setxpchannels_already_disabled_disable: "The custom xp channels are already disabled !"
+setxpchannels_command_work_disable: "You have successfully disabled the custom xp channel !"
 setxpchannels_command_error_disable: "Error: missing permissions or channel doesn't exist"
 setxpchannels_logs_embed_title_enable: "SetXpChannels Logs"
 setxpchannels_logs_embed_description_enable: "<@${interaction.user.id}> set the custom xp channels to: <#${argsid}>"
 setxpchannels_valid_channel_message: "You must specify a valid channel for your configuration."
-setxpchannels_already_with_this_config: "The custom xp channels is already config with this channels id!"
+setxpchannels_already_with_this_config: "The custom xp channels are already configured with this channel id!"
 setxpchannels_confirmation_message: "**Custom XP channel set here!**"
 setxpchannels_command_work_enable: "You have successfully set the custom xp channel to <#${argsid}>"
 setxpchannels_command_error_enable: "Error: missing permissions or channel doesn't exist"
@@ -499,9 +499,9 @@ botinfo_embed_fields_myname: "My Name:"
 botinfo_embed_fields_mychannels: "My Channels:"
 botinfo_embed_fields_myservers: "My Servers:"
 botinfo_embed_fields_members: "Members:"
-botinfo_embed_fields_libraires: "Librairies:"
-botinfo_embed_fields_created_at: "Create at:"
-botinfo_embed_fields_created_by: "Create by:"
+botinfo_embed_fields_libraires: "Libraries:"
+botinfo_embed_fields_created_at: "Created at:"
+botinfo_embed_fields_created_by: "Created by:"
 
 # /invite
 invite_embed_title: "Thank you for adding iHorizon !"
@@ -526,7 +526,7 @@ pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 status_be_bot_dev: ":x: | **You have to be the bot developer to do this!**"
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ Help Menu```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** available Commands' Categories\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** available Slash Commands\n${client.iHorizon_Emojis.Crown} ・ **Created by** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Do you know ? ・ Tips```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} is an **100% multilangual**\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ Help Menu```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** available Commands' Categories\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** available Slash Commands\n${client.iHorizon_Emojis.Crown} ・ **Created by** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Do you know ? ・ Tips```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} is **100% multilingual**\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`"
 help_mod_fields: "Moderation"
 help_ranks_fields: "Ranks"
 help_fun_fields: "Fun"
@@ -778,19 +778,19 @@ removemoney_logs_embed_title: "Economy Logs"
 
 # /rob
 rob_cooldown_error: "**Wait 50minutes before rob user again !**"
-rob_dont_enought_error: ":x: You need atleast 250$ to rob somebody."
-rob_him_dont_enought_error: ":x: ${user.user.username} does not have enought to rob."
+rob_dont_enought_error: ":x: You need at least 250$ to rob somebody."
+rob_him_dont_enought_error: ":x: ${user.user.username} does not have enough to rob."
 rob_embed_description: "<@${interaction.user.id}> you robbed <@${user.id}> and got away with ${random}!"
 
 # /weekly
 weekly_cooldown_error: "Sorry you must wait **${time}** before running this command!"
-weekly_embed_title: "Daily"
+weekly_embed_title: "Weekly"
 weekly_embed_description: "**Weekly Reward**"
 weekly_embed_fields: "Collected"
 
 # /work
 work_cooldown_error: "<@${interaction.user.id}>, **Wait ${time} minutes before robbing another user again!**"
-work_embed_author: "${interaction.user.username}, it payed off!"
+work_embed_author: "${interaction.user.username}, it paid off!"
 work_embed_description: "${interaction.user.username}, you've worked and earned ${amount}$ !"
 
 # /withdraw
@@ -811,10 +811,10 @@ economy_leaderboard_embed_fields_value: "<@${userId}> - Bank: `${userData.bank |
 
 # /economy disable
 economy_disable_not_admin: ":x: | You must be an administrator of this server to use this command!"
-economy_disable_already_disable: "<@${interaction.user.id}>, the Economy Module are already **disable** !"
-economy_disable_already_enable: "<@${interaction.user.id}>, the Economy Module are already **enable** !"
-economy_disable_set_enable: "<@${interaction.user.id}>, you have succeffully **enable** the Economy Module !"
-economy_disable_set_disable: "<@${interaction.user.id}>, you have succeffully **disable** the Economy Module !"
+economy_disable_already_disable: "<@${interaction.user.id}>, the Economy Module is already **disabled** !"
+economy_disable_already_enable: "<@${interaction.user.id}>, the Economy Module is already **enabled** !"
+economy_disable_set_enable: "<@${interaction.user.id}>, you have successfully **enabled** the Economy Module !"
+economy_disable_set_disable: "<@${interaction.user.id}>, you have successfully **disabled** the Economy Module !"
 economy_disable_logs_embed_desc: "<@${interaction.user.id}> have put to `${state}` the Economy Module !"
 economy_disable_logs_embed_title: "Economy Logs"
 
@@ -872,7 +872,7 @@ profil_embed_fields_money_value: " coins"
 profil_embed_fields_xplevels: "💳 ・ __XP Levels__"
 profil_embed_fields_xplevels_value: " XP Levels"
 profil_embed_fields_age: "🎂 ・ __Age__"
-profil_embed_fields_age_value: " years olds"
+profil_embed_fields_age_value: " years old"
 profil_embed_fields_gender: "👤 ・ __Gender__"
 profil_embed_fields_pronouns: "📌 ・ __Pronoun__"
 profil_embed_fields_birthdate: "🎂 ・ __Birthday date__"
@@ -882,7 +882,7 @@ profil_birthday_month_button_label: "Set month"
 profil_birthday_day_button_label: "Set day"
 profil_birthday_year_button_label: "Set year"
 profil_birthday_embed_title: "🎂 ・ Set your birthday!"
-profil_birthday_embed_introduction: "${client.iHorizon_Emojis.Sparkles} **Like every human being, you have a birthday!**${client.iHorizon_Emojis.Sparkles}\n\n${client.iHorizon_Emojis.Crown} ・ Hey, ${interaction.member?.toString()}\n:tada: ・ In order to celebrate it, is time to set it!\n"
+profil_birthday_embed_introduction: "${client.iHorizon_Emojis.Sparkles} **Like every human being, you have a birthday!**${client.iHorizon_Emojis.Sparkles}\n\n${client.iHorizon_Emojis.Crown} ・ Hey, ${interaction.member?.toString()}\n:tada: ・ In order to celebrate it, it's time to set it!\n"
 profil_birthday_embed_current_birthday: "${client.iHorizon_Emojis.Pin} ・ **Current birthday**: `${birthday.month}/${birthday.day}/${birthday.year}` (in the format of MM/DD/YYYY)"
 profil_birthday_modal1_title: "Enter your birth year"
 profil_birthday_modal1_fields1_label: "Year"
@@ -920,7 +920,7 @@ serverinfo_embed_fields_region: "🌍・**Region:**"
 serverinfo_embed_fields_roles: "📇・**Role(s) number:**"
 serverinfo_embed_fields_channels: "✍・**Channel(s) number:**"
 serverinfo_embed_fields_joinat: "🚲・**Join at:**"
-serverinfo_embed_fields_createat: "⚓・**Create at:**"
+serverinfo_embed_fields_createat: "⚓・**Created at:**"
 
 # /setrankroles
 setrankroles_not_admin: "${client.iHorizon_Emojis.No} You are not an administrator of this server. You cannot execute this command !"
@@ -956,7 +956,7 @@ renew_not_administrator: ":x: **You are not an administrator to use this command
 
 # /prevnames
 prevnames_embed_title: "List of all ${user.username}'s nickname"
-prevnames_undetected: "No Data founded!"
+prevnames_undetected: "No data found!"
 prevnames_not_admin: "You don't have the `ADMINISTRATOR` permission to execute this command!"
 prevnames_data_erased: "Your previous usernames have been completely deleted upon your request!"
 prevnames_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
@@ -964,11 +964,11 @@ prevnames_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}
 # /blockbot
 blockbot_not_owner: ":x: **You are not the Owner of the server !**"
 blockbot_logs_enable_title: "BlockBot Logs"
-blockbot_logs_enable_description: "${interaction.user} (The owner of the server) __enable__ `BlockBot`. Now bot **can't** be added in this guild!"
-blockbot_command_work_on_enable: "**You have enable the `BlockBot`**\nNow bot **can't** be added in this guild!"
-blockbot_command_work_on_disable: "**You have disable the `BlockBot`**\nNow bot **can** be added in this guild!"
+blockbot_logs_enable_description: "${interaction.user} (The owner of the server) __enabled__ `BlockBot`. Now bot **can't** be added in this guild!"
+blockbot_command_work_on_enable: "**You have enabled the `BlockBot`**\nNow bot **can't** be added in this guild!"
+blockbot_command_work_on_disable: "**You have disabled the `BlockBot`**\nNow bot **can** be added in this guild!"
 blockbot_logs_disable_commmand_work: "BlockBot Log"
-blockbot_logs_disable_description: "${interaction.user} (The owner of the server) __disable__ `BlockBot`. Now bot **can** be added in this guild!"
+blockbot_logs_disable_description: "${interaction.user} (The owner of the server) __disabled__ `BlockBot`. Now bot **can** be added in this guild!"
 
 # /banner
 banner_guild_embed: "**This is the guild server banner!**"
@@ -1026,15 +1026,15 @@ all_admins_unrank_not_owner: "Only the owner of the guild can unrank all adminis
 all_bots_embed_title: "List of all bot(s) | Page ${i / usersPerPage + 1}"
 
 # /addrole
-utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot add role to user who have higher role than you..."
-utils_addrole_command_ok: "${author.toString()} have succefully added the ${role?.toString()} role to ${user.toString()}"
+utils_addrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot add role to a user who has a higher role than you..."
+utils_addrole_command_ok: "${author.toString()} have successfully added the ${role?.toString()} role to ${user.toString()}"
 utils_addrole_not_wl: "${client.iHorizon_Emojis.No} | The role you want to add to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
 utils_addrole_cant_level: "The user isn’t an admin and you’re trying to give them an admin role? You trying to mess with me? You wanna crash the server or what?"
 utils_addrole_try2brain: "The bot’s role is too low in the hierarchy. I can’t assign that dumb role, sorry."
 
 # /delrole
-utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot remove role to user who have higher role than you..."
-utils_delrole_command_ok: "${author.toString()} have succefully removed the ${role?.toString()} role to ${user.toString()}"
+utils_delrole_highter_or_egal_roles_msg: "${client.iHorizon_Emojis.Stop} You cannot remove role from a user who has a higher role than you..."
+utils_delrole_command_ok: "${author.toString()} have successfully removed the ${role?.toString()} role from ${user.toString()}"
 utils_delrole_not_wl: "${client.iHorizon_Emojis.No} | The role you want to delete to the user is not whitelisted. An administrator must add it first! (using `/utils wlroles`)"
 utils_delrole_try2brain: "The bot’s role is too low in the hierarchy. I can’t remove that dumb role, sorry."
 
@@ -1107,7 +1107,7 @@ util_leash_too_naugthy: "You little rascal, you can't leash more than 3 people :
 util_leah_already_owned: "You little rascal, you already own these little wonders :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | The member you want to leash isn't in a voice channel!\n${client.iHorizon_Emojis.Warning_Icon} | Are you sure you want to proceed with this action?"
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Leash configurations canceled"
-util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | You have sucessfuly leashed the user in this guild :smirk:"
+util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | You have successfully leashed the user in this guild :smirk:"
 
 # /util unleash
 util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | This user is not on your leash!"
@@ -1118,7 +1118,7 @@ util_autorenew_time_too_short: "The time between a channel renew must be more th
 util_autorenew_time_too_long: "The time between a channel renew must be more than 30 days"
 util_autorenew_command_ok: "${client.iHorizon_Emojis.Yes} Now, the ${channel.toString()} channel is automaticaly deleted-created (renewed) every ${time} !\nFor stoping the channel to be renewed, just delete it by yourself."
 event_autorenew_channel_renewed: "The AutoRenew had renewed the channel!"
-event_autorenew_channel_warning: "The AutoRenew module is config to renew this channel. Futur renew is ${time}."
+event_autorenew_channel_warning: "The AutoRenew module is configured to renew this channel. Future renewal is ${time}."
 
 # /util where
 util_where_deaf: "Self deaf"
@@ -1182,7 +1182,7 @@ util_role_members_no_one: "There is nobody with that role on the server"
 
 # /util vanity-generator
 util_vanity_generator_invalid_code: "The URL Vanity code `${VanityCode}` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string."
-util_vanity_generator_already_claimed: "The URL Vanity code are already taked! Choose an another one."
+util_vanity_generator_already_claimed: "The URL Vanity code is already taken! Choose another one."
 util_vanity_generator_command_err: "An error has occurred while creating the vanity code. Please try again later."
 
 # +top
@@ -1207,13 +1207,13 @@ blockpub_now_disable: "📌 | The antipub is now deactivated!"
 # /guildprofil
 guildprofil_not_admin: ":x: | You must be an administrator of this server! "
 guildprofil_not_set_reactionrole: "No set!"
-guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} give <@&${rolesID}> role\n"
+guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} gives <@&${rolesID}> role\n"
 guildprofil_not_set_ticketFetched: "No set!"
 guildprofil_set_ticketFetched: ""
 guildprofil_not_set_punishPub: "No set!"
 guildprofil_set_punishPub: "`${punishPub.punishementType}`: max: `${punishPub.amountMax}` flags."
 guildprofil_not_set_supportConfig: "No set!"
-guildprofil_set_supportConfig: "`${supportConfig.input}` in bio give <@&${supportConfig.rolesId}> role."
+guildprofil_set_supportConfig: "`${supportConfig.input}` in bio gives <@&${supportConfig.rolesId}> role."
 guildprofil_not_set_setchannelsjoin: "No set!"
 guildprofil_set_setchannelsjoin: ""
 guildprofil_not_set_setchannelsleave: "No set!"
@@ -1244,8 +1244,8 @@ guildprofil_not_logs_set: "No Channel Logs Set"
 guildprofil_blockbot_on: "Block Bot Enabled"
 guildprofil_blockbot_off: "Block Bot Disabled"
 guildprofil_disable_xp: "Message Disabled"
-guildprofil_enable_xp: "Message Enable"
-guildprofil_another_enable_xp: "Message Enable sending in <#${xp.xpchannels}>"
+guildprofil_enable_xp: "Message Enabled"
+guildprofil_another_enable_xp: "Message Enabled sending in <#${xp.xpchannels}>"
 guildprofil_embed_fields_blockbot: "Block Bot"
 guildprofil_embed_fields_logs: "Logs"
 guildprofil_embed_fields_ranks: "Ranks"
@@ -1265,7 +1265,7 @@ setchannels_command_error_on_leave: "Error: missing permissions or the channel d
 setchannels_command_work_on_leave: "You have successfully set the leave channel module to <#${argsid.id}>"
 setchannels_logs_embed_title_on_leave: "Set Channel Logs"
 setchannels_logs_embed_description_on_leave: "<@${interaction.user.id}> set the leave channel to: <#${argsid.id}>"
-setchannels_already_on_off: "The join & leave channels is already disable"
+setchannels_already_on_off: "The join & leave channels are already disabled"
 setchannels_command_work_on_off: "You have successfully disabled the leave & join channel !"
 setchannels_logs_embed_title_on_off: "Set Channel Logs"
 setchannels_logs_embed_description_on_off: "<@${interaction.user.id}> delete all join/leave channel configuration !"
@@ -1287,9 +1287,9 @@ setjoindm_confirmation_message_on_enable: "You have successfully set the join DM
 setjoindm_command_error_on_enable: "Error: missing permissions or channel doesn't exist"
 setjoindm_logs_embed_title_on_disable: "Set JoinDm Logs"
 setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> disable the join DM message !"
-setjoindm_confirmation_message_on_disable: "You have successfully disable the join DM !"
+setjoindm_confirmation_message_on_disable: "You have successfully disabled the join DM !"
 setjoindm_command_error_on_disable: "Error: missing permissions or channel doesn't exist"
-setjoindm_already_disable: "The join DM message is already disable !"
+setjoindm_already_disable: "The join DM message is already disabled !"
 setjoindm_not_setup_ls: "They are no join DM setup here !"
 setjoindm_command_work_ls: "The join dm message is: \n```${already_off}```"
 setjoindm_help_embed_title: "Set JoinDM Message Help!"
@@ -1331,7 +1331,7 @@ setjoinmessage_change_image_propreties_text_message: "Change Text Message"
 setjoinmessage_change_image_propreties_text_size: "Change Text Size"
 setjoinmessage_change_image_propreties_avatar_size: "Change Avatar Size"
 setjoinmessage_modal_fields_background_url: "background image url"
-setjoinmessage_change_image_menu_frame_color_profil: "Based on user profil color"
+setjoinmessage_change_image_menu_frame_color_profil: "Based on user profile color"
 setjoinmessage_change_image_menu_frame_status_profil: "Based on user status"
 setjoinmessage_modal_fields_hex_color: "colour www.color-hex.com"
 setjoinmessage_modal_fields_message: "message you want"
@@ -1454,20 +1454,20 @@ too_new_account_command_work_on_disable: "${interaction.user}, the module has be
 
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "The bot footer is too long, it will be too ugly to display."
-guildconfig_setbot_footername_is_good: "Succefully changed, all iHorizon embed will use `${footerName}` as footer!"
-guildconfig_setbot_footername_is_reset: "The footer name have been deleted. Now all iHorizon embed will use the `name of the bot`."
+guildconfig_setbot_footername_is_good: "Successfully changed, all iHorizon embeds will use `${footerName}` as footer!"
+guildconfig_setbot_footername_is_reset: "The footer name has been deleted. Now all iHorizon embeds will use the `name of the bot`."
 guildconfig_setbot_footername_not_found: "The footer name is not found. Please try again!"
 
 # /guildconfig set-bot footer-pfp
 guildconfig_setbot_footeravatar_is_good: "Successfully changed, all embeds from iHorizon will use `image` as the footer!"
 guildconfig_setbot_footeravatar_incorect: "The file does not correspond to an image. Please try again with an image."
-guildconfig_setbot_footeravatar_is_reset: "The footer avatar have been deleted. Now all iHorizon embed will use the `avatar of the bot`."
+guildconfig_setbot_footeravatar_is_reset: "The footer avatar has been deleted. Now all iHorizon embeds will use the `avatar of the bot`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "The bot prefix for Message's command is now mention! `@Ping-Me`"
 guildconfig_setbot_prefix_prefix_specify_prefix: "You need to specify the bot prefix."
 guildconfig_setbot_prefix_prefix_too_long: "The bot prefix is too long, it will be too difficult to use."
-guildconfig_setbot_prefix_prefix_is_good: "The bot prefix are succefully changed, now message's commands is usable with: `${formatedPrefix}`"
+guildconfig_setbot_prefix_prefix_is_good: "The bot prefix has been successfully changed, now message commands are usable with: `${formatedPrefix}`"
 
 # /guildconfig config save
 guildconfig_config_save_check_dm: "Please look at your DM. If you don´t have received the message, try to verify if you accept dm."
@@ -1484,7 +1484,7 @@ perm_add_args_error: "You have not specified the commands to change or the permi
 # /perm list
 perm_list_embed_title: "All users permission:"
 perm_list_unknown_user: "Unknown user (ID: ${userId})"
-perm_list_no_user: "Not user found"
+perm_list_no_user: "No user found"
 var_command: "Command"
 var_subcommand: "Subcommand"
 var_subcommand_group: "Subcommand group"
@@ -1494,7 +1494,7 @@ perm_list_no_command_set: "There is not command with specific permission set in 
 # /perm set
 perm_set_deleted: "${user.toString()} have their permission **deleted**!"
 perm_set_ok: "${user.toString()} have their permission changed to **`${perm}`**"
-perm_set_warn_message: "${interaction.member.toString()}, you cannot give permission highter or equals than your!"
+perm_set_warn_message: "${interaction.member.toString()}, you cannot give permission higher than or equal to yours!"
 perm_set_chng_perm_lvl: "Changed permission level"
 perm_set_add_role: "Added Role"
 perm_set_add_usr: "Added user"
@@ -1690,7 +1690,7 @@ gw_getdata_embed_fields_winners: "Winner(s)"
 gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (use `/gw list-entries giveaway-id:${giveawayId}` for more info)"
 gw_getdata_yes: "`Yes`"
 gw_getdata_no: "`No`"
-gw_doesnt_exit: "The giveways is unreachable, or doesn't exist."
+gw_doesnt_exit: "The giveaway is unreachable, or doesn't exist."
 
 # Moderation commands
 # /ban, /kick, /clear, /lock, /unlock, /avatar, /lockall,
@@ -1705,7 +1705,7 @@ ban_not_permission: "${client.iHorizon_Emojis.No} | You don't have permission to
 ban_dont_found_member: "🔍 | Cannot find this member"
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | I don't have permission to ban members!"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | You cannot ban yourself!"
-ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} You cannot ban user who have higher role than you..."
+ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} You cannot ban a user who has a higher role than you..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | I cannot ban that member"
 ban_message_to_the_banned_member: "You have been banned from this server: `${interaction.guild.name}` for the reason: **`${reason}`**"
 ban_command_work: "<@${member.user.id}> banned by <@${interaction.member.id}>"
@@ -1716,7 +1716,7 @@ ban_logs_embed_description: "<@${member.user.id}> banned by <@${interaction.memb
 kick_not_permission: "${client.iHorizon_Emojis.No} | You don't have permission to kick members."
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | I don't have permission to kick members!"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | You cannot kick yourself!"
-kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} You cannot kick user who have higher role than you..."
+kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} You cannot kick a user who has a higher role than you..."
 kick_message_to_the_banned_member: "You are kicked from this server: **${interaction.guild.name}** by `${interaction.member.user.username}`"
 kick_command_work: "${member.user} kicked by ${interaction.user}"
 kick_logs_embed_title: "Kick Logs"
@@ -1726,7 +1726,7 @@ kick_logs_embed_description: "${member.user} kick by <@${interaction.user.id}>"
 clear_dont_have_permission: "${client.iHorizon_Emojis.No} | You don't have permission `MANAGE_MESSAGES`."
 clear_max_message_limit: "${client.iHorizon_Emojis.No} | I can't delete more than 99 message in one time !"
 clear_channel_message_deleted: "${messages.size} messages deleted !"
-clear_confirmation_message: "${messages.size} message are been deleted !"
+clear_confirmation_message: "${messages.size} messages have been deleted !"
 clear_logs_embed_title: "Clear Message Logs"
 clear_logs_embed_description: "<@${interaction.user.id}> clear ${messages.size} messages in <#${interaction.channel.id}>"
 clear_command_no_message: "No message to delete in this channel"
@@ -1803,15 +1803,15 @@ warn_logEmbed_desc: "${interaction.member.toString()} have warned ${member?.toSt
 warn_dont_have_permission: "${client.iHorizon_Emojis.No} | You don't have permission to warn a member in this discord server."
 
 # /unwarn
-unwarn_cannot_found: "${client.iHorizon_Emojis.No} ${member?.toString()} seem to doesn't have any warns on my database !"
-unwarn_cannot_found_id: "${client.iHorizon_Emojis.No} ${member?.toString()} the warn id you have provide is not in my database"
+unwarn_cannot_found: "${client.iHorizon_Emojis.No} ${member?.toString()} seems to not have any warns in my database !"
+unwarn_cannot_found_id: "${client.iHorizon_Emojis.No} ${member?.toString()}, the warn id you have provided is not in my database"
 unwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${member?.toString()} have been unwarned !"
 unwarn_logEmbed_title: "UnWarn Logs"
 unwarn_logEmbed_desc: "${interaction.member.toString()} have unwarned ${member?.toString()}"
 unwarn_dont_have_permission: "${client.iHorizon_Emojis.No} | You don't have permission to remove a warning from a member in this discord server."
 
 # /warnlist
-warnlist_no_data: "${client.iHorizon_Emojis.No} ${member?.toString()} seem to doesn't have any warns on my database !"
+warnlist_no_data: "${client.iHorizon_Emojis.No} ${member?.toString()} seems to not have any warns in my database !"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Author: <@${x.authorID}>\n> Reason: `${x.reason}`"
 warnlist_embed_title: "${member?.user.globalName}'s WarnList | Page ${i / usersPerPage + 1}"
 warnlist_dont_have_permission: "${client.iHorizon_Emojis.No} | You don't have permission to manage member warnings in this discord server."
@@ -1895,7 +1895,7 @@ reactionroles_logs_embed_title_added: "ReactionRoles Logs"
 reactionroles_logs_embed_description_added: "<@${interaction.user.id}> set a reaction roles: Message: `${messagei}` | Reaction: `${reaction}` | Role: ${role}"
 reactionroles_command_work_added: "${reaction} has been added to the ${messagei}'s message to give ${role}"
 reactionroles_missing_remove: "`Missing argument: Reaction's Emoji"
-reactionroles_missing_reaction_remove: "Reaction Roles don't found on my database..."
+reactionroles_missing_reaction_remove: "Reaction Roles were not found in my database..."
 reactionroles_cant_fetched_reaction_remove: "Can't fetch targeted reaction on this message !"
 reactionroles_logs_embed_title_remove: "ReactionRoles Logs"
 reactionroles_logs_embed_description_remove: "<@${interaction.user.id}> delete a reaction roles: Message: `${messagei}` | Reaction: `${reaction}`"
@@ -1905,8 +1905,8 @@ reactionroles_dont_message_found: "I can't retrieve the message with your curren
 # /buttonreaction
 buttonreaction_logs_embed_title_added: "ButtonReaction Logs"
 buttonreaction_logs_embed_description_added: "<@${interaction.user.id}> set a reaction with button: Message: `${messagei}` | Reaction: `${reaction}` | Role: ${role}"
-buttonreaction_dont_message_found: "Can't add this button, the roles seem to be already set in one of the existing button!"
-buttonreaction_roles_not_found: "Missing arguments: You don't have specified the roles to set!"
+buttonreaction_dont_message_found: "Can't add this button, the roles seem to be already set in one of the existing buttons!"
+buttonreaction_roles_not_found: "Missing arguments: You haven't specified the roles to set!"
 buttonreaction_message_other_user_error: "In discord, discord bot can't modify the components of another user message. You need to choose a message sent by myself. Tip: Do `/utils embed` for creating your own beautiful embed!"
 
 # /roleselect
@@ -1951,7 +1951,7 @@ punishpub_negative_number_enable: "You can't type any negative number !"
 punishpub_zero_number_enable: "The number 0 is not possible !"
 punishpub_confirmation_message_enable: "You have successfully **enabled** PunishPub with a maximum flag count of **${amount}** and the following punishment: **${punishement}** !"
 punishpub_logs_embed_title: "PunishPub Logs"
-punishpub_logs_embed_description: "<@${interaction.user.id}> set the PunishPUB to on with an amout of ${amount} max flags with ${punishement} punishement !"
+punishpub_logs_embed_description: "<@${interaction.user.id}> set the PunishPUB to on with an amount of ${amount} max flags with ${punishement} punishment !"
 punishpub_confirmation_disable: "You have successfully switched the PunishPub to off"
 punishpub_logs_embed_title_disable: "PunishPub Logs"
 punishpub_logs_embed_description_disable: "<@${interaction.user.id}> set the PunishPUB to off !"
@@ -2092,12 +2092,12 @@ git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Am I bothe
 
 # /suggest accept
 suggest_accept_not_admin: "You are not admin!"
-suggest_acceptnot_good_channel: "This command needs to be runned in the Suggestion Module's channel (<#${baseData?.channel}>)!\nPlease verify the Suggestion Module is not disabled!"
+suggest_acceptnot_good_channel: "This command needs to be run in the Suggestion Module's channel (<#${baseData?.channel}>)!\nPlease verify the Suggestion Module is not disabled!"
 suggest_accept_not_found_db: "The suggestion is not found in my DB!"
 suggest_accept_already_replied: "This suggestion has already been replied!"
 suggest_accept_embed_fields_to_put: "Response of ${interaction.user.username} (Accepting)"
 suggest_acceptembed_title_to_put: "[Accepting] ${msg.embeds[0].data?.title}"
-suggest_accept_command_work: "You have been accepting the suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
+suggest_accept_command_work: "You have accepted the suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
 suggest_accept_command_error: "The suggestion are not found in the Discord channel!"
 
 # /suggest deny
@@ -2112,13 +2112,13 @@ suggest_deny_command_error: "The suggestion is not found in this Discord channel
 
 # /suggest reply
 suggest_reply_not_admin: "You are not an admin!"
-suggest_reply_not_good_channel: "This command need to be runned in the Suggestion Module's channel (<#${baseData?.channel}>)!\nPlease verify the Suggestion Module are not disable!"
+suggest_reply_not_good_channel: "This command needs to be run in the Suggestion Module's channel (<#${baseData?.channel}>)!\nPlease verify the Suggestion Module is not disabled!"
 suggest_replynot_found_db: "The suggestion is not found in my DB!"
 suggest_reply_already_replied: "This suggestion has already replied!"
 suggest_reply_embed_fields_to_put: "Response of ${interaction.user.username}"
 suggest_reply_embed_title_to_put: "[Replied] ${msg.embeds[0].data?.title}"
 suggest_reply_command_work: "You have send a response to the suggestion !\nhttps://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${fetchId?.msgId}"
-suggest_reply_command_error: "The suggestion are not found in the discord channel!"
+suggest_reply_command_error: "The suggestion was not found in the Discord channel!"
 
 # /suggest delete
 suggest_delete_not_delete: "You are not an admin!"
@@ -2130,11 +2130,11 @@ suggest_delete_command_error: "The suggestion is not found in this Discord chann
 # /setsuggest disable
 setsuggest_disable_not_admin: "You are not an admin!"
 setsuggest_disable_pw_on: "${interaction.user}, you have been enable the Suggestion Module!"
-setsuggest_disable_pw_off: "${interaction.user}, you have been disable the Suggestion Module!"
+setsuggest_disable_pw_off: "${interaction.user}, you have disabled the Suggestion Module!"
 
 # /setsuggest channel
 setsuggest_channel_not_admin: "You are not an admin!"
-setsuggest_channel_already_set_with_that: "${interaction.user}, the Suggestion Module's channel are already set in ${channel} !"
+setsuggest_channel_already_set_with_that: "${interaction.user}, the Suggestion Module's channel is already set in ${channel} !"
 setsuggest_channel_embed_title: "Suggestion Module has been set here !"
 setsuggest_channel_embed_desc: "Now, all of the users who are permitted to send messages here, can now suggest something by just sending a message!"
 setsuggest_channel_command_work: "${interaction.user}, you have set the Suggestion Module's channel to ${channel}!"
@@ -2173,7 +2173,7 @@ schedule_delete_not_found: "There are no SCHEDULES (${arg0}) for this member!"
 schedule_delete_title_embed: "Deleting an Schedule (${arg0})"
 schedule_delete_confirm: "Schedule deleted!"
 schedule_deleteall_title_embed: "Deleting all Schedules"
-schedule_deleteall_desc_embed: "All of your schedules has been deleted!"
+schedule_deleteall_desc_embed: "All of your schedules have been deleted!"
 schedule_deleteall_confirm: "All of your schedules have been deleted!"
 schedule_deleteall_cancel: "The `DELETE_ALL` action has been cancelled!"
 schedule_list_not_schedule: "There are no SCHEDULES for this member!"
@@ -2199,8 +2199,8 @@ pfps_config_command_action_off: "${interaction.user}, you have set to `Power Off
 pfps_channel_not_admin: ":x: You don't have Administrator Permissions to execute this command"
 pfps_channel_embed_title: "PFPS Module set Here!"
 pfps_channel_embed_desc: "${interaction.user} have set the PFPS module here!\nNow every 30seconds, iHorizon sent a avatar of random user in this guild!\nI will try to do my best!"
-pfps_channel_command_work: "${interaction.user}, you have set succeffuly the PFPS module to the channel ${channel} !"
-pfps_channel_command_error: "${interaction.user}, the command return an error. Please verify the channel you specified exist, verify the PFPP Module as been enable!"
+pfps_channel_command_work: "${interaction.user}, you have successfully set the PFPS module to the channel ${channel} !"
+pfps_channel_command_error: "${interaction.user}, the command returned an error. Please verify the channel you specified exists, and verify the PFPS Module has been enabled!"
 
 # Protection Module
 # /authorization actions, ... sanction, ... config-show, /allowlist show, ... add, ... delete
@@ -2210,7 +2210,7 @@ authorization_actions_not_permited: "Only the Owner of the server can edit the a
 authorization_actions_everyone: "Everyone"
 authorization_actions_allowlist: "Member(s) of allowlist"
 authorization_actions_nobody: "Nobody. (Except server owner)"
-authorization_actions_rule_set: "${interaction.user}, the rule for `${rule.toUpperCase()}` are been set. **${allow}** are allowed to bypass-it!"
+authorization_actions_rule_set: "${interaction.user}, the rule for `${rule.toUpperCase()}` has been set. **${allow}** are allowed to bypass it!"
 authorization_actions_rule_clear: "${interaction.user}, all of the rule for `${interaction.guild.name}` are been deleted. Protection module is now disabled!"
 
 # /authorization sanction
@@ -2226,7 +2226,7 @@ authorization_configshow_not_anything_setup: "You have not setup anything in the
 authorization_configshow_simply: "Simply Cancel Action"
 authorization_configshow_simply_ban: "Simply Cancel Action & Ban"
 authorization_configshow_simply_unrank: "Simply Cancel Action & Unrank"
-authorization_configshow_punishement: "```Punishement: ${okay}```"
+authorization_configshow_punishement: "```Punishment: ${okay}```"
 authorization_configshow_embed1_author: "Rule List"
 authorization_configshow_embed2_author: "Allowlist"
 
@@ -2447,7 +2447,7 @@ notifier_config_message_command_work_on_enable: "${client.iHorizon_Emojis.GreenT
 # blogger
 blogger_generateBlogsEmbed_embed_desc: "List of configured RSS feeds:\n\n"
 blogger_generateBlogsEmbed_embed_title: "📰 RSS Blogs Configuration"
-blogger_generateConfigurationEmbed_embed_title: "📰 Blogger Configuation"
+blogger_generateConfigurationEmbed_embed_title: "📰 Blogger Configuration"
 blogger_no_rss: "No RSS feeds configured."
 blogger_generateConfigurationEmbed_embed_fields_1_name: "Status"
 blogger_generateConfigurationEmbed_embed_fields_2_name: "Total Blogs"
@@ -2487,7 +2487,7 @@ rc_delete_command_ok: '${interaction.user.toString()}, you have just deleted the
 rc_get_mainEmbed_title: "AuthRestore General Infos"
 rc_get_mainEmbed_field1_name: "Server ID"
 rc_get_mainEmbed_field2_name: "Given role after verify"
-rc_get_mainEmbed_field3_name: "Create at"
+rc_get_mainEmbed_field3_name: "Created at"
 rc_get_mainEmbed_field3_value: "*the date is in MM/DD/YYYY HH:mm format*"
 rc_get_mainEmbed_field4_name: "Key Used Count"
 rc_get_mainEmbed_field5_name: "Configuration Author"
@@ -2766,9 +2766,9 @@ notifier_generateConfigurationEmbed_embed_fields_1_name: "Notify Channel"
 notifier_generateConfigurationEmbed_embed_fields_2_name: "Notify Message"
 
 # ButtonReaction
-buttonreaction_role_doesnt_exit: "The role in my database doesn't exist anymore in the guild!"
+buttonreaction_role_doesnt_exit: "The role in my database no longer exists in the guild!"
 buttonreaction_role_too_high: "The role is too high, I can't give/remove the role. You need to change my permissions!"
-buttonreaction_role_add: "You don't have anymore the ${fetched_role.toString()} role ✅"
+buttonreaction_role_add: "You no longer have the ${fetched_role.toString()} role ✅"
 buttonreaction_role_remove: "You now have the ${fetched_role.toString()} role :tada:"
 
 # AuthRestore HTML
