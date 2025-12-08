@@ -78,9 +78,9 @@ export const command: Command = {
 			return;
 		};
 
-		if (await client.func.helper.hardCooldown(client.db, "setname", 1_800_000)) {
+		if (await client.func.helper.cooldown(interaction.member.user.id, "setname", 1_800_000)) {
 			let time = client.timeCalculator.to_beautiful_string(1_800_000 - (Date.now() -
-				await tempTable.get(`COOLDOWN.setname`)!), lang);
+				await tempTable.get(`COOLDOWN.setname.${interaction.member.user.id}`)), lang);
 
 			await interaction.reply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });
 			return;

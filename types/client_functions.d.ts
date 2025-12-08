@@ -189,7 +189,7 @@ declare namespace Client_Functions {
 	export namespace music_proximity {
 		export function levenshtein(a: string, b: string): number;
 		export function similarity(a: string, b: string): number;
-		export function isSimilar(query: string, track: TrackEmbbeded, threshold: any): boolean;
+		export function isSimilar(query: string, track: TrackEmbbeded, threshold: number, wordThreshold: number): boolean;
 	}
 
 	// From wait.ts
@@ -255,22 +255,6 @@ declare namespace Client_Functions {
 	export namespace encryptDecryptMethod {
 		export function encrypt(password: string, text: string): string;
 		export function decrypt(password: string, data: string): string | undefined;
-	}
-
-	// From assetsCalc.ts
-	export function assetsCalc(client: Client<boolean>): Promise<void>;
-
-	// From shard_helper.ts
-	export namespace shard_helper {
-		export function getGuildData(client: Client<boolean>, guildId: string): Promise<GuildData | null>;
-		export function getDetailedGuildData(client: Client<boolean>, guildId: string): Promise<DetailedGuildData | null>;
-	}
-
-	// From music_proximity.ts
-	export namespace music_proximity {
-		export function levenshtein(a: string, b: string): number;
-		export function similarity(a: string, b: string): number;
-		export function isSimilar(query: string, track: TrackEmbbeded, threshold: any, wordThreshold: any): boolean;
 	}
 
 	// From bannerGenerator.ts

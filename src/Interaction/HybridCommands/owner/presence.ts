@@ -54,30 +54,51 @@ export const command: Command = {
 			choices: [
 				{
 					name: 'Reset Status',
-					value: 'reset'
+					name_localizations: {
+						"fr": "Réinitialiser le status"
+					},
+					value: 'reset',
 				},
 				{
 					name: 'Streaming',
+					name_localizations: {
+						"fr": "Streaming"
+					},
 					value: 'streaming'
 				},
 				{
 					name: 'Playing',
+					name_localizations: {
+						"fr": "Jouer"
+					},
 					value: 'playing'
 				},
 				{
 					name: 'Listening',
+					name_localizations: {
+						"fr": "Écouter"
+					},
 					value: 'listening'
 				},
 				{
 					name: 'Watching',
+					name_localizations: {
+						"fr": "Regarder"
+					},
 					value: 'watching'
 				},
 				{
 					name: 'Custom',
+					name_localizations: {
+						"fr": "Personnalisé"
+					},
 					value: 'custom'
 				},
 				{
 					name: 'Competing',
+					name_localizations: {
+						"fr": "Compétition"
+					},
 					value: 'competing'
 				},
 			],

@@ -58,6 +58,31 @@ export const subCommand: SubCommand = {
 			return client.timeCalculator.to_beautiful_string(remaining, lang)
 		};
 
+		const generatePages = () => {
+			const pages: { description: string; }[] = [];
+
+			if (char.length === 0) {
+				pages.push({ description: lang.prevnames_undetected || 'Aucun membre en timeout.' });
+				return pages;
+			}
+
+			for (let i = 0; i < char.length; i += usersPerPage) {
+				const pageUsers = char.slice(i, i + usersPerPage);
+				const pageContent = pageUsers.map((member) => {
+					const timeRemaining = getTimeRemaining(member);
+					return `${member} - \`${timeRemaining}\``;
+				}).join('\n');
+
+				pages.push({
+					description: pageContent,
+				});
+			}
+
+			return pages;
+		};
+
+		let pages = generatePages();
+
 		const createEmbed = async () => {
 			return new EmbedBuilder()
 				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#010101")
@@ -117,7 +142,7 @@ export const subCommand: SubCommand = {
 			}
 
 			await messageEmbed.edit({
-				embeds: [createEmbed()],
+				embeds: [await createEmbed()],
 				components: [row]
 			});
 		});

@@ -55,46 +55,79 @@ export const command: Command = {
 			choices: [
 				{
 					name: 'Reset All Settings',
+					name_localizations: {
+						"fr": "Réinitialiser tous les paramètres"
+					},
 					value: 'reset'
 				},
 				{
 					name: 'Set for iHorizon-Logs (#ihorizon-logs) Embed!',
+					name_localizations: {
+						"fr": "Définir pour l'embed iHorizon-Logs (#ihorizon-logs)"
+					},
 					value: 'ihrz-logs'
 				},
 				{
 					name: 'Set for Owner Module Embed!',
+					name_localizations: {
+						"fr": "Définir pour l'embed Owner Module"
+					},
 					value: 'owner'
 				},
 				{
 					name: 'Set for Giveaway Embed!',
+					name_localizations: {
+						"fr": "Définir pour l'embed Giveaway"
+					},
 					value: 'gw'
 				},
 				{
 					name: 'Set for Economy Embed!',
+					name_localizations: {
+						"fr": "Définir pour l'embed Economy"
+					},
 					value: 'economy'
 				},
 				{
 					name: 'Set for Audits-Logs Embed!',
+					name_localizations: {
+						"fr": "Définir pour l'embed Audits-Logs"
+					},
 					value: 'audits-logs'
 				},
 				{
 					name: 'Set for Fun Command Embed!',
+					name_localizations: {
+						"fr": "Définir pour l'embed Fun Command"
+					},
 					value: 'fun-cmd'
 				},
 				{
 					name: 'Set for Utils Command Embed!',
+					name_localizations: {
+						"fr": "Définir pour l'embed Utils Command"
+					},
 					value: 'utils-cmd'
 				},
 				{
 					name: 'Set for Mod Command Embed!',
+					name_localizations: {
+						"fr": "Définir pour l'embed Mod Command"
+					},
 					value: 'mod-cmd'
 				},
 				{
 					name: 'Set for Music Command Embed!',
+					name_localizations: {
+						"fr": "Définir pour l'embed Music Command"
+					},
 					value: 'music-cmd'
 				},
 				{
 					name: 'All others Embed!',
+					name_localizations: {
+						"fr": "Tous les autres embeds"
+					},
 					value: 'all'
 				},
 			],

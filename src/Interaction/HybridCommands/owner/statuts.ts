@@ -55,19 +55,31 @@ export const command: Command = {
 			choices: [
 				{
 					name: 'Reset Status',
-					value: 'reset'
+					value: 'reset',
+					name_localizations: {
+						"fr": "Réinitialiser le status du bot"
+					}
 				},
 				{
 					name: 'Online',
-					value: 'online'
+					value: 'online',
+					name_localizations: {
+						"fr": "En ligne"
+					}
 				},
 				{
 					name: 'Do not disturb',
-					value: 'dnd'
+					value: 'dnd',
+					name_localizations: {
+						"fr": "Ne pas déranger"
+					}
 				},
 				{
 					name: 'Idle',
-					value: 'idle'
+					value: 'idle',
+					name_localizations: {
+						"fr": "Inactif"
+					}
 				},
 			],
 
