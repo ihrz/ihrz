@@ -34,6 +34,7 @@ import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 import { isNumber } from '../../core/functions/method.js';
 import { DB } from '../../core/database/types.js';
 import { Horizon } from '../../core/database/driver/horizon.js';
+import { AvailableLanguage } from '../../core/functions/getLanguageData.js';
 
 // @ts-ignore
 export let tempTable: DB = null;
@@ -195,7 +196,15 @@ export const event: BotEvent = {
 			});
 		}
 
-		setInterval(quotesPresence, 80_000), setInterval(refreshSchedule, 15_000);
+		recoverActiveSessions(client).then(() => { })
+		recoverCustomVoiceChannels(client).then(() => { })
+		client.memberCountManager.init().then(() => { })
+		client.autoRenewManager.init().then(() => { })
+		client.nightmodeManager.init().then(() => { })
+		client.blogger.start().then(() => { })
+		client.temproleManager.init();
+		client.tempbanManager.init();
+		await client.email.init(true);
 
 		fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), statsRefresher();
 

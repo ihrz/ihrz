@@ -346,6 +346,7 @@ export namespace DatabaseStructure {
 		VOICE_INTERFACE?: VoiceData;
 		UTILS?: UtilsData;
 		STATS?: GuildStats;
+		BLOGGER: BloggerSchema
 	}
 
 	export interface UtilsRoleData {
@@ -357,6 +358,7 @@ export namespace DatabaseStructure {
 		6?: string;
 		7?: string;
 		8?: string;
+		9?: string;
 	}
 
 	export interface PicOnlyConfig {
@@ -413,7 +415,7 @@ export namespace DatabaseStructure {
 		NIGHT_MODE: NightMode;
 	}
 
-	export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+	export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 	export type PermNone = 0;
 
 	export type PermCommandData = {
@@ -581,7 +583,13 @@ export namespace DatabaseStructure {
 		STARBOARD_DATA: StarboardDataSchema;
 		SKULLBOARD: SkullboardConfigSchema;
 		SKULLBOARD_DATA: StarboardDataSchema;
+		TEMPROLE: TempRoleSchema;
+		TEMPBAN: TempbanSchema;
+
 	}
+
+	export type TempRoleSchema = Record<string, [{ roleId: string, time: number }]>;
+	export type TempbanSchema = Record<string, { reason: string, time: number }>;
 
 	export interface DbTicketConfigurationObject {
 		author: string;
@@ -613,5 +621,23 @@ export namespace DatabaseStructure {
 		messageId: string;
 		number: string;
 		author: string;
+	}
+
+	interface BloggerBlogSchema {
+		id: string;
+		rss: string;
+		channelId: string;
+	}
+
+	interface BloggerSchema {
+		enabled: boolean;
+		blogs: BloggerBlogSchema[];
+		lastArticleNotified: BloggerLastNotifiedArticles[];
+	}
+
+	interface BloggerLastNotifiedArticles {
+		blogId: string;
+		articleId: string;
+		timestamp: string;
 	}
 }

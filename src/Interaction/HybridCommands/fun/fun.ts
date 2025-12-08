@@ -33,6 +33,7 @@ function to(x: number) {
 	for (let i = 1; i <= x; i++) {
 		result.push({
 			name: `Amount: ${i}`,
+			name_localizations: { fr: `Nombre: ${i}` },
 			value: `${i}`
 		});
 	}
@@ -405,7 +406,7 @@ export const command: Command = {
 								fr: "l'utilisateur",
 							},
 
-							required: true,
+							required: false,
 							type: ApplicationCommandOptionType.User,
 
 							permission: null,
@@ -872,10 +873,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Power On",
+							name_localizations: { fr: 'Activer' },
 							value: "on",
 						},
 						{
 							name: "Power Off",
+							name_localizations: { fr: 'Désactiver' },
 							value: "off",
 						},
 					],

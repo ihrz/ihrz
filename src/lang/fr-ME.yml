@@ -82,6 +82,7 @@ var_preview: "Aperçue"
 var_form: "Formulaire"
 var_original_message: "Message original"
 var_click_here: "Cliquez ici"
+var_s_message: "message de {nickname}"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Faire une inv"
@@ -591,6 +592,8 @@ help_tags_fields: "Tags personnalisés"
 help_tags_dsc: "> *Créez des messages de tags pour votre serveur et utilisez-les dans votre serveur !*"
 help_starboard_dsc: "> *Voir les messages les plus étoilés d’un serveur Discord.*"
 help_starboard_fields: "StarBoard"
+help_blogger_dsc: "Suis tes flux RSS favoris et sois notifié lorsqu’un nouvel article est publié via iHorizon"
+help_blogger_fields: "Blogger"
 
 # /h
 h_suite: "(Suite)"
@@ -604,13 +607,13 @@ ping_down_msg: "**INDISPONIBLE* miskina on sfé ddos jpp*"
 ping_embed_desc: "# Pong ! Statistiques du réseau de ${interaction.client.user.username} :\n\n**[Ping du site web Discord]** >> `${_net03}` ms.\n**[Ping Cloudflare]** >> `${_net02}` ms.\n**[Ping Google]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[Ping du site web iHorizon]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Ping du Websocket]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Moyenne]** >> (moy)`${averagePing}` ms."
 
 # /custom
-custom_avatar_reset: "Vous avez décider de réinstialiser la photo de profil du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que la photo de profil du bot sur le serveur."
+custom_avatar_reset: "Vous avez décider de réinitialiser la photo de profil du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que la photo de profil du bot sur le serveur."
 custom_avatar_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer la photo de profil du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que la photo de profil du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
-custom_name_reset: "Vous avez décider de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
+custom_name_reset: "Vous avez décider de réinitialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
 custom_name_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${name}`"
-custom_desc_reset: "Vous avez décider de réinstialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
+custom_desc_reset: "Vous avez décider de réinitialiser le nom du bot sur le serveur. Les pied de page des embeds reviendront à ce qu'il était par défaut, ainsi que le nom du bot sur le serveur."
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${desc}`"
-custom_banner_reset: "Vous avez décider de réinstialiser la bannière du bot sur le serveur."
+custom_banner_reset: "Vous avez décider de réinitialiser la bannière du bot sur le serveur."
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer la bannière du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
 
 # Fun commands
@@ -729,6 +732,9 @@ fun_random_embed_title: "🔢 Nombre aléatoire"
 fun_random_result_text: "Le nombre généré est :"
 fun_random_between: "entre"
 
+# +transgender
+fun_trans_command_ok: "L’utilisateur ${user} est **${random}%** transgenre 🏳️‍⚧️"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
@@ -837,6 +843,18 @@ economy_shop_unknown_role: "Rôle inconnu"
 economy_shop_not_set: "Il n'y a aucun rôle disponible à l'achat sur ce serveur. Veuille contacter l'administrateur du serveur pour plus d'informations. (ou alors t'es juste pauvre)"
 economy_shop_already_owned: "Déjà possédé"
 economy_shop_menu_placeholder: "Sélectionnez un rôle à acheter"
+
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Format de temps invalide. Veuillez utiliser un format valide."
+economy_manage_rewards_cooldown_command_ok: "Le temps de recharge pour ${type} a été défini sur ${stime} avec succès."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Le montant d'argent pour ${type} a été défini sur ${money} avec succès."
+
+# /economy role list
+economy_role_list_no_buyable_roles: "Il n’y a aucun rôle achetable à afficher."
+economy_role_list_embed_title: "Système d'Économie - Rôles Achetables"
+economy_role_list_embed_desc: "Tous les rôles achetables sont listés ci-dessous."
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
@@ -989,12 +1007,12 @@ action_unban_all_no_banned_members: "Il n'y a pas de membres bannis."
 action_unban_undo_embed_desc: "## Annuler le débannissement de tous (ohmygad)\n${client.iHorizon_Emojis.Yes} | J'ai réussi à m'branler sur `${banned_members.length}` membre(s) dans la guilde !\n${client.iHorizon_Emojis.No} | Je ne peux pas débannir `${cannot_ban}` ces bouffons !"
 
 # /vc
-vc_embed_desc: "## États Vocaux\n`${voiceStates?.size}` membre(s) est dans le voc :\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## États des Membres\n`${membersStates?.size}` membre(s) sont dans la guilde :\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## États des Boosts\n`${interaction.guild?.premiumSubscriptionCount}` boost(s) dans la guilde,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_desc: "## États Vocaux\n`${voiceStates?.size}` membre(s) est dans le voc :\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## États des Membres\n`${membersStates?.size}` membre(s) sont dans la guilde :\n${client.iHorizon_Emojis.DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## États des Boosts\n`${interaction.guild?.premiumSubscriptionCount}` boost(s) dans la guilde,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
 vc_embed_fields_1_name: "・Nombre de Membres"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} membres```"
 vc_embed_fields_2_name: "・Nombre de Canaux"
 vc_embed_fields_2_value: "```py\n${textChannelSize} salon(aux) texte\n${voiceChannelSize} salon(aux) vocal(aux)```"
-vc_embed_short_desc: "## États des Vocaux\n`${voiceStates?.size}` membre(s) sont dans le voc\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## États des Membres\n`${total_members_size}` membre(s) sont dans la guilde\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${total_members_states_idle}"
+vc_embed_short_desc: "## États des Vocaux\n`${voiceStates?.size}` membre(s) sont dans le voc\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## États des Membres\n`${total_members_size}` membre(s) sont dans la guilde\n${client.iHorizon_Emojis.DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}, iHorizon a déplacé des membres entre les canaux vocaux.\n\n**${movedCount}** membre(s) ont été déplacé(s) avec succès de ${fromChannel} à ${toChannel}.\n**${errorCount}** membre(s) n'ont pas pu être déplacé(s) (voir les logs du serveur pour plus de détails)."
@@ -1092,6 +1110,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Le membre que tu veu
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuration de laisse annulée"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Vous avez mis en laisse l'utilisateur avec succès dans ce serveur :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Cet utilisateur n'est pas sous votre contrôle !"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Vous avez libéré cet utilisateur avec succès dans ce serveur :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Le temps entre chaque renouvellement de salon doit être supérieur à 1 minute"
 util_autorenew_time_too_long: "Le temps entre chaque renouvellement de salon doit être inférieur à 30 jours"
@@ -1158,6 +1180,11 @@ util_cooldown_command_ok: "Le salon à vu sont slowmode changer pour ${duration_
 # /util role-members
 util_role_members: "Liste des utilisateurs qui possèdent les rôles"
 util_role_members_no_one: "Personne ne possède ce rôle sur le serveur"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "Le code URL Vanity `${VanityCode}` est invalide. La chaîne doit être alphanumérique et peut contenir des tirets entre les mots. La longueur maximale est de 32 caractères. Les tirets ne peuvent pas être au début ou à la fin de la chaîne."
+util_vanity_generator_already_claimed: "Le code URL Vanity est déjà utilisé ! Choisissez-en un autre."
+util_vanity_generator_command_err: "Une erreur est survenue lors de la création du code vanity. Veuillez réessayer plus tard."
 
 # +top
 utils_top_no_message: "jcrois ce salon c'est un peu la rue. ya 0 message ma gueule."
@@ -1494,7 +1521,7 @@ perm_roles_not_owner: "Seul le propriétaire du serveur peut ajouter des rôles 
 perm_edit_roles_command_ok: "La permission ${permName} a vu son rôle modifié pour ${strRole}"
 
 # /toggle-react
-toggle_react_command_work: "<@${interaction.member?.id}>, maintenant quad un membre envoie un message de bienvenue, le bot **{activeMsg}**"
+toggle_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membre envoie un message de bienvenue, le bot **{activeMsg}**"
 toggle_react_doesnt_react: "ne réagira plus"
 toggle_react_react: "réagira"
 
@@ -1605,6 +1632,8 @@ shuffle_command_work: "J'ai **mélangé** la file d'attente"
 history_no_entries: "Il n'y a aucune entrée dans cette compétition."
 history_embed_title: "Historique Musical de ${interaction.guild?.name} | Page ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ Historique supprimé"
+history_delete_embed_desc: "L’historique de musique a été supprimé avec succès."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Titre inconnu"
@@ -1701,6 +1730,7 @@ clear_channel_message_deleted: "${messages.size} messages supprimés !"
 clear_confirmation_message: "${messages.size} messages ont été supprimés !"
 clear_logs_embed_title: "Logs de suppression de messages"
 clear_logs_embed_description: "<@${interaction.user.id}> a supprimé ${messages.size} messages dans <#${interaction.channel.id}>"
+clear_command_no_message: "Aucun message à supprimer dans ce canal"
 
 # /lock
 lock_embed_message_description: "Le salon a été verrouillé par <@${interaction.user.id}>."
@@ -1743,6 +1773,19 @@ tempmute_reason_create_roles: "Faire le rôle de mute temporaire !"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | L'utilisateur as les permissions administrateur, je ne peux pas le mute."
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Mon rôle sur ce serveur est plus bas ou égal à ${tomute.toString()}. Je ne peux pas modérer ce membre.**"
 tempmute_tomute_max_time_passed: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Discord as une limite de 14 jours pour un mute. J'ai appliquer 14 jours."
+
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | Vous n'avez pas la permission d'ajouter des rôles temporaires aux membres."
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | Je n'ai pas la permission."
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | Vous ne pouvez pas vous ajouter un rôle temporaire à vous-même !"
+temprole_already_has_role: "Cet utilisateur a déjà ce rôle temporaire !"
+temprole_command_work: "<@${tomute.id}> a reçu le rôle pour ${ms(ms(mutetime))}\n**Raison** : `${reason}`"
+temprole_removed_by_time: "Le rôle temporaire de <@${tomute.id}> a été retiré !"
+temprole_logs_embed_title: "Logs des rôles temporaires"
+temprole_logs_embed_description: "<@${interaction.user.id}> a ajouté un rôle temporaire à <@${tomute.id}> pour ${ms(ms(mutetime))}\n**Raison** : `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | Cet utilisateur a les permissions administrateur, je ne peux pas lui attribuer un rôle temporaire."
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Mon rôle sur ce serveur est inférieur ou égal à celui de ${tomute.toString()}. Je ne peux pas modérer ce membre.**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Le temps maximum pour un rôle temporaire est d'un an. J'ai appliqué un an."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Tu n'avez pas la permission de retirer temporairement la sourdine aux membres."
@@ -1787,6 +1830,20 @@ var_ban_date: "Date du bannissement"
 
 # /effacer-avertissements
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, **`${allWarns.length}`** avertissement(s) de ${member?.toString()} a/ont été effacé(s)."
+
+# /tempban
+tempban_dont_have_permission: "Vous n'avez pas la permission de bannir temporairement des membres."
+tempban_i_dont_have_permission: "Je n'ai pas la permission de bannir des membres."
+tempban_cannot_ban_yourself: "Vous ne pouvez pas vous bannir vous-même !"
+tempban_already_banned: "Cet utilisateur est déjà banni temporairement !"
+tempban_command_work: "**<@${user.id}>** a été banni temporairement pour **${duration}**\n**Raison** : `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** a été débanni !"
+tempban_logs_embed_title: "Logs de bannissement temporaire"
+tempban_logs_embed_description: "**<@${executor.id}>** a banni temporairement **<@${user.id}>** pour **${duration}**\n**Raison** : `${reason}`"
+tempban_user_is_admin: "L’utilisateur possède les permissions administrateur, je ne peux pas le bannir."
+tempban_user_highest_role_or_same: "Mon rôle sur ce serveur est inférieur ou égal à celui de **user_mention**. Je ne peux pas modérer ce membre."
+tempban_max_time_passed: "\n*La durée maximale d’un bannissement temporaire est d’un an. J’ai appliqué un an.*"
+tempban_user_not_in_guild: "Cet utilisateur n'est pas sur le serveur mais peut tout de même être banni."
 
 # Backup commands
 # /backup
@@ -2233,6 +2290,7 @@ tag_use_command_work: "Le tag `${tag_name}` a été envoyé."
 
 # /tag edit
 tag_edit_error_perm: "Pour modifier le tag, vous devez avoir les permissions d'administrateur ou être le propriétaire du tag."
+tag_edit_command_ok: "Le nom du tag actuel a été modifié de **`${current_tag_name}`** à **`${new_tag_name}`**"
 
 # Module TempVoice
 # /texte, /voix, /statut, /personnel
@@ -2385,6 +2443,25 @@ notifier_config_message_embed_fields_notifyMessage: "Message de Notification"
 notifier_config_message_awaiting_response: "Écrivez le message de notification."
 notifier_config_message_command_work_on_enable: "Activation du travail sur le message de notification."
 
+# Module Blogger
+
+blogger_generateBlogsEmbed_embed_desc: "Liste des flux RSS configurés :\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 Configuration des blogs RSS"
+blogger_generateConfigurationEmbed_embed_title: "📰 Configuration du module Blogger"
+blogger_no_rss: "Aucun flux RSS configuré."
+blogger_generateConfigurationEmbed_embed_fields_1_name: "Statut"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "Nombre total de blogs"
+blogger_unknown_blog: "Blog inconnu"
+blogger_on_new_article_default_message: "📰 Nouvel article publié !\n**{articleTitle}** par {articleAuthor}\n{articleLink}"
+blogger_config_status_enabled: "✅ Le module Blogger a été **activé**. Les flux RSS seront surveillés."
+blogger_config_status_disabled: "❌ Le module Blogger a été **désactivé**. Les flux RSS ne seront pas surveillés."
+blogger_read_article: "Lire l’article"
+blogger_blog_add_invalid_channel: "Type de canal invalide. Veuillez sélectionner un canal textuel."
+blogger_blog_add_success: "✅ Le flux RSS **${validation.name}** a été ajouté ! Les notifications seront envoyées à ${channel.toString()} (ID : `${blogId}`)"
+blogger_blog_add_invalid_rss: "❌ Le flux RSS fourni est invalide ou inaccessible. Veuillez vérifier l’URL et réessayer."
+blogger_blog_remove_success: "✅ Le flux RSS avec l’ID `${blogId}` a été supprimé."
+blogger_blog_remove_not_found: "❌ Aucun flux RSS trouvé avec cet ID."
+
 # Module AuthRestore
 # role, set, delete, get, force-join
 
@@ -2449,6 +2526,7 @@ batch_massiverole_process: "🔄 Ajout de rôle à ${membersToProcess.length} me
 batch_unmassiverole_process: "🔄 Suppression de rôle de ${membersToProcess.length} membres en cours..."
 batch_undo_unban: "🔄 Re-débannissement de ${unbanned_members.length} membres en cours..."
 batch_derank_process: "🔄 Suppression de ${rolesToRemove.length} rôles de ${member.user.username} en cours..."
+unbanall_undo_command_err: "Aucun membre à re-bannir. Utilisez d’abord la commande de débanissement global."
 
 # -----------------------------/ \-----------------------------
 # Événements du Module de Confession
@@ -2760,3 +2838,12 @@ new_guild_embed_desc: "## ${randomMessage}\nSalut les amis extraordinaires !\n\n
 confession_embed_logs_title: "Nouvelle confession"
 confession_channel_button_name: "Répondre anonymement"
 confession_1_embed_log_title: "Nouvelle réponse à la confession"
+
+# Context Menu Interaction
+global_unknown_message: "Message introuvable."
+global_error: "❌ Error"
+global_not_atc: "Le message sélectionné ne contient pas d'attachement."
+global_not_valid_atc: "L'attachement sélectionné n'est pas un fichier audio valide."
+global_too_heavy_file: "Le fichier MP4 généré est trop volumineux (${fileSizeMB.toFixed(2)} MB). La limite Discord est de 25 MB."
+global_convert_ok: "✅ Conversion réussie"
+global_convert_ok_desc: "Votre fichier audio a été converti en MP4 (${fileSizeMB.toFixed(2)} MB)."

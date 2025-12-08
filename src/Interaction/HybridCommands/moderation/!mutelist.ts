@@ -26,6 +26,7 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
+	GuildMember,
 	Message,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
@@ -48,14 +49,13 @@ export const subCommand: SubCommand = {
 
 		let currentPage = 0;
 		const usersPerPage = 5;
-		const pages: { description: string; }[] = [];
 
-		for (let i = 0; i < char.length; i += usersPerPage) {
-			const pageUsers = char.slice(i, i + usersPerPage);
-			const pageContent = pageUsers.map((userId) => userId).join('\n');
-			pages.push({
-				description: pageContent,
-			});
+		const getTimeRemaining = (member: GuildMember) => {
+			const now = Date.now();
+			const endTime = member.communicationDisabledUntil?.getTime()!;
+			const remaining = endTime - now;
+
+			return client.timeCalculator.to_beautiful_string(remaining, lang)
 		};
 
 		const createEmbed = async () => {
@@ -81,7 +81,7 @@ export const subCommand: SubCommand = {
 				.setLabel('>>>')
 				.setStyle(ButtonStyle.Secondary),
 			new ButtonBuilder()
-				.setCustomId("trash-prevnames-embed")
+				.setCustomId("trash-mutelist-embed")
 				.setLabel('🗑️')
 				.setStyle(ButtonStyle.Danger)
 		);
@@ -96,7 +96,8 @@ export const subCommand: SubCommand = {
 			filter: async (i) => {
 				await i.deferUpdate();
 				return interaction.member?.user.id === i.user.id;
-			}, time: 60_000
+			},
+			time: 60_000
 		});
 
 		collector.on('collect', async (interaction_2) => {
@@ -106,15 +107,19 @@ export const subCommand: SubCommand = {
 
 			} else if (interaction_2.customId === 'nextPage') {
 				currentPage = (currentPage + 1) % pages.length;
+			} else if (interaction_2.customId === 'trash-mutelist-embed') {
+				for (let member of char) {
+					await member.timeout(null).catch(() => { });
+				}
+				char = [];
+				pages = generatePages();
+				currentPage = 0;
+			}
 
-			} else if (interaction_2.customId === 'trash-prevnames-embed') {
-				char.forEach(x => {
-					x.timeout(null);
-				})
-				char = []
-			};
-
-			messageEmbed.edit({ embeds: [await createEmbed()] });
+			await messageEmbed.edit({
+				embeds: [createEmbed()],
+				components: [row]
+			});
 		});
 
 		collector.on('end', async () => {

@@ -46,7 +46,11 @@ import { DiscordSlashLogParser } from './converters/slashLog.js';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { GiveawayManager } from './modules/giveawaysManager.js';
 import * as discordTranscripts from "discord-html-transcripts";
-import * as backup from "./backup/src";
+import { BloggerNotifier } from './Blogger.js';
+import { TemproleManager } from './modules/tempRoleManager.js';
+import { TempbanManager } from './modules/tempbanManager.js';
+import { Mailer } from './Mailer.js';
+import * as backup from "./backup/src"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -113,7 +117,10 @@ export async function main(client: Client) {
 	});
 	client.backup = backup;
 	client.discordTranscripts = discordTranscripts;
-
+	client.temproleManager = new TemproleManager();
+	client.tempbanManager = new TempbanManager();
+	client.email = new Mailer();
+	client.blogger = new BloggerNotifier();
 	assetsCalc(client);
 
 	const handlerPath = path.join(__dirname, '..', 'core', 'handlers');

@@ -28,45 +28,23 @@ import {
 import { Command } from '../../../../../types/command.js';
 import { Option } from '../../../../../types/option.js';
 
-export const permissionsRole = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8"];
+export const permissionsRole = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8", "Perm 9"];
 export const permissionLevel = [
 	{
 		name: "Default",
+		name_localizations: { fr: "Défaut" },
 		value: "0"
 	},
-	{
-		name: "Perm 1",
-		value: "1"
-	},
-	{
-		name: "Perm 2",
-		value: "2"
-	},
-	{
-		name: "Perm 3",
-		value: "3"
-	},
-	{
-		name: "Perm 4",
-		value: "4"
-	},
-	{
-		name: "Perm 5",
-		value: "5"
-	},
-	{
-		name: "Perm 6",
-		value: "6"
-	},
-	{
-		name: "Perm 7",
-		value: "7"
-	},
-	{
-		name: "Perm 8",
-		value: "8"
-	}
+	...
+	permissionsRole.map((x) => {
+		return {
+			name: x,
+			name_localizations: { fr: x },
+			value: x.split(" ")[1]
+		}
+	})
 ];
+
 export const command: Command = {
 	name: "perm",
 
@@ -142,18 +120,22 @@ export const command: Command = {
 					choices: [
 						{
 							name: 'Change command permission',
+							name_localizations: { fr: 'Modifier la permission de commande' },
 							value: "change"
 						},
 						{
 							name: 'Delete command permission',
+							name_localizations: { fr: 'Supprimer la permission de commande' },
 							value: "delete"
 						},
 						{
 							name: 'Delete permission (role/user/level)',
+							name_localizations: { fr: 'Supprimer la permission (rôle/utilisateur/niveau)' },
 							value: "delete-all"
 						},
 						{
 							name: "List all commands permission set",
+							name_localizations: { fr: 'Liste toutes les permissions de commande' },
 							value: "list"
 						}
 					],

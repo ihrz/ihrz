@@ -160,10 +160,12 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Up (TOP)",
+									name_localizations: { fr: "En haut" },
 									value: "top"
 								},
 								{
 									name: "Down (Bottom)",
+									name_localizations: { fr: "En bas" },
 									value: "bottom"
 								}
 							],

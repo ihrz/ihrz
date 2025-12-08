@@ -23,7 +23,7 @@ import { existsSync, readFile } from 'node:fs';
 import { exec } from 'node:child_process';
 import os from 'node:os';
 
-export function niceBytes(kb: number) {
+export function niceBytes(kb: number): string {
 	let bytes = kb * 1024;
 
 	const units = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];

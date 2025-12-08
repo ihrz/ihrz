@@ -82,6 +82,7 @@ var_preview: "Anteprima"
 var_form: "Modulo"
 var_original_message: "Messaggio originale"
 var_click_here: "Clicca qui"
+var_s_message: "messaggio di {nickname}"
 
 # Nomi dei Permessi Discord
 perm_createinstantinvite_name: "Crea invito istantaneo"
@@ -591,6 +592,8 @@ help_tags_fields: "Tag personalizzati"
 help_tags_dsc: "> *Crea messaggi di tag per il tuo server e usali nel tuo server!*"
 help_starboard_dsc: "> *Guarda i messaggi più stellati di un server Discord.*"
 help_starboard_fields: "StarBoard"
+help_blogger_dsc: "Segui i tuoi feed RSS preferiti e ricevi notifiche quando vengono pubblicati nuovi articoli tramite iHorizon"
+help_blogger_fields: "Blogger"
 
 # /h
 h_suite: "(Continua)"
@@ -726,6 +729,9 @@ fun_random_embed_title: "🔢 Numero casuale"
 fun_random_result_text: "Il numero generato è:"
 fun_random_between: "tra"
 
+# +transgender
+fun_trans_command_ok: "L’utente ${user} è **${random}%** transgender 🏳️‍⚧️"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
@@ -834,6 +840,18 @@ economy_shop_unknown_role: "Ruolo sconosciuto"
 economy_shop_not_set: "Non ci sono ruoli disponibili per l'acquisto su questo server. Contatta l'amministratore del server per maggiori informazioni."
 economy_shop_already_owned: "Già posseduto"
 economy_shop_menu_placeholder: "Seleziona un ruolo da acquistare"
+
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Formato orario non valido. Usa un formato orario valido."
+economy_manage_rewards_cooldown_command_ok: "Il cooldown per ${type} è stato impostato correttamente a ${stime}."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Il denaro per ${type} è stato impostato correttamente a ${money}."
+
+# /economy role list
+economy_role_list_no_buyable_roles: "Non ci sono ruoli acquistabili da mostrare."
+economy_role_list_embed_title: "Sistema Economico - Ruoli Acquistabili"
+economy_role_list_embed_desc: "Tutti i ruoli acquistabili sono elencati qui sotto."
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
@@ -986,12 +1004,12 @@ action_unban_all_no_banned_members: "Non ci sono membri bannati."
 action_unban_undo_embed_desc: "## Annulla lo sblocco di tutti\n${client.iHorizon_Emojis.Yes} | Ho bandito con successo `${banned_members.length}` membro(i) nella gilda!\n${client.iHorizon_Emojis.No} | Non posso sbloccare `${cannot_ban}` membro(i)!"
 
 # /vc
-vc_embed_desc: "## Stati Vocali\n`${voiceStates?.size}` membro(i) è nel canale vocale:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Stati dei Membri\n`${membersStates?.size}` membro(i) sono nella gilda:\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Stati dei Boost\n`${interaction.guild?.premiumSubscriptionCount}` boost nella gilda,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_desc: "## Stati Vocali\n`${voiceStates?.size}` membro(i) è nel canale vocale:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Stati dei Membri\n`${membersStates?.size}` membro(i) sono nella gilda:\n${client.iHorizon_Emojis.DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Stati dei Boost\n`${interaction.guild?.premiumSubscriptionCount}` boost nella gilda,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
 vc_embed_fields_1_name: "・Numero di Membri"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} membri```"
 vc_embed_fields_2_name: "・Numero di Canali"
 vc_embed_fields_2_value: "```py\n${textChannelSize} canale(i) di testo\n${voiceChannelSize} canale(i) vocale(i)```"
-vc_embed_short_desc: "## Stati Vocali\n`${voiceStates?.size}` membro(i) è nel canale vocale:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## Stati dei Membri\n`${total_members_size}` membro(i) sono nella gilda:\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${total_members_states_idle}"
+vc_embed_short_desc: "## Stati Vocali\n`${voiceStates?.size}` membro(i) è nel canale vocale:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## Stati dei Membri\n`${total_members_size}` membro(i) sono nella gilda:\n${client.iHorizon_Emojis.DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}, iHorizon ha spostato i membri tra i canali vocali.\n\n**${movedCount}** membro/i sono stati spostati con successo da ${fromChannel} a ${toChannel}.\n**${errorCount}** membro/i non hanno potuto essere spostati (vedere i log del server per i dettagli)."
@@ -1089,6 +1107,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Il membro che vuoi m
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configurazione del guinzaglio annullata"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Hai messo al guinzaglio con successo l'utente in questo server :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Questo utente non è sotto il tuo controllo!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Hai liberato con successo l'utente in questo server :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Il tempo tra un rinnovo del canale deve essere superiore a 1 minuto"
 util_autorenew_time_too_long: "Il tempo tra un rinnovo del canale deve essere inferiore a 30 giorni"
@@ -1155,6 +1177,11 @@ util_cooldown_command_ok: "La modalità lenta del canale è stata impostata a ${
 # /util role-members
 util_role_members: "Elenco degli utenti che hanno i ruoli"
 util_role_members_no_one: "Non c'è nessuno con quel ruolo sul server"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "Il codice URL Vanity `${VanityCode}` non è valido. La stringa deve essere alfanumerica e può includere trattini tra le parole. La lunghezza massima è di 32 caratteri. I trattini non possono essere all'inizio o alla fine della stringa."
+util_vanity_generator_already_claimed: "Il codice URL Vanity è già stato preso! Scegline un altro."
+util_vanity_generator_command_err: "Si è verificato un errore durante la creazione del codice vanity. Riprova più tardi."
 
 # +top
 utils_top_no_message: "Nessun messaggio trovato in questo canale"
@@ -1602,6 +1629,8 @@ shuffle_command_work: "I have **shuffled** the queue"
 history_no_entries: "Non ci sono voci in questa competizione."
 history_embed_title: "Storia della Musica di ${interaction.guild?.name} | Pagina ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | Pagina ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ Cronologia eliminata"
+history_delete_embed_desc: "La cronologia musicale è stata eliminata con successo."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Titolo sconosciuto"
@@ -1698,6 +1727,7 @@ clear_channel_message_deleted: "${messages.size} messaggi eliminati!"
 clear_confirmation_message: "${messages.size} messaggi sono stati eliminati!"
 clear_logs_embed_title: "Log eliminazione messaggi"
 clear_logs_embed_description: "<@${interaction.user.id}> ha eliminato ${messages.size} messaggi in <#${interaction.channel.id}>"
+clear_command_no_message: "Non ci sono messaggi da eliminare in questo canale"
 
 # /lock
 lock_embed_message_description: "Il canale è stato bloccato da <@${interaction.user.id}>."
@@ -1740,6 +1770,19 @@ tempmute_reason_create_roles: "Creazione del ruolo temporaneo di muting!"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | L'utente ha i permessi di amministratore, non posso mutarlo."
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Il mio ruolo su questo server è inferiore o uguale a ${tomute.toString()}. Non posso moderare questo membro.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discord ha un limite di 14 giorni per un mute. Ho applicato 14 giorni."
+
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di aggiungere ruoli temporanei ai membri."
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | Non ho il permesso."
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | Non puoi aggiungere un ruolo temporaneo a te stesso!"
+temprole_already_has_role: "Questo utente ha già questo ruolo temporaneo!"
+temprole_command_work: "<@${tomute.id}> ha ricevuto il ruolo per ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
+temprole_removed_by_time: "Il ruolo temporaneo di <@${tomute.id}> è stato rimosso!"
+temprole_logs_embed_title: "Log Ruoli Temporanei"
+temprole_logs_embed_description: "<@${interaction.user.id}> ha aggiunto un ruolo temporaneo a <@${tomute.id}> per ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | L'utente ha permessi da amministratore, non posso assegnargli un ruolo temporaneo."
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Il mio ruolo su questo server è inferiore o uguale a ${tomute.toString()}. Non posso moderare questo membro.**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Il tempo massimo per un ruolo temporaneo è 1 anno. Ho applicato 1 anno."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di smutare i membri."
@@ -1784,6 +1827,20 @@ var_ban_date: "Data del ban"
 
 # /cancella-avvertimenti
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, **`${allWarns.length}`** avvertimento/i di ${member?.toString()} è/sono stato/i cancellato/i."
+
+# /tempban
+tempban_dont_have_permission: "Non hai il permesso di bannare temporaneamente i membri."
+tempban_i_dont_have_permission: "Non ho il permesso di bannare i membri."
+tempban_cannot_ban_yourself: "Non puoi bannare te stesso!"
+tempban_already_banned: "Questo utente è già temporaneamente bannato!"
+tempban_command_work: "**<@${user.id}>** è stato temporaneamente bannato per **${duration}**\n**Motivo**: `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** è stato sbannato!"
+tempban_logs_embed_title: "Log del ban temporaneo"
+tempban_logs_embed_description: "**<@${executor.id}>** ha bannato temporaneamente **<@${user.id}>** per **${duration}**\n**Motivo**: `${reason}`"
+tempban_user_is_admin: "L'utente ha permessi da amministratore, non posso bannarlo."
+tempban_user_highest_role_or_same: "Il mio ruolo su questo server è inferiore o uguale a quello di **user_mention**. Non posso moderare questo membro."
+tempban_max_time_passed: "\n*Il tempo massimo per un ban temporaneo è 1 anno. Ho applicato 1 anno.*"
+tempban_user_not_in_guild: "Questo utente non è nel server ma può comunque essere bannato."
 
 # Backup commands
 # /backup
@@ -2230,6 +2287,7 @@ tag_use_command_work: "Il tag `${tag_name}` è stato inviato."
 
 # /tag edit
 tag_edit_error_perm: "Per modificare il tag, devi avere i permessi di amministratore o essere il proprietario del tag."
+tag_edit_command_ok: "Il nome del tag corrente è stato modificato da **`${current_tag_name}`** a **`${new_tag_name}`**"
 
 # Modulo TempVoice
 # /testo, /voce, /stato, /personale
@@ -2382,6 +2440,25 @@ notifier_config_message_embed_fields_notifyMessage: "Messaggio di Notifica"
 notifier_config_message_awaiting_response: "Scrivi il messaggio di notifica."
 notifier_config_message_command_work_on_enable: "Abilitazione del lavoro sul messaggio di notifica."
 
+# Modulo Blogger
+
+blogger_generateBlogsEmbed_embed_desc: "Elenco dei feed RSS configurati:\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 Configurazione Blog RSS"
+blogger_generateConfigurationEmbed_embed_title: "📰 Configurazione Blogger"
+blogger_no_rss: "Nessun feed RSS configurato."
+blogger_generateConfigurationEmbed_embed_fields_1_name: "Stato"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "Totale Blog"
+blogger_unknown_blog: "Blog sconosciuto"
+blogger_on_new_article_default_message: "📰 Nuovo articolo pubblicato!\n**{articleTitle}** di {articleAuthor}\n{articleLink}"
+blogger_config_status_enabled: "✅ Il modulo Blogger è stato **abilitato**. I feed RSS verranno monitorati."
+blogger_config_status_disabled: "❌ Il modulo Blogger è stato **disabilitato**. I feed RSS non verranno monitorati."
+blogger_read_article: "Leggi articolo"
+blogger_blog_add_invalid_channel: "Tipo di canale non valido. Seleziona un canale di testo."
+blogger_blog_add_success: "✅ Il feed RSS **${validation.name}** è stato aggiunto! Le notifiche saranno inviate a ${channel.toString()} (ID: `${blogId}`)"
+blogger_blog_add_invalid_rss: "❌ Il feed RSS fornito non è valido o non è raggiungibile. Controlla l’URL e riprova."
+blogger_blog_remove_success: "✅ Il feed RSS con ID `${blogId}` è stato rimosso."
+blogger_blog_remove_not_found: "❌ Nessun feed RSS trovato con questo ID."
+
 # Module AuthRestore
 # role, set, delete, get, force-join
 
@@ -2446,6 +2523,7 @@ batch_massiverole_process: "🔄 Aggiungendo ruolo a ${membersToProcess.length} 
 batch_unmassiverole_process: "🔄 Rimuovendo ruolo da ${membersToProcess.length} membri..."
 batch_undo_unban: "🔄 Ri-sbannando ${unbanned_members.length} membri..."
 batch_derank_process: "🔄 Rimuovendo ${rolesToRemove.length} ruoli da ${member.user.username}..."
+unbanall_undo_command_err: "Nessun membro da ribannare. Usa prima il comando per unbanare tutti."
 
 # -----------------------------/ \-----------------------------
 # Eventi del Modulo Confessioni
@@ -2757,3 +2835,12 @@ new_guild_embed_desc: "## ${randomMessage}\nCiao, amici straordinari!\n\nSono iH
 confession_embed_logs_title: "Nuova confessione"
 confession_channel_button_name: "Rispondi in modo anonimo"
 confession_1_embed_log_title: "Nuova risposta alla confessione"
+
+# Context Menu Interaction
+global_unknown_message: "Messaggio non trovato."
+global_error: "❌ Errore"
+global_not_atc: "Il messaggio selezionato non contiene alcun allegato."
+global_not_valid_atc: "L'allegato selezionato non è un file audio valido."
+global_too_heavy_file: "Il file MP4 generato è troppo grande (${fileSizeMB.toFixed(2)} MB). Il limite di Discord è 25 MB."
+global_convert_ok: "✅ Conversione riuscita"
+global_convert_ok_desc: "Il tuo file audio è stato convertito in MP4 (${fileSizeMB.toFixed(2)} MB)."

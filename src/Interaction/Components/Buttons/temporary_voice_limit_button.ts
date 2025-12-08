@@ -87,7 +87,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 							inline: true
 						},
 					)
-					.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await interaction.client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'en-US'}.png`)
+					.setImage(await client.func.bannerGenerator(interaction.guild.id))
 					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
 			],
 			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],

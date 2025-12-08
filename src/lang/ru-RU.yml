@@ -82,6 +82,7 @@ var_preview: "Предпросмотр"
 var_form: "Форма"
 var_original_message: "Оригинальное сообщение"
 var_click_here: "Нажмите здесь"
+var_s_message: "сообщение от {nickname}"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"
@@ -591,6 +592,8 @@ help_tags_fields: "Пользовательские теги"
 help_tags_dsc: "> *Создайте сообщения с тегами для вашего сервера и используйте их на своем сервере!*"
 help_starboard_dsc: "> *Посмотреть самые отмеченные звёздами сообщения на сервере Discord.*"
 help_starboard_fields: "StarBoard"
+help_blogger_dsc: "Подписывайтесь на любимые RSS-ленты и получайте уведомления, когда через iHorizon публикуются новые статьи"
+help_blogger_fields: "Блогер"
 
 # /h
 h_suite: "(Продолжение)"
@@ -726,6 +729,9 @@ fun_random_embed_title: "🔢 Случайное число"
 fun_random_result_text: "Сгенерированное число:"
 fun_random_between: "между"
 
+# +transgender
+fun_trans_command_ok: "Пользователь ${user} является трансгендером на **${random}%** 🏳️‍⚧️"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
@@ -834,6 +840,18 @@ economy_shop_unknown_role: "Неизвестная роль"
 economy_shop_not_set: "Нет ролей, доступных для покупки на этом сервере. Пожалуйста, свяжитесь с администратором сервера для получения дополнительной информации."
 economy_shop_already_owned: "Уже есть"
 economy_shop_menu_placeholder: "Выберите роль для покупки"
+
+# /economy role list
+economy_role_list_no_buyable_roles: "Нет доступных для покупки ролей для отображения."
+economy_role_list_embed_title: "Экономическая система – Покупаемые роли"
+economy_role_list_embed_desc: "Все доступные для покупки роли перечислены ниже."
+
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "Недействительный формат времени. Пожалуйста, используйте корректный формат."
+economy_manage_rewards_cooldown_command_ok: "Задержка для ${type} успешно установлена на ${stime}."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "Деньги для ${type} успешно установлены на ${money}."
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
@@ -986,12 +1004,12 @@ action_unban_all_no_banned_members: "Заблокированных участн
 action_unban_undo_embed_desc: "## Отменить все разблокировки\n${client.iHorizon_Emojis.Yes} | Я успешно забанил `${banned_members.length}` участника(ов) в гильдии!\n${client.iHorizon_Emojis.No} | Я не могу разблокировать `${cannot_ban}` участника(ов)!"
 
 # /vc
-vc_embed_desc: "## Состояния Голоса\n`${voiceStates?.size}` участник(ов) в голосовом канале:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Состояния Участников\n`${membersStates?.size}` участник(ов) в гильдии:\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Состояния Бустов\n`${interaction.guild?.premiumSubscriptionCount}` буст(ов) в гильдии,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_desc: "## Состояния Голоса\n`${voiceStates?.size}` участник(ов) в голосовом канале:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Состояния Участников\n`${membersStates?.size}` участник(ов) в гильдии:\n${client.iHorizon_Emojis.DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Состояния Бустов\n`${interaction.guild?.premiumSubscriptionCount}` буст(ов) в гильдии,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
 vc_embed_fields_1_name: "・Количество Участников"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} участников```"
 vc_embed_fields_2_name: "・Количество Каналов"
 vc_embed_fields_2_value: "```py\n${textChannelSize} текстовый(е) канал(ы)\n${voiceChannelSize} голосовой(е) канал(ы)```"
-vc_embed_short_desc: "## Голосовые Состояния\n`${voiceStates?.size}` участник(ов) в голосовом канале:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## Состояния Участников\n`${total_members_size}` участник(ов) в гильдии:\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${total_members_states_idle}"
+vc_embed_short_desc: "## Голосовые Состояния\n`${voiceStates?.size}` участник(ов) в голосовом канале:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## Состояния Участников\n`${total_members_size}` участник(ов) в гильдии:\n${client.iHorizon_Emojis.DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}, iHorizon переместил участников между голосовыми каналами.\n\n**${movedCount}** участник(ов) были успешно перемещены из ${fromChannel} в ${toChannel}.\n**${errorCount}** участник(ов) не удалось переместить (подробнее см. в журналах сервера)."
@@ -1089,6 +1107,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Участник, к
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Настройка поводка отменена"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Вы успешно привязали пользователя на поводок в этом сервере :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | Этот пользователь не находится под вашим контролем!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | Вы успешно освободили пользователя на этом сервере :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "Время между обновлением канала должно быть более 1 минуты"
 util_autorenew_time_too_long: "Время между обновлением канала должно быть менее 30 дней"
@@ -1155,6 +1177,11 @@ util_cooldown_command_ok: "Медленный режим канала устан
 # /util role-members
 util_role_members: "Список пользователей с этими ролями"
 util_role_members_no_one: "На сервере нет никого с этой ролью"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "Код URL Vanity `${VanityCode}` недействителен. Строка должна быть буквенно-цифровой и может содержать дефисы между словами. Максимальная длина — 32 символа. Дефисы не могут находиться в начале или конце строки."
+util_vanity_generator_already_claimed: "Этот код URL Vanity уже занят! Выберите другой."
+util_vanity_generator_command_err: "Произошла ошибка при создании vanity-кода. Пожалуйста, попробуйте позже."
 
 # +top
 utils_top_no_message: "В этом канале не найдено сообщений"
@@ -1602,6 +1629,8 @@ shuffle_command_work: "Я **перемешал** очередь"
 history_no_entries: "В этом конкурсе нет записей."
 history_embed_title: "История Музыки ${interaction.guild?.name} | Страница ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | Страница ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ История удалена"
+history_delete_embed_desc: "История музыки была успешно удалена."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Неизвестный заголовок"
@@ -1698,6 +1727,7 @@ clear_channel_message_deleted: "Удалено ${messages.size} сообщени
 clear_confirmation_message: "${messages.size} сообщений было удалено!"
 clear_logs_embed_title: "Логи удаления сообщений"
 clear_logs_embed_description: "<@${interaction.user.id}> удалил ${messages.size} сообщений в <#${interaction.channel.id}>"
+clear_command_no_message: "Нет сообщений для удаления в этом канале"
 
 # /lock
 lock_embed_message_description: "Канал заблокирован пользователем <@${interaction.user.id}>."
@@ -1740,6 +1770,19 @@ tempmute_reason_create_roles: "Создана роль для временной
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | У пользователя есть права администратора, я не могу его замьютить."
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Моя роль на этом сервере ниже или равна ${tomute.toString()}. Я не могу модерировать этого участника.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} В Discord действует ограничение в 14 дней для мута. Я применил 14 дней."
+
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас нет прав для добавления временных ролей участникам."
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | У меня нет прав."
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | Вы не можете выдать временную роль самому себе!"
+temprole_already_has_role: "У этого пользователя уже есть эта временная роль!"
+temprole_command_work: "<@${tomute.id}> получил роль на ${ms(ms(mutetime))}\n**Причина**: `${reason}`"
+temprole_removed_by_time: "Временная роль <@${tomute.id}> была удалена!"
+temprole_logs_embed_title: "Логи временных ролей"
+temprole_logs_embed_description: "<@${interaction.user.id}> выдал временную роль <@${tomute.id}> на ${ms(ms(mutetime))}\n**Причина**: `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | У пользователя есть права администратора, я не могу выдать ему временную роль."
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Моя роль на сервере ниже или равна роли ${tomute.toString()}. Я не могу модерировать этого участника.**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Максимальное время для временной роли — 1 год. Я применил 1 год."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас нет разрешения на разблокировку участников."
@@ -1784,6 +1827,20 @@ var_ban_date: "Дата блокировки"
 
 # /очистить-предупреждения
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, **`${allWarns.length}`** предупреждение(-я) участника ${member?.toString()} удалено(-ы)."
+
+# /tempban
+tempban_dont_have_permission: "У вас нет прав временно банить участников."
+tempban_i_dont_have_permission: "У меня нет прав банить участников."
+tempban_cannot_ban_yourself: "Вы не можете забанить сами себя!"
+tempban_already_banned: "Этот пользователь уже временно забанен!"
+tempban_command_work: "**<@${user.id}>** был временно забанен на **${duration}**\n**Причина**: `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** был разбанен!"
+tempban_logs_embed_title: "Логи временного бана"
+tempban_logs_embed_description: "**<@${executor.id}>** временно забанил **<@${user.id}>** на **${duration}**\n**Причина**: `${reason}`"
+tempban_user_is_admin: "У пользователя есть права администратора, я не могу его забанить."
+tempban_user_highest_role_or_same: "Моя роль на сервере ниже или равна роли **user_mention**. Я не могу модерировать этого участника."
+tempban_max_time_passed: "\n*Максимальный срок временного бана — 1 год. Я применил 1 год.*"
+tempban_user_not_in_guild: "Этот пользователь не находится на сервере, но его всё равно можно забанить."
 
 # Команды резервного копирования
 # /backup
@@ -2230,6 +2287,7 @@ tag_use_command_work: "Тег `${tag_name}` был отправлен."
 
 # /tag edit
 tag_edit_error_perm: "Чтобы изменить тег, вам нужны права администратора или вы должны быть владельцем тега."
+tag_edit_command_ok: "Текущее имя тега изменено с **`${current_tag_name}`** на **`${new_tag_name}`**"
 
 # Модуль временного голосового канала
 # /текст, /голос, /статус, /персонал
@@ -2382,6 +2440,25 @@ notifier_config_message_embed_fields_notifyMessage: "Сообщение Увед
 notifier_config_message_awaiting_response: "Напишите сообщение уведомления."
 notifier_config_message_command_work_on_enable: "Работа над включением сообщения уведомления."
 
+# Модуль Blogger
+
+blogger_generateBlogsEmbed_embed_desc: "Список настроенных RSS-лент:\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 Настройки RSS-блогов"
+blogger_generateConfigurationEmbed_embed_title: "📰 Конфигурация Blogger"
+blogger_no_rss: "RSS-ленты не настроены."
+blogger_generateConfigurationEmbed_embed_fields_1_name: "Статус"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "Всего блогов"
+blogger_unknown_blog: "Неизвестный блог"
+blogger_on_new_article_default_message: "📰 Опубликована новая статья!\n**{articleTitle}** от {articleAuthor}\n{articleLink}"
+blogger_config_status_enabled: "✅ Модуль Blogger **включён**. RSS-ленты будут отслеживаться."
+blogger_config_status_disabled: "❌ Модуль Blogger **отключён**. RSS-ленты не будут отслеживаться."
+blogger_read_article: "Читать статью"
+blogger_blog_add_invalid_channel: "Недопустимый тип канала. Пожалуйста, выберите текстовый канал."
+blogger_blog_add_success: "✅ RSS-лента **${validation.name}** добавлена! Уведомления будут отправлены в ${channel.toString()} (ID: `${blogId}`)"
+blogger_blog_add_invalid_rss: "❌ Указанная RSS-лента недействительна или недоступна. Проверьте URL и попробуйте снова."
+blogger_blog_remove_success: "✅ RSS-лента с ID `${blogId}` была удалена."
+blogger_blog_remove_not_found: "❌ RSS-лента с таким ID не найдена."
+
 # Модуль AuthRestore
 # роль, установить, удалить, получить, принудительное присоединение
 
@@ -2446,6 +2523,7 @@ batch_massiverole_process: "🔄 Добавляю роль ${membersToProcess.le
 batch_unmassiverole_process: "🔄 Удаляю роль у ${membersToProcess.length} участников..."
 batch_undo_unban: "🔄 Повторно разбаниваю ${unbanned_members.length} участников..."
 batch_derank_process: "🔄 Удаляю ${rolesToRemove.length} ролей у ${member.user.username}..."
+unbanall_undo_command_err: "Нет участников для повторного бана. Сначала используйте команду разбана всех."
 
 # -----------------------------/ \-----------------------------
 # События Модуля Исповедей
@@ -2757,3 +2835,12 @@ new_guild_embed_desc: "## ${randomMessage}\nПривет, удивительны
 confession_embed_logs_title: "Новое признание"
 confession_channel_button_name: "Ответить анонимно"
 confession_1_embed_log_title: "Новый ответ на признание"
+
+# Context Menu Interaction
+global_unknown_message: "Сообщение не найдено."
+global_error: "❌ Ошибка"
+global_not_atc: "В выбранном сообщении нет вложений."
+global_not_valid_atc: "Выбранное вложение не является допустимым аудиофайлом."
+global_too_heavy_file: "Созданный MP4 файл слишком большой (${fileSizeMB.toFixed(2)} MB). Лимит Discord — 25 MB."
+global_convert_ok: "✅ Конвертация выполнена успешно"
+global_convert_ok_desc: "Ваш аудиофайл был конвертирован в MP4 (${fileSizeMB.toFixed(2)} MB)."

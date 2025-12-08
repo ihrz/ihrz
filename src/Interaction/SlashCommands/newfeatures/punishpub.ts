@@ -53,10 +53,12 @@ export const command: Command = {
 			choices: [
 				{
 					name: "ON",
+					name_localizations: { fr: 'Activer' },
 					value: "true"
 				},
 				{
 					name: "OFF",
+					name_localizations: { fr: 'Désactiver' },
 					value: "false"
 				}
 			],
@@ -88,14 +90,17 @@ export const command: Command = {
 			choices: [
 				{
 					name: "BAN",
+					name_localizations: { fr: 'Bannir' },
 					value: "ban"
 				},
 				{
 					name: "KICK",
+					name_localizations: { fr: 'Expulser' },
 					value: "kick"
 				},
 				{
 					name: "MUTE",
+					name_localizations: { fr: 'Muter' },
 					value: "mute"
 				}
 			],
@@ -119,15 +124,15 @@ export const command: Command = {
 
 		if (amount && action == "true") {
 			if (amount > 50) {
-				await interaction.reply({ content: lang.punishpub_too_hight_enable })
+				await client.func.method.interactionSend(interaction, { content: lang.punishpub_too_hight_enable })
 				return;
 			};
 			if (amount < 0) {
-				await interaction.reply({ content: lang.punishpub_negative_number_enable });
+				await client.func.method.interactionSend(interaction, { content: lang.punishpub_negative_number_enable });
 				return;
 			};
 			if (amount == 0) {
-				await interaction.reply({ content: lang.punishpub_zero_number_enable });
+				await client.func.method.interactionSend(interaction, { content: lang.punishpub_zero_number_enable });
 				return;
 			};
 
@@ -147,7 +152,7 @@ export const command: Command = {
 					.replace("${punishement}", punishment?.toString()!)
 			});
 
-			await interaction.reply({
+			await client.func.method.interactionSend(interaction, {
 				content: lang.punishpub_confirmation_message_enable
 					.replace("${interaction.user.id}", interaction.user.id)
 					.replace("${amount}", amount.toString())
@@ -156,7 +161,7 @@ export const command: Command = {
 			return;
 		} else {
 			await client.db.delete(`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`);
-			await interaction.reply({ content: lang.punishpub_confirmation_disable })
+			await client.func.method.interactionSend(interaction, { content: lang.punishpub_confirmation_disable })
 
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.punishpub_logs_embed_title_disable,

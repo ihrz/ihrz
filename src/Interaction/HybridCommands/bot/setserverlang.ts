@@ -30,6 +30,7 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
+import { AvailableLanguage } from '../../../core/functions/getLanguageData.js';
 
 export const command: Command = {
 	name: 'setlang',
@@ -59,48 +60,13 @@ export const command: Command = {
 			},
 
 			required: true,
-			choices: [
-				{
-					name: "Deutsch",
-					value: "de-DE"
-				},
-				{
-					name: "English",
-					value: "en-US"
-				},
-				{
-					name: "Arab Egyptian",
-					value: "ar-EG"
-				},
-				{
-					name: "French",
-					value: "fr-FR"
-				},
-				{
-					name: "Italian",
-					value: "it-IT"
-				},
-				{
-					name: "Japanese",
-					value: "jp-JP"
-				},
-				{
-					name: "Portuguese",
-					value: "pt-PT"
-				},
-				{
-					name: "Rude French",
-					value: "fr-ME"
-				},
-				{
-					name: "Russian",
-					value: "ru-RU"
-				},
-				{
-					name: "Spanish",
-					value: "es-ES"
-				},
-			],
+			choices: Object.values(AvailableLanguage).map(x => {
+				return {
+					name: x.name,
+					name_localizations: { fr: x.name },
+					value: x.code
+				}
+			}),
 
 			permission: null
 		}

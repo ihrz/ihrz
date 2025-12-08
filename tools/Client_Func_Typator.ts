@@ -52,7 +52,7 @@ import type { DatabaseStructure } from './database_structure.d.ts';
 import type { LanguageData } from './languageData.d.ts';
 import type { GatewayMethod } from '../src/core/functions/apiUrlParser.js';
 import { ModalOptionsBuilder } from '../src/core/functions/modalHelper.js';
-import { AnySelectMenuInteraction, APIModalInteractionResponseCallbackData, AutocompleteInteraction, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, CacheType, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, Message, MessageContextMenuCommandInteraction, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, PrimaryEntryPointCommandInteraction, Role, StringSelectMenuInteraction, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
+import { ActionRowBuilder, ActionRowData, AnySelectMenuInteraction, APIMessageTopLevelComponent, APIModalInteractionResponseCallbackData, AutocompleteInteraction, BaseGuildTextChannel, BaseGuildVoiceChannel, ButtonBuilder, ButtonInteraction, CacheType, Channel, ChatInputCommandInteraction, Client, EmbedBuilder, Guild, GuildMember, Interaction, InteractionReplyOptions, JSONEncodable, Message, MessageActionRowComponentBuilder, MessageActionRowComponentData, MessageContextMenuCommandInteraction, MessageEditOptions, MessageReplyOptions, ModalSubmitInteraction, PrimaryEntryPointCommandInteraction, Role, StringSelectMenuInteraction, TopLevelComponentData, User, UserContextMenuCommandInteraction, VoiceBasedChannel } from 'discord.js';
 import { Assets } from './assets.js';
 import { LangForPrompt } from '../src/core/functions/awaitingResponse.js';
 import { Command } from './command.js';
@@ -68,6 +68,7 @@ import { Postgres } from '../src/core/database/driver/postgres.ts';
 import { Horizon } from '../src/core/database/driver/horizon.ts';
 import { TrackEmbbeded } from '../src/core/functions/music_proximity.ts';
 import { LyricsResult, SearchResult, Track } from "lavalink-client";
+import { components } from '../src/core/functions/method.ts';
 `
 export class FunctionAnalyzer {
 	private program: ts.Program;

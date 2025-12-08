@@ -46,6 +46,10 @@ import { DB } from "../src/core/database/types.ts";
 import { Postgres } from "../src/core/database/driver/postgres.ts";
 import * as backup from "../src/core/backup/src/";
 import * as discordTranscripts from "discord-html-transcripts";
+import { BloggerNotifier } from "../src/core/Blogger.ts";
+import { TemproleManager } from "../src/core/modules/tempRoleManager.ts";
+import { TempbanManager } from "../src/core/modules/tempbanManager.ts";
+import { Mailer } from "../src/core/Mailer.ts";
 
 declare module 'discord.js' {
 	export interface Client {
@@ -76,9 +80,13 @@ declare module 'discord.js' {
 		emojisManager: EmojisManager,
 		nightmodeManager: NightModeManager,
 		githubLinesManager: GithubLinesManager,
+		temproleManager: TemproleManager,
+		tempbanManager: TempbanManager,
 		backup: typeof backup;
 		// IN SHARD
 		inShard: (guildId: string) => boolean;
 		discordTranscripts: typeof discordTranscripts;
+		blogger: BloggerNotifier;
+		email: Mailer;
 	}
 }

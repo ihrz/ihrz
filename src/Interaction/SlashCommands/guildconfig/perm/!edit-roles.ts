@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 		try {
 			const updatedRoles: DatabaseStructure.UtilsRoleData = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {};
 
-			updatedRoles[perm_level as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8] = perm_role.id;
+			updatedRoles[perm_level as DatabaseStructure.PermLevel] = perm_role.id;
 
 			await client.db.set(`${interaction.guildId}.UTILS.roles`, updatedRoles);
 

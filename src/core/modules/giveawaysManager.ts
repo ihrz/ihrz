@@ -35,22 +35,14 @@ import {
 	GuildMember,
 } from 'discord.js';
 
-import { GiveawayCreateOptions, GiveawayFetch } from '../../../types/giveaways.js';
+import { GiveawayCreateOptions, GiveawayFetch, GiveawaysManagerOptions } from '../../../types/giveaways.js';
 import getLanguageData from '../functions/getLanguageData.js';
 import db from './giveawaysDatabaseManager.js';
 
-interface GiveawaysManagerOptions {
-	storage: string,
-	config: {
-		botsCanWin: boolean,
-		embedColor: string,
-		embedColorEnd: string,
-		reaction: string,
-		botName: string,
-		forceUpdateEvery: number,
-		endedGiveawaysLifetime: number,
-	},
-};
+export enum GiveawayEndedStatus {
+	ENDED = 1,
+	NOT_ENDED = 2
+}
 
 class GiveawayManager {
 	client: Client;
@@ -123,7 +115,7 @@ class GiveawayManager {
 						prize: data.prize,
 						hostedBy: data.hostedBy,
 						expireIn: new Date(Date.now() + data.duration),
-						ended: false,
+						ended: GiveawayEndedStatus.NOT_ENDED,
 						entries: [],
 						winners: [],
 						isValid: true,
@@ -279,7 +271,7 @@ class GiveawayManager {
 				const giveawayData = (await db.GetGiveawayData(giveawayId))!;
 
 				if (giveawayData.isValid && !giveawayData.ended) {
-					await db.SetEnded(giveawayId, "End()");
+					await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
 					this.finish(
 						client,
 						giveawayId,
@@ -297,72 +289,77 @@ class GiveawayManager {
 	};
 
 	public async finish(client: Client, giveawayId: string, guildId: string, channelId: string) {
-		const lang = await getLanguageData(guildId);
+		try {
 
-		const fetch = await db.GetGiveawayData(giveawayId);
+			const lang = await getLanguageData(guildId);
 
-		if (!fetch) return;
+			const fetch = await db.GetGiveawayData(giveawayId);
 
-		if (!fetch.ended || fetch.ended === 'End()') {
-			const guild = await client.guilds.fetch(guildId).catch(async () => {
-				await db.DeleteGiveaway(giveawayId)
-			});
-			if (!guild) return;
+			if (!fetch) return;
 
-			const winner = this.selectWinners(
-				{ entries: fetch.entries, winners: fetch.winners },
-				fetch.winnerCount
-			);
-
-			await db.SetEnded(giveawayId, true)
-			await db.SetWinners(giveawayId, winner || 'None')
-
-			const channel = await guild.channels.fetch(channelId).catch(() => { db.DeleteGiveaway(giveawayId) })
-
-			const message = await (channel as GuildTextBasedChannel).messages.fetch(giveawayId).catch(async () => {
-				await db.DeleteGiveaway(giveawayId)
-				return;
-			}) as Message;
-
-			const winners = winner ? winner.map((winner: string) => `<@${winner}>`).join(",") : null;
-
-			const Finnish = new ButtonBuilder()
-				.setLabel(lang.event_gw_finnish_button_title)
-				.setURL('https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif')
-				.setStyle(ButtonStyle.Link);
-
-			const embeds = new EmbedBuilder()
-				.setColor(this.options.config.embedColorEnd as ColorResolvable)
-				.setTitle(fetch.prize)
-				.setImage(fetch.embedImageURL)
-				.setDescription(lang.event_gw_ended_embed_desc
-					.replace("${time1}", time(new Date(fetch.expireIn), 'R'))
-					.replace("${time2}", time(new Date(fetch.expireIn), 'D'))
-					.replace("${fetch.hostedBy}", fetch.hostedBy)
-					.replace("${fetch.entries.length}", fetch.entries.length.toString())
-					.replace("${winners}", winners || lang.setjoinroles_var_none)
-				)
-				.setTimestamp()
-
-			await message?.edit({
-				embeds: [embeds], components: [
-					new ActionRowBuilder<ButtonBuilder>()
-						.addComponents(Finnish)]
-			});
-
-			if (winners) {
-				await message?.reply({
-					content: lang.event_gw_reroll_win_msg.replace("${winners}", winners.toString()).replace("${fetch[channelId][messageId].prize}", fetch.prize)
-				})
-				return;
-			} else {
-				await message?.reply({
-					content: lang.event_gw_finnish_cannot_msg
+			if (!fetch.ended || fetch.ended === GiveawayEndedStatus.NOT_ENDED) {
+				const guild = await client.guilds.fetch(guildId).catch(async () => {
+					await this.delete(giveawayId)
 				});
-				return;
+				if (!guild) return;
+
+				const winner = this.selectWinners(
+					{ entries: fetch.entries, winners: fetch.winners },
+					fetch.winnerCount
+				);
+
+				await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED)
+				await db.SetWinners(giveawayId, winner || 'None')
+
+				const channel = await guild.channels.fetch(channelId).catch(() => { this.delete(giveawayId) })
+
+				const message = await (channel as GuildTextBasedChannel).messages.fetch(giveawayId).catch(async () => {
+					await this.delete(giveawayId)
+					return;
+				}) as Message;
+
+				const winners = winner ? winner.map((winner: string) => `<@${winner}>`).join(",") : null;
+
+				const Finnish = new ButtonBuilder()
+					.setLabel(lang.event_gw_finnish_button_title)
+					.setURL('https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif')
+					.setStyle(ButtonStyle.Link);
+
+				const embeds = new EmbedBuilder()
+					.setColor(this.options.config.embedColorEnd as ColorResolvable)
+					.setTitle(fetch.prize)
+					.setImage(fetch.embedImageURL)
+					.setDescription(lang.event_gw_ended_embed_desc
+						.replace("${time1}", time(new Date(fetch.expireIn), 'R'))
+						.replace("${time2}", time(new Date(fetch.expireIn), 'D'))
+						.replace("${fetch.hostedBy}", fetch.hostedBy)
+						.replace("${fetch.entries.length}", fetch.entries.length.toString())
+						.replace("${winners}", winners || lang.setjoinroles_var_none)
+					)
+					.setTimestamp()
+
+				await message?.edit({
+					embeds: [embeds], components: [
+						new ActionRowBuilder<ButtonBuilder>()
+							.addComponents(Finnish)]
+				});
+
+				if (winners) {
+					await message?.reply({
+						content: lang.event_gw_reroll_win_msg.replace("${winners}", winners.toString()).replace("${fetch[channelId][messageId].prize}", fetch.prize)
+					})
+					return;
+				} else {
+					await message?.reply({
+						content: lang.event_gw_finnish_cannot_msg
+					});
+					return;
+				};
 			};
-		};
-		return;
+			return;
+		} catch (e) {
+			console.error(e)
+		}
 	};
 
 	private selectWinners(fetch: GiveawayFetch, number: number): string[] {
@@ -409,7 +406,7 @@ class GiveawayManager {
 				const lang = await getLanguageData(guild.id);
 
 				const message = await (channel as BaseGuildTextChannel).messages.fetch(giveawayId).catch(async () => {
-					await db.DeleteGiveaway(giveawayId);
+					await this.delete(giveawayId);
 					resolve();
 					return;
 				}) as Message;
@@ -552,26 +549,28 @@ class GiveawayManager {
 		const drop_all_db = await db.GetAllGiveawaysData();
 
 		for (const giveawayId in drop_all_db) {
+			const { giveawayData } = drop_all_db[giveawayId];
+
 			const now = new Date().getTime();
-			const gwExp = new Date(drop_all_db[giveawayId].giveawayData.expireIn).getTime();
+			const gwExp = new Date(giveawayData.expireIn).getTime();
 			const cooldownTime = now - gwExp;
 
 			await db.AvoidDoubleEntries(drop_all_db[giveawayId].giveawayId);
 
-			if (now >= gwExp) {
+			if (now >= gwExp && giveawayData.ended === GiveawayEndedStatus.NOT_ENDED) {
 				this.finish(
 					client,
 					drop_all_db[giveawayId].giveawayId,
-					drop_all_db[giveawayId].giveawayData.guildId,
-					drop_all_db[giveawayId].giveawayData.channelId
+					giveawayData.guildId,
+					giveawayData.channelId
 				);
-			};
+			}
 
 			if (cooldownTime >= this.options.config.endedGiveawaysLifetime) {
-				await db.DeleteGiveaway(drop_all_db[giveawayId].giveawayId)
-			};
+				await this.delete(drop_all_db[giveawayId].giveawayId);
+			}
 		}
-	};
+	}
 
 	public getGiveawayData(giveawayId: string): Promise<any> {
 		return new Promise(async (resolve, reject) => {

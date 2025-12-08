@@ -132,8 +132,8 @@ function checkRoleHierarchy(
 
 	let highestRolePermLevel = 0;
 
-	// Check all permission levels (1-8)
-	for (let permLevel = 1; permLevel <= 8; permLevel++) {
+	// Check all permission levels (1-9)
+	for (let permLevel = 1; permLevel <= 9; permLevel++) {
 		const roleId = guildPerm.roles[permLevel as keyof DatabaseStructure.UtilsRoleData];
 		if (roleId && member.roles.cache.has(roleId)) {
 			highestRolePermLevel = Math.max(highestRolePermLevel, permLevel);

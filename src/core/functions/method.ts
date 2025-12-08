@@ -19,13 +19,14 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment, MessagePayload } from "discord.js";
+import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment, MessagePayload, ButtonStyle, ActionRowData, APIMessageTopLevelComponent, JSONEncodable, MessageActionRowComponentBuilder, MessageActionRowComponentData, TopLevelComponentData, StringSelectMenuInteraction } from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { generatePassword } from "./random.js";
 import { getPermissionByValue } from "./permissonsCalculator.js";
+import { apiTable } from "../../Events/client/ready.js";
 
 export function isNumber(str: string): boolean {
 	return !isNaN(Number(str)) && str.trim() !== "";
@@ -466,16 +467,61 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
 	});
 }
 
+export async function shouldAdvertiseTheTopggVoteButton(authorId: string): Promise<boolean> {
+	const lastVoteTimestamp = (await apiTable.get(`topgg_vote.${authorId}.timestamp`));
+	const isAlreadyNotified = (await apiTable.get(`topgg_vote.${authorId}.notified`) || false);
+
+	if (isAlreadyNotified) return false;
+	if (!lastVoteTimestamp) return true;
+
+	const twelveHours = 12 * 60 * 60 * 1000;
+
+	await apiTable.set(`topgg_vote.${authorId}.notified`, true)
+
+	return Date.now() - lastVoteTimestamp >= twelveHours;
+}
+
+export function generateTopggActionRow(): ActionRowBuilder<ButtonBuilder> {
+	return new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setStyle(ButtonStyle.Link)
+			.setURL(`https://top.gg/bot/${client.user?.id}/vote`)
+			.setLabel("Vote for iHorizon")
+			.setEmoji(client.iHorizon_Emojis.TOPGG)
+	)
+}
+
+export type components = readonly (
+	| JSONEncodable<APIMessageTopLevelComponent>
+	| TopLevelComponentData
+	| ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder>
+	| APIMessageTopLevelComponent
+)[];
+
+export async function addTopggButonToTheActualComponents(current: components): Promise<components> {
+	const topggActionRow = await generateTopggActionRow();
+
+	if (!current || current.length === 0) {
+		return [topggActionRow];
+	}
+
+	return [...current, topggActionRow];
+}
+
 export async function interactionSend(
-	interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message,
+	interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message | StringSelectMenuInteraction<"cached">,
 	options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
 ): Promise<Message> {
 	const nonce = SnowflakeUtil.generate().toString();
 
-	if (interaction instanceof ChatInputCommandInteraction) {
+	if (interaction instanceof ChatInputCommandInteraction || interaction instanceof StringSelectMenuInteraction) {
 		const editOptions: InteractionReplyOptions = typeof options === 'string'
 			? { content: options }
 			: { ...options as InteractionReplyOptions };
+
+		if (await shouldAdvertiseTheTopggVoteButton(interaction.user.id || "")) {
+			editOptions.components = await addTopggButonToTheActualComponents(editOptions.components || []);
+		}
 
 		if (interaction.replied) {
 			return await interaction.editReply(editOptions as InteractionEditReplyOptions);
@@ -786,6 +832,12 @@ export function generateCustomMessagePreview(
 			artistAuthor: string;
 			artistLink: string;
 			mediaURL: string;
+		},
+		blogger?: {
+			articleTitle: string;
+			articleAuthor: string;
+			articleLink: string;
+			blogName: string;
 		}
 	}
 ): string {
@@ -802,7 +854,11 @@ export function generateCustomMessagePreview(
 		.replaceAll('{xpLevel}', input.ranks?.level.toString() || "1337")
 		.replaceAll('{artistAuthor}', input.notifier?.artistAuthor || "Ninja")
 		.replaceAll('{artistLink}', input.notifier?.artistLink || "https://twitch.tv/Ninja")
-		.replaceAll('{mediaURL}', input.notifier?.mediaURL || "https://twitch.tv/Ninja/media");
+		.replaceAll('{mediaURL}', input.notifier?.mediaURL || "https://twitch.tv/Ninja/media")
+		.replaceAll('{articleTitle}', input.blogger?.articleTitle || "Unknow Article")
+		.replaceAll('{articleAuthor}', input.blogger?.articleAuthor || "Unknown Author")
+		.replaceAll("{articleLink}", input.blogger?.articleLink || "Unknown Link")
+		.replaceAll("{blogName}", input.blogger?.blogName || "Unknown Blog Name");
 
 }
 
@@ -993,7 +1049,7 @@ export function isValidDiscordInvite(input: string): boolean {
 	return patterns.some(pattern => pattern.test(trimmed));
 }
 
-export function isValidDiscordInviteCode(VanityCode: string) {
+export function isValidDiscordInviteCode(VanityCode: string): boolean {
 	if (VanityCode.length > 32) {
 		return false;
 	}
@@ -1003,4 +1059,20 @@ export function isValidDiscordInviteCode(VanityCode: string) {
 	}
 
 	return true;
+}
+
+export async function changeVoiceChannelStatus(channelId: string, status: string): Promise<boolean> {
+	const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/voice-status`, {
+		method: "PUT",
+		headers: {
+			"Authorization": `Bot ${client.token}`,
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			status
+		}),
+	});
+
+	if (res.status === 200) return true;
+	return false;
 }

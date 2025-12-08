@@ -160,14 +160,17 @@ export const command: Command = {
 					choices: [
 						{
 							name: "♀ Female",
+							name_localizations: { fr: '♀ Féminin' },
 							value: "female"
 						},
 						{
 							name: "♂ Male",
+							name_localizations: { fr: '♂ Masculin' },
 							value: "male"
 						},
 						{
 							name: "⚧ Non-binary",
+							name_localizations: { fr: '⚧ Non-binaire' },
 							value: "non-binary"
 						}
 					],
@@ -206,26 +209,32 @@ export const command: Command = {
 					choices: [
 						{
 							name: "she/her",
+							name_localizations: { fr: 'elle/elle' },
 							value: "she-her"
 						},
 						{
 							name: "he/him",
+							name_localizations: { fr: 'il/il' },
 							value: "he-him"
 						},
 						{
 							name: "they/them",
+							name_localizations: { fr: 'ils/ils' },
 							value: "they-them"
 						},
 						{
 							name: "xe/xem",
+							name_localizations: { fr: 'xe/xe' },
 							value: "xe-xem"
 						},
 						{
 							name: "ze/zem",
+							name_localizations: { fr: 'ze/ze' },
 							value: "ze-zem"
 						},
 						{
 							name: "other (say my name)",
+							name_localizations: { fr: 'autre (dire mon nom)' },
 							value: "other"
 						}
 					],

@@ -42,7 +42,7 @@ export const subCommand: SubCommand = {
 
 		if (!unbanned_members || unbanned_members.length === 0) {
 			await client.func.method.interactionSend(interaction, {
-				content: "No members to re-ban. Use the unban all command first."
+				content: lang.unbanall_undo_command_err
 			});
 			return;
 		}

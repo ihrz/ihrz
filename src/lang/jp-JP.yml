@@ -82,6 +82,7 @@ var_preview: "プレビュー"
 var_form: "フォーム"
 var_original_message: "元のメッセージ"
 var_click_here: "ここをクリック"
+var_s_message: "{nickname}のメッセージ"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
@@ -591,6 +592,8 @@ help_tags_fields: "カスタムタグ"
 help_tags_dsc: "> *サーバー用のタグメッセージを作成し、それをサーバー内で使用しましょう！*"
 help_starboard_dsc: "> *Discordサーバーで最もスターを獲得したメッセージを表示します。*"
 help_starboard_fields: "スター掲示板"
+help_blogger_dsc: "お気に入りのRSSフィードをフォローし、iHorizonを通じて新しい記事が公開されたときに通知を受け取ります"
+help_blogger_fields: "ブロガー"
 
 # /h
 h_suite: "(続き)"
@@ -726,6 +729,9 @@ fun_random_embed_title: "🔢 ランダムな数字"
 fun_random_result_text: "生成された数字は:"
 fun_random_between: "の間"
 
+# +transgender
+fun_trans_command_ok: "ユーザー ${user} は **${random}%** トランスジェンダーです 🏳️‍⚧️"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
@@ -834,6 +840,18 @@ economy_shop_unknown_role: "不明なロール"
 economy_shop_not_set: "このサーバーでは購入可能なロールがありません。詳細についてはサーバー管理者にお問い合わせください。"
 economy_shop_already_owned: "すでに所有しています"
 economy_shop_menu_placeholder: "購入するロールを選択してください"
+
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "無効な時間形式です。正しい時間形式を使用してください."
+economy_manage_rewards_cooldown_command_ok: "${type} のクールダウンが ${stime} に正常に設定されました。"
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "${type} のお金が ${money} に正常に設定されました。"
+
+# /economy role list
+economy_role_list_no_buyable_roles: "表示できる購入可能なロールはありません。"
+economy_role_list_embed_title: "エコノミーシステム - 購入可能ロール"
+economy_role_list_embed_desc: "購入可能なロールは以下に一覧表示されています。"
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
@@ -986,12 +1004,12 @@ action_unban_all_no_banned_members: "禁止されているメンバーはいま�
 action_unban_undo_embed_desc: "## 全員の禁止解除を元に戻す\n${client.iHorizon_Emojis.Yes} | ギルドで`${banned_members.length}`人のメンバーを成功裏に禁止しました！\n${client.iHorizon_Emojis.No} | `${cannot_ban}`人のメンバーを禁止解除できません！"
 
 # /vc
-vc_embed_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます：\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## メンバーステータス\n`${membersStates?.size}` 人がギルドにいます：\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## ブーストステータス\n`${interaction.guild?.premiumSubscriptionCount}` ブーストがギルドにあります、\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます：\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## メンバーステータス\n`${membersStates?.size}` 人がギルドにいます：\n${client.iHorizon_Emojis.DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## ブーストステータス\n`${interaction.guild?.premiumSubscriptionCount}` ブーストがギルドにあります、\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
 vc_embed_fields_1_name: "・メンバー数"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} 人のメンバー```"
 vc_embed_fields_2_name: "・チャンネル数"
 vc_embed_fields_2_value: "```py\n${textChannelSize} テキストチャンネル\n${voiceChannelSize} ボイスチャンネル```"
-vc_embed_short_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## メンバーステータス\n`${total_members_size}` 人がギルドにいます:\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${total_members_states_idle}"
+vc_embed_short_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## メンバーステータス\n`${total_members_size}` 人がギルドにいます:\n${client.iHorizon_Emojis.DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}さん、iHorizonはボイスチャンネル間でメンバーを移動しました。\n\n**${movedCount}**人のメンバーが${fromChannel}から${toChannel}に正常に移動しました。\n**${errorCount}**人のメンバーは移動できませんでした (詳細はサーバーログをご確認ください)。"
@@ -1089,6 +1107,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | リードに繋げ�
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | リーシュの設定がキャンセルされました"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | このサーバーでユーザーのリーシュに成功しました :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | このユーザーはあなたの制御下にありません！"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | このサーバーでユーザーを無事に解放しました :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "チャンネルの更新間隔は1分以上である必要があります"
 util_autorenew_time_too_long: "サロンの更新間隔は30日以内でなければならない"
@@ -1155,6 +1177,11 @@ util_cooldown_command_ok: "チャンネルのスローモードが ${duration_in
 # /util role-members
 util_role_members: "そのロールを持っているユーザーの一覧"
 util_role_members_no_one: "サーバーにそのロールを持つ人はいません"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "URL Vanityコード `${VanityCode}` は無効です。文字列は英数字で、単語間にハイフンを含めることができます。最大長は32文字です。ハイフンは文字列の先頭または末尾に置けません。"
+util_vanity_generator_already_claimed: "このURL Vanityコードはすでに使用されています！別のコードを選んでください。"
+util_vanity_generator_command_err: "Vanityコードの作成中にエラーが発生しました。後でもう一度試してください。"
 
 # +top
 utils_top_no_message: "このチャンネルにメッセージが見つかりません"
@@ -1602,6 +1629,8 @@ shuffle_command_work: "キューを**シャッフル**しました"
 history_no_entries: "このコンペティションにはエントリーがありません。"
 history_embed_title: "${interaction.guild?.name}の音楽履歴 | ページ ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ 履歴を削除しました"
+history_delete_embed_desc: "音楽の履歴が正常に削除されました。"
 
 # /music lyrics
 lyrics_embed_title_unknown: "不明なタイトル"
@@ -1698,6 +1727,7 @@ clear_channel_message_deleted: "${messages.size} 個のメッセージが削除�
 clear_confirmation_message: "${messages.size} 個のメッセージが削除されました！"
 clear_logs_embed_title: "メッセージクリアログ"
 clear_logs_embed_description: "<@${interaction.user.id}> が <#${interaction.channel.id}> で ${messages.size} 個のメッセージをクリアしました。"
+clear_command_no_message: "このチャンネルには削除できるメッセージがありません"
 
 # /lock
 lock_embed_message_description: "<@${interaction.user.id}> によってチャンネルがロックされました。"
@@ -1740,6 +1770,19 @@ tempmute_reason_create_roles: "一時ミュートのミュート役職を作成�
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | ユーザーは管理者権限を持っているため、ミュートできません。"
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **このサーバーでの私の役職は ${tomute.toString()} と同じかそれ以下です。このメンバーをモデレートできません。**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discordではミュートの制限は14日です。14日を適用しました。"
+
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーに一時ロールを追加する権限がありません。"
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | 私には権限がありません。"
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | 自分に一時ロールを追加することはできません！"
+temprole_already_has_role: "このユーザーはすでにこの一時ロールを持っています！"
+temprole_command_work: "<@${tomute.id}> に ${ms(ms(mutetime))} の間ロールが付与されました\n**理由**: `${reason}`"
+temprole_removed_by_time: "<@${tomute.id}> の一時ロールが削除されました！"
+temprole_logs_embed_title: "一時ロールログ"
+temprole_logs_embed_description: "<@${interaction.user.id}> が <@${tomute.id}> に ${ms(ms(mutetime))} の一時ロールを追加しました\n**理由**: `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | このユーザーは管理者権限を持っているため、一時ロールを付与できません。"
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **私の役職はこのサーバーで ${tomute.toString()} と同じか下のため、このメンバーを管理できません。**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} 一時ロールの最大期間は1年です。1年を適用しました。"
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをミュート解除する権限がありません。"
@@ -1784,6 +1827,20 @@ var_ban_date: "BAN日時"
 
 # /警告クリア
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}、${member?.toString()} の **`${allWarns.length}`** 件の警告が削除されました。"
+
+# /tempban
+tempban_dont_have_permission: "メンバーを一時的にBANする権限がありません。"
+tempban_i_dont_have_permission: "メンバーをBANする権限がありません。"
+tempban_cannot_ban_yourself: "自分自身をBANすることはできません！"
+tempban_already_banned: "このユーザーはすでに一時的にBANされています！"
+tempban_command_work: "**<@${user.id}>** は **${duration}** の間、一時的にBANされました\n**理由**: `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** のBANが解除されました！"
+tempban_logs_embed_title: "一時BANログ"
+tempban_logs_embed_description: "**<@${executor.id}>** が **<@${user.id}>** を **${duration}** 一時的にBANしました\n**理由**: `${reason}`"
+tempban_user_is_admin: "ユーザーは管理者権限を持っているため、BANできません。"
+tempban_user_highest_role_or_same: "私のサーバーでのロールが **user_mention** と同じか低いため、このメンバーをモデレートできません。"
+tempban_max_time_passed: "\n*一時BANの最長期間は1年です。1年を適用しました。*"
+tempban_user_not_in_guild: "このユーザーはサーバーにいませんが、BANは可能です。"
 
 # Backup commands
 # /backup
@@ -2230,6 +2287,7 @@ tag_use_command_work: "タグ `${tag_name}` が送信されました。"
 
 # /tag edit
 tag_edit_error_perm: "タグを編集するには、管理者権限を持っているか、タグの所有者である必要があります。"
+tag_edit_command_ok: "現在のタグ名が **`${current_tag_name}`** から **`${new_tag_name}`** に変更されました。"
 
 # TempVoiceモジュール
 # /text, /voice, /status, /staff
@@ -2382,6 +2440,25 @@ notifier_config_message_embed_fields_notifyMessage: "通知メッセージ"
 notifier_config_message_awaiting_response: "通知メッセージを書いてください。"
 notifier_config_message_command_work_on_enable: "通知メッセージの有効化作業中。"
 
+# ブロガーモジュール
+
+blogger_generateBlogsEmbed_embed_desc: "設定されたRSSフィード一覧:\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 RSSブログ設定"
+blogger_generateConfigurationEmbed_embed_title: "📰 ブロガー設定"
+blogger_no_rss: "設定されたRSSフィードがありません。"
+blogger_generateConfigurationEmbed_embed_fields_1_name: "ステータス"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "合計ブログ数"
+blogger_unknown_blog: "不明なブログ"
+blogger_on_new_article_default_message: "📰 新しい記事が公開されました！\n**{articleTitle}**（{articleAuthor} 著）\n{articleLink}"
+blogger_config_status_enabled: "✅ ブロガーモジュールが**有効化**されました。RSSフィードが監視されます。"
+blogger_config_status_disabled: "❌ ブロガーモジュールが**無効化**されました。RSSフィードは監視されません。"
+blogger_read_article: "記事を読む"
+blogger_blog_add_invalid_channel: "無効なチャンネルタイプです。テキストチャンネルを選択してください。"
+blogger_blog_add_success: "✅ RSSフィード **${validation.name}** が追加されました！通知は ${channel.toString()} に送信されます（ID: `${blogId}`）"
+blogger_blog_add_invalid_rss: "❌ 指定されたRSSフィードは無効またはアクセスできません。URLを確認して再試行してください。"
+blogger_blog_remove_success: "✅ ID `${blogId}` のRSSフィードを削除しました。"
+blogger_blog_remove_not_found: "❌ このIDのRSSフィードが見つかりません。"
+
 # AuthRestore モジュール
 # ロール、設定、削除、取得、強制参加
 
@@ -2446,6 +2523,7 @@ batch_massiverole_process: "🔄 ${membersToProcess.length}人のメンバーに
 batch_unmassiverole_process: "🔄 ${membersToProcess.length}人のメンバーからロールを削除中..."
 batch_undo_unban: "🔄 ${unbanned_members.length}人のメンバーを再BAN解除中..."
 batch_derank_process: "🔄 ${rolesToRemove.length}人のロールを${member.user.username}から削除中..."
+unbanall_undo_command_err: "再度BANするメンバーがいません。まずは全員のBAN解除コマンドを使用してください。"
 
 # -----------------------------/ \-----------------------------
 # 告白モジュールイベント
@@ -2757,3 +2835,12 @@ new_guild_embed_desc: "## ${randomMessage}\nこんにちは、素晴らしい友
 confession_embed_logs_title: "新しい告白"
 confession_channel_button_name: "匿名で返信"
 confession_1_embed_log_title: "告白への新しい返信"
+
+# Context Menu Interaction
+global_unknown_message: "メッセージが見つかりません。"
+global_error: "❌ エラー"
+global_not_atc: "選択したメッセージには添付ファイルがありません。"
+global_not_valid_atc: "選択した添付ファイルは有効な音声ファイルではありません。"
+global_too_heavy_file: "生成された MP4 ファイルが大きすぎます (${fileSizeMB.toFixed(2)} MB)。Discord の上限は 25 MB です。"
+global_convert_ok: "✅ 変換成功"
+global_convert_ok_desc: "音声ファイルが MP4 に変換されました (${fileSizeMB.toFixed(2)} MB)。"

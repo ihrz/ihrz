@@ -55,7 +55,7 @@ export const subCommand: SubCommand = {
 		await client.db.set(`${interaction.guildId}.ECONOMY.settings.${type}.amount`, money);
 
 		await client.func.method.interactionSend(interaction, {
-			content: `Successfully set the money for ${type} to ${money}`
+			content: lang.economy_manage_rewards_set_money.replace("${type}", type).replace("${money}", money.toString())
 		});
 	},
 };

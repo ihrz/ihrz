@@ -27,7 +27,8 @@ enum LogLevel {
 	LOG = 'LOG',
 	WARN = 'WRN',
 	ERROR = 'ERR',
-	LEGACY = 'LEG'
+	LEGACY = 'LEG',
+	DEBUG = 'DEBUG'
 }
 
 function getCurrentTime(): string {
@@ -72,6 +73,8 @@ function applyColorToPrefix(prefix: string, level: LogLevel): string {
 			return prefix.red;
 		case LogLevel.LEGACY:
 			return prefix.cyan;
+		case LogLevel.DEBUG:
+			return prefix.gray;
 		default:
 			return prefix;
 	}
@@ -98,6 +101,15 @@ const logger: Logger = {
 	},
 
 	legacy(message: any, ...optionalParams: any[]): void {
+		if (optionalParams.length > 0) {
+			_(message, ...optionalParams);
+		} else {
+			_(message);
+		}
+	},
+
+	debug(message: any, ...optionalParams: any[]): void {
+		if (!client.config.core.devMode) return;
 		if (optionalParams.length > 0) {
 			_(message, ...optionalParams);
 		} else {

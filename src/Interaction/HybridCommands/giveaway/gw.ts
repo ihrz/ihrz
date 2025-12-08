@@ -87,18 +87,22 @@ export const command: Command = {
 					choices: [
 						{
 							name: "None",
+							name_localizations: { fr: 'Aucun' },
 							value: "none"
 						},
 						{
 							name: "Need Specific invitations amount",
+							name_localizations: { fr: 'Besoin d\'un nombre spécifique d\'invitations' },
 							value: "invites"
 						},
 						{
 							name: "Need specific messages number",
+							name_localizations: { fr: 'Besoin d\'un nombre spécifique de messages' },
 							value: "messages"
 						},
 						{
 							name: "Need specific roles",
+							name_localizations: { fr: 'Besoin de rôles spécifiques' },
 							value: "roles"
 						}
 					],
@@ -114,7 +118,7 @@ export const command: Command = {
 
 					description: 'The giveaway\'s prize',
 					description_localizations: {
-						"fr": "Le prix du cadeau"
+						"fr": "Le prix du giveaway"
 					},
 
 					required: true,
@@ -127,7 +131,7 @@ export const command: Command = {
 
 					description: 'The requirement value',
 					description_localizations: {
-						"fr": "La valeur du prérequis pour entrer dans le giveaways"
+						"fr": "La valeur du prérequis pour entrer dans le giveaway"
 					},
 
 					required: false,

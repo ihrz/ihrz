@@ -195,7 +195,7 @@ export const event: BotEvent = {
 	run: async (client: Client, message: Message) => {
 		if (!message.guild || message.author.bot || !message.channel) return;
 
-		if (await client.func.helper.coolDown(message, "msg_commands", 1000)) {
+		if (await client.func.helper.cooldown(message.author.id, "msg_commands", 1000)) {
 			return;
 		}
 

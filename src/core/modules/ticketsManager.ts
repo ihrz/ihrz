@@ -49,6 +49,7 @@ import {
 	MessageActionRowComponentData,
 	TopLevelComponentData,
 	Message,
+	MessageFlags,
 } from 'discord.js';
 
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
@@ -777,6 +778,8 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 		});
 	}
 
+	await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.Discord_Loading, flags: MessageFlags.Ephemeral });
+
 	await interaction.guild?.channels.create({
 		name: `ticket-${interaction.user.username}`,
 		type: ChannelType.GuildText,
@@ -814,7 +817,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 				flags: [1 << 6]
 			});
 		} else {
-			await interaction.reply({
+			await interaction.editReply({
 				content: lang.event_ticket_whenCreated_msg
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${channel.id}', channel.id),

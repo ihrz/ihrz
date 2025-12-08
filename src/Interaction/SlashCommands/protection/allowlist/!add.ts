@@ -55,17 +55,17 @@ export const subCommand: SubCommand = {
 		};
 
 		if (!member) {
-			await interaction.reply({ content: lang.allowlist_add_member_unreachable });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_add_member_unreachable });
 			return;
 		};
 
 		if (baseData?.list?.[member.user.id]?.allowed == true) {
-			await interaction.reply({ content: lang.allowlist_add_already_in });
+			await client.func.method.interactionSend(interaction, { content: lang.allowlist_add_already_in });
 			return;
 		};
 
 		await client.db.set(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`, { allowed: true });
-		await interaction.reply({
+		await client.func.method.interactionSend(interaction, {
 			content: lang.allowlist_add_command_work
 				.replace('${member.user}', member.user.toString())
 		});

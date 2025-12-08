@@ -53,6 +53,7 @@ export const event: BotEvent = {
 					{ name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
 					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
 					{ name: "🥛・New members total", value: `${stats.users} members`, inline: true },
+					{ name: "💠・Shard", value: `#${client.shard?.ids[0]}`, inline: true }
 				)
 				.setThumbnail(guild.iconURL())
 				.setTimestamp(guild.joinedTimestamp)

@@ -22,6 +22,7 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
+	Message,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../../types/languageData.js';
@@ -29,15 +30,20 @@ import { SubCommand } from '../../../../../types/command.js';
 import { axios } from '../../../../core/functions/axios.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
 
-		const action = interaction.options.getString("action");
-		const banner = interaction.options.getAttachment("banner")!;
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var action = interaction.options.getString("action");
+			var banner = interaction.options.getAttachment("banner")!;
+		} else {
+			var action = client.func.method.string(args!, 0);
+			var banner = interaction.attachments.first()!;
+		}
 
 		if (action === "reset") {
-			await interaction.editReply({ content: lang.custom_banner_reset });
+			await client.func.method.interactionSend(interaction, { content: lang.custom_banner_reset });
 
 			return;
 		} else if (banner && client.func.validImageType(banner.contentType)) {
@@ -48,7 +54,7 @@ export const subCommand: SubCommand = {
 
 			const x = interaction.guild.members.me?.bannerURL({ size: 4096 });
 
-			await interaction.editReply({
+			await client.func.method.interactionSend(interaction, {
 				content: lang.custom_banner_set
 					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
 					.replace("${client.iHorizon_Emojis.Crown}", client.iHorizon_Emojis.Crown)
@@ -56,7 +62,7 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		} else {
-			await interaction.editReply({ content: lang.guildconfig_setbot_footeravatar_incorect });
+			await client.func.method.interactionSend(interaction, { content: lang.guildconfig_setbot_footeravatar_incorect });
 			return;
 		}
 	},

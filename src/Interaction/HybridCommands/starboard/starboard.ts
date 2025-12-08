@@ -67,10 +67,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Power On",
+							name_localizations: { fr: 'Activer' },
 							value: "on"
 						},
 						{
 							name: "Power Off",
+							name_localizations: { fr: 'Désactiver' },
 							value: "off"
 						}
 					],
@@ -164,8 +166,8 @@ export const command: Command = {
 					},
 
 					choices: [
-						{ name: "Create thread", value: "yes" },
-						{ name: "Don't create thread", value: "no" }
+						{ name: "Create thread", name_localizations: { fr: 'Créer un fil' }, value: "yes" },
+						{ name: "Don't create thread", name_localizations: { fr: 'Ne pas créer un fil' }, value: "no" }
 					],
 
 					type: ApplicationCommandOptionType.String,

@@ -53,13 +53,13 @@ export const subCommand: SubCommand = {
 				if (existingRoleId) {
 					const roleExists = await interaction.guild!.roles.fetch(existingRoleId).catch(() => null);
 					if (roleExists) {
-						updatedRoles[permLevel as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8] = existingRoleId;
+						updatedRoles[permLevel as DatabaseStructure.PermLevel] = existingRoleId;
 						continue;
 					}
 				}
 
 				const newRole = await interaction.guild!.roles.create({ name: permissionsRole[i] });
-				updatedRoles[permLevel as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8] = newRole.id;
+				updatedRoles[permLevel as DatabaseStructure.PermLevel] = newRole.id;
 				createdRoles.push(permissionsRole[i]);
 			}
 

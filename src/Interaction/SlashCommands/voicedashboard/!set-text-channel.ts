@@ -42,7 +42,7 @@ export const subCommand: SubCommand = {
 
 		const embed = new EmbedBuilder()
 			.setColor(2829617)
-			.setImage(`https://ihorizon.org/assets/img/banner/ihrz_${await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || 'fr-FR'}.png`)
+			.setImage(await client.func.bannerGenerator(interaction.guild.id))
 			.setDescription(
 				lang.tempvoice_if_text_desc_embed
 			)

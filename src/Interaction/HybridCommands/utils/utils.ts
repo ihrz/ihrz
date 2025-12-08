@@ -86,10 +86,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Large",
+							name_localizations: { fr: 'Complet' },
 							value: "large"
 						},
 						{
 							name: "Short",
+							name_localizations: { fr: 'Court' },
 							value: "short"
 						}
 					],
@@ -222,8 +224,8 @@ export const command: Command = {
 					},
 
 					choices: [
-						{ name: "Yes", value: "yes" },
-						{ name: "No", value: "no" }
+						{ name: "Yes", name_localizations: { fr: 'Oui' }, value: "yes" },
+						{ name: "No", name_localizations: { fr: 'Non' }, value: "no" }
 					],
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -314,10 +316,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Power Off",
+							name_localizations: { fr: 'Désactiver' },
 							value: "off"
 						},
 						{
 							name: 'Power On',
+							name_localizations: { fr: 'Activer' },
 							value: "on"
 						}
 					],
@@ -420,10 +424,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: 'Add',
+							name_localizations: { fr: 'Ajouter' },
 							value: 'add'
 						},
 						{
 							name: 'Remove',
+							name_localizations: { fr: 'Supprimer' },
 							value: 'sub'
 						}
 					],
@@ -531,10 +537,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Add",
+							name_localizations: { fr: 'Ajouter' },
 							value: "add"
 						},
 						{
 							name: 'Remove',
+							name_localizations: { fr: 'Supprimer' },
 							value: "sub"
 						}
 					],
@@ -583,7 +591,7 @@ export const command: Command = {
 				"fr": "Ajoutez facilement des emojis à votre serveur"
 			},
 
-			aliases: ["addemoji", "create", "addemojis", "emoji"],
+			aliases: ["addemoji", "create", "addemojis", "emoji", "emote"],
 
 			options: [
 				{

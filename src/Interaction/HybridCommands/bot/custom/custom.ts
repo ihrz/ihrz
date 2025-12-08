@@ -57,10 +57,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Bot Name",
+							name_localizations: { fr: 'Nom du bot' },
 							value: "reset"
 						},
 						{
 							name: "Set one",
+							name_localizations: { fr: 'Définir un nom' },
 							value: "set"
 						}
 					],
@@ -90,6 +92,7 @@ export const command: Command = {
 		},
 		{
 			name: 'avatar',
+			prefixName: "botavatar",
 
 			description: 'Set the bot avatar into your server',
 			description_localizations: {
@@ -108,10 +111,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Bot Avatar",
+							name_localizations: { fr: 'Avatar du bot' },
 							value: "reset"
 						},
 						{
 							name: "Set one",
+							name_localizations: { fr: 'Définir un avatar' },
 							value: "set"
 						}
 					],
@@ -159,10 +164,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Default Bot Banner",
+							name_localizations: { fr: 'Bannière du bot par défaut' },
 							value: "reset"
 						},
 						{
 							name: "Set one",
+							name_localizations: { fr: 'Définir une bannière' },
 							value: "set"
 						}
 					],
@@ -209,10 +216,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Default Bot Description",
+							name_localizations: { fr: 'Description du bot par défaut' },
 							value: "reset"
 						},
 						{
 							name: "Set one",
+							name_localizations: { fr: 'Définir une description' },
 							value: "set"
 						}
 					],

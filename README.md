@@ -220,11 +220,11 @@ npm install ihrz
   </td>
 
   <td align="center" width="33%">
-    <img src="https://github.com/ImShizue.png" width="100px" style="border-radius:50%"/><br/>
-    <b>Shizue</b><br/>
+    <img src="https://github.com/neigeuses.png" width="100px" style="border-radius:50%"/><br/>
+    <b>Neigeuses</b><br/>
     <i>#2 Contributor</i><br/>
     <sub>She/Her</sub><br/>
-    <a href="https://github.com/ImShizue">GitHub</a>
+    <a href="https://github.com/neigeuses">GitHub</a>
   </td>
 
   <td align="center" width="33%">
@@ -281,7 +281,7 @@ iHorizon is distributed under **[CC BY-NC-SA 4.0](https://creativecommons.org/li
 ### ❌ **Restrictions**
 
 ❌ **Attribution**: You must credit the work and indicate changes  
-❌ **Non-Commercial Use**: No commercial use without permission  
+❌ **Non-Commercial Use**: No commercial use  
 ❌ **Share Alike**: Modifications must retain the same license  
 ❌ **No Additional Restrictions**: No additional legal or technological restrictions
 

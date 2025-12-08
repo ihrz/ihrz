@@ -576,6 +576,111 @@ export const command: Command = {
 			aliases: ["clearallwarns", "clearallwarn", "clearsanctionsall", "clearsanctionall"],
 
 			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: "temprole",
+
+			description: "Give a role temporary to a server member",
+			description_localizations: {
+				"fr": "Donner un rôle temporairement à un membre de votre serveur discord"
+			},
+
+			options: [
+				{
+					name: "member",
+
+					description: "The member you want to add the role",
+					description_localizations: {
+						"fr": "Le membre qui recevras le rôle"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.User,
+					required: true
+				},
+				{
+					name: "role",
+
+					description: "The role you want to add to the member",
+					description_localizations: {
+						"fr": "Le rôle que recevras le membre"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Role,
+					required: true
+				},
+				{
+					name: "time",
+
+					description: "The time the member will keep the role",
+					description_localizations: {
+						"fr": "Le temps que le membre auras ce rôle"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.String,
+					required: true
+				},
+				{
+					name: "reason",
+
+					description: "The reason why you added this role",
+					description_localizations: {
+						"fr": "La raison de l'ajout du rôle"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.String,
+					required: false
+				},
+			],
+			type: ApplicationCommandOptionType.Subcommand,
+
+			aliases: ["addtemprole", "temporaryrole", "temproles"],
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: "tempban",
+			description: "Temporarily ban a user from the server",
+			description_localizations: {
+				"fr": "Bannir temporairement un utilisateur du serveur"
+			},
+			options: [
+				{
+					name: "user",
+					description: "The user you want to temporarily ban",
+					description_localizations: {
+						"fr": "L'utilisateur que vous voulez bannir temporairement"
+					},
+					permission: null,
+					type: ApplicationCommandOptionType.User,
+					required: true
+				},
+				{
+					name: "duration",
+					description: "The duration of the ban (e.g., 1h, 3d, 1w)",
+					description_localizations: {
+						"fr": "La durée du bannissement (ex: 1h, 3j, 1s)"
+					},
+					permission: null,
+					type: ApplicationCommandOptionType.String,
+					required: true
+				},
+				{
+					name: "reason",
+					description: "The reason for the ban",
+					description_localizations: {
+						"fr": "La raison du bannissement"
+					},
+					permission: null,
+					type: ApplicationCommandOptionType.String,
+					required: false
+				},
+			],
+			type: ApplicationCommandOptionType.Subcommand,
+			aliases: ["tban", "temporaryban"],
+			permission: PermissionFlagsBits.BanMembers
 		}
 	],
 	thinking: true,

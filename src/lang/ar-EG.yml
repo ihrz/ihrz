@@ -82,6 +82,7 @@ var_preview: "معاينة"
 var_form: "نموذج"
 var_original_message: "الرسالة الأصلية"
 var_click_here: "انقر هنا"
+var_s_message: "رسالة {nickname}"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "إنشاء دعوة فورية"
@@ -591,6 +592,8 @@ help_tags_fields: "العلامات المخصصة"
 help_tags_dsc: "> *قم بإنشاء رسائل علامات لخادمك واستخدمها في خادمك!*"
 help_starboard_dsc: "> *عرض أكثر الرسائل حصولاً على نجوم في خادم الديسكورد.*"
 help_starboard_fields: "لوحة النجوم"
+help_blogger_dsc: "تابع موجزات RSS المفضلة لديك وتلقَّ الإشعارات عند نشر مقالات جديدة عبر iHorizon"
+help_blogger_fields: "المدونة"
 
 # /h
 h_suite: "(تتمة)"
@@ -726,6 +729,9 @@ fun_random_embed_title: "🔢 رقم عشوائي"
 fun_random_result_text: "الرقم المولد هو:"
 fun_random_between: "بين"
 
+# +transgender
+fun_trans_command_ok: "المستخدم ${user} هو **${random}%** متحول جنسيًا 🏳️‍⚧️"
+
 # Economy commands
 # /addmoney, /balance, /daily, /monthly, /pay, /removemoney, /rob, /weekly, /work
 
@@ -834,6 +840,18 @@ economy_shop_unknown_role: "دور غير معروف"
 economy_shop_not_set: "لا توجد أدوار متاحة للشراء في هذا الخادم. يرجى الاتصال بمسؤول الخادم للحصول على مزيد من المعلومات."
 economy_shop_already_owned: "تمتلكه بالفعل"
 economy_shop_menu_placeholder: "اختر دورًا للشراء"
+
+# /economy manage-rewards set-cooldown
+economy_manage_rewards_cooldown_invalid_time: "صيغة الوقت غير صالحة. يرجى استخدام صيغة وقت صحيحة."
+economy_manage_rewards_cooldown_command_ok: "تم تعيين وقت الانتظار لـ ${type} إلى ${stime} بنجاح."
+
+# /economy mange-rewards set-money
+economy_manage_rewards_set_money: "تم تعيين المال لـ ${type} إلى ${money} بنجاح."
+
+# /economy role list
+economy_role_list_no_buyable_roles: "لا توجد رتب قابلة للشراء لعرضها."
+economy_role_list_embed_title: "نظام الاقتصاد - الرتب القابلة للشراء"
+economy_role_list_embed_desc: "جميع الرتب القابلة للشراء مذكورة أدناه."
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
@@ -986,13 +1004,13 @@ action_unban_all_no_banned_members: "لا يوجد أعضاء محظورين."
 action_unban_undo_embed_desc: "## التراجع عن إلغاء الحظر لجميع الأعضاء\n${client.iHorizon_Emojis.Yes} | لقد قمت بنجاح بحظر `${banned_members.length}` عضو(s) في الخادم!\n${client.iHorizon_Emojis.No} | لا يمكنني حظر `${cannot_ban}` عضو(s)!"
 
 # /vc
-vc_embed_desc: "## حالات الصوت\n`${voiceStates?.size}` عضو/أعضاء في القناة الصوتية :\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## حالات الأعضاء\n`${membersStates?.size}` عضو/أعضاء في الخادم :\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## حالات التعزيز\n`${interaction.guild?.premiumSubscriptionCount}` تعزيز/تعزيزات في الخادم،\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
+vc_embed_desc: "## حالات الصوت\n`${voiceStates?.size}` عضو/أعضاء في القناة الصوتية :\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## حالات الأعضاء\n`${membersStates?.size}` عضو/أعضاء في الخادم :\n${client.iHorizon_Emojis.DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## حالات التعزيز\n`${interaction.guild?.premiumSubscriptionCount}` تعزيز/تعزيزات في الخادم،\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
 
 vc_embed_fields_1_name: "・عدد الأعضاء"
 vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} أعضاء```"
 vc_embed_fields_2_name: "・عدد القنوات"
 vc_embed_fields_2_value: "```py\n${textChannelSize} قناة نصية\n${voiceChannelSize} قناة صوتية```"
-vc_embed_short_desc: "## حالات الصوت\n`${voiceStates?.size}` عضو/أعضاء في قناة صوتية:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## حالات الأعضاء\n`${total_members_size}` عضو/أعضاء في الخادم:\n${client.iHorizon_Emojis.iHorizon_DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.iHorizon_Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.iHorizon_Idle} **=>** ${total_members_states_idle}"
+vc_embed_short_desc: "## حالات الصوت\n`${voiceStates?.size}` عضو/أعضاء في قناة صوتية:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## حالات الأعضاء\n`${total_members_size}` عضو/أعضاء في الخادم:\n${client.iHorizon_Emojis.DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}, لقد قامت iHorizon بنقل الأعضاء بين القنوات الصوتية.\n\n**${movedCount}** عضو/أعضاء تم نقلهم بنجاح من ${fromChannel} إلى ${toChannel}.\n**${errorCount}** عضو/أعضاء لم يمكن نقلهم (راجع سجلات الخادم للحصول على التفاصيل)."
@@ -1090,6 +1108,10 @@ util_leash_confirm_message: "${client.iHorizon_Emojis.No} | العضو الذي 
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | تم إلغاء إعدادات المقود"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | لقد نجحت في ربط المستخدم بالمقود في هذا الخادم :smirk:"
 
+# /util unleash
+util_unleash_not_in_leash: "${client.iHorizon_Emojis.No} | هذا المستخدم ليس مربوطاً لديك!"
+util_unleash_command_ok: "${client.iHorizon_Emojis.Yes} | لقد قمت بتحرير هذا المستخدم بنجاح في هذا السيرفر :)"
+
 # /util autorenew
 util_autorenew_time_too_short: "يجب أن يكون الوقت بين تجديد القناة أكثر من دقيقة واحدة"
 util_autorenew_time_too_long: "يجب أن تكون الفترة الزمنية بين تجديد الصالون أقل من 30 يوماً"
@@ -1156,6 +1178,11 @@ util_cooldown_command_ok: "تم تغيير وضع البطء في القناة �
 # /util role-members
 util_role_members: "قائمة المستخدمين الذين لديهم الأدوار"
 util_role_members_no_one: "لا يوجد أي شخص لديه هذا الدور في الخادم"
+
+# /util vanity-generator
+util_vanity_generator_invalid_code: "رمز URL Vanity `${VanityCode}` غير صالح. يجب أن تكون السلسلة أبجدية رقمية ويمكن أن تحتوي على شرطات بين الكلمات. الحد الأقصى للطول هو 32 حرفًا. لا يمكن أن تكون الشرطات في بداية أو نهاية السلسلة."
+util_vanity_generator_already_claimed: "رمز URL Vanity هذا مُستخدم بالفعل! اختر رمزًا آخر."
+util_vanity_generator_command_err: "حدث خطأ أثناء إنشاء رمز vanity. يرجى المحاولة مرة أخرى لاحقًا."
 
 # +top
 utils_top_no_message: "لا توجد رسائل في هذه القناة"
@@ -1603,6 +1630,8 @@ shuffle_command_work: "قمت بـ **خلط** قائمة التشغيل"
 history_no_entries: "لا توجد إدخالات في هذه المسابقة."
 history_embed_title: "${interaction.guild?.name} تاريخ الموسيقى | الصفحة ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | الصفحة ${currentPage + 1}/${pages.length}"
+history_delete_embed_title: "✅ تم حذف السجل"
+history_delete_embed_desc: "تم حذف سجل الموسيقى بنجاح."
 
 # /music lyrics
 lyrics_embed_title_unknown: "العنوان غير معروف"
@@ -1698,6 +1727,7 @@ clear_channel_message_deleted: "${messages.size} رسالة تم حذفها!"
 clear_confirmation_message: "${messages.size} رسالة تم حذفها!"
 clear_logs_embed_title: "سجلات حذف الرسائل"
 clear_logs_embed_description: "<@${interaction.user.id}> حذف ${messages.size} رسالة في <#${interaction.channel.id}>"
+clear_command_no_message: "لا توجد رسائل لحذفها في هذه القناة"
 
 # /lock
 lock_embed_message_description: "تم قفل القناة بواسطة <@${interaction.user.id}>."
@@ -1740,6 +1770,19 @@ tempmute_reason_create_roles: "إنشاء دور مؤقت للميوت!"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | المستخدم لديه صلاحيات المسؤول، لا أستطيع كتمه."
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **دوري في هذا الخادم أقل أو مساوٍ لـ ${tomute.toString()}. لا أستطيع معاقبة هذا العضو.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} لدى ديسكورد حد أقصى قدره 14 يومًا للكتم. لقد قمت بتطبيق 14 يومًا."
+
+# /temprole
+temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك الإذن لإضافة أدوار مؤقتة للأعضاء."
+temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لدي الإذن."
+temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | لا يمكنك إضافة دور مؤقت لنفسك!"
+temprole_already_has_role: "هذا المستخدم لديه هذا الدور المؤقت بالفعل!"
+temprole_command_work: "<@${tomute.id}> تم منحه الدور لمدة ${ms(ms(mutetime))}\n**السبب**: `${reason}`"
+temprole_removed_by_time: "تمت إزالة الدور المؤقت من <@${tomute.id}>!"
+temprole_logs_embed_title: "سجل الأدوار المؤقتة"
+temprole_logs_embed_description: "<@${interaction.user.id}> أضاف دوراً مؤقتاً لـ <@${tomute.id}> لمدة ${ms(ms(mutetime))}\n**السبب**: `${reason}`"
+temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | هذا المستخدم لديه صلاحيات المدير، لا يمكنني إضافة دور مؤقت له."
+temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **دوري في هذا الخادم أقل أو مساوٍ لـ ${tomute.toString()}. لا يمكنني إدارة هذا العضو.**"
+temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} الحد الأقصى لمدة الدور المؤقت هو سنة واحدة. لقد طبقت سنة كاملة."
 
 # /unmute
 unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لرفع الميوت."
@@ -1784,6 +1827,20 @@ var_ban_date: "تاريخ الحظر"
 
 # /مسح_التحذيرات
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, تم مسح **`${allWarns.length}`** تحذير(ات) من ${member?.toString()}"
+
+# /tempban
+tempban_dont_have_permission: "ليس لديك صلاحية لحظر الأعضاء مؤقتًا."
+tempban_i_dont_have_permission: "ليس لدي صلاحية لحظر الأعضاء."
+tempban_cannot_ban_yourself: "لا يمكنك حظر نفسك!"
+tempban_already_banned: "هذا المستخدم محظور مؤقتًا بالفعل!"
+tempban_command_work: "**<@${user.id}>** تم حظره مؤقتًا لمدة **${duration}**\n**السبب**: `${reason}`"
+tempban_unbanned_by_time: "**<@${user.id}>** تم رفع الحظر عنه!"
+tempban_logs_embed_title: "سجلات الحظر المؤقت"
+tempban_logs_embed_description: "**<@${executor.id}>** قام بحظر **<@${user.id}>** مؤقتًا لمدة **${duration}**\n**السبب**: `${reason}`"
+tempban_user_is_admin: "هذا المستخدم لديه صلاحيات المدير، لا يمكنني حظره."
+tempban_user_highest_role_or_same: "رتبتي في الخادم أقل أو مساوية لـ **user_mention**. لا يمكنني تنفيذ إجراء على هذا العضو."
+tempban_max_time_passed: "\n*الحد الأقصى للحظر المؤقت هو سنة واحدة. تم تطبيق سنة واحدة.*"
+tempban_user_not_in_guild: "هذا المستخدم ليس في الخادم لكنه ما زال قابلًا للحظر."
 
 # Backup commands
 # /backup
@@ -2230,6 +2287,7 @@ tag_use_command_work: "تم إرسال الوسم `${tag_name}`."
 
 # /tag edit
 tag_edit_error_perm: "لتعديل الوسم، تحتاج إلى الحصول على أذونات المدير أو أن تكون مالك الوسم."
+tag_edit_command_ok: "تم تعديل اسم الوسم الحالي من **`${current_tag_name}`** إلى **`${new_tag_name}`**"
 
 # TempVoice Module
 # /text, /voice, /status, /staff
@@ -2382,6 +2440,25 @@ notifier_config_message_embed_fields_notifyMessage: "رسالة التنبيه"
 notifier_config_message_awaiting_response: "اكتب رسالة التنبيه."
 notifier_config_message_command_work_on_enable: "تمكين العمل على رسالة التنبيه."
 
+# وحدة المدونة
+
+blogger_generateBlogsEmbed_embed_desc: "قائمة موجزات RSS المكوّنة:\n\n"
+blogger_generateBlogsEmbed_embed_title: "📰 إعدادات مدونات RSS"
+blogger_generateConfigurationEmbed_embed_title: "📰 إعدادات المدونة"
+blogger_no_rss: "لم يتم تكوين أي موجز RSS."
+blogger_generateConfigurationEmbed_embed_fields_1_name: "الحالة"
+blogger_generateConfigurationEmbed_embed_fields_2_name: "إجمالي المدونات"
+blogger_unknown_blog: "مدونة غير معروفة"
+blogger_on_new_article_default_message: "📰 تم نشر مقال جديد!\n**{articleTitle}** بواسطة {articleAuthor}\n{articleLink}"
+blogger_config_status_enabled: "✅ تم **تفعيل** وحدة المدونة. سيتم مراقبة موجزات RSS."
+blogger_config_status_disabled: "❌ تم **تعطيل** وحدة المدونة. لن يتم مراقبة موجزات RSS."
+blogger_read_article: "اقرأ المقال"
+blogger_blog_add_invalid_channel: "نوع القناة غير صالح. يرجى اختيار قناة نصية."
+blogger_blog_add_success: "✅ تم إضافة موجز RSS **${validation.name}**! سيتم إرسال الإشعارات إلى ${channel.toString()} (المعرف: `${blogId}`)"
+blogger_blog_add_invalid_rss: "❌ موجز RSS المقدم غير صالح أو غير قابل للوصول. يرجى التحقق من الرابط والمحاولة مرة أخرى."
+blogger_blog_remove_success: "✅ تم إزالة موجز RSS بالمعرف `${blogId}`."
+blogger_blog_remove_not_found: "❌ لم يتم العثور على موجز RSS بهذا المعرف."
+
 # وحدة AuthRestore
 # دور، إعداد، حذف، الحصول على، الانضمام القسري
 
@@ -2446,6 +2523,7 @@ batch_massiverole_process: "🔄 جاري إضافة دور لـ ${membersToProc
 batch_unmassiverole_process: "🔄 جاري إزالة دور من ${membersToProcess.length} عضو..."
 batch_undo_unban: "🔄 جاري إعادة إلغاء حظر ${unbanned_members.length} عضو..."
 batch_derank_process: "🔄 إزالة ${rolesToRemove.length} من ${member.user.username}..."
+unbanall_undo_command_err: "لا يوجد أعضاء لإعادة حظرهم. استخدم أمر إلغاء الحظر للجميع أولاً."
 
 # -----------------------------/ \-----------------------------
 # Confession Module Events
@@ -2750,3 +2828,12 @@ new_guild_embed_desc: "## ${randomMessage}\n!مرحباً بكم، أصدقائ�
 confession_embed_logs_title: "اعتراف جديد"
 confession_channel_button_name: "الرد بشكل مجهول"
 confession_1_embed_log_title: "رد جديد على الاعتراف"
+
+# Context Menu Interaction
+global_unknown_message: "الرسالة غير موجودة."
+global_error: "❌ خطأ"
+global_not_atc: "الرسالة المحددة لا تحتوي على مرفق."
+global_not_valid_atc: "المرفق المحدد ليس ملفًا صوتيًا صالحًا."
+global_too_heavy_file: "ملف MP4 المُولّد كبير جدًا (${fileSizeMB.toFixed(2)} MB). حدّ Discord هو 25 MB."
+global_convert_ok: "✅ تم التحويل بنجاح"
+global_convert_ok_desc: "تم تحويل ملفك الصوتي إلى MP4 (${fileSizeMB.toFixed(2)} MB)."

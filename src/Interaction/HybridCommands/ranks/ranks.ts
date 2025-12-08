@@ -78,14 +78,17 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Power On the module (send message when user earn xp level)",
+							name_localizations: { fr: 'Activer le module (envoyer un message lorsque l\'utilisateur gagne un niveau XP)' },
 							value: "on",
 						},
 						{
 							name: "Power Off the module (don't send any message but user still earn xp level)",
+							name_localizations: { fr: 'Désactiver le module (ne pas envoyer de message mais l\'utilisateur gagne toujours un niveau XP)' },
 							value: "off",
 						},
 						{
 							name: "Disable the module (don't send any message and user don't earn xp level)",
+							name_localizations: { fr: 'Désactiver le module (ne pas envoyer de message et l\'utilisateur ne gagne pas de niveau XP)' },
 							value: "disable",
 						},
 					],
@@ -202,10 +205,12 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Remove the module (send xp message on the user's message channel)",
+							name_localizations: { fr: 'Supprimer le module (envoyer un message XP sur le canal du message de l\'utilisateur)' },
 							value: "off",
 						},
 						{
 							name: "Power on the module (send xp message on a specific channel)",
+							name_localizations: { fr: 'Activer le module (envoyer un message XP sur un canal spécifique)' },
 							value: "on",
 						},
 					],
