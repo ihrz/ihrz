@@ -786,7 +786,7 @@ rob_him_dont_enought_error: ":x: ${user.user.username} cmec il a pas assez d'arg
 rob_embed_description: "<@${interaction.user.id}>, tu as volé <@${user.id}> et avez réussi à tu enfuir avec ${random} allez le frapper cbatard!"
 
 # /weekly
-weekly_cooldown_error: "Désolé, tu devez attendre **${time}** avant d'exécuter cette commande !"
+weekly_cooldown_error: "Désolé, tu dois attendre **${time}** avant d'exécuter cette commande !"
 weekly_embed_title: "Hebdomadaire"
 weekly_embed_description: "**Récompense Hebdomadaire**"
 weekly_embed_fields: "Collecté"
@@ -1958,7 +1958,7 @@ punishpub_logs_embed_title_disable: "Journaux de PunishPub"
 punishpub_logs_embed_description_disable: "<@${interaction.user.id}> a désactivé PunishPUB !"
 
 # /report
-report_cooldown_command: "Désolé, tu devez attendre **${time}** avant d'exécuter cette commande !"
+report_cooldown_command: "Désolé, tu dois attendre **${time}** avant d'exécuter cette commande !"
 report_owner_need: ":x: | **Faut etre le chef du serv pour faire ça !**"
 report_specify: "Precise le bug sinon jpeu pas lcomprendre!"
 report_command_work: "Merci d'avoir signalé lbug frerot mais tu t'es pris pour kisakay ?"
