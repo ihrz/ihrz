@@ -26,6 +26,7 @@ import { BotEvent } from '../../../types/event.js';
 import { Option } from '../../../types/option.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 import { blacklistTable, ownerTable } from '../client/ready.js';
+import { loggerX } from '../logs/slashCommandLogger.js';
 
 type MessageCommandResponse = {
 	success: boolean,
@@ -240,6 +241,16 @@ export const event: BotEvent = {
 
 		try {
 			const lang = await client.func.getLanguageData(message.guildId);
+
+			loggerX.addCommand({
+				channelName: (message.channel as BaseGuildTextChannel).name,
+				command: message.content.trim(),
+				executorUsername: message.author.username,
+				guildName: message.guild.name,
+				guildId: message.guildId!,
+				timestamp: Date.now(),
+				channelId: message.channelId
+			});
 
 			if (result.subCommand) {
 				await executeCommand(message, result.subCommand as Command, result.args || [], lang);
