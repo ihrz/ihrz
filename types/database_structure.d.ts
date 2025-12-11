@@ -328,6 +328,7 @@ export namespace DatabaseStructure {
 	}
 
 	export type OwnerSchema = Record<string, { owner: boolean; }>;
+	export type BlacklistSchema = Record<string, { reason: string; }>;
 
 	export interface DbInId {
 		USER?: DbGuildUserObject;
@@ -352,6 +353,7 @@ export namespace DatabaseStructure {
 		STATS?: GuildStats;
 		BLOGGER: BloggerSchema;
 		OWNER: OwnerSchema;
+		BLACKLIST: BlacklistSchema;
 	}
 
 	export interface UtilsRoleData {
