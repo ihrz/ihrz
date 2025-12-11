@@ -347,7 +347,8 @@ export namespace DatabaseStructure {
 		VOICE_INTERFACE?: VoiceData;
 		UTILS?: UtilsData;
 		STATS?: GuildStats;
-		BLOGGER: BloggerSchema
+		BLOGGER: BloggerSchema;
+		OWNER: string[];
 	}
 
 	export interface UtilsRoleData {

@@ -78,7 +78,7 @@ export const command: Command = {
 			return;
 		};
 
-		await client.func.ownerHelper.removeOwner(member?.id!);
+		await client.func.ownerHelper.removeBotOwner(member?.id!);
 
 		await client.func.method.interactionSend(interaction, { content: lang.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
 		return;

@@ -102,7 +102,7 @@ export const command: Command = {
 			return;
 		};
 
-		await client.func.ownerHelper.addOwner(member.id);
+		await client.func.ownerHelper.addBotOwner(member.id);
 
 		await client.func.method.interactionSend(interaction, { content: lang.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
 		return;

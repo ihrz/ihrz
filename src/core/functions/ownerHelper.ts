@@ -22,8 +22,9 @@
 import { ownerTable } from "../../Events/client/ready.ts";
 import { Guild } from "discord.js";
 
-export function isGuildOwner(userId: string, guildId: string): boolean {
-	return false;
+export async function isGuildOwner(userId: string, guildId: string): Promise<boolean> {
+	const owners: string[] = await client.db.get(`${guildId}.OWNER`) || [];
+	return owners.includes(userId);
 }
 
 export async function isBotOwner(userId: string): Promise<boolean> {
@@ -48,10 +49,10 @@ export function getBotDev(): string[] {
 	return client.owners;
 }
 
-export async function removeOwner(userId: string): Promise<void> {
+export async function removeBotOwner(userId: string): Promise<void> {
 	await ownerTable.delete(userId)
 }
 
-export async function addOwner(userId: string): Promise<void> {
+export async function addBotOwner(userId: string): Promise<void> {
 	await ownerTable.set(userId, { owner: true })
 }
