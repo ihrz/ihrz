@@ -105,7 +105,7 @@ export const command: Command = {
 
 		const member = targetUser ? interaction.guild.members.cache.get(targetUser?.id) : null;
 
-		if (client.config.owner.ownerid1 === member?.id || client.config.owner.ownerid2 === member?.id) {
+		if (client.func.ownerHelper.isBotDev(member?.id!)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
 			return;
 		};

@@ -129,11 +129,9 @@ export async function main(client: Client) {
 		process.exit(0);
 	});
 
-	client.config.owner.owners?.forEach(owner => {
+	client.config.owners.users?.forEach(owner => {
 		if (isNumber(owner)) client.owners.push(owner);
 	});
-	if (isNumber(client.config.owner.ownerid1)) client.owners.push(client.config.owner.ownerid1);
-	if (isNumber(client.config.owner.ownerid2)) client.owners.push(client.config.owner.ownerid2)
 
 	const handlerPath = path.join(__dirname, '..', 'core', 'handlers');
 	const handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));

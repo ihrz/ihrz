@@ -84,7 +84,7 @@ export const command: Command = {
 			return;
 		};
 
-		if (client.config.owner.ownerid1 === user?.id || client.config.owner.ownerid2 === user?.id) {
+		if (client.func.ownerHelper.isBotDev(user.id)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
 			return;
 		};

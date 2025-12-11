@@ -29,7 +29,6 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
 import { isNumber } from '../../../core/functions/method.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { ownerTable } from '../../../Events/client/ready.js';
 import { AvailableLanguage } from '../../../core/functions/getLanguageData.js';
 
 
@@ -51,7 +50,7 @@ export const command: Command = {
 	category: "owner",
 	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
 
-		if (!await ownerTable.get(`${message.author.id}.owner`)) {
+		if (!client.func.ownerHelper.isBotOwner(message.author.id)) {
 			await client.func.method.interactionSend(message, { content: lang.blacklist_not_owner });
 			return;
 		};

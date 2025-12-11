@@ -236,9 +236,6 @@ export const event: BotEvent = {
 
 		const result = await parseMessageCommand(client, message);
 		if (!result.success) return;
-		if (result.command?.category === "owner" && (!client.owners.includes(message.author.id) || !(await ownerTable.get(`${message.author.id}.owner`)))) {
-			return;
-		}
 		if (await blacklistTable.get(`${message.author.id}.blacklisted`)) {
 			return;
 		}

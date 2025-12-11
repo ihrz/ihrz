@@ -63,7 +63,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
+		if (!(await client.func.ownerHelper.isBotOwner(interaction.member.user.id!))) {
 			await client.func.method.interactionSend(interaction, { content: lang.unowner_not_owner });
 			return;
 		};
@@ -74,7 +74,7 @@ export const command: Command = {
 			var member = await client.func.method.user(interaction, args!, 0);
 		};
 
-		if (client.config.owner.ownerid1 === member?.id || client.config.owner.ownerid2 === member?.id) {
+		if (client.func.ownerHelper.isBotDev(member?.id!)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
 			return;
 		};
