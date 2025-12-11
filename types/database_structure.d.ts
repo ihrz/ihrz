@@ -328,7 +328,7 @@ export namespace DatabaseStructure {
 	}
 
 	export type OwnerSchema = Record<string, { owner: boolean; }>;
-	export type BlacklistSchema = Record<string, { reason: string; }>;
+	export type BlacklistSchema = Record<string, { reason: string; createdAt: string; owner: string; blacklisted: boolean; }>;
 
 	export interface DbInId {
 		USER?: DbGuildUserObject;
