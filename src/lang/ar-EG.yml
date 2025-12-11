@@ -1965,6 +1965,9 @@ support_not_admin: ":x: | يجب أن تكون مشرفاً في هذا الخا
 support_command_work: "لقد قمت بإعداد وحدة الدعم لـ **${interaction.guild.name}**.\nعندما يكون لدى المستخدم في سيرتهم:\n**${input}**.\nيجب أن أعطيهم دور <@&${roles.id}>!"
 support_command_work_on_disable: "لقد قمت بإعداد وحدة الدعم لـ **${interaction.guild.name}**.\nلا أحد يمكنه الحصول على دور الآن!"
 support_command_not_role: ":x: | لم تقم بتحديد الدور!"
+support_command_not_type: ":x: | إنت ماحددتش نوع الدعم اللي عايزه في بروفايل المستخدم (bio = نبذة، مثال: رابط السيرفر؛ tag = تاج السيرفر)!"
+support_command_guild_not_have_tag: ":x: | السيرفر مافيهوش أي تاجات حالياً."
+support_command_work_2: "إنت ضبطت موديول الدعم لـ ${interaction.guild.name}.\nولما أي مستخدم يحط تاج السيرفر،\nهأدي له رول <@&${roles.id}>!"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | يجب أن تكون مشرفاً في هذا الخادم لطلب هذه الأوامر!"

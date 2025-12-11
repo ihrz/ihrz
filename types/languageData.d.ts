@@ -1493,6 +1493,9 @@ export interface LanguageData {
 	support_command_work: string;
 	support_command_work_on_disable: string;
 	support_command_not_role: string;
+	support_command_not_type: string;
+	support_command_guild_not_have_tag: string;
+	support_command_work_2: string;
 	setserverlang_not_admin: string;
 	setserverlang_logs_embed_title_on_enable: string;
 	setserverlang_logs_embed_description_on_enable: string;
