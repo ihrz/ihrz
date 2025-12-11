@@ -29,7 +29,6 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { ownerTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'unowner',
@@ -79,8 +78,7 @@ export const command: Command = {
 			return;
 		};
 
-		await ownerTable.delete(`${member?.id}`);
-		client.owners = client.owners.filter((id: string) => id !== member?.id);
+		await client.func.ownerHelper.removeOwner(member?.id!);
 
 		await client.func.method.interactionSend(interaction, { content: lang.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
 		return;

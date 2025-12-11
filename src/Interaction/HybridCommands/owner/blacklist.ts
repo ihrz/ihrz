@@ -37,7 +37,7 @@ import { format } from '../../../core/functions/date_and_time.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
-import { blacklistTable, ownerTable } from '../../../Events/client/ready.js';
+import { blacklistTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'blacklist',
@@ -88,7 +88,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
+		if (!client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
 			await client.func.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
 			return;
 		};

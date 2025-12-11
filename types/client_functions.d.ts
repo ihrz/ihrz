@@ -371,6 +371,8 @@ declare namespace Client_Functions {
 		export function getGuildOwner(guild: Guild): string;
 		export function getBotOwner(): Promise<Array<string>>;
 		export function getBotDev(): Array<string>;
+		export function removeOwner(userId: string): Promise<void>;
+		export function addOwner(userId: string): Promise<void>;
 	}
 
 	// From searchLyrics.ts

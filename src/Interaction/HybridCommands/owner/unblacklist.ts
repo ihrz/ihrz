@@ -30,7 +30,7 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { blacklistTable, ownerTable } from '../../../Events/client/ready.js';
+import { blacklistTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'unblacklist',
@@ -68,7 +68,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
+		if (!client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_owner });
 			return;
 		};

@@ -36,7 +36,7 @@ import { format } from '../../../core/functions/date_and_time.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { Command } from '../../../../types/command.js';
-import { blacklistTable, ownerTable } from '../../../Events/client/ready.js';
+import { blacklistTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'blinfo',
@@ -79,7 +79,7 @@ export const command: Command = {
 			var user = (await client.func.method.user(interaction, args!, 0))!;
 		};
 
-		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
+		if (!client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
 			await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
 			return;
 		};

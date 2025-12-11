@@ -30,7 +30,6 @@ import {
 
 import { Command } from '../../../../types/command.js';
 import { LanguageData } from '../../../../types/languageData.js';
-import { ownerTable } from '../../../Events/client/ready.js';
 
 export const command: Command = {
 	name: 'owner',
@@ -67,13 +66,13 @@ export const command: Command = {
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		let text = "";
-		const char = await ownerTable.all();
+		const char = await client.func.ownerHelper.getBotOwner();
 
 		for (const entry of char) {
-			text += `<@${entry.id}>\n`;
+			text += `<@${entry}>\n`;
 		}
 
-		if (!await ownerTable.get(`${interaction.member.user.id}.owner`)) {
+		if (!client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
 			await client.func.method.interactionSend(interaction, { content: lang.owner_not_owner });
 			return;
 		};
@@ -96,16 +95,14 @@ export const command: Command = {
 		};
 
 
-		const is_owner = await ownerTable.get(`${member.id}.owner`);
+		const is_owner = await client.func.ownerHelper.isBotOwner(member.id);
 
 		if (is_owner) {
 			await client.func.method.interactionSend(interaction, { content: lang.owner_already_owner });
 			return;
 		};
 
-		await ownerTable.set(`${member.id}`, { owner: true });
-		client.owners.push(member.id);
-		client.owners = [...new Set(client.owners)];
+		await client.func.ownerHelper.addOwner(member.id);
 
 		await client.func.method.interactionSend(interaction, { content: lang.owner_is_now_owner.replace(/\${member\.user\.username}/g, member.globalName || member.displayName) });
 		return;

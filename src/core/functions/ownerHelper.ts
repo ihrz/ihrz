@@ -47,3 +47,11 @@ export async function getBotOwner(): Promise<string[]> {
 export function getBotDev(): string[] {
 	return client.owners;
 }
+
+export async function removeOwner(userId: string): Promise<void> {
+	await ownerTable.delete(userId)
+}
+
+export async function addOwner(userId: string): Promise<void> {
+	await ownerTable.set(userId, { owner: true })
+}

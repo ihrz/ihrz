@@ -25,7 +25,7 @@ import { Command } from '../../../types/command.js';
 import { BotEvent } from '../../../types/event.js';
 import { Option } from '../../../types/option.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
-import { blacklistTable, ownerTable } from '../client/ready.js';
+import { blacklistTable } from '../client/ready.js';
 import { loggerX } from '../logs/slashCommandLogger.js';
 
 type MessageCommandResponse = {
