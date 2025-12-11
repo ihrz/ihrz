@@ -88,7 +88,7 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 
 	const embed = new EmbedBuilder()
 		.setColor("#2E2EFE")
-		.setAuthor({ name: "Owners" })
+		.setAuthor({ name: "Owners [Bot]" })
 		.setDescription(text)
 		.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
@@ -135,7 +135,7 @@ export async function run_for_guild_owner(client: Client, interaction: ChatInput
 
 	const embed = new EmbedBuilder()
 		.setColor("#2E2EFE")
-		.setAuthor({ name: "Owners" })
+		.setAuthor({ name: "Owners [Guild]" })
 		.setDescription(text)
 		.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
