@@ -1968,6 +1968,9 @@ support_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour u
 support_command_work: "Tu as configuré le module de support pour ${interaction.guild.name}.\nLorsqu'un utilisateur a ceci dans sa bio :\n**${input}**.\nJe devrais leur donner le rôle <@&${roles.id}> !"
 support_command_work_on_disable: "Tu as configuré le module de support pour ${interaction.guild.name}.\nPersonne ne peut maintenant avoir de rôle !"
 support_command_not_role: ":x: | Tu n'avez pas spécifié le rôle !"
+support_command_not_type: ":x: | Vous n'avez pas spécifié le type de soutien que vous voulez dans le profil des utilisateurs (bio=la bio. Ex: Lien du serveur; tag=le tag discord du serveur) !"
+support_command_guild_not_have_tag: ":x: | Le serveur n'a pas de tags actuel."
+support_command_work_2: "Vous avez configuré le module de support pour ${interaction.guild.name}.\nLorsqu'un utilisateur a met le tag du serveur.\nJe devrais lui donner le rôle <@&${roles.id}> !"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour utiliser cette commande !"

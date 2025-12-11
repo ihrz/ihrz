@@ -168,7 +168,7 @@ class SafeJSONLogger {
 	}
 }
 
-const loggerX = new SafeJSONLogger(path.join(process.cwd(), 'src', 'files', 'slash.log.json'));
+export const loggerX = new SafeJSONLogger(path.join(process.cwd(), 'src', 'files', 'slash.log.json'));
 
 process.on('SIGINT', async () => {
 	logger.log('Flushing command logs before shutdown...');

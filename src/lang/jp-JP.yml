@@ -1965,6 +1965,9 @@ support_not_admin: ":x: | このコマンドを使用するには、サーバー
 support_command_work: "**${interaction.guild.name}**のサポートモジュールを設定しました。\nユーザーが次のバイオを持っている場合:\n**${input}**。\n彼らに<@&${roles.id}>役割を与えるべきです！"
 support_command_work_on_disable: "**${interaction.guild.name}**のサポートモジュールを設定しました。\n今は誰も役割を持っていません！"
 support_command_not_role: ":x: | 役割を指定していません！"
+support_command_not_type: ":x: | ユーザープロフィールで希望するサポートタイプが指定されていません（bio = 自己紹介。例: サーバーリンク、tag = サーバーのDiscordタグ）!"
+support_command_guild_not_have_tag: ":x: | このサーバーには現在タグがありません。"
+support_command_work_2: "${interaction.guild.name} のサポートモジュールが設定されました。\nユーザーがサーバータグを設定すると、\n<@&${roles.id}> のロールを付与します！"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"

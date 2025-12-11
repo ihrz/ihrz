@@ -1965,6 +1965,9 @@ support_not_admin: ":x: | Вы должны быть администратор�
 support_command_work: "Вы настроили модуль поддержки для **${interaction.guild.name}**.\nКогда пользователь имеет в своей биографии:\n**${input}**.\nЯ должен дать им роль <@&${roles.id}>!"
 support_command_work_on_disable: "Вы настроили модуль поддержки для **${interaction.guild.name}**.\nТеперь никто не может иметь роль!"
 support_command_not_role: ":x: | Вы не указали роль!"
+support_command_not_type: ":x: | Вы не указали тип поддержки, который хотите видеть в профиле пользователя (bio = биография, например ссылка на сервер; tag = тег сервера)!"
+support_command_guild_not_have_tag: ":x: | На сервере сейчас нет тегов."
+support_command_work_2: "Вы настроили модуль поддержки для ${interaction.guild.name}.\nКогда пользователь укажет тег сервера,\nя выдам ему роль <@&${roles.id}>!"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | Вы должны быть администратором сервера, чтобы использовать эту команду!"

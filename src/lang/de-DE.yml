@@ -1965,6 +1965,9 @@ support_not_admin: ":x: | Du musst ein Administrator dieses Servers sein, um die
 support_command_work: "Du hast das Support-Modul für **${interaction.guild.name}** eingerichtet. Wenn ein Benutzer dies im Profil hat:\n**${input}**.\nSoll ich die <@&${roles.id}>-Rolle an sie vergeben!"
 support_command_work_on_disable: "Du hast das Support-Modul für **${interaction.guild.name}** eingerichtet. Jetzt kann niemand eine Rolle haben!"
 support_command_not_role: ":x: | Du hast die Rolle nicht angegeben!"
+support_command_not_type: ":x: | Du hast nicht angegeben, welche Art von Support du im Benutzerprofil möchtest (bio = die Bio, z. B. Serverlink; tag = der Discord-Tag des Servers)!"
+support_command_guild_not_have_tag: ":x: | Der Server hat aktuell keine Tags."
+support_command_work_2: "Du hast das Support-Modul für ${interaction.guild.name} konfiguriert.\nWenn ein Benutzer den Server-Tag setzt,\nwerde ich ihm die Rolle <@&${roles.id}> zuweisen!"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | Du musst ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"

@@ -1965,6 +1965,9 @@ support_not_admin: ":x: | ¡Debe ser un administrador de este servidor para soli
 support_command_work: "Ha configurado el módulo de soporte para **${interaction.guild.name}**.\nCuando un usuario tiene esto en su biografía:\n**${input}**.\n¡Debería darles el rol <@&${roles.id}>!"
 support_command_work_on_disable: "Ha configurado el módulo de soporte para **${interaction.guild.name}**.\n¡Nadie puede tener el rol ahora!"
 support_command_not_role: ":x: | ¡No ha especificado el rol!"
+support_command_not_type: ":x: | No especificaste el tipo de soporte que quieres en el perfil del usuario (bio = la biografía, ej. enlace del servidor; tag = la etiqueta del servidor)!"
+support_command_guild_not_have_tag: ":x: | El servidor no tiene etiquetas actualmente."
+support_command_work_2: "Has configurado el módulo de soporte para ${interaction.guild.name}.\nCuando un usuario establezca la etiqueta del servidor,\n¡le daré el rol <@&${roles.id}>!"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | ¡Debe ser un administrador de este servidor para solicitar este comando!"
