@@ -219,6 +219,7 @@ export const event: BotEvent = {
 		client.infrastructureMonitoring.startMonitoring().then(() => { })
 		client.temproleManager.init();
 		client.tempbanManager.init();
+		client.giveawaysManager.init();
 		await client.email.init(true);
 
 		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000)

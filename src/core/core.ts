@@ -107,14 +107,13 @@ export async function main(client: Client) {
 	client.emojisManager = new EmojisManager();
 	client.nightmodeManager = new NightModeManager();
 	client.infrastructureMonitoring = new InfrastructureMonitoring();
-	client.giveawaysManager = new GiveawayManager(client, {
+	client.giveawaysManager = new GiveawayManager({
 		storage: `${process.cwd()}/src/files/giveaways/`,
 		config: {
 			botsCanWin: false,
 			embedColor: '#9a5af2',
 			embedColorEnd: '#2f3136',
 			reaction: '🎉',
-			botName: "iHorizon",
 			forceUpdateEvery: 3600,
 			endedGiveawaysLifetime: 345_600_000,
 		},
