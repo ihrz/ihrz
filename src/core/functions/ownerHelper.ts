@@ -28,7 +28,7 @@ export async function isGuildOwner(userId: string, guildId: string): Promise<boo
 }
 
 export async function isBotOwner(userId: string): Promise<boolean> {
-	const owners = [...new Set([...client.owners, ...(await ownerTable.all()).map(x => x.id)])];
+	const owners = await getBotOwner();
 
 	return owners.includes(userId);
 }
