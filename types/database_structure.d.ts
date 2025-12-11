@@ -326,6 +326,9 @@ export namespace DatabaseStructure {
 			amount: number;
 		}
 	}
+
+	export type OwnerSchema = Record<string, { owner: boolean; }>;
+
 	export interface DbInId {
 		USER?: DbGuildUserObject;
 		GUILD?: DbGuildObject;
@@ -348,7 +351,7 @@ export namespace DatabaseStructure {
 		UTILS?: UtilsData;
 		STATS?: GuildStats;
 		BLOGGER: BloggerSchema;
-		OWNER: Record<string, { owner: boolean; }>;
+		OWNER: OwnerSchema;
 	}
 
 	export interface UtilsRoleData {

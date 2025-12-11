@@ -19,11 +19,12 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
+import { DatabaseStructure } from "../../../types/database_structure";
 import { ownerTable } from "../../Events/client/ready.ts";
 import { Guild } from "discord.js";
 
-export async function isGuildOwner(userId: string, guildId: string): Promise<boolean> {
-	const owners: string[] = await client.db.get(`${guildId}.OWNER`) || [];
+export async function isGuildOwner(userId: string, guild: Guild): Promise<boolean> {
+	const owners: string[] = await getGuildOwner(guild)
 	return owners.includes(userId);
 }
 
@@ -37,8 +38,8 @@ export function isBotDev(userId: string): boolean {
 	return client.owners.includes(userId);
 }
 
-export function getGuildOwner(guild: Guild): string {
-	return guild.ownerId;
+export async function getGuildOwner(guild: Guild): Promise<string[]> {
+	return [...new Set([guild.ownerId, ...Object.keys(await client.db.get<DatabaseStructure.OwnerSchema>(`${guild.id}.OWNER`) || {})])];
 }
 
 export async function getBotOwner(): Promise<string[]> {

@@ -365,14 +365,16 @@ declare namespace Client_Functions {
 
 	// From ownerHelper.ts
 	export namespace ownerHelper {
-		export function isGuildOwner(userId: string, guildId: string): Promise<boolean>;
+		export function isGuildOwner(userId: string, guild: Guild): Promise<boolean>;
 		export function isBotOwner(userId: string): Promise<boolean>;
 		export function isBotDev(userId: string): boolean;
-		export function getGuildOwner(guild: Guild): string;
+		export function getGuildOwner(guild: Guild): Promise<Array<string>>;
 		export function getBotOwner(): Promise<Array<string>>;
 		export function getBotDev(): Array<string>;
 		export function removeBotOwner(userId: string): Promise<void>;
 		export function addBotOwner(userId: string): Promise<void>;
+		export function addGuildOwner(userId: string, guildId: string): Promise<void>;
+		export function removeGuildOwner(userId: string, guildId: string): Promise<void>;
 	}
 
 	// From searchLyrics.ts
