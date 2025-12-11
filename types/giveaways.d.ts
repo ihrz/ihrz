@@ -63,7 +63,6 @@ export interface GiveawaysManagerOptions {
 		embedColor: string,
 		embedColorEnd: string,
 		reaction: string,
-		botName: string,
 		forceUpdateEvery: number,
 		endedGiveawaysLifetime: number,
 	},
