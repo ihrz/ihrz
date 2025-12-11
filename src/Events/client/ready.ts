@@ -97,7 +97,7 @@ export const event: BotEvent = {
 
 		async function refreshDatabaseModel() {
 			// await tempTable.deleteAll();
-			const owners = [...new Set([...client.owners, ...(await ownerTable.all()).map(x => x.id)])];
+			const owners = await client.func.ownerHelper.getBotOwner();
 
 			owners.forEach(async ownerId => {
 				try {

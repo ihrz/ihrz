@@ -66,7 +66,7 @@ export const command: Command = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		if (!client.owners.includes(interaction.member.user.id)) {
+		if (!client.func.ownerHelper.isBotDev(interaction.member.user.id)) {
 			await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.No, flags: [1 << 6] });
 			return;
 		};

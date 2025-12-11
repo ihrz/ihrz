@@ -47,7 +47,7 @@ export const command: Command = {
 
 	permission: null,
 	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
-		if (client.owners.includes(message.author.id)) {
+		if (await client.func.ownerHelper.isBotOwner(message.author.id)) {
 			const online = client.iHorizon_Emojis.Online;
 			const down = client.iHorizon_Emojis.DND;
 			const evaluating = client.iHorizon_Emojis.Invisible;

@@ -46,7 +46,7 @@ export const command: Command = {
 
 	permission: null,
 	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
-		if (client.owners.includes(message.author.id)) {
+		if (await client.func.ownerHelper.isBotOwner(message.author.id)) {
 			// Comprehensive guild analysis with all 3 methods
 			const guildStats = {
 				total: client.guilds.cache.size,
