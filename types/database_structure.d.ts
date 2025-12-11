@@ -532,19 +532,11 @@ export namespace DatabaseStructure {
 
 	export type SupportType = "bio" | "tag"
 
-	export interface GuildTag {
-		identityGuildId: string;
-		identityEnabled: string;
-		tag: string;
-		badge: string;
-	}
-
 	export interface SupportSchema {
 		input?: string | null;
 		rolesId?: string;
 		state?: string;
 		type: SupportType;
-		tag?: GuildTag;
 	}
 
 	export interface ServerLogs {
