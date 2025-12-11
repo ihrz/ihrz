@@ -56,3 +56,11 @@ export async function removeBotOwner(userId: string): Promise<void> {
 export async function addBotOwner(userId: string): Promise<void> {
 	await ownerTable.set(userId, { owner: true })
 }
+
+export async function addGuildOwner(userId: string, guildId: string): Promise<void> {
+	await client.db.set(`${guildId}.OWNER.${userId}`, { owner: true })
+}
+
+export async function removeGuildOwner(userId: string, guildId: string): Promise<void> {
+	await client.db.delete(`${guildId}.OWNER.${userId}`)
+}

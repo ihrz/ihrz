@@ -348,7 +348,7 @@ export namespace DatabaseStructure {
 		UTILS?: UtilsData;
 		STATS?: GuildStats;
 		BLOGGER: BloggerSchema;
-		OWNER: string[];
+		OWNER: Record<string, { owner: boolean; }>;
 	}
 
 	export interface UtilsRoleData {
