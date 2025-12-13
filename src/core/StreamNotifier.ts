@@ -366,6 +366,6 @@ export class StreamNotifier {
 		await this.getAppAccessToken()
 
 		await this.refresh()
-		setInterval(async () => await this.refresh(), 30_000);
+		setInterval(async () => await this.refresh(), 120_000);
 	}
 }
