@@ -43,7 +43,7 @@ export default async (client: Client) => {
 		},
 		playerOptions: {
 			onEmptyQueue: {
-				destroyAfterMs: 30_000,
+				destroyAfterMs: 120_000,
 			},
 			defaultSearchPlatform: 'youtube',
 			onDisconnect: {
