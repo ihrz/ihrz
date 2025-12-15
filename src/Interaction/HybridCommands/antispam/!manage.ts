@@ -93,6 +93,8 @@ export const subCommand: SubCommand = {
 			removeMessages: true,
 			punishment_type: 'mute',
 			punishTime: client.timeCalculator.to_ms('15m')!,
+			BYPASS_CHANNELS: await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_CHANNELS`),
+			BYPASS_ROLES: await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`)
 		}
 
 		const embed = new EmbedBuilder()
@@ -312,13 +314,25 @@ export const subCommand: SubCommand = {
 
 					switch (preset) {
 						case 'chill':
-							baseData = AntiSpamPreset.chill;
+							baseData = {
+								...AntiSpamPreset.chill,
+								BYPASS_CHANNELS: baseData.BYPASS_CHANNELS,
+								BYPASS_ROLES: baseData.BYPASS_ROLES
+							};
 							break;
 						case 'guard':
-							baseData = AntiSpamPreset.guard;
+							baseData = {
+								...AntiSpamPreset.guard,
+								BYPASS_CHANNELS: baseData.BYPASS_CHANNELS,
+								BYPASS_ROLES: baseData.BYPASS_ROLES
+							};
 							break;
 						case 'extreme':
-							baseData = AntiSpamPreset.extreme;
+							baseData = {
+								...AntiSpamPreset.extreme,
+								BYPASS_CHANNELS: baseData.BYPASS_CHANNELS,
+								BYPASS_ROLES: baseData.BYPASS_ROLES
+							};
 							break;
 					}
 

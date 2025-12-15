@@ -33,7 +33,7 @@ export const command: Command = {
 
 	description: "Get the link of the first message in the channel",
 	description_localizations: {
-		"fr": "Créer un embed par rapport à iHorizon"
+		"fr": "Récuperer le lien du premier message dans le salon"
 	},
 
 	aliases: [],
