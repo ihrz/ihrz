@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 		const select = new ChannelSelectMenuBuilder()
 			.setCustomId('antispam-select-config')
 			.setPlaceholder(lang.help_select_menu)
-			.setChannelTypes([ChannelType.GuildText, ChannelType.GuildForum, ChannelType.GuildMedia])
+			.setChannelTypes([ChannelType.GuildForum, ChannelType.GuildMedia, ChannelType.GuildText, ChannelType.GuildCategory, ChannelType.GuildStageVoice, ChannelType.GuildVoice])
 			.setMaxValues(25)
 			.setMinValues(0);
 
@@ -95,7 +95,7 @@ export const subCommand: SubCommand = {
 			componentType: ComponentType.Button,
 		});
 
-		let allchannel: string[] = [];
+		let allchannel: string[] = Array.isArray(all_channels) ? all_channels : [];
 
 		buttonCollector.on('collect', async i => {
 			if (i.user.id !== interaction.member?.user.id) {

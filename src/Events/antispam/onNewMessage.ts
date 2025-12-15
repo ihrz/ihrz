@@ -27,7 +27,8 @@ import {
 	BaseGuildTextChannel,
 	Collection,
 	Snowflake,
-	EmbedBuilder
+	EmbedBuilder,
+	GuildBasedChannel
 } from 'discord.js';
 
 import { DatabaseStructure } from '../../../types/database_structure.js';
@@ -248,7 +249,8 @@ export const event: BotEvent = {
 			message.guild.ownerId === message.author.id ||
 			message.member?.permissions.has(PermissionFlagsBits.Administrator) ||
 			(options.ignoreBots && message.author.bot) ||
-			options.BYPASS_CHANNELS?.includes(message.channelId)
+			options.BYPASS_CHANNELS?.includes(message.channelId) ||
+			options.BYPASS_CHANNELS?.includes(((message.channel as GuildBasedChannel).parentId || ""))
 		) {
 			return false;
 		}
