@@ -65,9 +65,11 @@ async function waitForFinish(guildId: string): Promise<void> {
 }
 
 async function logsAction(lang: LanguageData, message: Message, users: Set<GuildMember>, sanctionType: 'mute' | 'kick' | 'ban') {
-	if (users.size === 0) return;
+	const validUsers = [...users].filter(user => user != null);
 
-	const firstUser = users.values().next().value;
+	if (validUsers.length === 0) return;
+
+	const firstUser = validUsers[0];
 	const inDb = await message.client.db.get(`${message.guildId}.GUILD.SERVER_LOGS.antispam`) as string | null;
 
 	if (!inDb) return;
@@ -82,7 +84,7 @@ async function logsAction(lang: LanguageData, message: Message, users: Set<Guild
 		.setDescription(lang.antispam_log_embed_desc
 			.replace("${client.user?.toString()}", message.client.user?.toString()!)
 			.replace("${actionType}", 'sanction')
-			.replace("${user.toString()}", Array.from(users).map(x => x.toString()).join(','))
+			.replace("${user.toString()}", validUsers.map(x => x.toString()).join(','))
 		)
 
 	await (channel as BaseGuildTextChannel).send({ embeds: [embed] });
@@ -94,7 +96,7 @@ async function sendWarningMessage(
 	channel: BaseGuildTextChannel | null,
 	options: AntiSpam.AntiSpamOptions
 ): Promise<void> {
-	const membersToWarn = [...members];
+	const membersToWarn = [...members].filter(member => member != null);
 
 	if (membersToWarn.length === 0) return;
 
