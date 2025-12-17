@@ -40,6 +40,7 @@ interface YoutubeRssResponse {
 	author: string;
 	id: string;
 	isoDate: Date;
+	channelId?: string;
 }
 
 interface TwitchResponse {
@@ -93,14 +94,21 @@ export class StreamNotifier {
 		const url = `https://www.googleapis.com/youtube/v3/search?key=${this.youtubeApiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=5`;
 		try {
 			const response = await axios.get(url);
-			return response.data.error ? [] : response.data.items.map((item: any) => ({
-				title: item.snippet.title,
-				link: `https://www.youtube.com/watch?v=${item.id.videoId}`,
-				pubDate: new Date(item.snippet.publishedAt),
-				author: item.snippet.channelTitle,
-				id: item.id.videoId,
-				isoDate: new Date(item.snippet.publishedAt),
-			}));
+			if (response.data.error) {
+				return [];
+			}
+
+			return response.data.items
+				.filter((item: any) => item.snippet.channelId === channelId)
+				.map((item: any) => ({
+					title: item.snippet.title,
+					link: `https://www.youtube.com/watch?v=${item.id.videoId}`,
+					pubDate: new Date(item.snippet.publishedAt),
+					author: item.snippet.channelTitle,
+					id: item.id.videoId,
+					isoDate: new Date(item.snippet.publishedAt),
+					channelId: item.snippet.channelId
+				}));
 		} catch (error) {
 			logger.err(`Error fetching YouTube videos for channel ${channelId}: ${error}`);
 			return [];
@@ -115,8 +123,11 @@ export class StreamNotifier {
 				if (user.platform === 'youtube') {
 					const videos = await this.getLatestYouTubeVideos(user.id_or_username);
 					const latestMedia = this.getLatestMedia(videos);
-					if (latestMedia) {
+
+					if (latestMedia && latestMedia.channelId === user.id_or_username) {
 						result.push({ user, content: latestMedia, platform: "youtube" });
+					} else if (latestMedia) {
+						logger.warn(`Video ${latestMedia.id} does not belong to channel ${user.id_or_username}, skipping notification`);
 					}
 				} else if (user.platform === 'twitch') {
 					const feed = await this.checkTwitchStream(user.id_or_username);
@@ -312,7 +323,7 @@ export class StreamNotifier {
 		embed.setTitle(lang.notifier_generateConfigurationEmbed_embed_title);
 		embed.setColor(2829617);
 		embed.setFields(
-			{ name: lang.notifier_generateConfigurationEmbed_embed_fields_1_name, value: `${channel?.toString() || lang.setjoinroles_var_none}`, inline: false },
+			{ name: lang.notifier_generateConfigurationEmbed_embed_fields_1_name, value: `${channel?.id ? channel.toString() : lang.setjoinroles_var_none}`, inline: false },
 			{ name: lang.notifier_generateConfigurationEmbed_embed_fields_2_name, value: `${config?.message || lang.notifier_on_new_media_default_message}`, inline: false }
 		);
 		return embed;
