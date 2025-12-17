@@ -258,7 +258,7 @@ class GiveawayManager {
 			try {
 				const fetch = await db.GetGiveawayData(giveawayId);
 
-				if (fetch?.ended) {
+				if (fetch?.ended === GiveawayEndedStatus.ENDED) {
 					resolve(true);
 				} else {
 					resolve(false);
@@ -274,7 +274,7 @@ class GiveawayManager {
 			try {
 				const giveawayData = (await db.GetGiveawayData(giveawayId))!;
 
-				if (giveawayData.isValid && !giveawayData.ended) {
+				if (giveawayData.isValid && giveawayData.ended === GiveawayEndedStatus.NOT_ENDED) {
 					await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
 					this.finish(
 						client,
