@@ -2408,7 +2408,10 @@ var_7d: "أسبوعي"
 var_14d: "شهري"
 var_total: "الإجمالي"
 var_unknown: "غير معروف"
-var_category: "الفئة"
+top_active_users_title: "أكثر المستخدمين نشاطًا"
+activity_overview: "نظرة عامة على النشاط"
+active_users_title: "المستخدمون النشطون"
+var_members: "عضو/أعضاء"
 
 # Starboard Module
 # lazy

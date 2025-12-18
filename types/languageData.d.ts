@@ -1816,6 +1816,10 @@ export interface LanguageData {
 	stats_compare_no_data: string;
 	channel_stats_title: string;
 	stats_channel_invalid: string;
+	top_active_users_title: string;
+	activity_overview: string;
+	active_users_title: string;
+	var_members: string;
 	starboard_channel_command_ok: string;
 	starboard_config_command_ok: string;
 	starboard_threshold_command_ok: string;

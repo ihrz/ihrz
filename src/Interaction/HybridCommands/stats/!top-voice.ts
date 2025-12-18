@@ -99,7 +99,7 @@ export const subCommand: SubCommand = {
 		leaderboardData.sort((a, b) => b.voiceDuration - a.voiceDuration);
 		const topUsers = leaderboardData.slice(0, limit);
 
-		let htmlContent = client.htmlfiles['topVoiceLeaderboard'] || client.htmlfiles['guildStatsLeaderboard'];
+		let htmlContent = client.htmlfiles['topVoiceLeaderboard'];
 
 		const periodLabel = period === "daily" ? lang.var_1d : period === "weekly" ? lang.var_7d : lang.var_14d;
 		const currentDate = new Date().toLocaleDateString(await client.db.get(`${interaction.guildId}.LANG.lang`) || "en-US", {
@@ -131,7 +131,10 @@ export const subCommand: SubCommand = {
             <div class="stat">${voiceTime} <span>${lang.voice_activity}</span></div>
         </div>
         `;
-			}).join(''));
+			}).join(''))
+			.replaceAll('{top_voice_title}', lang.top_voice_title)
+			.replaceAll('{top_active_users_title}', lang.top_active_users_title)
+			.replaceAll('{var_members}', lang.var_members);
 
 		const image = await client.func.html2png(htmlContent, {
 			width: 1902,

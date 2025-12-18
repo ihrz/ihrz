@@ -2408,7 +2408,10 @@ var_7d: "Wöchentlich"
 var_14d: "Monatlich"
 var_total: "Gesamt"
 var_unknown: "Unbekannt"
-var_category: "Kategorie"
+top_active_users_title: "Top Aktive Benutzer"
+activity_overview: "Aktivitätsübersicht"
+active_users_title: "Aktive Benutzer"
+var_members: "Mitglied(er)"
 
 # Starboard Module
 # lazy

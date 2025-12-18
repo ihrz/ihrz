@@ -2408,7 +2408,10 @@ var_7d: "Еженедельно"
 var_14d: "Ежемесячно"
 var_total: "Всего"
 var_unknown: "Неизвестно"
-var_category: "Категория"
+top_active_users_title: "Самые активные пользователи"
+activity_overview: "Обзор активности"
+active_users_title: "Активные пользователи"
+var_members: "участник(и)"
 
 # Starboard Module
 # lazy

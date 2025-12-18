@@ -2408,7 +2408,10 @@ var_7d: "毎週"
 var_14d: "毎月"
 var_total: "合計"
 var_unknown: "不明"
-var_category: "カテゴリー"
+top_active_users_title: "アクティブユーザー上位"
+activity_overview: "アクティビティ概要"
+active_users_title: "アクティブユーザー"
+var_members: "メンバー"
 
 # Starboard Module
 # lazy

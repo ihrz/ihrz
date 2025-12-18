@@ -100,7 +100,7 @@ export const subCommand: SubCommand = {
 		leaderboardData.sort((a, b) => b.messages - a.messages);
 		const topUsers = leaderboardData.slice(0, limit);
 
-		let htmlContent = client.htmlfiles['topMessagesLeaderboard'] || client.htmlfiles['guildStatsLeaderboard'];
+		let htmlContent = client.htmlfiles['topMessagesLeaderboard'];
 
 		const periodLabel = period === "daily" ? lang.var_1d : period === "weekly" ? lang.var_7d : lang.var_14d;
 		const currentDate = new Date().toLocaleDateString(await client.db.get(`${interaction.guildId}.LANG.lang`) || "en-US", {
@@ -131,7 +131,9 @@ export const subCommand: SubCommand = {
             <div class="stat">${user.messages} <span>${lang.messages_word}</span></div>
         </div>
         `;
-			}).join(''));
+			}).join(''))
+			.replaceAll('{top_active_users_title}', lang.top_active_users_title)
+			.replaceAll('{var_members}', lang.var_members);
 
 		const image = await client.func.html2png(htmlContent, {
 			width: 1902,

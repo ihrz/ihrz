@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
 
 		if (!targetChannel) {
 			return await client.func.method.interactionSend(interaction, {
-				content: lang.stats_channel_invalid
+				content: lang.stats_channel_invalid || "Invalid channel specified."
 			});
 		}
 
@@ -154,7 +154,7 @@ export const subCommand: SubCommand = {
 		const isVoiceChannel = targetChannel instanceof VoiceChannel;
 		const isTextChannel = targetChannel instanceof TextChannel;
 
-		let htmlContent = client.htmlfiles['channelStatsPage'] || client.htmlfiles['guildStatsLeaderboard'];
+		let htmlContent = client.htmlfiles['channelStatsPage'];
 
 		const currentDate = new Date().toLocaleDateString(await client.db.get(`${interaction.guildId}.LANG.lang`) || "en-US", {
 			year: 'numeric',
@@ -165,7 +165,7 @@ export const subCommand: SubCommand = {
 		});
 
 		htmlContent = htmlContent
-			.replaceAll('{header_h1_value}', lang.channel_stats_title || `Channel Statistics: #${targetChannel.name}`)
+			.replaceAll('{header_h1_value}', lang.channel_stats_title)
 			.replaceAll("{guild_pfp}", interaction.guild.iconURL({ size: 512 }) || client.user.displayAvatarURL({ size: 512 }))
 			.replaceAll("{author_username}", interaction.guild.name)
 			.replaceAll("{channel_name}", targetChannel.name)
@@ -198,7 +198,7 @@ export const subCommand: SubCommand = {
             <div class="stat">${item.count} <span>${lang.messages_word}</span></div>
         </div>
         `;
-			}).join('') : '<div class="empty-state"><div class="empty-state-icon">📭</div><div>No message activity yet</div></div>')
+			}).join('') : '<div class="empty-state"><div class="empty-state-icon">📭</div><div>' + '</div></div>')
 			.replaceAll('{top_voice_users}', isVoiceChannel && topVoiceUsersResolved.length > 0 ? topVoiceUsersResolved.map((item, index) => {
 				const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
 				return `
@@ -212,9 +212,14 @@ export const subCommand: SubCommand = {
             <div class="stat">${client.timeCalculator.to_beautiful_string(item.duration, lang)}</div>
         </div>
         `;
-			}).join('') : '<div class="empty-state"><div class="empty-state-icon">🔇</div><div>No voice activity yet</div></div>')
+			}).join('') : '<div class="empty-state"><div class="empty-state-icon">🔇</div><div>' + lang.var_none + '</div></div>')
 			.replaceAll('{show_messages_section}', isTextChannel ? 'block' : 'none')
-			.replaceAll('{show_voice_section}', isVoiceChannel ? 'block' : 'none');
+			.replaceAll('{show_voice_section}', isVoiceChannel ? 'block' : 'none')
+			.replaceAll('{top_messages_title}', lang.top_messages_title)
+			.replaceAll('{top_voice_title}', lang.top_voice_title)
+			.replaceAll('{channel_stats_title}', lang.channel_stats_title)
+			.replaceAll('{top_active_users_title}', lang.top_active_users_title)
+			.replaceAll('{active_users_title}', lang.active_users_title);
 
 		const image = await client.func.html2png(htmlContent, {
 			width: 1902,
