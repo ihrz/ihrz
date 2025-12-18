@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<title>Channel Statistics</title>
+	<style>
+		:root {
+			--primary: #5865F2;
+			--primary-light: #7983f5;
+			--primary-dark: #4752c4;
+			--secondary: #EB459E;
+			--secondary-light: #f16db6;
+			--bg-dark: #1E1F22;
+			--bg-medium: #2B2D31;
+			--bg-light: #313338;
+			--bg-lighter: #383A40;
+			--text-bright: #FFFFFF;
+			--text-normal: #DCDDDE;
+			--text-muted: #A3A6AA;
+			--border-radius: 12px;
+			--border-radius-lg: 16px;
+			--shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.2);
+			--shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+			--shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
+			--transition: all 0.3s ease;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Inter', sans-serif;
+			background-color: var(--bg-dark);
+			color: var(--text-bright);
+			min-height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 2rem;
+		}
+
+		.container {
+			width: 100%;
+			max-width: 1600px;
+			background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+			border-radius: var(--border-radius-lg);
+			box-shadow: var(--shadow-lg);
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			gap: 0;
+			padding: 0;
+		}
+
+		.header {
+			position: relative;
+			padding: 2.5rem 3rem;
+			background: linear-gradient(135deg, rgba(88, 101, 242, 0.15) 0%, rgba(235, 69, 158, 0.15) 100%);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.header::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 4px;
+			background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+		}
+
+		.header-left {
+			display: flex;
+			align-items: center;
+			gap: 1.5rem;
+			flex: 1;
+		}
+
+		.server-avatar {
+			width: 90px;
+			height: 90px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 4px solid rgba(255, 255, 255, 0.2);
+			box-shadow: var(--shadow-sm);
+			transition: var(--transition);
+		}
+
+		.server-avatar:hover {
+			transform: scale(1.05);
+			border-color: var(--primary-light);
+		}
+
+		.header-info {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		.server-name {
+			font-size: 2.5rem;
+			font-weight: 800;
+			color: var(--text-bright);
+			letter-spacing: -0.5px;
+			background: linear-gradient(90deg, var(--primary-light) 0%, var(--secondary-light) 100%);
+			-webkit-background-clip: text;
+			background-clip: text;
+			-webkit-text-fill-color: transparent;
+		}
+
+		.channel-name {
+			font-size: 1.1rem;
+			color: var(--text-muted);
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.channel-name::before {
+			content: '#';
+			color: var(--primary-light);
+			font-weight: 700;
+		}
+
+		.content {
+			padding: 2.5rem 3rem;
+			display: flex;
+			flex-direction: column;
+			gap: 2rem;
+		}
+
+		.activity-overview {
+			background: var(--bg-light);
+			border-radius: var(--border-radius);
+			box-shadow: var(--shadow);
+			overflow: hidden;
+			padding: 0;
+		}
+
+		.section-header {
+			padding: 1.75rem 2rem;
+			background: rgba(0, 0, 0, 0.2);
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		.section-icon {
+			font-size: 1.5rem;
+		}
+
+		.section-title {
+			font-size: 1.5rem;
+			font-weight: 700;
+			color: var(--text-bright);
+		}
+
+		.section-content {
+			padding: 2rem;
+		}
+
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 1.25rem;
+			margin-bottom: 1.5rem;
+		}
+
+		.stats-grid:last-child {
+			margin-bottom: 0;
+		}
+
+		.stat-box {
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+			border-radius: var(--border-radius);
+			padding: 1.5rem;
+			text-align: center;
+			border: 1px solid rgba(255, 255, 255, 0.05);
+			transition: var(--transition);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.stat-box::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 3px;
+			background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+			opacity: 0;
+			transition: var(--transition);
+		}
+
+		.stat-box:hover {
+			transform: translateY(-5px);
+			box-shadow: var(--shadow);
+			border-color: rgba(88, 101, 242, 0.3);
+		}
+
+		.stat-box:hover::before {
+			opacity: 1;
+		}
+
+		.stat-value {
+			font-size: 2rem;
+			font-weight: 800;
+			color: var(--primary-light);
+			margin-bottom: 0.5rem;
+			line-height: 1;
+		}
+
+		.stat-label {
+			font-size: 0.9rem;
+			color: var(--text-muted);
+			font-weight: 500;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+
+		.top-users-section {
+			background: var(--bg-light);
+			border-radius: var(--border-radius);
+			box-shadow: var(--shadow);
+			overflow: hidden;
+		}
+
+		.list {
+			display: flex;
+			flex-direction: column;
+			gap: 0.75rem;
+			padding: 1.5rem;
+		}
+
+		.list-item {
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+			border-radius: var(--border-radius);
+			padding: 1.25rem;
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			transition: var(--transition);
+			position: relative;
+			overflow: hidden;
+			border: 1px solid rgba(255, 255, 255, 0.05);
+		}
+
+		.list-item:hover {
+			background: rgba(255, 255, 255, 0.08);
+			transform: translateX(5px);
+			border-color: rgba(88, 101, 242, 0.3);
+		}
+
+		.list-item::before {
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			width: 4px;
+			background: var(--primary);
+			border-radius: 2px;
+			opacity: 0;
+			transition: var(--transition);
+		}
+
+		.list-item:hover::before {
+			opacity: 1;
+		}
+
+		.rank {
+			font-size: 1.5rem;
+			font-weight: 800;
+			color: var(--text-muted);
+			width: 40px;
+			text-align: center;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 40px;
+			background: rgba(255, 255, 255, 0.05);
+			border-radius: 50%;
+		}
+
+		.rank-1 {
+			color: #FFD700;
+			background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
+			border: 2px solid rgba(255, 215, 0, 0.3);
+		}
+
+		.rank-2 {
+			color: #C0C0C0;
+			background: linear-gradient(135deg, rgba(192, 192, 192, 0.2) 0%, rgba(192, 192, 192, 0.1) 100%);
+			border: 2px solid rgba(192, 192, 192, 0.3);
+		}
+
+		.rank-3 {
+			color: #CD7F32;
+			background: linear-gradient(135deg, rgba(205, 127, 50, 0.2) 0%, rgba(205, 127, 50, 0.1) 100%);
+			border: 2px solid rgba(205, 127, 50, 0.3);
+		}
+
+		.avatar {
+			width: 50px;
+			height: 50px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 3px solid rgba(255, 255, 255, 0.1);
+			transition: var(--transition);
+		}
+
+		.list-item:hover .avatar {
+			border-color: var(--primary-light);
+			transform: scale(1.1);
+		}
+
+		.info {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 0.25rem;
+			min-width: 0;
+		}
+
+		.name {
+			font-weight: 600;
+			color: var(--text-bright);
+			font-size: 1.1rem;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.detail {
+			font-size: 0.9rem;
+			color: var(--text-muted);
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.stat {
+			font-weight: 700;
+			color: var(--primary-light);
+			background: linear-gradient(135deg, rgba(88, 101, 242, 0.15) 0%, rgba(88, 101, 242, 0.1) 100%);
+			padding: 0.75rem 1.25rem;
+			border-radius: var(--border-radius);
+			transition: var(--transition);
+			border: 1px solid rgba(88, 101, 242, 0.2);
+			font-size: 1.1rem;
+		}
+
+		.list-item:hover .stat {
+			background: linear-gradient(135deg, rgba(88, 101, 242, 0.25) 0%, rgba(88, 101, 242, 0.15) 100%);
+			border-color: rgba(88, 101, 242, 0.4);
+		}
+
+		.footer {
+			text-align: center;
+			padding: 1.5rem;
+			color: var(--text-muted);
+			font-size: 0.9rem;
+			border-top: 1px solid rgba(255, 255, 255, 0.05);
+			background: rgba(0, 0, 0, 0.15);
+		}
+
+		.footer a {
+			color: var(--primary-light);
+			text-decoration: none;
+			transition: var(--transition);
+		}
+
+		.footer a:hover {
+			color: var(--secondary-light);
+			text-decoration: underline;
+		}
+
+		.empty-state {
+			text-align: center;
+			padding: 3rem;
+			color: var(--text-muted);
+		}
+
+		.empty-state-icon {
+			font-size: 3rem;
+			margin-bottom: 1rem;
+			opacity: 0.5;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="header">
+			<div class="header-left">
+				<img class="server-avatar" src="{guild_pfp}" alt="Server Logo">
+				<div class="header-info">
+					<h1 class="server-name">{header_h1_value}</h1>
+					<div class="channel-name">{channel_name}</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="content">
+			<div class="activity-overview">
+				<div class="section-header">
+					<div class="section-icon">📊</div>
+					<h2 class="section-title">Activity Overview</h2>
+				</div>
+				<div class="section-content">
+					<div class="stats-grid" style="display: {show_messages_section};">
+						<div class="stat-box">
+							<div class="stat-value">{daily_messages}</div>
+							<div class="stat-label">{var_1d} {messages_word}</div>
+						</div>
+						<div class="stat-box">
+							<div class="stat-value">{weekly_messages}</div>
+							<div class="stat-label">{var_7d} {messages_word}</div>
+						</div>
+						<div class="stat-box">
+							<div class="stat-value">{monthly_messages}</div>
+							<div class="stat-label">{var_14d} {messages_word}</div>
+						</div>
+					</div>
+					<div class="stats-grid" style="display: {show_voice_section};">
+						<div class="stat-box">
+							<div class="stat-value">{daily_voice}</div>
+							<div class="stat-label">{var_1d} {voice_activity}</div>
+						</div>
+						<div class="stat-box">
+							<div class="stat-value">{weekly_voice}</div>
+							<div class="stat-label">{var_7d} {voice_activity}</div>
+						</div>
+						<div class="stat-box">
+							<div class="stat-value">{monthly_voice}</div>
+							<div class="stat-label">{var_14d} {voice_activity}</div>
+						</div>
+					</div>
+					<div class="stats-grid">
+						<div class="stat-box" style="display: {show_messages_section};">
+							<div class="stat-value">{total_messages}</div>
+							<div class="stat-label">{var_total} {messages_word}</div>
+						</div>
+						<div class="stat-box" style="display: {show_voice_section};">
+							<div class="stat-value">{total_voice}</div>
+							<div class="stat-label">{var_total} {voice_activity}</div>
+						</div>
+						<div class="stat-box">
+							<div class="stat-value">{active_users}</div>
+							<div class="stat-label">Active Users</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="top-users-section" style="display: {show_messages_section};">
+				<div class="section-header">
+					<div class="section-icon">💬</div>
+					<h2 class="section-title">Top Message Users</h2>
+				</div>
+				<div class="list">
+					{top_message_users}
+				</div>
+			</div>
+
+			<div class="top-users-section" style="display: {show_voice_section};">
+				<div class="section-header">
+					<div class="section-icon">🎤</div>
+					<h2 class="section-title">Top Voice Users</h2>
+				</div>
+				<div class="list">
+					{top_voice_users}
+				</div>
+			</div>
+		</div>
+
+		<div class="footer">
+			Stats generated on {current_date} • Powered by <a href="#">IHRZ</a>
+		</div>
+	</div>
+</body>
+
+</html>
