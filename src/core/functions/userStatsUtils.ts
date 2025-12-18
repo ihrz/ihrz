@@ -218,3 +218,37 @@ export function getStatsLeaderboard(data: {
 
 	return top3;
 }
+
+export function getTopUsersByMessages(
+	data: {
+		memberId: string,
+		member: User | undefined,
+		messages: number
+	}[],
+	limit: number = 10
+): {
+	memberId: string,
+	member: User | undefined,
+	messages: number
+}[] {
+	return data
+		.sort((a, b) => b.messages - a.messages)
+		.slice(0, limit);
+}
+
+export function getTopUsersByVoice(
+	data: {
+		memberId: string,
+		member: User | undefined,
+		voiceDuration: number
+	}[],
+	limit: number = 10
+): {
+	memberId: string,
+	member: User | undefined,
+	voiceDuration: number
+}[] {
+	return data
+		.sort((a, b) => b.voiceDuration - a.voiceDuration)
+		.slice(0, limit);
+}

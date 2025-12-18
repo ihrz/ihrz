@@ -78,6 +78,178 @@ export const command: Command = {
 			permission: null,
 			type: ApplicationCommandOptionType.Subcommand
 		},
+		{
+			name: "top-messages",
+
+			description: "See top users by messages",
+			description_localizations: {
+				fr: "Voir le top des utilisateurs par messages"
+			},
+
+			aliases: ["tm", "topm"],
+
+			options: [
+				{
+					name: "period",
+					description: "Time period (daily, weekly, monthly)",
+					description_localizations: {
+						fr: "Période (quotidien, hebdomadaire, mensuel)"
+					},
+					type: ApplicationCommandOptionType.String,
+					required: false,
+					choices: [
+						{
+							name: "Daily",
+							name_localizations: { fr: "Quotidien" },
+							value: "daily"
+						},
+						{
+							name: "Weekly",
+							name_localizations: { fr: "Hebdomadaire" },
+							value: "weekly"
+						},
+						{
+							name: "Monthly",
+							name_localizations: { fr: "Mensuel" },
+							value: "monthly"
+						}
+					],
+					permission: null
+				},
+				{
+					name: "limit",
+					description: "Number of users to show (default: 10, max: 25)",
+					description_localizations: {
+						fr: "Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)"
+					},
+					type: ApplicationCommandOptionType.Integer,
+					required: false,
+					permission: null,
+					// min_value: 5,
+					// max_value: 25
+				}
+			],
+
+			permission: null,
+			type: ApplicationCommandOptionType.Subcommand
+		},
+		{
+			name: "top-voice",
+
+			description: "See top users by voice activity",
+			description_localizations: {
+				fr: "Voir le top des utilisateurs par activité vocale"
+			},
+
+			aliases: ["tv", "topv"],
+
+			options: [
+				{
+					name: "period",
+					description: "Time period (daily, weekly, monthly)",
+					description_localizations: {
+						fr: "Période (quotidien, hebdomadaire, mensuel)"
+					},
+					type: ApplicationCommandOptionType.String,
+					required: false,
+					choices: [
+						{
+							name: "Daily",
+							name_localizations: { fr: "Quotidien" },
+							value: "daily"
+						},
+						{
+							name: "Weekly",
+							name_localizations: { fr: "Hebdomadaire" },
+							value: "weekly"
+						},
+						{
+							name: "Monthly",
+							name_localizations: { fr: "Mensuel" },
+							value: "monthly"
+						}
+					],
+					permission: null
+				},
+				{
+					name: "limit",
+					description: "Number of users to show (default: 10, max: 25)",
+					description_localizations: {
+						fr: "Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)"
+					},
+					type: ApplicationCommandOptionType.Integer,
+					required: false,
+					permission: null,
+					// min_value: 5,
+					// max_value: 25
+				}
+			],
+
+			permission: null,
+			type: ApplicationCommandOptionType.Subcommand
+		},
+		{
+			name: "compare",
+
+			description: "Compare statistics between multiple users",
+			description_localizations: {
+				fr: "Comparer les statistiques entre plusieurs utilisateurs"
+			},
+
+			aliases: ["cmp"],
+
+			options: [
+				{
+					name: "user1",
+					description: "First user to compare",
+					description_localizations: {
+						fr: "Premier utilisateur à comparer"
+					},
+					type: ApplicationCommandOptionType.User,
+					required: true,
+					permission: null
+				},
+				{
+					name: "user2",
+					description: "Second user to compare",
+					description_localizations: {
+						fr: "Deuxième utilisateur à comparer"
+					},
+					type: ApplicationCommandOptionType.User,
+					required: true,
+					permission: null
+				}
+			],
+
+			permission: null,
+			type: ApplicationCommandOptionType.Subcommand
+		},
+		{
+			name: "channel-stats",
+
+			description: "See statistics for a specific channel",
+			description_localizations: {
+				fr: "Voir les statistiques d'un canal spécifique"
+			},
+
+			aliases: ["cstats", "chstats"],
+
+			options: [
+				{
+					name: "channel",
+					description: "The channel to analyze",
+					description_localizations: {
+						fr: "Le canal à analyser"
+					},
+					type: ApplicationCommandOptionType.Channel,
+					required: false,
+					permission: null
+				}
+			],
+
+			permission: null,
+			type: ApplicationCommandOptionType.Subcommand
+		},
 		// {
 		//     name: "reset",
 		//     description: "Reset profil",

@@ -231,6 +231,14 @@ declare namespace Client_Functions {
 		export function getStatsLeaderboard(
 			data: Array<{ member: User | undefined; dailyMessages: number; weeklyMessages: number; monthlyMessages: number; dailyVoiceActivity: number; weeklyVoiceActivity: number; monthlyVoiceActivity: number; }>
 		): Array<{ member: User | undefined; dailyMessages: number; weeklyMessages: number; monthlyMessages: number; dailyVoiceActivity: number; weeklyVoiceActivity: number; monthlyVoiceActivity: number; }>;
+		export function getTopUsersByMessages(
+			data: Array<{ memberId: string; member: User | undefined; messages: number; }>,
+			limit: number
+		): Array<{ memberId: string; member: User | undefined; messages: number; }>;
+		export function getTopUsersByVoice(
+			data: Array<{ memberId: string; member: User | undefined; voiceDuration: number; }>,
+			limit: number
+		): Array<{ memberId: string; member: User | undefined; voiceDuration: number; }>;
 	}
 
 	// From leashModuleHelper.ts
