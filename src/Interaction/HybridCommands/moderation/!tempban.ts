@@ -79,7 +79,7 @@ export const subCommand: SubCommand = {
 
 		if (memberToBan) {
 			// User is in the guild, check role hierarchy
-			if (memberToBan.roles.highest.position >= interaction.guild.members.me.roles.highest.position) {
+			if (memberToBan.roles.highest.position >= interaction.guild.members.me.roles.highest.position && interaction.guild.ownerId !== interaction.member.user.id) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.tempban_user_highest_role_or_same
 						.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
