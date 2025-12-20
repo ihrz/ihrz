@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 
 		if (guildMember) {
 
-			if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= guildMember.roles.highest.position) {
+			if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= guildMember.roles.highest.position && interaction.guild.ownerId !== interaction.member.user.id) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.ban_attempt_ban_higter_member.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
 				});

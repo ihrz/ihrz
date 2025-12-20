@@ -84,7 +84,7 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		if (tomute.roles.highest.position >= interaction.guild.members.me.roles.highest.position) {
+		if (tomute.roles.highest.position >= interaction.guild.members.me.roles.highest.position && interaction.guild.ownerId !== interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempmute_tomute_highest_role_or_same
 					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)

@@ -260,6 +260,7 @@ export const event: BotEvent = {
 				await executeCommand(message, result.command, result.args || [], lang);
 			}
 		} catch (error) {
+			console.error(error)
 			await handleCommandError(message, result.subCommand || result.command!, error);
 		}
 	}
