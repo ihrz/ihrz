@@ -1003,47 +1003,45 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached"> | 
 			if (channel === interaction.channel?.id) {
 				const member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
-				interaction.channel.messages.fetch().then(async () => {
 
-					const attachment = await client.discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
-						limit: -1,
-						filename: `${interaction.guildId}-transcript.html`,
-						footerText: "Exported {number} message{s}",
-						poweredBy: false,
-						hydrate: true
-					});
+				const attachment = await client.discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
+					limit: -1,
+					filename: `${interaction.guildId}-transcript.html`,
+					footerText: "Exported {number} message{s}",
+					poweredBy: false,
+					hydrate: true
+				});
+
+				const embed = new EmbedBuilder()
+					.setDescription(data.close_title_sourcebin)
+					.setColor('#0014a8');
+
+				try {
+					(interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+					client.func.method.interactionSend(interaction, { content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
+				} catch {
+					await interaction.client.func.method.channelSend(interaction, data.close_command_error);
+					return;
+				};
+
+				try {
+					let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
+					TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+					if (!TicketLogsChannel) return;
 
 					const embed = new EmbedBuilder()
-						.setDescription(data.close_title_sourcebin)
-						.setColor('#0014a8');
+						.setColor("#008000")
+						.setTitle(data.event_ticket_logsChannel_onClose_embed_title)
+						.setDescription(data.event_ticket_logsChannel_onClose_embed_desc
+							.replace('${interaction.user}', interaction.member?.user.toString()!)
+							.replace('${interaction.channel.id}', interaction.channel?.id!)
+						)
+						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+						.setTimestamp();
 
-					try {
-						(interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-						client.func.method.interactionSend(interaction, { content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
-					} catch {
-						await interaction.client.func.method.channelSend(interaction, data.close_command_error);
-						return;
-					};
-
-					try {
-						let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-						TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
-						if (!TicketLogsChannel) return;
-
-						const embed = new EmbedBuilder()
-							.setColor("#008000")
-							.setTitle(data.event_ticket_logsChannel_onClose_embed_title)
-							.setDescription(data.event_ticket_logsChannel_onClose_embed_desc
-								.replace('${interaction.user}', interaction.member?.user.toString()!)
-								.replace('${interaction.channel.id}', interaction.channel?.id!)
-							)
-							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
-							.setTimestamp();
-
-						TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
-						return;
-					} catch (e) { return };
-				});
+					TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+					return;
+				} catch (e) { return };
 			}
 		}
 	}
