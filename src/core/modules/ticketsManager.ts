@@ -1363,7 +1363,7 @@ async function TicketRemind(interaction: ChatInputCommandInteraction<"cached"> |
 		.first();
 
 	let timestamp = lastOwnerMessage?.createdTimestamp;
-	let time = timestamp ? interaction.client.timeCalculator.to_beautiful_string(Date.now() - timestamp, lang) : 'Jamais';
+	let time = timestamp ? interaction.client.timeCalculator.to_beautiful_string(Date.now() - timestamp, lang) : lang.var_never;
 
 	let Success = await ticketOwner?.send({
 		content: `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}`,
