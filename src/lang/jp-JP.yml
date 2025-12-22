@@ -319,6 +319,13 @@ ticket_rename_error: "テキストチャンネルの名前を変更中にエラ�
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **このチャンネルはチケットモジュールからリンク解除されました。**"
 ticket_unlink_panel_edited_content: "このチャンネルは以前のチケットでした。ユーザー {user} がこのチャンネルのリンクを解除しました。"
 
+# /ticket remind
+ticket_remind_embed_title: "おっと！チケットのリマインダー"
+ticket_remind_embed_desc: "最近あまりアクティブではありませんが、問題ありません。チケットはまだ処理中です！ぜひ返信してください！"
+ticket_remind_embed_fields_1_name: "最後の返信"
+ticket_remind_command_ok: "ユーザーにリマインダーメッセージを送信しました。"
+var_never: "なし"
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 

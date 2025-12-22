@@ -319,6 +319,13 @@ ticket_rename_error: "Erro ao renomear o canal de texto."
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **O canal foi desvinculado do módulo de tickets.**"
 ticket_unlink_panel_edited_content: "Este canal era um ticket antigo. O utilizador {user} desvinculou este canal."
 
+# /ticket remind
+ticket_remind_embed_title: "Oh-oh! Lembrete de ticket"
+ticket_remind_embed_desc: "Não tens estado muito ativo, não há problema, mas o teu ticket ainda está em processamento! Vem responder!"
+ticket_remind_embed_fields_1_name: "Última resposta"
+ticket_remind_command_ok: "Enviei uma mensagem de lembrete ao utilizador."
+var_never: "Nunca"
+
 # Comandos de Níveis
 # /level, /setxpchannels, /disablexp
 

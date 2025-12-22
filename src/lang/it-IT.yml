@@ -319,6 +319,13 @@ ticket_rename_error: "Errore durante la rinomina del canale di testo."
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Il canale è ora scollegato dal modulo ticket.**"
 ticket_unlink_panel_edited_content: "Questo canale era un vecchio ticket. L’utente {user} ha scollegato questo canale."
 
+# /ticket remind
+ticket_remind_embed_title: "Oh-oh! Promemoria ticket"
+ticket_remind_embed_desc: "Non sei stato molto attivo, non è un problema, ma il tuo ticket è ancora in lavorazione! Vieni a rispondere!"
+ticket_remind_embed_fields_1_name: "Ultima risposta"
+ticket_remind_command_ok: "Ho inviato un messaggio di promemoria all'utente."
+var_never: "Mai"
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 

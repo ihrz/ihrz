@@ -105,6 +105,18 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageChannels
 		},
 		{
+			name: "remind",
+
+			description: "Remind the ticket owner that they not have responded since while !",
+			description_localizations: {
+				"fr": "Rappelez au propriétaire du ticket qu'il n'a pas répondu depuis un certain temps !"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: [PermissionFlagsBits.ManageChannels]
+		},
+		{
 			name: "delete",
 			prefixName: "ticket-delete",
 

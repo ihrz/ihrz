@@ -50,6 +50,7 @@ import {
 	TopLevelComponentData,
 	Message,
 	MessageFlags,
+	Collection,
 } from 'discord.js';
 
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
@@ -1343,6 +1344,55 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached"
 	} catch (e) { return };
 };
 
+async function TicketRemind(interaction: ChatInputCommandInteraction<"cached"> | Message) {
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const owner_ticket = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.member?.user.id}.${interaction.channel?.id}`);
+
+	let ticketOwner = interaction.guild?.members.cache.get(owner_ticket.author) ||
+		await interaction.guild?.members.fetch(owner_ticket.author).catch(() => null);
+
+	// Fetch messages properly - get the last 100 messages
+	let messages = await interaction.channel?.messages.fetch({ limit: 100 }).catch(() => null);
+
+	if (!messages) return; // Exit if we couldn't fetch messages
+
+	// Filter to get only messages from the ticket owner
+	let lastOwnerMessage = messages
+		.filter((x) => x.author.id === ticketOwner?.id)
+		.sort((a, b) => b.createdTimestamp - a.createdTimestamp)
+		.first();
+
+	let timestamp = lastOwnerMessage?.createdTimestamp;
+	let time = timestamp ? interaction.client.timeCalculator.to_beautiful_string(Date.now() - timestamp, lang) : 'Jamais';
+
+	let Success = await ticketOwner?.send({
+		content: `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}`,
+		embeds: [
+			new EmbedBuilder()
+				.setTitle(lang.ticket_remind_embed_title)
+				.setDescription(lang.ticket_remind_embed_desc)
+				.setFields({
+					name: lang.ticket_remind_embed_fields_1_name,
+					value: `[${time}](https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${lastOwnerMessage?.id})`
+				})
+				.setColor("Red")
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+		],
+		files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+	}).then(() => true).catch(() => false);
+
+	if (!Success) {
+		client.func.method.interactionSend(interaction, {
+			content: lang.utils_dm_cant.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+				.replace("${targetMember.toString()}", ticketOwner?.toString()!)
+		})
+	} else {
+		client.func.method.interactionSend(interaction, {
+			content: lang.ticket_remind_command_ok
+		})
+	}
+}
+
 export {
 	CreateButtonPanel,
 
@@ -1358,4 +1408,5 @@ export {
 	TicketReOpen,
 
 	TicketAddMember_2,
+	TicketRemind
 };

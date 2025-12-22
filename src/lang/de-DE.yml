@@ -319,6 +319,13 @@ ticket_rename_error: "Fehler beim Umbenennen des Textkanals."
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Der Kanal wurde vom Ticket-Modul getrennt.**"
 ticket_unlink_panel_edited_content: "Dieser Kanal war ein altes Ticket. Der Benutzer {user} hat diesen Kanal getrennt."
 
+# /ticket remind
+ticket_remind_embed_title: "Oh-oh! Ticket-Erinnerung"
+ticket_remind_embed_desc: "Du bist nicht sehr aktiv, das ist kein Problem, aber dein Ticket wird noch bearbeitet! Komm vorbei und antworte!"
+ticket_remind_embed_fields_1_name: "Letzte Antwort"
+ticket_remind_command_ok: "Ich habe dem Benutzer eine Erinnerungsnachricht gesendet."
+var_never: "Nie"
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 

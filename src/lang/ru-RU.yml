@@ -319,6 +319,13 @@ ticket_rename_error: "Ошибка при переименовании текс�
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Канал был отвязан от модуля тикетов.**"
 ticket_unlink_panel_edited_content: "Этот канал был старым тикетом. Пользователь {user} отвязал этот канал."
 
+# /ticket remind
+ticket_remind_embed_title: "Ой-ой! Напоминание о тикете"
+ticket_remind_embed_desc: "Вы не были очень активны, это не проблема, но ваш тикет всё ещё обрабатывается! Пожалуйста, ответьте на него!"
+ticket_remind_embed_fields_1_name: "Последний ответ"
+ticket_remind_command_ok: "Я отправил пользователю сообщение с напоминанием."
+var_never: "Никогда"
+
 # Команды для рангов
 # /level, /setxpchannels, /disablexp
 
