@@ -126,6 +126,7 @@ export const command: Command = {
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
+			aliases: ["tdelete"],
 
 			permission: null
 		},
