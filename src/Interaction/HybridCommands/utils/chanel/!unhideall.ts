@@ -32,10 +32,18 @@ import { LanguageData } from '../../../../../types/languageData.js';
 import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, _args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var role = interaction.options.getRole("role");
+		} else {
+			var role = client.func.method.role(interaction, args!, 0);
+		}
+
+		let role_to_edit = role?.id || interaction.guild.id;
 
 		try {
 			const allChannels = await interaction.guild.channels.fetch();
@@ -57,10 +65,10 @@ export const subCommand: SubCommand = {
 						continue;
 					}
 
-					const everyoneOverwrite = textChannel.permissionOverwrites.cache.get(interaction.guild.id);
+					const everyoneOverwrite = textChannel.permissionOverwrites.cache.get(role_to_edit);
 
 					if (everyoneOverwrite && everyoneOverwrite.deny.has('ViewChannel')) {
-						await textChannel.permissionOverwrites.edit(interaction.guild.id, {
+						await textChannel.permissionOverwrites.edit(role_to_edit, {
 							ViewChannel: null
 						});
 						unhiddenCount++;
