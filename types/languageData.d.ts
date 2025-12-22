@@ -305,6 +305,11 @@ export interface LanguageData {
 	ticket_rename_error: string;
 	ticket_unlink_command_ok: string;
 	ticket_unlink_panel_edited_content: string;
+	ticket_remind_embed_title: string;
+	ticket_remind_embed_desc: string;
+	ticket_remind_embed_fields_1_name: string;
+	ticket_remind_command_ok: string;
+	var_never: string;
 	disablexp_not_admin: string;
 	disablexp_logs_embed_title_disable: string;
 	disablexp_logs_embed_description_disable: string;

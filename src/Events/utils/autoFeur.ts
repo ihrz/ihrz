@@ -22,7 +22,7 @@
 import { ChannelType, Client, Message } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { guildPrefix } from '../../core/functions/prefix.js';
-export const auto_respond: { [key: string]: string } = {
+export const auto_respond: Record<string, string> = {
 	"feur": "tgl",
 	"quoi": "feur",
 	"salut": "tgl",

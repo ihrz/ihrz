@@ -319,6 +319,13 @@ ticket_rename_error: "Error when renaming the text channel"
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **The channel is now unlinked from the ticket module.**"
 ticket_unlink_panel_edited_content: "This channel was an old ticket. The user {user} has unlinked this channel."
 
+# /ticket remind
+ticket_remind_embed_title: "Uh-oh! Ticket Reminder"
+ticket_remind_embed_desc: "You haven't been very active, that's okay, but your ticket is still being processed! Come and reply to it!"
+ticket_remind_embed_fields_1_name: "Last reply"
+ticket_remind_command_ok: "I have sent a reminder message to the user."
+var_never: "Never"
+
 # Ranks commands
 # /level, /setxpchannels, /disablexp
 
@@ -2405,11 +2412,6 @@ stats_compare_invalid_users: "Please provide two valid users to compare."
 stats_compare_no_data: "One or both users don't have statistics data."
 channel_stats_title: "Channel Statistics"
 stats_channel_invalid: "Invalid channel specified."
-var_1d: "Daily"
-var_7d: "Weekly"
-var_14d: "Monthly"
-var_total: "Total"
-var_unknown: "Unknown"
 top_active_users_title: "Top Active Users"
 activity_overview: "Activity Overview"
 active_users_title: "Active Users"

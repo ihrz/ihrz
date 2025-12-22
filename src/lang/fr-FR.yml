@@ -319,6 +319,13 @@ ticket_rename_error: "Erreur lors du renommage du canal textuel."
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Le salon est maintenant dissocié du module de tickets.**"
 ticket_unlink_panel_edited_content: "Ce salon était un ancien ticket. L’utilisateur {user} a dissocié ce salon."
 
+# /ticket remind
+ticket_remind_embed_title: "Oh-oh! Rappel Ticket"
+ticket_remind_embed_desc: "Tu n'ai pas très actif, ce n'est pas grave, mais ton ticket est toujours en traitement ! Viens donc y répondre!"
+ticket_remind_embed_fields_1_name: "Dernière réponse"
+ticket_remind_command_ok: "J'ai envoyer à l'utilisateur le message de rappel."
+var_never: "Jamais"
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 
@@ -2403,11 +2410,6 @@ stats_compare_invalid_users: "Veuillez fournir deux utilisateurs valides à comp
 stats_compare_no_data: "Un ou les deux utilisateurs n'ont pas de données statistiques."
 channel_stats_title: "Statistiques du Canal"
 stats_channel_invalid: "Canal spécifié invalide."
-var_1d: "Quotidien"
-var_7d: "Hebdomadaire"
-var_14d: "Mensuel"
-var_total: "Total"
-var_unknown: "Inconnu"
 top_active_users_title: "Utilisateurs les plus actifs"
 activity_overview: "Vue d'ensemble des activités"
 active_users_title: "Utilisateurs actifs"

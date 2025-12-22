@@ -319,6 +319,13 @@ ticket_rename_error: "Error al renombrar el canal de texto."
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **El canal ahora está desvinculado del módulo de tickets.**"
 ticket_unlink_panel_edited_content: "Este canal era un ticket antiguo. El usuario {user} ha desvinculado este canal."
 
+# /ticket remind
+ticket_remind_embed_title: "¡Oh-oh! Recordatorio de ticket"
+ticket_remind_embed_desc: "No has estado muy activo, no pasa nada, ¡pero tu ticket sigue en proceso! ¡Ven y respóndelo!"
+ticket_remind_embed_fields_1_name: "Última respuesta"
+ticket_remind_command_ok: "He enviado un mensaje de recordatorio al usuario."
+var_never: "Nunca"
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 
@@ -2403,11 +2410,6 @@ stats_compare_invalid_users: "Por favor, proporciona dos usuarios válidos para 
 stats_compare_no_data: "Uno o ambos usuarios no tienen datos estadísticos."
 channel_stats_title: "Estadísticas del Canal"
 stats_channel_invalid: "Canal especificado no válido."
-var_1d: "Diario"
-var_7d: "Semanal"
-var_14d: "Mensual"
-var_total: "Total"
-var_unknown: "Desconocido"
 top_active_users_title: "Usuarios Más Activos"
 activity_overview: "Resumen de Actividad"
 active_users_title: "Usuarios Activos"

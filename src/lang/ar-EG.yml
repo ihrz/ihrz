@@ -319,6 +319,13 @@ ticket_rename_error: "حدث خطأ أثناء إعادة تسمية القنا�
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **تم فصل القناة عن نظام التذاكر.**"
 ticket_unlink_panel_edited_content: "كانت هذه القناة تذكرة قديمة. قام المستخدم {user} بفصل هذه القناة."
 
+# /ticket remind
+ticket_remind_embed_title: "أوه-أوه! تذكير بالتذكرة"
+ticket_remind_embed_desc: "أنت لست نشطًا كثيرًا، لا بأس بذلك، لكن تذكرتك لا تزال قيد المعالجة! تفضل بالرد عليها!"
+ticket_remind_embed_fields_1_name: "آخر رد"
+ticket_remind_command_ok: "لقد أرسلت رسالة تذكير إلى المستخدم."
+var_never: "أبدًا"
+
 # Ranks commands
 # /level, /setxpchannels, /disablexp
 
@@ -2403,11 +2410,6 @@ stats_compare_invalid_users: "يرجى تقديم مستخدمين صالحين 
 stats_compare_no_data: "أحد المستخدمين أو كلاهما لا يملك بيانات إحصائية."
 channel_stats_title: "إحصائيات القناة"
 stats_channel_invalid: "القناة المحددة غير صالحة."
-var_1d: "يومي"
-var_7d: "أسبوعي"
-var_14d: "شهري"
-var_total: "الإجمالي"
-var_unknown: "غير معروف"
 top_active_users_title: "أكثر المستخدمين نشاطًا"
 activity_overview: "نظرة عامة على النشاط"
 active_users_title: "المستخدمون النشطون"

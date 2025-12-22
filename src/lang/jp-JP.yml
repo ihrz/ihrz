@@ -319,6 +319,13 @@ ticket_rename_error: "テキストチャンネルの名前を変更中にエラ�
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **このチャンネルはチケットモジュールからリンク解除されました。**"
 ticket_unlink_panel_edited_content: "このチャンネルは以前のチケットでした。ユーザー {user} がこのチャンネルのリンクを解除しました。"
 
+# /ticket remind
+ticket_remind_embed_title: "おっと！チケットのリマインダー"
+ticket_remind_embed_desc: "最近あまりアクティブではありませんが、問題ありません。チケットはまだ処理中です！ぜひ返信してください！"
+ticket_remind_embed_fields_1_name: "最後の返信"
+ticket_remind_command_ok: "ユーザーにリマインダーメッセージを送信しました。"
+var_never: "なし"
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 
@@ -2403,11 +2410,6 @@ stats_compare_invalid_users: "比較する有効なユーザーを2人指定し�
 stats_compare_no_data: "一方または両方のユーザーに統計データがありません。"
 channel_stats_title: "チャンネル統計"
 stats_channel_invalid: "指定されたチャンネルは無効です。"
-var_1d: "毎日"
-var_7d: "毎週"
-var_14d: "毎月"
-var_total: "合計"
-var_unknown: "不明"
 top_active_users_title: "アクティブユーザー上位"
 activity_overview: "アクティビティ概要"
 active_users_title: "アクティブユーザー"

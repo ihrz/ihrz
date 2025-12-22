@@ -195,7 +195,7 @@ export const command: Command = {
 						.replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(', '))
 				});
 			} else {
-				const existingLogs: { [key: string]: string } = {};
+				const existingLogs: Record<string, string> = {};
 				let existingCategory: CategoryChannel | null = null;
 
 				for (const logType of allLogsPossible) {
