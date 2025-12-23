@@ -37,7 +37,7 @@ export const subCommand = {
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
 		const guild = interaction.guild;
-		await guild.members.fetch();
+		if (guild.members.cache.size === 0) await guild.members.fetch();
 
 		const voiceStates = guild.voiceStates.cache;
 
