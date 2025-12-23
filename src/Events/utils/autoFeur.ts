@@ -55,6 +55,11 @@ export const auto_respond: Record<string, string> = {
 	"je sais": "ta gueule hermione",
 	"trans": "euh ouais par contre parle mieux stp, on as pas élever les cochons ensemble la conne de ta soeur",
 	"fdp": "bha nan la mienne ce fait pas payer frr",
+	"connard": "retourne chez ta mère fdp",
+	"ntm": "j'nique déjà la tienne connard",
+	"baise moi": "allé baisse la culotte",
+	"bstmr": "non",
+	"suce moi": "baisse ton pantalon"
 };
 
 export const event: BotEvent = {
@@ -73,14 +78,36 @@ export const event: BotEvent = {
 		let guildLang = await client.db.get(`${message.guild?.id}.GUILD.LANG.lang`);
 
 		if (guildLang === "fr-ME") {
-			if (auto_respond[message.content.toLowerCase()]) {
+			const messageContent = message.content.toLowerCase().trim();
+
+			// Cherche si un mot-clé est présent dans le message (exact ou à la fin)
+			let matchedKey: string | null = null;
+
+			for (const key of Object.keys(auto_respond)) {
+				// Vérifie si le message est exactement le mot-clé
+				if (messageContent === key) {
+					matchedKey = key;
+					break;
+				}
+
+				// Vérifie si le message se termine par le mot-clé (avec espace ou ponctuation avant)
+				const pattern = new RegExp(`(\\s|^)${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([\\s\\?!.,;]*)$`, 'i');
+				if (pattern.test(messageContent)) {
+					matchedKey = key;
+					break;
+				}
+			}
+
+			if (matchedKey) {
 				if (await client.func.helper.cooldown(message.author.id, "autofeur", 3000)) {
 					return;
 				}
-				var msg = auto_respond[message.content.toLowerCase()];
+
+				let msg = auto_respond[matchedKey];
+
 				// 1 chance sur 8
 				if (!await client.db.has(`${message.guildId}.UTILS.autoFeur`) && (Math.floor(Math.random() * 8) === 0)) {
-					msg += `\n-# ${client.iHorizon_Emojis.VC_OpenChat} Jte pète les couilles ? fait \`${(await guildPrefix(client, message.guildId!)).string}autorespond\` pour me faire fermer ma gueule pétasse!`
+					msg += `\n-# ${client.iHorizon_Emojis.VC_OpenChat} Jte pète les couilles ? fait \`${(await guildPrefix(client, message.guildId!)).string}autorespond\` pour me faire fermer ma gueule pétasse!`;
 				}
 
 				message.reply({ content: msg });

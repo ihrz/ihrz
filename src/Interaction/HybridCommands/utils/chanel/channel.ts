@@ -46,6 +46,21 @@ export const command: Command = {
 			description_localizations: {
 				"fr": "Masquer le salon actuel pour everyone"
 			},
+
+			options: [
+				{
+					name: "role",
+
+					description: "the role that you want to hide into the channel",
+					description_localizations: {
+						"fr": "Le rôle que tu veux masquer dans le salon"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Role,
+					required: false
+				}
+			],
 			aliases: ["masquer"],
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.ManageChannels
@@ -56,6 +71,22 @@ export const command: Command = {
 			description_localizations: {
 				"fr": "Démasquer le salon actuel pour everyone"
 			},
+
+			options: [
+				{
+					name: "role",
+
+					description: "the role that you want to unhide into the channel",
+					description_localizations: {
+						"fr": "Le rôle que tu veux démasquer dans le salon"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Role,
+					required: false
+				}
+			],
+
 			aliases: ["démasquer"],
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.ManageChannels
@@ -66,6 +97,22 @@ export const command: Command = {
 			description_localizations: {
 				"fr": "Démasquer tous les salons du serveur pour everyone"
 			},
+
+			options: [
+				{
+					name: "role",
+
+					description: "the role that you want to unhide into all guild channels",
+					description_localizations: {
+						"fr": "Le rôle que tu veux démasquer dans tout les salons du serveur"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Role,
+					required: false
+				}
+			],
+
 			aliases: ["démasquer-tout"],
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.Administrator
@@ -76,6 +123,22 @@ export const command: Command = {
 			description_localizations: {
 				"fr": "Masquer tous les salons du serveur pour everyone"
 			},
+
+			options: [
+				{
+					name: "role",
+
+					description: "the role that you want to hide into all guild channels",
+					description_localizations: {
+						"fr": "Le rôle que tu veux masquer dans tout les salons du serveur"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Role,
+					required: false
+				}
+			],
+
 			aliases: ["masquer-tout"],
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.Administrator
