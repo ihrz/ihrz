@@ -1201,6 +1201,11 @@ bringall_no_voice_channels: "La categoria specificata non contiene canali vocali
 bringall_no_members: "Non ci sono membri nel canale vocale di origine."
 bringall_results: "${interaction.user}, iHorizon ha distribuito i membri tra i canali vocali.\n\n**${movedCount}** membro/i sono stati spostati con successo da ${fromChannel} a ${channelCount} canali in ${category}.\n**${errorCount}** membro/i non hanno potuto essere spostati (vedi i log del server per i dettagli)."
 
+# /util move
+util_move_not_in_vc: "Il membro che vuoi spostare non è connesso a nessun canale vocale"
+util_move_impossible_to_move_admin: "Il membro che vuoi spostare è amministratore e tu non lo sei."
+util_move_command_ok: "${member?.toString()} è ora in ${channel.toString()}"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

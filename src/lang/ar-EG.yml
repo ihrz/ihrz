@@ -1202,6 +1202,11 @@ bringall_no_voice_channels: "الفئة المحددة لا تحتوي على ق
 bringall_no_members: "لا يوجد أعضاء في القناة الصوتية المصدر."
 bringall_results: "${interaction.user}، قام iHorizon بتوزيع الأعضاء عبر القنوات الصوتية.\n\n**${movedCount}** عضو تم نقلهم بنجاح من ${fromChannel} إلى ${channelCount} قنوات في ${category}.\n**${errorCount}** عضو لم يتمكن من نقلهم (راجع سجلات الخادم للحصول على التفاصيل)."
 
+# /util move
+util_move_not_in_vc: "العضو الذي تريد نقله غير متصل بأي قناة صوتية"
+util_move_impossible_to_move_admin: "العضو الذي تريد نقله مسؤول، وأنت لست مسؤولًا أيضًا."
+util_move_command_ok: "${member?.toString()} الآن في ${channel.toString()}"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

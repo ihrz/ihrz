@@ -1203,6 +1203,11 @@ bringall_no_voice_channels: "The specified category contains no voice channels."
 bringall_no_members: "There are no members in the source voice channel."
 bringall_results: "${interaction.user}, iHorizon has distributed members across voice channels.\n\n**${movedCount}** member(s) were successfully moved from ${fromChannel} to ${channelCount} channels in ${category}.\n**${errorCount}** member(s) could not be moved (see the server logs for details)."
 
+# /util move
+util_move_not_in_vc: "The member you want to move is not connected in any voice channel"
+util_move_impossible_to_move_admin: "The member you want to move is administrator, and you are not administrator too."
+util_move_command_ok: "${member?.toString()} is now into ${channel.toString()}"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
