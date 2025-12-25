@@ -76,6 +76,12 @@ export const subCommand: SubCommand = {
 			if (query.startsWith("https://")) {
 				res = await _node?.search({ query, source: 'spotify' }, interaction.member.user);
 
+				let isSpotify = query.includes("spotify.com");
+
+				if (isSpotify) {
+					let trackInfo = res.tracks[0].info;
+					res = await _node?.search({ query: `${trackInfo.title} ${trackInfo.author}`, source: 'deezer' }, interaction.member.user);
+				}
 			} else {
 				res = await _node?.search({ query, source: 'deezer' }, interaction.member.user);
 				logger.debug("Searching", query, 'with ', "deezer", "| Result: ", res.tracks[0]?.info)
