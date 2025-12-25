@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
 			if (query.startsWith("https://")) {
 				res = await _node?.search({ query, source: 'spotify' }, interaction.member.user);
 
-				let isSpotify = query.includes("spotify.com");
+				let isSpotify = query.includes("spotify.com/track");
 
 				if (isSpotify) {
 					let trackInfo = res.tracks[0].info;
