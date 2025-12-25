@@ -77,17 +77,17 @@ export const subCommand: SubCommand = {
 				res = await _node?.search({ query, source: 'spotify' }, interaction.member.user);
 
 			} else {
-				res = await _node?.search({ query, source: 'spotify' }, interaction.member.user);
-				logger.debug("Searching", query, 'with ', "spotify", "| Result: ", res.tracks[0]?.info)
-				logger.debug("Spotify is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
+				res = await _node?.search({ query, source: 'deezer' }, interaction.member.user);
+				logger.debug("Searching", query, 'with ', "deezer", "| Result: ", res.tracks[0]?.info)
+				logger.debug("Deezer is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
 
-				// If spotify search dont feel similar enough, search on deezer
+				// If deezer search dont feel similar enough, search on spotify
 				if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)) {
-					res = await _node?.search({ query, source: 'deezer' }, interaction.member.user);
-					logger.debug("Searching", query, "with", 'deezer', "| Result: ", res.tracks[0]?.info);
-					logger.debug("Deezer is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
+					res = await _node?.search({ query, source: 'spotify' }, interaction.member.user);
+					logger.debug("Searching", query, "with", 'spotify', "| Result: ", res.tracks[0]?.info);
+					logger.debug("Spotify is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
 				}
-				// If deezer search dont feel similar enough, fallback to default provider
+				// If spotify search dont feel similar enough, fallback to default provider
 				if (!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)) {
 					res = await _node?.search({ query }, interaction.member.user);
 					res.tracks.forEach((t) => {
