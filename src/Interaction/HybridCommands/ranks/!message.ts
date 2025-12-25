@@ -160,7 +160,7 @@ export const subCommand: SubCommand = {
 							.replace("${interaction.user.id}", interaction.member.user.id)
 					});
 				} catch (e) {
-					logger.err(e as any);
+					logger.err(e);
 				}
 			} else if (buttonInteraction.customId === "xpMessage-default-message") {
 				const newEmbed = EmbedBuilder.from(helpEmbed).setFields(

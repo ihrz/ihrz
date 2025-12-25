@@ -166,7 +166,7 @@ export const command: Command = {
 						.replace("${typeOfLogs}", typeOfLogs)
 				});
 			} catch (e) {
-				logger.err(e as any);
+				logger.err(e);
 				await client.func.method.interactionSend(interaction, { content: lang.setlogschannel_command_error });
 			}
 		};
@@ -304,7 +304,7 @@ export const command: Command = {
 						.replace("${interaction.guild.name}", interaction.guild?.name as string)
 				});
 			} catch (e) {
-				logger.err(e as any);
+				logger.err(e);
 				await client.func.method.interactionSend(interaction, { content: lang.setlogschannel_command_error });
 			}
 			return;

@@ -176,8 +176,8 @@ function promptUser(): Promise<number> {
 		});
 	} else {
 		const rl = readline.createInterface({
-			input: process.stdin as any,
-			output: process.stdout as any
+			input: process.stdin,
+			output: process.stdout
 		});
 
 		return new Promise((resolve) => {

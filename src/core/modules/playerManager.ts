@@ -199,7 +199,7 @@ Report generated in \`${format(new Date(), 'ddd MMM DD HH:MM (YYYY')}\` less tha
 			// Search with Soundcloud
 
 			const res = await player.node.search({
-				query: `${(y as any).track.info.title} - ${(y as any).track.info.author}`,
+				query: `${y.track.info.title} - ${y.track.info.author}`,
 				source: "scsearch"
 			},
 				client.user
@@ -221,7 +221,7 @@ Report generated in \`${format(new Date(), 'ddd MMM DD HH:MM (YYYY')}\` less tha
 			// Search with Deezer
 
 			const res = await player.node.search({
-				query: `${(y as any).track.info.title} - ${(y as any).track.info.author}`,
+				query: `${y.track.info.title} - ${y.track.info.author}`,
 				source: "deezer"
 			},
 				client.user

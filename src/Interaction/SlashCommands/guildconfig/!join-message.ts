@@ -223,7 +223,7 @@ class JoinMessageHandler {
 
 			return response;
 		} catch (error) {
-			logger.err(error as any);
+			logger.err(error);
 			return null;
 		}
 	}
