@@ -52,7 +52,6 @@ export const subCommand = {
 		const voiceStats = calculateVoiceStats(voiceStates.filter(x => x.channelId !== null));
 
 		const embed = new EmbedBuilder();
-		const files = [];
 
 		if (mode === "large") {
 			const boosters = guild.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`) || [];
@@ -128,17 +127,11 @@ export const subCommand = {
 						inline: true
 					}
 				)
-				.setThumbnail("attachment://guild_icon.png")
-
-			files.push({
-				name: "guild_icon.png",
-				attachment: guild.iconURL({ size: 4096 })!
-			});
+				.setThumbnail(guild.iconURL({ size: 4096 }))
 		}
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: files
 		});
 	}
 };
