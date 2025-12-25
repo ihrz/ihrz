@@ -58,7 +58,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, { content: lang.resume_command_work });
 			return;
-		} catch (error: any) {
+		} catch (error) {
 			logger.err(error);
 		};
 	},

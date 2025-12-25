@@ -100,7 +100,7 @@ class MemberCountModule {
 					}
 				}
 			} catch (error) {
-				logger.err('Error handling guildMemberAdd event:' + error as any);
+				logger.err('Error handling guildMemberAdd event:' + error);
 			}
 		}
 	}

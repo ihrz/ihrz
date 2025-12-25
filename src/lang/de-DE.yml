@@ -1201,6 +1201,11 @@ bringall_no_voice_channels: "Die angegebene Kategorie enthält keine Sprachkanä
 bringall_no_members: "Es befinden sich keine Mitglieder im Quell-Sprachkanal."
 bringall_results: "${interaction.user}, iHorizon hat Mitglieder auf Sprachkanäle verteilt.\n\n**${movedCount}** Mitglied(er) wurden erfolgreich von ${fromChannel} auf ${channelCount} Kanäle in ${category} verschoben.\n**${errorCount}** Mitglied(er) konnten nicht verschoben werden (siehe Serverprotokolle für Details)."
 
+# /util move
+util_move_not_in_vc: "Das Mitglied, das du verschieben möchtest, ist in keinem Sprachkanal verbunden."
+util_move_impossible_to_move_admin: "Das Mitglied, das du verschieben möchtest, ist Administrator und du bist kein Administrator."
+util_move_command_ok: "${member?.toString()} ist jetzt in ${channel.toString()}"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

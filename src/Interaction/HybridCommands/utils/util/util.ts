@@ -534,7 +534,48 @@ export const command: Command = {
 					permission: null
 				}
 			]
-		}
+		},
+		{
+			name: "move",
+
+			description: "Move an user from voice-channel.",
+			description_localizations: {
+				"fr": "Déplacer un membre d'un salon vocal"
+			},
+
+			aliases: ["déplacer", "switch"],
+
+			options: [
+				{
+					name: "member",
+
+					description: "The member you want to move",
+					description_localizations: {
+						"fr": "Le membre que vous voulez déplacer"
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.User,
+					required: true
+				},
+				{
+					name: "channel",
+
+					description: "The channel you want",
+					description_localizations: {
+						"fr": "Le salon vocal que tu veux."
+					},
+
+					permission: null,
+					type: ApplicationCommandOptionType.Channel,
+					required: true
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: [PermissionFlagsBits.MoveMembers]
+		},
 	],
 
 	category: 'utils',

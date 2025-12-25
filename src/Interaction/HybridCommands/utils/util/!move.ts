@@ -20,17 +20,18 @@
 */
 
 import {
+	ActionRowBuilder,
+	BaseGuildVoiceChannel,
+	ButtonBuilder,
+	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	GuildMember,
+	EmbedBuilder,
 	Message,
+	PermissionFlagsBits,
 } from 'discord.js';
-
-import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData.js';
-
-
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from '../../../../../types/languageData.js';
+import { SubCommand } from '../../../../../types/command.js';
 
 export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
@@ -38,29 +39,36 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		// Check if the member is in the same voice channel as the bot
-		if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var member = interaction.options.getMember("member");
+			var channel = interaction.options.getChannel("channel", true) as BaseGuildVoiceChannel;
+		} else {
+			var member = client.func.method.member(interaction, args!, 0);
+			var channel = (await client.func.method.voiceChannel(interaction, args!, 1))!;
+		}
+
+		// Check if member is in a voice channel
+		if (member?.voice.channelId === null) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.music_cannot.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
+				content: lang.util_move_not_in_vc,
+			});
+		}
+
+		// Check if the member is an admin
+		if (member?.permissions.has(PermissionFlagsBits.Administrator) && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.util_move_impossible_to_move_admin,
 			});
 			return;
 		}
 
-		try {
-			const voiceChannel = (interaction.member as GuildMember).voice.channel;
-			const player = client.player.getPlayer(interaction.guildId as string);
+		await member?.voice.setChannel(channel.id);
 
-			if (!player || !player.playing || !voiceChannel) {
-				await client.func.method.interactionSend(interaction, { content: lang.stop_nothing_playing });
-				return;
-			};
-
-			player.stopPlaying();
-
-			await client.func.method.interactionSend(interaction, { content: lang.stop_command_work });
-			return;
-		} catch (error) {
-			logger.err(error);
-		};
+		await client.func.method.interactionSend(interaction, {
+			content: lang.util_move_command_ok
+				.replace("${member?.toString()}", member?.toString()!)
+				.replace("${channel.toString()}", channel.toString())
+		});
+		return;
 	},
 };

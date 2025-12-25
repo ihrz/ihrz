@@ -111,7 +111,14 @@ export const event: BotEvent = {
 									try {
 										await channel.guild.channels.create({
 											name: channelBackup.name,
-											type: channelBackup.type as any,
+											type: channelBackup.type as Exclude<
+												ChannelType,
+												| ChannelType.DM
+												| ChannelType.GroupDM
+												| ChannelType.PublicThread
+												| ChannelType.AnnouncementThread
+												| ChannelType.PrivateThread
+											>,
 											parent: category.id,
 											position: channelBackup.position,
 											permissionOverwrites: channelBackup.permissions,

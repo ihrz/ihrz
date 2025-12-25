@@ -152,7 +152,7 @@ export const subCommand: SubCommand = {
 					//         .replace("${interaction.user.id}", interaction.user.id)
 					// });
 				} catch (e) {
-					logger.err(e as any);
+					logger.err(e);
 				}
 			} else if (buttonInteraction.customId === "notifyMessage-default-message") {
 				const newEmbed = EmbedBuilder.from(helpEmbed).setFields(

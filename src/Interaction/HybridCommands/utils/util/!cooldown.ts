@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 				content: lang.unban_bot_dont_have_permission.replace('${client.iHorizon_Emojis.No}', client.iHorizon_Emojis.No)
 			})
 		}
-		(channel as BaseGuildTextChannel).setRateLimitPerUser(timeConversion[duration] as any, "Slow command executed by " + interaction.member.user.id);
+		(channel as BaseGuildTextChannel).setRateLimitPerUser(Number(timeConversion[duration]), "Slow command executed by " + interaction.member.user.id);
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.util_cooldown_command_ok

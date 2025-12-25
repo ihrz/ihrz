@@ -168,7 +168,7 @@ const syncToPostgres = async () => {
 						}
 					}
 				} catch (error) {
-					logger.err(error as any);
+					logger.err(error);
 				}
 			}
 		}
@@ -183,7 +183,7 @@ const syncToPostgres = async () => {
 							await postgresTable.delete(id);
 						}
 					} catch (error) {
-						logger.err(error as any);
+						logger.err(error);
 					}
 				}
 			}
@@ -195,7 +195,7 @@ const syncToPostgres = async () => {
 					try {
 						await memoryTable.delete(id);
 					} catch (error) {
-						logger.err(error as any);
+						logger.err(error);
 					}
 				}
 			}

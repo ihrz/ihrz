@@ -90,7 +90,7 @@ export const subCommand: SubCommand = {
 			});
 
 			return;
-		} catch (error: any) {
+		} catch (error) {
 			logger.err(error)
 		};
 	},

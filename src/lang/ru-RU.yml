@@ -1201,6 +1201,11 @@ bringall_no_voice_channels: "Указанная категория не соде
 bringall_no_members: "В исходном голосовом канале нет участников."
 bringall_results: "${interaction.user}, iHorizon распределил участников по голосовым каналам.\n\n**${movedCount}** участник(ов) были успешно перемещены из ${fromChannel} в ${channelCount} каналов в ${category}.\n**${errorCount}** участник(ов) не удалось переместить (подробности см. в журналах сервера)."
 
+# /util move
+util_move_not_in_vc: "Участник, которого вы хотите переместить, не подключен ни к одному голосовому каналу"
+util_move_impossible_to_move_admin: "Участник, которого вы хотите переместить, является администратором, а вы нет."
+util_move_command_ok: "${member?.toString()} теперь находится в ${channel.toString()}"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

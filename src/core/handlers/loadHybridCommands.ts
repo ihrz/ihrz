@@ -167,7 +167,7 @@ async function processCommandOptions(
 							continue; // Skip instead of exiting
 						}
 
-						(subOption as any).run = commandModule.subCommand.run;
+						(subOption as unknown as Command).run = commandModule.subCommand.run;
 
 						const aliases = subOption.aliases || [];
 						for (const alias of aliases) {
@@ -175,10 +175,10 @@ async function processCommandOptions(
 								logger.err(`Alias "${alias}" for command "${subOption.name}" already exists! Exiting...`.bgRed);
 								process.exit(1);
 							}
-							client.message_commands.set(alias, (subOption as any));
+							client.message_commands.set(alias, (subOption as unknown as Command));
 						}
-						client.subCommands.set(fullSubCommandName, subOption as any);
-						client.message_commands.set(subOption.prefixName || subOption.name, (subOption as any))
+						client.subCommands.set(fullSubCommandName, subOption as unknown as Command);
+						client.message_commands.set(subOption.prefixName || subOption.name, (subOption as unknown as Command))
 					}
 				}
 			}

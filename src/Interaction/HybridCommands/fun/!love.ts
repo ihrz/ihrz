@@ -83,7 +83,7 @@ export const subCommand: SubCommand = {
 					await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction),
 				]
 			});
-		} catch (error: any) {
+		} catch (error) {
 			logger.err(error);
 			await client.func.method.interactionSend(interaction, { content: lang.love_command_error });
 		}

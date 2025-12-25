@@ -1201,6 +1201,11 @@ bringall_no_voice_channels: "指定されたカテゴリにはボイスチャン
 bringall_no_members: "元のボイスチャンネルにメンバーがいません。"
 bringall_results: "${interaction.user}、iHorizonはメンバーをボイスチャンネルに分散させました。\n\n**${movedCount}** 人のメンバーが${fromChannel}から${category}の${channelCount}チャンネルに正常に移動されました。\n**${errorCount}** 人のメンバーは移動できませんでした（詳細はサーバーログを参照してください）。"
 
+# /util move
+util_move_not_in_vc: "移動しようとしているメンバーはボイスチャンネルに接続されていません"
+util_move_impossible_to_move_admin: "移動しようとしているメンバーは管理者です。あなたも管理者ではありません。"
+util_move_command_ok: "${member?.toString()} は ${channel.toString()} に移動しました"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 

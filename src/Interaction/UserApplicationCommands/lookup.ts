@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2025 iHorizon
 */
 
-import { Client, ApplicationCommandType, UserContextMenuCommandInteraction, PermissionFlagsBits } from 'discord.js';
+import { Client, ApplicationCommandType, UserContextMenuCommandInteraction, PermissionFlagsBits, ChatInputCommandInteraction } from 'discord.js';
 import { AnotherCommand } from '../../../types/anotherCommand.js';
 
 import { subCommand } from '../HybridCommands/utils/!userinfo.js';
@@ -31,6 +31,6 @@ export const command: AnotherCommand = {
 	thinking: false,
 	permission: PermissionFlagsBits.Administrator,
 	run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
-		subCommand.run(client, interaction as any, await getLanguageData(interaction.guildId!));
+		subCommand.run(client, interaction as unknown as ChatInputCommandInteraction<"cached">, await getLanguageData(interaction.guildId!));
 	},
 };

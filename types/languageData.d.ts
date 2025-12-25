@@ -902,6 +902,9 @@ export interface LanguageData {
 	bringall_no_voice_channels: string;
 	bringall_no_members: string;
 	bringall_results: string;
+	util_move_not_in_vc: string;
+	util_move_impossible_to_move_admin: string;
+	util_move_command_ok: string;
 	blockpub_not_admin: string;
 	blockpub_now_enable: string;
 	blockpub_now_disable: string;
