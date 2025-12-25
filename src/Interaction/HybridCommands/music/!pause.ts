@@ -66,7 +66,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, { content: player.paused ? lang.pause_var_paused : lang.pause_var_err });
 			return;
-		} catch (error: any) {
+		} catch (error) {
 			logger.err(error);
 		};
 	},

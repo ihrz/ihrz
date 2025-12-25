@@ -96,7 +96,7 @@ export const subCommand: SubCommand = {
 				await client.func.method.interactionSend(interaction, { embeds: [e] });
 				return;
 
-			} catch (e: any) {
+			} catch (e) {
 				logger.err(e);
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
@@ -118,7 +118,7 @@ export const subCommand: SubCommand = {
 						.replace(/\${interaction\.user.id}/g, interaction.member.user.id)
 				});
 				return;
-			} catch (e: any) {
+			} catch (e) {
 				logger.err(e)
 				await client.func.method.interactionSend(interaction, {
 					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)

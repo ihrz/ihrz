@@ -129,7 +129,7 @@ export const command: Command = {
 
 			await client.func.method.interactionSend(interaction, { embeds: [embed], flags: [1 << 6] });
 			return;
-		} catch (err: any) {
+		} catch (err) {
 			await client.func.method.interactionSend(interaction, { content: err.toString(), flags: [1 << 6] });
 			return;
 		};

@@ -32,7 +32,8 @@ import {
 	StringSelectMenuOptionBuilder,
 	TextInputStyle,
 	MessageComponentInteraction,
-	Interaction
+	Interaction,
+	Message
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
@@ -510,7 +511,7 @@ class JoinMessageHandler {
 	}
 
 	// Helper method to update display
-	private async updateDisplay(message: any, helpEmbed: EmbedBuilder, helpEmbed2: EmbedBuilder) {
+	private async updateDisplay(message: Message<true>, helpEmbed: EmbedBuilder, helpEmbed2: EmbedBuilder) {
 		const embeds = [helpEmbed];
 		const files = [];
 
@@ -530,7 +531,7 @@ class JoinMessageHandler {
 	}
 
 	// Handle image customization flow
-	private async handleImageCustomization(buttonInteraction: MessageComponentInteraction, message: any, helpEmbed: EmbedBuilder, helpEmbed2: EmbedBuilder) {
+	private async handleImageCustomization(buttonInteraction: MessageComponentInteraction, message: Message<true>, helpEmbed: EmbedBuilder, helpEmbed2: EmbedBuilder) {
 		await buttonInteraction.deferUpdate();
 
 		const customizationMenu = this.createImageCustomizationMenu();
@@ -575,7 +576,7 @@ class JoinMessageHandler {
 	}
 
 	// Handle default image reset
-	private async handleDefaultImage(buttonInteraction: MessageComponentInteraction, message: any, helpEmbed: EmbedBuilder, helpEmbed2: EmbedBuilder) {
+	private async handleDefaultImage(buttonInteraction: MessageComponentInteraction, message: Message<true>, helpEmbed: EmbedBuilder, helpEmbed2: EmbedBuilder) {
 		await buttonInteraction.deferUpdate();
 
 		this.imageConfig = {
@@ -588,7 +589,7 @@ class JoinMessageHandler {
 	}
 
 	// Handle image toggle (enable/disable)
-	private async handleImageToggle(buttonInteraction: MessageComponentInteraction, message: any, helpEmbed: EmbedBuilder, helpEmbed2: EmbedBuilder) {
+	private async handleImageToggle(buttonInteraction: MessageComponentInteraction, message: Message<true>, helpEmbed: EmbedBuilder, helpEmbed2: EmbedBuilder) {
 		await buttonInteraction.deferUpdate();
 
 		const newState = this.imageBannerStates === "off" ? "on" : "off";

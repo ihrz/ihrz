@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.interactionSend(interaction, { content: lang.stop_command_work });
 			return;
-		} catch (error: any) {
+		} catch (error) {
 			logger.err(error);
 		};
 	},

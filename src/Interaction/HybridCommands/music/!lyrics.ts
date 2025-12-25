@@ -76,7 +76,7 @@ export const subCommand: SubCommand = {
 			});
 			return;
 
-		} catch (error: any) {
+		} catch (error) {
 			logger.err(error)
 			await client.func.method.interactionSend(interaction, { content: lang.lyrics_not_found });
 			return;

@@ -30,6 +30,7 @@ import {
 	Client,
 	ComponentType,
 	EmbedBuilder,
+	Guild,
 	Message,
 	MessageFlags,
 	RoleSelectMenuBuilder,
@@ -239,7 +240,7 @@ export const subCommand: SubCommand = {
 			return roles.length ? roles.map(r => `<@&${r}>`).join(' ') : lang.var_no_set;
 		}
 
-		function formatCategory(id: string | undefined, guild: any) {
+		function formatCategory(id: string | undefined, guild: Guild) {
 			return id ? guild.channels.cache.get(id)?.toString() || lang.var_no_set : lang.var_no_set;
 		}
 
@@ -271,7 +272,7 @@ export const subCommand: SubCommand = {
 				str += `- ${opt.name}\n`;
 				if (opt.desc) str += `  ┖ ${lang.ticket_panel_add_option_modal_field2_label}: ${opt.desc}\n`;
 				if (opt.emoji) str += `  ┖ ${lang.ticket_panel_add_option_modal_field3_label}: ${opt.emoji}\n`;
-				if (opt.categoryId) str += `  ┖ 📂: ${formatCategory(opt.categoryId, interaction.guild)}\n`;
+				if (opt.categoryId) str += `  ┖ 📂: ${formatCategory(opt.categoryId, interaction.guild!)}\n`;
 				if (opt.panelId) str += `  ┖ ${lang.ticket_panel_change_embed_modal_placeholder}: ${opt.panelId}\n`;
 				if (opt.rolesToPing?.length >= 1) {
 					str += `  ┖ ${lang.ticket_panel_role_to_ping}:\n`;
@@ -346,7 +347,7 @@ export const subCommand: SubCommand = {
 				str += `- ${opt.name}\n`;
 				if (opt.desc) str += `  ┖ ${lang.ticket_panel_add_option_modal_field2_label}: ${opt.desc}\n`;
 				if (opt.emoji) str += `  ┖ ${lang.ticket_panel_add_option_modal_field3_label}: ${opt.emoji}\n`;
-				if (opt.categoryId) str += `  ┖ 📂: ${formatCategory(opt.categoryId, interaction.guild)}\n`;
+				if (opt.categoryId) str += `  ┖ 📂: ${formatCategory(opt.categoryId, interaction.guild!)}\n`;
 				if (opt.panelId) str += `  ┖ ${lang.ticket_panel_change_embed_modal_placeholder}: ${opt.panelId}\n`;
 				if (opt.form?.length) {
 					str += `  ┖ 📚 ${lang.var_form}:\n`;

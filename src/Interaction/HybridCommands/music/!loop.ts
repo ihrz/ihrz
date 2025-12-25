@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 					.replace("{mode}", mode === 'track' ? `🔂` : `▶`)
 			});
 			return;
-		} catch (error: any) {
+		} catch (error) {
 			logger.err(error);
 		};
 	},
