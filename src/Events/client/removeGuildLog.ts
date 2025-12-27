@@ -35,8 +35,8 @@ export const event: BotEvent = {
 
 			if (guild.name === undefined) return;
 
-			let owner1 = client.config.owner.ownerid1;
-			let owner2 = client.config.owner.ownerid2;
+			let owner1 = client.config.owners.users[0];
+			let owner2 = client.config.owners.users[1];
 
 			if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
 
