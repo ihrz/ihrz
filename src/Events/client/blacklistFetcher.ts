@@ -32,10 +32,19 @@ export const event: BotEvent = {
 			const data = await blacklistTable.get(`${member.user.id}`);
 
 			if (data?.blacklisted === true) {
-				member.send({ content: "You have been banned, because you are blacklisted from iHorizon. \nReason: \`" + data.reason + '\`' })
+				await member.send({ content: "You have been banned, because you are blacklisted from iHorizon. \nReason: \`" + data.reason + '\`' })
+					.catch(() => { })
+				member.ban({ reason: `OWNIHRZ Project Punishement - Blacklist | Reason: ${data.reason}` })
 					.catch(() => { })
 					.then(() => { });
-				member.ban({ reason: `OWNIHRZ Project Punishement - Blacklist | Reason: ${data.reason}` })
+			}
+
+			const data2 = await client.db.get(`${member.guild.id}.BLACKLIST.${member.id}`);
+
+			if (data2?.blacklisted === true) {
+				await member.send({ content: "You have been banned, because you are blacklisted from this server. \nReason: \`" + data2?.reason + '\`' })
+					.catch(() => { })
+				member.ban({ reason: `Blacklist | Reason: ${data2?.reason}` })
 					.catch(() => { })
 					.then(() => { });
 			}

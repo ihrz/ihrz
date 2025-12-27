@@ -319,6 +319,13 @@ ticket_rename_error: "テキストチャンネルの名前を変更中にエラ�
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **このチャンネルはチケットモジュールからリンク解除されました。**"
 ticket_unlink_panel_edited_content: "このチャンネルは以前のチケットでした。ユーザー {user} がこのチャンネルのリンクを解除しました。"
 
+# /ticket remind
+ticket_remind_embed_title: "おっと！チケットのリマインダー"
+ticket_remind_embed_desc: "最近あまりアクティブではありませんが、問題ありません。チケットはまだ処理中です！ぜひ返信してください！"
+ticket_remind_embed_fields_1_name: "最後の返信"
+ticket_remind_command_ok: "ユーザーにリマインダーメッセージを送信しました。"
+var_never: "なし"
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 
@@ -1194,6 +1201,11 @@ bringall_no_voice_channels: "指定されたカテゴリにはボイスチャン
 bringall_no_members: "元のボイスチャンネルにメンバーがいません。"
 bringall_results: "${interaction.user}、iHorizonはメンバーをボイスチャンネルに分散させました。\n\n**${movedCount}** 人のメンバーが${fromChannel}から${category}の${channelCount}チャンネルに正常に移動されました。\n**${errorCount}** 人のメンバーは移動できませんでした（詳細はサーバーログを参照してください）。"
 
+# /util move
+util_move_not_in_vc: "移動しようとしているメンバーはボイスチャンネルに接続されていません"
+util_move_impossible_to_move_admin: "移動しようとしているメンバーは管理者です。あなたも管理者ではありません。"
+util_move_command_ok: "${member?.toString()} は ${channel.toString()} に移動しました"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1965,6 +1977,9 @@ support_not_admin: ":x: | このコマンドを使用するには、サーバー
 support_command_work: "**${interaction.guild.name}**のサポートモジュールを設定しました。\nユーザーが次のバイオを持っている場合:\n**${input}**。\n彼らに<@&${roles.id}>役割を与えるべきです！"
 support_command_work_on_disable: "**${interaction.guild.name}**のサポートモジュールを設定しました。\n今は誰も役割を持っていません！"
 support_command_not_role: ":x: | 役割を指定していません！"
+support_command_not_type: ":x: | ユーザープロフィールで希望するサポートタイプが指定されていません（bio = 自己紹介。例: サーバーリンク、tag = サーバーのDiscordタグ）!"
+support_command_guild_not_have_tag: ":x: | このサーバーには現在タグがありません。"
+support_command_work_2: "${interaction.guild.name} のサポートモジュールが設定されました。\nユーザーがサーバータグを設定すると、\n<@&${roles.id}> のロールを付与します！"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
@@ -2392,6 +2407,18 @@ minutes_word: "分"
 top_voice: "トップ音声チャンネル"
 top_message: "トップメッセージチャンネル"
 activity_under_30d: "30日間のアクティビティ"
+top_messages_title: "メッセージランキング"
+top_voice_title: "ボイスアクティビティランキング"
+stats_no_data: "このサーバーには利用可能な統計データがありません。"
+stats_compare_title: "統計の比較"
+stats_compare_invalid_users: "比較する有効なユーザーを2人指定してください。"
+stats_compare_no_data: "一方または両方のユーザーに統計データがありません。"
+channel_stats_title: "チャンネル統計"
+stats_channel_invalid: "指定されたチャンネルは無効です。"
+top_active_users_title: "アクティブユーザー上位"
+activity_overview: "アクティビティ概要"
+active_users_title: "アクティブユーザー"
+var_members: "メンバー"
 
 # Starboard Module
 # lazy

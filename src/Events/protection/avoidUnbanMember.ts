@@ -57,8 +57,9 @@ export const event: BotEvent = {
 					shouldSanction = true;
 				};
 			}
+			const isOwner = await client.db.get(`${user?.guild.id}.OWNER.${user?.id}`)
 
-			shouldSanction && (async () => {
+			!isOwner && shouldSanction && (async () => {
 				await client.func.method.punish(data, user!);
 
 				await ban.guild.members.ban(ban.user.id);

@@ -73,7 +73,7 @@ export const command: AnotherCommand = {
 				embeds: [embed],
 				files: [{ attachment: buffer, name: 'love.png' }, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
 			});
-		} catch (error: any) {
+		} catch (error) {
 			logger.err(error);
 			await interaction.reply({ content: lang.love_command_error });
 		}

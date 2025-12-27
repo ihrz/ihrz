@@ -524,8 +524,8 @@ export class Postgres<D = any> {
 
 	public async close(): Promise<void> {
 		try {
-			if (this.ownsConnection && this.sql && typeof (this.sql as any).end === 'function') {
-				await (this.sql as any).end();
+			if (this.ownsConnection && this.sql && typeof this.sql.end === 'function') {
+				await this.sql.end();
 			}
 		} catch (err) {
 			console.error("Error closing Postgres connection:", err);

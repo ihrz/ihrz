@@ -46,6 +46,8 @@ export const command: Command = {
 				"fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
 			},
 
+			aliases: ["userbanner", "ubanner"],
+
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
@@ -75,6 +77,8 @@ export const command: Command = {
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
+
+			aliases: ["serverbanner"],
 
 			permission: null
 		},

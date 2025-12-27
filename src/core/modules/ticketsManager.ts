@@ -50,6 +50,7 @@ import {
 	TopLevelComponentData,
 	Message,
 	MessageFlags,
+	Collection,
 } from 'discord.js';
 
 import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
@@ -1003,47 +1004,45 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached"> | 
 			if (channel === interaction.channel?.id) {
 				const member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
 
-				interaction.channel.messages.fetch().then(async () => {
 
-					const attachment = await client.discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
-						limit: -1,
-						filename: `${interaction.guildId}-transcript.html`,
-						footerText: "Exported {number} message{s}",
-						poweredBy: false,
-						hydrate: true
-					});
+				const attachment = await client.discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
+					limit: -1,
+					filename: `${interaction.guildId}-transcript.html`,
+					footerText: "Exported {number} message{s}",
+					poweredBy: false,
+					hydrate: true
+				});
+
+				const embed = new EmbedBuilder()
+					.setDescription(data.close_title_sourcebin)
+					.setColor('#0014a8');
+
+				try {
+					(interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
+					client.func.method.interactionSend(interaction, { content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
+				} catch {
+					await interaction.client.func.method.channelSend(interaction, data.close_command_error);
+					return;
+				};
+
+				try {
+					let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
+					TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+					if (!TicketLogsChannel) return;
 
 					const embed = new EmbedBuilder()
-						.setDescription(data.close_title_sourcebin)
-						.setColor('#0014a8');
+						.setColor("#008000")
+						.setTitle(data.event_ticket_logsChannel_onClose_embed_title)
+						.setDescription(data.event_ticket_logsChannel_onClose_embed_desc
+							.replace('${interaction.user}', interaction.member?.user.toString()!)
+							.replace('${interaction.channel.id}', interaction.channel?.id!)
+						)
+						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+						.setTimestamp();
 
-					try {
-						(interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-						client.func.method.interactionSend(interaction, { content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
-					} catch {
-						await interaction.client.func.method.channelSend(interaction, data.close_command_error);
-						return;
-					};
-
-					try {
-						let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-						TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
-						if (!TicketLogsChannel) return;
-
-						let embed = new EmbedBuilder()
-							.setColor(await interaction.client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0014a8")
-							.setTitle(data.event_ticket_logsChannel_onClose_embed_title)
-							.setDescription(data.event_ticket_logsChannel_onClose_embed_desc
-								.replace('${interaction.user}', interaction.member?.user.toString()!)
-								.replace('${interaction.channel.id}', interaction.channel?.id!)
-							)
-							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
-							.setTimestamp();
-
-						TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
-						return;
-					} catch (e) { return };
-				});
+					TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+					return;
+				} catch (e) { return };
 			}
 		}
 	}
@@ -1345,6 +1344,55 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached"
 	} catch (e) { return };
 };
 
+async function TicketRemind(interaction: ChatInputCommandInteraction<"cached"> | Message) {
+	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const owner_ticket = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.member?.user.id}.${interaction.channel?.id}`);
+
+	let ticketOwner = interaction.guild?.members.cache.get(owner_ticket.author) ||
+		await interaction.guild?.members.fetch(owner_ticket.author).catch(() => null);
+
+	// Fetch messages properly - get the last 100 messages
+	let messages = await interaction.channel?.messages.fetch({ limit: 100 }).catch(() => null);
+
+	if (!messages) return; // Exit if we couldn't fetch messages
+
+	// Filter to get only messages from the ticket owner
+	let lastOwnerMessage = messages
+		.filter((x) => x.author.id === ticketOwner?.id)
+		.sort((a, b) => b.createdTimestamp - a.createdTimestamp)
+		.first();
+
+	let timestamp = lastOwnerMessage?.createdTimestamp;
+	let time = timestamp ? interaction.client.timeCalculator.to_beautiful_string(Date.now() - timestamp, lang) : lang.var_never;
+
+	let Success = await ticketOwner?.send({
+		content: `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}`,
+		embeds: [
+			new EmbedBuilder()
+				.setTitle(lang.ticket_remind_embed_title)
+				.setDescription(lang.ticket_remind_embed_desc)
+				.setFields({
+					name: lang.ticket_remind_embed_fields_1_name,
+					value: `[${time}](https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${lastOwnerMessage?.id})`
+				})
+				.setColor("Red")
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+		],
+		files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+	}).then(() => true).catch(() => false);
+
+	if (!Success) {
+		client.func.method.interactionSend(interaction, {
+			content: lang.utils_dm_cant.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+				.replace("${targetMember.toString()}", ticketOwner?.toString()!)
+		})
+	} else {
+		client.func.method.interactionSend(interaction, {
+			content: lang.ticket_remind_command_ok
+		})
+	}
+}
+
 export {
 	CreateButtonPanel,
 
@@ -1360,4 +1408,5 @@ export {
 	TicketReOpen,
 
 	TicketAddMember_2,
+	TicketRemind
 };

@@ -37,6 +37,13 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var role = interaction.options.getRole("role");
+		} else {
+			var role = client.func.method.role(interaction, args!, 0);
+		}
+
+		let role_to_edit = role?.id || interaction.guild.id;
 		let channel = interaction.channel as BaseGuildTextChannel;
 
 		try {
@@ -49,22 +56,22 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			const everyoneOverwrite = channel.permissionOverwrites.cache.get(interaction.guild.id);
+			const everyoneOverwrite = channel.permissionOverwrites.cache.get(role_to_edit);
 
 			if (!everyoneOverwrite || !everyoneOverwrite.deny.has('ViewChannel')) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.channel_unhide_already_visible
+					content: lang.channel_unhide_already_visible.replace("@everyone", `<@&${role_to_edit}>`)
 				});
 				return;
 			}
 
-			await channel.permissionOverwrites.edit(interaction.guild.id, {
+			await channel.permissionOverwrites.edit(role_to_edit, {
 				ViewChannel: null
 			});
 
 			// Send success message
 			await client.func.method.interactionSend(interaction, {
-				content: lang.channel_unhide_success
+				content: lang.channel_unhide_success.replace("@everyone", `<@&${role_to_edit}>`)
 			});
 
 		} catch (error) {

@@ -60,10 +60,8 @@ export interface ConfigData {
 		alway100: string[]
 	};
 
-	owner: {
-		ownerid1: string
-		ownerid2: string;
-		owners?: string[];
+	owners: {
+		users: string[];
 	};
 
 	api: {

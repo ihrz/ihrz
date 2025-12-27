@@ -22,6 +22,7 @@
 import { Client, PermissionsBitField, Presence } from 'discord.js';
 
 import { BotEvent } from '../../../types/event.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 
 export const event: BotEvent = {
 	name: "presenceUpdate",
@@ -30,27 +31,37 @@ export const event: BotEvent = {
 		if (!newPresence.guild?.members.me?.permissions.has([PermissionsBitField.Flags.ManageRoles])) return;
 		if (!oldPresence || !oldPresence.guild) return;
 
-		const someinfo = await client.db.get(`${oldPresence.guild.id}.GUILD.SUPPORT`);
+		const someinfo: DatabaseStructure.SupportSchema = await client.db.get(`${oldPresence.guild.id}.GUILD.SUPPORT`);
 
-		if (!someinfo) { return; };
+		if (!someinfo || !someinfo.rolesId) { return; };
 
 		const bio = newPresence.activities[0] || 'null';
 		const vanity = oldPresence.guild.vanityURLCode || 'null';
 
 		const fetchedUser = oldPresence.guild.members.cache.get(oldPresence.userId);
 		const fetchedRoles = newPresence.guild.roles.cache.get(someinfo.rolesId);
+
 		if (!fetchedUser || !fetchedRoles || newPresence.guild.members.me.roles.highest.position < fetchedRoles.rawPosition || newPresence.status === 'offline' || newPresence.status === "invisible") {
 			return;
 		};
 
-		if (!bio.state) {
+		if (!someinfo.type) someinfo.type === "bio";
+
+		if (someinfo?.type === "bio" && !bio.state) {
 			if (fetchedUser?.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId, "[Support] Module");
 			return;
-		};
+		} else if (someinfo.type === "tag" && !fetchedUser.user.primaryGuild?.identityGuildId) {
+			if (fetchedUser?.roles.cache.has(someinfo.rolesId)) return fetchedUser.roles.remove(someinfo.rolesId, "[Support] Module");
+			return;
+		}
+
+		const cleanBio = bio.state?.toString().toLowerCase() || '';
+		const cleanInput = someinfo?.input?.toString().toLowerCase() || '';
+		const cleanVanity = vanity.toString().toLowerCase();
 
 		if (
-			bio.state?.toString().toLowerCase().includes(someinfo?.input?.toString().toLowerCase())
-			|| bio.state?.toString().toLowerCase().includes(vanity.toString().toLowerCase())
+			(someinfo.type === "bio" && (cleanBio.includes(cleanInput) || cleanBio.includes(cleanVanity))) ||
+			(someinfo.type === "tag" && fetchedUser.user.primaryGuild?.identityGuildId === newPresence.guild.id)
 		) {
 			return fetchedUser?.roles.add(someinfo.rolesId, "[Support] Module").catch(() => { });
 		} else {

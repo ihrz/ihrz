@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+		rel="stylesheet">
+	<title>{top_messages_title}</title>
+	<style>
+		:root {
+			--primary: #5865F2;
+			--primary-light: #7983f5;
+			--primary-dark: #4752c4;
+			--secondary: #EB459E;
+			--bg-dark: #1E1F22;
+			--bg-medium: #2B2D31;
+			--bg-light: #313338;
+			--bg-lighter: #383A40;
+			--text-bright: #FFFFFF;
+			--text-normal: #DCDDDE;
+			--text-muted: #A3A6AA;
+			--text-link: #00AFF4;
+			--border-radius-sm: 4px;
+			--border-radius: 8px;
+			--border-radius-lg: 16px;
+			--shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.2);
+			--shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+			--shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.4);
+			--transition: all 0.2s ease;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Inter', sans-serif;
+			background-color: var(--bg-dark);
+			color: var(--text-bright);
+			min-height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 2rem;
+		}
+
+		.container {
+			width: 100%;
+			max-width: 1400px;
+			background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-light) 100%);
+			border-radius: var(--border-radius-lg);
+			box-shadow: var(--shadow-lg);
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+			gap: 2rem;
+			padding: 0;
+			position: relative;
+		}
+
+		.header {
+			position: relative;
+			padding: 2.5rem 3rem;
+			background: linear-gradient(90deg, rgba(88, 101, 242, 0.2) 0%, rgba(235, 69, 158, 0.2) 100%);
+			display: flex;
+			align-items: center;
+			gap: 1.5rem;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.header::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 4px;
+			background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+		}
+
+		.server-info {
+			display: flex;
+			align-items: center;
+			gap: 1.5rem;
+			flex: 1;
+		}
+
+		.server-avatar {
+			width: 80px;
+			height: 80px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 4px solid rgba(255, 255, 255, 0.2);
+			box-shadow: var(--shadow-sm);
+			transition: var(--transition);
+		}
+
+		.server-details {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+
+		.server-name {
+			font-size: 2.2rem;
+			font-weight: 800;
+			color: var(--text-bright);
+			letter-spacing: -0.5px;
+			margin: 0;
+		}
+
+		.server-meta {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			color: var(--text-muted);
+			font-size: 0.95rem;
+		}
+
+		.content {
+			padding: 0 3rem 3rem;
+			display: flex;
+			flex-direction: column;
+			gap: 2.5rem;
+		}
+
+		.section {
+			background: var(--bg-light);
+			border-radius: var(--border-radius);
+			box-shadow: var(--shadow);
+			overflow: hidden;
+			transition: var(--transition);
+		}
+
+		.section-header {
+			padding: 1.5rem;
+			background: rgba(0, 0, 0, 0.15);
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		.section-icon {
+			font-size: 1.25rem;
+			color: var(--primary);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 32px;
+			height: 32px;
+			background: rgba(88, 101, 242, 0.15);
+			border-radius: 50%;
+		}
+
+		.section-title {
+			font-size: 1.25rem;
+			font-weight: 700;
+			color: var(--text-bright);
+			margin: 0;
+		}
+
+		.section-content {
+			padding: 1.5rem;
+		}
+
+		.list {
+			display: flex;
+			flex-direction: column;
+			gap: 0.75rem;
+		}
+
+		.list-item {
+			background: rgba(255, 255, 255, 0.03);
+			border-radius: var(--border-radius);
+			padding: 1rem;
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+			transition: var(--transition);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.list-item:hover {
+			background: rgba(255, 255, 255, 0.07);
+			transform: translateX(5px);
+		}
+
+		.list-item::before {
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			width: 4px;
+			background: var(--primary);
+			border-radius: 2px;
+			opacity: 0;
+			transition: var(--transition);
+		}
+
+		.list-item:hover::before {
+			opacity: 1;
+		}
+
+		.rank {
+			font-size: 1.25rem;
+			font-weight: 800;
+			color: var(--text-muted);
+			width: 30px;
+			text-align: center;
+		}
+
+		.rank-1 {
+			color: gold;
+		}
+
+		.rank-2 {
+			color: silver;
+		}
+
+		.rank-3 {
+			color: #cd7f32;
+		}
+
+		.avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			object-fit: cover;
+		}
+
+		.info {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 0.25rem;
+			min-width: 0;
+		}
+
+		.name {
+			font-weight: 600;
+			color: var(--text-bright);
+			font-size: 1rem;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.detail {
+			font-size: 0.85rem;
+			color: var(--text-muted);
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.stat {
+			font-weight: 700;
+			color: var(--primary-light);
+			margin-left: auto;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			background: rgba(88, 101, 242, 0.1);
+			padding: 0.5rem 0.75rem;
+			border-radius: var(--border-radius-sm);
+			transition: var(--transition);
+		}
+
+		.footer {
+			text-align: center;
+			padding: 1.5rem;
+			color: var(--text-muted);
+			font-size: 0.9rem;
+			border-top: 1px solid rgba(255, 255, 255, 0.05);
+			background: rgba(0, 0, 0, 0.1);
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="header">
+			<div class="server-info">
+				<img class="server-avatar" src="{guild_pfp}" alt="Server Logo">
+				<div class="server-details">
+					<h1 class="server-name">{header_h1_value}</h1>
+					<div class="server-meta">
+						<div class="meta-item">
+							<span class="meta-icon">👥</span>
+							<span>{member_count} {var_members}</span>
+						</div>
+						<div class="meta-item">
+							<span class="meta-icon">📊</span>
+							<span>{period_label}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="content">
+			<div class="section">
+				<div class="section-header">
+					<div class="section-icon">💬</div>
+					<h2 class="section-title">{top_active_users_title}</h2>
+				</div>
+				<div class="section-content">
+					<div class="list">
+						{top_message_users}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="footer">
+			Stats generated on {current_date} • Powered by <a href="#">IHRZ</a>
+		</div>
+	</div>
+</body>
+
+</html>

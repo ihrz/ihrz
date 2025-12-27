@@ -39,6 +39,14 @@ export const subCommand: SubCommand = {
 
 		let channel = interaction.channel as BaseGuildTextChannel;
 
+		if (interaction instanceof ChatInputCommandInteraction) {
+			var role = interaction.options.getRole("role");
+		} else {
+			var role = client.func.method.role(interaction, args!, 0);
+		}
+
+		let role_to_edit = role?.id || interaction.guild.id;
+
 		try {
 			if (!interaction.guild.channels.cache.get(channel.id)) {
 				channel = (await interaction.guild.channels.fetch(channel.id)) as BaseGuildTextChannel;
@@ -49,27 +57,27 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			const everyoneOverwrite = channel.permissionOverwrites.cache.get(interaction.guild.id);
+			const everyoneOverwrite = channel.permissionOverwrites.cache.get(role_to_edit);
 			if (everyoneOverwrite && everyoneOverwrite.deny.has('ViewChannel')) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.channel_hide_already_hidden
+					content: lang.channel_hide_already_hidden.replace("@everyone", `<@&${role_to_edit}>`)
 				});
 				return;
 			}
 
 			if (everyoneOverwrite && everyoneOverwrite.allow.has('ViewChannel') === false && everyoneOverwrite.deny.has('ViewChannel') === true) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.channel_hide_already_hidden
+					content: lang.channel_hide_already_hidden.replace("@everyone", `<@&${role_to_edit}>`)
 				});
 				return;
 			}
 
-			await channel.permissionOverwrites.edit(interaction.guild.id, {
+			await channel.permissionOverwrites.edit(role_to_edit, {
 				ViewChannel: false
 			});
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.channel_hide_success
+				content: lang.channel_hide_success.replace("@everyone", `<@&${role_to_edit}>`)
 			});
 
 		} catch (error) {

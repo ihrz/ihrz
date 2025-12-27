@@ -325,6 +325,10 @@ export namespace DatabaseStructure {
 			amount: number;
 		}
 	}
+
+	export type OwnerSchema = Record<string, { owner: boolean; }>;
+	export type BlacklistSchema = Record<string, { reason: string; createdAt: string; owner: string; blacklisted: boolean; }>;
+
 	export interface DbInId {
 		USER?: DbGuildUserObject;
 		GUILD?: DbGuildObject;
@@ -346,7 +350,9 @@ export namespace DatabaseStructure {
 		VOICE_INTERFACE?: VoiceData;
 		UTILS?: UtilsData;
 		STATS?: GuildStats;
-		BLOGGER: BloggerSchema
+		BLOGGER: BloggerSchema;
+		OWNER: OwnerSchema;
+		BLACKLIST: BlacklistSchema;
 	}
 
 	export interface UtilsRoleData {
@@ -529,12 +535,46 @@ export namespace DatabaseStructure {
 		onlyOwner?: boolean;
 	}
 
+	export type SupportType = "bio" | "tag"
+
+	export interface SupportSchema {
+		input?: string | null;
+		rolesId?: string;
+		state?: string;
+		type: SupportType;
+	}
+
+	export interface ServerLogs {
+		roles?: string;
+		moderation?: string;
+		voice?: string;
+		message?: string;
+		boosts?: string;
+		user?: string;
+		antispam?: string;
+		channel?: string;
+		confession?: string;
+	}
+
+	export interface RanksRoles {
+		roles: string;
+		nicknames: string;
+	}
+
+	export interface PunishSchema {
+		PUNISH_PUB?: PunishPubSchema
+	}
+
+	export type ReactMessage = Record<string, string>
+
+	export interface LangSchema {
+		lang: string;
+	}
+
 	export interface DbGuildObject {
 		TAGS: GuildTagsStructure;
 		BOT?: DbGuildBotObject;
-		LANG?: {
-			lang: string;
-		};
+		LANG?: LangSchema;
 		TICKET?: {
 			[key: string]: DbTicketConfigurationObject | string | boolean | undefined;
 			logs?: string;
@@ -544,36 +584,15 @@ export namespace DatabaseStructure {
 		GUILD_CONFIG?: GuildConfigSchema
 		BLOCK_BOT?: boolean;
 		MCOUNT?: MemberCountSchema;
-		PUNISH?: {
-			PUNISH_PUB?: PunishPubSchema
-		};
-		SERVER_LOGS?: {
-			roles?: string;
-			moderation?: string;
-			voice?: string;
-			message?: string;
-			boosts?: string;
-			user?: string;
-			antispam?: string;
-			channel?: string;
-			confession?: string;
-		};
-		SUPPORT?: {
-			input?: string | null;
-			rolesId?: string;
-			state?: string;
-		};
+		PUNISH?: PunishSchema;
+		SERVER_LOGS?: ServerLogs;
+		SUPPORT?: SupportSchema;
 		XP_LEVELING?: DbGuildXpLeveling
 		AUTOREACT?: DbGuildAutoReact;
 		REACTION_ROLES?: ReactionRolesData;
-		RANK_ROLES?: {
-			roles: string;
-			nicknames: string;
-		};
+		RANK_ROLES?: RanksRoles;
 		SNIPE?: SnipeData;
-		REACT_MSG?: {
-			[message: string]: string;
-		};
+		REACT_MSG?: ReactMessage;
 		BLOCK_NEW_ACCOUNT?: BlockNewAccountSchema;
 		ANTISPAM?: AntiSpam.AntiSpamOptions;
 		RESTORECORD?: AuthRestoreSchema;

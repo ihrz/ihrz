@@ -319,6 +319,13 @@ ticket_rename_error: "Error when renaming the text channel"
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **The channel is now unlinked from the ticket module.**"
 ticket_unlink_panel_edited_content: "This channel was an old ticket. The user {user} has unlinked this channel."
 
+# /ticket remind
+ticket_remind_embed_title: "Uh-oh! Ticket Reminder"
+ticket_remind_embed_desc: "You haven't been very active, that's okay, but your ticket is still being processed! Come and reply to it!"
+ticket_remind_embed_fields_1_name: "Last reply"
+ticket_remind_command_ok: "I have sent a reminder message to the user."
+var_never: "Never"
+
 # Ranks commands
 # /level, /setxpchannels, /disablexp
 
@@ -1196,6 +1203,11 @@ bringall_no_voice_channels: "The specified category contains no voice channels."
 bringall_no_members: "There are no members in the source voice channel."
 bringall_results: "${interaction.user}, iHorizon has distributed members across voice channels.\n\n**${movedCount}** member(s) were successfully moved from ${fromChannel} to ${channelCount} channels in ${category}.\n**${errorCount}** member(s) could not be moved (see the server logs for details)."
 
+# /util move
+util_move_not_in_vc: "The member you want to move is not connected in any voice channel"
+util_move_impossible_to_move_admin: "The member you want to move is administrator, and you are not administrator too."
+util_move_command_ok: "${member?.toString()} is now into ${channel.toString()}"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1967,6 +1979,9 @@ support_not_admin: ":x: | You must be an administrator of this server to use the
 support_command_work: "You have setup the support module for **${interaction.guild.name}**.\nWhen user have on this bio:\n**${input}**.\nI should give the <@&${roles.id}> role to them!"
 support_command_work_on_disable: "You have setup the support module for **${interaction.guild.name}**.\nNobody can have role now!"
 support_command_not_role: ":x: | You have not specified the role !"
+support_command_not_type: ":x: | You did not specify the type of support you want in the user profile (bio = the bio, e.g. server link; tag = the server’s Discord tag)!"
+support_command_guild_not_have_tag: ":x: | The server currently has no tags."
+support_command_work_2: "You have configured the support module for ${interaction.guild.name}.\nWhen a user sets the server tag,\nI will give them the role <@&${roles.id}>!"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | You must be an administrator of this server to request this command!"
@@ -2394,6 +2409,18 @@ minutes_word: "Minutes"
 top_voice: "Top Voice Channels"
 top_message: "Top Message Channels"
 activity_under_30d: "Activity under 30 days"
+top_messages_title: "Top Messages Leaderboard"
+top_voice_title: "Top Voice Activity Leaderboard"
+stats_no_data: "No statistics data available for this server."
+stats_compare_title: "Statistics Comparison"
+stats_compare_invalid_users: "Please provide two valid users to compare."
+stats_compare_no_data: "One or both users don't have statistics data."
+channel_stats_title: "Channel Statistics"
+stats_channel_invalid: "Invalid channel specified."
+top_active_users_title: "Top Active Users"
+activity_overview: "Activity Overview"
+active_users_title: "Active Users"
+var_members: "member(s)"
 
 # Starboard Module
 # lazy

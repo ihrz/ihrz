@@ -319,6 +319,13 @@ ticket_rename_error: "حدث خطأ أثناء إعادة تسمية القنا�
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **تم فصل القناة عن نظام التذاكر.**"
 ticket_unlink_panel_edited_content: "كانت هذه القناة تذكرة قديمة. قام المستخدم {user} بفصل هذه القناة."
 
+# /ticket remind
+ticket_remind_embed_title: "أوه-أوه! تذكير بالتذكرة"
+ticket_remind_embed_desc: "أنت لست نشطًا كثيرًا، لا بأس بذلك، لكن تذكرتك لا تزال قيد المعالجة! تفضل بالرد عليها!"
+ticket_remind_embed_fields_1_name: "آخر رد"
+ticket_remind_command_ok: "لقد أرسلت رسالة تذكير إلى المستخدم."
+var_never: "أبدًا"
+
 # Ranks commands
 # /level, /setxpchannels, /disablexp
 
@@ -1195,6 +1202,11 @@ bringall_no_voice_channels: "الفئة المحددة لا تحتوي على ق
 bringall_no_members: "لا يوجد أعضاء في القناة الصوتية المصدر."
 bringall_results: "${interaction.user}، قام iHorizon بتوزيع الأعضاء عبر القنوات الصوتية.\n\n**${movedCount}** عضو تم نقلهم بنجاح من ${fromChannel} إلى ${channelCount} قنوات في ${category}.\n**${errorCount}** عضو لم يتمكن من نقلهم (راجع سجلات الخادم للحصول على التفاصيل)."
 
+# /util move
+util_move_not_in_vc: "العضو الذي تريد نقله غير متصل بأي قناة صوتية"
+util_move_impossible_to_move_admin: "العضو الذي تريد نقله مسؤول، وأنت لست مسؤولًا أيضًا."
+util_move_command_ok: "${member?.toString()} الآن في ${channel.toString()}"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1965,6 +1977,9 @@ support_not_admin: ":x: | يجب أن تكون مشرفاً في هذا الخا
 support_command_work: "لقد قمت بإعداد وحدة الدعم لـ **${interaction.guild.name}**.\nعندما يكون لدى المستخدم في سيرتهم:\n**${input}**.\nيجب أن أعطيهم دور <@&${roles.id}>!"
 support_command_work_on_disable: "لقد قمت بإعداد وحدة الدعم لـ **${interaction.guild.name}**.\nلا أحد يمكنه الحصول على دور الآن!"
 support_command_not_role: ":x: | لم تقم بتحديد الدور!"
+support_command_not_type: ":x: | إنت ماحددتش نوع الدعم اللي عايزه في بروفايل المستخدم (bio = نبذة، مثال: رابط السيرفر؛ tag = تاج السيرفر)!"
+support_command_guild_not_have_tag: ":x: | السيرفر مافيهوش أي تاجات حالياً."
+support_command_work_2: "إنت ضبطت موديول الدعم لـ ${interaction.guild.name}.\nولما أي مستخدم يحط تاج السيرفر،\nهأدي له رول <@&${roles.id}>!"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | يجب أن تكون مشرفاً في هذا الخادم لطلب هذه الأوامر!"
@@ -2392,6 +2407,18 @@ minutes_word: "دقائق"
 top_voice: "أفضل قنوات الصوت"
 top_message: "أفضل قنوات الرسائل"
 activity_under_30d: "النشاط خلال 30 يومًا"
+top_messages_title: "ترتيب الرسائل"
+top_voice_title: "ترتيب النشاط الصوتي"
+stats_no_data: "لا توجد بيانات إحصائية متاحة لهذا الخادم."
+stats_compare_title: "مقارنة الإحصائيات"
+stats_compare_invalid_users: "يرجى تقديم مستخدمين صالحين للمقارنة."
+stats_compare_no_data: "أحد المستخدمين أو كلاهما لا يملك بيانات إحصائية."
+channel_stats_title: "إحصائيات القناة"
+stats_channel_invalid: "القناة المحددة غير صالحة."
+top_active_users_title: "أكثر المستخدمين نشاطًا"
+activity_overview: "نظرة عامة على النشاط"
+active_users_title: "المستخدمون النشطون"
+var_members: "عضو/أعضاء"
 
 # Starboard Module
 # lazy

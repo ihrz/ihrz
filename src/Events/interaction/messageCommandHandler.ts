@@ -25,7 +25,8 @@ import { Command } from '../../../types/command.js';
 import { BotEvent } from '../../../types/event.js';
 import { Option } from '../../../types/option.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
-import { blacklistTable, ownerTable } from '../client/ready.js';
+import { blacklistTable } from '../client/ready.js';
+import { loggerX } from '../logs/slashCommandLogger.js';
 
 type MessageCommandResponse = {
 	success: boolean,
@@ -186,7 +187,11 @@ async function executeCommand(
 	const _ = await message.client.func.method.checkCommandArgs(message, command, Array.from(args), lang); if (!_) return;
 
 	(async () => {
-		await command.run!(message.client, message, lang, args);
+		try {
+			await command.run!(message.client, message, lang, args);
+		} catch (error) {
+			console.error(error)
+		}
 	})();
 }
 
@@ -201,15 +206,22 @@ export const event: BotEvent = {
 
 		const result = await parseMessageCommand(client, message);
 		if (!result.success) return;
-		if (result.command?.category === "owner" && (!client.owners.includes(message.author.id) || !(await ownerTable.get(`${message.author.id}.owner`)))) {
-			return;
-		}
 		if (await blacklistTable.get(`${message.author.id}.blacklisted`)) {
 			return;
 		}
 
 		try {
 			const lang = await client.func.getLanguageData(message.guildId);
+
+			loggerX.addCommand({
+				channelName: (message.channel as BaseGuildTextChannel).name,
+				command: message.content.trim(),
+				executorUsername: message.author.username,
+				guildName: message.guild.name,
+				guildId: message.guildId!,
+				timestamp: Date.now(),
+				channelId: message.channelId
+			});
 
 			if (result.subCommand) {
 				await executeCommand(message, result.subCommand as Command, result.args || [], lang);
@@ -218,6 +230,7 @@ export const event: BotEvent = {
 				await executeCommand(message, result.command, result.args || [], lang);
 			}
 		} catch (error) {
+			console.error(error)
 		}
 	}
 };

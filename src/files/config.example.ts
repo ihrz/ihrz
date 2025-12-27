@@ -85,11 +85,9 @@ const config: ConfigData = {
 
 	},
 
-	owner: {
+	owners: {
 
-		ownerid1: "User id",
-
-		ownerid2: "User id",
+		users: ["User id", "User id"]
 		/*
 		This owners have different permissions than the others in the db,
 	    
@@ -97,9 +95,6 @@ const config: ConfigData = {
 		* They can't be blacklisted by owner who are in the Database.
 		* They can't be banned by owner who are in the Database.
 		*/
-
-		owners: ["User id", "User id"]
-		// OPTIONAL CONFIG FIELD
 
 	},
 

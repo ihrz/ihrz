@@ -243,12 +243,33 @@ declare namespace Client_Functions {
 		export function getStatsLeaderboard(
 			data: Array<{ member: User | undefined; dailyMessages: number; weeklyMessages: number; monthlyMessages: number; dailyVoiceActivity: number; weeklyVoiceActivity: number; monthlyVoiceActivity: number; }>
 		): Array<{ member: User | undefined; dailyMessages: number; weeklyMessages: number; monthlyMessages: number; dailyVoiceActivity: number; weeklyVoiceActivity: number; monthlyVoiceActivity: number; }>;
+		export function getTopUsersByMessages(
+			data: Array<{ memberId: string; member: User | undefined; messages: number; }>,
+			limit: number
+		): Array<{ memberId: string; member: User | undefined; messages: number; }>;
+		export function getTopUsersByVoice(
+			data: Array<{ memberId: string; member: User | undefined; voiceDuration: number; }>,
+			limit: number
+		): Array<{ memberId: string; member: User | undefined; voiceDuration: number; }>;
 	}
 
 	// From leashModuleHelper.ts
 	export namespace leashModuleHelper {
 		export function isInVoiceChannel(member: GuildMember): boolean;
 		export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null;
+	}
+
+	// From mediaManipulation.ts
+	export namespace mediaManipulation {
+		export function convertToPng(buffer: Buffer<ArrayBufferLike>): Promise<Buffer<ArrayBufferLike>>;
+		export function adjustImageQuality(imagePath: string): Promise<void>;
+		export function resizeImage(
+			inputImage: Buffer<ArrayBufferLike>,
+			outputPath: string,
+			width?: number,
+			height?: number
+		): Promise<{ width: number; height: number; }>;
+		export function isImageUrl(url: string): Promise<boolean>;
 	}
 
 	// From encryptDecryptMethod.ts
@@ -329,23 +350,24 @@ declare namespace Client_Functions {
 	// From isAllowedLinks.ts
 	export function isAllowedLinks(link: string): boolean;
 
-	// From mediaManipulation.ts
-	export namespace mediaManipulation {
-		export function convertToPng(buffer: Buffer<ArrayBufferLike>): Promise<Buffer<ArrayBufferLike>>;
-		export function adjustImageQuality(imagePath: string): Promise<void>;
-		export function resizeImage(
-			inputImage: Buffer<ArrayBufferLike>,
-			outputPath: string,
-			width?: number,
-			height?: number
-		): Promise<{ width: number; height: number; }>;
-		export function isImageUrl(url: string): Promise<boolean>;
-	}
-
 	// From os_utils.ts
 	export namespace os_utils {
 		export function niceBytes(kb: number): string;
 		export function getMemoryInfo(): Promise<{ MemTotal: number; MemFree: number; MemAvailable: number; }>;
+	}
+
+	// From ownerHelper.ts
+	export namespace ownerHelper {
+		export function isGuildOwner(userId: string, guild: Guild): Promise<boolean>;
+		export function isBotOwner(userId: string): Promise<boolean>;
+		export function isBotDev(userId: string): boolean;
+		export function getGuildOwner(guild: Guild): Promise<Array<string>>;
+		export function getBotOwner(): Promise<Array<string>>;
+		export function getBotDev(): Array<string>;
+		export function removeBotOwner(userId: string): Promise<void>;
+		export function addBotOwner(userId: string): Promise<void>;
+		export function addGuildOwner(userId: string, guildId: string): Promise<void>;
+		export function removeGuildOwner(userId: string, guildId: string): Promise<void>;
 	}
 
 	// From tagHelper.ts

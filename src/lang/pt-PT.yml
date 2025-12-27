@@ -319,6 +319,13 @@ ticket_rename_error: "Erro ao renomear o canal de texto."
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **O canal foi desvinculado do módulo de tickets.**"
 ticket_unlink_panel_edited_content: "Este canal era um ticket antigo. O utilizador {user} desvinculou este canal."
 
+# /ticket remind
+ticket_remind_embed_title: "Oh-oh! Lembrete de ticket"
+ticket_remind_embed_desc: "Não tens estado muito ativo, não há problema, mas o teu ticket ainda está em processamento! Vem responder!"
+ticket_remind_embed_fields_1_name: "Última resposta"
+ticket_remind_command_ok: "Enviei uma mensagem de lembrete ao utilizador."
+var_never: "Nunca"
+
 # Comandos de Níveis
 # /level, /setxpchannels, /disablexp
 
@@ -1194,6 +1201,11 @@ bringall_no_voice_channels: "A categoria especificada não contém canais de voz
 bringall_no_members: "Não há membros no canal de voz de origem."
 bringall_results: "${interaction.user}, o iHorizon distribuiu membros pelos canais de voz.\n\n**${movedCount}** membro(s) foram movidos com sucesso de ${fromChannel} para ${channelCount} canais em ${category}.\n**${errorCount}** membro(s) não puderam ser movidos (consulta os registos do servidor para mais detalhes)."
 
+# /util move
+util_move_not_in_vc: "O membro que queres mover não está ligado a nenhum canal de voz"
+util_move_impossible_to_move_admin: "O membro que queres mover é administrador, e tu não és administrador."
+util_move_command_ok: "${member?.toString()} está agora em ${channel.toString()}"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1965,6 +1977,9 @@ support_not_admin: ":x: | Você deve ser um administrador deste servidor para so
 support_command_work: "Você configurou o módulo de suporte para **${interaction.guild.name}**.\nQuando um usuário tiver em sua biografia:\n**${input}**.\nEu darei a função <@&${roles.id}> a eles!"
 support_command_work_on_disable: "Você configurou o módulo de suporte para **${interaction.guild.name}**.\nAgora ninguém pode receber a função!"
 support_command_not_role: ":x: | Você não especificou a função!"
+support_command_not_type: ":x: | Não especificaste o tipo de suporte que queres no perfil do utilizador (bio = biografia, ex.: link do servidor; tag = tag do servidor)!"
+support_command_guild_not_have_tag: ":x: | O servidor não tem tags de momento."
+support_command_work_2: "Configuraste o módulo de suporte para ${interaction.guild.name}.\nQuando um utilizador definir a tag do servidor,\neu atribuirei o cargo <@&${roles.id}>!"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | Você deve ser um administrador deste servidor para solicitar estes comandos!"
@@ -2392,6 +2407,18 @@ voice_activity: "Atividade de voz"
 top_voice: "Principais canais de voz"
 top_message: "Principais canais de mensagens"
 activity_under_30d: "Atividade nos últimos 30 dias"
+top_messages_title: "Classificação de Mensagens"
+top_voice_title: "Classificação de Atividade de Voz"
+stats_no_data: "Não existem dados estatísticos disponíveis para este servidor."
+stats_compare_title: "Comparação de Estatísticas"
+stats_compare_invalid_users: "Forneça dois utilizadores válidos para comparar."
+stats_compare_no_data: "Um ou ambos os utilizadores não têm dados estatísticos."
+channel_stats_title: "Estatísticas do Canal"
+stats_channel_invalid: "Canal especificado inválido."
+top_active_users_title: "Utilizadores Mais Ativos"
+activity_overview: "Visão Geral da Atividade"
+active_users_title: "Utilizadores Ativos"
+var_members: "membro(s)"
 
 # Starboard Module
 # lazy

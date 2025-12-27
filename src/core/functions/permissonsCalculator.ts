@@ -64,7 +64,8 @@ export async function checkCommandPermission(
 		checkExplicitUserPermission(usr.id, cmdPermData),
 		checkRoleHierarchy(interaction.member, guildPerm, cmdPermData),
 		checkExplicitRolePermission(interaction.member, cmdPermData),
-		checkUserPermLevel(usr.id, guildPerm, cmdPermData)
+		checkUserPermLevel(usr.id, guildPerm, cmdPermData),
+		await isOnTheOwnerList(interaction.guildId!, interaction.member?.id!)
 	]);
 
 	// If any permission check returns true, allow the command
@@ -74,6 +75,10 @@ export async function checkCommandPermission(
 		allowed: isAllowed,
 		permissionData: cmdPermData
 	};
+}
+
+async function isOnTheOwnerList(guildId: string, memberId: string): Promise<boolean> {
+	return await client.db.get(`${guildId}.OWNER.${memberId}.owner`) === true;
 }
 
 // Helper function to get command permission data

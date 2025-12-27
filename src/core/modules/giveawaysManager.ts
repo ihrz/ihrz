@@ -45,10 +45,9 @@ export enum GiveawayEndedStatus {
 }
 
 class GiveawayManager {
-	client: Client;
 	options: GiveawaysManagerOptions;
 
-	constructor(client: Client, options: GiveawaysManagerOptions) {
+	constructor(options: GiveawaysManagerOptions) {
 		if (!client.options) {
 			throw new Error(`Client is a required option. (val=${client})`);
 		}
@@ -62,7 +61,9 @@ class GiveawayManager {
 				await this.addEntries(interaction as ButtonInteraction<"cached">);
 			};
 		});
+	}
 
+	public init() {
 		this.refresh(client);
 
 		setInterval(() => {
@@ -93,7 +94,7 @@ class GiveawayManager {
 						.replace("${data.hostedBy}", String(data.hostedBy))
 					)
 					.setTimestamp(new Date(Date.now() + data.duration))
-					.setFooter({ text: this.options.config.botName })
+					.setFooter(await client.func.displayBotName.footerBuilder(channel.guildId))
 					.setImage(data.embedImageURL);
 
 				const response = await channel.client.func.method.channelSend(channel, {
@@ -101,7 +102,8 @@ class GiveawayManager {
 					components: [
 						new ActionRowBuilder<ButtonBuilder>()
 							.addComponents(confirm)
-					]
+					],
+					files: [await client.func.displayBotName.footerAttachmentBuilder(channel.guild)]
 				});
 
 				const requirement = data.requirement;
@@ -177,7 +179,8 @@ class GiveawayManager {
 			const embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
 				.setDescription(interaction.message.embeds[0]?.description!
 					.replace(regex, `${lang.event_gw_entries_words}: **${giveawayData?.entries.length! + 1}**`)
-				);
+				)
+				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guild.id));
 
 			await interaction.message.edit({ embeds: [embedsToEdit] });
 
@@ -219,7 +222,8 @@ class GiveawayManager {
 				const embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
 					.setDescription(interaction.message.embeds[0]?.description!
 						.replace(regex, `${lang.event_gw_entries_words}: **${now_members.length}**`)
-					);
+					)
+					.setFooter(await client.func.displayBotName.footerBuilder(interaction.guild.id));
 
 				await interaction.message.edit({ embeds: [embedsToEdit] });
 				await interaction.editReply({ components: [], content: lang.event_gw_removeentries_msg.replace("${interaction.user}", interaction.user.toString()) })
@@ -254,7 +258,7 @@ class GiveawayManager {
 			try {
 				const fetch = await db.GetGiveawayData(giveawayId);
 
-				if (fetch?.ended) {
+				if (fetch?.ended === GiveawayEndedStatus.ENDED) {
 					resolve(true);
 				} else {
 					resolve(false);
@@ -270,7 +274,7 @@ class GiveawayManager {
 			try {
 				const giveawayData = (await db.GetGiveawayData(giveawayId))!;
 
-				if (giveawayData.isValid && !giveawayData.ended) {
+				if (giveawayData.isValid && giveawayData.ended === GiveawayEndedStatus.NOT_ENDED) {
 					await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
 					this.finish(
 						client,
@@ -337,6 +341,7 @@ class GiveawayManager {
 						.replace("${winners}", winners || lang.setjoinroles_var_none)
 					)
 					.setTimestamp()
+					.setFooter(await client.func.displayBotName.footerBuilder(message.guildId!));
 
 				await message?.edit({
 					embeds: [embeds], components: [
@@ -434,10 +439,11 @@ class GiveawayManager {
 						.replace("${entries}", entries)
 					)
 					.setTimestamp()
-					.setFooter({ text: this.options.config.botName });
+					.setFooter(await client.func.displayBotName.footerBuilder(message.guild?.id!))
 
 				await message?.edit({
-					embeds: [embeds]
+					embeds: [embeds],
+					files: [await client.func.displayBotName.footerAttachmentBuilder(message.guild!)]
 				});
 
 				if (winner && winner[0] !== 'None') {
@@ -492,7 +498,7 @@ class GiveawayManager {
 					.setColor(this.options.config.embedColor as ColorResolvable)
 					.setTitle(pages[currentPage].title)
 					.setDescription(pages[currentPage].description)
-					.setFooter({ text: `${this.options.config.botName} | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
+					.setFooter({ text: `${client.user?.username} | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
 					.setTimestamp()
 			};
 

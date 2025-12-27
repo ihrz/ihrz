@@ -319,6 +319,13 @@ ticket_rename_error: "Erreur lors du renommage du canal textuel."
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Le salon est maintenant dissocié du module de tickets.**"
 ticket_unlink_panel_edited_content: "Ce salon était un ancien ticket. L’utilisateur {user} a dissocié ce salon."
 
+# /ticket remind
+ticket_remind_embed_title: "Oh-oh! Rappel Ticket"
+ticket_remind_embed_desc: "Tu n'ai pas très actif, ce n'est pas grave, mais ton ticket est toujours en traitement ! Viens donc y répondre!"
+ticket_remind_embed_fields_1_name: "Dernière réponse"
+ticket_remind_command_ok: "J'ai envoyer à l'utilisateur le message de rappel."
+var_never: "Jamais"
+
 # Ranks commands
 # /xp, /setxpchannels, /disablexp
 
@@ -1102,7 +1109,7 @@ util_wakeup_command_work: "C'est partiiiiit pour le réveil de ${user.toString()
 
 # /util leash
 util_leash_too_naugthy: "Petit coquin, tu ne peux pas mettre plus de 3 personnes en laisse :D"
-util_leash_already_owned: "Petit coquin, tu possèdes déjà ces petites merveilles :smirk:"
+util_leah_already_owned: "Petit coquin, tu possèdes déjà ces petites merveilles :smirk:"
 util_leash_confirm_message: "${client.iHorizon_Emojis.No} | Le membre que tu veux mettre en laisse n'est pas dans un canal vocal !\n${client.iHorizon_Emojis.Warning_Icon} | Es-tu sûr de vouloir effectuer cette action ?"
 util_leash_canceled_leash: "${client.iHorizon_Emojis.Yes} | Configuration de laisse annulée"
 util_leash_confirmed_leash: "${client.iHorizon_Emojis.Yes} | Vous avez mis en laisse l'utilisateur avec succès dans ce serveur :smirk:"
@@ -1193,6 +1200,11 @@ bringall_invalid_category: "Veuillez spécifier une catégorie valide."
 bringall_no_voice_channels: "La catégorie spécifiée ne contient pas de canaux vocaux."
 bringall_no_members: "Il n'y a pas de membres dans le canal vocal d'origine."
 bringall_results: "${interaction.user}, iHorizon a distribué des membres entre les canaux vocaux.\n\n**${movedCount}** membre(s) ont été déplacés avec succès depuis ${fromChannel} vers ${channelCount} canaux dans ${category}.\n**${errorCount}** membre(s) n'ont pas pu être déplacés (consultez les logs du serveur pour plus de détails)."
+
+# /util move
+util_move_not_in_vc: "Le membre que vous voulez déplacer n'est connecté à aucun canal vocal"
+util_move_impossible_to_move_admin: "Le membre que vous voulez déplacer est administrateur et vous ne l'êtes pas non plus."
+util_move_command_ok: "${member?.toString()} est maintenant dans ${channel.toString()}"
 
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
@@ -1965,6 +1977,9 @@ support_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour 
 support_command_work: "Vous avez configuré le module de support pour ${interaction.guild.name}.\nLorsqu'un utilisateur a ceci dans sa bio :\n**${input}**.\nJe devrais leur donner le rôle <@&${roles.id}> !"
 support_command_work_on_disable: "Vous avez configuré le module de support pour ${interaction.guild.name}.\nPersonne ne peut maintenant avoir de rôle !"
 support_command_not_role: ":x: | Vous n'avez pas spécifié le rôle !"
+support_command_not_type: ":x: | Vous n'avez pas spécifié le type de soutien que vous voulez dans le profil des utilisateurs (bio=la bio. Ex: Lien du serveur; tag=le tag discord du serveur) !"
+support_command_guild_not_have_tag: ":x: | Le serveur n'a pas de tags actuel."
+support_command_work_2: "Vous avez configuré le module de support pour ${interaction.guild.name}.\nLorsqu'un utilisateur a met le tag du serveur.\nJe devrais lui donner le rôle <@&${roles.id}> !"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | Vous devez être un administrateur de ce serveur pour utiliser cette commande !"
@@ -2392,6 +2407,18 @@ minutes_word: "Minutes"
 top_voice: "Principaux canaux vocaux"
 top_message: "Principaux canaux de messages"
 activity_under_30d: "Activité sur 30 jours"
+top_messages_title: "Classement des Messages"
+top_voice_title: "Classement de l'Activité Vocale"
+stats_no_data: "Aucune donnée statistique disponible pour ce serveur."
+stats_compare_title: "Comparaison des Statistiques"
+stats_compare_invalid_users: "Veuillez fournir deux utilisateurs valides à comparer."
+stats_compare_no_data: "Un ou les deux utilisateurs n'ont pas de données statistiques."
+channel_stats_title: "Statistiques du Canal"
+stats_channel_invalid: "Canal spécifié invalide."
+top_active_users_title: "Utilisateurs les plus actifs"
+activity_overview: "Vue d'ensemble des activités"
+active_users_title: "Utilisateurs actifs"
+var_members: "membre(s)"
 
 # Starboard Module
 # lazy

@@ -166,7 +166,7 @@ export const command: Command = {
 						.replace("${typeOfLogs}", typeOfLogs)
 				});
 			} catch (e) {
-				logger.err(e as any);
+				logger.err(e);
 				await client.func.method.interactionSend(interaction, { content: lang.setlogschannel_command_error });
 			}
 		};
@@ -195,7 +195,7 @@ export const command: Command = {
 						.replace("${typeOfLogs}", allLogsPossible.map(x => x.value).join(', '))
 				});
 			} else {
-				const existingLogs: { [key: string]: string } = {};
+				const existingLogs: Record<string, string> = {};
 				let existingCategory: CategoryChannel | null = null;
 
 				for (const logType of allLogsPossible) {
@@ -304,7 +304,7 @@ export const command: Command = {
 						.replace("${interaction.guild.name}", interaction.guild?.name as string)
 				});
 			} catch (e) {
-				logger.err(e as any);
+				logger.err(e);
 				await client.func.method.interactionSend(interaction, { content: lang.setlogschannel_command_error });
 			}
 			return;

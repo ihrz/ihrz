@@ -319,6 +319,13 @@ ticket_rename_error: "Ошибка при переименовании текс�
 ticket_unlink_command_ok: "${client.iHorizon_Emojis.Yes} | **Канал был отвязан от модуля тикетов.**"
 ticket_unlink_panel_edited_content: "Этот канал был старым тикетом. Пользователь {user} отвязал этот канал."
 
+# /ticket remind
+ticket_remind_embed_title: "Ой-ой! Напоминание о тикете"
+ticket_remind_embed_desc: "Вы не были очень активны, это не проблема, но ваш тикет всё ещё обрабатывается! Пожалуйста, ответьте на него!"
+ticket_remind_embed_fields_1_name: "Последний ответ"
+ticket_remind_command_ok: "Я отправил пользователю сообщение с напоминанием."
+var_never: "Никогда"
+
 # Команды для рангов
 # /level, /setxpchannels, /disablexp
 
@@ -1194,6 +1201,11 @@ bringall_no_voice_channels: "Указанная категория не соде
 bringall_no_members: "В исходном голосовом канале нет участников."
 bringall_results: "${interaction.user}, iHorizon распределил участников по голосовым каналам.\n\n**${movedCount}** участник(ов) были успешно перемещены из ${fromChannel} в ${channelCount} каналов в ${category}.\n**${errorCount}** участник(ов) не удалось переместить (подробности см. в журналах сервера)."
 
+# /util move
+util_move_not_in_vc: "Участник, которого вы хотите переместить, не подключен ни к одному голосовому каналу"
+util_move_impossible_to_move_admin: "Участник, которого вы хотите переместить, является администратором, а вы нет."
+util_move_command_ok: "${member?.toString()} теперь находится в ${channel.toString()}"
+
 # Guild Config commands
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
@@ -1965,6 +1977,9 @@ support_not_admin: ":x: | Вы должны быть администратор�
 support_command_work: "Вы настроили модуль поддержки для **${interaction.guild.name}**.\nКогда пользователь имеет в своей биографии:\n**${input}**.\nЯ должен дать им роль <@&${roles.id}>!"
 support_command_work_on_disable: "Вы настроили модуль поддержки для **${interaction.guild.name}**.\nТеперь никто не может иметь роль!"
 support_command_not_role: ":x: | Вы не указали роль!"
+support_command_not_type: ":x: | Вы не указали тип поддержки, который хотите видеть в профиле пользователя (bio = биография, например ссылка на сервер; tag = тег сервера)!"
+support_command_guild_not_have_tag: ":x: | На сервере сейчас нет тегов."
+support_command_work_2: "Вы настроили модуль поддержки для ${interaction.guild.name}.\nКогда пользователь укажет тег сервера,\nя выдам ему роль <@&${roles.id}>!"
 
 # /setserverlang
 setserverlang_not_admin: ":x: | Вы должны быть администратором сервера, чтобы использовать эту команду!"
@@ -2392,6 +2407,18 @@ top_voice: "Лучшие голосовые каналы"
 top_message: "Лучшие каналы сообщений"
 activity_under_30d: "Активность за 30 дней"
 voice_activity: "Активность в голосовых каналах"
+top_messages_title: "Рейтинг сообщений"
+top_voice_title: "Рейтинг голосовой активности"
+stats_no_data: "Для этого сервера нет доступных статистических данных."
+stats_compare_title: "Сравнение статистики"
+stats_compare_invalid_users: "Пожалуйста, укажите двух действительных пользователей для сравнения."
+stats_compare_no_data: "Один или оба пользователя не имеют статистических данных."
+channel_stats_title: "Статистика канала"
+stats_channel_invalid: "Указан недопустимый канал."
+top_active_users_title: "Самые активные пользователи"
+activity_overview: "Обзор активности"
+active_users_title: "Активные пользователи"
+var_members: "участник(и)"
 
 # Starboard Module
 # lazy

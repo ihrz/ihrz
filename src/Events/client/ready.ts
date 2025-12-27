@@ -95,7 +95,7 @@ export const event: BotEvent = {
 
 		async function refreshDatabaseModel() {
 			// await tempTable.deleteAll();
-			const owners = [...new Set([...client.owners, ...(await ownerTable.all()).map(x => x.id)])];
+			const owners = await client.func.ownerHelper.getBotOwner();
 
 			owners.forEach(async ownerId => {
 				try {
@@ -204,6 +204,7 @@ export const event: BotEvent = {
 		client.blogger.start().then(() => { })
 		client.temproleManager.init();
 		client.tempbanManager.init();
+		client.giveawaysManager.init();
 		await client.email.init(true);
 
 		fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), statsRefresher();

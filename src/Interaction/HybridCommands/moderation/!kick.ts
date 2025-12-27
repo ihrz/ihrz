@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		if ((interaction.member.roles as GuildMemberRoleManager).highest.position < member.roles.highest.position) {
+		if ((interaction.member.roles as GuildMemberRoleManager).highest.position < member.roles.highest.position && interaction.guild.ownerId !== interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.kick_attempt_kick_higter_member.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
 			});

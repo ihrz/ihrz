@@ -1,7 +1,7 @@
 /*
 ・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
-・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
 
 	・   Under the following terms:
 
@@ -176,8 +176,8 @@ function promptUser(): Promise<number> {
 		});
 	} else {
 		const rl = readline.createInterface({
-			input: process.stdin as any,
-			output: process.stdout as any
+			input: process.stdin,
+			output: process.stdout
 		});
 
 		return new Promise((resolve) => {
