@@ -80,10 +80,21 @@ function rgbToHsl(rgb: RGB): HSL {
  */
 function rgbToHex(rgb: RGB): string {
 	const toHex = (n: number): string => {
-		const hex = Math.round(n).toString(16);
+		// Clamping value between 0 and 255
+		const clamped = Math.max(0, Math.min(255, Math.round(n)));
+		const hex = clamped.toString(16);
 		return hex.length === 1 ? '0' + hex : hex;
 	};
-	return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
+
+	const hex = `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
+
+	// Security Check
+	if (hex.length !== 7) {
+		console.error('Invalid hex generated:', hex, 'from RGB:', rgb);
+		return '#000000'; // Fallback
+	}
+
+	return hex;
 }
 
 /**
