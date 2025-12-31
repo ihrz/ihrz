@@ -78,7 +78,7 @@ export const event: BotEvent = {
 					for (let entry of fetched_data) {
 						let user = role.guild.members.cache.get(entry);
 						if (user) {
-							user.roles.add(newRole.id);
+							user.roles.add(newRole.id, `[Protect] Avoid role-add. Author: ${user.id}`);
 						}
 					}
 				}
