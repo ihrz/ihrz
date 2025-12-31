@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import { BaseGuildTextChannel, ButtonInteraction, EmbedBuilder, TextInputStyle, SnowflakeUtil, MessageReplyOptions, ButtonBuilder, ButtonStyle, APIMessageTopLevelComponent, ActionRowData, JSONEncodable, MessageActionRowComponentBuilder, MessageActionRowComponentData, TopLevelComponentData, ActionRowBuilder } from 'discord.js';

@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -94,7 +94,7 @@ export const subCommand: SubCommand = {
 
 		await client.giveawaysManager.create(giveawayChannel as BaseGuildTextChannel, {
 			duration: giveawayDurationFormated,
-			prize: giveawayPrize as string,
+			prize: (giveawayPrize || "")?.substring(0, 256),
 			winnerCount: giveawayNumberWinners as number,
 			hostedBy: interaction.member.user.id,
 			embedImageURL: await client.func.mediaManipulation.isImageUrl(imageUrl) ? imageUrl : null,

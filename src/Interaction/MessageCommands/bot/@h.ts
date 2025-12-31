@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -275,7 +275,7 @@ export const command: Command = {
 
 		const skidBot = {
 			color: "#1519f0",
-			footer: '© iHorizon 2025',
+			footer: `© iHorizon ${new Date().getFullYear()}`,
 			botPrefix: (await guildPrefix(client, interaction.guildId!)).string,
 			lang: await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`) || "en-US"
 		};

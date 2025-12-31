@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import { ApplicationCommandOptionType, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, GuildMember, Message, PermissionFlagsBits, PermissionsBitField } from 'discord.js';

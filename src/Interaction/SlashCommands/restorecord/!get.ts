@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -189,7 +189,8 @@ export const subCommand: SubCommand = {
 			const endIndex = Math.min(startIndex + itemsPerPage, members.length);
 			embed.setDescription(members.slice(startIndex, endIndex).map((member, i) => {
 				const localeEmoji = discordLocales[member.locale] || "🌐";
-				return `${i + 1}) <@${member.id}>\n\`${lang.rc_get_locale}\`: ${localeEmoji} (**${member.locale}**)\n\`${lang.rc_get_username}\`: **${member.username}**`;
+				const globalIndex = startIndex + i + 1;
+				return `${globalIndex}) <@${member.id}>\n\`${lang.rc_get_locale}\`: ${localeEmoji} (**${member.locale}**)\n\`${lang.rc_get_username}\`: **${member.username}**`;
 			}).join("\n"));
 
 			return embed;

@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment, MessagePayload, ButtonStyle, ActionRowData, APIMessageTopLevelComponent, JSONEncodable, MessageActionRowComponentBuilder, MessageActionRowComponentData, TopLevelComponentData, StringSelectMenuInteraction } from "discord.js";
