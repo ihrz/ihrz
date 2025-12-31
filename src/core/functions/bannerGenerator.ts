@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 export const BANNER_URL = "https://www.ihorizon.org/assets/img/banner/ihrz_{countryCode}.png";
