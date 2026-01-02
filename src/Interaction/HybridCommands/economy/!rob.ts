@@ -97,5 +97,6 @@ export const subCommand: SubCommand = {
 		await client.db.sub(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, random);
 		await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, random);
 		await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.rob`, Date.now());
+		await client.func.economyLogs.rob(interaction.guild, interaction.member.user.id, user.id, random, lang);
 	},
 };

@@ -1420,6 +1420,7 @@ setlogschannel_var_antispam: "Журналы AntiSpam"
 setlogschannel_var_channel: "Журналы канала"
 setlogschannel_var_confession: "Журналы признаний"
 setlogschannel_all_already_exist: "Все каналы логов уже настроены!"
+setlogschannel_var_economy: "Журналы экономики"
 
 # /join-ghostping add
 joinghostping_add_already_set: "Канал ${channel} уже установлен!"
@@ -2871,3 +2872,35 @@ global_not_valid_atc: "Выбранное вложение не является
 global_too_heavy_file: "Созданный MP4 файл слишком большой (${fileSizeMB.toFixed(2)} MB). Лимит Discord — 25 MB."
 global_convert_ok: "✅ Конвертация выполнена успешно"
 global_convert_ok_desc: "Ваш аудиофайл был конвертирован в MP4 (${fileSizeMB.toFixed(2)} MB)."
+
+# Economy logs titles
+economy_logs_add_money_title: "Логи экономики - Добавление денег"
+economy_logs_remove_money_title: "Логи экономики - Удаление денег"
+economy_logs_boost_role_title: "Логи экономики - Буст роли"
+economy_logs_config_title: "Логи экономики - Настройка модуля"
+economy_logs_role_add_title: "Логи экономики - Роль добавлена в магазин"
+economy_logs_role_remove_title: "Логи экономики - Роль удалена из магазина"
+economy_logs_pay_title: "Логи экономики - Платёж"
+economy_logs_rob_title: "Логи экономики - Ограбление"
+economy_logs_set_cooldown_title: "Логи экономики - Установка кулдауна"
+economy_logs_set_money_title: "Логи экономики - Установка денег"
+economy_logs_withdraw_title: "Логи экономики - Снятие"
+economy_logs_deposit_title: "Логи экономики - Пополнение"
+
+# Economy logs descriptions
+economy_logs_add_money_desc: "{author} добавил {target} `{amount}$` {coin}"
+economy_logs_remove_money_desc: "{author} удалил у {target} `{amount}$` {coin}"
+economy_logs_boost_role_desc: "{author} установил буст для роли {role}. Текущий буст: `x{amount}`"
+economy_logs_config_desc: "{author} {state} модуль экономики"
+economy_logs_role_add_desc: "{author} добавил роль {role} в магазин. Цена: `{amount}$`"
+economy_logs_role_remove_desc: "{author} удалил роль {role} из магазина."
+economy_logs_pay_desc: "{author} отправил `{amount}$` пользователю {target}"
+economy_logs_rob_desc: "{author} ограбил {target} на `{amount}$`"
+economy_logs_set_cooldown_desc: "{author} установил кулдаун `{type}` на **{time}**"
+economy_logs_set_money_desc: "{author} установил деньги `{type}` на **{money}**"
+economy_logs_withdraw_desc: "{author} снял **${money}** из банка"
+economy_logs_deposit_desc: "{author} пополнил банк на **${money}**"
+
+# Generic vars
+var_on: "включено"
+var_off: "выключено"

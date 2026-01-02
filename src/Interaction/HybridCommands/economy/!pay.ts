@@ -69,12 +69,13 @@ export const subCommand: SubCommand = {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.pay_command_work
 				.replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
-				.replace(/\${user\.user\.username}/g, user.user.globalName!)
+				.replace(/\${user\.user\.username}/g, user.user.globalName || user.user.displayName)
 				.replace(/\${amount}/g, amount.toString())
 		});
 
 		await client.db.add(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount!);
 		await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount!);
+		await client.func.economyLogs.pay(interaction.guild, interaction.member.user.id, user.id, amount, lang);
 		return;
 	},
 };

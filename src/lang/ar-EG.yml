@@ -1421,6 +1421,7 @@ setlogschannel_var_antispam: "سجلات مكافحة الرسائل المزع�
 setlogschannel_var_channel: "سجلات القناة"
 setlogschannel_var_confession: "سجلات الاعترافات"
 setlogschannel_all_already_exist: "جميع قنوات السجلات مكونة بالفعل!"
+setlogschannel_var_economy: "سجلات الاقتصاد"
 
 # /join-ghostping add
 joinghostping_add_already_set: "القناة ${channel} تم إعدادها بالفعل!"
@@ -2864,3 +2865,35 @@ global_not_valid_atc: "المرفق المحدد ليس ملفًا صوتيًا 
 global_too_heavy_file: "ملف MP4 المُولّد كبير جدًا (${fileSizeMB.toFixed(2)} MB). حدّ Discord هو 25 MB."
 global_convert_ok: "✅ تم التحويل بنجاح"
 global_convert_ok_desc: "تم تحويل ملفك الصوتي إلى MP4 (${fileSizeMB.toFixed(2)} MB)."
+
+# Economy logs titles
+economy_logs_add_money_title: "سجلات الاقتصاد - إضافة أموال"
+economy_logs_remove_money_title: "سجلات الاقتصاد - إزالة أموال"
+economy_logs_boost_role_title: "سجلات الاقتصاد - تعزيز رتبة"
+economy_logs_config_title: "سجلات الاقتصاد - إعدادات الوحدة"
+economy_logs_role_add_title: "سجلات الاقتصاد - إضافة رتبة إلى المتجر"
+economy_logs_role_remove_title: "سجلات الاقتصاد - إزالة رتبة من المتجر"
+economy_logs_pay_title: "سجلات الاقتصاد - دفع"
+economy_logs_rob_title: "سجلات الاقتصاد - سرقة"
+economy_logs_set_cooldown_title: "سجلات الاقتصاد - تعيين وقت الانتظار"
+economy_logs_set_money_title: "سجلات الاقتصاد - تعيين المال"
+economy_logs_withdraw_title: "سجلات الاقتصاد - سحب"
+economy_logs_deposit_title: "سجلات الاقتصاد - إيداع"
+
+# Economy logs descriptions
+economy_logs_add_money_desc: "{author} أضاف إلى {target} `{amount}$` {coin}"
+economy_logs_remove_money_desc: "{author} أزال من {target} `{amount}$` {coin}"
+economy_logs_boost_role_desc: "{author} قام بتعيين التعزيز لرتبة {role}. التعزيز الآن: `x{amount}`"
+economy_logs_config_desc: "{author} قام {state} وحدة الاقتصاد"
+economy_logs_role_add_desc: "{author} أضاف رتبة {role} إلى المتجر. السعر: `{amount}$`"
+economy_logs_role_remove_desc: "{author} أزال رتبة {role} من المتجر."
+economy_logs_pay_desc: "{author} أرسل `{amount}$` إلى {target}"
+economy_logs_rob_desc: "{author} سرق `{amount}$` من {target}"
+economy_logs_set_cooldown_desc: "{author} عيّن وقت الانتظار لـ `{type}` إلى **{time}**"
+economy_logs_set_money_desc: "{author} عيّن المال لـ `{type}` إلى **{money}**"
+economy_logs_withdraw_desc: "{author} سحب من البنك **${money}**"
+economy_logs_deposit_desc: "{author} أودع **${money}** في البنك"
+
+# Generic vars
+var_on: "مفعل"
+var_off: "معطل"

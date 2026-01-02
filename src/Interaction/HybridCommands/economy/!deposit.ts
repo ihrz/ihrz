@@ -91,6 +91,7 @@ export const subCommand: SubCommand = {
 			embeds: [embed],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
+		await client.func.economyLogs.deposit(interaction.guild, interaction.member.user.id, Number(toDeposit), lang);
 		return;
 	},
 };

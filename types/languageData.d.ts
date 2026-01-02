@@ -1099,6 +1099,7 @@ export interface LanguageData {
 	setlogschannel_var_channel: string;
 	setlogschannel_var_confession: string;
 	setlogschannel_all_already_exist: string;
+	setlogschannel_var_economy: string;
 	joinghostping_add_already_set: string;
 	joinghostping_add_sent_to_channel: string;
 	joinghostping_add_ok_embed_title: string;
@@ -2122,4 +2123,30 @@ export interface LanguageData {
 	global_too_heavy_file: string;
 	global_convert_ok: string;
 	global_convert_ok_desc: string;
+	economy_logs_add_money_title: string;
+	economy_logs_remove_money_title: string;
+	economy_logs_boost_role_title: string;
+	economy_logs_config_title: string;
+	economy_logs_role_add_title: string;
+	economy_logs_role_remove_title: string;
+	economy_logs_pay_title: string;
+	economy_logs_rob_title: string;
+	economy_logs_set_cooldown_title: string;
+	economy_logs_set_money_title: string;
+	economy_logs_withdraw_title: string;
+	economy_logs_deposit_title: string;
+	economy_logs_add_money_desc: string;
+	economy_logs_remove_money_desc: string;
+	economy_logs_boost_role_desc: string;
+	economy_logs_config_desc: string;
+	economy_logs_role_add_desc: string;
+	economy_logs_role_remove_desc: string;
+	economy_logs_pay_desc: string;
+	economy_logs_rob_desc: string;
+	economy_logs_set_cooldown_desc: string;
+	economy_logs_set_money_desc: string;
+	economy_logs_withdraw_desc: string;
+	economy_logs_deposit_desc: string;
+	var_on: string;
+	var_off: string;
 }
