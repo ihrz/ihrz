@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0) as GuildMember;
 		};
 
-		const member = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
+		const member = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
 
 		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
 			await client.func.method.interactionSend(interaction, {
