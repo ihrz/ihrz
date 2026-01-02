@@ -853,6 +853,16 @@ economy_role_list_no_buyable_roles: "Нет доступных для покуп
 economy_role_list_embed_title: "Экономическая система – Покупаемые роли"
 economy_role_list_embed_desc: "Все доступные для покупки роли перечислены ниже."
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**Вы действительно уверены, что хотите удалить все данные экономики?\nЭто действие необратимо.**\n**Это разрушительное действие!!**"
+reset_ueconomy_logs_embed_title: "Логи модуля экономики (ОПАСНОЕ ДЕЙСТВИЕ)"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} удалил все данные модуля экономики для ${user.toString()}!"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**Вы действительно уверены, что хотите удалить все данные экономики ДЛЯ ВСЕХ УЧАСТНИКОВ СЕРВЕРА?\nЭто действие необратимо.**\n**Это разрушительное действие!!**"
+reset_geconomy_logs_embed_title: "Логи модуля экономики (ОЧЕНЬ ОПАСНОЕ ДЕЙСТВИЕ)"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} удалил все данные модуля экономики для **ВСЕХ**!"
+
 # /economy manage-rewards set-cooldown
 economy_manage_rewards_cooldown_invalid_time: "Недействительный формат времени. Пожалуйста, используйте корректный формат."
 economy_manage_rewards_cooldown_command_ok: "Задержка для ${type} успешно установлена на ${stime}."

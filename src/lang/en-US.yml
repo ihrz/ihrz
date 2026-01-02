@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "There are no buyable roles to list."
 economy_role_list_embed_title: "Economy System - Buyable Roles"
 economy_role_list_embed_desc: "All buyable roles are listed below."
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**Are you really sure you want to delete all economy data?\nThis action is permanent and you cannot undo it.**\n**This action is destructive!!**"
+reset_ueconomy_logs_embed_title: "Economy Module Logs (DANGEROUS ACTION)"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} has deleted all economy module data for ${user.toString()}!"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**Are you really sure you want to delete all economy data TOWARDS ALL SERVERS MEMBERS?\nThis action is permanent and you cannot undo it.**\n**This action is destructive!!**"
+reset_geconomy_logs_embed_title: "Economy Module Logs (VERY DANGEROUS ACTION)"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} has deleted all economy module data for **EVERYONE**!"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 

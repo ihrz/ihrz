@@ -665,6 +665,12 @@ export interface LanguageData {
 	economy_role_list_no_buyable_roles: string;
 	economy_role_list_embed_title: string;
 	economy_role_list_embed_desc: string;
+	reset_ueconomy_are_you_sure: string;
+	reset_ueconomy_logs_embed_title: string;
+	reset_ueconomy_logs_embed_desc: string;
+	reset_geconomy_are_you_sure: string;
+	reset_geconomy_logs_embed_title: string;
+	reset_geconomy_logs_embed_desc: string;
 	setprofilage_command_work: string;
 	setprofildescriptions_command_work: string;
 	profil_not_description_set: string;

@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "لا توجد رتب قابلة للشرا�
 economy_role_list_embed_title: "نظام الاقتصاد - الرتب القابلة للشراء"
 economy_role_list_embed_desc: "جميع الرتب القابلة للشراء مذكورة أدناه."
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**هل أنت متأكد حقًا أنك تريد حذف جميع بيانات الاقتصاد؟\nهذا الإجراء نهائي ولا يمكن التراجع عنه.**\n**هذا الإجراء خطير ومدمّر!!**"
+reset_ueconomy_logs_embed_title: "سجلات وحدة الاقتصاد (إجراء خطير)"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} قام بحذف جميع بيانات وحدة الاقتصاد الخاصة بـ ${user.toString()}!"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**هل أنت متأكد حقًا أنك تريد حذف جميع بيانات الاقتصاد لجميع أعضاء الخوادم؟\nهذا الإجراء نهائي ولا يمكن التراجع عنه.**\n**هذا الإجراء خطير ومدمّر!!**"
+reset_geconomy_logs_embed_title: "سجلات وحدة الاقتصاد (إجراء خطير جدًا)"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} قام بحذف جميع بيانات وحدة الاقتصاد للجميع!"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
