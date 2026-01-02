@@ -189,12 +189,12 @@ export const subCommand: SubCommand = {
 
 		const selectCollector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
-			time: 1_250_000,
+			time: 1_250_000 * 10,
 		});
 
 		const buttonCollector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			time: 1_250_000,
+			time: 1_250_000 * 10,
 		});
 
 		buttonCollector.on('collect', async (i) => {
