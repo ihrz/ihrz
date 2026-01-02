@@ -206,7 +206,7 @@ export const command: Command = {
 								fr: "Le salon textuelle"
 							},
 
-							channel_types: [ChannelType.GuildText],
+							channel_types: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
 							type: ApplicationCommandOptionType.Channel,
 							required: true,
 
