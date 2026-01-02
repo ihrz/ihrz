@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -66,7 +66,8 @@ export const command: Command = {
 				{ name: "Roles Logs", name_localizations: { fr: 'Logs Rôles' }, value: "roles" },
 				{ name: "Ticket Logs", name_localizations: { fr: 'Logs Ticket' }, value: "ticket" },
 				{ name: "Voice Logs", name_localizations: { fr: 'Logs Voice' }, value: "voice" },
-				{ name: "Confession Logs", name_localizations: { fr: 'Logs Confession' }, value: "confession" }
+				{ name: "Confession Logs", name_localizations: { fr: 'Logs Confession' }, value: "confession" },
+				{ name: "Economy Logs", name_localizations: { fr: "Logs d'économie" }, value: "economy" }
 			],
 
 			permission: null
@@ -103,7 +104,8 @@ export const command: Command = {
 			{ id: "ticket-log-channel", value: lang.setlogschannel_var_tickets },
 			{ id: "antispam", value: lang.setlogschannel_var_antispam },
 			{ id: "channel", value: lang.setlogschannel_var_channel },
-			{ id: "confession", value: lang.setlogschannel_var_confession }
+			{ id: "confession", value: lang.setlogschannel_var_confession },
+			{ id: "economy", value: lang.setlogschannel_var_economy }
 		];
 
 		if (interaction instanceof ChatInputCommandInteraction) {
@@ -319,7 +321,8 @@ export const command: Command = {
 			"ticket": lang.setlogschannel_var_tickets,
 			"antispam": lang.setlogschannel_var_antispam,
 			"channel": lang.setlogschannel_var_channel,
-			"confession": lang.setlogschannel_var_confession
+			"confession": lang.setlogschannel_var_confession,
+			"economy": lang.setlogschannel_var_economy
 		};
 
 		if (type && type in typeOfLogsMap) {

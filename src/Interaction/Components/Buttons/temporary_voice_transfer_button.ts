@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import { ActionRowBuilder, ButtonInteraction, ComponentType, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
@@ -67,9 +67,16 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			// change ownership now
 			await tempTable.delete(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 			await tempTable.set(`CUSTOM_VOICE.${interaction.guildId}.${newOwner?.user?.id}`, getChannelId)
+			let username = interaction.user.displayName || interaction.user.username;
 
 			// change the voice channel name
-			targetedChannel?.setName(lang.temporary_voice_channel_name.replace("{nickname}", `${(newOwner as GuildMember)?.displayName || newOwner?.user?.username}`));
+			if (result?.voice_channel_name) {
+				targetedChannel?.setName(
+					result.voice_channel_name.includes("{Username}") ?
+						result.voice_channel_name.replace("{Username}", username!)
+						: result.voice_channel_name + " " + username
+				)
+			} else targetedChannel?.setName(lang.temporary_voice_channel_name.replace("{nickname}", `${username}`));
 
 			targetedChannel?.permissionOverwrites.delete(interaction.user.id);
 

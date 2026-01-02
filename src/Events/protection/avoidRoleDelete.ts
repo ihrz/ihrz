@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember, ColorResolvable } from 'discord.js'
@@ -78,7 +78,7 @@ export const event: BotEvent = {
 					for (let entry of fetched_data) {
 						let user = role.guild.members.cache.get(entry);
 						if (user) {
-							user.roles.add(newRole.id);
+							user.roles.add(newRole.id, `[Protect] Avoid role-add. Author: ${user.id}`);
 						}
 					}
 				}

@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -189,12 +189,12 @@ export const subCommand: SubCommand = {
 
 		const selectCollector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
-			time: 1_250_000,
+			time: 1_250_000 * 10,
 		});
 
 		const buttonCollector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			time: 1_250_000,
+			time: 1_250_000 * 10,
 		});
 
 		buttonCollector.on('collect', async (i) => {

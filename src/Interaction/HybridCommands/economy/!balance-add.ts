@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -67,5 +67,7 @@ export const subCommand: SubCommand = {
 				.replace(/\${amount\.value}/g, amount.toString())
 				.replace(/\${user\.user\.id}/g, user?.id!)
 		});
+
+		client.func.economyLogs.addMoney(interaction.guild, interaction.member.user.id, user?.id!, amount, lang);
 	},
 };

@@ -1420,6 +1420,7 @@ setlogschannel_var_antispam: "Registos de AntiSpam"
 setlogschannel_var_channel: "Registos do canal"
 setlogschannel_var_confession: "Registos de confissões"
 setlogschannel_all_already_exist: "Todos os canais de logs já estão configurados!"
+setlogschannel_var_economy: "Registos de economia"
 
 # /join-ghostping add
 joinghostping_add_already_set: "O canal ${channel} já está configurado!"
@@ -2871,3 +2872,35 @@ global_not_valid_atc: "O anexo selecionado não é um ficheiro de áudio válido
 global_too_heavy_file: "O ficheiro MP4 gerado é demasiado grande (${fileSizeMB.toFixed(2)} MB). O limite do Discord é 25 MB."
 global_convert_ok: "✅ Conversão bem-sucedida"
 global_convert_ok_desc: "O seu ficheiro de áudio foi convertido para MP4 (${fileSizeMB.toFixed(2)} MB)."
+
+# Economy logs titles
+economy_logs_add_money_title: "Registos de Economia - Adição de dinheiro"
+economy_logs_remove_money_title: "Registos de Economia - Remoção de dinheiro"
+economy_logs_boost_role_title: "Registos de Economia - Boost de cargo"
+economy_logs_config_title: "Registos de Economia - Configuração do módulo"
+economy_logs_role_add_title: "Registos de Economia - Cargo adicionado à loja"
+economy_logs_role_remove_title: "Registos de Economia - Cargo removido da loja"
+economy_logs_pay_title: "Registos de Economia - Pagamento"
+economy_logs_rob_title: "Registos de Economia - Roubo"
+economy_logs_set_cooldown_title: "Registos de Economia - Definir cooldown"
+economy_logs_set_money_title: "Registos de Economia - Definir dinheiro"
+economy_logs_withdraw_title: "Registos de Economia - Levantamento"
+economy_logs_deposit_title: "Registos de Economia - Depósito"
+
+# Economy logs descriptions
+economy_logs_add_money_desc: "{author} adicionou a {target} `{amount}$` {coin}"
+economy_logs_remove_money_desc: "{author} removeu de {target} `{amount}$` {coin}"
+economy_logs_boost_role_desc: "{author} definiu o boost para o cargo {role}. O boost agora é: `x{amount}`"
+economy_logs_config_desc: "{author} {state} o módulo de economia"
+economy_logs_role_add_desc: "{author} adicionou o cargo {role} à loja. Preço: `{amount}$`"
+economy_logs_role_remove_desc: "{author} removeu o cargo {role} da loja."
+economy_logs_pay_desc: "{author} enviou `{amount}$` para {target}"
+economy_logs_rob_desc: "{author} roubou `{amount}$` a {target}"
+economy_logs_set_cooldown_desc: "{author} definiu o cooldown de `{type}` para **{time}**"
+economy_logs_set_money_desc: "{author} definiu o dinheiro de `{type}` para **{money}**"
+economy_logs_withdraw_desc: "{author} levantou **${money}** do banco"
+economy_logs_deposit_desc: "{author} depositou **${money}** no banco"
+
+# Generic vars
+var_on: "ativado"
+var_off: "desativado"

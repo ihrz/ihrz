@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -80,5 +80,7 @@ export const subCommand: SubCommand = {
 			embeds: [embed],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
+
+		await client.func.economyLogs.roleDelete(interaction.guild, interaction.member.user.id, role.id, lang);
 	},
 };

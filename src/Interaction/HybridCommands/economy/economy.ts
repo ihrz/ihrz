@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -131,7 +131,7 @@ export const command: Command = {
 				fr: "Obtenir le solde d'un utilisateur",
 			},
 
-			aliases: ["wallet", "coins"],
+			aliases: ["wallet", "coins", "bal"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [

@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import type { DatabaseStructure } from './database_structure.d.ts';
@@ -308,6 +308,22 @@ declare namespace Client_Functions {
 			roleData: Record<string, DatabaseStructure.EconomyRole> | undefined,
 			lang: LanguageData
 		): Array<{ name: string; value: string; amount: number; inline: boolean; }>;
+	}
+
+	// From economyLogs.ts
+	export namespace economyLogs {
+		export function addMoney(guild: Guild, author: string, target: string, amount: number, lang: LanguageData): Promise<void>;
+		export function removeMoney(guild: Guild, author: string, target: string, amount: number, lang: LanguageData): Promise<void>;
+		export function boostModifying(guild: Guild, author: string, role: string, amount: number, lang: LanguageData): Promise<void>;
+		export function config(guild: Guild, author: string, target: "on" | "off", lang: LanguageData): Promise<void>;
+		export function roleAdd(guild: Guild, author: string, role: string, amount: number, lang: LanguageData): Promise<void>;
+		export function roleDelete(guild: Guild, author: string, role: string, lang: LanguageData): Promise<void>;
+		export function pay(guild: Guild, author: string, target: string, amount: number, lang: LanguageData): Promise<void>;
+		export function rob(guild: Guild, author: string, target: string, amount: number, lang: LanguageData): Promise<void>;
+		export function setCooldown(guild: Guild, author: string, time: string, type: string, lang: LanguageData): Promise<void>;
+		export function setMoney(guild: Guild, author: string, money: number, type: string, lang: LanguageData): Promise<void>;
+		export function withdraw(guild: Guild, author: string, money: number, lang: LanguageData): Promise<void>;
+		export function deposit(guild: Guild, author: string, money: number, lang: LanguageData): Promise<void>;
 	}
 
 	// From embedHelper.ts

@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -39,6 +39,8 @@ export const command: Command = {
 	options: [
 		{
 			name: 'name',
+			prefixName: "botname",
+			aliases: ["setname", "setbotname"],
 
 			description: 'Change the iHorizon name into the server',
 			description_localizations: {
@@ -93,6 +95,7 @@ export const command: Command = {
 		{
 			name: 'avatar',
 			prefixName: "botavatar",
+			aliases: ["setpic", "setavatar", "setpp"],
 
 			description: 'Set the bot avatar into your server',
 			description_localizations: {
@@ -145,7 +148,9 @@ export const command: Command = {
 		},
 		{
 			name: 'banner',
-			prefixName: "bot-banner",
+			prefixName: "botbanner",
+
+			aliases: ["setbotbanner", "setbanner"],
 
 			description: 'Set the bot banner into your server',
 			description_localizations: {
@@ -198,7 +203,9 @@ export const command: Command = {
 		},
 		{
 			name: 'bio',
+			prefixName: "botbio",
 
+			aliases: ["setbotbio", "setbio"],
 			description: 'Set the bot bio into your server',
 			description_localizations: {
 				"fr": "Définir la bio de profil du bot sur votre serveur discord"

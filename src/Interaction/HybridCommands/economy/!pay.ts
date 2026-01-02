@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -46,7 +46,7 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0) as GuildMember;
 		};
 
-		const member = await client.db.get(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`);
+		const member = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
 
 		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
 			await client.func.method.interactionSend(interaction, {
@@ -69,12 +69,13 @@ export const subCommand: SubCommand = {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.pay_command_work
 				.replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
-				.replace(/\${user\.user\.username}/g, user.user.globalName!)
+				.replace(/\${user\.user\.username}/g, user.user.globalName || user.user.displayName)
 				.replace(/\${amount}/g, amount.toString())
 		});
 
 		await client.db.add(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount!);
 		await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount!);
+		await client.func.economyLogs.pay(interaction.guild, interaction.member.user.id, user.id, amount, lang);
 		return;
 	},
 };

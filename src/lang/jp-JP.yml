@@ -1420,6 +1420,7 @@ setlogschannel_var_antispam: "AntiSpam ログ"
 setlogschannel_var_channel: "チャンネルログ"
 setlogschannel_var_confession: "告白ログ"
 setlogschannel_all_already_exist: "すべてのログチャンネルは既に設定されています！"
+setlogschannel_var_economy: "経済ログ"
 
 # /join-ghostping add
 joinghostping_add_already_set: "チャンネル ${channel} はすでに設定されています！"
@@ -2871,3 +2872,35 @@ global_not_valid_atc: "選択した添付ファイルは有効な音声ファイ
 global_too_heavy_file: "生成された MP4 ファイルが大きすぎます (${fileSizeMB.toFixed(2)} MB)。Discord の上限は 25 MB です。"
 global_convert_ok: "✅ 変換成功"
 global_convert_ok_desc: "音声ファイルが MP4 に変換されました (${fileSizeMB.toFixed(2)} MB)。"
+
+# Economy logs titles
+economy_logs_add_money_title: "経済ログ - お金の追加"
+economy_logs_remove_money_title: "経済ログ - お金の削除"
+economy_logs_boost_role_title: "経済ログ - ロールブースト"
+economy_logs_config_title: "経済ログ - モジュール設定"
+economy_logs_role_add_title: "経済ログ - ショップにロールを追加"
+economy_logs_role_remove_title: "経済ログ - ショップからロールを削除"
+economy_logs_pay_title: "経済ログ - 支払い"
+economy_logs_rob_title: "経済ログ - 強奪"
+economy_logs_set_cooldown_title: "経済ログ - クールダウン設定"
+economy_logs_set_money_title: "経済ログ - 金額設定"
+economy_logs_withdraw_title: "経済ログ - 引き出し"
+economy_logs_deposit_title: "経済ログ - 預け入れ"
+
+# Economy logs descriptions
+economy_logs_add_money_desc: "{author} が {target} に `{amount}$` {coin} を追加しました"
+economy_logs_remove_money_desc: "{author} が {target} から `{amount}$` {coin} を削除しました"
+economy_logs_boost_role_desc: "{author} がロール {role} のブーストを設定しました。現在のブースト: `x{amount}`"
+economy_logs_config_desc: "{author} が経済モジュールを{state}しました"
+economy_logs_role_add_desc: "{author} がロール {role} をショップに追加しました。価格: `{amount}$`"
+economy_logs_role_remove_desc: "{author} がロール {role} をショップから削除しました。"
+economy_logs_pay_desc: "{author} が {target} に `{amount}$` を送信しました"
+economy_logs_rob_desc: "{author} が {target} から `{amount}$` を奪いました"
+economy_logs_set_cooldown_desc: "{author} が `{type}` のクールダウンを **{time}** に設定しました"
+economy_logs_set_money_desc: "{author} が `{type}` の金額を **{money}** に設定しました"
+economy_logs_withdraw_desc: "{author} が銀行から **${money}** を引き出しました"
+economy_logs_deposit_desc: "{author} が銀行に **${money}** を預けました"
+
+# Generic vars
+var_on: "有効"
+var_off: "無効"

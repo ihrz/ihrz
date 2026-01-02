@@ -16,7 +16,7 @@
 
 ・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
 
-・ Copyright © 2020-2025 iHorizon
+・ Copyright © 2020-2026 iHorizon
 */
 
 import {
@@ -61,6 +61,7 @@ export const subCommand: SubCommand = {
 				content: lang.economy_disable_set_enable
 					.replace('${interaction.user.id}', interaction.member.user.id)
 			});
+			await client.func.economyLogs.config(interaction.guild, interaction.member.user.id, "on", lang)
 		} else if (state === 'off') {
 
 			if (current_state) {
@@ -77,6 +78,8 @@ export const subCommand: SubCommand = {
 				content: lang.economy_disable_set_disable
 					.replace('${interaction.user.id}', interaction.member.user.id)
 			});
+
+			await client.func.economyLogs.config(interaction.guild, interaction.member.user.id, "off", lang)
 		};
 
 		await client.func.ihorizon_logs(interaction, {
