@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "Non ci sono ruoli acquistabili da mostrare.
 economy_role_list_embed_title: "Sistema Economico - Ruoli Acquistabili"
 economy_role_list_embed_desc: "Tutti i ruoli acquistabili sono elencati qui sotto."
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**Sei davvero sicuro di voler eliminare tutti i dati dell'economia?\nQuesta azione è permanente e non può essere annullata.**\n**Questa azione è distruttiva!!**"
+reset_ueconomy_logs_embed_title: "Log del modulo economia (AZIONE PERICOLOSA)"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} ha eliminato tutti i dati del modulo economia per ${user.toString()}!"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**Sei davvero sicuro di voler eliminare tutti i dati dell'economia per TUTTI I MEMBRI DEL SERVER?\nQuesta azione è permanente e non può essere annullata.**\n**Questa azione è distruttiva!!**"
+reset_geconomy_logs_embed_title: "Log del modulo economia (AZIONE MOLTO PERICOLOSA)"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} ha eliminato tutti i dati del modulo economia per **TUTTI**!"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 

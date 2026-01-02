@@ -78,7 +78,7 @@ export default async (client: Client) => {
 		htmlContent = htmlContent
 			.replace("{song_title}", track?.info.title as string)
 			.replace("{song_artist}", track?.info.author as string)
-			.replace("{song_thumbnail}", track?.info.artworkUrl as string)
+			.replace("{song_thumbnail}", track?.info.artworkUrl || "https://www.ihorizon.org/assets/img/unknown-user.png")
 			;
 
 		const image = await client.func.html2png(htmlContent, {

@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "Não há cargos compráveis para mostrar."
 economy_role_list_embed_title: "Sistema de Economia - Cargos Compráveis"
 economy_role_list_embed_desc: "Todos os cargos compráveis estão listados abaixo."
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**Tens a certeza absoluta de que queres eliminar todos os dados da economia?\nEsta ação é permanente e não pode ser revertida.**\n**Esta ação é destrutiva!!**"
+reset_ueconomy_logs_embed_title: "Registos do módulo de economia (AÇÃO PERIGOSA)"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} eliminou todos os dados do módulo de economia para ${user.toString()}!"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**Tens a certeza absoluta de que queres eliminar todos os dados da economia de TODOS OS MEMBROS DO SERVIDOR?\nEsta ação é permanente e não pode ser revertida.**\n**Esta ação é destrutiva!!**"
+reset_geconomy_logs_embed_title: "Registos do módulo de economia (AÇÃO MUITO PERIGOSA)"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} eliminou todos os dados do módulo de economia para **TODOS**!"
+
 # Comandos de personalização de perfil
 # /setprofilage, /setprofildescriptions, /profil
 

@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "Es gibt keine kaufbaren Rollen zum Anzeigen
 economy_role_list_embed_title: "Wirtschaftssystem – Kaufbare Rollen"
 economy_role_list_embed_desc: "Alle kaufbaren Rollen sind unten aufgelistet."
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**Bist du dir wirklich sicher, dass du alle Wirtschaftsdaten löschen möchtest?\nDiese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden.**\n**Diese Aktion ist destruktiv!!**"
+reset_ueconomy_logs_embed_title: "Wirtschaftsmodul-Logs (GEFÄHRLICHE AKTION)"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} hat alle Daten des Wirtschaftsmoduls für ${user.toString()} gelöscht!"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**Bist du dir wirklich sicher, dass du alle Wirtschaftsdaten für ALLE SERVERMITGLIEDER löschen möchtest?\nDiese Aktion ist dauerhaft und kann nicht rückgängig gemacht werden.**\n**Diese Aktion ist destruktiv!!**"
+reset_geconomy_logs_embed_title: "Wirtschaftsmodul-Logs (SEHR GEFÄHRLICHE AKTION)"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} hat alle Daten des Wirtschaftsmoduls für **ALLE** gelöscht!"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 

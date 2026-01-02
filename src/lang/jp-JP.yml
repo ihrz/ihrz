@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "表示できる購入可能なロールは�
 economy_role_list_embed_title: "エコノミーシステム - 購入可能ロール"
 economy_role_list_embed_desc: "購入可能なロールは以下に一覧表示されています。"
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**本当にすべての経済データを削除してもよろしいですか？\nこの操作は元に戻せません。**\n**この操作は非常に危険です！！**"
+reset_ueconomy_logs_embed_title: "経済モジュールログ（危険な操作）"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} が ${user.toString()} のすべての経済モジュールデータを削除しました！"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**本当にすべてのサーバーメンバーの経済データを削除してもよろしいですか？\nこの操作は元に戻せません。**\n**この操作は非常に危険です！！**"
+reset_geconomy_logs_embed_title: "経済モジュールログ（非常に危険な操作）"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} が **全員** の経済モジュールデータを削除しました！"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
