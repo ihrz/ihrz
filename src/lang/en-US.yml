@@ -1421,6 +1421,8 @@ setlogschannel_var_tickets: "Ticket Logs"
 setlogschannel_var_antispam: "AntiSpam Logs"
 setlogschannel_var_channel: "Channel Logs"
 setlogschannel_var_confession: "Confession Logs"
+setlogschannel_var_economy: "Economy Logs"
+
 setlogschannel_all_already_exist: "All the log channels are already configured!"
 
 # /join-ghostping add
@@ -2872,3 +2874,35 @@ global_not_valid_atc: "The selected attachment is not a valid audio file."
 global_too_heavy_file: "The generated MP4 file is too large (${fileSizeMB.toFixed(2)} MB). The Discord limit is 25 MB."
 global_convert_ok: "✅ Conversion successful"
 global_convert_ok_desc: "Your audio file has been converted to MP4 (${fileSizeMB.toFixed(2)} MB)."
+
+# Economy logs titles
+economy_logs_add_money_title: "Economy Logs - Money addition"
+economy_logs_remove_money_title: "Economy Logs - Money removing"
+economy_logs_boost_role_title: "Economy Logs - Boost for role"
+economy_logs_config_title: "Economy Logs - Module configuration"
+economy_logs_role_add_title: "Economy Logs - New role added into the shop"
+economy_logs_role_remove_title: "Economy Logs - Role removed from the shop"
+economy_logs_pay_title: "Economy Logs - Pay"
+economy_logs_rob_title: "Economy Logs - Rob"
+economy_logs_set_cooldown_title: "Economy Logs - Set Cooldown"
+economy_logs_set_money_title: "Economy Logs - Set Money"
+economy_logs_withdraw_title: "Economy Logs - Withdraw"
+economy_logs_deposit_title: "Economy Logs - Deposit"
+
+# Economy logs descriptions
+economy_logs_add_money_desc: "{author} added to {target} `{amount}$` {coin}"
+economy_logs_remove_money_desc: "{author} removed to {target} `{amount}$` {coin}"
+economy_logs_boost_role_desc: "{author} set the boost to the {role} role. Boost is now: `x{amount}`"
+economy_logs_config_desc: "{author} have {state} the economy module"
+economy_logs_role_add_desc: "{author} have added the {role} role into the shop. Price: `{amount}$`"
+economy_logs_role_remove_desc: "{author} have removed the {role} role from the shop."
+economy_logs_pay_desc: "{author} send `{amount}$` to {target}"
+economy_logs_rob_desc: "{author} robbed `{amount}$` to {target}"
+economy_logs_set_cooldown_desc: "{author} set the cooldown of `{type}` to **{time}**"
+economy_logs_set_money_desc: "{author} set the money of `{type}` to **{money}**"
+economy_logs_withdraw_desc: "{author} withdraw from the bank **${money}**"
+economy_logs_deposit_desc: "{author} deposit **${money}** in the bank"
+
+# Generic vars
+var_on: "enabled"
+var_off: "disabled"

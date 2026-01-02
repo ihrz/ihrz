@@ -108,5 +108,7 @@ export const subCommand: SubCommand = {
 			components: [],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
+
+		await client.func.economyLogs.roleAdd(interaction.guild, interaction.member.user.id, role.id, amount, lang)
 	},
 };

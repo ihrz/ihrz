@@ -80,5 +80,7 @@ export const subCommand: SubCommand = {
 			embeds: [embed],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
+
+		await client.func.economyLogs.roleDelete(interaction.guild, interaction.member.user.id, role.id, lang);
 	},
 };

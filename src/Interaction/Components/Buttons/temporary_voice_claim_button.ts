@@ -21,10 +21,11 @@
 
 import { ButtonInteraction, EmbedBuilder, Guild, GuildMember } from 'discord.js';
 import { tempTable } from '../../../Events/client/ready.ts';
+import { DatabaseStructure } from '../../../../types/database_structure';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
-	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE`) as DatabaseStructure.VoiceData | null | undefined;;
 
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 	const member = interaction.member as GuildMember;
@@ -33,7 +34,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	const allChannel = await tempTable.get(`CUSTOM_VOICE.${interaction.guildId}`);
 
 	if (!result || !allChannel) return await interaction.deferUpdate();
-	if (result.channelId !== interaction.channelId) return await interaction.deferUpdate();
+	if (result.interface?.channelId !== interaction.channelId) return await interaction.deferUpdate();
 
 	let isTemporaryChannel = false;
 	for (const [userId, channelId] of Object.entries(allChannel)) {
@@ -69,9 +70,16 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		// change ownership now
 		await tempTable.delete(`CUSTOM_VOICE.${interaction.guildId}.${previousOwner?.user.id}`);
 		await tempTable.set(`CUSTOM_VOICE.${interaction.guildId}.${interaction?.user?.id}`, targetedChannel?.id)
+		let username = interaction.user.displayName || interaction.user.username;
 
 		// change the voice channel name
-		targetedChannel?.setName(lang.temporary_voice_channel_name.replace("{nickname}", `${interaction.user.displayName || interaction.user.username}`));
+		if (result?.voice_channel_name) {
+			targetedChannel?.setName(
+				result.voice_channel_name.includes("{Username}") ?
+					result.voice_channel_name.replace("{Username}", username!)
+					: result.voice_channel_name + " " + username
+			)
+		} else targetedChannel?.setName(lang.temporary_voice_channel_name.replace("{nickname}", `${username}`));
 
 		targetedChannel?.permissionOverwrites.delete(previousOwner?.user.id as string);
 

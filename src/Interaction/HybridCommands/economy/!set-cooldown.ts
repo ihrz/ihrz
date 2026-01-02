@@ -67,5 +67,6 @@ export const subCommand: SubCommand = {
 		await client.func.method.interactionSend(interaction, {
 			content: lang.economy_manage_rewards_cooldown_command_ok.replace("${type}", type).replace("${stime}", stime)
 		});
+		await client.func.economyLogs.setCooldown(interaction.guild, interaction.member.user.id, stime, type, lang);
 	},
 };

@@ -73,6 +73,9 @@ export const subCommand: SubCommand = {
 		});
 
 		await client.func.method.interactionSend(interaction, { embeds: [embed] });
+
+		client.func.economyLogs.removeMoney(interaction.guild, interaction.member.user.id, user?.id!, amount, lang);
+
 		return;
 	},
 };

@@ -131,7 +131,7 @@ export const command: Command = {
 				fr: "Obtenir le solde d'un utilisateur",
 			},
 
-			aliases: ["wallet", "coins"],
+			aliases: ["wallet", "coins", "bal"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [

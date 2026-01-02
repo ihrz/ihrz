@@ -67,5 +67,7 @@ export const subCommand: SubCommand = {
 				.replace(/\${amount\.value}/g, amount.toString())
 				.replace(/\${user\.user\.id}/g, user?.id!)
 		});
+
+		client.func.economyLogs.addMoney(interaction.guild, interaction.member.user.id, user?.id!, amount, lang);
 	},
 };

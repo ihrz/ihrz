@@ -94,6 +94,7 @@ export const subCommand: SubCommand = {
 			embeds: [embed],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
+		await client.func.economyLogs.withdraw(interaction.guild, interaction.member.user.id, Number(clean_to_withdraw), lang);
 		return;
 	},
 };

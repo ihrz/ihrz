@@ -37,12 +37,9 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		const balance = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
-
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var toDeposit = interaction.options.getString('how-much') as string;
 		} else {
-
 			var toDeposit = client.func.method.string(args!, 0) as string;
 		};
 
@@ -53,6 +50,8 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		};
+
+		const balance = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
 
 		if (toDeposit === "all") toDeposit = balance;
 
@@ -91,6 +90,7 @@ export const subCommand: SubCommand = {
 			embeds: [embed],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 		});
+		await client.func.economyLogs.deposit(interaction.guild, interaction.member.user.id, Number(toDeposit), lang);
 		return;
 	},
 };
