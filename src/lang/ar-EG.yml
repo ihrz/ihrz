@@ -2111,6 +2111,18 @@ git_lines_work: "✅ تم تفعيل Git Lines الآن."
 git_lines_work_disabled: "❌ تم إلغاء تفعيل Git Lines الآن."
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} هل أزعجك؟ يمكنك كتابة `/git lines` لإلغاء تفعيل هذا الوحدة!"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}، لقد قمت بتعيين وحدة العداد إلى `تشغيل`.\nإذا لم تكن القناة موجودة، قم بإعدادها باستخدام الأمر: **/counter channel**."
+counter_config_command_action_off: "${interaction.user}، لقد قمت بتعيين وحدة العداد إلى `إيقاف`."
+
+# /counter channel
+counter_channel_embed_title: "تم تعيين وحدة العداد هنا!"
+counter_channel_embed_desc: "${interaction.user} قام بتعيين وحدة العداد هنا!\nيمكن للمستخدمين الآن العد في هذه القناة!"
+counter_channel_command_work: "${interaction.user}، تم تعيين وحدة العداد بنجاح إلى القناة ${channel}!"
+counter_channel_command_error: "${interaction.user}، حدث خطأ أثناء تنفيذ الأمر. يرجى التحقق من أن القناة المحددة موجودة وأن وحدة العداد مفعلة!"
+
+counter_actual_number: "✨ **الرقم الحالي:** {number}"
+
 # Suggestion commands
 # /setsuggest, /suggest
 

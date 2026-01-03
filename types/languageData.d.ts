@@ -1620,6 +1620,13 @@ export interface LanguageData {
 	git_lines_work: string;
 	git_lines_work_disabled: string;
 	git_lines_borred_warning: string;
+	counter_config_command_action_on: string;
+	counter_config_command_action_off: string;
+	counter_channel_embed_title: string;
+	counter_channel_embed_desc: string;
+	counter_channel_command_work: string;
+	counter_channel_command_error: string;
+	counter_actual_number: string;
 	suggest_accept_not_admin: string;
 	suggest_acceptnot_good_channel: string;
 	suggest_accept_not_found_db: string;
