@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 		};
 
 
-		await targetMember.send({
+		await targetMember?.send({
 			content: msg, components: [
 				new ActionRowBuilder<ButtonBuilder>()
 					.addComponents(
