@@ -2928,3 +2928,7 @@ economy_logs_deposit_desc: "{author} deposit **${money}** in the bank"
 # Generic vars
 var_on: "enabled"
 var_off: "disabled"
+
+global_warn_embed_title: "You got warned - Case **`${warnObject.id}`**"
+global_warn_embed_desc: "> **Reason:** ${warnObject.reason}\n> **Responsible:** @${author.user.username} (*${author.roles.highest.name}*)\nWarn generated ${time}"
+global_warn_component_button_label: "Sent from ${author.guild.name}"

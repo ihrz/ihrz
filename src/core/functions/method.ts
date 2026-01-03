@@ -942,7 +942,7 @@ export function isAnimated(attachmentUrl: string): boolean {
 	return fileName.startsWith('a_');
 }
 
-export async function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string> {
+export async function warnMember(author: GuildMember, member: GuildMember, reason: string, lang: LanguageData): Promise<string> {
 	const warnObject: DatabaseStructure.WarnsData = {
 		timestamp: Date.now(),
 		reason: reason,
@@ -951,6 +951,30 @@ export async function warnMember(author: GuildMember, member: GuildMember, reaso
 	}
 
 	await member.client.db.push(`${member.guild.id}.USER.${member.user.id}.WARNS`, warnObject);
+
+
+	member.send({
+		embeds: [
+			new EmbedBuilder()
+				.setColor("Red")
+				.setTitle(lang.global_warn_embed_title.replace("${warnObject.id}", warnObject.id))
+				.setDescription(lang.global_warn_embed_desc
+					.replace("${warnObject.reason}", warnObject.reason)
+					.replace("${author.user.username}", author.user.username)
+					.replace("${author.roles.highest.name}", author.roles.highest.name)
+					.replace("${time}", time(new Date(warnObject.timestamp)))
+				)
+		],
+		components: [
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setStyle(ButtonStyle.Secondary)
+					.setCustomId(`guild-id-${author.guild.id}`)
+					.setDisabled(true)
+					.setLabel(lang.global_warn_component_button_label.replace("${author.guild.name}", author.guild.name))
+			)
+		]
+	}).catch(() => null);
 
 	return warnObject.id;
 }

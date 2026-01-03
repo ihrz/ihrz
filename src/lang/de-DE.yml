@@ -2926,3 +2926,7 @@ economy_logs_deposit_desc: "{author} hat **${money}** auf die Bank eingezahlt"
 # Generic vars
 var_on: "aktiviert"
 var_off: "deaktiviert"
+
+global_warn_embed_title: "Du wurdest verwarnt – Fall **`${warnObject.id}`**"
+global_warn_embed_desc: "> **Grund:** ${warnObject.reason}\n> **Verantwortlich:** @${author.user.username} (*${author.roles.highest.name}*)\nVerwarnung erstellt ${time}"
+global_warn_component_button_label: "Gesendet von ${author.guild.name}"

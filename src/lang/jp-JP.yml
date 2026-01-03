@@ -2926,3 +2926,7 @@ economy_logs_deposit_desc: "{author} が銀行に **${money}** を預けまし�
 # Generic vars
 var_on: "有効"
 var_off: "無効"
+
+global_warn_embed_title: "警告を受けました – ケース **`${warnObject.id}`**"
+global_warn_embed_desc: "> **理由:** ${warnObject.reason}\n> **担当者:** @${author.user.username} (*${author.roles.highest.name}*)\n警告が生成されました ${time}"
+global_warn_component_button_label: "${author.guild.name} から送信"

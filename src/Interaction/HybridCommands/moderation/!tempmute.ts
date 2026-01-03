@@ -141,7 +141,8 @@ export const subCommand: SubCommand = {
 				.replace("${interaction.user.id}", interaction.member.user.id)
 				.replace("${tomute.id}", tomute.id)
 				.replace("${ms(ms(mutetime))}", mutetimeString)
-				.replace("${reason}", reason || lang.var_no_set)
+				.replace("${reason}", reason || lang.var_no_set),
+			lang
 		).catch(() => { });
 	},
 };
