@@ -25,6 +25,7 @@ import { DatabaseStructure } from '../../../types/database_structure.js';
 import { axios } from '../../core/functions/axios.js';
 import { DB } from '../../core/database/types.js';
 import { tempTable } from '../client/ready.js';
+import { LanguageData } from '../../../types/languageData.js';
 
 /**
  * Apply sanctions to a member based on the configured punishment type
@@ -34,7 +35,7 @@ import { tempTable } from '../client/ready.js';
  * @param LOG Punishment configuration
  * @param table Database table for temporary data
  */
-async function applySanction(client: Client, message: Message, member: GuildMember, LOG: DatabaseStructure.PunishPubSchema, table: DB): Promise<void> {
+async function applySanction(client: Client, message: Message, member: GuildMember, LOG: DatabaseStructure.PunishPubSchema, table: DB, lang: LanguageData): Promise<void> {
 	try {
 		switch (LOG.punishementType) {
 			case 'ban':
@@ -48,7 +49,8 @@ async function applySanction(client: Client, message: Message, member: GuildMemb
 				await client.func.method.warnMember(
 					message.guild?.members.me!,
 					message.member!,
-					"Timeout by PunishPUB"
+					"Timeout by PunishPUB",
+					lang
 				);
 				break;
 		}
@@ -148,6 +150,8 @@ export const event: BotEvent = {
 			]
 		)) return;
 
+		const lang = await client.func.getLanguageData(message.guildId);
+
 		const automodRules = message.guild.autoModerationRules.cache.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
 
 		const member = message.guild.members.cache.get(message.author.id);
@@ -163,7 +167,7 @@ export const event: BotEvent = {
 
 			// Check if user has already reached max flags and should be sanctioned
 			if (LOG?.amountMax === LOGfetched?.flags && LOG?.state === "true") {
-				await applySanction(client, message, member!, LOG, tempTable);
+				await applySanction(client, message, member!, LOG, tempTable, lang);
 			}
 
 			try {
@@ -210,7 +214,7 @@ export const event: BotEvent = {
 
 						// Check if we need to apply sanctions immediately after updating
 						if (LOG?.amountMax === newFlagsCount && LOG?.state === "true") {
-							await applySanction(client, message, member!, LOG, tempTable);
+							await applySanction(client, message, member!, LOG, tempTable, lang);
 						}
 					} catch (error) {
 					}

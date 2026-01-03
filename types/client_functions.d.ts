@@ -136,7 +136,7 @@ declare namespace Client_Functions {
 		export function buttonReact(msg: Message<boolean>, button: ButtonBuilder): Promise<Message<boolean>>;
 		export function buttonUnreact(msg: Message<boolean>, buttonEmoji: string): Promise<Message<boolean>>;
 		export function isAnimated(attachmentUrl: string): boolean;
-		export function warnMember(author: GuildMember, member: GuildMember, reason: string): Promise<string>;
+		export function warnMember(author: GuildMember, member: GuildMember, reason: string, lang: LanguageData): Promise<string>;
 		export function getDangerousPermissions(lang: LanguageData): Array<{ flag: bigint; name: string; }>;
 		export function addCoins(member: GuildMember, coins: number): Promise<void>;
 		export function subCoins(member: GuildMember, coins: number): Promise<void>;

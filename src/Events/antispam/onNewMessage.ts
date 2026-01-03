@@ -169,7 +169,8 @@ async function clearSpamMessages(message: Message, messages: Set<AntiSpam.Cached
 async function PunishUsers(
 	guildId: string,
 	members: Set<GuildMember>,
-	options: AntiSpam.AntiSpamOptions
+	options: AntiSpam.AntiSpamOptions,
+	lang: LanguageData
 ): Promise<void> {
 	const membersCleaned = [...new Set(members)];
 
@@ -190,7 +191,8 @@ async function PunishUsers(
 						await member.client.func.method.warnMember(
 							member.guild?.members.me!,
 							member!,
-							"Antispam Punishment"
+							"Antispam Punishment",
+							lang
 						).catch(() => { });
 					}
 					break;
@@ -330,7 +332,7 @@ export const event: BotEvent = {
 
 			if (timeout < currentTime) {
 				await waitForFinish(message.guildId!);
-				await PunishUsers(message.guild.id, membersToPunish!, options);
+				await PunishUsers(message.guild.id, membersToPunish!, options, lang);
 				await clearSpamMessages(message, cache.messages.get(message.guild.id)!);
 				await sendWarningMessage(lang, membersToPunish!, message.channel as BaseGuildTextChannel, options);
 				await logsAction(lang, message, membersToPunish!, options.punishment_type);

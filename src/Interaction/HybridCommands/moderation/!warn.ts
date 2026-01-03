@@ -49,7 +49,8 @@ export const subCommand: SubCommand = {
 		const warnId = await client.func.method.warnMember(
 			interaction.member!,
 			member!,
-			reason
+			reason,
+			lang
 		);
 
 		await client.func.method.interactionSend(interaction, {
