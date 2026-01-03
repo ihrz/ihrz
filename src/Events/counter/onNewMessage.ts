@@ -34,7 +34,7 @@ export const event: BotEvent = {
 
 		let baseData = await client.db.get(`${message.guild?.id}.COUNTER`) as DatabaseStructure.CounterSchema | undefined;
 		let lastNumber = (await client.db.get(`${message.guild.id}.COUNTER_DATA`) || 0) as DatabaseStructure.CounterData;
-		if (!baseData) return;
+		if (!baseData || baseData.channelId !== message.channelId) return;
 
 		if (client.func.method.isNumber(message.content)) {
 			let number = Number(message.content);
