@@ -2111,6 +2111,18 @@ git_lines_work: "✅ Git Lines è ora abilitato."
 git_lines_work_disabled: "❌ Git Lines è ora disabilitato."
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Ti disturbo? Puoi usare `/git lines` per disabilitare questo modulo!"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}, hai impostato il modulo Contatore su `Acceso`.\nSe il canale non esiste, configuralo con il comando: **/counter channel**."
+counter_config_command_action_off: "${interaction.user}, hai impostato il modulo Contatore su `Spento`."
+
+# /counter channel
+counter_channel_embed_title: "Modulo Contatore impostato qui!"
+counter_channel_embed_desc: "${interaction.user} ha impostato il modulo Contatore qui!\nGli utenti ora possono contare in questo canale!"
+counter_channel_command_work: "${interaction.user}, hai impostato correttamente il modulo Contatore nel canale ${channel}!"
+counter_channel_command_error: "${interaction.user}, il comando ha restituito un errore. Verifica che il canale specificato esista e che il modulo Contatore sia abilitato!"
+
+counter_actual_number: "✨ **Numero attuale:** {number}"
+
 # Comandi per i suggerimenti
 # /impostasuggerimento, /suggerisci
 

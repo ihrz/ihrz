@@ -2114,6 +2114,18 @@ git_lines_work: "✅ Git Lines is now enabled."
 git_lines_work_disabled: "❌ Git Lines is now disabled."
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Am I bothering you? You can use `/git lines` to disable this module!"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}, you have set to `Power On` the Counter Module.\nIf channel doesn't exist, configure these, with the command: **/counter channel**."
+counter_config_command_action_off: "${interaction.user}, you have set to `Power Off` the Counter Module."
+
+# /counter channel
+counter_channel_embed_title: "Counter Module set Here!"
+counter_channel_embed_desc: "${interaction.user} have set the Counter module here!\nUser can now count number here !"
+counter_channel_command_work: "${interaction.user}, you have successfully set the Counter module to the channel ${channel} !"
+counter_channel_command_error: "${interaction.user}, the command returned an error. Please verify the channel you specified exists, and verify the Counter Module has been enabled!"
+
+counter_actual_number: "✨ **Actual Number:** {number}"
+
 # Suggestion commands
 # /setsuggest, /suggest
 

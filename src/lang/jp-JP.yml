@@ -2111,6 +2111,18 @@ git_lines_work: "✅ Git Linesが有効になりました。"
 git_lines_work_disabled: "❌ Git Linesが無効になりました。"
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} 邪魔してる？`/git lines`でこのモジュールを無効にできるよ！"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}、カウンターモジュールを `オン` に設定しました。\nチャンネルが存在しない場合は、**/counter channel** コマンドで設定してください。"
+counter_config_command_action_off: "${interaction.user}、カウンターモジュールを `オフ` に設定しました。"
+
+# /counter channel
+counter_channel_embed_title: "カウンターモジュールがここに設定されました！"
+counter_channel_embed_desc: "${interaction.user} がカウンターモジュールをここに設定しました！\nユーザーはこのチャンネルでカウントできます！"
+counter_channel_command_work: "${interaction.user}、カウンターモジュールをチャンネル ${channel} に正常に設定しました！"
+counter_channel_command_error: "${interaction.user}、コマンドの実行中にエラーが発生しました。指定したチャンネルが存在し、カウンターモジュールが有効になっているか確認してください！"
+
+counter_actual_number: "✨ **現在の数字:** {number}"
+
 # 提案コマンド
 # /setsuggest, /suggest
 

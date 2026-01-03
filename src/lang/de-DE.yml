@@ -2111,6 +2111,18 @@ git_lines_work: "✅ Git Lines ist jetzt aktiviert."
 git_lines_work_disabled: "❌ Git Lines ist jetzt deaktiviert."
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Störe ich dich? Du kannst `/git lines` machen, um dieses Modul zu deaktivieren!"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}, du hast das Zähler-Modul auf `Eingeschaltet` gesetzt.\nFalls der Kanal nicht existiert, konfiguriere ihn mit dem Befehl: **/counter channel**."
+counter_config_command_action_off: "${interaction.user}, du hast das Zähler-Modul auf `Ausgeschaltet` gesetzt."
+
+# /counter channel
+counter_channel_embed_title: "Zähler-Modul hier festgelegt!"
+counter_channel_embed_desc: "${interaction.user} hat das Zähler-Modul hier festgelegt!\nBenutzer können jetzt hier zählen!"
+counter_channel_command_work: "${interaction.user}, du hast das Zähler-Modul erfolgreich auf den Kanal ${channel} gesetzt!"
+counter_channel_command_error: "${interaction.user}, der Befehl hat einen Fehler zurückgegeben. Bitte überprüfe, ob der angegebene Kanal existiert und ob das Zähler-Modul aktiviert ist!"
+
+counter_actual_number: "✨ **Aktuelle Zahl:** {number}"
+
 # Vorschlagsbefehle
 # /setsuggest, /suggest
 

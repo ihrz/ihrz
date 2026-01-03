@@ -2111,6 +2111,18 @@ git_lines_work: "✅ Git Lines est maintenant activé."
 git_lines_work_disabled: "❌ Git Lines est maintenant désactivé."
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Je te dérange ? tu peux faire `/git lines` pour désactiver ce module!"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}, tu as défini le module Compteur sur `Activé`.\nSi le salon n'existe pas, configure-le avec la commande : **/counter channel**."
+counter_config_command_action_off: "${interaction.user}, tu as défini le module Compteur sur `Désactivé`."
+
+# /counter channel
+counter_channel_embed_title: "Module Compteur défini ici !"
+counter_channel_embed_desc: "${interaction.user} a défini le module Compteur ici !\nLes utilisateurs peuvent maintenant compter dans ce salon !"
+counter_channel_command_work: "${interaction.user}, tu as correctement défini le module Compteur sur le salon ${channel} !"
+counter_channel_command_error: "${interaction.user}, la commande a retourné une erreur. Veuillez vérifier que le salon spécifié existe et que le module Compteur est activé !"
+
+counter_actual_number: "✨ **Nombre actuel :** {number}"
+
 # Commandes de suggestion
 # /setsuggest, /suggest
 

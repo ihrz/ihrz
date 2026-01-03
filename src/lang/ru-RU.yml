@@ -2111,6 +2111,18 @@ git_lines_work: "✅ Git Lines теперь включен."
 git_lines_work_disabled: "❌ Git Lines теперь отключен."
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Я тебя беспокою? ты можешь сделать `/git lines` чтобы отключить этот модуль!"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}, вы включили модуль счётчика (`Включено`).\nЕсли канал не существует, настройте его с помощью команды: **/counter channel**."
+counter_config_command_action_off: "${interaction.user}, вы выключили модуль счётчика (`Выключено`)."
+
+# /counter channel
+counter_channel_embed_title: "Модуль счётчика установлен здесь!"
+counter_channel_embed_desc: "${interaction.user} установил модуль счётчика здесь!\nТеперь пользователи могут считать в этом канале!"
+counter_channel_command_work: "${interaction.user}, вы успешно установили модуль счётчика в канал ${channel}!"
+counter_channel_command_error: "${interaction.user}, команда вернула ошибку. Пожалуйста, проверьте, существует ли указанный канал и включён ли модуль счётчика!"
+
+counter_actual_number: "✨ **Текущее число:** {number}"
+
 # Команды предложений
 # /setsuggest, /suggest
 
