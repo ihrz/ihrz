@@ -65,7 +65,6 @@ export const subCommand: SubCommand = {
 		});
 
 		async function moveUser() {
-			if (!user.voice.channelId) return;
 			// stop the loop if 5 minutes have passed
 			if (Date.now() - start >= 60_000 * 5) return;
 
@@ -76,6 +75,8 @@ export const subCommand: SubCommand = {
 			).random() as VoiceBasedChannel;
 
 			if (!channel) return;
+
+			if (!user.voice.channelId) return;
 
 			await user.voice.setChannel(channel);
 			await wait(300);
