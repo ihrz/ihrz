@@ -1981,6 +1981,9 @@ export interface LanguageData {
 	event_srvLogs_channelUpdate_enabled_for: string;
 	event_srvLogs_channelUpdate_allowed_for: string;
 	event_srvLogs_channelUpdate_unallowed_for: string;
+	event_srvLogs_channelUpdate_field_name: string;
+	event_srvLogs_channelUpdate_perm_added: string;
+	event_srvLogs_channelUpdate_embed_desc: string;
 	event_rank_role: string;
 	event_suggestion_embed_author: string;
 	event_security: string;

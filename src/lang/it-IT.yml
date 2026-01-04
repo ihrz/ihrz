@@ -2657,6 +2657,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} disabilitata per ${t
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} abilitata per ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} consentita per ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} non consentita per ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 Nome: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 Permessi aggiunti per ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} è stato aggiornato"
 
 # Evento di Promozione di Livello
 event_rank_role: "<@${message.author.id}>, ora hai il ruolo <@&${fetch.id}>"

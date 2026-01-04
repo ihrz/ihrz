@@ -2660,6 +2660,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} désactivée pour ${
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} activée pour ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} autorisée pour ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} refusée pour ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 Nom : ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 Permissions ajoutées pour ${target} :\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} a été mis à jour"
 
 # Événement de Promotion de Rang
 event_rank_role: "<@${message.author.id}>, tu as maintenant le rôle <@&${fetch.id}> tu la bien mérité a glander sur ton lit , sale modo discord"

@@ -2657,6 +2657,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} は ${target} で無
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} は ${target} で有効化されました\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} は ${target} に許可されました\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} は ${target} に拒否されました\n"
+event_srvLogs_channelUpdate_field_name: "🎫 名前: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 ${target} に追加された権限:\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} が更新されました"
 
 # ランクアップイベント
 event_rank_role: "<@${message.author.id}>さん、あなたは今、役職 <@&${fetch.id}> を持っています"

@@ -2661,6 +2661,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} disabled for ${targe
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} enabled for ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} allowed for ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} not allowed for ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 Name: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 Added permissions for ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} are updated"
 
 # RankUp event
 event_rank_role: "<@${message.author.id}>, you now have the role <@&${fetch.id}>"

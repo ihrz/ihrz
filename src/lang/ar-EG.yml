@@ -2656,6 +2656,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} تم إلغاء تف
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} تم تفعيلها لـ ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} مسموح بها لـ ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} تم رفضها لـ ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 الاسم: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 تمت إضافة الأذونات لـ ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "تم تحديث ${newChannel.toString()}"
 
 # حدث الترقية
 event_rank_role: "<@${message.author.id}>, لديك الآن الدور <@&${fetch.id}>"

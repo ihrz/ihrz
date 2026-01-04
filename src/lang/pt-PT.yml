@@ -2657,6 +2657,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} desativada para ${ta
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} ativada para ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} permitida para ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} não permitida para ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 Nome: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 Permissões adicionadas para ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} foi atualizado"
 
 # Evento de Subida de Cargo
 event_rank_role: "<@${message.author.id}>, agora você tem o cargo <@&${fetch.id}>"
