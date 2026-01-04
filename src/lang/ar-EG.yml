@@ -2931,6 +2931,6 @@ counter_error_too_much_u: "<@${message.author.id}> أَخْطَأَ عند **${n
 counter_error_syntaxic: "<@${message.author.id}> أَخْطَأَ!! الرقم التالي هو **1**. "
 
 global_blacklist_msg_to_send: "تم حظرك لأنك مدرج في القائمة السوداء لمشروع iHorizon.\nالسبب: `${data.reason}`"
-global_blacklist_reason: "عقوبة مشروع iHorizon - القائمة السوداء | السبب: ${data.reason}"
+global_blacklist_reason: "عقوبة مشروع OWNIHRZ - القائمة السوداء | السبب: ${data.reason}"
 server_blacklist_msg_to_send: "تم حظرك لأنك مدرج في القائمة السوداء لهذا الخادم.\nالسبب: `${data2.reason}`"
 server_blacklist_reason: "القائمة السوداء | السبب: ${data2.reason}"

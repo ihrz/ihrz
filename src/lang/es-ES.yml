@@ -2938,6 +2938,6 @@ counter_error_too_much_u: "<@${message.author.id}> SE EQUIVOCÓ EN **${number}**
 counter_error_syntaxic: "<@${message.author.id}> COMETIÓ UN ERROR!! El siguiente número es **1**."
 
 global_blacklist_msg_to_send: "Has sido baneado porque estás en la lista negra de iHorizon.\nRazón: `${data.reason}`"
-global_blacklist_reason: "Castigo del proyecto iHorizon - Lista negra | Razón: ${data.reason}"
+global_blacklist_reason: "Castigo del proyecto OWNIHRZ - Lista negra | Razón: ${data.reason}"
 server_blacklist_msg_to_send: "Has sido baneado porque estás en la lista negra de este servidor.\nRazón: `${data2.reason}`"
 server_blacklist_reason: "Lista negra | Razón: ${data2.reason}"

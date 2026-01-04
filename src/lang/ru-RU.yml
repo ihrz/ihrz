@@ -2938,6 +2938,6 @@ counter_error_too_much_u: "<@${message.author.id}> ОШИБСЯ НА **${number}
 counter_error_syntaxic: "<@${message.author.id}> СОВЕРШИЛ ОШИБКУ!! Следующее число — **1**."
 
 global_blacklist_msg_to_send: "Вы были заблокированы, так как находитесь в чёрном списке iHorizon.\nПричина: `${data.reason}`"
-global_blacklist_reason: "Наказание проекта iHorizon - Чёрный список | Причина: ${data.reason}"
+global_blacklist_reason: "Наказание проекта OWNIHRZ - Чёрный список | Причина: ${data.reason}"
 server_blacklist_msg_to_send: "Вы были заблокированы, так как находитесь в чёрном списке этого сервера.\nПричина: `${data2.reason}`"
 server_blacklist_reason: "Чёрный список | Причина: ${data2.reason}"
