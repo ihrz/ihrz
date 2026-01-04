@@ -2935,3 +2935,8 @@ global_warn_component_button_label: "Sent from ${author.guild.name}"
 
 counter_error_too_much_u: "<@${message.author.id}> MESSED UP AT **${number}**!! The next number is **1**. **You cannot count twice in a row.**"
 counter_error_syntaxic: "<@${message.author.id}> MADE A MISTAKE!! The next number is **1**."
+
+global_blacklist_msg_to_send: "You have been banned, because you are blacklisted from iHorizon.\nReason: `${data.reason}`"
+global_blacklist_reason: "iHorizon Project Punishement - Blacklist | Reason: ${data.reason}"
+server_blacklist_msg_to_send: "You have been banned, because you are blacklisted from this server.\nReason: `${data2.reason}`"
+server_blacklist_reason: "Blacklist | Reason: ${data2.reason}"

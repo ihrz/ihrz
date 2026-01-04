@@ -2933,3 +2933,8 @@ global_warn_component_button_label: "${author.guild.name} から送信"
 
 counter_error_too_much_u: "<@${message.author.id}> は **${number}** で間違えました！！ 次の数字は **1** です。**連続して数えることはできません。**"
 counter_error_syntaxic: "<@${message.author.id}> が間違えました！！ 次の数字は **1** です。"
+
+global_blacklist_msg_to_send: "iHorizon のブラックリストに登録されているため、あなたはBANされました。\n理由: `${data.reason}`"
+global_blacklist_reason: "iHorizon プロジェクト処分 - ブラックリスト | 理由: ${data.reason}"
+server_blacklist_msg_to_send: "このサーバーのブラックリストに登録されているため、あなたはBANされました。\n理由: `${data2.reason}`"
+server_blacklist_reason: "ブラックリスト | 理由: ${data2.reason}"

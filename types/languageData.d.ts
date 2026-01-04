@@ -2167,4 +2167,8 @@ export interface LanguageData {
 	global_warn_component_button_label: string;
 	counter_error_too_much_u: string;
 	counter_error_syntaxic: string;
+	global_blacklist_msg_to_send: string;
+	global_blacklist_reason: string;
+	server_blacklist_msg_to_send: string;
+	server_blacklist_reason: string;
 }

@@ -2933,3 +2933,8 @@ global_warn_component_button_label: "Enviado de ${author.guild.name}"
 
 counter_error_too_much_u: "<@${message.author.id}> ERROU NO **${number}**!! O próximo número é **1**. **Não podes contar duas vezes seguidas.**"
 counter_error_syntaxic: "<@${message.author.id}> COMETEU UM ERRO!! O próximo número é **1**."
+
+global_blacklist_msg_to_send: "Foste banido porque estás na blacklist do iHorizon.\nMotivo: `${data.reason}`"
+global_blacklist_reason: "Punição do projeto iHorizon - Blacklist | Motivo: ${data.reason}"
+server_blacklist_msg_to_send: "Foste banido porque estás na blacklist deste servidor.\nMotivo: `${data2.reason}`"
+server_blacklist_reason: "Blacklist | Motivo: ${data2.reason}"
