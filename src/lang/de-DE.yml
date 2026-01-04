@@ -2930,3 +2930,6 @@ var_off: "deaktiviert"
 global_warn_embed_title: "Du wurdest verwarnt – Fall **`${warnObject.id}`**"
 global_warn_embed_desc: "> **Grund:** ${warnObject.reason}\n> **Verantwortlich:** @${author.user.username} (*${author.roles.highest.name}*)\nVerwarnung erstellt ${time}"
 global_warn_component_button_label: "Gesendet von ${author.guild.name}"
+
+counter_error_too_much_u: "<@${message.author.id}> HAT SICH BEI **${number}** VERZÄHLT!! Die nächste Zahl ist **1**. **Du kannst nicht zweimal hintereinander zählen.**"
+counter_error_syntaxic: "<@${message.author.id}> HAT EINEN FEHLER GEMACHT!! Die nächste Zahl ist **1**."

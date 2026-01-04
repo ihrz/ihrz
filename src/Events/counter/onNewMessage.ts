@@ -33,33 +33,38 @@ export const event: BotEvent = {
 		) return;
 
 		let baseData = await client.db.get(`${message.guild?.id}.COUNTER`) as DatabaseStructure.CounterSchema | undefined;
-		let lastNumber = (await client.db.get(`${message.guild.id}.COUNTER_DATA`) || 0) as DatabaseStructure.CounterData;
+		let lastNumber = (await client.db.get(`${message.guild.id}.COUNTER_DATA`) || { amount: 0, userId: client.user?.id }) as DatabaseStructure.CounterData;
+		// BACKPORTABILITY
+		if (typeof lastNumber === 'number') lastNumber = { amount: lastNumber, userId: client.user?.id! };
+
 		if (!baseData || baseData.channelId !== message.channelId) return;
+
+		const lang = await client.func.getLanguageData(message.guildId);
 
 		if (client.func.method.isNumber(message.content)) {
 			let number = Number(message.content);
 
-			if (number === lastNumber + 1) {
+			if ((number === lastNumber.amount + 1) && (message.author.id !== lastNumber.userId)) {
 				const lang = await client.func.getLanguageData(message.guild.id);
 
-				await client.db.add(`${message.guild.id}.COUNTER_DATA`, 1);
-				message.react("✅").then(async (react) => {
-					await Bun.sleep(6000);
-					react.remove()
-				});
+				await client.db.set(`${message.guild.id}.COUNTER_DATA`, { amount: number, userId: message.author.id });
+				message.react("✅");
 
 				(message.channel as BaseGuildTextChannel).setTopic(lang.counter_actual_number.replace("{number}", number.toString()));
 			} else {
-				message.react("❌").then(async () => {
-					await Bun.sleep(3000);
-					if (message.deletable) message.delete()
-				})
+				message.react("❌");
+				await client.db.set(`${message.guild.id}.COUNTER_DATA`, { amount: 0, userId: message.author.id });
+
+				if (message.author.id === lastNumber.userId) {
+					message.reply({ content: lang.counter_error_too_much_u.replace("${message.author.id}", message.author.id).replace("${number}", number.toString()) });
+				} else {
+					message.reply({ content: lang.counter_error_syntaxic.replace("${message.author.id}", message.author.id) })
+				}
 			}
 		} else {
-			message.react("❌").then(async () => {
-				await Bun.sleep(3000); console.log(message.deletable)
-				if (message.deletable) message.delete()
-			})
+			message.react("❌");
+			await client.db.set(`${message.guild.id}.COUNTER_DATA`, { amount: 0, userId: message.author.id });
+			message.reply({ content: lang.counter_error_syntaxic.replace("${message.author.id}", message.author.id) })
 		};
 	},
 };

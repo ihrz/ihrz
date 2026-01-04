@@ -2165,4 +2165,6 @@ export interface LanguageData {
 	global_warn_embed_title: string;
 	global_warn_embed_desc: string;
 	global_warn_component_button_label: string;
+	counter_error_too_much_u: string;
+	counter_error_syntaxic: string;
 }

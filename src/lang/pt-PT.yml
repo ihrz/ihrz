@@ -2930,3 +2930,6 @@ var_off: "desativado"
 global_warn_embed_title: "Recebeste um aviso – Caso **`${warnObject.id}`**"
 global_warn_embed_desc: "> **Motivo:** ${warnObject.reason}\n> **Responsável:** @${author.user.username} (*${author.roles.highest.name}*)\nAviso gerado ${time}"
 global_warn_component_button_label: "Enviado de ${author.guild.name}"
+
+counter_error_too_much_u: "<@${message.author.id}> ERROU NO **${number}**!! O próximo número é **1**. **Não podes contar duas vezes seguidas.**"
+counter_error_syntaxic: "<@${message.author.id}> COMETEU UM ERRO!! O próximo número é **1**."
