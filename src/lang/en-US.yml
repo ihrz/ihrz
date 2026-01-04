@@ -2932,3 +2932,6 @@ var_off: "disabled"
 global_warn_embed_title: "You got warned - Case **`${warnObject.id}`**"
 global_warn_embed_desc: "> **Reason:** ${warnObject.reason}\n> **Responsible:** @${author.user.username} (*${author.roles.highest.name}*)\nWarn generated ${time}"
 global_warn_component_button_label: "Sent from ${author.guild.name}"
+
+counter_error_too_much_u: "<@${message.author.id}> MESSED UP AT **${number}**!! The next number is **1**. **You cannot count twice in a row.**"
+counter_error_syntaxic: "<@${message.author.id}> MADE A MISTAKE!! The next number is **1**."

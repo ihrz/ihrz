@@ -335,7 +335,7 @@ export namespace DatabaseStructure {
 		channelId: string;
 	}
 
-	export type CounterData = number;
+	export type CounterData = { userId: string; amount: number };
 
 	export interface DbInId {
 		USER?: DbGuildUserObject;

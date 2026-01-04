@@ -2923,3 +2923,6 @@ var_off: "معطل"
 global_warn_embed_title: "تم تحذيرك - القضية **`${warnObject.id}`**"
 global_warn_embed_desc: "> **السبب:** ${warnObject.reason}\n> **المسؤول:** @${author.user.username} (*${author.roles.highest.name}*)\nتم إنشاء التحذير ${time}"
 global_warn_component_button_label: "مرسل من ${author.guild.name}"
+
+counter_error_too_much_u: "<@${message.author.id}> أَخْطَأَ عند **${number}**!! الرقم التالي هو **1**. **لا يمكنك العد مرتين على التوالي.**"
+counter_error_syntaxic: "<@${message.author.id}> أَخْطَأَ!! الرقم التالي هو **1**. "
