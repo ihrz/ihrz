@@ -2,7 +2,7 @@
 
 # 🌐 iHorizon
 
-### *The Bot of the Future*
+### *The most complete discord bot in GitHub*
 
 <br>
 <br>
@@ -86,6 +86,8 @@
 ### 🎫 **Tags & Quick Responses**
 
 **Custom Tags**: Create reusable text snippets and commands • **Role Restrictions**: Whitelist roles for tag creation and usage • **Embed Support**: Rich embed tags with formatting • **Tag Management**: Edit, delete, list, and get info on all tags • **Quick Access**: Instant responses with mention and reply options
+
+and dozens of another features
 
 ---
 
