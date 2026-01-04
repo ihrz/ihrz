@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "Não há cargos compráveis para mostrar."
 economy_role_list_embed_title: "Sistema de Economia - Cargos Compráveis"
 economy_role_list_embed_desc: "Todos os cargos compráveis estão listados abaixo."
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**Tens a certeza absoluta de que queres eliminar todos os dados da economia?\nEsta ação é permanente e não pode ser revertida.**\n**Esta ação é destrutiva!!**"
+reset_ueconomy_logs_embed_title: "Registos do módulo de economia (AÇÃO PERIGOSA)"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} eliminou todos os dados do módulo de economia para ${user.toString()}!"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**Tens a certeza absoluta de que queres eliminar todos os dados da economia de TODOS OS MEMBROS DO SERVIDOR?\nEsta ação é permanente e não pode ser revertida.**\n**Esta ação é destrutiva!!**"
+reset_geconomy_logs_embed_title: "Registos do módulo de economia (AÇÃO MUITO PERIGOSA)"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} eliminou todos os dados do módulo de economia para **TODOS**!"
+
 # Comandos de personalização de perfil
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -2101,6 +2111,18 @@ git_lines_work: "✅ Git Lines está agora ativado."
 git_lines_work_disabled: "❌ Git Lines está agora desativado."
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Estou a incomodar-te? Podes usar `/git lines` para desativar este módulo!"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}, definiste o módulo Contador como `Ligado`.\nSe o canal não existir, configura-o com o comando: **/counter channel**."
+counter_config_command_action_off: "${interaction.user}, definiste o módulo Contador como `Desligado`."
+
+# /counter channel
+counter_channel_embed_title: "Módulo Contador definido aqui!"
+counter_channel_embed_desc: "${interaction.user} definiu o módulo Contador aqui!\nOs utilizadores podem agora contar neste canal!"
+counter_channel_command_work: "${interaction.user}, definiste com sucesso o módulo Contador no canal ${channel}!"
+counter_channel_command_error: "${interaction.user}, o comando devolveu um erro. Verifica se o canal especificado existe e se o módulo Contador está ativado!"
+
+counter_actual_number: "✨ **Número atual:** {number}"
+
 # Comandos de Sugestão
 # /setsuggest, /suggest
 
@@ -2635,6 +2657,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} desativada para ${ta
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} ativada para ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} permitida para ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} não permitida para ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 Nome: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 Permissões adicionadas para ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} foi atualizado"
 
 # Evento de Subida de Cargo
 event_rank_role: "<@${message.author.id}>, agora você tem o cargo <@&${fetch.id}>"
@@ -2904,3 +2929,15 @@ economy_logs_deposit_desc: "{author} depositou **${money}** no banco"
 # Generic vars
 var_on: "ativado"
 var_off: "desativado"
+
+global_warn_embed_title: "Recebeste um aviso – Caso **`${warnObject.id}`**"
+global_warn_embed_desc: "> **Motivo:** ${warnObject.reason}\n> **Responsável:** @${author.user.username} (*${author.roles.highest.name}*)\nAviso gerado ${time}"
+global_warn_component_button_label: "Enviado de ${author.guild.name}"
+
+counter_error_too_much_u: "<@${message.author.id}> ERROU NO **${number}**!! O próximo número é **1**. **Não podes contar duas vezes seguidas.**"
+counter_error_syntaxic: "<@${message.author.id}> COMETEU UM ERRO!! O próximo número é **1**."
+
+global_blacklist_msg_to_send: "Foste banido porque estás na blacklist do iHorizon.\nMotivo: `${data.reason}`"
+global_blacklist_reason: "Punição do projeto iHorizon - Blacklist | Motivo: ${data.reason}"
+server_blacklist_msg_to_send: "Foste banido porque estás na blacklist deste servidor.\nMotivo: `${data2.reason}`"
+server_blacklist_reason: "Blacklist | Motivo: ${data2.reason}"

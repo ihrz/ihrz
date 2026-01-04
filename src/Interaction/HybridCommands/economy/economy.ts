@@ -673,6 +673,47 @@ export const command: Command = {
 
 			permission: null,
 		},
+		{
+			name: "ureset",
+			prefixName: "economy-ureset",
+
+			description: "Reset the balance of an user",
+			description_localizations: {
+				fr: "Supprimer les données économique d'un utilisateur",
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+			options: [
+				{
+					name: "user",
+					type: ApplicationCommandOptionType.User,
+
+					description: "The user you want to reset the economy data",
+					description_localizations: {
+						fr: "L'utilisateur que vous voulez supprimer du module d'économie.",
+					},
+
+					required: true,
+					permission: null,
+				},
+			],
+
+			permission: PermissionFlagsBits.Administrator,
+		},
+		{
+			name: "greset",
+			prefixName: "economy-greset",
+
+			description: "Reset the economy balance of every user in the guild",
+			description_localizations: {
+				fr: "Supprimer les données économique de tout les utilisateur",
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator,
+		},
+
 	],
 	thinking: false,
 	category: "economy",

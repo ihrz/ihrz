@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "There are no buyable roles to list."
 economy_role_list_embed_title: "Economy System - Buyable Roles"
 economy_role_list_embed_desc: "All buyable roles are listed below."
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**Are you really sure you want to delete all economy data?\nThis action is permanent and you cannot undo it.**\n**This action is destructive!!**"
+reset_ueconomy_logs_embed_title: "Economy Module Logs (DANGEROUS ACTION)"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} has deleted all economy module data for ${user.toString()}!"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**Are you really sure you want to delete all economy data TOWARDS ALL SERVERS MEMBERS?\nThis action is permanent and you cannot undo it.**\n**This action is destructive!!**"
+reset_geconomy_logs_embed_title: "Economy Module Logs (VERY DANGEROUS ACTION)"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} has deleted all economy module data for **EVERYONE**!"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -2104,6 +2114,18 @@ git_lines_work: "✅ Git Lines is now enabled."
 git_lines_work_disabled: "❌ Git Lines is now disabled."
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Am I bothering you? You can use `/git lines` to disable this module!"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}, you have set to `Power On` the Counter Module.\nIf channel doesn't exist, configure these, with the command: **/counter channel**."
+counter_config_command_action_off: "${interaction.user}, you have set to `Power Off` the Counter Module."
+
+# /counter channel
+counter_channel_embed_title: "Counter Module set Here!"
+counter_channel_embed_desc: "${interaction.user} have set the Counter module here!\nUser can now count number here !"
+counter_channel_command_work: "${interaction.user}, you have successfully set the Counter module to the channel ${channel} !"
+counter_channel_command_error: "${interaction.user}, the command returned an error. Please verify the channel you specified exists, and verify the Counter Module has been enabled!"
+
+counter_actual_number: "✨ **Actual Number:** {number}"
+
 # Suggestion commands
 # /setsuggest, /suggest
 
@@ -2639,6 +2661,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} disabled for ${targe
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} enabled for ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} allowed for ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} not allowed for ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 Name: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 Added permissions for ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} are updated"
 
 # RankUp event
 event_rank_role: "<@${message.author.id}>, you now have the role <@&${fetch.id}>"
@@ -2906,3 +2931,15 @@ economy_logs_deposit_desc: "{author} deposit **${money}** in the bank"
 # Generic vars
 var_on: "enabled"
 var_off: "disabled"
+
+global_warn_embed_title: "You got warned - Case **`${warnObject.id}`**"
+global_warn_embed_desc: "> **Reason:** ${warnObject.reason}\n> **Responsible:** @${author.user.username} (*${author.roles.highest.name}*)\nWarn generated ${time}"
+global_warn_component_button_label: "Sent from ${author.guild.name}"
+
+counter_error_too_much_u: "<@${message.author.id}> MESSED UP AT **${number}**!! The next number is **1**. **You cannot count twice in a row.**"
+counter_error_syntaxic: "<@${message.author.id}> MADE A MISTAKE!! The next number is **1**."
+
+global_blacklist_msg_to_send: "You have been banned, because you are blacklisted from iHorizon.\nReason: `${data.reason}`"
+global_blacklist_reason: "iHorizon Project Punishement - Blacklist | Reason: ${data.reason}"
+server_blacklist_msg_to_send: "You have been banned, because you are blacklisted from this server.\nReason: `${data2.reason}`"
+server_blacklist_reason: "Blacklist | Reason: ${data2.reason}"

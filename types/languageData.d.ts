@@ -665,6 +665,12 @@ export interface LanguageData {
 	economy_role_list_no_buyable_roles: string;
 	economy_role_list_embed_title: string;
 	economy_role_list_embed_desc: string;
+	reset_ueconomy_are_you_sure: string;
+	reset_ueconomy_logs_embed_title: string;
+	reset_ueconomy_logs_embed_desc: string;
+	reset_geconomy_are_you_sure: string;
+	reset_geconomy_logs_embed_title: string;
+	reset_geconomy_logs_embed_desc: string;
 	setprofilage_command_work: string;
 	setprofildescriptions_command_work: string;
 	profil_not_description_set: string;
@@ -1614,6 +1620,13 @@ export interface LanguageData {
 	git_lines_work: string;
 	git_lines_work_disabled: string;
 	git_lines_borred_warning: string;
+	counter_config_command_action_on: string;
+	counter_config_command_action_off: string;
+	counter_channel_embed_title: string;
+	counter_channel_embed_desc: string;
+	counter_channel_command_work: string;
+	counter_channel_command_error: string;
+	counter_actual_number: string;
 	suggest_accept_not_admin: string;
 	suggest_acceptnot_good_channel: string;
 	suggest_accept_not_found_db: string;
@@ -1968,6 +1981,9 @@ export interface LanguageData {
 	event_srvLogs_channelUpdate_enabled_for: string;
 	event_srvLogs_channelUpdate_allowed_for: string;
 	event_srvLogs_channelUpdate_unallowed_for: string;
+	event_srvLogs_channelUpdate_field_name: string;
+	event_srvLogs_channelUpdate_perm_added: string;
+	event_srvLogs_channelUpdate_embed_desc: string;
 	event_rank_role: string;
 	event_suggestion_embed_author: string;
 	event_security: string;
@@ -2149,4 +2165,13 @@ export interface LanguageData {
 	economy_logs_deposit_desc: string;
 	var_on: string;
 	var_off: string;
+	global_warn_embed_title: string;
+	global_warn_embed_desc: string;
+	global_warn_component_button_label: string;
+	counter_error_too_much_u: string;
+	counter_error_syntaxic: string;
+	global_blacklist_msg_to_send: string;
+	global_blacklist_reason: string;
+	server_blacklist_msg_to_send: string;
+	server_blacklist_reason: string;
 }

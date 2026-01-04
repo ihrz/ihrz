@@ -20,14 +20,14 @@
 */
 
 import {
-	Client,
 	ChatInputCommandInteraction,
-	GuildMember,
+	Client,
 	Message,
 } from 'discord.js';
-
 import { LanguageData } from '../../../../types/languageData.js';
 
+import { DatabaseStructure } from '../../../../types/database_structure.js';
+import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
 
 import { SubCommand } from '../../../../types/command.js';
 
@@ -35,38 +35,31 @@ export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;;
+		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember("member") as GuildMember | null;
-			var reason = interaction.options.getString("reason")!;
-		} else {
-
-			var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
-			var reason = client.func.method.longString(args!, 1)!;
-		};
-
-		const warnId = await client.func.method.warnMember(
-			interaction.member!,
-			member!,
-			reason,
-			lang
-		);
-
-		await client.func.method.interactionSend(interaction, {
-			content: lang.warn_command_work
-				.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
-				.replace("${member?.toString()}", member?.toString()!)
-				.replace("${reason}", reason)
-				.replace("${warnId}", warnId)
+		const response = await promptYesOrNo(interaction, {
+			content: lang.reset_geconomy_are_you_sure,
+			noButton: lang.resetallinvites_no_button,
+			yesButton: lang.resetallinvites_yes_button,
+			dangerAction: true
 		})
 
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.warn_logEmbed_title,
-			description: lang.warn_logEmbed_desc
-				.replace("${interaction.member.toString()}", interaction.member.toString())
-				.replace("${member?.toString()}", member?.toString()!)
-				.replace("${reason}", reason)
-		});
+		if (response) {
+			const DbData = await client.db.get(`${interaction.guild?.id}.USER`) as DatabaseStructure.DbGuildUserObject[];
+
+			for (const entries in DbData) {
+				await client.db.delete(`${interaction.guild?.id}.USER.${entries}.ECONOMY`)
+			}
+			await client.func.method.interactionSend(interaction, { content: lang.resetallinvites_succes_on_delete, components: [] });
+
+			await client.func.ihorizon_logs(interaction, {
+				title: lang.reset_geconomy_logs_embed_title,
+				description: lang.reset_geconomy_logs_embed_desc
+					.replace("${interaction.member.user.toString()}", interaction.member.user.toString())
+			});
+
+		} else {
+			await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_action_canceled, components: [] });
+		}
 	},
 };

@@ -83,7 +83,8 @@ export const event: BotEvent = {
 						await client.func.method.warnMember(
 							message.guild?.members.me!,
 							message.member!,
-							"Automated Punishment - Pic Only"
+							"Automated Punishment - Pic Only",
+							lang
 						).catch(() => { });
 
 						await message.author.send({

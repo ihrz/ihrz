@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "No hay roles comprables para mostrar."
 economy_role_list_embed_title: "Sistema de Economía - Roles Comprables"
 economy_role_list_embed_desc: "Todos los roles comprables se listan abajo."
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**¿Estás realmente seguro de que quieres eliminar todos los datos de economía?\nEsta acción es permanente y no se puede deshacer.**\n**¡Esta acción es destructiva!**"
+reset_ueconomy_logs_embed_title: "Registros del módulo de economía (ACCIÓN PELIGROSA)"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} ha eliminado todos los datos del módulo de economía para ${user.toString()}!"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**¿Estás realmente seguro de que quieres eliminar todos los datos de economía de TODOS LOS MIEMBROS DEL SERVIDOR?\nEsta acción es permanente y no se puede deshacer.**\n**¡Esta acción es destructiva!**"
+reset_geconomy_logs_embed_title: "Registros del módulo de economía (ACCIÓN MUY PELIGROSA)"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} ha eliminado todos los datos del módulo de economía para **TODOS**!"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -2101,6 +2111,18 @@ git_lines_work: "✅ Git Lines está ahora habilitado."
 git_lines_work_disabled: "❌ Git Lines está ahora deshabilitado."
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} ¿Te molesto? ¡Puedes usar `/git lines` para desactivar este módulo!"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}, has configurado el módulo Contador en `Encendido`.\nSi el canal no existe, configúralo con el comando: **/counter channel**."
+counter_config_command_action_off: "${interaction.user}, has configurado el módulo Contador en `Apagado`."
+
+# /counter channel
+counter_channel_embed_title: "¡Módulo Contador configurado aquí!"
+counter_channel_embed_desc: "${interaction.user} ha configurado el módulo Contador aquí!\n¡Los usuarios ahora pueden contar en este canal!"
+counter_channel_command_work: "${interaction.user}, has configurado correctamente el módulo Contador en el canal ${channel}!"
+counter_channel_command_error: "${interaction.user}, el comando devolvió un error. ¡Por favor verifica que el canal especificado exista y que el módulo Contador esté habilitado!"
+
+counter_actual_number: "✨ **Número actual:** {number}"
+
 # Comandos de sugerencia
 # /configurarsugerencia, /sugerir
 
@@ -2635,6 +2657,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} desactivada para ${t
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} activada para ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} permitida para ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} no permitida para ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 Nombre: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 Permisos añadidos para ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} ha sido actualizado"
 
 # Evento de Ascenso de Rango
 event_rank_role: "<@${message.author.id}>, ahora tienes el rol <@&${fetch.id}>"
@@ -2904,3 +2929,15 @@ economy_logs_deposit_desc: "{author} depositó **${money}** en el banco"
 # Generic vars
 var_on: "activado"
 var_off: "desactivado"
+
+global_warn_embed_title: "Has recibido una advertencia – Caso **`${warnObject.id}`**"
+global_warn_embed_desc: "> **Motivo:** ${warnObject.reason}\n> **Responsable:** @${author.user.username} (*${author.roles.highest.name}*)\nAdvertencia generada ${time}"
+global_warn_component_button_label: "Enviado desde ${author.guild.name}"
+
+counter_error_too_much_u: "<@${message.author.id}> SE EQUIVOCÓ EN **${number}**!! El siguiente número es **1**. **No puedes contar dos veces seguidas.**"
+counter_error_syntaxic: "<@${message.author.id}> COMETIÓ UN ERROR!! El siguiente número es **1**."
+
+global_blacklist_msg_to_send: "Has sido baneado porque estás en la lista negra de iHorizon.\nRazón: `${data.reason}`"
+global_blacklist_reason: "Castigo del proyecto iHorizon - Lista negra | Razón: ${data.reason}"
+server_blacklist_msg_to_send: "Has sido baneado porque estás en la lista negra de este servidor.\nRazón: `${data2.reason}`"
+server_blacklist_reason: "Lista negra | Razón: ${data2.reason}"

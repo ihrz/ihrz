@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "لا توجد رتب قابلة للشرا�
 economy_role_list_embed_title: "نظام الاقتصاد - الرتب القابلة للشراء"
 economy_role_list_embed_desc: "جميع الرتب القابلة للشراء مذكورة أدناه."
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**هل أنت متأكد حقًا أنك تريد حذف جميع بيانات الاقتصاد؟\nهذا الإجراء نهائي ولا يمكن التراجع عنه.**\n**هذا الإجراء خطير ومدمّر!!**"
+reset_ueconomy_logs_embed_title: "سجلات وحدة الاقتصاد (إجراء خطير)"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} قام بحذف جميع بيانات وحدة الاقتصاد الخاصة بـ ${user.toString()}!"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**هل أنت متأكد حقًا أنك تريد حذف جميع بيانات الاقتصاد لجميع أعضاء الخوادم؟\nهذا الإجراء نهائي ولا يمكن التراجع عنه.**\n**هذا الإجراء خطير ومدمّر!!**"
+reset_geconomy_logs_embed_title: "سجلات وحدة الاقتصاد (إجراء خطير جدًا)"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} قام بحذف جميع بيانات وحدة الاقتصاد للجميع!"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -2101,6 +2111,18 @@ git_lines_work: "✅ تم تفعيل Git Lines الآن."
 git_lines_work_disabled: "❌ تم إلغاء تفعيل Git Lines الآن."
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} هل أزعجك؟ يمكنك كتابة `/git lines` لإلغاء تفعيل هذا الوحدة!"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}، لقد قمت بتعيين وحدة العداد إلى `تشغيل`.\nإذا لم تكن القناة موجودة، قم بإعدادها باستخدام الأمر: **/counter channel**."
+counter_config_command_action_off: "${interaction.user}، لقد قمت بتعيين وحدة العداد إلى `إيقاف`."
+
+# /counter channel
+counter_channel_embed_title: "تم تعيين وحدة العداد هنا!"
+counter_channel_embed_desc: "${interaction.user} قام بتعيين وحدة العداد هنا!\nيمكن للمستخدمين الآن العد في هذه القناة!"
+counter_channel_command_work: "${interaction.user}، تم تعيين وحدة العداد بنجاح إلى القناة ${channel}!"
+counter_channel_command_error: "${interaction.user}، حدث خطأ أثناء تنفيذ الأمر. يرجى التحقق من أن القناة المحددة موجودة وأن وحدة العداد مفعلة!"
+
+counter_actual_number: "✨ **الرقم الحالي:** {number}"
+
 # Suggestion commands
 # /setsuggest, /suggest
 
@@ -2634,6 +2656,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} تم إلغاء تف
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} تم تفعيلها لـ ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} مسموح بها لـ ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} تم رفضها لـ ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 الاسم: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 تمت إضافة الأذونات لـ ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "تم تحديث ${newChannel.toString()}"
 
 # حدث الترقية
 event_rank_role: "<@${message.author.id}>, لديك الآن الدور <@&${fetch.id}>"
@@ -2897,3 +2922,15 @@ economy_logs_deposit_desc: "{author} أودع **${money}** في البنك"
 # Generic vars
 var_on: "مفعل"
 var_off: "معطل"
+
+global_warn_embed_title: "تم تحذيرك - القضية **`${warnObject.id}`**"
+global_warn_embed_desc: "> **السبب:** ${warnObject.reason}\n> **المسؤول:** @${author.user.username} (*${author.roles.highest.name}*)\nتم إنشاء التحذير ${time}"
+global_warn_component_button_label: "مرسل من ${author.guild.name}"
+
+counter_error_too_much_u: "<@${message.author.id}> أَخْطَأَ عند **${number}**!! الرقم التالي هو **1**. **لا يمكنك العد مرتين على التوالي.**"
+counter_error_syntaxic: "<@${message.author.id}> أَخْطَأَ!! الرقم التالي هو **1**. "
+
+global_blacklist_msg_to_send: "تم حظرك لأنك مدرج في القائمة السوداء لمشروع iHorizon.\nالسبب: `${data.reason}`"
+global_blacklist_reason: "عقوبة مشروع iHorizon - القائمة السوداء | السبب: ${data.reason}"
+server_blacklist_msg_to_send: "تم حظرك لأنك مدرج في القائمة السوداء لهذا الخادم.\nالسبب: `${data2.reason}`"
+server_blacklist_reason: "القائمة السوداء | السبب: ${data2.reason}"

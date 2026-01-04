@@ -860,6 +860,16 @@ economy_role_list_no_buyable_roles: "表示できる購入可能なロールは�
 economy_role_list_embed_title: "エコノミーシステム - 購入可能ロール"
 economy_role_list_embed_desc: "購入可能なロールは以下に一覧表示されています。"
 
+# /economy economy-ureset
+reset_ueconomy_are_you_sure: "**本当にすべての経済データを削除してもよろしいですか？\nこの操作は元に戻せません。**\n**この操作は非常に危険です！！**"
+reset_ueconomy_logs_embed_title: "経済モジュールログ（危険な操作）"
+reset_ueconomy_logs_embed_desc: "${interaction.member.user.toString()} が ${user.toString()} のすべての経済モジュールデータを削除しました！"
+
+# /economy economy-greset
+reset_geconomy_are_you_sure: "**本当にすべてのサーバーメンバーの経済データを削除してもよろしいですか？\nこの操作は元に戻せません。**\n**この操作は非常に危険です！！**"
+reset_geconomy_logs_embed_title: "経済モジュールログ（非常に危険な操作）"
+reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} が **全員** の経済モジュールデータを削除しました！"
+
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
 
@@ -2101,6 +2111,18 @@ git_lines_work: "✅ Git Linesが有効になりました。"
 git_lines_work_disabled: "❌ Git Linesが無効になりました。"
 git_lines_borred_warning: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} 邪魔してる？`/git lines`でこのモジュールを無効にできるよ！"
 
+# /counter config
+counter_config_command_action_on: "${interaction.user}、カウンターモジュールを `オン` に設定しました。\nチャンネルが存在しない場合は、**/counter channel** コマンドで設定してください。"
+counter_config_command_action_off: "${interaction.user}、カウンターモジュールを `オフ` に設定しました。"
+
+# /counter channel
+counter_channel_embed_title: "カウンターモジュールがここに設定されました！"
+counter_channel_embed_desc: "${interaction.user} がカウンターモジュールをここに設定しました！\nユーザーはこのチャンネルでカウントできます！"
+counter_channel_command_work: "${interaction.user}、カウンターモジュールをチャンネル ${channel} に正常に設定しました！"
+counter_channel_command_error: "${interaction.user}、コマンドの実行中にエラーが発生しました。指定したチャンネルが存在し、カウンターモジュールが有効になっているか確認してください！"
+
+counter_actual_number: "✨ **現在の数字:** {number}"
+
 # 提案コマンド
 # /setsuggest, /suggest
 
@@ -2635,6 +2657,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} は ${target} で無
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} は ${target} で有効化されました\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} は ${target} に許可されました\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} は ${target} に拒否されました\n"
+event_srvLogs_channelUpdate_field_name: "🎫 名前: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 ${target} に追加された権限:\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} が更新されました"
 
 # ランクアップイベント
 event_rank_role: "<@${message.author.id}>さん、あなたは今、役職 <@&${fetch.id}> を持っています"
@@ -2904,3 +2929,15 @@ economy_logs_deposit_desc: "{author} が銀行に **${money}** を預けまし�
 # Generic vars
 var_on: "有効"
 var_off: "無効"
+
+global_warn_embed_title: "警告を受けました – ケース **`${warnObject.id}`**"
+global_warn_embed_desc: "> **理由:** ${warnObject.reason}\n> **担当者:** @${author.user.username} (*${author.roles.highest.name}*)\n警告が生成されました ${time}"
+global_warn_component_button_label: "${author.guild.name} から送信"
+
+counter_error_too_much_u: "<@${message.author.id}> は **${number}** で間違えました！！ 次の数字は **1** です。**連続して数えることはできません。**"
+counter_error_syntaxic: "<@${message.author.id}> が間違えました！！ 次の数字は **1** です。"
+
+global_blacklist_msg_to_send: "iHorizon のブラックリストに登録されているため、あなたはBANされました。\n理由: `${data.reason}`"
+global_blacklist_reason: "iHorizon プロジェクト処分 - ブラックリスト | 理由: ${data.reason}"
+server_blacklist_msg_to_send: "このサーバーのブラックリストに登録されているため、あなたはBANされました。\n理由: `${data2.reason}`"
+server_blacklist_reason: "ブラックリスト | 理由: ${data2.reason}"
