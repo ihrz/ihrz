@@ -29,12 +29,14 @@ export const event: BotEvent = {
 	run: async (client: Client, member: GuildMember) => {
 
 		if (member.guild.members.me?.permissions.has(PermissionFlagsBits.BanMembers)) {
+			const lang = await client.func.getLanguageData(member.guild.id);
+
 			const data = await blacklistTable.get(`${member.user.id}`);
 
 			if (data?.blacklisted === true) {
-				await member.send({ content: "You have been banned, because you are blacklisted from iHorizon. \nReason: \`" + data.reason + '\`' })
+				await member.send({ content: lang.global_blacklist_msg_to_send.replace("${data.reason}", data.reason) })
 					.catch(() => { })
-				member.ban({ reason: `iHorizon Project Punishement - Blacklist | Reason: ${data.reason}` })
+				member.ban({ reason: lang.global_blacklist_reason.replace("${data.reason}", data.reason) })
 					.catch(() => { })
 					.then(() => { });
 			}
@@ -42,9 +44,9 @@ export const event: BotEvent = {
 			const data2 = await client.db.get(`${member.guild.id}.BLACKLIST.${member.id}`);
 
 			if (data2?.blacklisted === true) {
-				await member.send({ content: "You have been banned, because you are blacklisted from this server. \nReason: \`" + data2?.reason + '\`' })
+				await member.send({ content: lang.server_blacklist_msg_to_send.replace("${data2.reason}", data2?.reason) })
 					.catch(() => { })
-				member.ban({ reason: `Blacklist | Reason: ${data2?.reason}` })
+				member.ban({ reason: lang.server_blacklist_reason.replace("${data2.reason}", data2?.reason) })
 					.catch(() => { })
 					.then(() => { });
 			}

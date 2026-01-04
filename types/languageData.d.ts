@@ -1981,6 +1981,9 @@ export interface LanguageData {
 	event_srvLogs_channelUpdate_enabled_for: string;
 	event_srvLogs_channelUpdate_allowed_for: string;
 	event_srvLogs_channelUpdate_unallowed_for: string;
+	event_srvLogs_channelUpdate_field_name: string;
+	event_srvLogs_channelUpdate_perm_added: string;
+	event_srvLogs_channelUpdate_embed_desc: string;
 	event_rank_role: string;
 	event_suggestion_embed_author: string;
 	event_security: string;
@@ -2167,4 +2170,8 @@ export interface LanguageData {
 	global_warn_component_button_label: string;
 	counter_error_too_much_u: string;
 	counter_error_syntaxic: string;
+	global_blacklist_msg_to_send: string;
+	global_blacklist_reason: string;
+	server_blacklist_msg_to_send: string;
+	server_blacklist_reason: string;
 }

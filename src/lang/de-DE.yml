@@ -2657,6 +2657,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} deaktiviert für ${t
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} aktiviert für ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} erlaubt für ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} nicht erlaubt für ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 Name: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 Hinzugefügte Berechtigungen für ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} wurde aktualisiert"
 
 # Rang-Erhöhung Ereignis
 event_rank_role: "<@${message.author.id}>, du hast jetzt die Rolle <@&${fetch.id}>"
@@ -2933,3 +2936,8 @@ global_warn_component_button_label: "Gesendet von ${author.guild.name}"
 
 counter_error_too_much_u: "<@${message.author.id}> HAT SICH BEI **${number}** VERZÄHLT!! Die nächste Zahl ist **1**. **Du kannst nicht zweimal hintereinander zählen.**"
 counter_error_syntaxic: "<@${message.author.id}> HAT EINEN FEHLER GEMACHT!! Die nächste Zahl ist **1**."
+
+global_blacklist_msg_to_send: "Du wurdest gebannt, da du auf der Blacklist von iHorizon stehst.\nGrund: `${data.reason}`"
+global_blacklist_reason: "iHorizon-Projekt Bestrafung - Blacklist | Grund: ${data.reason}"
+server_blacklist_msg_to_send: "Du wurdest gebannt, da du auf der Blacklist dieses Servers stehst.\nGrund: `${data2.reason}`"
+server_blacklist_reason: "Blacklist | Grund: ${data2.reason}"

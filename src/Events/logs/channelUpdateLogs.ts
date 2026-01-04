@@ -32,7 +32,7 @@ function getDiff(
 	let after = "";
 
 	if (oldChannel.name !== newChannel.name) {
-		after += `🎫 Nom: ${newChannel.name}\n`;
+		after += lang.event_srvLogs_channelUpdate_field_name.replace("${newChannel.name}", newChannel.name);
 	}
 
 	const oldPerms = oldChannel.permissionOverwrites.cache;
@@ -77,7 +77,7 @@ function getDiff(
 	newPerms.forEach((newPerm, id) => {
 		if (!oldPerms.has(id)) {
 			const target = newPerm.type === 0 ? `<@&${id}>` : `<@${id}>`;
-			after += `🛡 Permissions ajoutées pour ${target}:\n`;
+			after += lang.event_srvLogs_channelUpdate_perm_added.replace("${target}", target);
 			newPerm.allow.toArray().forEach(perm => {
 				after += `-    ✅ ${perm}\n`;
 			});
@@ -131,7 +131,7 @@ export const event: BotEvent = {
 		const logsEmbed = new EmbedBuilder()
 			.setColor("#010101")
 			.setAuthor({ name: relevantLog?.executor?.username || lang.var_unknown, iconURL: icon })
-			.setDescription(`${newChannel.toString()} are updated`)
+			.setDescription(lang.event_srvLogs_channelUpdate_embed_desc.replace("${newChannel.toString()}", newChannel.toString()))
 			.addFields({ name: lang.event_srvLogs_messageUpdate_footer_2, value: changes });
 
 		logsEmbed.setTimestamp();

@@ -2656,6 +2656,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} تم إلغاء تف
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} تم تفعيلها لـ ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} مسموح بها لـ ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} تم رفضها لـ ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 الاسم: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 تمت إضافة الأذونات لـ ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "تم تحديث ${newChannel.toString()}"
 
 # حدث الترقية
 event_rank_role: "<@${message.author.id}>, لديك الآن الدور <@&${fetch.id}>"
@@ -2926,3 +2929,8 @@ global_warn_component_button_label: "مرسل من ${author.guild.name}"
 
 counter_error_too_much_u: "<@${message.author.id}> أَخْطَأَ عند **${number}**!! الرقم التالي هو **1**. **لا يمكنك العد مرتين على التوالي.**"
 counter_error_syntaxic: "<@${message.author.id}> أَخْطَأَ!! الرقم التالي هو **1**. "
+
+global_blacklist_msg_to_send: "تم حظرك لأنك مدرج في القائمة السوداء لمشروع iHorizon.\nالسبب: `${data.reason}`"
+global_blacklist_reason: "عقوبة مشروع iHorizon - القائمة السوداء | السبب: ${data.reason}"
+server_blacklist_msg_to_send: "تم حظرك لأنك مدرج في القائمة السوداء لهذا الخادم.\nالسبب: `${data2.reason}`"
+server_blacklist_reason: "القائمة السوداء | السبب: ${data2.reason}"

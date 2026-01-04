@@ -2660,6 +2660,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} désactivée pour ${
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} activée pour ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} autorisée pour ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} refusée pour ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 Nom : ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 Permissions ajoutées pour ${target} :\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} a été mis à jour"
 
 # Événement de Promotion de Rang
 event_rank_role: "<@${message.author.id}>, tu as maintenant le rôle <@&${fetch.id}> tu la bien mérité a glander sur ton lit , sale modo discord"
@@ -2936,3 +2939,8 @@ global_warn_component_button_label: "Envoyé depuis ${author.guild.name}"
 
 counter_error_too_much_u: "<@${message.author.id}> S'EST TROMPÉ À **${number}**!! Le prochain nombre est **1**. **Vous ne pouvez pas compter deux fois d'affilée.**"
 counter_error_syntaxic: "<@${message.author.id}> S'EST TROMPÉ !! Le prochain nombre est **1**."
+
+global_blacklist_msg_to_send: "Tu as été banni car tu es sur la blacklist d’iHorizon.\nRaison : `${data.reason}`"
+global_blacklist_reason: "Sanction du projet iHorizon - Blacklist | Raison : ${data.reason}"
+server_blacklist_msg_to_send: "Tu as été banni car tu es sur la blacklist de ce serveur.\nRaison : `${data2.reason}`"
+server_blacklist_reason: "Blacklist | Raison : ${data2.reason}"

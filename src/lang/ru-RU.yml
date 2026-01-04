@@ -2657,6 +2657,9 @@ event_srvLogs_channelUpdate_disabled_for: "-    ❌ ${perm} отключено �
 event_srvLogs_channelUpdate_enabled_for: "-    ✅ ${perm} включено для ${target}\n"
 event_srvLogs_channelUpdate_allowed_for: "-    ✅ ${perm} разрешено для ${target}\n"
 event_srvLogs_channelUpdate_unallowed_for: "-    ❌ ${perm} не разрешено для ${target}\n"
+event_srvLogs_channelUpdate_field_name: "🎫 Название: ${newChannel.name}\n"
+event_srvLogs_channelUpdate_perm_added: "🛡 Добавленные разрешения для ${target}:\n"
+event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} был обновлён"
 
 # Событие повышения уровня
 event_rank_role: "<@${message.author.id}>, у вас теперь есть роль <@&${fetch.id}>"
@@ -2933,3 +2936,8 @@ global_warn_component_button_label: "Отправлено с ${author.guild.name
 
 counter_error_too_much_u: "<@${message.author.id}> ОШИБСЯ НА **${number}**!! Следующее число — **1**. **Нельзя считать два раза подряд.**"
 counter_error_syntaxic: "<@${message.author.id}> СОВЕРШИЛ ОШИБКУ!! Следующее число — **1**."
+
+global_blacklist_msg_to_send: "Вы были заблокированы, так как находитесь в чёрном списке iHorizon.\nПричина: `${data.reason}`"
+global_blacklist_reason: "Наказание проекта iHorizon - Чёрный список | Причина: ${data.reason}"
+server_blacklist_msg_to_send: "Вы были заблокированы, так как находитесь в чёрном списке этого сервера.\nПричина: `${data2.reason}`"
+server_blacklist_reason: "Чёрный список | Причина: ${data2.reason}"
