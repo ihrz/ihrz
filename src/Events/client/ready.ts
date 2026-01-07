@@ -210,7 +210,6 @@ export const event: BotEvent = {
 
 		client.player.init({ id: client.user?.id as string, username: 'bot_' + client.user?.id }).then(() => { })
 		recoverActiveSessions(client).then(() => { })
-		recoverCustomVoiceChannels(client).then(() => { })
 		client.memberCountManager.init().then(() => { })
 		client.autoRenewManager.init().then(() => { })
 		client.nightmodeManager.init().then(() => { })
@@ -222,7 +221,7 @@ export const event: BotEvent = {
 		client.giveawaysManager.init();
 		await client.email.init(true);
 
-		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 15_000)
+		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 50_000), setInterval(() => recoverCustomVoiceChannels(client), 120_000)
 		if (client.shard?.ids[0] === 0) setInterval(refreshBotData, 45_000);
 
 		fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), refreshBotData(), statsRefresher();
