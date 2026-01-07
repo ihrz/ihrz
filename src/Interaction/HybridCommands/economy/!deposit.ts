@@ -51,7 +51,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		const balance = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
+		const balance = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`) || 0;
 
 		if (toDeposit === "all") toDeposit = balance;
 

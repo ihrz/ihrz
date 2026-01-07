@@ -53,7 +53,7 @@ export const event: BotEvent = {
 				(message.channel as BaseGuildTextChannel).setTopic(lang.counter_actual_number.replace("{number}", number.toString()));
 			} else {
 				message.react("❌");
-				await client.db.set(`${message.guild.id}.COUNTER_DATA`, { amount: 0, userId: message.author.id });
+				await client.db.set(`${message.guild.id}.COUNTER_DATA`, { amount: 0, userId: null });
 
 				if (message.author.id === lastNumber.userId) {
 					message.reply({ content: lang.counter_error_too_much_u.replace("${message.author.id}", message.author.id).replace("${number}", number.toString()) });
