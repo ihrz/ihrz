@@ -40,7 +40,12 @@ export const event: BotEvent = {
 				if (!role) return;
 
 				const member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
-				await member?.roles.remove(role.id, "[ReactionRoles] Module").catch(() => { });
+
+				if (member?.roles.cache.has(role.id)) {
+					await member?.roles.remove(role.id, "[ReactionRoles] Module").catch(() => { });
+				} else {
+					await member?.roles.add(role.id, "[ReactionRoles] Module").catch(() => { });
+				}
 				return;
 			};
 
@@ -51,7 +56,11 @@ export const event: BotEvent = {
 				if (!role) return;
 
 				const member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
-				await member?.roles.remove(role, "[ReactionRoles] Module").catch(() => { });
+				if (member?.roles.cache.has(role.id)) {
+					await member?.roles.remove(role.id, "[ReactionRoles] Module").catch(() => { });
+				} else {
+					await member?.roles.add(role.id, "[ReactionRoles] Module").catch(() => { });
+				}
 				return;
 			};
 		} catch { return; };
