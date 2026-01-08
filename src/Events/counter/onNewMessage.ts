@@ -63,7 +63,7 @@ export const event: BotEvent = {
 			}
 		} else {
 			message.react("❌");
-			await client.db.set(`${message.guild.id}.COUNTER_DATA`, { amount: 0, userId: message.author.id });
+			await client.db.set(`${message.guild.id}.COUNTER_DATA`, { amount: 0, userId: null });
 			message.reply({ content: lang.counter_error_syntaxic.replace("${message.author.id}", message.author.id) })
 		};
 	},
