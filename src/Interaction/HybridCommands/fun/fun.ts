@@ -570,6 +570,8 @@ export const command: Command = {
 						fr: "Poser une question au bot",
 					},
 
+					aliases: ["8ball"],
+
 					type: ApplicationCommandOptionType.Subcommand,
 					options: [
 						{
