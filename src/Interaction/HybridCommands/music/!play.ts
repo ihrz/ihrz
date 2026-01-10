@@ -78,9 +78,11 @@ export const subCommand: SubCommand = {
 
 				let isSpotify = query.includes("spotify.com/track");
 
-				if (isSpotify) {
-					let trackInfo = res.tracks[0].info;
+				if (isSpotify && res) {
+					let trackInfo = res.tracks[0]?.info;
 					res = await _node?.search({ query: `${trackInfo.title} ${trackInfo.author}`, source: 'deezer' }, interaction.member.user);
+				} else {
+					res = undefined;
 				}
 			} else {
 				try {
@@ -130,6 +132,8 @@ export const subCommand: SubCommand = {
 			if (res?.tracks.length! > 0) {
 				node = _node;
 				break;
+			} else {
+				res = undefined;
 			}
 		}
 
@@ -179,7 +183,7 @@ export const subCommand: SubCommand = {
 		// // player.filterManager.lavalinkFilterPlugin.toggleReverb([0.8, 0.5, 1.0], [])
 		// player.filterManager.setRate(0.2);
 		// player.filterManager.applyPlayerFilters();
-		// player.setVolume(75);
+		player.setVolume(75);
 
 		if (!res || res.tracks.length === 0) {
 			const results = new EmbedBuilder()
