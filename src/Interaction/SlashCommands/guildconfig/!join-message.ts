@@ -33,7 +33,8 @@ import {
 	TextInputStyle,
 	MessageComponentInteraction,
 	Interaction,
-	Message
+	Message,
+	User
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
 import { LanguageData } from '../../../../types/languageData.js';
@@ -56,12 +57,12 @@ const DEFAULT_IMAGE_CONFIG = {
 // Utility functions
 const isValidColor = (color: string): boolean => /^#([0-9a-f]{3}){1,2}$/i.test(color);
 
-const createEmbedFields = (joinMessage: string | null, lang: LanguageData, client: Client, interaction: ChatInputCommandInteraction, guildLocal: string) => [
+const createEmbedFields = (joinMessage: string | null, lang: LanguageData, client: Client, interaction: ChatInputCommandInteraction | Message, guildLocal: string) => [
 	{
 		name: lang.setjoinmessage_help_embed_fields_custom_name,
 		value: joinMessage
 			? `\`\`\`${joinMessage}\`\`\`\n${client.func.method.generateCustomMessagePreview(joinMessage, {
-				user: interaction.user,
+				user: interaction.member?.user! as User,
 				guild: interaction.guild!,
 				guildLocal,
 			})}`
@@ -70,7 +71,7 @@ const createEmbedFields = (joinMessage: string | null, lang: LanguageData, clien
 	{
 		name: lang.setjoinmessage_help_embed_fields_default_name_empy,
 		value: `\`\`\`${lang.event_welcomer_inviter}\`\`\`\n${client.func.method.generateCustomMessagePreview(lang.event_welcomer_inviter, {
-			user: interaction.user,
+			user: interaction.member?.user as User,
 			guild: interaction.guild!,
 			guildLocal,
 		})}`
@@ -88,7 +89,7 @@ interface ImageConfig {
 
 class JoinMessageHandler {
 	private client: Client;
-	private interaction: ChatInputCommandInteraction<"cached">;
+	private interaction: ChatInputCommandInteraction<"cached"> | Message;
 	private lang: LanguageData;
 	private guildLocal: string;
 	private imageConfig: DatabaseStructure.JoinBannerOptions;
@@ -96,7 +97,7 @@ class JoinMessageHandler {
 
 	constructor(
 		client: Client,
-		interaction: ChatInputCommandInteraction<"cached">,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
 		lang: LanguageData,
 		guildLocal: string,
 		imageConfig: DatabaseStructure.JoinBannerOptions,
@@ -219,7 +220,7 @@ class JoinMessageHandler {
 			await this.client.func.ihorizon_logs(this.interaction, {
 				title: this.lang.setjoinmessage_logs_embed_title_on_enable,
 				description: this.lang.setjoinmessage_logs_embed_description_on_enable
-					.replace("${interaction.user.id}", this.interaction.user.id)
+					.replace("${interaction.user.id}", this.interaction.member!.user.id)
 			});
 
 			return response;
@@ -242,7 +243,7 @@ class JoinMessageHandler {
 		await this.client.func.ihorizon_logs(this.interaction, {
 			title: this.lang.setjoinmessage_logs_embed_title_on_disable,
 			description: this.lang.setjoinmessage_logs_embed_description_on_disable
-				.replace("${interaction.user.id}", this.interaction.user.id)
+				.replace("${interaction.user.id}", this.interaction.member?.user.id!)
 		});
 	}
 
@@ -292,7 +293,7 @@ class JoinMessageHandler {
 		const frameResponse = await msg.awaitMessageComponent({
 			componentType: ComponentType.StringSelect,
 			time: SELECT_TIMEOUT,
-			filter: (x) => x.user.id === this.interaction.user.id
+			filter: (x) => x.user.id === this.interaction.member?.user.id
 		});
 
 		await frameResponse.deferUpdate();
@@ -365,7 +366,7 @@ class JoinMessageHandler {
 		const sizeResponse = await msg.awaitMessageComponent({
 			componentType: ComponentType.StringSelect,
 			time: SELECT_TIMEOUT,
-			filter: (x) => x.user.id === this.interaction.user.id
+			filter: (x) => x.user.id === this.interaction.member?.user.id
 		});
 
 		await sizeResponse.deferUpdate();
@@ -430,11 +431,11 @@ class JoinMessageHandler {
 			}
 		}
 
-		const message = await this.interaction.editReply({
+		const message = await this.client.func.method.interactionSend(this.interaction, {
 			embeds,
 			components: [mainButtons, imageButtons],
 			files
-		});
+		}) as Message<true>
 
 		// Set up collector
 		const collector = message.createMessageComponentCollector({
@@ -444,7 +445,7 @@ class JoinMessageHandler {
 
 		collector.on('collect', async (buttonInteraction) => {
 			// Verify user
-			if (buttonInteraction.user.id !== this.interaction.user.id) {
+			if (buttonInteraction.user.id !== this.interaction.member?.user.id) {
 				await buttonInteraction.reply({
 					content: this.lang.help_not_for_you,
 					flags: [1 << 6]
@@ -461,7 +462,7 @@ class JoinMessageHandler {
 							{
 								name: this.lang.setjoinmessage_help_embed_fields_custom_name,
 								value: `\`\`\`${newMessage}\`\`\`\n${this.client.func.method.generateCustomMessagePreview(newMessage, {
-									user: this.interaction.user,
+									user: this.interaction.member?.user!,
 									guild: this.interaction.guild!,
 									guildLocal: this.guildLocal,
 								})}`
@@ -542,7 +543,7 @@ class JoinMessageHandler {
 		const menuCollector = menuMessage.createMessageComponentCollector({
 			componentType: ComponentType.StringSelect,
 			time: SELECT_TIMEOUT,
-			filter: (x) => x.user.id === this.interaction.user.id
+			filter: (x) => x.user.id === this.interaction.member?.user.id
 		});
 
 		menuCollector.on("collect", async (selectInteraction) => {
@@ -599,9 +600,9 @@ class JoinMessageHandler {
 }
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 		// Guard checks
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
 
 		// Get database values
 		const ImageBannerOptions = await client.db.get(`${interaction.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
