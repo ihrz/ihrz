@@ -27,6 +27,7 @@ import {
 	Client,
 	ComponentType,
 	EmbedBuilder,
+	Message,
 	TextInputStyle
 } from 'discord.js';
 import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
@@ -36,11 +37,11 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
 
 
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (!interaction.member || !client.user || !interaction.member.user.id || !interaction.guild || !interaction.channel) return;
 
 		let leaveMessage = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.leavemessage`);
 		const guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "en-US";
@@ -54,7 +55,7 @@ export const subCommand: SubCommand = {
 				{
 					name: lang.setjoinmessage_help_embed_fields_custom_name,
 					value: leaveMessage ? `\`\`\`${leaveMessage}\`\`\`\n${client.func.method.generateCustomMessagePreview(leaveMessage, {
-						user: interaction.user,
+						user: interaction.member.user,
 						guild: interaction.guild!,
 						guildLocal: guildLocal,
 					})}` : lang.setjoinmessage_help_embed_fields_custom_name_empy
@@ -62,7 +63,7 @@ export const subCommand: SubCommand = {
 				{
 					name: lang.setjoinmessage_help_embed_fields_default_name_empy,
 					value: `\`\`\`${lang.event_goodbye_inviter}\`\`\`\n${client.func.method.generateCustomMessagePreview(lang.event_goodbye_inviter, {
-						user: interaction.user,
+						user: interaction.member.user,
 						guild: interaction.guild!,
 						guildLocal: guildLocal,
 					})}, interaction)}`
@@ -81,20 +82,19 @@ export const subCommand: SubCommand = {
 					.setStyle(ButtonStyle.Danger),
 			);
 
-		const originalResponse = await interaction.editReply({
+		const originalResponse = await client.func.method.interactionSend(interaction, {
 			embeds: [helpEmbed],
 			components: [buttons]
 		});
 
 		const collector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			filter: (u) => u.user.id === interaction.user.id,
 			time: 80_000
 		});
 
 		collector.on('collect', async (buttonInteraction) => {
 
-			if (buttonInteraction.user.id !== interaction.user.id) {
+			if (buttonInteraction.user.id !== interaction.member?.user.id) {
 				await buttonInteraction.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
 				return;
 			};
@@ -124,7 +124,7 @@ export const subCommand: SubCommand = {
 					{
 						name: lang.setjoinmessage_help_embed_fields_custom_name,
 						value: response ? `\`\`\`${response}\`\`\`\n${client.func.method.generateCustomMessagePreview(response, {
-							user: interaction.user,
+							user: interaction.member.user,
 							guild: interaction.guild!,
 							guildLocal: guildLocal,
 						})}` : lang.setjoinmessage_help_embed_fields_custom_name_empy
@@ -142,7 +142,7 @@ export const subCommand: SubCommand = {
 				await client.func.ihorizon_logs(interaction, {
 					title: lang.setleavemessage_logs_embed_title_on_enable,
 					description: lang.setleavemessage_logs_embed_description_on_enable
-						.replace("${interaction.user.id}", interaction.user.id)
+						.replace("${interaction.user.id}", interaction.member.user.id)
 				});
 			} else if (buttonInteraction.customId === "leaveMessage-default-message") {
 				const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
@@ -166,7 +166,7 @@ export const subCommand: SubCommand = {
 				await client.func.ihorizon_logs(interaction, {
 					title: lang.setleavemessage_logs_embed_title_on_disable,
 					description: lang.setleavemessage_logs_embed_description_on_disable
-						.replace("${interaction.user.id}", interaction.user.id)
+						.replace("${interaction.user.id}", interaction.member.user.id)
 				});
 			}
 		});

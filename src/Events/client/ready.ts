@@ -23,7 +23,6 @@ import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, Gu
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
 import { format } from '../../core/functions/date_and_time.js';
 
-import status from "../../files/status.json" with { "type": "json" }
 import logger from "../../core/logger.js";
 
 import { BotEvent } from '../../../types/event.js';
@@ -112,7 +111,15 @@ export const event: BotEvent = {
 		};
 
 		async function quotesPresence() {
-			client.user?.setPresence({ activities: [{ name: status.current[Math.floor(Math.random() * status.current.length)], type: ActivityType.Custom }] });
+			client.user?.setPresence({
+				activities: [
+					{
+						name: `shard.${client.shard?.ids[0]} members.${(await getShardStats(client)).users.toString()}`,
+						type: ActivityType.Playing
+					}
+				],
+				shardId: client.shard?.ids[0]
+			});
 		};
 
 		async function refreshSchedule() {

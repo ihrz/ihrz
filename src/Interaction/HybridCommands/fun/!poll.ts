@@ -47,14 +47,12 @@ export const subCommand: SubCommand = {
 		}
 
 		const pollEmbed = new EmbedBuilder()
-			.setTitle(lang.poll_embed_title
-				.replace(/\${interaction\.user\.username}/g, user.globalName || user.username)
-			)
+			.setTitle(lang.poll_embed_title.replace('${interaction.user.username}', user.globalName || user.username))
 			.setColor("#ddd98b")
-			.setDescription(pollMessage)
+			.setDescription(`**${pollMessage}**`)
 			.addFields({ name: lang.poll_embed_fields_reaction, value: lang.poll_embed_fields_choice })
-			.setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")
-			.setTimestamp()
+			.setImage("https://www.ihorizon.org/assets/img/poll_embed_image.gif")
+			.setTimestamp();
 
 		const msg = await client.func.method.interactionSend(interaction, { embeds: [pollEmbed] });
 
