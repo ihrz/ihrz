@@ -32,7 +32,6 @@
 		"discord.js": "^14.25.1",
 		"gifwrap": "^0.10.1",
 		"jimp": "0.22.12",
-		"jszip": "^3.10.1",
 		"lavalink-client": "^2.7.8",
 		"nodemailer": "^7.0.12",
 		"puppeteer": "^24.35.0",
