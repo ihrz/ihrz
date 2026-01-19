@@ -160,9 +160,9 @@ export const command: Command = {
 				{
 					name: "squirrel",
 
-					description: "Get a picture of frog!",
+					description: "Get a picture of squirrel!",
 					description_localizations: {
-						fr: "Obtenez une photo de grenouille",
+						fr: "Obtenez une photo d'Écureuil",
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
