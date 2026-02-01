@@ -30,6 +30,7 @@ import {
 	ButtonStyle,
 	ComponentType,
 	AttachmentBuilder,
+	MessageFlags,
 } from 'discord.js';
 import { LanguageData } from '../../../../types/languageData.js';
 import { DatabaseStructure } from '../../../../types/database_structure.js';
@@ -198,6 +199,14 @@ export const subCommand: SubCommand = {
 		});
 
 		collector.on('collect', async (buttonInteraction) => {
+			if (buttonInteraction.member?.user.id !== interaction.member?.user.id) {
+				await buttonInteraction.reply({
+					content: lang.help_not_for_you,
+					flags: [MessageFlags.Ephemeral]
+				});
+				return;
+			};
+
 			if (!buttonInteraction.isButton()) return;
 
 			switch (buttonInteraction.customId) {

@@ -85,7 +85,7 @@ const config: ConfigData = {
 
 	command: {
 
-		alway100: ['171356978310938624x1099042785736282205']
+		alway100: ['UserIdxUserId']
 		/*
 		For love command, if you want for specific couple of user, 
 		always show 100% for their love, adding it to the array

@@ -24,7 +24,6 @@ import {
 	Client,
 	Message,
 } from 'discord.js';
-import JSZip from 'jszip';
 import { LanguageData } from '../../../../../types/languageData.js';
 import { SubCommand } from '../../../../../types/command.js';
 
@@ -41,7 +40,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.guild) return;
 
 		const stickers = interaction.guild.stickers.cache;
-		const zip = new JSZip();
+		let files: Bun.ArchiveInput = {};
 
 		try {
 			// Download and add all stickers to the zip
@@ -73,7 +72,7 @@ export const subCommand: SubCommand = {
 						responseType: 'arrayBuffer'
 					});
 
-					zip.file(stickerName, Buffer.from(response.data));
+					files[stickerName] = Buffer.from(response.data)
 				} catch {
 					// Silently handle individual sticker errors
 				}
@@ -83,13 +82,12 @@ export const subCommand: SubCommand = {
 			await Promise.all(downloadPromises);
 
 			// Generate the zip file with high compression
-			const archiveBuffer = await zip.generateAsync({
-				type: 'nodebuffer',
-				compression: 'DEFLATE',
-				compressionOptions: {
-					level: 9
-				}
-			});
+			const zip = new Bun.Archive(files, {
+				compress: 'gzip',
+				level: 9
+			})
+
+			let archiveBuffer = Buffer.from(await zip.bytes())
 
 			// Calculate time taken
 			const calcTime = Date.now() - time;

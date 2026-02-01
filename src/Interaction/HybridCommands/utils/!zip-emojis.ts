@@ -24,7 +24,7 @@ import {
 	Client,
 	Message
 } from 'discord.js';
-import JSZip from 'jszip';
+
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
 
@@ -42,7 +42,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.guild) return;
 
 		const emojis = interaction.guild.emojis.cache;
-		const zip = new JSZip();
+		let files: Bun.ArchiveInput = {};
 
 		try {
 			// Download and add all emojis to the zip
@@ -59,7 +59,7 @@ export const subCommand: SubCommand = {
 						responseType: 'arrayBuffer'
 					});
 
-					zip.file(emojiName, Buffer.from(response.data));
+					files[emojiName] = Buffer.from(response.data)
 				} catch {
 					// Silently handle individual emoji errors
 				}
@@ -67,15 +67,12 @@ export const subCommand: SubCommand = {
 
 			// Wait for all downloads to complete
 			await Promise.all(downloadPromises);
+			const zip = new Bun.Archive(files, {
+				compress: 'gzip',
+				level: 9
+			})
 
-			// Generate the zip file with high compression
-			const archiveBuffer = await zip.generateAsync({ 
-				type: 'nodebuffer',
-				compression: 'DEFLATE',
-				compressionOptions: {
-					level: 9
-				}
-			});
+			let archiveBuffer = Buffer.from(await zip.bytes())
 
 			// Calculate time taken
 			const calcTime = Date.now() - time;

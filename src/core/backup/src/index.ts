@@ -44,7 +44,7 @@ const getBackupData = async (backupID: string) => {
 		if (file) {
 			// If the file exists
 			const backupData: BackupData = require(`${backups_folder}${sep}${file}`);
-			// Returns backup informations
+			// Returns backup information
 			resolve(backupData);
 		} else {
 			// If no backup was found, return an error message
