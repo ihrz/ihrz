@@ -73,12 +73,10 @@ export const subCommand: SubCommand = {
 		for (const _node of client.player.nodeManager.nodes.values()) {
 			if (_node.connected === false) continue;
 
-			if (query.startsWith("https://")) {
+			if (query.startsWith("https://") && query.includes("spotify.com/track")) {
 				res = await _node?.search({ query, source: 'spotify' }, interaction.member.user);
 
-				let isSpotify = query.includes("spotify.com/track");
-
-				if (isSpotify && res) {
+				if (res) {
 					let trackInfo = res.tracks[0]?.info;
 					res = await _node?.search({ query: `${trackInfo.title} ${trackInfo.author}`, source: 'deezer' }, interaction.member.user);
 				} else {
