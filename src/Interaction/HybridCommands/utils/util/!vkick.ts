@@ -67,6 +67,7 @@ export const subCommand: SubCommand = {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.vkick_not_in_vc, // draft
 			});
+			return;
 		}
 
 		// Check if the member is an admin
