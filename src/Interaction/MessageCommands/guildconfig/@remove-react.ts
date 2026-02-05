@@ -44,7 +44,7 @@ export const command: Command = {
 	permission: PermissionsBitField.Flags.ManageGuildExpressions,
 	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
 
-		const message = options![0];
+		const message = options?.[0] || "";
 
 		await interaction.reply({
 			content: lang.remove_react_command_work
