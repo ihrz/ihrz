@@ -102,20 +102,6 @@ export const subCommand: SubCommand = {
 					}
 				}
 
-				// If spotify search dont feel similar enough, fallback to default provider
-				if (res?.tracks[0] && !client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)) {
-					try {
-						res = await _node?.search({ query }, interaction.member.user);
-						res.tracks.forEach((t) => {
-							t.info.uri = "https://discord.gg/ihorizon"
-						});
-						logger.debug("Searching", query, "with", 'default provider', "| Result: ", res.tracks[0]?.info);
-						logger.debug("Default provider is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
-					} catch {
-						res = undefined
-					}
-
-				};
 				// If default provider search dont feel similar enough, search on soundcloud
 				if (res?.tracks[0] && !client.func.music_proximity.isSimilar(query, res?.tracks[0], 0.5, 0.6)) {
 					try {
