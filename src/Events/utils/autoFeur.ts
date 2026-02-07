@@ -59,7 +59,11 @@ export const auto_respond: Record<string, string> = {
 	"ntm": "j'nique déjà la tienne connard",
 	"baise moi": "allé baisse la culotte",
 	"bstmr": "non",
-	"suce moi": "baisse ton pantalon"
+	"suce moi": "baisse ton pantalon",
+	"viens on baise": "Vien par la petit coquinou je vais te defourailler sauvagement",
+	"Toute façon je prefere mee6": ':monkey:',
+	"un humain c'est plus utile": "Montre moi tes couilles alors",
+	"aya": "ya quoi ?"
 };
 
 export const event: BotEvent = {
