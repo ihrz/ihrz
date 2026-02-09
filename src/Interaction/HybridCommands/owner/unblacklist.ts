@@ -159,7 +159,7 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 		};
 
 		await blacklistTable.delete(`${member?.id}`);
-		await interaction.guild.members.unban(bannedMember);
+		await interaction.guild.members.unban(bannedMember).catch(() => { })
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unblacklist_command_work.replace(/\${member\.id}/g, member?.id!)
