@@ -128,7 +128,7 @@ iHorizon supports **10 languages** for an optimal international experience:
 
 ### ⚙️ Configuration
 
-**1. Download the configuration**
+**1. Download the repository**
 
 ```bash
 # Clone the GitLab repository (active development)
