@@ -248,18 +248,17 @@ Past developers and contributors who have helped make iHorizon what it is today.
 			<b>Kisakay</b><br />
 			<i>Creator & Former Lead Developer</i><br />
 			<sub>She/Her</sub><br />
-			<a href="https://gitlab.com/Kisakay">GitLab</a> / <a href="https://github.com/Kisakay">GitHub</a>
+			<a href="https://gitlab.com/Kisakay">GitLab</a> / 
+			<a href="https://github.com/Kisakay">GitHub</a>
 		</td>
-	</tr>
-		<td align="center" width="33%">
+        <td align="center" width="33%">
 			<img src="https://github.com/irisihrz.png" width="100px" style="border-radius:50%" /><br />
 			<b>IrisWeb</b><br />
 			<i>Old Core Developer</i><br />
 			<sub>She/Her</sub><br />
 			<a href="https://github.com/irisihrz">GitHub</a>
 		</td>		
-	</tr>
-		<td align="center" width="33%">
+        <td align="center" width="33%">
     		<img src="https://github.com/Mxi1n.png" width="100px" style="border-radius:50%"/><br/>
     		<b>Maxine</b><br/>
     		<i>Old contributor</i><br/>
