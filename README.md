@@ -183,13 +183,6 @@ npm install ihrz
 <table>
 	<tr>
 		<td align="center" width="33%">
-			<img src="https://github.com/Kisakay.png" width="100px" style="border-radius:50%" /><br />
-			<b>Kisakay</b><br />
-			<i>Creator & Lead Developer</i><br />
-			<sub>She/Her</sub><br />
-			<a href="https://gitlab.com/Kisakay">GitLab</a> / <a href="https://github.com/Kisakay">GitHub</a>
-		</td>
-		<td align="center" width="33%">
 			<img src="https://github.com/name-shitty-github-profile.png" width="100px"
 				style="border-radius:50%" /><br />
 			<b>Noémie</b><br />
@@ -197,17 +190,9 @@ npm install ihrz
 			<sub>She/Her</sub><br />
 			<a href="https://github.com/name-shitty-github-profile">GitHub</a>
 		</td>
-		<td align="center" width="33%">
-			<img src="https://github.com/irisihrz.png" width="100px" style="border-radius:50%" /><br />
-			<b>IrisWeb</b><br />
-			<i>Old Core Developer</i><br />
-			<sub>She/Her</sub><br />
-			<a href="https://github.com/irisihrz">GitHub</a>
-		</td>
-	</tr>
 </table>
 
-> 💜 **Team Note**: Kisakay has embraced her true identity and now uses she/her pronouns. In the license files, the name Anaïs Saraiva appears as the owner.
+
 
 ## 💝 Contributors's walls
 
@@ -260,6 +245,30 @@ npm install ihrz
 </tr>
 </table>
 
+## Alumni
+
+Past developers and contributors who have helped make iHorizon what it is today.
+
+<table>
+	<tr>
+		<td align="center" width="33%">
+			<img src="https://github.com/Kisakay.png" width="100px" style="border-radius:50%" /><br />
+			<b>Kisakay</b><br />
+			<i>Creator & Former Lead Developer</i><br />
+			<sub>She/Her</sub><br />
+			<a href="https://gitlab.com/Kisakay">GitLab</a> / <a href="https://github.com/Kisakay">GitHub</a>
+		</td>
+	</tr>
+	<td align="center" width="33%">
+		<img src="https://github.com/irisihrz.png" width="100px" style="border-radius:50%" /><br />
+		<b>IrisWeb</b><br />
+		<i>Old Core Developer</i><br />
+		<sub>She/Her</sub><br />
+		<a href="https://github.com/irisihrz">GitHub</a>
+	</tr>	
+</table>		
+
+> 💜 **Team Note**: Kisakay has embraced her true identity and now uses she/her pronouns. In the license files, the name Anaïs Saraiva appears as the owner.
 ---
 
 ## 📜 History & Evolution
@@ -296,8 +305,6 @@ Need help? Several options are available:
 **Discord Server**: Join our community at [discord.ihorizon.org](http://discord.ihorizon.org/)  
 **Documentation**: Check [docs.ihorizon.org](https://docs.ihorizon.org/)  
 **Direct Contact**: Reach out to the owners via Discord
-
-- 👤 [Kisakay](https://discord.com/users/171356978310938624/)
 
 ---
 
