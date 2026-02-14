@@ -168,7 +168,7 @@ npm install ihrz
 
 | Resource                    | Link                                                                                                        |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| 📖 **Full Documentation**    | [docs.ihorizon.org](https://docs.ihorizon.org)                                                              |
+| 📖 **Full Documentation (BETA)**    | [docs.ihorizon.org](https://docs.ihorizon.org)                                                              |
 | 🔍 **Command Search**        | [search.ihorizon.org](https://search.ihorizon.org)                                                          |
 | 💬 **Main Discord Server**   | [discord.ihorizon.org](http://discord.ihorizon.org/)                                                        |
 | 🔗 **Backup Discord Server** | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu)                                                      |
