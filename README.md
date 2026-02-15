@@ -207,11 +207,9 @@ npm install ihrz
   </td>
 
   <td align="center" width="33%">
-    <img src="https://github.com/o-aelith.png" width="100px" style="border-radius:50%"/><br/>
     <b>Neigeuses</b><br/>
     <i>#2 Contributor</i><br/>
     <sub>She/Her</sub><br/>
-    <a href="https://github.com/o-aelith">GitHub</a>
   </td>
 
   <td align="center" width="33%">
