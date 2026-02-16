@@ -152,16 +152,6 @@ bun install
 bun start
 ```
 
-### 📦 NPM Installation
-
-iHorizon is also available on NPM for quick integration:
-
-```bash
-npm install ihrz
-```
-
-📖 **[Full NPM Documentation](https://npmjs.com/ihrz)**
-
 ---
 
 ## 📚 Resources & Links
