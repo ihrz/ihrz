@@ -2,7 +2,7 @@
 
 # 🌐 iHorizon
 
-### *The most complete discord bot in GitHub*
+### *The most complete Discord bot on GitLab*
 
 <br>
 <br>
