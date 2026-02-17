@@ -103,12 +103,12 @@ export const event: BotEvent = {
 		])) return;
 
 		const relevantLog = await getLogs({ guild: newChannel.guild, target: newChannel.id, actionType: AuditLogEvent.ChannelUpdate, type: 'LOGS' })
+		const relevantLog_2 = await getLogs({ guild: newChannel.guild, target: newChannel.id, actionType: AuditLogEvent.ChannelOverwriteUpdate, type: 'LOGS' })
 
-		if (oldChannel.position !== newChannel.position) return;
+		// if (oldChannel.position !== newChannel.position) return;
 
-		// check if the author is the bot
-		if (!relevantLog) return;
-		if (relevantLog?.executor?.id === client.user?.id) return;
+		if (!relevantLog && !relevantLog_2) return;
+		if (relevantLog?.executor?.id === client.user?.id && relevantLog_2?.executor?.id === client.user?.id) return;
 
 		const someinfo = await client.db.get(`${oldChannel.guildId}.GUILD.SERVER_LOGS.channel`);
 		if (!someinfo) return;

@@ -51,7 +51,7 @@ var_page: "Page"
 var_permission: "Permission"
 var_usage: "Utilisation"
 var_aliases: "Alias"
-var_dont_have_perm: "Vous n'avez pas les permissions nécessaires pour faire cela. (Requiert la permission {perm})"
+var_dont_have_perm: "Vous n'avez pas les permissions nécessaires pour faire cela. Cette opération requiert la permission {perm}"
 var_price: "Prix"
 var_boost: "Boost"
 var_uses: "Utilisations"
@@ -321,9 +321,9 @@ ticket_unlink_panel_edited_content: "Ce salon était un ancien ticket. L’utili
 
 # /ticket remind
 ticket_remind_embed_title: "Oh-oh! Rappel Ticket"
-ticket_remind_embed_desc: "Tu n'ai pas très actif, ce n'est pas grave, mais ton ticket est toujours en traitement ! Viens donc y répondre!"
+ticket_remind_embed_desc: "Tu n'est pas très actif, ce n'est pas grave, mais ton ticket est toujours en traitement ! Viens donc y répondre !"
 ticket_remind_embed_fields_1_name: "Dernière réponse"
-ticket_remind_command_ok: "J'ai envoyer à l'utilisateur le message de rappel."
+ticket_remind_command_ok: "J'ai envoyé le message de rappel à l'utilisateur."
 var_never: "Jamais"
 
 # Ranks commands
@@ -2523,7 +2523,7 @@ rc_role_embed_field1_name: "Nouveau rôle attribué après vérification"
 rc_command_ok: "${interaction.user.toString()}, vous venez de configurer le module \"AuthRestore\". Désormais, lorsqu'un membre du serveur Discord clique sur le bouton et se connecte via OAuth2, il sera ajouté à la base de données. Il pourra éventuellement rejoindre automatiquement le serveur avec OAuth2.\n# À LIRE ATTENTIVEMENT\nLe message ${msgLink} possède maintenant un bouton qui servira de vérification.\nVOICI LE CODE PRIVÉ QUI NE DOIT ÊTRE DIVULGUÉ À PERSONNE. UNE PERSONNE AVEC CE CODE POURRAIT LE SUPPRIMER, AJOUTER DES MEMBRES À SON SERVEUR... GARDEZ-LE EN LIEU SÛR. iHorizon NE VOUS LE DONNERA PLUS JAMAIS:\n```${res.secretCode}```"
 rc_command_ok_dm: "# Le code AuthRestore pour ${interaction.guild.name}\n```${res.secretCode}```"
 rc_command_dm_failed: "J'ai essayé de vous envoyer le code en message privé, mais vos MP sont bloqués :/"
-rc_command_dm_ok: "Au cas où vous l'auriez manqué, je vous ai envoyé le code en message privé!"
+rc_command_dm_ok: "Au cas où vous l'auriez manqué, je vous ai envoyé le code en message privé !"
 rc_command_horizongw_down: "Erreur: HorizonGateway est peut-être hors service"
 
 # /authrestore delete
@@ -2564,7 +2564,6 @@ rc_forceJoin_ws_end_renew_msg: "# À LIRE ATTENTIVEMENT\nVOICI LE CODE PRIVÉ QU
 media_gen_cooldown: "Vous devez attendre `1 minute et 30 secondes` entre chaque génération de médias !"
 media_gen_error_args: "Veuillez fournir deux URLs d'images valides."
 
-# fr-FR.yml (French - France)
 batch_ban_process: "🔄 Bannissement de ${member.user.username} en cours sur ${guilds.length} serveurs..."
 batch_unban_process: "🔄 Débannissement de ${banned_members.size} membres en cours..."
 batch_unblacklist_process: "🔄 Suppression de ${bannedMember.username} de la liste noire sur ${guildObjects.length} serveurs en cours..."
@@ -2594,7 +2593,7 @@ event_mp_emptyQueue: "${client.iHorizon_Emojis.Warning_Icon} - La musique s'est 
 
 # Channel Create Events
 event_channel_create_message_embed_title: "Configuration réussie !"
-event_channel_create_message_embed_description: "Le bot a été configuré parfaitement. Vous n'avez plus rien à faire (zen).\n\nTous les journaux de modération liés à iHorizon seront affichés ici."
+event_channel_create_message_embed_description: "Le bot a été configuré parfaitement. Vous n'avez plus rien à faire.\n\nTous les journaux de modération liés à iHorizon seront affichés ici."
 
 # Welcome Message Events
 event_welcomer_inviter: "{memberMention} (compte créé le {accountCreationTimestamp}) a rejoint le serveur. Elle/il a été invités par **{inviterUsername}** (**{invitesCount}** invitations), nous sommes maintenant {memberCount} dans {guildName}"
@@ -2631,7 +2630,7 @@ ticket_module_button_delete: "Supprimer le ticket"
 ticket_module_button_transcript: "Transcrire le ticket"
 ticket_module_button_addmember: "Ajouter un membre"
 ticket_module_button_removemember: "Supprimer un membre"
-ticket_module_add_question: "Qui souhaitez-vous ajouter à votre ticket ? (Spécifiez son identifiant d'utilisateur) !"
+ticket_module_add_question: "Qui souhaitez-vous ajouter à votre ticket (Spécifiez son identifiant d'utilisateur) ?"
 ticket_module_remove_question: "Qui est l'utilisateur que vous souhaitez retirer de votre ticket ? (Spécifiez son identifiant d'utilisateur) !"
 ticket_transcript_failed_to_send: "J'ai essayé de vous envoyer le fichier par message privé, mais vous avez bloqué vos messages directs :/"
 
@@ -2662,7 +2661,7 @@ event_srvLogs_channelUpdate_perm_added: "🛡 Permissions ajoutées pour ${targe
 event_srvLogs_channelUpdate_embed_desc: "${newChannel.toString()} a été mis à jour"
 
 # Événement de Promotion de Rang
-event_rank_role: "<@${message.author.id}>, tu as maintenant le rôle <@&${fetch.id}>"
+event_rank_role: "<@${message.author.id}>, tu a maintenant le rôle <@&${fetch.id}>"
 
 # Événement de suggestion
 event_suggestion_embed_author: "Nouvelle suggestion de ${message.author.username}"
@@ -2803,8 +2802,8 @@ hybridcommands_embed_help_title: "${commandName} Menue d'Aide"
 hybridcommands_embed_help_fields_value: "**Alias:** ${aliases}\n**Utilisation:** ${use}"
 hybridcommands_embed_footer_text: "Les options entre [...] sont obligatoires, tandis que celles entre <...> sont facultatives.\nUtilisez la commande : ${botPrefix}help [command] pour plus d'informations."
 
-ping_bot_show_info_msg: "Hey ${message.author.toString()}, je suis 100% en `Slash Command` (${client.iHorizon_Emojis.Slash_Bot_Badge}) et utilisable à plus de 85% en commande préfixe. Mon préfixe sur **ce serveur** est `${prefix}` !"
-ping_bot_show_info_msg_about_change_prefix: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Mon prefix te dérange? Fait **`/guildconfig bot prefix`** pour changer de préfixe!"
+ping_bot_show_info_msg: "Hey ${message.author.toString()}, je suis 100% en `Commandes Slash` (${client.iHorizon_Emojis.Slash_Bot_Badge}) et utilisable à plus de 85% en commandes préfixe. Mon préfixe sur **ce serveur** est `${prefix}` !"
+ping_bot_show_info_msg_about_change_prefix: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Mon préfixe te dérange? Fait **`/guildconfig bot prefix`** pour changer de préfixe !"
 
 # Module de Notification
 notifier_on_new_media_default_message: "@everyone **[{artistAuthor}](<{artistLink}>)** a publié une nouvelle vidéo [Cliquez ici]({mediaURL})"
