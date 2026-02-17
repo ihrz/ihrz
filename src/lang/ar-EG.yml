@@ -2600,8 +2600,8 @@ event_welcomer_inviter: "{memberMention} (تم إنشاء الحساب في {acc
 event_welcomer_default: "{memberMention} (تم إنشاء الحساب في {accountCreationTimestamp}) انضم إلى الخادم. نحن الآن {memberCount} في {guildName}"
 
 # أحداث وداع
-event_goodbye_inviter: "{memberUsername} (تم إنشاء الحساب في {accountCreationTimestamp}) غادر الخادم. تمت دعوته بواسطة **{inviterUsername}** (**{invitesCount}** دعوات)، نحن الآن {memberCount} في {guildName}"
-event_goodbye_default: "{memberUsername} (تم إنشاء الحساب في {accountCreationTimestamp}) غادر الخادم. نحن الآن {memberCount} في {guildName}"
+event_goodbye_inviter: "`{memberUsername}` (تم إنشاء الحساب في {accountCreationTimestamp}) غادر الخادم. تمت دعوته بواسطة **{inviterUsername}** (**{invitesCount}** دعوات)، نحن الآن {memberCount} في {guildName}"
+event_goodbye_default: "`{memberUsername}` (تم إنشاء الحساب في {accountCreationTimestamp}) غادر الخادم. نحن الآن {memberCount} في {guildName}"
 
 # أحداث مستوى XP
 event_xp_level_earn: "**تهانينا**، {memberMention} لقد ارتفعت بمستوى واحد في XP (المستوى: **{xpLevel}**)"

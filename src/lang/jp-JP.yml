@@ -2601,8 +2601,8 @@ event_welcomer_inviter: "{memberMention}（アカウント作成日：{accountCr
 event_welcomer_default: "{memberMention}（アカウント作成日：{accountCreationTimestamp}）がサーバーに参加しました。現在、{guildName} には{memberCount}人います"
 
 # Goodbye Message Events
-event_goodbye_inviter: "{memberUsername}（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います"
-event_goodbye_default: "{memberUsername}（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。現在、{guildName} には{memberCount}人います"
+event_goodbye_inviter: "`{memberUsername}`（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います"
+event_goodbye_default: "`{memberUsername}`（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。現在、{guildName} には{memberCount}人います"
 
 # XP Level Events
 event_xp_level_earn: "{memberMention} さん、レベルアップ (+1) おめでとうございます (現在のレベル: **{xpLevel}**)。"

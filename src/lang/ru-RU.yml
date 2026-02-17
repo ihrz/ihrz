@@ -2601,8 +2601,8 @@ event_welcomer_inviter: "{memberMention} (аккаунт создан {accountCr
 event_welcomer_default: "{memberMention} (аккаунт создан {accountCreationTimestamp}) присоединился к серверу. Теперь нас {memberCount} в {guildName}"
 
 # События прощания
-event_goodbye_inviter: "{memberUsername} (аккаунт создан {accountCreationTimestamp}) покинул сервер. Их пригласил **{inviterUsername}** (**{invitesCount}** Приглашения), теперь нас {memberCount} в {guildName}"
-event_goodbye_default: "{memberUsername} (аккаунт создан {accountCreationTimestamp}) покинул сервер. Теперь нас {memberCount} в {guildName}"
+event_goodbye_inviter: "`{memberUsername}` (аккаунт создан {accountCreationTimestamp}) покинул сервер. Их пригласил **{inviterUsername}** (**{invitesCount}** Приглашения), теперь нас {memberCount} в {guildName}"
+event_goodbye_default: "`{memberUsername}` (аккаунт создан {accountCreationTimestamp}) покинул сервер. Теперь нас {memberCount} в {guildName}"
 
 # События уровня XP
 event_xp_level_earn: "**GG**, {memberMention}, вы получили +1 уровень, ваш текущий уровень: **{xpLevel}**"

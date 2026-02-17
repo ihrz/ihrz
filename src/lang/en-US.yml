@@ -2605,8 +2605,8 @@ event_welcomer_inviter: "{memberMention} (account created at {accountCreationTim
 event_welcomer_default: "{memberMention} (account created at {accountCreationTimestamp}) joined the guild. We are now {memberCount} in {guildName}"
 
 # Goodbye Message Events
-event_goodbye_inviter: "{memberUsername} (account created at {accountCreationTimestamp}) left the guild. They were invited by **{inviterUsername}** (**{invitesCount}** Invites), we are now {memberCount} in {guildName}"
-event_goodbye_default: "{memberUsername} (account created at {accountCreationTimestamp}) left the guild. We are now {memberCount} in {guildName}"
+event_goodbye_inviter: "`{memberUsername}` (account created at {accountCreationTimestamp}) left the guild. They were invited by **{inviterUsername}** (**{invitesCount}** Invites), we are now {memberCount} in {guildName}"
+event_goodbye_default: "`{memberUsername}` (account created at {accountCreationTimestamp}) left the guild. We are now {memberCount} in {guildName}"
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention} you have leveled up! (Level: **{xpLevel}**)"
