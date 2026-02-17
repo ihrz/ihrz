@@ -21,7 +21,7 @@
 
 **iHorizon** is a powerful and feature-rich Discord bot built with [TypeScript](https://www.typescriptlang.org/) and [discord.js](https://npmjs.com/discord.js). Designed to simplify Discord server management, it combines stability, performance, and a robust modular architecture.
 
-[**📚 Documentation**](https://docs.ihorizon.org) • [**🔍 Command Search**](https://search.ihorizon.org) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
+[**📚 Documentation (BETA)**](https://docs.ihorizon.org) • [**🔍 Command Search**](https://search.ihorizon.org) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
 
 ---
 
