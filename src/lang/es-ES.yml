@@ -2601,8 +2601,8 @@ event_welcomer_inviter: "{memberMention} (cuenta creada el {accountCreationTimes
 event_welcomer_default: "{memberMention} (cuenta creada el {accountCreationTimestamp}) se ha unido al servidor. Ahora somos {memberCount} en {guildName}"
 
 # Eventos de Despedida
-event_goodbye_inviter: "{memberUsername} (cuenta creada el {accountCreationTimestamp}) abandona el servidor. Fueron invitados por **{inviterUsername}** (**{invitesCount}** invitaciones), ahora somos {memberCount} en {guildName}"
-event_goodbye_default: "{memberUsername} (cuenta creada el {accountCreationTimestamp}) abandona el servidor. Ahora somos {memberCount} en {guildName}"
+event_goodbye_inviter: "`{memberUsername}` (cuenta creada el {accountCreationTimestamp}) abandona el servidor. Fueron invitados por **{inviterUsername}** (**{invitesCount}** invitaciones), ahora somos {memberCount} en {guildName}"
+event_goodbye_default: "`{memberUsername}` (cuenta creada el {accountCreationTimestamp}) abandona el servidor. Ahora somos {memberCount} en {guildName}"
 
 # Eventos de Nivel de XP
 event_xp_level_earn: "**GG**, {memberMention} has ganado +1 para el nivel de XP (Nivel: **{xpLevel}**)"
