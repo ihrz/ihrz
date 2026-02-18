@@ -2601,8 +2601,8 @@ event_welcomer_inviter: "{memberMention} (account creato il {accountCreationTime
 event_welcomer_default: "{memberMention} (account creato il {accountCreationTimestamp}) si è unito al server. Siamo ora {memberCount} in {guildName}"
 
 # Goodbye Message Events
-event_goodbye_inviter: "{memberUsername} (account creato il {accountCreationTimestamp}) lascia la gilda. Sono stati invitati da **{inviterUsername}** (**{invitesCount}** inviti), siamo ora {memberCount} in {guildName}"
-event_goodbye_default: "{memberUsername} (account creato il {accountCreationTimestamp}) lascia la gilda. Siamo ora {memberCount} in {guildName}"
+event_goodbye_inviter: "`{memberUsername}` (account creato il {accountCreationTimestamp}) lascia la gilda. Sono stati invitati da **{inviterUsername}** (**{invitesCount}** inviti), siamo ora {memberCount} in {guildName}"
+event_goodbye_default: "`{memberUsername}` (account creato il {accountCreationTimestamp}) lascia la gilda. Siamo ora {memberCount} in {guildName}"
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention} sei salito di livello (Livello: **{xpLevel}**)"

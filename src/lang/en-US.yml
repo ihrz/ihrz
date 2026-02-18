@@ -51,7 +51,7 @@ var_page: "Page"
 var_permission: "Permission"
 var_usage: "Usage"
 var_aliases: "Aliases"
-var_dont_have_perm: "You aren't allowed to do this, you are missing a permission! (Require {perm} permission(s))"
+var_dont_have_perm: "You aren't allowed to do this, you are missing the {perm} permission!"
 var_price: "Price"
 var_boost: "Boost"
 var_uses: "Uses"
@@ -199,7 +199,7 @@ remove_command_work: "Successfully removed ${member.tag} from your ticket!"
 # /transript
 transript_disabled_command: "You cannot use this command because an administrator has disabled it!"
 transript_name_sourcebin: " "
-transript_title_sourcebin: "Ticket Chat transcript for ${channel.name}"
+transript_title_sourcebin: "Ticket transcript for ${channel.name}"
 transript_command_error: "An error occurred, please try again!"
 transript_command_work: "You closed your ticket. iHorizon sent you a transcript of the content of your ticket."
 transript_not_in_ticket: "You cannot use this command outside of a ticket channel!"
@@ -490,7 +490,7 @@ resetallinvites_warning_msg: "**Are you really sure you want to delete all of th
 resetallinvites_yes_button: "Delete all"
 resetallinvites_no_button: "Undo action"
 resetallinvites_succes_on_delete: "Successfully deleted!"
-resetallinvites_logs_embed_title: "Invite Manager Logs (DANGER ACTION)"
+resetallinvites_logs_embed_title: "Invite Manager Logs (DANGEROUS ACTION)"
 resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} has deleted all data of the Invites Manager!"
 
 # Bot commands
@@ -2605,8 +2605,8 @@ event_welcomer_inviter: "{memberMention} (account created at {accountCreationTim
 event_welcomer_default: "{memberMention} (account created at {accountCreationTimestamp}) joined the guild. We are now {memberCount} in {guildName}"
 
 # Goodbye Message Events
-event_goodbye_inviter: "{memberUsername} (account created at {accountCreationTimestamp}) left the guild. They were invited by **{inviterUsername}** (**{invitesCount}** Invites), we are now {memberCount} in {guildName}"
-event_goodbye_default: "{memberUsername} (account created at {accountCreationTimestamp}) left the guild. We are now {memberCount} in {guildName}"
+event_goodbye_inviter: "`{memberUsername}` (account created at {accountCreationTimestamp}) left the guild. They were invited by **{inviterUsername}** (**{invitesCount}** Invites), we are now {memberCount} in {guildName}"
+event_goodbye_default: "`{memberUsername}` (account created at {accountCreationTimestamp}) left the guild. We are now {memberCount} in {guildName}"
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention} you have leveled up! (Level: **{xpLevel}**)"

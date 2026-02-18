@@ -2604,8 +2604,8 @@ event_welcomer_inviter: "let's go un con d'+! C'est {memberMention} ce gars ou m
 event_welcomer_default: "let's go un con d'+! C'est {memberMention} ce gars ou meuf lv jsp. Il as rejoins rejoint le serveur. Nous sommes maintenant {memberCount} dans {guildName}"
 
 # Goodbye Message Events
-event_goodbye_inviter: "Oh fdp pq t partit? C'est {memberUsername} (compte créé le {accountCreationTimestamp}) qui quitte la guilde. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invs), nous sommes maintenant {memberCount} dans {guildName}"
-event_goodbye_default: "Oh fdp pq t partit? C'est {memberUsername} (compte créé le {accountCreationTimestamp}) qui quitte la guilde. Nous sommes maintenant {memberCount} dans {guildName}"
+event_goodbye_inviter: "Oh fdp pq t partit? C'est `{memberUsername}` (compte créé le {accountCreationTimestamp}) qui quitte la guilde. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invs), nous sommes maintenant {memberCount} dans {guildName}"
+event_goodbye_default: "Oh fdp pq t partit? C'est `{memberUsername}` (compte créé le {accountCreationTimestamp}) qui quitte la guilde. Nous sommes maintenant {memberCount} dans {guildName}"
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention}, bravo sale modo, ta gagné un niveau! On sen branle (Niveau : **{xpLevel}**)"
