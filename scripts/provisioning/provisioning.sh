@@ -107,7 +107,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 		echo "pm2 is already installed!"
 	fi
 
-    # We use flatpak to install chromium easily
+    # We use flatpak to install Chromium easily
 	if ! command -v flatpak &>/dev/null; then 
 		echo "flatpak is not installed, installing..."
 		sudo apt install -y flatpak
@@ -117,7 +117,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 		echo "flatpak is already installed!"
 	fi
 
-	# Installing Chromium
+	# Install Chromium
 	flathub install -y flathub org.chromium.Chromium
 
 	# TODO: TEST THIS IF IT ACTUALLY WORKS 
