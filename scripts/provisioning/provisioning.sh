@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Pre-checks
 # TODO: Check if systemd or openrc is installed
 # pm2 only supports systemd and openrc for pm2 startup, runit and other alternative init systems are not supported by pm2
