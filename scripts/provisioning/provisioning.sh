@@ -100,11 +100,11 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	fi
 
 	# TODO: TEST THIS IF IT ACTUALLY WORKS 
-	if apt list --installed | grep -q xfvb; then
-		echo "xfvb is already installed!"
+	if apt list --installed | grep -q xvfb; then
+		echo "xvfb is already installed!"
 	else
-		echo "xfvb is not installed, installing..."
-		sudo apt install -y xfvb	
+		echo "xvfb is not installed, installing..."
+		sudo apt install -y xvfb	
 	fi
 
 	# TODO: TEST THIS IF IT ACTUALLY WORKS 
