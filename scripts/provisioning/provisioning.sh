@@ -54,8 +54,9 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 		
 		# Exporting bun to make it work instantly in the actual shell
         echo "Exporting bun to make it work instantly in the actual shell"
-		export BUN_INSTALL="$HOME/.bun"
-		export PATH="$BUN_INSTALL/bin:$PATH"
+        echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.bashrc
+		echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.bashrc
+		source ~/.bashrc
 		echo "bun has been successfully exported in the shell"
 	else
 		echo "bun is already installed!"
