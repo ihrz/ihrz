@@ -94,6 +94,9 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 		echo "flatpak is already installed!"
 	fi
 
+	# Installing Chromium
+	flathub install -y flathub org.chromium.Chromium
+
 	# TODO: TEST THIS IF IT ACTUALLY WORKS 
 	if apt list --installed | grep -q fonts-noto-color-emoji; then
 		echo "fonts-noto-color-emoji is already installed!"
