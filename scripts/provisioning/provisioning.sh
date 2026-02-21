@@ -21,12 +21,11 @@
 # Copyright © 2020-2026 iHorizon
 #
 
-#!/bin/bash
+#!/usr/bin/sudo bash
 
 set -euo pipefail
 
 # Pre-checks
-# TODO: Check if systemd or openrc is installed
 # pm2 only supports systemd and openrc for pm2 startup, runit and other alternative init systems are not supported by pm2 
 if ! command -v systemctl &>/dev/null && ! command -v rc-service &>/dev/null; then
 	echo "The script is unable to run because no supported init system is installed."
