@@ -82,7 +82,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 		
 		# Exporting bun to make it work instantly in the actual shell
         echo "Exporting bun to make it work instantly in the actual shell"
-		source ~/.bashrc
+		source $HOME/.bashrc
 		echo "bun has been successfully exported in the shell"
 	else
 		echo "bun is already installed!"
