@@ -44,7 +44,7 @@ export const subCommand: SubCommand = {
 
 		try {
 			const loveResult = await love(user1.displayAvatarURL({ extension: 'png', size: 512 }), user2.displayAvatarURL({ extension: 'png', size: 512 }));
-			const always100: Array<string> = client.config.command.alway100;
+			const always100: Array<string> = client.config.command.always100;
 
 			const found = always100.find(element => {
 				if (
