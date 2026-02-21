@@ -23,11 +23,15 @@
 
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 # Pre-checks
 # TODO: Check if systemd or openrc is installed
-# pm2 only supports systemd and openrc for pm2 startup, runit and other alternative init systems are not supported by pm2
+# pm2 only supports systemd and openrc for pm2 startup, runit and other alternative init systems are not supported by pm2 
+if ! command -v systemctl &>/dev/null && ! command -v rc-service &>/dev/null; then
+	echo "The script is unable to run because no supported init system is installed."
+	exit 1
+fi	
 
 # Currently this script only works with Ubuntu/Debian-based distributions, multi-distro support might come soon.
 # Check if apt is installed. It's a pretty good technique to know if the computer is on an Ubuntu/Debian-based distro
@@ -38,7 +42,7 @@ fi
 
 # Introduction
 echo "Welcome to the iHorizon Bot provisioning script."
-echo "This will automate the installation of much-needed dependencies to make the bot running and working properly."
+echo "This will automate the installation of iHorizon's much-needed dependencies, make the bot running and working properly."
 echo "If you don't trust this script, you can still open it with any text editor of your choice and check it yourself :)"
 echo "After all, no personal information is sent outside of this computer by this script."
 
@@ -94,8 +98,8 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 		curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 		# Instead of relaunching the shell...
         \. "$HOME/.nvm/nvm.sh"
-		# Install node 25 (when a whole new node version is released (e.g. 26, 27, etc.), this script will be updated
-        nvm install 25
+		# Install node LTS
+        nvm install --lts
     else
 		echo "node is already installed!"
 	fi	
@@ -118,7 +122,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	fi
 
 	# Install Chromium
-	flathub install -y flathub org.chromium.Chromium
+	flatpak install -y flathub org.chromium.Chromium
 
 	# TODO: TEST THIS IF IT ACTUALLY WORKS 
 	if apt list --installed | grep -q fonts-noto-color-emoji; then
