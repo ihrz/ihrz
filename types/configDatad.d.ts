@@ -56,7 +56,7 @@ export interface ConfigData {
 	};
 
 	command: {
-		alway100: string[]
+		always100: string[]
 	};
 
 	owners: {
