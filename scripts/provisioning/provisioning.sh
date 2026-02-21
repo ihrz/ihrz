@@ -159,16 +159,145 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	# Step 4 : renaming config.example.ts to config.ts
 	mv src/files/config.example.ts src/files/config.ts
 
-	# TODO: Step 5 : interactive setup
-	# This part of the script will basically config himself the config.ts, depending on user's input
-	# We could ask questions to the user like "What will be the bot's token?" or "Do you want phone presence to be enabled?"
-	# I think this will be the most complicated part of the script LOL
+	# Step 5 : Interactive setup
+	
+	# Ask for Discord Bot Token
+	read -p "Enter your Discord Bot Token: " bot_token
+
+	# Ask for how many owners the user wants
+	read -p "How many owners do you want to configure? " number_owners
+
+	# Initialize an empty array to hold the owner user IDs
+	owner_user_ids=()
+
+	# Loop through and ask for each owner's user ID
+	for ((i=1; i<=number_owners; i++)); do
+    read -p "Enter the user ID of owner #$i: " owner_id
+    owner_user_ids+=("$owner_id")
+	done
+
+	# Ask if phone presence should be enabled
+	read -p "Do you want to enable phone presence? (y/n): " phone_presence_choice
+	if [[ "$phone_presence_choice" == "y" || "$phone_presence_choice" == "yes" ]]; then
+    phone_presence=true
+	else
+    	phone_presence=false
+	fi
+
+	# Ask for the default message command prefix
+	read -p "Enter the default message command prefix (default is '?'): " message_commands_prefix
+	message_commands_prefix="${message_commands_prefix:-?}"  # Default to '?' if no input is provided
+
+	# Ask if the user wants to set up Lavalink for the music module
+	read -p "Do you want to set up Lavalink to make the music module work? (y/n): " setup_lavalink_choice
+	setup_lavalink_choice=$(echo "$setup_lavalink_choice" | tr '[:upper:]' '[:lower:]')
+
+	if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
+    	# Ask for Lavalink node details
+    	read -p "Enter the Lavalink Node ID (e.g., 'example_node'): " lavalink_node_id
+    	read -p "Enter the Lavalink Node host (e.g., 'lavalink.example.com'): " lavalink_node_host
+    	read -p "Enter the Lavalink Node port (default is 2333): " lavalink_node_port
+    	lavalink_node_port="${lavalink_node_port:-2333}"  # Default to 2333 if no input is provided
+    	read -p "Enter the Lavalink Node password (e.g., 'password'): " lavalink_node_password
+    	read -p "Is the Lavalink Node secure (y/n)? (default is no): " lavalink_secure_choice
+    	if [[ "$lavalink_secure_choice" == "y" || "$lavalink_secure_choice" == "yes" ]]; then
+        	lavalink_secure=true
+    	else
+        	lavalink_secure=false
+    	fi
+	else
+    	echo "Skipping Lavalink setup."
+    	lavalink_node_id=""
+    	lavalink_node_host=""
+    	lavalink_node_port="2333"
+    	lavalink_node_password=""
+    	lavalink_secure=false
+	fi
+
+	# Ask for devMode (Development Mode)
+	read -p "Do you want to enable development mode (devMode)? (y/n, default is no): " dev_mode_choice
+	dev_mode_choice=$(echo "$dev_mode_choice" | tr '[:upper:]' '[:lower:]')
+	if [[ "$dev_mode_choice" == "y" || "$dev_mode_choice" == "yes" ]]; then
+    	dev_mode=true
+	else
+    	dev_mode=false
+	fi
+
+	# Ask for the image URL for blacklist embeds
+	read -p "Enter the image URL for the blacklist embed (e.g., 'https://website.com/image.png'): " blacklist_picture_url
+
+	# Ask for always100 setting
+	echo "Enter user IDs that will always have 100% love for the 'always100' setting. (Enter each ID and press Enter, type 'done' when finished):"
+	always100_ids=()
+	while true; do
+	    read -p "User ID: " user_id
+	    if [[ "$user_id" == "done" ]]; then
+	        break
+	    fi
+	    always100_ids+=("$user_id")
+	done
+
+	# Ask for the Guild Logs Channel ID
+	read -p "Enter the Discord channel ID for guild logs: " guild_logs_channel_id
+
+	# Ask for the Lavalink Logs Channel ID (optional)
+	read -p "Enter the Discord channel ID for Lavalink logs (leave blank for none): " lavalink_logs_channel_id
+	lavalink_logs_channel_id="${lavalink_logs_channel_id:-""}"
+	
+	# Ask for the Report Channel ID
+	read -p "Enter the Discord channel ID for bug reports: " report_channel_id
+
+	# Ask for the API Token
+	read -p "Enter your API token (for secure requests): " api_token
+
+	# Ask for the Client ID
+	read -p "Enter your Discord Application Client ID: " client_id
+
+	# Modifying the config.ts file now
+
+	echo "Modifying the configuration file..."
+
+	# Replace the placeholders in config.ts with the provided user input
+	sed -i "s|THE BOT TOKEN|$bot_token|g" src/files/config.ts
+	sed -i "s|phonePresence: false|phonePresence: $phone_presence|g" src/files/config.ts
+	sed -i "s|defaultMessageCommandsPrefix: \"?\"|defaultMessageCommandsPrefix: \"$message_commands_prefix\"|g" src/files/config.ts
+	sed -i "s|id: \"example_node\"|id: \"$lavalink_node_id\"|g" src/files/config.ts
+	sed -i "s|host: \"lavalink.example.com\"|host: \"$lavalink_node_host\"|g" src/files/config.ts
+	sed -i "s|port: 2333|port: $lavalink_node_port|g" src/files/config.ts
+	sed -i "s|authorization: \"password\"|authorization: \"$lavalink_node_password\"|g" src/files/config.ts
+	sed -i "s|secure: false|secure: $lavalink_secure|g" src/files/config.ts
+	sed -i "s|guildLogsChannelID: \"The Discord Channel ID for logs when guildCreate/guildRemove\"|guildLogsChannelID: \"$guild_logs_channel_id\"|g" src/files/config.ts
+	sed -i "s|lavalinkLogsChannelID: \"\"|lavalinkLogsChannelID: \"$lavalink_logs_channel_id\"|g" src/files/config.ts
+	sed -i "s|reportChannelID: \"The Discord Channel ID for logs when bugs are reported\"|reportChannelID: \"$report_channel_id\"|g" src/files/config.ts
+	sed -i "s|apiToken: \"The API token\"|apiToken: \"$api_token\"|g" src/files/config.ts
+	sed -i "s|clientID: \"The client ID of your application\"|clientID: \"$client_id\"|g" src/files/config.ts
+	# Update the config.ts file with the owner user IDs
+	sed -i "s|users: \\[\"User ID\", \"User ID\"\\]|users: [$owner_user_ids_string]|g" src/files/config.ts
+
+	# Add devMode setting
+	sed -i "s|devMode: true|devMode: $dev_mode|g" src/files/config.ts
+
+	# Add the blacklist image URL
+	sed -i "s|blacklistPictureInEmbed: \"A .png url\"|blacklistPictureInEmbed: \"$blacklist_picture_url\"|g" src/files/config.ts
+
+	# Add always100 setting
+	always100_ids_string=$(IFS=,; echo "${always100_ids[*]}")
+	sed -i "s|always100: \\['USER_ID_ONExUSER_ID_TWO'\\]|always100: [$always100_ids_string]|g" src/files/config.ts
+
+	# Convert the array of owner IDs into a string suitable for the config file
+	owner_user_ids_string=$(IFS=,; echo "${owner_user_ids[*]}")
+
+    echo "The configuration file has been successfully edited to suit your needs. The interactive setup is now finished!"
 
 	# Step 6 : Starting the bot and making it daemonized
 	# Starting the bot (here the name of the daemon will be iHorizon and the interpreter will be bun)
+	echo "Setting up pm2..."
 	pm2 start . --name "iHorizon" --interpreter ~/.bun/bin/bun
 	# Saving pm2's daemon configs
 	pm2 save
 	# Make pm2 daemons run at startup
 	pm2 startup
+
+	# All done!
+	echo "🎉 Congratulations! The iHorizon bot provisioning is now finished. Enjoy using iHorizon! 🎉"
 fi	
