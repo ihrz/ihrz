@@ -21,7 +21,6 @@
 # Copyright © 2020-2026 iHorizon
 #
 
-# Quick method, but will see if something else can be done, in a better way
 #!/usr/bin/sudo bash
 
 set -euo pipefail
