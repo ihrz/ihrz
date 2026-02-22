@@ -21,7 +21,7 @@
 # Copyright © 2020-2026 iHorizon
 #
 
-#!/usr/bin/sudo bash
+#!/bin/bash
 
 set -euo pipefail
 
@@ -317,9 +317,9 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	echo "Setting up pm2..."
 	pm2 start . --name "iHorizon" --interpreter ~/.bun/bin/bun
 	# Saving pm2's daemon configs
-	pm2 save
+	sudo pm2 save
 	# Make pm2 daemons run at startup
-	pm2 startup
+	sudo pm2 startup
 
 	# All done!
 	echo "🎉 Congratulations! The iHorizon bot provisioning is now finished. Enjoy using iHorizon! 🎉"
