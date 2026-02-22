@@ -27,7 +27,7 @@ set -euo pipefail
 
 # Pre-checks
 # pm2 only supports systemd and openrc for pm2 startup, runit and other alternative init systems are not supported by pm2 
-if ! command -v systemctl &>/dev/null && ! command -v rc-status &>/dev/null; then
+if ! command -v systemctl &>/dev/null; then
 	echo "The script is unable to run because no supported init system is installed."
 	exit 1
 fi	
