@@ -176,7 +176,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 
 	# Convert the array of owner IDs into a string suitable for the config file
 	owner_user_ids_string=$(IFS=,; echo "${owner_user_ids[*]}")
-	
+
 	# Ask if phone presence should be enabled
 	read -p "Do you want to enable phone presence? (y/n): " phone_presence_choice
 	if [[ "$phone_presence_choice" == "y" || "$phone_presence_choice" == "yes" ]]; then
@@ -254,6 +254,22 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	# Ask for the Client ID
 	read -p "Enter your Discord Application Client ID: " client_id
 
+	# Ask for database method
+	read -p "Do you want to use SQLite or MySQL for the database? (sqlite/mysql, default is sqlite): " db_method_choice
+	db_method_choice=$(echo "${db_method_choice:-sqlite}" | tr '[:upper:]' '[:lower:]')
+
+	if [[ "$db_method_choice" == "mysql" ]]; then
+    	read -p "Enter the MySQL host: " mysql_host
+    	read -p "Enter the MySQL password: " mysql_password
+    	read -p "Enter the MySQL database name: " mysql_database
+    	read -p "Enter the MySQL user: " mysql_user
+    	read -p "Enter the MySQL port (default is 3306): " mysql_port
+    	mysql_port="${mysql_port:-3306}"
+	else
+    	echo "Using SQLite (default)."
+    	db_method_choice="sqlite"
+	fi
+
 	# Modifying the config.ts file now
 
 	echo "Modifying the configuration file..."
@@ -272,22 +288,15 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	sed -i "s|reportChannelID: \"The Discord Channel ID for logs when bugs are reported\"|reportChannelID: \"$report_channel_id\"|g" src/files/config.ts
 	sed -i "s|apiToken: \"The API token\"|apiToken: \"$api_token\"|g" src/files/config.ts
 	sed -i "s|clientID: \"The client ID of your application\"|clientID: \"$client_id\"|g" src/files/config.ts
-	# Update the config.ts file with the owner user IDs
 	sed -i "s|users: \\[\"User ID\", \"User ID\"\\]|users: [$owner_user_ids_string]|g" src/files/config.ts
+    sed -i "s|devMode: true|devMode: $dev_mode|g" src/files/config.ts
+    sed -i "s|blacklistPictureInEmbed: \"A .png url\"|blacklistPictureInEmbed: \"$blacklist_picture_url\"|g" src/files/config.ts
 
-	# Add devMode setting
-	sed -i "s|devMode: true|devMode: $dev_mode|g" src/files/config.ts
-
-	# Add the blacklist image URL
-	sed -i "s|blacklistPictureInEmbed: \"A .png url\"|blacklistPictureInEmbed: \"$blacklist_picture_url\"|g" src/files/config.ts
-
-	# Add always100 setting
 	always100_ids_string=$(IFS=,; echo "${always100_ids[*]}")
 	sed -i "s|always100: \\['USER_ID_ONExUSER_ID_TWO'\\]|always100: [$always100_ids_string]|g" src/files/config.ts
 
-	
-
-    echo "The configuration file has been successfully edited to suit your needs. The interactive setup is now finished!"
+    # All done!
+	echo "The configuration file has been successfully edited to suit your needs. The interactive setup is now finished!"
 
 	# Step 6 : Starting the bot and making it daemonized
 	# Starting the bot (here the name of the daemon will be iHorizon and the interpreter will be bun)
