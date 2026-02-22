@@ -228,14 +228,15 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	read -p "Enter the image URL for the blacklist embed (e.g., 'https://website.com/image.png'): " blacklist_picture_url
 
 	# Ask for always100 setting
-	echo "Enter user IDs that will always have 100% love for the 'always100' setting. (Enter each ID and press Enter, type 'done' when finished):"
+	echo "Enter pairs of user IDs that will always have 100% love. (Enter each pair and press Enter, type 'done' when finished):"
 	always100_ids=()
 	while true; do
-	    read -p "User ID: " user_id
-	    if [[ "$user_id" == "done" ]]; then
-	        break
-	    fi
-	    always100_ids+=("$user_id")
+    	read -p "User ID #1 (or 'done' to stop): " user_id_one
+    	if [[ "$user_id_one" == "done" ]]; then
+        	break
+    	fi
+    	read -p "User ID #2: " user_id_two
+    	always100_ids+=("${user_id_one}x${user_id_two}")
 	done
 
 	# Ask for the Guild Logs Channel ID
@@ -290,7 +291,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	sed -i "s|clientID: \"The client ID of your application\"|clientID: \"$client_id\"|g" src/files/config.ts
 	sed -i "s|users: \\[\"User ID\", \"User ID\"\\]|users: [$owner_user_ids_string]|g" src/files/config.ts
     sed -i "s|devMode: true|devMode: $dev_mode|g" src/files/config.ts
-    sed -i "s|blacklistPictureInEmbed: \"A .png url\"|blacklistPictureInEmbed: \"$blacklist_picture_url\"|g" src/files/config.ts
+    sed -i "s|blacklistPictureInEmbed: \"A .png URL\"|blacklistPictureInEmbed: \"$blacklist_picture_url\"|g" src/files/config.ts
 	sed -i "s|method: 'sqlite'|method: '$db_method_choice'|g" src/files/config.ts
     if [[ "$db_method_choice" == "mysql" ]]; then
     	sed -i "s|host: ''|host: '$mysql_host'|g" src/files/config.ts
@@ -300,8 +301,13 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
     	sed -i "s|port: 3306|port: $mysql_port|g" src/files/config.ts
 	fi
 
-	always100_ids_string=$(IFS=,; echo "${always100_ids[*]}")
-	sed -i "s|always100: \\['USER_ID_ONExUSER_ID_TWO'\\]|always100: [$always100_ids_string]|g" src/files/config.ts
+	always100_ids_string=$(printf "'%s'," "${always100_ids[@]}")
+	always100_ids_string="${always100_ids_string%,}"
+	sed -i "s|always100: \\['USER_ID_ONExUSER_ID_TWO'\\]|always100: [$always100_ids_string]|g" src/files/config.ts	
+
+	# Setting up Puppeteer/Chromium environment variable
+	touch .env
+	echo "PUPPETEER_EXECUTABLE_PATH=$HOME/.local/share/flatpak/app/org.chromium.Chromium/current/active/export/bin/org.chromium.Chromium" >> .env
 
     # All done!
 	echo "The configuration file has been successfully edited to suit your needs. The interactive setup is now finished!"
