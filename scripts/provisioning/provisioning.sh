@@ -84,7 +84,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
         echo "Exporting bun to make it work instantly in the actual shell"
 		export BUN_INSTALL="$HOME/.bun"
 		export PATH="$BUN_INSTALL/bin:$PATH"
-		source /home/utilisateur/.bashrc
+		source $HOME/.bashrc
 		echo "bun has been successfully exported in the shell"
 	else
 		echo "bun is already installed!"
@@ -160,6 +160,10 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	mv src/files/config.example.ts src/files/config.ts
 
 	# Step 5 : Interactive setup
+
+	# Introduction
+	echo "Welcome to the iHorizon Interactive Setup!"
+	echo "We will now ask you questions to help you configure and run your bot in an easy and convenient way."
 	
 	# Ask for Discord Bot Token
 	read -p "Enter your Discord Bot Token: " bot_token
@@ -176,8 +180,8 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
     owner_user_ids+=("$owner_id")
 	done
 
-	# Convert the array of owner IDs into a string suitable for the config file
-	owner_user_ids_string=$(IFS=,; echo "${owner_user_ids[*]}")
+    owner_user_ids_string=$(printf '"%s",' "${owner_user_ids[@]}")
+	owner_user_ids_string="${owner_user_ids_string%,}"
 
 	# Ask if phone presence should be enabled
 	read -p "Do you want to enable phone presence? (y/n): " phone_presence_choice
