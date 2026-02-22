@@ -174,6 +174,9 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
     owner_user_ids+=("$owner_id")
 	done
 
+	# Convert the array of owner IDs into a string suitable for the config file
+	owner_user_ids_string=$(IFS=,; echo "${owner_user_ids[*]}")
+	
 	# Ask if phone presence should be enabled
 	read -p "Do you want to enable phone presence? (y/n): " phone_presence_choice
 	if [[ "$phone_presence_choice" == "y" || "$phone_presence_choice" == "yes" ]]; then
@@ -282,8 +285,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	always100_ids_string=$(IFS=,; echo "${always100_ids[*]}")
 	sed -i "s|always100: \\['USER_ID_ONExUSER_ID_TWO'\\]|always100: [$always100_ids_string]|g" src/files/config.ts
 
-	# Convert the array of owner IDs into a string suitable for the config file
-	owner_user_ids_string=$(IFS=,; echo "${owner_user_ids[*]}")
+	
 
     echo "The configuration file has been successfully edited to suit your needs. The interactive setup is now finished!"
 
