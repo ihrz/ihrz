@@ -291,6 +291,14 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	sed -i "s|users: \\[\"User ID\", \"User ID\"\\]|users: [$owner_user_ids_string]|g" src/files/config.ts
     sed -i "s|devMode: true|devMode: $dev_mode|g" src/files/config.ts
     sed -i "s|blacklistPictureInEmbed: \"A .png url\"|blacklistPictureInEmbed: \"$blacklist_picture_url\"|g" src/files/config.ts
+	sed -i "s|method: 'sqlite'|method: '$db_method_choice'|g" src/files/config.ts
+    if [[ "$db_method_choice" == "mysql" ]]; then
+    	sed -i "s|host: ''|host: '$mysql_host'|g" src/files/config.ts
+    	sed -i "s|password: ''|password: '$mysql_password'|g" src/files/config.ts
+    	sed -i "s|database: ''|database: '$mysql_database'|g" src/files/config.ts
+    	sed -i "s|user: ''|user: '$mysql_user'|g" src/files/config.ts
+    	sed -i "s|port: 3306|port: $mysql_port|g" src/files/config.ts
+	fi
 
 	always100_ids_string=$(IFS=,; echo "${always100_ids[*]}")
 	sed -i "s|always100: \\['USER_ID_ONExUSER_ID_TWO'\\]|always100: [$always100_ids_string]|g" src/files/config.ts
