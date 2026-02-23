@@ -19,17 +19,22 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+/*
+WELCOME TO IHORIZON'S CONFIGURATION FILE. ALL VALUES SHOULD BE BETWEEN QUOTATION MARKS, UNLESS THE VALUE DOESN'T INITIALLY HAVE ANY QUOTATION MARK (e.g. phonePresence doesn't have quotation marks in its value)
+*/
+
+
 import { ConfigData } from '../../types/configDatad.js';
 
 const config: ConfigData = {
 
 	discord: {
 
-		token: "The bot token",
-		// The Discord Bot Token
+		token: "THE BOT TOKEN",
+		// The Discord Bot Token. This can be found in the Discord Developer Portal of your bot
 
 		phonePresence: false,
-		// If the bot have Phone Bot Activity Presence
+		// If the bot should have a Phone Bot Activity Presence, aka having a telephone icon in its profile when online, Do-Not-Disturb, etc.
 
 		messageCommandsMention: true,
 		/* If is in true, the message commands (prefix commands) are trigerable with @Bot-Mention,
@@ -67,28 +72,28 @@ const config: ConfigData = {
 	core: {
 
 		devMode: true,
-		// true => log's ERROR are been in the console OR false => In the .err_logs folder.
+		// if true => ERRORS will be displayed in the console; if false => these ERRORS will be located in the .err.logs folder.
 
-		blacklistPictureInEmbed: "An png url",
-		// The image of the blacklist's Embed (When blacklisted user attempt to interact with the bot)
+		blacklistPictureInEmbed: "A .png URL",
+		// Optional: The image of the blacklist embed (when a blacklisted user attempts to interact with the bot)
 
-		guildLogsChannelID: "The Discord Channel's ID for logs when guildCreate/guildRemove",
-		// The channel where the robot informs of the arrival on a server or when it leaves.
+		guildLogsChannelID: "The Discord Channel ID for logs when guildCreate/guildRemove",
+		// The channel where the bot informs of his arrival on a server or when it leaves a server.
 
-		lavalinkLogsChannelID: "",
-		// The channel where the error will be sent when lavalink sucks
+		lavalinkLogsChannelID: "The Discord Channel ID for logs when lavalink throws an error",
+		// The channel where the error will be sent when lavalink throws an error.
 
-		reportChannelID: "The Discord Channel's ID for logs when bugs/message are reported",
-		// The channel where the robot informs of a bug reported by a user of the bot.
+		reportChannelID: "The Discord Channel ID for logs when bugs are reported",
+		// The channel where the bot informs of a bug reported by a user of the bot.
 
 	},
 
 	command: {
 
-		alway100: ['UserIdxUserId']
+		always100: ['USER_ID_ONExUSER_ID_TWO']
 		/*
-		For love command, if you want for specific couple of user, 
-		always show 100% for their love, adding it to the array
+		On the love command, for a specific couple of users, 
+		this setting will always show 100% for their love.
 		Format: {USER_ID_ONE}x{USER_ID_TWO}
 		*/
 
@@ -96,24 +101,24 @@ const config: ConfigData = {
 
 	owners: {
 
-		users: ["User id", "User id"]
+		users: ["User ID", "User ID"]
 		/*
-		This owners have different permissions than the others in the db,
+		This owners have different permissions than others in the database,
 	    
-		* They can't be unowner by owner who are in the Database.
-		* They can't be blacklisted by owner who are in the Database.
-		* They can't be banned by owner who are in the Database.
+		* They can't be unowner by an owner who is in the Database.
+		* They can't be blacklisted by an owner who is in the Database.
+		* They can't be banned by an owner who is in the Database.
 		*/
 
 	},
 
 	api: {
 
-		apiToken: "The api token",
-		// The API token for secure requests, please put a strong token, Need to be private for security reason.
+		apiToken: "The API token",
+		// Optional. The API token is for secure requests. Please put a strong token. It needs to be private for security reasons.
 
-		clientID: "The client id of your application",
-		// The client ID of the Discord Application.
+		clientID: "The client ID of your application",
+		// The client ID of the Discord Application. This can be found in the Discord Developer Portal of your bot.
 	},
 
 	console: {
@@ -128,7 +133,7 @@ const config: ConfigData = {
 
 	database: {
 		method: 'sqlite',
-		// The method you want for the database
+		// The method you want for the database, sqlite is used by default.
 
 		mySQL: [
 			{
@@ -139,7 +144,7 @@ const config: ConfigData = {
 				port: 3306
 			},
 		],
-		// The MySQL connection configuration if you using MySQL
+		// The MySQL connection configuration if you want to use MySQL. MySQL is not the default, meaning you need to set it up yourself.
 	},
 
 };
