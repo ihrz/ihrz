@@ -102,6 +102,8 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
     else
 		echo "node is already installed!"
 	fi	
+    
+    sudo ln -sf "$(which node)" /usr/local/bin/node
 
 	if ! command -v pm2 &>/dev/null; then 
 		echo "pm2 is not installed, installing..."
@@ -323,10 +325,10 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	# Starting the bot (here the name of the daemon will be iHorizon and the interpreter will be bun)
 	echo "Setting up pm2..."
 	pm2 start . --name "iHorizon" --interpreter ~/.bun/bin/bun
-	# Saving pm2's daemon configs
-	sudo pm2 save
-	# Make pm2 daemons run at startup
-	sudo pm2 startup
+	# Save pm2 config
+	sudo env PATH=$PATH:/usr/local/bin pm2 save
+	# Launch iHorizon at startup
+	sudo env PATH=$PATH:/usr/local/bin pm2 startup
 
 	# All done!
 	echo "🎉 Congratulations! The iHorizon bot provisioning is now finished. Enjoy using iHorizon! 🎉"
