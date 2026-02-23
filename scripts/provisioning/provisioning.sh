@@ -326,10 +326,11 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	echo "Setting up pm2..."
 	pm2 start . --name "iHorizon" --interpreter ~/.bun/bin/bun
 	# Save pm2 config
-	sudo env PATH=$PATH:/usr/local/bin pm2 save
+	sudo env PATH=$PATH:/usr/local/bin pm2 save --force
 	# Launch iHorizon at startup
 	sudo env PATH=$PATH:/usr/local/bin pm2 startup
 
 	# All done!
-	echo "🎉 Congratulations! The iHorizon bot provisioning is now finished. Enjoy using iHorizon! 🎉"
+	echo "🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉"
+	echo "⚠️ But just one more thing! Execute the following command on your terminal to finish the installation : source ~/.bashrc ⚠️"
 fi	
