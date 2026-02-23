@@ -24,6 +24,7 @@
 #!/bin/bash
 
 set -euo pipefail
+cd ~
 
 # Pre-checks
 # pm2 only supports systemd and openrc for pm2 startup, runit and other alternative init systems are not supported by pm2. openrc is not supported by this script as there's literally NO POINT for supporting it. 
