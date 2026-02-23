@@ -40,6 +40,11 @@ if ! command -v apt &>/dev/null; then
 fi
 
 # Introduction
+echo "╔══════════════════════════════════════════════════╗"
+echo "║        ⚠️  WARNING: THIS SCRIPT IS IN ALPHA  ⚠️    ║"
+echo "║   Expect bugs, breaking changes, and issues.    ║"
+echo "║        Use it at your own risk!                 ║"
+echo "╚══════════════════════════════════════════════════╝"
 echo "Welcome to the iHorizon Bot provisioning script."
 echo "This will automate the installation of iHorizon's much-needed dependencies, make the bot running and working properly."
 echo "If you don't trust this script, you can still open it with any text editor of your choice and check it yourself :)"
@@ -333,4 +338,5 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	# All done!
 	echo "🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉"
 	echo "⚠️ But just one more thing! Execute the following command on your terminal to finish the installation : source ~/.bashrc ⚠️"
+	echo "And after that you will be all set! Thank you for using the iHorizon Provisioning Script!"
 fi	
