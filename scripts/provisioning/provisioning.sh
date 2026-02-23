@@ -40,11 +40,7 @@ if ! command -v apt &>/dev/null; then
 fi
 
 # Introduction
-echo "╔══════════════════════════════════════════════════╗"
-echo "║        ⚠️  WARNING: THIS SCRIPT IS IN ALPHA  ⚠️    ║"
-echo "║   Expect bugs, breaking changes, and issues.    ║"
-echo "║        Use it at your own risk!                 ║"
-echo "╚══════════════════════════════════════════════════╝"
+echo "⚠️  THIS SCRIPT IS IN ALPHA. EXPECT BUGS, BREAKING CHANGES, AND ISSUES. USE IT AT YOUR OWN RISK! WE WILL NOT BE RESPONSIBLE FOR ANY DAMAGE DONE TO YOUR SYSTEM! ⚠️"
 echo "Welcome to the iHorizon Bot provisioning script."
 echo "This will automate the installation of iHorizon's much-needed dependencies, make the bot running and working properly."
 echo "If you don't trust this script, you can still open it with any text editor of your choice and check it yourself :)"
@@ -199,6 +195,14 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
     	phone_presence=false
 	fi
 
+	# Ask if they want to enable messageCommandsMention
+	read -p "Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n)"
+	if [["$message_commands_mention" == "y" || "$message_commands_mention" == "yes"]]; then 
+	message_commands_mention=true
+	else
+		message_commands_mention=false
+	fi
+
 	# Ask for the default message command prefix
 	read -p "Enter the default message command prefix (default is '?'): " message_commands_prefix
 	message_commands_prefix="${message_commands_prefix:-?}"  # Default to '?' if no input is provided
@@ -292,6 +296,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	# Replace the placeholders in config.ts with the provided user input
 	sed -i "s|THE BOT TOKEN|$bot_token|g" src/files/config.ts
 	sed -i "s|phonePresence: false|phonePresence: $phone_presence|g" src/files/config.ts
+	sed -i "s|messageCommandsMention: true|messageCommandsMention: $message_commands_mention|g" src/files/config.ts
 	sed -i "s|defaultMessageCommandsPrefix: \"?\"|defaultMessageCommandsPrefix: \"$message_commands_prefix\"|g" src/files/config.ts
 	sed -i "s|id: \"example_node\"|id: \"$lavalink_node_id\"|g" src/files/config.ts
 	sed -i "s|host: \"lavalink.example.com\"|host: \"$lavalink_node_host\"|g" src/files/config.ts
@@ -337,6 +342,6 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 
 	# All done!
 	echo "🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉"
-	echo "⚠️ But just one more thing! Execute the following command on your terminal to finish the installation : source ~/.bashrc ⚠️"
+	echo "⚠️  But just one more thing! Execute the following command on your terminal to finish the installation : source ~/.bashrc ⚠️"
 	echo "And after that you will be all set! Thank you for using the iHorizon Provisioning Script!"
 fi	
