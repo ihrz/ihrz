@@ -114,7 +114,7 @@ export const event: BotEvent = {
 			client.user?.setPresence({
 				activities: [
 					{
-						name: `${client.shard?.ids[0]} Shards | ${(await getShardStats(client)).guilds.toString()} Servers`,
+						name: `Shards #${client.shard?.ids[0]} | ${(await getShardStats(client)).guilds.toString()} Servers`,
 						type: ActivityType.Playing
 					}
 				],
