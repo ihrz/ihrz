@@ -197,8 +197,8 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	fi
 
 	# Ask if they want to enable messageCommandsMention
-	read -p "Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n)"
-	if [["$message_commands_mention" == "y" || "$message_commands_mention" == "yes"]]; then 
+	read -p "Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n)" message_commands_mention
+	if [[ "$message_commands_mention" == "y" || "$message_commands_mention" == "yes" ]]; then 
 	message_commands_mention=true
 	else
 		message_commands_mention=false
