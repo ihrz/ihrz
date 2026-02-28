@@ -289,16 +289,6 @@ bun start
     <a href="https://github.com/lavecat">GitHub</a>
   </td>
 </tr>
-
-
-  <td align="center" width="33%">
-    <img src="https://github.com/Luxinenglish.png" width="100px" style="border-radius:50%"/><br/>
-    <b>Lux_</b><br/>
-    <i>#4 Contributor</i><br/>
-    <sub>He/Him</sub><br/>
-    <a href="https://github.com/Luxinenglish">GitHub</a>
-  </td>
-</tr>
 </table>
 
 ## Alumni
