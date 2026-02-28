@@ -240,7 +240,7 @@ bun start
 | 💬 **Main Discord Server**   | [discord.ihorizon.org](http://discord.ihorizon.org/)                                                        |
 | 🔗 **Backup Discord Server** | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu)                                                      |
 | 🤖 **Invite iHorizon**       | [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot) |
-| 🦊 **GitLab (Main)**         | [gitlab.com/ihrz](https://gitlab.com/ihrz)                                                                  |
+| 🦊 **GitLab (Main)**         | [gitlab.com/ihrz](https://gitlab.com/ihrz/ihrz)                                                                  |
 | 🐙 **GitHub (Mirror)**       | [github.com/ihrz/ihrz](https://github.com/ihrz/ihrz)                                                        |
 
 ---
