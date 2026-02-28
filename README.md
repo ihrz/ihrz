@@ -268,7 +268,7 @@ bun start
   <td align="center" width="33%">
     <img src="https://github.com/veryuhq.png" width="100px" style="border-radius:50%"/><br/>
     <b>Ether</b><br/>
-    <i>#1 Contributor</i><br/>
+    <i>Contributor</i><br/>
     <sub>He/Him</sub><br/>
     <a href="https://gitlab.com/etherondiscord">GitLab</a> / <a href="https://github.com/veryuhq">GitHub</a>
   </td>
@@ -276,7 +276,7 @@ bun start
   <td align="center" width="33%">
   	<img src="https://github.com/oMedusa.png" width="100px" style="border-radius:50%"/><br/>
     <b>Medusa</b><br/>
-    <i>#2 Contributor</i><br/>
+    <i>Contributor</i><br/>
     <sub>She/Her</sub><br/>
 	<a href="https://github.com/oMedusa">GitHub</a>
   </td>
@@ -284,7 +284,7 @@ bun start
   <td align="center" width="33%">
     <img src="https://github.com/lavecat.png" width="100px" style="border-radius:50%"/><br/>
     <b>lavecat</b><br/>
-    <i>#3 Contributor</i><br/>
+    <i>Contributor</i><br/>
     <sub>He/Him</sub><br/>
     <a href="https://github.com/lavecat">GitHub</a>
   </td>
@@ -292,7 +292,7 @@ bun start
   <td align="center" width="33%">
     <img src="https://gitlab.com/uploads/-/system/user/avatar/34776844/avatar.png" width="100px" style="border-radius:50%"/><br/>
     <b>82hw</b><br/>
-    <i>#4 Contributor</i><br/>
+    <i>Contributor</i><br/>
     <sub>any</sub><br/>
     <a href="https://gitlab.com/82hw">GitLab</a>
   </td>
