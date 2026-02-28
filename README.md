@@ -288,6 +288,15 @@ bun start
     <sub>He/Him</sub><br/>
     <a href="https://github.com/lavecat">GitHub</a>
   </td>
+
+  <td align="center" width="33%">
+    <img src="https://gitlab.com/uploads/-/system/user/avatar/34776844/avatar.png" width="100px" style="border-radius:50%"/><br/>
+    <b>82hw</b><br/>
+    <i>#4 Contributor</i><br/>
+    <sub>any</sub><br/>
+    <a href="https://gitlab.com/82hw">GitLab</a>
+  </td>
+
 </tr>
 </table>
 
