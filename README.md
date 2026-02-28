@@ -329,7 +329,14 @@ Past developers and contributors who have helped make iHorizon what it is today.
     		<sub>She/Her</sub><br/>
     		<a href="https://github.com/Mxi1n">GitHub</a>
 		</td>
-	</tr>		
+		<td align="center" width="33%">
+    		<img src="https://github.com/Luxinenglish.png" width="100px" style="border-radius:50%"/><br/>
+    		<b>Lux_</b><br/>
+    		<i>Old contributor</i><br/>
+    		<sub>He/Him</sub><br/>
+    		<a href="https://github.com/Luxinenglish">GitHub</a>
+  		</td>
+	</tr>
 </table>		
 
 > 💜 **Team Note**: Kisakay has embraced her true identity and now uses she/her pronouns. In the license files, the name Anaïs Saraiva appears as the owner.
