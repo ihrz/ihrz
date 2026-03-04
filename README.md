@@ -2,7 +2,7 @@
 
 # 🌐 iHorizon
 
-### *The most complete Discord bot on GitLab*
+### *The most complete Discord bot on GitLab & GitHub*
 
 <br>
 <br>
@@ -233,15 +233,15 @@ bun start
 
 ## 📚 Resources & Links
 
-| Resource                    | Link                                                                                                        |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| 📖 **Full Documentation (BETA)**    | [docs.ihorizon.org](https://docs.ihorizon.org)                                                              |
-| 🔍 **Command Search**        | [search.ihorizon.org](https://search.ihorizon.org)                                                          |
-| 💬 **Main Discord Server**   | [discord.ihorizon.org](http://discord.ihorizon.org/)                                                        |
-| 🔗 **Backup Discord Server** | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu)                                                      |
-| 🤖 **Invite iHorizon**       | [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot) |
-| 🦊 **GitLab (Main)**         | [gitlab.com/ihrz](https://gitlab.com/ihrz/ihrz)                                                                  |
-| 🐙 **GitHub (Mirror)**       | [github.com/ihrz/ihrz](https://github.com/ihrz/ihrz)                                                        |
+| Resource                        | Link                                                                                                        |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 📖 **Full Documentation (BETA)** | [docs.ihorizon.org](https://docs.ihorizon.org)                                                              |
+| 🔍 **Command Search**            | [search.ihorizon.org](https://search.ihorizon.org)                                                          |
+| 💬 **Main Discord Server**       | [discord.ihorizon.org](http://discord.ihorizon.org/)                                                        |
+| 🔗 **Backup Discord Server**     | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu)                                                      |
+| 🤖 **Invite iHorizon**           | [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot) |
+| 🦊 **GitLab (Main)**             | [gitlab.com/ihrz](https://gitlab.com/ihrz/ihrz)                                                             |
+| 🐙 **GitHub (Mirror)**           | [github.com/ihrz/ihrz](https://github.com/ihrz/ihrz)                                                        |
 
 ---
 
