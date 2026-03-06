@@ -45,7 +45,7 @@ export const event: BotEvent = {
 		const channelID = newState.channelId
 		const status = { selfDeaf: newState.selfDeaf, selfMute: newState.selfMute };
 
-		const targetUser = await client.users.fetch(user);
+		const targetUser = client.users.cache.get(user) || await client.users.fetch(user);
 
 		if (targetUser.id === client.user?.id) return;
 
