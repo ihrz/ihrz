@@ -54,19 +54,11 @@ export const subCommand: SubCommand = {
 			.addFields(
 				{
 					name: lang.setjoinmessage_help_embed_fields_custom_name,
-					value: leaveMessage ? `\`\`\`${leaveMessage}\`\`\`\n${client.func.method.generateCustomMessagePreview(leaveMessage, {
-						user: interaction.member.user,
-						guild: interaction.guild!,
-						guildLocal: guildLocal,
-					})}` : lang.setjoinmessage_help_embed_fields_custom_name_empy
+					value: leaveMessage ? `\`\`\`${leaveMessage}\`\`\`` : lang.setjoinmessage_help_embed_fields_custom_name_empy
 				},
 				{
 					name: lang.setjoinmessage_help_embed_fields_default_name_empy,
-					value: `\`\`\`${lang.event_goodbye_inviter}\`\`\`\n${client.func.method.generateCustomMessagePreview(lang.event_goodbye_inviter, {
-						user: interaction.member.user,
-						guild: interaction.guild!,
-						guildLocal: guildLocal,
-					})}, interaction)}`
+					value: `\`\`\`${lang.event_goodbye_inviter}\`\`\``
 				}
 			);
 
@@ -123,11 +115,7 @@ export const subCommand: SubCommand = {
 				const newEmbed = EmbedBuilder.from(helpEmbed).setFields(
 					{
 						name: lang.setjoinmessage_help_embed_fields_custom_name,
-						value: response ? `\`\`\`${response}\`\`\`\n${client.func.method.generateCustomMessagePreview(response, {
-							user: interaction.member.user,
-							guild: interaction.guild!,
-							guildLocal: guildLocal,
-						})}` : lang.setjoinmessage_help_embed_fields_custom_name_empy
+						value: response ? `\`\`\`${response}\`\`\`` : lang.setjoinmessage_help_embed_fields_custom_name_empy
 					},
 				);
 

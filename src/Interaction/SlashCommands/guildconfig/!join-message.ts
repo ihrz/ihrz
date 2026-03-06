@@ -61,20 +61,12 @@ const createEmbedFields = (joinMessage: string | null, lang: LanguageData, clien
 	{
 		name: lang.setjoinmessage_help_embed_fields_custom_name,
 		value: joinMessage
-			? `\`\`\`${joinMessage}\`\`\`\n${client.func.method.generateCustomMessagePreview(joinMessage, {
-				user: interaction.member?.user! as User,
-				guild: interaction.guild!,
-				guildLocal,
-			})}`
+			? `\`\`\`${joinMessage}\`\`\``
 			: lang.setjoinmessage_help_embed_fields_custom_name_empy
 	},
 	{
 		name: lang.setjoinmessage_help_embed_fields_default_name_empy,
-		value: `\`\`\`${lang.event_welcomer_inviter}\`\`\`\n${client.func.method.generateCustomMessagePreview(lang.event_welcomer_inviter, {
-			user: interaction.member?.user as User,
-			guild: interaction.guild!,
-			guildLocal,
-		})}`
+		value: `\`\`\`${lang.event_welcomer_inviter}\`\`\``
 	}
 ];
 
@@ -461,11 +453,7 @@ class JoinMessageHandler {
 						helpEmbed.setFields(
 							{
 								name: this.lang.setjoinmessage_help_embed_fields_custom_name,
-								value: `\`\`\`${newMessage}\`\`\`\n${this.client.func.method.generateCustomMessagePreview(newMessage, {
-									user: this.interaction.member?.user!,
-									guild: this.interaction.guild!,
-									guildLocal: this.guildLocal,
-								})}`
+								value: `\`\`\`${newMessage}\`\`\``
 							},
 							helpEmbedFields[1]
 						);
