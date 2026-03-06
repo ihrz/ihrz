@@ -37,7 +37,7 @@ export const event: BotEvent = {
 
 		let messageContent = '';
 		if (base?.inviter) {
-			const inviter = await client.users.fetch(base.inviter);
+			const inviter = client.users.cache.get(base.inviter) || await client.users.fetch(base.inviter);
 			const inviterStats = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES`) as DatabaseStructure.InvitesUserData;
 
 			if (inviterStats) {

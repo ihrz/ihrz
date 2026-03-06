@@ -28,7 +28,7 @@ export const event: BotEvent = {
 	name: "userUpdate",
 	run: async (client: Client, oldUser: User) => {
 
-		const newUser = await client.users.fetch(oldUser.id);
+		const newUser = client.users.cache.get(oldUser.id) || await client.users.fetch(oldUser.id);
 
 		const oldUsertag = oldUser.username;
 		const oldUserGlbl = oldUser.globalName || oldUser.displayName;

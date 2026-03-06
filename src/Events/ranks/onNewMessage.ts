@@ -79,7 +79,7 @@ export const event: BotEvent = {
 				if (roleToAssign) {
 					try {
 						// Fetch the member from the guild using the message author
-						const member = await message.guild.members.fetch(message.author.id);
+						const member = message.guild.members.cache.get(message.author.id) || await message.guild.members.fetch(message.author.id);
 
 						// Get the member's current roles
 						const currentRoles = member.roles.cache;

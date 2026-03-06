@@ -144,7 +144,7 @@ export const event: BotEvent = {
 		const nonce = SnowflakeUtil.generate().toString();
 
 		if (invite) {
-			const inviter = await client.users.fetch(invite?.inviterId!);
+			const inviter = client.users.cache.get(invite.inviterId!) || await client.users.fetch(invite?.inviterId!);
 			client.invites.get(member.guild.id)?.set(invite?.code, invite?.uses);
 
 			const check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);

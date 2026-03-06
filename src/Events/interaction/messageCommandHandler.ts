@@ -47,7 +47,7 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 		return { success: false };
 
 	if (message.reference && message.reference.messageId) {
-		const referencedMessage = await message.channel.messages.fetch(message.reference.messageId);
+		const referencedMessage = message.channel.messages.cache.get(message.reference.messageId) || await message.channel.messages.fetch(message.reference.messageId);
 		if (referencedMessage && referencedMessage.author) {
 
 			// We need to first check if it's a subcommand
