@@ -2937,7 +2937,7 @@ global_warn_component_button_label: "Отправлено с ${author.guild.name
 counter_error_too_much_u: "<@${message.author.id}> ОШИБСЯ НА **${number}**!! Следующее число — **1**. **Нельзя считать два раза подряд.**"
 counter_error_syntaxic: "<@${message.author.id}> СОВЕРШИЛ ОШИБКУ!! Следующее число — **1**."
 
-global_blacklist_msg_to_send: "Вы были заблокированы, так как находитесь в чёрном списке iHorizon.\nПричина: `${data.reason}`"
+global_blacklist_msg_to_send: "Вы были автоматически заблокированы на этом сервере, потому что ваш аккаунт находится в глобальном черном списке iHorizon.\n\nПричина: `${data.reason}`\n\nСогласно разделу 3 наших Условий использования, серверы, использующие iHorizon, соглашаются с тем, что бот может автоматически применять санкции, связанные с этим глобальным черным списком.\n\nЕсли вы считаете, что это ошибка или хотите оспорить это решение, вы можете подать апелляцию здесь:\nAppeal: <https://www.ihorizon.org/appeal>\n\nУсловия использования: <https://www.ihorizon.org/tos>"
 global_blacklist_reason: "Наказание проекта iHorizon - Чёрный список | Причина: ${data.reason}"
 server_blacklist_msg_to_send: "Вы были заблокированы, так как находитесь в чёрном списке этого сервера.\nПричина: `${data2.reason}`"
 server_blacklist_reason: "Чёрный список | Причина: ${data2.reason}"

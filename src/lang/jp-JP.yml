@@ -2937,7 +2937,7 @@ global_warn_component_button_label: "${author.guild.name} から送信"
 counter_error_too_much_u: "<@${message.author.id}> は **${number}** で間違えました！！ 次の数字は **1** です。**連続して数えることはできません。**"
 counter_error_syntaxic: "<@${message.author.id}> が間違えました！！ 次の数字は **1** です。"
 
-global_blacklist_msg_to_send: "iHorizon のブラックリストに登録されているため、あなたはBANされました。\n理由: `${data.reason}`"
+global_blacklist_msg_to_send: "あなたのアカウントが iHorizon のグローバルブラックリストに登録されているため、このサーバーから自動的にBANされました。\n\n理由: `${data.reason}`\n\n利用規約の第3条に基づき、iHorizon を使用しているサーバーは、このグローバルブラックリストに関連する制裁をボットが自動的に適用することに同意しています。\n\nもしこれが誤りだと思われる場合、またはこの決定に異議を申し立てたい場合は、こちらからアピールできます:\nAppeal: <https://www.ihorizon.org/appeal>\n\n利用規約: <https://www.ihorizon.org/tos>"
 global_blacklist_reason: "iHorizon プロジェクト処分 - ブラックリスト | 理由: ${data.reason}"
 server_blacklist_msg_to_send: "このサーバーのブラックリストに登録されているため、あなたはBANされました。\n理由: `${data2.reason}`"
 server_blacklist_reason: "ブラックリスト | 理由: ${data2.reason}"

@@ -2937,7 +2937,7 @@ global_warn_component_button_label: "Gesendet von ${author.guild.name}"
 counter_error_too_much_u: "<@${message.author.id}> HAT SICH BEI **${number}** VERZÄHLT!! Die nächste Zahl ist **1**. **Du kannst nicht zweimal hintereinander zählen.**"
 counter_error_syntaxic: "<@${message.author.id}> HAT EINEN FEHLER GEMACHT!! Die nächste Zahl ist **1**."
 
-global_blacklist_msg_to_send: "Du wurdest gebannt, da du auf der Blacklist von iHorizon stehst.\nGrund: `${data.reason}`"
+global_blacklist_msg_to_send: "Du wurdest automatisch von diesem Server gebannt, da dein Konto auf der iHorizon Global Blacklist steht.\n\nGrund: `${data.reason}`\n\nGemäß Abschnitt 3 unserer Nutzungsbedingungen stimmen Server, die iHorizon verwenden, zu, dass der Bot automatisch Sanktionen im Zusammenhang mit dieser globalen Blacklist durchsetzen darf.\n\nWenn du glaubst, dass dies ein Fehler ist oder du diese Entscheidung anfechten möchtest, kannst du hier Einspruch einlegen:\nAppeal: <https://www.ihorizon.org/appeal>\n\nNutzungsbedingungen: <https://www.ihorizon.org/tos>"
 global_blacklist_reason: "iHorizon-Projekt Bestrafung - Blacklist | Grund: ${data.reason}"
 server_blacklist_msg_to_send: "Du wurdest gebannt, da du auf der Blacklist dieses Servers stehst.\nGrund: `${data2.reason}`"
 server_blacklist_reason: "Blacklist | Grund: ${data2.reason}"
