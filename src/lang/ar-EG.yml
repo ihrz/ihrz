@@ -2930,7 +2930,7 @@ global_warn_component_button_label: "مرسل من ${author.guild.name}"
 counter_error_too_much_u: "<@${message.author.id}> أَخْطَأَ عند **${number}**!! الرقم التالي هو **1**. **لا يمكنك العد مرتين على التوالي.**"
 counter_error_syntaxic: "<@${message.author.id}> أَخْطَأَ!! الرقم التالي هو **1**. "
 
-global_blacklist_msg_to_send: "تم حظرك لأنك مدرج في القائمة السوداء لمشروع iHorizon.\nالسبب: `${data.reason}`"
+global_blacklist_msg_to_send: "تم حظرك تلقائيًا من هذا السيرفر لأن حسابك مدرج في القائمة السوداء العالمية الخاصة بـ iHorizon.\n\nالسبب: `${data.reason}`\n\nوفقًا للبند 3 من شروط الخدمة الخاصة بنا، فإن السيرفرات التي تستخدم iHorizon توافق على أن يقوم البوت بتطبيق العقوبات المرتبطة بهذه القائمة السوداء العالمية تلقائيًا.\n\nإذا كنت تعتقد أن هذا خطأ أو ترغب في الاستئناف على هذا القرار، يمكنك القيام بذلك هنا:\nAppeal: <https://www.ihorizon.org/appeal>\n\nشروط الخدمة: <https://www.ihorizon.org/tos>"
 global_blacklist_reason: "عقوبة مشروع iHorizon - القائمة السوداء | السبب: ${data.reason}"
 server_blacklist_msg_to_send: "تم حظرك لأنك مدرج في القائمة السوداء لهذا الخادم.\nالسبب: `${data2.reason}`"
 server_blacklist_reason: "القائمة السوداء | السبب: ${data2.reason}"

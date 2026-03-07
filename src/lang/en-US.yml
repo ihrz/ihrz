@@ -2939,7 +2939,7 @@ global_warn_component_button_label: "Sent from ${author.guild.name}"
 counter_error_too_much_u: "<@${message.author.id}> MESSED UP AT **${number}**!! The next number is **1**. **You cannot count twice in a row.**"
 counter_error_syntaxic: "<@${message.author.id}> MADE A MISTAKE!! The next number is **1**."
 
-global_blacklist_msg_to_send: "You have been banned, because you are blacklisted from iHorizon.\nReason: `${data.reason}`"
+global_blacklist_msg_to_send: "You have been automatically banned from this server because your account is listed on the iHorizon Global Blacklist.\n\nReason: `${data.reason}`\n\nAccording to section 3 of our Terms of Service, servers using iHorizon agree that the bot may automatically enforce sanctions related to this global blacklist.\n\nIf you believe this is a mistake or wish to appeal this decision, you may do so here:\nAppeal: <https://www.ihorizon.org/appeal>\n\nTerms of Service: <https://www.ihorizon.org/tos>"
 global_blacklist_reason: "iHorizon Project Punishment - Blacklist | Reason: ${data.reason}"
 server_blacklist_msg_to_send: "You have been banned, because you are blacklisted from this server.\nReason: `${data2.reason}`"
 server_blacklist_reason: "Blacklist | Reason: ${data2.reason}"
