@@ -80,7 +80,7 @@ export const event: BotEvent = {
 				try {
 					if (!guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageGuild, PermissionsBitField.Flags.ViewAuditLog])) return;
 
-					let guildInvites = guild.invites.cache || await guild.invites.fetch();
+					let guildInvites = await guild.invites.fetch();
 
 					client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
 
@@ -91,9 +91,10 @@ export const event: BotEvent = {
 							code: guild.vanityURLCode,
 							uses: guild.vanityURLUses
 						}
+
+						client.vanityInvites.set(guild.id, VanityURL);
 					}
 
-					client.vanityInvites.set(guild.id, VanityURL || await guild.fetchVanityData());
 				} catch (error: any) {
 					logger.err(`Error fetching invites for guild ${guild.id}: ${error}`.red);
 				};
