@@ -83,7 +83,7 @@ export const subCommand: SubCommand = {
 							)
 							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 							.setTimestamp()
-							.setThumbnail(interaction.guild?.iconURL() || '')
+							.setThumbnail(interaction.guild?.iconURL() || client.user?.avatarURL()!)
 					],
 					files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
 				});

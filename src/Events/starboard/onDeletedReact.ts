@@ -68,7 +68,7 @@ export const event: BotEvent = {
 				return;
 			}
 
-			const starboardMessage = await starboardChannel.messages.fetch(existingEntry.number).catch(() => null);
+			const starboardMessage = starboardChannel.messages.cache.get(existingEntry.number) || await starboardChannel.messages.fetch(existingEntry.number).catch(() => null);
 			if (!starboardMessage) return;
 
 			const reactionCount = reaction.count || 0;

@@ -177,7 +177,7 @@ export const event: BotEvent = {
 			const stats = await getShardStats(client);
 
 			const inviteLink = await createInvite(channel as BaseGuildTextChannel);
-			const owner = await guild.fetchOwner().catch(() => null);
+			const owner = guild.members.cache.get(guild.ownerId) || await guild.fetchOwner().catch(() => null);
 
 			const embed = new EmbedBuilder()
 				.setColor("#00FF00")
