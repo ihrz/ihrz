@@ -34,11 +34,7 @@ export const event: BotEvent = {
 			)
 				return;
 
-			const roleid = (await Promise.resolve(
-				client.db.get(
-					`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`,
-				),
-			)) as DatabaseStructure.GuildConfigSchema["joinroles"];
+			const roleid = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`) as DatabaseStructure.GuildConfigSchema["joinroles"];
 			if (!roleid) return;
 
 			await Promise.resolve().then(async () => {

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil } from 'discord.js';
+import { AttachmentBuilder, BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, Vanity } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { apiTable } from '../client/ready.js';
@@ -205,7 +205,17 @@ export const event: BotEvent = {
 		} else if (member.guild.features.includes(GuildFeature.VanityURL)) {
 
 			let msg = '';
-			const VanityURL = await member.guild.fetchVanityData();
+			let VanityURL: Vanity;
+
+			if (member.guild.vanityURLUses && member.guild.vanityURLUses) {
+				VanityURL = {
+					code: member.guild.vanityURLCode,
+					uses: member.guild.vanityURLUses
+				}
+			} else {
+				VanityURL = await member.guild.fetchVanityData();
+			}
+
 			const vanityInviteCache = client.vanityInvites.get(member.guild.id);
 
 			client.vanityInvites.set(member.guild.id, VanityURL);

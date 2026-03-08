@@ -115,7 +115,7 @@ export async function recoverActiveSessions(client: Client) {
 		) || {};
 
 		for (const [userId, session] of Object.entries(activeSessions)) {
-			const member = await guild.members.fetch(userId).catch(() => null);
+			const member = guild.members.cache.get(userId) || await guild.members.fetch(userId).catch(() => null);
 			if (!member?.voice.channelId) {
 				await event.run(
 					client,

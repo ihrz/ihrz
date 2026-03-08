@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User, BaseGuildTextChannel } from 'discord.js';
+import { Client, Collection, PermissionsBitField, ActivityType, EmbedBuilder, GuildFeature, User, BaseGuildTextChannel, Vanity } from 'discord.js';
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
 import { format } from '../../core/functions/date_and_time.js';
 
@@ -79,15 +79,21 @@ export const event: BotEvent = {
 			client.guilds.cache.forEach(async (guild) => {
 				try {
 					if (!guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageGuild, PermissionsBitField.Flags.ViewAuditLog])) return;
-					guild.invites.fetch().then(guildInvites => {
-						client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
 
-						if (guild.features.includes(GuildFeature.VanityURL)) {
-							guild.fetchVanityData().then((vanityInvite) => {
-								client.vanityInvites.set(guild.id, vanityInvite);
-							});
+					let guildInvites = guild.invites.cache || await guild.invites.fetch();
+
+					client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
+
+					let VanityURL: Vanity | null = null;
+
+					if (guild.vanityURLUses && guild.vanityURLUses && guild.features.includes(GuildFeature.VanityURL)) {
+						VanityURL = {
+							code: guild.vanityURLCode,
+							uses: guild.vanityURLUses
 						}
-					})
+					}
+
+					client.vanityInvites.set(guild.id, VanityURL || await guild.fetchVanityData());
 				} catch (error: any) {
 					logger.err(`Error fetching invites for guild ${guild.id}: ${error}`.red);
 				};
@@ -100,7 +106,7 @@ export const event: BotEvent = {
 
 			owners.forEach(async ownerId => {
 				try {
-					const user = await client.users?.fetch(ownerId);
+					const user = client.users.cache.get(ownerId) || await client.users?.fetch(ownerId);
 					if (user) {
 						await ownerTable.set(user.id, { owner: true });
 					}
