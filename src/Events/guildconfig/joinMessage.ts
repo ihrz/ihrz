@@ -121,7 +121,7 @@ export const event: BotEvent = {
 
 		const guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
 		const oldInvites = client.invites.get(member.guild.id);
-		const newInvites = member.guild.invites.cache || await member.guild.invites.fetch();
+		const newInvites = await member.guild.invites.fetch();
 
 		const invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
 		const joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
