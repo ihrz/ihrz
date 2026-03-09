@@ -141,11 +141,7 @@ export const event: BotEvent = {
 		const oldInvites = client.invites.get(member.guild.id);
 		const invite = await resolveInvite(member.guild, oldInvites);
 
-		const joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
-		const wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
-		const ImageBannerStates = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbannerStates`) as string | undefined;
-
-		const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
+		const { joinmessage: joinMessage, joinbannerStates: ImageBannerStates, join: wChan } = (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG`) as DatabaseStructure.GuildConfigSchema);
 
 		const files = [];
 
@@ -191,7 +187,11 @@ export const event: BotEvent = {
 			let isCustomVanity = false; // Is discord.wf link
 			let msg = '';
 
-			if (!wChan || !channel) return;
+			if (!wChan) return;
+
+			const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
+
+			if (!channel) return;
 
 			const CustomVanityInvite = await apiTable.get(`VANITY.${member.guild.id}`)
 			if (inviter.id === client.user?.id && CustomVanityInvite.invite === invite.code) {
@@ -262,7 +262,12 @@ export const event: BotEvent = {
 		} else {
 
 			let msg = '';
-			if (!wChan || !channel) return;
+
+			if (!wChan) return;
+
+			const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
+
+			if (!channel) return;
 
 			msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
 				{
