@@ -430,6 +430,20 @@ export const command: Command = {
 
 			options: [
 				{
+					name: "67",
+					name_localizations: { fr: "67" },
+
+					aliases: ["67"],
+
+					description: "Send a 67 gif (triso 67)",
+					description_localizations: {
+						fr: "SIX SEVENNNN ABJHAZEBHAZEJKHAZHBJ JE MANGE MON CACA" // j'aime mon caca mais le ditent pas svp
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					permission: null
+				},
+				{
 					name: "hack",
 					name_localizations: {
 						fr: "piratage",
