@@ -578,21 +578,39 @@ export async function channelSend(
 }
 
 async function sendToChannel(channelId: string, options: MessageReplyOptions): Promise<Message> {
+	// Always generate a fresh nonce right before sending to avoid duplicates
+	const optionsWithFreshNonce = {
+		...options,
+		nonce: SnowflakeUtil.generate().toString(),
+		enforceNonce: true
+	};
+
 	if (!client.shard) {
 		const channel = await client.channels.fetch(channelId) as BaseGuildTextChannel;
-		return channel.send(options);
+		return channel.send(optionsWithFreshNonce);
 	}
 
 	if (client.channels.cache.has(channelId)) {
-		return (client.channels.cache.get(channelId) as BaseGuildTextChannel).send(options);
+		return (client.channels.cache.get(channelId) as BaseGuildTextChannel).send(optionsWithFreshNonce);
 	}
 
+	// When using broadcastEval, context is serialized to JSON across shards
+	// so we must strip the nonce here and regenerate it on each shard individually
 	const results = await client.shard.broadcastEval(async (c, { channelId, options }) => {
 		const channel = c.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
 		if (!channel) return null;
-		const msg = await channel.send(options as MessagePayload);
+
+		// Regenerate nonce on the shard side to ensure uniqueness per shard
+		const { SnowflakeUtil } = await import('discord.js');
+		const freshOptions = {
+			...options,
+			nonce: SnowflakeUtil.generate().toString(),
+			enforceNonce: true
+		};
+
+		const msg = await channel.send(freshOptions as unknown as MessagePayload);
 		return { id: msg.id, channelId: msg.channelId };
-	}, { context: { channelId, options } });
+	}, { context: { channelId, options } }); // Pass options without nonce to avoid cross-shard collisions
 
 	const result = results.find(Boolean);
 	if (!result) throw new Error(`Channel ${channelId} not found on any shard`);
