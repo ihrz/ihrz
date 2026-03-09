@@ -28,8 +28,9 @@ export const restEvent: BotEvent = {
 	run: async (client: Client, data: RateLimitData) => {
 		let msg = "⚠️ Rate limit detected\nRoute: " + data.route + "\nURL: " + data.url + "\nMethod: " + data.method + "\nScope: " + data.scope + "\nGlobal: " + data.global + "\nLimit: " + data.limit + "\nRetry After: " + data.retryAfter + "ms\nTime To Reset: " + data.timeToReset + "ms\nHash: " + data.hash + "\nMajor Param: " + data.majorParameter + "\nSublimit Timeout: " + data.sublimitTimeout + "ms";
 
-		if (client.email.connected) {
-			client.email.send(client.email.ownerMail, 'RATE-LIMIT', msg);
-		} else logger.err(msg)
+		logger.err(msg)
+		// if (client.email.connected) {
+		// 	client.email.send(client.email.ownerMail, 'RATE-LIMIT', msg);
+		// } else 
 	},
 };
