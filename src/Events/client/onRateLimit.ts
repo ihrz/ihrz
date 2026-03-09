@@ -19,20 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, ClientEvents, RestEvents } from 'discord.js';
+import { Client, RateLimitData } from 'discord.js';
 
-export interface BotEvent {
-	/**
-	 * @description The name of the event.
-	 * @type {keyof ClientEvents | keyof RestEvents}
-	 * @memberof BotEvent
-	 */
-	name: keyof ClientEvents | keyof RestEvents,
+import { BotEvent } from '../../../types/event.js';
 
-	/**
-	 * @description The function to run when the event is called.
-	 * @type {(client: Client, ...args: any[]) => Promise<any>}
-	 * @memberof BotEvent
-	 */
-	run(client: Client, ...args: any[]): Promise<any>
-}
+export const restEvent: BotEvent = {
+	name: "rateLimited",
+	run: async (client: Client, data: RateLimitData) => {
+		let msg = "⚠️ Rate limit detected\nRoute: " + data.route + "\nURL: " + data.url + "\nMethod: " + data.method + "\nScope: " + data.scope + "\nGlobal: " + data.global + "\nLimit: " + data.limit + "\nRetry After: " + data.retryAfter + "ms\nTime To Reset: " + data.timeToReset + "ms\nHash: " + data.hash + "\nMajor Param: " + data.majorParameter + "\nSublimit Timeout: " + data.sublimitTimeout + "ms";
+
+		if (client.email.connected) {
+			client.email.send(client.email.ownerMail, 'RATE-LIMIT', msg);
+		} else logger.err(msg)
+	},
+};
