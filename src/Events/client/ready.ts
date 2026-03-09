@@ -110,6 +110,7 @@ export const event: BotEvent = {
 							try {
 
 								const vanity = await guild.fetchVanityData();
+								logger.debug('invite-fetcher', guild.name, vanity)
 
 								client.vanityInvites.set(guild.id, {
 									code: vanity.code,
