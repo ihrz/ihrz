@@ -599,6 +599,9 @@ async function sendToChannel(channelId: string, options: MessageReplyOptions): P
 
 	if (client.channels.cache.has(channelId)) {
 		console.log("[sendToChannel] channel found in cache, sending directly...");
+		const ch = client.channels.cache.get(channelId) as BaseGuildTextChannel;
+		console.log("[sendToChannel] channel name:", ch.name, "| guild:", ch.guild?.name);
+
 		try {
 			const msg = await (client.channels.cache.get(channelId) as BaseGuildTextChannel).send(optionsWithFreshNonce);
 			console.log("[sendToChannel] message sent from cache:", msg.id);
