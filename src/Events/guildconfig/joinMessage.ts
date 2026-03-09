@@ -241,7 +241,17 @@ export const event: BotEvent = {
 
 					await client.func.method.channelSend(channel, { content: msg, files });
 					return;
-				};
+				} else {
+					msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
+						{
+							user: member.user,
+							guild: member.guild,
+							guildLocal: guildLocal,
+						}
+					);
+
+					await client.func.method.channelSend(channel, { content: msg, files });
+				}
 
 			} else {
 
