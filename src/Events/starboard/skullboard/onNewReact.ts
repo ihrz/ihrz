@@ -27,15 +27,6 @@ export const event: BotEvent = {
 	name: "messageReactionAdd",
 	run: async (client: Client, reaction: MessageReaction, user: User) => {
 		try {
-			// Fetch partial reaction and message if needed
-			if (reaction.partial) {
-				await reaction.fetch().catch(() => null);
-			}
-
-			if (reaction.message.partial) {
-				await reaction.message.fetch().catch(() => null);
-			}
-
 			// Guard clauses
 			if (!reaction.message.guild || user.bot) return;
 			if (reaction.emoji.name !== "💀") return;
@@ -50,9 +41,28 @@ export const event: BotEvent = {
 			if (!baseData || baseData.enabled === "no" || !baseData.channel) return;
 			if (!reaction.count || reaction.count < baseData.threshold) return;
 
+
+			// Get skullboard channel
+			const skullboardChannel = reaction.message.guild.channels.cache.get(baseData.channel) ||
+				await reaction.message.guild.channels.fetch(baseData.channel).catch(() => null);
+
 			// Get skullboard data
 			const skullboardDataPath = `${guildId}.GUILD.SKULLBOARD_DATA`;
 			let skullboardData: DatabaseStructure.StarboardDataSchema = await client.db.get(skullboardDataPath) || [];
+
+			if (!skullboardChannel || !(skullboardChannel instanceof TextChannel)) {
+				return;
+			}
+
+			// Fetch partial reaction and message if needed
+			if (reaction.partial) {
+				await reaction.fetch().catch(() => null);
+			}
+
+			if (reaction.message.partial) {
+				await reaction.message.fetch().catch(() => null);
+			}
+
 
 			// Check if this message is already in skullboard
 			const existingEntry = skullboardData.find(
@@ -61,14 +71,6 @@ export const event: BotEvent = {
 
 			const lang = await client.func.getLanguageData(guildId);
 			const messageURL = client.func.getMessageURL(guildId, reaction.message.channelId, reaction.message.id);
-
-			// Get skullboard channel
-			const skullboardChannel = reaction.message.guild.channels.cache.get(baseData.channel) ||
-				await reaction.message.guild.channels.fetch(baseData.channel).catch(() => null);
-
-			if (!skullboardChannel || !(skullboardChannel instanceof TextChannel)) {
-				return;
-			}
 
 			// Prepare embed with dark/death theme
 			const embed = new EmbedBuilder()

@@ -63,7 +63,7 @@ declare module 'discord.js' {
 		message_commands: Collection<string, Command>,
 		player: LavalinkManager,
 		invites: Collection<string, Collection<string, number | null>>,
-		vanityInvites: Collection<Snowflake, VanityInviteData>,
+		vanityInvites: Collection<Snowflake, VanityInviteData | null>,
 		buttons: Collection<string, Function>,
 		selectmenu: Collection<string, Function>,
 		db: DB,

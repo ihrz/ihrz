@@ -76,30 +76,61 @@ export const event: BotEvent = {
 		await client.emojisManager.startSync();
 
 		async function fetchInvites() {
-			client.guilds.cache.forEach(async (guild) => {
-				try {
-					if (!guild.members.me?.permissions.has([PermissionsBitField.Flags.ManageGuild, PermissionsBitField.Flags.ViewAuditLog])) return;
 
-					let guildInvites = await guild.invites.fetch();
+			const guilds = [...client.guilds.cache.values()];
+			const batchSize = 5;
 
-					client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
+			for (let i = 0; i < guilds.length; i += batchSize) {
 
-					let VanityURL: Vanity | null = null;
+				const batch = guilds.slice(i, i + batchSize);
 
-					if (guild.vanityURLUses && guild.vanityURLUses && guild.features.includes(GuildFeature.VanityURL)) {
-						VanityURL = {
-							code: guild.vanityURLCode,
-							uses: guild.vanityURLUses
+				await Promise.all(batch.map(async (guild) => {
+					try {
+
+						const me = guild.members.me;
+
+						if (!me?.permissions.has([
+							PermissionsBitField.Flags.ManageGuild,
+							PermissionsBitField.Flags.ViewAuditLog
+						])) return;
+
+						// Fetch invites
+						const invites = await guild.invites.fetch();
+
+						client.invites.set(
+							guild.id,
+							new Collection(
+								invites.map(invite => [invite.code, invite.uses])
+							)
+						);
+
+						// Fetch vanity only if guild has it
+						if (guild.features.includes(GuildFeature.VanityURL)) {
+
+							try {
+
+								const vanity = await guild.fetchVanityData();
+
+								client.vanityInvites.set(guild.id, {
+									code: vanity.code,
+									uses: vanity.uses
+								});
+
+							} catch {
+								client.vanityInvites.set(guild.id, null);
+							}
+
+						} else {
+							client.vanityInvites.set(guild.id, null);
 						}
 
-						client.vanityInvites.set(guild.id, VanityURL);
+					} catch (error: any) {
+						logger.err(`Error fetching invites for guild ${guild.id}: ${error}`);
 					}
+				}));
 
-				} catch (error: any) {
-					logger.err(`Error fetching invites for guild ${guild.id}: ${error}`.red);
-				};
-			});
-		};
+			}
+		}
 
 		async function refreshDatabaseModel() {
 			// await tempTable.deleteAll();

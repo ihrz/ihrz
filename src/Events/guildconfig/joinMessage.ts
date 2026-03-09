@@ -214,7 +214,7 @@ export const event: BotEvent = {
 			client.vanityInvites.set(member.guild.id, VanityURL);
 
 			const wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
-			const channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
+			const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
 
 			if (!wChan || !channel) return;
 
