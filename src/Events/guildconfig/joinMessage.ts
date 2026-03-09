@@ -19,14 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, Client, Collection, Guild, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, Vanity } from 'discord.js';
+import { AttachmentBuilder, BaseGuildTextChannel, Client, Collection, Guild, GuildFeature, GuildMember, Invite, PermissionsBitField, Vanity } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { apiTable } from '../client/ready.js';
 
-export async function generateJoinImage(member: GuildMember, optionalOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
+export async function generateJoinImage(member: GuildMember, ImageBannerOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
 	let htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
-	const ImageBannerOptions = await member.client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
 
 	let backgroundURL = member.guild.bannerURL({ size: 512 }) || member.user.bannerURL({ size: 512 }) || ""
 	let profilePictureRound = member.displayHexColor;
@@ -39,31 +38,7 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
 	let textSize = "40px";
 	let avatarSize = "140px"
 
-	if (optionalOptions) {
-		backgroundURL = optionalOptions.backgroundURL;
-		textColour = optionalOptions.textColour;
-		textMessage = optionalOptions.message;
-		textSize = optionalOptions.textSize;
-		avatarSize = optionalOptions.avatarSize;
-
-		if (optionalOptions.profilePictureRound === "status") {
-			switch (member.presence?.status) {
-				case "dnd":
-					profilePictureRound = "#f23f43"
-					break;
-				case "invisible":
-				case "offline":
-					profilePictureRound = "#80848e"
-					break;
-				case "idle":
-					profilePictureRound = "#f0b232"
-					break;
-				case "online":
-					profilePictureRound = "#23a55a"
-					break;
-			}
-		}
-	} else if (ImageBannerOptions) {
+	if (ImageBannerOptions) {
 		backgroundURL = ImageBannerOptions.backgroundURL;
 		textColour = ImageBannerOptions.textColour;
 		textMessage = ImageBannerOptions.message;
@@ -141,13 +116,13 @@ export const event: BotEvent = {
 		const oldInvites = client.invites.get(member.guild.id);
 		const invite = await resolveInvite(member.guild, oldInvites);
 
-		const { joinmessage: joinMessage, joinbannerStates: ImageBannerStates, join: wChan } = (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG`) as DatabaseStructure.GuildConfigSchema);
+		const { joinmessage: joinMessage, joinbannerStates: ImageBannerStates, join: wChan, joinbanner: JoinBannerOptions } = (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG`) as DatabaseStructure.GuildConfigSchema);
 
 		const files = [];
 
 		if (ImageBannerStates === "on") {
 			try {
-				files.push(await generateJoinImage(member))
+				files.push(await generateJoinImage(member, JoinBannerOptions))
 			} catch (e) {
 				logger.err("Join image error: " + e)
 			}
@@ -234,10 +209,11 @@ export const event: BotEvent = {
 
 			client.vanityInvites.set(member.guild.id, VanityURL);
 
-			const wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
+			if (!wChan) return;
+
 			const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
 
-			if (!wChan || !channel) return;
+			if (!channel) return;
 
 			if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
 				msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
