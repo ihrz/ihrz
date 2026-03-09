@@ -584,38 +584,38 @@ async function sendToChannel(channelId: string, options: MessageReplyOptions): P
 		enforceNonce: true
 	};
 
-	console.log("[sendToChannel] called with channelId:", channelId);
-	console.log("[sendToChannel] client.shard:", client.shard ? `shard ${client.shard.ids}` : "no shard");
-	console.log("[sendToChannel] channel in cache:", client.channels.cache.has(channelId));
+	logger.debug("[sendToChannel] called with channelId:", channelId);
+	logger.debug("[sendToChannel] client.shard:", client.shard ? `shard ${client.shard.ids}` : "no shard");
+	logger.debug("[sendToChannel] channel in cache:", client.channels.cache.has(channelId));
 
 	if (!client.shard) {
-		console.log("[sendToChannel] no shard, fetching channel directly...");
+		logger.debug("[sendToChannel] no shard, fetching channel directly...");
 		const channel = await client.channels.fetch(channelId) as BaseGuildTextChannel;
-		console.log("[sendToChannel] channel fetched:", channel?.id, channel?.name);
+		logger.debug("[sendToChannel] channel fetched:", channel?.id, channel?.name);
 		const msg = await channel.send(optionsWithFreshNonce);
-		console.log("[sendToChannel] message sent:", msg.id);
+		logger.debug("[sendToChannel] message sent:", msg.id);
 		return msg;
 	}
 
 	if (client.channels.cache.has(channelId)) {
-		console.log("[sendToChannel] channel found in cache, sending directly...");
+		logger.debug("[sendToChannel] channel found in cache, sending directly...");
 		const ch = client.channels.cache.get(channelId) as BaseGuildTextChannel;
-		console.log("[sendToChannel] channel name:", ch.name, "| guild:", ch.guild?.name);
+		logger.debug("[sendToChannel] channel name:", ch.name, "| guild:", ch.guild?.name);
 
 		try {
 			const msg = await (client.channels.cache.get(channelId) as BaseGuildTextChannel).send(optionsWithFreshNonce);
-			console.log("[sendToChannel] message sent from cache:", msg.id);
+			logger.debug("[sendToChannel] message sent from cache:", msg.id);
 			return msg;
 		} catch (e) {
-			console.log("[sendToChannel] send from cache FAILED:", e);
+			logger.debug("[sendToChannel] send from cache FAILED:", e);
 			throw e;
 		}
 	}
 
-	console.log("[sendToChannel] channel not in cache, using broadcastEval...");
+	logger.debug("[sendToChannel] channel not in cache, using broadcastEval...");
 	const results = await client.shard.broadcastEval(async (c, { channelId, options }) => {
 		const channel = c.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
-		console.log(`[broadcastEval shard ${c.shard?.ids}] channel found:`, !!channel);
+		logger.debug(`[broadcastEval shard ${c.shard?.ids}] channel found:`, !!channel);
 		if (!channel) return null;
 
 		const { SnowflakeUtil } = await import('discord.js');
@@ -627,15 +627,15 @@ async function sendToChannel(channelId: string, options: MessageReplyOptions): P
 
 		try {
 			const msg = await channel.send(freshOptions as unknown as MessagePayload);
-			console.log(`[broadcastEval shard ${c.shard?.ids}] message sent:`, msg.id);
+			logger.debug(`[broadcastEval shard ${c.shard?.ids}] message sent:`, msg.id);
 			return { id: msg.id, channelId: msg.channelId };
 		} catch (e) {
-			console.log(`[broadcastEval shard ${c.shard?.ids}] send FAILED:`, e);
+			logger.debug(`[broadcastEval shard ${c.shard?.ids}] send FAILED:`, e);
 			return null;
 		}
 	}, { context: { channelId, options } });
 
-	console.log("[sendToChannel] broadcastEval results:", results);
+	logger.debug("[sendToChannel] broadcastEval results:", results);
 
 	const result = results.find(Boolean);
 	if (!result) throw new Error(`Channel ${channelId} not found on any shard`);
