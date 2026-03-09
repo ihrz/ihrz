@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, Client, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, Vanity } from 'discord.js';
+import { AttachmentBuilder, BaseGuildTextChannel, Client, Collection, Guild, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, Vanity } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { apiTable } from '../client/ready.js';
@@ -112,6 +112,24 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
 	return new AttachmentBuilder(image, { name: "image.png" })
 };
 
+export async function resolveInvite(guild: Guild, oldInvites: Collection<string, number | null> | undefined) {
+
+	for (let i = 0; i < 3; i++) {
+
+		const invites = await guild.invites.fetch();
+
+		const invite = invites.find((i: Invite) =>
+			i.uses && i.uses > (oldInvites?.get(i.code) || 0)
+		);
+
+		if (invite) return invite;
+
+		await new Promise(r => setTimeout(r, 1000));
+	}
+
+	return null;
+}
+
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
@@ -121,9 +139,8 @@ export const event: BotEvent = {
 
 		const guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
 		const oldInvites = client.invites.get(member.guild.id);
-		const newInvites = await member.guild.invites.fetch();
+		const invite = await resolveInvite(member.guild, oldInvites);
 
-		const invite = newInvites.find((i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0));
 		const joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
 		const wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
 		const ImageBannerStates = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbannerStates`) as string | undefined;
@@ -133,7 +150,11 @@ export const event: BotEvent = {
 		const files = [];
 
 		if (ImageBannerStates === "on") {
-			files.push(await generateJoinImage(member))
+			try {
+				files.push(await generateJoinImage(member))
+			} catch (e) {
+				logger.err("Join image error: " + e)
+			}
 		}
 
 		if (invite) {
