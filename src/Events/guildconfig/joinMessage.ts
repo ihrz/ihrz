@@ -128,7 +128,7 @@ export const event: BotEvent = {
 		const wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
 		const ImageBannerStates = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbannerStates`) as string | undefined;
 
-		const channel = member.guild.channels.cache.get(wChan) as BaseGuildTextChannel;
+		const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
 
 		const files = [];
 
