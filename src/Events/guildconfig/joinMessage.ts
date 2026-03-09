@@ -202,6 +202,7 @@ export const event: BotEvent = {
 				let msg = '';
 				let VanityURL: Vanity;
 
+				logger.debug(member.guild.name, "before if vanity", member.guild.vanityURLUses && member.guild.vanityURLUses)
 				if (member.guild.vanityURLUses && member.guild.vanityURLUses) {
 					VanityURL = {
 						code: member.guild.vanityURLCode,
@@ -210,6 +211,7 @@ export const event: BotEvent = {
 				} else {
 					VanityURL = await member.guild.fetchVanityData();
 				}
+				logger.debug(member.guild.name, "after if vanity", VanityURL)
 
 				const vanityInviteCache = client.vanityInvites.get(member.guild.id);
 
