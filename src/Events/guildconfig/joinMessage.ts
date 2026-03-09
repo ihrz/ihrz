@@ -133,7 +133,11 @@ export const event: BotEvent = {
 		const files = [];
 
 		if (ImageBannerStates === "on") {
-			files.push(await generateJoinImage(member))
+			try {
+				files.push(await generateJoinImage(member))
+			} catch (e) {
+				logger.err("Join image error: " + e)
+			}
 		}
 
 		if (invite) {
