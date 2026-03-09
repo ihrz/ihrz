@@ -120,8 +120,6 @@ export const event: BotEvent = {
 
 			const { joinmessage: joinMessage, joinbannerStates: ImageBannerStates, join: wChan, joinbanner: JoinBannerOptions } = (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG`) as DatabaseStructure.GuildConfigSchema);
 
-			console.log(joinMessage, joinMessage, JoinBannerOptions, wChan);
-
 			const files = [];
 
 			if (ImageBannerStates === "on") {
@@ -166,12 +164,10 @@ export const event: BotEvent = {
 				let isCustomVanity = false; // Is discord.wf link
 				let msg = '';
 
-				console.log("wChan", wChan)
 				if (!wChan) return;
 
 				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
 
-				console.log("channel", channel.name)
 				if (!channel) return;
 
 				const CustomVanityInvite = await apiTable.get(`VANITY.${member.guild.id}`)
@@ -215,11 +211,9 @@ export const event: BotEvent = {
 
 				client.vanityInvites.set(member.guild.id, VanityURL);
 
-				console.log('wchan2', wChan)
 				if (!wChan) return;
 
 				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
-				console.log("channel2", channel.name, channel.id)
 				if (!channel) return;
 
 				if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
@@ -246,11 +240,9 @@ export const event: BotEvent = {
 
 				let msg = '';
 
-				console.log(wChan)
 				if (!wChan) return;
 
 				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
-				console.log("channel3", channel.name, channel.id)
 				if (!channel) return;
 
 				msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
