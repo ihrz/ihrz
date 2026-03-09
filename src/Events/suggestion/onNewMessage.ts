@@ -27,12 +27,6 @@ import { BotEvent } from '../../../types/event.js';
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		/**
-		 * Why doing this?
-		 * On iHorizon Production, we have some ~problems~ 👎
-		 * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-		 */
-		const nonce = SnowflakeUtil.generate().toString();
 
 		if (!message.guild || message.author.bot || !message.channel) return;
 
@@ -69,7 +63,6 @@ export const event: BotEvent = {
 			content: message.author.toString(),
 			embeds: [suggestionEmbed],
 			files: [await client.func.displayBotName.footerAttachmentBuilder(message)],
-			enforceNonce: true, nonce: nonce
 		});
 
 		let thread = await msg.startThread({
