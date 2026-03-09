@@ -169,9 +169,9 @@ export const event: BotEvent = {
 				logger.debug(member.guild.name, "wChan", wChan)
 				if (!wChan) return;
 
-				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
+				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null));
 
-				logger.debug(member.guild.name, "channel", channel.name)
+				logger.debug(member.guild.name, "channel", channel?.name)
 				if (!channel) return;
 
 				const CustomVanityInvite = await apiTable.get(`VANITY.${member.guild.id}`)
@@ -194,7 +194,7 @@ export const event: BotEvent = {
 					}
 				);
 
-				await client.func.method.channelSend(channel, { content: msg, files: files });
+				await client.func.method.channelSend(channel as BaseGuildTextChannel, { content: msg, files: files });
 				return;
 
 			} else if (member.guild.features.includes(GuildFeature.VanityURL)) {
@@ -220,8 +220,8 @@ export const event: BotEvent = {
 				logger.debug(member.guild.name, 'wchan2', wChan)
 				if (!wChan) return;
 
-				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
-				logger.debug(member.guild.name, "channel2", channel.name, channel.id)
+				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null));
+				logger.debug(member.guild.name, "channel2", channel?.name, channel?.id)
 				if (!channel) return;
 
 				logger.debug(member.guild.name, vanityInviteCache, VanityURL, vanityInviteCache?.uses! < VanityURL.uses)
@@ -241,7 +241,7 @@ export const event: BotEvent = {
 						}
 					);
 
-					await client.func.method.channelSend(channel, { content: msg, files });
+					await client.func.method.channelSend(channel as BaseGuildTextChannel, { content: msg, files });
 					return;
 				} else {
 					msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
@@ -252,7 +252,7 @@ export const event: BotEvent = {
 						}
 					);
 
-					await client.func.method.channelSend(channel, { content: msg, files });
+					await client.func.method.channelSend(channel as BaseGuildTextChannel, { content: msg, files });
 				}
 
 			} else {
@@ -262,8 +262,8 @@ export const event: BotEvent = {
 				logger.debug(member.guild.name, "wchan", wChan)
 				if (!wChan) return;
 
-				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
-				logger.debug(member.guild.name, "channel3", channel.name, channel.id)
+				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null));
+				logger.debug(member.guild.name, "channel3", channel?.name, channel?.id)
 				if (!channel) return;
 
 				msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
@@ -274,7 +274,7 @@ export const event: BotEvent = {
 					}
 				);
 
-				await client.func.method.channelSend(channel, { content: msg, files });
+				await client.func.method.channelSend(channel as BaseGuildTextChannel, { content: msg, files });
 				return;
 			};
 
