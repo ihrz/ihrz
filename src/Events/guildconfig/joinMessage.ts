@@ -216,6 +216,7 @@ export const event: BotEvent = {
 				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
 				if (!channel) return;
 
+				console.log(vanityInviteCache, VanityURL, vanityInviteCache?.uses! < VanityURL.uses)
 				if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
 					msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
 						{
