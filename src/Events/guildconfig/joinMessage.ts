@@ -136,13 +136,6 @@ export const event: BotEvent = {
 			files.push(await generateJoinImage(member))
 		}
 
-		/**
-		 * Why doing this?
-		 * On iHorizon Production, we have some ~problems~ 👎
-		 * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-		 */
-		const nonce = SnowflakeUtil.generate().toString();
-
 		if (invite) {
 			const inviter = client.users.cache.get(invite.inviterId!) || await client.users.fetch(invite?.inviterId!);
 			client.invites.get(member.guild.id)?.set(invite?.code, invite?.uses);
@@ -199,7 +192,7 @@ export const event: BotEvent = {
 				}
 			);
 
-			await client.func.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files: files });
+			await client.func.method.channelSend(channel, { content: msg, files: files });
 			return;
 
 		} else if (member.guild.features.includes(GuildFeature.VanityURL)) {
@@ -241,7 +234,7 @@ export const event: BotEvent = {
 					}
 				);
 
-				await client.func.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files });
+				await client.func.method.channelSend(channel, { content: msg, files });
 				return;
 			};
 
@@ -258,7 +251,7 @@ export const event: BotEvent = {
 				}
 			);
 
-			await client.func.method.channelSend(channel, { content: msg, enforceNonce: true, nonce: nonce, files });
+			await client.func.method.channelSend(channel, { content: msg, files });
 			return;
 		};
 

@@ -28,12 +28,6 @@ import { DatabaseStructure } from '../../../types/database_structure.js';
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		/**
-		 * Why doing this?
-		 * On iHorizon Production, we have some ~problems~ 👎
-		 * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-		 */
-		const nonce = SnowflakeUtil.generate().toString();
 
 		if (!message.guild || message.author.bot || !message.channel) return;
 
@@ -137,9 +131,7 @@ export const event: BotEvent = {
 				}
 
 				client.func.method.channelSend(message, {
-					content: msg,
-					enforceNonce: true,
-					nonce: nonce
+					content: msg
 				})
 				return;
 			}
@@ -148,8 +140,6 @@ export const event: BotEvent = {
 
 			MsgChannel.send({
 				content: msg,
-				enforceNonce: true,
-				nonce: nonce
 			});
 			return;
 		}

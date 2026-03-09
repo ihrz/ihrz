@@ -61,13 +61,6 @@ export const event: BotEvent = {
 		}
 		const fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
 
-		/**
-		 * Why doing this?
-		 * On iHorizon Production, we have some ~problems~ 👎
-		 * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-		 */
-		const nonce = SnowflakeUtil.generate().toString();
-
 		if (fetch) {
 			const target = message.guild.members.cache.get(message.author.id);
 			if (target?.roles.cache.has(fetch.id)) return;
@@ -90,9 +83,7 @@ export const event: BotEvent = {
 			message.member?.roles.add(fetch, "[RankRole] Module").catch(() => { });
 			client.func.method.channelSend(message, {
 				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(message)],
-				enforceNonce: true,
-				nonce
+				files: [await client.func.displayBotName.footerAttachmentBuilder(message)]
 			}).catch(() => { });
 		};
 	},
