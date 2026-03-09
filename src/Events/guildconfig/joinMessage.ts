@@ -211,6 +211,7 @@ export const event: BotEvent = {
 				} else {
 					try {
 						VanityURL = await member.guild.fetchVanityData();
+						console.log(member.guild.name, "result", VanityURL)
 					} catch (e) {
 						logger.err(member.guild.name, "fetchVanityData failed:", e);
 						// fallback : traiter comme un join normal sans vanity
