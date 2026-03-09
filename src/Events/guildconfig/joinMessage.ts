@@ -202,7 +202,7 @@ export const event: BotEvent = {
 				let msg = '';
 				let VanityURL: Vanity;
 
-				logger.debug(member.guild.name, "before if vanity", member.guild.vanityURLUses && member.guild.vanityURLUses)
+				logger.debug(member.guild.name, "before if vanity", member.guild.vanityURLUses, member.guild.vanityURLUses)
 				if (member.guild.vanityURLUses && member.guild.vanityURLUses) {
 					VanityURL = {
 						code: member.guild.vanityURLCode,
