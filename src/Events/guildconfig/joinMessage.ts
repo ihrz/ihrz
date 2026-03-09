@@ -200,24 +200,9 @@ export const event: BotEvent = {
 			} else if (member.guild.features.includes(GuildFeature.VanityURL)) {
 
 				let msg = '';
-				let VanityURL: Vanity;
+				let VanityURL: Vanity = await member.guild.fetchVanityData();
 
 				logger.debug(member.guild.name, "before if vanity", member.guild.vanityURLUses, member.guild.vanityURLUses)
-				if (member.guild.vanityURLUses && member.guild.vanityURLUses) {
-					VanityURL = {
-						code: member.guild.vanityURLCode,
-						uses: member.guild.vanityURLUses
-					}
-				} else {
-					try {
-						VanityURL = await member.guild.fetchVanityData();
-						console.log(member.guild.name, "result", VanityURL)
-					} catch (e) {
-						logger.err(member.guild.name, "fetchVanityData failed:", e);
-						// fallback : traiter comme un join normal sans vanity
-						VanityURL = { code: null, uses: 0 };
-					}
-				}
 				logger.debug(member.guild.name, "after if vanity", VanityURL)
 
 				const vanityInviteCache = client.vanityInvites.get(member.guild.id);
