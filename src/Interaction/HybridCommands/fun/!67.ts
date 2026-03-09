@@ -37,7 +37,7 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		await client.func.method.interactionSend(interaction, { content: "https://tenor.com/view/bosnov-67-bosnov-67-67-meme-gif-16727368109953357722" });
+		await client.func.method.interactionSend(interaction, { content: "https://www.ihorizon.org/assets/img/fun/67_command.gif" });
 		return;
 	},
 };
