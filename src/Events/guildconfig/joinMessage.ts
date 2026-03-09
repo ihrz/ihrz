@@ -120,7 +120,7 @@ export const event: BotEvent = {
 
 			const { joinmessage: joinMessage, joinbannerStates: ImageBannerStates, join: wChan, joinbanner: JoinBannerOptions } = (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG`) as DatabaseStructure.GuildConfigSchema);
 
-			logger.debug(joinMessage, joinMessage, JoinBannerOptions, wChan);
+			logger.debug(joinMessage, JoinBannerOptions, wChan, ImageBannerStates, invite?.toJSON());
 
 			const files = [];
 
