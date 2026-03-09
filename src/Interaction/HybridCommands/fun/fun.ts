@@ -433,11 +433,9 @@ export const command: Command = {
 					name: "67",
 					name_localizations: { fr: "67" },
 
-					aliases: ["67"],
-
-					description: "Send a 67 gif (triso 67)",
+					description: "Send a 67 gif",
 					description_localizations: {
-						fr: "SIX SEVENNNN ABJHAZEBHAZEJKHAZHBJ JE MANGE MON CACA" // j'aime mon caca mais le ditent pas svp
+						fr: "envoi un meme 67" 
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
