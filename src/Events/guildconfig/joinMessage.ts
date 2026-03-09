@@ -19,14 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, Client, Collection, Guild, GuildFeature, GuildMember, Invite, PermissionsBitField, SnowflakeUtil, Vanity } from 'discord.js';
+import { AttachmentBuilder, BaseGuildTextChannel, Client, Collection, Guild, GuildFeature, GuildMember, Invite, PermissionsBitField, Vanity } from 'discord.js';
 import { BotEvent } from '../../../types/event.js';
 import { DatabaseStructure } from '../../../types/database_structure.js';
 import { apiTable } from '../client/ready.js';
 
-export async function generateJoinImage(member: GuildMember, optionalOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
+export async function generateJoinImage(member: GuildMember, ImageBannerOptions?: DatabaseStructure.JoinBannerOptions): Promise<AttachmentBuilder> {
 	let htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
-	const ImageBannerOptions = await member.client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbanner`) as DatabaseStructure.JoinBannerOptions | undefined;
 
 	let backgroundURL = member.guild.bannerURL({ size: 512 }) || member.user.bannerURL({ size: 512 }) || ""
 	let profilePictureRound = member.displayHexColor;
@@ -39,31 +38,7 @@ export async function generateJoinImage(member: GuildMember, optionalOptions?: D
 	let textSize = "40px";
 	let avatarSize = "140px"
 
-	if (optionalOptions) {
-		backgroundURL = optionalOptions.backgroundURL;
-		textColour = optionalOptions.textColour;
-		textMessage = optionalOptions.message;
-		textSize = optionalOptions.textSize;
-		avatarSize = optionalOptions.avatarSize;
-
-		if (optionalOptions.profilePictureRound === "status") {
-			switch (member.presence?.status) {
-				case "dnd":
-					profilePictureRound = "#f23f43"
-					break;
-				case "invisible":
-				case "offline":
-					profilePictureRound = "#80848e"
-					break;
-				case "idle":
-					profilePictureRound = "#f0b232"
-					break;
-				case "online":
-					profilePictureRound = "#23a55a"
-					break;
-			}
-		}
-	} else if (ImageBannerOptions) {
+	if (ImageBannerOptions) {
 		backgroundURL = ImageBannerOptions.backgroundURL;
 		textColour = ImageBannerOptions.textColour;
 		textMessage = ImageBannerOptions.message;
@@ -133,125 +108,150 @@ export async function resolveInvite(guild: Guild, oldInvites: Collection<string,
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-		const data = await client.func.getLanguageData(member.guild.id);
+		try {
 
-		if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
+			const data = await client.func.getLanguageData(member.guild.id);
 
-		const guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
-		const oldInvites = client.invites.get(member.guild.id);
-		const invite = await resolveInvite(member.guild, oldInvites);
+			if (!member.guild.members.me?.permissions.has(PermissionsBitField.Flags.ManageGuild)) return;
 
-		const joinMessage = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinmessage`);
-		const wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
-		const ImageBannerStates = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joinbannerStates`) as string | undefined;
+			const guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "en-US";
+			const oldInvites = client.invites.get(member.guild.id);
+			const invite = await resolveInvite(member.guild, oldInvites);
 
-		const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
+			const { joinmessage: joinMessage, joinbannerStates: ImageBannerStates, join: wChan, joinbanner: JoinBannerOptions } = (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG`) as DatabaseStructure.GuildConfigSchema);
 
-		const files = [];
+			const files = [];
 
-		if (ImageBannerStates === "on") {
-			try {
-				files.push(await generateJoinImage(member))
-			} catch (e) {
-				logger.err("Join image error: " + e)
+			if (ImageBannerStates === "on") {
+				try {
+					files.push(await generateJoinImage(member, JoinBannerOptions))
+				} catch (e) {
+					logger.err("Join image error: " + e)
+				}
 			}
-		}
 
-		if (invite) {
-			const inviter = client.users.cache.get(invite.inviterId!) || await client.users.fetch(invite?.inviterId!);
-			client.invites.get(member.guild.id)?.set(invite?.code, invite?.uses);
+			if (invite) {
+				const inviter = client.users.cache.get(invite.inviterId!) || await client.users.fetch(invite?.inviterId!);
+				client.invites.get(member.guild.id)?.set(invite?.code, invite?.uses);
 
-			const check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
+				const check = await client.db.get(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`);
 
-			if (check) {
+				if (check) {
 
-				await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`, 1);
-				await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`, 1);
+					await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`, 1);
+					await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`, 1);
 
-			} else {
+				} else {
 
-				await client.db.set(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`,
+					await client.db.set(`${invite?.guild?.id}.USER.${inviter.id}.INVITES`,
+						{
+							regular: 0, bonus: 0, leaves: 0, invites: 0
+						}
+					);
+
+					await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`, 1);
+					await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`, 1);
+				};
+
+				await client.db.set(`${invite?.guild?.id}.USER.${member.user.id}.INVITES.BY`,
 					{
-						regular: 0, bonus: 0, leaves: 0, invites: 0
+						inviter: inviter.id,
+						invite: invite?.code,
 					}
 				);
 
-				await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`, 1);
-				await client.db.add(`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`, 1);
-			};
+				const invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
+				let isCustomVanity = false; // Is discord.wf link
+				let msg = '';
 
-			await client.db.set(`${invite?.guild?.id}.USER.${member.user.id}.INVITES.BY`,
-				{
-					inviter: inviter.id,
-					invite: invite?.code,
+				if (!wChan) return;
+
+				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
+
+				if (!channel) return;
+
+				const CustomVanityInvite = await apiTable.get(`VANITY.${member.guild.id}`)
+				if (inviter.id === client.user?.id && CustomVanityInvite.invite === invite.code) {
+					isCustomVanity = true;
 				}
-			);
 
-			const invitesAmount = await client.db.get(`${member.guild.id}.USER.${inviter.id}.INVITES.invites`);
-			let isCustomVanity = false; // Is discord.wf link
-			let msg = '';
-
-			if (!wChan || !channel) return;
-
-			const CustomVanityInvite = await apiTable.get(`VANITY.${member.guild.id}`)
-			if (inviter.id === client.user?.id && CustomVanityInvite.invite === invite.code) {
-				isCustomVanity = true;
-			}
-
-			msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_inviter,
-				{
-					user: member.user,
-					guild: member.guild,
-					guildLocal: guildLocal,
-					inviter: {
-						user: {
-							username: (isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username),
-							mention: isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString()
-						},
-						invitesAmount: invitesAmount
-					}
-				}
-			);
-
-			await client.func.method.channelSend(channel, { content: msg, files: files });
-			return;
-
-		} else if (member.guild.features.includes(GuildFeature.VanityURL)) {
-
-			let msg = '';
-			let VanityURL: Vanity;
-
-			if (member.guild.vanityURLUses && member.guild.vanityURLUses) {
-				VanityURL = {
-					code: member.guild.vanityURLCode,
-					uses: member.guild.vanityURLUses
-				}
-			} else {
-				VanityURL = await member.guild.fetchVanityData();
-			}
-
-			const vanityInviteCache = client.vanityInvites.get(member.guild.id);
-
-			client.vanityInvites.set(member.guild.id, VanityURL);
-
-			const wChan = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.join`);
-			const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
-
-			if (!wChan || !channel) return;
-
-			if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
-				msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
+				msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_inviter,
 					{
 						user: member.user,
 						guild: member.guild,
 						guildLocal: guildLocal,
 						inviter: {
 							user: {
-								username: '.gg/' + VanityURL.code,
-								mention: VanityURL.code!
+								username: (isCustomVanity ? ".wf/" + CustomVanityInvite.vanity : inviter.username),
+								mention: isCustomVanity ? "discord.wf/" + CustomVanityInvite.vanity : inviter.toString()
 							},
-							invitesAmount: VanityURL.uses
+							invitesAmount: invitesAmount
 						}
+					}
+				);
+
+				await client.func.method.channelSend(channel, { content: msg, files: files });
+				return;
+
+			} else if (member.guild.features.includes(GuildFeature.VanityURL)) {
+
+				let msg = '';
+				let VanityURL: Vanity;
+
+				if (member.guild.vanityURLUses && member.guild.vanityURLUses) {
+					VanityURL = {
+						code: member.guild.vanityURLCode,
+						uses: member.guild.vanityURLUses
+					}
+				} else {
+					VanityURL = await member.guild.fetchVanityData();
+				}
+
+				const vanityInviteCache = client.vanityInvites.get(member.guild.id);
+
+				client.vanityInvites.set(member.guild.id, VanityURL);
+
+				if (!wChan) return;
+
+				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
+
+				if (!channel) return;
+
+				if (vanityInviteCache && vanityInviteCache.uses! < VanityURL.uses!) {
+					msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
+						{
+							user: member.user,
+							guild: member.guild,
+							guildLocal: guildLocal,
+							inviter: {
+								user: {
+									username: '.gg/' + VanityURL.code,
+									mention: VanityURL.code!
+								},
+								invitesAmount: VanityURL.uses
+							}
+						}
+					);
+
+					await client.func.method.channelSend(channel, { content: msg, files });
+					return;
+				};
+
+			} else {
+
+				let msg = '';
+
+				if (!wChan) return;
+
+				const channel = (member.guild.channels.cache.get(wChan) || await member.guild.channels.fetch(wChan).catch(() => null)) as BaseGuildTextChannel;
+
+				if (!channel) return;
+
+				msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
+					{
+						user: member.user,
+						guild: member.guild,
+						guildLocal: guildLocal,
 					}
 				);
 
@@ -259,22 +259,8 @@ export const event: BotEvent = {
 				return;
 			};
 
-		} else {
-
-			let msg = '';
-			if (!wChan || !channel) return;
-
-			msg = client.func.method.generateCustomMessagePreview(joinMessage || data.event_welcomer_default,
-				{
-					user: member.user,
-					guild: member.guild,
-					guildLocal: guildLocal,
-				}
-			);
-
-			await client.func.method.channelSend(channel, { content: msg, files });
-			return;
-		};
-
+		} catch (error) {
+			logger.err(error)
+		}
 	},
 };
