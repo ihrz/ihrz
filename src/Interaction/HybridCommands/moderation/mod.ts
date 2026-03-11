@@ -164,6 +164,8 @@ export const command: Command = {
 		{
 			name: 'mutelist',
 
+			aliases: ["allmute", "allmutes", "alltimeout", "alltimeouts"],
+
 			description: 'Show a list with all muted member',
 			description_localizations: {
 				"fr": "Affiche une liste des gens mise en sourdine"

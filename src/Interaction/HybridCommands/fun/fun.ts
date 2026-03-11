@@ -430,6 +430,18 @@ export const command: Command = {
 
 			options: [
 				{
+					name: "67",
+					name_localizations: { fr: "67" },
+
+					description: "Send a 67 gif",
+					description_localizations: {
+						fr: "envoi un meme 67" 
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					permission: null
+				},
+				{
 					name: "hack",
 					name_localizations: {
 						fr: "piratage",
