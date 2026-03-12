@@ -48,7 +48,7 @@ echo "If you don't trust this script, you can still open it with any text editor
 echo "After all, no personal information is sent outside of this computer by this script."
 
 # Ask the user if they want to continue
-read -p "DO YOU WANT TO CONTINUE? (y/n): " user_choice
+read -p "DO YOU WANT TO CONTINUE? (y/n): " user_choice < /dev/tty
 
 # Convert to lowercase for consistency
 user_choice=$(echo "$user_choice" | tr '[:upper:]' '[:lower:]')
@@ -171,17 +171,17 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	echo "We will now ask you questions to help you configure and run your bot in an easy and convenient way."
 	
 	# Ask for Discord Bot Token
-	read -p "Enter your Discord Bot Token: " bot_token
+	read -p "Enter your Discord Bot Token: " bot_token < /dev/tty
 
 	# Ask for how many owners the user wants
-	read -p "How many owners do you want to configure? " number_owners
+	read -p "How many owners do you want to configure? " number_owners < /dev/tty
 
 	# Initialize an empty array to hold the owner user IDs
 	owner_user_ids=()
 
 	# Loop through and ask for each owner's user ID
 	for ((i=1; i<=number_owners; i++)); do
-    read -p "Enter the user ID of owner #$i: " owner_id
+    read -p "Enter the user ID of owner #$i: " owner_id < /dev/tty
     owner_user_ids+=("$owner_id")
 	done
 
@@ -189,7 +189,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	owner_user_ids_string="${owner_user_ids_string%,}"
 
 	# Ask if phone presence should be enabled
-	read -p "Do you want to enable phone presence? (y/n): " phone_presence_choice
+	read -p "Do you want to enable phone presence? (y/n): " phone_presence_choice < /dev/tty
 	if [[ "$phone_presence_choice" == "y" || "$phone_presence_choice" == "yes" ]]; then
     phone_presence=true
 	else
@@ -197,29 +197,29 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	fi
 
 	# Ask if they want to enable messageCommandsMention
-	read -p "Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n)" message_commands_mention
-	if [[ "$message_commands_mention" == "y" || "$message_commands_mention" == "yes" ]]; then 
+	read -p "Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n)" < /dev/tty
+	if [["$message_commands_mention" == "y" || "$message_commands_mention" == "yes"]]; then 
 	message_commands_mention=true
 	else
 		message_commands_mention=false
 	fi
 
 	# Ask for the default message command prefix
-	read -p "Enter the default message command prefix (default is '?'): " message_commands_prefix
+	read -p "Enter the default message command prefix (default is '?'): " message_commands_prefix < /dev/tty
 	message_commands_prefix="${message_commands_prefix:-?}"  # Default to '?' if no input is provided
 
 	# Ask if the user wants to set up Lavalink for the music module
-	read -p "Do you want to set up Lavalink to make the music module work? (y/n): " setup_lavalink_choice
+	read -p "Do you want to set up Lavalink to make the music module work? (y/n): " setup_lavalink_choice < /dev/tty
 	setup_lavalink_choice=$(echo "$setup_lavalink_choice" | tr '[:upper:]' '[:lower:]')
 
 	if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
     	# Ask for Lavalink node details
-    	read -p "Enter the Lavalink Node ID (e.g., 'example_node'): " lavalink_node_id
-    	read -p "Enter the Lavalink Node host (e.g., 'lavalink.example.com'): " lavalink_node_host
-    	read -p "Enter the Lavalink Node port (default is 2333): " lavalink_node_port
+    	read -p "Enter the Lavalink Node ID (e.g., 'example_node'): " lavalink_node_id < /dev/tty
+    	read -p "Enter the Lavalink Node host (e.g., 'lavalink.example.com'): " lavalink_node_host < /dev/tty
+    	read -p "Enter the Lavalink Node port (default is 2333): " lavalink_node_port < /dev/tty
     	lavalink_node_port="${lavalink_node_port:-2333}"  # Default to 2333 if no input is provided
-    	read -p "Enter the Lavalink Node password (e.g., 'password'): " lavalink_node_password
-    	read -p "Is the Lavalink Node secure (y/n)? (default is no): " lavalink_secure_choice
+    	read -p "Enter the Lavalink Node password (e.g., 'password'): " lavalink_node_password < /dev/tty
+    	read -p "Is the Lavalink Node secure (y/n)? (default is no): " lavalink_secure_choice < /dev/tty
     	if [[ "$lavalink_secure_choice" == "y" || "$lavalink_secure_choice" == "yes" ]]; then
         	lavalink_secure=true
     	else
@@ -235,7 +235,7 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	fi
 
 	# Ask for devMode (Development Mode)
-	read -p "Do you want to enable development mode (devMode)? (y/n, default is no): " dev_mode_choice
+	read -p "Do you want to enable development mode (devMode)? (y/n, default is no): " dev_mode_choice < /dev/tty
 	dev_mode_choice=$(echo "$dev_mode_choice" | tr '[:upper:]' '[:lower:]')
 	if [[ "$dev_mode_choice" == "y" || "$dev_mode_choice" == "yes" ]]; then
     	dev_mode=true
@@ -244,46 +244,46 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	fi
 
 	# Ask for the image URL for blacklist embeds
-	read -p "Enter the image URL for the blacklist embed (e.g., 'https://website.com/image.png'): " blacklist_picture_url
+	read -p "Enter the image URL for the blacklist embed (e.g., 'https://website.com/image.png'): " blacklist_picture_url < /dev/tty
 
 	# Ask for always100 setting
 	echo "Enter pairs of user IDs that will always have 100% love. (Enter each pair and press Enter, type 'done' when finished):"
 	always100_ids=()
 	while true; do
-    	read -p "User ID #1 (or 'done' to stop): " user_id_one
+    	read -p "User ID #1 (or 'done' to stop): " user_id_one < /dev/tty
     	if [[ "$user_id_one" == "done" ]]; then
         	break
     	fi
-    	read -p "User ID #2: " user_id_two
+    	read -p "User ID #2: " user_id_two < /dev/tty
     	always100_ids+=("${user_id_one}x${user_id_two}")
 	done
 
 	# Ask for the Guild Logs Channel ID
-	read -p "Enter the Discord channel ID for guild logs: " guild_logs_channel_id
+	read -p "Enter the Discord channel ID for guild logs: " guild_logs_channel_id < /dev/tty
 
 	# Ask for the Lavalink Logs Channel ID (optional)
-	read -p "Enter the Discord channel ID for Lavalink logs (leave blank for none): " lavalink_logs_channel_id
+	read -p "Enter the Discord channel ID for Lavalink logs (leave blank for none): " lavalink_logs_channel_id < /dev/tty
 	lavalink_logs_channel_id="${lavalink_logs_channel_id:-""}"
 	
 	# Ask for the Report Channel ID
-	read -p "Enter the Discord channel ID for bug reports: " report_channel_id
+	read -p "Enter the Discord channel ID for bug reports: " report_channel_id < /dev/tty
 
 	# Ask for the API Token
-	read -p "Enter your API token (for secure requests): " api_token
+	read -p "Enter your API token (for secure requests): " api_token < /dev/tty
 
 	# Ask for the Client ID
-	read -p "Enter your Discord Application Client ID: " client_id
+	read -p "Enter your Discord Application Client ID: " client_id < /dev/tty
 
 	# Ask for database method
-	read -p "Do you want to use SQLite or MySQL for the database? (sqlite/mysql, default is sqlite): " db_method_choice
+	read -p "Do you want to use SQLite or MySQL for the database? (sqlite/mysql, default is sqlite): " db_method_choice < /dev/tty
 	db_method_choice=$(echo "${db_method_choice:-sqlite}" | tr '[:upper:]' '[:lower:]')
 
 	if [[ "$db_method_choice" == "mysql" ]]; then
-    	read -p "Enter the MySQL host: " mysql_host
-    	read -p "Enter the MySQL password: " mysql_password
-    	read -p "Enter the MySQL database name: " mysql_database
-    	read -p "Enter the MySQL user: " mysql_user
-    	read -p "Enter the MySQL port (default is 3306): " mysql_port
+    	read -p "Enter the MySQL host: " mysql_host < /dev/tty
+    	read -p "Enter the MySQL password: " mysql_password < /dev/tty
+    	read -p "Enter the MySQL database name: " mysql_database < /dev/tty
+    	read -p "Enter the MySQL user: " mysql_user < /dev/tty
+    	read -p "Enter the MySQL port (default is 3306): " mysql_port < /dev/tty
     	mysql_port="${mysql_port:-3306}"
 	else
     	echo "Using SQLite (default)."
@@ -345,4 +345,4 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	echo "🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉"
 	echo "⚠️  But just one more thing! Execute the following command on your terminal to finish the installation : source ~/.bashrc ⚠️"
 	echo "And after that you will be all set! Thank you for using the iHorizon Provisioning Script!"
-fi	
+fi
