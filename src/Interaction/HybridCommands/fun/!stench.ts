@@ -1,3 +1,4 @@
+
 /*
 ・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
@@ -20,58 +21,35 @@
 */
 
 import {
-	ApplicationCommandOptionType,
+	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionsBitField,
+	EmbedBuilder
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
+import { SubCommand } from '../../../../types/command.js';
 
+export const subCommand: SubCommand = {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 
-export const command: Command = {
-
-	name: 'stench',
-
-	description: 'Show how much stench you are',
-	description_localizations: {
-		"fr": "Affiche au combien tu pue"
-	},
-
-	aliases: ["odeur", "odeurs", "puanteurs", "puanteur", "arf", "pue"],
-
-	options: [
-		{
-			name: "user",
-
-			description: "the user",
-			description_localizations: {
-				"fr": "l'user"
-			},
-
-			type: ApplicationCommandOptionType.User,
-			required: false,
-			permission: null
-		}
-	],
-	thinking: false,
-	category: 'fun',
-	type: "PREFIX_IHORIZON_COMMAND",
-	permission: null,
-	run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
-		if (!interaction.guild) return;
 
 		// Nombre entre 0 et 100
 		const random = Math.floor(Math.random() * 100);
 
 		// Fetch user ou soit mêmea
-		const user = client.func.method.member(interaction, options!, 0) || interaction.member!;
+		const user = interaction instanceof ChatInputCommandInteraction ? interaction.options.getUser("user") :
+			client.func.method.member(interaction, args!, 0) || interaction.member!;
 
-		await interaction.reply({
+		await client.func.method.interactionSend(interaction, {
 			content: lang.fun_stench_command_ok
-				.replace('${user}', user.toString())
+				.replace('${user}', user?.toString() || "")
 				.replace('${random}', random.toString())
 		});
-	},
+	}
 };
