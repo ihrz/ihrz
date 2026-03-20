@@ -1,0 +1,442 @@
+<!-- 
+Anaïs Saraiva's notice:
+
+i used Claude 4.6 Sonnet LLM Model for this entire file
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Twitter / X — Tweet</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		*,
+		*::before,
+		*::after {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		:root {
+			--bg: #000;
+			--surface: #000;
+			--border: #2f3336;
+			--text-primary: #e7e9ea;
+			--text-secondary: #71767b;
+			--blue: #1d9bf0;
+			--blue-hover: rgba(29, 155, 240, 0.1);
+			--green: #00ba7c;
+			--green-hover: rgba(0, 186, 124, 0.1);
+			--red: #f91880;
+			--red-hover: rgba(249, 24, 128, 0.1);
+			--yellow: #ffd400;
+			--yellow-hover: rgba(255, 212, 0, 0.1);
+			--radius: 16px;
+		}
+
+		body {
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			background: var(--bg);
+			color: var(--text-primary);
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 24px;
+		}
+
+		/* ── Card ── */
+		.tweet-card {
+			width: 100%;
+			max-width: 598px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: 12px 16px 4px;
+			background: var(--surface);
+			cursor: pointer;
+			transition: background 0.15s ease;
+			position: relative;
+		}
+
+		.tweet-card:hover {
+			background: #080808;
+		}
+
+		/* ── Layout ── */
+		.tweet-inner {
+			display: flex;
+			gap: 12px;
+		}
+
+		/* ── Left column ── */
+		.col-left {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			flex-shrink: 0;
+		}
+
+		.avatar-wrap {
+			position: relative;
+			width: 40px;
+			height: 40px;
+		}
+
+		.avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			object-fit: cover;
+			display: block;
+			background: #333;
+		}
+
+		/* thread line below avatar */
+		.thread-line {
+			width: 2px;
+			flex: 1;
+			background: var(--border);
+			margin-top: 4px;
+			min-height: 8px;
+		}
+
+		/* ── Right column ── */
+		.col-right {
+			flex: 1;
+			min-width: 0;
+			padding-bottom: 12px;
+		}
+
+		/* ── Header ── */
+		.tweet-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 4px;
+			margin-bottom: 2px;
+		}
+
+		.identity {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 2px 4px;
+			min-width: 0;
+		}
+
+		.display-name {
+			font-size: 15px;
+			font-weight: 700;
+			color: var(--text-primary);
+			white-space: nowrap;
+			display: flex;
+			align-items: center;
+			gap: 4px;
+		}
+
+		/* verified badge */
+		.badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 18px;
+			height: 18px;
+			flex-shrink: 0;
+		}
+
+		.badge svg {
+			width: 18px;
+			height: 18px;
+		}
+
+		.handle {
+			font-size: 15px;
+			font-weight: 400;
+			color: var(--text-secondary);
+			white-space: nowrap;
+		}
+
+		.dot {
+			color: var(--text-secondary);
+			font-size: 15px;
+		}
+
+		.timestamp {
+			font-size: 15px;
+			color: var(--text-secondary);
+			white-space: nowrap;
+		}
+
+		/* more options */
+		.more-btn {
+			background: none;
+			border: none;
+			cursor: pointer;
+			color: var(--text-secondary);
+			padding: 4px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: background 0.15s, color 0.15s;
+			flex-shrink: 0;
+		}
+
+		.more-btn:hover {
+			background: var(--blue-hover);
+			color: var(--blue);
+		}
+
+		/* ── Body ── */
+		.tweet-text {
+			font-size: 15px;
+			line-height: 1.5;
+			color: var(--text-primary);
+			white-space: pre-wrap;
+			word-break: break-word;
+			margin-bottom: 12px;
+		}
+
+		/* hashtags & mentions */
+		.tweet-text .hl {
+			color: var(--blue);
+		}
+
+		/* ── Media ── */
+		.tweet-media {
+			border-radius: 12px;
+			overflow: hidden;
+			border: 1px solid var(--border);
+			margin-bottom: 12px;
+		}
+
+		.tweet-media img {
+			width: 100%;
+			display: block;
+			object-fit: cover;
+			max-height: 320px;
+		}
+
+		/* ── Stats row (views etc.) ── */
+		.tweet-stats {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px 0 4px;
+			border-top: 1px solid var(--border);
+			font-size: 14px;
+			color: var(--text-secondary);
+		}
+
+		.stat-item {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+		}
+
+		.stat-item strong {
+			color: var(--text-primary);
+			font-weight: 700;
+		}
+
+		/* ── Actions ── */
+		.tweet-actions {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 4px 0 0;
+			border-top: 1px solid var(--border);
+			margin-top: 4px;
+		}
+
+		.action-btn {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 8px;
+			border-radius: 9999px;
+			font-size: 13px;
+			font-weight: 400;
+			color: var(--text-secondary);
+			font-family: inherit;
+			transition: color 0.15s, background 0.15s;
+			min-width: 40px;
+		}
+
+		.action-btn svg {
+			flex-shrink: 0;
+		}
+
+		/* Reply */
+		.action-btn.reply:hover {
+			color: var(--blue);
+			background: var(--blue-hover);
+		}
+
+		/* Retweet */
+		.action-btn.retweet:hover {
+			color: var(--green);
+			background: var(--green-hover);
+		}
+
+		/* Like */
+		.action-btn.like:hover {
+			color: var(--red);
+			background: var(--red-hover);
+		}
+
+		/* Views */
+		.action-btn.views:hover {
+			color: var(--blue);
+			background: var(--blue-hover);
+		}
+
+		/* Bookmark */
+		.action-btn.bookmark:hover {
+			color: var(--blue);
+			background: var(--blue-hover);
+		}
+
+		/* Share */
+		.action-btn.share:hover {
+			color: var(--blue);
+			background: var(--blue-hover);
+		}
+
+		.count {
+			font-size: 13px;
+			line-height: 1;
+		}
+
+		/* ── Right-side actions (bookmark + share) ── */
+		.actions-right {
+			display: flex;
+			align-items: center;
+		}
+
+		/* ── Subtle link reset ── */
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+	</style>
+</head>
+
+<body>
+
+	<article class="tweet-card">
+		<div class="tweet-inner">
+
+			<!-- Left: avatar + thread line -->
+			<div class="col-left">
+				<div class="avatar-wrap">
+					<img class="avatar" src="{pfp}" alt="{displayname}"
+						onerror="this.src='https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'">
+				</div>
+				<div class="thread-line"></div>
+			</div>
+
+			<!-- Right: content -->
+			<div class="col-right">
+
+				<!-- Header -->
+				<div class="tweet-header">
+					<div class="identity">
+						<span class="display-name">
+							{displayname}
+							<!-- Verified badge (blue checkmark) -->
+							<span class="badge" title="Verified">
+								<svg viewBox="0 0 22 22" aria-label="Verified account" role="img">
+									<g>
+										<path fill="var(--blue)"
+											d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" />
+									</g>
+								</svg>
+							</span>
+						</span>
+						<span class="handle">{handle}</span>
+						<span class="dot">·</span>
+						<span class="timestamp">{ago}</span>
+					</div>
+					<button class="more-btn" aria-label="More options">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+							<path
+								d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z" />
+						</svg>
+					</button>
+				</div>
+
+				<!-- Tweet text -->
+				<div class="tweet-text">{tweet}</div>
+
+				<!-- Actions -->
+				<div class="tweet-actions">
+
+					<!-- Reply -->
+					<button class="action-btn reply" aria-label="Reply">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+						</svg>
+						<span class="count">{replies}</span>
+					</button>
+
+					<!-- Retweet -->
+					<button class="action-btn retweet" aria-label="Retweet">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+							<path
+								d="M23.77 15.67c-.292-.293-.767-.293-1.06 0l-2.22 2.22V7.65c0-2.068-1.683-3.75-3.75-3.75h-5.85c-.414 0-.75.336-.75.75s.336.75.75.75h5.85c1.24 0 2.25 1.01 2.25 2.25v10.24l-2.22-2.22c-.293-.293-.768-.293-1.06 0s-.294.768 0 1.06l3.5 3.5c.145.147.337.22.53.22s.383-.072.53-.22l3.5-3.5c.294-.292.294-.767 0-1.06zm-10.66 3.28H7.26c-1.24 0-2.25-1.01-2.25-2.25V6.46l2.22 2.22c.148.147.34.22.532.22s.384-.073.53-.22c.293-.293.293-.768 0-1.06l-3.5-3.5c-.293-.294-.768-.294-1.06 0l-3.5 3.5c-.294.292-.294.767 0 1.06s.767.293 1.06 0l2.22-2.22V16.7c0 2.068 1.683 3.75 3.75 3.75h5.85c.414 0 .75-.336.75-.75s-.337-.75-.75-.75z" />
+						</svg>
+						<span class="count">{retweets}</span>
+					</button>
+
+					<!-- Like -->
+					<button class="action-btn like" aria-label="Like">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+							<path
+								d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+						</svg>
+						<span class="count">{likes}</span>
+					</button>
+
+					<!-- Views -->
+					<button class="action-btn views" aria-label="Views">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+							<path
+								d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z" />
+						</svg>
+						<span class="count">{views}</span>
+					</button>
+
+					<!-- Right side: bookmark + share -->
+					<div class="actions-right">
+						<button class="action-btn bookmark" aria-label="Bookmark">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+								stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+							</svg>
+						</button>
+						<button class="action-btn share" aria-label="Share">
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+								<path
+									d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z" />
+							</svg>
+						</button>
+					</div>
+
+				</div><!-- /tweet-actions -->
+			</div><!-- /col-right -->
+		</div><!-- /tweet-inner -->
+	</article>
+
+</body>
+
+</html>
