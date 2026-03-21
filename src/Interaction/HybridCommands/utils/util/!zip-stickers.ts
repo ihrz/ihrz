@@ -105,6 +105,8 @@ export const subCommand: SubCommand = {
 			});
 
 		} catch (error) {
+			logger.debug(error);
+
 			await client.func.method.interactionSend(interaction, {
 				content: lang.zip_stickers_command_error,
 				flags: [1 << 6]
