@@ -25,6 +25,7 @@ import {
 	Client,
 	Message
 } from 'discord.js';
+import JSZip from 'jszip';
 import { LanguageData } from '../../../../../types/languageData.js';
 import { SubCommand } from '../../../../../types/command.js';
 
@@ -57,52 +58,46 @@ export const subCommand: SubCommand = {
 			const response = await fetch(zipAttachment.url);
 			const zipBuffer = await response.arrayBuffer();
 
-			const zip = new Bun.Archive(zipBuffer);
-			const entries = await zip.files();
+			const zip = new JSZip();
+			const zipContents = await zip.loadAsync(zipBuffer);
 
-			const emojis: { name: string; entry: File }[] = [];
+			const emojis: [string, JSZip.JSZipObject][] = [];
 
-			for (const [_, entry] of entries) {
-				const bareFileName = entry.name.split('/').pop() ?? '';
-				const match = bareFileName.match(/^(.+)_(\d+)\.(png|gif)$/);
-				if (!match) continue;
+			Object.entries(zipContents.files)
+				.filter(([filename, file]) => {
+					// Extract just the filename by splitting on '/' and taking the last part
+					const bareFileName = filename.split('/').pop() || '';
 
-				const [, rawName] = match;
+					const match = bareFileName.match(/^(.+)_(\d+)\.(png|gif)$/);
+					if (!match) return false;
 
-				const cleanedName = rawName.replace(/_/g, ' ');
-				const emojiName = cleanedName
-					.replace(/[^\w\s]/g, '')
-					.slice(0, 32);
+					const [, name, id, extension] = match;
+					const cleanedName = name.replace(/_/g, ' ');
+					const emojiName = cleanedName.replace(/[^\w\s]/g, '').slice(0, 32);
 
-				if (
-					interaction.guild.emojis.cache.some(
-						emoji => emoji.name === emojiName
-					)
-				) {
-					continue;
-				}
 
-				emojis.push({ name: emojiName, entry });
-
-				if (emojis.length >= 50) break;
-			}
-
-			const created = await Promise.all(
-				emojis.map(async ({ name, entry }) => {
-					try {
-						const buffer = await entry.arrayBuffer();
-
-						return await interaction.guild!.emojis.create({
-							name,
-							attachment: Buffer.from(buffer)
-						});
-					} catch {
-						return null;
-					}
+					if (interaction.guild!.emojis.cache.some(emoji => emoji.name === emojiName)) return false;
+					emojis.push([emojiName, file]);
+					return true;
 				})
-			);
+				.slice(0, 50);
 
-			const createdEmojis = created.filter(Boolean);
+			const emojiCreationPromises = emojis.map(async ([emojiName, file]) => {
+				const fileBuffer = await file.async('arraybuffer');
+
+				// Create emoji
+				try {
+					const emoji = await interaction.guild!.emojis.create({
+						name: emojiName,
+						attachment: Buffer.from(fileBuffer)
+					});
+					return emoji;
+				} catch (createError) {
+					return null;
+				}
+			});
+
+			const createdEmojis = (await Promise.all(emojiCreationPromises)).filter(emoji => emoji !== null);
 
 			// Respond with results
 			const calcTime = Date.now() - time;

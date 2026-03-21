@@ -27,6 +27,7 @@ import {
 
 import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
+import JSZip from 'jszip';
 
 import { axios } from '../../../core/functions/axios.js';
 
@@ -42,7 +43,7 @@ export const subCommand: SubCommand = {
 		if (!interaction.guild) return;
 
 		const emojis = interaction.guild.emojis.cache;
-		let files: Bun.ArchiveInput = {};
+		const zip = new JSZip();
 
 		try {
 			// Download and add all emojis to the zip
@@ -59,7 +60,7 @@ export const subCommand: SubCommand = {
 						responseType: 'arrayBuffer'
 					});
 
-					files[emojiName] = Buffer.from(response.data)
+					zip.file(emojiName, Buffer.from(response.data));
 				} catch {
 					// Silently handle individual emoji errors
 				}
@@ -67,13 +68,14 @@ export const subCommand: SubCommand = {
 
 			// Wait for all downloads to complete
 			await Promise.all(downloadPromises);
-			const zip = new Bun.Archive(files, {
-				compress: 'gzip',
-				level: 9
-			})
 
-			let archiveBuffer = Buffer.from(await zip.bytes())
-
+			const archiveBuffer = await zip.generateAsync({
+				type: 'nodebuffer',
+				compression: 'DEFLATE',
+				compressionOptions: {
+					level: 9
+				}
+			});
 			// Calculate time taken
 			const calcTime = Date.now() - time;
 
