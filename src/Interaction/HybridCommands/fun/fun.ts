@@ -435,7 +435,7 @@ export const command: Command = {
 
 					description: "Send a 67 gif",
 					description_localizations: {
-						fr: "envoi un meme 67" 
+						fr: "envoi un meme 67"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -860,6 +860,119 @@ export const command: Command = {
 
 					type: ApplicationCommandOptionType.Subcommand,
 					permission: null
+				},
+				{
+
+					name: 'gay',
+
+					description: 'Show how gay you are',
+					description_localizations: {
+						"fr": "Affiche au combien tu es gay"
+					},
+
+					options: [
+						{
+							name: "user",
+
+							description: "the user",
+							description_localizations: {
+								"fr": "l'user"
+							},
+
+							type: ApplicationCommandOptionType.User,
+							required: false,
+							permission: null
+						}
+					],
+					thinking: false,
+					type: ApplicationCommandOptionType.Subcommand,
+					permission: null,
+				},
+				{
+
+					name: 'rate',
+
+					description: 'Let me rate the followed subject',
+					description_localizations: {
+						"fr": "Affiche au combien tu pue"
+					},
+
+					aliases: ["note"],
+
+					options: [
+						{
+							name: "the_things",
+
+							description: "the_things",
+							description_localizations: {
+								"fr": "la chose"
+							},
+
+							type: ApplicationCommandOptionType.String,
+							required: true,
+							permission: null
+						}
+					],
+					thinking: false,
+					type: ApplicationCommandOptionType.Subcommand,
+					permission: null,
+				},
+				{
+
+
+					name: 'trans',
+
+					description: 'Show how trans you are',
+					description_localizations: {
+						"fr": "Affiche au combien tu es trans"
+					},
+
+					options: [
+						{
+							name: "user",
+
+							description: "the user",
+							description_localizations: {
+								"fr": "l'user"
+							},
+
+							type: ApplicationCommandOptionType.User,
+							required: false,
+							permission: null
+						}
+					],
+					thinking: false,
+					type: ApplicationCommandOptionType.Subcommand,
+					permission: null,
+				},
+				{
+
+					name: 'stench',
+
+					description: 'Show how much stench you are',
+					description_localizations: {
+						"fr": "Affiche au combien tu pue"
+					},
+
+					aliases: ["odeur", "odeurs", "puanteurs", "puanteur", "arf", "pue"],
+
+					options: [
+						{
+							name: "user",
+
+							description: "the user",
+							description_localizations: {
+								"fr": "l'user"
+							},
+
+							type: ApplicationCommandOptionType.User,
+							required: false,
+							permission: null
+						}
+					],
+					thinking: false,
+					type: ApplicationCommandOptionType.Subcommand,
+					permission: null,
 				}
 			],
 

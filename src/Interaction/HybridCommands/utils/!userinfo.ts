@@ -110,6 +110,34 @@ export const subCommand: SubCommand = {
 			},
 		};
 
+		const platformStatusEmojis: Record<string, Record<string, string>> = {
+			desktop: {
+				online: client.iHorizon_Emojis.Desktop_Online,
+				idle: client.iHorizon_Emojis.Desktop_Idle,
+				dnd: client.iHorizon_Emojis.Desktop_Dnd,
+			},
+			mobile: {
+				online: client.iHorizon_Emojis.Mobile_Online,
+				idle: client.iHorizon_Emojis.Mobile_Idle,
+				dnd: client.iHorizon_Emojis.Mobile_Dnd,
+			},
+			web: {
+				online: client.iHorizon_Emojis.Web_Online,
+				idle: client.iHorizon_Emojis.Web_Idle,
+				dnd: client.iHorizon_Emojis.Web_Dnd,
+			},
+			embedded: {
+				online: client.iHorizon_Emojis.Embedded_Online,
+				idle: client.iHorizon_Emojis.Embedded_Idle,
+				dnd: client.iHorizon_Emojis.Embedded_Dnd,
+			},
+			vr: {
+				online: client.iHorizon_Emojis.Vr_Online,
+				idle: client.iHorizon_Emojis.Vr_Idle,
+				dnd: client.iHorizon_Emojis.Vr_Dnd,
+			},
+		};
+
 		function getBadges(flags: number): string {
 			const badgeValues = Object.values(badges);
 			return badgeValues
@@ -117,6 +145,23 @@ export const subCommand: SubCommand = {
 				.map(badge => badge.Emoji)
 				.join('');
 		};
+
+		function getPlatformBadges(userId: string): string {
+			const presence = interaction.guild?.presences.cache.get(userId);
+			if (!presence) return '';
+
+			// clientStatus = { desktop?: 'online'|'idle'|'dnd', mobile?: ..., web?: ... }
+			const clientStatus = presence.clientStatus;
+			if (!clientStatus) return '';
+
+			return Object.entries(clientStatus)
+				.map(([platform, status]) => {
+					const platformEmojis = platformStatusEmojis[platform];
+					if (!platformEmojis) return '';
+					return platformEmojis[status as string] ?? '';
+				})
+				.join('');
+		}
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getUser('user') || interaction.user;
@@ -149,6 +194,9 @@ export const subCommand: SubCommand = {
 			let badges = getBadges(member.flags?.bitfield!);
 			const nitro = await GetNitro();
 			badges += nitro.badge;
+
+			const platformBadges = getPlatformBadges(user.id);
+			badges += platformBadges;
 
 			const embed = new EmbedBuilder()
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))

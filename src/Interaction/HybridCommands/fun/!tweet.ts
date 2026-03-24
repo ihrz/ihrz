@@ -28,7 +28,6 @@ import {
 	User,
 } from 'discord.js'
 
-import { AxiosResponse, axios } from '../../../core/functions/axios.js';
 import { LanguageData } from '../../../../types/languageData.js';
 
 import { sanitizing } from '../../../core/functions/sanitizer.js';
@@ -58,35 +57,45 @@ export const subCommand: SubCommand = {
 			return;
 		};
 
-		let username = user.username;
-		let displayname = user.globalName;
+		let username = user.globalName || user.displayName || user.username;
 
-		if (username.length > 15) {
+		if (username && username.length > 15) {
 			username = username.substring(0, 15);
 		};
 
-		if (displayname && displayname.length > 15) {
-			displayname = displayname.substring(0, 15);
-		};
+		const randomLikes = Math.floor(Math.random() * (90_000 - 1 + 1)) + 1;
+		const randomRetweets = Math.floor(Math.random() * (50_000 - 1 + 1)) + 1;
+		const randomReplies = Math.floor(Math.random() * (10_000 - 1 + 1)) + 1;
+		const randomViews = Math.floor(Math.random() * (500_000 - 1_000 + 1)) + 1_000;
 
-		if (username.length > 15) {
-			username = username.substring(0, 15);
-		};
+		let code = client.htmlfiles["twitterCommentCard"]
+			.replaceAll("{tweet}", sanitizing(messageArgs.join(' ')))
+			.replaceAll("{ago}", "2h")
+			.replaceAll("{pfp}", user.displayAvatarURL({ extension: 'png', size: 1024 }))
+			.replaceAll("{displayname}", sanitizing(username))
+			.replaceAll("{handle}", `@${sanitizing(user.username)}`)
+			.replaceAll("{likes}", client.func.numberBeautifuer(randomLikes))
+			.replaceAll("{retweets}", client.func.numberBeautifuer(randomRetweets))
+			.replaceAll("{replies}", client.func.numberBeautifuer(randomReplies))
+			.replaceAll("{views}", client.func.numberBeautifuer(randomViews));
 
-		const link = `https://some-random-api.com/canvas/misc/tweet?avatar=${encodeURIComponent((user.displayAvatarURL({ extension: 'png', size: 1024 })))}&username=${encodeURIComponent(sanitizing(username.toLowerCase()))}&comment=${encodeURIComponent(sanitizing(messageArgs.join(' ')))}&displayname=${encodeURIComponent(sanitizing(displayname || username))}`;
+		const img = await client.func.html2png(code, {
+			omitBackground: true,
+			selectElement: true,
+			elementSelector: ".tweet-card",
+			width: 1200,
+			height: 500,
+			scaleSize: 3,
+		});
 
 		const embed = new EmbedBuilder()
-			.setColor("#010101")
-			.setImage('attachment://tweet.png')
+			.setColor("#000000")
+			.setImage('attachment://twitter.png')
 			.setTimestamp()
 			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
 
-		let imgs: AttachmentBuilder;
-
-		await axios.get(link, { responseType: 'arrayBuffer' }).then((response: AxiosResponse) => {
-			imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'tweet.png' });
-			embed.setImage(`attachment://tweet.png`);
-		});
+		let imgs = new AttachmentBuilder(img, { name: 'twitter.png' });
+		embed.setImage(`attachment://twitter.png`);
 
 		await client.func.method.interactionSend(interaction, { embeds: [embed], files: [imgs!, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
 		return;

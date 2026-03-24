@@ -265,6 +265,14 @@ bun start
 
 <table>
 <tr>
+		<td align="center" width="33%">
+			<img src="https://github.com/Kisakay.png" width="100px" style="border-radius:50%" /><br />
+			<b>Kisakay</b><br />
+			<i>Creator & Lead Developer</i><br />
+			<sub>She/Her</sub><br />
+			<a href="https://gitlab.com/Kisakay">GitLab</a> / 
+			<a href="https://github.com/Kisakay">GitHub</a>
+		</td>
   <td align="center" width="33%">
     <img src="https://github.com/veryuhq.png" width="100px" style="border-radius:50%"/><br/>
     <b>Ether</b><br/>
@@ -306,14 +314,6 @@ Past developers and contributors who have helped make iHorizon what it is today.
 
 <table>
 	<tr>
-		<td align="center" width="33%">
-			<img src="https://github.com/Kisakay.png" width="100px" style="border-radius:50%" /><br />
-			<b>Kisakay</b><br />
-			<i>Creator & Former Lead Developer</i><br />
-			<sub>She/Her</sub><br />
-			<a href="https://gitlab.com/Kisakay">GitLab</a> / 
-			<a href="https://github.com/Kisakay">GitHub</a>
-		</td>
         <td align="center" width="33%">
 			<img src="https://github.com/irisihrz.png" width="100px" style="border-radius:50%" /><br />
 			<b>IrisWeb</b><br />

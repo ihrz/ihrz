@@ -37,6 +37,6 @@ export const command: Command = {
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
 	run: async (client: Client, interaction: Message, lang: LanguageData, args?: string[]) => {
-		await interaction.reply({ content: "kly ( @bonnefoi ) le plus beau" })
+		await interaction.reply({ content: "kly ( @hjcbebcbknckehcbckb ) le plus beau" })
 	}
 };

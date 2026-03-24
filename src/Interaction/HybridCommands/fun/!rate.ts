@@ -20,56 +20,35 @@
 */
 
 import {
-	ApplicationCommandOptionType,
+	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionsBitField,
+	EmbedBuilder
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
+import { SubCommand } from '../../../../types/command.js';
+
 import maskLink from '../../../core/functions/maskLink.js';
 
-
-export const command: Command = {
-
-	name: 'rate',
-
-	description: 'Let me rate the followed subject',
-	description_localizations: {
-		"fr": "Affiche au combien tu pue"
-	},
-
-	aliases: ["odeur", "odeurs", "puanteurs", "puanteur", "arf", "pue"],
-
-	options: [
-		{
-			name: "the_things",
-
-			description: "the_things",
-			description_localizations: {
-				"fr": "la chose"
-			},
-
-			type: ApplicationCommandOptionType.String,
-			required: true,
-			permission: null
-		}
-	],
-	thinking: false,
-	category: 'fun',
-	type: "PREFIX_IHORIZON_COMMAND",
-	permission: null,
-	run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
-		if (!interaction.guild) return;
+export const subCommand: SubCommand = {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 
 		// Nombre entre 0 et 10
 		const random = Math.floor(Math.random() * 10);
 
-		// Fetch user ou soit mêmea
-		const the_things = maskLink(client.func.method.longString(options!, 0) || "nothing");
+		const string = interaction instanceof ChatInputCommandInteraction ? interaction.options.getString("the_things") :
+			client.func.method.longString(args!, 0);
 
-		await interaction.reply({
+		// Fetch user ou soit mêmea
+		const the_things = maskLink(string || "nothing");
+
+		await client.func.method.interactionSend(interaction, {
 			content: lang.fun_rate_command_ok
 				.replace('${the_things}', the_things)
 				.replace('${random}', random.toString()),
@@ -80,5 +59,5 @@ export const command: Command = {
 				parse: []
 			}
 		});
-	},
+	}
 };
