@@ -30,6 +30,7 @@ import {
 	ChatInputCommandInteraction,
 	Message,
 	UserContextMenuCommandInteraction,
+	GuildMember,
 } from 'discord.js';
 
 import { axios } from '../../../core/functions/axios.js';
@@ -163,6 +164,14 @@ export const subCommand: SubCommand = {
 				.join('');
 		}
 
+		function getServerBadges(member: GuildMember): string {
+			let str = ''
+			if (member.guild.roles.premiumSubscriberRole && member.roles.cache.has(member.guild.roles.premiumSubscriberRole?.id)) str += client.iHorizon_Emojis.Server_Booster;
+			if (member.guild && member.guild.ownerId === member.user.id) str += client.iHorizon_Emojis.Crown;
+
+			return str;
+		}
+
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getUser('user') || interaction.user;
 		} else if (interaction instanceof UserContextMenuCommandInteraction) {
@@ -197,6 +206,12 @@ export const subCommand: SubCommand = {
 
 			const platformBadges = getPlatformBadges(user.id);
 			badges += platformBadges;
+
+			let guildMember = interaction.guild?.members.cache.get(user.id);
+			if (guildMember) {
+				const serverBadges = getServerBadges(guildMember);
+				badges += serverBadges;
+			}
 
 			const embed = new EmbedBuilder()
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
