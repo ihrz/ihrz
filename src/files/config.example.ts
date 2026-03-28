@@ -117,8 +117,6 @@ const config: ConfigData = {
 		apiToken: "The API token",
 		// Optional. The API token is for secure requests. Please put a strong token. It needs to be private for security reasons.
 
-		clientID: "The client ID of your application",
-		// The client ID of the Discord Application. This can be found in the Discord Developer Portal of your bot.
 	},
 
 	console: {
