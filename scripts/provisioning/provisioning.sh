@@ -271,9 +271,6 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	# Ask for the API Token
 	read -p "Enter your API token (for secure requests): " api_token < /dev/tty
 
-	# Ask for the Client ID
-	read -p "Enter your Discord Application Client ID: " client_id < /dev/tty
-
 	# Ask for database method
 	read -p "Do you want to use SQLite or MySQL for the database? (sqlite/mysql, default is sqlite): " db_method_choice < /dev/tty
 	db_method_choice=$(echo "${db_method_choice:-sqlite}" | tr '[:upper:]' '[:lower:]')
@@ -308,7 +305,6 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 	sed -i "s|lavalinkLogsChannelID: \"\"|lavalinkLogsChannelID: \"$lavalink_logs_channel_id\"|g" src/files/config.ts
 	sed -i "s|reportChannelID: \"The Discord Channel ID for logs when bugs are reported\"|reportChannelID: \"$report_channel_id\"|g" src/files/config.ts
 	sed -i "s|apiToken: \"The API token\"|apiToken: \"$api_token\"|g" src/files/config.ts
-	sed -i "s|clientID: \"The client ID of your application\"|clientID: \"$client_id\"|g" src/files/config.ts
 	sed -i "s|users: \\[\"User ID\", \"User ID\"\\]|users: [$owner_user_ids_string]|g" src/files/config.ts
     sed -i "s|devMode: true|devMode: $dev_mode|g" src/files/config.ts
     sed -i "s|blacklistPictureInEmbed: \"A .png URL\"|blacklistPictureInEmbed: \"$blacklist_picture_url\"|g" src/files/config.ts
