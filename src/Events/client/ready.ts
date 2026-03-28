@@ -73,7 +73,7 @@ export const event: BotEvent = {
 		scheduleTable = await db.table("schedule");
 		metasTable = await db.table("metas");
 
-		await client.emojisManager.startSync();
+		if (client.isMainShard()) await client.emojisManager.startSync();
 
 		async function fetchInvites() {
 
@@ -268,7 +268,7 @@ export const event: BotEvent = {
 		await client.email.init(true);
 
 		setInterval(quotesPresence, 120_000), setInterval(refreshSchedule, 50_000), setInterval(() => recoverCustomVoiceChannels(client), 120_000)
-		if (client.shard?.ids[0] === 0) setInterval(refreshBotData, 45_000);
+		if (client.isMainShard()) setInterval(refreshBotData, 45_000);
 
 		fetchInvites(), refreshDatabaseModel(), quotesPresence(), refreshSchedule(), refreshBotData(), statsRefresher();
 
@@ -295,7 +295,7 @@ export const event: BotEvent = {
 			}), null, 4))
 		}
 
-		if (client.config.database?.method.includes("horizon") && client.version.env === "production" && client.shard?.ids[0] === 0) {
+		if (client.config.database?.method.includes("horizon") && client.version.env === "production" && client.isMainShard()) {
 			setInterval(async () => {
 				try {
 					await metasTable.set("LAST_WRITE", Date.now());
