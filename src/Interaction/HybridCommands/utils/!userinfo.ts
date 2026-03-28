@@ -178,6 +178,25 @@ export const subCommand: SubCommand = {
 			return (result?.data || {})?.[userId] ? true : false;
 		}
 
+		async function getEquiboAndOthersData(userId: string): Promise<string> {
+			let badges = new Set<string>();
+			let result = await axios.get(`https://badges.equicord.org/${userId}`, { timeout: 4000 }).catch(() => null);
+			if (result?.status !== 200) return '';
+
+			if (result.data && result.data?.["badges"] && Array.isArray(result.data?.["badges"])) {
+				let badgesData = result.data?.["badges"];
+				let serverMaps = (badgesData.map(x => x?.["badge"]) as string[]);
+
+				for (let links of serverMaps) {
+					if (links.includes("badge.equicord.org")) {
+						badges.add(client.iHorizon_Emojis.Equicord_Donator);
+					}
+				}
+			};
+
+			return badges.values().toArray().join("");
+		}
+
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getUser('user') || interaction.user;
 		} else if (interaction instanceof UserContextMenuCommandInteraction) {
@@ -221,6 +240,9 @@ export const subCommand: SubCommand = {
 
 			const isVencordDonator = await getVencordDonator(user.id);
 			if (isVencordDonator) badges += client.iHorizon_Emojis.Vencord_Donator;
+
+			const donatorOrSomeProject = await getEquiboAndOthersData(user.id);
+			badges += donatorOrSomeProject;
 
 			const embed = new EmbedBuilder()
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
