@@ -175,7 +175,6 @@ export const subCommand: SubCommand = {
 		async function getVencordDonator(userId: string): Promise<boolean> {
 			let result = await axios.get("https://badges.vencord.dev/badges.json");
 			if (result.status !== 200) return false;
-			console.log((result?.data || {})?.[userId])
 			return (result?.data || {})?.[userId] ? true : false;
 		}
 
