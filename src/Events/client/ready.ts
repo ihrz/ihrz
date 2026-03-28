@@ -73,7 +73,7 @@ export const event: BotEvent = {
 		scheduleTable = await db.table("schedule");
 		metasTable = await db.table("metas");
 
-		if (client.isMainShard()) await client.emojisManager.startSync();
+		await client.emojisManager.startSync();
 
 		async function fetchInvites() {
 
