@@ -172,6 +172,13 @@ export const subCommand: SubCommand = {
 			return str;
 		}
 
+		async function getVencordDonator(userId: string): Promise<boolean> {
+			let result = await axios.get("https://badges.vencord.dev/badges.json");
+			if (result.status !== 200) return false;
+			console.log((result?.data || {})?.[userId])
+			return (result?.data || {})?.[userId] ? true : false;
+		}
+
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getUser('user') || interaction.user;
 		} else if (interaction instanceof UserContextMenuCommandInteraction) {
@@ -212,6 +219,9 @@ export const subCommand: SubCommand = {
 				const serverBadges = getServerBadges(guildMember);
 				badges += serverBadges;
 			}
+
+			const isVencordDonator = await getVencordDonator(user.id);
+			if (isVencordDonator) badges += client.iHorizon_Emojis.Vencord_Donator;
 
 			const embed = new EmbedBuilder()
 				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
