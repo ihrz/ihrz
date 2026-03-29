@@ -173,14 +173,14 @@ export const subCommand: SubCommand = {
 		}
 
 		async function getVencordDonator(userId: string): Promise<boolean> {
-			let result = await axios.get("https://badges.vencord.dev/badges.json", { timeout: 4000 }).catch(() => null);
+			let result = await axios.get("https://badges.vencord.dev/badges.json", { timeout: 833 }).catch(() => null);
 			if (result?.status !== 200) return false;
 			return (result?.data || {})?.[userId] ? true : false;
 		}
 
 		async function getEquiboAndOthersData(userId: string): Promise<string> {
 			let badges = new Set<string>();
-			let result = await axios.get(`https://badges.equicord.org/${userId}`, { timeout: 4000 }).catch(() => null);
+			let result = await axios.get(`https://badges.equicord.org/${userId}`, { timeout: 833 }).catch(() => null);
 			if (result?.status !== 200) return '';
 
 			if (result.data && result.data?.["badges"] && Array.isArray(result.data?.["badges"])) {
