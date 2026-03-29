@@ -19,8 +19,6 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { isNumber } from "./method.ts";
-
 interface AxiosResponse<T = any> {
 	data: T;
 	status: number;
