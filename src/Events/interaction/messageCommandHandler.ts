@@ -147,7 +147,9 @@ async function executeCommand(
 	const fetchFullCommandName = message.client.content.find(c => c.desc === command.description);
 
 	const permCheck = await message.client.func.permissonsCalculator.checkCommandPermission(message, fetchFullCommandName?.cmd!);
-	if (!permCheck.allowed && permCheck.permissionData.level !== 0) return message.client.func.permissonsCalculator.sendErrorMessage(message, lang, permCheck.permissionData);
+	if (!permCheck.allowed && message.client.func.permissonsCalculator.hasCommandPermissionRequirements(permCheck.permissionData)) {
+		return message.client.func.permissonsCalculator.sendErrorMessage(message, lang, permCheck.permissionData);
+	}
 
 	// for format like: "+utils" without subcommand behind
 	if (!command?.run) {

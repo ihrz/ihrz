@@ -30,7 +30,34 @@ import { LanguageData } from "../../../types/languageData.js";
 export type command = {
 	users: string[];
 	roles: string[];
-	level: number;
+	level: DatabaseStructure.PermCommandLevel;
+}
+
+function normalizeCommandPermissionData(
+	cmdPermData?: Partial<command> | null
+): command {
+	const users = cmdPermData?.users ?? [];
+	const roles = cmdPermData?.roles ?? [];
+	const hasCustomTargets = users.length > 0 || roles.length > 0;
+	const level = cmdPermData?.level ?? (hasCustomTargets ? null : 0);
+
+	return {
+		users,
+		roles,
+		level: level === 0 && hasCustomTargets ? null : level
+	};
+}
+
+export function hasCommandPermissionRequirements(
+	permissionData: command | null | undefined
+): boolean {
+	if (!permissionData) {
+		return false;
+	}
+
+	return permissionData.users.length > 0
+		|| permissionData.roles.length > 0
+		|| ((permissionData.level ?? 0) > 0);
 }
 
 export async function checkCommandPermission(
@@ -48,11 +75,7 @@ export async function checkCommandPermission(
 	if (!guildPerm) {
 		return {
 			allowed: false,
-			permissionData: {
-				users: [],
-				roles: [],
-				level: 0
-			}
+			permissionData: normalizeCommandPermissionData()
 		};
 	}
 
@@ -92,23 +115,17 @@ function getCmdPermData(command: string, guildPerm: DatabaseStructure.UtilsData)
 
 	// Convert legacy number format to new format
 	if (typeof cmdPermData === "number") {
-		cmdPermData = {
-			users: [],
-			roles: [],
+		cmdPermData = normalizeCommandPermissionData({
 			level: cmdPermData
-		};
+		});
 	}
 
 	// Default permission data if none exists
 	if (!cmdPermData) {
-		cmdPermData = {
-			users: [],
-			roles: [],
-			level: 0
-		};
+		cmdPermData = normalizeCommandPermissionData();
 	}
 
-	return cmdPermData;
+	return normalizeCommandPermissionData(cmdPermData);
 }
 
 // Check if user is explicitly allowed
@@ -118,7 +135,7 @@ function checkExplicitUserPermission(userId: string, cmdPermData: command): bool
 	}
 
 	// Special case: if users are specified but level is 0, check if user is in the list
-	if (cmdPermData.users.length > 0 && cmdPermData.level === 0) {
+	if (cmdPermData.users.length > 0 && (cmdPermData.level === 0 || cmdPermData.level === null)) {
 		return cmdPermData.users.includes(userId);
 	}
 
@@ -131,7 +148,7 @@ function checkRoleHierarchy(
 	guildPerm: DatabaseStructure.UtilsData,
 	cmdPermData: command
 ): boolean {
-	if (!member || !guildPerm.roles || cmdPermData.level === 0) {
+	if (!member || !guildPerm.roles || !cmdPermData.level) {
 		return false;
 	}
 
@@ -161,7 +178,7 @@ function checkExplicitRolePermission(
 	const hasAllowedRole = cmdPermData.roles.some(roleId => member.roles.cache.has(roleId));
 
 	// Special case: if roles are specified but level is 0, only these roles have access
-	if (cmdPermData.roles.length > 0 && cmdPermData.level === 0) {
+	if (cmdPermData.roles.length > 0 && (cmdPermData.level === 0 || cmdPermData.level === null)) {
 		return hasAllowedRole;
 	}
 
@@ -174,7 +191,7 @@ function checkUserPermLevel(
 	guildPerm: DatabaseStructure.UtilsData,
 	cmdPermData: command
 ): boolean {
-	if (cmdPermData.level === 0) {
+	if (!cmdPermData.level) {
 		return false;
 	}
 
@@ -203,7 +220,7 @@ export async function sendErrorMessage(
 		const hasRoles = permissionData.roles.length > 0;
 		const hasUsers = permissionData.users.length > 0;
 
-		(permissionData.level > 0) ? neededPerm += `\`${permissionData.level}\` \n` : "";
+		((permissionData.level ?? 0) > 0) ? neededPerm += `\`${permissionData.level}\` \n` : "";
 		(hasRoles) ? neededPerm += `${lang.var_roles}: ${permissionData.roles.map(x => `<@&${x}>`).join(", ")} \n` : "";
 		(hasUsers) ? neededPerm += `${lang.var_member}: ${hasRoles ? " / " : ""}${permissionData.users.map(x => `<@${x}>`).join(", ")} \n` : "";
 	} else {

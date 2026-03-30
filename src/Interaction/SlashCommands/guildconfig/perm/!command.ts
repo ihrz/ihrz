@@ -36,6 +36,34 @@ import { Command, SubCommand } from '../../../../../types/command.js';
 import { DatabaseStructure } from '../../../../../types/database_structure.js';
 import { Option } from '../../../../../types/option.js';
 
+function normalizePermissionData(
+	permData?: Partial<DatabaseStructure.PermCommandData> | null
+): DatabaseStructure.PermCommandData {
+	const users = permData?.users ?? [];
+	const roles = permData?.roles ?? [];
+	const hasCustomTargets = users.length > 0 || roles.length > 0;
+	const level = permData?.level ?? (hasCustomTargets ? null : 0);
+
+	return {
+		users,
+		roles,
+		level: level === 0 && hasCustomTargets ? null : level
+	};
+}
+
+function hasPermissionRequirements(permData: DatabaseStructure.PermCommandData): boolean {
+	return permData.users.length > 0
+		|| permData.roles.length > 0
+		|| ((permData.level ?? 0) > 0);
+}
+
+function formatPermissionLevel(
+	level: DatabaseStructure.PermCommandLevel,
+	lang: LanguageData
+): string {
+	return level === null ? lang.var_none : level.toString();
+}
+
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
@@ -78,11 +106,7 @@ export const subCommand: SubCommand = {
 			) as DatabaseStructure.PermCommandData | DatabaseStructure.PermLevel | undefined;
 
 			// Initialize new permission structure
-			let newPerms: DatabaseStructure.PermCommandData = {
-				users: [],
-				roles: [],
-				level: 0 as DatabaseStructure.PermLevel
-			};
+			let newPerms = normalizePermissionData();
 
 			const commandType = commandParts.length === 1 ? lang.var_command :
 				commandParts.length === 2 ? lang.var_subcommand : lang.var_subcommand_group;
@@ -92,7 +116,7 @@ export const subCommand: SubCommand = {
 				if (typeof existingPerms === 'number') {
 					newPerms.level = existingPerms;
 				} else {
-					newPerms = existingPerms;
+					newPerms = normalizePermissionData(existingPerms);
 				}
 			}
 
@@ -100,10 +124,14 @@ export const subCommand: SubCommand = {
 
 			// Check for permission level changes
 			if (perms) {
-				const permLevel = parseInt(perms) as DatabaseStructure.PermLevel;
-				if (permLevel !== newPerms.level) {
-					changes.push(`${lang.perm_set_chng_perm_lvl}: ${newPerms.level} ➡️ ${permLevel}`);
-					newPerms.level = permLevel;
+				const permLevel = parseInt(perms);
+				const normalizedLevel = permLevel === 0 ? null : permLevel as DatabaseStructure.PermLevel;
+
+				if (normalizedLevel !== newPerms.level) {
+					changes.push(
+						`${lang.perm_set_chng_perm_lvl}: ${formatPermissionLevel(newPerms.level, lang)} ➡️ ${formatPermissionLevel(normalizedLevel, lang)}`
+					);
+					newPerms.level = normalizedLevel;
 				}
 			}
 
@@ -131,8 +159,10 @@ export const subCommand: SubCommand = {
 				}
 			}
 
+			newPerms = normalizePermissionData(newPerms);
+
 			// Save the updated permissions to the database
-			if (perms === "0" && newPerms.users.length === 0 && newPerms.roles.length === 0) {
+			if (!hasPermissionRequirements(newPerms)) {
 				// If all permissions are cleared, delete the entry from the database
 				await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${requestedCommand}`);
 
@@ -174,21 +204,24 @@ export const subCommand: SubCommand = {
 					}
 					groupedByLevel[permData].push(`\`${commandName}\``);
 				} else {
-					if (permData.level > 0) {
-						if (!groupedByLevel[permData.level]) {
-							groupedByLevel[permData.level] = [];
+					const normalizedPermData = normalizePermissionData(permData);
+					const permLevel = normalizedPermData.level;
+
+					if (permLevel && permLevel > 0) {
+						if (!groupedByLevel[permLevel]) {
+							groupedByLevel[permLevel] = [];
 						}
-						groupedByLevel[permData.level].push(`\`${commandName}\``);
+						groupedByLevel[permLevel].push(`\`${commandName}\``);
 					}
 
-					permData.roles.forEach(roleId => {
+					normalizedPermData.roles.forEach(roleId => {
 						if (!groupedByRole[roleId]) {
 							groupedByRole[roleId] = [];
 						}
 						groupedByRole[roleId].push(commandName);
 					});
 
-					permData.users.forEach(userId => {
+					normalizedPermData.users.forEach(userId => {
 						if (!groupedByUser[userId]) {
 							groupedByUser[userId] = [];
 						}
@@ -378,9 +411,10 @@ export const subCommand: SubCommand = {
 							changes.push(`- ${commandName} (${lang.var_level}: ${permData})\n`);
 						}
 					} else {
-						if (permData.level === parseInt(perms)) {
+						const normalizedPermData = normalizePermissionData(permData);
+						if (normalizedPermData.level === parseInt(perms)) {
 							await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${commandName}`);
-							changes.push(`- ${commandName} (${lang.var_level}: ${permData.level})\n`);
+							changes.push(`- ${commandName} (${lang.var_level}: ${normalizedPermData.level})\n`);
 						}
 					}
 				}
@@ -389,10 +423,16 @@ export const subCommand: SubCommand = {
 			if (customRole) {
 				for (const [commandName, permData] of Object.entries(existingPerms)) {
 					if (typeof permData !== 'number') {
-						const roleIndex = permData.roles.indexOf(customRole.id);
+						const normalizedPermData = normalizePermissionData(permData);
+						const roleIndex = normalizedPermData.roles.indexOf(customRole.id);
 						if (roleIndex !== -1) {
-							permData.roles.splice(roleIndex, 1);
-							await client.db.set(`${interaction.guildId}.UTILS.PERMS.${commandName}`, permData);
+							normalizedPermData.roles.splice(roleIndex, 1);
+							const nextPermData = normalizePermissionData(normalizedPermData);
+							if (!hasPermissionRequirements(nextPermData)) {
+								await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${commandName}`);
+							} else {
+								await client.db.set(`${interaction.guildId}.UTILS.PERMS.${commandName}`, nextPermData);
+							}
 							changes.push(`- ${commandName} (${lang.var_roles}: @${customRole.name})\n`);
 						}
 					}
@@ -402,10 +442,16 @@ export const subCommand: SubCommand = {
 			if (customUser) {
 				for (const [commandName, permData] of Object.entries(existingPerms)) {
 					if (typeof permData !== 'number') {
-						const userIndex = permData.users.indexOf(customUser.id);
+						const normalizedPermData = normalizePermissionData(permData);
+						const userIndex = normalizedPermData.users.indexOf(customUser.id);
 						if (userIndex !== -1) {
-							permData.users.splice(userIndex, 1);
-							await client.db.set(`${interaction.guildId}.UTILS.PERMS.${commandName}`, permData);
+							normalizedPermData.users.splice(userIndex, 1);
+							const nextPermData = normalizePermissionData(normalizedPermData);
+							if (!hasPermissionRequirements(nextPermData)) {
+								await client.db.delete(`${interaction.guildId}.UTILS.PERMS.${commandName}`);
+							} else {
+								await client.db.set(`${interaction.guildId}.UTILS.PERMS.${commandName}`, nextPermData);
+							}
 							changes.push(`- ${commandName} (${lang.var_user}: ${customUser.id})\n`);
 						}
 					}

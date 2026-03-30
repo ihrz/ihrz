@@ -70,6 +70,7 @@ declare namespace Client_Functions {
 
 	// From permissonsCalculator.ts
 	export namespace permissonsCalculator {
+		export function hasCommandPermissionRequirements(permissionData: command | null | undefined): boolean;
 		export function checkCommandPermission(
 			interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
 			command: string
@@ -78,7 +79,7 @@ declare namespace Client_Functions {
 		export function sendErrorMessage(
 			interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
 			lang: LanguageData,
-			permissionData: { users: string[]; roles: string[]; level: number; }
+			permissionData: { users: string[]; roles: string[]; level: DatabaseStructure.PermCommandLevel; }
 		): Promise<Message<boolean>>;
 		export function getPermissionByValue(value: bigint | Array<bigint>): PermissionValue | Array<PermissionValue> | null;
 	}

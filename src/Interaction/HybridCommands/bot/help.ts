@@ -163,8 +163,10 @@ async function handleCategorySelect(
 		}
 
 		if (commandStates) {
-			if (commandStates.level > 0) {
-				states = `${client.iHorizon_Emojis.Lock} ${commandStates.level}`;
+			const permissionLevel = commandStates.level ?? 0;
+
+			if (permissionLevel > 0) {
+				states = `${client.iHorizon_Emojis.Lock} ${permissionLevel}`;
 			} else {
 				states = `${client.iHorizon_Emojis.Unlock}`;
 			}

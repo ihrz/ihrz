@@ -46,18 +46,18 @@ export const subCommand: SubCommand = {
 			await client.db.delete(`${interaction.guildId}.BOT.botPFP`);
 			await client.func.method.interactionSend(interaction, { content: lang.custom_avatar_reset });
 
-			const fileBuffer = (await axios.get(client.user.avatarURL({ size: 4096, extension: "jpeg" })!, { responseType: "arrayBuffer" })).data;
+			const fileBuffer = (await axios.get(client.user.avatarURL({ size: 4096, extension: "png" })!, { responseType: "arrayBuffer" })).data;
 			const buffer = Buffer.from(fileBuffer);
 			const base64String = buffer.toString('base64');
 
-			await client.func.customProfileHelper.changeGuildBotAvatar(interaction.guild, `data:image/jpeg;base64,${base64String}`)
+			await client.func.customProfileHelper.changeGuildBotAvatar(interaction.guild, `data:image/png;base64,${base64String}`)
 			return;
 		} else if (avatar && client.func.validImageType(avatar.contentType)) {
 
 			const fileBuffer = (await axios.get(avatar.url!, { responseType: "arrayBuffer" })).data;
 			const buffer = Buffer.from(fileBuffer);
 			const base64String = buffer.toString('base64');
-			await client.func.customProfileHelper.changeGuildBotAvatar(interaction.guild, `data:image/jpeg;base64,${base64String}`);
+			await client.func.customProfileHelper.changeGuildBotAvatar(interaction.guild, `data:image/png;base64,${base64String}`);
 
 			let x = interaction.guild.members.me?.avatarURL({ size: 4096 });
 
