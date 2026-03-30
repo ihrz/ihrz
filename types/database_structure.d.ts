@@ -433,11 +433,12 @@ export namespace DatabaseStructure {
 
 	export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 	export type PermNone = 0;
+	export type PermCommandLevel = PermLevel | PermNone | null;
 
 	export type PermCommandData = {
 		users: string[];
 		roles: string[];
-		level: PermLevel;
+		level: PermCommandLevel;
 	}
 
 	export interface UtilsPermsData {

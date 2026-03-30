@@ -48,7 +48,9 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 
 		if (subCmd && subCmd.run) {
 			const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
-			if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
+			if (!permCheck.allowed && client.func.permissonsCalculator.hasCommandPermissionRequirements(permCheck.permissionData)) {
+				return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
+			}
 
 			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
 				await interaction.deferReply({ flags: subCmd.ephemeral ? [1 << 6] : [0] });
@@ -86,7 +88,9 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 
 		if (subCmd && subCmd.run) {
 			const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
-			if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
+			if (!permCheck.allowed && client.func.permissonsCalculator.hasCommandPermissionRequirements(permCheck.permissionData)) {
+				return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
+			}
 
 			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
 				await interaction.deferReply({ flags: subCmd.ephemeral ? [1 << 6] : [0] });
@@ -124,7 +128,9 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 	}
 
 	const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, interaction.commandName);
-	if (!permCheck.allowed && permCheck.permissionData.level !== 0) return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
+	if (!permCheck.allowed && client.func.permissonsCalculator.hasCommandPermissionRequirements(permCheck.permissionData)) {
+		return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
+	}
 
 	if (command.permission && !interaction.member!.permissions.has(command.permission) && !permCheck.allowed) {
 		const perm = getPermissionByValue(command.permission);

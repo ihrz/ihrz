@@ -78,8 +78,11 @@ declare namespace Client_Functions {
 		export function sendErrorMessage(
 			interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
 			lang: LanguageData,
-			permissionData: { users: string[]; roles: string[]; level: number; }
+			permissionData: { users: string[]; roles: string[]; level: DatabaseStructure.PermCommandLevel; }
 		): Promise<Message<boolean>>;
+		export function hasCommandPermissionRequirements(
+			permissionData: { users: string[]; roles: string[]; level: DatabaseStructure.PermCommandLevel; } | null | undefined
+		): boolean;
 		export function getPermissionByValue(value: bigint | Array<bigint>): PermissionValue | Array<PermissionValue> | null;
 	}
 
