@@ -109,6 +109,10 @@ export const subCommand: SubCommand = {
 				Value: 524288,
 				Emoji: client.iHorizon_Emojis.Slash_Bot_Badge,
 			},
+			Verified_App: {
+				Value: 1 << 16,
+				Emoji: `${client.iHorizon_Emojis.Verified_App_1}${client.iHorizon_Emojis.Verified_App_2}${client.iHorizon_Emojis.Verified_App_3}`
+			}
 		};
 
 		const platformStatusEmojis: Record<string, Record<string, string>> = {
@@ -228,6 +232,8 @@ export const subCommand: SubCommand = {
 			let badges = getBadges(member.flags?.bitfield!);
 			const nitro = await GetNitro();
 			badges += nitro.badge;
+
+			if (member.bot && !badges.includes("Verified_App")) badges += `${client.iHorizon_Emojis.App_1}${client.iHorizon_Emojis.App_2}`;
 
 			const platformBadges = getPlatformBadges(user.id);
 			badges += platformBadges;
