@@ -2360,7 +2360,7 @@ tempvoice_staff_desc_embed: "## TempVoice Staff Role\nRoles here can now enter i
 
 # /confession channel
 confession_channel_command_work: "The confession panel has been sent to ${channel?.toString()}"
-confession_channel_panel_embed_desc: "# **Anonymous Confessions**\n\nClick the button below to open the confession form. You can write what you need to confess. If you wish, you can choose to make your confession private.\n\n## **Make a Confession**\n\n*Note: To make your confession private, write the corresponding option in the form.*"
+confession_channel_panel_embed_desc: "# **Anonymous Confessions**\n\nClick the button below to open the confession form. You can write what you need to confess. If you wish, you can choose to make your confession private.\nKeep in mind that confessions may not remain anonymous—server owners or anyone with access to confession logs can identify users if logging is enabled.\n\n## **Make a Confession**\n\n*Note: To make your confession private, write the corresponding option in the form.*"
 confession_channel_log_embed_title: "SetChannel Confession Module"
 confession_channel_log_embed_desc: "${interaction.user} has set the channel to ${channel}"
 
