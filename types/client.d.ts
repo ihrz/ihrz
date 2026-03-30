@@ -92,6 +92,9 @@ declare module 'discord.js' {
 		backup: typeof backup;
 		// IN SHARD
 		inShard: (guildId: string) => boolean;
+		isMainShard: () => boolean;
+		// END OF SHARD FUNCS
+
 		discordTranscripts: typeof discordTranscripts;
 		blogger: BloggerNotifier;
 		email: Mailer;

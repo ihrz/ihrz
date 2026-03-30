@@ -77,6 +77,9 @@ client.inShard = function (guildId: string): boolean {
 	}
 	return guildShard === shardId;
 }
+client.isMainShard = function (): boolean {
+	return client.shard?.ids[0] === 0;
+}
 
 client.version = ClientVersion
 client.config = config;

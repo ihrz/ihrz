@@ -59,6 +59,10 @@ class AxiosClass {
 			body: data ? JSON.stringify(data) : undefined,
 		};
 
+		if (timeout) {
+			options["signal"] = AbortSignal.timeout(timeout)
+		}
+
 		if (responseType === 'arrayBuffer' || responseType === 'arraybuffer') {
 			if (!options.headers) options.headers = {};
 			(options.headers as Record<string, string>)['Accept'] = 'application/octet-stream';

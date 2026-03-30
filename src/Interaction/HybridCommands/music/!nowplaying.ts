@@ -143,7 +143,7 @@ export const subCommand: SubCommand = {
 					.setTitle(`**${player.queue.current?.info.title}**, ${player.queue.current?.info?.author}`)
 					.setURL(player.queue.current?.info?.uri || "")
 					.setDescription(`by: ${(player.queue.current?.requester as User).toString()}`)
-					.setColor("#6fa8dc")
+					.setColor(dominant_color.color1 as ColorResolvable || "#6fa8dc")
 					.setImage("attachment://nowplaying.png")
 
 				response.edit({

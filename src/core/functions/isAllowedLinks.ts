@@ -24,7 +24,7 @@ import * as url from 'url';
 const allowedDomains: string[] = [
 	'open.spotify.com', 'play.spotify.com', 'spotify.com',
 	'www.spotify.com', 'www.deezer.com', 'deezer.com',
-	'soundcloud.com', 'www.soundcloud.com', 'on.soundcloud.com',
+	'soundcloud.com', 'www.soundcloud.com', 'on.soundcloud.com', 'm.soundcloud.com',
 	'music.apple.com', 'www.music.apple.com',
 	'www.napster.com', 'napster.com', 'us.napster.com',
 	'music.apple.com', 'www.music.apple.com',

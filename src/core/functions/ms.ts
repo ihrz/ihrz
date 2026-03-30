@@ -131,11 +131,12 @@ class iHorizonTimeCalculator {
 			{ unit: 'h', factor: 3600000, longName: 'hour', shortName: lang ? lang.var_h : 'h' },
 			{ unit: 'm', factor: 60000, longName: 'minute', shortName: lang ? lang.var_m : 'm' },
 			{ unit: 's', factor: 1000, longName: 'second', shortName: lang ? lang.var_s : 's' },
+			{ unit: 'ms', factor: 1, longName: 'millisecond', shortName: 'ms' }, // ← ajout
 		];
 
 		let result = '';
 		for (const { unit, factor, longName, shortName } of timeUnits) {
-			if (milliseconds >= factor || unit === 'ms') {
+			if (milliseconds >= factor) {
 				const value = Math.floor(milliseconds / factor);
 				result += `${value}${longFormat ? ' ' + longName + (value > 1 ? 's' : '') : shortName}`;
 				milliseconds %= factor;

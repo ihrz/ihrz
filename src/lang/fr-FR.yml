@@ -2357,7 +2357,7 @@ tempvoice_staff_desc_embed: "## Rôle du staff TempVoice\nLes rôles ici peuvent
 
 # /confession channel
 confession_channel_command_work: "Le panneau de confession a été envoyé à ${channel?.toString()}"
-confession_channel_panel_embed_desc: "# **Confessions Anonymes**\n\nCliquez sur le bouton ci-dessous pour ouvrir le formulaire de confession. Vous pouvez écrire ce que vous avez besoin de confesser. Si vous le souhaitez, vous pouvez choisir de rendre votre confession privée.\n\n## **Faire une Confession**\n\n*Remarque : Pour rendre votre confession privée, écrivez l'option correspondante dans le formulaire.*"
+confession_channel_panel_embed_desc: "# **Confessions Anonymes**\n\nCliquez sur le bouton ci-dessous pour ouvrir le formulaire de confession. Vous pouvez écrire ce que vous avez besoin de confesser. Si vous le souhaitez, vous pouvez choisir de rendre votre confession privée.\nGardez à l’esprit que les confessions peuvent ne pas rester anonymes : les propriétaires du serveur ou toute personne ayant accès aux journaux de confessions peuvent identifier les utilisateurs si ces journaux sont activés.\n\n## **Faire une Confession**\n\n*Remarque : Pour rendre votre confession privée, écrivez l'option correspondante dans le formulaire.*"
 confession_channel_log_embed_title: "Module SetChannel Confession"
 confession_channel_log_embed_desc: "${interaction.user} a défini le canal sur ${channel}"
 
