@@ -112,6 +112,10 @@ export const subCommand: SubCommand = {
 			Verified_App: {
 				Value: 1 << 16,
 				Emoji: `${client.iHorizon_Emojis.Verified_App_1}${client.iHorizon_Emojis.Verified_App_2}${client.iHorizon_Emojis.Verified_App_3}`
+			},
+			Uses_Automod: {
+				Value: 1 << 6,
+				Emoji: client.iHorizon_Emojis.Uses_Automod_Badge
 			}
 		};
 
@@ -201,6 +205,14 @@ export const subCommand: SubCommand = {
 			return badges.values().toArray().join("");
 		}
 
+		function getSelfBadges(flags: number): string {
+			const badgeValues = Object.values(badges);
+			return badgeValues
+				.filter(badge => (flags & badge.Value) === badge.Value)
+				.map(badge => badge.Emoji)
+				.join('');
+		}
+
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getUser('user') || interaction.user;
 		} else if (interaction instanceof UserContextMenuCommandInteraction) {
@@ -234,6 +246,8 @@ export const subCommand: SubCommand = {
 			badges += nitro.badge;
 
 			if (member.bot && !badges.includes("Verified_App")) badges += `${client.iHorizon_Emojis.App_1}${client.iHorizon_Emojis.App_2}`;
+
+			if (member.id === client.user?.id) badges += getSelfBadges(client.application?.flags.bitfield!);
 
 			const platformBadges = getPlatformBadges(user.id);
 			badges += platformBadges;
