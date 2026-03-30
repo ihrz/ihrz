@@ -105,18 +105,26 @@ export const subCommand: SubCommand = {
 				Value: 262144,
 				Emoji: client.iHorizon_Emojis.Discord_Moderators_Badg,
 			},
-			Slash_Bot: {
-				Value: 524288,
-				Emoji: client.iHorizon_Emojis.Slash_Bot_Badge,
-			},
 			Verified_App: {
 				Value: 1 << 16,
 				Emoji: `${client.iHorizon_Emojis.Verified_App_1}${client.iHorizon_Emojis.Verified_App_2}${client.iHorizon_Emojis.Verified_App_3}`
 			},
+		};
+
+		const botBadges: {
+			[key: string]: {
+				Value: number;
+				Emoji: string;
+			}
+		} = {
 			Uses_Automod: {
 				Value: 1 << 6,
 				Emoji: client.iHorizon_Emojis.Uses_Automod_Badge
-			}
+			},
+			Slash_Bot: {
+				Value: 524288,
+				Emoji: client.iHorizon_Emojis.Slash_Bot_Badge,
+			},
 		};
 
 		const platformStatusEmojis: Record<string, Record<string, string>> = {
@@ -206,7 +214,7 @@ export const subCommand: SubCommand = {
 		}
 
 		function getSelfBadges(flags: number): string {
-			const badgeValues = Object.values(badges);
+			const badgeValues = Object.values(botBadges);
 			return badgeValues
 				.filter(badge => (flags & badge.Value) === badge.Value)
 				.map(badge => badge.Emoji)
