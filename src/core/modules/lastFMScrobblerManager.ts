@@ -119,6 +119,10 @@ export class LastFMScrobblerManager {
 			enabled,
 		} satisfies DatabaseStructure.LastFMUserSchema);
 
+		if (!enabled) {
+			this.removeUserFromActiveSessions(userId);
+		}
+
 		return { ok: true };
 	}
 
@@ -499,6 +503,18 @@ export class LastFMScrobblerManager {
 			enabled: false,
 			username: settings.username
 		} satisfies DatabaseStructure.LastFMUserSchema);
+
+		this.removeUserFromActiveSessions(userId);
+	}
+
+	private removeUserFromActiveSessions(userId: string): void {
+		for (const session of this.guildSessions.values()) {
+			const listener = session.listeners.get(userId);
+			if (!listener) continue;
+
+			this.clearListenerTimeout(listener);
+			session.listeners.delete(userId);
+		}
 	}
 
 	private isInvalidSessionError(response: LastFMApiResponse): boolean {
