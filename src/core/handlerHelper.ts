@@ -32,6 +32,10 @@ import path from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const emojisFile = Bun.file(path.join(process.cwd(), 'src', 'files', 'emojis.json'));
+const emojisFilesExist = await emojisFile.exists();
+const emojisJson = emojisFilesExist ? await emojisFile.json() : null;
+
 export async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
 	const result = [];
 	const dir = await opendir(path);
@@ -66,23 +70,23 @@ export function buildPaths(basePath: string, directoryTree: (string | object)[])
 	return paths;
 };
 
-export function resolveCategoryInitializer(client: Client, category: Category): Category {
+export function resolveCategoryInitializer(category: Category): Category {
 	return {
 		...category,
 		options: {
 			...category.options,
-			emoji: resolveCategoryTemplate(client, category.options.emoji)
+			emoji: resolveCategoryTemplate(category.options.emoji)
 		}
 	};
 }
 
-function resolveCategoryTemplate(client: Client, value: string): string {
+function resolveCategoryTemplate(value: string): string {
 	const match = value.match(/^\$\{client\.iHorizon_Emojis\.([A-Za-z0-9_]+)\}$/);
 
-	if (!match) {
+	if (!match || !emojisFilesExist) {
 		return value;
 	}
 
-	const emojiKey = match[1] as keyof typeof client.iHorizon_Emojis;
-	return client.iHorizon_Emojis[emojiKey] || value;
+	const emojiKey = match[1] as keyof typeof emojisJson;
+	return emojisJson?.[emojiKey] || value;
 }

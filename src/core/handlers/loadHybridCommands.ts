@@ -117,7 +117,7 @@ export default async function loadCommands(client: Client, path: string = p): Pr
 			}
 
 		} else if (module?.default?.categoryInitializer) {
-			client.category.push(resolveCategoryInitializer(client, module.default.categoryInitializer));
+			client.category.push(resolveCategoryInitializer(module.default.categoryInitializer));
 		};
 	};
 
