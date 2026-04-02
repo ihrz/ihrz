@@ -11,7 +11,8 @@
 		"type:lang": "bun run tools/LangsChecker-Tools.ts --type 2",
 		"check:licence": "bun run tools/Licence_Workspace_Checker.ts",
 		"check:lines": "bun run tools/Lines_Count.ts",
-		"check:lc": "bun run check:lines"
+		"check:lc": "bun run check:lines",
+		"dev": "echo \"Enjoy dev <3\" && bun run src/core/bot.ts"
 	},
 	"repository": {
 		"type": "git",

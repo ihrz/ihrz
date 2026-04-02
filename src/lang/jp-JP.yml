@@ -601,6 +601,8 @@ help_starboard_dsc: "> *Discordサーバーで最もスターを獲得したメ�
 help_starboard_fields: "スター掲示板"
 help_blogger_dsc: "お気に入りのRSSフィードをフォローし、iHorizonを通じて新しい記事が公開されたときに通知を受け取ります"
 help_blogger_fields: "ブロガー"
+help_lastfm_dsc: "> *Last.fm アカウントを接続し、ボイスチャンネルにいる間 iHorizon が再生する曲を自動で scrobble します。*"
+help_lastfm_fields: "LastFM Scrobbler"
 
 # /h
 h_suite: "(続き)"
