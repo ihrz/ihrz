@@ -21,14 +21,20 @@
 
 import { join as pathJoin } from "node:path";
 import { opendir } from "fs/promises";
+import { Client } from "discord.js";
 
 import { EltType } from "../../types/eltType.js";
+import { Category } from "../../types/category.js";
 
 import { fileURLToPath } from 'url';
 import path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const emojisFile = Bun.file(path.join(process.cwd(), 'src', 'files', 'emojis.json'));
+const emojisFilesExist = await emojisFile.exists();
+const emojisJson = emojisFilesExist ? await emojisFile.json() : null;
 
 export async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
 	const result = [];
@@ -63,3 +69,24 @@ export function buildPaths(basePath: string, directoryTree: (string | object)[])
 	}
 	return paths;
 };
+
+export function resolveCategoryInitializer(category: Category): Category {
+	return {
+		...category,
+		options: {
+			...category.options,
+			emoji: resolveCategoryTemplate(category.options.emoji)
+		}
+	};
+}
+
+function resolveCategoryTemplate(value: string): string {
+	const match = value.match(/^\$\{client\.iHorizon_Emojis\.([A-Za-z0-9_]+)\}$/);
+
+	if (!match || !emojisFilesExist) {
+		return value;
+	}
+
+	const emojiKey = match[1] as keyof typeof emojisJson;
+	return emojisJson?.[emojiKey] || value;
+}

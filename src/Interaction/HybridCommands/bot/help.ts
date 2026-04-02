@@ -375,7 +375,7 @@ export const command: Command = {
 						.setLabel(lang.help_back_to_menu)
 						.setDescription(lang.help_back_to_menu_desc)
 						.setValue("back")
-						.setEmoji("⬅️")
+						.setEmoji(client.iHorizon_Emojis.Home)
 				);
 
 				const categoriesCalc = categories.slice(i * categoriesPerMenu, (i + 1) * categoriesPerMenu);

@@ -601,6 +601,8 @@ help_starboard_dsc: "> *عرض أكثر الرسائل حصولاً على نج�
 help_starboard_fields: "لوحة النجوم"
 help_blogger_dsc: "تابع موجزات RSS المفضلة لديك وتلقَّ الإشعارات عند نشر مقالات جديدة عبر iHorizon"
 help_blogger_fields: "المدونة"
+help_lastfm_dsc: "> *اربط حساب Last.fm الخاص بك واعمل scrobble تلقائيًا للمقاطع التي يشغلها iHorizon طالما أنك باقٍ في القناة الصوتية.*"
+help_lastfm_fields: "LastFM Scrobbler"
 
 # /h
 h_suite: "(تتمة)"

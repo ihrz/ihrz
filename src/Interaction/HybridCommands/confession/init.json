@@ -4,7 +4,7 @@
 		"categoryColor": "#d193a7",
 		"options": {
 			"description": "help_confession_dsc",
-			"emoji": "😶",
+			"emoji": "${client.iHorizon_Emojis.Guilty}",
 			"placeholder": "help_confession_fields"
 		}
 	}
