@@ -601,6 +601,8 @@ help_starboard_dsc: "> *Посмотреть самые отмеченные з�
 help_starboard_fields: "StarBoard"
 help_blogger_dsc: "Подписывайтесь на любимые RSS-ленты и получайте уведомления, когда через iHorizon публикуются новые статьи"
 help_blogger_fields: "Блогер"
+help_lastfm_dsc: "> *Подключите свой аккаунт Last.fm и автоматически скробблите треки, которые воспроизводит iHorizon, пока вы находитесь в голосовом канале.*"
+help_lastfm_fields: "LastFM Scrobbler"
 
 # /h
 h_suite: "(Продолжение)"

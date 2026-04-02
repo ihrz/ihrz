@@ -601,6 +601,8 @@ help_starboard_dsc: "> *Guarda i messaggi più stellati di un server Discord.*"
 help_starboard_fields: "StarBoard"
 help_blogger_dsc: "Segui i tuoi feed RSS preferiti e ricevi notifiche quando vengono pubblicati nuovi articoli tramite iHorizon"
 help_blogger_fields: "Blogger"
+help_lastfm_dsc: "> *Collega il tuo account Last.fm e fai scrobble automatico delle tracce riprodotte da iHorizon finché rimani nel canale vocale.*"
+help_lastfm_fields: "Scrobbler LastFM"
 
 # /h
 h_suite: "(Continua)"

@@ -601,6 +601,8 @@ help_starboard_dsc: "> *Sieh dir die meistbewerteten Nachrichten auf einem Disco
 help_starboard_fields: "StarBoard"
 help_blogger_dsc: "Folge deinen bevorzugten RSS-Feeds und erhalte Benachrichtigungen, wenn über iHorizon neue Artikel veröffentlicht werden"
 help_blogger_fields: "Blogger"
+help_lastfm_dsc: "> *Verbinde dein Last.fm-Konto und scrobble automatisch die von iHorizon abgespielten Titel, solange du im Sprachkanal bleibst.*"
+help_lastfm_fields: "LastFM Scrobbler"
 
 # /h
 h_suite: "(Fortsetzung)"
