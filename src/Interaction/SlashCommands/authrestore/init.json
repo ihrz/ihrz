@@ -4,7 +4,7 @@
 		"categoryColor": "#a9e1e6",
 		"options": {
 			"description": "help_authrestore_dsc",
-			"emoji": "😍",
+			"emoji": "${client.iHorizon_Emojis.Restore}",
 			"placeholder": "help_authrestore_fields"
 		}
 	}
