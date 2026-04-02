@@ -105,6 +105,7 @@ export default async (client: Client) => {
 		});
 
 		await client.func.method.changeVoiceChannelStatus(player.voiceChannelId!, `:musical_note: ${track?.info.title} - ${track?.info.author}`)
+		await client.lastFMScrobbler.handleTrackStart(player, track);
 	});
 
 	// ts spam the chat lol
@@ -117,8 +118,21 @@ export default async (client: Client) => {
 		// 	content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
 		// });
 		await client.func.method.changeVoiceChannelStatus(player.voiceChannelId!, ``)
+		await client.lastFMScrobbler.handleQueueEnd(player);
 
 		return;
+	});
+
+	client.player.on("trackEnd", async (player, track, payload) => {
+		await client.lastFMScrobbler.handleTrackEnd(player, track, payload.reason);
+	});
+
+	client.player.on("playerMove", async (player, oldVoiceChannelId, newVoiceChannelId) => {
+		await client.lastFMScrobbler.handlePlayerMove(player, newVoiceChannelId);
+	});
+
+	client.player.on("playerUpdate", async (oldPlayerJson, newPlayer) => {
+		await client.lastFMScrobbler.handlePlayerUpdate(oldPlayerJson, newPlayer);
 	});
 
 	client.player.nodeManager.on("disconnect", (node, reason) => {

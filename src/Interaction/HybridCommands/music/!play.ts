@@ -67,6 +67,15 @@ export const subCommand: SubCommand = {
 			return client.func.method.interactionSend(interaction, { content: lang.p_not_allowed })
 		};
 
+		const isUrlQuery = (() => {
+			try {
+				new URL(query);
+				return true;
+			} catch {
+				return false;
+			}
+		})();
+
 		let res: SearchResult | undefined;
 		let node;
 
@@ -81,6 +90,32 @@ export const subCommand: SubCommand = {
 					res = await _node?.search({ query: `${trackInfo.title} ${trackInfo.author}`, source: 'deezer' }, interaction.member.user);
 				} else {
 					res = undefined;
+				}
+			} else if (isUrlQuery) {
+				try {
+					res = await _node?.search({ query, source: 'deezer' }, interaction.member.user);
+					logger.debug("Searching URL", query, "with", "deezer", "| Result: ", res.tracks[0]?.info);
+				} catch {
+					res = undefined;
+				}
+
+				// If the query is an URL, trust provider results and fallback only when no track was found.
+				if (!res?.tracks[0]) {
+					try {
+						res = await _node?.search({ query, source: 'spotify' }, interaction.member.user);
+						logger.debug("Searching URL", query, "with", "spotify", "| Result: ", res.tracks[0]?.info);
+					} catch {
+						res = undefined;
+					}
+				}
+
+				if (!res?.tracks[0]) {
+					try {
+						res = await _node?.search({ query, source: 'soundcloud' }, interaction.member.user);
+						logger.debug("Searching URL", query, "with", "soundcloud", "| Result: ", res.tracks[0]?.info);
+					} catch {
+						res = undefined;
+					}
 				}
 			} else {
 				try {

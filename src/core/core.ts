@@ -56,6 +56,7 @@ import { BloggerNotifier } from './Blogger.js';
 import { TemproleManager } from './modules/tempRoleManager.js';
 import { TempbanManager } from './modules/tempbanManager.js';
 import { Mailer } from './Mailer.js';
+import { LastFMScrobblerManager } from './modules/lastFMScrobblerManager.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -123,6 +124,7 @@ export async function main(client: Client) {
 	client.temproleManager = new TemproleManager();
 	client.tempbanManager = new TempbanManager();
 	client.email = new Mailer();
+	client.lastFMScrobbler = new LastFMScrobblerManager();
 
 	process.on('SIGINT', async () => {
 		await client.destroy();
