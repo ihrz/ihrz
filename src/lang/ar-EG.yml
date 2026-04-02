@@ -2508,6 +2508,20 @@ blogger_blog_add_success: "✅ تم إضافة موجز RSS **${validation.name}
 blogger_blog_add_invalid_rss: "❌ موجز RSS المقدم غير صالح أو غير قابل للوصول. يرجى التحقق من الرابط والمحاولة مرة أخرى."
 blogger_blog_remove_success: "✅ تم إزالة موجز RSS بالمعرف `${blogId}`."
 blogger_blog_remove_not_found: "❌ لم يتم العثور على موجز RSS بهذا المعرف."
+lastfm_module_not_configured: "${client.iHorizon_Emojis.No} | وحدة Last.fm غير مُعدّة على البوت. أضف `lastfm.apiKey` و `lastfm.sharedSecret` إلى الإعدادات أو عيّن `LASTFM_API_KEY` و `LASTFM_SHARED_SECRET`."
+lastfm_config_login_required: "${client.iHorizon_Emojis.No} | يجب عليك استخدام `/lastfm login` قبل تفعيل الوحدة."
+lastfm_config_enabled: "${client.iHorizon_Emojis.Yes} | تم الآن تفعيل scrobbling الخاص بـ Last.fm لحسابك."
+lastfm_config_disabled: "${client.iHorizon_Emojis.Yes} | تم الآن تعطيل scrobbling الخاص بـ Last.fm لحسابك."
+lastfm_login_invalid_session: "${client.iHorizon_Emojis.No} | لم يُرجع Last.fm جلسة صالحة."
+lastfm_login_success: "${client.iHorizon_Emojis.Yes} | تم الآن ربط حساب Last.fm الخاص بك `${username}` وتم تفعيل scrobbling."
+lastfm_embed_title: "إعداد Last.fm لـ ${userLabel}"
+lastfm_embed_field_status: "الحالة"
+lastfm_embed_field_account: "الحساب المتصل"
+lastfm_embed_field_connected_at: "تاريخ الاتصال"
+lastfm_api_error_login: "${client.iHorizon_Emojis.No} | تعذر الاتصال بـ Last.fm: ${error}"
+lastfm_api_error_nowplaying: "${client.iHorizon_Emojis.No} | تعذر إرسال Now Playing إلى Last.fm: ${error}"
+lastfm_api_error_scrobble: "${client.iHorizon_Emojis.No} | تعذر scrobble هذه الأغنية: ${error}"
+lastfm_api_error_unknown: "خطأ غير معروف"
 
 # وحدة AuthRestore
 # دور، إعداد، حذف، الحصول على، الانضمام القسري

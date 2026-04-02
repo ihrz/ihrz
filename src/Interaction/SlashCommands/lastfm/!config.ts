@@ -31,35 +31,29 @@ export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<'cached'>, lang: LanguageData) => {
 		if (!interaction.user) return;
 
-		const isFrench = (interaction.locale || interaction.guildLocale || '').toLowerCase().startsWith('fr');
 		const power = interaction.options.getString('power', true) as 'on' | 'off';
 		const enabled = power === 'on';
 
 		if (enabled && !client.lastFMScrobbler.isConfigured()) {
 			return client.func.method.interactionSend(interaction, {
-				content: client.lastFMScrobbler.getMissingConfigurationMessage(isFrench)
+				content: client.lastFMScrobbler.getMissingConfigurationMessage(lang)
 			});
 		}
 
 		const result = await client.lastFMScrobbler.setEnabled(interaction.user.id, enabled);
 		if (!result.ok) {
 			return client.func.method.interactionSend(interaction, {
-				content: isFrench
-					? `${client.iHorizon_Emojis.No} | Vous devez d'abord utiliser \`/lastfm login\` avant d'activer le module.`
-					: `${client.iHorizon_Emojis.No} | You need to use \`/lastfm login\` first before enabling the module.`
+				content: lang.lastfm_config_login_required
+					.replace(/\${client\.iHorizon_Emojis\.No}/g, client.iHorizon_Emojis.No)
 			});
 		}
 
 		await client.func.method.interactionSend(interaction, {
 			content: enabled
-				? (isFrench
-					? `${client.iHorizon_Emojis.Yes} | Le scrobbling Last.fm est maintenant activé pour votre compte.`
-					: `${client.iHorizon_Emojis.Yes} | Last.fm scrobbling is now enabled for your account.`)
-				: (isFrench
-					? `${client.iHorizon_Emojis.Yes} | Le scrobbling Last.fm est maintenant désactivé pour votre compte.`
-					: `${client.iHorizon_Emojis.Yes} | Last.fm scrobbling is now disabled for your account.`),
+				? lang.lastfm_config_enabled.replace(/\${client\.iHorizon_Emojis\.Yes}/g, client.iHorizon_Emojis.Yes)
+				: lang.lastfm_config_disabled.replace(/\${client\.iHorizon_Emojis\.Yes}/g, client.iHorizon_Emojis.Yes),
 			embeds: [
-				await client.lastFMScrobbler.generateUserEmbed(interaction.user.id, interaction.user.username, isFrench)
+				await client.lastFMScrobbler.generateUserEmbed(interaction.user.id, interaction.user.username, lang)
 			]
 		});
 	},

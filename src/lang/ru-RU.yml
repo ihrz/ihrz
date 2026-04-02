@@ -2508,6 +2508,20 @@ blogger_blog_add_success: "✅ RSS-лента **${validation.name}** добав�
 blogger_blog_add_invalid_rss: "❌ Указанная RSS-лента недействительна или недоступна. Проверьте URL и попробуйте снова."
 blogger_blog_remove_success: "✅ RSS-лента с ID `${blogId}` была удалена."
 blogger_blog_remove_not_found: "❌ RSS-лента с таким ID не найдена."
+lastfm_module_not_configured: "${client.iHorizon_Emojis.No} | Модуль Last.fm не настроен на боте. Добавьте `lastfm.apiKey` и `lastfm.sharedSecret` в конфиг или задайте `LASTFM_API_KEY` и `LASTFM_SHARED_SECRET`."
+lastfm_config_login_required: "${client.iHorizon_Emojis.No} | Сначала нужно использовать `/lastfm login`, прежде чем включать модуль."
+lastfm_config_enabled: "${client.iHorizon_Emojis.Yes} | Скробблинг Last.fm теперь включён для вашего аккаунта."
+lastfm_config_disabled: "${client.iHorizon_Emojis.Yes} | Скробблинг Last.fm теперь отключён для вашего аккаунта."
+lastfm_login_invalid_session: "${client.iHorizon_Emojis.No} | Last.fm не вернул действительную сессию."
+lastfm_login_success: "${client.iHorizon_Emojis.Yes} | Ваш аккаунт Last.fm `${username}` теперь подключён, и скробблинг включён."
+lastfm_embed_title: "Настройка Last.fm для ${userLabel}"
+lastfm_embed_field_status: "Статус"
+lastfm_embed_field_account: "Подключённый аккаунт"
+lastfm_embed_field_connected_at: "Подключён"
+lastfm_api_error_login: "${client.iHorizon_Emojis.No} | Не удалось подключиться к Last.fm: ${error}"
+lastfm_api_error_nowplaying: "${client.iHorizon_Emojis.No} | Не удалось отправить в Last.fm статус Now Playing: ${error}"
+lastfm_api_error_scrobble: "${client.iHorizon_Emojis.No} | Не удалось заскробблить этот трек: ${error}"
+lastfm_api_error_unknown: "неизвестная ошибка"
 
 # Модуль AuthRestore
 # роль, установить, удалить, получить, принудительное присоединение

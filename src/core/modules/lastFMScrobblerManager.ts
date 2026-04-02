@@ -20,7 +20,6 @@
 */
 
 import {
-	BaseGuildVoiceChannel,
 	ChannelType,
 	EmbedBuilder,
 	GuildMember,
@@ -30,6 +29,7 @@ import { Player, PlayerJson, Track, TrackEndReason } from 'lavalink-client';
 import { createHash } from 'node:crypto';
 
 import { DatabaseStructure } from '../../../types/database_structure.js';
+import { LanguageData } from '../../../types/languageData.js';
 import { profilTable } from '../../Events/client/ready.js';
 import { decrypt, encrypt } from '../functions/encryptDecryptMethod.js';
 import logger from '../logger.js';
@@ -91,10 +91,9 @@ export class LastFMScrobblerManager {
 		return Boolean(this.apiKey && this.sharedSecret);
 	}
 
-	public getMissingConfigurationMessage(isFrench: boolean): string {
-		return isFrench
-			? `${client.iHorizon_Emojis.No} | Le module Last.fm n'est pas configuré côté bot. Ajoutez \`lastfm.apiKey\` et \`lastfm.sharedSecret\` dans la config, ou les variables d'environnement \`LASTFM_API_KEY\` et \`LASTFM_SHARED_SECRET\`.`
-			: `${client.iHorizon_Emojis.No} | The Last.fm module is not configured on the bot. Add \`lastfm.apiKey\` and \`lastfm.sharedSecret\` to the config, or set the \`LASTFM_API_KEY\` and \`LASTFM_SHARED_SECRET\` environment variables.`;
+	public getMissingConfigurationMessage(lang: LanguageData): string {
+		return lang.lastfm_module_not_configured
+			.replace(/\${client\.iHorizon_Emojis\.No}/g, client.iHorizon_Emojis.No);
 	}
 
 	public async getUserSettings(userId: string): Promise<DatabaseStructure.LastFMUserSchema | null> {
@@ -123,11 +122,11 @@ export class LastFMScrobblerManager {
 		return { ok: true };
 	}
 
-	public async login(userId: string, username: string, password: string, isFrench: boolean): Promise<LastFMLoginResult> {
+	public async login(userId: string, username: string, password: string, lang: LanguageData): Promise<LastFMLoginResult> {
 		if (!this.isConfigured()) {
 			return {
 				ok: false,
-				message: this.getMissingConfigurationMessage(isFrench)
+				message: this.getMissingConfigurationMessage(lang)
 			};
 		}
 
@@ -139,7 +138,7 @@ export class LastFMScrobblerManager {
 		if (!response.ok) {
 			return {
 				ok: false,
-				message: this.formatApiError(response, isFrench, 'login')
+				message: this.formatApiError(response, lang, 'login')
 			};
 		}
 
@@ -149,9 +148,8 @@ export class LastFMScrobblerManager {
 		if (!fetchedUsername || !sessionKey) {
 			return {
 				ok: false,
-				message: isFrench
-					? `${client.iHorizon_Emojis.No} | Last.fm n'a pas retourné de session valide.`
-					: `${client.iHorizon_Emojis.No} | Last.fm did not return a valid session.`
+				message: lang.lastfm_login_invalid_session
+					.replace(/\${client\.iHorizon_Emojis\.No}/g, client.iHorizon_Emojis.No)
 			};
 		}
 
@@ -165,35 +163,35 @@ export class LastFMScrobblerManager {
 
 		return {
 			ok: true,
-			message: isFrench
-				? `${client.iHorizon_Emojis.Yes} | Votre compte Last.fm est maintenant connecté et le scrobbling est activé.`
-				: `${client.iHorizon_Emojis.Yes} | Your Last.fm account is now connected and scrobbling has been enabled.`,
+			message: lang.lastfm_login_success
+				.replace(/\${client\.iHorizon_Emojis\.Yes}/g, client.iHorizon_Emojis.Yes)
+				.replace(/\${username}/g, fetchedUsername),
 			username: fetchedUsername
 		};
 	}
 
-	public async generateUserEmbed(userId: string, userLabel: string, isFrench: boolean): Promise<EmbedBuilder> {
+	public async generateUserEmbed(userId: string, userLabel: string, lang: LanguageData): Promise<EmbedBuilder> {
 		const settings = await this.getUserSettings(userId);
 		const embed = new EmbedBuilder()
 			.setColor(2829617)
-			.setTitle(isFrench ? `Configuration Last.fm de ${userLabel}` : `${userLabel}'s Last.fm configuration`)
+			.setTitle(lang.lastfm_embed_title.replace(/\${userLabel}/g, userLabel))
 			.addFields(
 				{
 					inline: true,
-					name: isFrench ? 'Statut' : 'Status',
-					value: settings?.enabled ? (isFrench ? 'Activé' : 'Enabled') : (isFrench ? 'Désactivé' : 'Disabled')
+					name: lang.lastfm_embed_field_status,
+					value: settings?.enabled ? lang.var_enabled : lang.var_disabled
 				},
 				{
 					inline: true,
-					name: isFrench ? 'Compte connecté' : 'Connected account',
-					value: settings?.username || (isFrench ? 'Aucun' : 'None')
+					name: lang.lastfm_embed_field_account,
+					value: settings?.username || lang.var_none
 				}
 			);
 
 		if (settings?.connectedAt) {
 			embed.addFields({
 				inline: true,
-				name: isFrench ? 'Connecté le' : 'Connected on',
+				name: lang.lastfm_embed_field_connected_at,
 				value: `<t:${Math.floor(settings.connectedAt / 1000)}:F>`
 			});
 		}
@@ -507,14 +505,16 @@ export class LastFMScrobblerManager {
 		return response.errorCode === 9 || /session/i.test(response.message || '');
 	}
 
-	private formatApiError(response: LastFMApiResponse, isFrench: boolean, context: 'login' | 'nowPlaying' | 'scrobble'): string {
-		const prefix = context === 'login'
-			? (isFrench ? 'Connexion Last.fm impossible' : 'Unable to connect to Last.fm')
+	private formatApiError(response: LastFMApiResponse, lang: LanguageData, context: 'login' | 'nowPlaying' | 'scrobble'): string {
+		const template = context === 'login'
+			? lang.lastfm_api_error_login
 			: context === 'nowPlaying'
-				? (isFrench ? 'Impossible de notifier le Now Playing à Last.fm' : 'Unable to notify Last.fm about now playing')
-				: (isFrench ? 'Impossible de scrobbler ce morceau' : 'Unable to scrobble this track');
+				? lang.lastfm_api_error_nowplaying
+				: lang.lastfm_api_error_scrobble;
 
-		return `${client.iHorizon_Emojis.No} | ${prefix}: ${response.message || (isFrench ? 'erreur inconnue' : 'unknown error')}`;
+		return template
+			.replace(/\${client\.iHorizon_Emojis\.No}/g, client.iHorizon_Emojis.No)
+			.replace(/\${error}/g, response.message || lang.lastfm_api_error_unknown);
 	}
 
 	private async updateNowPlaying(listener: LastFMListenerSession, track: LastFMTrackData): Promise<LastFMApiResponse> {
@@ -543,7 +543,6 @@ export class LastFMScrobblerManager {
 		if (!this.isConfigured()) {
 			return {
 				errorCode: -1,
-				message: 'Last.fm credentials are missing.',
 				ok: false
 			};
 		}

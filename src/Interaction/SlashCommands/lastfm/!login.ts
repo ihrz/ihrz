@@ -31,16 +31,15 @@ export const subCommand: SubCommand = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<'cached'>, lang: LanguageData) => {
 		if (!interaction.user) return;
 
-		const isFrench = (interaction.locale || interaction.guildLocale || '').toLowerCase().startsWith('fr');
 		const username = interaction.options.getString('username', true);
 		const password = interaction.options.getString('password', true);
 
-		const result = await client.lastFMScrobbler.login(interaction.user.id, username, password, isFrench);
+		const result = await client.lastFMScrobbler.login(interaction.user.id, username, password, lang);
 
 		await client.func.method.interactionSend(interaction, {
 			content: result.message,
 			embeds: result.ok
-				? [await client.lastFMScrobbler.generateUserEmbed(interaction.user.id, interaction.user.username, isFrench)]
+				? [await client.lastFMScrobbler.generateUserEmbed(interaction.user.id, interaction.user.username, lang)]
 				: []
 		});
 	},
