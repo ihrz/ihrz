@@ -21,7 +21,7 @@
 
 import { ApplicationCommandOptionType, Client } from 'discord.js';
 
-import { buildDirectoryTree, buildPaths } from '../handlerHelper.js';
+import { buildDirectoryTree, buildPaths, resolveCategoryInitializer } from '../handlerHelper.js';
 import { Command, SubCommandModule } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { fileURLToPath } from 'url';
@@ -117,7 +117,7 @@ export default async function loadCommands(client: Client, path: string = p): Pr
 			}
 
 		} else if (module?.default?.categoryInitializer) {
-			client.category.push(module.default.categoryInitializer);
+			client.category.push(resolveCategoryInitializer(client, module.default.categoryInitializer));
 		};
 	};
 

@@ -21,8 +21,10 @@
 
 import { join as pathJoin } from "node:path";
 import { opendir } from "fs/promises";
+import { Client } from "discord.js";
 
 import { EltType } from "../../types/eltType.js";
+import { Category } from "../../types/category.js";
 
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -63,3 +65,24 @@ export function buildPaths(basePath: string, directoryTree: (string | object)[])
 	}
 	return paths;
 };
+
+export function resolveCategoryInitializer(client: Client, category: Category): Category {
+	return {
+		...category,
+		options: {
+			...category.options,
+			emoji: resolveCategoryTemplate(client, category.options.emoji)
+		}
+	};
+}
+
+function resolveCategoryTemplate(client: Client, value: string): string {
+	const match = value.match(/^\$\{client\.iHorizon_Emojis\.([A-Za-z0-9_]+)\}$/);
+
+	if (!match) {
+		return value;
+	}
+
+	const emojiKey = match[1] as keyof typeof client.iHorizon_Emojis;
+	return client.iHorizon_Emojis[emojiKey] || value;
+}
