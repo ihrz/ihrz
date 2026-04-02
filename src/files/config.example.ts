@@ -119,6 +119,16 @@ const config: ConfigData = {
 
 	},
 
+	lastfm: {
+
+		apiKey: "Last.fm API key",
+		// Optional but required if you want the Last.fm scrobbler module to work.
+
+		sharedSecret: "Last.fm shared secret",
+		// Optional but required if you want the Last.fm scrobbler module to work.
+
+	},
+
 	console: {
 
 		emojis: {

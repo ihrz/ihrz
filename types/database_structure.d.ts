@@ -284,6 +284,13 @@ export namespace DatabaseStructure {
 		timestamp: string;
 	}
 
+	export interface LastFMUserSchema {
+		enabled?: boolean;
+		username?: string;
+		sessionKey?: string;
+		connectedAt?: number;
+	}
+
 	export interface WarnSchema {
 		archivingTimeout?: number;
 		warnThreshold?: number;

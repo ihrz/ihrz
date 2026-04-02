@@ -150,10 +150,17 @@ export const event: BotEvent = {
 		};
 
 		async function quotesPresence() {
+			let _: string = '';
+			if (client.shard?.ids[0]) {
+				_ = `Shards #${client.shard?.ids[0]} | ${(await getShardStats(client)).guilds.toString()} Servers`;
+			} else {
+				_ = `dev mode`;
+			}
+
 			client.user?.setPresence({
 				activities: [
 					{
-						name: `Shards #${client.shard?.ids[0]} | ${(await getShardStats(client)).guilds.toString()} Servers`,
+						name: _,
 						type: ActivityType.Playing
 					}
 				],

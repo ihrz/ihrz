@@ -148,6 +148,17 @@ export interface ConfigData {
 		clientID?: string;
 	};
 
+	lastfm?: {
+		/**
+		 * @description The Last.fm application API key used for scrobbling requests.
+		 */
+		apiKey: string;
+		/**
+		 * @description The Last.fm application shared secret used to sign requests.
+		 */
+		sharedSecret: string;
+	};
+
 	console: {
 		emojis: {
 			OK: string;

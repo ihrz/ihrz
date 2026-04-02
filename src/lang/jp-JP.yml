@@ -2508,6 +2508,20 @@ blogger_blog_add_success: "✅ RSSフィード **${validation.name}** が追加�
 blogger_blog_add_invalid_rss: "❌ 指定されたRSSフィードは無効またはアクセスできません。URLを確認して再試行してください。"
 blogger_blog_remove_success: "✅ ID `${blogId}` のRSSフィードを削除しました。"
 blogger_blog_remove_not_found: "❌ このIDのRSSフィードが見つかりません。"
+lastfm_module_not_configured: "${client.iHorizon_Emojis.No} | Bot 側で Last.fm モジュールが設定されていません。設定に `lastfm.apiKey` と `lastfm.sharedSecret` を追加するか、`LASTFM_API_KEY` と `LASTFM_SHARED_SECRET` を設定してください。"
+lastfm_config_login_required: "${client.iHorizon_Emojis.No} | モジュールを有効にする前に `/lastfm login` を使用する必要があります。"
+lastfm_config_enabled: "${client.iHorizon_Emojis.Yes} | あなたのアカウントで Last.fm の scrobbling が有効になりました。"
+lastfm_config_disabled: "${client.iHorizon_Emojis.Yes} | あなたのアカウントで Last.fm の scrobbling が無効になりました。"
+lastfm_login_invalid_session: "${client.iHorizon_Emojis.No} | Last.fm から有効なセッションが返されませんでした。"
+lastfm_login_success: "${client.iHorizon_Emojis.Yes} | Last.fm アカウント `${username}` が接続され、scrobbling が有効になりました。"
+lastfm_embed_title: "${userLabel} の Last.fm 設定"
+lastfm_embed_field_status: "ステータス"
+lastfm_embed_field_account: "接続済みアカウント"
+lastfm_embed_field_connected_at: "接続日時"
+lastfm_api_error_login: "${client.iHorizon_Emojis.No} | Last.fm への接続に失敗しました: ${error}"
+lastfm_api_error_nowplaying: "${client.iHorizon_Emojis.No} | Last.fm に Now Playing を通知できませんでした: ${error}"
+lastfm_api_error_scrobble: "${client.iHorizon_Emojis.No} | この曲を scrobble できませんでした: ${error}"
+lastfm_api_error_unknown: "不明なエラー"
 
 # AuthRestore モジュール
 # ロール、設定、削除、取得、強制参加

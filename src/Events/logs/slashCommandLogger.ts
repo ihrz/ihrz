@@ -25,6 +25,7 @@ import path from 'path';
 import { BotEvent } from '../../../types/event.js';
 import { ParsedSavedCommand } from '../../core/converters/slashLog.js';
 import logger from '../../core/logger.js';
+import { sanitizeInteractionOptionValue } from '../../core/functions/sanitizeInteractionOptionValue.js';
 
 /**
  * Safe JSON logger that handles concurrent writes without blocking the event loop
@@ -190,7 +191,8 @@ export const event: BotEvent = {
 			|| !interaction.guild?.channels
 			|| interaction.user.bot) return;
 
-		const optionsList: string[] = ((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:"${element.value}"`)
+		const optionsList: string[] = ((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver)["_hoistedOptions"]
+			.map(element => `${element.name}:"${sanitizeInteractionOptionValue(element.name, element.value)}"`)
 		let subCmd: string = '';
 
 		if (((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver)["_subcommand"]) {

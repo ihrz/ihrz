@@ -25,6 +25,7 @@ import { BotEvent } from '../../../types/event.js';
 import { Command } from '../../../types/command.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 import { blacklistTable, tempTable } from '../client/ready.js';
+import { sanitizeInteractionOptionValue } from '../../core/functions/sanitizeInteractionOptionValue.js';
 
 const timeout: number = 1000;
 
@@ -169,7 +170,7 @@ async function handleCommandError(client: Client, interaction: ChatInputCommandI
 	});
 
 	const options = interaction.options as CommandInteractionOptionResolver;
-	const optionsList = options["_hoistedOptions"].map(element => `${element.name}:${element.value}`);
+	const optionsList = options["_hoistedOptions"].map(element => `${element.name}:${sanitizeInteractionOptionValue(element.name, element.value)}`);
 
 	let commandPath = interaction.commandName;
 	const group = options.getSubcommandGroup(false);

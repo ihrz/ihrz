@@ -2512,6 +2512,20 @@ blogger_blog_add_success: "✅ RSS feed **${validation.name}** has been added! N
 blogger_blog_add_invalid_rss: "❌ The provided RSS feed is invalid or unreachable. Please check the URL and try again."
 blogger_blog_remove_success: "✅ RSS feed with ID `${blogId}` has been removed."
 blogger_blog_remove_not_found: "❌ No RSS feed found with this ID."
+lastfm_module_not_configured: "${client.iHorizon_Emojis.No} | The Last.fm module is not configured on the bot. Add `lastfm.apiKey` and `lastfm.sharedSecret` to the config, or set `LASTFM_API_KEY` and `LASTFM_SHARED_SECRET`."
+lastfm_config_login_required: "${client.iHorizon_Emojis.No} | You need to use `/lastfm login` before enabling the module."
+lastfm_config_enabled: "${client.iHorizon_Emojis.Yes} | Last.fm scrobbling is now enabled for your account."
+lastfm_config_disabled: "${client.iHorizon_Emojis.Yes} | Last.fm scrobbling is now disabled for your account."
+lastfm_login_invalid_session: "${client.iHorizon_Emojis.No} | Last.fm did not return a valid session."
+lastfm_login_success: "${client.iHorizon_Emojis.Yes} | Your Last.fm account `${username}` is now connected and scrobbling has been enabled."
+lastfm_embed_title: "Last.fm configuration for ${userLabel}"
+lastfm_embed_field_status: "Status"
+lastfm_embed_field_account: "Connected account"
+lastfm_embed_field_connected_at: "Connected on"
+lastfm_api_error_login: "${client.iHorizon_Emojis.No} | Unable to connect to Last.fm: ${error}"
+lastfm_api_error_nowplaying: "${client.iHorizon_Emojis.No} | Unable to notify Last.fm about now playing: ${error}"
+lastfm_api_error_scrobble: "${client.iHorizon_Emojis.No} | Unable to scrobble this track: ${error}"
+lastfm_api_error_unknown: "unknown error"
 
 # AuthRestore Module
 # role, set, delete, get, force-join
