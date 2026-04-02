@@ -1,4 +1,3 @@
-
 /*
 ・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 
