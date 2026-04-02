@@ -4,7 +4,7 @@
 		"categoryColor": "#6a52fb",
 		"options": {
 			"description": "help_blogger_dsc",
-			"emoji": "📣",
+			"emoji": "${client.iHorizon_Emojis.News}",
 			"placeholder": "help_blogger_fields"
 		}
 	}

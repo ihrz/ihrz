@@ -4,7 +4,7 @@
 		"categoryColor": "#f7c93f",
 		"options": {
 			"description": "help_economy_dsc",
-			"emoji": "👩‍💼",
+			"emoji": "${client.iHorizon_Emojis.Coin}",
 			"placeholder": "help_economy_fields"
 		}
 	}

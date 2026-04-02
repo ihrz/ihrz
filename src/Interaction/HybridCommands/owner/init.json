@@ -4,7 +4,7 @@
 		"categoryColor": "#660000",
 		"options": {
 			"description": "help_owner_dsc",
-			"emoji": "👩‍✈️",
+			"emoji": "${client.iHorizon_Emojis.Crown}",
 			"placeholder": "help_owner_fields"
 		}
 	}

@@ -4,7 +4,7 @@
 		"categoryColor": "#ed8bbe",
 		"options": {
 			"description": "help_voicedashboard_dsc",
-			"emoji": "🔊",
+			"emoji": "${client.iHorizon_Emojis.Voice_Channel}",
 			"placeholder": "help_voicedashboard_fields"
 		}
 	}

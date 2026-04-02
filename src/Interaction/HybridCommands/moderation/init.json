@@ -4,7 +4,7 @@
 		"categoryColor": "#cc0000",
 		"options": {
 			"description": "help_mod_dsc",
-			"emoji": "👮‍♀️",
+			"emoji": "${client.iHorizon_Emojis.Ban_Hammer}",
 			"placeholder": "help_mod_fields"
 		}
 	}

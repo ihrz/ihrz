@@ -4,7 +4,7 @@
 		"categoryColor": "#6a329f",
 		"options": {
 			"description": "help_notifier_dsc",
-			"emoji": "📹",
+			"emoji": "${client.iHorizon_Emojis.Notification_Bell}",
 			"placeholder": "help_notifier_fields"
 		}
 	}

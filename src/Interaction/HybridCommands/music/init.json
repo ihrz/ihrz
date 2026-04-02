@@ -4,7 +4,7 @@
 		"categoryColor": "#c90076",
 		"options": {
 			"description": "help_music_dsc",
-			"emoji": "🎵",
+			"emoji": "${client.iHorizon_Emojis.Headphone}",
 			"placeholder": "help_music_fields"
 		}
 	}

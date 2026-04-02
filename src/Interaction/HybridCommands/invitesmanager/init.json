@@ -4,7 +4,7 @@
 		"categoryColor": "#ce7e00",
 		"options": {
 			"description": "help_invitem_dsc",
-			"emoji": "💾",
+			"emoji": "${client.iHorizon_Emojis.Link_Icon}",
 			"placeholder": "help_invitem_fields"
 		}
 	}

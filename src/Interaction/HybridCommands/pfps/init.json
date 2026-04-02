@@ -4,7 +4,7 @@
 		"categoryColor": "#25cf93",
 		"options": {
 			"description": "help_pfps_dsc",
-			"emoji": "🕵️‍♀️",
+			"emoji": "${client.iHorizon_Emojis.Inspecting}",
 			"placeholder": "help_pfps_fields"
 		}
 	}
