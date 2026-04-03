@@ -1662,6 +1662,9 @@ lyrics_embed_title_unknown: "Título desconocido"
 lyrics_embed_author_name_unknown: "Autor desconocido"
 lyrics_not_found: "No se encontraron letras"
 
+# /music clear-queue
+clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | La cola de música de este servidor de Discord ha sido vaciada."
+
 # Giveaway commands
 # /end, /start, /reroll
 

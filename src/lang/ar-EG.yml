@@ -1663,6 +1663,9 @@ lyrics_embed_title_unknown: "العنوان غير معروف"
 lyrics_embed_author_name_unknown: "الكاتب غير معروف"
 lyrics_not_found: "لم يتم العثور على كلمات"
 
+# /music clear-queue
+clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | تم مسح قائمة انتظار الموسيقى في خادم Discord هذا."
+
 # Giveaway commands
 # /end, /start, /reroll
 

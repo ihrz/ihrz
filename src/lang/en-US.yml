@@ -1665,6 +1665,9 @@ lyrics_embed_title_unknown: "Unknown title"
 lyrics_embed_author_name_unknown: "Unknown author"
 lyrics_not_found: "No lyrics found"
 
+# /music clear-queue
+clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | The music queue in this discord has been cleared."
+
 # Giveaway commands
 # /end, /start, /reroll
 

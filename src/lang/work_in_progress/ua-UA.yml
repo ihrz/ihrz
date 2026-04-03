@@ -865,6 +865,9 @@ lyrics_embed_title_unknown: "Невідомий заголовок"
 lyrics_embed_author_name_unknown: "Невідомий автор"
 lyrics_not_found: "Тексти не знайдено"
 
+# /music clear-queue
+clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | Музичну чергу на цьому Discord-сервері було очищено."
+
 # Команды раздачи призов
 # /end, /start, /reroll
 

@@ -127,6 +127,19 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
+			name: 'clear-queue',
+
+
+			description: 'Clear the music queue in this guild!',
+			description_localizations: {
+				"fr": "Vider la file d'attente musicale de ce serveur"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null
+		},
+		{
 			name: 'nowplaying',
 			name_localizations: {
 				"fr": "en-lecture"
