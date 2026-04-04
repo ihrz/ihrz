@@ -23,7 +23,7 @@ import { Client } from 'discord.js';
 
 import { fileURLToPath } from 'url';
 import path from 'path';
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir } from 'node:fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,8 +31,8 @@ const __dirname = path.dirname(__filename);
 export default async (client: Client) => {
 
 	(await readdir(path.join(process.cwd(), "src", "assets", "html"))).filter(file => file.endsWith(".html")).forEach(async file => {
-		const htlmContent = await readFile(path.join(process.cwd(), "src", "assets", "html", file), "utf-8");
-		client.htmlfiles[file.split('.html')[0]] = htlmContent;
+		const htlmContent = Bun.file(path.join(process.cwd(), "src", "assets", "html", file));
+		client.htmlfiles[file.split('.html')[0]] = await htlmContent.text();
 	});
 
 };
