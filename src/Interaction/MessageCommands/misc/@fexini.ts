@@ -61,6 +61,6 @@ export const command: Command = {
 		}).then(x => setTimeout(() => {
 			if (x.deletable) x.delete();
 			if (interaction.deletable) interaction.delete()
-		}, 20000));
+		}, 10000));
 	},
 }
