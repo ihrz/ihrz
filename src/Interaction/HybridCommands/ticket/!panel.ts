@@ -142,6 +142,8 @@ export const subCommand: SubCommand = {
 				{ name: lang.ticket_panel_button_transcript, value: baseData.config.transcriptButton ? '🟢' : '🔴', inline: true }
 			);
 
+		ensureUniqueOptionFieldValues();
+
 		// Menu de sélection
 		const panelSelect = new StringSelectMenuBuilder()
 			.setCustomId('panelSelect')
@@ -244,7 +246,40 @@ export const subCommand: SubCommand = {
 			return id ? guild.channels.cache.get(id)?.toString() || lang.var_no_set : lang.var_no_set;
 		}
 
+		function generateUniqueOptionFieldValue(usedValues: Set<string>) {
+			let value = '';
+
+			do {
+				value = `ticket_option_${generatePassword({ length: 12, uppercase: true, numbers: true })}`;
+			} while (usedValues.has(value));
+
+			return value;
+		}
+
+		function ensureUniqueOptionFieldValues() {
+			const usedValues = new Set<string>();
+			let hasChanged = false;
+
+			for (const option of baseData.config.optionFields) {
+				const currentValue = typeof option.value === 'string'
+					? option.value.trim()
+					: '';
+
+				if (!currentValue || usedValues.has(currentValue)) {
+					option.value = generateUniqueOptionFieldValue(usedValues);
+					hasChanged = true;
+				} else {
+					option.value = currentValue;
+				}
+
+				usedValues.add(option.value);
+			}
+
+			return hasChanged;
+		}
+
 		async function save() {
+			ensureUniqueOptionFieldValues();
 			await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`, baseData);
 			panelEmbed.data.fields![0].value = '🟢';
 			isSaved = true;
@@ -376,6 +411,7 @@ export const subCommand: SubCommand = {
 		async function sendEmbed() {
 			if (baseData.config.optionFields.length === 0) return originalResponse.edit({ content: lang.ticket_panel_need_1_option, embeds: [panelEmbed], components });
 
+			ensureUniqueOptionFieldValues();
 			// if (!isSaved) return originalResponse.edit({ content: lang.ticket_panel_need_save_config, components });
 			await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`, baseData);
 			isSaved = true;
@@ -1019,7 +1055,7 @@ export const subCommand: SubCommand = {
 				name,
 				desc,
 				emoji,
-				value: (baseData.config.optionFields.length - 1).toString(),
+				value: generateUniqueOptionFieldValue(new Set(baseData.config.optionFields.map(option => option.value))),
 				rolesToPing: []
 			});
 
@@ -1315,6 +1351,7 @@ export const subCommand: SubCommand = {
 			}
 
 			const embed = EmbedBuilder.from(relatedEmbed.embedSource);
+			ensureUniqueOptionFieldValues();
 
 			const selectMenu = new StringSelectMenuBuilder()
 				.setCustomId("ticket-open-selection-v2-preview")
