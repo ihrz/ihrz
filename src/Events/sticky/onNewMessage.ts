@@ -20,32 +20,27 @@
 */
 
 import {
-	ChatInputCommandInteraction,
+	BaseGuildTextChannel,
+	ChannelType,
 	Client,
-	Message,
+	Message
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { handleMusicPlay } from '../../../core/functions/musicPlay.js';
-import { SubCommand } from '../../../../types/command.js';
+import { BotEvent } from '../../../types/event.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 
-export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
+import { scheduleStickyChannelRefresh } from '../../core/modules/stickyMessageManager.js';
 
-		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+export const event: BotEvent = {
+	name: "messageCreate",
+	run: async (client: Client, message: Message) => {
+		if (!message.guild || !message.channel || message.author.bot || message.webhookId) return;
+		if (message.channel.type !== ChannelType.GuildText) return;
 
-		const query = interaction instanceof ChatInputCommandInteraction
-			? interaction.options.getString("title")!
-			: client.func.method.longString(args!, 0)!;
+		const stickyConfig = await client.db.get(`${message.guild.id}.STICKY.${message.channelId}`) as DatabaseStructure.StickyChannelConfig | null;
 
-		await handleMusicPlay({
-			client,
-			deleteAfterMs: 3000,
-			interaction,
-			lang,
-			queries: [query],
-			respond: (payload) => client.func.method.interactionSend(interaction, payload),
-		});
+		if (!stickyConfig?.enabled) return;
+
+		scheduleStickyChannelRefresh(client, message.channel as BaseGuildTextChannel);
 	},
 };

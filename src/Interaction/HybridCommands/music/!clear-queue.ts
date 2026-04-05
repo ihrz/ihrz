@@ -22,11 +22,13 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
+	GuildMember,
 	Message,
 } from 'discord.js';
 
 import { LanguageData } from '../../../../types/languageData.js';
-import { handleMusicPlay } from '../../../core/functions/musicPlay.js';
+import logger from '../../../core/logger.js';
+
 import { SubCommand } from '../../../../types/command.js';
 
 export const subCommand: SubCommand = {
@@ -35,17 +37,32 @@ export const subCommand: SubCommand = {
 		// Guard's Typing
 		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
 
-		const query = interaction instanceof ChatInputCommandInteraction
-			? interaction.options.getString("title")!
-			: client.func.method.longString(args!, 0)!;
+		try {
+			const voiceChannel = (interaction.member as GuildMember).voice.channel;
+			const player = client.player.getPlayer(interaction.guildId as string);
 
-		await handleMusicPlay({
-			client,
-			deleteAfterMs: 3000,
-			interaction,
-			lang,
-			queries: [query],
-			respond: (payload) => client.func.method.interactionSend(interaction, payload),
-		});
+			if (!player || !voiceChannel) {
+				await client.func.method.interactionSend(interaction, { content: lang.resume_nothing_playing });
+				return;
+			};
+
+			// Check if the member is in the same voice channel as the bot
+			if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.music_cannot.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
+				});
+				return;
+			}
+
+			player.queue.splice(0, player.queue.tracks.length);
+
+			await client.func.method.interactionSend(interaction, {
+				content: lang.clear_queue_command_ok
+					.replace("${client.iHorizon_Emojis.Security}", client.iHorizon_Emojis.Security)
+			});
+			return;
+		} catch (error) {
+			logger.err(error);
+		};
 	},
 };

@@ -344,6 +344,16 @@ export namespace DatabaseStructure {
 
 	export type CounterData = { userId: string; amount: number };
 
+	export interface StickyChannelConfig {
+		channelId: string;
+		content?: string | null;
+		embedId?: string | null;
+		lastMessageId?: string | null;
+		enabled: boolean;
+	}
+
+	export type StickySchema = Record<string, StickyChannelConfig>;
+
 	export interface DbInId {
 		USER?: DbGuildUserObject;
 		GUILD?: DbGuildObject;
@@ -370,6 +380,7 @@ export namespace DatabaseStructure {
 		BLACKLIST?: BlacklistSchema;
 		COUNTER?: CounterSchema;
 		COUNTER_DATA?: CounterData;
+		STICKY?: StickySchema;
 	}
 
 	export interface UtilsRoleData {
