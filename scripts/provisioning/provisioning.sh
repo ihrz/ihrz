@@ -152,10 +152,10 @@ if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
 		sudo apt install -y melt
 	fi
 
-	# Step 2 : cloning the GitLab Repository (production branch for more stability, we don't want users to have a maybe-broken bot right from the start because they cloned the dev branch which is meant for development and testing)
+	# Step 2 : cloning the GitLab Repository
 
 	echo "Cloning the iHorizon GitLab repository..."
-	git clone -b production https://gitlab.com/ihrz/ihrz.git
+	git clone https://gitlab.com/ihrz/ihrz.git
 	cd ihrz
 
 	# Step 3 : installing the dependencies

@@ -140,8 +140,8 @@ export const subCommand: SubCommand = {
 		];
 
 		function generateRandomNumber() {
-			const randomBytes = crypto.randomBytes(16);
-			const randomNumber = randomBytes.readUInt64BE(0);
+			const randomBytes = crypto.randomBytes(4);
+			const randomNumber = randomBytes.readUInt32BE(0);
 			return randomNumber.toString();
 		};
 
