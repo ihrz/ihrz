@@ -19,12 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ActionRowBuilder, ButtonInteraction, ComponentType, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonInteraction, ChannelType, ComponentType, EmbedBuilder, GuildMember, UserSelectMenuBuilder } from 'discord.js';
 import { tempTable } from '../../../Events/client/ready.ts';
+import { DatabaseStructure } from '../../../../types/database_structure';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
-	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE`) as DatabaseStructure.VoiceData | null | undefined;
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 	const member = interaction.member as GuildMember;
 
@@ -32,7 +33,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	const getChannelId = await tempTable.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 
 	if (!result) return await interaction.deferUpdate();
-	if (result.channelId !== interaction.channelId
+	if (result.interface?.channelId !== interaction.channelId
 		|| getChannelId !== targetedChannel?.id) return await interaction.deferUpdate();
 
 	if (!member.voice.channel) {
@@ -62,12 +63,31 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
 		collector?.on('collect', async i => {
 			// The new owner of the channel
-			const newOwner = i.members.first();
+			const newOwner = i.members.first() as GuildMember | undefined;
+			const newOwnerChannelId = await tempTable.get(`CUSTOM_VOICE.${interaction.guildId}.${newOwner?.user?.id}`) as string | null | undefined;
+
+			if (!newOwner || newOwner.voice.channelId !== targetedChannel?.id) {
+				await i.deferUpdate();
+				return;
+			}
+
+			if (newOwnerChannelId && newOwnerChannelId !== getChannelId) {
+				const newOwnerChannel = interaction.guild.channels.cache.get(newOwnerChannelId)
+					|| await interaction.guild.channels.fetch(newOwnerChannelId).catch(() => null);
+
+				if (newOwnerChannel?.type === ChannelType.GuildVoice && newOwnerChannel.members.size > 0) {
+					await i.deferUpdate();
+					return;
+				}
+
+				await newOwnerChannel?.delete().catch(() => { });
+				await tempTable.delete(`CUSTOM_VOICE.${interaction.guildId}.${newOwner.user.id}`);
+			}
 
 			// change ownership now
 			await tempTable.delete(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
 			await tempTable.set(`CUSTOM_VOICE.${interaction.guildId}.${newOwner?.user?.id}`, getChannelId)
-			let username = interaction.user.displayName || interaction.user.username;
+			let username = newOwner.displayName || newOwner.user.username;
 
 			// change the voice channel name
 			if (result?.voice_channel_name) {

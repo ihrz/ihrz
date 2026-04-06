@@ -19,13 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ButtonInteraction, EmbedBuilder, Guild, GuildMember } from 'discord.js';
+import { ButtonInteraction, ChannelType, EmbedBuilder, GuildMember } from 'discord.js';
 import { tempTable } from '../../../Events/client/ready.ts';
 import { DatabaseStructure } from '../../../../types/database_structure';
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 
-	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE`) as DatabaseStructure.VoiceData | null | undefined;;
+	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE`) as DatabaseStructure.VoiceData | null | undefined;
 
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 	const member = interaction.member as GuildMember;
@@ -46,21 +46,23 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 
 	if (!isTemporaryChannel) return await interaction.deferUpdate();
 
-	function getPreviousOwner(guild: Guild): GuildMember | undefined {
-		let result = '';
+	function getPreviousOwner(): { userId: string } {
+		let userId = '';
 
-		for (const [userId, channelId] of Object.entries(allChannel)) {
+		for (const [entryUserId, channelId] of Object.entries(allChannel)) {
 			if (channelId !== targetedChannel?.id) continue;
-			result = userId;
+			userId = entryUserId;
 		};
 
-		return guild?.members.cache.get(result);
+		return {
+			userId
+		};
 	};
 
-	const previousOwner = getPreviousOwner(interaction.guild!);
+	const previousOwner = getPreviousOwner();
 
 	// Check if the previous owner is in their channel
-	if (targetedChannel?.members.get(previousOwner?.id!)) return await interaction.deferUpdate();
+	if (!previousOwner.userId || targetedChannel?.members.get(previousOwner.userId)) return await interaction.deferUpdate();
 
 	if (!member.voice.channel) {
 		await interaction.deferUpdate()
@@ -68,7 +70,22 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	} else {
 
 		// change ownership now
-		await tempTable.delete(`CUSTOM_VOICE.${interaction.guildId}.${previousOwner?.user.id}`);
+		const existingOwnedChannelId = await tempTable.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`) as string | null | undefined;
+
+		if (existingOwnedChannelId && existingOwnedChannelId !== targetedChannel?.id) {
+			const existingOwnedChannel = interaction.guild.channels.cache.get(existingOwnedChannelId)
+				|| await interaction.guild.channels.fetch(existingOwnedChannelId).catch(() => null);
+
+			if (existingOwnedChannel?.type === ChannelType.GuildVoice && existingOwnedChannel.members.size > 0) {
+				await interaction.deferUpdate();
+				return;
+			}
+
+			await existingOwnedChannel?.delete().catch(() => { });
+			await tempTable.delete(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+		}
+
+		await tempTable.delete(`CUSTOM_VOICE.${interaction.guildId}.${previousOwner.userId}`);
 		await tempTable.set(`CUSTOM_VOICE.${interaction.guildId}.${interaction?.user?.id}`, targetedChannel?.id)
 		let username = interaction.user.displayName || interaction.user.username;
 
@@ -81,7 +98,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			)
 		} else targetedChannel?.setName(lang.temporary_voice_channel_name.replace("{nickname}", `${username}`));
 
-		targetedChannel?.permissionOverwrites.delete(previousOwner?.user.id as string);
+		targetedChannel?.permissionOverwrites.delete(previousOwner.userId);
 
 		targetedChannel?.permissionOverwrites.edit(interaction.user.id, {
 			ViewChannel: true,
@@ -107,7 +124,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 					},
 					{
 						name: lang.temporary_voice_old_member,
-						value: `<@${previousOwner?.id}>`
+						value: `<@${previousOwner.userId}>`
 					},
 				)
 				.setImage(await client.func.bannerGenerator(interaction.guild.id))
