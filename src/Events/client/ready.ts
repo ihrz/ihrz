@@ -219,7 +219,7 @@ export const event: BotEvent = {
 					id: client.user?.id,
 					discriminator: client.user?.discriminator,
 					avatar: client.user?.displayAvatarURL({ extension: "png", size: 4096 }),
-					bio: (await client.func.retrieveMyself())
+					bio: client.func.retrieveMyself.retrieveBio()
 				}
 			})
 		}

@@ -19,18 +19,18 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-export default async function retrieveBio(): Promise<string | null> {
-	let res = await fetch("https://discord.com/api/v10/oauth2/applications/@me", {
-		headers: {
-			Authorization: `Bot ${process.env.BOT_TOKEN || client.config.discord.token}`,
-		},
-	});
+let res = await fetch("https://discord.com/api/v10/oauth2/applications/@me", {
+	headers: {
+		Authorization: `Bot ${process.env.BOT_TOKEN || client.config.discord.token}`,
+	},
+});
 
+const app = res.ok ? await res.json() : null;
 
-	if (res.ok) {
-		const app = await res.json();
-		return app?.["description"];
-	} else {
-		return null;
-	}
+export function retrieveBio(): Promise<string | null> {
+	return app?.['description']
+};
+
+export function retrieveBanner(): string {
+	return `https://cdn.discordapp.com/banners/${client.user?.id}/${app?.["bot"]["banner"]}?size=1024`
 };

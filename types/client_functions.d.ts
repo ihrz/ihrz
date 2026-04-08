@@ -436,7 +436,10 @@ declare namespace Client_Functions {
 	}
 
 	// From retrieveMyself.ts
-	export function retrieveMyself(): Promise<string | null>;
+	export namespace retrieveMyself {
+		export function retrieveBio(): Promise<string | null>;
+		export function retrieveBanner(): string;
+	}
 
 	// From searchLyrics.ts
 	export function searchLyrics(query: string, author?: User): Promise<{ track: Track | undefined; res: LyricsResult; } | null>;
