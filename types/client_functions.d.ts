@@ -436,7 +436,7 @@ declare namespace Client_Functions {
 	}
 
 	// From retrieveMyself.ts
-	export function retrieveMyself(userId: string): Promise<string | null>;
+	export function retrieveMyself(): Promise<string | null>;
 
 	// From searchLyrics.ts
 	export function searchLyrics(query: string, author?: User): Promise<{ track: Track | undefined; res: LyricsResult; } | null>;
