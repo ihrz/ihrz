@@ -20,31 +20,40 @@
 */
 
 import {
+	CacheType,
 	ChatInputCommandInteraction,
 	Client,
 	Message,
+	MessageContextMenuCommandInteraction,
+	MessageReplyOptions,
 } from 'discord.js';
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import {
+	LavalinkNode,
+	Player,
+	SearchResult,
+	Track,
+} from 'lavalink-client';
 
-export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
+import { LanguageData } from './languageData.js';
 
-		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+export type PlayInteraction =
+	| ChatInputCommandInteraction<"cached">
+	| Message
+	| MessageContextMenuCommandInteraction<CacheType>;
 
-		const query = interaction instanceof ChatInputCommandInteraction
-			? interaction.options.getString("title")!
-			: client.func.method.longString(args!, 0)!;
+export type PlayResponsePayload = Pick<MessageReplyOptions, "allowedMentions" | "content" | "embeds">;
 
-		await client.func.musicPlay.handleMusicPlay({
-			client,
-			deleteAfterMs: 3000,
-			interaction,
-			lang,
-			queries: [query],
-			respond: (payload) => client.func.method.interactionSend(interaction, payload),
-		});
-	},
-};
+export interface HandleMusicPlayOptions {
+	client: Client;
+	deleteAfterMs?: number;
+	interaction: PlayInteraction;
+	lang: LanguageData;
+	queries: string[];
+	respond: (payload: PlayResponsePayload) => Promise<Message>;
+}
+
+export interface SearchMusicQueryResult {
+	node?: LavalinkNode;
+	res?: SearchResult;
+}

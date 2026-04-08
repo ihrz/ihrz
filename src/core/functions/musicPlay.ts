@@ -43,14 +43,14 @@ import {
 import { LanguageData } from '../../../types/languageData.js';
 import maskLink from './maskLink.js';
 
-type PlayInteraction =
+export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
 	| Message
 	| MessageContextMenuCommandInteraction<CacheType>;
 
-type PlayResponsePayload = Pick<MessageReplyOptions, "allowedMentions" | "content" | "embeds">;
+export type PlayResponsePayload = Pick<MessageReplyOptions, "allowedMentions" | "content" | "embeds">;
 
-interface HandleMusicPlayOptions {
+export interface HandleMusicPlayOptions {
 	client: Client;
 	deleteAfterMs?: number;
 	interaction: PlayInteraction;
@@ -59,7 +59,7 @@ interface HandleMusicPlayOptions {
 	respond: (payload: PlayResponsePayload) => Promise<Message>;
 }
 
-interface SearchMusicQueryResult {
+export interface SearchMusicQueryResult {
 	node?: LavalinkNode;
 	res?: SearchResult;
 }
@@ -95,7 +95,7 @@ function isUrlQuery(query: string): boolean {
 	}
 }
 
-async function searchQueryOnNode(
+export async function searchQueryOnNode(
 	client: Client,
 	node: LavalinkNode,
 	query: string,
@@ -183,7 +183,7 @@ async function searchQueryOnNode(
 	return res;
 }
 
-async function searchMusicQuery(
+export async function searchMusicQuery(
 	client: Client,
 	query: string,
 	requester: User,
@@ -204,7 +204,7 @@ async function searchMusicQuery(
 	return {};
 }
 
-async function sendQueueAddMessage(
+export async function sendQueueAddMessage(
 	interaction: PlayInteraction,
 	lang: LanguageData,
 	player: Player,

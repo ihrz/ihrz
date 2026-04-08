@@ -39,8 +39,10 @@ import { Memory } from '../src/core/database/driver/memory.ts';
 import { Postgres } from '../src/core/database/driver/postgres.ts';
 import { Horizon } from '../src/core/database/driver/horizon.ts';
 import { TrackEmbbeded } from '../src/core/functions/music_proximity.ts';
-import { LyricsResult, SearchResult, Track } from "lavalink-client";
+import { LavalinkNode, LyricsResult, SearchResult, Track } from "lavalink-client";
 import { components } from '../src/core/functions/method.ts';
+import { Player } from 'lavalink-client';
+import { HandleMusicPlayOptions, SearchMusicQueryResult } from './musicPlay';
 
 declare namespace Client_Functions {
 
@@ -166,6 +168,9 @@ declare namespace Client_Functions {
 		): void;
 	}
 
+	// From sanitizeInteractionOptionValue.ts
+	export function sanitizeInteractionOptionValue(optionName: string, optionValue: unknown): string;
+
 	// From wait.ts
 	export function wait(milliseconds: number): Promise<void>;
 
@@ -257,6 +262,34 @@ declare namespace Client_Functions {
 		export function forceJoinAuthRestore(data: AuthRestore_ForceJoin_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
 		export function securityCodeUpdate(data: AuthRestore_KeyUpdate_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
 		export function changeRoleAuthRestore(data: AuthRestore_RoleUpdate_EntryType): Promise<AuthRestore_ForceJoin_ResponseType>;
+	}
+
+	// From musicPlay.ts
+	export namespace musicPlay {
+		export function searchQueryOnNode(client: Client<boolean>, node: LavalinkNode, query: string, requester: User): Promise<SearchResult | undefined>;
+		export function searchMusicQuery(
+			client: Client<boolean>,
+			query: string,
+			requester: User,
+			preferredNode?: LavalinkNode
+		): Promise<SearchMusicQueryResult>;
+		export function sendQueueAddMessage(
+			interaction: ChatInputCommandInteraction<"cached"> | Message<boolean> | MessageContextMenuCommandInteraction<CacheType>,
+			lang: LanguageData,
+			player: Player,
+			client: Client<boolean>,
+			track: Track
+		): Promise<void>;
+		export function handleMusicPlay(
+			{
+				client,
+				deleteAfterMs = 3000,
+				interaction,
+				lang,
+				queries,
+				respond,
+			}: HandleMusicPlayOptions
+		): Promise<void>;
 	}
 
 	// From mediaManipulation.ts
@@ -401,6 +434,9 @@ declare namespace Client_Functions {
 		export function addGuildOwner(userId: string, guildId: string): Promise<void>;
 		export function removeGuildOwner(userId: string, guildId: string): Promise<void>;
 	}
+
+	// From retrieveMyself.ts
+	export function retrieveMyself(userId: string): Promise<string | null>;
 
 	// From searchLyrics.ts
 	export function searchLyrics(query: string, author?: User): Promise<{ track: Track | undefined; res: LyricsResult; } | null>;
