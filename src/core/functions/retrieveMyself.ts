@@ -19,32 +19,18 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
-
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
-
-export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-		const query = interaction instanceof ChatInputCommandInteraction
-			? interaction.options.getString("title")!
-			: client.func.method.longString(args!, 0)!;
-
-		await client.func.musicPlay.handleMusicPlay({
-			client,
-			deleteAfterMs: 3000,
-			interaction,
-			lang,
-			queries: [query],
-			respond: (payload) => client.func.method.interactionSend(interaction, payload),
-		});
+let res = await fetch("https://discord.com/api/v10/oauth2/applications/@me", {
+	headers: {
+		Authorization: `Bot ${process.env.BOT_TOKEN || client.config.discord.token}`,
 	},
+});
+
+const app = res.ok ? await res.json() : null;
+
+export function retrieveBio(): Promise<string | null> {
+	return app?.['description']
+};
+
+export function retrieveBanner(): string {
+	return `https://cdn.discordapp.com/banners/${client.user?.id}/${app?.["bot"]["banner"]}?size=1024`
 };

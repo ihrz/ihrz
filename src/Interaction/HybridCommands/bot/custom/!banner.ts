@@ -44,6 +44,10 @@ export const subCommand: SubCommand = {
 
 		if (action === "reset") {
 			await client.func.method.interactionSend(interaction, { content: lang.custom_banner_reset });
+			const fileBuffer = (await axios.get(client.func.retrieveMyself.retrieveBanner(), { responseType: "arrayBuffer" })).data;
+			const buffer = Buffer.from(fileBuffer);
+			const base64String = buffer.toString('base64');
+			await client.func.customProfileHelper.changeGuildBotBanner(interaction.guild, `data:image/jpeg;base64,${base64String}`);
 
 			return;
 		} else if (banner && client.func.validImageType(banner.contentType)) {

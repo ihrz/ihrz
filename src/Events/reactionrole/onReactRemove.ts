@@ -33,7 +33,7 @@ export const event: BotEvent = {
 
 		try {
 			if (user.id == client.user?.id || !reaction.message.guild) return;
-			const fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
+			const fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`).catch(() => null);
 
 			if (fetched) {
 				const role = reaction.message.guild!.roles.cache.get(fetched.rolesID) || await reaction.message.guild.roles.fetch(fetched.rolesID);
@@ -41,7 +41,7 @@ export const event: BotEvent = {
 
 				const member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
 
-				if (member?.roles.cache.has(role.id)) {
+				if (member?.roles.cache.has(role.id) || (await member.fetch().catch(() => null))?.roles.cache.has(role.id)) {
 					await member?.roles.remove(role.id, "[ReactionRoles] Module").catch(() => { });
 				} else {
 					await member?.roles.add(role.id, "[ReactionRoles] Module").catch(() => { });
@@ -49,14 +49,14 @@ export const event: BotEvent = {
 				return;
 			};
 
-			const fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
+			const fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`).catch(() => null);
 
 			if (fetchedForNitro) {
 				const role = reaction.message.guild!.roles.cache.get(fetchedForNitro.rolesID) || await reaction.message.guild.roles.fetch(fetchedForNitro.rolesID);
 				if (!role) return;
 
 				const member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
-				if (member?.roles.cache.has(role.id)) {
+				if (member?.roles.cache.has(role.id) || (await member.fetch().catch(() => null))?.roles.cache.has(role.id)) {
 					await member?.roles.remove(role.id, "[ReactionRoles] Module").catch(() => { });
 				} else {
 					await member?.roles.add(role.id, "[ReactionRoles] Module").catch(() => { });
