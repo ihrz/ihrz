@@ -36,7 +36,7 @@ export const event: BotEvent = {
 			const fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`);
 
 			if (fetched) {
-				const role = reaction.message.guild.roles.cache.get(fetched.rolesID) || await reaction.message.guild.roles.fetch(fetched.rolesID);
+				const role = reaction.message.guild.roles.cache.get(fetched.rolesID) || await reaction.message.guild.roles.fetch(fetched.rolesID).catch(() => null);
 				if (!role) return;
 
 				const member = reaction.message.guild.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
@@ -53,7 +53,7 @@ export const event: BotEvent = {
 			const fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.id}`);
 
 			if (fetchedForNitro) {
-				const role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID) || await reaction.message.guild.roles.fetch(fetchedForNitro.rolesID);
+				const role = reaction.message.guild.roles.cache.get(fetchedForNitro.rolesID) || await reaction.message.guild.roles.fetch(fetchedForNitro.rolesID).catch(() => null);
 				if (!role) return;
 
 				const member = reaction.message.guild.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
