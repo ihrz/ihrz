@@ -60,7 +60,10 @@ global.client = new Client({
 		Partials.GuildScheduledEvent,
 		Partials.User,
 		Partials.Reaction,
-		Partials.ThreadMember
+		Partials.ThreadMember,
+		Partials.Poll,
+		Partials.PollAnswer,
+		Partials.SoundboardSound,
 	],
 	enforceNonce: true
 });
