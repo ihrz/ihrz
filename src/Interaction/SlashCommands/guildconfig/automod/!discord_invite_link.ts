@@ -31,11 +31,11 @@ interface Action {
 	metadata: Record<string, any>;
 };
 
-const regexPatterns = [
-	'(discord\\.gg\\/|\\.gg\\/|gg\\/)',
-	'[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
-	'discord:\/\-\/invite\/[a-zA-Z0-9\-\_]+',
-	'(?:https?:\\/\\/)?discordapp\\.com[\\/\\\\]invite[\\/\\\\][^\\s]+'
+const regexPatterns: RegExp[] = [
+	/(discord\.gg\/|\.gg\/|gg\/)/i,
+	/[dD][iI][sS][cC][oO][rR][dD]\s*\.\s*[gG][gG]/i,
+	/discord:\/-\/invite\/[a-zA-Z0-9\-\_]+/i,
+	/^(https?:\/\/)?(www\.)?(discord\.com|discordapp\.com)\/invite\/([\w-]+)$/i,
 ];
 
 
@@ -83,9 +83,8 @@ export const subCommand: SubCommand = {
 					enabled: true,
 					eventType: 1,
 					triggerType: 1,
-					triggerMetadata:
-					{
-						regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
+					triggerMetadata: {
+						regexPatterns: regexPatterns.map(r => r.source)
 					},
 					actions: arrayActionsForRule
 				});
@@ -93,9 +92,8 @@ export const subCommand: SubCommand = {
 
 				KeywordPresetRule.edit({
 					enabled: true,
-					triggerMetadata:
-					{
-						regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
+					triggerMetadata: {
+						regexPatterns: regexPatterns.map(r => r.source)
 					},
 					actions: [
 						{
