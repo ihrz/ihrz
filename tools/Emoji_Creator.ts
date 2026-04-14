@@ -19,28 +19,35 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client } from "discord.js";
+import { REST, Routes } from "discord.js";
 import logger from "../src/core/logger.ts";
 import { EmojisManager } from "../src/core/modules/emojisManager.ts";
 import config from "../src/files/config.ts";
 
 logger.log("This automatic script will create all emojis for the discord bot.")
 
-global.client = new Client({
-	intents: []
-});
-client.config = config;
+async function main() {
+	try {
+		const token = process.env.BOT_TOKEN || config.discord.token;
+		const rest = new REST({ version: "10" }).setToken(token);
 
-client.on('clientReady', async () => {
-	logger.log(`The discord bot: ${client.user?.tag} is ready...`);
+		const application = await rest.get(Routes.oauth2CurrentApplication()) as {
+			id: string;
+			name: string;
+		};
 
-	const emojisManager = new EmojisManager();
+		logger.log(`The discord application: ${application.name} is ready for emoji synchronization.`);
 
-	await emojisManager.startSync();
+		const emojisManager = new EmojisManager({
+			rest,
+			applicationId: application.id
+		});
 
-	client.destroy();
-});
+		await emojisManager.startSync();
+	} catch (error) {
+		logger.err(error);
+		process.exitCode = 1;
+	}
+}
 
-
-client.login(client.config.discord.token)
-	.catch(console.error);
+await main();
