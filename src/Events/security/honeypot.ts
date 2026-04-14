@@ -119,6 +119,7 @@ async function deleteRecentMessages(message: Message): Promise<number> {
 async function notifyUser(message: Message, actionLabel: string, lang: LanguageData): Promise<boolean> {
 	const embed = new EmbedBuilder()
 		.setColor(HONEYPOT_EMBED_COLOR)
+		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
 		.setTitle(lang.honeypot_dm_title.replace("${action}", actionLabel))
 		.setDescription(
 			lang.honeypot_dm_desc
@@ -180,6 +181,7 @@ async function sendLogs(
 
 	const logEmbed = new EmbedBuilder()
 		.setColor(HONEYPOT_EMBED_COLOR)
+		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
 		.setTitle(lang.honeypot_log_title.replace("${action}", getActionLabel(actionResult, lang)))
 		.setTimestamp(message.createdAt)
 		.addFields(
