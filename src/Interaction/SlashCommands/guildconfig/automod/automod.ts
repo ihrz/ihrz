@@ -100,6 +100,58 @@ export const command: Command = {
 					permission: PermissionFlagsBits.Administrator
 				},
 				{
+					name: 'telegram_link',
+
+					description: 'Allow/Unallow the user to send Telegram links into them messages!',
+					description_localizations: {
+						"fr": "Autoriser/Interdire à l'utilisateur d'envoyer des liens Telegram dans ses messages"
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: 'action',
+							type: ApplicationCommandOptionType.String,
+
+							description: 'What you want to do?',
+							description_localizations: {
+								"fr": "Que veux-tu faire?"
+							},
+
+							required: true,
+							choices: [
+								{
+									name: "Power On",
+									name_localizations: { fr: 'Activer' },
+									value: "on"
+								},
+								{
+									name: 'Power Off',
+									name_localizations: { fr: 'Désactiver' },
+									value: "off"
+								},
+							],
+							permission: null
+						},
+						{
+							name: 'logs-channel',
+
+							description: 'The channel you want logs when user break the rules!',
+							description_localizations: {
+								"fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+							},
+
+							type: ApplicationCommandOptionType.Channel,
+							channel_types: [ChannelType.GuildText],
+
+							required: false,
+							permission: null
+						}
+					],
+
+					permission: PermissionFlagsBits.Administrator
+				},
+				{
 					name: 'link',
 
 					description: 'Allow/Unallow the user to send links into them messages!',

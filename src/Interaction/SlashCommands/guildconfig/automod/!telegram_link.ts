@@ -22,8 +22,7 @@
 import {
 	Client,
 	AutoModerationRuleTriggerType,
-	ChatInputCommandInteraction,
-	TextChannel
+	ChatInputCommandInteraction
 } from 'discord.js';
 
 interface Action {
@@ -31,13 +30,19 @@ interface Action {
 	metadata: Record<string, any>;
 };
 
+const RULE_NAME = 'Block Telegram links by iHorizon';
 const regexPatterns: RegExp[] = [
-	/(discord\.gg\/|\.gg\/|gg\/)/i,
-	/[dD][iI][sS][cC][oO][rR][dD]\s*\.\s*[gG][gG]/i,
-	/discord:\/-\/invite\/[a-zA-Z0-9\-\_]+/i,
-	/^(https?:\/\/)?(www\.)?(discord\.com|discordapp\.com)\/invite\/([\w-]+)$/i,
+	/(?:https?:\/\/)?t\.me\/[^\s]+/i,
+	/(?:https?:\/\/)?telegram\.me\/[^\s]+/i,
+	/(?:https?:\/\/)?telegram\.dog\/[^\s]+/i,
+	/(?:https?:\/\/)?[A-Za-z0-9_]{4,32}\.t\.me\/[^\s]+/i,
+	/tg:\/\/resolve\?[^\s]+/i,
+	/tg:\/\/join\?[^\s]+/i,
+	/tg:\/\/addstickers\?[^\s]+/i,
+	/tg:\/\/addemoji\?[^\s]+/i,
+	/tg:\/\/addtheme\?[^\s]+/i,
+	/tg:\/\/[^\s]+/i
 ];
-
 
 import { LanguageData } from '../../../../../types/languageData.js';
 
@@ -55,31 +60,32 @@ export const subCommand: SubCommand = {
 		const logs_channel = interaction.options.getChannel('logs-channel');
 
 		const automodRules = await interaction.guild.autoModerationRules.fetch();
-		const KeywordPresetRule = automodRules.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+		const telegramRule = automodRules.find((rule) => rule.name === RULE_NAME
+			&& rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+
+		const arrayActionsForRule: Action[] = [
+			{
+				type: 1,
+				metadata: {
+					customMessage: "This message was prevented by iHorizon"
+				}
+			},
+		];
+
+		if (logs_channel) {
+			arrayActionsForRule.push({
+				type: 2,
+				metadata: {
+					channel: logs_channel,
+				}
+			});
+		};
 
 		if (turn === "on") {
 
-			if (!KeywordPresetRule) {
-				const arrayActionsForRule: Action[] = [
-					{
-						type: 1,
-						metadata: {
-							customMessage: "This message was prevented by iHorizon"
-						}
-					},
-				];
-
-				if (logs_channel) {
-					arrayActionsForRule.push({
-						type: 2,
-						metadata: {
-							channel: logs_channel,
-						}
-					});
-				};
-
+			if (!telegramRule) {
 				await interaction.guild.autoModerationRules.create({
-					name: 'Block advertissement message by iHorizon',
+					name: RULE_NAME,
 					enabled: true,
 					eventType: 1,
 					triggerType: 1,
@@ -88,44 +94,28 @@ export const subCommand: SubCommand = {
 					},
 					actions: arrayActionsForRule
 				});
-			} else if (KeywordPresetRule) {
-
-				KeywordPresetRule.edit({
+			} else if (telegramRule) {
+				await telegramRule.edit({
 					enabled: true,
 					triggerMetadata: {
 						regexPatterns: regexPatterns.map(r => r.source)
 					},
-					actions: [
-						{
-							type: 1,
-							metadata: {
-								customMessage: "This message was prevented by iHorizon"
-							}
-						},
-						{
-							type: 2,
-							metadata: {
-								channel: logs_channel as TextChannel
-							}
-						},
-					]
+					actions: arrayActionsForRule
 				});
 			};
 
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`, true);
 			await interaction.editReply({
-				content: lang.automod_block_pub_command_on
+				content: lang.automod_block_telegram_command_on
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${logs_channel}', (logs_channel?.toString() || 'None'))
 			});
 
 			return;
 		} else if (turn === "off") {
-			await KeywordPresetRule?.setEnabled(false);
+			await telegramRule?.setEnabled(false);
 
-			await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`);
 			await interaction.editReply({
-				content: lang.automod_block_pub_command_off
+				content: lang.automod_block_telegram_command_off
 					.replace('${interaction.user}', interaction.user.toString())
 			});
 

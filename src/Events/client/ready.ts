@@ -320,7 +320,7 @@ export const event: BotEvent = {
 			}, 45_000);
 		}
 
-		if (client.email.connected) {
+		if (client.email.connected && client.isMainShard()) {
 			client.email.send(client.email.ownerMail, "Bot Is Ready", `
 === AUTO-GENERATED MESSAGE ===
 

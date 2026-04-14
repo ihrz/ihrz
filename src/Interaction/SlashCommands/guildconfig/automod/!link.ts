@@ -31,15 +31,15 @@ interface Action {
 	metadata: Record<string, any>;
 };
 
-const regexPatterns = [
-	'(discord\\.gg\\/|\\.gg\\/|gg\\/|https?:\\/\\/|http?:\\/\\/)',
-	'(?:%[0-9a-fA-F]{2})+',
-	'(?:<.*?>)?\\s*https?:\\/\\/.*?',
-	'[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
-	'(?:%[0-9a-fA-F]{2}){2,}',
-	'(?:https?:\/\/)?(?:%[0-9a-fA-F]{2})+(?:\.[a-zA-Z]{2,}|\/%[0-9a-fA-F]{2,})*',
-	'discord:\/\-\/invite\/[a-zA-Z0-9\-\_]+',
-	'(?:https?:\\/\\/)?discordapp\\.com[\\/\\\\]invite[\\/\\\\][^\\s]+'
+const regexPatterns: RegExp[] = [
+	/(discord\.gg\/|\.gg\/|gg\/|https?:\/\/|http?:\/\/)/i,
+	/(?:%[0-9a-fA-F]{2})+/i,
+	/(?:<.*?>)?\s*https?:\/\/.*?/i,
+	/[dD][iI][sS][cC][oO][rR][dD]\s*\.\s*[gG][gG]/i,
+	/(?:%[0-9a-fA-F]{2}){2,}/i,
+	/(?:https?:\/\/)?(?:%[0-9a-fA-F]{2})+(?:\.[a-zA-Z]{2,}|\/%[0-9a-fA-F]{2,})*/i,
+	/discord:\/-\/invite\/[a-zA-Z0-9\-\_]+/i,
+	/^(https?:\/\/)?(www\.)?(discord\.com|discordapp\.com)\/invite\/([\w-]+)$/i,
 ];
 
 import { LanguageData } from '../../../../../types/languageData.js';
@@ -86,9 +86,8 @@ export const subCommand: SubCommand = {
 					enabled: true,
 					eventType: 1,
 					triggerType: 1,
-					triggerMetadata:
-					{
-						regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
+					triggerMetadata: {
+						regexPatterns: regexPatterns.map(r => r.source)
 					},
 					actions: arrayActionsForRule
 				});
@@ -96,9 +95,8 @@ export const subCommand: SubCommand = {
 
 				KeywordPresetRule.edit({
 					enabled: true,
-					triggerMetadata:
-					{
-						regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
+					triggerMetadata: {
+						regexPatterns: regexPatterns.map(r => r.source)
 					},
 					actions: [
 						{
