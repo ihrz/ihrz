@@ -1457,6 +1457,10 @@ automod_block_massmention_command_error404: Deixaste o Block Mention Spam ativad
 automod_block_link_command_on: "${interaction.user}, você configurou a `Regra AutoMod Pub` para **true**.\nAgora, os usuários não podem enviar links em suas mensagens.\nAutoMod __enviando logs__ em ${logs_channel}.\nAutoMod x iHorizon protege seu servidor!"
 automod_block_link_command_off: "${interaction.user}, você configurou a `Regra AutoMod Pub` para **false**.\nAgora, os usuários podem enviar links em suas mensagens.\nAutoMod x iHorizon foi desativado no seu servidor!"
 
+# /automod block telegram links
+automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
+automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, você configurou a `Regra AutoMod Pub` para **true**.\nAgora, os usuários não podem enviar convites de servidor em suas mensagens.\nAutoMod __enviando logs__ em ${logs_channel}.\nAutoMod x iHorizon protege seu servidor!"
 automod_block_pub_command_off: "${interaction.user}, você configurou a `Regra AutoMod Pub` para **false**.\nAgora, os usuários podem enviar convites de servidor em suas mensagens.\nAutoMod x iHorizon foi desativado no seu servidor!"

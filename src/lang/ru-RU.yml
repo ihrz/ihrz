@@ -1457,6 +1457,10 @@ automod_block_massmention_command_error404: Не оставили ли вы вк
 automod_block_link_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять ссылки в своих сообщениях.\nAutoMod __отправляет логи__ в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
 automod_block_link_command_off: "${interaction.user}, вы установили `Pub AutoMod Rule` на **false**.\nТеперь пользователи могут отправлять ссылки в своих сообщениях.\nAutoMod x iHorizon был отключен на вашем сервере!"
 
+# /automod block telegram links
+automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
+automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять приглашенияна сервер в своих сообщениях.\nAutoMod отправляет логи в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
 automod_block_pub_command_off: "${interaction.user}, вы установили Pub AutoMod Rule на false.\nТеперь пользователи могут отправлять приглашения на сервер в своих сообщениях.\nAutoMod x iHorizon был отключен на вашем сервере!"

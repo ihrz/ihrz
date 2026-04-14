@@ -1457,6 +1457,10 @@ automod_block_massmention_command_error404: Avez-vous laissé activé Block Ment
 automod_block_link_command_on: "${interaction.user}, vous avez activé la `Règle AutoMod Pub` sur **true**.\nLes utilisateurs ne peuvent plus envoyer de liens dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur!"
 automod_block_link_command_off: "${interaction.user}, vous avez désactivé la `Règle AutoMod Pub` sur **false**.\nLes utilisateurs peuvent maintenant envoyer des liens dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur!"
 
+# /automod block telegram links
+automod_block_telegram_command_on: "${interaction.user}, vous avez activé la `Règle AutoMod Telegram` sur **true**.\nLes utilisateurs ne peuvent plus envoyer de liens liés à Telegram dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur!"
+automod_block_telegram_command_off: "${interaction.user}, vous avez désactivé la `Règle AutoMod Telegram` sur **false**.\nLes utilisateurs peuvent maintenant envoyer des liens liés à Telegram dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur!"
+
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, vous avez activé la `Règle AutoMod Pub` sur **true**.\nLes utilisateurs ne peuvent plus envoyer d'invitations de serveur dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur!"
 automod_block_pub_command_off: "${interaction.user}, vous avez désactivé la `Règle AutoMod Pub` sur **false**.\nLes utilisateurs peuvent maintenant envoyer des invitations de serveur dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur!"

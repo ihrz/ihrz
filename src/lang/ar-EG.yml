@@ -1458,6 +1458,10 @@ automod_block_massmention_command_error404: هل تركت أمر حظر الإش
 automod_block_link_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الروابط**. الآن، لا يمكن للمستخدمين إرسال روابط في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
 automod_block_link_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر الروابط**. الآن، يمكن للمستخدمين إرسال روابط في رسائلهم. AutoMod x iHorizon تم تعطيله على خادمك!"
 
+# /automod block telegram links
+automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
+automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الدعوات**. الآن، لا يمكن للمستخدمين إرسال دعوات الخادم في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
 automod_block_pub_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر الدعوات**. الآن، يمكن للمستخدمين إرسال دعوات الخادم في رسائلهم. AutoMod x iHorizon تم تعطيله على خادمك!"

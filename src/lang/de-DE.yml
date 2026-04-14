@@ -1457,6 +1457,10 @@ automod_block_massmention_command_error404: Haben Sie Block Mention Spam (standa
 automod_block_link_command_on: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **true** gesetzt.\nNun können Benutzer keine Links in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt Ihren Server!"
 automod_block_link_command_off: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **false** gesetzt.\nNun können Benutzer Links in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf Ihrem Server deaktiviert!"
 
+# /automod block telegram links
+automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
+automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **true** gesetzt.\nNun können Benutzer keine Server-Einladungen in ihren Nachrichten senden.\nAutoMod __sendet Protokolle__ in ${logs_channel}.\nAutoMod x iHorizon schützt Ihren Server!"
 automod_block_pub_command_off: "${interaction.user}, Sie haben die `Pub AutoMod Rule` auf **false** gesetzt.\nNun können Benutzer Server-Einladungen in ihren Nachrichten senden.\nAutoMod x iHorizon wurde auf Ihrem Server deaktiviert!"

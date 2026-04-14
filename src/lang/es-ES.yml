@@ -1457,6 +1457,10 @@ automod_block_massmention_command_error404: ¿Has dejado activado Block Mention 
 automod_block_link_command_on: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **true**.\nAhora los usuarios no pueden enviar enlaces en sus mensajes.\nAutoMod __envía registros__ en ${logs_channel}.\n¡AutoMod x iHorizon protege tu servidor!"
 automod_block_link_command_off: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **false**.\nAhora los usuarios pueden enviar enlaces en sus mensajes.\n¡AutoMod x iHorizon ha sido deshabilitado en tu servidor!"
 
+# /automod block telegram links
+automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
+automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **true**.\nAhora los usuarios no pueden enviar invitaciones de servidor en sus mensajes.\nAutoMod __envía registros__ en ${logs_channel}.\n¡AutoMod x iHorizon protege tu servidor!"
 automod_block_pub_command_off: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **false**.\nAhora los usuarios pueden enviar invitaciones de servidor en sus mensajes.\n¡AutoMod x iHorizon ha sido deshabilitado en tu servidor!"

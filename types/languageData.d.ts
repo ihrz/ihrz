@@ -1123,6 +1123,8 @@ export interface LanguageData {
 	automod_block_massmention_command_error404: string;
 	automod_block_link_command_on: string;
 	automod_block_link_command_off: string;
+	automod_block_telegram_command_on: string;
+	automod_block_telegram_command_off: string;
 	automod_block_pub_command_on: string;
 	automod_block_pub_command_off: string;
 	automod_block_spam_command_on: string;
