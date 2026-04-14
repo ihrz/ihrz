@@ -342,6 +342,16 @@ export namespace DatabaseStructure {
 		channelId: string;
 	}
 
+	export interface HoneypotSchema {
+		enabled: boolean;
+		channelId?: string;
+		logsChannelId?: string;
+		action: "kick" | "ban" | "none";
+		messageId?: string;
+		createdBy?: string;
+		lastTriggeredAt?: number;
+	}
+
 	export type CounterData = { userId: string; amount: number };
 
 	export interface StickyChannelConfig {
@@ -381,6 +391,7 @@ export namespace DatabaseStructure {
 		COUNTER?: CounterSchema;
 		COUNTER_DATA?: CounterData;
 		STICKY?: StickySchema;
+		HONEYPOT?: HoneypotSchema;
 	}
 
 	export interface UtilsRoleData {
@@ -624,6 +635,7 @@ export namespace DatabaseStructure {
 		REACT_MSG?: ReactMessage;
 		BLOCK_NEW_ACCOUNT?: BlockNewAccountSchema;
 		ANTISPAM?: AntiSpam.AntiSpamOptions;
+		HONEYPOT?: HoneypotSchema;
 		RESTORECORD?: AuthRestoreSchema;
 		ROLE_SELECT?: RoleReactData;
 		BACKUP: BackupConfig;
