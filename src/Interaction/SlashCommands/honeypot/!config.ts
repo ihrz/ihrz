@@ -34,9 +34,9 @@ import {
 	TextChannel,
 } from 'discord.js';
 
-import { DatabaseStructure } from '../../../../../types/database_structure.js';
-import { LanguageData } from '../../../../../types/languageData.js';
-import { SubCommand } from '../../../../../types/command.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { LanguageData } from '../../../../types/languageData.js';
+import { SubCommand } from '../../../../types/command.js';
 
 const HONEYPOT_EMBED_COLOR = "#D88A3D";
 const HONEYPOT_SOURCE_URL = "https://github.com/RiskyMH/honeypot";

@@ -522,6 +522,8 @@ export interface LanguageData {
 	help_blogger_fields: string;
 	help_lastfm_dsc: string;
 	help_lastfm_fields: string;
+	help_honeypot_fields: string;
+	help_honeypot_dsc: string;
 	h_suite: string;
 	h_suite_desc: string;
 	say_footer_msg: string;

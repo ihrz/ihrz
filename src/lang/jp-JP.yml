@@ -603,6 +603,8 @@ help_blogger_dsc: "お気に入りのRSSフィードをフォローし、iHorizo
 help_blogger_fields: "ブロガー"
 help_lastfm_dsc: "> *Last.fm アカウントを接続し、ボイスチャンネルにいる間 iHorizon が再生する曲を自動で scrobble します。*"
 help_lastfm_fields: "LastFM Scrobbler"
+help_honeypot_fields: "Honeypot"
+help_honeypot_dsc: "> *トラップチャンネルを設定して乗っ取られたアカウントを検出し、サーバー内の最近のスパムを自動で削除します。*"
 
 # /h
 h_suite: "(続き)"

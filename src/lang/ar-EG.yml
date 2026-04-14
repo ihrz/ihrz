@@ -603,6 +603,8 @@ help_blogger_dsc: "تابع موجزات RSS المفضلة لديك وتلقّ�
 help_blogger_fields: "المدونة"
 help_lastfm_dsc: "> *اربط حساب Last.fm الخاص بك واعمل scrobble تلقائيًا للمقاطع التي يشغلها iHorizon طالما أنك باقٍ في القناة الصوتية.*"
 help_lastfm_fields: "LastFM Scrobbler"
+help_honeypot_fields: "Honeypot"
+help_honeypot_dsc: "> *قم بإعداد قناة فخ لاكتشاف الحسابات المخترقة وتنظيف الرسائل المزعجة الحديثة على خادمك تلقائيًا.*"
 
 # /h
 h_suite: "(تتمة)"

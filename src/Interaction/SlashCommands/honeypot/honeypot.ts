@@ -24,7 +24,7 @@ import {
 	ApplicationCommandType,
 } from 'discord.js';
 
-import { Command } from '../../../../../types/command.js';
+import { Command } from '../../../../types/command.js';
 
 export const command: Command = {
 	name: "honeypot",
@@ -49,7 +49,7 @@ export const command: Command = {
 		},
 	],
 	thinking: false,
-	category: 'newfeatures',
+	category: 'honeypot',
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null
