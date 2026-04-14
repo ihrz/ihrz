@@ -43,4 +43,4 @@ client.on('clientReady', async () => {
 
 
 client.login(client.config.discord.token)
-	.catch(() => console.error);
+	.catch(console.error);
