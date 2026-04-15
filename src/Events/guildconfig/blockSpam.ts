@@ -152,7 +152,13 @@ export const event: BotEvent = {
 
 		const lang = await client.func.getLanguageData(message.guildId);
 
-		const automodRules = message.guild.autoModerationRules.cache.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+		let automodRules = message.guild.autoModerationRules.cache.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+
+		if (!automodRules) {
+			await message.guild.autoModerationRules.fetch();
+
+			automodRules = message.guild.autoModerationRules.cache.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+		}
 
 		const member = message.guild.members.cache.get(message.author.id);
 
