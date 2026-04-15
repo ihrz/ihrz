@@ -2262,6 +2262,9 @@ export interface LanguageData {
 	honeypot_dm_action_kicked: string;
 	honeypot_dm_action_banned: string;
 	honeypot_dm_action_none: string;
+	honeypot_log_action_ban: string;
+	honeypot_log_action_kick: string;
+	honeypot_log_action_none: string;
 	honeypot_log_title: string;
 	honeypot_log_field_author: string;
 	honeypot_log_field_channel: string;

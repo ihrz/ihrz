@@ -65,9 +65,9 @@ async function canManageHoneypot(
 function getLogActionLabel(action: DatabaseStructure.HoneypotSchema["action"], lang: LanguageData): string {
 	switch (action) {
 		case 'ban':
-			return lang.setjoinroles_var_perm_ban_members;
+			return lang.honeypot_log_action_ban;
 		case 'kick':
-			return lang.setjoinroles_var_perm_kick_members;
+			return lang.honeypot_log_action_kick;
 		default:
 			return lang.honeypot_action_none;
 	}
@@ -188,12 +188,12 @@ function buildComponents(lang: LanguageData, config: DatabaseStructure.HoneypotS
 			.setPlaceholder(lang.honeypot_config_select_action_placeholder)
 			.addOptions(
 				{
-					label: lang.setjoinroles_var_perm_kick_members,
+					label: lang.honeypot_log_action_kick,
 					value: 'kick',
 					default: config.action === 'kick'
 				},
 				{
-					label: lang.setjoinroles_var_perm_ban_members,
+					label: lang.honeypot_log_action_ban,
 					value: 'ban',
 					default: config.action === 'ban'
 				},

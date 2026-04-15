@@ -44,11 +44,11 @@ type HoneypotMessageChannel = BaseGuildTextChannel | AnyThreadChannel;
 function getLogActionLabel(action: HoneypotActionResult, lang: LanguageData): string {
 	switch (action) {
 		case 'ban':
-			return lang.setjoinroles_var_perm_ban_members;
+			return lang.honeypot_log_action_ban;
 		case 'kick':
-			return lang.setjoinroles_var_perm_kick_members;
+			return lang.honeypot_log_action_kick;
 		case 'none':
-			return lang.honeypot_action_none;
+			return lang.honeypot_log_action_none;
 		default:
 			return lang.honeypot_action_failed;
 	}
