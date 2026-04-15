@@ -76,6 +76,7 @@ function getActionLabel(action: DatabaseStructure.HoneypotSchema["action"], lang
 function buildTrapEmbed(lang: LanguageData): EmbedBuilder {
 	return new EmbedBuilder()
 		.setColor(HONEYPOT_EMBED_COLOR)
+		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
 		.setTitle(lang.honeypot_trap_embed_title)
 		.setDescription(lang.honeypot_trap_embed_desc)
 		.setFooter({ text: lang.honeypot_trap_embed_footer });
@@ -149,7 +150,7 @@ async function buildConfigEmbed(
 		.setColor(HONEYPOT_EMBED_COLOR)
 		.setTitle(lang.honeypot_config_embed_title)
 		.setDescription(lang.honeypot_config_embed_desc)
-		.setThumbnail(interaction.guild?.iconURL() || null)
+		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
 		.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 		.addFields(
 			{ name: lang.honeypot_config_embed_field_status, value: config.enabled ? lang.var_enabled : lang.var_disabled, inline: true },
