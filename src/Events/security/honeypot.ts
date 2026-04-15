@@ -175,9 +175,6 @@ async function sendLogs(
 
 	const attachmentUrls = message.attachments.map((attachment) => attachment.url).join('\n');
 	const stickerList = message.stickers.map((sticker) => sticker.name).join('\n');
-	const embedList = message.embeds
-		.map((embed) => embed.url || embed.title || embed.description || lang.var_none)
-		.join('\n');
 
 	const logEmbed = new EmbedBuilder()
 		.setColor(HONEYPOT_EMBED_COLOR)
@@ -213,11 +210,6 @@ async function sendLogs(
 			{
 				name: lang.honeypot_log_field_stickers,
 				value: truncate(stickerList || lang.var_none),
-				inline: false
-			},
-			{
-				name: lang.honeypot_log_field_embeds,
-				value: truncate(embedList || lang.var_none),
 				inline: false
 			},
 			{
