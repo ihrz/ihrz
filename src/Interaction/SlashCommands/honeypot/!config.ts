@@ -39,7 +39,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
 
 const HONEYPOT_EMBED_COLOR = "#D88A3D";
-const HONEYPOT_SOURCE_URL = "https://github.com/RiskyMH/honeypot";
+const HONEYPOT_CREDIT_URL = "https://github.com/RiskyMH/honeypot";
 
 function getDefaultHoneypotConfig(guild: Guild): DatabaseStructure.HoneypotSchema {
 	return {
@@ -79,7 +79,7 @@ function buildTrapEmbed(lang: LanguageData): EmbedBuilder {
 		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
 		.setTitle(lang.honeypot_trap_embed_title)
 		.setDescription(lang.honeypot_trap_embed_desc)
-		.setFooter({ text: lang.honeypot_trap_embed_footer });
+		.setFooter({ text: lang.honeypot_trap_embed_footer.replace("${url}", HONEYPOT_CREDIT_URL) });
 }
 
 async function ensureTrapChannel(
@@ -159,7 +159,7 @@ async function buildConfigEmbed(
 			{ name: lang.honeypot_config_embed_field_logs_channel, value: config.logsChannelId ? `<#${config.logsChannelId}>` : lang.var_none, inline: true },
 			{ name: lang.honeypot_config_embed_field_message, value: messageValue, inline: false },
 			{ name: lang.honeypot_config_embed_field_notes, value: lang.honeypot_config_notes_value, inline: false },
-			{ name: lang.honeypot_config_embed_field_credit, value: lang.honeypot_config_credit_value.replace("${url}", HONEYPOT_SOURCE_URL), inline: false },
+			{ name: lang.honeypot_config_embed_field_credit, value: lang.honeypot_config_credit_value.replace("${url}", HONEYPOT_CREDIT_URL), inline: false },
 		);
 }
 
