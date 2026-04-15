@@ -62,7 +62,7 @@ async function canManageHoneypot(
 	return allowlist?.list?.[interaction.user.id]?.allowed === true;
 }
 
-function getActionLabel(action: DatabaseStructure.HoneypotSchema["action"], lang: LanguageData): string {
+function getLogActionLabel(action: DatabaseStructure.HoneypotSchema["action"], lang: LanguageData): string {
 	switch (action) {
 		case 'ban':
 			return lang.setjoinroles_var_perm_ban_members;
@@ -154,7 +154,7 @@ async function buildConfigEmbed(
 		.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 		.addFields(
 			{ name: lang.honeypot_config_embed_field_status, value: config.enabled ? lang.var_enabled : lang.var_disabled, inline: true },
-			{ name: lang.honeypot_config_embed_field_action, value: getActionLabel(config.action, lang), inline: true },
+			{ name: lang.honeypot_config_embed_field_action, value: getLogActionLabel(config.action, lang), inline: true },
 			{ name: lang.honeypot_config_embed_field_trap_channel, value: config.channelId ? `<#${config.channelId}>` : lang.var_none, inline: true },
 			{ name: lang.honeypot_config_embed_field_logs_channel, value: config.logsChannelId ? `<#${config.logsChannelId}>` : lang.var_none, inline: true },
 			{ name: lang.honeypot_config_embed_field_message, value: messageValue, inline: false },

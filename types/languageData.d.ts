@@ -2259,6 +2259,9 @@ export interface LanguageData {
 	honeypot_trap_embed_footer: string;
 	honeypot_dm_title: string;
 	honeypot_dm_desc: string;
+	honeypot_dm_action_kicked: string;
+	honeypot_dm_action_banned: string;
+	honeypot_dm_action_none: string;
 	honeypot_log_title: string;
 	honeypot_log_field_author: string;
 	honeypot_log_field_channel: string;

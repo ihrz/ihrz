@@ -41,7 +41,7 @@ const HONEYPOT_EMBED_COLOR = "#D88A3D";
 type HoneypotActionResult = "kick" | "ban" | "none" | "failed";
 type HoneypotMessageChannel = BaseGuildTextChannel | AnyThreadChannel;
 
-function getActionLabel(action: HoneypotActionResult, lang: LanguageData): string {
+function getLogActionLabel(action: HoneypotActionResult, lang: LanguageData): string {
 	switch (action) {
 		case 'ban':
 			return lang.setjoinroles_var_perm_ban_members;
@@ -49,6 +49,19 @@ function getActionLabel(action: HoneypotActionResult, lang: LanguageData): strin
 			return lang.setjoinroles_var_perm_kick_members;
 		case 'none':
 			return lang.honeypot_action_none;
+		default:
+			return lang.honeypot_action_failed;
+	}
+}
+
+function getDMActionMessage(action: HoneypotActionResult, lang: LanguageData): string {
+	switch (action) {
+		case 'ban':
+			return lang.honeypot_dm_action_banned;
+		case 'kick':
+			return lang.honeypot_dm_action_kicked;
+		case 'none':
+			return lang.honeypot_dm_action_none;
 		default:
 			return lang.honeypot_action_failed;
 	}
@@ -179,7 +192,7 @@ async function sendLogs(
 	const logEmbed = new EmbedBuilder()
 		.setColor(HONEYPOT_EMBED_COLOR)
 		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
-		.setTitle(lang.honeypot_log_title.replace("${action}", getActionLabel(actionResult, lang)))
+		.setTitle(lang.honeypot_log_title.replace("${action}", getLogActionLabel(actionResult, lang)))
 		.setTimestamp(message.createdAt)
 		.addFields(
 			{
@@ -219,7 +232,7 @@ async function sendLogs(
 			},
 			{
 				name: lang.honeypot_log_field_result,
-				value: getActionLabel(actionResult, lang),
+				value: getLogActionLabel(actionResult, lang),
 				inline: true
 			},
 		);
@@ -247,9 +260,10 @@ export const event: BotEvent = {
 		}
 
 		const lang = await client.func.getLanguageData(message.guildId);
-		const actionLabel = getActionLabel(config.action, lang);
+		const actionLabel = getLogActionLabel(config.action, lang);
+		const dmActionMessage = getDMActionMessage(config.action, lang);
 
-		const dmDelivered = await notifyUser(message, actionLabel, lang).catch(() => false);
+		const dmDelivered = await notifyUser(message, dmActionMessage, lang).catch(() => false);
 		const deletedCount = await deleteRecentMessages(message).catch((error) => {
 			logger.err(error);
 			return 0;
