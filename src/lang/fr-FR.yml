@@ -3001,7 +3001,7 @@ sticky_var_none: "Aucun"
 # /honeypot config
 honeypot_config_not_allowed: "Vous devez être administrateur ou être dans l'allowlist pour configurer Honeypot."
 honeypot_config_embed_title: "Configuration de Honeypot"
-honeypot_config_embed_desc: "Configurez le salon piège, le salon de logs et l'action automatique utilisée lorsqu'une personne commence à envoyer des messages dans le salon Honeypot."
+honeypot_config_embed_desc: "Configurez le salon piège, le salon de logs et l'action automatique utilisée lorsqu'une personne commence à envoyer des messages dans le salon *Honeypot*."
 honeypot_config_embed_field_status: "Statut"
 honeypot_config_embed_field_trap_channel: "Salon piège"
 honeypot_config_embed_field_logs_channel: "Salon de logs"

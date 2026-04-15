@@ -2995,7 +2995,7 @@ sticky_var_none: "لا يوجد"
 # /honeypot config
 honeypot_config_not_allowed: "يجب أن تكون مسؤولاً أو موجوداً في allowlist لكي تقوم بإعداد Honeypot."
 honeypot_config_embed_title: "إعداد Honeypot"
-honeypot_config_embed_desc: "قم بإعداد قناة الفخ، وقناة السجلات، والإجراء التلقائي المستخدم عندما يرسل أحدهم رسالة في قناة Honeypot."
+honeypot_config_embed_desc: "قم بإعداد قناة الفخ، وقناة السجلات، والإجراء التلقائي المستخدم عندما يرسل أحدهم رسالة في قناة *Honeypot*."
 honeypot_config_embed_field_status: "الحالة"
 honeypot_config_embed_field_trap_channel: "قناة الفخ"
 honeypot_config_embed_field_logs_channel: "قناة السجلات"

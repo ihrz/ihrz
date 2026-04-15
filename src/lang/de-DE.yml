@@ -3002,7 +3002,7 @@ sticky_var_none: "Keine"
 # /honeypot config
 honeypot_config_not_allowed: "Sie müssen Administrator sein oder auf der Allowlist stehen, um Honeypot zu konfigurieren."
 honeypot_config_embed_title: "Honeypot-Konfiguration"
-honeypot_config_embed_desc: "Konfigurieren Sie den Fallenkanal, den Log-Kanal und die automatische Aktion, die verwendet wird, wenn jemand anfängt, Nachrichten im Honeypot-Kanal zu senden."
+honeypot_config_embed_desc: "Konfigurieren Sie den Fallenkanal, den Log-Kanal und die automatische Aktion, die verwendet wird, wenn jemand anfängt, Nachrichten im *Honeypot*-Kanal zu senden."
 honeypot_config_embed_field_status: "Status"
 honeypot_config_embed_field_trap_channel: "Fallenkanal"
 honeypot_config_embed_field_logs_channel: "Log-Kanal"

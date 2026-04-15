@@ -3004,7 +3004,7 @@ sticky_var_none: "None"
 # /honeypot config
 honeypot_config_not_allowed: "You must be an administrator or be in the allowlist to configure Honeypot."
 honeypot_config_embed_title: "Honeypot Configuration"
-honeypot_config_embed_desc: "Configure the trap channel, the logs channel, and the automatic action used when someone starts sending messages in the Honeypot channel."
+honeypot_config_embed_desc: "Configure the trap channel, the logs channel, and the automatic action used when someone starts sending messages in the *Honeypot* channel."
 honeypot_config_embed_field_status: "Status"
 honeypot_config_embed_field_trap_channel: "Trap Channel"
 honeypot_config_embed_field_logs_channel: "Logs Channel"

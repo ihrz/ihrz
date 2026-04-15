@@ -3002,7 +3002,7 @@ sticky_var_none: "なし"
 # /honeypot config
 honeypot_config_not_allowed: "Honeypot を設定するには、管理者であるか allowlist に入っている必要があります。"
 honeypot_config_embed_title: "Honeypot 設定"
-honeypot_config_embed_desc: "トラップチャンネル、ログチャンネル、そして Honeypot チャンネルで誰かがメッセージの送信を開始したときに使う自動アクションを設定します。"
+honeypot_config_embed_desc: "トラップチャンネル、ログチャンネル、そして *Honeypot* チャンネルで誰かがメッセージの送信を開始したときに使う自動アクションを設定します。"
 honeypot_config_embed_field_status: "状態"
 honeypot_config_embed_field_trap_channel: "トラップチャンネル"
 honeypot_config_embed_field_logs_channel: "ログチャンネル"

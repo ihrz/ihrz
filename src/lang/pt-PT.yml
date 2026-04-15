@@ -3002,7 +3002,7 @@ sticky_var_none: "Nenhum"
 # /honeypot config
 honeypot_config_not_allowed: "Você precisa ser administrador ou estar na allowlist para configurar o Honeypot."
 honeypot_config_embed_title: "Configuração do Honeypot"
-honeypot_config_embed_desc: "Configure o canal armadilha, o canal de logs e a ação automática usada quando alguém começa a enviar mensagens no canal Honeypot."
+honeypot_config_embed_desc: "Configure o canal armadilha, o canal de logs e a ação automática usada quando alguém começa a enviar mensagens no canal *Honeypot*."
 honeypot_config_embed_field_status: "Estado"
 honeypot_config_embed_field_trap_channel: "Canal armadilha"
 honeypot_config_embed_field_logs_channel: "Canal de logs"

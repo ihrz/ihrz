@@ -3002,7 +3002,7 @@ sticky_var_none: "Нет"
 # /honeypot config
 honeypot_config_not_allowed: "Вы должны быть администратором или находиться в allowlist, чтобы настраивать Honeypot."
 honeypot_config_embed_title: "Настройка Honeypot"
-honeypot_config_embed_desc: "Настройте канал-ловушку, канал логов и автоматическое действие, которое используется, когда кто-то начинает отправлять сообщения в канале Honeypot."
+honeypot_config_embed_desc: "Настройте канал-ловушку, канал логов и автоматическое действие, которое используется, когда кто-то начинает отправлять сообщения в канале *Honeypot*."
 honeypot_config_embed_field_status: "Статус"
 honeypot_config_embed_field_trap_channel: "Канал-ловушка"
 honeypot_config_embed_field_logs_channel: "Канал логов"

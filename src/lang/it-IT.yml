@@ -3002,7 +3002,7 @@ sticky_var_none: "Nessuno"
 # /honeypot config
 honeypot_config_not_allowed: "Devi essere amministratore o essere nella allowlist per configurare Honeypot."
 honeypot_config_embed_title: "Configurazione di Honeypot"
-honeypot_config_embed_desc: "Configura il canale trappola, il canale dei log e l'azione automatica usata quando qualcuno inizia a inviare messaggi nel canale Honeypot."
+honeypot_config_embed_desc: "Configura il canale trappola, il canale dei log e l'azione automatica usata quando qualcuno inizia a inviare messaggi nel canale *Honeypot*."
 honeypot_config_embed_field_status: "Stato"
 honeypot_config_embed_field_trap_channel: "Canale trappola"
 honeypot_config_embed_field_logs_channel: "Canale dei log"
