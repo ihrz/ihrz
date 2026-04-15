@@ -73,6 +73,17 @@ function getLogActionLabel(action: DatabaseStructure.HoneypotSchema["action"], l
 	}
 }
 
+function ActionInEmbed(action: DatabaseStructure.HoneypotSchema["action"], lang: LanguageData): string {
+	switch (action) {
+		case 'ban':
+			return lang.honeypot_config_select_action_ban;
+		case 'kick':
+			return lang.honeypot_config_select_action_kick;
+		default:
+			return lang.honeypot_config_select_action_del_messages;
+	}
+}
+
 function buildTrapEmbed(lang: LanguageData): EmbedBuilder {
 	return new EmbedBuilder()
 		.setColor(HONEYPOT_EMBED_COLOR)
@@ -154,7 +165,7 @@ async function buildConfigEmbed(
 		.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 		.addFields(
 			{ name: lang.honeypot_config_embed_field_status, value: config.enabled ? lang.var_enabled : lang.var_disabled, inline: true },
-			{ name: lang.honeypot_config_embed_field_action, value: getLogActionLabel(config.action, lang), inline: true },
+			{ name: lang.honeypot_config_embed_field_action, value: ActionInEmbed(config.action, lang), inline: true },
 			{ name: lang.honeypot_config_embed_field_trap_channel, value: config.channelId ? `<#${config.channelId}>` : lang.var_none, inline: true },
 			{ name: lang.honeypot_config_embed_field_logs_channel, value: config.logsChannelId ? `<#${config.logsChannelId}>` : lang.var_none, inline: true },
 			{ name: lang.honeypot_config_embed_field_message, value: messageValue, inline: false },
@@ -188,17 +199,17 @@ function buildComponents(lang: LanguageData, config: DatabaseStructure.HoneypotS
 			.setPlaceholder(lang.honeypot_config_select_action_placeholder)
 			.addOptions(
 				{
-					label: lang.honeypot_log_action_kick,
+					label: lang.honeypot_config_select_action_kick,
 					value: 'kick',
 					default: config.action === 'kick'
 				},
 				{
-					label: lang.honeypot_log_action_ban,
+					label: lang.honeypot_config_select_action_ban,
 					value: 'ban',
 					default: config.action === 'ban'
 				},
 				{
-					label: lang.honeypot_action_none,
+					label: lang.honeypot_config_select_action_none,
 					value: 'none',
 					default: config.action === 'none'
 				},

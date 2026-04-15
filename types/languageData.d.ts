@@ -2242,6 +2242,10 @@ export interface LanguageData {
 	honeypot_config_select_trap_placeholder: string;
 	honeypot_config_select_logs_placeholder: string;
 	honeypot_config_select_action_placeholder: string;
+	honeypot_config_select_action_kick: string;
+	honeypot_config_select_action_ban: string;
+	honeypot_config_select_action_none: string;
+	honeypot_config_select_action_del_messages: string;
 	honeypot_config_button_send: string;
 	honeypot_config_button_preview: string;
 	honeypot_config_button_enable: string;
