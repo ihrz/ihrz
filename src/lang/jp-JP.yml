@@ -3034,7 +3034,7 @@ honeypot_trap_embed_title: "このチャンネルにメッセージを送信し�
 honeypot_trap_embed_desc: "*このチャンネルはスパムボットを捕まえるために使用されます。*\n*ここに送信されたメッセージはサーバーの自動保護を**トリガー**します。*"
 honeypot_trap_embed_footer: "RiskyMH の Honeypot に着想を得ています、チェックしてみてください！\n${url}"
 honeypot_dm_title: "Honeypot 発動!"
-honeypot_dm_desc: "以下のサーバーの *Honeypot* チャンネルであなたが送信したメッセージ: **`${guild}`** **トリガー** しました。\n\n__あなたに対して実行されたアクション:__ **`${action}`**.\n\n*過去 2 時間にあなたが送信したメッセージがサーバーから削除されています。ハッキングされたと思われる場合は、パスワードを変更し、Discord アカウントで 2FA を有効にしてください。あなた側の間違いだった場合は、サーバーのスタッフに連絡して問題を解決してください。*"
+honeypot_dm_desc: "以下のサーバーの *Honeypot* チャンネルであなたが送信したメッセージ: **`${guild}`** **トリガー** しました。\n\n__あなたに対して実行されたアクション:__ **`${action}`**\n\n*過去 2 時間にあなたが送信したメッセージがサーバーから削除されています。ハッキングされたと思われる場合は、パスワードを変更し、Discord アカウントで 2FA を有効にしてください。あなた側の間違いだった場合は、サーバーのスタッフに連絡して問題を解決してください。*"
 honeypot_log_title: "Honeypot 発動 - ${action}"
 honeypot_log_field_author: "送信者"
 honeypot_log_field_channel: "チャンネル"
