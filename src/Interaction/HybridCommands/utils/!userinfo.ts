@@ -203,8 +203,8 @@ export const subCommand: SubCommand = {
 				let badgesData = result.data?.["badges"];
 				let serverMaps = (badgesData.map(x => x?.["badge"]) as string[]);
 
-				for (let links of serverMaps) {
-					if (links.includes("badge.equicord.org")) {
+				for (let link of serverMaps) {
+					if (new URL(link).host === "badge.equicord.org") {
 						badges.add(client.iHorizon_Emojis.Equicord_Donator);
 					}
 				}
