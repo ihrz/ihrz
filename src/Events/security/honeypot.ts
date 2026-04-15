@@ -120,7 +120,7 @@ async function notifyUser(message: Message, actionLabel: string, lang: LanguageD
 	const embed = new EmbedBuilder()
 		.setColor(HONEYPOT_EMBED_COLOR)
 		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
-		.setTitle(lang.honeypot_dm_title.replace("${action}", actionLabel))
+		.setTitle(lang.honeypot_dm_title)
 		.setDescription(
 			lang.honeypot_dm_desc
 				.replace("${guild}", message.guild!.name)
