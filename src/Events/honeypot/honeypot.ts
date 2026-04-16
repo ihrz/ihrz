@@ -22,6 +22,7 @@
 import {
 	Client,
 	Message,
+	PermissionFlagsBits,
 } from 'discord.js';
 
 import { DatabaseStructure } from '../../../types/database_structure.js';
@@ -35,6 +36,16 @@ export const event: BotEvent = {
 		if (!message.guild || !message.channel || message.author.bot || message.webhookId) {
 			return;
 		}
+
+		// Check if the user have the Administrator permission
+		if (message.member?.permissions.has([
+			PermissionFlagsBits.Administrator |
+			PermissionFlagsBits.ManageGuild |
+			PermissionFlagsBits.BanMembers |
+			PermissionFlagsBits.KickMembers
+		])) {
+			return
+		};
 
 		const config = await client.db.get(`${message.guildId}.GUILD.HONEYPOT`) as DatabaseStructure.HoneypotSchema | null;
 		if (!config?.enabled || !config.channelId || message.channelId !== config.channelId) {

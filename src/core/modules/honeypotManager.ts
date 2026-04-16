@@ -36,7 +36,7 @@ import logger from '../logger.js';
 
 const HONEYPOT_WINDOW_MS = 1000 * 60 * 60 * 2;
 const HONEYPOT_EMBED_COLOR = '#D88A3D';
-const HONEYPOT_TRIGGER_DELAY = 5_000;
+const HONEYPOT_TRIGGER_DELAY = 1500;
 
 type HoneypotMessageChannel = BaseGuildTextChannel | AnyThreadChannel;
 export type HoneypotActionResult = 'kick' | 'ban' | 'none' | 'failed';
