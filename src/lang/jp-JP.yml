@@ -2631,7 +2631,7 @@ event_goodbye_default: "`{memberUsername}`（アカウント作成日：{account
 
 # XP Level Events
 event_xp_level_earn: "{memberMention} さん、レベルアップ (+1) おめでとうございます (現在のレベル: **{xpLevel}**)。"
-event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.OpenChat} このメッセージは煩わしいですか？`/ranks config`コマンドでレベリングシステムを無効にすることで、このメッセージを無効にできます"
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} このメッセージは煩わしいですか？`/ranks config`コマンドでレベリングシステムを無効にすることで、このメッセージを無効にできます"
 
 # Ticket Module Events:
 event_ticket_embed_description: "${user.username}さん、チケットへようこそ！しばらくお待ちください。チケットを閉じる場合は、`/ticket close` を実行してください。"
@@ -3047,6 +3047,7 @@ honeypot_log_field_attachments: "添付ファイル"
 honeypot_log_field_stickers: "ステッカー"
 honeypot_log_field_embeds: "Embeds"
 honeypot_log_field_deleted_messages: "削除されたメッセージ数"
+honeypot_log_field_triggered_messages: "トリガーされたメッセージ数"
 honeypot_log_field_dm_status: "DM 状態"
 honeypot_log_field_result: "結果"
 honeypot_log_dm_open: "配信済み"
