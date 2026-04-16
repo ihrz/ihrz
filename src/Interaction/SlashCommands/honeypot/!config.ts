@@ -39,7 +39,7 @@ import { LanguageData } from '../../../../types/languageData.js';
 import { SubCommand } from '../../../../types/command.js';
 
 const HONEYPOT_EMBED_COLOR = "#D88A3D";
-const HONEYPOT_SOURCE_URL = "https://github.com/RiskyMH/honeypot";
+const HONEYPOT_CREDIT_URL = "https://github.com/RiskyMH/honeypot";
 
 function getDefaultHoneypotConfig(guild: Guild): DatabaseStructure.HoneypotSchema {
 	return {
@@ -62,23 +62,35 @@ async function canManageHoneypot(
 	return allowlist?.list?.[interaction.user.id]?.allowed === true;
 }
 
-function getActionLabel(action: DatabaseStructure.HoneypotSchema["action"], lang: LanguageData): string {
+function getLogActionLabel(action: DatabaseStructure.HoneypotSchema["action"], lang: LanguageData): string {
 	switch (action) {
 		case 'ban':
-			return lang.setjoinroles_var_perm_ban_members;
+			return lang.honeypot_log_action_ban;
 		case 'kick':
-			return lang.setjoinroles_var_perm_kick_members;
+			return lang.honeypot_log_action_kick;
 		default:
 			return lang.honeypot_action_none;
+	}
+}
+
+function ActionInEmbed(action: DatabaseStructure.HoneypotSchema["action"], lang: LanguageData): string {
+	switch (action) {
+		case 'ban':
+			return lang.honeypot_config_select_action_ban;
+		case 'kick':
+			return lang.honeypot_config_select_action_kick;
+		default:
+			return lang.honeypot_config_select_action_del_messages;
 	}
 }
 
 function buildTrapEmbed(lang: LanguageData): EmbedBuilder {
 	return new EmbedBuilder()
 		.setColor(HONEYPOT_EMBED_COLOR)
+		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
 		.setTitle(lang.honeypot_trap_embed_title)
 		.setDescription(lang.honeypot_trap_embed_desc)
-		.setFooter({ text: lang.honeypot_trap_embed_footer });
+		.setFooter({ text: lang.honeypot_trap_embed_footer.replace("${url}", HONEYPOT_CREDIT_URL) });
 }
 
 async function ensureTrapChannel(
@@ -149,16 +161,16 @@ async function buildConfigEmbed(
 		.setColor(HONEYPOT_EMBED_COLOR)
 		.setTitle(lang.honeypot_config_embed_title)
 		.setDescription(lang.honeypot_config_embed_desc)
-		.setThumbnail(interaction.guild?.iconURL() || null)
+		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
 		.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
 		.addFields(
 			{ name: lang.honeypot_config_embed_field_status, value: config.enabled ? lang.var_enabled : lang.var_disabled, inline: true },
-			{ name: lang.honeypot_config_embed_field_action, value: getActionLabel(config.action, lang), inline: true },
+			{ name: lang.honeypot_config_embed_field_action, value: ActionInEmbed(config.action, lang), inline: true },
 			{ name: lang.honeypot_config_embed_field_trap_channel, value: config.channelId ? `<#${config.channelId}>` : lang.var_none, inline: true },
 			{ name: lang.honeypot_config_embed_field_logs_channel, value: config.logsChannelId ? `<#${config.logsChannelId}>` : lang.var_none, inline: true },
 			{ name: lang.honeypot_config_embed_field_message, value: messageValue, inline: false },
 			{ name: lang.honeypot_config_embed_field_notes, value: lang.honeypot_config_notes_value, inline: false },
-			{ name: lang.honeypot_config_embed_field_credit, value: lang.honeypot_config_credit_value.replace("${url}", HONEYPOT_SOURCE_URL), inline: false },
+			{ name: lang.honeypot_config_embed_field_credit, value: lang.honeypot_config_credit_value.replace("${url}", HONEYPOT_CREDIT_URL), inline: false },
 		);
 }
 
@@ -187,17 +199,17 @@ function buildComponents(lang: LanguageData, config: DatabaseStructure.HoneypotS
 			.setPlaceholder(lang.honeypot_config_select_action_placeholder)
 			.addOptions(
 				{
-					label: lang.setjoinroles_var_perm_kick_members,
+					label: lang.honeypot_config_select_action_kick,
 					value: 'kick',
 					default: config.action === 'kick'
 				},
 				{
-					label: lang.setjoinroles_var_perm_ban_members,
+					label: lang.honeypot_config_select_action_ban,
 					value: 'ban',
 					default: config.action === 'ban'
 				},
 				{
-					label: lang.honeypot_action_none,
+					label: lang.honeypot_config_select_action_none,
 					value: 'none',
 					default: config.action === 'none'
 				},

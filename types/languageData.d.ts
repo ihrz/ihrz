@@ -2251,9 +2251,16 @@ export interface LanguageData {
 	honeypot_config_disable_success: string;
 	honeypot_config_missing_logs_channel: string;
 	honeypot_config_generic_error: string;
+	honeypot_config_select_action_kick: string;
+	honeypot_config_select_action_ban: string;
+	honeypot_config_select_action_none: string;
+	honeypot_config_select_action_del_messages: string;
 	honeypot_default_channel_name: string;
 	honeypot_action_none: string;
 	honeypot_action_failed: string;
+	honeypot_dm_action_kicked: string;
+	honeypot_dm_action_banned: string;
+	honeypot_dm_action_none: string;
 	honeypot_trap_embed_title: string;
 	honeypot_trap_embed_desc: string;
 	honeypot_trap_embed_footer: string;
@@ -2267,9 +2274,13 @@ export interface LanguageData {
 	honeypot_log_field_stickers: string;
 	honeypot_log_field_embeds: string;
 	honeypot_log_field_deleted_messages: string;
+	honeypot_log_field_triggered_messages: string;
 	honeypot_log_field_dm_status: string;
 	honeypot_log_field_result: string;
 	honeypot_log_dm_open: string;
 	honeypot_log_dm_closed: string;
 	honeypot_log_no_content: string;
+	honeypot_log_action_ban: string;
+	honeypot_log_action_kick: string;
+	honeypot_log_action_none: string;
 }
