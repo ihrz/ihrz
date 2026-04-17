@@ -19,92 +19,106 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import puppeteer, { Browser } from 'puppeteer';
+import { randomUUID } from 'node:crypto';
+import process from 'node:process';
 
-let browser: Browser | null = await puppeteer.launch({
-	args: ['--no-sandbox', '--disable-setuid-sandbox']
-});
+import {
+	DEFAULT_HTML2PNG_OPTIONS,
+	HTML2PNG_IPC_REQUEST,
+	HTML2PNG_IPC_RESPONSE,
+	Html2PngOptions,
+	Html2PngResponseMessage
+} from './html2pngProtocol.ts';
+import { renderHtmlToPng } from './html2pngRenderer.ts';
+
+const HTML2PNG_IPC_TIMEOUT = 60_000;
+
+const pendingRequests = new Map<string, {
+	resolve: (value: Buffer) => void;
+	reject: (reason?: unknown) => void;
+	timeout: NodeJS.Timeout;
+}>();
+
+let messageListenerRegistered = false;
+
+function createRemoteError(message: Html2PngResponseMessage): Error {
+	const error = new Error(message.error?.message ?? 'html2png remote renderer failed');
+	error.stack = message.error?.stack ?? error.stack;
+	return error;
+}
+
+function registerMessageListener() {
+	if (messageListenerRegistered || !process.on) {
+		return;
+	}
+
+	process.on('message', (message: unknown) => {
+		const payload = message as Partial<Html2PngResponseMessage> | null;
+		if (!payload || payload.type !== HTML2PNG_IPC_RESPONSE || !payload.requestId) {
+			return;
+		}
+
+		const pending = pendingRequests.get(payload.requestId);
+		if (!pending) {
+			return;
+		}
+
+		clearTimeout(pending.timeout);
+		pendingRequests.delete(payload.requestId);
+
+		if (payload.error) {
+			pending.reject(createRemoteError(payload as Html2PngResponseMessage));
+			return;
+		}
+
+		if (!payload.imageBase64) {
+			pending.reject(new Error('html2png remote renderer returned an empty payload'));
+			return;
+		}
+
+		pending.resolve(Buffer.from(payload.imageBase64, 'base64'));
+	});
+
+	messageListenerRegistered = true;
+}
+
+function shouldUseShardManagerRenderer(): boolean {
+	return Boolean(process.env.SHARDING_MANAGER && global.client?.shard && typeof global.client.shard.send === 'function');
+}
+
+async function renderViaShardManager(code: string, options: Html2PngOptions): Promise<Buffer> {
+	registerMessageListener();
+
+	const requestId = randomUUID();
+
+	return await new Promise<Buffer>((resolve, reject) => {
+		const timeout = setTimeout(() => {
+			pendingRequests.delete(requestId);
+			reject(new Error(`html2png request timed out after ${HTML2PNG_IPC_TIMEOUT}ms`));
+		}, HTML2PNG_IPC_TIMEOUT);
+
+		pendingRequests.set(requestId, { resolve, reject, timeout });
+
+		global.client.shard!.send({
+			type: HTML2PNG_IPC_REQUEST,
+			requestId,
+			code,
+			options,
+		}).catch((error) => {
+			clearTimeout(timeout);
+			pendingRequests.delete(requestId);
+			reject(error);
+		});
+	});
+}
 
 export default async function html2Png(
 	code: string,
-	options: {
-		width?: number;
-		height?: number;
-		scaleSize?: number;
-		elementSelector?: string;
-		omitBackground: boolean;
-		selectElement: boolean;
-	} = {
-			width: 1280,
-			height: 800,
-			scaleSize: 1,
-			elementSelector: '.container',
-			omitBackground: false,
-			selectElement: false,
-		}
+	options: Html2PngOptions = DEFAULT_HTML2PNG_OPTIONS
 ): Promise<Buffer> {
-	try {
-		if (browser === null) {
-			browser = await puppeteer.launch({
-				args: ['--no-sandbox', '--disable-setuid-sandbox']
-			});
-		}
-		if (!browser?.connected) {
-			browser = await puppeteer.launch({
-				args: ['--no-sandbox', '--disable-setuid-sandbox']
-			});
-			return await html2Png(code, options);
-		}
-
-		const page = await browser.newPage();
-
-		await page.setViewport({
-			width: options.width ?? 1280,
-			height: options.height ?? 800,
-			deviceScaleFactor: options.scaleSize ?? 1,
-		});
-
-		await page.setContent(code);
-
-		let imageBuffer;
-		if (options.selectElement && options.elementSelector) {
-			await page.evaluate(() => {
-				document.body.style.background = 'transparent';
-			});
-			await page.evaluate((selector) => {
-				const element: any = document.querySelector(selector);
-				if (element) {
-					element.style.margin = '0';
-					element.style.padding = '0';
-				}
-			}, options.elementSelector);
-			const element = await page.$(options.elementSelector);
-			if (!element) throw new Error('Element not found');
-			const boundingBox = await element.boundingBox();
-			if (!boundingBox) throw new Error('Unable to get bounding box for the element');
-
-			imageBuffer = await page.screenshot({
-				clip: {
-					x: boundingBox.x,
-					y: boundingBox.y,
-					width: boundingBox.width,
-					height: boundingBox.height,
-				},
-				type: 'png',
-				omitBackground: options.omitBackground,
-			});
-		} else {
-			imageBuffer = await page.screenshot({
-				fullPage: true,
-				omitBackground: options.omitBackground,
-				type: 'png',
-				fromSurface: true,
-			});
-		}
-
-		await page.close();
-		return Buffer.from(imageBuffer);
-	} catch (error) {
-		throw error;
+	if (shouldUseShardManagerRenderer()) {
+		return await renderViaShardManager(code, options);
 	}
+
+	return await renderHtmlToPng(code, options);
 }
