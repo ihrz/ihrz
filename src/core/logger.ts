@@ -109,7 +109,7 @@ const logger: Logger = {
 	},
 
 	debug(message: any, ...optionalParams: any[]): void {
-		if (!client.config.core.devMode) return;
+		if (global?.client && !global.client.config.core.devMode) return;
 		if (optionalParams.length > 0) {
 			_(message, ...optionalParams);
 		} else {
