@@ -318,11 +318,11 @@ export const command: Command = {
 				dateCollector?.on('collect', async (message) => {
 					await message.delete() && u.delete();
 					dateCollector?.stop();
-					__0(client.timeCalculator.to_ms(message.content)!, i.fields.fields);
+					__0(client.timeCalculator.to_ms(message.content)!, [nameValue, descValue]);
 				});
 
 
-				async function __0(date0: number, collection: Collection<string, ModalData>) {
+				async function __0(date0: number, collection: string[]) {
 					const scheduleCode = generatePassword({ length: 16 });
 
 					if (Number.isNaN(date0)) {
@@ -350,8 +350,8 @@ export const command: Command = {
 
 					await scheduleTable.set(`${user.id}.${scheduleCode}`,
 						{
-							title: collection.get('name'),
-							description: collection.get('desc'),
+							title: collection[0],
+							description: collection[1],
 							expired: Date.now() + date0
 						}
 					);
