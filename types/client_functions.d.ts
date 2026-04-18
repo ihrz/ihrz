@@ -43,8 +43,12 @@ import { LavalinkNode, LyricsResult, SearchResult, Track } from "lavalink-client
 import { components } from '../src/core/functions/method.ts';
 import { Player } from 'lavalink-client';
 import { HandleMusicPlayOptions, SearchMusicQueryResult } from './musicPlay';
+import { Html2PngOptions, Html2PngRequestMessage, Html2PngResponseMessage } from '../src/core/functions/html2pngProtocol.ts';
 
 declare namespace Client_Functions {
+
+	// From html2pngRenderer.ts
+	export function html2pngRenderer(code: string, options: Html2PngOptions): Promise<Buffer<ArrayBufferLike>>;
 
 	// From emojiChecker.ts
 	export namespace emojiChecker {
@@ -153,6 +157,9 @@ declare namespace Client_Functions {
 	// From getLanguageData.ts
 	export function getLanguageData(arg: string | null | undefined): Promise<LanguageData>;
 
+	// From randomExpression.ts
+	export function randomExpression(): string;
+
 	// From batchProcessor.ts
 	export namespace batchProcessor {
 		export function processBatch<T>(
@@ -175,10 +182,7 @@ declare namespace Client_Functions {
 	export function wait(milliseconds: number): Promise<void>;
 
 	// From html2png.ts
-	export function html2png(
-		code: string,
-		options: { width?: number; height?: number; scaleSize?: number; elementSelector?: string; omitBackground: boolean; selectElement: boolean; }
-	): Promise<Buffer<ArrayBufferLike>>;
+	export function html2png(code: string, options: Html2PngOptions): Promise<Buffer<ArrayBufferLike>>;
 
 	// From prefix.ts
 	export namespace prefix {
