@@ -283,11 +283,11 @@ bun start
   </td>
 
   <td align="center" width="33%">
-  	<img src="https://github.com/oMedusa.png" width="100px" style="border-radius:50%"/><br/>
-    <b>Medusa</b><br/>
+  	<img src="https://github.com/im-nymii.png" width="100px" style="border-radius:50%"/><br/>
+    <b>Nymii</b><br/>
     <i>Contributor</i><br/>
     <sub>She/Her</sub><br/>
-	<a href="https://github.com/oMedusa">GitHub</a>
+	<a href="https://github.com/im-nymii">GitHub</a>
   </td>
 
   <td align="center" width="33%">
