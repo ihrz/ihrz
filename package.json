@@ -1,5 +1,6 @@
 {
 	"name": "ihrz",
+	"displayName": "iHorizon Discord Bot",
 	"version": "2026.4.1",
 	"description": "Official codebase of iHorizon Discord Bot.",
 	"main": "./src/index.ts",
@@ -20,10 +21,16 @@
 		"url": "https://gitlab.com/ihrz/ihrz"
 	},
 	"keywords": [
-		"discordbot"
+		"discordbot",
+		"discordjs",
+		"discord-bot"
 	],
 	"type": "module",
-	"author": "Kisakay",
+	"author": {
+		"email": "anais.saraiva@ihorizon.org",
+		"name": "Anaïs Saraiva",
+		"url": "https://kisakay.com"
+	},
 	"license": "CC-BY-NC-SA-4.0",
 	"bugs": {
 		"url": "https://gitlab.com/ihrz/ihrz/issues"
