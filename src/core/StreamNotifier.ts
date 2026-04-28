@@ -313,7 +313,7 @@ export class StreamNotifier {
 		return embed;
 	}
 
-	public async generateConfigurationEmbed(guild: Guild) {
+	public async generateConfigurationEmbed(guild: Guild): Promise<EmbedBuilder> {
 		const lang = await client.func.getLanguageData(guild?.id);
 		const config = (await this.getGuildData(guild.id));
 
@@ -329,6 +329,20 @@ export class StreamNotifier {
 		return embed;
 	}
 
+	// Fix a bug with a "undefined"
+	private isValidVideo(entry: Record<any, any>): boolean {
+		let objectValues = Object.values(entry);
+
+		for (let value of objectValues) {
+			if (value == null || value == undefined) {
+				return true;
+			} else if (typeof value === "object") {
+				return this.isValidVideo(value);
+			} else continue;
+		}
+		return false;
+	}
+
 	private async refresh() {
 		await this.ensureValidAccessToken();
 		const guildsData = await this.getGuildsData();
@@ -340,7 +354,7 @@ export class StreamNotifier {
 			const medias = await this.fetchUsersMedias(entry.value.users || []);
 
 			for (const media of medias) {
-				if (!await this.mediaHaveAlreadyBeNotified(entry.guildId, media)) {
+				if (!await this.mediaHaveAlreadyBeNotified(entry.guildId, media) || this.isValidVideo(media)) {
 					const message = client.func.method.generateCustomMessagePreview(
 						entry.value.message || lang.notifier_on_new_media_default_message,
 						{
