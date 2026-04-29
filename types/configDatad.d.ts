@@ -138,9 +138,7 @@ export interface ConfigData {
 		 * @deprecated not used anymore in the codebase
 		 */
 		proxyUrl?: string;
-		/**
-		 * @deprecated not used anymore in the codebase
-		 */
+
 		apiToken: string;
 		/**
 		 * @deprecated not used anymore in the codebase

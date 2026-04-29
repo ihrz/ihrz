@@ -19,106 +19,108 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { randomUUID } from 'node:crypto';
-import process from 'node:process';
+import { Browser, launch } from 'puppeteer';
+import { axios } from './axios.ts';
+import * as apiUrlParser from "./apiUrlParser.js";
 
-import {
-	DEFAULT_HTML2PNG_OPTIONS,
-	HTML2PNG_IPC_REQUEST,
-	HTML2PNG_IPC_RESPONSE,
-	Html2PngOptions,
-	Html2PngResponseMessage
-} from './html2pngProtocol.ts';
-import { renderHtmlToPng } from './html2pngRenderer.ts';
+let browser: Browser | null = null;
 
-const HTML2PNG_IPC_TIMEOUT = 60_000;
+export interface Html2PngOptions {
+	width?: number;
+	height?: number;
+	scaleSize?: number;
+	elementSelector?: string;
+	omitBackground: boolean;
+	selectElement: boolean;
+};
 
-const pendingRequests = new Map<string, {
-	resolve: (value: Buffer) => void;
-	reject: (reason?: unknown) => void;
-	timeout: NodeJS.Timeout;
-}>();
+export default async function html2Png(code: string, options: Html2PngOptions): Promise<Buffer> {
+	if (client.config.api.HorizonGateway) {
+		const res = await axios.post(
+			apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.ImageGeneration),
+			{
+				code,
+				options,
+				adminKey: client.config.api.apiToken
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				responseType: 'arraybuffer'
+			}
+		);
 
-let messageListenerRegistered = false;
-
-function createRemoteError(message: Html2PngResponseMessage): Error {
-	const error = new Error(message.error?.message ?? 'html2png remote renderer failed');
-	error.stack = message.error?.stack ?? error.stack;
-	return error;
-}
-
-function registerMessageListener() {
-	if (messageListenerRegistered || !process.on) {
-		return;
-	}
-
-	process.on('message', (message: unknown) => {
-		const payload = message as Partial<Html2PngResponseMessage> | null;
-		if (!payload || payload.type !== HTML2PNG_IPC_RESPONSE || !payload.requestId) {
-			return;
-		}
-
-		const pending = pendingRequests.get(payload.requestId);
-		if (!pending) {
-			return;
-		}
-
-		clearTimeout(pending.timeout);
-		pendingRequests.delete(payload.requestId);
-
-		if (payload.error) {
-			pending.reject(createRemoteError(payload as Html2PngResponseMessage));
-			return;
-		}
-
-		if (!payload.imageBase64) {
-			pending.reject(new Error('html2png remote renderer returned an empty payload'));
-			return;
-		}
-
-		pending.resolve(Buffer.from(payload.imageBase64, 'base64'));
-	});
-
-	messageListenerRegistered = true;
-}
-
-function shouldUseShardManagerRenderer(): boolean {
-	return Boolean(process.env.SHARDING_MANAGER && global.client?.shard && typeof global.client.shard.send === 'function');
-}
-
-async function renderViaShardManager(code: string, options: Html2PngOptions): Promise<Buffer> {
-	registerMessageListener();
-
-	const requestId = randomUUID();
-
-	return await new Promise<Buffer>((resolve, reject) => {
-		const timeout = setTimeout(() => {
-			pendingRequests.delete(requestId);
-			reject(new Error(`html2png request timed out after ${HTML2PNG_IPC_TIMEOUT}ms`));
-		}, HTML2PNG_IPC_TIMEOUT);
-
-		pendingRequests.set(requestId, { resolve, reject, timeout });
-
-		global.client.shard!.send({
-			type: HTML2PNG_IPC_REQUEST,
-			requestId,
-			code,
-			options,
-		}).catch((error) => {
-			clearTimeout(timeout);
-			pendingRequests.delete(requestId);
-			reject(error);
+		return Buffer.from(res.data);
+	} else {
+		if (!browser) browser = await launch({
+			args: ['--no-sandbox', '--disable-setuid-sandbox']
 		});
-	});
-}
-
-export default async function html2Png(
-	code: string,
-	options: Html2PngOptions = DEFAULT_HTML2PNG_OPTIONS
-): Promise<Buffer> {
-	if (shouldUseShardManagerRenderer()) {
-		return await renderViaShardManager(code, options);
+		return await localRender(code, options);
 	}
+};
 
-	return await renderHtmlToPng(code, options);
+async function localRender(
+	code: string,
+	options: Html2PngOptions = {
+		width: 1280,
+		height: 800,
+		scaleSize: 1,
+		elementSelector: '.container',
+		omitBackground: false,
+		selectElement: false,
+	}
+): Promise<Buffer> {
+	try {
+		const page = await browser!.newPage();
+
+		await page.setViewport({
+			width: options.width ?? 1280,
+			height: options.height ?? 800,
+			deviceScaleFactor: options.scaleSize ?? 1,
+		});
+
+		await page.setContent(code);
+
+		let imageBuffer;
+		if (options.selectElement && options.elementSelector) {
+			await page.evaluate(() => {
+				document.body.style.background = 'transparent';
+			});
+			await page.evaluate((selector) => {
+				const element: any = document.querySelector(selector);
+				if (element) {
+					element.style.margin = '0';
+					element.style.padding = '0';
+				}
+			}, options.elementSelector);
+			const element = await page.$(options.elementSelector);
+			if (!element) throw new Error('Element not found');
+			const boundingBox = await element.boundingBox();
+			if (!boundingBox) throw new Error('Unable to get bounding box for the element');
+
+			imageBuffer = await page.screenshot({
+				clip: {
+					x: boundingBox.x,
+					y: boundingBox.y,
+					width: boundingBox.width,
+					height: boundingBox.height,
+				},
+				type: 'png',
+				omitBackground: options.omitBackground,
+			});
+		} else {
+			imageBuffer = await page.screenshot({
+				fullPage: true,
+				omitBackground: options.omitBackground,
+				type: 'png',
+				fromSurface: true,
+			});
+		}
+
+		await page.close();
+		return Buffer.from(imageBuffer);
+	} catch (error) {
+		throw error;
+	}
 }

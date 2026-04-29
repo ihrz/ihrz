@@ -47,9 +47,6 @@ import { Html2PngOptions, Html2PngRequestMessage, Html2PngResponseMessage } from
 
 declare namespace Client_Functions {
 
-	// From html2pngRenderer.ts
-	export function html2pngRenderer(code: string, options: Html2PngOptions): Promise<Buffer<ArrayBufferLike>>;
-
 	// From emojiChecker.ts
 	export namespace emojiChecker {
 		export function isSingleEmoji(text: string): boolean;
@@ -181,6 +178,12 @@ declare namespace Client_Functions {
 	// From wait.ts
 	export function wait(milliseconds: number): Promise<void>;
 
+	// From apiUrlParser.ts
+	export namespace apiUrlParser {
+		export function assetsFinder(body: Assets, type: string): string;
+		export function HorizonGateway(gateway_method: GatewayMethod): string;
+	}
+
 	// From html2png.ts
 	export function html2png(code: string, options: Html2PngOptions): Promise<Buffer<ArrayBufferLike>>;
 
@@ -201,12 +204,6 @@ declare namespace Client_Functions {
 
 	// From numberBeautifuer.ts
 	export function numberBeautifuer(num: number): string;
-
-	// From apiUrlParser.ts
-	export namespace apiUrlParser {
-		export function assetsFinder(body: Assets, type: string): string;
-		export function HorizonGateway(gateway_method: GatewayMethod): string;
-	}
 
 	// From sanitizer.ts
 	export function sanitizer(text: string | undefined): string;
