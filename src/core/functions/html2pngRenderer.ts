@@ -42,9 +42,6 @@ const BROWSER_MAX_RENDERS = Math.floor(numberFromEnv('HTML2PNG_BROWSER_MAX_RENDE
 const BROWSER_MAX_FAILURES = Math.floor(numberFromEnv('HTML2PNG_BROWSER_MAX_FAILURES', 3, 1));
 const BROWSER_MAX_RSS_MB = numberFromEnv('HTML2PNG_BROWSER_MAX_RSS_MB', 1024, 0);
 const BROWSER_CLOSE_TIMEOUT = numberFromEnv('HTML2PNG_BROWSER_CLOSE_TIMEOUT', 5_000, 500);
-const REMOTE_IMAGE_FETCH_TIMEOUT = numberFromEnv('HTML2PNG_REMOTE_IMAGE_FETCH_TIMEOUT', 5_000, 500);
-const REMOTE_IMAGE_MAX_BYTES = numberFromEnv('HTML2PNG_REMOTE_IMAGE_MAX_BYTES', 8 * 1024 * 1024, 1024);
-const REMOTE_IMAGE_CACHE_MAX = Math.floor(numberFromEnv('HTML2PNG_REMOTE_IMAGE_CACHE_MAX', 250, 0));
 
 let browserPromise: Promise<Browser> | null = null;
 let browserStartedAt = 0;
@@ -54,7 +51,6 @@ let recycleRequested = false;
 let recyclePromise: Promise<void> | null = null;
 let activeRenders = 0;
 const renderQueue: (() => void)[] = [];
-const remoteImageCache = new Map<string, Promise<string | null>>();
 
 async function waitForRenderSlot<T>(task: () => Promise<T>): Promise<T> {
 	if (activeRenders >= MAX_CONCURRENT_RENDERS) {
@@ -73,86 +69,6 @@ async function waitForRenderSlot<T>(task: () => Promise<T>): Promise<T> {
 			activeRenders--;
 		}
 	}
-}
-
-function cacheRemoteImage(url: string, value: Promise<string | null>): void {
-	if (REMOTE_IMAGE_CACHE_MAX <= 0) return;
-
-	if (remoteImageCache.size >= REMOTE_IMAGE_CACHE_MAX) {
-		const oldestCacheKey = remoteImageCache.keys().next().value;
-		if (oldestCacheKey) {
-			remoteImageCache.delete(oldestCacheKey);
-		}
-	}
-
-	remoteImageCache.set(url, value);
-}
-
-async function fetchRemoteImageAsDataUrl(url: string): Promise<string | null> {
-	if (remoteImageCache.has(url)) {
-		return await remoteImageCache.get(url)!;
-	}
-
-	const imagePromise = (async () => {
-		const controller = new AbortController();
-		const timeout = setTimeout(() => controller.abort(), REMOTE_IMAGE_FETCH_TIMEOUT);
-
-		try {
-			const response = await fetch(url, {
-				signal: controller.signal,
-				headers: {
-					'user-agent': 'iHorizon-html2png/1.0',
-					accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-				},
-			});
-
-			if (!response.ok) return null;
-
-			const contentType = response.headers.get('content-type')?.split(';')[0]?.trim() || 'image/png';
-			if (!contentType.startsWith('image/')) return null;
-
-			const contentLength = Number(response.headers.get('content-length') ?? 0);
-			if (contentLength > REMOTE_IMAGE_MAX_BYTES) return null;
-
-			const arrayBuffer = await response.arrayBuffer();
-			if (arrayBuffer.byteLength > REMOTE_IMAGE_MAX_BYTES) return null;
-
-			return `data:${contentType};base64,${Buffer.from(arrayBuffer).toString('base64')}`;
-		} catch {
-			return null;
-		} finally {
-			clearTimeout(timeout);
-		}
-	})();
-
-	cacheRemoteImage(url, imagePromise);
-
-	return await imagePromise;
-}
-
-async function inlineRemoteImages(code: string): Promise<string> {
-	const imageSrcRegex = /(<img\b[^>]*\bsrc=["'])(https?:\/\/[^"']+)(["'][^>]*>)/gi;
-	const matches = Array.from(code.matchAll(imageSrcRegex));
-	if (!matches.length) return code;
-
-	const replacements = await Promise.all(
-		matches.map(async (match) => {
-			const url = match[2];
-			const dataUrl = await fetchRemoteImageAsDataUrl(url);
-
-			return {
-				source: match[0],
-				replacement: dataUrl ? `${match[1]}${dataUrl}${match[3]}` : match[0],
-			};
-		})
-	);
-
-	let html = code;
-	for (const { source, replacement } of replacements) {
-		html = html.replace(source, replacement);
-	}
-
-	return html;
 }
 
 async function getBrowserRssMb(browser: Browser): Promise<number | null> {
@@ -297,8 +213,8 @@ export async function renderHtmlToPng(
 				deviceScaleFactor: options.scaleSize ?? DEFAULT_HTML2PNG_OPTIONS.scaleSize ?? 1,
 			});
 
-			await page.setContent(await inlineRemoteImages(code), {
-				waitUntil: 'domcontentloaded',
+			await page.setContent(code, {
+				waitUntil: 'load',
 				timeout: HTML_CONTENT_TIMEOUT,
 			});
 			await waitForPageAssets(page);
