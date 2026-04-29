@@ -12,5 +12,6 @@
 	"editor.wrappingIndent": "same",
 	"editor.cursorSurroundingLines": 5,
 	"editor.cursorSurroundingLinesStyle": "all",
-	"editor.smoothScrolling": true
+	"editor.smoothScrolling": true,
+	"yaml.format.enable": false
 }
