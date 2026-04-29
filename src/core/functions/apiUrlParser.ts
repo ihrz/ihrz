@@ -31,6 +31,7 @@ export enum GatewayMethod {
 	ServerBackup = 6,
 	SecureWebhook = 7,
 	CreateCustomVanity = 8,
+	ImageGeneration = 9
 };
 
 export function assetsFinder(body: Assets, type: string): string {
@@ -69,6 +70,9 @@ export function HorizonGateway(gateway_method: GatewayMethod): string {
 			break;
 		case 8:
 			data += "/api/ihorizon/v1/vanity-creation"
+			break;
+		case 9:
+			data += "/api/ihorizon/v1/image"
 			break;
 	}
 

@@ -23,12 +23,6 @@ import './core/functions/colors.js';
 
 import config from './files/config.js';
 import logger from './core/logger.js';
-import { renderHtmlToPng } from './core/functions/html2pngRenderer.ts';
-import {
-	HTML2PNG_IPC_REQUEST,
-	HTML2PNG_IPC_RESPONSE,
-	Html2PngRequestMessage
-} from './core/functions/html2pngProtocol.ts';
 
 import { ShardingManager, REST, Routes } from 'discord.js';
 
@@ -104,33 +98,6 @@ manager.on('shardCreate', (shard) => {
 	shard.on('reconnecting', () => logger.log(`${tag} 🔄 Reconnecting...`.blue));
 	shard.on('death', (proc) => logger.err(`${tag} 💀 Died`.red));
 	shard.on('error', (err) => logger.err(`${tag} Error: ${err.message}`.red));
-	shard.on('message', async (message) => {
-		const payload = message as Partial<Html2PngRequestMessage> | null;
-		if (!payload || payload.type !== HTML2PNG_IPC_REQUEST || !payload.requestId || typeof payload.code !== 'string' || !payload.options) {
-			return;
-		}
-
-		logger.debug("[ShardManager]", 'ipc:', HTML2PNG_IPC_REQUEST, 'request on Shard#', shard.id);
-
-		try {
-			const image = await renderHtmlToPng(payload.code, payload.options);
-			await shard.send({
-				type: HTML2PNG_IPC_RESPONSE,
-				requestId: payload.requestId,
-				imageBase64: image.toString('base64'),
-			});
-		} catch (error) {
-			const err = error instanceof Error ? error : new Error(String(error));
-			await shard.send({
-				type: HTML2PNG_IPC_RESPONSE,
-				requestId: payload.requestId,
-				error: {
-					message: err.message,
-					stack: err.stack,
-				},
-			});
-		}
-	});
 });
 
 await manager.spawn({
