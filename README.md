@@ -14,7 +14,7 @@
 <br>
 <br>
 
-[![GitHub Release](https://img.shields.io/gitlab/v/release/ihrz/ihrz?style=for-the-badge&logo=gitlab&color=5865F2)](https://gitlab.com/ihrz/ihrz/-/releases)
+[![GitLab Release](https://img.shields.io/gitlab/v/release/ihrz/ihrz?style=for-the-badge&logo=gitlab&color=5865F2)](https://gitlab.com/ihrz/ihrz/-/releases)
 [![GitHub Stars](https://img.shields.io/github/stars/ihrz/ihrz?style=for-the-badge&logo=github&color=FFD700)](https://github.com/ihrz/ihrz)
 [![Discord](https://img.shields.io/discord/972538524790304788?style=for-the-badge&logo=discord&color=7289DA&label=Support%20Server)](http://discord.ihorizon.org/)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-orange?style=for-the-badge)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
@@ -188,8 +188,8 @@ iHorizon supports **10 languages** for an optimal international experience:
 
 | Metric                  | Value    |
 | ----------------------- | -------- |
-| 👥 **Users**             | 400,000+ |
-| 🏢 **Servers**           | 2,400+   |
+| 👥 **Users**             | 450,000+ |
+| 🏢 **Servers**           | 2,600+   |
 | ✅ **Discord Certified** | Verified |
 | ⭐ **GitHub Stars**      | 53+      |
 
@@ -283,11 +283,11 @@ bun start
   </td>
 
   <td align="center" width="33%">
-  	<img src="https://github.com/oMedusa.png" width="100px" style="border-radius:50%"/><br/>
-    <b>Medusa</b><br/>
+  	<img src="https://github.com/im-nymii.png" width="100px" style="border-radius:50%"/><br/>
+    <b>Nymii</b><br/>
     <i>Contributor</i><br/>
     <sub>She/Her</sub><br/>
-	<a href="https://github.com/oMedusa">GitHub</a>
+	<a href="https://github.com/im-nymii">GitHub</a>
   </td>
 
   <td align="center" width="33%">

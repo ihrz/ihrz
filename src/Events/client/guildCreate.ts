@@ -26,6 +26,7 @@ import logger from "../../core/logger.js";
 import { BotEvent } from '../../../types/event.js';
 import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
 import { blacklistTable } from './ready.js';
+import { Expressions } from '../../core/functions/randomExpression.js';
 
 export const event: BotEvent = {
 	name: "guildCreate",
@@ -76,6 +77,7 @@ export const event: BotEvent = {
 				.setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
 				.setTimestamp()
 				.setFooter(await guild.client.func.displayBotName.footerBuilder(guild.id))
+				.setThumbnail(Expressions.Sob);
 
 			const isBL = await blacklistTable.get(`${guild.ownerId}.blacklisted`) || false;
 
@@ -100,6 +102,7 @@ export const event: BotEvent = {
 				.setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" })
 				.setImage(await client.func.bannerGenerator(guild.id))
 				.setDescription(lang.new_guild_embed_desc.replace('${randomMessage}', welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]))
+				.setThumbnail(Expressions.Wink);
 
 			const buttons1 = new ActionRowBuilder<ButtonBuilder>()
 				.addComponents(

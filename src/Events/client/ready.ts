@@ -36,6 +36,7 @@ import { isNumber } from '../../core/functions/method.js';
 import { DB } from '../../core/database/types.js';
 import { Horizon } from '../../core/database/driver/horizon.js';
 import { AvailableLanguage } from '../../core/functions/getLanguageData.js';
+import { Expressions } from '../../core/functions/randomExpression.js';
 
 // @ts-ignore
 export let tempTable: DB = null;
@@ -181,7 +182,7 @@ export const event: BotEvent = {
 							.setColor('#56a0d3')
 							.setTitle(`#${ScheduleId} Schedule has been expired!`)
 							.setDescription(desc)
-							.setThumbnail((member.displayAvatarURL()))
+							.setThumbnail(Expressions.Nerd)
 							.setTimestamp()
 							.setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" });
 
