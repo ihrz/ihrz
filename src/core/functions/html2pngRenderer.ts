@@ -214,7 +214,7 @@ export async function renderHtmlToPng(
 			});
 
 			await page.setContent(code, {
-				waitUntil: 'domcontentloaded',
+				waitUntil: 'load',
 				timeout: HTML_CONTENT_TIMEOUT,
 			});
 			await waitForPageAssets(page);
