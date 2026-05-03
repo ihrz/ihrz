@@ -308,14 +308,14 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'pic-only',
+			name: 'media-only',
 
-			description: 'Define channels for only picture sending (block other content)',
+			description: 'Define channels for only pictures/videos sending (block other content)',
 			description_localizations: {
-				"fr": "Définir des canaux pour l'envoi d'images uniquement (bloquer d'autres contenus)"
+				"fr": "Définir des canaux pour l'envoi d'images/videos uniquement (bloquer d'autres contenus)"
 			},
 
-			aliases: ["piconly"],
+			aliases: ["piconly", "mediaonly"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
