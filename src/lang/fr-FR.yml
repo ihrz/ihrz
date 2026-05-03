@@ -1070,18 +1070,18 @@ utils_dm: "${client.iHorizon_Emojis.Yes} Le message a parfaitement été envoyé
 utils_dm_cant: "${client.iHorizon_Emojis.No} Je n'ai pas réussi à envoyer de message à ${targetMember.toString()}. Il à peut-être bloqué ses message privés, ou il m'a bloqué!"
 
 # /utils pic-only
-utils_pic_only_embed_title: "Salons Images Uniquement"
-utils_pic_only_emnbed_desc: "Salon où seules les photos/images sont autorisées. Tout autre contenu est bloqué par le bot"
+utils_pic_only_embed_title: "Salons Médias Uniquement"
+utils_pic_only_emnbed_desc: "Salon où seules les photos/images/vidéos sont autorisées. Tout autre contenu est bloqué par le bot"
 utils_piconly_embed_fields_3_name: "Durée du Timeout"
 utils_piconly_select1_option1_label: "Changer la durée du timeout"
 utils_piconly_select1_option2_label: "Changer le seuil"
-utils_piconly_modal1_title: "PicOnly - Configuration du Temps"
+utils_piconly_modal1_title: "MediaOnly - Configuration du Temps"
 utils_piconly_modal1_fields1_placeholder: "la durée du mute"
 utils_piconly_modal1_fields1_label: "Durée du Mute"
-utils_piconly_modal2_title: "PicOnly - Configuration du Seuil"
+utils_piconly_modal2_title: "MediaOnly - Configuration du Seuil"
 utils_piconly_modal2_fields1_placeholder: "le seuil avant le mute"
 utils_piconly_modal2_fields1_label: "Seuil"
-utils_piconly_embed_fields2_placeholder: "Créer un fil de discussion sous l'image"
+utils_piconly_embed_fields2_placeholder: "Créer un fil de discussion sous l'image/vidéo"
 utils_piconly_var_thread_name: "Fil de {name}"
 
 # /zip-emojis

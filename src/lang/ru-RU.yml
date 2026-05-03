@@ -1070,19 +1070,19 @@ utils_dm: "${client.iHorizon_Emojis.Yes} Сообщение было успеш�
 utils_dm_cant: "${client.iHorizon_Emojis.No} Не удалось отправить сообщение пользователю ${targetMember.toString()}. Возможно, он заблокировал личные сообщения или заблокировал меня!"
 
 # /utils pic-only
-utils_pic_only_embed_title: "Каналы Только для Изображений"
-utils_pic_only_emnbed_desc: "Канал, где разрешены только фотографии/изображения. Другой контент блокируется ботом"
-utils_piconly_embed_fields_3_name: "Время таймаута"
-utils_piconly_select1_option1_label: "Изменить время таймаута"
+utils_pic_only_embed_title: "Каналы только для медиа"
+utils_pic_only_emnbed_desc: "Канал, где разрешены только изображения/видео. Другой контент (например, текстовые сообщения) блокируется ботом"
+utils_piconly_embed_fields_3_name: "Время тайм-аута"
+utils_piconly_select1_option1_label: "Изменить время тайм-аута"
 utils_piconly_select1_option2_label: "Изменить порог"
-utils_piconly_modal1_title: "ТолькоКартинки - Настройки времени"
-utils_piconly_modal1_fields1_placeholder: "время мута"
+utils_piconly_modal1_title: "MediaOnly - Настройки времени"
+utils_piconly_modal1_fields1_placeholder: "длительность мута"
 utils_piconly_modal1_fields1_label: "Время мута"
-utils_piconly_modal2_title: "ТолькоКартинки - Настройка порога"
+utils_piconly_modal2_title: "MediaOnly - Настройка порога"
 utils_piconly_modal2_fields1_placeholder: "порог перед мутом"
 utils_piconly_modal2_fields1_label: "Порог"
-utils_piconly_embed_fields2_placeholder: "Создать ветку под изображением"
-utils_piconly_var_thread_name: "Ветка {name}"
+utils_piconly_embed_fields2_placeholder: "Создать тред под изображением/видео"
+utils_piconly_var_thread_name: "Тред от {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "У вас нет разрешения на управление эмодзи."
