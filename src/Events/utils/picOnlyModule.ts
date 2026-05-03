@@ -48,22 +48,26 @@ export const event: BotEvent = {
 		const picOnlyConfig = await client.db.get(`${message.guildId}.UTILS.picOnlyConfig`) as DatabaseStructure.PicOnlyConfig;
 
 		if (picOnlyChannels?.includes(message.channelId)) {
-			const hasValidImageAttachment = Array.from(message.attachments.values()).some(attachment => {
-				const validImageTypes = [
+			const hasValidMediaAttachment = Array.from(message.attachments.values()).some(attachment => {
+				const validMediaTypes = [
 					'image/jpeg',
 					'image/png',
 					'image/gif',
 					'image/webp',
 					'image/bmp',
-					'image/tiff'
+					'image/tiff',
+					'video/x-matroska',
+					'video/mp4',
+					'video/webm',
+					'video/quicktime'
 				];
 				const contentType = attachment.contentType;
-				return contentType && validImageTypes.includes(contentType.toLowerCase());
+				return contentType && validMediaTypes.includes(contentType.toLowerCase());
 			});
 
 			const lang = await client.func.getLanguageData(message.guildId);
 
-			if (!hasValidImageAttachment && !message.member?.permissions.has(PermissionFlagsBits.ModerateMembers)) {
+			if (!hasValidMediaAttachment && !message.member?.permissions.has(PermissionFlagsBits.ModerateMembers)) {
 				await message.delete();
 
 				const userId = message.author.id;
