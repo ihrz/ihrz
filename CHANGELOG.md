@@ -1,124 +1,54 @@
-# Version Patch 2026.4.1 (1st patch of April 2026)
+# Version Patch 2026.5.1 (1st patch of May 2026)
 
-## Changes between [2026.1.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.1.1) and [2026.4.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.4.1)
+## Changes between [2026.4.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.4.1) and [2026.5.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.5.1)
 
 -----
 
 ## User-facing changes
 
-### Utility command changes
+***NEW MODULE: LastFM Scrobbler***
+- **Connect your Last.fm account and automatically scrobble the tracks played by iHorizon while you stay in the voice channel.**
 
-`/util zip-stickers`, `/util zip-emojis`:
+***NEW MODULE: Sticky***
+- **Keep an important message always visible in your channels with automatic reposting. Embeds, just text or both, you choose!**
 
-- Initially, we switched from `jszip` to `Bun.Archive` for `.zip` file generation, since the latter pretty much replaced `jszip`
-- But afterwards, we reverted this change as it made the command crash when executed
+***NEW MODULE: Honeypot***
+- **Only one command: `/honeypot config`**
+- **Set up a trap channel to catch compromised accounts and automatically clean up recent spam across your server.**
+- **Inspired by [RiskyMH's Honeypot bot](https://github.com/RiskyMH/Honeypot), check it out!**
 
-`/utils userinfo`
+***The PicOnly module is now called MediaOnly***
+- **The MediaOnly module now supports sending other types of media than only photos, videos can now be sent in channels where the module is enabled.**
 
-- The following badges can now be displayed if the user has them:
-	- App/Bot
-	- Certified App/Bot
-	- 'Supports Commands'
-	- AutoMod
-	- Discord Bug Hunter
-	- Discord Moderator
-	- Discord Staff
-	- Active Developer
-	- Early Supporter
-	- Server Booster
-	- Nitro Boost/Basic
-	- HypeSquad
-	- Platform icons, similar to Vencord's `PlatformIndicators` plugin
-	- Vencord/Equicord donator
-- The server crown is also displayed when the specified user is the owner of the server where the command is executed	
+- *The dropdown menu of the bot's help command has new updated icons for each command category.*
 
-`/guildconfig set join-message`
+***New command: `/music clear-queue`***
+- *You can now clear the music queue present in the server where the command is executed.* 
 
-- Added prefix command aliases: `joinmsg`, `jmessage`, `joiner`
+***New command: `/automod block telegram_link`***
+- *You can now use Discord's built-in AutoMod to block Telegram links across your server.*
 
-`/guildconfig set leave-message`
+***New command: `/music clear-queue`***
+- *You can now clear the music queue present in the guild where the command is executed.*
 
-- Added prefix command aliases: `leavemsg`, `lmessage`, `leaver`
+- *Fixing the ticket panel module that was broken due to duplicate `optionFields`.*
 
-`/guildconfig set join-dm`
+- *Schedule module fixes*
 
-- Added prefix command alias: `joinmp`
+- *Fixing ghost temporary voice channel in the Temporary Voice Channel module*
 
-`/mutelist`
+- *iHorizon's RPC presence has been modified. It will be now displayed as `PLAYING Shards #[CLIENT_SHARD_ID] | [SERVER_COUNT] Servers | www.ihorizon.org`*
 
-- Added prefix command aliases: `allmute`, `allmutes`, `alltimeout` and `alltimeouts`
+- *Improved translations and wording*
 
-### Confession module
-
-- The embed now mentions the fact that users should keep in mind that confessions may not remain anonymous. Server owners or anyone with access to confession logs can identify users if logging is enabled.
-
-### Permission module
-
-***Fix:*** Resolved a bug where command restrictions set by role or user could be bypassed; permission entries are also now properly cleaned up from the database when all restrictions are removed.
-
-### Fun commands
-
-***New prefix/message command:*** `67`
-
-- - Sends a "six-seven" meme GIF when the command is executed (because it's funny)
-
-`/fun tweet`
-
-- Improved HTML tweet card to better imitate the X/Twitter interface
-
-### Music module
-
-- Now supports Discord's new DAVE protocol, aka E2EE, for voice calls (Thanks Lirus!)
-
-### Gay module
-
-- Gay commands are now available as Hybrid Commands instead of prefix/message commands
-
-### Blacklist Module
-
-- Blacklist message has been improved
-
-### Activity presence revamp
-
-- iHorizon's activity presence is now rendered this way : Shards #{shardNumber} | {serverNumber} Servers
-
-### Translations
-
-- Updated translations
-
-### Inviter module
-
-- `{memberUsername}` variables are now wrapped with backticks to prevent Markdown formatting. Without this, iHorizon could underline or format usernames
-containing markdown characters like `__` or `**`.
+- Modules relying on `HTML2PNG` (e.g. `/love` and `/stats` commands) have been fixed
 
 ## Internal improvements
 
-### Event files
+- Improved `EmojiManager`
 
-- Redundant code has been removed from the following files: 
-	- `joinMessage.ts`
-	- `ranks/onNewMessage.ts`
-	- `suggestion/onNewMessage.ts`
-	- `rankRoleModule.ts`
-- Invite fetching has been improved	
+- Centralize `HTML2PNG` rendering in `ShardManager`
 
-### Config file
+- Added `dev` script in `package.json` to launch the bot for development purposes
 
-- The Client ID field has been removed from `config.example.ts`
-
-### README
-
-- Revamped README file
-	- A new "alumni" section has been created to honor past contributors and developers who have helped make iHorizon what it is today.
-	- The style of the 'Key Features' section has been improved
-	- The `npm` package has been removed from the list of installation methods since it's no longer being maintained
-	- In the resources & links section, the documentation is now mentioned as being in BETA
-- Updated server and user count
-
-### Sharding
-
-- Better sharding support
-
-### Dependencies
-
-- Miscellaneous dependencies have been updated
+- Updated dependencies
