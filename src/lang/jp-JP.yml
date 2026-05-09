@@ -1070,19 +1070,19 @@ utils_dm: "${client.iHorizon_Emojis.Yes} メッセージは ${targetMember.toStr
 utils_dm_cant: "${client.iHorizon_Emojis.No} ${targetMember.toString()} にメッセージを送信できませんでした。プライベートメッセージをブロックしているか、私をブロックしている可能性があります。"
 
 # /utils pic-only
-utils_pic_only_embed_title: "画像専用チャンネル"
-utils_pic_only_emnbed_desc: "写真・画像のみが許可されているチャンネル。他のコンテンツはボットによってブロックされます"
+utils_pic_only_embed_title: "メディア専用チャンネル"
+utils_pic_only_emnbed_desc: "画像や動画のみ許可されるチャンネルです。その他のコンテンツ（テキストメッセージなど）はボットによってブロックされます"
 utils_piconly_embed_fields_3_name: "タイムアウト時間"
 utils_piconly_select1_option1_label: "タイムアウト時間を変更"
 utils_piconly_select1_option2_label: "しきい値を変更"
-utils_piconly_modal1_title: "画像のみ - 時間設定"
+utils_piconly_modal1_title: "MediaOnly - 時間設定"
 utils_piconly_modal1_fields1_placeholder: "ミュート時間"
 utils_piconly_modal1_fields1_label: "ミュート時間"
-utils_piconly_modal2_title: "画像のみ - しきい値設定"
+utils_piconly_modal2_title: "MediaOnly - しきい値設定"
 utils_piconly_modal2_fields1_placeholder: "ミュート前のしきい値"
 utils_piconly_modal2_fields1_label: "しきい値"
-utils_piconly_embed_fields2_placeholder: "画像の下にスレッドを作成"
-utils_piconly_var_thread_name: "{name}のスレッド"
+utils_piconly_embed_fields2_placeholder: "画像/動画の下にスレッドを作成"
+utils_piconly_var_thread_name: "{name} によるスレッド"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "絵文字を管理する権限がありません。"

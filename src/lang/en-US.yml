@@ -1070,20 +1070,18 @@ utils_dm: "${client.iHorizon_Emojis.Yes} The message was successfully sent to ${
 utils_dm_cant: "${client.iHorizon_Emojis.No} I couldn't send a message to ${targetMember.toString()}. They may have blocked private messages, or they may have blocked me!"
 
 # /utils pic-only
-utils_pic_only_embed_title: "Pic Only Channels"
-utils_pic_only_emnbed_desc: "Channel where pictures/images are the only things allowed. Other contents (like plain text messages) are blocked by the bot"
-
-# /utils pic-only
+utils_pic_only_embed_title: "Media Only Channels"
+utils_pic_only_emnbed_desc: "Channel where pictures/images/videos are the only things allowed. Other contents (like plain text messages) are blocked by the bot"
 utils_piconly_embed_fields_3_name: "Timeout Time"
 utils_piconly_select1_option1_label: "Change timeout time"
 utils_piconly_select1_option2_label: "Change threshold"
-utils_piconly_modal1_title: "PicOnly - Time Configurations"
+utils_piconly_modal1_title: "MediaOnly - Time Configurations"
 utils_piconly_modal1_fields1_placeholder: "the time of the mute"
 utils_piconly_modal1_fields1_label: "Mute Time"
-utils_piconly_modal2_title: "PicOnly - Threshold Configuration"
+utils_piconly_modal2_title: "MediaOnly - Threshold Configuration"
 utils_piconly_modal2_fields1_placeholder: "the threshold before mute"
 utils_piconly_modal2_fields1_label: "Threshold"
-utils_piconly_embed_fields2_placeholder: "Create a thread under the image"
+utils_piconly_embed_fields2_placeholder: "Create a thread under the image/video"
 utils_piconly_var_thread_name: "Thread by {name}"
 
 # /zip-emojis

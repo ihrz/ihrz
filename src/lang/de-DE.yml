@@ -1070,18 +1070,18 @@ utils_dm: "${client.iHorizon_Emojis.Yes} Die Nachricht wurde erfolgreich an ${ta
 utils_dm_cant: "${client.iHorizon_Emojis.No} Ich konnte die Nachricht nicht an ${targetMember.toString()} senden. Vielleicht hat er private Nachrichten blockiert oder er hat mich blockiert!"
 
 # /utils pic-only
-utils_pic_only_embed_title: "Nur-Bilder-Kanäle"
-utils_pic_only_emnbed_desc: "Kanal, in dem nur Bilder/Fotos erlaubt sind. Andere Inhalte werden vom Bot blockiert"
+utils_pic_only_embed_title: "Nur Medien Kanäle"
+utils_pic_only_emnbed_desc: "Kanal, in dem nur Bilder/Videos erlaubt sind. Andere Inhalte (wie Textnachrichten) werden vom Bot blockiert"
 utils_piconly_embed_fields_3_name: "Timeout-Zeit"
 utils_piconly_select1_option1_label: "Timeout-Zeit ändern"
 utils_piconly_select1_option2_label: "Schwellenwert ändern"
-utils_piconly_modal1_title: "NurBilder - Zeiteinstellungen"
-utils_piconly_modal1_fields1_placeholder: "die Dauer der Stummschaltung"
-utils_piconly_modal1_fields1_label: "Stummschaltungszeit"
-utils_piconly_modal2_title: "NurBilder - Schwellenwert-Konfiguration"
-utils_piconly_modal2_fields1_placeholder: "der Schwellenwert vor der Stummschaltung"
+utils_piconly_modal1_title: "MediaOnly - Zeitkonfiguration"
+utils_piconly_modal1_fields1_placeholder: "Dauer der Stummschaltung"
+utils_piconly_modal1_fields1_label: "Stummschaltzeit"
+utils_piconly_modal2_title: "MediaOnly - Schwellenwert-Konfiguration"
+utils_piconly_modal2_fields1_placeholder: "Schwellenwert vor Stummschaltung"
 utils_piconly_modal2_fields1_label: "Schwellenwert"
-utils_piconly_embed_fields2_placeholder: "Thread unter dem Bild erstellen"
+utils_piconly_embed_fields2_placeholder: "Thread unter dem Bild/Video erstellen"
 utils_piconly_var_thread_name: "Thread von {name}"
 
 # /zip-emojis
