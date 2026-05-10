@@ -53,9 +53,18 @@ read -p "DO YOU WANT TO CONTINUE? (y/n): " user_choice < /dev/tty
 # Convert to lowercase for consistency
 user_choice=$(echo "$user_choice" | tr '[:upper:]' '[:lower:]')
 
-# Managing user choice
+# Managing user choice / Exit mechanism
 if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
-	echo "Okay. Proceeding with the provisioning..."
+    echo "Okay. Proceeding with the provisioning..."
+
+elif [[ "$user_choice" == "n" || "$user_choice" == "no" ]]; then
+    echo "Provisioning cancelled by the user. Exiting..."
+    exit 0
+
+else
+    echo "Invalid input. Please enter y/yes or n/no."
+    exit 1
+fi
 
 	# Updating local repos to be up-to-date with remote repos
 	sudo apt update && sudo apt upgrade -y
