@@ -1,16 +1,15 @@
-# iHorizon provisioning scripts
+# iHorizon Provisioning Script
 
-This folder contains provisioning scripts to help you automate the installation of needed dependencies to run and use iHorizon easily.
+This folder contains a provisioning script designed to automate the installation of required dependencies and simplify the setup, deployment, and usage of the iHorizon Discord Bot.
 
-These scripts will help you : 
-- Install `git`, `bun`, `pm2`, `nodejs`, the Chromium web browser as well as specific fonts needed
-- Cloning the iHorizon bot repository
-- Installing iHorizon's dependencies
-- Setting up the bot's token
-- Setting up `pm2` for iHorizon and run the bot
+These scripts help you:
 
-This provisioning script is available as a Bash script, meaning you will need to use this script on a Linux-based operating system or a Windows Subsystem for Linux (WSL).
+- Install `git`, `bun`, `pm2`, `nodejs`, the Chromium web browser (via Flatpak), and additional required fonts
+- Clone the iHorizon repository
+- Install iHorizon dependencies
+- Configure the bot token
+- Set up `pm2` for iHorizon and start the bot
 
-You will need to execute these scripts on an Ubuntu/Debian-based operating system. We will support other Linux distributions in the future.
+The provisioning script is available as a Bash (`.sh`) script, which means it must be executed on a Linux-based operating system or through [Windows Subsystem for Linux (WSL).](https://learn.microsoft.com/en-us/windows/wsl/install)
 
-We also have plans on creating a Docker image to make these provisioning scripts irrelevant.
+Currently, the script supports Ubuntu and Debian-based distributions. Support for additional Linux distributions may be added in the future.
