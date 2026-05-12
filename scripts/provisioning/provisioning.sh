@@ -106,7 +106,7 @@ fi
 		# Installing nvm
 		curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 		# Instead of relaunching the shell...
-        \. ".config/nvm/nvm.sh"
+        \. ".nvm/nvm.sh"
 		# Install node LTS
         nvm install --lts
     else
