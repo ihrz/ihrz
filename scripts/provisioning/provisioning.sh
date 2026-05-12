@@ -64,6 +64,7 @@ elif [[ "$user_choice" == "n" || "$user_choice" == "no" ]]; then
 else
     echo "Invalid input. Please enter y/yes or n/no."
     exit 1
+fi	
 
 	# Updating local repos to be up-to-date with remote repos
 	sudo apt update && sudo apt upgrade -y
@@ -348,4 +349,3 @@ else
 	echo "🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉"
 	echo "⚠️  But just one more thing! Execute the following command on your terminal to finish the installation : source ~/.bashrc ⚠️"
 	echo "And after that you will be all set! Thank you for using the iHorizon Provisioning Script!"
-fi
