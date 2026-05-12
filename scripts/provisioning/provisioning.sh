@@ -27,11 +27,11 @@ set -euo pipefail
 cd ~
 
 # Pre-checks
-# pm2 only supports systemd and openrc for pm2 startup, runit and other alternative init systems are not supported by pm2. openrc is not supported by this script as there's literally NO POINT for supporting it. 
-if ! command -v systemctl &>/dev/null; then
-	echo "The script is unable to run because no supported init system is installed."
-	exit 1
-fi	
+# pm2 only supports systemd and openrc for pm2 startup, runit and other alternative init systems are not supported by pm2.
+if ! command -v systemctl &>/dev/null && ! command -v rc-status &>/dev/null; then
+    echo "The script is unable to run because no supported init system is installed."
+    exit 1
+fi
 
 # Currently this script only works with Ubuntu/Debian-based distributions, multi-distro support might come soon.
 # Check if apt is installed. It's a pretty good technique to know if the computer is on an Ubuntu/Debian-based distro
@@ -103,7 +103,6 @@ fi
 
 	if ! command -v node &>/dev/null; then
 		echo "node is not installed, installing..."
-		# We could have used Ubuntu/Debian repos to make this easier to do and develop this script but their repos are severely outdated; THEY LITTERALLY HAVE AN UNSUPPORTED VERSION OF NODEJS!!!!!
 		# Installing nvm
 		curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 		# Instead of relaunching the shell...
