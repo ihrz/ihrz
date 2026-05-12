@@ -64,7 +64,6 @@ elif [[ "$user_choice" == "n" || "$user_choice" == "no" ]]; then
 else
     echo "Invalid input. Please enter y/yes or n/no."
     exit 1
-fi
 
 	# Updating local repos to be up-to-date with remote repos
 	sudo apt update && sudo apt upgrade -y
@@ -199,15 +198,15 @@ fi
 	# Ask if phone presence should be enabled
 	read -p "Do you want to enable phone presence? (y/n): " phone_presence_choice < /dev/tty
 	if [[ "$phone_presence_choice" == "y" || "$phone_presence_choice" == "yes" ]]; then
-    phone_presence=true
+    	phone_presence=true
 	else
     	phone_presence=false
 	fi
 
 	# Ask if they want to enable messageCommandsMention
-	read -p "Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n)" < /dev/tty
-	if [["$message_commands_mention" == "y" || "$message_commands_mention" == "yes"]]; then 
-	message_commands_mention=true
+	read -p "Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n) " message_commands_mention < /dev/tty
+	if [[ "$message_commands_mention" == "y" || "$message_commands_mention" == "yes" ]]; then 
+		message_commands_mention=true
 	else
 		message_commands_mention=false
 	fi
