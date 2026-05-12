@@ -113,7 +113,7 @@ fi
 		echo "node is already installed!"
 	fi	
     
-    sudo ln -sf "$(which node)" /usr/local/bin/node
+	sudo ln -sf "$(realpath $(which node))" /usr/local/bin/node
 
 	if ! command -v pm2 &>/dev/null; then 
 		echo "pm2 is not installed, installing..."
