@@ -232,10 +232,10 @@ fi
     	fi
 	else
     	echo "Skipping Lavalink setup."
-    	lavalink_node_id=""
-    	lavalink_node_host=""
+    	lavalink_node_id="example_node"
+    	lavalink_node_host="lavalink.example.com"
     	lavalink_node_port="2333"
-    	lavalink_node_password=""
+    	lavalink_node_password="password"
     	lavalink_secure=false
 	fi
 
