@@ -336,9 +336,10 @@ fi
 	# Step 6 : Starting the bot and making it daemonized
 	# Starting the bot (here the name of the daemon will be iHorizon and the interpreter will be bun)
 	echo "Setting up pm2..."
-	pm2 start ~/.bun/bin/bun --name "iHorizon" -- run src/index.ts7
-	# 
+	pm2 start ~/.bun/bin/bun --name "iHorizon" -- run src/index.ts
+	# Save pm2 config
 	pm2 save --force
+	# Launch iHorizon at startup
 	STARTUP_CMD=$(pm2 startup systemd -u $USER --hp $HOME | grep "sudo env" | tail -1)
 	eval "$STARTUP_CMD"
 
