@@ -117,7 +117,7 @@ fi
 
 	if ! command -v pm2 &>/dev/null; then 
 		echo "pm2 is not installed, installing..."
-		bun install -g pm2
+		npm install -g pm2
 		sudo ln -sf "$HOME/.bun/bin/pm2" /usr/local/bin/pm2
 	else 
 		echo "pm2 is already installed!"
