@@ -136,7 +136,6 @@ fi
 	# Install Chromium
 	flatpak install -y flathub org.chromium.Chromium
 
-	# TODO: TEST THIS IF IT ACTUALLY WORKS 
 	if apt list --installed | grep -q fonts-noto-color-emoji; then
 		echo "fonts-noto-color-emoji is already installed!"
 	else
@@ -144,7 +143,6 @@ fi
 		sudo apt install -y fonts-noto-color-emoji		
 	fi
 
-	# TODO: TEST THIS IF IT ACTUALLY WORKS 
 	if apt list --installed | grep -q xvfb; then
 		echo "xvfb is already installed!"
 	else
@@ -152,7 +150,6 @@ fi
 		sudo apt install -y xvfb	
 	fi
 
-	# TODO: TEST THIS IF IT ACTUALLY WORKS 
 	if apt list --installed | grep -q melt; then
 		echo "melt is already installed!"
 	else
