@@ -340,8 +340,7 @@ fi
 	# Save pm2 config
 	pm2 save --force
 	# Launch iHorizon at startup
-	STARTUP_CMD=$(pm2 startup systemd -u $USER --hp $HOME | grep "sudo env" | tail -1)
-	eval "$STARTUP_CMD"
+	eval $(pm2 startup systemd -u $USER --hp $HOME | tail -1)
 
 	# All done!
 	echo "🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉"
