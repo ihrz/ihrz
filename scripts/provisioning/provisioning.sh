@@ -157,11 +157,17 @@ fi
 		sudo apt install -y melt
 	fi
 
-	# Step 2 : cloning the GitLab Repository (production branch for more stability, we don't want users to have a maybe-broken bot right from the start because they cloned the dev branch which is meant for development and testing)
+	# Step 2 : Cloning the GitLab Repository (production branch for more stability, we don't want users to have a maybe-broken bot right from the start because they cloned the dev branch which is meant for development and testing). If the directory already exists, we will pull the latest changes instead of cloning again.
 
 	echo "Cloning the iHorizon GitLab repository..."
-	git clone -b production https://gitlab.com/ihrz/ihrz.git
-	cd ihrz
+	if [ -d "ihrz" ]; then
+    	echo "iHorizon Bot git directory already exists, pulling latest changes instead..."
+    	cd ihrz
+    	git pull origin production
+	else
+    	git clone -b production https://gitlab.com/ihrz/ihrz.git
+    	cd ihrz
+	fi		
 
 	# Step 3 : installing the dependencies
 	bun i 
