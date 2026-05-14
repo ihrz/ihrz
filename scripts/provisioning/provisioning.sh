@@ -352,7 +352,7 @@ fi
 	# Save pm2 config
 	pm2 save --force
 	# Launch iHorizon at startup
-	eval $(pm2 startup systemd -u $USER --hp $HOME | tail -1)
+	eval $(pm2 startup -u $USER --hp $HOME | tail -1)
 
 	# All done!
 	echo "🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉"
