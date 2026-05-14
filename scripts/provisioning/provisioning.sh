@@ -278,9 +278,10 @@ fi
 	# Ask for the Guild Logs Channel ID
 	read -p "Enter the Discord channel ID for guild logs: " guild_logs_channel_id < /dev/tty
 
-	# Ask for the Lavalink Logs Channel ID (optional)
-	read -p "Enter the Discord channel ID for Lavalink logs (leave blank for none): " lavalink_logs_channel_id < /dev/tty
-	lavalink_logs_channel_id="${lavalink_logs_channel_id:-""}"
+	# Ask for the Lavalink Logs Channel ID if the user chose to set up Lavalink (optional, of course)
+	if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
+		read -p "Enter the Discord channel ID for Lavalink logs (leave blank for none): " lavalink_logs_channel_id < /dev/tty
+		lavalink_logs_channel_id="${lavalink_logs_channel_id:-""}"
 	
 	# Ask for the Report Channel ID
 	read -p "Enter the Discord channel ID for bug reports: " report_channel_id < /dev/tty
