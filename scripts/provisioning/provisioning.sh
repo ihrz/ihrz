@@ -229,6 +229,10 @@ fi
 	read -p "Do you want to set up Lavalink to make the music module work? (y/n): " setup_lavalink_choice < /dev/tty
 	setup_lavalink_choice=$(echo "$setup_lavalink_choice" | tr '[:upper:]' '[:lower:]')
 
+	# Initialize lavalink_logs_channel_id with a safe default before the conditional
+	# to prevent an unbound variable error under set -u when Lavalink setup is skipped.
+	lavalink_logs_channel_id=""
+
 	if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
     	# Ask for Lavalink node details
     	read -p "Enter the Lavalink Node ID (e.g., 'example_node'): " lavalink_node_id < /dev/tty
@@ -242,6 +246,8 @@ fi
     	else
         	lavalink_secure=false
     	fi
+		read -p "Enter the Discord channel ID for Lavalink logs (leave blank for none): " lavalink_logs_channel_id < /dev/tty
+		lavalink_logs_channel_id="${lavalink_logs_channel_id:-""}"
 	else
     	echo "Skipping Lavalink setup."
     	lavalink_node_id="example_node"
@@ -278,12 +284,6 @@ fi
 	# Ask for the Guild Logs Channel ID
 	read -p "Enter the Discord channel ID for guild logs: " guild_logs_channel_id < /dev/tty
 
-	# Ask for the Lavalink Logs Channel ID if the user chose to set up Lavalink (optional, of course)
-	if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
-		read -p "Enter the Discord channel ID for Lavalink logs (leave blank for none): " lavalink_logs_channel_id < /dev/tty
-		lavalink_logs_channel_id="${lavalink_logs_channel_id:-""}"
-	fi
-	
 	# Ask for the Report Channel ID
 	read -p "Enter the Discord channel ID for bug reports: " report_channel_id < /dev/tty
 
