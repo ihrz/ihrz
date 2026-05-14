@@ -90,16 +90,22 @@ fi
 	if ! command -v bun &>/dev/null; then
 		echo "bun is not installed, installing..."
 		curl -fsSL https://bun.sh/install | bash
-		
-		# Exporting bun to make it work instantly in the actual shell
-        echo "Exporting bun to make it work instantly in the actual shell"
-		export BUN_INSTALL="$HOME/.bun"
-		export PATH="$BUN_INSTALL/bin:$PATH"
-		source $HOME/.bashrc
-		echo "bun has been successfully exported in the shell"
 	else
 		echo "bun is already installed!"
 	fi
+
+	# Always ensure bun is in PATH for the current shell session regardless of
+	# whether it was just installed or already present
+	export BUN_INSTALL="$HOME/.bun"
+	export PATH="$BUN_INSTALL/bin:$PATH"
+
+	# Only write the bun export to .bashrc if it isn't already there, preventing the file from being flooded on repeated script runs.
+	if ! grep -q 'BUN_INSTALL' "$HOME/.bashrc"; then
+		echo 'export BUN_INSTALL="$HOME/.bun"' >> "$HOME/.bashrc"
+		echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> "$HOME/.bashrc"
+	fi
+
+	source "$HOME/.bashrc"
 
 	if ! command -v node &>/dev/null; then
 		echo "node is not installed, installing..."
@@ -165,8 +171,8 @@ fi
     	cd ihrz
     	git pull origin production
 	else
-    	git clone -b production https://gitlab.com/ihrz/ihrz.git
-    	cd ihrz
+		git clone -b production https://gitlab.com/ihrz/ihrz.git
+		cd ihrz
 	fi		
 
 	# Step 3 : installing the dependencies
