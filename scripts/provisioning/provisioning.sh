@@ -229,8 +229,6 @@ fi
 	read -p "Do you want to set up Lavalink to make the music module work? (y/n): " setup_lavalink_choice < /dev/tty
 	setup_lavalink_choice=$(echo "$setup_lavalink_choice" | tr '[:upper:]' '[:lower:]')
 
-	# Initialize lavalink_logs_channel_id with a safe default before the conditional
-	# to prevent an unbound variable error under set -u when Lavalink setup is skipped.
 	lavalink_logs_channel_id=""
 
 	if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
