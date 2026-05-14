@@ -29,7 +29,7 @@ cd ~
 # Pre-checks
 # pm2 only supports systemd and openrc for pm2 startup, runit and other alternative init systems are not supported by pm2.
 if ! command -v systemctl &>/dev/null && ! command -v rc-status &>/dev/null; then
-    echo "The script is unable to run because no supported init system is installed."
+    echo "The script is unable to run because no supported init system is installed. As a reminder, pm2 only supports systemd and openrc for the pm2 startup command, which is used in this script to make the bot launch at startup."
     exit 1
 fi
 
