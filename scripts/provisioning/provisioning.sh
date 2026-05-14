@@ -178,8 +178,8 @@ fi
 	# Step 3 : installing the dependencies
 	bun i 
 
-	# Step 4 : renaming config.example.ts to config.ts
-	mv src/files/config.example.ts src/files/config.ts
+	# Step 4 : creating config.ts from config.example.ts (leaving it untouched)
+	cp src/files/config.example.ts src/files/config.ts
 
 	# Step 5 : Interactive setup
 
