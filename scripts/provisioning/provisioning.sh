@@ -41,6 +41,13 @@ if ! command -v apt &>/dev/null; then
 fi
 
 # Introduction
+echo "
+██╗██╗  ██╗ ██████╗ ██████╗ ██╗███████╗ ██████╗ ███╗   ██╗
+██║██║  ██║██╔═══██╗██╔══██╗██║╚══███╔╝██╔═══██╗████╗  ██║
+██║███████║██║   ██║██████╔╝██║  ███╔╝ ██║   ██║██╔██╗ ██║
+██║██╔══██║██║   ██║██╔══██╗██║ ███╔╝  ██║   ██║██║╚██╗██║
+██║██║  ██║╚██████╔╝██║  ██║██║███████╗╚██████╔╝██║ ╚████║
+╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝                                                                                                 "
 echo "⚠️  THIS SCRIPT IS IN BETA. EXPECT BUGS, BREAKING CHANGES, AND ISSUES. USE IT AT YOUR OWN RISK! WE WILL NOT BE RESPONSIBLE FOR ANY DAMAGE DONE TO YOUR SYSTEM! ⚠️"
 echo "Welcome to the iHorizon Bot provisioning script."
 echo "This will automate the installation of iHorizon's much-needed dependencies, make the bot running and working properly."
