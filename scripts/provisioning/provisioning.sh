@@ -37,7 +37,7 @@ fi
 # Check if apt is installed. It's a pretty good technique to know if the computer is on an Ubuntu/Debian-based distro
 if ! command -v apt &>/dev/null; then
 	echo "You are not on an Ubuntu/Debian-based distribution!"
-	exit
+	exit 1
 fi
 
 # Introduction
