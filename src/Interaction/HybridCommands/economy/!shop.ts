@@ -150,6 +150,10 @@ export const subCommand: SubCommand = {
 
 			// check if the user already owns the role
 			if (baseData.ownedRoles?.includes(role.roleId)) {
+				if (!interaction.member.roles.cache.has(role.roleId)) {
+					await interaction.member.roles.add(role.roleId, "[Economy Shop] Restored previously owned role.").catch(() => { });
+				}
+
 				await i.reply({
 					content: lang.economy_shop_already_own_role,
 					flags: [1 << 6]
