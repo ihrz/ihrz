@@ -64,8 +64,8 @@ export const event: BotEvent = {
 			channelDb = null;
 		}
 
-		if (oldState.channelId === channelDb && ownedChannel?.members.size === 0) {
-			await ownedChannel.delete().catch(() => { });
+		if (oldState.channelId === channelDb && oldState.channel?.members.size === 0) {
+			await oldState.channel.delete().catch(() => { });
 			await tempTable.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 			channelDb = null;
 			ownedChannel = null;
@@ -132,8 +132,10 @@ export const event: BotEvent = {
 
 				newState.member?.voice.setChannel(chann.id)
 					.then(async () => {
-						if ((await chann.fetch()).members.size === 0) {
-							await chann.delete()
+						const movedMember = await newState.guild.members.fetch(newState.member?.id as string).catch(() => null);
+
+						if (movedMember?.voice.channelId !== chann.id) {
+							await chann.delete().catch(() => { });
 							await tempTable.delete(`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`);
 							return;
 						} else {
