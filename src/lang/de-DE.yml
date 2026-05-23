@@ -1064,6 +1064,9 @@ utils_wlroles_embed_title: "Whitelist-Rollen"
 utils_wlroles_embed_desc: "Hier sind alle erlaubten Rollen, die mit den Befehlen `addrole` und `delrole` gegeben werden können!"
 utils_wlRoles_logsEmbed_title: "Whitelist-Rollenmodul"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} hat die Whitelist-Rollen bearbeitet (für die Befehle `addrole` und `delrole`)"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} Die Ausnahmerolle ${role} ist bereits korrekt konfiguriert"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} Die Ausnahmerolle ${role} wurde erstellt. Synchronisierte Kanäle: `${updatedChannels}`. Fehler: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} Die Ausnahmerolle ${role} existierte bereits, ich habe `${updatedChannels}` Kanäle neu synchronisiert. Fehler: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} Die Nachricht wurde erfolgreich an ${targetMember.toString()} gesendet."

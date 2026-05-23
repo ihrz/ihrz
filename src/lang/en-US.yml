@@ -1064,6 +1064,9 @@ utils_wlroles_embed_title: "Whitelist Role"
 utils_wlroles_embed_desc: "Here are all the allowed roles possibly giveable with `addrole`, `delrole` command!"
 utils_wlRoles_logsEmbed_title: "Whitelist Roles Modules"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} has edited wlRoles (for `addrole`, `delrole` command)"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} The derogation role ${role} is already correctly configured"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} The derogation role ${role} has been created. Synced channels: `${updatedChannels}`. Failures: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} The derogation role ${role} already existed, I resynced `${updatedChannels}` channels. Failures: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} The message was successfully sent to ${targetMember.toString()}."

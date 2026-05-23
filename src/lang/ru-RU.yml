@@ -1064,6 +1064,9 @@ utils_wlroles_embed_title: "Роли в белом списке"
 utils_wlroles_embed_desc: "Вот все разрешённые роли, которые можно назначить с помощью команд `addrole` и `delrole`!"
 utils_wlRoles_logsEmbed_title: "Модуль белого списка ролей"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} изменил роли в белом списке (для команд `addrole` и `delrole`)"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} Роль исключения ${role} уже настроена корректно"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} Роль исключения ${role} была создана. Синхронизировано каналов: `${updatedChannels}`. Ошибок: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} Роль исключения ${role} уже существовала, я повторно синхронизировал `${updatedChannels}` каналов. Ошибок: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} Сообщение было успешно отправлено ${targetMember.toString()}."

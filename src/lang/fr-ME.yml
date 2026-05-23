@@ -1067,6 +1067,9 @@ utils_wlroles_embed_title: "Rôles dans la liste blanche"
 utils_wlroles_embed_desc: "Voici tous les rôles autorisés pouvant être attribués avec les commandes `addrole` et `delrole` !"
 utils_wlRoles_logsEmbed_title: "Module des rôles de la liste blanche"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} a modifié les rôles dans la liste blanche (pour les commandes `addrole` et `delrole`)"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} La dérogation ${role} est déjà correctement configurée"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} La dérogation ${role} a été créée. Salons synchronisés: `${updatedChannels}`. Échecs: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} La dérogation ${role} existait déjà, j'ai resynchronisé `${updatedChannels}` salons. Échecs: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} Le message as parfaitement été envoyer à ${targetMember.toString()}"

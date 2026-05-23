@@ -1064,6 +1064,9 @@ utils_wlroles_embed_title: "Cargos Permitidos"
 utils_wlroles_embed_desc: "Aqui estão todos os cargos permitidos que podem ser atribuídos com os comandos `addrole` e `delrole`!"
 utils_wlRoles_logsEmbed_title: "Módulo de Cargos Permitidos"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} editou os cargos permitidos (para os comandos `addrole` e `delrole`)"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} O cargo de derrogação ${role} já está configurado corretamente"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} O cargo de derrogação ${role} foi criado. Canais sincronizados: `${updatedChannels}`. Falhas: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} O cargo de derrogação ${role} já existia, ressincronizei `${updatedChannels}` canais. Falhas: `${failedChannels}`"
 
 # /utils
 utils_dm: "${client.iHorizon_Emojis.Yes} A mensagem foi enviada com sucesso para ${targetMember.toString()}."

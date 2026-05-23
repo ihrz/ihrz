@@ -1065,6 +1065,9 @@ utils_wlroles_embed_title: "الأدوار المسموح بها"
 utils_wlroles_embed_desc: "هذه هي جميع الأدوار المسموح بها التي يمكن إعطاؤها باستخدام أوامر `addrole` و `delrole`!"
 utils_wlRoles_logsEmbed_title: "وحدة أدوار القائمة البيضاء"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} قام بتحرير أدوار القائمة البيضاء (لأوامر `addrole` و `delrole`)"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} تم إعداد دور الاستثناء ${role} بالفعل بشكل صحيح"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} تم إنشاء دور الاستثناء ${role}. القنوات المتزامنة: `${updatedChannels}`. الإخفاقات: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} كان دور الاستثناء ${role} موجودًا بالفعل، وقد أعدت مزامنة `${updatedChannels}` قناة. الإخفاقات: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} الرسالة اتبعتت بنجاح لـ ${targetMember.toString()}"

@@ -1064,6 +1064,9 @@ utils_wlroles_embed_title: "Ruoli nella Whitelist"
 utils_wlroles_embed_desc: "Questi sono tutti i ruoli consentiti che possono essere assegnati con i comandi `addrole` e `delrole`!"
 utils_wlRoles_logsEmbed_title: "Modulo Ruoli Whitelist"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} ha modificato i ruoli della whitelist (per i comandi `addrole` e `delrole`)"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} La deroga ${role} è già configurata correttamente"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} La deroga ${role} è stata creata. Canali sincronizzati: `${updatedChannels}`. Errori: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} La deroga ${role} esisteva già, ho risincronizzato `${updatedChannels}` canali. Errori: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} Il messaggio è stato inviato con successo a ${targetMember.toString()}."
