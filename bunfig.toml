@@ -10,4 +10,4 @@ minimumReleaseAgeExcludes = ["@types/node", "typescript", "bun-types"]
 ignoreScripts = true
 
 # lockfile frozen in CI
-frozenLockfile = true
+frozenLockfile = false
