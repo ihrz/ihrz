@@ -128,7 +128,7 @@ export const command: Command = {
 		},
 		{
 			name: 'clear-queue',
-
+			aliases: ["clearqueue"],
 
 			description: 'Clear the music queue in this guild!',
 			description_localizations: {
