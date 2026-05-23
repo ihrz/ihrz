@@ -964,7 +964,7 @@ snipe_no_previous_message_deleted: "No messages have been deleted in this channe
 userinfo_wait_please: "${client.iHorizon_Emojis.Timer} Wait please..."
 userinfo_embed_fields_1_name: "Badge"
 userinfo_embed_fields_2_name: "Username"
-userinfo_embed_fields_3_name: "DisplayName"
+userinfo_embed_fields_3_name: "Display Name"
 userinfo_embed_fields_4_name: "Creation Date"
 userinfo_embed_fields_5_name: "Nitro Status"
 userinfo_var_notfound: "`Not found`"
