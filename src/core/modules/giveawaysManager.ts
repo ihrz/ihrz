@@ -274,6 +274,11 @@ class GiveawayManager {
 			try {
 				const giveawayData = (await db.GetGiveawayData(giveawayId))!;
 
+				if (!client.inShard(giveawayData.guildId)) {
+					resolve();
+					return;
+				}
+
 				if (giveawayData.isValid && giveawayData.ended === GiveawayEndedStatus.NOT_ENDED) {
 					await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
 					this.finish(
@@ -294,6 +299,7 @@ class GiveawayManager {
 
 	public async finish(client: Client, giveawayId: string, guildId: string, channelId: string) {
 		try {
+			if (!client.inShard(guildId)) return;
 
 			const lang = await getLanguageData(guildId);
 
@@ -302,9 +308,7 @@ class GiveawayManager {
 			if (!fetch) return;
 
 			if (!fetch.ended || fetch.ended === GiveawayEndedStatus.NOT_ENDED) {
-				const guild = await client.guilds.fetch(guildId).catch(async () => {
-					await this.delete(giveawayId)
-				});
+				const guild = await client.guilds.fetch(guildId).catch(() => undefined);
 				if (!guild) return;
 
 				const winner = this.selectWinners(
@@ -556,6 +560,8 @@ class GiveawayManager {
 
 		for (const giveawayId in drop_all_db) {
 			const { giveawayData } = drop_all_db[giveawayId];
+
+			if (!client.inShard(giveawayData.guildId)) continue;
 
 			const now = new Date().getTime();
 			const gwExp = new Date(giveawayData.expireIn).getTime();

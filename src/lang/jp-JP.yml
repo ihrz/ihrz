@@ -1064,6 +1064,9 @@ utils_wlroles_embed_title: "ホワイトリストの役職"
 utils_wlroles_embed_desc: "`addrole`、`delrole` コマンドで割り当て可能な許可された役職は次の通りです！"
 utils_wlRoles_logsEmbed_title: "ホワイトリスト役職モジュール"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} はホワイトリスト役職を編集しました（ `addrole`、`delrole` コマンド用）"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} 例外ロール ${role} はすでに正しく設定されています"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} 例外ロール ${role} を作成しました。同期済みチャンネル数: `${updatedChannels}`。失敗: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} 例外ロール ${role} はすでに存在していたため、`${updatedChannels}` 個のチャンネルを再同期しました。失敗: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} メッセージは ${targetMember.toString()} に正常に送信されました。"
@@ -1670,6 +1673,12 @@ lyrics_not_found: "歌詞が見つかりません"
 
 # /music clear-queue
 clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | このDiscordサーバーの音楽キューはクリアされました。"
+
+# /music trackinfo
+music_requested_by: "要求者"
+music_visit_here: "ここをクリック"
+music_lyrics: "歌詞"
+music_link_here: "リンクをクリック: [クリック]({link})"
 
 # Giveaway commands
 # /end, /start, /reroll

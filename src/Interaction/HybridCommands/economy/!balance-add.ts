@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
 		} else {
 
 			var amount = client.func.method.number(args!, 0) as number;
-			var user = await client.func.method.user(interaction, args!, 0);
+			var user = await client.func.method.user(interaction, args!, 1);
 		};
 
 		await client.func.method.interactionSend(interaction, {

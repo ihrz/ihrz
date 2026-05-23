@@ -119,7 +119,7 @@ declare namespace Client_Functions {
 			current: ReadonlyArray<JSONEncodable<APIMessageTopLevelComponent> | TopLevelComponentData | ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder> | APIMessageTopLevelComponent>
 		): Promise<components>;
 		export function interactionSend(
-			interaction: ChatInputCommandInteraction<CacheType> | ChatInputCommandInteraction<"cached"> | Message<boolean> | StringSelectMenuInteraction<"cached">,
+			interaction: ChatInputCommandInteraction<CacheType> | ModalSubmitInteraction<"cached"> | ChatInputCommandInteraction<"cached"> | Message<boolean> | StringSelectMenuInteraction<"cached">,
 			options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
 		): Promise<Message<boolean>>;
 		export function channelSend(
@@ -267,6 +267,9 @@ declare namespace Client_Functions {
 
 	// From musicPlay.ts
 	export namespace musicPlay {
+		export function buildNoResultEmbed(lang: LanguageData): EmbedBuilder;
+		export function buildTrackDuration(track: Track): string;
+		export function isUrlQuery(query: string): boolean;
 		export function searchQueryOnNode(client: Client<boolean>, node: LavalinkNode, query: string, requester: User): Promise<SearchResult | undefined>;
 		export function searchMusicQuery(
 			client: Client<boolean>,

@@ -964,7 +964,7 @@ snipe_no_previous_message_deleted: "No messages have been deleted in this channe
 userinfo_wait_please: "${client.iHorizon_Emojis.Timer} Wait please..."
 userinfo_embed_fields_1_name: "Badge"
 userinfo_embed_fields_2_name: "Username"
-userinfo_embed_fields_3_name: "DisplayName"
+userinfo_embed_fields_3_name: "Display Name"
 userinfo_embed_fields_4_name: "Creation Date"
 userinfo_embed_fields_5_name: "Nitro Status"
 userinfo_var_notfound: "`Not found`"
@@ -1064,6 +1064,9 @@ utils_wlroles_embed_title: "Whitelist Role"
 utils_wlroles_embed_desc: "Here are all the allowed roles possibly giveable with `addrole`, `delrole` command!"
 utils_wlRoles_logsEmbed_title: "Whitelist Roles Modules"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} has edited wlRoles (for `addrole`, `delrole` command)"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} The derogation role ${role} is already correctly configured"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} The derogation role ${role} has been created. Synced channels: `${updatedChannels}`. Failures: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} The derogation role ${role} already existed, I resynced `${updatedChannels}` channels. Failures: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} The message was successfully sent to ${targetMember.toString()}."
@@ -1671,6 +1674,13 @@ lyrics_not_found: "No lyrics found"
 
 # /music clear-queue
 clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | The music queue in this discord has been cleared."
+
+# /music trackinfo
+music_requested_by: "Requested by"
+music_visit_here: "Visit here"
+music_lyrics: "Lyrics"
+music_link_here: "Link here: [Click here]({link})"
+
 
 # Giveaway commands
 # /end, /start, /reroll

@@ -707,7 +707,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
 
 	let values: ModalResultArray = [];
-	let reasonInteraction: ModalSubmitInteraction<"cached">;
+	let reasonInteraction: ModalSubmitInteraction<"cached"> | null = null;
 
 	// get categoryName from the values of the select menu
 	// find the category from the values of the select menu
@@ -779,7 +779,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 		});
 	}
 
-	await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.Discord_Loading, flags: MessageFlags.Ephemeral });
+	await client.func.method.interactionSend(reasonInteraction || interaction, { content: client.iHorizon_Emojis.Discord_Loading, flags: MessageFlags.Ephemeral });
 
 	await interaction.guild?.channels.create({
 		name: `ticket-${interaction.user.username}`,
@@ -811,7 +811,7 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 		);
 
 		if (reasonInteraction) {
-			await reasonInteraction.reply({
+			await reasonInteraction.editReply({
 				content: lang.event_ticket_whenCreated_msg
 					.replace('${interaction.user}', interaction.user.toString())
 					.replace('${channel.id}', channel.id),

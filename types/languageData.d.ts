@@ -810,6 +810,9 @@ export interface LanguageData {
 	utils_wlroles_embed_desc: string;
 	utils_wlRoles_logsEmbed_title: string;
 	utils_wlRoles_logsEmbed_desc: string;
+	utils_derogation_already_exists: string;
+	utils_derogation_created: string;
+	utils_derogation_resynced: string;
 	utils_dm: string;
 	utils_dm_cant: string;
 	utils_pic_only_embed_title: string;
@@ -1266,6 +1269,10 @@ export interface LanguageData {
 	lyrics_embed_author_name_unknown: string;
 	lyrics_not_found: string;
 	clear_queue_command_ok: string;
+	music_requested_by: string;
+	music_visit_here: string;
+	music_lyrics: string;
+	music_link_here: string;
 	end_not_admin: string;
 	end_not_find_giveaway: string;
 	end_confirmation_message: string;

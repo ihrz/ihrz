@@ -65,8 +65,8 @@ export const subCommand: SubCommand = {
 		});
 
 		async function moveUser() {
-			// stop the loop if 5 minutes have passed
-			if (Date.now() - start >= 60_000 * 5) return;
+			// stop the loop if 2 minutes have passed
+			if (Date.now() - start >= 60_000 * 2) return;
 
 			const channel = interaction.guild?.channels.cache.filter(
 				(c) => c.type === ChannelType.GuildVoice
@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 
 			if (!user.voice.channelId) return;
 
-			await user.voice.setChannel(channel);
+			await user.voice.setChannel(channel).catch(() => { });
 			await wait(300);
 
 			return moveUser();

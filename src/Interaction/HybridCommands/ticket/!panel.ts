@@ -21,6 +21,7 @@
 
 import {
 	ActionRowBuilder,
+	AttachmentBuilder,
 	ButtonBuilder,
 	ButtonStyle,
 	CacheType,
@@ -179,11 +180,7 @@ export const subCommand: SubCommand = {
 			new ActionRowBuilder<ButtonBuilder>().addComponents(sendButton),
 		];
 
-		const originalResponse = await client.func.method.interactionSend(interaction, {
-			content: generateDetailedContent() || null,
-			embeds: [panelEmbed],
-			components,
-		});
+		const originalResponse = await client.func.method.interactionSend(interaction, buildPanelMessage());
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			await interaction.followUp({ content: 'https://youtu.be/TehLPQ_WCwQ', flags: [1 << 6] });
@@ -201,34 +198,83 @@ export const subCommand: SubCommand = {
 
 		buttonCollector.on('collect', async (i) => {
 			if (i.user.id !== interaction.member!.user.id) return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-			i.deferUpdate();
+			await i.deferUpdate();
 			if (i.customId === 'send_embed') await sendEmbed();
 		});
 
 		selectCollector.on('collect', async (i: StringSelectMenuInteraction) => {
-			if (i.user.id !== interaction.member!.user.id)
+			if (i.user.id !== interaction.member!.user.id) {
 				return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+			}
 
 			const choice = i.values[0];
 
 			switch (choice) {
-				case 'save': i.deferUpdate(); await save(); selectCollector.stop('legitEnd'); break;
-				case 'preview': await preview(i); break;
-				case 'change_embed': await changeEmbed(i); break;
-				case 'change_role': i.deferUpdate(); await changeRole(); break;
-				case 'change_ping': i.deferUpdate(); await changePing(); break;
-				case 'change_option': i.deferUpdate(); await changeOption(); break;
-				case 'change_category_2': i.deferUpdate(); await changeCategoryForOption(i); break;
-				case 'change_form': i.deferUpdate(); await changeForm(); break;
-				case 'change_placeholder': await changePlaceholder(i); break;
-				case 'change_category': i.deferUpdate(); await changeCategory(); break;
-				case 'change_ticket_channel_panel': await changeTicketChannelPanel(i); break;
-				case 'change_ticket_user_select_panel': i.deferUpdate(); await changeTicketUserSelectPanel(); break;
-				case 'change_ticket_button_delete_panel': i.deferUpdate(); await changeTicketButtonDeletePanel(); break;
-				case 'change_ticket_button_transcript_panel': i.deferUpdate(); await changeTicketButtonTranscriptPanel(); break;
-				case 'change_ticket_channel_panel_options': i.deferUpdate(); await changeTicketChannelPanelOptions(i); break;
-				case 'change_ticket_forms_options': i.deferUpdate(); await changeTicketFormsOptions(i); break;
-				case 'change_role_to_ping_options': i.deferUpdate(); await changeRoleToPingOptions(i); break;
+				case 'save':
+					await i.deferUpdate();
+					await save();
+					selectCollector.stop('legitEnd');
+					break;
+				case 'preview':
+					await preview(i);
+					break;
+				case 'change_embed':
+					await changeEmbed(i);
+					break;
+				case 'change_role':
+					await i.deferUpdate();
+					await changeRole();
+					break;
+				case 'change_ping':
+					await i.deferUpdate();
+					await changePing();
+					break;
+				case 'change_option':
+					await i.deferUpdate();
+					await changeOption();
+					break;
+				case 'change_category_2':
+					await i.deferUpdate();
+					await changeCategoryForOption();
+					break;
+				case 'change_form':
+					await i.deferUpdate();
+					await changeForm();
+					break;
+				case 'change_placeholder':
+					await changePlaceholder(i);
+					break;
+				case 'change_category':
+					await i.deferUpdate();
+					await changeCategory();
+					break;
+				case 'change_ticket_channel_panel':
+					await changeTicketChannelPanel(i);
+					break;
+				case 'change_ticket_user_select_panel':
+					await i.deferUpdate();
+					await changeTicketUserSelectPanel();
+					break;
+				case 'change_ticket_button_delete_panel':
+					await i.deferUpdate();
+					await changeTicketButtonDeletePanel();
+					break;
+				case 'change_ticket_button_transcript_panel':
+					await i.deferUpdate();
+					await changeTicketButtonTranscriptPanel();
+					break;
+				case 'change_ticket_channel_panel_options':
+					await i.deferUpdate();
+					await changeTicketChannelPanelOptions();
+					break;
+				case 'change_ticket_forms_options':
+					await i.deferUpdate();
+					await changeTicketFormsOptions();
+					break;
+				case 'change_role_to_ping_options':
+					await i.deferUpdate();
+					await changeRoleToPingOptions();
+					break;
 			}
 		});
 
@@ -278,14 +324,51 @@ export const subCommand: SubCommand = {
 			return hasChanged;
 		}
 
+		function shouldAttachOptionsFile() {
+			return stringifyOptions(baseData.config.optionFields) === lang.ticket_panel_option_fields;
+		}
+
+		function buildOptionsAttachment() {
+			if (!shouldAttachOptionsFile()) return null;
+
+			const details = stringifyOptionsDetailed(baseData.config.optionFields);
+			return new AttachmentBuilder(Buffer.from(details, 'utf-8'), {
+				name: `ticket-panel-${panelCode}-options.txt`,
+			});
+		}
+
+		function buildPanelMessage() {
+			const file = buildOptionsAttachment();
+			return {
+				content: file ? lang.ticket_panel_option_fields : null,
+				embeds: [panelEmbed],
+				components,
+				files: file ? [file] : [],
+			};
+		}
+
+		async function refreshPanelMessage() {
+			const panelMessage = buildPanelMessage();
+			await originalResponse.edit({
+				content: panelMessage.content,
+				embeds: panelMessage.embeds,
+				components: panelMessage.components,
+				attachments: [],
+				files: panelMessage.files,
+			});
+		}
+
 		async function save() {
 			ensureUniqueOptionFieldValues();
 			await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`, baseData);
 			panelEmbed.data.fields![0].value = '🟢';
 			isSaved = true;
+			const file = buildOptionsAttachment();
 			await originalResponse.edit({
 				embeds: [panelEmbed],
-				content: generateDetailedContent() || null,
+				content: file ? lang.ticket_panel_option_fields : null,
+				attachments: [],
+				files: file ? [file] : [],
 				components: [
 					new ActionRowBuilder<ButtonBuilder>().addComponents(
 						new ButtonBuilder()
@@ -299,7 +382,6 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		// Replace the stringifyOptions function with this improved version
 		function stringifyOptions(options: TicketOption[]): string {
 			if (!options.length) return '';
 			let str = '```\n';
@@ -311,9 +393,9 @@ export const subCommand: SubCommand = {
 				if (opt.panelId) str += `  ┖ ${lang.ticket_panel_change_embed_modal_placeholder}: ${opt.panelId}\n`;
 				if (opt.rolesToPing?.length >= 1) {
 					str += `  ┖ ${lang.ticket_panel_role_to_ping}:\n`;
-					for (let role of opt.rolesToPing) {
-						let r = interaction.guild?.roles.cache.get(role);
-						str += `     ┖ 🔹 ${role} (@${r?.name || lang.var_unknown})\n`
+					for (const role of opt.rolesToPing) {
+						const r = interaction.guild?.roles.cache.get(role);
+						str += `     ┖ 🔹 ${role} (@${r?.name || lang.var_unknown})\n`;
 					}
 					str += '\n';
 				}
@@ -331,7 +413,7 @@ export const subCommand: SubCommand = {
 
 			// Check if the string exceeds Discord's field limit (1024 characters)
 			if (str.length > 1024) {
-				return 'Options list too long - check message content';
+				return lang.ticket_panel_option_fields;
 			}
 
 			return str;
@@ -350,61 +432,38 @@ export const subCommand: SubCommand = {
 
 			// Check if the string exceeds Discord's field limit
 			if (str.length > 1024) {
-				return 'Forms list too long - check message content';
+				return 'Forms list too long';
 			}
 
 			return str;
 		}
 
-		// Create a function to generate detailed content when needed
-		function generateDetailedContent(): string {
-			let content = '';
-
-			// Check if options are too long for embed
-			const optionsStr = stringifyOptionsDetailed(baseData.config.optionFields);
-			if (optionsStr.length > 1024) {
-				content += `**${lang.ticket_panel_option_fields}:**\n${optionsStr}\n\n`;
-			}
-
-			// Check if forms are too long for embed
-			const formsStr = stringifyFormDetailed(baseData.config.form);
-			if (formsStr.length > 1024) {
-				content += `**${lang.ticket_panel_form}:**\n${formsStr}\n\n`;
-			}
-
-			return content;
-		}
-
 		function stringifyOptionsDetailed(options: TicketOption[]): string {
 			if (!options.length) return lang.var_no_set;
-			let str = '```\n';
+			let str = '';
 			options.forEach(opt => {
 				str += `- ${opt.name}\n`;
-				if (opt.desc) str += `  ┖ ${lang.ticket_panel_add_option_modal_field2_label}: ${opt.desc}\n`;
-				if (opt.emoji) str += `  ┖ ${lang.ticket_panel_add_option_modal_field3_label}: ${opt.emoji}\n`;
-				if (opt.categoryId) str += `  ┖ 📂: ${formatCategory(opt.categoryId, interaction.guild!)}\n`;
-				if (opt.panelId) str += `  ┖ ${lang.ticket_panel_change_embed_modal_placeholder}: ${opt.panelId}\n`;
+				if (opt.desc) str += `  ${lang.ticket_panel_add_option_modal_field2_label}: ${opt.desc}\n`;
+				if (opt.emoji) str += `  ${lang.ticket_panel_add_option_modal_field3_label}: ${opt.emoji}\n`;
+				if (opt.categoryId) str += `  Category: ${formatCategory(opt.categoryId, interaction.guild!)}\n`;
+				if (opt.panelId) str += `  ${lang.ticket_panel_change_embed_modal_placeholder}: ${opt.panelId}\n`;
+				if (opt.rolesToPing?.length >= 1) {
+					str += `  ${lang.ticket_panel_role_to_ping}:\n`;
+					for (const role of opt.rolesToPing) {
+						const r = interaction.guild?.roles.cache.get(role);
+						str += `    - ${role} (@${r?.name || lang.var_unknown})\n`;
+					}
+				}
 				if (opt.form?.length) {
-					str += `  ┖ 📚 ${lang.var_form}:\n`;
+					str += `  ${lang.var_form}:\n`;
 					opt.form.forEach(f => {
-						str += `     ┖ 🔹 ${f.questionTitle}\n`;
-						if (f.questionPlaceholder) str += `       ┖ ${f.questionPlaceholder}\n`;
+						str += `    - ${f.questionTitle}\n`;
+						if (f.questionPlaceholder) str += `      ${f.questionPlaceholder}\n`;
 					});
 				}
 				str += '\n';
 			});
-			return str + '```';
-		}
-
-		function stringifyFormDetailed(forms: TicketForms[]): string {
-			if (!forms.length) return lang.var_no_set;
-			let str = '```\n';
-			forms.forEach((f, i) => {
-				str += `${i} - ${f.questionTitle}\n`;
-				if (f.questionPlaceholder) str += `  ┖ ${f.questionPlaceholder}\n`;
-				str += '\n';
-			});
-			return str + '```';
+			return str.trimEnd();
 		}
 
 
@@ -412,7 +471,6 @@ export const subCommand: SubCommand = {
 			if (baseData.config.optionFields.length === 0) return originalResponse.edit({ content: lang.ticket_panel_need_1_option, embeds: [panelEmbed], components });
 
 			ensureUniqueOptionFieldValues();
-			// if (!isSaved) return originalResponse.edit({ content: lang.ticket_panel_need_save_config, components });
 			await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`, baseData);
 			isSaved = true;
 
@@ -425,6 +483,7 @@ export const subCommand: SubCommand = {
 				components: [new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect)],
 				embeds: [],
 				content: lang.ticket_panel_select_channel_to_send,
+				files: []
 			});
 
 			const collector = msg.createMessageComponentCollector({ componentType: ComponentType.ChannelSelect, time: 60_000 });
@@ -449,13 +508,13 @@ export const subCommand: SubCommand = {
 						return builder;
 					}));
 
-				let sentPanel = await channel.send({ embeds: [embed], components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)] });
+				const sentPanel = await channel.send({ embeds: [embed], components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)] });
 				await client.db.set(`${interaction.guildId}.GUILD.TICKET_PANEL.${sentPanel.id}`, panelCode);
 
 				collector.stop('legitEnd');
 				selectCollector.stop('legitEnd');
 				await originalResponse.edit({
-					content: lang.ticket_panel_saved_and_sended_panel.replace("${panelCode}", panelCode).replace("${channel.toString()}", channel.toString()),
+					content: lang.ticket_panel_saved_and_sended_panel.replace('${panelCode}', panelCode).replace('${channel.toString()}', channel.toString()),
 					embeds: [],
 					files: [],
 					components: []
@@ -463,17 +522,21 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		async function changeTicketFormsOptions(i: StringSelectMenuInteraction) {
+		async function selectOption(optionCustomId: string, content: string) {
 			if (baseData.config.optionFields.length === 0) {
-				return originalResponse.edit({
+				const file = buildOptionsAttachment();
+				await originalResponse.edit({
 					content: lang.ticket_panel_remove_option_empty,
 					embeds: [panelEmbed],
 					components,
+					attachments: [],
+					files: file ? [file] : []
 				});
+				return null;
 			}
 
 			const select = new StringSelectMenuBuilder()
-				.setCustomId('select_option_form')
+				.setCustomId(optionCustomId)
 				.setPlaceholder(lang.var_chose_option)
 				.addOptions(baseData.config.optionFields.map((opt, idx) =>
 					new StringSelectMenuOptionBuilder()
@@ -484,241 +547,213 @@ export const subCommand: SubCommand = {
 			const msg = await originalResponse.edit({
 				components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)],
 				embeds: [],
-				content: lang.ticket_panel_chose_option_to_form,
+				content,
+				files: []
 			});
 
-			const collector = msg.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 300_000 });
-			collector.on('collect', async (subI) => {
-				if (subI.user.id !== interaction.member!.user.id) return subI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-
-				const idx = parseInt(subI.values[0]);
-				const option = baseData.config.optionFields[idx];
-				if (isNaN(idx) || !baseData.config.optionFields[idx]) {
-					await subI.reply({ content: lang.ticket_panel_option_invalid, flags: MessageFlags.Ephemeral });
-					return;
-				}
-
-				subI.deferUpdate();
-				// Sous-menu pour ajouter/modifier/supprimer
-				const actionSelect = new StringSelectMenuBuilder()
-					.setCustomId('form_action')
-					.setPlaceholder(lang.var_action)
-					.addOptions(
-						new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_add_a_question).setValue('add'),
-						new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_remove_a_question).setValue('remove')
-					);
-
-				await originalResponse.edit({
-					components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(actionSelect)],
-					content: lang.ticket_panel_manage_form_title.replace("${option.name}", option.name),
+			return await new Promise<{ option: TicketOption; index: number } | null>((resolve) => {
+				const collector = msg.createMessageComponentCollector({
+					componentType: ComponentType.StringSelect,
+					time: 300_000,
+					max: 1,
 				});
 
-				collector.stop();
-				const actionCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 * 15 });
-				actionCollector.on('collect', async (actionI) => {
-					if (actionI.user.id !== interaction.member!.user.id) {
-						return actionI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+				collector.on('collect', async (subI) => {
+					if (subI.user.id !== interaction.member!.user.id) {
+						await subI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+						return;
 					}
 
-					if (actionI.values[0] === 'add') {
-						if (!option.form) option.form = [];
-
-						if (option.form.length >= 3) {
-							return actionI.reply({ content: lang.ticket_panel_add_form_max_3, flags: MessageFlags.Ephemeral });
-						}
-
-						const modal = await iHorizonModalResolve({
-							customId: 'add_form_opt',
-							title: lang.ticket_panel_add_a_question,
-							fields: [
-								{ customId: 'title', label: lang.var_title, style: TextInputStyle.Short, required: true, maxLength: 128 },
-								{ customId: 'placeholder', label: lang.roleselect_modal2_label, style: TextInputStyle.Short, required: false, maxLength: 100 },
-							],
-							deferUpdate: true
-						}, actionI);
-
-						if (!modal) return;
-
-						const title = modal.fields.getTextInputValue('title');
-						const placeholder = modal.fields.getTextInputValue('placeholder');
-
-						option.form.push({
-							questionId: option.form.length,
-							questionTitle: title,
-							questionPlaceholder: placeholder,
-						});
-
-						isSaved = false;
-						panelEmbed.data.fields![0].value = '🔴';
-						panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
-						await originalResponse.edit({
-							embeds: [panelEmbed], components, content: generateDetailedContent() || null,
-						});
-						actionCollector.stop('legitEnd');
-					} else if (actionI.values[0] === 'remove') {
-						if (!option.form || option.form.length === 0) {
-							await originalResponse.edit({
-								embeds: [panelEmbed], components, content: generateDetailedContent() || null,
-							});
-							actionCollector.stop('legitEnd');
-
-							return actionI.reply({ content: lang.ticket_panel_no_question_to_delete, flags: MessageFlags.Ephemeral });
-						}
-
-						const formSelect = new StringSelectMenuBuilder()
-							.setCustomId('remove_form_opt')
-							.setPlaceholder(lang.ticket_panel_chose_a_question)
-							.addOptions(option.form.map((f, i) =>
-								new StringSelectMenuOptionBuilder().setLabel(f.questionTitle).setValue(i.toString())
-							));
-
-						actionI.deferUpdate();
-
-						await originalResponse.edit({
-							components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(formSelect)],
-							content: lang.ticket_panel_select_question_to_delete,
-						});
-
-						actionCollector.stop();
-
-						const removeCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 * 5 });
-						removeCollector.on('collect', async (rmI) => {
-							removeCollector.stop();
-							rmI.deferUpdate();
-							if (rmI.user.id !== interaction.member!.user.id) return rmI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-							const fid = parseInt(rmI.values[0]);
-							option.form!.splice(fid, 1);
-							isSaved = false;
-							panelEmbed.data.fields![0].value = '🔴';
-							panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
-							await originalResponse.edit({
-								embeds: [panelEmbed], components, content: generateDetailedContent() || null,
-							});
-							removeCollector.stop('legitEnd');
-							actionCollector.stop('legitEnd');
-						});
+					const idx = parseInt(subI.values[0]);
+					const option = baseData.config.optionFields[idx];
+					if (isNaN(idx) || !option) {
+						await subI.reply({ content: lang.ticket_panel_option_invalid, flags: MessageFlags.Ephemeral });
+						return;
 					}
+
+					await subI.deferUpdate();
+					resolve({ option, index: idx });
+					collector.stop('legitEnd');
+				});
+
+				collector.on('end', async (_, reason) => {
+					if (reason === 'legitEnd') return;
+					await refreshPanelMessage();
+					resolve(null);
 				});
 			});
 		}
 
-		async function changeCategoryForOption(i: StringSelectMenuInteraction<CacheType>) {
-			// get the option with string select menu
-			if (baseData.config.optionFields.length === 0) {
-				return originalResponse.edit({
-					content: lang.ticket_panel_remove_option_empty,
-					embeds: [panelEmbed],
-					components,
-				});
-			}
+		async function changeTicketFormsOptions() {
+			const selected = await selectOption('select_option_form', lang.ticket_panel_chose_option_to_form);
+			if (!selected) return;
 
-			const select = new StringSelectMenuBuilder()
-				.setCustomId("change_category_for_option")
-				.setPlaceholder(lang.ticket_panel_option_change_category)
+			const { option } = selected;
+			const actionSelect = new StringSelectMenuBuilder()
+				.setCustomId('form_action')
+				.setPlaceholder(lang.var_action)
 				.addOptions(
-					...baseData.config.optionFields.map((x, i) => {
-						return new StringSelectMenuOptionBuilder()
-							.setLabel(x.name)
-							.setValue(i.toString())
-					})
+					new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_add_a_question).setValue('add'),
+					new StringSelectMenuOptionBuilder().setLabel(lang.ticket_panel_remove_a_question).setValue('remove')
 				);
 
-			const select_interaction = await originalResponse.edit({
-				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
-				],
+			await originalResponse.edit({
+				components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(actionSelect)],
 				embeds: [],
-				content: lang.ticket_panel_option_change_category
+				content: lang.ticket_panel_manage_form_title.replace('${option.name}', option.name),
+				files: []
 			});
 
-			// collector for string select
-			const select_collector = select_interaction.createMessageComponentCollector({
-				componentType: ComponentType.StringSelect,
-				time: 60_000 * 5,
-			});
+			const actionCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 * 15, max: 1 });
+			actionCollector.on('collect', async (actionI) => {
+				if (actionI.user.id !== interaction.member!.user.id) {
+					return actionI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+				}
 
-			select_collector.on("collect", async (i) => {
-				if (i.user.id !== interaction.member!.user.id) {
-					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				};
+				if (actionI.values[0] === 'add') {
+					if (!option.form) option.form = [];
 
-				const choice = i.values[0];
-				const option = baseData.config.optionFields[parseInt(choice)];
+					if (option.form.length >= 3) {
+						return actionI.reply({ content: lang.ticket_panel_add_form_max_3, flags: MessageFlags.Ephemeral });
+					}
 
-				await i.deferUpdate();
+					const modal = await iHorizonModalResolve({
+						customId: 'add_form_opt',
+						title: lang.ticket_panel_add_a_question,
+						fields: [
+							{ customId: 'title', label: lang.var_title, style: TextInputStyle.Short, required: true, maxLength: 128 },
+							{ customId: 'placeholder', label: lang.roleselect_modal2_label, style: TextInputStyle.Short, required: false, maxLength: 100 },
+						],
+						deferUpdate: true
+					}, actionI);
 
+					if (!modal) return;
 
-				const channelSelect = new ChannelSelectMenuBuilder()
-					.setCustomId("change_category_for_option")
-					.setChannelTypes(ChannelType.GuildCategory)
-					.setPlaceholder(lang.ticket_panel_change_category_channelSelect_placeholder);
+					const title = modal.fields.getTextInputValue('title');
+					const placeholder = modal.fields.getTextInputValue('placeholder');
 
-				const send_embed_interaction = await originalResponse.edit({
-					components: [
-						new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect)
-					],
-					embeds: [],
-					content: lang.ticket_panel_change_category_channelSelect_placeholder
-				});
-
-				// collector for channel select
-				const channelCollector = send_embed_interaction.createMessageComponentCollector({
-					componentType: ComponentType.ChannelSelect,
-					time: 60_000,
-				});
-
-				channelCollector.on("collect", async (i) => {
-					if (i.user.id !== interaction.member!.user.id) {
-						return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-					};
-
-					const category = i.values[0];
-					await i.deferUpdate();
-
-					option.categoryId = category;
-					isSaved = false;
-					panelEmbed.data.fields![0].value = "🔴";
-
-					panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
-
-					await originalResponse.edit({
-						embeds: [panelEmbed],
-						components,
-						content: generateDetailedContent() || null,
+					option.form.push({
+						questionId: option.form.length,
+						questionTitle: title,
+						questionPlaceholder: placeholder,
 					});
 
-					channelCollector.stop("legitEnd");
-				});
+					isSaved = false;
+					panelEmbed.data.fields![0].value = '🔴';
+					panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
+					await refreshPanelMessage();
+				} else if (actionI.values[0] === 'remove') {
+					if (!option.form || option.form.length === 0) {
+						await refreshPanelMessage();
+						return actionI.reply({ content: lang.ticket_panel_no_question_to_delete, flags: MessageFlags.Ephemeral });
+					}
 
-				select_collector.stop("legitEnd");
+					const formSelect = new StringSelectMenuBuilder()
+						.setCustomId('remove_form_opt')
+						.setPlaceholder(lang.ticket_panel_chose_a_question)
+						.addOptions(option.form.map((f, i) =>
+							new StringSelectMenuOptionBuilder().setLabel(f.questionTitle).setValue(i.toString())
+						));
+
+					await actionI.deferUpdate();
+
+					await originalResponse.edit({
+						components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(formSelect)],
+						content: lang.ticket_panel_select_question_to_delete,
+						embeds: [],
+						files: []
+					});
+
+					const removeCollector = originalResponse.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 60_000 * 5, max: 1 });
+					removeCollector.on('collect', async (rmI) => {
+						if (rmI.user.id !== interaction.member!.user.id) return rmI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+						await rmI.deferUpdate();
+						const fid = parseInt(rmI.values[0]);
+						option.form!.splice(fid, 1);
+						isSaved = false;
+						panelEmbed.data.fields![0].value = '🔴';
+						panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
+						await refreshPanelMessage();
+						removeCollector.stop('legitEnd');
+					});
+				}
+				actionCollector.stop('legitEnd');
+			});
+
+			actionCollector.on('end', async (_, reason) => {
+				if (reason === 'legitEnd') return;
+				await refreshPanelMessage();
+			});
+		}
+
+		async function changeCategoryForOption() {
+			const selected = await selectOption('change_category_for_option', lang.ticket_panel_option_change_category);
+			if (!selected) return;
+
+			const { option } = selected;
+			const channelSelect = new ChannelSelectMenuBuilder()
+				.setCustomId('change_category_for_option_channel')
+				.setChannelTypes(ChannelType.GuildCategory)
+				.setPlaceholder(lang.ticket_panel_change_category_channelSelect_placeholder);
+
+			const sendEmbedInteraction = await originalResponse.edit({
+				components: [new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect)],
+				embeds: [],
+				content: lang.ticket_panel_change_category_channelSelect_placeholder,
+				files: []
+			});
+
+			const channelCollector = sendEmbedInteraction.createMessageComponentCollector({
+				componentType: ComponentType.ChannelSelect,
+				time: 60_000,
+				max: 1,
+			});
+
+			channelCollector.on('collect', async (i) => {
+				if (i.user.id !== interaction.member!.user.id) {
+					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
+				}
+
+				const category = i.values[0];
+				await i.deferUpdate();
+
+				option.categoryId = category;
+				isSaved = false;
+				panelEmbed.data.fields![0].value = '🔴';
+				panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
+
+				await refreshPanelMessage();
+				channelCollector.stop('legitEnd');
+			});
+
+			channelCollector.on('end', async (_, reason) => {
+				if (reason === 'legitEnd') return;
+				await refreshPanelMessage();
 			});
 		}
 
 		async function changeCategory() {
 			const channelSelect = new ChannelSelectMenuBuilder()
-				.setCustomId("change_category")
+				.setCustomId('change_category')
 				.setChannelTypes(ChannelType.GuildCategory)
 				.setPlaceholder(lang.ticket_panel_change_category_channelSelect_placeholder);
 
-
-			const send_embed_interaction = await originalResponse.edit({
-				components: [
-					new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect)
-				],
+			const sendEmbedInteraction = await originalResponse.edit({
+				components: [new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(channelSelect)],
 				embeds: [],
-				content: lang.ticket_panel_select_channel_to_send
+				content: lang.ticket_panel_select_channel_to_send,
+				files: []
 			});
 
-			// collector for channel select
-			const channelCollector = send_embed_interaction.createMessageComponentCollector({
+			const channelCollector = sendEmbedInteraction.createMessageComponentCollector({
 				componentType: ComponentType.ChannelSelect,
 				time: 60_000,
 			});
 
-			channelCollector.on("collect", async (i) => {
+			channelCollector.on('collect', async (i) => {
 				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				};
+				}
 
 				const category = i.values[0];
 				await i.deferUpdate();
@@ -727,27 +762,27 @@ export const subCommand: SubCommand = {
 
 				baseData.category = category;
 				isSaved = false;
-				panelEmbed.data.fields![0].value = "🔴";
-
+				panelEmbed.data.fields![0].value = '🔴';
 				panelEmbed.data.fields![6].value = fetchChannel!.toString();
 
-				await originalResponse.edit({
-					embeds: [panelEmbed],
-					components,
-				});
+				await refreshPanelMessage();
+				channelCollector.stop('legitEnd');
+			});
 
-				channelCollector.stop("legitEnd");
+			channelCollector.on('end', async (_, reason) => {
+				if (reason === 'legitEnd') return;
+				await refreshPanelMessage();
 			});
 		}
 
 		async function changePlaceholder(i: StringSelectMenuInteraction<CacheType>) {
 			const modal = await iHorizonModalResolve({
-				customId: "change_placeholder",
+				customId: 'change_placeholder',
 				deferUpdate: false,
 				title: lang.ticket_panel_change_placeholder_modal_title,
 				fields: [
 					{
-						customId: "placeholder",
+						customId: 'placeholder',
 						label: lang.ticket_panel_change_placeholder_modal_placeholder,
 						style: TextInputStyle.Short,
 						required: true,
@@ -759,102 +794,77 @@ export const subCommand: SubCommand = {
 
 			if (!modal) return;
 
-			const placeholder = modal.fields.getTextInputValue("placeholder");
+			const placeholder = modal.fields.getTextInputValue('placeholder');
 
 			baseData.placeholder = placeholder;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-
+			panelEmbed.data.fields![0].value = '🔴';
 			panelEmbed.data.fields![5].value = baseData.placeholder;
 
-			modal.deferUpdate();
-
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				components
-			});
+			await modal.deferUpdate();
+			await refreshPanelMessage();
 		}
 
 		async function changeRole() {
 			const roleSelect = new RoleSelectMenuBuilder()
 				.setPlaceholder(lang.ticket_panel_change_role_roleSelect_placeholder)
-				.setCustomId("change_role")
+				.setCustomId('change_role')
 				.setMaxValues(10)
 				.setMinValues(0)
-				.addDefaultRoles(baseData.config.rolesToPing || [])
-				;
+				.addDefaultRoles(baseData.config.rolesToPing);
 
-			const change_role_interaction = await originalResponse.edit({
+			const changeRoleInteraction = await originalResponse.edit({
 				components: [
 					new ActionRowBuilder<RoleSelectMenuBuilder>()
-						.addComponents(
-							roleSelect
-						)
+						.addComponents(roleSelect)
 				],
 				embeds: [],
-				content: lang.ticket_panel_change_role_interaction_content
+				content: lang.ticket_panel_change_role_interaction_content,
+				files: []
 			});
 
-			// collector for role select
-			const roleCollector = change_role_interaction.createMessageComponentCollector({
+			const roleCollector = changeRoleInteraction.createMessageComponentCollector({
 				componentType: ComponentType.RoleSelect,
 				time: 60_000,
 			});
 
-			roleCollector.on("collect", async (i) => {
+			roleCollector.on('collect', async (i) => {
 				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				};
+				}
 
 				baseData.config.rolesToPing = i.values;
 				isSaved = false;
-				panelEmbed.data.fields![0].value = "🔴";
-
-				// modify the panelEmbed to show the new role
-				panelEmbed.data.fields![3].value = baseData.config.rolesToPing.length >= 1 ? baseData.config.rolesToPing.map(x => `<@&${x}>`).join("") : lang.var_no_set;
-
-				// send the new panelEmbed
-				originalResponse.edit({
-					embeds: [panelEmbed],
-					components,
-					content: null
-				});
+				panelEmbed.data.fields![0].value = '🔴';
+				panelEmbed.data.fields![3].value = baseData.config.rolesToPing.length >= 1 ? baseData.config.rolesToPing.map(x => `<@&${x}>`).join('') : lang.var_no_set;
 
 				await i.deferUpdate();
-				roleCollector.stop("legitEnd");
+				await refreshPanelMessage();
+				roleCollector.stop('legitEnd');
 			});
 
-			roleCollector.on("end", async (_, reason) => {
-				if (reason === "legitEnd") return;
-
-				await change_role_interaction.edit({
-					components,
-					embeds: [panelEmbed]
-				});
+			roleCollector.on('end', async (_, reason) => {
+				if (reason === 'legitEnd') return;
+				await refreshPanelMessage();
 			});
 		}
 
 		async function changePing() {
 			baseData.config.pingUser = !baseData.config.pingUser;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-
-			panelEmbed.data.fields![4].value = baseData.config.pingUser ? "🟢" : "🔴";
-
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				components,
-			});
+			panelEmbed.data.fields![0].value = '🔴';
+			panelEmbed.data.fields![4].value = baseData.config.pingUser ? '🟢' : '🔴';
+			await refreshPanelMessage();
 		}
 
 		async function changeEmbed(i: StringSelectMenuInteraction<CacheType>) {
 			const modal = await iHorizonModalResolve({
-				customId: "change_embed",
+				customId: 'change_embed',
 				deferUpdate: false,
 				title: lang.ticket_panel_change_embed_modal_placeholder,
 				fields: [
 					{
-						customId: "embed_id",
+						customId: 'embed_id',
 						label: lang.ticket_panel_change_embed_modal_placeholder,
 						style: TextInputStyle.Short,
 						required: true,
@@ -866,38 +876,29 @@ export const subCommand: SubCommand = {
 
 			if (!modal) return;
 
-			// get the embed id
-			const embed_id = modal.fields.getTextInputValue("embed_id");
-
-			// check if the embed exists
-			const embed = await metasTable.get(`EMBED.${embed_id}`);
+			const embedId = modal.fields.getTextInputValue('embed_id');
+			const embed = await metasTable.get(`EMBED.${embedId}`);
 
 			if (!embed) {
 				return modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
 			}
 
-			baseData.relatedEmbedId = embed_id;
+			baseData.relatedEmbedId = embedId;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-
+			panelEmbed.data.fields![0].value = '🔴';
 			panelEmbed.data.fields![1].value = baseData.relatedEmbedId;
-			modal.deferUpdate();
-
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				components,
-			});
-
+			await modal.deferUpdate();
+			await refreshPanelMessage();
 		}
 
 		async function changeTicketChannelPanel(i: StringSelectMenuInteraction<CacheType>) {
 			const modal = await iHorizonModalResolve({
-				customId: "change_embed2",
+				customId: 'change_embed2',
 				deferUpdate: false,
 				title: lang.ticket_panel_change_embed_modal_placeholder,
 				fields: [
 					{
-						customId: "embed_id",
+						customId: 'embed_id',
 						label: lang.ticket_panel_change_embed_modal_placeholder,
 						style: TextInputStyle.Short,
 						required: true,
@@ -909,112 +910,94 @@ export const subCommand: SubCommand = {
 
 			if (!modal) return;
 
-			i.followUp({
-				content: lang.ticket_panel_tip_about_variable1.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat),
+			await i.followUp({
+				content: lang.ticket_panel_tip_about_variable1.replace('${client.iHorizon_Emojis.VC_OpenChat}', client.iHorizon_Emojis.VC_OpenChat),
 				flags: MessageFlags.Ephemeral
-			})
+			});
 
-			// get the embed id
-			let embed_id: string | undefined = modal.fields.getTextInputValue("embed_id");
-
-			// check if the embed exists
-			const embed = await metasTable.get(`EMBED.${embed_id}`);
+			let embedId: string | undefined = modal.fields.getTextInputValue('embed_id');
+			const embed = await metasTable.get(`EMBED.${embedId}`);
 
 			if (!embed) {
-				modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
-				embed_id = undefined;
+				await modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
+				embedId = undefined;
 			}
 
-			baseData.ticketChannelPanel = embed_id;
+			baseData.ticketChannelPanel = embedId;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-
+			panelEmbed.data.fields![0].value = '🔴';
 			panelEmbed.data.fields![2].value = baseData.ticketChannelPanel || lang.var_no_set;
-			modal.deferUpdate();
-
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				components,
-				content: generateDetailedContent() || null,
-			});
+			await modal.deferUpdate();
+			await refreshPanelMessage();
 		}
 
 		async function changeOption() {
 			const select = new StringSelectMenuBuilder()
-				.setCustomId("change_option")
+				.setCustomId('change_option')
 				.setPlaceholder(lang.ticket_panel_change_option_select_placeholder)
 				.addOptions(
 					new StringSelectMenuOptionBuilder()
 						.setLabel(lang.ticket_panel_change_option_select_1_label)
-						.setValue("add"),
+						.setValue('add'),
 					new StringSelectMenuOptionBuilder()
 						.setLabel(lang.ticket_panel_change_option_select_2_label)
-						.setValue("remove"),
+						.setValue('remove'),
 				);
 
-			const select_interaction = await originalResponse.edit({
+			const selectInteraction = await originalResponse.edit({
 				components: [
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
 				],
 				embeds: [],
-				content: lang.ticket_panel_change_option_interaction_content
+				content: lang.ticket_panel_change_option_interaction_content,
+				files: []
 			});
 
-			// collector for string select
-			const select_collector = select_interaction.createMessageComponentCollector({
+			const selectCollector = selectInteraction.createMessageComponentCollector({
 				componentType: ComponentType.StringSelect,
 				time: 60_000,
+				max: 1,
 			});
 
-			select_collector.on("collect", async (i) => {
+			selectCollector.on('collect', async (i) => {
 				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				};
+				}
 
 				const choice = i.values[0];
 
 				switch (choice) {
-					case "add":
-						await add_option(i);
-						select_collector.stop("legitEnd");
+					case 'add':
+						await addOption(i);
+						selectCollector.stop('legitEnd');
 						break;
-					case "remove":
-						i.deferUpdate();
-						await remove_option();
-						select_collector.stop("legitEnd");
+					case 'remove':
+						await i.deferUpdate();
+						await removeOption();
+						selectCollector.stop('legitEnd');
 						break;
 				}
-
 			});
 
-			select_collector.on("end", async (_, reason) => {
-				if (reason === "legitEnd") return;
-
-				await select_interaction.edit({
-					components,
-					embeds: [panelEmbed]
-				});
+			selectCollector.on('end', async (_, reason) => {
+				if (reason === 'legitEnd') return;
+				await refreshPanelMessage();
 			});
 		}
 
-		async function add_option(i: StringSelectMenuInteraction<CacheType>) {
+		async function addOption(i: StringSelectMenuInteraction<CacheType>) {
 			if (baseData.config.optionFields.length >= 10) {
-				await originalResponse.edit({
-					embeds: [panelEmbed],
-					content: generateDetailedContent() || null,
-					components
-				});
-
+				await refreshPanelMessage();
 				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_add_option_max_10 });
 			}
 
 			const modal = await iHorizonModalResolve({
-				customId: "add_option",
+				customId: 'add_option',
 				deferUpdate: false,
 				title: lang.ticket_panel_add_option_modal_title,
 				fields: [
 					{
-						customId: "name",
+						customId: 'name',
 						label: lang.ticket_panel_add_option_modal_field1_label,
 						style: TextInputStyle.Short,
 						required: true,
@@ -1022,7 +1005,7 @@ export const subCommand: SubCommand = {
 						minLength: 4
 					},
 					{
-						customId: "desc",
+						customId: 'desc',
 						label: lang.ticket_panel_add_option_modal_field2_label,
 						style: TextInputStyle.Short,
 						required: false,
@@ -1030,7 +1013,7 @@ export const subCommand: SubCommand = {
 						minLength: 4
 					},
 					{
-						customId: "emoji",
+						customId: 'emoji',
 						label: lang.ticket_panel_add_option_modal_field3_label,
 						style: TextInputStyle.Short,
 						required: false,
@@ -1042,11 +1025,10 @@ export const subCommand: SubCommand = {
 
 			if (!modal) return;
 
-			const name = modal.fields.getTextInputValue("name");
-			const desc = modal.fields.getTextInputValue("desc");
-			let emoji: string | undefined = modal.fields.getTextInputValue("emoji");
+			const name = modal.fields.getTextInputValue('name');
+			const desc = modal.fields.getTextInputValue('desc');
+			let emoji: string | undefined = modal.fields.getTextInputValue('emoji');
 
-			// Check emoji before push
 			if (!isSingleEmoji(emoji) && !isDiscordEmoji(emoji)) {
 				emoji = undefined;
 			}
@@ -1060,163 +1042,91 @@ export const subCommand: SubCommand = {
 			});
 
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-
+			panelEmbed.data.fields![0].value = '🔴';
 			panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
 
-			modal.deferUpdate();
-
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				components,
-				content: generateDetailedContent() || null,
-			});
+			await modal.deferUpdate();
+			await refreshPanelMessage();
 		}
 
-		async function remove_option() {
-			if (baseData.config.optionFields.length === 0) {
-				return originalResponse.edit({
-					content: lang.ticket_panel_remove_option_empty,
-					embeds: [panelEmbed],
-					components
-				});
-			}
+		async function removeOption() {
+			const selected = await selectOption('remove_option', lang.ticket_panel_rempve_option_interaction_content);
+			if (!selected) return;
 
-			const select = new StringSelectMenuBuilder()
-				.setCustomId("remove_option")
-				.setPlaceholder(lang.ticket_panel_remove_option_select_placeholder)
-				.addOptions(
-					...baseData.config.optionFields.map((x, i) => {
-						return new StringSelectMenuOptionBuilder()
-							.setLabel(x.name)
-							.setValue(i.toString())
-					})
-				);
-
-			const select_interaction = await originalResponse.edit({
-				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
-				],
-				embeds: [],
-				content: lang.ticket_panel_rempve_option_interaction_content
-			});
-
-			// collector for string select
-			const select_collector = select_interaction.createMessageComponentCollector({
-				componentType: ComponentType.StringSelect,
-				time: 60_000,
-			});
-
-			select_collector.on("collect", async (i) => {
-				if (i.user.id !== interaction.member!.user.id) {
-					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				};
-
-				const choice = i.values[0];
-				baseData.config.optionFields.splice(parseInt(choice), 1);
-
-				isSaved = false;
-				panelEmbed.data.fields![0].value = "🔴";
-
-				panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
-
-				await i.deferUpdate();
-
-				await originalResponse.edit({
-					embeds: [panelEmbed],
-					components,
-					content: null
-				});
-
-				select_collector.stop("legitEnd");
-			});
-
-			select_collector.on("end", async (_, reason) => {
-				if (reason === "legitEnd") return;
-
-				await select_interaction.edit({
-					components,
-					embeds: [panelEmbed]
-				});
-			})
-		};
+			baseData.config.optionFields.splice(selected.index, 1);
+			isSaved = false;
+			panelEmbed.data.fields![0].value = '🔴';
+			panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
+			await refreshPanelMessage();
+		}
 
 		async function changeForm() {
 			const select = new StringSelectMenuBuilder()
-				.setCustomId("change_form")
+				.setCustomId('change_form')
 				.setPlaceholder(lang.ticket_panel_change_option_select_placeholder)
 				.addOptions(
 					new StringSelectMenuOptionBuilder()
 						.setLabel(lang.ticket_panel_change_form_select_placeholder_1)
-						.setValue("add"),
+						.setValue('add'),
 					new StringSelectMenuOptionBuilder()
 						.setLabel(lang.ticket_panel_change_form_select_placeholder_2)
-						.setValue("remove"),
+						.setValue('remove'),
 				);
 
-			const select_interaction = await originalResponse.edit({
+			const selectInteraction = await originalResponse.edit({
 				components: [
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
 				],
 				embeds: [],
-				content: lang.ticket_panel_change_form_interaction_content
+				content: lang.ticket_panel_change_form_interaction_content,
+				files: []
 			});
 
-			// collector for string select
-			const select_collector = select_interaction.createMessageComponentCollector({
+			const selectCollector = selectInteraction.createMessageComponentCollector({
 				componentType: ComponentType.StringSelect,
 				time: 60_000,
+				max: 1,
 			});
 
-			select_collector.on("collect", async (i) => {
+			selectCollector.on('collect', async (i) => {
 				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				};
+				}
 
 				const choice = i.values[0];
 
 				switch (choice) {
-					case "add":
-						await add_form(i);
-						select_collector.stop("legitEnd");
+					case 'add':
+						await addForm(i);
+						selectCollector.stop('legitEnd');
 						break;
-					case "remove":
-						i.deferUpdate();
-						await remove_form();
-						select_collector.stop("legitEnd");
+					case 'remove':
+						await i.deferUpdate();
+						await removeForm();
+						selectCollector.stop('legitEnd');
 						break;
 				}
-
 			});
 
-			select_collector.on("end", async (_, reason) => {
-				if (reason === "legitEnd") return;
-
-				await select_interaction.edit({
-					components,
-					embeds: [panelEmbed]
-				});
+			selectCollector.on('end', async (_, reason) => {
+				if (reason === 'legitEnd') return;
+				await refreshPanelMessage();
 			});
 		}
 
-		async function add_form(i: StringSelectMenuInteraction<CacheType>) {
+		async function addForm(i: StringSelectMenuInteraction<CacheType>) {
 			if (baseData.config.form.length >= 3) {
-				await originalResponse.edit({
-					embeds: [panelEmbed],
-					components,
-					content: generateDetailedContent() || null,
-				});
-
+				await refreshPanelMessage();
 				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_add_form_max_3 });
 			}
 
 			const modal = await iHorizonModalResolve({
-				customId: "add_form",
+				customId: 'add_form',
 				deferUpdate: false,
 				title: lang.ticket_panel_add_form_modal_title,
 				fields: [
 					{
-						customId: "questionTitle",
+						customId: 'questionTitle',
 						label: lang.ticket_panel_add_form_modal_field1_label,
 						style: TextInputStyle.Short,
 						required: true,
@@ -1224,7 +1134,7 @@ export const subCommand: SubCommand = {
 						minLength: 4
 					},
 					{
-						customId: "questionPlaceholder",
+						customId: 'questionPlaceholder',
 						label: lang.ticket_panel_add_form_modal_field2_label,
 						style: TextInputStyle.Short,
 						required: false,
@@ -1236,8 +1146,8 @@ export const subCommand: SubCommand = {
 
 			if (!modal) return;
 
-			const questionTitle = modal.fields.getTextInputValue("questionTitle");
-			const questionPlaceholder = modal.fields.getTextInputValue("questionPlaceholder");
+			const questionTitle = modal.fields.getTextInputValue('questionTitle');
+			const questionPlaceholder = modal.fields.getTextInputValue('questionPlaceholder');
 
 			baseData.config.form.push({
 				questionId: baseData.config.form.length,
@@ -1246,106 +1156,83 @@ export const subCommand: SubCommand = {
 			});
 
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-
+			panelEmbed.data.fields![0].value = '🔴';
 			panelEmbed.data.fields![8].value = stringifyForm(baseData.config.form) || lang.var_no_set;
 
-			modal.deferUpdate();
-
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				components,
-				content: generateDetailedContent() || null,
-			});
+			await modal.deferUpdate();
+			await refreshPanelMessage();
 		}
 
-		async function remove_form() {
+		async function removeForm() {
 			if (baseData.config.form.length === 0) {
-				await originalResponse.edit({
-					embeds: [panelEmbed],
-					components,
-					content: generateDetailedContent() || null,
-				});
-
+				const file = buildOptionsAttachment();
+				await refreshPanelMessage();
 				return originalResponse.edit({
 					content: lang.ticket_panel_remove_option_empty,
 					components,
+					embeds: [panelEmbed],
+					attachments: [],
+					files: file ? [file] : []
 				});
 			}
 
 			const select = new StringSelectMenuBuilder()
-				.setCustomId("remove_form")
+				.setCustomId('remove_form')
 				.setPlaceholder(lang.ticket_panel_remove_option_select_placeholder)
 				.addOptions(
 					...baseData.config.form.map((x, i) => {
 						return new StringSelectMenuOptionBuilder()
 							.setLabel(x.questionTitle)
-							.setValue(i.toString())
+							.setValue(i.toString());
 					})
 				);
 
-			const select_interaction = await originalResponse.edit({
+			const selectInteraction = await originalResponse.edit({
 				components: [
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
 				],
 				embeds: [],
-				content: lang.ticket_panel_rempve_option_interaction_content
+				content: lang.ticket_panel_rempve_option_interaction_content,
+				files: []
 			});
 
-			// collector for string select
-			const select_collector = select_interaction.createMessageComponentCollector({
+			const selectCollector = selectInteraction.createMessageComponentCollector({
 				componentType: ComponentType.StringSelect,
 				time: 60_000,
+				max: 1,
 			});
 
-			select_collector.on("collect", async (i) => {
+			selectCollector.on('collect', async (i) => {
 				if (i.user.id !== interaction.member!.user.id) {
 					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				};
+				}
 
 				const choice = i.values[0];
 				baseData.config.form.splice(parseInt(choice), 1);
 
 				isSaved = false;
-				panelEmbed.data.fields![0].value = "🔴";
-
+				panelEmbed.data.fields![0].value = '🔴';
 				panelEmbed.data.fields![8].value = stringifyForm(baseData.config.form) || lang.var_no_set;
 
 				await i.deferUpdate();
-
-				await originalResponse.edit({
-					embeds: [panelEmbed],
-					components,
-					content: generateDetailedContent() || null,
-				});
-
-				select_collector.stop("legitEnd");
+				await refreshPanelMessage();
+				selectCollector.stop('legitEnd');
 			});
 
-			select_collector.on("end", async (_, reason) => {
-				if (reason === "legitEnd") return;
-
-				await select_interaction.edit({
-					components,
-					embeds: [panelEmbed]
-				});
-			})
+			selectCollector.on('end', async (_, reason) => {
+				if (reason === 'legitEnd') return;
+				await refreshPanelMessage();
+			});
 		}
 
 		async function preview(i: StringSelectMenuInteraction<CacheType>) {
 			const relatedEmbed = await metasTable.get(`EMBED.${baseData.relatedEmbedId}`);
 
 			if (!relatedEmbed || !relatedEmbed.embedSource) {
-				await originalResponse.edit({
-					content: generateDetailedContent() || null,
-					components,
-					embeds: [panelEmbed]
-				});
-
+				await refreshPanelMessage();
 				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_related_embed_dont_exist });
 			}
 
-			// if 0 option fields
 			if (baseData.config.optionFields.length === 0) {
 				return i.reply({ flags: [1 << 6], content: lang.ticket_panel_need_1_option });
 			}
@@ -1354,7 +1241,7 @@ export const subCommand: SubCommand = {
 			ensureUniqueOptionFieldValues();
 
 			const selectMenu = new StringSelectMenuBuilder()
-				.setCustomId("ticket-open-selection-v2-preview")
+				.setCustomId('ticket-open-selection-v2-preview')
 				.setPlaceholder(baseData.placeholder)
 				.addOptions(
 					baseData.config.optionFields.map(x => {
@@ -1374,268 +1261,135 @@ export const subCommand: SubCommand = {
 					})
 				);
 
-			i.reply({
+			await i.reply({
 				embeds: [embed],
 				content: lang.ticket_panel_preview_message,
 				components: [
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu)
 				],
 				flags: [1 << 6]
-			})
+			});
 		}
 
 		async function changeTicketUserSelectPanel() {
 			baseData.config.userSelectPanel = !baseData.config.userSelectPanel;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-
-			panelEmbed.data.fields![9].value = baseData.config.userSelectPanel ? "🟢" : "🔴";
-
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				components,
-			});
+			panelEmbed.data.fields![0].value = '🔴';
+			panelEmbed.data.fields![9].value = baseData.config.userSelectPanel ? '🟢' : '🔴';
+			await refreshPanelMessage();
 		}
 
 		async function changeTicketButtonDeletePanel() {
 			baseData.config.deleteButton = !baseData.config.deleteButton;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-
-			panelEmbed.data.fields![10].value = baseData.config.deleteButton ? "🟢" : "🔴";
-
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				components,
-			});
+			panelEmbed.data.fields![0].value = '🔴';
+			panelEmbed.data.fields![10].value = baseData.config.deleteButton ? '🟢' : '🔴';
+			await refreshPanelMessage();
 		}
 
 		async function changeTicketButtonTranscriptPanel() {
 			baseData.config.transcriptButton = !baseData.config.transcriptButton;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-
-			panelEmbed.data.fields![11].value = baseData.config.transcriptButton ? "🟢" : "🔴";
-
-			await originalResponse.edit({
-				embeds: [panelEmbed],
-				components,
-			});
+			panelEmbed.data.fields![0].value = '🔴';
+			panelEmbed.data.fields![11].value = baseData.config.transcriptButton ? '🟢' : '🔴';
+			await refreshPanelMessage();
 		}
 
-		async function changeTicketChannelPanelOptions(i: StringSelectMenuInteraction<CacheType>) {
-			// get the option with string select menu
-			if (baseData.config.optionFields.length === 0) {
-				return originalResponse.edit({
-					content: lang.ticket_panel_change_embed_options_null,
-					embeds: [panelEmbed],
-					components
-				});
+		async function changeTicketChannelPanelOptions() {
+			const selected = await selectOption('change_channel_panel_id_for_option', lang.ticket_panel_change_embed_options);
+			if (!selected) return;
+
+			const { option } = selected;
+			const modal = await iHorizonModalResolve({
+				customId: 'change_panel_channel_id',
+				deferUpdate: false,
+				fields: [
+					{
+						customId: 'embed_id',
+						maxLength: 32,
+						label: lang.ticket_panel_change_embed_modal_placeholder,
+						required: true,
+						style: TextInputStyle.Short,
+						minLength: 8,
+						placeHolder: lang.ticket_panel_channel_panel_embed_id
+					}
+				],
+				title: lang.ticket_panel_change_embed_modal_placeholder
+			}, originalResponse as unknown as StringSelectMenuInteraction<CacheType>);
+
+			if (!modal) {
+				await refreshPanelMessage();
+				return;
 			}
 
-			const select = new StringSelectMenuBuilder()
-				.setCustomId("change_channel_panel_id_for_option")
-				.setPlaceholder(lang.ticket_panel_change_embed_options_chose)
-				.addOptions(
-					...baseData.config.optionFields.map((x, i) => {
-						return new StringSelectMenuOptionBuilder()
-							.setLabel(x.name)
-							.setValue(i.toString())
-					})
-				);
+			const embedId = modal.fields.getTextInputValue('embed_id');
+			const embed = await metasTable.get(`EMBED.${embedId}`);
 
-			const select_interaction = await originalResponse.edit({
+			if (!embed) {
+				await refreshPanelMessage();
+				return modal.reply({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
+			}
+
+			option.panelId = embedId;
+			isSaved = false;
+			panelEmbed.data.fields![0].value = '🔴';
+			panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
+			await modal.deferUpdate();
+			await refreshPanelMessage();
+		}
+
+		async function changeRoleToPingOptions() {
+			const selected = await selectOption('select_option_role_ping', lang.ticket_panel_chose_option_to_form);
+			if (!selected) return;
+
+			const { option } = selected;
+			if (!option.rolesToPing) {
+				option.rolesToPing = [];
+			}
+
+			const roleSelect = new RoleSelectMenuBuilder()
+				.setPlaceholder(lang.ticket_panel_change_role_roleSelect_placeholder)
+				.setCustomId('change_role_option')
+				.setMaxValues(10)
+				.setMinValues(0);
+
+			if (option.rolesToPing.length > 0) {
+				roleSelect.addDefaultRoles(option.rolesToPing);
+			}
+
+			const roleMsg = await originalResponse.edit({
 				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)
+					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelect)
 				],
 				embeds: [],
-				content: lang.ticket_panel_change_embed_options
+				content: lang.ticket_panel_change_role_interaction_content.replace('${option.name}', option.name) || `Sélectionnez les rôles à ping pour l'option: ${option.name}`,
+				files: []
 			});
 
-			// collector for string select
-			const select_collector = select_interaction.createMessageComponentCollector({
-				componentType: ComponentType.StringSelect,
-				time: 60_000 * 5,
+			const roleCollector = roleMsg.createMessageComponentCollector({
+				componentType: ComponentType.RoleSelect,
+				time: 60_000,
+				max: 1,
 			});
 
-			select_collector.on("collect", async (i) => {
-				if (i.user.id !== interaction.member!.user.id) {
-					return i.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				};
-
-				const choice = i.values[0];
-				const option = baseData.config.optionFields[parseInt(choice)];
-
-				const modal = await iHorizonModalResolve({
-					customId: "change_panel_channel_id",
-					deferUpdate: true,
-					fields: [
-						{
-							customId: "embed_id",
-							maxLength: 32,
-							label: lang.ticket_panel_change_embed_modal_placeholder,
-							required: true,
-							style: TextInputStyle.Short,
-							minLength: 8,
-							placeHolder: lang.ticket_panel_channel_panel_embed_id
-						}
-					],
-					title: lang.ticket_panel_change_embed_modal_placeholder
-
-				}, i);
-
-				let embed_id = modal?.fields.getTextInputValue("embed_id");
-
-				// check if the embed exists
-				const embed = await metasTable.get(`EMBED.${embed_id}`);
-
-				if (!embed) {
-					await originalResponse.edit({
-						embeds: [panelEmbed], components, content: generateDetailedContent() || null,
-					});
-					select_collector.stop('legitEnd');
-					return i.followUp({ flags: [1 << 6], content: lang.ticket_panel_change_embed_dont_exist });
+			roleCollector.on('collect', async (roleI) => {
+				if (roleI.user.id !== interaction.member!.user.id) {
+					return roleI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
 				}
 
-				option.panelId = embed_id;
+				option.rolesToPing = roleI.values;
 				isSaved = false;
-				panelEmbed.data.fields![0].value = "🔴";
-
+				panelEmbed.data.fields![0].value = '🔴';
 				panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
 
-				await originalResponse.edit({
-					embeds: [panelEmbed],
-					components
-				});
-
-				select_collector.stop("legitEnd");
-			});
-		}
-
-		async function changeRoleToPingOptions(i: StringSelectMenuInteraction<CacheType>) {
-			// Vérifier qu'il y a des options disponibles
-			if (baseData.config.optionFields.length === 0) {
-				return originalResponse.edit({
-					content: lang.ticket_panel_remove_option_empty,
-					embeds: [panelEmbed],
-					components,
-				});
-			}
-
-			// Créer le menu de sélection pour choisir l'option
-			const select = new StringSelectMenuBuilder()
-				.setCustomId('select_option_role_ping')
-				.setPlaceholder(lang.var_chose_option)
-				.addOptions(baseData.config.optionFields.map((opt, idx) =>
-					new StringSelectMenuOptionBuilder()
-						.setLabel(opt.name)
-						.setValue(idx.toString())
-				));
-
-			const msg = await originalResponse.edit({
-				components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(select)],
-				embeds: [],
-				content: lang.ticket_panel_chose_option_to_form, // Peut être remplacé par une clé spécifique si disponible
+				await roleI.deferUpdate();
+				await refreshPanelMessage();
+				roleCollector.stop('legitEnd');
 			});
 
-			const collector = msg.createMessageComponentCollector({
-				componentType: ComponentType.StringSelect,
-				time: 300_000
-			});
-
-			collector.on('collect', async (subI) => {
-				if (subI.user.id !== interaction.member!.user.id) {
-					return subI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-				}
-
-				const idx = parseInt(subI.values[0]);
-				const option = baseData.config.optionFields[idx];
-
-				if (isNaN(idx) || !baseData.config.optionFields[idx]) {
-					await subI.reply({ content: lang.ticket_panel_option_invalid, flags: MessageFlags.Ephemeral });
-					return;
-				}
-
-				// Initialiser le tableau rolesToPing si nécessaire
-				if (!option.rolesToPing) {
-					option.rolesToPing = [];
-				}
-
-				subI.deferUpdate();
-
-				// Créer le sélecteur de rôles
-				const roleSelect = new RoleSelectMenuBuilder()
-					.setPlaceholder(lang.ticket_panel_change_role_roleSelect_placeholder)
-					.setCustomId('change_role_option')
-					.setMaxValues(10)
-					.setMinValues(0);
-
-				// Ajouter les rôles par défaut s'il y en a
-				if (option.rolesToPing.length > 0) {
-					roleSelect.addDefaultRoles(option.rolesToPing);
-				}
-
-				const roleMsg = await originalResponse.edit({
-					components: [
-						new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelect)
-					],
-					embeds: [],
-					content: lang.ticket_panel_change_role_interaction_content.replace('${option.name}', option.name) ||
-						`Sélectionnez les rôles à ping pour l'option: ${option.name}`
-				});
-
-				collector.stop('legitEnd');
-
-				// Collector pour le sélecteur de rôles
-				const roleCollector = roleMsg.createMessageComponentCollector({
-					componentType: ComponentType.RoleSelect,
-					time: 60_000,
-				});
-
-				roleCollector.on('collect', async (roleI) => {
-					if (roleI.user.id !== interaction.member!.user.id) {
-						return roleI.reply({ flags: [1 << 6], content: lang.help_not_for_you });
-					}
-
-					// Mettre à jour les rôles pour cette option
-					option.rolesToPing = roleI.values;
-					isSaved = false;
-					panelEmbed.data.fields![0].value = '🔴';
-
-					// Mettre à jour l'affichage des options
-					panelEmbed.data.fields![7].value = stringifyOptions(baseData.config.optionFields) || lang.var_no_set;
-
-					await roleI.deferUpdate();
-
-					// Retourner à l'écran principal
-					await originalResponse.edit({
-						embeds: [panelEmbed],
-						components,
-						content: generateDetailedContent() || null
-					});
-
-					roleCollector.stop('legitEnd');
-				});
-
-				roleCollector.on('end', async (_, reason) => {
-					if (reason === 'legitEnd') return;
-
-					await roleMsg.edit({
-						components,
-						embeds: [panelEmbed],
-						content: generateDetailedContent() || null
-					});
-				});
-			});
-
-			collector.on('end', async (_, reason) => {
+			roleCollector.on('end', async (_, reason) => {
 				if (reason === 'legitEnd') return;
-
-				await msg.edit({
-					components,
-					embeds: [panelEmbed],
-					content: generateDetailedContent() || null
-				});
+				await refreshPanelMessage();
 			});
 		}
 	},

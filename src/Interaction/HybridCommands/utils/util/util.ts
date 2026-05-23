@@ -143,6 +143,20 @@ export const command: Command = {
 			permission: [PermissionFlagsBits.ModerateMembers, PermissionFlagsBits.MoveMembers]
 		},
 		{
+			name: 'derogation',
+
+			description: 'Create one fake-admin role managed by iHorizon',
+			description_localizations: {
+				"fr": "Créer un rôle de dérogation fake admin géré par iHorizon"
+			},
+
+			aliases: ['dero'],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
 			name: "autorenew",
 			description: "Renew automaticaly X time a channel",
 

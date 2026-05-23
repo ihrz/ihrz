@@ -128,7 +128,7 @@ export const command: Command = {
 		},
 		{
 			name: 'clear-queue',
-
+			aliases: ["clearqueue"],
 
 			description: 'Clear the music queue in this guild!',
 			description_localizations: {
@@ -192,6 +192,19 @@ export const command: Command = {
 					permission: null
 				},
 			],
+
+			permission: null
+		},
+		{
+			name: 'trackinfo',
+
+
+			description: 'Search a music into the Internet',
+			description_localizations: {
+				"fr": "Chercher une musique sur Internet"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: null
 		},
