@@ -1266,6 +1266,10 @@ export interface LanguageData {
 	lyrics_embed_author_name_unknown: string;
 	lyrics_not_found: string;
 	clear_queue_command_ok: string;
+	music_requested_by: string;
+	music_visit_here: string;
+	music_lyrics: string;
+	music_link_here: string;
 	end_not_admin: string;
 	end_not_find_giveaway: string;
 	end_confirmation_message: string;

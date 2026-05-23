@@ -69,14 +69,14 @@ const SUCCESS_EMBED_COLOR = '#00cc1a';
 const QUEUE_ADD_EMBED_COLOR = 2829617;
 const DEFAULT_VOLUME = 75;
 
-function buildNoResultEmbed(lang: LanguageData): EmbedBuilder {
+export function buildNoResultEmbed(lang: LanguageData): EmbedBuilder {
 	return new EmbedBuilder()
 		.setTitle(lang.p_embed_title)
 		.setColor(NO_RESULT_EMBED_COLOR)
 		.setTimestamp();
 }
 
-function buildTrackDuration(track: Track): string {
+export function buildTrackDuration(track: Track): string {
 	const totalDurationMs = track.info.duration;
 	const totalDurationSec = Math.floor(totalDurationMs / 1000);
 	const hours = Math.floor(totalDurationSec / 3600);
@@ -86,7 +86,7 @@ function buildTrackDuration(track: Track): string {
 	return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-function isUrlQuery(query: string): boolean {
+export function isUrlQuery(query: string): boolean {
 	try {
 		new URL(query);
 		return true;

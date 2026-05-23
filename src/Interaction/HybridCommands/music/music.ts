@@ -196,6 +196,19 @@ export const command: Command = {
 			permission: null
 		},
 		{
+			name: 'trackinfo',
+
+
+			description: 'Search a music into the Internet',
+			description_localizations: {
+				"fr": "Chercher une musique sur Internet"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null
+		},
+		{
 			name: 'queue',
 
 			description: 'Get the queue!',

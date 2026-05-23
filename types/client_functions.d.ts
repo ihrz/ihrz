@@ -267,6 +267,9 @@ declare namespace Client_Functions {
 
 	// From musicPlay.ts
 	export namespace musicPlay {
+		export function buildNoResultEmbed(lang: LanguageData): EmbedBuilder;
+		export function buildTrackDuration(track: Track): string;
+		export function isUrlQuery(query: string): boolean;
 		export function searchQueryOnNode(client: Client<boolean>, node: LavalinkNode, query: string, requester: User): Promise<SearchResult | undefined>;
 		export function searchMusicQuery(
 			client: Client<boolean>,

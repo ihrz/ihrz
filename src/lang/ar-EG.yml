@@ -1672,6 +1672,12 @@ lyrics_not_found: "لم يتم العثور على كلمات"
 # /music clear-queue
 clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | تم مسح قائمة انتظار الموسيقى في خادم Discord هذا."
 
+# /music trackinfo
+music_requested_by: "طلوب من"
+music_visit_here: "انقر هنا"
+music_lyrics: "كلمات"
+music_link_here: "رابط هنا: [انقر هنا]({link})"
+
 # Giveaway commands
 # /end, /start, /reroll
 

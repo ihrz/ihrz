@@ -1671,6 +1671,12 @@ lyrics_not_found: "歌詞が見つかりません"
 # /music clear-queue
 clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | このDiscordサーバーの音楽キューはクリアされました。"
 
+# /music trackinfo
+music_requested_by: "要求者"
+music_visit_here: "ここをクリック"
+music_lyrics: "歌詞"
+music_link_here: "リンクをクリック: [クリック]({link})"
+
 # Giveaway commands
 # /end, /start, /reroll
 
