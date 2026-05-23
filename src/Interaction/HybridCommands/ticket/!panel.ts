@@ -811,7 +811,7 @@ export const subCommand: SubCommand = {
 				.setCustomId('change_role')
 				.setMaxValues(10)
 				.setMinValues(0)
-				.addDefaultRoles(baseData.config.rolesToPing);
+				.addDefaultRoles(baseData.config.rolesToPing || []);
 
 			const changeRoleInteraction = await originalResponse.edit({
 				components: [
