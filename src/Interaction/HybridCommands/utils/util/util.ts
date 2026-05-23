@@ -150,7 +150,7 @@ export const command: Command = {
 				"fr": "Créer un rôle de dérogation fake admin géré par iHorizon"
 			},
 
-			aliases: ['dero'],
+			aliases: ['dero', 'alldero'],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
