@@ -31,6 +31,7 @@ import { LanguageData } from '../../../../../types/languageData.js';
 
 import { SubCommand } from '../../../../../types/command.js';
 import { role } from '../../../../core/functions/method.js';
+import { DatabaseStructure } from '../../../../../types/database_structure.js';
 
 const DEROGATION_ROLE_NAME = 'managed by iHorizon';
 
@@ -50,7 +51,16 @@ export const subCommand: SubCommand = {
 		const permissions = new PermissionsBitField(PermissionsBitField.All);
 		permissions.remove(PermissionFlagsBits.Administrator);
 
-		let role = interaction.guild.roles.cache.find(existingRole => existingRole.name === DEROGATION_ROLE_NAME);
+		const baseInteraction = await client.func.method.interactionSend(interaction, {
+			content: client.iHorizon_Emojis.Discord_Loading
+		});
+
+		let baseData = await client.db.get(`${interaction.guildId}.GUILD.UTILS.DEROGATION`) as DatabaseStructure.Derogation | null;
+
+		let role = baseData ? (
+			interaction.guild.roles.cache.get(baseData) || await interaction.guild.roles.fetch(baseData).catch(() => null)
+		) : null;
+
 		let created = false;
 
 		if (!role) {
@@ -60,6 +70,9 @@ export const subCommand: SubCommand = {
 				reason: `[Utils:Derogation] Created by ${interaction.member.user.tag}`,
 			});
 			created = true;
+
+			await client.db.set(`${interaction.guild.id}.GUILD.UTILS.DEROGATION`, role.id);
+
 		} else if (!role.permissions.equals(permissions)) {
 			await role.setPermissions(permissions, `[Utils:Derogation] Sync base permissions requested by ${interaction.member.user.tag}`);
 		}
@@ -102,7 +115,7 @@ export const subCommand: SubCommand = {
 				? lang.utils_derogation_resynced
 				: lang.utils_derogation_already_exists;
 
-		await client.func.method.interactionSend(interaction, {
+		await baseInteraction.edit({
 			content: content
 				.replace('${role}', role.toString())
 				.replace('${updatedChannels}', updatedChannels.toString())
