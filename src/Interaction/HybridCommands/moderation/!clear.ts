@@ -78,7 +78,7 @@ export const subCommand: SubCommand = {
 					client.func.method.channelSend(interaction, {
 						content: lang.clear_confirmation_message
 							.replace(/\${messages\.size}/g, messages.size.toString())
-					});
+					}).then(x => setTimeout(() => x.deletable ?? x.delete(), 5000))
 
 					await client.func.ihorizon_logs(interaction, {
 						title: lang.clear_logs_embed_title,
@@ -96,7 +96,7 @@ export const subCommand: SubCommand = {
 					client.func.method.channelSend(interaction, {
 						content: lang.clear_confirmation_message
 							.replace(/\${messages\.size}/g, messages.size.toString())
-					});
+					}).then(x => setTimeout(() => x.deletable ?? x.delete(), 5000))
 
 					await client.func.ihorizon_logs(interaction, {
 						title: lang.clear_logs_embed_title,
