@@ -151,15 +151,16 @@ export const event: BotEvent = {
 		};
 
 		async function quotesPresence() {
-			client.user?.setPresence({
-				activities: [
-					{
-						name: `Shards #${client.shard?.ids[0]} | ${(await getShardStats(client)).guilds.toString()} Servers | www.ihorizon.org`,
-						type: ActivityType.Playing
-					}
-				],
-				shardId: client.shard?.ids[0]
-			});
+			return;
+			// client.user?.setPresence({
+			// 	activities: [
+			// 		{
+			// 			name: `Shards #${client.shard?.ids[0]} | ${(await getShardStats(client)).guilds.toString()} Servers | www.ihorizon.org`,
+			// 			type: ActivityType.Playing
+			// 		}
+			// 	],
+			// 	shardId: client.shard?.ids[0]
+			// });
 		};
 
 		async function refreshSchedule() {
