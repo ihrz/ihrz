@@ -35,7 +35,7 @@ const regexPatterns: RegExp[] = [
 	/(discord\.gg\/|\.gg\/|gg\/)/i,
 	/[dD][iI][sS][cC][oO][rR][dD]\s*\.\s*[gG][gG]/i,
 	/discord:\/-\/invite\/[a-zA-Z0-9\-\_]+/i,
-	/^(https?:\/\/)?(www\.)?(discord\.com|discordapp\.com)\/invite\/([\w-]+)$/i,
+	/^(?:[a-z]+:\/\/)?(www\.)?(discord\.com|discordapp\.com)\/invite\/([\w-]+)$/i,
 ];
 
 
