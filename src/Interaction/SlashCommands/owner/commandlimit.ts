@@ -168,11 +168,6 @@ export const command: Command = {
 	run: async (client: Client, interaction: ChatInputCommandInteraction<'cached'> | Message, lang: LanguageData) => {
 		if (!(interaction instanceof ChatInputCommandInteraction) || !interaction.guildId || !interaction.member) return;
 
-		if (!await client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
-			await client.func.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
-			return;
-		}
-
 		if (!interaction.member.permissions.has('Administrator')) {
 			await client.func.method.interactionSend(interaction, { content: lang.var_dont_have_perm.replace('{perm}', lang.perm_administrator_name) });
 			return;
