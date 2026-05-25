@@ -27,6 +27,10 @@ import { format } from '../functions/date_and_time.js';
 
 let lavalink_error_channel: 'dont_exist' | null | BaseGuildTextChannel = null;
 
+export function userIdFromToken(token: string): string | null {
+	return Buffer.from(token.split(".")[0], "base64").toString() || null
+}
+
 export default async (client: Client) => {
 
 	const nodes = client.config.lavalink.nodes;
@@ -52,7 +56,7 @@ export default async (client: Client) => {
 			}
 		},
 		client: {
-			id: client.user?.id!,
+			id: userIdFromToken(client.config.discord.token)!,
 			username: "iHorizon"
 		},
 	});
