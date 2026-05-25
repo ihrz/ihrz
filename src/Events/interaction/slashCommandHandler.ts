@@ -45,7 +45,17 @@ export async function checkCommandRateLimit(interaction: ChatInputCommandInterac
 		|| await client.func.ownerHelper.isGuildOwner(interaction.member?.user!.id!, interaction.guild!)
 	) return false;
 
-	const configuredLimit = await client.db.get(`${interaction.guild!.id}.UTILS.COMMAND_LIMITS.${commandPath}`) as DatabaseStructure.CommandRateLimit | undefined;
+	let configuredLimit = await client.db.get(`${interaction.guild!.id}.UTILS.COMMAND_LIMITS.${commandPath}`) as DatabaseStructure.CommandRateLimit | undefined;
+
+	if (!configuredLimit) {
+		const category = commandPath.split(" ")[0];
+		if (category !== commandPath) {
+			configuredLimit = await client.db.get(
+				`${interaction.guild!.id}.UTILS.COMMAND_LIMITS.${category}`
+			) as DatabaseStructure.CommandRateLimit | undefined;
+		}
+	}
+
 	if (!configuredLimit || configuredLimit.count <= 0 || configuredLimit.windowMs <= 0) return false;
 
 	const rateLimitKey = `COMMAND_LIMITS.${interaction.guild!.id}.${commandPath}.${interaction.member!.user!.id!}`;
