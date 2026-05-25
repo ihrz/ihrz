@@ -1542,6 +1542,10 @@ perm_command_delete_all_one: "You need to specify one option to delete a permiss
 perm_command_delete_all_one_option: "You can only specify one option to delete a permission."
 perm_command_delete_all_zero_change: "The permission type you specified was not used in any command."
 perm_command_delete_all_command_ok: "\nSuccessfully deleted **${changes.length}** nested `${type}` (${value}) permissions from the database."
+commandlimit_current_value: "${count} use(s) per ${time}"
+commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
+commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
+commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
 
 # /perm roles
 perm_roles_created_role: "The following roles have been created: ${createdRoles.join(', ')}"

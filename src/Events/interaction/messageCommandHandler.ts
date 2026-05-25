@@ -24,6 +24,7 @@ import { LanguageData } from '../../../types/languageData.js';
 import { Command } from '../../../types/command.js';
 import { BotEvent } from '../../../types/event.js';
 import { Option } from '../../../types/option.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 import { blacklistTable } from '../client/ready.js';
 import { loggerX } from '../logs/slashCommandLogger.js';
@@ -32,7 +33,8 @@ type MessageCommandResponse = {
 	success: boolean,
 	args?: string[],
 	command?: Command,
-	subCommand?: Option | Command
+	subCommand?: Option | Command,
+	commandPath?: string
 };
 
 export async function parseMessageCommand(client: Client, message: Message): Promise<MessageCommandResponse> {
@@ -98,7 +100,8 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 			success: true,
 			args: args,
 			command: parentCommand,
-			subCommand: directSubCommand
+			subCommand: directSubCommand,
+			commandPath: directSubCommand.name
 		};
 	}
 
@@ -118,18 +121,35 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 					success: true,
 					args: args,
 					command: mainCommand,
-					subCommand: subCommand
+					subCommand: subCommand,
+					commandPath: `${mainCommand.name} ${subCommand.name}`
 				};
 			}
 		}
 		return {
 			success: true,
 			args: args,
-			command: mainCommand
+			command: mainCommand,
+			commandPath: mainCommand.name
 		};
 	}
 
 	return { success: false };
+}
+
+async function checkCommandRateLimit(message: Message, commandPath: string, lang: LanguageData): Promise<boolean> {
+	const configuredLimit = await message.client.db.get(`${message.guildId}.UTILS.COMMAND_LIMITS.${commandPath}`) as DatabaseStructure.CommandRateLimit | undefined;
+	if (!configuredLimit || configuredLimit.count <= 0 || configuredLimit.windowMs <= 0) return false;
+
+	const rateLimitKey = `message_command_limits.${message.guildId}.${commandPath}`;
+	if (await message.client.func.helper.cooldown(message.author.id, rateLimitKey, configuredLimit.windowMs)) {
+		await message.reply({
+			content: lang.commandlimit_rate_limited.replace('${time}', message.client.timeCalculator.to_beautiful_string(configuredLimit.windowMs, lang))
+		});
+		return true;
+	}
+
+	return false;
 }
 
 async function executeCommand(
@@ -137,12 +157,14 @@ async function executeCommand(
 	command: Command,
 	args: string[],
 	lang: LanguageData,
+	commandPath?: string,
 ) {
 	const channel = message.channel as GuildChannel;
 	const permissions = channel.permissionsFor(message.member!);
 	const canUseCommands = permissions.has(PermissionsBitField.Flags.UseApplicationCommands);
 
 	if (!canUseCommands) return;
+	if (commandPath && await checkCommandRateLimit(message, commandPath, lang)) return;
 
 	const fetchFullCommandName = message.client.content.find(c => c.desc === command.description);
 
@@ -256,10 +278,10 @@ export const event: BotEvent = {
 			});
 
 			if (result.subCommand) {
-				await executeCommand(message, result.subCommand as Command, result.args || [], lang);
+				await executeCommand(message, result.subCommand as Command, result.args || [], lang, result.commandPath);
 			}
 			else if (result.command) {
-				await executeCommand(message, result.command, result.args || [], lang);
+				await executeCommand(message, result.command, result.args || [], lang, result.commandPath);
 			}
 		} catch (error) {
 			console.error(error)

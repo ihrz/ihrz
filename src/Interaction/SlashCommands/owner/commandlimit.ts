@@ -1,0 +1,192 @@
+/*
+・ iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
+
+・ Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
+
+	・   Under the following terms:
+
+		・ Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+		・ NonCommercial — You may not use the material for commercial purposes.
+
+		・ ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
+
+		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
+
+
+・ Mainly developed by Kisakay (https://gitlab.com/Kisakay)
+
+・ Copyright © 2020-2026 iHorizon
+*/
+
+import {
+	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	AutocompleteInteraction,
+	ChatInputCommandInteraction,
+	Client,
+	Message,
+} from 'discord.js';
+
+import { Command } from '../../../../types/command.js';
+import { Option } from '../../../../types/option.js';
+import { LanguageData } from '../../../../types/languageData.js';
+import { DatabaseStructure } from '../../../../types/database_structure.js';
+
+function getCommandChoices(client: Client): string[] {
+	const choices: string[] = [];
+
+	const pushCommandChoices = (command: Command | Option, parentName = '') => {
+		const commandName = parentName ? `${parentName} ${command.name}` : command.name;
+		choices.push(commandName);
+
+		if (command.options) {
+			command.options.forEach((option) => {
+				if (
+					option.type === ApplicationCommandOptionType.SubcommandGroup
+					|| option.type === ApplicationCommandOptionType.Subcommand
+				) {
+					pushCommandChoices(option, commandName);
+				}
+			});
+		}
+	};
+
+	client.commands.forEach((command: Command) => {
+		pushCommandChoices(command);
+	});
+
+	return [...new Set(choices)].sort((a, b) => a.localeCompare(b));
+}
+
+function isValidWindowTime(client: Client, value: string | null): number | null {
+	if (!value) return null;
+
+	const parsed = client.timeCalculator.to_ms(value);
+	if (!parsed || parsed <= 0) return null;
+
+	return parsed;
+}
+
+function formatRateLimit(limit: DatabaseStructure.CommandRateLimit, lang: LanguageData, client: Client): string {
+	return lang.commandlimit_current_value
+		.replace('${count}', limit.count.toString())
+		.replace('${time}', client.timeCalculator.to_beautiful_string(limit.windowMs, lang));
+}
+
+export const command: Command = {
+	name: 'commandlimit',
+
+	description: 'Set a rate limit for a command or subcommand',
+	description_localizations: {
+		fr: 'Définir une limite d\'utilisation pour une commande ou sous-commande'
+	},
+
+	options: [
+		{
+			name: 'command',
+			description: 'Search the command or subcommand',
+			description_localizations: {
+				fr: 'Rechercher la commande ou la sous-commande'
+			},
+			autocomplete: true,
+			type: ApplicationCommandOptionType.String,
+			required: true,
+			permission: null
+		},
+		{
+			name: 'count',
+			description: 'Maximum number of uses in the window',
+			description_localizations: {
+				fr: 'Nombre maximum d\'utilisations dans la fenêtre'
+			},
+			type: ApplicationCommandOptionType.Integer,
+			required: true,
+			permission: null
+		},
+		{
+			name: 'window-time',
+			description: 'Time window like 10s, 1m, 5m, 1h',
+			description_localizations: {
+				fr: 'Fenêtre de temps comme 10s, 1m, 5m, 1h'
+			},
+			type: ApplicationCommandOptionType.String,
+			required: true,
+			permission: null
+		}
+	],
+
+	thinking: true,
+	category: 'owner',
+	type: ApplicationCommandType.ChatInput,
+	permission: null,
+	run: async (client: Client, interaction: ChatInputCommandInteraction<'cached'> | Message, lang: LanguageData) => {
+		if (!(interaction instanceof ChatInputCommandInteraction) || !interaction.guildId || !interaction.member) return;
+
+		if (!await client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
+			await client.func.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
+			return;
+		}
+
+		if (!interaction.member.permissions.has('Administrator')) {
+			await client.func.method.interactionSend(interaction, { content: lang.var_dont_have_perm.replace('{perm}', lang.perm_administrator_name) });
+			return;
+		}
+
+		const requestedCommand = interaction.options.getString('command', true);
+		const count = interaction.options.getInteger('count', true);
+		const windowTimeInput = interaction.options.getString('window-time', true);
+		const windowMs = isValidWindowTime(client, windowTimeInput);
+
+		if (count <= 0 || !windowMs) {
+			await client.func.method.interactionSend(interaction, { content: lang.commandlimit_invalid_value });
+			return;
+		}
+
+		const commandParts = requestedCommand.split(' ');
+		let fetchedCommand: Command | Option | undefined;
+
+		if (commandParts.length === 1) {
+			fetchedCommand = client.commands.get(requestedCommand);
+		} else {
+			fetchedCommand = client.subCommands.get(requestedCommand);
+		}
+
+		if (!fetchedCommand) {
+			await client.func.method.interactionSend(interaction, { content: lang.var_unreachable_command });
+			return;
+		}
+
+		const payload: DatabaseStructure.CommandRateLimit = {
+			count,
+			windowMs
+		};
+
+		await client.db.set(`${interaction.guildId}.UTILS.COMMAND_LIMITS.${requestedCommand}`, payload);
+
+		await client.func.method.interactionSend(interaction, {
+			content: lang.commandlimit_set_success
+				.replace('${command}', requestedCommand)
+				.replace('${limit}', formatRateLimit(payload, lang, client))
+		});
+	},
+	async autocomplete(client: Client, interaction: AutocompleteInteraction) {
+		const focusedOption = interaction.options.getFocused(true);
+		const choices: string[] = [];
+
+		if (focusedOption.name === 'command') {
+			choices.push(...getCommandChoices(client));
+		}
+
+		const filtered = choices.filter(choice =>
+			choice.includes(focusedOption.value) || choice.startsWith(focusedOption.value)
+		).slice(0, 25);
+
+		await interaction.respond(
+			filtered.map(choice => ({
+				name: choice,
+				value: choice
+			}))
+		);
+	}
+};

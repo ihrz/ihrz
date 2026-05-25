@@ -1184,6 +1184,10 @@ export interface LanguageData {
 	perm_command_delete_all_one_option: string;
 	perm_command_delete_all_zero_change: string;
 	perm_command_delete_all_command_ok: string;
+	commandlimit_current_value: string;
+	commandlimit_invalid_value: string;
+	commandlimit_set_success: string;
+	commandlimit_rate_limited: string;
 	perm_roles_created_role: string;
 	perm_roles_already_upate: string;
 	perm_roles_error: string;

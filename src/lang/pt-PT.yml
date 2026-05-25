@@ -1541,6 +1541,10 @@ perm_command_delete_all_one: "Precisa de especificar uma opção para eliminar u
 perm_command_delete_all_one_option: "Só pode especificar uma opção para eliminar uma permissão."
 perm_command_delete_all_zero_change: "O tipo de permissão que especificou não foi utilizado em nenhum comando."
 perm_command_delete_all_command_ok: "\nForam eliminadas com sucesso **${changes.length}** permissões aninhadas do tipo `${type}` (${value}) da base de dados."
+commandlimit_current_value: "${count} use(s) per ${time}"
+commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
+commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
+commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
 
 # /perm roles
 perm_roles_created_role: "Созданы следующие роли: ${createdRoles.join(', ')}"

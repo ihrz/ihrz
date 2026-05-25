@@ -447,6 +447,7 @@ export namespace DatabaseStructure {
 		LEASH?: LeashData[]; // yeah, bdsm ref lmao
 		LEASH_CONFIFG?: LeashConfig;
 		PERMS?: UtilsPermsData;
+		COMMAND_LIMITS?: UtilsCommandLimitsData;
 		USER_PERMS?: UtilsPermsUserData;
 		unban_members?: string[];
 		roles?: UtilsRoleData;
@@ -478,6 +479,15 @@ export namespace DatabaseStructure {
 
 	export interface UtilsPermsUserData {
 		[key: string]: PermLevel
+	}
+
+	export interface CommandRateLimit {
+		count: number;
+		windowMs: number;
+	}
+
+	export interface UtilsCommandLimitsData {
+		[key: string]: CommandRateLimit;
 	}
 
 	export interface DbGuildUserObject {

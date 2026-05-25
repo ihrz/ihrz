@@ -23,6 +23,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ChatInputCom
 import { LanguageData } from '../../../types/languageData.js';
 import { BotEvent } from '../../../types/event.js';
 import { Command } from '../../../types/command.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 import { blacklistTable, tempTable } from '../client/ready.js';
 import { sanitizeInteractionOptionValue } from '../../core/functions/sanitizeInteractionOptionValue.js';
@@ -38,6 +39,31 @@ async function cooldDown(interaction: Interaction) {
 	return false;
 };
 
+async function checkCommandRateLimit(client: Client, interaction: ChatInputCommandInteraction<"cached">, commandPath: string, lang: LanguageData): Promise<boolean> {
+	const configuredLimit = await client.db.get(`${interaction.guildId}.UTILS.COMMAND_LIMITS.${commandPath}`) as DatabaseStructure.CommandRateLimit | undefined;
+	if (!configuredLimit || configuredLimit.count <= 0 || configuredLimit.windowMs <= 0) return false;
+
+	const rateLimitKey = `COMMAND_LIMITS.${interaction.guildId}.${commandPath}.${interaction.user.id}`;
+	const attempts = (await tempTable.get(rateLimitKey) || []) as number[];
+	const now = Date.now();
+	const activeAttempts = attempts.filter(timestamp => now - timestamp < configuredLimit.windowMs);
+
+	if (activeAttempts.length >= configuredLimit.count) {
+		const oldestAttempt = activeAttempts[0];
+		const remainingTime = configuredLimit.windowMs - (now - oldestAttempt);
+
+		await interaction.reply({
+			content: lang.commandlimit_rate_limited.replace('${time}', client.timeCalculator.to_beautiful_string(remainingTime, lang)),
+			flags: [1 << 6]
+		});
+		return true;
+	}
+
+	activeAttempts.push(now);
+	await tempTable.set(rateLimitKey, activeAttempts);
+	return false;
+}
+
 async function handleCommandExecution(client: Client, interaction: ChatInputCommandInteraction<"cached">, command: Command, lang: LanguageData, thinking: boolean) {
 	const options = interaction.options as CommandInteractionOptionResolver;
 	const group = options.getSubcommandGroup(false);
@@ -48,6 +74,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 		const subCmd = client.subCommands.get(stringCommand);
 
 		if (subCmd && subCmd.run) {
+			if (await checkCommandRateLimit(client, interaction, stringCommand, lang)) return;
 			const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
 			if (!permCheck.allowed && client.func.permissonsCalculator.hasCommandPermissionRequirements(permCheck.permissionData)) {
 				return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
@@ -88,6 +115,7 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 		const subCmd = client.subCommands.get(stringCommand);
 
 		if (subCmd && subCmd.run) {
+			if (await checkCommandRateLimit(client, interaction, stringCommand, lang)) return;
 			const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
 			if (!permCheck.allowed && client.func.permissonsCalculator.hasCommandPermissionRequirements(permCheck.permissionData)) {
 				return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
@@ -123,6 +151,8 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 			return await subCmd.run(client, interaction, lang, []);
 		}
 	}
+
+	if (await checkCommandRateLimit(client, interaction, interaction.commandName, lang)) return;
 
 	if (command.thinking || command.ephemeral) {
 		await interaction.deferReply({ ephemeral: command.ephemeral });
