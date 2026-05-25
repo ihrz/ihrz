@@ -96,12 +96,13 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 		const parentCommand = client.commands.find(cmd =>
 			cmd.options?.some(opt => opt.name === directSubCommand.name)
 		);
+		const commandPath = parentCommand ? `${parentCommand.name} ${directSubCommand.name}` : directSubCommand.name;
 		return {
 			success: true,
 			args: args,
 			command: parentCommand,
 			subCommand: directSubCommand,
-			commandPath: directSubCommand.name
+			commandPath
 		};
 	}
 
