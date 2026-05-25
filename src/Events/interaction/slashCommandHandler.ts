@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ChatInputCommandInteraction, Client, CommandInteractionOptionResolver, EmbedBuilder, GuildMember, Interaction, PermissionFlagsBits } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, ChatInputCommandInteraction, Client, CommandInteractionOptionResolver, EmbedBuilder, GuildMember, Interaction, Message, PermissionFlagsBits } from 'discord.js';
 import { LanguageData } from '../../../types/languageData.js';
 import { BotEvent } from '../../../types/event.js';
 import { Command } from '../../../types/command.js';
@@ -39,17 +39,16 @@ async function cooldDown(interaction: Interaction) {
 	return false;
 };
 
-async function checkCommandRateLimit(client: Client, interaction: ChatInputCommandInteraction<"cached">, commandPath: string, lang: LanguageData): Promise<boolean> {
+export async function checkCommandRateLimit(interaction: ChatInputCommandInteraction<"cached"> | Message, commandPath: string, lang: LanguageData): Promise<boolean> {
 	if (
-		await client.func.ownerHelper.isBotOwner(interaction.user.id)
-		|| await client.func.ownerHelper.isGuildOwner(interaction.user.id, interaction.guild)
-		|| interaction.member.permissions.has(PermissionFlagsBits.Administrator)
+		await client.func.ownerHelper.isBotOwner(interaction.member?.user!.id!)
+		|| await client.func.ownerHelper.isGuildOwner(interaction.member?.user!.id!, interaction.guild!)
 	) return false;
 
-	const configuredLimit = await client.db.get(`${interaction.guildId}.UTILS.COMMAND_LIMITS.${commandPath}`) as DatabaseStructure.CommandRateLimit | undefined;
+	const configuredLimit = await client.db.get(`${interaction.guild!.id}.UTILS.COMMAND_LIMITS.${commandPath}`) as DatabaseStructure.CommandRateLimit | undefined;
 	if (!configuredLimit || configuredLimit.count <= 0 || configuredLimit.windowMs <= 0) return false;
 
-	const rateLimitKey = `COMMAND_LIMITS.${interaction.guildId}.${commandPath}.${interaction.user.id}`;
+	const rateLimitKey = `COMMAND_LIMITS.${interaction.guild!.id}.${commandPath}.${interaction.member!.user!.id!}`;
 	const attempts = (await tempTable.get(rateLimitKey) || []) as number[];
 	const now = Date.now();
 	const activeAttempts = attempts.filter(timestamp => now - timestamp < configuredLimit.windowMs);
@@ -80,11 +79,14 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 		const subCmd = client.subCommands.get(stringCommand);
 
 		if (subCmd && subCmd.run) {
-			if (await checkCommandRateLimit(client, interaction, stringCommand, lang)) return;
+
 			const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
 			if (!permCheck.allowed && client.func.permissonsCalculator.hasCommandPermissionRequirements(permCheck.permissionData)) {
 				return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 			}
+
+			const isRateLimited = await checkCommandRateLimit(interaction, stringCommand, lang);
+			if (isRateLimited) return;
 
 			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
 				await interaction.deferReply({ flags: subCmd.ephemeral ? [1 << 6] : [0] });
@@ -121,11 +123,13 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 		const subCmd = client.subCommands.get(stringCommand);
 
 		if (subCmd && subCmd.run) {
-			if (await checkCommandRateLimit(client, interaction, stringCommand, lang)) return;
 			const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, stringCommand);
 			if (!permCheck.allowed && client.func.permissonsCalculator.hasCommandPermissionRequirements(permCheck.permissionData)) {
 				return client.func.permissonsCalculator.sendErrorMessage(interaction, lang, permCheck.permissionData);
 			}
+
+			const isRateLimited = await checkCommandRateLimit(interaction, stringCommand, lang);
+			if (isRateLimited) return;
 
 			if ((subCmd.thinking) || thinking || subCmd.ephemeral) {
 				await interaction.deferReply({ flags: subCmd.ephemeral ? [1 << 6] : [0] });
@@ -158,10 +162,11 @@ async function handleCommandExecution(client: Client, interaction: ChatInputComm
 		}
 	}
 
-	if (await checkCommandRateLimit(client, interaction, interaction.commandName, lang)) return;
+
+	if (await checkCommandRateLimit(interaction, interaction.commandName, lang)) return;
 
 	if (command.thinking || command.ephemeral) {
-		await interaction.deferReply({ ephemeral: command.ephemeral });
+		await interaction.deferReply({ flags: command.ephemeral ? [1 << 6] : [0] });
 	}
 
 	const permCheck = await client.func.permissonsCalculator.checkCommandPermission(interaction, interaction.commandName);

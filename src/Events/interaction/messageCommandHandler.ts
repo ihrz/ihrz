@@ -28,6 +28,7 @@ import { DatabaseStructure } from '../../../types/database_structure.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 import { blacklistTable } from '../client/ready.js';
 import { loggerX } from '../logs/slashCommandLogger.js';
+import { checkCommandRateLimit } from './slashCommandHandler.js';
 
 type MessageCommandResponse = {
 	success: boolean,
@@ -37,23 +38,27 @@ type MessageCommandResponse = {
 	commandPath?: string
 };
 
-function findFullCommandPath(command: Command | Option, targetName: string, parentName = ''): string | null {
-	const commandName = parentName ? `${parentName} ${command.name}` : command.name;
+function getAllCommandChoices(client: Client): string[] {
+	const choices: string[] = [];
 
-	if (command.name === targetName && (command.type === ApplicationCommandOptionType.Subcommand || command.type === ApplicationCommandOptionType.SubcommandGroup)) {
-		return commandName;
-	}
+	const getCommandChoices = (command: Command | Option, parentName = '') => {
+		const commandName = parentName ? `${parentName} ${command.name}` : command.name;
+		choices.push(commandName);
 
-	if (!command.options) return null;
-
-	for (const option of command.options) {
-		if (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand) {
-			const result = findFullCommandPath(option, targetName, commandName);
-			if (result) return result;
+		if (command.options) {
+			command.options.forEach((option) => {
+				if (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand) {
+					getCommandChoices(option, commandName);
+				}
+			});
 		}
-	}
+	};
 
-	return null;
+	client.commands.forEach((command: Command) => {
+		getCommandChoices(command);
+	});
+
+	return choices;
 }
 
 export async function parseMessageCommand(client: Client, message: Message): Promise<MessageCommandResponse> {
@@ -112,12 +117,9 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 
 	const directSubCommand = client.subCommands.get(commandName);
 	if (directSubCommand) {
-		const parentCommand = client.commands.find(cmd =>
-			findFullCommandPath(cmd, directSubCommand.name) !== null
-		);
-		const commandPath = parentCommand
-			? findFullCommandPath(parentCommand, directSubCommand.name) || directSubCommand.name
-			: directSubCommand.name;
+		const commandPath = getAllCommandChoices(client).find(choice => choice.endsWith(` ${directSubCommand.name}`)) || directSubCommand.name;
+		const parentCommandName = commandPath.includes(' ') ? commandPath.split(' ')[0] : commandPath;
+		const parentCommand = client.commands.get(parentCommandName);
 		return {
 			success: true,
 			args: args,
@@ -159,27 +161,6 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 	return { success: false };
 }
 
-async function checkCommandRateLimit(message: Message, commandPath: string, lang: LanguageData): Promise<boolean> {
-	if (
-		await message.client.func.ownerHelper.isBotOwner(message.author.id)
-		|| await message.client.func.ownerHelper.isGuildOwner(message.author.id, message.guild!)
-		|| message.member?.permissions.has(PermissionFlagsBits.Administrator)
-	) return false;
-
-	const configuredLimit = await message.client.db.get(`${message.guildId}.UTILS.COMMAND_LIMITS.${commandPath}`) as DatabaseStructure.CommandRateLimit | undefined;
-	if (!configuredLimit || configuredLimit.count <= 0 || configuredLimit.windowMs <= 0) return false;
-
-	const rateLimitKey = `message_command_limits.${message.guildId}.${commandPath}`;
-	if (await message.client.func.helper.cooldown(message.author.id, rateLimitKey, configuredLimit.windowMs)) {
-		await message.reply({
-			content: lang.commandlimit_rate_limited.replace('${time}', message.client.timeCalculator.to_beautiful_string(configuredLimit.windowMs, lang))
-		});
-		return true;
-	}
-
-	return false;
-}
-
 async function executeCommand(
 	message: Message,
 	command: Command,
@@ -192,7 +173,6 @@ async function executeCommand(
 	const canUseCommands = permissions.has(PermissionsBitField.Flags.UseApplicationCommands);
 
 	if (!canUseCommands) return;
-	if (commandPath && await checkCommandRateLimit(message, commandPath, lang)) return;
 
 	const fetchFullCommandName = message.client.content.find(c => c.desc === command.description);
 
@@ -200,6 +180,10 @@ async function executeCommand(
 	if (!permCheck.allowed && message.client.func.permissonsCalculator.hasCommandPermissionRequirements(permCheck.permissionData)) {
 		return message.client.func.permissonsCalculator.sendErrorMessage(message, lang, permCheck.permissionData);
 	}
+
+
+	const isRateLimited = await checkCommandRateLimit(message, fetchFullCommandName?.cmd!, lang);
+	if (isRateLimited) return;
 
 	// for format like: "+utils" without subcommand behind
 	if (!command?.run) {
