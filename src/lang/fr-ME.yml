@@ -1693,6 +1693,8 @@ music_visit_here: "Visite ici"
 music_lyrics: "Paroles"
 music_link_here: "Lien ici: [Voir ici]({link})"
 
+music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **volume réglé à** `${Number(query)}`%"
+
 # Giveaway commands
 # /end, /start, /reroll
 

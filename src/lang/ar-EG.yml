@@ -1691,6 +1691,8 @@ music_visit_here: "انقر هنا"
 music_lyrics: "كلمات"
 music_link_here: "رابط هنا: [انقر هنا]({link})"
 
+music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **تم ضبط مستوى الصوت إلى** `${Number(query)}`%"
+
 # Giveaway commands
 # /end, /start, /reroll
 

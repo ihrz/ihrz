@@ -1691,6 +1691,8 @@ music_visit_here: "Visit here"
 music_lyrics: "Lyrics"
 music_link_here: "Link here: [Click here]({link})"
 
+# /music volume
+music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **volume set to** `${Number(query)}`%"
 
 # Giveaway commands
 # /end, /start, /reroll

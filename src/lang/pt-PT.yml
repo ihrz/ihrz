@@ -1689,6 +1689,9 @@ music_requested_by: "Solicitado por"
 music_visit_here: "Visita aqui"
 music_lyrics: "Letras"
 music_link_here: "Link aqui: [Clic aqui]({link})"
+
+music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **volume definido para** `${Number(query)}`%"
+
 # Giveaway commands
 # /end, /start, /reroll
 
