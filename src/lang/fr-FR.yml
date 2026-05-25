@@ -1543,7 +1543,13 @@ perm_command_delete_all_zero_change: "Le type de permission que vous avez spéci
 perm_command_delete_all_command_ok: "\n**${changes.length}** permissions imbriquées de type `${type}` (${value}) ont été supprimées avec succès de la base de données."
 commandlimit_current_value: "${count} utilisation(s) par ${time}"
 commandlimit_invalid_value: "Les valeurs fournies pour la limite de commande sont invalides."
+commandlimit_missing_command: "Vous devez spécifier une commande."
 commandlimit_set_success: "La limite de `${command}` a été définie sur `${limit}`."
+commandlimit_reset_success: "La limite de `${command}` a été réinitialisée."
+commandlimit_reset_missing: "Aucune limite n'est configurée pour `${command}`."
+commandlimit_list_title: "Limites de commandes configurées"
+commandlimit_list_item: "- `${command}` : ${limit}"
+commandlimit_list_empty: "Aucune limite de commande n'est configurée sur ce serveur."
 commandlimit_rate_limited: "Vous avez atteint la limite pour cette commande. Réessayez dans ${time}."
 
 # /perm roles

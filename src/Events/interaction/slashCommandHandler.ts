@@ -40,6 +40,12 @@ async function cooldDown(interaction: Interaction) {
 };
 
 async function checkCommandRateLimit(client: Client, interaction: ChatInputCommandInteraction<"cached">, commandPath: string, lang: LanguageData): Promise<boolean> {
+	if (
+		await client.func.ownerHelper.isBotOwner(interaction.user.id)
+		|| await client.func.ownerHelper.isGuildOwner(interaction.user.id, interaction.guild)
+		|| interaction.member.permissions.has(PermissionFlagsBits.Administrator)
+	) return false;
+
 	const configuredLimit = await client.db.get(`${interaction.guildId}.UTILS.COMMAND_LIMITS.${commandPath}`) as DatabaseStructure.CommandRateLimit | undefined;
 	if (!configuredLimit || configuredLimit.count <= 0 || configuredLimit.windowMs <= 0) return false;
 

@@ -1543,7 +1543,13 @@ perm_command_delete_all_zero_change: "O tipo de permissão que especificou não 
 perm_command_delete_all_command_ok: "\nForam eliminadas com sucesso **${changes.length}** permissões aninhadas do tipo `${type}` (${value}) da base de dados."
 commandlimit_current_value: "${count} use(s) per ${time}"
 commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
+commandlimit_missing_command: "You need to specify a command."
 commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
+commandlimit_reset_success: "The rate limit for `${command}` has been reset."
+commandlimit_reset_missing: "No rate limit is configured for `${command}`."
+commandlimit_list_title: "Configured command rate limits"
+commandlimit_list_item: "- `${command}`: ${limit}"
+commandlimit_list_empty: "No command rate limit is configured in this guild."
 commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
 
 # /perm roles

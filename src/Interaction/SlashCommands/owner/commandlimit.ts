@@ -25,6 +25,7 @@ import {
 	AutocompleteInteraction,
 	ChatInputCommandInteraction,
 	Client,
+	EmbedBuilder,
 	Message,
 } from 'discord.js';
 
@@ -59,7 +60,7 @@ function getCommandChoices(client: Client): string[] {
 	return [...new Set(choices)].sort((a, b) => a.localeCompare(b));
 }
 
-function isValidWindowTime(client: Client, value: string | null): number | null {
+function parseWindowTime(client: Client, value: string | null): number | null {
 	if (!value) return null;
 
 	const parsed = client.timeCalculator.to_ms(value);
@@ -74,15 +75,63 @@ function formatRateLimit(limit: DatabaseStructure.CommandRateLimit, lang: Langua
 		.replace('${time}', client.timeCalculator.to_beautiful_string(limit.windowMs, lang));
 }
 
+function resolveCommand(client: Client, requestedCommand: string): Command | Option | undefined {
+	const commandParts = requestedCommand.split(' ');
+
+	if (commandParts.length === 1) {
+		return client.commands.get(requestedCommand);
+	}
+
+	return client.subCommands.get(requestedCommand);
+}
+
+function buildListEmbed(client: Client, lang: LanguageData, entries: [string, DatabaseStructure.CommandRateLimit][]) {
+	return new EmbedBuilder()
+		.setColor('#11304c')
+		.setTitle(lang.commandlimit_list_title)
+		.setDescription(entries.map(([commandPath, limit]) =>
+			lang.commandlimit_list_item
+				.replace('${command}', commandPath)
+				.replace('${limit}', formatRateLimit(limit, lang, client))
+		).join('\n'));
+}
+
 export const command: Command = {
 	name: 'commandlimit',
 
-	description: 'Set a rate limit for a command or subcommand',
+	description: 'Manage command rate limits',
 	description_localizations: {
-		fr: 'Définir une limite d\'utilisation pour une commande ou sous-commande'
+		fr: 'Gérer les limites de commandes'
 	},
 
 	options: [
+		{
+			name: 'action',
+			description: 'Action to apply on command limits',
+			description_localizations: {
+				fr: 'Action à appliquer sur les limites de commandes'
+			},
+			type: ApplicationCommandOptionType.String,
+			required: true,
+			choices: [
+				{
+					name: 'Set',
+					name_localizations: { fr: 'Définir' },
+					value: 'set'
+				},
+				{
+					name: 'Reset',
+					name_localizations: { fr: 'Réinitialiser' },
+					value: 'reset'
+				},
+				{
+					name: 'List',
+					name_localizations: { fr: 'Lister' },
+					value: 'list'
+				}
+			],
+			permission: null
+		},
 		{
 			name: 'command',
 			description: 'Search the command or subcommand',
@@ -91,7 +140,7 @@ export const command: Command = {
 			},
 			autocomplete: true,
 			type: ApplicationCommandOptionType.String,
-			required: true,
+			required: false,
 			permission: null
 		},
 		{
@@ -101,7 +150,7 @@ export const command: Command = {
 				fr: 'Nombre maximum d\'utilisations dans la fenêtre'
 			},
 			type: ApplicationCommandOptionType.Integer,
-			required: true,
+			required: false,
 			permission: null
 		},
 		{
@@ -111,7 +160,7 @@ export const command: Command = {
 				fr: 'Fenêtre de temps comme 10s, 1m, 5m, 1h'
 			},
 			type: ApplicationCommandOptionType.String,
-			required: true,
+			required: false,
 			permission: null
 		}
 	],
@@ -133,27 +182,55 @@ export const command: Command = {
 			return;
 		}
 
-		const requestedCommand = interaction.options.getString('command', true);
-		const count = interaction.options.getInteger('count', true);
-		const windowTimeInput = interaction.options.getString('window-time', true);
-		const windowMs = isValidWindowTime(client, windowTimeInput);
+		const action = interaction.options.getString('action', true);
+		const requestedCommand = interaction.options.getString('command');
 
-		if (count <= 0 || !windowMs) {
-			await client.func.method.interactionSend(interaction, { content: lang.commandlimit_invalid_value });
+		if (action === 'list') {
+			const limits = await client.db.get(`${interaction.guildId}.UTILS.COMMAND_LIMITS`) as DatabaseStructure.UtilsCommandLimitsData | undefined;
+
+			if (!limits || Object.keys(limits).length === 0) {
+				await client.func.method.interactionSend(interaction, { content: lang.commandlimit_list_empty });
+				return;
+			}
+
+			const entries = Object.entries(limits).sort((a, b) => a[0].localeCompare(b[0]));
+			await client.func.method.interactionSend(interaction, {
+				embeds: [buildListEmbed(client, lang, entries)]
+			});
 			return;
 		}
 
-		const commandParts = requestedCommand.split(' ');
-		let fetchedCommand: Command | Option | undefined;
-
-		if (commandParts.length === 1) {
-			fetchedCommand = client.commands.get(requestedCommand);
-		} else {
-			fetchedCommand = client.subCommands.get(requestedCommand);
+		if (!requestedCommand) {
+			await client.func.method.interactionSend(interaction, { content: lang.commandlimit_missing_command });
+			return;
 		}
 
+		const fetchedCommand = resolveCommand(client, requestedCommand);
 		if (!fetchedCommand) {
 			await client.func.method.interactionSend(interaction, { content: lang.var_unreachable_command });
+			return;
+		}
+
+		if (action === 'reset') {
+			const existingLimit = await client.db.get(`${interaction.guildId}.UTILS.COMMAND_LIMITS.${requestedCommand}`) as DatabaseStructure.CommandRateLimit | undefined;
+			if (!existingLimit) {
+				await client.func.method.interactionSend(interaction, { content: lang.commandlimit_reset_missing.replace('${command}', requestedCommand) });
+				return;
+			}
+
+			await client.db.delete(`${interaction.guildId}.UTILS.COMMAND_LIMITS.${requestedCommand}`);
+			await client.func.method.interactionSend(interaction, {
+				content: lang.commandlimit_reset_success.replace('${command}', requestedCommand)
+			});
+			return;
+		}
+
+		const count = interaction.options.getInteger('count');
+		const windowTimeInput = interaction.options.getString('window-time');
+		const windowMs = parseWindowTime(client, windowTimeInput);
+
+		if (!count || count <= 0 || !windowMs) {
+			await client.func.method.interactionSend(interaction, { content: lang.commandlimit_invalid_value });
 			return;
 		}
 

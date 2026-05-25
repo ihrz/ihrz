@@ -138,6 +138,12 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 }
 
 async function checkCommandRateLimit(message: Message, commandPath: string, lang: LanguageData): Promise<boolean> {
+	if (
+		await message.client.func.ownerHelper.isBotOwner(message.author.id)
+		|| await message.client.func.ownerHelper.isGuildOwner(message.author.id, message.guild!)
+		|| message.member?.permissions.has(PermissionFlagsBits.Administrator)
+	) return false;
+
 	const configuredLimit = await message.client.db.get(`${message.guildId}.UTILS.COMMAND_LIMITS.${commandPath}`) as DatabaseStructure.CommandRateLimit | undefined;
 	if (!configuredLimit || configuredLimit.count <= 0 || configuredLimit.windowMs <= 0) return false;
 

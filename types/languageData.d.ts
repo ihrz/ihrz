@@ -1186,7 +1186,13 @@ export interface LanguageData {
 	perm_command_delete_all_command_ok: string;
 	commandlimit_current_value: string;
 	commandlimit_invalid_value: string;
+	commandlimit_missing_command: string;
 	commandlimit_set_success: string;
+	commandlimit_reset_success: string;
+	commandlimit_reset_missing: string;
+	commandlimit_list_title: string;
+	commandlimit_list_item: string;
+	commandlimit_list_empty: string;
 	commandlimit_rate_limited: string;
 	perm_roles_created_role: string;
 	perm_roles_already_upate: string;
