@@ -26,6 +26,7 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
+	PermissionFlagsBits,
 } from 'discord.js';
 
 import { Command } from '../../../../types/command.js';
@@ -162,19 +163,18 @@ export const command: Command = {
 	],
 
 	thinking: true,
-	category: 'owner',
+	category: 'guildconfig',
 	type: ApplicationCommandType.ChatInput,
-	permission: null,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<'cached'> | Message, lang: LanguageData) => {
-		if (!(interaction instanceof ChatInputCommandInteraction) || !interaction.guildId || !interaction.member) return;
+	permission: PermissionFlagsBits.Administrator,
+	run: async (client: Client, interaction: ChatInputCommandInteraction<'cached'> | Message, lang: LanguageData, args) => {
 
-		if (!interaction.member.permissions.has('Administrator')) {
-			await client.func.method.interactionSend(interaction, { content: lang.var_dont_have_perm.replace('{perm}', lang.perm_administrator_name) });
-			return;
-		}
+		const action = interaction instanceof ChatInputCommandInteraction ?
+			interaction.options.getString('action', true)
+			: client.func.method.string(args!, 0);
 
-		const action = interaction.options.getString('action', true);
-		const requestedCommand = interaction.options.getString('command');
+		const requestedCommand = interaction instanceof ChatInputCommandInteraction ?
+			interaction.options.getString('command')
+			: client.func.method.string(args!, 1);
 
 		if (action === 'list') {
 			const limits = await client.db.get(`${interaction.guildId}.UTILS.COMMAND_LIMITS`) as DatabaseStructure.UtilsCommandLimitsData | undefined;
@@ -216,8 +216,13 @@ export const command: Command = {
 			return;
 		}
 
-		const count = interaction.options.getInteger('count');
-		const windowTimeInput = interaction.options.getString('window-time');
+		const count = interaction instanceof ChatInputCommandInteraction ?
+			interaction.options.getInteger('count')
+			: client.func.method.number(args!, 2);
+
+		const windowTimeInput = interaction instanceof ChatInputCommandInteraction ? interaction.options.getString('window-time')
+			: client.func.method.string(args!, 3);
+
 		const windowMs = parseWindowTime(client, windowTimeInput);
 
 		if (!count || count <= 0 || !windowMs) {
