@@ -295,6 +295,7 @@ export async function handleMusicPlay({
 				selfMute: false,
 				textChannelId: interaction.channelId,
 				voiceChannelId: voiceChannel.id,
+				volume: 60
 			});
 			player.setVolume(DEFAULT_VOLUME);
 		}
