@@ -37,6 +37,25 @@ type MessageCommandResponse = {
 	commandPath?: string
 };
 
+function findFullCommandPath(command: Command | Option, targetName: string, parentName = ''): string | null {
+	const commandName = parentName ? `${parentName} ${command.name}` : command.name;
+
+	if (command.name === targetName && (command.type === ApplicationCommandOptionType.Subcommand || command.type === ApplicationCommandOptionType.SubcommandGroup)) {
+		return commandName;
+	}
+
+	if (!command.options) return null;
+
+	for (const option of command.options) {
+		if (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand) {
+			const result = findFullCommandPath(option, targetName, commandName);
+			if (result) return result;
+		}
+	}
+
+	return null;
+}
+
 export async function parseMessageCommand(client: Client, message: Message): Promise<MessageCommandResponse> {
 	const prefix = await client.func.prefix.guildPrefix(client, message.guildId!);
 	if (!message.content.startsWith(prefix.string))
@@ -94,9 +113,11 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 	const directSubCommand = client.subCommands.get(commandName);
 	if (directSubCommand) {
 		const parentCommand = client.commands.find(cmd =>
-			cmd.options?.some(opt => opt.name === directSubCommand.name)
+			findFullCommandPath(cmd, directSubCommand.name) !== null
 		);
-		const commandPath = parentCommand ? `${parentCommand.name} ${directSubCommand.name}` : directSubCommand.name;
+		const commandPath = parentCommand
+			? findFullCommandPath(parentCommand, directSubCommand.name) || directSubCommand.name
+			: directSubCommand.name;
 		return {
 			success: true,
 			args: args,
