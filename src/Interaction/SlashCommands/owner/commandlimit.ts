@@ -22,7 +22,6 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	AutocompleteInteraction,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
@@ -37,27 +36,24 @@ import { DatabaseStructure } from '../../../../types/database_structure.js';
 function getCommandChoices(client: Client): string[] {
 	const choices: string[] = [];
 
-	const pushCommandChoices = (command: Command | Option, parentName = '') => {
+	const getCommandChoices = (command: Command | Option, parentName = '') => {
 		const commandName = parentName ? `${parentName} ${command.name}` : command.name;
 		choices.push(commandName);
 
 		if (command.options) {
 			command.options.forEach((option) => {
-				if (
-					option.type === ApplicationCommandOptionType.SubcommandGroup
-					|| option.type === ApplicationCommandOptionType.Subcommand
-				) {
-					pushCommandChoices(option, commandName);
+				if (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand) {
+					getCommandChoices(option, commandName);
 				}
 			});
 		}
 	};
 
 	client.commands.forEach((command: Command) => {
-		pushCommandChoices(command);
+		getCommandChoices(command);
 	});
 
-	return [...new Set(choices)].sort((a, b) => a.localeCompare(b));
+	return choices;
 }
 
 function parseWindowTime(client: Client, value: string | null): number | null {
@@ -247,7 +243,7 @@ export const command: Command = {
 				.replace('${limit}', formatRateLimit(payload, lang, client))
 		});
 	},
-	async autocomplete(client: Client, interaction: AutocompleteInteraction) {
+	async autocomplete(client, interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 		const choices: string[] = [];
 
@@ -263,7 +259,7 @@ export const command: Command = {
 			filtered.map(choice => ({
 				name: choice,
 				value: choice
-			}))
+			})),
 		);
 	}
 };
