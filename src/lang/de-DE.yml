@@ -1541,6 +1541,16 @@ perm_command_delete_all_one: "Sie müssen eine Option angeben, um eine Berechtig
 perm_command_delete_all_one_option: "Sie können nur eine Option angeben, um eine Berechtigung zu löschen."
 perm_command_delete_all_zero_change: "Der von Ihnen angegebene Berechtigungstyp wurde in keinem Befehl verwendet."
 perm_command_delete_all_command_ok: "\nErfolgreich **${changes.length}** verschachtelte `${type}`-Berechtigungen (${value}) aus der Datenbank gelöscht."
+commandlimit_current_value: "${count} Nutzung(en) pro ${time}"
+commandlimit_invalid_value: "Die für das Befehlslimit angegebenen Werte sind ungültig."
+commandlimit_missing_command: "Du musst einen Befehl angeben."
+commandlimit_set_success: "Das Limit für `${command}` wurde auf `${limit}` gesetzt."
+commandlimit_reset_success: "Das Limit für `${command}` wurde zurückgesetzt."
+commandlimit_reset_missing: "Für `${command}` ist kein Limit konfiguriert."
+commandlimit_list_title: "Konfigurierte Befehlslimits"
+commandlimit_list_item: "- `${command}`: ${limit}"
+commandlimit_list_empty: "In diesem Server ist kein Befehlslimit konfiguriert."
+commandlimit_rate_limited: "Du hast das Limit für diesen Befehl erreicht. Versuche es in ${time} erneut."
 
 # /perm roles
 perm_roles_created_role: "Folgende Rollen wurden erstellt: ${createdRoles.join(', ')}"

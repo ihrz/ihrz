@@ -1541,6 +1541,16 @@ perm_command_delete_all_one: "È necessario specificare un'opzione per eliminare
 perm_command_delete_all_one_option: "È possibile specificare solo un'opzione per eliminare un permesso."
 perm_command_delete_all_zero_change: "Il tipo di permesso specificato non è stato utilizzato in alcun comando."
 perm_command_delete_all_command_ok: "\nEliminate con successo **${changes.length}** autorizzazioni annidate di tipo `${type}` (${value}) dal database."
+commandlimit_current_value: "${count} use(s) per ${time}"
+commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
+commandlimit_missing_command: "You need to specify a command."
+commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
+commandlimit_reset_success: "The rate limit for `${command}` has been reset."
+commandlimit_reset_missing: "No rate limit is configured for `${command}`."
+commandlimit_list_title: "Configured command rate limits"
+commandlimit_list_item: "- `${command}`: ${limit}"
+commandlimit_list_empty: "No command rate limit is configured in this guild."
+commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
 
 # /perm roles
 perm_roles_created_role: "I seguenti ruoli sono stati creati: ${createdRoles.join(', ')}"

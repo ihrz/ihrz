@@ -24,16 +24,42 @@ import { LanguageData } from '../../../types/languageData.js';
 import { Command } from '../../../types/command.js';
 import { BotEvent } from '../../../types/event.js';
 import { Option } from '../../../types/option.js';
+import { DatabaseStructure } from '../../../types/database_structure.js';
 import { getPermissionByValue } from '../../core/functions/permissonsCalculator.js';
 import { blacklistTable } from '../client/ready.js';
 import { loggerX } from '../logs/slashCommandLogger.js';
+import { checkCommandRateLimit } from './slashCommandHandler.js';
 
 type MessageCommandResponse = {
 	success: boolean,
 	args?: string[],
 	command?: Command,
-	subCommand?: Option | Command
+	subCommand?: Option | Command,
+	commandPath?: string
 };
+
+function getAllCommandChoices(client: Client): string[] {
+	const choices: string[] = [];
+
+	const getCommandChoices = (command: Command | Option, parentName = '') => {
+		const commandName = parentName ? `${parentName} ${command.name}` : command.name;
+		choices.push(commandName);
+
+		if (command.options) {
+			command.options.forEach((option) => {
+				if (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand) {
+					getCommandChoices(option, commandName);
+				}
+			});
+		}
+	};
+
+	client.commands.forEach((command: Command) => {
+		getCommandChoices(command);
+	});
+
+	return choices;
+}
 
 export async function parseMessageCommand(client: Client, message: Message): Promise<MessageCommandResponse> {
 	const prefix = await client.func.prefix.guildPrefix(client, message.guildId!);
@@ -91,14 +117,15 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 
 	const directSubCommand = client.subCommands.get(commandName);
 	if (directSubCommand) {
-		const parentCommand = client.commands.find(cmd =>
-			cmd.options?.some(opt => opt.name === directSubCommand.name)
-		);
+		const commandPath = getAllCommandChoices(client).find(choice => choice.endsWith(` ${directSubCommand.name}`)) || directSubCommand.name;
+		const parentCommandName = commandPath.includes(' ') ? commandPath.split(' ')[0] : commandPath;
+		const parentCommand = client.commands.get(parentCommandName);
 		return {
 			success: true,
 			args: args,
 			command: parentCommand,
-			subCommand: directSubCommand
+			subCommand: directSubCommand,
+			commandPath
 		};
 	}
 
@@ -118,14 +145,16 @@ export async function parseMessageCommand(client: Client, message: Message): Pro
 					success: true,
 					args: args,
 					command: mainCommand,
-					subCommand: subCommand
+					subCommand: subCommand,
+					commandPath: `${mainCommand.name} ${subCommand.name}`
 				};
 			}
 		}
 		return {
 			success: true,
 			args: args,
-			command: mainCommand
+			command: mainCommand,
+			commandPath: mainCommand.name
 		};
 	}
 
@@ -137,6 +166,7 @@ async function executeCommand(
 	command: Command,
 	args: string[],
 	lang: LanguageData,
+	commandPath?: string,
 ) {
 	const channel = message.channel as GuildChannel;
 	const permissions = channel.permissionsFor(message.member!);
@@ -150,6 +180,10 @@ async function executeCommand(
 	if (!permCheck.allowed && message.client.func.permissonsCalculator.hasCommandPermissionRequirements(permCheck.permissionData)) {
 		return message.client.func.permissonsCalculator.sendErrorMessage(message, lang, permCheck.permissionData);
 	}
+
+
+	const isRateLimited = await checkCommandRateLimit(message, fetchFullCommandName?.cmd!, lang);
+	if (isRateLimited) return;
 
 	// for format like: "+utils" without subcommand behind
 	if (!command?.run) {
@@ -256,10 +290,10 @@ export const event: BotEvent = {
 			});
 
 			if (result.subCommand) {
-				await executeCommand(message, result.subCommand as Command, result.args || [], lang);
+				await executeCommand(message, result.subCommand as Command, result.args || [], lang, result.commandPath);
 			}
 			else if (result.command) {
-				await executeCommand(message, result.command, result.args || [], lang);
+				await executeCommand(message, result.command, result.args || [], lang, result.commandPath);
 			}
 		} catch (error) {
 			console.error(error)

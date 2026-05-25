@@ -1541,6 +1541,16 @@ perm_command_delete_all_one: "Necesitas especificar una opción para eliminar un
 perm_command_delete_all_one_option: "Solo puedes especificar una opción para eliminar un permiso."
 perm_command_delete_all_zero_change: "El tipo de permiso que especificaste no se utilizó en ningún comando."
 perm_command_delete_all_command_ok: "\nSe eliminaron correctamente **${changes.length}** permisos anidados de tipo `${type}` (${value}) de la base de datos."
+commandlimit_current_value: "${count} uso(s) por ${time}"
+commandlimit_invalid_value: "Los valores proporcionados para el límite del comando no son válidos."
+commandlimit_missing_command: "Debes especificar un comando."
+commandlimit_set_success: "El límite para `${command}` se ha establecido en `${limit}`."
+commandlimit_reset_success: "El límite para `${command}` se ha restablecido."
+commandlimit_reset_missing: "No hay ningún límite configurado para `${command}`."
+commandlimit_list_title: "Límites de comandos configurados"
+commandlimit_list_item: "- `${command}`: ${limit}"
+commandlimit_list_empty: "No hay ningún límite de comando configurado en este servidor."
+commandlimit_rate_limited: "Has alcanzado el límite para este comando. Inténtalo de nuevo en ${time}."
 
 # /perm roles
 perm_roles_created_role: "Se han creado los siguientes roles: ${createdRoles.join(', ')}"
