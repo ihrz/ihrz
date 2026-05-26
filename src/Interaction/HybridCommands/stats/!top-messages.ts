@@ -61,7 +61,8 @@ export const subCommand: SubCommand = {
 		const res = await client.db.get(`${interaction.guildId}.STATS`) as DatabaseStructure.GuildStats | null;
 
 		if (!res || !res.USER) {
-			return await client.func.method.interactionSend(interaction, { content: lang.stats_no_data });
+			await msg.edit({ content: lang.stats_no_data });
+			return;
 		}
 
 		const nowTimestamp = Date.now();
@@ -146,6 +147,6 @@ export const subCommand: SubCommand = {
 
 		const attachment = new AttachmentBuilder(image, { name: 'top-messages.png' });
 
-		msg.edit({ content: null, files: [attachment] });
+		await msg.edit({ content: null, files: [attachment] });
 	},
 };

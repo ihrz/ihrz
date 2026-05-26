@@ -27,6 +27,7 @@ import {
 
 import { Command } from '../../../../types/command.js';
 
+const VOLUMES = ["10", "20", "30", "35", "45", "55", "60", "70", "80", "90", "95", "100"];
 
 export const command: Command = {
 	name: "music",
@@ -194,6 +195,43 @@ export const command: Command = {
 			],
 
 			permission: null
+		},
+		{
+			name: "volume",
+
+			description: "change the volume of the player in the guild",
+			description_localizations: {
+				"fr": "changer le son du player sur le serveur"
+			},
+
+			permission: null,
+
+			options: [
+				{
+					name: "level",
+
+					description: "the music level",
+					description_localizations: {
+						"fr": "le niveau du son"
+					},
+
+					choices: VOLUMES.map(x => {
+						return {
+							name: x + '%',
+							name_localizations: {
+								"fr": x + "%"
+							},
+							value: x
+						}
+					}),
+
+					required: true,
+					type: ApplicationCommandOptionType.String,
+					permission: null
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand
 		},
 		{
 			name: 'trackinfo',

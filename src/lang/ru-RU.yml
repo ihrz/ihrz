@@ -1690,6 +1690,8 @@ music_visit_here: "Посетите здесь"
 music_lyrics: "Тексты"
 music_link_here: "Ссылка здесь: [Клик здесь]({link})"
 
+music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **громкость установлена на** `${Number(query)}`%"
+
 # Команды раздачи призов
 # /end, /start, /reroll
 

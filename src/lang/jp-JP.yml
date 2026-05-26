@@ -1690,6 +1690,8 @@ music_visit_here: "ここをクリック"
 music_lyrics: "歌詞"
 music_link_here: "リンクをクリック: [クリック]({link})"
 
+music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **音量を** `${Number(query)}`% **に設定しました**"
+
 # Giveaway commands
 # /end, /start, /reroll
 

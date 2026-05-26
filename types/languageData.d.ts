@@ -1283,6 +1283,7 @@ export interface LanguageData {
 	music_visit_here: string;
 	music_lyrics: string;
 	music_link_here: string;
+	music_volume_command_ok: string;
 	end_not_admin: string;
 	end_not_find_giveaway: string;
 	end_confirmation_message: string;
