@@ -19,20 +19,15 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChannelType,
-	EmbedBuilder,
-	GuildMember,
-	VoiceState,
-} from 'discord.js';
-import { Player, PlayerJson, Track, TrackEndReason } from 'lavalink-client';
-import { createHash } from 'node:crypto';
+import { ChannelType, EmbedBuilder, GuildMember, VoiceState } from "discord.js";
+import { Player, PlayerJson, Track, TrackEndReason } from "lavalink-client";
+import { createHash } from "node:crypto";
 
-import { DatabaseStructure } from '../../../types/database_structure.js';
-import { LanguageData } from '../../../types/languageData.js';
-import { profilTable } from '../../Events/client/ready.js';
-import { decrypt, encrypt } from '../functions/encryptDecryptMethod.js';
-import logger from '../logger.js';
+import { DatabaseStructure } from "../../../types/database_structure.js";
+import { LanguageData } from "../../../types/languageData.js";
+import { profilTable } from "../../Events/client/ready.js";
+import { decrypt, encrypt } from "../functions/encryptDecryptMethod.js";
+import logger from "../logger.js";
 
 interface LastFMApiResponse<T = any> {
 	ok: boolean;
@@ -77,14 +72,21 @@ interface LastFMLoginResult {
 }
 
 export class LastFMScrobblerManager {
-	private readonly apiUrl = 'https://ws.audioscrobbler.com/2.0/';
-	private readonly guildSessions = new Map<string, LastFMGuildPlaybackSession>();
+	private readonly apiUrl = "https://ws.audioscrobbler.com/2.0/";
+	private readonly guildSessions = new Map<
+		string,
+		LastFMGuildPlaybackSession
+	>();
 	private readonly apiKey: string;
 	private readonly sharedSecret: string;
 
 	constructor() {
-		this.apiKey = process.env.LASTFM_API_KEY || client.config.lastfm?.apiKey || '';
-		this.sharedSecret = process.env.LASTFM_SHARED_SECRET || client.config.lastfm?.sharedSecret || '';
+		this.apiKey =
+			process.env.LASTFM_API_KEY || client.config.lastfm?.apiKey || "";
+		this.sharedSecret =
+			process.env.LASTFM_SHARED_SECRET ||
+			client.config.lastfm?.sharedSecret ||
+			"";
 	}
 
 	public isConfigured(): boolean {
@@ -92,13 +94,19 @@ export class LastFMScrobblerManager {
 	}
 
 	public getMissingConfigurationMessage(lang: LanguageData): string {
-		return lang.lastfm_module_not_configured
-			.replace(/\${client\.iHorizon_Emojis\.No}/g, client.iHorizon_Emojis.No);
+		return lang.lastfm_module_not_configured.replace(
+			/\${client\.iHorizon_Emojis\.No}/g,
+			client.iHorizon_Emojis.No
+		);
 	}
 
-	public async getUserSettings(userId: string): Promise<DatabaseStructure.LastFMUserSchema | null> {
+	public async getUserSettings(
+		userId: string
+	): Promise<DatabaseStructure.LastFMUserSchema | null> {
 		const table = await this.getProfileTable();
-		return (await table.get(`${userId}.lastfm`)) as DatabaseStructure.LastFMUserSchema | null;
+		return (await table.get(
+			`${userId}.lastfm`
+		)) as DatabaseStructure.LastFMUserSchema | null;
 	}
 
 	public async hasUserSession(userId: string): Promise<boolean> {
@@ -106,7 +114,10 @@ export class LastFMScrobblerManager {
 		return Boolean(settings?.sessionKey && settings?.username);
 	}
 
-	public async setEnabled(userId: string, enabled: boolean): Promise<{ ok: boolean; message?: string; }> {
+	public async setEnabled(
+		userId: string,
+		enabled: boolean
+	): Promise<{ ok: boolean; message?: string }> {
 		const settings = await this.getUserSettings(userId);
 
 		if (enabled && (!settings?.sessionKey || !settings.username)) {
@@ -116,7 +127,7 @@ export class LastFMScrobblerManager {
 		const table = await this.getProfileTable();
 		await table.set(`${userId}.lastfm`, {
 			...(settings || {}),
-			enabled,
+			enabled
 		} satisfies DatabaseStructure.LastFMUserSchema);
 
 		if (!enabled) {
@@ -126,7 +137,12 @@ export class LastFMScrobblerManager {
 		return { ok: true };
 	}
 
-	public async login(userId: string, username: string, password: string, lang: LanguageData): Promise<LastFMLoginResult> {
+	public async login(
+		userId: string,
+		username: string,
+		password: string,
+		lang: LanguageData
+	): Promise<LastFMLoginResult> {
 		if (!this.isConfigured()) {
 			return {
 				ok: false,
@@ -134,7 +150,7 @@ export class LastFMScrobblerManager {
 			};
 		}
 
-		const response = await this.callLastFM('auth.getMobileSession', {
+		const response = await this.callLastFM("auth.getMobileSession", {
 			password,
 			username
 		});
@@ -142,18 +158,22 @@ export class LastFMScrobblerManager {
 		if (!response.ok) {
 			return {
 				ok: false,
-				message: this.formatApiError(response, lang, 'login')
+				message: this.formatApiError(response, lang, "login")
 			};
 		}
 
-		const fetchedUsername = response.data?.session?.name as string | undefined;
+		const fetchedUsername = response.data?.session?.name as
+			| string
+			| undefined;
 		const sessionKey = response.data?.session?.key as string | undefined;
 
 		if (!fetchedUsername || !sessionKey) {
 			return {
 				ok: false,
-				message: lang.lastfm_login_invalid_session
-					.replace(/\${client\.iHorizon_Emojis\.No}/g, client.iHorizon_Emojis.No)
+				message: lang.lastfm_login_invalid_session.replace(
+					/\${client\.iHorizon_Emojis\.No}/g,
+					client.iHorizon_Emojis.No
+				)
 			};
 		}
 
@@ -168,22 +188,33 @@ export class LastFMScrobblerManager {
 		return {
 			ok: true,
 			message: lang.lastfm_login_success
-				.replace(/\${client\.iHorizon_Emojis\.Yes}/g, client.iHorizon_Emojis.Yes)
+				.replace(
+					/\${client\.iHorizon_Emojis\.Yes}/g,
+					client.iHorizon_Emojis.Yes
+				)
 				.replace(/\${username}/g, fetchedUsername),
 			username: fetchedUsername
 		};
 	}
 
-	public async generateUserEmbed(userId: string, userLabel: string, lang: LanguageData): Promise<EmbedBuilder> {
+	public async generateUserEmbed(
+		userId: string,
+		userLabel: string,
+		lang: LanguageData
+	): Promise<EmbedBuilder> {
 		const settings = await this.getUserSettings(userId);
 		const embed = new EmbedBuilder()
 			.setColor(2829617)
-			.setTitle(lang.lastfm_embed_title.replace(/\${userLabel}/g, userLabel))
+			.setTitle(
+				lang.lastfm_embed_title.replace(/\${userLabel}/g, userLabel)
+			)
 			.addFields(
 				{
 					inline: true,
 					name: lang.lastfm_embed_field_status,
-					value: settings?.enabled ? lang.var_enabled : lang.var_disabled
+					value: settings?.enabled
+						? lang.var_enabled
+						: lang.var_disabled
 				},
 				{
 					inline: true,
@@ -203,16 +234,24 @@ export class LastFMScrobblerManager {
 		return embed;
 	}
 
-	public async handleTrackStart(player: Player, track: Track | null): Promise<void> {
+	public async handleTrackStart(
+		player: Player,
+		track: Track | null
+	): Promise<void> {
 		if (!track) return;
 
 		this.clearGuildSession(player.guildId);
 
-		const guild = await client.guilds.fetch(player.guildId).catch(() => null);
+		const guild = await client.guilds
+			.fetch(player.guildId)
+			.catch(() => null);
 		if (!guild) return;
 
-		const voiceChannel = await guild.channels.fetch(player.voiceChannelId || '').catch(() => null);
-		if (!voiceChannel || voiceChannel.type !== ChannelType.GuildVoice) return;
+		const voiceChannel = await guild.channels
+			.fetch(player.voiceChannelId || "")
+			.catch(() => null);
+		if (!voiceChannel || voiceChannel.type !== ChannelType.GuildVoice)
+			return;
 
 		const session: LastFMGuildPlaybackSession = {
 			guildId: player.guildId,
@@ -227,12 +266,16 @@ export class LastFMScrobblerManager {
 		await this.syncMembersWithVoiceChannel(session);
 	}
 
-	public async handleTrackEnd(player: Player, track: Track | null, reason: TrackEndReason): Promise<void> {
+	public async handleTrackEnd(
+		player: Player,
+		track: Track | null,
+		reason: TrackEndReason
+	): Promise<void> {
 		const session = this.guildSessions.get(player.guildId);
 		if (!session) return;
 
 		for (const listener of session.listeners.values()) {
-			if (reason !== 'loadFailed') {
+			if (reason !== "loadFailed") {
 				await this.tryScrobbleListener(session, listener, true);
 			}
 			this.clearListenerTimeout(listener);
@@ -245,7 +288,10 @@ export class LastFMScrobblerManager {
 		this.clearGuildSession(player.guildId);
 	}
 
-	public async handlePlayerMove(player: Player, newVoiceChannelId: string): Promise<void> {
+	public async handlePlayerMove(
+		player: Player,
+		newVoiceChannelId: string
+	): Promise<void> {
 		const session = this.guildSessions.get(player.guildId);
 		if (!session) return;
 
@@ -253,7 +299,10 @@ export class LastFMScrobblerManager {
 		await this.syncMembersWithVoiceChannel(session);
 	}
 
-	public async handlePlayerUpdate(oldPlayerJson: PlayerJson, newPlayer: Player): Promise<void> {
+	public async handlePlayerUpdate(
+		oldPlayerJson: PlayerJson,
+		newPlayer: Player
+	): Promise<void> {
 		const session = this.guildSessions.get(newPlayer.guildId);
 		if (!session || oldPlayerJson.paused === newPlayer.paused) return;
 
@@ -269,22 +318,28 @@ export class LastFMScrobblerManager {
 
 		for (const listener of session.listeners.values()) {
 			if (listener.pausedStartedAt) {
-				listener.pausedDurationMs += Date.now() - listener.pausedStartedAt;
+				listener.pausedDurationMs +=
+					Date.now() - listener.pausedStartedAt;
 				listener.pausedStartedAt = undefined;
 			}
 			this.scheduleScrobble(session, listener);
 		}
 	}
 
-	public async handleVoiceStateUpdate(oldState: VoiceState, newState: VoiceState): Promise<void> {
+	public async handleVoiceStateUpdate(
+		oldState: VoiceState,
+		newState: VoiceState
+	): Promise<void> {
 		const member = newState.member || oldState.member;
 		if (!member || member.user.bot) return;
 
 		const session = this.guildSessions.get(oldState.guild.id);
 		if (!session) return;
 
-		const wasInTrackedChannel = oldState.channelId === session.voiceChannelId;
-		const isInTrackedChannel = newState.channelId === session.voiceChannelId;
+		const wasInTrackedChannel =
+			oldState.channelId === session.voiceChannelId;
+		const isInTrackedChannel =
+			newState.channelId === session.voiceChannelId;
 
 		if (!wasInTrackedChannel && isInTrackedChannel) {
 			await this.attachMemberToSession(session, member);
@@ -294,7 +349,7 @@ export class LastFMScrobblerManager {
 	}
 
 	private async getProfileTable() {
-		return profilTable || await client.db.table('user_profil');
+		return profilTable || (await client.db.table("user_profil"));
 	}
 
 	private getEncryptionSecret(): string {
@@ -302,11 +357,21 @@ export class LastFMScrobblerManager {
 	}
 
 	private getTrackKey(track: Track): string {
-		return [track.encoded, track.info.identifier, track.info.uri, track.info.title, track.info.author].filter(Boolean).join(':');
+		return [
+			track.encoded,
+			track.info.identifier,
+			track.info.uri,
+			track.info.title,
+			track.info.author
+		]
+			.filter(Boolean)
+			.join(":");
 	}
 
 	private normalizeTrack(track: Track): LastFMTrackData {
-		const pluginInfo = (track as any).pluginInfo as { albumName?: string } | undefined;
+		const pluginInfo = (track as any).pluginInfo as
+			| { albumName?: string }
+			| undefined;
 
 		return {
 			album: pluginInfo?.albumName,
@@ -344,16 +409,30 @@ export class LastFMScrobblerManager {
 	}
 
 	private getElapsedListeningMs(listener: LastFMListenerSession): number {
-		const currentPauseDuration = listener.pausedStartedAt ? Date.now() - listener.pausedStartedAt : 0;
-		return Date.now() - listener.startedAt - listener.pausedDurationMs - currentPauseDuration;
+		const currentPauseDuration = listener.pausedStartedAt
+			? Date.now() - listener.pausedStartedAt
+			: 0;
+		return (
+			Date.now() -
+			listener.startedAt -
+			listener.pausedDurationMs -
+			currentPauseDuration
+		);
 	}
 
-	private async syncMembersWithVoiceChannel(session: LastFMGuildPlaybackSession): Promise<void> {
-		const guild = await client.guilds.fetch(session.guildId).catch(() => null);
+	private async syncMembersWithVoiceChannel(
+		session: LastFMGuildPlaybackSession
+	): Promise<void> {
+		const guild = await client.guilds
+			.fetch(session.guildId)
+			.catch(() => null);
 		if (!guild) return;
 
-		const voiceChannel = await guild.channels.fetch(session.voiceChannelId).catch(() => null);
-		if (!voiceChannel || voiceChannel.type !== ChannelType.GuildVoice) return;
+		const voiceChannel = await guild.channels
+			.fetch(session.voiceChannelId)
+			.catch(() => null);
+		if (!voiceChannel || voiceChannel.type !== ChannelType.GuildVoice)
+			return;
 
 		for (const userId of session.listeners.keys()) {
 			if (!voiceChannel.members.has(userId)) {
@@ -368,7 +447,10 @@ export class LastFMScrobblerManager {
 		}
 	}
 
-	private async attachMemberToSession(session: LastFMGuildPlaybackSession, member: GuildMember): Promise<void> {
+	private async attachMemberToSession(
+		session: LastFMGuildPlaybackSession,
+		member: GuildMember
+	): Promise<void> {
 		if (session.listeners.has(member.id)) return;
 
 		const auth = await this.getDecryptedUserSession(member.id);
@@ -395,7 +477,10 @@ export class LastFMScrobblerManager {
 		this.scheduleScrobble(session, listener);
 	}
 
-	private async detachMemberFromSession(session: LastFMGuildPlaybackSession, userId: string): Promise<void> {
+	private async detachMemberFromSession(
+		session: LastFMGuildPlaybackSession,
+		userId: string
+	): Promise<void> {
 		const listener = session.listeners.get(userId);
 		if (!listener) return;
 
@@ -404,14 +489,18 @@ export class LastFMScrobblerManager {
 		session.listeners.delete(userId);
 	}
 
-	private scheduleScrobble(session: LastFMGuildPlaybackSession, listener: LastFMListenerSession): void {
+	private scheduleScrobble(
+		session: LastFMGuildPlaybackSession,
+		listener: LastFMListenerSession
+	): void {
 		this.clearListenerTimeout(listener);
 
 		if (!this.shouldScrobble(session.track) || listener.scrobbled) {
 			return;
 		}
 
-		const remaining = listener.thresholdMs - this.getElapsedListeningMs(listener);
+		const remaining =
+			listener.thresholdMs - this.getElapsedListeningMs(listener);
 		if (remaining <= 0) {
 			void this.tryScrobbleListener(session, listener, true);
 			return;
@@ -437,7 +526,11 @@ export class LastFMScrobblerManager {
 				return false;
 			}
 
-			const isStillInChannel = await this.isMemberInVoiceChannel(session.guildId, session.voiceChannelId, listener.userId);
+			const isStillInChannel = await this.isMemberInVoiceChannel(
+				session.guildId,
+				session.voiceChannelId,
+				listener.userId
+			);
 			if (!isStillInChannel) {
 				return false;
 			}
@@ -455,7 +548,9 @@ export class LastFMScrobblerManager {
 			if (this.isInvalidSessionError(response)) {
 				await this.invalidateUserSession(listener.userId);
 			} else {
-				logger.err(`[LastFM] Failed to scrobble for ${listener.userId}: ${response.message}`);
+				logger.err(
+					`[LastFM] Failed to scrobble for ${listener.userId}: ${response.message}`
+				);
 			}
 			return false;
 		}
@@ -465,22 +560,39 @@ export class LastFMScrobblerManager {
 		return true;
 	}
 
-	private async isMemberInVoiceChannel(guildId: string, voiceChannelId: string, userId: string): Promise<boolean> {
+	private async isMemberInVoiceChannel(
+		guildId: string,
+		voiceChannelId: string,
+		userId: string
+	): Promise<boolean> {
 		const guild = await client.guilds.fetch(guildId).catch(() => null);
 		if (!guild) return false;
 
-		const member = guild.members.cache.get(userId) || await guild.members.fetch(userId).catch(() => null);
+		const member =
+			guild.members.cache.get(userId) ||
+			(await guild.members.fetch(userId).catch(() => null));
 		return member?.voice.channelId === voiceChannelId;
 	}
 
-	private async getDecryptedUserSession(userId: string): Promise<(DatabaseStructure.LastFMUserSchema & { sessionKey: string; username: string; }) | null> {
+	private async getDecryptedUserSession(
+		userId: string
+	): Promise<
+		| (DatabaseStructure.LastFMUserSchema & {
+				sessionKey: string;
+				username: string;
+		  })
+		| null
+	> {
 		const settings = await this.getUserSettings(userId);
 
 		if (!settings?.sessionKey || !settings.username) {
 			return null;
 		}
 
-		const decryptedSessionKey = decrypt(this.getEncryptionSecret(), settings.sessionKey);
+		const decryptedSessionKey = decrypt(
+			this.getEncryptionSecret(),
+			settings.sessionKey
+		);
 		if (!decryptedSessionKey) {
 			await this.invalidateUserSession(userId);
 			return null;
@@ -518,44 +630,72 @@ export class LastFMScrobblerManager {
 	}
 
 	private isInvalidSessionError(response: LastFMApiResponse): boolean {
-		return response.errorCode === 9 || /session/i.test(response.message || '');
+		return (
+			response.errorCode === 9 || /session/i.test(response.message || "")
+		);
 	}
 
-	private formatApiError(response: LastFMApiResponse, lang: LanguageData, context: 'login' | 'nowPlaying' | 'scrobble'): string {
-		const template = context === 'login'
-			? lang.lastfm_api_error_login
-			: context === 'nowPlaying'
-				? lang.lastfm_api_error_nowplaying
-				: lang.lastfm_api_error_scrobble;
+	private formatApiError(
+		response: LastFMApiResponse,
+		lang: LanguageData,
+		context: "login" | "nowPlaying" | "scrobble"
+	): string {
+		const template =
+			context === "login"
+				? lang.lastfm_api_error_login
+				: context === "nowPlaying"
+					? lang.lastfm_api_error_nowplaying
+					: lang.lastfm_api_error_scrobble;
 
 		return template
-			.replace(/\${client\.iHorizon_Emojis\.No}/g, client.iHorizon_Emojis.No)
-			.replace(/\${error}/g, response.message || lang.lastfm_api_error_unknown);
+			.replace(
+				/\${client\.iHorizon_Emojis\.No}/g,
+				client.iHorizon_Emojis.No
+			)
+			.replace(
+				/\${error}/g,
+				response.message || lang.lastfm_api_error_unknown
+			);
 	}
 
-	private async updateNowPlaying(listener: LastFMListenerSession, track: LastFMTrackData): Promise<LastFMApiResponse> {
-		return this.callLastFM('track.updateNowPlaying', {
+	private async updateNowPlaying(
+		listener: LastFMListenerSession,
+		track: LastFMTrackData
+	): Promise<LastFMApiResponse> {
+		return this.callLastFM("track.updateNowPlaying", {
 			album: track.album,
 			artist: track.artist,
-			duration: track.durationMs > 0 ? Math.floor(track.durationMs / 1000).toString() : undefined,
+			duration:
+				track.durationMs > 0
+					? Math.floor(track.durationMs / 1000).toString()
+					: undefined,
 			sk: listener.sessionKey,
 			track: track.title
 		});
 	}
 
-	private async scrobbleTrack(listener: LastFMListenerSession, track: LastFMTrackData): Promise<LastFMApiResponse> {
-		return this.callLastFM('track.scrobble', {
+	private async scrobbleTrack(
+		listener: LastFMListenerSession,
+		track: LastFMTrackData
+	): Promise<LastFMApiResponse> {
+		return this.callLastFM("track.scrobble", {
 			album: track.album,
 			artist: track.artist,
-			chosenByUser: '1',
-			duration: track.durationMs > 0 ? Math.floor(track.durationMs / 1000).toString() : undefined,
+			chosenByUser: "1",
+			duration:
+				track.durationMs > 0
+					? Math.floor(track.durationMs / 1000).toString()
+					: undefined,
 			sk: listener.sessionKey,
 			timestamp: Math.floor(listener.startedAt / 1000).toString(),
 			track: track.title
 		});
 	}
 
-	private async callLastFM(method: string, params: Record<string, string | undefined>): Promise<LastFMApiResponse> {
+	private async callLastFM(
+		method: string,
+		params: Record<string, string | undefined>
+	): Promise<LastFMApiResponse> {
 		if (!this.isConfigured()) {
 			return {
 				errorCode: -1,
@@ -565,11 +705,11 @@ export class LastFMScrobblerManager {
 
 		const signedParams: Record<string, string> = {
 			api_key: this.apiKey,
-			method,
+			method
 		};
 
 		for (const [key, value] of Object.entries(params)) {
-			if (value !== undefined && value !== null && value !== '') {
+			if (value !== undefined && value !== null && value !== "") {
 				signedParams[key] = value;
 			}
 		}
@@ -578,16 +718,16 @@ export class LastFMScrobblerManager {
 		const body = new URLSearchParams({
 			...signedParams,
 			api_sig: apiSig,
-			format: 'json'
+			format: "json"
 		});
 
 		try {
 			const response = await fetch(this.apiUrl, {
 				body,
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
+					"Content-Type": "application/x-www-form-urlencoded"
 				},
-				method: 'POST'
+				method: "POST"
 			});
 
 			const rawBody = await response.text();
@@ -595,7 +735,9 @@ export class LastFMScrobblerManager {
 
 			if (!response.ok || payload.error) {
 				return {
-					errorCode: payload.error ? Number(payload.error) : response.status,
+					errorCode: payload.error
+						? Number(payload.error)
+						: response.status,
 					message: payload.message || response.statusText,
 					ok: false
 				};
@@ -617,11 +759,11 @@ export class LastFMScrobblerManager {
 	private createApiSignature(params: Record<string, string>): string {
 		const payload = Object.keys(params)
 			.sort((a, b) => a.localeCompare(b))
-			.map(key => `${key}${params[key]}`)
-			.join('');
+			.map((key) => `${key}${params[key]}`)
+			.join("");
 
-		return createHash('md5')
-			.update(payload + this.sharedSecret, 'utf8')
-			.digest('hex');
+		return createHash("md5")
+			.update(payload + this.sharedSecret, "utf8")
+			.digest("hex");
 	}
 }

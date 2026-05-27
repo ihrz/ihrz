@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { existsSync, readFile } from 'node:fs';
-import { exec } from 'node:child_process';
-import os from 'node:os';
+import { existsSync, readFile } from "node:fs";
+import { exec } from "node:child_process";
+import os from "node:os";
 
 export function niceBytes(kb: number): string {
 	let bytes = kb * 1024;
@@ -38,26 +38,26 @@ export function niceBytes(kb: number): string {
 }
 
 export function getMemoryInfo(): Promise<{
-	MemTotal: number,
-	MemFree: number,
-	MemAvailable: number,
+	MemTotal: number;
+	MemFree: number;
+	MemAvailable: number;
 }> {
-	if (existsSync('/proc/meminfo')) {
+	if (existsSync("/proc/meminfo")) {
 		return new Promise((resolve, reject) => {
-			readFile('/proc/meminfo', 'utf8', (err, data) => {
+			readFile("/proc/meminfo", "utf8", (err, data) => {
 				if (err) {
 					reject(err);
 					return;
 				}
 
 				const memInfo: Record<string, number> = {};
-				const lines = data.split('\n');
+				const lines = data.split("\n");
 
-				lines.forEach(line => {
-					const parts = line.split(':');
+				lines.forEach((line) => {
+					const parts = line.split(":");
 					if (parts.length === 2) {
 						const key = parts[0].trim();
-						const valueStr = parts[1].trim().split(' ')[0];
+						const valueStr = parts[1].trim().split(" ")[0];
 						const value = parseInt(valueStr, 10);
 
 						memInfo[key] = value;
@@ -65,9 +65,9 @@ export function getMemoryInfo(): Promise<{
 				});
 
 				resolve({
-					MemTotal: memInfo['MemTotal'],
-					MemFree: memInfo['MemFree'],
-					MemAvailable: memInfo['MemAvailable'],
+					MemTotal: memInfo["MemTotal"],
+					MemFree: memInfo["MemFree"],
+					MemAvailable: memInfo["MemAvailable"]
 				});
 			});
 		});
@@ -76,7 +76,7 @@ export function getMemoryInfo(): Promise<{
 		return new Promise((resolve, reject) => {
 			// Get total memory with macOS Method
 			try {
-				exec('sysctl -n hw.memsize', (err: any, stdout: string) => {
+				exec("sysctl -n hw.memsize", (err: any, stdout: string) => {
 					if (err) {
 						reject(err);
 						return;
@@ -86,33 +86,43 @@ export function getMemoryInfo(): Promise<{
 					const totalKB = Math.floor(totalBytes / 1024);
 
 					// Get memory pressure info
-					exec('vm_stat', (err2: any, stdout2: string) => {
+					exec("vm_stat", (err2: any, stdout2: string) => {
 						if (err2) {
 							reject(err2);
 							return;
 						}
 
-						const lines = stdout2.split('\n');
+						const lines = stdout2.split("\n");
 						let freePages = 0;
 						let inactivePages = 0;
 
-						lines.forEach(line => {
-							if (line.includes('Pages free:')) {
-								freePages = parseInt(line.match(/\d+/)?.[0] || '0', 10);
-							} else if (line.includes('Pages inactive:')) {
-								inactivePages = parseInt(line.match(/\d+/)?.[0] || '0', 10);
+						lines.forEach((line) => {
+							if (line.includes("Pages free:")) {
+								freePages = parseInt(
+									line.match(/\d+/)?.[0] || "0",
+									10
+								);
+							} else if (line.includes("Pages inactive:")) {
+								inactivePages = parseInt(
+									line.match(/\d+/)?.[0] || "0",
+									10
+								);
 							}
 						});
 
 						// Each page is typically 4KB on macOS
 						const pageSize = 4096;
-						const freeKB = Math.floor((freePages * pageSize) / 1024);
-						const availableKB = Math.floor(((freePages + inactivePages) * pageSize) / 1024);
+						const freeKB = Math.floor(
+							(freePages * pageSize) / 1024
+						);
+						const availableKB = Math.floor(
+							((freePages + inactivePages) * pageSize) / 1024
+						);
 
 						resolve({
 							MemTotal: totalKB,
 							MemFree: freeKB,
-							MemAvailable: availableKB,
+							MemAvailable: availableKB
 						});
 					});
 				});
@@ -120,8 +130,8 @@ export function getMemoryInfo(): Promise<{
 				Promise.resolve({
 					MemTotal: os.totalmem(),
 					MemFree: os.freemem(),
-					MemAvailable: os.totalmem() - os.freemem(),
-				})
+					MemAvailable: os.totalmem() - os.freemem()
+				});
 			}
 		});
 	}

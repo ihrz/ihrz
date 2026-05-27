@@ -24,73 +24,127 @@ import {
 	EmbedBuilder,
 	ChatInputCommandInteraction,
 	Message,
-	User,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	User
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var toDeposit = interaction.options.getString('how-much') as string;
+			var toDeposit = interaction.options.getString("how-much") as string;
 		} else {
 			var toDeposit = client.func.method.string(args!, 0) as string;
-		};
+		}
 
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
-		};
+		}
 
-		const balance = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`) || 0;
+		const balance =
+			(await client.db.get(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`
+			)) || 0;
 
 		if (toDeposit === "all") toDeposit = balance;
 
 		if (isNaN(Number(toDeposit))) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.temporary_voice_limit_button_not_integer
-					.replace("${interaction.client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-			})
+				content: lang.temporary_voice_limit_button_not_integer.replace(
+					"${interaction.client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
+			});
 			return;
 		}
 
 		if (toDeposit && toDeposit > balance) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.deposit_cannot_abuse.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+				content: lang.deposit_cannot_abuse.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
 			});
 			return;
-		};
+		}
 
-		await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`, parseInt(toDeposit));
-		await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, parseInt(toDeposit));
+		await client.db.add(
+			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`,
+			parseInt(toDeposit)
+		);
+		await client.db.sub(
+			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
+			parseInt(toDeposit)
+		);
 
 		const embed = new EmbedBuilder()
-			.setAuthor({ name: lang.daily_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
+			.setAuthor({
+				name: lang.daily_embed_title,
+				iconURL: (interaction.member.user as User).displayAvatarURL()
+			})
 			.setColor("#a4cb80")
 			.setTitle(lang.deposit_embed_title)
-			.setDescription(lang.deposit_embed_desc
-				.replace('${client.iHorizon_Emojis.Coin}', client.iHorizon_Emojis.Coin)
-				.replace('${interaction.user}', interaction.member.user.toString())
-				.replace('${toDeposit}', toDeposit.toString())
+			.setDescription(
+				lang.deposit_embed_desc
+					.replace(
+						"${client.iHorizon_Emojis.Coin}",
+						client.iHorizon_Emojis.Coin
+					)
+					.replace(
+						"${interaction.user}",
+						interaction.member.user.toString()
+					)
+					.replace("${toDeposit}", toDeposit.toString())
 			)
-			.addFields({ name: lang.deposit_embed_fields1_name, value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.Coin}` })
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.addFields({
+				name: lang.deposit_embed_fields1_name,
+				value: `${await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.bank`)}${client.iHorizon_Emojis.Coin}`
+			})
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setTimestamp();
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
-		await client.func.economyLogs.deposit(interaction.guild, interaction.member.user.id, Number(toDeposit), lang);
+		await client.func.economyLogs.deposit(
+			interaction.guild,
+			interaction.member.user.id,
+			Number(toDeposit),
+			lang
+		);
 		return;
-	},
+	}
 };

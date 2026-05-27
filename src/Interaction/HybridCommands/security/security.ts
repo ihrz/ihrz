@@ -23,51 +23,52 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "security",
 	name_localizations: {
-		"fr": "sécurité"
+		fr: "sécurité"
 	},
 
 	description: "Subcommand for security category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de securité"
+		fr: "Commande sous-groupé pour la catégorie de securité"
 	},
 
 	options: [
 		{
 			name: "channel",
 			name_localizations: {
-				"fr": "définir-cannal"
+				fr: "définir-cannal"
 			},
 			prefixName: "security-channel",
 
-			description: "Channel where are been the verification process for new member(s)!",
+			description:
+				"Channel where are been the verification process for new member(s)!",
 			description_localizations: {
-				"fr": "Canal où se déroule le processus de vérification pour les nouveaux membres"
+				fr: "Canal où se déroule le processus de vérification pour les nouveaux membres"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'id',
+					name: "id",
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
 
-					description: 'What the channel ?',
+					description: "What the channel ?",
 					description_localizations: {
-						"fr": "Quelle est le channel ?"
+						fr: "Quelle est le channel ?"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: PermissionFlagsBits.Administrator
@@ -75,42 +76,42 @@ export const command: Command = {
 		{
 			name: "config",
 			name_localizations: {
-				"fr": "statut"
+				fr: "statut"
 			},
 			prefixName: "security-config",
 
 			description: "Disable or enable the Security Module feature!",
 			description_localizations: {
-				"fr": "Désactiver ou activer la fonctionnalité du module de sécurité"
+				fr: "Désactiver ou activer la fonctionnalité du module de sécurité"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'action',
+					name: "action",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What the action you want to do?',
+					description: "What the action you want to do?",
 					description_localizations: {
-						"fr": "Quelle est l'action que vous souhaitez faire ?"
+						fr: "Quelle est l'action que vous souhaitez faire ?"
 					},
 
 					required: true,
 					choices: [
 						{
 							name: "Power On",
-							name_localizations: { fr: 'Activer' },
-							value: "on",
+							name_localizations: { fr: "Activer" },
+							value: "on"
 						},
 						{
 							name: "Power Off",
-							name_localizations: { fr: 'Désactiver' },
-							value: "off",
+							name_localizations: { fr: "Désactiver" },
+							value: "off"
 						}
 					],
 
 					permission: null
-				},
+				}
 			],
 
 			permission: PermissionFlagsBits.Administrator
@@ -118,29 +119,30 @@ export const command: Command = {
 		{
 			name: "role-to-give",
 			name_localizations: {
-				"fr": "role-à-donner"
+				fr: "role-à-donner"
 			},
 
-			description: "The role that will be given to new member(s) when process to the Captcha verification!",
+			description:
+				"The role that will be given to new member(s) when process to the Captcha verification!",
 			description_localizations: {
-				"fr": "Le rôle qui sera attribué aux nouveaux membre(s) lors du processus de vérification Captcha"
+				fr: "Le rôle qui sera attribué aux nouveaux membre(s) lors du processus de vérification Captcha"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'role',
+					name: "role",
 					type: ApplicationCommandOptionType.Role,
 
-					description: 'What the the role ?',
+					description: "What the the role ?",
 					description_localizations: {
-						"fr": "Quel est le rôle ?"
+						fr: "Quel est le rôle ?"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: PermissionFlagsBits.Administrator
@@ -148,36 +150,37 @@ export const command: Command = {
 		{
 			name: "role-to-remove",
 			name_localizations: {
-				"fr": "role-à-enlever"
+				fr: "role-à-enlever"
 			},
 
-			description: "The role that will be removed to new member(s) when process to the Captcha verification!",
+			description:
+				"The role that will be removed to new member(s) when process to the Captcha verification!",
 			description_localizations: {
-				"fr": "Le rôle qui sera enlevé aux nouveaux membre(s) lors du processus de vérification Captcha"
+				fr: "Le rôle qui sera enlevé aux nouveaux membre(s) lors du processus de vérification Captcha"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'role',
+					name: "role",
 					type: ApplicationCommandOptionType.Role,
 
-					description: 'What the the role ?',
+					description: "What the the role ?",
 					description_localizations: {
-						"fr": "Quel est le rôle ?"
+						fr: "Quel est le rôle ?"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: PermissionFlagsBits.Administrator
-		},
+		}
 	],
 	thinking: false,
-	category: 'security',
+	category: "security",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

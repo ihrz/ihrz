@@ -24,10 +24,10 @@ import {
 	Client,
 	Message,
 	EmbedBuilder
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -38,13 +38,17 @@ export const subCommand: SubCommand = {
 	) => {
 		const isHead = Math.random() < 0.5;
 
-		const result = isHead ? lang.fun_coinflip_result_heads : lang.fun_coinflip_result_tails;
+		const result = isHead
+			? lang.fun_coinflip_result_heads
+			: lang.fun_coinflip_result_tails;
 
 		const embed = new EmbedBuilder()
 			.setTitle(lang.fun_coinflip_embed_title)
 			.setDescription(`${lang.fun_coinflip_result_text} ${result}`)
 			.setColor("Random");
 
-		await client.func.method.interactionSend(interaction, { embeds: [embed] });
+		await client.func.method.interactionSend(interaction, {
+			embeds: [embed]
+		});
 	}
 };

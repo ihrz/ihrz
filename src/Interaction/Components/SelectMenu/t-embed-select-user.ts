@@ -19,10 +19,12 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { TicketAddMember_2 } from '../../../core/modules/ticketsManager.js';
-import { UserSelectMenuInteraction } from 'discord.js';
+import { TicketAddMember_2 } from "../../../core/modules/ticketsManager.js";
+import { UserSelectMenuInteraction } from "discord.js";
 
-export default async function (interaction: UserSelectMenuInteraction<"cached">) {
+export default async function (
+	interaction: UserSelectMenuInteraction<"cached">
+) {
 	TicketAddMember_2(interaction);
 	return;
-};
+}

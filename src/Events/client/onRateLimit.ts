@@ -19,18 +19,41 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, RateLimitData } from 'discord.js';
+import { Client, RateLimitData } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const restEvent: BotEvent = {
 	name: "rateLimited",
 	run: async (client: Client, data: RateLimitData) => {
-		let msg = "⚠️ Rate limit detected\nRoute: " + data.route + "\nURL: " + data.url + "\nMethod: " + data.method + "\nScope: " + data.scope + "\nGlobal: " + data.global + "\nLimit: " + data.limit + "\nRetry After: " + data.retryAfter + "ms\nTime To Reset: " + data.timeToReset + "ms\nHash: " + data.hash + "\nMajor Param: " + data.majorParameter + "\nSublimit Timeout: " + data.sublimitTimeout + "ms";
+		let msg =
+			"⚠️ Rate limit detected\nRoute: " +
+			data.route +
+			"\nURL: " +
+			data.url +
+			"\nMethod: " +
+			data.method +
+			"\nScope: " +
+			data.scope +
+			"\nGlobal: " +
+			data.global +
+			"\nLimit: " +
+			data.limit +
+			"\nRetry After: " +
+			data.retryAfter +
+			"ms\nTime To Reset: " +
+			data.timeToReset +
+			"ms\nHash: " +
+			data.hash +
+			"\nMajor Param: " +
+			data.majorParameter +
+			"\nSublimit Timeout: " +
+			data.sublimitTimeout +
+			"ms";
 
-		logger.err(msg)
+		logger.err(msg);
 		// if (client.email.connected) {
 		// 	client.email.send(client.email.ownerMail, 'RATE-LIMIT', msg);
-		// } else 
-	},
+		// } else
+	}
 };

@@ -24,11 +24,11 @@ import {
 	ChatInputCommandInteraction,
 	Message,
 	TextChannel,
-	User,
-} from 'discord.js';
+	User
+} from "discord.js";
 
-import { SubCommand } from '../../../../../types/command.js';
-import { LanguageData } from '../../../../../types/languageData.js';
+import { SubCommand } from "../../../../../types/command.js";
+import { LanguageData } from "../../../../../types/languageData.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -38,26 +38,38 @@ export const subCommand: SubCommand = {
 		args?: string[]
 	) => {
 		try {
-			if (!client.user || !interaction.guild || !interaction.channel) return;
+			if (!client.user || !interaction.guild || !interaction.channel)
+				return;
 
 			if (interaction instanceof ChatInputCommandInteraction) {
-				var messageId = interaction.options.getString('message_id', true);
-				var roleId = interaction.options.getRole('role', true).id;
+				var messageId = interaction.options.getString(
+					"message_id",
+					true
+				);
+				var roleId = interaction.options.getRole("role", true).id;
 			} else {
 				var messageId = client.func.method.string(args!, 0)!;
-				var roleId = client.func.method.role(interaction, args!, 1)?.id!;
+				var roleId = client.func.method.role(
+					interaction,
+					args!,
+					1
+				)?.id!;
 			}
 
 			const guild = interaction.guild;
 			const role = guild.roles.cache.get(roleId);
 			if (!role) {
-				await client.func.method.interactionSend(interaction, { content: lang.addrolereact_role_not_found });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.addrolereact_role_not_found
+				});
 				return;
 			}
 
 			const member = interaction.member;
 			if (!member) {
-				await client.func.method.interactionSend(interaction, { content: lang.addrolereact_cannot_check_permissions });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.addrolereact_cannot_check_permissions
+				});
 				return;
 			}
 
@@ -72,56 +84,80 @@ export const subCommand: SubCommand = {
 
 			const channel = interaction.channel;
 			if (!(channel instanceof TextChannel)) {
-				await client.func.method.interactionSend(interaction, { content: lang.addrolereact_must_be_text_channel });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.addrolereact_must_be_text_channel
+				});
 				return;
 			}
 
-			const message = await channel.messages.fetch(messageId).catch(() => null);
+			const message = await channel.messages
+				.fetch(messageId)
+				.catch(() => null);
 			if (!message) {
-				await client.func.method.interactionSend(interaction, { content: lang.addrolereact_message_not_found });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.addrolereact_message_not_found
+				});
 				return;
 			}
 
 			const reactions = message.reactions.cache;
 			if (reactions.size === 0) {
-				await client.func.method.interactionSend(interaction, { content: lang.addrolereact_no_reactions });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.addrolereact_no_reactions
+				});
 				return;
 			}
 
-			const replyMessage = await client.func.method.interactionSend(interaction, {
-				content: lang.addrolereact_adding_role.replace('{role}', role.name)
-			});
+			const replyMessage = await client.func.method.interactionSend(
+				interaction,
+				{
+					content: lang.addrolereact_adding_role.replace(
+						"{role}",
+						role.name
+					)
+				}
+			);
 			let totalUsersAffected = 0;
 
 			for (const reaction of reactions.values()) {
 				const users = await reaction.users.fetch();
 				const reactedUsers = users.filter((user: User) => !user.bot);
 
-				client.func.method.interactionSend(replyMessage,
+				client.func.method.interactionSend(
+					replyMessage,
 					lang.addrolereact_adding_role_progress
-						.replace('{role}', role.name)
-						.replace('{count}', reactedUsers.size.toString())
+						.replace("{role}", role.name)
+						.replace("{count}", reactedUsers.size.toString())
 				);
 
 				for (const user of reactedUsers.values()) {
 					try {
-						const member = guild.members.cache.get(user.id) || await guild.members.fetch(user.id).catch(() => null);
+						const member =
+							guild.members.cache.get(user.id) ||
+							(await guild.members
+								.fetch(user.id)
+								.catch(() => null));
 						if (member && !member.roles.cache.has(roleId)) {
-							await member.roles.add(role, "[RoleReact] Assign role");
+							await member.roles.add(
+								role,
+								"[RoleReact] Assign role"
+							);
 							totalUsersAffected++;
 						}
-					} catch (error) {
-					}
+					} catch (error) {}
 				}
 			}
 
-			client.func.method.interactionSend(replyMessage,
+			client.func.method.interactionSend(
+				replyMessage,
 				lang.addrolereact_role_added
-					.replace('{role}', role.name)
-					.replace('{count}', totalUsersAffected.toString())
+					.replace("{role}", role.name)
+					.replace("{count}", totalUsersAffected.toString())
 			);
 		} catch (error) {
-			await client.func.method.interactionSend(interaction, { content: lang.addrolereact_error });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.addrolereact_error
+			});
 		}
-	},
+	}
 };

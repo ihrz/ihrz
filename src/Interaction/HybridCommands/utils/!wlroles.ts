@@ -35,21 +35,32 @@ import {
 	PermissionFlagsBits,
 	Message,
 	BaseGuildTextChannel
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		let all_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`) || [];
+		let all_roles: DatabaseStructure.UtilsData["wlRoles"] =
+			(await client.db.get(`${interaction.guildId}.UTILS.wlRoles`)) || [];
 
 		const embed = new EmbedBuilder()
 			.setTitle(lang.utils_wlroles_embed_title)
@@ -57,33 +68,44 @@ export const subCommand: SubCommand = {
 			.setDescription(lang.utils_wlroles_embed_desc)
 			.addFields({
 				name: lang.setjoinroles_help_embed_fields_1_name,
-				value: Array.isArray(all_roles) && all_roles.length > 0
-					? all_roles.map(x => `<@&${x}>`).join(', ')
-					: lang.setjoinroles_var_none
+				value:
+					Array.isArray(all_roles) && all_roles.length > 0
+						? all_roles.map((x) => `<@&${x}>`).join(", ")
+						: lang.setjoinroles_var_none
 			});
 
 		const roleSelectMenu = new RoleSelectMenuBuilder()
-			.setCustomId('utils-wlRoles-role-selecter')
+			.setCustomId("utils-wlRoles-role-selecter")
 			.setMaxValues(25)
 			.setMinValues(0);
 
 		if (all_roles !== undefined && all_roles?.length >= 1) {
-			const roles: string[] = Array.isArray(all_roles) ? all_roles : [all_roles];
+			const roles: string[] = Array.isArray(all_roles)
+				? all_roles
+				: [all_roles];
 			roleSelectMenu.setDefaultRoles(roles);
 		}
 
 		const saveButton = new ButtonBuilder()
-			.setCustomId('utils-wlRoles-save-button')
+			.setCustomId("utils-wlRoles-save-button")
 			.setStyle(ButtonStyle.Primary)
-			.setEmoji('💾');
+			.setEmoji("💾");
 
-		const comp = new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelectMenu);
-		const comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
+		const comp =
+			new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
+				roleSelectMenu
+			);
+		const comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			saveButton
+		);
 
-		const og_response = await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			components: [comp, comp_2]
-		});
+		const og_response = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [embed],
+				components: [comp, comp_2]
+			}
+		);
 
 		const confirmedDangerousRoles = new Set<string>();
 		const tooHighterRoles = new Set<string>();
@@ -102,110 +124,176 @@ export const subCommand: SubCommand = {
 			filter: (i) => i.user.id === interaction.member?.user.id
 		});
 
-		collector.on('collect', async (roleInteraction: RoleSelectMenuInteraction) => {
-			selectedRoles = [];
-			all_roles = [];
+		collector.on(
+			"collect",
+			async (roleInteraction: RoleSelectMenuInteraction) => {
+				selectedRoles = [];
+				all_roles = [];
 
-			const dangerous_roles: { id: string, name: string, permissions: string[] }[] = [];
-			const too_highter_roles: { id: string, name: string, position: string }[] = [];
+				const dangerous_roles: {
+					id: string;
+					name: string;
+					permissions: string[];
+				}[] = [];
+				const too_highter_roles: {
+					id: string;
+					name: string;
+					position: string;
+				}[] = [];
 
-			if (!roleInteraction.guild?.members.me?.permissions.has(PermissionFlagsBits.ManageRoles)) {
-				await roleInteraction.deferUpdate();
-				await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_var_perm_issue, flags: [1 << 6] });
-				return;
-			}
-
-			for (const role of roleInteraction.roles) {
-				all_roles.push(role[1].id);
-				const rolePermissions = new PermissionsBitField((role[1] as Role).permissions);
-				const roleDangerousPermissions: string[] = [];
-
-				for (const perm of client.func.method.getDangerousPermissions(lang)) {
-					if (rolePermissions.has(perm.flag)) {
-						roleDangerousPermissions.push(perm.name);
-					}
+				if (
+					!roleInteraction.guild?.members.me?.permissions.has(
+						PermissionFlagsBits.ManageRoles
+					)
+				) {
+					await roleInteraction.deferUpdate();
+					await client.func.method.interactionSend(interaction, {
+						content: lang.setjoinroles_var_perm_issue,
+						flags: [1 << 6]
+					});
+					return;
 				}
 
-				if (roleDangerousPermissions.length > 0 && !confirmedDangerousRoles.has(role[1].id)) {
-					dangerous_roles.push({ id: role[1].id, name: role[1].name, permissions: roleDangerousPermissions });
-				}
-
-				selectedRoles.push(role[1] as Role);
-
-				if (interaction.guild?.members.me?.roles.highest.position! <= role[1].position) {
-					if (!tooHighterRoles.has(role[1].id)) {
-						too_highter_roles.push({ id: role[1].id, name: role[1].name, position: role[1].position.toString() });
-					}
-				}
-			}
-
-			if (dangerous_roles.length > 0) {
-				await handleDangerousRolesConfirmation(roleInteraction, dangerous_roles, confirmedDangerousRoles, embed, og_response, lang);
-			} else if (too_highter_roles.length > 0) {
-				await handleTooHighterRoles(roleInteraction, too_highter_roles);
-			} else {
-				await roleInteraction.deferUpdate();
-				updateEmbed(embed, selectedRoles, lang);
-				await og_response.edit({ embeds: [embed] });
-			}
-		});
-
-		buttonCollector.on('collect', async (buttonInteraction: ButtonInteraction) => {
-			await buttonInteraction.deferUpdate();
-			if (buttonInteraction.customId === 'utils-wlRoles-save-button') {
-				const newComp_2 = new ActionRowBuilder<ButtonBuilder>()
-					.addComponents(
-						saveButton
-							.setStyle(ButtonStyle.Success)
-							.setEmoji(client.iHorizon_Emojis.Yes)
-							.setDisabled(true)
+				for (const role of roleInteraction.roles) {
+					all_roles.push(role[1].id);
+					const rolePermissions = new PermissionsBitField(
+						(role[1] as Role).permissions
 					);
+					const roleDangerousPermissions: string[] = [];
 
-				await og_response.edit({ components: [newComp_2] })
+					for (const perm of client.func.method.getDangerousPermissions(
+						lang
+					)) {
+						if (rolePermissions.has(perm.flag)) {
+							roleDangerousPermissions.push(perm.name);
+						}
+					}
 
-				await client.func.ihorizon_logs(interaction, {
-					title: lang.utils_wlRoles_logsEmbed_title,
-					description: lang.utils_wlRoles_logsEmbed_desc
-						.replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
-				});
+					if (
+						roleDangerousPermissions.length > 0 &&
+						!confirmedDangerousRoles.has(role[1].id)
+					) {
+						dangerous_roles.push({
+							id: role[1].id,
+							name: role[1].name,
+							permissions: roleDangerousPermissions
+						});
+					}
 
-				await client.db.set(`${interaction.guildId}.UTILS.wlRoles`, all_roles);
-				collector.stop();
-				buttonCollector.stop();
+					selectedRoles.push(role[1] as Role);
+
+					if (
+						interaction.guild?.members.me?.roles.highest
+							.position! <= role[1].position
+					) {
+						if (!tooHighterRoles.has(role[1].id)) {
+							too_highter_roles.push({
+								id: role[1].id,
+								name: role[1].name,
+								position: role[1].position.toString()
+							});
+						}
+					}
+				}
+
+				if (dangerous_roles.length > 0) {
+					await handleDangerousRolesConfirmation(
+						roleInteraction,
+						dangerous_roles,
+						confirmedDangerousRoles,
+						embed,
+						og_response,
+						lang
+					);
+				} else if (too_highter_roles.length > 0) {
+					await handleTooHighterRoles(
+						roleInteraction,
+						too_highter_roles
+					);
+				} else {
+					await roleInteraction.deferUpdate();
+					updateEmbed(embed, selectedRoles, lang);
+					await og_response.edit({ embeds: [embed] });
+				}
 			}
-		});
+		);
 
-		collector.on('end', async () => {
-			comp.components.forEach(x => {
-				x.setDisabled(true)
+		buttonCollector.on(
+			"collect",
+			async (buttonInteraction: ButtonInteraction) => {
+				await buttonInteraction.deferUpdate();
+				if (
+					buttonInteraction.customId === "utils-wlRoles-save-button"
+				) {
+					const newComp_2 =
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							saveButton
+								.setStyle(ButtonStyle.Success)
+								.setEmoji(client.iHorizon_Emojis.Yes)
+								.setDisabled(true)
+						);
+
+					await og_response.edit({ components: [newComp_2] });
+
+					await client.func.ihorizon_logs(interaction, {
+						title: lang.utils_wlRoles_logsEmbed_title,
+						description: lang.utils_wlRoles_logsEmbed_desc.replace(
+							"${interaction.member?.user.toString()}",
+							interaction.member?.user.toString()!
+						)
+					});
+
+					await client.db.set(
+						`${interaction.guildId}.UTILS.wlRoles`,
+						all_roles
+					);
+					collector.stop();
+					buttonCollector.stop();
+				}
+			}
+		);
+
+		collector.on("end", async () => {
+			comp.components.forEach((x) => {
+				x.setDisabled(true);
 			});
 
-			comp_2.components.forEach(x => {
+			comp_2.components.forEach((x) => {
 				x.setDisabled(true);
-			})
+			});
 
 			await og_response.edit({ components: [comp, comp_2] });
 		});
 
-		function updateEmbed(embed: EmbedBuilder, roles: Role[], lang: LanguageData) {
-			const roleValues = roles.map(role => `<@&${role.id}>`).join(', ') || lang.setjoinroles_var_none;
+		function updateEmbed(
+			embed: EmbedBuilder,
+			roles: Role[],
+			lang: LanguageData
+		) {
+			const roleValues =
+				roles.map((role) => `<@&${role.id}>`).join(", ") ||
+				lang.setjoinroles_var_none;
 			embed.setFields({
 				name: lang.setjoinroles_help_embed_fields_1_name,
 				value: roleValues
 			});
-		};
+		}
 
-		async function handleDangerousRolesConfirmation(roleInteraction: RoleSelectMenuInteraction,
+		async function handleDangerousRolesConfirmation(
+			roleInteraction: RoleSelectMenuInteraction,
 			dangerous_roles: {
-				id: string; name: string; permissions: string[];
+				id: string;
+				name: string;
+				permissions: string[];
 			}[],
 			confirmedDangerousRoles: Set<string>,
 			embed: EmbedBuilder,
 			og_response: Message,
-			lang: LanguageData) {
-			const dangerous_fields = dangerous_roles.map(role => ({
+			lang: LanguageData
+		) {
+			const dangerous_fields = dangerous_roles.map((role) => ({
 				name: `@${role.name} (${role.id})`,
-				value: role.permissions.map(p => `\`${p}\``).join(', ')
+				value: role.permissions.map((p) => `\`${p}\``).join(", ")
 			}));
 
 			const dangerous_embed = new EmbedBuilder()
@@ -213,22 +301,28 @@ export const subCommand: SubCommand = {
 				.setDescription(lang.setjoinroles_warn_dangerous_perm)
 				.addFields(dangerous_fields);
 
-			const confirm_buttons = new ActionRowBuilder<ButtonBuilder>()
-				.addComponents(
+			const confirm_buttons =
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
-						.setCustomId('dangerous_roles_confirm_yes')
+						.setCustomId("dangerous_roles_confirm_yes")
 						.setStyle(ButtonStyle.Danger)
 						.setLabel(lang.var_yes),
 					new ButtonBuilder()
-						.setCustomId('dangerous_roles_confirm_no')
+						.setCustomId("dangerous_roles_confirm_no")
 						.setStyle(ButtonStyle.Secondary)
 						.setLabel(lang.var_no)
 				);
 
-			const warn_msg = await roleInteraction.reply({ embeds: [dangerous_embed], components: [confirm_buttons], flags: [1 << 6] });
+			const warn_msg = await roleInteraction.reply({
+				embeds: [dangerous_embed],
+				components: [confirm_buttons],
+				flags: [1 << 6]
+			});
 
 			try {
-				const buttonInteraction = await (interaction.channel as BaseGuildTextChannel)?.awaitMessageComponent({
+				const buttonInteraction = await (
+					interaction.channel as BaseGuildTextChannel
+				)?.awaitMessageComponent({
 					componentType: ComponentType.Button,
 					time: 20_000,
 					filter: (i) => i.user.id === interaction.member?.user.id!
@@ -236,46 +330,59 @@ export const subCommand: SubCommand = {
 
 				await buttonInteraction?.deferUpdate();
 
-				if (buttonInteraction?.customId === 'dangerous_roles_confirm_yes') {
-					dangerous_roles.forEach(role => confirmedDangerousRoles.add(role.id));
-					confirm_buttons.components.forEach(x => x.setDisabled(true));
+				if (
+					buttonInteraction?.customId ===
+					"dangerous_roles_confirm_yes"
+				) {
+					dangerous_roles.forEach((role) =>
+						confirmedDangerousRoles.add(role.id)
+					);
+					confirm_buttons.components.forEach((x) =>
+						x.setDisabled(true)
+					);
 					await warn_msg.edit({ components: [confirm_buttons] });
 
 					updateEmbed(embed, selectedRoles, lang);
 					await og_response.edit({ embeds: [embed] });
-				} else if (buttonInteraction?.customId === 'dangerous_roles_confirm_no') {
+				} else if (
+					buttonInteraction?.customId === "dangerous_roles_confirm_no"
+				) {
 					await warn_msg.edit({
-						components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
-							new ButtonBuilder()
-								.setDisabled(true)
-								.setStyle(ButtonStyle.Secondary)
-								.setCustomId('utils-wlRoles-choice-timeOut')
-								.setLabel(lang.setjoinroles_action_canceled)
-						)]
+						components: [
+							new ActionRowBuilder<ButtonBuilder>().addComponents(
+								new ButtonBuilder()
+									.setDisabled(true)
+									.setStyle(ButtonStyle.Secondary)
+									.setCustomId("utils-wlRoles-choice-timeOut")
+									.setLabel(lang.setjoinroles_action_canceled)
+							)
+						]
 					});
 				}
 			} catch (err) {
 				await warn_msg.edit({
-					components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
-						new ButtonBuilder()
-							.setDisabled(true)
-							.setStyle(ButtonStyle.Secondary)
-							.setCustomId('utils-wlRoles-choice-timeOut')
-							.setLabel(lang.setjoinroles_timesup_button)
-					)]
+					components: [
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							new ButtonBuilder()
+								.setDisabled(true)
+								.setStyle(ButtonStyle.Secondary)
+								.setCustomId("utils-wlRoles-choice-timeOut")
+								.setLabel(lang.setjoinroles_timesup_button)
+						)
+					]
 				});
 			}
 		}
 
 		async function handleTooHighterRoles(
 			roleInteraction: RoleSelectMenuInteraction,
-			too_highter_roles:
-				{
-					id: string;
-					name: string;
-					position: string;
-				}[]) {
-			const too_highter_fields = too_highter_roles.map(role => ({
+			too_highter_roles: {
+				id: string;
+				name: string;
+				position: string;
+			}[]
+		) {
+			const too_highter_fields = too_highter_roles.map((role) => ({
 				name: `@${role.name} (${role.id})`,
 				value: `<@&${role.id}>: \`${role.position}\` vs ${interaction.client.user.toString()}: \`${interaction.guild?.members.me?.roles.highest.position}\``
 			}));
@@ -290,5 +397,5 @@ export const subCommand: SubCommand = {
 				flags: [1 << 6]
 			});
 		}
-	},
+	}
 };

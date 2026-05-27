@@ -22,18 +22,17 @@
 import {
 	ApplicationCommandType,
 	ApplicationCommandOptionType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "antispam",
 
 	description: "Subcommand for antispam category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie d'antispam"
+		fr: "Commande sous-groupé pour la catégorie d'antispam"
 	},
 
 	options: [
@@ -43,15 +42,14 @@ export const command: Command = {
 
 			description: "Manage the antispam module",
 			description_localizations: {
-				"fr": "Gérer le module antispam"
+				fr: "Gérer le module antispam"
 			},
 
 			aliases: ["mng", "antimng"],
 
-
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "bypass-roles",
@@ -59,14 +57,14 @@ export const command: Command = {
 
 			description: "All of the roles wich bypass the antispam",
 			description_localizations: {
-				"fr": "Tous les rôles qui contournent l'anti spam"
+				fr: "Tous les rôles qui contournent l'anti spam"
 			},
 
 			aliases: ["bproles"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "ignore-channels",
@@ -74,17 +72,17 @@ export const command: Command = {
 
 			description: "Ignore this channels in the AntiSpam Module",
 			description_localizations: {
-				"fr": "Ignorer des salons afin que l'AntiSpam ne l'ai prennent pas en compte"
+				fr: "Ignorer des salons afin que l'AntiSpam ne l'ai prennent pas en compte"
 			},
 
 			aliases: ["channels"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.Administrator,
-		},
+			permission: PermissionFlagsBits.Administrator
+		}
 	],
-	category: 'antispam',
+	category: "antispam",
 	thinking: true,
 	type: ApplicationCommandType.ChatInput,
 	permission: null

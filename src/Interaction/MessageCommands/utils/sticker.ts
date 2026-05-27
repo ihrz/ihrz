@@ -19,32 +19,35 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	Message,
-} from 'discord.js';
+import { Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
-	name: 'sticker',
-	aliases: ['stickers'],
+	name: "sticker",
+	aliases: ["stickers"],
 
-	description: 'Add a sticker from the replied message',
+	description: "Add a sticker from the replied message",
 	description_localizations: {
-		"fr": "Créer un sticker depuis un message répondu"
+		fr: "Créer un sticker depuis un message répondu"
 	},
 
 	thinking: false,
-	category: 'utils',
+	category: "utils",
 	type: "PREFIX_IHORIZON_COMMAND",
 
 	permission: null,
-	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
+	run: async (
+		client: Client,
+		message: Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
 		if (message.reference) {
-			const msg = await message.channel.messages.fetch(message.reference.messageId || "");
+			const msg = await message.channel.messages.fetch(
+				message.reference.messageId || ""
+			);
 
 			if (msg.stickers.size === 0) {
 				return await client.func.method.interactionSend(message, {
@@ -55,24 +58,34 @@ export const command: Command = {
 				var cool_name = sticker.name;
 
 				if (message.guild.vanityURLCode !== null) {
-					cool_name += ` /${message.guild.vanityURLCode}`
-				};
+					cool_name += ` /${message.guild.vanityURLCode}`;
+				}
 
-				await message.guild.stickers.create({
-					file: sticker.url,
-					name: cool_name,
-					description: sticker.description || lang.var_no_set,
-					tags: sticker?.tags || "copied",
-					reason: "Sticker command executed by " + message.author.id
-				}).then(async x => {
-					await client.func.method.interactionSend(message, {
-						content: lang.sticket_command_work.replace("${x.name}", x.name)
+				await message.guild.stickers
+					.create({
+						file: sticker.url,
+						name: cool_name,
+						description: sticker.description || lang.var_no_set,
+						tags: sticker?.tags || "copied",
+						reason:
+							"Sticker command executed by " + message.author.id
+					})
+					.then(async (x) => {
+						await client.func.method.interactionSend(message, {
+							content: lang.sticket_command_work.replace(
+								"${x.name}",
+								x.name
+							)
+						});
+					})
+					.catch(async (err) => {
+						await client.func.method.interactionSend(message, {
+							content: lang.sticker_command_error.replace(
+								"${err.message}",
+								err.message
+							)
+						});
 					});
-				}).catch(async err => {
-					await client.func.method.interactionSend(message, {
-						content: lang.sticker_command_error.replace("${err.message}", err.message)
-					});
-				});
 			}
 		} else {
 			return await client.func.method.interactionSend(message, {
@@ -80,5 +93,5 @@ export const command: Command = {
 			});
 		}
 		return;
-	},
+	}
 };

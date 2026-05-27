@@ -19,50 +19,74 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { EmbedBuilder, Client, GuildMember, BaseGuildTextChannel } from 'discord.js';
+import {
+	EmbedBuilder,
+	Client,
+	GuildMember,
+	BaseGuildTextChannel
+} from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
-	run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
-
+	run: async (
+		client: Client,
+		oldMember: GuildMember,
+		newMember: GuildMember
+	) => {
 		const data = await client.func.getLanguageData(newMember.guild.id);
 
 		if (!newMember.guild.roles.premiumSubscriberRole) return;
-		const Msgchannel = newMember.guild.channels.cache.get(await client.db.get(`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`) as string);
+		const Msgchannel = newMember.guild.channels.cache.get(
+			(await client.db.get(
+				`${newMember.guild.id}.GUILD.SERVER_LOGS.boosts`
+			)) as string
+		);
 
 		if (!Msgchannel) return;
 
 		const embed = new EmbedBuilder()
 			.setColor("#a27cec")
-			.setAuthor({ name: newMember?.user.username, iconURL: newMember?.displayAvatarURL({ extension: 'png', forceStatic: false, size: 512 }) })
+			.setAuthor({
+				name: newMember?.user.username,
+				iconURL: newMember?.displayAvatarURL({
+					extension: "png",
+					forceStatic: false,
+					size: 512
+				})
+			})
 			.setTimestamp();
 
-		if (
-			!oldMember.premiumSince
-			&& newMember.premiumSince
-		) {
-			embed.setDescription(data.event_boostlog_add
-				.replace('${newMember.user.id}', newMember.user.id)
-				.replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount?.toString()!)
+		if (!oldMember.premiumSince && newMember.premiumSince) {
+			embed.setDescription(
+				data.event_boostlog_add
+					.replace("${newMember.user.id}", newMember.user.id)
+					.replace(
+						"${newMember.guild.premiumSubscriptionCount}",
+						newMember.guild.premiumSubscriptionCount?.toString()!
+					)
 			);
 
-			(Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
+			(Msgchannel as BaseGuildTextChannel)
+				.send({ embeds: [embed] })
+				.catch(() => {});
 			return;
-
 		}
-		if (
-			oldMember.premiumSince
-			&& !newMember.premiumSince
-		) {
-			embed.setDescription(data.event_boostlog_sub
-				.replace('${newMember.user.id}', newMember.user.id)
-				.replace('${newMember.guild.premiumSubscriptionCount}', newMember.guild.premiumSubscriptionCount?.toString()!)
+		if (oldMember.premiumSince && !newMember.premiumSince) {
+			embed.setDescription(
+				data.event_boostlog_sub
+					.replace("${newMember.user.id}", newMember.user.id)
+					.replace(
+						"${newMember.guild.premiumSubscriptionCount}",
+						newMember.guild.premiumSubscriptionCount?.toString()!
+					)
 			);
 
-			(Msgchannel as BaseGuildTextChannel).send({ embeds: [embed] }).catch(() => { });
+			(Msgchannel as BaseGuildTextChannel)
+				.send({ embeds: [embed] })
+				.catch(() => {});
 			return;
-		};
-	},
+		}
+	}
 };

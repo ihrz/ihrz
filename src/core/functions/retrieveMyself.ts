@@ -21,16 +21,16 @@
 
 let res = await fetch("https://discord.com/api/v10/oauth2/applications/@me", {
 	headers: {
-		Authorization: `Bot ${process.env.BOT_TOKEN || client.config.discord.token}`,
-	},
+		Authorization: `Bot ${process.env.BOT_TOKEN || client.config.discord.token}`
+	}
 });
 
 const app = res.ok ? await res.json() : null;
 
 export function retrieveBio(): Promise<string | null> {
-	return app?.['description']
-};
+	return app?.["description"];
+}
 
 export function retrieveBanner(): string {
-	return `https://cdn.discordapp.com/banners/${client.user?.id}/${app?.["bot"]["banner"]}?size=1024`
-};
+	return `https://cdn.discordapp.com/banners/${client.user?.id}/${app?.["bot"]["banner"]}?size=1024`;
+}

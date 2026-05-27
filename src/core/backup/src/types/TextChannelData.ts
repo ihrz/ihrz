@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseChannelData, MessageData, ThreadChannelData } from './';
+import { BaseChannelData, MessageData, ThreadChannelData } from "./";
 
 export interface TextChannelData extends BaseChannelData {
 	nsfw: boolean;

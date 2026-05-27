@@ -23,13 +23,16 @@ import {
 	Client,
 	ChatInputCommandInteraction,
 	TextChannel,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
 
-async function VanityCodeAlreadyExist(AllVanityGuild: any, code: string): Promise<boolean> {
+async function VanityCodeAlreadyExist(
+	AllVanityGuild: any,
+	code: string
+): Promise<boolean> {
 	let _ = false;
 	for (const guildId in AllVanityGuild) {
 		if (AllVanityGuild[guildId]?.vanity === code) _ = true;
@@ -37,59 +40,89 @@ async function VanityCodeAlreadyExist(AllVanityGuild: any, code: string): Promis
 	return _;
 }
 
-import { SubCommand } from '../../../../types/command.js';
-import { apiTable } from '../../../Events/client/ready.js';
+import { SubCommand } from "../../../../types/command.js";
+import { apiTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var VanityCode = interaction.options.getString('code') as string;
+			var VanityCode = interaction.options.getString("code") as string;
 		} else {
-
 			var VanityCode = client.func.method.string(args!, 0) as string;
-		};
+		}
 
-		const get = await apiTable.get('VANITY');
+		const get = await apiTable.get("VANITY");
 
 		if (!client.func.method.isValidDiscordInviteCode(VanityCode)) {
-			await client.func.method.interactionSend(interaction, { content: lang.util_vanity_generator_invalid_code.replace("${VanityCode}", VanityCode) });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.util_vanity_generator_invalid_code.replace(
+					"${VanityCode}",
+					VanityCode
+				)
+			});
 			return;
-		};
+		}
 
 		if (await VanityCodeAlreadyExist(get, VanityCode)) {
-			await client.func.method.interactionSend(interaction, { content: lang.util_vanity_generator_already_claimed });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.util_vanity_generator_already_claimed
+			});
 			return;
-		};
+		}
 
-		const guildInvite = await interaction.guild.invites.create((interaction.channel as TextChannel), { temporary: false, reason: "iHorizon - VanityGenerator", maxAge: 0 });
+		const guildInvite = await interaction.guild.invites.create(
+			interaction.channel as TextChannel,
+			{
+				temporary: false,
+				reason: "iHorizon - VanityGenerator",
+				maxAge: 0
+			}
+		);
 
-		const req = await fetch(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.CreateCustomVanity), {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				adminKey: client.config.api.apiToken,
-				guildId: interaction.guildId,
-				vanityCode: VanityCode,
-				inviteCode: guildInvite.code,
-			}),
-		});
+		const req = await fetch(
+			apiUrlParser.HorizonGateway(
+				apiUrlParser.GatewayMethod.CreateCustomVanity
+			),
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					adminKey: client.config.api.apiToken,
+					guildId: interaction.guildId,
+					vanityCode: VanityCode,
+					inviteCode: guildInvite.code
+				})
+			}
+		);
 
 		if (req.status !== 200) {
-			await client.func.method.interactionSend(interaction, { content: lang.util_vanity_generator_command_err });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.util_vanity_generator_command_err
+			});
 			return;
-		};
+		}
 
 		const res = await req.json();
 
-		await client.func.method.interactionSend(interaction, { content: res.message });
+		await client.func.method.interactionSend(interaction, {
+			content: res.message
+		});
 		return;
-
-	},
+	}
 };

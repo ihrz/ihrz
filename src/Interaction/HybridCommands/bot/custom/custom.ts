@@ -23,28 +23,27 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	PermissionFlagsBits
-} from 'discord.js';
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
-
+import { Command } from "../../../../../types/command.js";
 
 export const command: Command = {
 	name: "custom",
 
 	description: "Custom the bot profile in your discord server",
 	description_localizations: {
-		"fr": "Customiser le profil du bot sur le serveur discord"
+		fr: "Customiser le profil du bot sur le serveur discord"
 	},
 
 	options: [
 		{
-			name: 'name',
+			name: "name",
 			prefixName: "botname",
 			aliases: ["setname", "setbotname"],
 
-			description: 'Change the iHorizon name into the server',
+			description: "Change the iHorizon name into the server",
 			description_localizations: {
-				"fr": "Définir le nom du bot sur le serveur"
+				fr: "Définir le nom du bot sur le serveur"
 			},
 
 			options: [
@@ -53,18 +52,18 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						"fr": "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?"
 					},
 
 					choices: [
 						{
 							name: "Bot Name",
-							name_localizations: { fr: 'Nom du bot' },
+							name_localizations: { fr: "Nom du bot" },
 							value: "reset"
 						},
 						{
 							name: "Set one",
-							name_localizations: { fr: 'Définir un nom' },
+							name_localizations: { fr: "Définir un nom" },
 							value: "set"
 						}
 					],
@@ -79,7 +78,7 @@ export const command: Command = {
 
 					description: "The name",
 					description_localizations: {
-						"fr": "Le noms du bot"
+						fr: "Le noms du bot"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -93,13 +92,13 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'avatar',
+			name: "avatar",
 			prefixName: "botavatar",
 			aliases: ["setpic", "setavatar", "setpp"],
 
-			description: 'Set the bot avatar into your server',
+			description: "Set the bot avatar into your server",
 			description_localizations: {
-				"fr": "Définir la photo de profil du bot sur votre serveur discord"
+				fr: "Définir la photo de profil du bot sur votre serveur discord"
 			},
 
 			options: [
@@ -108,18 +107,18 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						"fr": "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?"
 					},
 
 					choices: [
 						{
 							name: "Bot Avatar",
-							name_localizations: { fr: 'Avatar du bot' },
+							name_localizations: { fr: "Avatar du bot" },
 							value: "reset"
 						},
 						{
 							name: "Set one",
-							name_localizations: { fr: 'Définir un avatar' },
+							name_localizations: { fr: "Définir un avatar" },
 							value: "set"
 						}
 					],
@@ -133,7 +132,7 @@ export const command: Command = {
 
 					description: "The avatar",
 					description_localizations: {
-						"fr": "L'avatar du bot"
+						fr: "L'avatar du bot"
 					},
 
 					type: ApplicationCommandOptionType.Attachment,
@@ -147,14 +146,14 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'banner',
+			name: "banner",
 			prefixName: "botbanner",
 
 			aliases: ["setbotbanner", "setbanner"],
 
-			description: 'Set the bot banner into your server',
+			description: "Set the bot banner into your server",
 			description_localizations: {
-				"fr": "Définir la bannière de profil du bot sur votre serveur discord"
+				fr: "Définir la bannière de profil du bot sur votre serveur discord"
 			},
 
 			options: [
@@ -163,18 +162,20 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						"fr": "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?"
 					},
 
 					choices: [
 						{
 							name: "Default Bot Banner",
-							name_localizations: { fr: 'Bannière du bot par défaut' },
+							name_localizations: {
+								fr: "Bannière du bot par défaut"
+							},
 							value: "reset"
 						},
 						{
 							name: "Set one",
-							name_localizations: { fr: 'Définir une bannière' },
+							name_localizations: { fr: "Définir une bannière" },
 							value: "set"
 						}
 					],
@@ -188,13 +189,13 @@ export const command: Command = {
 
 					description: "The banner",
 					description_localizations: {
-						"fr": "La bannière du bot"
+						fr: "La bannière du bot"
 					},
 
 					type: ApplicationCommandOptionType.Attachment,
 					required: false,
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -202,13 +203,13 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'bio',
+			name: "bio",
 			prefixName: "botbio",
 
 			aliases: ["setbotbio", "setbio"],
-			description: 'Set the bot bio into your server',
+			description: "Set the bot bio into your server",
 			description_localizations: {
-				"fr": "Définir la bio de profil du bot sur votre serveur discord"
+				fr: "Définir la bio de profil du bot sur votre serveur discord"
 			},
 
 			options: [
@@ -217,18 +218,22 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						"fr": "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?"
 					},
 
 					choices: [
 						{
 							name: "Default Bot Description",
-							name_localizations: { fr: 'Description du bot par défaut' },
+							name_localizations: {
+								fr: "Description du bot par défaut"
+							},
 							value: "reset"
 						},
 						{
 							name: "Set one",
-							name_localizations: { fr: 'Définir une description' },
+							name_localizations: {
+								fr: "Définir une description"
+							},
 							value: "set"
 						}
 					],
@@ -242,23 +247,23 @@ export const command: Command = {
 
 					description: "The description",
 					description_localizations: {
-						"fr": "La bio du bot"
+						fr: "La bio du bot"
 					},
 
 					type: ApplicationCommandOptionType.String,
 					required: false,
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.Administrator
-		},
+		}
 	],
 
 	thinking: true,
-	category: 'profil',
+	category: "profil",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

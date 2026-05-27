@@ -19,42 +19,63 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	MessageReaction,
-	User
-} from 'discord.js';
+import { Client, MessageReaction, User } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "messageReactionRemove",
 	run: async (client: Client, reaction: MessageReaction, user: User) => {
-
 		try {
 			if (user.id == client.user?.id || !reaction.message.guild) return;
-			const fetched = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`).catch(() => null);
+			const fetched = await client.db
+				.get(
+					`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`
+				)
+				.catch(() => null);
 
 			if (fetched) {
-				const role = reaction.message.guild!.roles.cache.get(fetched.rolesID) || await reaction.message.guild.roles.fetch(fetched.rolesID);
+				const role =
+					reaction.message.guild!.roles.cache.get(fetched.rolesID) ||
+					(await reaction.message.guild.roles.fetch(fetched.rolesID));
 				if (!role) return;
 
-				const member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
+				const member =
+					reaction.message.guild!.members.cache.get(user.id) ||
+					(await reaction.message.guild.members.fetch(user.id));
 
-				await member?.roles.remove(role.id, "[ReactionRoles] Module").catch(() => { });
-			};
+				await member?.roles
+					.remove(role.id, "[ReactionRoles] Module")
+					.catch(() => {});
+			}
 
-			const fetchedForNitro = await client.db.get(`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`).catch(() => null);
+			const fetchedForNitro = await client.db
+				.get(
+					`${reaction.message.guildId}.GUILD.REACTION_ROLES.${reaction.message.id}.${reaction.emoji.name}`
+				)
+				.catch(() => null);
 
 			if (fetchedForNitro) {
-				const role = reaction.message.guild!.roles.cache.get(fetchedForNitro.rolesID) || await reaction.message.guild.roles.fetch(fetchedForNitro.rolesID);
+				const role =
+					reaction.message.guild!.roles.cache.get(
+						fetchedForNitro.rolesID
+					) ||
+					(await reaction.message.guild.roles.fetch(
+						fetchedForNitro.rolesID
+					));
 				if (!role) return;
 
-				const member = reaction.message.guild!.members.cache.get(user.id) || await reaction.message.guild.members.fetch(user.id);
+				const member =
+					reaction.message.guild!.members.cache.get(user.id) ||
+					(await reaction.message.guild.members.fetch(user.id));
 
-				await member?.roles.remove(role.id, "[ReactionRoles] Module").catch(() => { });
+				await member?.roles
+					.remove(role.id, "[ReactionRoles] Module")
+					.catch(() => {});
 				return;
-			};
-		} catch { return; };
-	},
+			}
+		} catch {
+			return;
+		}
+	}
 };

@@ -19,12 +19,12 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BotEvent } from '../../../types/event.js';
-import { Client, VoiceState } from 'discord.js';
+import { BotEvent } from "../../../types/event.js";
+import { Client, VoiceState } from "discord.js";
 
 export const event: BotEvent = {
-	name: 'voiceStateUpdate',
+	name: "voiceStateUpdate",
 	run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
 		await client.lastFMScrobbler.handleVoiceStateUpdate(oldState, newState);
-	},
+	}
 };

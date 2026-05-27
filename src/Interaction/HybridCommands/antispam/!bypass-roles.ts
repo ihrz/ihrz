@@ -29,19 +29,31 @@ import {
 	EmbedBuilder,
 	Message,
 	RoleSelectMenuBuilder
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { AntiSpam } from '../../../../types/antispam.js';
-import { SubCommand } from '../../../../types/command.js';
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { AntiSpam } from "../../../../types/antispam.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		let all_roles = await client.db.get(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`) || [] as AntiSpam.AntiSpamOptions['BYPASS_ROLES'];
+		let all_roles =
+			(await client.db.get(
+				`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`
+			)) || ([] as AntiSpam.AntiSpamOptions["BYPASS_ROLES"]);
 
 		const embed = new EmbedBuilder()
 			.setColor("#6666ff")
@@ -50,53 +62,72 @@ export const subCommand: SubCommand = {
 			.setThumbnail(interaction.guild.iconURL({ forceStatic: false })!)
 			.addFields({
 				name: lang.setjoinroles_help_embed_fields_1_name,
-				value: Array.isArray(all_roles) && all_roles.length > 0
-					? all_roles.map(x => `<@&${x}>`).join(', ')
-					: lang.setjoinroles_var_none
+				value:
+					Array.isArray(all_roles) && all_roles.length > 0
+						? all_roles.map((x) => `<@&${x}>`).join(", ")
+						: lang.setjoinroles_var_none
 			})
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		const select = new RoleSelectMenuBuilder()
-			.setCustomId('antispam-select-config')
+			.setCustomId("antispam-select-config")
 			.setPlaceholder(lang.help_select_menu)
 			.setMinValues(0)
 			.setMaxValues(20);
 
 		if (all_roles !== undefined && all_roles.length >= 1) {
-			const roles: string[] = Array.isArray(all_roles) ? all_roles : [all_roles];
+			const roles: string[] = Array.isArray(all_roles)
+				? all_roles
+				: [all_roles];
 			select.setDefaultRoles(roles);
-		};
+		}
 
 		const button = new ButtonBuilder()
 			.setStyle(ButtonStyle.Success)
 			.setCustomId("antispam-manage-save-button")
 			.setLabel(lang.antispam_manage_button_label);
 
-		const originalResponse = await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			components: [
-				new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select),
-				new ActionRowBuilder<ButtonBuilder>().addComponents(button)
-			]
-		});
+		const originalResponse = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [embed],
+				components: [
+					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
+						select
+					),
+					new ActionRowBuilder<ButtonBuilder>().addComponents(button)
+				]
+			}
+		);
 
 		const collector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.RoleSelect,
-			time: 240_000,
+			time: 240_000
 		});
 
-		const buttonCollector = originalResponse.createMessageComponentCollector({
-			time: 240_000,
-			componentType: ComponentType.Button,
-		});
+		const buttonCollector =
+			originalResponse.createMessageComponentCollector({
+				time: 240_000,
+				componentType: ComponentType.Button
+			});
 
-		buttonCollector.on('collect', async i => {
+		buttonCollector.on("collect", async (i) => {
 			if (i.user.id !== interaction.member?.user.id) {
-				await i.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
+				await i.reply({
+					content: lang.help_not_for_you,
+					flags: [1 << 6]
+				});
 				return;
-			};
+			}
 
-			await client.db.set(`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`, all_roles);
+			await client.db.set(
+				`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`,
+				all_roles
+			);
 
 			await i.deferUpdate();
 
@@ -104,11 +135,14 @@ export const subCommand: SubCommand = {
 			buttonCollector.stop();
 		});
 
-		collector.on('collect', async (i) => {
+		collector.on("collect", async (i) => {
 			if (i.user.id !== interaction.member?.user.id) {
-				await i.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
+				await i.reply({
+					content: lang.help_not_for_you,
+					flags: [1 << 6]
+				});
 				return;
-			};
+			}
 
 			await i.deferUpdate();
 
@@ -116,25 +150,31 @@ export const subCommand: SubCommand = {
 
 			embed.setFields({
 				name: lang.setjoinroles_help_embed_fields_1_name,
-				value: values.length === 0 ? lang.setjoinroles_var_none : values.map(x => `<@&${x}>`).join(',')
-			})
+				value:
+					values.length === 0
+						? lang.setjoinroles_var_none
+						: values.map((x) => `<@&${x}>`).join(",")
+			});
 
 			all_roles = i.values;
 			await originalResponse.edit({ embeds: [embed] });
 		});
 
-		collector.on('end', async () => {
+		collector.on("end", async () => {
 			await originalResponse.edit({
 				components: [
-					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(select.setDisabled(true)),
-					new ActionRowBuilder<ButtonBuilder>().addComponents(new ButtonBuilder()
-						.setStyle(ButtonStyle.Success)
-						.setCustomId("antispam-manage-save-button")
-						.setEmoji(client.iHorizon_Emojis.Yes)
-						.setDisabled(true)
+					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
+						select.setDisabled(true)
+					),
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setStyle(ButtonStyle.Success)
+							.setCustomId("antispam-manage-save-button")
+							.setEmoji(client.iHorizon_Emojis.Yes)
+							.setDisabled(true)
 					)
 				]
 			});
-		})
-	},
+		});
+	}
 };

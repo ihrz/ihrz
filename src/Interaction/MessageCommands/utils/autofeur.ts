@@ -23,39 +23,51 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionsBitField,
-} from 'discord.js';
+	PermissionsBitField
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
+	name: "autorespond",
+	aliases: ["auto-feur", "auto-feur", "autofeur", "ftgl"],
 
-	name: 'autorespond',
-	aliases: ['auto-feur', 'auto-feur', "autofeur", "ftgl"],
-
-	description: 'Enable / Disable the auto response when user says something (only in fr-ME lang)',
+	description:
+		"Enable / Disable the auto response when user says something (only in fr-ME lang)",
 	description_localizations: {
-		"fr": "Activer/Désactiver la réponse automatique lorsque l'utilisateur dit quelque chose (uniquement en fr-ME)"
+		fr: "Activer/Désactiver la réponse automatique lorsque l'utilisateur dit quelque chose (uniquement en fr-ME)"
 	},
 
 	thinking: false,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: PermissionsBitField.Flags.ManageGuildExpressions,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
-
-		if (await client.db.get(`${interaction.guild?.id}.GUILD.LANG.lang`) !== "fr-ME") return;
-		const state = await client.db.get(`${interaction.guildId}.UTILS.autoFeur`);
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
+		if (
+			(await client.db.get(
+				`${interaction.guild?.id}.GUILD.LANG.lang`
+			)) !== "fr-ME"
+		)
+			return;
+		const state = await client.db.get(
+			`${interaction.guildId}.UTILS.autoFeur`
+		);
 
 		await client.db.set(`${interaction.guildId}.UTILS.autoFeur`, !state);
 
 		const newState = !state;
 		await interaction.reply({
-			content: newState ? "Bravo mec, maintenant je réponds automatiquement à tout ce que tu dis." : "Je ne réponds plus automatiquement à tout ce que tu dis."
-			, allowedMentions: { repliedUser: false }
+			content: newState
+				? "Bravo mec, maintenant je réponds automatiquement à tout ce que tu dis."
+				: "Je ne réponds plus automatiquement à tout ce que tu dis.",
+			allowedMentions: { repliedUser: false }
 		});
 		return;
-	},
+	}
 };

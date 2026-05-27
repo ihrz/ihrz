@@ -30,25 +30,23 @@ import {
 	MessageContextMenuCommandInteraction,
 	MessageReplyOptions,
 	User,
-	time,
-} from 'discord.js';
+	time
+} from "discord.js";
 
-import {
-	LavalinkNode,
-	Player,
-	SearchResult,
-	Track,
-} from 'lavalink-client';
+import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
 
-import { LanguageData } from '../../../types/languageData.js';
-import maskLink from './maskLink.js';
+import { LanguageData } from "../../../types/languageData.js";
+import maskLink from "./maskLink.js";
 
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
 	| Message
 	| MessageContextMenuCommandInteraction<CacheType>;
 
-export type PlayResponsePayload = Pick<MessageReplyOptions, "allowedMentions" | "content" | "embeds">;
+export type PlayResponsePayload = Pick<
+	MessageReplyOptions,
+	"allowedMentions" | "content" | "embeds"
+>;
 
 export interface HandleMusicPlayOptions {
 	client: Client;
@@ -64,8 +62,8 @@ export interface SearchMusicQueryResult {
 	res?: SearchResult;
 }
 
-const NO_RESULT_EMBED_COLOR = '#ff0000';
-const SUCCESS_EMBED_COLOR = '#00cc1a';
+const NO_RESULT_EMBED_COLOR = "#ff0000";
+const SUCCESS_EMBED_COLOR = "#00cc1a";
 const QUEUE_ADD_EMBED_COLOR = 2829617;
 const DEFAULT_VOLUME = 75;
 
@@ -83,7 +81,7 @@ export function buildTrackDuration(track: Track): string {
 	const minutes = Math.floor((totalDurationSec % 3600) / 60);
 	const seconds = totalDurationSec % 60;
 
-	return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+	return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
 export function isUrlQuery(query: string): boolean {
@@ -99,16 +97,25 @@ export async function searchQueryOnNode(
 	client: Client,
 	node: LavalinkNode,
 	query: string,
-	requester: User,
+	requester: User
 ): Promise<SearchResult | undefined> {
 	if (query.startsWith("https://") && query.includes("spotify.com/track")) {
-		let res: SearchResult | undefined = await node.search({ query, source: 'spotify' }, requester);
+		let res: SearchResult | undefined = await node.search(
+			{ query, source: "spotify" },
+			requester
+		);
 
 		if (res) {
 			const trackInfo = res.tracks[0]?.info;
 
 			if (trackInfo) {
-				res = await node.search({ query: `${trackInfo.title} ${trackInfo.author}`, source: 'deezer' }, requester);
+				res = await node.search(
+					{
+						query: `${trackInfo.title} ${trackInfo.author}`,
+						source: "deezer"
+					},
+					requester
+				);
 			} else {
 				res = undefined;
 			}
@@ -123,16 +130,33 @@ export async function searchQueryOnNode(
 		let res: SearchResult | undefined;
 
 		try {
-			res = await node.search({ query, source: 'deezer' }, requester);
-			logger.debug("Searching URL", query, "with", "deezer", "| Result: ", res.tracks[0]?.info);
+			res = await node.search({ query, source: "deezer" }, requester);
+			logger.debug(
+				"Searching URL",
+				query,
+				"with",
+				"deezer",
+				"| Result: ",
+				res.tracks[0]?.info
+			);
 		} catch {
 			res = undefined;
 		}
 
 		if (!res?.tracks[0]) {
 			try {
-				res = await node.search({ query, source: 'spotify' }, requester);
-				logger.debug("Searching URL", query, "with", "spotify", "| Result: ", res.tracks[0]?.info);
+				res = await node.search(
+					{ query, source: "spotify" },
+					requester
+				);
+				logger.debug(
+					"Searching URL",
+					query,
+					"with",
+					"spotify",
+					"| Result: ",
+					res.tracks[0]?.info
+				);
 			} catch {
 				res = undefined;
 			}
@@ -140,8 +164,18 @@ export async function searchQueryOnNode(
 
 		if (!res?.tracks[0]) {
 			try {
-				res = await node.search({ query, source: 'soundcloud' }, requester);
-				logger.debug("Searching URL", query, "with", "soundcloud", "| Result: ", res.tracks[0]?.info);
+				res = await node.search(
+					{ query, source: "soundcloud" },
+					requester
+				);
+				logger.debug(
+					"Searching URL",
+					query,
+					"with",
+					"soundcloud",
+					"| Result: ",
+					res.tracks[0]?.info
+				);
 			} catch {
 				res = undefined;
 			}
@@ -153,28 +187,79 @@ export async function searchQueryOnNode(
 	let res: SearchResult | undefined;
 
 	try {
-		res = await node.search({ query, source: 'deezer' }, requester);
-		logger.debug("Searching", query, "with ", "deezer", "| Result: ", res.tracks[0]?.info);
-		logger.debug("Deezer is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
+		res = await node.search({ query, source: "deezer" }, requester);
+		logger.debug(
+			"Searching",
+			query,
+			"with ",
+			"deezer",
+			"| Result: ",
+			res.tracks[0]?.info
+		);
+		logger.debug(
+			"Deezer is 50% similar of the query",
+			client.func.music_proximity.isSimilar(
+				query,
+				res.tracks[0],
+				0.5,
+				0.6
+			)
+		);
 	} catch {
 		res = undefined;
 	}
 
-	if (res?.tracks[0] && !client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)) {
+	if (
+		res?.tracks[0] &&
+		!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)
+	) {
 		try {
-			res = await node.search({ query, source: 'spotify' }, requester);
-			logger.debug("Searching", query, "with", 'spotify', "| Result: ", res.tracks[0]?.info);
-			logger.debug("Spotify is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
+			res = await node.search({ query, source: "spotify" }, requester);
+			logger.debug(
+				"Searching",
+				query,
+				"with",
+				"spotify",
+				"| Result: ",
+				res.tracks[0]?.info
+			);
+			logger.debug(
+				"Spotify is 50% similar of the query",
+				client.func.music_proximity.isSimilar(
+					query,
+					res.tracks[0],
+					0.5,
+					0.6
+				)
+			);
 		} catch {
 			res = undefined;
 		}
 	}
 
-	if (res?.tracks[0] && !client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)) {
+	if (
+		res?.tracks[0] &&
+		!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)
+	) {
 		try {
-			res = await node.search({ query, source: 'soundcloud' }, requester);
-			logger.debug("Searching", query, "with", 'soundcloud', "| Result: ", res.tracks[0]?.info);
-			logger.debug("Soundcloud is 50% similar of the query", client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6));
+			res = await node.search({ query, source: "soundcloud" }, requester);
+			logger.debug(
+				"Searching",
+				query,
+				"with",
+				"soundcloud",
+				"| Result: ",
+				res.tracks[0]?.info
+			);
+			logger.debug(
+				"Soundcloud is 50% similar of the query",
+				client.func.music_proximity.isSimilar(
+					query,
+					res.tracks[0],
+					0.5,
+					0.6
+				)
+			);
 		} catch {
 			res = undefined;
 		}
@@ -187,11 +272,13 @@ export async function searchMusicQuery(
 	client: Client,
 	query: string,
 	requester: User,
-	preferredNode?: LavalinkNode,
+	preferredNode?: LavalinkNode
 ): Promise<SearchMusicQueryResult> {
 	const nodes = preferredNode
 		? [preferredNode]
-		: Array.from(client.player.nodeManager.nodes.values()).filter((node) => node.connected !== false);
+		: Array.from(client.player.nodeManager.nodes.values()).filter(
+				(node) => node.connected !== false
+			);
 
 	for (const node of nodes) {
 		const res = await searchQueryOnNode(client, node, query, requester);
@@ -209,18 +296,27 @@ export async function sendQueueAddMessage(
 	lang: LanguageData,
 	player: Player,
 	client: Client,
-	track: Track,
+	track: Track
 ): Promise<void> {
-	const channel = interaction.guild?.channels.cache.get(player.textChannelId as string);
+	const channel = interaction.guild?.channels.cache.get(
+		player.textChannelId as string
+	);
 
 	if (channel?.id !== interaction.channelId) {
 		await (channel as BaseGuildTextChannel).send({
 			embeds: [
 				new EmbedBuilder()
 					.setColor(QUEUE_ADD_EMBED_COLOR)
-					.setDescription(lang.event_mp_audioTrackAdd
-						.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
-						.replace("${track.title}", track.info.title as string)
+					.setDescription(
+						lang.event_mp_audioTrackAdd
+							.replace(
+								"${client.iHorizon_Emojis.Music_Icon}",
+								client.iHorizon_Emojis.Music_Icon
+							)
+							.replace(
+								"${track.title}",
+								track.info.title as string
+							)
 					)
 			]
 		});
@@ -233,9 +329,14 @@ export async function handleMusicPlay({
 	interaction,
 	lang,
 	queries,
-	respond,
+	respond
 }: HandleMusicPlayOptions): Promise<void> {
-	if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) {
+	if (
+		!client.user ||
+		!interaction.member ||
+		!interaction.guild ||
+		!interaction.channel
+	) {
 		return;
 	}
 
@@ -247,9 +348,15 @@ export async function handleMusicPlay({
 		return;
 	}
 
-	if (interaction.guild.members.me?.voice.channelId && member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
+	if (
+		interaction.guild.members.me?.voice.channelId &&
+		member.voice.channelId !== interaction.guild.members.me.voice.channelId
+	) {
 		await respond({
-			content: lang.music_cannot.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
+			content: lang.music_cannot.replace(
+				"${client.iHorizon_Emojis.No}",
+				client.iHorizon_Emojis.No
+			)
 		});
 		return;
 	}
@@ -268,14 +375,20 @@ export async function handleMusicPlay({
 		return;
 	}
 
-	const requester = interaction instanceof Message ? interaction.author : interaction.user;
+	const requester =
+		interaction instanceof Message ? interaction.author : interaction.user;
 
 	let firstResult: SearchResult | undefined;
 	let player: Player | undefined;
 	let currentNode: LavalinkNode | undefined;
 
 	for (const query of normalizedQueries) {
-		const { node, res } = await searchMusicQuery(client, query, requester, currentNode);
+		const { node, res } = await searchMusicQuery(
+			client,
+			query,
+			requester,
+			currentNode
+		);
 
 		if (!res || res.tracks.length === 0) {
 			await respond({ embeds: [buildNoResultEmbed(lang)] });
@@ -304,13 +417,21 @@ export async function handleMusicPlay({
 			await player.connect();
 		}
 
-		await player.queue.add(res.loadType === "playlist" ? res.tracks : res.tracks[0]);
+		await player.queue.add(
+			res.loadType === "playlist" ? res.tracks : res.tracks[0]
+		);
 
 		if (!player.playing) {
 			await player.play();
 		}
 
-		await sendQueueAddMessage(interaction, lang, player, client, res.tracks[0]);
+		await sendQueueAddMessage(
+			interaction,
+			lang,
+			player,
+			client,
+			res.tracks[0]
+		);
 
 		firstResult ??= res;
 	}
@@ -329,18 +450,29 @@ export async function handleMusicPlay({
 
 	const response = await respond({
 		content: lang.p_loading_message
-			.replace("${client.iHorizon_Emojis.Timer}", client.iHorizon_Emojis.Timer)
-			.replace("{result}", firstResult.loadType === "playlist" ? 'playlist' : 'track'),
+			.replace(
+				"${client.iHorizon_Emojis.Timer}",
+				client.iHorizon_Emojis.Timer
+			)
+			.replace(
+				"{result}",
+				firstResult.loadType === "playlist" ? "playlist" : "track"
+			),
 		embeds: [embed]
 	});
 
-	await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,
-		`[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${firstResult.tracks[0].requester} - ${firstResult.tracks[0].info.title as string} | ${firstResult.tracks[0].info.uri} } by ${firstResult.tracks[0].requester}`);
-	await client.db.push(`${player.guildId}.MUSIC_HISTORY.embed`,
-		`${time(new Date(), 'R')}: ${player.queue.current?.requester} - ${player.queue.current?.info.title} | ${player.queue.current?.info.uri} by ${player.queue.current?.requester}`
+	await client.db.push(
+		`${player.guildId}.MUSIC_HISTORY.buffer`,
+		`[${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}: PLAYED]: { ${firstResult.tracks[0].requester} - ${firstResult.tracks[0].info.title as string} | ${firstResult.tracks[0].info.uri} } by ${firstResult.tracks[0].requester}`
+	);
+	await client.db.push(
+		`${player.guildId}.MUSIC_HISTORY.embed`,
+		`${time(new Date(), "R")}: ${player.queue.current?.requester} - ${player.queue.current?.info.title} | ${player.queue.current?.info.uri} by ${player.queue.current?.requester}`
 	);
 
 	setTimeout(() => {
-		response.edit({ content: null, allowedMentions: { repliedUser: false } }).catch(() => null);
+		response
+			.edit({ content: null, allowedMentions: { repliedUser: false } })
+			.catch(() => null);
 	}, deleteAfterMs);
 }

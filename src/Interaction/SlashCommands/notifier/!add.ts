@@ -19,51 +19,69 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { Platform } from '../../../core/StreamNotifier.js';
+import { ChatInputCommandInteraction, Client } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { Platform } from "../../../core/StreamNotifier.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const platform = interaction.options.getString("platform") as Platform;
 		const author = interaction.options.getString("author") as string;
 
 		if (await client.notifier.authorExistOnPlatform(platform, author)) {
-			const fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema | null;
+			const fetched = (await client.db.get(
+				`${interaction.guildId}.NOTIFIER`
+			)) as DatabaseStructure.NotifierSchema | null;
 			const fetchedUsers = fetched?.users || [];
 
 			fetchedUsers.push({ id_or_username: author, platform: platform });
 
-			const uniqueArray = fetchedUsers.filter((value, index, self) =>
-				index === self.findIndex((t) => (
-					JSON.stringify(t) === JSON.stringify(value)
-				))
-			) || [];
+			const uniqueArray =
+				fetchedUsers.filter(
+					(value, index, self) =>
+						index ===
+						self.findIndex(
+							(t) => JSON.stringify(t) === JSON.stringify(value)
+						)
+				) || [];
 
-			await client.db.set(`${interaction.guildId}.NOTIFIER.users`, uniqueArray);
+			await client.db.set(
+				`${interaction.guildId}.NOTIFIER.users`,
+				uniqueArray
+			);
 
 			await client.func.method.interactionSend(interaction, {
 				embeds: [
-					await client.notifier.generateAuthorsEmbed(interaction.guild),
-					await client.notifier.generateConfigurationEmbed(interaction.guild)
+					await client.notifier.generateAuthorsEmbed(
+						interaction.guild
+					),
+					await client.notifier.generateConfigurationEmbed(
+						interaction.guild
+					)
 				]
-			})
+			});
 		} else {
-			return client.func.method.interactionSend(interaction, { content: lang.notifier_author_add_author_doesnt_exist })
+			return client.func.method.interactionSend(interaction, {
+				content: lang.notifier_author_add_author_doesnt_exist
+			});
 		}
-	},
+	}
 };

@@ -19,77 +19,113 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { SubCommand } from "../../../../types/command.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction.user.id !== interaction.guild.ownerId) {
-			await interaction.editReply({ content: lang.authorization_configshow_not_permited });
+			await interaction.editReply({
+				content: lang.authorization_configshow_not_permited
+			});
 			return;
-		};
+		}
 
 		let text = "";
 		let text2 = "";
 
-		const baseData = (await client.db.get(`${interaction.guild.id}.ALLOWLIST`) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
+		const baseData = ((await client.db.get(
+			`${interaction.guild.id}.ALLOWLIST`
+		)) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
 
-		const baseData4Protection = await client.db.get(`${interaction.guild.id}.PROTECTION`);
+		const baseData4Protection = await client.db.get(
+			`${interaction.guild.id}.PROTECTION`
+		);
 
-		if (!baseData || !baseData4Protection || Object.keys(baseData?.list || []).length === 0 || Object.keys(baseData4Protection).length === 0) {
-			await interaction.editReply({ content: lang.authorization_configshow_not_anything_setup });
+		if (
+			!baseData ||
+			!baseData4Protection ||
+			Object.keys(baseData?.list || []).length === 0 ||
+			Object.keys(baseData4Protection).length === 0
+		) {
+			await interaction.editReply({
+				content: lang.authorization_configshow_not_anything_setup
+			});
 			return;
-		};
+		}
 
 		for (var i in baseData?.list) {
-			text += `<@${i}>\n`
-		};
+			text += `<@${i}>\n`;
+		}
 
 		for (var i in baseData4Protection) {
-			if (i !== 'SANCTION') {
+			if (i !== "SANCTION") {
 				const a = baseData4Protection[i].mode;
-				text2 += `**${i.toUpperCase()}** -> \`${a}\`\n`
+				text2 += `**${i.toUpperCase()}** -> \`${a}\`\n`;
 			}
-		};
+		}
 
-		let okay = '';
-		if (baseData4Protection.SANCTION === 'simply') okay = lang.authorization_configshow_simply;
-		if (baseData4Protection.SANCTION === 'simply+ban') okay = lang.authorization_configshow_simply_ban;
-		if (baseData4Protection.SANCTION === 'simply+derank') okay = lang.authorization_configshow_simply_unrank;
+		let okay = "";
+		if (baseData4Protection.SANCTION === "simply")
+			okay = lang.authorization_configshow_simply;
+		if (baseData4Protection.SANCTION === "simply+ban")
+			okay = lang.authorization_configshow_simply_ban;
+		if (baseData4Protection.SANCTION === "simply+derank")
+			okay = lang.authorization_configshow_simply_unrank;
 
-		text2 += lang.authorization_configshow_punishement.replace('${okay}', okay);
+		text2 += lang.authorization_configshow_punishement.replace(
+			"${okay}",
+			okay
+		);
 
 		const embed1 = new EmbedBuilder()
 			.setColor("#010101")
 			.setAuthor({ name: lang.authorization_configshow_embed1_author })
 			.setDescription(text2)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setTimestamp();
 
 		const embed2 = new EmbedBuilder()
 			.setColor("#010101")
 			.setAuthor({ name: lang.authorization_configshow_embed2_author })
 			.setDescription(text)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setTimestamp();
 
 		await interaction.editReply({
 			embeds: [embed1, embed2],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
-	},
+	}
 };

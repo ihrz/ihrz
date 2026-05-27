@@ -19,48 +19,73 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember } from 'discord.js'
+import {
+	Client,
+	AuditLogEvent,
+	Role,
+	PermissionFlagsBits,
+	GuildMember
+} from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { getLogs } from './ready.js';
+import { BotEvent } from "../../../types/event.js";
+import { getLogs } from "./ready.js";
 
 export const event: BotEvent = {
 	name: "roleCreate",
 	run: async (client: Client, role: Role) => {
-
 		const data = await client.db.get(`${role.guild.id}.PROTECTION`);
 		if (!data) return;
 
-		if (!role.guild.members.me?.permissions.has([
-			PermissionFlagsBits.Administrator
-		])) return;
+		if (
+			!role.guild.members.me?.permissions.has([
+				PermissionFlagsBits.Administrator
+			])
+		)
+			return;
 
 		if (data.createrole) {
-			const relevantLog = await getLogs({ guild: role.guild, target: role.id, actionType: AuditLogEvent.RoleCreate, type: "PROTECTION" });
+			const relevantLog = await getLogs({
+				guild: role.guild,
+				target: role.id,
+				actionType: AuditLogEvent.RoleCreate,
+				type: "PROTECTION"
+			});
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;
 			let shouldSanction: boolean = false;
 
-			if (data.createrole.mode === 'allowlist') {
-				const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.createrole.mode === "allowlist") {
+				const baseData = await client.db.get(
+					`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`
+				);
 
 				if (!baseData) {
-					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						role.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
-				};
-			} else if (data.createrole.mode === 'nobody') {
+				}
+			} else if (data.createrole.mode === "nobody") {
 				if (relevantLog.executorId !== role.guild.ownerId) {
-					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						role.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
-				};
+				}
 			}
-			const isOwner = await client.db.get(`${user?.guild.id}.OWNER.${user?.id}`)
+			const isOwner = await client.db.get(
+				`${user?.guild.id}.OWNER.${user?.id}`
+			);
 
-			!isOwner && shouldSanction && (async () => {
-				await client.func.method.punish(data, user!);
-				await role.delete('Protect!');
-			})()
+			!isOwner &&
+				shouldSanction &&
+				(async () => {
+					await client.func.method.punish(data, user!);
+					await role.delete("Protect!");
+				})();
 		}
-	},
+	}
 };

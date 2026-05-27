@@ -23,18 +23,17 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "notifier",
 
 	description: "Subcommand category for notifier!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie des notifications de vidéo/short/stream"
+		fr: "Commande sous-groupé pour la catégorie des notifications de vidéo/short/stream"
 	},
 
 	options: [
@@ -64,7 +63,8 @@ export const command: Command = {
 						{
 							name: "platform",
 
-							description: "The Streamer/Youtuber/Twitcher platform",
+							description:
+								"The Streamer/Youtuber/Twitcher platform",
 							description_localizations: {
 								fr: "La plateforme du Streamer/Youtuber/Twitcher"
 							},
@@ -74,12 +74,12 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Youtube",
-									name_localizations: { fr: 'Youtube' },
+									name_localizations: { fr: "Youtube" },
 									value: "youtube"
 								},
 								{
 									name: "Twitch",
-									name_localizations: { fr: 'Twitch' },
+									name_localizations: { fr: "Twitch" },
 									value: "twitch"
 								}
 							],
@@ -121,7 +121,8 @@ export const command: Command = {
 						{
 							name: "platform",
 
-							description: "The Streamer/Youtuber/Twitcher platform",
+							description:
+								"The Streamer/Youtuber/Twitcher platform",
 							description_localizations: {
 								fr: "La plateforme du Streamer/Youtuber/Twitcher"
 							},
@@ -131,12 +132,12 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Youtube",
-									name_localizations: { fr: 'Youtube' },
+									name_localizations: { fr: "Youtube" },
 									value: "youtube"
 								},
 								{
 									name: "Twitch",
-									name_localizations: { fr: 'Twitch' },
+									name_localizations: { fr: "Twitch" },
 									value: "twitch"
 								}
 							],
@@ -158,7 +159,7 @@ export const command: Command = {
 							required: true,
 
 							permission: null
-						},
+						}
 					],
 
 					permission: PermissionFlagsBits.ManageGuild
@@ -192,7 +193,8 @@ export const command: Command = {
 				{
 					name: "channel",
 
-					description: "When a Streamer/Youtuber/Twitcher publish a video, iHorizon send a message in channel",
+					description:
+						"When a Streamer/Youtuber/Twitcher publish a video, iHorizon send a message in channel",
 					description_localizations: {
 						fr: "Lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, iHorizon envoie un message dans le canal"
 					},
@@ -206,7 +208,10 @@ export const command: Command = {
 								fr: "Le salon textuelle"
 							},
 
-							channel_types: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
+							channel_types: [
+								ChannelType.GuildText,
+								ChannelType.GuildAnnouncement
+							],
 							type: ApplicationCommandOptionType.Channel,
 							required: true,
 
@@ -221,7 +226,8 @@ export const command: Command = {
 				{
 					name: "message",
 
-					description: "When a Streamer/Youtuber/Twitcher publish a video, iHorizon send a message",
+					description:
+						"When a Streamer/Youtuber/Twitcher publish a video, iHorizon send a message",
 					description_localizations: {
 						fr: "Lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, iHorizon envoie un message"
 					},
@@ -237,7 +243,7 @@ export const command: Command = {
 		}
 	],
 	thinking: false,
-	category: 'notifier',
+	category: "notifier",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

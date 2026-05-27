@@ -23,11 +23,12 @@ import { authRestoreTable } from "../../Events/client/ready.js";
 import * as apiUrlParser from "./apiUrlParser.js";
 import { axios } from "./axios.js";
 
-export const Oauth2_Link = 'https://discord.com/oauth2/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&state={guild_id}'
+export const Oauth2_Link =
+	"https://discord.com/oauth2/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope}&state={guild_id}";
 
-// {client_id}: id of the app/bot, 
-// {redirect_uri}: URL OF HORIZON GATEWAY, 
-// {guild_id}: id of the verified guild, 
+// {client_id}: id of the app/bot,
+// {redirect_uri}: URL OF HORIZON GATEWAY,
+// {guild_id}: id of the verified guild,
 
 export interface GuildAuthRestore {
 	config: {
@@ -36,7 +37,7 @@ export interface GuildAuthRestore {
 		author: oauth2Author;
 		createDate: number;
 		securityCodeUsed: number;
-	},
+	};
 	members: string[];
 }
 
@@ -58,7 +59,7 @@ export interface oauth2Author {
 
 export interface AuthRestore_EntryType {
 	guildId: string;
-	author?: oauth2Author
+	author?: oauth2Author;
 	clientId?: string;
 	apiToken?: string;
 	roleId?: string;
@@ -97,7 +98,7 @@ export interface AuthRestore_ResponseType {
 }
 
 export interface Oauth2_Link_Entry {
-	author?: oauth2Author
+	author?: oauth2Author;
 	clientId?: string;
 	apiToken?: string;
 	roleId?: string;
@@ -105,34 +106,57 @@ export interface Oauth2_Link_Entry {
 }
 
 export function createOauth2LinkWithGuild(data: AuthRestore_EntryType): string {
-	return Oauth2_Link
-		.replace("{client_id}", data.clientId!)
+	return Oauth2_Link.replace("{client_id}", data.clientId!)
 		.replace("{guild_id}", data.guildId)
-		.replace("{redirect_uri}", apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.GenerateOauthLink))
-		.replace("{scope}", data?.scope || "identify")
+		.replace(
+			"{redirect_uri}",
+			apiUrlParser.HorizonGateway(
+				apiUrlParser.GatewayMethod.GenerateOauthLink
+			)
+		)
+		.replace("{scope}", data?.scope || "identify");
 }
-
 
 export function createOauth2LinkWithoutGuild(data: Oauth2_Link_Entry): string {
 	return Oauth2_Link.split("&state=")[0]
 		.replace("{client_id}", data.clientId!)
-		.replace("{redirect_uri}", apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.GenerateOauthLink))
-		.replace("{scope}", data?.scope || "identify")
+		.replace(
+			"{redirect_uri}",
+			apiUrlParser.HorizonGateway(
+				apiUrlParser.GatewayMethod.GenerateOauthLink
+			)
+		)
+		.replace("{scope}", data?.scope || "identify");
 }
 
-export async function createAuthRestore(data: AuthRestore_EntryType): Promise<AuthRestore_ResponseType> {
-	return (await axios.post(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.CreateAuthRestoreGuild),
-		data,
-		{ headers: { 'Accept': 'application/json' } }
-	)).data || {}
+export async function createAuthRestore(
+	data: AuthRestore_EntryType
+): Promise<AuthRestore_ResponseType> {
+	return (
+		(
+			await axios.post(
+				apiUrlParser.HorizonGateway(
+					apiUrlParser.GatewayMethod.CreateAuthRestoreGuild
+				),
+				data,
+				{ headers: { Accept: "application/json" } }
+			)
+		).data || {}
+	);
 }
 
-export async function getGuildDataPerSecretCode(secretCode: string): Promise<{ id: string, data: GuildAuthRestore } | null> {
-	const data = await authRestoreTable.all()
+export async function getGuildDataPerSecretCode(
+	secretCode: string
+): Promise<{ id: string; data: GuildAuthRestore } | null> {
+	const data = await authRestoreTable.all();
 	for (const index in data) {
 		const entry = data[index];
 
-		if (entry.value && entry.value.config && entry.value.config.securityCode === secretCode) {
+		if (
+			entry.value &&
+			entry.value.config &&
+			entry.value.config.securityCode === secretCode
+		) {
 			return { id: entry.id, data: entry.value };
 		}
 	}
@@ -140,23 +164,50 @@ export async function getGuildDataPerSecretCode(secretCode: string): Promise<{ i
 	return null;
 }
 
-export async function forceJoinAuthRestore(data: AuthRestore_ForceJoin_EntryType): Promise<AuthRestore_ForceJoin_ResponseType> {
-	return (await axios.post(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.ForceJoinAuthRestore),
-		data,
-		{ headers: { 'Accept': 'application/json' } }
-	)).data || {}
+export async function forceJoinAuthRestore(
+	data: AuthRestore_ForceJoin_EntryType
+): Promise<AuthRestore_ForceJoin_ResponseType> {
+	return (
+		(
+			await axios.post(
+				apiUrlParser.HorizonGateway(
+					apiUrlParser.GatewayMethod.ForceJoinAuthRestore
+				),
+				data,
+				{ headers: { Accept: "application/json" } }
+			)
+		).data || {}
+	);
 }
 
-export async function securityCodeUpdate(data: AuthRestore_KeyUpdate_EntryType): Promise<AuthRestore_ForceJoin_ResponseType> {
-	return (await axios.post(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.AddSecurityCodeAmount),
-		data,
-		{ headers: { 'Accept': 'application/json' } }
-	)).data || {}
+export async function securityCodeUpdate(
+	data: AuthRestore_KeyUpdate_EntryType
+): Promise<AuthRestore_ForceJoin_ResponseType> {
+	return (
+		(
+			await axios.post(
+				apiUrlParser.HorizonGateway(
+					apiUrlParser.GatewayMethod.AddSecurityCodeAmount
+				),
+				data,
+				{ headers: { Accept: "application/json" } }
+			)
+		).data || {}
+	);
 }
 
-export async function changeRoleAuthRestore(data: AuthRestore_RoleUpdate_EntryType): Promise<AuthRestore_ForceJoin_ResponseType> {
-	return (await axios.post(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.ChangeRole),
-		data,
-		{ headers: { 'Accept': 'application/json' } }
-	)).data || {}
+export async function changeRoleAuthRestore(
+	data: AuthRestore_RoleUpdate_EntryType
+): Promise<AuthRestore_ForceJoin_ResponseType> {
+	return (
+		(
+			await axios.post(
+				apiUrlParser.HorizonGateway(
+					apiUrlParser.GatewayMethod.ChangeRole
+				),
+				data,
+				{ headers: { Accept: "application/json" } }
+			)
+		).data || {}
+	);
 }

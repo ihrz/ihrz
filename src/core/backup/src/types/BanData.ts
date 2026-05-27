@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Snowflake } from 'discord.js';
+import { Snowflake } from "discord.js";
 
 export interface BanData {
 	id: Snowflake;

@@ -19,31 +19,31 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { ApplicationCommandOptionType, Message, Client } from "discord.js";
+
+import path from "path";
+
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+
+import { axios } from "../../../core/functions/axios.js";
 import {
-	ApplicationCommandOptionType,
-	Message,
-	Client,
-} from 'discord.js';
-
-import path from 'path';
-
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
-import { axios } from '../../../core/functions/axios.js';
-import { convertToPng, resizeImage, tempDir } from '../../../core/functions/mediaManipulation.js';
-import { unlink } from 'fs/promises';
+	convertToPng,
+	resizeImage,
+	tempDir
+} from "../../../core/functions/mediaManipulation.js";
+import { unlink } from "fs/promises";
 
 export const command: Command = {
-	name: 'fexini',
+	name: "fexini",
 
-	description: 'Show our best partner',
+	description: "Show our best partner",
 	description_localizations: {
 		fr: "voir la pub de notre meilleur partenaire <3"
 	},
 
 	thinking: false,
-	category: 'bot',
+	category: "bot",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
 	run: async (
@@ -52,15 +52,19 @@ export const command: Command = {
 		lang: LanguageData,
 		options?: string[]
 	) => {
-		if (interaction.guild.preferredLocale !== 'fr') return;
+		if (interaction.guild.preferredLocale !== "fr") return;
 
-		interaction.reply({
-			content: `:pushpin:  **Regardez des films, séries et animés gratuitement, sans pub, en streaming. Catalogue mis à jour quotidiennement.**
+		interaction
+			.reply({
+				content: `:pushpin:  **Regardez des films, séries et animés gratuitement, sans pub, en streaming. Catalogue mis à jour quotidiennement.**
 
 :point_right: https://fexini.tv/`
-		}).then(x => setTimeout(() => {
-			if (x.deletable) x.delete();
-			if (interaction.deletable) interaction.delete()
-		}, 10000));
-	},
-}
+			})
+			.then((x) =>
+				setTimeout(() => {
+					if (x.deletable) x.delete();
+					if (interaction.deletable) interaction.delete();
+				}, 10000)
+			);
+	}
+};

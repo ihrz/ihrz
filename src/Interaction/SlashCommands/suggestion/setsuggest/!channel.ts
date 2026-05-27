@@ -24,49 +24,73 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
+} from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const channel = interaction.options.getChannel("channel") as BaseGuildTextChannel;
+		const channel = interaction.options.getChannel(
+			"channel"
+		) as BaseGuildTextChannel;
 
-		const fetchOldChannel = await client.db.get(`${interaction.guild.id}.SUGGEST.channel`);
+		const fetchOldChannel = await client.db.get(
+			`${interaction.guild.id}.SUGGEST.channel`
+		);
 
 		if (fetchOldChannel === channel?.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.setsuggest_channel_already_set_with_that
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${channel}', channel.toString())
+					.replace("${interaction.user}", interaction.user.toString())
+					.replace("${channel}", channel.toString())
 			});
 			return;
-		};
+		}
 
 		const setupEmbed = new EmbedBuilder()
 			.setColor("#010101")
 			.setTitle(lang.setsuggest_channel_embed_title)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setDescription(lang.setsuggest_channel_embed_desc);
 
-		await client.db.set(`${interaction.guild.id}.SUGGEST.channel`, channel?.id);
+		await client.db.set(
+			`${interaction.guild.id}.SUGGEST.channel`,
+			channel?.id
+		);
 		await client.func.method.interactionSend(interaction, {
 			content: lang.setsuggest_channel_command_work
-				.replace('${interaction.user}', interaction.user.toString())
-				.replace('${channel}', channel.toString()),
+				.replace("${interaction.user}", interaction.user.toString())
+				.replace("${channel}", channel.toString())
 		});
 
 		(channel as BaseGuildTextChannel).send({
 			embeds: [setupEmbed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
-	},
+	}
 };

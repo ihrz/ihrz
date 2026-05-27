@@ -19,39 +19,48 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	Message,
-	PermissionFlagsBits,
-} from 'discord.js';
+import { Client, Message, PermissionFlagsBits } from "discord.js";
 
-import { DatabaseStructure } from '../../../types/database_structure.js';
-import { BotEvent } from '../../../types/event.js';
+import { DatabaseStructure } from "../../../types/database_structure.js";
+import { BotEvent } from "../../../types/event.js";
 
-import { scheduleHoneypotTrigger } from '../../core/modules/honeypotManager.js';
+import { scheduleHoneypotTrigger } from "../../core/modules/honeypotManager.js";
 
 export const event: BotEvent = {
-	name: 'messageCreate',
+	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		if (!message.guild || !message.channel || message.author.bot || message.webhookId) {
+		if (
+			!message.guild ||
+			!message.channel ||
+			message.author.bot ||
+			message.webhookId
+		) {
 			return;
 		}
 
 		// Check if the user have the Administrator permission
-		if (message.member?.permissions.has([
-			PermissionFlagsBits.Administrator |
-			PermissionFlagsBits.ManageGuild |
-			PermissionFlagsBits.BanMembers |
-			PermissionFlagsBits.KickMembers
-		])) {
-			return
-		};
+		if (
+			message.member?.permissions.has([
+				PermissionFlagsBits.Administrator |
+					PermissionFlagsBits.ManageGuild |
+					PermissionFlagsBits.BanMembers |
+					PermissionFlagsBits.KickMembers
+			])
+		) {
+			return;
+		}
 
-		const config = await client.db.get(`${message.guildId}.GUILD.HONEYPOT`) as DatabaseStructure.HoneypotSchema | null;
-		if (!config?.enabled || !config.channelId || message.channelId !== config.channelId) {
+		const config = (await client.db.get(
+			`${message.guildId}.GUILD.HONEYPOT`
+		)) as DatabaseStructure.HoneypotSchema | null;
+		if (
+			!config?.enabled ||
+			!config.channelId ||
+			message.channelId !== config.channelId
+		) {
 			return;
 		}
 
 		scheduleHoneypotTrigger(client, message);
-	},
+	}
 };

@@ -26,40 +26,65 @@ import {
 	Collection,
 	Message,
 	MessageResolvable,
-	Snowflake,
-} from 'discord.js';
+	Snowflake
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
+import { SubCommand } from "../../../../types/command.js";
 
-import { SubCommand } from '../../../../types/command.js';
-
-export async function clearMessage(body: Collection<Snowflake, Message> | readonly MessageResolvable[] | number, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData): Promise<void> {
-
-	(interaction.channel as BaseGuildTextChannel).bulkDelete(body, true)
+export async function clearMessage(
+	body:
+		| Collection<Snowflake, Message>
+		| readonly MessageResolvable[]
+		| number,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData
+): Promise<void> {
+	(interaction.channel as BaseGuildTextChannel)
+		.bulkDelete(body, true)
 		.then(async (messages) => {
-			client.func.method.channelSend(interaction, {
-				content: lang.clear_confirmation_message
-					.replace('${messages.size}', messages.size.toString())
-			}).then(x => setTimeout(() => x.deletable ?? x.delete(), 5000))
+			client.func.method
+				.channelSend(interaction, {
+					content: lang.clear_confirmation_message.replace(
+						"${messages.size}",
+						messages.size.toString()
+					)
+				})
+				.then((x) => setTimeout(() => x.deletable ?? x.delete(), 5000));
 
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.clear_logs_embed_title,
 				description: lang.clear_logs_embed_description
-					.replace('${interaction.user.id}', interaction.member?.user.id!)
-					.replace('${messages.size}', messages.size.toString())
-					.replace('${interaction.channel.id}', interaction.channel?.id!)
+					.replace(
+						"${interaction.user.id}",
+						interaction.member?.user.id!
+					)
+					.replace("${messages.size}", messages.size.toString())
+					.replace(
+						"${interaction.channel.id}",
+						interaction.channel?.id!
+					)
 			});
 		});
 	return;
-};
+}
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var amount = interaction.options.getNumber("number")! + 1;
@@ -67,7 +92,7 @@ export const subCommand: SubCommand = {
 		} else {
 			var amount = client.func.method.number(args!, 0) + 1;
 			var member = client.func.method.member(interaction, args!, 1);
-		};
+		}
 
 		const channel = interaction.channel as BaseGuildTextChannel;
 
@@ -78,7 +103,10 @@ export const subCommand: SubCommand = {
 			let lastMessageId: string | undefined;
 			let scannedMessages = 0;
 
-			while (matchedMessages.length < targetAmount && scannedMessages < maxScannedMessages) {
+			while (
+				matchedMessages.length < targetAmount &&
+				scannedMessages < maxScannedMessages
+			) {
 				const remainingToScan = maxScannedMessages - scannedMessages;
 				const fetchedMessages = await channel.messages.fetch({
 					limit: Math.min(100, remainingToScan),
@@ -112,11 +140,15 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			await clearMessage(matchedMessages.slice(0, targetAmount), interaction, lang);
+			await clearMessage(
+				matchedMessages.slice(0, targetAmount),
+				interaction,
+				lang
+			);
 			return;
 		} else {
 			await clearMessage(amount, interaction, lang);
 			return;
 		}
-	},
+	}
 };

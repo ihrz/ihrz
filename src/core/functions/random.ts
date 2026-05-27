@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import crypto from 'crypto';
+import crypto from "crypto";
 
 export interface PasswordOptions {
 	length: number;
@@ -40,38 +40,41 @@ export function generatePassword(options: PasswordOptions): string {
 		lowercase = true,
 		uppercase = true,
 		excludeSimilarCharacters = false,
-		exclude = '',
-		strict = false,
+		exclude = "",
+		strict = false
 	} = options;
 
-	if (length <= 0) throw new Error('La longueur doit être positive');
+	if (length <= 0) throw new Error("La longueur doit être positive");
 	if (!(lowercase || uppercase || numbers || symbols)) {
-		throw new Error('Au moins un type de caractère doit être activé');
+		throw new Error("Au moins un type de caractère doit être activé");
 	}
 
 	const charSets = {
-		lowercase: 'abcdefghijklmnopqrstuvwxyz',
-		uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-		numbers: '0123456789',
-		symbols: symbols === true ? '!@#$%^&*()_+=' : symbols as string
+		lowercase: "abcdefghijklmnopqrstuvwxyz",
+		uppercase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+		numbers: "0123456789",
+		symbols: symbols === true ? "!@#$%^&*()_+=" : (symbols as string)
 	};
 
-	let characters = '';
+	let characters = "";
 	if (lowercase) characters += charSets.lowercase;
 	if (uppercase) characters += charSets.uppercase;
 	if (numbers) characters += charSets.numbers;
 	if (symbols) characters += charSets.symbols;
 
 	if (exclude) {
-		const excludeSet = new Set(exclude.split(''));
-		characters = characters.split('').filter(char => !excludeSet.has(char)).join('');
+		const excludeSet = new Set(exclude.split(""));
+		characters = characters
+			.split("")
+			.filter((char) => !excludeSet.has(char))
+			.join("");
 	}
 	if (excludeSimilarCharacters) {
-		characters = characters.replace(/[il1Lo0O]/g, '');
+		characters = characters.replace(/[il1Lo0O]/g, "");
 	}
 
 	if (characters.length === 0) {
-		throw new Error('Pas de caractères disponibles après exclusions');
+		throw new Error("Pas de caractères disponibles après exclusions");
 	}
 
 	const passwordArray: string[] = [];
@@ -99,18 +102,23 @@ export function generatePassword(options: PasswordOptions): string {
 		};
 
 		Object.entries(requirements).forEach(([type, chars]) => {
-			if (chars && !passwordArray.some(char => chars.includes(char))) {
+			if (chars && !passwordArray.some((char) => chars.includes(char))) {
 				const position = crypto.randomInt(0, length);
-				passwordArray[position] = chars[crypto.randomInt(0, chars.length)];
+				passwordArray[position] =
+					chars[crypto.randomInt(0, chars.length)];
 			}
 		});
 	}
 
-	return passwordArray.join('');
+	return passwordArray.join("");
 }
 
-export function generateMultiplePasswords(amount: number, options: PasswordOptions): string[] {
-	if (amount <= 0) throw new Error('Le nombre de mots de passe doit être positif');
+export function generateMultiplePasswords(
+	amount: number,
+	options: PasswordOptions
+): string[] {
+	if (amount <= 0)
+		throw new Error("Le nombre de mots de passe doit être positif");
 
 	return Array.from({ length: amount }, () => generatePassword(options));
 }

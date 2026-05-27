@@ -23,45 +23,58 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var action = interaction.options.getString("action", true);
 		} else {
 			var action = client.func.method.string(args!, 0)!;
-		};
+		}
 
-		let baseData: DatabaseStructure.StarboardConfigSchema = await client.db.get(`${interaction.guildId}.GUILD.STARBOARD`) || {
-			channel: null,
-			createThread: false,
-			enabled: false,
-			threshold: 2
-		};
+		let baseData: DatabaseStructure.StarboardConfigSchema =
+			(await client.db.get(`${interaction.guildId}.GUILD.STARBOARD`)) || {
+				channel: null,
+				createThread: false,
+				enabled: false,
+				threshold: 2
+			};
 
 		if (action === "on") {
-			baseData.enabled = "yes"
+			baseData.enabled = "yes";
 		} else {
-			baseData.enabled = "no"
-		};
+			baseData.enabled = "no";
+		}
 
 		await client.db.set(`${interaction.guildId}.GUILD.STARBOARD`, baseData);
 
-
 		client.func.method.interactionSend(interaction, {
 			content: lang.starboard_config_command_ok
-				.replaceAll("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
+				.replaceAll(
+					"${client.iHorizon_Emojis.Yes}",
+					client.iHorizon_Emojis.Yes
+				)
 				.replaceAll("${action}", action)
-		})
-	},
+		});
+	}
 };

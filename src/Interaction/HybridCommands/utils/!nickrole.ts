@@ -25,63 +25,86 @@ import {
 	ChatInputCommandInteraction,
 	Role,
 	Message
-} from 'discord.js'
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { processBatchAsync } from "../../../core/functions/batchProcessor.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var action_1 = interaction.options.getString("action");
-			var part_of_nickname = interaction.options.getString("nickname")?.toLowerCase();
-			var role = interaction.options.getRole('role');
+			var part_of_nickname = interaction.options
+				.getString("nickname")
+				?.toLowerCase();
+			var role = interaction.options.getRole("role");
 		} else {
-
 			var action_1 = client.func.method.string(args!, 0);
-			var part_of_nickname = client.func.method.string(args!, 1)?.toLowerCase();
+			var part_of_nickname = client.func.method
+				.string(args!, 1)
+				?.toLowerCase();
 			var role = client.func.method.role(interaction, args!, 2);
-		};
+		}
 
 		if (!part_of_nickname || !role) return;
 		let a: number = 0;
 		let s: number = 0;
 		let e: number = 0;
 
-		if (action_1 === 'add') {
-
+		if (action_1 === "add") {
 			try {
 				const members = await interaction.guild.members.fetch();
-				const membersToProcess = Array.from(members.values()).filter(member =>
-					(
-						member.user.globalName?.toLowerCase().includes(part_of_nickname!)
-						|| (member.nickname && member.nickname.toLowerCase().includes(part_of_nickname!))
-					)
-					&& !member.roles.cache.has(role?.id!)
+				const membersToProcess = Array.from(members.values()).filter(
+					(member) =>
+						(member.user.globalName
+							?.toLowerCase()
+							.includes(part_of_nickname!) ||
+							(member.nickname &&
+								member.nickname
+									.toLowerCase()
+									.includes(part_of_nickname!))) &&
+						!member.roles.cache.has(role?.id!)
 				);
 
 				// Count members that were skipped
 				s = members.size - membersToProcess.length;
 
 				// Send immediate response
-				const ogInteraction = await client.func.method.interactionSend(interaction, {
-					content: lang.batch_massiverole_process.replace("${membersToProcess.length}", membersToProcess.length.toString())
-				});
+				const ogInteraction = await client.func.method.interactionSend(
+					interaction,
+					{
+						content: lang.batch_massiverole_process.replace(
+							"${membersToProcess.length}",
+							membersToProcess.length.toString()
+						)
+					}
+				);
 
 				// Process in batches asynchronously
 				processBatchAsync(
 					membersToProcess,
 					async (member) => {
 						try {
-							await member.roles.add(role as Role, "[NickRole] Module");
+							await member.roles.add(
+								role as Role,
+								"[NickRole] Module"
+							);
 							a++;
 							return true;
 						} catch {
@@ -93,53 +116,80 @@ export const subCommand: SubCommand = {
 					async (result) => {
 						// Continue with embed creation after async processing
 						const embed = new EmbedBuilder()
-							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-							.setColor('#007fff')
+							.setFooter(
+								await client.func.displayBotName.footerBuilder(
+									interaction.guildId!
+								)
+							)
+							.setColor("#007fff")
 							.setTimestamp()
 							.setThumbnail(interaction.guild!.iconURL())
-							.setDescription(lang.nickrole_add_command_work
-								.replace('${interaction.user}', interaction.member!.user.toString())
-								.replace('${a}', a.toString())
-								.replace('${s}', s.toString())
-								.replace('${e}', e.toString())
-								.replace('${part_of_nickname}', part_of_nickname!)
-								.replaceAll('${role}', role?.toString()!)
+							.setDescription(
+								lang.nickrole_add_command_work
+									.replace(
+										"${interaction.user}",
+										interaction.member!.user.toString()
+									)
+									.replace("${a}", a.toString())
+									.replace("${s}", s.toString())
+									.replace("${e}", e.toString())
+									.replace(
+										"${part_of_nickname}",
+										part_of_nickname!
+									)
+									.replaceAll("${role}", role?.toString()!)
 							);
 
 						await client.func.method.interactionSend(interaction, {
 							embeds: [embed],
-							files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+							files: [
+								await client.func.displayBotName.footerAttachmentBuilder(
+									interaction
+								)
+							]
 						});
 					}
 				);
 				return;
-			} catch (error) { }
-
-		} else if (action_1 === 'sub') {
+			} catch (error) {}
+		} else if (action_1 === "sub") {
 			try {
 				const members = await interaction.guild?.members.fetch();
-				const membersToProcess = Array.from(members!.values()).filter(member =>
-					(
-						member.user.globalName?.toLowerCase().includes(part_of_nickname!)
-						|| (member.nickname && member.nickname.toLowerCase().includes(part_of_nickname!))
-					)
-					&& member.roles.cache.has(role?.id!)
+				const membersToProcess = Array.from(members!.values()).filter(
+					(member) =>
+						(member.user.globalName
+							?.toLowerCase()
+							.includes(part_of_nickname!) ||
+							(member.nickname &&
+								member.nickname
+									.toLowerCase()
+									.includes(part_of_nickname!))) &&
+						member.roles.cache.has(role?.id!)
 				);
 
 				// Count members that were skipped
 				s = members!.size - membersToProcess.length;
 
 				// Send immediate response
-				const ogInteraction = await client.func.method.interactionSend(interaction, {
-					content: lang.batch_unmassiverole_process.replace("${membersToProcess.length}", membersToProcess.length.toString())
-				});
+				const ogInteraction = await client.func.method.interactionSend(
+					interaction,
+					{
+						content: lang.batch_unmassiverole_process.replace(
+							"${membersToProcess.length}",
+							membersToProcess.length.toString()
+						)
+					}
+				);
 
 				// Process in batches asynchronously
 				processBatchAsync(
 					membersToProcess,
 					async (member) => {
 						try {
-							await member.roles.remove(role!.id, "[NickRole] Module");
+							await member.roles.remove(
+								role!.id,
+								"[NickRole] Module"
+							);
 							a++;
 							return true;
 						} catch {
@@ -151,28 +201,43 @@ export const subCommand: SubCommand = {
 					async (result) => {
 						// Continue with embed creation after async processing
 						const embed = new EmbedBuilder()
-							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-							.setColor('#007fff')
+							.setFooter(
+								await client.func.displayBotName.footerBuilder(
+									interaction.guildId!
+								)
+							)
+							.setColor("#007fff")
 							.setTimestamp()
 							.setThumbnail(interaction.guild!.iconURL())
-							.setDescription(lang.nickrole_sub_command_work
-								.replace('${interaction.user}', interaction.member!.user.toString())
-								.replace('${a}', a.toString())
-								.replace('${s}', s.toString())
-								.replace('${e}', e.toString())
-								.replace('${part_of_nickname}', part_of_nickname!)
-								.replaceAll('${role}', role?.toString()!)
+							.setDescription(
+								lang.nickrole_sub_command_work
+									.replace(
+										"${interaction.user}",
+										interaction.member!.user.toString()
+									)
+									.replace("${a}", a.toString())
+									.replace("${s}", s.toString())
+									.replace("${e}", e.toString())
+									.replace(
+										"${part_of_nickname}",
+										part_of_nickname!
+									)
+									.replaceAll("${role}", role?.toString()!)
 							);
 
 						await client.func.method.interactionSend(interaction, {
 							embeds: [embed],
-							files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+							files: [
+								await client.func.displayBotName.footerAttachmentBuilder(
+									interaction
+								)
+							]
 						});
 					}
 				);
 				return;
-			} catch (error) { }
-		};
+			} catch (error) {}
+		}
 		return;
-	},
+	}
 };

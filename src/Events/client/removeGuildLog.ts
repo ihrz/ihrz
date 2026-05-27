@@ -19,44 +19,84 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from 'discord.js';
+import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from "discord.js";
 
 import logger from "../../core/logger.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
+import { BotEvent } from "../../../types/event.js";
+import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
 
 export const event: BotEvent = {
 	name: "guildDelete",
 	run: async (client: Client, guild: Guild) => {
-
 		try {
-			let i: string = '';
+			let i: string = "";
 
 			if (guild.name === undefined) return;
 
-			if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
+			if (guild.vanityURLCode) {
+				i = "discord.gg/" + guild.vanityURLCode;
+			}
 
 			const stats = await getShardStats(client);
 
 			const embed = new EmbedBuilder()
 				.setColor("#ff0505")
 				.setDescription(`**A guild removed iHorizon !**`)
-				.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
-					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
-					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-					{ name: "👤・Member Count", value: `\`${guild.memberCount || guild.members.cache.size || "idk"}\` members`, inline: true },
-					{ name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
-					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
-					{ name: "🥛・New members total", value: `${stats.users} members`, inline: true },
-					{ name: "💠・Shard", value: `#${client.shard?.ids[0]}`, inline: true }
+				.addFields(
+					{
+						name: "🏷️・Server Name",
+						value: `\`${guild.name}\``,
+						inline: true
+					},
+					{
+						name: "🆔・Server ID",
+						value: `\`${guild.id}\``,
+						inline: true
+					},
+					{
+						name: "🌐・Server Region",
+						value: `\`${guild.preferredLocale}\``,
+						inline: true
+					},
+					{
+						name: "👤・Member Count",
+						value: `\`${guild.memberCount || guild.members.cache.size || "idk"}\` members`,
+						inline: true
+					},
+					{
+						name: "🪝・Vanity URL",
+						value: `\`${i || "None"}\``,
+						inline: true
+					},
+					{
+						name: "🍻・New guilds total",
+						value: stats.guilds.toString(),
+						inline: true
+					},
+					{
+						name: "🥛・New members total",
+						value: `${stats.users} members`,
+						inline: true
+					},
+					{
+						name: "💠・Shard",
+						value: `#${client.shard?.ids[0]}`,
+						inline: true
+					}
 				)
 				.setThumbnail(guild.iconURL())
 				.setTimestamp(guild.joinedTimestamp)
-				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
+				.setFooter({
+					text: "iHorizon ・ Joined at",
+					iconURL: "attachment://footer_icon.png"
+				});
 
 			if (client.email.connected && client.email.notifyNewGuild) {
-				client.email.send(client.email.ownerMail, "Removed Guild", `
+				client.email.send(
+					client.email.ownerMail,
+					"Removed Guild",
+					`
 === AUTO-GENERATED MESSAGE ===
 
 iHorizon have been removed from ${guild.name} (ID: ${guild.id})
@@ -74,15 +114,23 @@ Guild Info:
 - Server Region: ${guild.preferredLocale}
 
 === AUTO-GENERATED MESSAGE ===
-`)
+`
+				);
 			}
 
-			client.func.method.channelSend(client.config.core.guildLogsChannelID, {
-				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-			})
+			client.func.method.channelSend(
+				client.config.core.guildLogsChannelID,
+				{
+					embeds: [embed],
+					files: [
+						await client.func.displayBotName.footerAttachmentBuilder(
+							guild
+						)
+					]
+				}
+			);
 		} catch (error: any) {
 			logger.err(error);
 		}
-	},
+	}
 };

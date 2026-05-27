@@ -27,28 +27,28 @@ import {
 	ApplicationCommandType,
 	Message,
 	GuildMember,
-	time,
-} from 'discord.js'
+	time
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
 export const command: Command = {
-	name: 'eval',
+	name: "eval",
 
-	description: 'Run Javascript program (only for developers)!',
+	description: "Run Javascript program (only for developers)!",
 	description_localizations: {
-		"fr": "Executer du code JavaScript (Seulement pour les dev du bot)."
+		fr: "Executer du code JavaScript (Seulement pour les dev du bot)."
 	},
 
 	options: [
 		{
-			name: 'code',
+			name: "code",
 			type: ApplicationCommandOptionType.String,
 
-			description: 'javascript code',
+			description: "javascript code",
 			description_localizations: {
-				"fr": "JS Code"
+				fr: "JS Code"
 			},
 
 			required: true,
@@ -57,29 +57,45 @@ export const command: Command = {
 		}
 	],
 	thinking: false,
-	category: 'owner',
+	category: "owner",
 	permission: null,
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (!client.func.ownerHelper.isBotDev(interaction.member.user.id)) {
-			await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.No, flags: [1 << 6] });
+			await client.func.method.interactionSend(interaction, {
+				content: client.iHorizon_Emojis.No,
+				flags: [1 << 6]
+			});
 			return;
-		};
+		}
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var code = interaction.options.getString("code")!;
 		} else {
-
 			var code = args?.join(" ") || "";
-		};
+		}
 
 		try {
-			const customEval = new Function('interaction', 'client', 'time', 'code', `
+			const customEval = new Function(
+				"interaction",
+				"client",
+				"time",
+				"code",
+				`
 				const { channel, guild } = interaction;
 		
 				async function reply(x, y) {
@@ -117,7 +133,8 @@ export const command: Command = {
 				(async () => {
 					${code}
 				})()
-			`);
+			`
+			);
 
 			await customEval(interaction, client, time, code);
 
@@ -125,13 +142,24 @@ export const command: Command = {
 				.setColor("#468468")
 				.setTitle("This block was evalued with iHorizon.")
 				.setDescription(`\`\`\`JS\n${code || "None"}\n\`\`\``)
-				.setAuthor({ name: ((interaction.member as GuildMember).user.globalName || interaction.member.user.username) as string, iconURL: interaction.client.user.displayAvatarURL() });
+				.setAuthor({
+					name: ((interaction.member as GuildMember).user
+						.globalName ||
+						interaction.member.user.username) as string,
+					iconURL: interaction.client.user.displayAvatarURL()
+				});
 
-			await client.func.method.interactionSend(interaction, { embeds: [embed], flags: [1 << 6] });
+			await client.func.method.interactionSend(interaction, {
+				embeds: [embed],
+				flags: [1 << 6]
+			});
 			return;
 		} catch (err) {
-			await client.func.method.interactionSend(interaction, { content: err.toString(), flags: [1 << 6] });
+			await client.func.method.interactionSend(interaction, {
+				content: err.toString(),
+				flags: [1 << 6]
+			});
 			return;
-		};
+		}
 	}
 };

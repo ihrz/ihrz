@@ -22,28 +22,27 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType
-} from 'discord.js'
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
-
+import { Command } from "../../../../../types/command.js";
 
 export const command: Command = {
-	name: 'banner',
+	name: "banner",
 
-	description: 'Pick the banner of specified things (Server/User)',
+	description: "Pick the banner of specified things (Server/User)",
 	description_localizations: {
-		"fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+		fr: "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
 	},
 
-	category: 'utils',
+	category: "utils",
 	options: [
 		{
 			name: "user",
-			prefixName: 'banner-user',
+			prefixName: "banner-user",
 
 			description: "Get the banner of a specified user!",
 			description_localizations: {
-				"fr": "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+				fr: "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
 			},
 
 			aliases: ["userbanner", "ubanner"],
@@ -51,18 +50,18 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'user',
+					name: "user",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'What the user then?',
+					description: "What the user then?",
 					description_localizations: {
-						"fr": "Qu'est-ce que l'utilisateur alors ?"
+						fr: "Qu'est-ce que l'utilisateur alors ?"
 					},
 
 					required: false,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: null
@@ -73,7 +72,7 @@ export const command: Command = {
 
 			description: "Get the banner of the server!",
 			description_localizations: {
-				"fr": "Récupérer la bannière du serveur"
+				fr: "Récupérer la bannière du serveur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -81,7 +80,7 @@ export const command: Command = {
 			aliases: ["serverbanner"],
 
 			permission: null
-		},
+		}
 	],
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,

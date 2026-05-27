@@ -25,41 +25,40 @@ import {
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
-
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
 export const command: Command = {
-	name: 'rolesaver',
+	name: "rolesaver",
 
-	description: 'Re-Gave old roles when User re-join the guild!',
+	description: "Re-Gave old roles when User re-join the guild!",
 	description_localizations: {
-		"fr": "Ré-attribuer les anciens rôles lorsque l'utilisateur rejoint le serveur"
+		fr: "Ré-attribuer les anciens rôles lorsque l'utilisateur rejoint le serveur"
 	},
 
 	options: [
 		{
-			name: 'action',
+			name: "action",
 			type: ApplicationCommandOptionType.String,
 
-			description: 'Do you want to power On/Off the module ?',
+			description: "Do you want to power On/Off the module ?",
 			description_localizations: {
-				"fr": "Voulez-vous activer/désactiver le module ?"
+				fr: "Voulez-vous activer/désactiver le module ?"
 			},
 
 			required: true,
 			choices: [
 				{
 					name: "Power On",
-					name_localizations: { fr: 'Activer' },
+					name_localizations: { fr: "Activer" },
 					value: "on"
 				},
 				{
 					name: "Power Off",
-					name_localizations: { fr: 'Désactiver' },
+					name_localizations: { fr: "Désactiver" },
 					value: "off"
 				}
 			],
@@ -67,30 +66,30 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'settings',
+			name: "settings",
 			type: ApplicationCommandOptionType.String,
 
-			description: 'Re-gave Administrator role ?',
+			description: "Re-gave Administrator role ?",
 			description_localizations: {
-				"fr": "Redonner des rôles admin ?"
+				fr: "Redonner des rôles admin ?"
 			},
 
 			required: false,
 			choices: [
 				{
 					name: "Yes",
-					name_localizations: { fr: 'Oui' },
+					name_localizations: { fr: "Oui" },
 					value: "yes"
 				},
 				{
 					name: "No",
-					name_localizations: { fr: 'Non' },
+					name_localizations: { fr: "Non" },
 					value: "no"
 				}
 			],
 
 			permission: null
-		},
+		}
 		// {
 		//     name: 'timeout',
 		//     type: ApplicationCommandOptionType.String,
@@ -113,62 +112,114 @@ export const command: Command = {
 		// },
 	],
 	thinking: false,
-	category: 'newfeatures',
+	category: "newfeatures",
 	permission: PermissionFlagsBits.Administrator,
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const action = interaction.options.getString("action");
 		const settings = interaction.options.getString("settings") || "None";
 		const timeout = interaction.options.getString("timeout") || "None";
 
-		if (action === 'on') {
-
+		if (action === "on") {
 			const embed = new EmbedBuilder()
 				.setColor("#3725a4")
 				.setTitle(lang.rolesaver_embed_title)
 				.setDescription(lang.rolesaver_embed_desc)
 				.addFields(
-					{ name: lang.rolesaver_embed_fields_1_name, value: `\`${action}\``, inline: false },
-					{ name: lang.rolesaver_embed_fields_2_name, value: `\`${settings}\``, inline: false },
-					{ name: lang.rolesaver_embed_fields_3_name, value: `\`${timeout}\``, inline: false }
+					{
+						name: lang.rolesaver_embed_fields_1_name,
+						value: `\`${action}\``,
+						inline: false
+					},
+					{
+						name: lang.rolesaver_embed_fields_2_name,
+						value: `\`${settings}\``,
+						inline: false
+					},
+					{
+						name: lang.rolesaver_embed_fields_3_name,
+						value: `\`${timeout}\``,
+						inline: false
+					}
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				);
 
-			await client.func.method.interactionSend(interaction, { embeds: [embed], files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)] });
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver`, {
-				enable: true,
-				timeout: timeout,
-				admin: settings
+			await client.func.method.interactionSend(interaction, {
+				embeds: [embed],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
 			});
+			await client.db.set(
+				`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver`,
+				{
+					enable: true,
+					timeout: timeout,
+					admin: settings
+				}
+			);
 
 			return;
-		} else if (action === 'off') {
-			const state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver.enable`);
+		} else if (action === "off") {
+			const state = await client.db.get(
+				`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver.enable`
+			);
 
 			if (!state) {
-				await client.func.method.interactionSend(interaction, { content: lang.rolesaver_on_off_already_set });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.rolesaver_on_off_already_set
+				});
 				return;
-			};
+			}
 
 			const embed = new EmbedBuilder()
 				.setColor("#3725a4")
 				.setTitle(lang.rolesaver_on_off_embed_title)
 				.setDescription(lang.rolesaver_on_off_embed_desc)
-				.addFields(
-					{ name: lang.rolesaver_on_off_embed_fields_1_name, value: `\`${action}\``, inline: false },
-				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+				.addFields({
+					name: lang.rolesaver_on_off_embed_fields_1_name,
+					value: `\`${action}\``,
+					inline: false
+				})
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				);
 
 			await client.func.method.interactionSend(interaction, {
 				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
 			});
-			await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver`);
+			await client.db.delete(
+				`${interaction.guildId}.GUILD.GUILD_CONFIG.rolesaver`
+			);
 			return;
 		}
-	},
+	}
 };

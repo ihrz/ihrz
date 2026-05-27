@@ -22,26 +22,35 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
-import { Option } from '../../../../../types/option.js';
+import { Command } from "../../../../../types/command.js";
+import { Option } from "../../../../../types/option.js";
 
-export const permissionsRole = ["Perm 1", "Perm 2", "Perm 3", "Perm 4", "Perm 5", "Perm 6", "Perm 7", "Perm 8", "Perm 9"];
+export const permissionsRole = [
+	"Perm 1",
+	"Perm 2",
+	"Perm 3",
+	"Perm 4",
+	"Perm 5",
+	"Perm 6",
+	"Perm 7",
+	"Perm 8",
+	"Perm 9"
+];
 export const permissionLevel = [
 	{
 		name: "Default",
 		name_localizations: { fr: "Défaut" },
 		value: "0"
 	},
-	...
-	permissionsRole.map((x) => {
+	...permissionsRole.map((x) => {
 		return {
 			name: x,
 			name_localizations: { fr: x },
 			value: x.split(" ")[1]
-		}
+		};
 	})
 ];
 
@@ -50,18 +59,17 @@ export const command: Command = {
 
 	description: "Subcommand for command permission!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour les permission de commande"
+		fr: "Commande sous-groupé pour les permission de commande"
 	},
 
 	options: [
 		{
-			name: 'set-user',
+			name: "set-user",
 
-			description: 'Set permission to user',
+			description: "Set permission to user",
 			description_localizations: {
-				"fr": "Définir une permission à un utilisateur"
+				fr: "Définir une permission à un utilisateur"
 			},
-
 
 			options: [
 				{
@@ -69,7 +77,7 @@ export const command: Command = {
 
 					description: "Member you want",
 					description_localizations: {
-						"fr": "Le membre que vous souhaiter modifier la permission"
+						fr: "Le membre que vous souhaiter modifier la permission"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -82,7 +90,7 @@ export const command: Command = {
 
 					description: "permission you want to set for the member",
 					description_localizations: {
-						"fr": "La permission que vous souhaiter modifier au membre"
+						fr: "La permission que vous souhaiter modifier au membre"
 					},
 
 					choices: permissionLevel,
@@ -99,43 +107,51 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'command',
+			name: "command",
 
-			description: 'Set a specific permission to use one command',
+			description: "Set a specific permission to use one command",
 			description_localizations: {
-				"fr": "Définir une permission spécifique pour l'utilisation d'une commande"
+				fr: "Définir une permission spécifique pour l'utilisation d'une commande"
 			},
 
 			options: [
 				{
-					name: 'action',
+					name: "action",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What you want to do?',
+					description: "What you want to do?",
 					description_localizations: {
-						"fr": "Que veux-tu faire?"
+						fr: "Que veux-tu faire?"
 					},
 
 					required: true,
 					choices: [
 						{
-							name: 'Change command permission',
-							name_localizations: { fr: 'Modifier la permission de commande' },
+							name: "Change command permission",
+							name_localizations: {
+								fr: "Modifier la permission de commande"
+							},
 							value: "change"
 						},
 						{
-							name: 'Delete command permission',
-							name_localizations: { fr: 'Supprimer la permission de commande' },
+							name: "Delete command permission",
+							name_localizations: {
+								fr: "Supprimer la permission de commande"
+							},
 							value: "delete"
 						},
 						{
-							name: 'Delete permission (role/user/level)',
-							name_localizations: { fr: 'Supprimer la permission (rôle/utilisateur/niveau)' },
+							name: "Delete permission (role/user/level)",
+							name_localizations: {
+								fr: "Supprimer la permission (rôle/utilisateur/niveau)"
+							},
 							value: "delete-all"
 						},
 						{
 							name: "List all commands permission set",
-							name_localizations: { fr: 'Liste toutes les permissions de commande' },
+							name_localizations: {
+								fr: "Liste toutes les permissions de commande"
+							},
 							value: "list"
 						}
 					],
@@ -147,7 +163,7 @@ export const command: Command = {
 
 					description: "The command you want to update",
 					description_localizations: {
-						"fr": "La commande que vous souhaiter modifier"
+						fr: "La commande que vous souhaiter modifier"
 					},
 
 					autocomplete: true,
@@ -161,7 +177,7 @@ export const command: Command = {
 
 					description: "The permission for the selected command",
 					description_localizations: {
-						"fr": "La permission pour la commande choisie"
+						fr: "La permission pour la commande choisie"
 					},
 
 					choices: permissionLevel,
@@ -173,9 +189,10 @@ export const command: Command = {
 				{
 					name: "custom-role",
 
-					description: "The custom role you want to set for the command",
+					description:
+						"The custom role you want to set for the command",
 					description_localizations: {
-						"fr": "Le role personnalisé que vous souhaiter définir pour la commande"
+						fr: "Le role personnalisé que vous souhaiter définir pour la commande"
 					},
 
 					type: ApplicationCommandOptionType.Role,
@@ -187,9 +204,10 @@ export const command: Command = {
 				{
 					name: "custom-user",
 
-					description: "The custom user you want to set for the command",
+					description:
+						"The custom user you want to set for the command",
 					description_localizations: {
-						"fr": "L'utilisateur personnalisé que vous souhaiter définir pour la commande"
+						fr: "L'utilisateur personnalisé que vous souhaiter définir pour la commande"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -205,12 +223,12 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'list',
+			name: "list",
 			prefixName: "perm-list",
 
-			description: 'show all granted user in the guild',
+			description: "show all granted user in the guild",
 			description_localizations: {
-				"fr": "Afficher toute les permission d'utilisateur du serveur"
+				fr: "Afficher toute les permission d'utilisateur du serveur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -218,26 +236,26 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'edit-roles',
+			name: "edit-roles",
 
-			description: 'edit the permission roles into the guild',
+			description: "edit the permission roles into the guild",
 			description_localizations: {
-				"fr": "Modifier les rôle Perm du serveur"
+				fr: "Modifier les rôle Perm du serveur"
 			},
 
 			options: [
 				{
 					name: "perm_level",
 					name_localizations: {
-						"fr": "niveau_perm"
+						fr: "niveau_perm"
 					},
 
 					description: "Permission level to edit",
 					description_localizations: {
-						"fr": "Niveau de permission à modifier"
+						fr: "Niveau de permission à modifier"
 					},
 
-					choices: permissionLevel.filter(x => x.value !== "0"),
+					choices: permissionLevel.filter((x) => x.value !== "0"),
 					permission: null,
 					required: true,
 					type: ApplicationCommandOptionType.String
@@ -247,7 +265,7 @@ export const command: Command = {
 
 					description: "Role Permission to edit",
 					description_localizations: {
-						"fr": "Rôle de niveau de permission à modifier"
+						fr: "Rôle de niveau de permission à modifier"
 					},
 
 					permission: null,
@@ -261,31 +279,41 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'create-roles',
+			name: "create-roles",
 
-			description: 'Create roles for the permission',
+			description: "Create roles for the permission",
 			description_localizations: {
-				"fr": "Créer les roles pour les permissions"
+				fr: "Créer les roles pour les permissions"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.Administrator
-		},
+		}
 	],
 
 	async autocomplete(client, interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 		const choices: string[] = [];
 
-		if (focusedOption.name === 'command') {
-			const getCommandChoices = (command: Command | Option, parentName = '') => {
-				const commandName = parentName ? `${parentName} ${command.name}` : command.name;
+		if (focusedOption.name === "command") {
+			const getCommandChoices = (
+				command: Command | Option,
+				parentName = ""
+			) => {
+				const commandName = parentName
+					? `${parentName} ${command.name}`
+					: command.name;
 				choices.push(commandName);
 
 				if (command.options) {
 					command.options.forEach((option) => {
-						if (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand) {
+						if (
+							option.type ===
+								ApplicationCommandOptionType.SubcommandGroup ||
+							option.type ===
+								ApplicationCommandOptionType.Subcommand
+						) {
 							getCommandChoices(option, commandName);
 						}
 					});
@@ -297,21 +325,24 @@ export const command: Command = {
 			});
 		}
 
-		const filtered = choices.filter(choice =>
-			choice.includes(focusedOption.value) || choice.startsWith(focusedOption.value)
-		).slice(0, 25);
+		const filtered = choices
+			.filter(
+				(choice) =>
+					choice.includes(focusedOption.value) ||
+					choice.startsWith(focusedOption.value)
+			)
+			.slice(0, 25);
 
 		await interaction.respond(
-			filtered.map(choice => ({
+			filtered.map((choice) => ({
 				name: choice,
 				value: choice
-			})),
+			}))
 		);
 	},
 
-
 	thinking: true,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

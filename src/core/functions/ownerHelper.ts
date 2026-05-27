@@ -23,8 +23,11 @@ import { DatabaseStructure } from "../../../types/database_structure";
 import { ownerTable } from "../../Events/client/ready.ts";
 import { Guild } from "discord.js";
 
-export async function isGuildOwner(userId: string, guild: Guild): Promise<boolean> {
-	const owners: string[] = await getGuildOwner(guild)
+export async function isGuildOwner(
+	userId: string,
+	guild: Guild
+): Promise<boolean> {
+	const owners: string[] = await getGuildOwner(guild);
 	return owners.includes(userId);
 }
 
@@ -39,11 +42,25 @@ export function isBotDev(userId: string): boolean {
 }
 
 export async function getGuildOwner(guild: Guild): Promise<string[]> {
-	return [...new Set([guild.ownerId, ...Object.keys(await client.db.get<DatabaseStructure.OwnerSchema>(`${guild.id}.OWNER`) || {})])];
+	return [
+		...new Set([
+			guild.ownerId,
+			...Object.keys(
+				(await client.db.get<DatabaseStructure.OwnerSchema>(
+					`${guild.id}.OWNER`
+				)) || {}
+			)
+		])
+	];
 }
 
 export async function getBotOwner(): Promise<string[]> {
-	return [...new Set([...client.owners, ...(await ownerTable.all()).map(x => x.id)])];
+	return [
+		...new Set([
+			...client.owners,
+			...(await ownerTable.all()).map((x) => x.id)
+		])
+	];
 }
 
 export function getBotDev(): string[] {
@@ -51,17 +68,23 @@ export function getBotDev(): string[] {
 }
 
 export async function removeBotOwner(userId: string): Promise<void> {
-	await ownerTable.delete(userId)
+	await ownerTable.delete(userId);
 }
 
 export async function addBotOwner(userId: string): Promise<void> {
-	await ownerTable.set(userId, { owner: true })
+	await ownerTable.set(userId, { owner: true });
 }
 
-export async function addGuildOwner(userId: string, guildId: string): Promise<void> {
-	await client.db.set(`${guildId}.OWNER.${userId}`, { owner: true })
+export async function addGuildOwner(
+	userId: string,
+	guildId: string
+): Promise<void> {
+	await client.db.set(`${guildId}.OWNER.${userId}`, { owner: true });
 }
 
-export async function removeGuildOwner(userId: string, guildId: string): Promise<void> {
-	await client.db.delete(`${guildId}.OWNER.${userId}`)
+export async function removeGuildOwner(
+	userId: string,
+	guildId: string
+): Promise<void> {
+	await client.db.delete(`${guildId}.OWNER.${userId}`);
 }

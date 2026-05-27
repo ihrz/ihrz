@@ -24,11 +24,11 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { LanguageData } from '../../../types/languageData.js';
-import { Command } from '../../../types/command.js';
+import { LanguageData } from "../../../types/languageData.js";
+import { Command } from "../../../types/command.js";
 
 export const command: Command = {
 	name: "",
@@ -47,10 +47,19 @@ export const command: Command = {
 	options: [],
 
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-	},
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
+	}
 };

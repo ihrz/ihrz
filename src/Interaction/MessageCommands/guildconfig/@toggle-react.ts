@@ -23,40 +23,49 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionsBitField,
-} from 'discord.js';
+	PermissionsBitField
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
+	name: "toggle-react",
+	aliases: ["react-toggle", "togglereact", "reacttoggle"],
 
-	name: 'toggle-react',
-	aliases: ['react-toggle', 'togglereact', 'reacttoggle'],
-
-	description: 'Enable / Disable the reaction when user greets someone',
+	description: "Enable / Disable the reaction when user greets someone",
 	description_localizations: {
-		"fr": "Activer/Désactiver la réaction lorsque l'utilisateur salue quelqu'un"
+		fr: "Activer/Désactiver la réaction lorsque l'utilisateur salue quelqu'un"
 	},
 
 	thinking: false,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: PermissionsBitField.Flags.ManageGuildExpressions,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
+		const state = await client.db.get(
+			`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`
+		);
 
-		const state = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`);
-
-		await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`, !state);
-		const activeMsg = !state ? lang.toggle_react_react : lang.toggle_react_doesnt_react;
+		await client.db.set(
+			`${interaction.guildId}.GUILD.GUILD_CONFIG.hey_reaction`,
+			!state
+		);
+		const activeMsg = !state
+			? lang.toggle_react_react
+			: lang.toggle_react_doesnt_react;
 
 		await interaction.reply({
 			content: lang.toggle_react_command_work
 				.replace("{activeMsg}", activeMsg)
-				.replace("${interaction.member?.id}", interaction.member?.id!)
-			, allowedMentions: { repliedUser: false }
+				.replace("${interaction.member?.id}", interaction.member?.id!),
+			allowedMentions: { repliedUser: false }
 		});
 		return;
-	},
+	}
 };

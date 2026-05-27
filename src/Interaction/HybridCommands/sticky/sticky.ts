@@ -23,16 +23,16 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "sticky",
 	description: "Manage sticky messages in text channels",
 	description_localizations: {
-		"fr": "Gérer les messages sticky dans les salons textuels"
+		fr: "Gérer les messages sticky dans les salons textuels"
 	},
 
 	options: [
@@ -41,7 +41,7 @@ export const command: Command = {
 			prefixName: "sticky-text",
 			description: "Create or update a text sticky message",
 			description_localizations: {
-				"fr": "Créer ou modifier un message sticky texte"
+				fr: "Créer ou modifier un message sticky texte"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -49,7 +49,7 @@ export const command: Command = {
 					name: "channel",
 					description: "The text channel",
 					description_localizations: {
-						"fr": "Le salon textuel"
+						fr: "Le salon textuel"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -60,7 +60,7 @@ export const command: Command = {
 					name: "message",
 					description: "The sticky message content",
 					description_localizations: {
-						"fr": "Le contenu du message sticky"
+						fr: "Le contenu du message sticky"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -74,7 +74,7 @@ export const command: Command = {
 			prefixName: "sticky-embed",
 			description: "Create or update an embed sticky message",
 			description_localizations: {
-				"fr": "Créer ou modifier un message sticky embed"
+				fr: "Créer ou modifier un message sticky embed"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -82,7 +82,7 @@ export const command: Command = {
 					name: "channel",
 					description: "The text channel",
 					description_localizations: {
-						"fr": "Le salon textuel"
+						fr: "Le salon textuel"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -93,7 +93,7 @@ export const command: Command = {
 					name: "embed_id",
 					description: "The embed identifier",
 					description_localizations: {
-						"fr": "L'identifiant de l'embed"
+						fr: "L'identifiant de l'embed"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -103,7 +103,7 @@ export const command: Command = {
 					name: "message_content",
 					description: "Optional text content sent with the embed",
 					description_localizations: {
-						"fr": "Le texte optionnel envoyé avec l'embed"
+						fr: "Le texte optionnel envoyé avec l'embed"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: false,
@@ -117,7 +117,7 @@ export const command: Command = {
 			prefixName: "sticky-disable",
 			description: "Disable a sticky message in one channel",
 			description_localizations: {
-				"fr": "Désactiver un message sticky dans un salon"
+				fr: "Désactiver un message sticky dans un salon"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -125,7 +125,7 @@ export const command: Command = {
 					name: "channel",
 					description: "The text channel",
 					description_localizations: {
-						"fr": "Le salon textuel"
+						fr: "Le salon textuel"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -140,7 +140,7 @@ export const command: Command = {
 			prefixName: "sticky-show",
 			description: "Show the sticky configuration of one channel",
 			description_localizations: {
-				"fr": "Afficher la configuration sticky d'un salon"
+				fr: "Afficher la configuration sticky d'un salon"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -148,7 +148,7 @@ export const command: Command = {
 					name: "channel",
 					description: "The text channel",
 					description_localizations: {
-						"fr": "Le salon textuel"
+						fr: "Le salon textuel"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -163,7 +163,7 @@ export const command: Command = {
 			prefixName: "sticky-list",
 			description: "List all sticky channels",
 			description_localizations: {
-				"fr": "Lister tous les salons sticky"
+				fr: "Lister tous les salons sticky"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.Administrator
@@ -173,7 +173,7 @@ export const command: Command = {
 			prefixName: "sticky-refresh",
 			description: "Repost the sticky message in one channel",
 			description_localizations: {
-				"fr": "Republier le message sticky dans un salon"
+				fr: "Republier le message sticky dans un salon"
 			},
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
@@ -181,7 +181,7 @@ export const command: Command = {
 					name: "channel",
 					description: "The text channel",
 					description_localizations: {
-						"fr": "Le salon textuel"
+						fr: "Le salon textuel"
 					},
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
@@ -193,7 +193,7 @@ export const command: Command = {
 		}
 	],
 	thinking: false,
-	category: 'sticky',
+	category: "sticky",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

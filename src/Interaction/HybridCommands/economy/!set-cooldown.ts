@@ -19,29 +19,39 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
-		};
+		}
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var type = interaction.options.getString("type")!;
@@ -49,7 +59,7 @@ export const subCommand: SubCommand = {
 		} else {
 			var type = client.func.method.string(args!, 0)!;
 			var cooldown = client.func.method.longString(args!, 1)!;
-		};
+		}
 
 		const time = client.timeCalculator.to_ms(cooldown);
 
@@ -60,13 +70,24 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		await client.db.set(`${interaction.guildId}.ECONOMY.settings.${type}.cooldown`, time);
+		await client.db.set(
+			`${interaction.guildId}.ECONOMY.settings.${type}.cooldown`,
+			time
+		);
 
 		let stime = client.timeCalculator.to_beautiful_string(time, lang);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.economy_manage_rewards_cooldown_command_ok.replace("${type}", type).replace("${stime}", stime)
+			content: lang.economy_manage_rewards_cooldown_command_ok
+				.replace("${type}", type)
+				.replace("${stime}", stime)
 		});
-		await client.func.economyLogs.setCooldown(interaction.guild, interaction.member.user.id, stime, type, lang);
-	},
+		await client.func.economyLogs.setCooldown(
+			interaction.guild,
+			interaction.member.user.id,
+			stime,
+			type,
+			lang
+		);
+	}
 };

@@ -19,21 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	Message,
-} from 'discord.js';
+import { Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "top",
 
 	description: "Get the link of the first message in the channel",
 	description_localizations: {
-		"fr": "Récuperer le lien du premier message dans le salon"
+		fr: "Récuperer le lien du premier message dans le salon"
 	},
 
 	aliases: [],
@@ -44,7 +40,12 @@ export const command: Command = {
 	permission: null,
 
 	category: "utils",
-	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
+	run: async (
+		client: Client,
+		message: Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
 		const channel = message.channel;
 		channel.messages.fetch({ after: "0", limit: 1 }).then((messages) => {
 			const firstMessage = messages.first();
@@ -53,11 +54,14 @@ export const command: Command = {
 			if (firstMessage) {
 				client.func.method.channelSend(
 					message,
-					lang.utils_top_command_ok.replace("${link}", link),
+					lang.utils_top_command_ok.replace("${link}", link)
 				);
 			} else {
-				client.func.method.channelSend(message, lang.utils_top_no_message);
+				client.func.method.channelSend(
+					message,
+					lang.utils_top_no_message
+				);
 			}
 		});
-	},
+	}
 };

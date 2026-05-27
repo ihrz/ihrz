@@ -19,7 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, EmbedBuilder, MessageEditOptions, time } from "discord.js";
+import {
+	AttachmentBuilder,
+	BaseGuildTextChannel,
+	EmbedBuilder,
+	MessageEditOptions,
+	time
+} from "discord.js";
 import net from "node:net";
 import { axios } from "../functions/axios.ts";
 import { metasTable } from "../../Events/client/ready.ts";
@@ -50,7 +56,9 @@ class InfrastructureMonitoring {
 		if (HorizonGatewayURL) {
 			try {
 				const startTime = Date.now();
-				const response = await axios.get(HorizonGatewayURL, { timeout: this.timeout });
+				const response = await axios.get(HorizonGatewayURL, {
+					timeout: this.timeout
+				});
 				const latency = Date.now() - startTime;
 
 				return {
@@ -72,10 +80,12 @@ class InfrastructureMonitoring {
 	}
 
 	private async Lavalink(): Promise<ResponseResult> {
-		const Lavalinks = client.config.lavalink.nodes.map(x => `${x.host}:${x.port}`) || [];
+		const Lavalinks =
+			client.config.lavalink.nodes.map((x) => `${x.host}:${x.port}`) ||
+			[];
 		if (Lavalinks.length >= 1) {
 			// Test the first Lavalink node for simplicity
-			const [host, port] = Lavalinks[0].split(':');
+			const [host, port] = Lavalinks[0].split(":");
 
 			return await this.checkTcpConnection(host, parseInt(port));
 		}
@@ -91,7 +101,9 @@ class InfrastructureMonitoring {
 
 		try {
 			const startTime = Date.now();
-			const response = await axios.get(iHorizonWebsiteURL, { timeout: this.timeout });
+			const response = await axios.get(iHorizonWebsiteURL, {
+				timeout: this.timeout
+			});
 			const latency = Date.now() - startTime;
 
 			return {
@@ -134,14 +146,17 @@ class InfrastructureMonitoring {
 	}
 
 	// Helper method to check TCP connections (for Lavalink)
-	private checkTcpConnection(host: string, port: number): Promise<ResponseResult> {
+	private checkTcpConnection(
+		host: string,
+		port: number
+	): Promise<ResponseResult> {
 		return new Promise((resolve) => {
 			const startTime = Date.now();
 			const socket = new net.Socket();
 
 			socket.setTimeout(this.timeout);
 
-			socket.on('connect', () => {
+			socket.on("connect", () => {
 				const latency = Date.now() - startTime;
 				socket.destroy();
 				resolve({
@@ -150,7 +165,7 @@ class InfrastructureMonitoring {
 				});
 			});
 
-			socket.on('timeout', () => {
+			socket.on("timeout", () => {
 				socket.destroy();
 				resolve({
 					up: false,
@@ -158,7 +173,7 @@ class InfrastructureMonitoring {
 				});
 			});
 
-			socket.on('error', () => {
+			socket.on("error", () => {
 				socket.destroy();
 				resolve({
 					up: false,
@@ -187,8 +202,13 @@ class InfrastructureMonitoring {
 		}
 	}
 
-	private generatePingChartData(): { pingData: (number | null)[], timeLabels: string[] } {
-		const pingData: (number | null)[] = new Array(this.MAX_PING_HISTORY).fill(null);
+	private generatePingChartData(): {
+		pingData: (number | null)[];
+		timeLabels: string[];
+	} {
+		const pingData: (number | null)[] = new Array(
+			this.MAX_PING_HISTORY
+		).fill(null);
 		const timeLabels: string[] = [];
 
 		for (let i = this.MAX_PING_HISTORY - 1; i >= 0; i--) {
@@ -203,12 +223,17 @@ class InfrastructureMonitoring {
 		return { pingData, timeLabels };
 	}
 
-	private calculatePingStats(): { current: number, avg: number, max: number, min: number } {
+	private calculatePingStats(): {
+		current: number;
+		avg: number;
+		max: number;
+		min: number;
+	} {
 		if (this.pingHistory.length === 0) {
 			return { current: 0, avg: 0, max: 0, min: 0 };
 		}
 
-		const validPings = this.pingHistory.filter(entry => entry.ping > 0);
+		const validPings = this.pingHistory.filter((entry) => entry.ping > 0);
 
 		if (validPings.length === 0) {
 			return { current: 0, avg: 0, max: 0, min: 0 };
@@ -217,8 +242,8 @@ class InfrastructureMonitoring {
 		const current = validPings[validPings.length - 1]?.ping || 0;
 		const sum = validPings.reduce((acc, entry) => acc + entry.ping, 0);
 		const avg = Math.round(sum / validPings.length);
-		const max = Math.max(...validPings.map(entry => entry.ping));
-		const min = Math.min(...validPings.map(entry => entry.ping));
+		const max = Math.max(...validPings.map((entry) => entry.ping));
+		const min = Math.min(...validPings.map((entry) => entry.ping));
 
 		return { current, avg, max, min };
 	}
@@ -235,16 +260,16 @@ class InfrastructureMonitoring {
 		const stats = this.calculatePingStats();
 
 		htmlContent = htmlContent
-			.replace('{bot_name}', client.user?.username || 'iHorizon')
-			.replace('{current_ping}', stats.current.toString())
-			.replace('{avg_ping}', stats.avg.toString())
-			.replace('{max_ping}', stats.max.toString())
-			.replace('{min_ping}', stats.min.toString())
-			.replace('{ ping_data }', JSON.stringify(pingData))
-			.replace('{ time_labels }', JSON.stringify(timeLabels));
+			.replace("{bot_name}", client.user?.username || "iHorizon")
+			.replace("{current_ping}", stats.current.toString())
+			.replace("{avg_ping}", stats.avg.toString())
+			.replace("{max_ping}", stats.max.toString())
+			.replace("{min_ping}", stats.min.toString())
+			.replace("{ ping_data }", JSON.stringify(pingData))
+			.replace("{ time_labels }", JSON.stringify(timeLabels));
 
 		const image = await client.func.html2png(htmlContent, {
-			elementSelector: 'body',
+			elementSelector: "body",
 			omitBackground: true,
 			selectElement: false,
 			width: 1024,
@@ -257,16 +282,25 @@ class InfrastructureMonitoring {
 	// Method to check all services at once
 	public async checkAllServices(): Promise<Record<string, ResponseResult>> {
 		const results = await Promise.all([
-			this.PublicBot().then(result => ({ name: 'PublicBot', result })),
-			this.HorizonGateway().then(result => ({ name: 'HorizonGateway', result })),
-			this.Lavalink().then(result => ({ name: 'Lavalink', result })),
-			this.iHorizonWebsite().then(result => ({ name: 'iHorizonWebsite', result }))
+			this.PublicBot().then((result) => ({ name: "PublicBot", result })),
+			this.HorizonGateway().then((result) => ({
+				name: "HorizonGateway",
+				result
+			})),
+			this.Lavalink().then((result) => ({ name: "Lavalink", result })),
+			this.iHorizonWebsite().then((result) => ({
+				name: "iHorizonWebsite",
+				result
+			}))
 		]);
 
-		return results.reduce((acc, { name, result }) => {
-			acc[name] = result;
-			return acc;
-		}, {} as Record<string, ResponseResult>);
+		return results.reduce(
+			(acc, { name, result }) => {
+				acc[name] = result;
+				return acc;
+			},
+			{} as Record<string, ResponseResult>
+		);
 	}
 
 	// Format status string based on result
@@ -284,22 +318,30 @@ class InfrastructureMonitoring {
 		this.statusEmbed.setFields(
 			{
 				name: "iHorizon (Public Bot)",
-				value: results.PublicBot ? this.formatStatus(results.PublicBot) : this.evaluating,
+				value: results.PublicBot
+					? this.formatStatus(results.PublicBot)
+					: this.evaluating,
 				inline: false
 			},
 			{
 				name: "HorizonGateway (Public/Private API)",
-				value: results.HorizonGateway ? this.formatStatus(results.HorizonGateway) : this.evaluating,
+				value: results.HorizonGateway
+					? this.formatStatus(results.HorizonGateway)
+					: this.evaluating,
 				inline: false
 			},
 			{
 				name: `Lavalink (Music Player)`,
-				value: results.Lavalink ? this.formatStatus(results.Lavalink) : this.evaluating,
+				value: results.Lavalink
+					? this.formatStatus(results.Lavalink)
+					: this.evaluating,
 				inline: false
 			},
 			{
 				name: `iHorizon Website`,
-				value: results.iHorizonWebsite ? this.formatStatus(results.iHorizonWebsite) : this.evaluating,
+				value: results.iHorizonWebsite
+					? this.formatStatus(results.iHorizonWebsite)
+					: this.evaluating,
 				inline: false
 			}
 		);
@@ -316,7 +358,9 @@ class InfrastructureMonitoring {
 		this.statusEmbed = new EmbedBuilder()
 			.setColor("#ff40c4")
 			.setTitle("iHorizon Status Panel")
-			.setDescription("This embed refresh every 1 minutes for showing the latest informations about iHorizon infrastructure")
+			.setDescription(
+				"This embed refresh every 1 minutes for showing the latest informations about iHorizon infrastructure"
+			)
 			// .setFooter(await client.func.displayBotName.footerBuilder(message))
 			.setFields(
 				{
@@ -342,7 +386,7 @@ class InfrastructureMonitoring {
 			);
 
 		try {
-			const all_guilds = await metasTable.get("MISC.statusEmbed") || {};
+			const all_guilds = (await metasTable.get("MISC.statusEmbed")) || {};
 
 			// Check all services and update the embed
 			this.lastResult = await this.checkAllServices();
@@ -355,8 +399,10 @@ class InfrastructureMonitoring {
 			let pingChartAttachment: AttachmentBuilder | null = null;
 			try {
 				const pingChartImage = await this.generatePingChart();
-				pingChartAttachment = new AttachmentBuilder(pingChartImage, { name: 'ping-chart.png' });
-				this.statusEmbed.setImage('attachment://ping-chart.png');
+				pingChartAttachment = new AttachmentBuilder(pingChartImage, {
+					name: "ping-chart.png"
+				});
+				this.statusEmbed.setImage("attachment://ping-chart.png");
 			} catch (error) {
 				console.error("Failed to generate ping chart:", error);
 			}
@@ -367,30 +413,44 @@ class InfrastructureMonitoring {
 
 				try {
 					const channelData = data as any;
-					const channel = await client.channels.fetch(channelData.channel_id || channelData.guild_id).catch(() => null);
+					const channel = await client.channels
+						.fetch(channelData.channel_id || channelData.guild_id)
+						.catch(() => null);
 
 					if (channel && channel.isTextBased()) {
-						const textChannel = channel as BaseGuildTextChannel | undefined;
+						const textChannel = channel as
+							| BaseGuildTextChannel
+							| undefined;
 						try {
-							const msg = await textChannel?.messages.fetch(channelData.message_id);
+							const msg = await textChannel?.messages.fetch(
+								channelData.message_id
+							);
 
 							if (msg) {
 								const editOptions: MessageEditOptions = {
 									content: `**Last update:** ${time(new Date(), "R")}`,
 									embeds: [this.statusEmbed],
-									files: pingChartAttachment ? [pingChartAttachment] : []
+									files: pingChartAttachment
+										? [pingChartAttachment]
+										: []
 								};
 
 								await msg.edit(editOptions);
 							} else {
-								await metasTable.delete(`MISC.statusEmbed.${guild_id}`);
+								await metasTable.delete(
+									`MISC.statusEmbed.${guild_id}`
+								);
 							}
 						} catch (msgError) {
-							console.error(`Failed to update status message in guild ${guild_id}: ${msgError}`);
+							console.error(
+								`Failed to update status message in guild ${guild_id}: ${msgError}`
+							);
 						}
 					}
 				} catch (channelError) {
-					console.error(`Failed to process guild ${guild_id}: ${channelError}`);
+					console.error(
+						`Failed to process guild ${guild_id}: ${channelError}`
+					);
 				}
 			}
 		} catch (error) {
@@ -409,7 +469,4 @@ class InfrastructureMonitoring {
 	}
 }
 
-export {
-	InfrastructureMonitoring,
-	ResponseResult
-};
+export { InfrastructureMonitoring, ResponseResult };

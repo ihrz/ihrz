@@ -24,74 +24,125 @@ import {
 	Channel,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var type = interaction.options.getString("action");
 			var argsid = interaction.options.getChannel("channel") as Channel;
 		} else {
-
 			var type = client.func.method.string(args!, 0);
-			var argsid = await client.func.method.channel(interaction, args!, 1) || interaction.channel;
-		};
+			var argsid =
+				(await client.func.method.channel(interaction, args!, 1)) ||
+				interaction.channel;
+		}
 
 		if (type === "on") {
 			if (!argsid) {
-				await client.func.method.interactionSend(interaction, { content: lang.setxpchannels_valid_channel_message });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.setxpchannels_valid_channel_message
+				});
 				return;
-			};
+			}
 
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setxpchannels_logs_embed_title_enable,
-				description: lang.setxpchannels_logs_embed_description_enable.replace(/\${interaction\.user.id}/g, interaction.member.user.id)
+				description: lang.setxpchannels_logs_embed_description_enable
+					.replace(
+						/\${interaction\.user.id}/g,
+						interaction.member.user.id
+					)
 					.replace(/\${argsid}/g, argsid.id)
 			});
 
 			try {
-				const already = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
-				if (already === argsid.id) return await client.func.method.interactionSend(interaction, { content: lang.setxpchannels_already_with_this_config });
+				const already = await client.db.get(
+					`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`
+				);
+				if (already === argsid.id)
+					return await client.func.method.interactionSend(
+						interaction,
+						{ content: lang.setxpchannels_already_with_this_config }
+					);
 
-				(interaction.guild.channels.cache.get(argsid.id) as BaseGuildTextChannel).send({ content: lang.setxpchannels_confirmation_message });
-				await client.db.set(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`, argsid.id);
+				(
+					interaction.guild.channels.cache.get(
+						argsid.id
+					) as BaseGuildTextChannel
+				).send({ content: lang.setxpchannels_confirmation_message });
+				await client.db.set(
+					`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`,
+					argsid.id
+				);
 
-				await client.func.method.interactionSend(interaction, { content: lang.setxpchannels_command_work_enable.replace(/\${argsid}/g, argsid.id) });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.setxpchannels_command_work_enable.replace(
+						/\${argsid}/g,
+						argsid.id
+					)
+				});
 				return;
 			} catch (e) {
-				await client.func.method.interactionSend(interaction, { content: lang.setxpchannels_command_error_enable });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.setxpchannels_command_error_enable
+				});
 				return;
-			};
+			}
 		} else if (type == "off") {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setxpchannels_logs_embed_title_disable,
-				description: lang.setxpchannels_logs_embed_description_disable.replace(/\${interaction\.user.id}/g, interaction.member.user.id)
+				description:
+					lang.setxpchannels_logs_embed_description_disable.replace(
+						/\${interaction\.user.id}/g,
+						interaction.member.user.id
+					)
 			});
 
 			try {
-				const already2 = await client.db.get(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
+				const already2 = await client.db.get(
+					`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`
+				);
 
 				if (already2 === "off") {
-					await client.func.method.interactionSend(interaction, { content: lang.setxpchannels_already_disabled_disable });
+					await client.func.method.interactionSend(interaction, {
+						content: lang.setxpchannels_already_disabled_disable
+					});
 					return;
-				};
+				}
 
-				await client.db.delete(`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`);
-				await client.func.method.interactionSend(interaction, { content: lang.setxpchannels_command_work_disable });
+				await client.db.delete(
+					`${interaction.guildId}.GUILD.XP_LEVELING.xpchannels`
+				);
+				await client.func.method.interactionSend(interaction, {
+					content: lang.setxpchannels_command_work_disable
+				});
 				return;
 			} catch (e) {
-				await client.func.method.interactionSend(interaction, { content: lang.setxpchannels_command_error_disable });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.setxpchannels_command_error_disable
+				});
 				return;
-			};
-		};
-	},
+			}
+		}
+	}
 };

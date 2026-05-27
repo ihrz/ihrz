@@ -22,18 +22,20 @@
 import { User } from "discord.js";
 import { LyricsResult, SearchResult, Track } from "lavalink-client";
 
-export default async function getLyrics(query: string, author?: User): Promise<{
+export default async function getLyrics(
+	query: string,
+	author?: User
+): Promise<{
 	track: Track | undefined;
 	res: LyricsResult;
 } | null> {
-
 	let res: SearchResult | undefined;
 	let node;
 
 	for (const _node of client.player.nodeManager.nodes.values()) {
 		if (_node.connected === false) continue;
 
-		res = await _node?.search({ query }, author || client.user)
+		res = await _node?.search({ query }, author || client.user);
 
 		if (res?.tracks.length! > 0) {
 			node = _node;
@@ -54,5 +56,5 @@ export default async function getLyrics(query: string, author?: User): Promise<{
 	return {
 		track: res?.tracks[0],
 		res: response
-	}
+	};
 }

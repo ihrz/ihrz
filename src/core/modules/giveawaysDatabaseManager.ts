@@ -19,35 +19,33 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Giveaway } from '../../../types/giveaways.js';
-import { GiveawayEndedStatus } from './giveawaysManager.js';
-import {
-	existsSync,
-	mkdirSync,
-} from 'node:fs';
-import logger from '../logger.js';
-import { readdir, readFile, unlink, writeFile } from 'node:fs/promises';
+import { Giveaway } from "../../../types/giveaways.js";
+import { GiveawayEndedStatus } from "./giveawaysManager.js";
+import { existsSync, mkdirSync } from "node:fs";
+import logger from "../logger.js";
+import { readdir, readFile, unlink, writeFile } from "node:fs/promises";
 
 class db {
 	path: string;
 
 	public InitFilePath(path: string) {
-
 		if (!existsSync(path)) {
 			mkdirSync(path);
-		};
+		}
 
-		this.path = path
-	};
+		this.path = path;
+	}
 
 	private getFilePath(giveawayId: string): string {
 		return `${this.path}/${giveawayId}.json`;
 	}
 
-	private async readGiveawayFile(giveawayId: string): Promise<Giveaway | null> {
+	private async readGiveawayFile(
+		giveawayId: string
+	): Promise<Giveaway | null> {
 		const filePath = this.getFilePath(giveawayId);
 		try {
-			const data = await readFile(filePath, 'utf-8');
+			const data = await readFile(filePath, "utf-8");
 			return JSON.parse(data) as Giveaway;
 		} catch (error) {
 			return null;
@@ -56,7 +54,7 @@ class db {
 
 	private async writeGiveawayFile(giveawayId: string, data: Giveaway) {
 		const filePath = this.getFilePath(giveawayId);
-		await writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+		await writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
 	}
 
 	public async AddEntries(giveawayId: string, user: string) {
@@ -67,17 +65,24 @@ class db {
 		}
 	}
 
-	public async RemoveEntries(giveawayId: string, userId: string): Promise<string[]> {
+	public async RemoveEntries(
+		giveawayId: string,
+		userId: string
+	): Promise<string[]> {
 		const giveaway = await this.readGiveawayFile(giveawayId);
 		if (giveaway) {
-			giveaway.entries = giveaway.entries.filter((entry: string) => entry !== userId);
+			giveaway.entries = giveaway.entries.filter(
+				(entry: string) => entry !== userId
+			);
 			await this.writeGiveawayFile(giveawayId, giveaway);
 			return giveaway.entries;
 		}
 		return [];
 	}
 
-	public async GetGiveawayData(giveawayId: string): Promise<Giveaway | undefined> {
+	public async GetGiveawayData(
+		giveawayId: string
+	): Promise<Giveaway | undefined> {
 		const giveaway = await this.readGiveawayFile(giveawayId);
 		return giveaway ? giveaway : undefined;
 	}
@@ -90,22 +95,25 @@ class db {
 		const giveaway = (await this.readGiveawayFile(giveawayId))!;
 		giveaway.ended = state;
 		await this.writeGiveawayFile(giveawayId, giveaway);
-		return 'OK';
+		return "OK";
 	}
 
 	public async SetWinners(giveawayId: string, winners: string[] | string) {
 		const giveaway = (await this.readGiveawayFile(giveawayId))!;
 		giveaway.winners = winners;
 		await this.writeGiveawayFile(giveawayId, giveaway);
-		return 'OK';
+		return "OK";
 	}
 
-	public async GetAllGiveawaysData(): Promise<{ giveawayId: string; giveawayData: Giveaway }[]> {
+	public async GetAllGiveawaysData(): Promise<
+		{ giveawayId: string; giveawayData: Giveaway }[]
+	> {
 		const giveawayFiles = await readdir(this.path);
-		const allGiveaways: { giveawayId: string; giveawayData: Giveaway }[] = [];
+		const allGiveaways: { giveawayId: string; giveawayData: Giveaway }[] =
+			[];
 
 		for (const file of giveawayFiles) {
-			const giveawayId = file.replace('.json', '');
+			const giveawayId = file.replace(".json", "");
 			const giveawayData = await this.readGiveawayFile(giveawayId);
 
 			if (giveawayData) {
@@ -135,7 +143,6 @@ class db {
 
 		await this.writeGiveawayFile(giveawayId, giveaway);
 	}
-
-};
+}
 
 export default new db();

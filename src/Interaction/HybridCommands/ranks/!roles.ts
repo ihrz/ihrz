@@ -34,27 +34,42 @@ import {
 	TextInputStyle,
 	ComponentType,
 	Colors,
-	Role,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	Role
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const ranksConfig = await client.db.get(`${interaction.guild.id}.GUILD.XP_LEVELING`) || {
-			message: '',
-			disabled: false,
-			ranksRoles: {},
-			xpchannels: undefined,
-			bypassChannels: undefined,
-		} as DatabaseStructure.DbGuildXpLeveling;
+		const ranksConfig =
+			(await client.db.get(
+				`${interaction.guild.id}.GUILD.XP_LEVELING`
+			)) ||
+			({
+				message: "",
+				disabled: false,
+				ranksRoles: {},
+				xpchannels: undefined,
+				bypassChannels: undefined
+			} as DatabaseStructure.DbGuildXpLeveling);
 
 		if (!ranksConfig.ranksRoles) {
 			ranksConfig.ranksRoles = {};
@@ -64,14 +79,21 @@ export const subCommand: SubCommand = {
 		let currentPage = 0;
 
 		const createRankRolesEmbed = (page: number) => {
-			const roleEntries = Object.entries(ranksConfig.ranksRoles || {})
-				.sort(([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA));
+			const roleEntries = Object.entries(
+				ranksConfig.ranksRoles || {}
+			).sort(([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA));
 
 			const startIndex = page * itemsPerPage;
-			const pageRoles = roleEntries.slice(startIndex, startIndex + itemsPerPage);
+			const pageRoles = roleEntries.slice(
+				startIndex,
+				startIndex + itemsPerPage
+			);
 
 			const currentPage = page + 1;
-			const totalPage = Math.max(1, Math.ceil(roleEntries.length / itemsPerPage));
+			const totalPage = Math.max(
+				1,
+				Math.ceil(roleEntries.length / itemsPerPage)
+			);
 			const totalRanks = roleEntries.length;
 
 			const embed = new EmbedBuilder()
@@ -81,18 +103,22 @@ export const subCommand: SubCommand = {
 				.addFields(
 					pageRoles.length > 0
 						? pageRoles.map(([level, roleId]) => ({
-							name: lang.ranks_config_autofields_name
-								.replace("${level}", level),
-							value: lang.ranks_config_autofields_value
-								.replace("${level}", level)
-								.replace("${roleId}", String(roleId)),
-							inline: false
-						}))
-						: [{
-							name: lang.ranks_config_nofields_name,
-							value: lang.ranks_config_nofields_value,
-							inline: false
-						}]
+								name: lang.ranks_config_autofields_name.replace(
+									"${level}",
+									level
+								),
+								value: lang.ranks_config_autofields_value
+									.replace("${level}", level)
+									.replace("${roleId}", String(roleId)),
+								inline: false
+							}))
+						: [
+								{
+									name: lang.ranks_config_nofields_name,
+									value: lang.ranks_config_nofields_value,
+									inline: false
+								}
+							]
 				)
 				.setFooter({
 					text: lang.ranks_config_help_footer
@@ -109,39 +135,41 @@ export const subCommand: SubCommand = {
 		const createActionRow = () => {
 			const roleEntries = Object.entries(ranksConfig.ranksRoles || {});
 
-			const navigationRow = new ActionRowBuilder<ButtonBuilder>()
-				.addComponents(
+			const navigationRow =
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
-						.setCustomId('prev_page')
-						.setLabel('<<<')
+						.setCustomId("prev_page")
+						.setLabel("<<<")
 						.setStyle(ButtonStyle.Secondary)
 						.setDisabled(currentPage === 0),
 					new ButtonBuilder()
-						.setCustomId('add_role')
+						.setCustomId("add_role")
 						.setLabel(lang.ranks_config_btn_add_name)
 						.setStyle(ButtonStyle.Success),
 					new ButtonBuilder()
-						.setCustomId('remove_role')
+						.setCustomId("remove_role")
 						.setLabel(lang.ranks_config_btn_remove_name)
 						.setStyle(ButtonStyle.Danger),
 					new ButtonBuilder()
-						.setCustomId('next_page')
-						.setLabel('>>>')
+						.setCustomId("next_page")
+						.setLabel(">>>")
 						.setStyle(ButtonStyle.Secondary)
-						.setDisabled(currentPage >= Math.floor(roleEntries.length / itemsPerPage)),
+						.setDisabled(
+							currentPage >=
+								Math.floor(roleEntries.length / itemsPerPage)
+						)
 				);
 
 			return navigationRow;
 		};
 
 		const createReturnRow = () => {
-			return new ActionRowBuilder<ButtonBuilder>()
-				.addComponents(
-					new ButtonBuilder()
-						.setCustomId('return_to_main')
-						.setLabel(lang.backup_cancel_button)
-						.setStyle(ButtonStyle.Secondary)
-				);
+			return new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setCustomId("return_to_main")
+					.setLabel(lang.backup_cancel_button)
+					.setStyle(ButtonStyle.Secondary)
+			);
 		};
 
 		const message = await client.func.method.interactionSend(interaction, {
@@ -154,7 +182,7 @@ export const subCommand: SubCommand = {
 			componentType: ComponentType.Button
 		});
 
-		collector.on('collect', async (interaction2) => {
+		collector.on("collect", async (interaction2) => {
 			if (interaction2.user.id !== interaction.member?.user.id) {
 				await interaction2.reply({
 					content: lang.help_not_for_you,
@@ -163,7 +191,7 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			if (interaction2.customId === 'prev_page') {
+			if (interaction2.customId === "prev_page") {
 				currentPage = Math.max(0, currentPage - 1);
 				await interaction2.update({
 					embeds: [createRankRolesEmbed(currentPage)],
@@ -172,9 +200,14 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			if (interaction2.customId === 'next_page') {
-				const roleEntries = Object.entries(ranksConfig.ranksRoles || {});
-				currentPage = Math.min(Math.floor(roleEntries.length / itemsPerPage), currentPage + 1);
+			if (interaction2.customId === "next_page") {
+				const roleEntries = Object.entries(
+					ranksConfig.ranksRoles || {}
+				);
+				currentPage = Math.min(
+					Math.floor(roleEntries.length / itemsPerPage),
+					currentPage + 1
+				);
 				await interaction2.update({
 					embeds: [createRankRolesEmbed(currentPage)],
 					components: [createActionRow()]
@@ -182,7 +215,7 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			if (interaction2.customId === 'return_to_main') {
+			if (interaction2.customId === "return_to_main") {
 				await interaction2.update({
 					content: null,
 					embeds: [createRankRolesEmbed(currentPage)],
@@ -191,9 +224,10 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			if (interaction2.customId === 'add_role') {
-
-				const currentRoles = Object.values(ranksConfig.ranksRoles || {});
+			if (interaction2.customId === "add_role") {
+				const currentRoles = Object.values(
+					ranksConfig.ranksRoles || {}
+				);
 				if (currentRoles.length >= 25) {
 					await interaction2.reply({
 						content: lang.ranks_config_add_max_roles,
@@ -202,11 +236,13 @@ export const subCommand: SubCommand = {
 					return;
 				}
 
-				const roleSelectRow = new ActionRowBuilder<RoleSelectMenuBuilder>()
-					.addComponents(
+				const roleSelectRow =
+					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
 						new RoleSelectMenuBuilder()
-							.setCustomId('select_role_to_add')
-							.setPlaceholder(lang.ranks_config_add_role_menu_placeholder)
+							.setCustomId("select_role_to_add")
+							.setPlaceholder(
+								lang.ranks_config_add_role_menu_placeholder
+							)
 					);
 
 				const awaiting = await interaction2.update({
@@ -232,32 +268,40 @@ export const subCommand: SubCommand = {
 				const selectedRole = response1.roles.first();
 				if (!selectedRole) return;
 
-				const rolePermissions = new PermissionsBitField((selectedRole as Role).permissions);
+				const rolePermissions = new PermissionsBitField(
+					(selectedRole as Role).permissions
+				);
 				const roleDangerousPermissions: string[] = [];
 
-				for (const perm of client.func.method.getDangerousPermissions(lang)) {
+				for (const perm of client.func.method.getDangerousPermissions(
+					lang
+				)) {
 					if (rolePermissions.has(perm.flag)) {
 						roleDangerousPermissions.push(perm.name);
 					}
 				}
 
-				const response2 = await iHorizonModalResolve({
-					title: lang.ranks_config_add_modal_title,
-					customId: 'level_input_modal',
-					deferUpdate: false,
-					fields: [
-						{
-							customId: 'level_input',
-							label: lang.ranks_config_add_modal_fields1_placeholder,
-							style: TextInputStyle.Short,
-							required: true,
-							minLength: 1,
-							maxLength: 4,
-						}
-					]
-				}, response1);
+				const response2 = await iHorizonModalResolve(
+					{
+						title: lang.ranks_config_add_modal_title,
+						customId: "level_input_modal",
+						deferUpdate: false,
+						fields: [
+							{
+								customId: "level_input",
+								label: lang.ranks_config_add_modal_fields1_placeholder,
+								style: TextInputStyle.Short,
+								required: true,
+								minLength: 1,
+								maxLength: 4
+							}
+						]
+					},
+					response1
+				);
 
-				const levelInput = response2?.fields.getTextInputValue('level_input') || "";
+				const levelInput =
+					response2?.fields.getTextInputValue("level_input") || "";
 
 				const level = parseInt(levelInput.trim());
 				if (isNaN(level) || level <= 0) {
@@ -276,7 +320,10 @@ export const subCommand: SubCommand = {
 
 				if (currentRoles.find((r) => r === selectedRole.id)) {
 					await response2?.reply({
-						content: lang.ranks_config_add_invalid_role.replace("{role}", selectedRole.toString()),
+						content: lang.ranks_config_add_invalid_role.replace(
+							"{role}",
+							selectedRole.toString()
+						),
 						flags: [1 << 6]
 					});
 					await message.edit({
@@ -289,7 +336,10 @@ export const subCommand: SubCommand = {
 
 				if (selectedRole) {
 					ranksConfig.ranksRoles[level.toString()] = selectedRole.id;
-					await client.db.set(`${interaction.guild?.id}.GUILD.XP_LEVELING`, ranksConfig);
+					await client.db.set(
+						`${interaction.guild?.id}.GUILD.XP_LEVELING`,
+						ranksConfig
+					);
 
 					await message.edit({
 						content: null,
@@ -305,10 +355,13 @@ export const subCommand: SubCommand = {
 					});
 
 					if (roleDangerousPermissions.length > 0) {
-						const _ = roleDangerousPermissions.join('\n');
+						const _ = roleDangerousPermissions.join("\n");
 						await response1.followUp({
 							content: lang.ranks_config_add_command_warn
-								.replace("${selectedRole}", selectedRole.toString())
+								.replace(
+									"${selectedRole}",
+									selectedRole.toString()
+								)
 								.replace("${_}", _),
 							flags: [1 << 6]
 						});
@@ -318,8 +371,10 @@ export const subCommand: SubCommand = {
 			}
 
 			// Remove Role Flow
-			if (interaction2.customId === 'remove_role') {
-				const roleEntries = Object.entries(ranksConfig.ranksRoles || {});
+			if (interaction2.customId === "remove_role") {
+				const roleEntries = Object.entries(
+					ranksConfig.ranksRoles || {}
+				);
 
 				if (roleEntries.length === 0) {
 					await interaction2.reply({
@@ -335,18 +390,32 @@ export const subCommand: SubCommand = {
 					return;
 				}
 
-				const roleOptions = Object.entries(ranksConfig.ranksRoles || {}).map(([level, roleId]) =>
+				const roleOptions = Object.entries(
+					ranksConfig.ranksRoles || {}
+				).map(([level, roleId]) =>
 					new StringSelectMenuOptionBuilder()
-						.setLabel(lang.ranks_config_var_level.replace("{level}", level))
+						.setLabel(
+							lang.ranks_config_var_level.replace(
+								"{level}",
+								level
+							)
+						)
 						.setValue(level)
-						.setDescription(lang.ranks_config_remove_string_menu_desc.replace("${level}", level))
+						.setDescription(
+							lang.ranks_config_remove_string_menu_desc.replace(
+								"${level}",
+								level
+							)
+						)
 				);
 
-				const removeRoleRow = new ActionRowBuilder<StringSelectMenuBuilder>()
-					.addComponents(
+				const removeRoleRow =
+					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 						new StringSelectMenuBuilder()
-							.setCustomId('select_role_to_remove')
-							.setPlaceholder(lang.ranks_config_remove_string_menu1_placeholder)
+							.setCustomId("select_role_to_remove")
+							.setPlaceholder(
+								lang.ranks_config_remove_string_menu1_placeholder
+							)
 							.addOptions(roleOptions)
 					);
 
@@ -373,7 +442,10 @@ export const subCommand: SubCommand = {
 				const levelToRemove = response1.values[0];
 				delete ranksConfig.ranksRoles[levelToRemove];
 
-				await client.db.set(`${interaction.guild?.id}.GUILD.XP_LEVELING`, ranksConfig);
+				await client.db.set(
+					`${interaction.guild?.id}.GUILD.XP_LEVELING`,
+					ranksConfig
+				);
 
 				await message.edit({
 					content: null,
@@ -382,15 +454,18 @@ export const subCommand: SubCommand = {
 				});
 
 				await response1.reply({
-					content: lang.ranks_config_remove_command_work.replace("${levelToRemove}", levelToRemove),
+					content: lang.ranks_config_remove_command_work.replace(
+						"${levelToRemove}",
+						levelToRemove
+					),
 					flags: [1 << 6]
 				});
 				return;
 			}
 		});
 
-		collector.on('end', async () => {
+		collector.on("end", async () => {
 			await message.edit({ components: [] });
 		});
-	},
+	}
 };

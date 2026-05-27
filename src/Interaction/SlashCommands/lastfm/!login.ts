@@ -19,28 +19,40 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<'cached'>, lang: LanguageData) => {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData
+	) => {
 		if (!interaction.user) return;
 
-		const username = interaction.options.getString('username', true);
-		const password = interaction.options.getString('password', true);
+		const username = interaction.options.getString("username", true);
+		const password = interaction.options.getString("password", true);
 
-		const result = await client.lastFMScrobbler.login(interaction.user.id, username, password, lang);
+		const result = await client.lastFMScrobbler.login(
+			interaction.user.id,
+			username,
+			password,
+			lang
+		);
 
 		await client.func.method.interactionSend(interaction, {
 			content: result.message,
 			embeds: result.ok
-				? [await client.lastFMScrobbler.generateUserEmbed(interaction.user.id, interaction.user.username, lang)]
+				? [
+						await client.lastFMScrobbler.generateUserEmbed(
+							interaction.user.id,
+							interaction.user.username,
+							lang
+						)
+					]
 				: []
 		});
-	},
+	}
 };

@@ -19,28 +19,34 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	ChannelType,
-	Client,
-	Message
-} from 'discord.js';
+import { BaseGuildTextChannel, ChannelType, Client, Message } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 
-import { scheduleStickyChannelRefresh } from '../../core/modules/stickyMessageManager.js';
+import { scheduleStickyChannelRefresh } from "../../core/modules/stickyMessageManager.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		if (!message.guild || !message.channel || message.author.bot || message.webhookId) return;
+		if (
+			!message.guild ||
+			!message.channel ||
+			message.author.bot ||
+			message.webhookId
+		)
+			return;
 		if (message.channel.type !== ChannelType.GuildText) return;
 
-		const stickyConfig = await client.db.get(`${message.guild.id}.STICKY.${message.channelId}`) as DatabaseStructure.StickyChannelConfig | null;
+		const stickyConfig = (await client.db.get(
+			`${message.guild.id}.STICKY.${message.channelId}`
+		)) as DatabaseStructure.StickyChannelConfig | null;
 
 		if (!stickyConfig?.enabled) return;
 
-		scheduleStickyChannelRefresh(client, message.channel as BaseGuildTextChannel);
-	},
+		scheduleStickyChannelRefresh(
+			client,
+			message.channel as BaseGuildTextChannel
+		);
+	}
 };

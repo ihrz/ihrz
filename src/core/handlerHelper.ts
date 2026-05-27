@@ -26,37 +26,50 @@ import { Client } from "discord.js";
 import { EltType } from "../../types/eltType.js";
 import { Category } from "../../types/category.js";
 
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { fileURLToPath } from "url";
+import path from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const emojisFile = Bun.file(path.join(process.cwd(), 'src', 'files', 'emojis.json'));
+const emojisFile = Bun.file(
+	path.join(process.cwd(), "src", "files", "emojis.json")
+);
 const emojisFilesExist = await emojisFile.exists();
 const emojisJson = emojisFilesExist ? await emojisFile.json() : null;
 
-export async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
+export async function buildDirectoryTree(
+	path: string
+): Promise<(string | object)[]> {
 	const result = [];
 	const dir = await opendir(path);
 	for await (const dirent of dir) {
-		if (!dirent.name.startsWith('!')) {
+		if (!dirent.name.startsWith("!")) {
 			if (dirent.isDirectory()) {
-				result.push({ name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name)) });
+				result.push({
+					name: dirent.name,
+					sub: await buildDirectoryTree(pathJoin(path, dirent.name))
+				});
 			} else {
 				result.push(dirent.name);
 			}
 		}
 	}
 	return result;
-};
+}
 
-export function buildPaths(basePath: string, directoryTree: (string | object)[]): string[] {
+export function buildPaths(
+	basePath: string,
+	directoryTree: (string | object)[]
+): string[] {
 	const paths = [];
 	for (const elt of directoryTree) {
 		switch (typeof elt) {
 			case "object":
-				for (const subElt of buildPaths((elt as EltType).name, (elt as EltType).sub)) {
+				for (const subElt of buildPaths(
+					(elt as EltType).name,
+					(elt as EltType).sub
+				)) {
 					paths.push(pathJoin(basePath, subElt));
 				}
 				break;
@@ -64,11 +77,11 @@ export function buildPaths(basePath: string, directoryTree: (string | object)[])
 				paths.push(pathJoin(basePath, elt));
 				break;
 			default:
-				throw new Error('Invalid element type');
+				throw new Error("Invalid element type");
 		}
 	}
 	return paths;
-};
+}
 
 export function resolveCategoryInitializer(category: Category): Category {
 	return {
@@ -81,7 +94,9 @@ export function resolveCategoryInitializer(category: Category): Category {
 }
 
 function resolveCategoryTemplate(value: string): string {
-	const match = value.match(/^\$\{client\.iHorizon_Emojis\.([A-Za-z0-9_]+)\}$/);
+	const match = value.match(
+		/^\$\{client\.iHorizon_Emojis\.([A-Za-z0-9_]+)\}$/
+	);
 
 	if (!match || !emojisFilesExist) {
 		return value;

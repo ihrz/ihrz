@@ -23,18 +23,17 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "confession",
 
 	description: "Subcommand for confession category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour le module de confession"
+		fr: "Commande sous-groupé pour le module de confession"
 	},
 
 	options: [
@@ -44,18 +43,18 @@ export const command: Command = {
 
 			description: "Set the confession module's channel!",
 			description_localizations: {
-				"fr": "Définir le canal du module confession"
+				fr: "Définir le canal du module confession"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'channel',
+					name: "channel",
 					type: ApplicationCommandOptionType.Channel,
 
-					description: 'The channel!',
+					description: "The channel!",
 					description_localizations: {
-						"fr": "Le channel"
+						fr: "Le channel"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -65,12 +64,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'button-title',
+					name: "button-title",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The button title',
+					description: "The button title",
 					description_localizations: {
-						"fr": "Le titre du bouton"
+						fr: "Le titre du bouton"
 					},
 
 					required: true,
@@ -87,32 +86,32 @@ export const command: Command = {
 
 			description: "Enable or Disable the confession module!",
 			description_localizations: {
-				"fr": "Activer ou désactiver le module"
+				fr: "Activer ou désactiver le module"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'action',
+					name: "action",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What do you want to do ?',
+					description: "What do you want to do ?",
 					description_localizations: {
-						"fr": "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?"
 					},
 
 					required: true,
 					choices: [
 						{
-							name: 'Power On',
-							name_localizations: { fr: 'Activer' },
+							name: "Power On",
+							name_localizations: { fr: "Activer" },
 							value: "on"
 						},
 						{
 							name: "Power Off",
-							name_localizations: { fr: 'Désactiver' },
+							name_localizations: { fr: "Désactiver" },
 							value: "off"
-						},
+						}
 					],
 
 					permission: null
@@ -127,32 +126,32 @@ export const command: Command = {
 
 			description: "Create an thread upside the confession ?",
 			description_localizations: {
-				"fr": "Créer un fil de discussion en dessous de la confession ?"
+				fr: "Créer un fil de discussion en dessous de la confession ?"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'action',
+					name: "action",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What do you want to do ?',
+					description: "What do you want to do ?",
 					description_localizations: {
-						"fr": "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?"
 					},
 
 					required: true,
 					choices: [
 						{
-							name: 'Create thread',
-							name_localizations: { fr: 'Créer un fil' },
+							name: "Create thread",
+							name_localizations: { fr: "Créer un fil" },
 							value: "yes"
 						},
 						{
 							name: "Don´t create thread",
-							name_localizations: { fr: 'Ne pas créer un fil' },
+							name_localizations: { fr: "Ne pas créer un fil" },
 							value: "no"
-						},
+						}
 					],
 
 					permission: null
@@ -167,18 +166,18 @@ export const command: Command = {
 
 			description: "Change the cooldown between confession!",
 			description_localizations: {
-				"fr": "Changer le cooldown entre les confession"
+				fr: "Changer le cooldown entre les confession"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'time',
+					name: "time",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'Coolodwn\'s time like 3h/30m/10s...',
+					description: "Coolodwn's time like 3h/30m/10s...",
 					description_localizations: {
-						"fr": "Le temps comme 3h/30m/10s..."
+						fr: "Le temps comme 3h/30m/10s..."
 					},
 
 					required: true,
@@ -191,7 +190,7 @@ export const command: Command = {
 		}
 	],
 	thinking: false,
-	category: 'confession',
+	category: "confession",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

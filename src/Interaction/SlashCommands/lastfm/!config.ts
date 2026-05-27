@@ -19,42 +19,61 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<'cached'>, lang: LanguageData) => {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData
+	) => {
 		if (!interaction.user) return;
 
-		const power = interaction.options.getString('power', true) as 'on' | 'off';
-		const enabled = power === 'on';
+		const power = interaction.options.getString("power", true) as
+			| "on"
+			| "off";
+		const enabled = power === "on";
 
 		if (enabled && !client.lastFMScrobbler.isConfigured()) {
 			return client.func.method.interactionSend(interaction, {
-				content: client.lastFMScrobbler.getMissingConfigurationMessage(lang)
+				content:
+					client.lastFMScrobbler.getMissingConfigurationMessage(lang)
 			});
 		}
 
-		const result = await client.lastFMScrobbler.setEnabled(interaction.user.id, enabled);
+		const result = await client.lastFMScrobbler.setEnabled(
+			interaction.user.id,
+			enabled
+		);
 		if (!result.ok) {
 			return client.func.method.interactionSend(interaction, {
-				content: lang.lastfm_config_login_required
-					.replace(/\${client\.iHorizon_Emojis\.No}/g, client.iHorizon_Emojis.No)
+				content: lang.lastfm_config_login_required.replace(
+					/\${client\.iHorizon_Emojis\.No}/g,
+					client.iHorizon_Emojis.No
+				)
 			});
 		}
 
 		await client.func.method.interactionSend(interaction, {
 			content: enabled
-				? lang.lastfm_config_enabled.replace(/\${client\.iHorizon_Emojis\.Yes}/g, client.iHorizon_Emojis.Yes)
-				: lang.lastfm_config_disabled.replace(/\${client\.iHorizon_Emojis\.Yes}/g, client.iHorizon_Emojis.Yes),
+				? lang.lastfm_config_enabled.replace(
+						/\${client\.iHorizon_Emojis\.Yes}/g,
+						client.iHorizon_Emojis.Yes
+					)
+				: lang.lastfm_config_disabled.replace(
+						/\${client\.iHorizon_Emojis\.Yes}/g,
+						client.iHorizon_Emojis.Yes
+					),
 			embeds: [
-				await client.lastFMScrobbler.generateUserEmbed(interaction.user.id, interaction.user.username, lang)
+				await client.lastFMScrobbler.generateUserEmbed(
+					interaction.user.id,
+					interaction.user.username,
+					lang
+				)
 			]
 		});
-	},
+	}
 };

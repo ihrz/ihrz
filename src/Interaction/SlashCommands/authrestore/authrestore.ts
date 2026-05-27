@@ -24,16 +24,17 @@ import {
 	ApplicationCommandType,
 	ChannelType,
 	PermissionFlagsBits
-} from 'discord.js'
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
-	name: 'authrestore',
+	name: "authrestore",
 
-	description: 'Do the same thing as authrestore with link verification button under iHorizon message',
+	description:
+		"Do the same thing as authrestore with link verification button under iHorizon message",
 	description_localizations: {
-		"fr": "Faites la même chose que authrestore avec le bouton de vérification du lien sous le message iHorizon"
+		fr: "Faites la même chose que authrestore avec le bouton de vérification du lien sous le message iHorizon"
 	},
 
 	aliases: [],
@@ -43,17 +44,17 @@ export const command: Command = {
 
 			description: "Set the current message for AuthRestore button",
 			description_localizations: {
-				"fr": "Définir le message actuel pour le bouton de AuthRestore"
+				fr: "Définir le message actuel pour le bouton de AuthRestore"
 			},
 
 			options: [
 				{
-					name: 'channel',
+					name: "channel",
 					type: ApplicationCommandOptionType.Channel,
 
 					description: "The channel where is the message",
 					description_localizations: {
-						"fr": "Le salon textuelle où se trouve le message"
+						fr: "Le salon textuelle où se trouve le message"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -63,12 +64,13 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'message_id',
+					name: "message_id",
 					type: ApplicationCommandOptionType.String,
 
-					description: "Please copy the identifiant of the message you want to configure",
+					description:
+						"Please copy the identifiant of the message you want to configure",
 					description_localizations: {
-						"fr": "Veuillez copier l'identifiant du message que vous souhaitez configurer"
+						fr: "Veuillez copier l'identifiant du message que vous souhaitez configurer"
 					},
 
 					required: true,
@@ -76,12 +78,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'role',
+					name: "role",
 					type: ApplicationCommandOptionType.Role,
 
-					description: 'The role you want to configure',
+					description: "The role you want to configure",
 					description_localizations: {
-						"fr": "Le rôle que vous souhaitez configurer"
+						fr: "Le rôle que vous souhaitez configurer"
 					},
 
 					required: false,
@@ -102,7 +104,7 @@ export const command: Command = {
 
 			description: "Delete the AuthRestore module button",
 			description_localizations: {
-				"fr": "Supprimer le bouton du module de AuthRestore"
+				fr: "Supprimer le bouton du module de AuthRestore"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -112,25 +114,26 @@ export const command: Command = {
 		{
 			name: "get",
 
-			description: "Get all informations about the AuthRestore module of the guild",
+			description:
+				"Get all informations about the AuthRestore module of the guild",
 			description_localizations: {
-				"fr": "Obtenez toutes les informations sur le module AuthRestore de votre guilde"
+				fr: "Obtenez toutes les informations sur le module AuthRestore de votre guilde"
 			},
 
 			options: [
 				{
-					name: 'key',
+					name: "key",
 					type: ApplicationCommandOptionType.String,
 
 					description: "The private key of your AuthRestore config",
 					description_localizations: {
-						"fr": "La clé privée de votre configuration AuthRestore"
+						fr: "La clé privée de votre configuration AuthRestore"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 			type: ApplicationCommandOptionType.Subcommand,
 
@@ -139,25 +142,26 @@ export const command: Command = {
 		{
 			name: "force-join",
 
-			description: "Force all members of your AuthRestore module to join the guild",
+			description:
+				"Force all members of your AuthRestore module to join the guild",
 			description_localizations: {
-				"fr": "Forcer tous les membres de votre module AuthRestore à rejoindre la guilde"
+				fr: "Forcer tous les membres de votre module AuthRestore à rejoindre la guilde"
 			},
 
 			options: [
 				{
-					name: 'key',
+					name: "key",
 					type: ApplicationCommandOptionType.String,
 
 					description: "The private key of your AuthRestore config",
 					description_localizations: {
-						"fr": "La clé privée de votre configuration AuthRestore"
+						fr: "La clé privée de votre configuration AuthRestore"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 			type: ApplicationCommandOptionType.Subcommand,
 
@@ -168,17 +172,17 @@ export const command: Command = {
 
 			description: "Set new roles for the AuthRestore module",
 			description_localizations: {
-				"fr": "Définir un nouveau rôle pour le module AuthRestore"
+				fr: "Définir un nouveau rôle pour le module AuthRestore"
 			},
 
 			options: [
 				{
-					name: 'key',
+					name: "key",
 					type: ApplicationCommandOptionType.String,
 
 					description: "The private key of your AuthRestore config",
 					description_localizations: {
-						"fr": "La clé privée de votre configuration AuthRestore"
+						fr: "La clé privée de votre configuration AuthRestore"
 					},
 
 					required: true,
@@ -186,26 +190,25 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'roles',
+					name: "roles",
 					type: ApplicationCommandOptionType.Role,
 
 					description: "The new roles for your AuthRestore config",
 					description_localizations: {
-						"fr": "Le nouveau rôle pour votre configuration AuthRestore"
+						fr: "Le nouveau rôle pour votre configuration AuthRestore"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.Administrator
-		},
-
+		}
 	],
-	category: 'authrestore',
+	category: "authrestore",
 	thinking: true,
 	type: ApplicationCommandType.ChatInput,
 

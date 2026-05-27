@@ -27,30 +27,56 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	GuildTextBasedChannel
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { createAuthRestore, createOauth2LinkWithGuild } from '../../../core/functions/authRestoreHelper.js';
+import {
+	createAuthRestore,
+	createOauth2LinkWithGuild
+} from "../../../core/functions/authRestoreHelper.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const channel = interaction.options.getChannel("channel") as Channel | null;
+		const channel = interaction.options.getChannel(
+			"channel"
+		) as Channel | null;
 		const messagei = interaction.options.getString("message_id");
 		const role = interaction.options.getRole("role");
 
-		if (!role) { return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_roles_not_found }); };
+		if (!role) {
+			return await client.func.method.interactionSend(interaction, {
+				content: lang.buttonreaction_roles_not_found
+			});
+		}
 
-		await (channel as GuildTextBasedChannel | null)?.messages.fetch(messagei!)
-			.then(async msg => {
+		await (channel as GuildTextBasedChannel | null)?.messages
+			.fetch(messagei!)
+			.then(async (msg) => {
 				if (msg?.author.id !== client.user?.id) {
-					return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
+					return await client.func.method.interactionSend(
+						interaction,
+						{
+							content:
+								lang.buttonreaction_message_other_user_error
+						}
+					);
 				}
 
 				const buttonLink = createOauth2LinkWithGuild({
@@ -66,7 +92,6 @@ export const subCommand: SubCommand = {
 					author: interaction.user
 				})
 					.then(async (res) => {
-
 						msg.edit({
 							components: [
 								new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -76,40 +101,73 @@ export const subCommand: SubCommand = {
 										.setURL(buttonLink)
 								)
 							]
-						})
+						});
 
 						const msgLink = `https://discord.com/channels/${interaction.guildId}/${channel?.id}/${messagei}`;
 
 						await client.func.method.interactionSend(interaction, {
 							content: lang.rc_command_ok
-								.replace("${interaction.user.toString()}", interaction.user.toString())
-								.replace("${res.secretCode}", String(res.secretCode))
+								.replace(
+									"${interaction.user.toString()}",
+									interaction.user.toString()
+								)
+								.replace(
+									"${res.secretCode}",
+									String(res.secretCode)
+								)
 								.replace("${msgLink}", msgLink),
 							flags: [1 << 6]
 						});
 
-						await interaction.user.send(lang.rc_command_ok_dm.replace("${interaction.guild.name}", interaction.guild.name).replace("${res.secretCode}", res.secretCode!))
-							.catch(() => interaction.followUp({ content: lang.rc_command_dm_failed, flags: [1 << 6] }))
-							.then(() => interaction.followUp({ content: lang.rc_command_dm_ok, flags: [1 << 6] }))
-							;
+						await interaction.user
+							.send(
+								lang.rc_command_ok_dm
+									.replace(
+										"${interaction.guild.name}",
+										interaction.guild.name
+									)
+									.replace(
+										"${res.secretCode}",
+										res.secretCode!
+									)
+							)
+							.catch(() =>
+								interaction.followUp({
+									content: lang.rc_command_dm_failed,
+									flags: [1 << 6]
+								})
+							)
+							.then(() =>
+								interaction.followUp({
+									content: lang.rc_command_dm_ok,
+									flags: [1 << 6]
+								})
+							);
 
-						await client.db.set(`${interaction.guildId}.GUILD.RESTORECORD`, {
-							channelId: channel?.id,
-							messageId: messagei,
-						});
-
+						await client.db.set(
+							`${interaction.guildId}.GUILD.RESTORECORD`,
+							{
+								channelId: channel?.id,
+								messageId: messagei
+							}
+						);
 					})
 					.catch(async () => {
-						await client.func.method.interactionSend(interaction, { content: lang.rc_command_horizongw_down });
+						await client.func.method.interactionSend(interaction, {
+							content: lang.rc_command_horizongw_down
+						});
 						return;
-					})
-
+					});
 			})
 			.catch(async (err) => {
-				await client.func.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove + "\n" + err })
+				await client.func.method.interactionSend(interaction, {
+					content:
+						lang.reactionroles_cant_fetched_reaction_remove +
+						"\n" +
+						err
+				});
 				return;
 			});
 		return;
-
-	},
+	}
 };

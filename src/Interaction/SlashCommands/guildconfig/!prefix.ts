@@ -19,48 +19,66 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.member.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var action = interaction.options.getString("action", true);
-			var prefix = interaction.options.getString('name');
+			var prefix = interaction.options.getString("name");
 		} else {
-			var action = "change"
+			var action = "change";
 			var prefix = client.func.method.string(args!, 0);
 		}
 
-
 		if (action === "mention") {
 			await client.db.delete(`${interaction.guildId}.BOT.prefix`);
-			await client.func.method.interactionSend(interaction, { content: lang.guildconfig_setbot_prefix_prefix_now_mention })
+			await client.func.method.interactionSend(interaction, {
+				content: lang.guildconfig_setbot_prefix_prefix_now_mention
+			});
 		} else if (action === "change") {
-			if (!prefix) return await client.func.method.interactionSend(interaction, { content: lang.guildconfig_setbot_prefix_prefix_specify_prefix });
-			if (prefix.length >= 5) return await client.func.method.interactionSend(interaction, { content: lang.guildconfig_setbot_prefix_prefix_too_long });
+			if (!prefix)
+				return await client.func.method.interactionSend(interaction, {
+					content:
+						lang.guildconfig_setbot_prefix_prefix_specify_prefix
+				});
+			if (prefix.length >= 5)
+				return await client.func.method.interactionSend(interaction, {
+					content: lang.guildconfig_setbot_prefix_prefix_too_long
+				});
 
 			const formatedPrefix = prefix.split(" ")[0];
-			await client.db.set(`${interaction.guildId}.BOT.prefix`, formatedPrefix);
+			await client.db.set(
+				`${interaction.guildId}.BOT.prefix`,
+				formatedPrefix
+			);
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.guildconfig_setbot_prefix_prefix_is_good
-					.replace("${formatedPrefix}", formatedPrefix)
+				content: lang.guildconfig_setbot_prefix_prefix_is_good.replace(
+					"${formatedPrefix}",
+					formatedPrefix
+				)
 			});
 			return;
 		}
-	},
+	}
 };

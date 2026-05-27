@@ -22,9 +22,9 @@
 export function isSingleEmoji(text: string): boolean {
 	const regex = /^[\p{Emoji}][\uFE0E\uFE0F\u{1F3FB}-\u{1F3FF}]?$/u;
 	return regex.test(text);
-};
+}
 
 export function isDiscordEmoji(text: string): boolean {
 	const emojiRegex = /:(\w+):(\d+)>/;
 	return emojiRegex.test(text);
-};
+}

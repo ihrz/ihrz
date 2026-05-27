@@ -19,55 +19,74 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	ChatInputCommandInteraction,
-	User,
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
-import { SubCommand } from '../../../../../types/command.js';
+import { Client, ChatInputCommandInteraction, User } from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-
-
-		const user = interaction.options.getUser('user') as User;
-		const perm = interaction.options.getString('permission') as string;
+		const user = interaction.options.getUser("user") as User;
+		const perm = interaction.options.getString("permission") as string;
 
 		if (perm === "0") {
-			await client.db.delete(`${interaction.guildId}.UTILS.USER_PERMS.${user.id}`);
-
-			await client.func.method.interactionSend(interaction, {
-				content: lang.perm_set_deleted.replace("${user.toString()}", user.toString())
-			});
-		} else {
-			const fetchedPerm = await client.func.permissonsCalculator.checkUserPermissions(
-				interaction.member,
+			await client.db.delete(
+				`${interaction.guildId}.UTILS.USER_PERMS.${user.id}`
 			);
 
-			if (Array.isArray(fetchedPerm) ? false : fetchedPerm <= parseInt(perm) && interaction.guild.ownerId !== interaction.member.id) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.perm_set_deleted.replace(
+					"${user.toString()}",
+					user.toString()
+				)
+			});
+		} else {
+			const fetchedPerm =
+				await client.func.permissonsCalculator.checkUserPermissions(
+					interaction.member
+				);
+
+			if (
+				Array.isArray(fetchedPerm)
+					? false
+					: fetchedPerm <= parseInt(perm) &&
+						interaction.guild.ownerId !== interaction.member.id
+			) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.perm_set_warn_message.replace(
 						"${interaction.member.toString()}",
-						interaction.member.toString(),
-					),
+						interaction.member.toString()
+					)
 				});
 				return;
 			}
 
-			await client.db.set(`${interaction.guildId}.UTILS.USER_PERMS.${user.id}`, parseInt(perm));
+			await client.db.set(
+				`${interaction.guildId}.UTILS.USER_PERMS.${user.id}`,
+				parseInt(perm)
+			);
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.perm_set_ok.replace("${user.toString()}", user.toString())
+				content: lang.perm_set_ok
+					.replace("${user.toString()}", user.toString())
 					.replace("${perm}", perm)
 			});
 		}
 
 		return;
-	},
+	}
 };

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 export interface MailerConfig {
 	host: string;
@@ -53,10 +53,10 @@ export class Mailer {
 				},
 				host: process.env.SMTP_HOST!,
 				port: Number(process.env.SMTP_PORT),
-				secure: process.env.SMTP_SECURE === 'true',
+				secure: process.env.SMTP_SECURE === "true",
 				fromName: client.user?.username,
 				owner: process.env.OWNER_MAIL!,
-				notifyNewGuild: process.env.EMAIL_WHEN_CHANGE_GUILD === 'true',
+				notifyNewGuild: process.env.EMAIL_WHEN_CHANGE_GUILD === "true"
 			};
 
 			this.ownerMail = this.config.owner;
@@ -69,11 +69,14 @@ export class Mailer {
 			throw new Error("Missing config payload. (useEnv=false)");
 		}
 
-		if (!this.config.auth.mail
-			|| !this.config.auth.password
-			|| !this.config.host
-			|| Number.isNaN(this.config.port)
-			|| !this.config.owner) return;
+		if (
+			!this.config.auth.mail ||
+			!this.config.auth.password ||
+			!this.config.host ||
+			Number.isNaN(this.config.port) ||
+			!this.config.owner
+		)
+			return;
 
 		this.transport = nodemailer.createTransport({
 			host: this.config.host,
@@ -124,15 +127,16 @@ export class Mailer {
 		withSignature: boolean = true
 	): Promise<boolean> {
 		try {
-			const normalizedText = text.replace(/\r?\n/g, '\r\n');
+			const normalizedText = text.replace(/\r?\n/g, "\r\n");
 
 			const finalText = withSignature
 				? normalizedText + this.signature.text
 				: normalizedText;
 
 			const finalHtml = withSignature
-				? (html || normalizedText.replace(/\r?\n/g, '<br>')) + this.signature.html
-				: (html || normalizedText.replace(/\r?\n/g, '<br>'));
+				? (html || normalizedText.replace(/\r?\n/g, "<br>")) +
+					this.signature.html
+				: html || normalizedText.replace(/\r?\n/g, "<br>");
 
 			const info = await this.transport.sendMail({
 				from: `"${this.config.fromName}" <${this.config.auth.mail}>`,
@@ -142,10 +146,10 @@ export class Mailer {
 				html: finalHtml
 			});
 
-			logger.log('Email Sended:', info.messageId);
+			logger.log("Email Sended:", info.messageId);
 			return true;
 		} catch (error) {
-			logger.err('Email Sending Error:', error);
+			logger.err("Email Sending Error:", error);
 			return false;
 		}
 	}
@@ -155,12 +159,14 @@ export class Mailer {
 			await this.transport.verify();
 			this.connected = true;
 
-			logger.log(`${client.config.console.emojis.OK} >> SMTP Connection success`);
+			logger.log(
+				`${client.config.console.emojis.OK} >> SMTP Connection success`
+			);
 			return true;
 		} catch (error) {
 			this.connected = false;
 
-			logger.err('SMTP Connection Error:', error);
+			logger.err("SMTP Connection Error:", error);
 			return false;
 		}
 	}

@@ -24,10 +24,10 @@ import {
 	Client,
 	Message,
 	EmbedBuilder
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -36,18 +36,20 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-
 		// Nombre entre 0 et 100
 		const random = Math.floor(Math.random() * 100);
 
 		// Fetch user ou soit même
-		const user = interaction instanceof ChatInputCommandInteraction ? interaction.options.getUser("user") :
-			client.func.method.member(interaction, args!, 0) || interaction.member!;
+		const user =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getUser("user")
+				: client.func.method.member(interaction, args!, 0) ||
+					interaction.member!;
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.fun_trans_command_ok
-				.replace('${user}', user?.toString() || '')
-				.replace('${random}', random.toString())
+				.replace("${user}", user?.toString() || "")
+				.replace("${random}", random.toString())
 		});
 	}
 };

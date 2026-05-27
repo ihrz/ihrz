@@ -39,23 +39,23 @@ export class Postgres<D = any> {
 			this.sql = new SQL(this.connectionString);
 			this.ownsConnection = true;
 		} else {
-
-			throw new Error("Either 'connectionString' or 'sql' must be provided to Postgres constructor.");
+			throw new Error(
+				"Either 'connectionString' or 'sql' must be provided to Postgres constructor."
+			);
 		}
 		this.tableName = options.table ? options.table.toLowerCase() : "json";
-		this.sql.connect()
+		this.sql.connect();
 	}
 
 	private createError(message: string, kind: ErrorKind): Error {
 		const error = new Error(message);
 		error.name = kind;
-		Object.defineProperty(error, 'kind', {
+		Object.defineProperty(error, "kind", {
 			value: kind,
 			writable: false
 		});
 		return error;
 	}
-
 
 	public async export(): Promise<{ id: string; value: any }[]> {
 		await this.ensureTableExists(this.tableName);
@@ -65,14 +65,16 @@ export class Postgres<D = any> {
             `;
 			return rows.map((row: any) => ({
 				id: row.id,
-				value: typeof row.value === 'string' ? JSON.parse(row.value) : row.value
+				value:
+					typeof row.value === "string"
+						? JSON.parse(row.value)
+						: row.value
 			}));
 		} catch (err) {
 			console.error("Error exporting ", err);
 			throw new Error("Failed to export data");
 		}
 	}
-
 
 	private async ensureTableExists(tableName: string): Promise<void> {
 		try {
@@ -83,11 +85,15 @@ export class Postgres<D = any> {
                 )
             `;
 		} catch (err) {
-			console.error(`Error ensuring table ${tableName.toLowerCase()} exists:`, err);
-			throw new Error(`Failed to ensure table ${tableName.toLowerCase()} exists`);
+			console.error(
+				`Error ensuring table ${tableName.toLowerCase()} exists:`,
+				err
+			);
+			throw new Error(
+				`Failed to ensure table ${tableName.toLowerCase()} exists`
+			);
 		}
 	}
-
 
 	private async getAllRows(
 		table: string
@@ -99,10 +105,16 @@ export class Postgres<D = any> {
             `;
 			return rows.map((row: any) => ({
 				id: row.id,
-				value: typeof row.value === 'string' ? JSON.parse(row.value) : row.value
+				value:
+					typeof row.value === "string"
+						? JSON.parse(row.value)
+						: row.value
 			}));
 		} catch (err) {
-			console.error(`Error getting all rows from ${table.toLowerCase()}:`, err);
+			console.error(
+				`Error getting all rows from ${table.toLowerCase()}:`,
+				err
+			);
 			throw new Error(`Failed to get rows from ${table.toLowerCase()}`);
 		}
 	}
@@ -113,21 +125,25 @@ export class Postgres<D = any> {
 	): Promise<[T | null, boolean]> {
 		await this.ensureTableExists(table);
 		try {
-
 			const rows = await this.sql`
                 SELECT "value" FROM ${this.sql.unsafe(table.toLowerCase())} WHERE "id" = ${key}
             `;
 			if (rows.length === 0) {
 				return [null, false];
 			}
-			const val = typeof rows[0].value === 'string' ? JSON.parse(rows[0].value) : rows[0].value;
+			const val =
+				typeof rows[0].value === "string"
+					? JSON.parse(rows[0].value)
+					: rows[0].value;
 			return [val as T, true];
 		} catch (err) {
-			console.error(`Error getting row by key ${key} from ${table.toLowerCase()}:`, err);
+			console.error(
+				`Error getting row by key ${key} from ${table.toLowerCase()}:`,
+				err
+			);
 			return [null, false];
 		}
 	}
-
 
 	private async getStartsWith(
 		table: string,
@@ -136,18 +152,23 @@ export class Postgres<D = any> {
 		await this.ensureTableExists(table);
 		try {
 			const rows = await this.sql`
-                SELECT "id", "value" FROM ${this.sql.unsafe(table.toLowerCase())} WHERE "id" LIKE ${query + '%'}
+                SELECT "id", "value" FROM ${this.sql.unsafe(table.toLowerCase())} WHERE "id" LIKE ${query + "%"}
             `;
 			return rows.map((row: any) => ({
 				id: row.id,
-				value: typeof row.value === 'string' ? JSON.parse(row.value) : row.value
+				value:
+					typeof row.value === "string"
+						? JSON.parse(row.value)
+						: row.value
 			}));
 		} catch (err) {
-			console.error(`Error getting rows starting with ${query} from ${table.toLowerCase()}:`, err);
+			console.error(
+				`Error getting rows starting with ${query} from ${table.toLowerCase()}:`,
+				err
+			);
 			return [];
 		}
 	}
-
 
 	private async setRowByKey<T>(
 		table: string,
@@ -169,16 +190,17 @@ export class Postgres<D = any> {
 			}
 			return value as T;
 		} catch (err) {
-			console.error(`Error setting row by key ${key} in ${table.toLowerCase()}:`, err);
+			console.error(
+				`Error setting row by key ${key} in ${table.toLowerCase()}:`,
+				err
+			);
 			throw new Error(`Failed to set value for key ${key}`);
 		}
 	}
 
-
 	private async deleteAllRows(table: string): Promise<number> {
 		await this.ensureTableExists(table.toLowerCase());
 		try {
-
 			const result = await this.sql`
                 DELETE FROM ${this.sql.unsafe(table.toLowerCase())}
             `;
@@ -189,11 +211,15 @@ export class Postgres<D = any> {
 			}
 			return deletedCount;
 		} catch (err) {
-			console.error(`Error deleting all rows from ${table.toLowerCase()}:`, err);
-			throw new Error(`Failed to delete all rows from ${table.toLowerCase()}`);
+			console.error(
+				`Error deleting all rows from ${table.toLowerCase()}:`,
+				err
+			);
+			throw new Error(
+				`Failed to delete all rows from ${table.toLowerCase()}`
+			);
 		}
 	}
-
 
 	private async deleteRowByKey(table: string, key: string): Promise<number> {
 		await this.ensureTableExists(table.toLowerCase());
@@ -208,11 +234,13 @@ export class Postgres<D = any> {
 			}
 			return deletedCount;
 		} catch (err) {
-			console.error(`Error deleting row by key ${key} from ${table.toLowerCase()}:`, err);
+			console.error(
+				`Error deleting row by key ${key} from ${table.toLowerCase()}:`,
+				err
+			);
 			throw new Error(`Failed to delete row with key ${key}`);
 		}
 	}
-
 
 	private async addSubtract(
 		key: string,
@@ -258,7 +286,6 @@ export class Postgres<D = any> {
 		return currentNumber;
 	}
 
-
 	private async getArray<T = D>(key: string): Promise<T[]> {
 		const currentArr = (await this.get<T[]>(key)) ?? [];
 		if (!Array.isArray(currentArr)) {
@@ -269,8 +296,6 @@ export class Postgres<D = any> {
 		}
 		return currentArr;
 	}
-
-
 
 	async all<T = D>(): Promise<{ id: string; value: T }[]> {
 		return this.getAllRows(this.tableName);
@@ -504,7 +529,6 @@ export class Postgres<D = any> {
 		return results;
 	}
 
-
 	async table<T = D>(tableName: string): Promise<Postgres<T>> {
 		if (typeof tableName != "string") {
 			throw this.createError(
@@ -524,7 +548,11 @@ export class Postgres<D = any> {
 
 	public async close(): Promise<void> {
 		try {
-			if (this.ownsConnection && this.sql && typeof this.sql.end === 'function') {
+			if (
+				this.ownsConnection &&
+				this.sql &&
+				typeof this.sql.end === "function"
+			) {
 				await this.sql.end();
 			}
 		} catch (err) {

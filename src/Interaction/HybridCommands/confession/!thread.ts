@@ -19,33 +19,48 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var action = interaction.options.getString("action") as 'yes' | 'no';
+			var action = interaction.options.getString("action") as
+				| "yes"
+				| "no";
 		} else {
-			var action = (client.func.method.string(args!, 0) || "0s") as 'yes' | 'no';
-		};
+			var action = (client.func.method.string(args!, 0) || "0s") as
+				| "yes"
+				| "no";
+		}
 
-		await client.db.set(`${interaction.guildId}.GUILD.CONFESSION.thread`, action);
+		await client.db.set(
+			`${interaction.guildId}.GUILD.CONFESSION.thread`,
+			action
+		);
 
 		client.func.method.interactionSend(interaction, {
-			content: action === "yes" ? lang.confession_thread_enabled : lang.confession_thread_disabled
-		})
+			content:
+				action === "yes"
+					? lang.confession_thread_enabled
+					: lang.confession_thread_disabled
+		});
 		return;
-	},
+	}
 };

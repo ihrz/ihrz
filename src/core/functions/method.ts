@@ -19,7 +19,48 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Message, Channel, User, Role, GuildMember, ChannelType, BaseGuildVoiceChannel, EmbedBuilder, Client, ChatInputCommandInteraction, MessageReplyOptions, InteractionEditReplyOptions, MessageEditOptions, InteractionReplyOptions, ApplicationCommandOptionType, SnowflakeUtil, AnySelectMenuInteraction, BaseGuildTextChannel, PermissionFlagsBits, Guild, time, ButtonBuilder, ActionRow, ActionRowBuilder, ComponentType, MessageActionRowComponent, ButtonComponent, PermissionsBitField, Collection, Attachment, MessagePayload, ButtonStyle, ActionRowData, APIMessageTopLevelComponent, JSONEncodable, MessageActionRowComponentBuilder, MessageActionRowComponentData, TopLevelComponentData, StringSelectMenuInteraction, ModalSubmitInteraction } from "discord.js";
+import {
+	Message,
+	Channel,
+	User,
+	Role,
+	GuildMember,
+	ChannelType,
+	BaseGuildVoiceChannel,
+	EmbedBuilder,
+	Client,
+	ChatInputCommandInteraction,
+	MessageReplyOptions,
+	InteractionEditReplyOptions,
+	MessageEditOptions,
+	InteractionReplyOptions,
+	ApplicationCommandOptionType,
+	SnowflakeUtil,
+	AnySelectMenuInteraction,
+	BaseGuildTextChannel,
+	PermissionFlagsBits,
+	Guild,
+	time,
+	ButtonBuilder,
+	ActionRow,
+	ActionRowBuilder,
+	ComponentType,
+	MessageActionRowComponent,
+	ButtonComponent,
+	PermissionsBitField,
+	Collection,
+	Attachment,
+	MessagePayload,
+	ButtonStyle,
+	ActionRowData,
+	APIMessageTopLevelComponent,
+	JSONEncodable,
+	MessageActionRowComponentBuilder,
+	MessageActionRowComponentData,
+	TopLevelComponentData,
+	StringSelectMenuInteraction,
+	ModalSubmitInteraction
+} from "discord.js";
 import { Command } from "../../../types/command.js";
 import { Option } from "../../../types/option.js";
 import { LanguageData } from "../../../types/languageData.js";
@@ -32,86 +73,138 @@ export function isNumber(str: string): boolean {
 	return !isNaN(Number(str)) && str.trim() !== "";
 }
 
-export async function user(message: Message, args: string[], argsNumber: number): Promise<User | null> {
-	const userId = /[<@!>]/g.test(args[argsNumber])
+export async function user(
+	message: Message,
+	args: string[],
+	argsNumber: number
+): Promise<User | null> {
+	const userId = /[<@!>]/g.test(args[argsNumber]);
 
 	let user: User | null = null;
 
 	if (message.mentions.parsedUsers.size >= 1) {
-
 		// if the prefix is the bot mention we have to do a specific traitment
 		let prefix_mention = message.content.startsWith(`<@${client.user?.id}`);
 		if (prefix_mention) {
-			user = message.mentions.parsedUsers.map(x => x).filter(x => x.id !== client.user?.id!)[argsNumber];
+			user = message.mentions.parsedUsers
+				.map((x) => x)
+				.filter((x) => x.id !== client.user?.id!)[argsNumber];
 		} else {
-			user = message.mentions.parsedUsers.map(x => x)?.[argsNumber];
+			user = message.mentions.parsedUsers.map((x) => x)?.[argsNumber];
 		}
 		// if the command argument is a <@ID>
 	} else if (userId) {
-		user = await (message.client.users.fetch(args[argsNumber].replace(/[<@!>]/g, '')).catch(() => null));
+		user = await message.client.users
+			.fetch(args[argsNumber].replace(/[<@!>]/g, ""))
+			.catch(() => null);
 		// if the user sent a id
 	} else if (isNumber(args[argsNumber])) {
-		user = await client.users.fetch(args[argsNumber]).catch(() => null)
+		user = await client.users.fetch(args[argsNumber]).catch(() => null);
 		// if the user sent a username of the user in the command argument
-	} else if ((message.guild?.members.cache.find(x => x.user.username === args[argsNumber])?.user)) {
-		user = (message.guild?.members.cache.find(x => x.user.username === args[argsNumber])?.user) || null;
+	} else if (
+		message.guild?.members.cache.find(
+			(x) => x.user.username === args[argsNumber]
+		)?.user
+	) {
+		user =
+			message.guild?.members.cache.find(
+				(x) => x.user.username === args[argsNumber]
+			)?.user || null;
 	}
 
 	return user;
 }
 
-export function member(message: Message, args: string[], argsNumber: number): GuildMember | null {
-	const userId = /[<@!>]/g.test(args[argsNumber])
+export function member(
+	message: Message,
+	args: string[],
+	argsNumber: number
+): GuildMember | null {
+	const userId = /[<@!>]/g.test(args[argsNumber]);
 
 	let user: GuildMember | null = null;
 
 	if ((message.mentions.members?.size || 0) >= 1) {
-
 		// if the prefix is the bot mention we have to do a specific traitment
 		let prefix_mention = message.content.startsWith(`<@${client.user?.id}`);
 		if (prefix_mention) {
-			user = message.mentions.members?.map(x => x).filter(x => x.id !== client.user?.id!)[argsNumber] || null;
+			user =
+				message.mentions.members
+					?.map((x) => x)
+					.filter((x) => x.id !== client.user?.id!)[argsNumber] ||
+				null;
 		} else {
-			user = message.mentions.members?.map(x => x)?.[argsNumber] || null;
+			user =
+				message.mentions.members?.map((x) => x)?.[argsNumber] || null;
 		}
 		// if the command argument is a <@ID>
 	} else if (userId) {
-		user = message.guild?.members.cache.get((args[argsNumber]).replace(/[<@!>]/g, '')) || null
+		user =
+			message.guild?.members.cache.get(
+				args[argsNumber].replace(/[<@!>]/g, "")
+			) || null;
 		// if the user sent a id
-	} else if (isNumber(args[argsNumber]) && message.guild?.members.cache.get(args[argsNumber])) {
+	} else if (
+		isNumber(args[argsNumber]) &&
+		message.guild?.members.cache.get(args[argsNumber])
+	) {
 		user = message.guild?.members.cache.get(args[argsNumber]) || null;
 		// if the user sent a username of the user in the command argument
-	} else if ((message.guild?.members.cache.find(x => x.user.username === args[argsNumber]))) {
-		user = (message.guild?.members.cache.find(x => x.user.username === args[argsNumber])) || null;
+	} else if (
+		message.guild?.members.cache.find(
+			(x) => x.user.username === args[argsNumber]
+		)
+	) {
+		user =
+			message.guild?.members.cache.find(
+				(x) => x.user.username === args[argsNumber]
+			) || null;
 	}
 
 	return user;
-
 }
 
-export async function voiceChannel(interaction: Message, args: string[], argsNumber: number): Promise<BaseGuildVoiceChannel | null> {
+export async function voiceChannel(
+	interaction: Message,
+	args: string[],
+	argsNumber: number
+): Promise<BaseGuildVoiceChannel | null> {
 	// Get potential channel ID from argument, strip any channel mention formatting
-	const channelId = args[argsNumber]?.replace(/[<#>]/g, '');
+	const channelId = args[argsNumber]?.replace(/[<#>]/g, "");
 
 	// First try from mentions
 	const mentionedChannel = interaction.mentions.channels
-		.map(x => x)
-		.filter(x => x.type === ChannelType.GuildVoice || x.type === ChannelType.GuildStageVoice)
-	[argsNumber] as BaseGuildVoiceChannel;
+		.map((x) => x)
+		.filter(
+			(x) =>
+				x.type === ChannelType.GuildVoice ||
+				x.type === ChannelType.GuildStageVoice
+		)[argsNumber] as BaseGuildVoiceChannel;
 
 	if (mentionedChannel) return Promise.resolve(mentionedChannel);
 
 	// Then try to fetch by ID if it's a valid ID format
 	if (channelId && /^\d+$/.test(channelId)) {
 		// Try from cache first
-		const channelFromCache = interaction.guild?.channels.cache.get(channelId);
-		if (channelFromCache && (channelFromCache.type === ChannelType.GuildVoice || channelFromCache.type === ChannelType.GuildStageVoice)) {
+		const channelFromCache =
+			interaction.guild?.channels.cache.get(channelId);
+		if (
+			channelFromCache &&
+			(channelFromCache.type === ChannelType.GuildVoice ||
+				channelFromCache.type === ChannelType.GuildStageVoice)
+		) {
 			return Promise.resolve(channelFromCache as BaseGuildVoiceChannel);
 		}
 
 		// If not in cache, try to fetch it
-		const fetchedChannel = await interaction.guild?.channels.fetch(channelId).catch(() => null);
-		if (fetchedChannel && (fetchedChannel.type === ChannelType.GuildVoice || fetchedChannel.type === ChannelType.GuildStageVoice)) {
+		const fetchedChannel = await interaction.guild?.channels
+			.fetch(channelId)
+			.catch(() => null);
+		if (
+			fetchedChannel &&
+			(fetchedChannel.type === ChannelType.GuildVoice ||
+				fetchedChannel.type === ChannelType.GuildStageVoice)
+		) {
 			return fetchedChannel as BaseGuildVoiceChannel;
 		}
 		return null;
@@ -120,18 +213,25 @@ export async function voiceChannel(interaction: Message, args: string[], argsNum
 	return null;
 }
 
-export async function channel(interaction: Message, args: string[], argsNumber: number): Promise<Channel | null> {
+export async function channel(
+	interaction: Message,
+	args: string[],
+	argsNumber: number
+): Promise<Channel | null> {
 	// First of all, if the args is the channel name
-	const channelFromName = interaction.guild?.channels.cache.find(x => x.name === args[argsNumber]);
+	const channelFromName = interaction.guild?.channels.cache.find(
+		(x) => x.name === args[argsNumber]
+	);
 	if (channelFromName) {
 		return channelFromName;
 	}
 	// Get potential channel ID from argument, strip any channel mention formatting
-	const channelId = args[argsNumber]?.replace(/[<#>]/g, '');
+	const channelId = args[argsNumber]?.replace(/[<#>]/g, "");
 
 	// First try from mentions
-	const mentionedChannel = interaction.mentions.channels
-		.map(x => x)[argsNumber];
+	const mentionedChannel = interaction.mentions.channels.map((x) => x)[
+		argsNumber
+	];
 
 	if (mentionedChannel) return mentionedChannel;
 
@@ -141,17 +241,27 @@ export async function channel(interaction: Message, args: string[], argsNumber: 
 		if (channelFromId) return channelFromId;
 
 		// If not in cache, try to fetch it
-		const fetchedChannel = await interaction.guild?.channels.fetch(channelId).catch(() => null);
+		const fetchedChannel = await interaction.guild?.channels
+			.fetch(channelId)
+			.catch(() => null);
 		return fetchedChannel || null;
 	}
 
 	return null;
 }
 
-export function role(interaction: Message, args: string[], argsNumber: number): Role | null {
-	const roleEntry = args[argsNumber]?.replace(/[<@&>]/g, '');
-	return interaction.mentions.roles.map(x => x)[argsNumber] ||
-		(roleEntry ? interaction.guild?.roles.cache.get(roleEntry) : null) || interaction.guild?.roles.cache.find(x => x.name === roleEntry) || null;
+export function role(
+	interaction: Message,
+	args: string[],
+	argsNumber: number
+): Role | null {
+	const roleEntry = args[argsNumber]?.replace(/[<@&>]/g, "");
+	return (
+		interaction.mentions.roles.map((x) => x)[argsNumber] ||
+		(roleEntry ? interaction.guild?.roles.cache.get(roleEntry) : null) ||
+		interaction.guild?.roles.cache.find((x) => x.name === roleEntry) ||
+		null
+	);
 }
 
 export function string(args: string[], argsNumber: number): string | null {
@@ -169,14 +279,23 @@ export function number(args: string[], argsNumber: number): number {
 
 export function getArgumentOptionNameWithOptions(o: Option): string {
 	if (o.choices) {
-		return o.choices.map(x => x.value).join("/");
+		return o.choices.map((x) => x.value).join("/");
 	}
 	return o.name;
-};
+}
 
-type ArgumentType = "string" | "user" | "roles" | "number" | "channel" | "attachment" | "unknown";
+type ArgumentType =
+	| "string"
+	| "user"
+	| "roles"
+	| "number"
+	| "channel"
+	| "attachment"
+	| "unknown";
 
-const getArgumentOptionType = (type: ApplicationCommandOptionType): ArgumentType => {
+const getArgumentOptionType = (
+	type: ApplicationCommandOptionType
+): ArgumentType => {
 	switch (type) {
 		case ApplicationCommandOptionType.String:
 			return "string";
@@ -190,7 +309,7 @@ const getArgumentOptionType = (type: ApplicationCommandOptionType): ArgumentType
 		case ApplicationCommandOptionType.Channel:
 			return "channel";
 		case ApplicationCommandOptionType.Attachment:
-			return "attachment"
+			return "attachment";
 		default:
 			return "unknown";
 	}
@@ -198,7 +317,7 @@ const getArgumentOptionType = (type: ApplicationCommandOptionType): ArgumentType
 
 const getArgumentOptionTypeWithOptions = (o: Option): string => {
 	if (o.choices) {
-		return o.choices.map(x => x.value).join("/");
+		return o.choices.map((x) => x.value).join("/");
 	}
 	return getArgumentOptionType(o.type);
 };
@@ -223,26 +342,45 @@ export function boldStringifyOption(option: Option[]): string {
 	return _.trim();
 }
 
-export async function createAwesomeEmbed(lang: LanguageData, command: Command, client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message): Promise<EmbedBuilder> {
+export async function createAwesomeEmbed(
+	lang: LanguageData,
+	command: Command,
+	client: Client,
+	interaction: ChatInputCommandInteraction<"cached"> | Message
+): Promise<EmbedBuilder> {
 	const commandName = command.prefixName || command.name;
-	const cleanCommandName = commandName.charAt(0).toUpperCase() + commandName.slice(1);;
-	const botPrefix = await client.func.prefix.guildPrefix(client, interaction.guildId!);
+	const cleanCommandName =
+		commandName.charAt(0).toUpperCase() + commandName.slice(1);
+	const botPrefix = await client.func.prefix.guildPrefix(
+		client,
+		interaction.guildId!
+	);
 	let cleanBotPrefix = botPrefix.string;
 
-	if (botPrefix.type === "mention") cleanBotPrefix = lang.hybridcommands_global_prefix_mention;
+	if (botPrefix.type === "mention")
+		cleanBotPrefix = lang.hybridcommands_global_prefix_mention;
 
 	const embed = new EmbedBuilder()
-		.setTitle(lang.hybridcommands_embed_help_title.replace("${commandName}", cleanCommandName))
+		.setTitle(
+			lang.hybridcommands_embed_help_title.replace(
+				"${commandName}",
+				cleanCommandName
+			)
+		)
 		.setColor("LightGrey");
 
-	embed.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+	embed.setFooter(
+		await client.func.displayBotName.footerBuilder(interaction.guildId!)
+	);
 
 	if (hasSubCommand(command.options)) {
-		command.options?.map(x => {
+		command.options?.map((x) => {
 			const shortCommandName = x.prefixName || x.name;
 			const pathString = boldStringifyOption(x.options || []);
 
-			const aliases = x.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none;
+			const aliases =
+				x.aliases?.map((x) => `\`${x}\``).join(", ") ||
+				lang.setjoinroles_var_none;
 			const use = `${cleanBotPrefix}${shortCommandName} ${pathString}`;
 
 			embed.addFields({
@@ -253,8 +391,12 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
 			});
 		});
 	} else {
-		const fetchFullCommandName = interaction.client.content.find(c => c.desc === command.description);
-		let CommandsPerm = await client.db.get(`${interaction.guildId}.UTILS.PERMS.${fetchFullCommandName?.cmd}`) as DatabaseStructure.UtilsPermsData[""] | undefined;
+		const fetchFullCommandName = interaction.client.content.find(
+			(c) => c.desc === command.description
+		);
+		let CommandsPerm = (await client.db.get(
+			`${interaction.guildId}.UTILS.PERMS.${fetchFullCommandName?.cmd}`
+		)) as DatabaseStructure.UtilsPermsData[""] | undefined;
 
 		if (typeof CommandsPerm === "number") {
 			CommandsPerm = {
@@ -274,8 +416,8 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
 					// Filter out any null values before mapping
 					perm = perm_cmd
 						.filter((p): p is NonNullable<typeof p> => p !== null)
-						.map(p => lang[p.name])
-						.join(', ');
+						.map((p) => lang[p.name])
+						.join(", ");
 				} else {
 					// Single permission case
 					perm = lang[perm_cmd.name];
@@ -284,18 +426,24 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
 		}
 
 		if (CommandsPerm?.level) {
-			perm = CommandsPerm.level
+			perm = CommandsPerm.level;
 		}
 
 		if (CommandsPerm?.roles && CommandsPerm?.roles.length > 0) {
-			perm = CommandsPerm.roles.map(x => `<@&${x}>`).join(", ");
+			perm = CommandsPerm.roles.map((x) => `<@&${x}>`).join(", ");
 		}
 
 		if (CommandsPerm?.users && CommandsPerm?.users.length > 0) {
-			perm += CommandsPerm.users.map(x => `<@${x}>`).join(", ");
+			perm += CommandsPerm.users.map((x) => `<@${x}>`).join(", ");
 		}
 
-		embed.setDescription((await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`))?.startsWith("fr-") ? command.description_localizations["fr"] : command.description)
+		embed.setDescription(
+			(
+				await client.db.get(`${interaction.guildId}.GUILD.LANG.lang`)
+			)?.startsWith("fr-")
+				? command.description_localizations["fr"]
+				: command.description
+		);
 		embed.setFields(
 			{
 				name: lang.var_usage,
@@ -309,7 +457,9 @@ export async function createAwesomeEmbed(lang: LanguageData, command: Command, c
 			},
 			{
 				name: lang.var_aliases,
-				value: command.aliases?.map(x => `\`${x}\``).join(", ") || lang.setjoinroles_var_none,
+				value:
+					command.aliases?.map((x) => `\`${x}\``).join(", ") ||
+					lang.setjoinroles_var_none,
 				inline: false
 			}
 		);
@@ -325,10 +475,18 @@ interface ArgumentBrief {
 	longString?: boolean;
 }
 
-export async function checkCommandArgs(message: Message, command: Command, args: string[], lang: LanguageData): Promise<boolean> {
+export async function checkCommandArgs(
+	message: Message,
+	command: Command,
+	args: string[],
+	lang: LanguageData
+): Promise<boolean> {
 	if (!command) return false;
 
-	const botPrefix = await message.client.func.prefix.guildPrefix(message.client, message.guildId!);
+	const botPrefix = await message.client.func.prefix.guildPrefix(
+		message.client,
+		message.guildId!
+	);
 	let cleanBotPrefix = botPrefix.string;
 
 	if (botPrefix.type === "mention") {
@@ -338,7 +496,7 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 	const expectedArgs: ArgumentBrief[] = [];
 	const attachmentArgs: ArgumentBrief[] = [];
 
-	command.options?.forEach(option => {
+	command.options?.forEach((option) => {
 		const argType = getArgumentOptionTypeWithOptions(option);
 		const argBrief = {
 			name: option.name,
@@ -355,12 +513,25 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 	});
 
 	// Only count non-attachment arguments for minimum args validation
-	const minArgsCount = expectedArgs.filter(arg => arg.required).length;
-	const isLastArgLongString = expectedArgs.length > 0 && expectedArgs[expectedArgs.length - 1].longString;
+	const minArgsCount = expectedArgs.filter((arg) => arg.required).length;
+	const isLastArgLongString =
+		expectedArgs.length > 0 &&
+		expectedArgs[expectedArgs.length - 1].longString;
 
-	if (!Array.isArray(args) || args.length < minArgsCount || (args.length === 1 && args[0] === "")) {
+	if (
+		!Array.isArray(args) ||
+		args.length < minArgsCount ||
+		(args.length === 1 && args[0] === "")
+	) {
 		const missingIndex = args.length;
-		await sendErrorMessage(lang, message, cleanBotPrefix, command, expectedArgs, missingIndex);
+		await sendErrorMessage(
+			lang,
+			message,
+			cleanBotPrefix,
+			command,
+			expectedArgs,
+			missingIndex
+		);
 		return false;
 	}
 
@@ -377,20 +548,50 @@ export async function checkCommandArgs(message: Message, command: Command, args:
 		if (i >= args.length && !expectedArgs[i].required) {
 			continue;
 		} else if (i >= args.length && expectedArgs[i].required) {
-			await sendErrorMessage(lang, message, cleanBotPrefix, command, [...expectedArgs, ...attachmentArgs], i);
+			await sendErrorMessage(
+				lang,
+				message,
+				cleanBotPrefix,
+				command,
+				[...expectedArgs, ...attachmentArgs],
+				i
+			);
 			return false;
-		} else if (i < args.length && !isValidArgument(args[i], expectedArgs[i].type, message.guild!)) {
-			await sendErrorMessage(lang, message, cleanBotPrefix, command, [...expectedArgs, ...attachmentArgs], i);
+		} else if (
+			i < args.length &&
+			!isValidArgument(args[i], expectedArgs[i].type, message.guild!)
+		) {
+			await sendErrorMessage(
+				lang,
+				message,
+				cleanBotPrefix,
+				command,
+				[...expectedArgs, ...attachmentArgs],
+				i
+			);
 			return false;
 		}
 	}
 
 	// Validate attachment arguments separately
 	for (const attachmentArg of attachmentArgs) {
-		if (attachmentArg.required && (!message.attachments || message.attachments.size === 0)) {
+		if (
+			attachmentArg.required &&
+			(!message.attachments || message.attachments.size === 0)
+		) {
 			// Find the index of this attachment argument in the original command options
-			const originalIndex = command.options?.findIndex(opt => opt.name === attachmentArg.name) ?? -1;
-			await sendErrorMessage(lang, message, cleanBotPrefix, command, [...expectedArgs, ...attachmentArgs], originalIndex);
+			const originalIndex =
+				command.options?.findIndex(
+					(opt) => opt.name === attachmentArg.name
+				) ?? -1;
+			await sendErrorMessage(
+				lang,
+				message,
+				cleanBotPrefix,
+				command,
+				[...expectedArgs, ...attachmentArgs],
+				originalIndex
+			);
 			return false;
 		}
 	}
@@ -405,15 +606,28 @@ function isValidArgument(arg: string, type: string, guild: Guild): boolean {
 
 	switch (type) {
 		case "string":
-			return typeof arg === 'string';
+			return typeof arg === "string";
 		case "user":
-			return /^<@!?(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.members.cache.find(x => x.user.username === arg) !== undefined;
+			return (
+				/^<@!?(\d+)>$/.test(arg) ||
+				!isNaN(Number(arg)) ||
+				guild.members.cache.find((x) => x.user.username === arg) !==
+					undefined
+			);
 		case "roles":
-			return /^<@&(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.roles.cache.find(x => x.name === arg)?.id !== undefined;
+			return (
+				/^<@&(\d+)>$/.test(arg) ||
+				!isNaN(Number(arg)) ||
+				guild.roles.cache.find((x) => x.name === arg)?.id !== undefined
+			);
 		case "number":
 			return !isNaN(Number(arg));
 		case "channel":
-			return /^<#(\d+)>$/.test(arg) || !isNaN(Number(arg)) || guild.channels.cache.find(x => x.name === arg) !== undefined;
+			return (
+				/^<#(\d+)>$/.test(arg) ||
+				!isNaN(Number(arg)) ||
+				guild.channels.cache.find((x) => x.name === arg) !== undefined
+			);
 		case "unknown":
 			return true;
 		default:
@@ -421,11 +635,20 @@ function isValidArgument(arg: string, type: string, guild: Guild): boolean {
 	}
 }
 
-async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix: string, command: Command, expectedArgs: ArgumentBrief[], errorIndex: number): Promise<void> {
+async function sendErrorMessage(
+	lang: LanguageData,
+	message: Message,
+	botPrefix: string,
+	command: Command,
+	expectedArgs: ArgumentBrief[],
+	errorIndex: number
+): Promise<void> {
 	const argument: string[] = [];
 	let fullNameCommand: string;
 
-	expectedArgs.forEach(arg => argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`));
+	expectedArgs.forEach((arg) =>
+		argument.push(arg.required ? `[${arg.type}]` : `<${arg.type}>`)
+	);
 
 	let currentCommand: Command | Option;
 	let wrongArgumentName: string = "";
@@ -447,27 +670,40 @@ async function sendErrorMessage(lang: LanguageData, message: Message, botPrefix:
 
 	const argsString = argument.join(" ");
 	const embed = new EmbedBuilder()
-		.setDescription(lang.hybridcommands_args_error_embed_desc
-			.replace("${currentCommand.name}", currentCommand.prefixName || currentCommand.name)
-			.replace("${botPrefix}", botPrefix)
-			.replace("${fullNameCommand}", fullNameCommand)
-			.replace("${argsString}", argsString)
-			.replace("${errorPosition}", errorPosition)
-			.replace("${wrongArgumentName}", wrongArgumentName)
+		.setDescription(
+			lang.hybridcommands_args_error_embed_desc
+				.replace(
+					"${currentCommand.name}",
+					currentCommand.prefixName || currentCommand.name
+				)
+				.replace("${botPrefix}", botPrefix)
+				.replace("${fullNameCommand}", fullNameCommand)
+				.replace("${argsString}", argsString)
+				.replace("${errorPosition}", errorPosition)
+				.replace("${wrongArgumentName}", wrongArgumentName)
 		)
 		.setColor("Red")
 		.setFooter({
 			iconURL: "attachment://footer_icon.png",
-			text: lang.hybridcommands_embed_footer_text.replace("${botPrefix}", botPrefix)
+			text: lang.hybridcommands_embed_footer_text.replace(
+				"${botPrefix}",
+				botPrefix
+			)
 		});
 
 	await message.client.func.method.interactionSend(message, {
 		embeds: [embed],
-		files: [await message.client.func.displayBotName.footerAttachmentBuilder(message)]
+		files: [
+			await message.client.func.displayBotName.footerAttachmentBuilder(
+				message
+			)
+		]
 	});
 }
 
-export async function shouldAdvertiseTheTopggVoteButton(authorId: string): Promise<boolean> {
+export async function shouldAdvertiseTheTopggVoteButton(
+	authorId: string
+): Promise<boolean> {
 	return false;
 	// const lastVoteTimestamp = (await apiTable.get(`topgg_vote.${authorId}.timestamp`));
 	// const isAlreadyNotified = (await apiTable.get(`topgg_vote.${authorId}.notified`) || false);
@@ -489,17 +725,21 @@ export function generateTopggActionRow(): ActionRowBuilder<ButtonBuilder> {
 			.setURL(`https://top.gg/bot/${client.user?.id}/vote`)
 			.setLabel("Vote for iHorizon")
 			.setEmoji(client.iHorizon_Emojis.TOPGG)
-	)
+	);
 }
 
 export type components = readonly (
 	| JSONEncodable<APIMessageTopLevelComponent>
 	| TopLevelComponentData
-	| ActionRowData<MessageActionRowComponentData | MessageActionRowComponentBuilder>
+	| ActionRowData<
+			MessageActionRowComponentData | MessageActionRowComponentBuilder
+	  >
 	| APIMessageTopLevelComponent
 )[];
 
-export async function addTopggButonToTheActualComponents(current: components): Promise<components> {
+export async function addTopggButonToTheActualComponents(
+	current: components
+): Promise<components> {
 	const topggActionRow = await generateTopggActionRow();
 
 	if (!current || current.length === 0) {
@@ -510,24 +750,46 @@ export async function addTopggButonToTheActualComponents(current: components): P
 }
 
 export async function interactionSend(
-	interaction: ChatInputCommandInteraction<"cached"> | ChatInputCommandInteraction | Message | StringSelectMenuInteraction<"cached"> | ModalSubmitInteraction<"cached">,
-	options: string | MessageReplyOptions | MessageEditOptions | InteractionReplyOptions
+	interaction:
+		| ChatInputCommandInteraction<"cached">
+		| ChatInputCommandInteraction
+		| Message
+		| StringSelectMenuInteraction<"cached">
+		| ModalSubmitInteraction<"cached">,
+	options:
+		| string
+		| MessageReplyOptions
+		| MessageEditOptions
+		| InteractionReplyOptions
 ): Promise<Message> {
 	const nonce = SnowflakeUtil.generate().toString();
 
-	if (interaction instanceof ChatInputCommandInteraction || interaction instanceof StringSelectMenuInteraction || interaction instanceof ModalSubmitInteraction) {
-		const editOptions: InteractionReplyOptions = typeof options === 'string'
-			? { content: options }
-			: { ...options as InteractionReplyOptions };
+	if (
+		interaction instanceof ChatInputCommandInteraction ||
+		interaction instanceof StringSelectMenuInteraction ||
+		interaction instanceof ModalSubmitInteraction
+	) {
+		const editOptions: InteractionReplyOptions =
+			typeof options === "string"
+				? { content: options }
+				: { ...(options as InteractionReplyOptions) };
 
-		if (await shouldAdvertiseTheTopggVoteButton(interaction.user.id || "")) {
-			editOptions.components = await addTopggButonToTheActualComponents(editOptions.components || []);
+		if (
+			await shouldAdvertiseTheTopggVoteButton(interaction.user.id || "")
+		) {
+			editOptions.components = await addTopggButonToTheActualComponents(
+				editOptions.components || []
+			);
 		}
 
 		if (interaction.replied) {
-			return await interaction.editReply(editOptions as InteractionEditReplyOptions);
+			return await interaction.editReply(
+				editOptions as InteractionEditReplyOptions
+			);
 		} else if (interaction.deferred) {
-			await interaction.editReply(editOptions as InteractionEditReplyOptions);
+			await interaction.editReply(
+				editOptions as InteractionEditReplyOptions
+			);
 			return await interaction.fetchReply();
 		} else {
 			await interaction.reply({ ...editOptions });
@@ -535,14 +797,14 @@ export async function interactionSend(
 		}
 	} else {
 		let replyOptions: MessageReplyOptions;
-		if (typeof options === 'string') {
+		if (typeof options === "string") {
 			replyOptions = {
 				content: options,
 				allowedMentions: { repliedUser: false }
 			};
 		} else {
 			replyOptions = {
-				...options as MessageReplyOptions,
+				...(options as MessageReplyOptions),
 				allowedMentions: { repliedUser: false, roles: [], users: [] },
 				content: options.content ?? undefined,
 				nonce: nonce,
@@ -559,25 +821,40 @@ export async function interactionSend(
 }
 
 export async function channelSend(
-	interaction: string | Message | ChatInputCommandInteraction<"cached"> | AnySelectMenuInteraction<"cached"> | BaseGuildTextChannel,
+	interaction:
+		| string
+		| Message
+		| ChatInputCommandInteraction<"cached">
+		| AnySelectMenuInteraction<"cached">
+		| BaseGuildTextChannel,
 	options: string | MessageReplyOptions | MessageEditOptions
 ): Promise<Message> {
-	const replyOptions: MessageReplyOptions = typeof options === 'string'
-		? { content: options, allowedMentions: { repliedUser: false } }
-		: { ...options, content: options.content ?? undefined, nonce: SnowflakeUtil.generate().toString(), enforceNonce: true } as MessageReplyOptions;
+	const replyOptions: MessageReplyOptions =
+		typeof options === "string"
+			? { content: options, allowedMentions: { repliedUser: false } }
+			: ({
+					...options,
+					content: options.content ?? undefined,
+					nonce: SnowflakeUtil.generate().toString(),
+					enforceNonce: true
+				} as MessageReplyOptions);
 
-	const channelId = typeof interaction === 'string'
-		? interaction
-		: interaction instanceof BaseGuildTextChannel
-			? interaction.id
-			: interaction.channel?.id;
+	const channelId =
+		typeof interaction === "string"
+			? interaction
+			: interaction instanceof BaseGuildTextChannel
+				? interaction.id
+				: interaction.channel?.id;
 
-	if (!channelId) throw new Error('Channel not found');
+	if (!channelId) throw new Error("Channel not found");
 
 	return sendToChannel(channelId, replyOptions);
 }
 
-async function sendToChannel(channelId: string, options: MessageReplyOptions): Promise<Message> {
+async function sendToChannel(
+	channelId: string,
+	options: MessageReplyOptions
+): Promise<Message> {
 	const optionsWithFreshNonce = {
 		...options,
 		nonce: SnowflakeUtil.generate().toString(),
@@ -585,25 +862,46 @@ async function sendToChannel(channelId: string, options: MessageReplyOptions): P
 	};
 
 	logger.debug("[sendToChannel] called with channelId:", channelId);
-	logger.debug("[sendToChannel] client.shard:", client.shard ? `shard ${client.shard.ids}` : "no shard");
-	logger.debug("[sendToChannel] channel in cache:", client.channels.cache.has(channelId));
+	logger.debug(
+		"[sendToChannel] client.shard:",
+		client.shard ? `shard ${client.shard.ids}` : "no shard"
+	);
+	logger.debug(
+		"[sendToChannel] channel in cache:",
+		client.channels.cache.has(channelId)
+	);
 
 	if (!client.shard) {
 		logger.debug("[sendToChannel] no shard, fetching channel directly...");
-		const channel = await client.channels.fetch(channelId) as BaseGuildTextChannel;
-		logger.debug("[sendToChannel] channel fetched:", channel?.id, channel?.name);
+		const channel = (await client.channels.fetch(
+			channelId
+		)) as BaseGuildTextChannel;
+		logger.debug(
+			"[sendToChannel] channel fetched:",
+			channel?.id,
+			channel?.name
+		);
 		const msg = await channel.send(optionsWithFreshNonce);
 		logger.debug("[sendToChannel] message sent:", msg.id);
 		return msg;
 	}
 
 	if (client.channels.cache.has(channelId)) {
-		logger.debug("[sendToChannel] channel found in cache, sending directly...");
+		logger.debug(
+			"[sendToChannel] channel found in cache, sending directly..."
+		);
 		const ch = client.channels.cache.get(channelId) as BaseGuildTextChannel;
-		logger.debug("[sendToChannel] channel name:", ch.name, "| guild:", ch.guild?.name);
+		logger.debug(
+			"[sendToChannel] channel name:",
+			ch.name,
+			"| guild:",
+			ch.guild?.name
+		);
 
 		try {
-			const msg = await (client.channels.cache.get(channelId) as BaseGuildTextChannel).send(optionsWithFreshNonce);
+			const msg = await (
+				client.channels.cache.get(channelId) as BaseGuildTextChannel
+			).send(optionsWithFreshNonce);
 			logger.debug("[sendToChannel] message sent from cache:", msg.id);
 			return msg;
 		} catch (e) {
@@ -612,42 +910,70 @@ async function sendToChannel(channelId: string, options: MessageReplyOptions): P
 		}
 	}
 
-	logger.debug("[sendToChannel] channel not in cache, using broadcastEval...");
-	const results = await client.shard.broadcastEval(async (c, { channelId, options }) => {
-		const channel = c.channels.cache.get(channelId) as BaseGuildTextChannel | undefined;
-		logger.debug(`[broadcastEval shard ${c.shard?.ids}] channel found:`, !!channel);
-		if (!channel) return null;
+	logger.debug(
+		"[sendToChannel] channel not in cache, using broadcastEval..."
+	);
+	const results = await client.shard.broadcastEval(
+		async (c, { channelId, options }) => {
+			const channel = c.channels.cache.get(channelId) as
+				| BaseGuildTextChannel
+				| undefined;
+			logger.debug(
+				`[broadcastEval shard ${c.shard?.ids}] channel found:`,
+				!!channel
+			);
+			if (!channel) return null;
 
-		const { SnowflakeUtil } = await import('discord.js');
-		const freshOptions = {
-			...options,
-			nonce: SnowflakeUtil.generate().toString(),
-			enforceNonce: true
-		};
+			const { SnowflakeUtil } = await import("discord.js");
+			const freshOptions = {
+				...options,
+				nonce: SnowflakeUtil.generate().toString(),
+				enforceNonce: true
+			};
 
-		try {
-			const msg = await channel.send(freshOptions as unknown as MessagePayload);
-			logger.debug(`[broadcastEval shard ${c.shard?.ids}] message sent:`, msg.id);
-			return { id: msg.id, channelId: msg.channelId };
-		} catch (e) {
-			logger.debug(`[broadcastEval shard ${c.shard?.ids}] send FAILED:`, e);
-			return null;
-		}
-	}, { context: { channelId, options } });
+			try {
+				const msg = await channel.send(
+					freshOptions as unknown as MessagePayload
+				);
+				logger.debug(
+					`[broadcastEval shard ${c.shard?.ids}] message sent:`,
+					msg.id
+				);
+				return { id: msg.id, channelId: msg.channelId };
+			} catch (e) {
+				logger.debug(
+					`[broadcastEval shard ${c.shard?.ids}] send FAILED:`,
+					e
+				);
+				return null;
+			}
+		},
+		{ context: { channelId, options } }
+	);
 
 	logger.debug("[sendToChannel] broadcastEval results:", results);
 
 	const result = results.find(Boolean);
 	if (!result) throw new Error(`Channel ${channelId} not found on any shard`);
-	return { id: result.id, channelId: result.channelId, content: options.content ?? '' } as Message;
+	return {
+		id: result.id,
+		channelId: result.channelId,
+		content: options.content ?? ""
+	} as Message;
 }
 
-export async function reply(message: Message<boolean>, options: string | MessageReplyOptions): Promise<Message> {
+export async function reply(
+	message: Message<boolean>,
+	options: string | MessageReplyOptions
+): Promise<Message> {
 	const nonce = SnowflakeUtil.generate().toString();
 	let replyOptions: MessageReplyOptions | MessagePayload;
 
-	if (typeof options === 'string') {
-		replyOptions = { content: options, allowedMentions: { repliedUser: false } };
+	if (typeof options === "string") {
+		replyOptions = {
+			content: options,
+			allowedMentions: { repliedUser: false }
+		};
 	} else {
 		replyOptions = {
 			...options,
@@ -662,45 +988,61 @@ export async function reply(message: Message<boolean>, options: string | Message
 
 export function hasSubCommand(options: Option[] | undefined): boolean {
 	if (!options) return false;
-	return options.some(option => option.type === ApplicationCommandOptionType.Subcommand);
+	return options.some(
+		(option) => option.type === ApplicationCommandOptionType.Subcommand
+	);
 }
 
 export function hasSubCommandGroup(options: Option[] | undefined): boolean {
 	if (!options) return false;
-	return options.some(option => option.type === ApplicationCommandOptionType.SubcommandGroup);
+	return options.some(
+		(option) => option.type === ApplicationCommandOptionType.SubcommandGroup
+	);
 }
 
 export function isSubCommand(option: Option | Command): boolean {
 	return option.type === ApplicationCommandOptionType.Subcommand;
 }
 
-export async function derank(user: GuildMember, reason?: string): Promise<void> {
+export async function derank(
+	user: GuildMember,
+	reason?: string
+): Promise<void> {
 	const user_roles = Array.from(user?.roles.cache.values() || []);
-	const role_app = user_roles.find(x => x.managed);
+	const role_app = user_roles.find((x) => x.managed);
 	if (role_app) {
 		await role_app.setPermissions(PermissionFlagsBits.ViewChannel);
 	}
 
 	user_roles
-		.filter(x => !x.managed && x.position < x.guild.members.me?.roles.highest.position! && x.id !== x.guild.roles.everyone.id)
-		.forEach(async role => {
-			await user?.roles.remove(role.id, reason || "Protection").catch(() => { })
+		.filter(
+			(x) =>
+				!x.managed &&
+				x.position < x.guild.members.me?.roles.highest.position! &&
+				x.id !== x.guild.roles.everyone.id
+		)
+		.forEach(async (role) => {
+			await user?.roles
+				.remove(role.id, reason || "Protection")
+				.catch(() => {});
 		});
-};
+}
 
-export async function punish(data: DatabaseStructure.ProtectionData, user: GuildMember, reason?: string): Promise<void> {
-
-	switch (data?.['SANCTION']) {
-		case 'simply':
+export async function punish(
+	data: DatabaseStructure.ProtectionData,
+	user: GuildMember,
+	reason?: string
+): Promise<void> {
+	switch (data?.["SANCTION"]) {
+		case "simply":
 			break;
-		case 'simply+derank':
+		case "simply+derank":
 			await derank(user, reason);
 			break;
-		case 'simply+ban':
-			user?.ban({ reason: reason || 'Protect!' })
-				.catch(async () => {
-					await derank(user, reason).catch(() => false);
-				});
+		case "simply+ban":
+			user?.ban({ reason: reason || "Protect!" }).catch(async () => {
+				await derank(user, reason).catch(() => false);
+			});
 			break;
 		default:
 			return;
@@ -717,63 +1059,108 @@ export function generateCustomMessagePreview(
 			user: {
 				username: string;
 				mention: string;
-			}
+			};
 			invitesAmount: number;
-		},
+		};
 		ranks?: {
 			level: number;
-		},
+		};
 		notifier?: {
 			artistAuthor: string;
 			artistLink: string;
 			mediaURL: string;
-		},
+		};
 		blogger?: {
 			articleTitle: string;
 			articleAuthor: string;
 			articleLink: string;
 			blogName: string;
-		}
+		};
 	}
 ): string {
 	return message
 		.replaceAll("{memberUsername}", input.user.username)
 		.replaceAll("{memberMention}", input.user.toString())
-		.replaceAll('{memberCount}', input.guild.memberCount?.toString()!)
-		.replaceAll('{createdAt}', input.user.createdAt.toLocaleDateString(input.guildLocal))
-		.replaceAll('{accountCreationTimestamp}', time(input.user.createdAt, 'R'))
-		.replaceAll('{guildName}', input.guild.name)
-		.replaceAll('{inviterUsername}', input.inviter?.user.username || `unknow_user`)
-		.replaceAll('{inviterMention}', input.inviter?.user.mention || `@unknow_user`)
-		.replaceAll('{invitesCount}', input.inviter?.invitesAmount.toString() || '1337')
-		.replaceAll('{xpLevel}', input.ranks?.level.toString() || "1337")
-		.replaceAll('{artistAuthor}', input.notifier?.artistAuthor || "Ninja")
-		.replaceAll('{artistLink}', input.notifier?.artistLink || "https://twitch.tv/Ninja")
-		.replaceAll('{mediaURL}', input.notifier?.mediaURL || "https://twitch.tv/Ninja/media")
-		.replaceAll('{articleTitle}', input.blogger?.articleTitle || "Unknow Article")
-		.replaceAll('{articleAuthor}', input.blogger?.articleAuthor || "Unknown Author")
-		.replaceAll("{articleLink}", input.blogger?.articleLink || "Unknown Link")
-		.replaceAll("{blogName}", input.blogger?.blogName || "Unknown Blog Name");
-
+		.replaceAll("{memberCount}", input.guild.memberCount?.toString()!)
+		.replaceAll(
+			"{createdAt}",
+			input.user.createdAt.toLocaleDateString(input.guildLocal)
+		)
+		.replaceAll(
+			"{accountCreationTimestamp}",
+			time(input.user.createdAt, "R")
+		)
+		.replaceAll("{guildName}", input.guild.name)
+		.replaceAll(
+			"{inviterUsername}",
+			input.inviter?.user.username || `unknow_user`
+		)
+		.replaceAll(
+			"{inviterMention}",
+			input.inviter?.user.mention || `@unknow_user`
+		)
+		.replaceAll(
+			"{invitesCount}",
+			input.inviter?.invitesAmount.toString() || "1337"
+		)
+		.replaceAll("{xpLevel}", input.ranks?.level.toString() || "1337")
+		.replaceAll("{artistAuthor}", input.notifier?.artistAuthor || "Ninja")
+		.replaceAll(
+			"{artistLink}",
+			input.notifier?.artistLink || "https://twitch.tv/Ninja"
+		)
+		.replaceAll(
+			"{mediaURL}",
+			input.notifier?.mediaURL || "https://twitch.tv/Ninja/media"
+		)
+		.replaceAll(
+			"{articleTitle}",
+			input.blogger?.articleTitle || "Unknow Article"
+		)
+		.replaceAll(
+			"{articleAuthor}",
+			input.blogger?.articleAuthor || "Unknown Author"
+		)
+		.replaceAll(
+			"{articleLink}",
+			input.blogger?.articleLink || "Unknown Link"
+		)
+		.replaceAll(
+			"{blogName}",
+			input.blogger?.blogName || "Unknown Blog Name"
+		);
 }
 
-export function findOptionRecursively(options: Option[], subcommandName: string): Option | undefined {
+export function findOptionRecursively(
+	options: Option[],
+	subcommandName: string
+): Option | undefined {
 	for (const option of options) {
 		if (option.name === subcommandName) {
 			return option;
 		}
 
-		if (option.options && (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand)) {
-			const foundOption = findOptionRecursively(option.options, subcommandName);
+		if (
+			option.options &&
+			(option.type === ApplicationCommandOptionType.SubcommandGroup ||
+				option.type === ApplicationCommandOptionType.Subcommand)
+		) {
+			const foundOption = findOptionRecursively(
+				option.options,
+				subcommandName
+			);
 			if (foundOption) {
 				return foundOption;
 			}
 		}
 	}
 	return undefined;
-};
+}
 
-export async function buttonReact(msg: Message, button: ButtonBuilder): Promise<Message> {
+export async function buttonReact(
+	msg: Message,
+	button: ButtonBuilder
+): Promise<Message> {
 	const comp = msg.components as ActionRow<MessageActionRowComponent>[];
 	let isAdd = false;
 
@@ -782,12 +1169,24 @@ export async function buttonReact(msg: Message, button: ButtonBuilder): Promise<
 	}
 
 	for (const lines of comp) {
-		if ((lines as ActionRow<MessageActionRowComponent>).components.length < 5 && !isAdd) {
-			if ((lines as ActionRow<MessageActionRowComponent>).components.find((x: MessageActionRowComponent) => x.type === ComponentType.Button)) {
-				const newActionRow = ActionRowBuilder.from(lines as ActionRow<MessageActionRowComponent>);
+		if (
+			(lines as ActionRow<MessageActionRowComponent>).components.length <
+				5 &&
+			!isAdd
+		) {
+			if (
+				(lines as ActionRow<MessageActionRowComponent>).components.find(
+					(x: MessageActionRowComponent) =>
+						x.type === ComponentType.Button
+				)
+			) {
+				const newActionRow = ActionRowBuilder.from(
+					lines as ActionRow<MessageActionRowComponent>
+				);
 
 				newActionRow.addComponents(button);
-				comp[comp.indexOf(lines)] = newActionRow.toJSON() as ActionRow<MessageActionRowComponent>;
+				comp[comp.indexOf(lines)] =
+					newActionRow.toJSON() as ActionRow<MessageActionRowComponent>;
 				isAdd = true;
 				break;
 			}
@@ -795,8 +1194,11 @@ export async function buttonReact(msg: Message, button: ButtonBuilder): Promise<
 	}
 
 	if (!isAdd) {
-		const newActionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
-		comp.push(newActionRow.toJSON() as ActionRow<MessageActionRowComponent>);
+		const newActionRow =
+			new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+		comp.push(
+			newActionRow.toJSON() as ActionRow<MessageActionRowComponent>
+		);
 	}
 
 	await msg.edit({ components: comp });
@@ -804,7 +1206,10 @@ export async function buttonReact(msg: Message, button: ButtonBuilder): Promise<
 	return msg;
 }
 
-export async function buttonUnreact(msg: Message, buttonEmoji: string): Promise<Message> {
+export async function buttonUnreact(
+	msg: Message,
+	buttonEmoji: string
+): Promise<Message> {
 	const comp = msg.components as ActionRow<MessageActionRowComponent>[];
 	let isRemoved = false;
 
@@ -812,16 +1217,24 @@ export async function buttonUnreact(msg: Message, buttonEmoji: string): Promise<
 
 	for (let i = 0; i < comp.length; i++) {
 		const actionRow = comp[i] as ActionRow<MessageActionRowComponent>;
-		const newComponents = actionRow.components.filter((component: MessageActionRowComponent) => {
-			if (component.type === ComponentType.Button && (component as ButtonComponent).emoji?.id === buttonEmoji) {
-				isRemoved = true;
-				return false;
+		const newComponents = actionRow.components.filter(
+			(component: MessageActionRowComponent) => {
+				if (
+					component.type === ComponentType.Button &&
+					(component as ButtonComponent).emoji?.id === buttonEmoji
+				) {
+					isRemoved = true;
+					return false;
+				}
+				return true;
 			}
-			return true;
-		});
+		);
 
 		if (newComponents.length > 0) {
-			newComp.push({ type: 1, components: newComponents } as ActionRow<MessageActionRowComponent>);
+			newComp.push({
+				type: 1,
+				components: newComponents
+			} as ActionRow<MessageActionRowComponent>);
 		}
 	}
 
@@ -832,43 +1245,72 @@ export async function buttonUnreact(msg: Message, buttonEmoji: string): Promise<
 }
 
 export function isAnimated(attachmentUrl: string): boolean {
-	const fileName = attachmentUrl.split('/').pop() || '';
-	return fileName.startsWith('a_');
+	const fileName = attachmentUrl.split("/").pop() || "";
+	return fileName.startsWith("a_");
 }
 
-export async function warnMember(author: GuildMember, member: GuildMember, reason: string, lang: LanguageData): Promise<string> {
+export async function warnMember(
+	author: GuildMember,
+	member: GuildMember,
+	reason: string,
+	lang: LanguageData
+): Promise<string> {
 	const warnObject: DatabaseStructure.WarnsData = {
 		timestamp: Date.now(),
 		reason: reason,
 		authorID: author.user.id,
 		id: generatePassword({ length: 8, lowercase: false, numbers: true })
-	}
+	};
 
-	await member.client.db.push(`${member.guild.id}.USER.${member.user.id}.WARNS`, warnObject);
+	await member.client.db.push(
+		`${member.guild.id}.USER.${member.user.id}.WARNS`,
+		warnObject
+	);
 
-
-	member.send({
-		embeds: [
-			new EmbedBuilder()
-				.setColor("Red")
-				.setTitle(lang.global_warn_embed_title.replace("${warnObject.id}", warnObject.id))
-				.setDescription(lang.global_warn_embed_desc
-					.replace("${warnObject.reason}", warnObject.reason)
-					.replace("${author.user.username}", author.user.username)
-					.replace("${author.roles.highest.name}", author.roles.highest.name)
-					.replace("${time}", time(new Date(warnObject.timestamp)))
+	member
+		.send({
+			embeds: [
+				new EmbedBuilder()
+					.setColor("Red")
+					.setTitle(
+						lang.global_warn_embed_title.replace(
+							"${warnObject.id}",
+							warnObject.id
+						)
+					)
+					.setDescription(
+						lang.global_warn_embed_desc
+							.replace("${warnObject.reason}", warnObject.reason)
+							.replace(
+								"${author.user.username}",
+								author.user.username
+							)
+							.replace(
+								"${author.roles.highest.name}",
+								author.roles.highest.name
+							)
+							.replace(
+								"${time}",
+								time(new Date(warnObject.timestamp))
+							)
+					)
+			],
+			components: [
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder()
+						.setStyle(ButtonStyle.Secondary)
+						.setCustomId(`guild-id-${author.guild.id}`)
+						.setDisabled(true)
+						.setLabel(
+							lang.global_warn_component_button_label.replace(
+								"${author.guild.name}",
+								author.guild.name
+							)
+						)
 				)
-		],
-		components: [
-			new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setStyle(ButtonStyle.Secondary)
-					.setCustomId(`guild-id-${author.guild.id}`)
-					.setDisabled(true)
-					.setLabel(lang.global_warn_component_button_label.replace("${author.guild.name}", author.guild.name))
-			)
-		]
-	}).catch(() => null);
+			]
+		})
+		.catch(() => null);
 
 	return warnObject.id;
 }
@@ -878,31 +1320,77 @@ export function getDangerousPermissions(lang: LanguageData): {
 	name: string;
 }[] {
 	const dangerousPermissions = [
-		{ flag: PermissionsBitField.Flags.Administrator, name: lang.setjoinroles_var_perm_admin },
-		{ flag: PermissionsBitField.Flags.ManageGuild, name: lang.setjoinroles_var_perm_manage_guild },
-		{ flag: PermissionsBitField.Flags.ManageRoles, name: lang.setjoinroles_var_perm_manage_role },
-		{ flag: PermissionsBitField.Flags.MentionEveryone, name: lang.setjoinroles_var_perm_use_mention },
-		{ flag: PermissionsBitField.Flags.BanMembers, name: lang.setjoinroles_var_perm_ban_members },
-		{ flag: PermissionsBitField.Flags.KickMembers, name: lang.setjoinroles_var_perm_kick_members },
-		{ flag: PermissionsBitField.Flags.ManageWebhooks, name: lang.setjoinroles_var_perm_manage_webhooks },
-		{ flag: PermissionsBitField.Flags.ManageChannels, name: lang.setjoinroles_var_perm_manage_channels },
-		{ flag: PermissionsBitField.Flags.ManageGuildExpressions, name: lang.setjoinroles_var_perm_manage_expression },
-		{ flag: PermissionsBitField.Flags.ViewCreatorMonetizationAnalytics, name: lang.setjoinroles_var_perm_view_monetization_analytics },
+		{
+			flag: PermissionsBitField.Flags.Administrator,
+			name: lang.setjoinroles_var_perm_admin
+		},
+		{
+			flag: PermissionsBitField.Flags.ManageGuild,
+			name: lang.setjoinroles_var_perm_manage_guild
+		},
+		{
+			flag: PermissionsBitField.Flags.ManageRoles,
+			name: lang.setjoinroles_var_perm_manage_role
+		},
+		{
+			flag: PermissionsBitField.Flags.MentionEveryone,
+			name: lang.setjoinroles_var_perm_use_mention
+		},
+		{
+			flag: PermissionsBitField.Flags.BanMembers,
+			name: lang.setjoinroles_var_perm_ban_members
+		},
+		{
+			flag: PermissionsBitField.Flags.KickMembers,
+			name: lang.setjoinroles_var_perm_kick_members
+		},
+		{
+			flag: PermissionsBitField.Flags.ManageWebhooks,
+			name: lang.setjoinroles_var_perm_manage_webhooks
+		},
+		{
+			flag: PermissionsBitField.Flags.ManageChannels,
+			name: lang.setjoinroles_var_perm_manage_channels
+		},
+		{
+			flag: PermissionsBitField.Flags.ManageGuildExpressions,
+			name: lang.setjoinroles_var_perm_manage_expression
+		},
+		{
+			flag: PermissionsBitField.Flags.ViewCreatorMonetizationAnalytics,
+			name: lang.setjoinroles_var_perm_view_monetization_analytics
+		}
 	];
 
-	return dangerousPermissions
+	return dangerousPermissions;
 }
 
-export async function addCoins(member: GuildMember, coins: number): Promise<void> {
-	await member.client.db.add(`${member.guild.id}.USER.${member.id}.ECONOMY.money`, coins);
+export async function addCoins(
+	member: GuildMember,
+	coins: number
+): Promise<void> {
+	await member.client.db.add(
+		`${member.guild.id}.USER.${member.id}.ECONOMY.money`,
+		coins
+	);
 }
 
-export async function subCoins(member: GuildMember, coins: number): Promise<void> {
-	await member.client.db.sub(`${member.guild.id}.USER.${member.id}.ECONOMY.money`, coins);
+export async function subCoins(
+	member: GuildMember,
+	coins: number
+): Promise<void> {
+	await member.client.db.sub(
+		`${member.guild.id}.USER.${member.id}.ECONOMY.money`,
+		coins
+	);
 }
 
-export async function isTicketChannel(channel: BaseGuildTextChannel): Promise<boolean> {
-	const allTickets = await channel.client.db.get(`${channel.guild.id}.TICKET_ALL`);
+export async function isTicketChannel(
+	channel: BaseGuildTextChannel
+): Promise<boolean> {
+	const allTickets = await channel.client.db.get(
+		`${channel.guild.id}.TICKET_ALL`
+	);
 
 	if (!allTickets || typeof allTickets !== "object") {
 		return false;
@@ -924,8 +1412,12 @@ export async function isTicketChannel(channel: BaseGuildTextChannel): Promise<bo
 	return false;
 }
 
-export async function deleteTicketChannelFromDatabase(channel: BaseGuildTextChannel): Promise<boolean> {
-	const allTickets = await channel.client.db.get(`${channel.guild.id}.TICKET_ALL`);
+export async function deleteTicketChannelFromDatabase(
+	channel: BaseGuildTextChannel
+): Promise<boolean> {
+	const allTickets = await channel.client.db.get(
+		`${channel.guild.id}.TICKET_ALL`
+	);
 
 	if (!allTickets || typeof allTickets !== "object") {
 		return false;
@@ -939,7 +1431,9 @@ export async function deleteTicketChannelFromDatabase(channel: BaseGuildTextChan
 				const ticketData = ticketsByAuthor[ticketId];
 
 				if (ticketData && ticketData.channel === channel.id) {
-					await client.db.delete(`${channel.guild.id}.TICKET_ALL.${authorId}.${ticketId}`);
+					await client.db.delete(
+						`${channel.guild.id}.TICKET_ALL.${authorId}.${ticketId}`
+					);
 					return ticketData?.channel === channel.id;
 				}
 			}
@@ -959,13 +1453,13 @@ export function isValidDiscordInvite(input: string): boolean {
 
 	// Regular expressions for different formats
 	const patterns = [
-		/^https:\/\/discord\.gg\/[a-zA-Z0-9]+$/,  // https://discord.gg/<code>
-		/^discord\.gg\/[a-zA-Z0-9]+$/,            // discord.gg/<code>
-		/^[a-zA-Z0-9]+$/                          // <code> only
+		/^https:\/\/discord\.gg\/[a-zA-Z0-9]+$/, // https://discord.gg/<code>
+		/^discord\.gg\/[a-zA-Z0-9]+$/, // discord.gg/<code>
+		/^[a-zA-Z0-9]+$/ // <code> only
 	];
 
 	// Check if input matches any of the patterns
-	return patterns.some(pattern => pattern.test(trimmed));
+	return patterns.some((pattern) => pattern.test(trimmed));
 }
 
 export function isValidDiscordInviteCode(VanityCode: string): boolean {
@@ -980,17 +1474,23 @@ export function isValidDiscordInviteCode(VanityCode: string): boolean {
 	return true;
 }
 
-export async function changeVoiceChannelStatus(channelId: string, status: string): Promise<boolean> {
-	const res = await fetch(`https://discord.com/api/v10/channels/${channelId}/voice-status`, {
-		method: "PUT",
-		headers: {
-			"Authorization": `Bot ${client.token}`,
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			status
-		}),
-	});
+export async function changeVoiceChannelStatus(
+	channelId: string,
+	status: string
+): Promise<boolean> {
+	const res = await fetch(
+		`https://discord.com/api/v10/channels/${channelId}/voice-status`,
+		{
+			method: "PUT",
+			headers: {
+				Authorization: `Bot ${client.token}`,
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				status
+			})
+		}
+	);
 
 	if (res.status === 200) return true;
 	return false;

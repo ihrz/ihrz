@@ -22,30 +22,29 @@
 import type { HorizonDatabaseClientOptions } from "../types.ts";
 import type { PacketMessage } from "../types.ts";
 
-import {
-	log,
-	warn,
-	error
-} from "node:console";
+import { log, warn, error } from "node:console";
 
 export class Horizon {
 	private ws: WebSocket | null = null;
 	private url: string;
-	private currentTable: string = 'json';
-	private pendingRequests = new Map<string, {
-		resolve: Function;
-		reject: Function;
-		timer?: NodeJS.Timeout;
-		timestamp: number;
-		operation: string;
-	}>();
+	private currentTable: string = "json";
+	private pendingRequests = new Map<
+		string,
+		{
+			resolve: Function;
+			reject: Function;
+			timer?: NodeJS.Timeout;
+			timestamp: number;
+			operation: string;
+		}
+	>();
 	private connected: boolean = false;
 	private connectionPromise: Promise<void> | null = null;
 	private authPromise: Promise<void> | null = null;
 	private sessionId: string | null = null;
 	private login: string | null = null;
 	private password: string | null = null;
-	private tables: string[] = ['json'];
+	private tables: string[] = ["json"];
 	private enableVerboses: boolean;
 
 	private reconnectAttempts: number = 0;
@@ -57,9 +56,9 @@ export class Horizon {
 	private reconnectTimeout: NodeJS.Timeout | null = null;
 
 	// Optimized timeouts - Much shorter for better responsiveness
-	private fastOperationTimeout: number = 40_000;  // 2s for simple operations (get, set, has)
-	private slowOperationTimeout: number = 120_000;  // 5s for complex operations (all, deleteAll)
-	private authTimeout: number = 10000;          // 10s for authentication
+	private fastOperationTimeout: number = 40_000; // 2s for simple operations (get, set, has)
+	private slowOperationTimeout: number = 120_000; // 5s for complex operations (all, deleteAll)
+	private authTimeout: number = 10000; // 10s for authentication
 
 	// Ready state tracking
 	private isReady: boolean = false;
@@ -80,16 +79,21 @@ export class Horizon {
 		timeouts: 0
 	};
 
-	constructor(url: string = 'ws://localhost:3000', options: HorizonDatabaseClientOptions) {
+	constructor(
+		url: string = "ws://localhost:3000",
+		options: HorizonDatabaseClientOptions
+	) {
 		this.url = url;
 
 		if (options.login) this.login = options.login;
 		if (options.password) this.password = options.password;
 		if (!options.tables) {
-			throw new Error("tables is missing in the Horizon's class constructor")
+			throw new Error(
+				"tables is missing in the Horizon's class constructor"
+			);
 		}
 		if (options.tables.length > 0) {
-			this.tables = options.tables.map(x => x.toLowerCase());
+			this.tables = options.tables.map((x) => x.toLowerCase());
 			this.currentTable = options.tables[0].toLowerCase() || "json";
 		}
 		this.enableVerboses = options.enableVerboses || false;
@@ -106,15 +110,17 @@ export class Horizon {
 	}
 
 	private initializeClient(): void {
-		this.readyPromise = this.connect().then(async () => {
-			if (this.login && this.password) {
-				await this.authenticate();
-			}
-			this.isReady = true;
-		}).catch(err => {
-			this.console('err', 'Client initialization failed:', err);
-			throw err;
-		});
+		this.readyPromise = this.connect()
+			.then(async () => {
+				if (this.login && this.password) {
+					await this.authenticate();
+				}
+				this.isReady = true;
+			})
+			.catch((err) => {
+				this.console("err", "Client initialization failed:", err);
+				throw err;
+			});
 	}
 
 	private async waitForReady(): Promise<void> {
@@ -148,14 +154,14 @@ export class Horizon {
 				resolve();
 			};
 
-			ws.onerror = err => {
+			ws.onerror = (err) => {
 				clearTimeout(timeout);
-				this.console('err', 'WebSocket error:', err);
+				this.console("err", "WebSocket error:", err);
 				reject(err);
 			};
 
 			ws.onclose = () => this.handleClose();
-			ws.onmessage = evt => this.handleMessage(evt);
+			ws.onmessage = (evt) => this.handleMessage(evt);
 		});
 
 		return this.connectionPromise;
@@ -164,7 +170,9 @@ export class Horizon {
 	private handleMessage(event: MessageEvent): void {
 		// Remove setImmediate - process immediately for better performance
 		try {
-			const { id, type, data, error }: PacketMessage = JSON.parse(event.data);
+			const { id, type, data, error }: PacketMessage = JSON.parse(
+				event.data
+			);
 			const pending = this.pendingRequests.get(id);
 
 			if (!pending) return;
@@ -193,18 +201,25 @@ export class Horizon {
 	}
 
 	// Performance monitoring helper
-	private updatePerformanceStats(responseTime: number, operation: string): void {
+	private updatePerformanceStats(
+		responseTime: number,
+		operation: string
+	): void {
 		this.performanceStats.totalRequests++;
 
 		// Update average response time using exponential moving average
 		const alpha = 0.1; // Smoothing factor
 		this.performanceStats.avgResponseTime =
-			this.performanceStats.avgResponseTime * (1 - alpha) + responseTime * alpha;
+			this.performanceStats.avgResponseTime * (1 - alpha) +
+			responseTime * alpha;
 
 		// Track slow requests
 		if (responseTime > 1000) {
 			this.performanceStats.slowRequests++;
-			this.console('warn', `Slow request detected: ${operation} took ${responseTime}ms`);
+			this.console(
+				"warn",
+				`Slow request detected: ${operation} took ${responseTime}ms`
+			);
 		}
 	}
 
@@ -214,7 +229,10 @@ export class Horizon {
 			return;
 		}
 
-		while (this.activeRequests < this.maxConcurrentRequests && this.requestQueue.length > 0) {
+		while (
+			this.activeRequests < this.maxConcurrentRequests &&
+			this.requestQueue.length > 0
+		) {
 			this.isProcessingQueue = true;
 			const nextRequest = this.requestQueue.shift();
 			if (nextRequest) {
@@ -233,9 +251,14 @@ export class Horizon {
 		}
 
 		// Reject all pending requests with more specific error
-		for (const [id, { reject, timer, operation }] of this.pendingRequests.entries()) {
+		for (const [
+			id,
+			{ reject, timer, operation }
+		] of this.pendingRequests.entries()) {
 			if (timer) clearTimeout(timer);
-			reject(new Error(`Connection lost - ${operation} request cancelled`));
+			reject(
+				new Error(`Connection lost - ${operation} request cancelled`)
+			);
 			this.performanceStats.failedRequests++;
 		}
 		this.pendingRequests.clear();
@@ -261,7 +284,10 @@ export class Horizon {
 
 		if (this.reconnectAttempts <= this.maxReconnectAttempts) {
 			this.reconnectTimeout = setTimeout(() => {
-				this.console("log", `Reconnecting attempt ${this.reconnectAttempts} with delay ${this.currentReconnectDelay}ms...`);
+				this.console(
+					"log",
+					`Reconnecting attempt ${this.reconnectAttempts} with delay ${this.currentReconnectDelay}ms...`
+				);
 				this.initializeClient();
 				this.currentReconnectDelay = Math.min(
 					this.currentReconnectDelay * this.reconnectBackoffFactor,
@@ -269,15 +295,28 @@ export class Horizon {
 				);
 			}, this.currentReconnectDelay);
 		} else {
-			this.console("err", "Max reconnect attempts reached. Connection will not be re-established automatically.");
+			this.console(
+				"err",
+				"Max reconnect attempts reached. Connection will not be re-established automatically."
+			);
 		}
 	}
 
 	// Optimized timeout selection based on operation type
 	private getTimeoutForOperation(operation: string): number {
-		const fastOps = ['get', 'set', 'delete', 'has', 'add', 'sub', 'push', 'pull', 'cache'];
-		const slowOps = ['all', 'deleteAll'];
-		const authOps = ['login', 'logout'];
+		const fastOps = [
+			"get",
+			"set",
+			"delete",
+			"has",
+			"add",
+			"sub",
+			"push",
+			"pull",
+			"cache"
+		];
+		const slowOps = ["all", "deleteAll"];
+		const authOps = ["login", "logout"];
 
 		if (authOps.includes(operation)) {
 			return this.authTimeout;
@@ -291,7 +330,7 @@ export class Horizon {
 	}
 
 	private async sendMessage(
-		data: Omit<PacketMessage, 'id' | 'type' | 'table' | 'sessionId'>,
+		data: Omit<PacketMessage, "id" | "type" | "table" | "sessionId">,
 		waitReady: boolean = true,
 		customTimeout?: number
 	): Promise<any> {
@@ -301,7 +340,12 @@ export class Horizon {
 			// If we have too many concurrent requests, queue this one
 			if (this.activeRequests >= this.maxConcurrentRequests) {
 				this.requestQueue.push(() => {
-					this.executeSendMessage(data, resolve, reject, customTimeout);
+					this.executeSendMessage(
+						data,
+						resolve,
+						reject,
+						customTimeout
+					);
 				});
 				return;
 			}
@@ -311,7 +355,7 @@ export class Horizon {
 	}
 
 	private executeSendMessage(
-		data: Omit<PacketMessage, 'id' | 'type' | 'table' | 'sessionId'>,
+		data: Omit<PacketMessage, "id" | "type" | "table" | "sessionId">,
 		resolve: Function,
 		reject: Function,
 		customTimeout?: number
@@ -325,7 +369,7 @@ export class Horizon {
 			...data
 		};
 
-		const operation = data.operation || 'unknown';
+		const operation = data.operation || "unknown";
 		const timeout = customTimeout || this.getTimeoutForOperation(operation);
 
 		const timer = setTimeout(() => {
@@ -336,8 +380,15 @@ export class Horizon {
 				this.performanceStats.timeouts++;
 				this.performanceStats.failedRequests++;
 
-				this.console('warn', `Request timeout for ${operation} (${timeout}ms) - Active: ${this.activeRequests}`);
-				reject(new Error(`Request timeout for ${operation} after ${timeout}ms`));
+				this.console(
+					"warn",
+					`Request timeout for ${operation} (${timeout}ms) - Active: ${this.activeRequests}`
+				);
+				reject(
+					new Error(
+						`Request timeout for ${operation} after ${timeout}ms`
+					)
+				);
 				this.processRequestQueue(); // Process next request in queue
 			}
 		}, timeout);
@@ -366,19 +417,23 @@ export class Horizon {
 	private authenticate(): Promise<void> {
 		if (this.authPromise) return this.authPromise;
 
-		this.authPromise = this.sendMessage({
-			operation: "login",
-			login: this.login!,
-			password: this.password!
-		}, false, this.authTimeout) // Use auth-specific timeout
-			.then(result => {
+		this.authPromise = this.sendMessage(
+			{
+				operation: "login",
+				login: this.login!,
+				password: this.password!
+			},
+			false,
+			this.authTimeout
+		) // Use auth-specific timeout
+			.then((result) => {
 				if (!result.success) {
 					throw new Error("Authentication failed");
 				}
 				this.sessionId = result.sessionId;
 				this.console("log", "Authenticated successfully.");
 			})
-			.catch(err => {
+			.catch((err) => {
 				this.console("err", "Authentication failed:", err);
 				this.authPromise = null;
 				throw err;
@@ -387,7 +442,11 @@ export class Horizon {
 		return this.authPromise;
 	}
 
-	private console(TYPE: "log" | "warn" | "err", message?: any, ...optionalParams: any[]) {
+	private console(
+		TYPE: "log" | "warn" | "err",
+		message?: any,
+		...optionalParams: any[]
+	) {
 		if (this.enableVerboses) {
 			// Remove setImmediate for faster logging
 			switch (TYPE) {
@@ -419,7 +478,9 @@ export class Horizon {
 	public table(tableName: string): Horizon {
 		tableName = tableName.toLowerCase();
 		if (!this.tables.includes(tableName)) {
-			throw new Error(`Table '${tableName}' is not in constructor of Horizon. aborting.`)
+			throw new Error(
+				`Table '${tableName}' is not in constructor of Horizon. aborting.`
+			);
 		}
 
 		const newInstance = Object.create(Object.getPrototypeOf(this));
@@ -432,50 +493,54 @@ export class Horizon {
 
 	// All public methods WITHOUT retry logic for better performance
 	public async get(key: string, defaultValue: any = undefined): Promise<any> {
-		const result = await this.sendMessage({ operation: 'get', key, defaultValue });
+		const result = await this.sendMessage({
+			operation: "get",
+			key,
+			defaultValue
+		});
 		return result;
 	}
 
 	public async set(key: string, value: any): Promise<void> {
-		await this.sendMessage({ operation: 'set', key, value });
+		await this.sendMessage({ operation: "set", key, value });
 	}
 
 	public async delete(key: string): Promise<void> {
-		await this.sendMessage({ operation: 'delete', key });
+		await this.sendMessage({ operation: "delete", key });
 	}
 
 	public async add(key: string, amount: number): Promise<void> {
-		await this.sendMessage({ operation: 'add', key, amount });
+		await this.sendMessage({ operation: "add", key, amount });
 	}
 
 	public async sub(key: string, amount: number): Promise<void> {
-		await this.sendMessage({ operation: 'sub', key, amount });
+		await this.sendMessage({ operation: "sub", key, amount });
 	}
 
 	public async push(key: string, element: any): Promise<void> {
-		await this.sendMessage({ operation: 'push', key, element });
+		await this.sendMessage({ operation: "push", key, element });
 	}
 
 	public async pull(key: string, element: any): Promise<void> {
-		await this.sendMessage({ operation: 'pull', key, element });
+		await this.sendMessage({ operation: "pull", key, element });
 	}
 
 	public async has(key: string): Promise<boolean> {
-		const result = await this.sendMessage({ operation: 'has', key });
+		const result = await this.sendMessage({ operation: "has", key });
 		return result;
 	}
 
 	public async all(): Promise<Array<{ id: string; value: any }>> {
-		const result = await this.sendMessage({ operation: 'all' });
+		const result = await this.sendMessage({ operation: "all" });
 		return result;
 	}
 
 	public async deleteAll(): Promise<void> {
-		await this.sendMessage({ operation: 'deleteAll' });
+		await this.sendMessage({ operation: "deleteAll" });
 	}
 
 	public async cache(key: string, value: any, time: number): Promise<void> {
-		await this.sendMessage({ operation: 'cache', key, value, time });
+		await this.sendMessage({ operation: "cache", key, value, time });
 	}
 
 	public async disconnect(): Promise<void> {
@@ -484,12 +549,16 @@ export class Horizon {
 		// Logout if authenticated
 		if (this.sessionId) {
 			try {
-				await this.sendMessage({
-					operation: 'logout'
-				}, true, this.authTimeout);
-				this.console('log', 'Logged out successfully');
+				await this.sendMessage(
+					{
+						operation: "logout"
+					},
+					true,
+					this.authTimeout
+				);
+				this.console("log", "Logged out successfully");
 			} catch (error: any) {
-				this.console('err', 'Logout failed:', error);
+				this.console("err", "Logout failed:", error);
 			}
 		}
 
@@ -529,9 +598,13 @@ export class Horizon {
 			successRate: number;
 		};
 	} {
-		const successRate = this.performanceStats.totalRequests > 0
-			? ((this.performanceStats.totalRequests - this.performanceStats.failedRequests) / this.performanceStats.totalRequests) * 100
-			: 0;
+		const successRate =
+			this.performanceStats.totalRequests > 0
+				? ((this.performanceStats.totalRequests -
+						this.performanceStats.failedRequests) /
+						this.performanceStats.totalRequests) *
+					100
+				: 0;
 
 		return {
 			connected: this.connected,
@@ -549,14 +622,20 @@ export class Horizon {
 	// Performance tuning methods
 	public adjustConcurrency(maxConcurrent: number): void {
 		this.maxConcurrentRequests = Math.max(1, Math.min(maxConcurrent, 100));
-		this.console('log', `Adjusted max concurrent requests to ${this.maxConcurrentRequests}`);
+		this.console(
+			"log",
+			`Adjusted max concurrent requests to ${this.maxConcurrentRequests}`
+		);
 	}
 
 	public adjustTimeouts(fast: number, slow: number, auth: number): void {
 		this.fastOperationTimeout = Math.max(500, fast);
 		this.slowOperationTimeout = Math.max(1000, slow);
 		this.authTimeout = Math.max(2000, auth);
-		this.console('log', `Adjusted timeouts: fast=${this.fastOperationTimeout}ms, slow=${this.slowOperationTimeout}ms, auth=${this.authTimeout}ms`);
+		this.console(
+			"log",
+			`Adjusted timeouts: fast=${this.fastOperationTimeout}ms, slow=${this.slowOperationTimeout}ms, auth=${this.authTimeout}ms`
+		);
 	}
 
 	// Reset performance stats

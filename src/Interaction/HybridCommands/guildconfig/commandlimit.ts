@@ -26,24 +26,30 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { Option } from '../../../../types/option.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { Command } from "../../../../types/command.js";
+import { Option } from "../../../../types/option.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 function getCommandChoices(client: Client): string[] {
 	const choices: string[] = [];
 
-	const getCommandChoices = (command: Command | Option, parentName = '') => {
-		const commandName = parentName ? `${parentName} ${command.name}` : command.name;
+	const getCommandChoices = (command: Command | Option, parentName = "") => {
+		const commandName = parentName
+			? `${parentName} ${command.name}`
+			: command.name;
 		choices.push(commandName);
 
 		if (command.options) {
 			command.options.forEach((option) => {
-				if (option.type === ApplicationCommandOptionType.SubcommandGroup || option.type === ApplicationCommandOptionType.Subcommand) {
+				if (
+					option.type ===
+						ApplicationCommandOptionType.SubcommandGroup ||
+					option.type === ApplicationCommandOptionType.Subcommand
+				) {
 					getCommandChoices(option, commandName);
 				}
 			});
@@ -66,14 +72,24 @@ function parseWindowTime(client: Client, value: string | null): number | null {
 	return parsed;
 }
 
-function formatRateLimit(limit: DatabaseStructure.CommandRateLimit, lang: LanguageData, client: Client): string {
+function formatRateLimit(
+	limit: DatabaseStructure.CommandRateLimit,
+	lang: LanguageData,
+	client: Client
+): string {
 	return lang.commandlimit_current_value
-		.replace('${count}', limit.count.toString())
-		.replace('${time}', client.timeCalculator.to_beautiful_string(limit.windowMs, lang));
+		.replace("${count}", limit.count.toString())
+		.replace(
+			"${time}",
+			client.timeCalculator.to_beautiful_string(limit.windowMs, lang)
+		);
 }
 
-function resolveCommand(client: Client, requestedCommand: string): Command | Option | undefined {
-	const commandParts = requestedCommand.split(' ');
+function resolveCommand(
+	client: Client,
+	requestedCommand: string
+): Command | Option | undefined {
+	const commandParts = requestedCommand.split(" ");
 
 	if (commandParts.length === 1) {
 		return client.commands.get(requestedCommand);
@@ -82,58 +98,69 @@ function resolveCommand(client: Client, requestedCommand: string): Command | Opt
 	return client.subCommands.get(requestedCommand);
 }
 
-function buildListEmbed(client: Client, lang: LanguageData, entries: [string, DatabaseStructure.CommandRateLimit][]) {
+function buildListEmbed(
+	client: Client,
+	lang: LanguageData,
+	entries: [string, DatabaseStructure.CommandRateLimit][]
+) {
 	return new EmbedBuilder()
-		.setColor('#11304c')
+		.setColor("#11304c")
 		.setTitle(lang.commandlimit_list_title)
-		.setDescription(entries.map(([commandPath, limit]) =>
-			lang.commandlimit_list_item
-				.replace('${command}', commandPath)
-				.replace('${limit}', formatRateLimit(limit, lang, client))
-		).join('\n'));
+		.setDescription(
+			entries
+				.map(([commandPath, limit]) =>
+					lang.commandlimit_list_item
+						.replace("${command}", commandPath)
+						.replace(
+							"${limit}",
+							formatRateLimit(limit, lang, client)
+						)
+				)
+				.join("\n")
+		);
 }
 
 export const command: Command = {
-	name: 'commandlimit',
+	name: "commandlimit",
 
-	description: 'Manage command rate limits',
+	description: "Manage command rate limits",
 	description_localizations: {
-		fr: 'Gérer les limites de commandes'
+		fr: "Gérer les limites de commandes"
 	},
 
 	options: [
 		{
-			name: 'action',
-			description: 'Action to apply on command limits',
+			name: "action",
+			description: "Action to apply on command limits",
 			description_localizations: {
-				fr: 'Action à appliquer sur les limites de commandes'
+				fr: "Action à appliquer sur les limites de commandes"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: true,
 			choices: [
 				{
-					name: 'Set',
-					name_localizations: { fr: 'Définir' },
-					value: 'set'
+					name: "Set",
+					name_localizations: { fr: "Définir" },
+					value: "set"
 				},
 				{
-					name: 'Reset',
-					name_localizations: { fr: 'Réinitialiser' },
-					value: 'reset'
+					name: "Reset",
+					name_localizations: { fr: "Réinitialiser" },
+					value: "reset"
 				},
 				{
-					name: 'List',
-					name_localizations: { fr: 'Lister' },
-					value: 'list'
+					name: "List",
+					name_localizations: { fr: "Lister" },
+					value: "list"
 				}
 			],
 			permission: null
 		},
 		{
-			name: 'command',
-			description: 'Search the command or subcommand',
+			name: "command",
+			description: "Search the command or subcommand",
 			description_localizations: {
-				fr: 'Rechercher la commande ou la sous-commande'
+				fr: "Rechercher la commande ou la sous-commande"
 			},
 			autocomplete: true,
 			type: ApplicationCommandOptionType.String,
@@ -141,20 +168,20 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'count',
-			description: 'Maximum number of uses in the window',
+			name: "count",
+			description: "Maximum number of uses in the window",
 			description_localizations: {
-				fr: 'Nombre maximum d\'utilisations dans la fenêtre'
+				fr: "Nombre maximum d'utilisations dans la fenêtre"
 			},
 			type: ApplicationCommandOptionType.Integer,
 			required: false,
 			permission: null
 		},
 		{
-			name: 'window-time',
-			description: 'Time window like 10s, 1m, 5m, 1h',
+			name: "window-time",
+			description: "Time window like 10s, 1m, 5m, 1h",
 			description_localizations: {
-				fr: 'Fenêtre de temps comme 10s, 1m, 5m, 1h'
+				fr: "Fenêtre de temps comme 10s, 1m, 5m, 1h"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
@@ -163,28 +190,40 @@ export const command: Command = {
 	],
 
 	thinking: true,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: ApplicationCommandType.ChatInput,
 	permission: PermissionFlagsBits.Administrator,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<'cached'> | Message, lang: LanguageData, args) => {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args
+	) => {
+		const action =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getString("action", true)
+				: client.func.method.string(args!, 0);
 
-		const action = interaction instanceof ChatInputCommandInteraction ?
-			interaction.options.getString('action', true)
-			: client.func.method.string(args!, 0);
+		const requestedCommand =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getString("command")
+				: client.func.method.string(args!, 1);
 
-		const requestedCommand = interaction instanceof ChatInputCommandInteraction ?
-			interaction.options.getString('command')
-			: client.func.method.string(args!, 1);
-
-		if (action === 'list') {
-			const limits = await client.db.get(`${interaction.guildId}.UTILS.COMMAND_LIMITS`) as DatabaseStructure.UtilsCommandLimitsData | undefined;
+		if (action === "list") {
+			const limits = (await client.db.get(
+				`${interaction.guildId}.UTILS.COMMAND_LIMITS`
+			)) as DatabaseStructure.UtilsCommandLimitsData | undefined;
 
 			if (!limits || Object.keys(limits).length === 0) {
-				await client.func.method.interactionSend(interaction, { content: lang.commandlimit_list_empty });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.commandlimit_list_empty
+				});
 				return;
 			}
 
-			const entries = Object.entries(limits).sort((a, b) => a[0].localeCompare(b[0]));
+			const entries = Object.entries(limits).sort((a, b) =>
+				a[0].localeCompare(b[0])
+			);
 			await client.func.method.interactionSend(interaction, {
 				embeds: [buildListEmbed(client, lang, entries)]
 			});
@@ -192,41 +231,62 @@ export const command: Command = {
 		}
 
 		if (!requestedCommand) {
-			await client.func.method.interactionSend(interaction, { content: lang.commandlimit_missing_command });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.commandlimit_missing_command
+			});
 			return;
 		}
 
 		const fetchedCommand = resolveCommand(client, requestedCommand);
 		if (!fetchedCommand) {
-			await client.func.method.interactionSend(interaction, { content: lang.var_unreachable_command });
-			return;
-		}
-
-		if (action === 'reset') {
-			const existingLimit = await client.db.get(`${interaction.guildId}.UTILS.COMMAND_LIMITS.${requestedCommand}`) as DatabaseStructure.CommandRateLimit | undefined;
-			if (!existingLimit) {
-				await client.func.method.interactionSend(interaction, { content: lang.commandlimit_reset_missing.replace('${command}', requestedCommand) });
-				return;
-			}
-
-			await client.db.delete(`${interaction.guildId}.UTILS.COMMAND_LIMITS.${requestedCommand}`);
 			await client.func.method.interactionSend(interaction, {
-				content: lang.commandlimit_reset_success.replace('${command}', requestedCommand)
+				content: lang.var_unreachable_command
 			});
 			return;
 		}
 
-		const count = interaction instanceof ChatInputCommandInteraction ?
-			interaction.options.getInteger('count')
-			: client.func.method.number(args!, 2);
+		if (action === "reset") {
+			const existingLimit = (await client.db.get(
+				`${interaction.guildId}.UTILS.COMMAND_LIMITS.${requestedCommand}`
+			)) as DatabaseStructure.CommandRateLimit | undefined;
+			if (!existingLimit) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.commandlimit_reset_missing.replace(
+						"${command}",
+						requestedCommand
+					)
+				});
+				return;
+			}
 
-		const windowTimeInput = interaction instanceof ChatInputCommandInteraction ? interaction.options.getString('window-time')
-			: client.func.method.string(args!, 3);
+			await client.db.delete(
+				`${interaction.guildId}.UTILS.COMMAND_LIMITS.${requestedCommand}`
+			);
+			await client.func.method.interactionSend(interaction, {
+				content: lang.commandlimit_reset_success.replace(
+					"${command}",
+					requestedCommand
+				)
+			});
+			return;
+		}
+
+		const count =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getInteger("count")
+				: client.func.method.number(args!, 2);
+
+		const windowTimeInput =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getString("window-time")
+				: client.func.method.string(args!, 3);
 
 		const windowMs = parseWindowTime(client, windowTimeInput);
 
 		if (!count || count <= 0 || !windowMs) {
-			await client.func.method.interactionSend(interaction, { content: lang.commandlimit_invalid_value });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.commandlimit_invalid_value
+			});
 			return;
 		}
 
@@ -235,31 +295,38 @@ export const command: Command = {
 			windowMs
 		};
 
-		await client.db.set(`${interaction.guildId}.UTILS.COMMAND_LIMITS.${requestedCommand}`, payload);
+		await client.db.set(
+			`${interaction.guildId}.UTILS.COMMAND_LIMITS.${requestedCommand}`,
+			payload
+		);
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.commandlimit_set_success
-				.replace('${command}', requestedCommand)
-				.replace('${limit}', formatRateLimit(payload, lang, client))
+				.replace("${command}", requestedCommand)
+				.replace("${limit}", formatRateLimit(payload, lang, client))
 		});
 	},
 	async autocomplete(client, interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 		const choices: string[] = [];
 
-		if (focusedOption.name === 'command') {
+		if (focusedOption.name === "command") {
 			choices.push(...getCommandChoices(client));
 		}
 
-		const filtered = choices.filter(choice =>
-			choice.includes(focusedOption.value) || choice.startsWith(focusedOption.value)
-		).slice(0, 25);
+		const filtered = choices
+			.filter(
+				(choice) =>
+					choice.includes(focusedOption.value) ||
+					choice.startsWith(focusedOption.value)
+			)
+			.slice(0, 25);
 
 		await interaction.respond(
-			filtered.map(choice => ({
+			filtered.map((choice) => ({
 				name: choice,
 				value: choice
-			})),
+			}))
 		);
 	}
 };

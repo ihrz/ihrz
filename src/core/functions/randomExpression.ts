@@ -31,7 +31,7 @@ export const Expressions = Object.freeze({
 	Sob: baseUrl + "/assets/img/bot/expression/ihorizon_sob.png",
 	Sunglass: baseUrl + "/assets/img/bot/expression/ihorizon_sunglass.png",
 	Thinking: baseUrl + "/assets/img/bot/expression/ihorizon_thinking.png",
-	Wink: baseUrl + "/assets/img/bot/expression/ihorizon_wink.png",
+	Wink: baseUrl + "/assets/img/bot/expression/ihorizon_wink.png"
 });
 
 export const botExpressions = Object.values(Expressions);

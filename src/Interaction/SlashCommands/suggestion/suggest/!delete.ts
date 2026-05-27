@@ -23,52 +23,81 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
+} from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const id = interaction.options.getString("id");
 
 		const baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
-		const fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`);
+		const fetchId = await client.db.get(
+			`${interaction.guildId}.SUGGESTION.${id}`
+		);
 
-		if (!baseData
-			|| baseData?.channel !== interaction.channel?.id
-			|| baseData?.disable === true) {
+		if (
+			!baseData ||
+			baseData?.channel !== interaction.channel?.id ||
+			baseData?.disable === true
+		) {
 			await interaction.editReply({
-				content: lang.suggest_delete_not_good_channel
-					.replace('${baseData?.channel}', baseData?.channel),
+				content: lang.suggest_delete_not_good_channel.replace(
+					"${baseData?.channel}",
+					baseData?.channel
+				),
 				flags: [1 << 6]
 			});
 
 			return;
-		};
+		}
 
 		if (!fetchId) {
-			await interaction.editReply({ content: lang.suggest_delete_not_found_db, flags: [1 << 6] });
+			await interaction.editReply({
+				content: lang.suggest_delete_not_found_db,
+				flags: [1 << 6]
+			});
 			return;
-		};
+		}
 
 		const channel = interaction.guild.channels.cache.get(baseData?.channel);
 
-		await (channel as BaseGuildTextChannel).messages.fetch(fetchId?.msgId).then(async (msg) => {
-			msg.delete();
-			await client.db.delete(`${interaction.guildId}.SUGGESTION.${id}`);
+		await (channel as BaseGuildTextChannel).messages
+			.fetch(fetchId?.msgId)
+			.then(async (msg) => {
+				msg.delete();
+				await client.db.delete(
+					`${interaction.guildId}.SUGGESTION.${id}`
+				);
 
-			await interaction.editReply({ content: lang.suggest_delete_command_work, flags: [1 << 6] });
-			return;
-		}).catch(async () => {
-			await interaction.editReply({ content: lang.suggest_delete_command_error, flags: [1 << 6] });
-			return;
-		});
-	},
+				await interaction.editReply({
+					content: lang.suggest_delete_command_work,
+					flags: [1 << 6]
+				});
+				return;
+			})
+			.catch(async () => {
+				await interaction.editReply({
+					content: lang.suggest_delete_command_error,
+					flags: [1 << 6]
+				});
+				return;
+			});
+	}
 };

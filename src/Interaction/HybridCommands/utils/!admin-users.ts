@@ -27,53 +27,71 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const all_admin_members = Array.from(interaction.guild.members.cache
-			.filter(x => x.permissions.has(PermissionFlagsBits.Administrator))
-			.filter(x => x.user.id !== x.guild.ownerId)
-			.filter(x => x.user.id !== x.client.user.id)
-			.values()
-		) || [];
+		const all_admin_members =
+			Array.from(
+				interaction.guild.members.cache
+					.filter((x) =>
+						x.permissions.has(PermissionFlagsBits.Administrator)
+					)
+					.filter((x) => x.user.id !== x.guild.ownerId)
+					.filter((x) => x.user.id !== x.client.user.id)
+					.values()
+			) || [];
 
 		if (all_admin_members.length == 0) {
-			await client.func.method.interactionSend(interaction, { content: lang.all_admins_nobody_admins });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.all_admins_nobody_admins
+			});
 			return;
-		};
+		}
 
 		let currentPage = 0;
 		let is_bot_filtered = false;
 
 		const usersPerPage = 5;
-		const pages: { title: string; description: string; }[] = [];
+		const pages: { title: string; description: string }[] = [];
 
 		for (let i = 0; i < all_admin_members.length; i += usersPerPage) {
 			const pageUsers = all_admin_members.slice(i, i + usersPerPage);
-			const pageContent = pageUsers.map((member) => {
-				if (member.user.bot) {
-					return member.toString() + "🤖 (BOT)"
-				}
-				return member.toString()
-			}).join('\n');
+			const pageContent = pageUsers
+				.map((member) => {
+					if (member.user.bot) {
+						return member.toString() + "🤖 (BOT)";
+					}
+					return member.toString();
+				})
+				.join("\n");
 			pages.push({
-				title: lang.all_admins_embed_title
-					.replace("${i / usersPerPage + 1}", String(i / usersPerPage + 1)),
-				description: pageContent,
+				title: lang.all_admins_embed_title.replace(
+					"${i / usersPerPage + 1}",
+					String(i / usersPerPage + 1)
+				),
+				description: pageContent
 			});
-		};
+		}
 
 		const createEmbed = () => {
 			return new EmbedBuilder()
@@ -82,28 +100,31 @@ export const subCommand: SubCommand = {
 				.setDescription(filterBotInList(pages[currentPage].description))
 				.setFooter({
 					text: lang.prevnames_embed_footer_text
-						.replace('${currentPage + 1}', (currentPage + 1).toString())
-						.replace('${pages.length}', pages.length.toString()),
+						.replace(
+							"${currentPage + 1}",
+							(currentPage + 1).toString()
+						)
+						.replace("${pages.length}", pages.length.toString()),
 					iconURL: "attachment://footer_icon.png"
 				})
-				.setTimestamp()
+				.setTimestamp();
 		};
 
 		function filterBotInList(str: string): string {
 			let _ = str.split("\n");
-			return _.filter(x => {
-				return is_bot_filtered ? !x.endsWith("(BOT)") : x
-			}).join("\n")
+			return _.filter((x) => {
+				return is_bot_filtered ? !x.endsWith("(BOT)") : x;
+			}).join("\n");
 		}
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
-				.setCustomId('previousPage')
-				.setLabel('<<<')
+				.setCustomId("previousPage")
+				.setLabel("<<<")
 				.setStyle(ButtonStyle.Secondary),
 			new ButtonBuilder()
-				.setCustomId('nextPage')
-				.setLabel('>>>')
+				.setCustomId("nextPage")
+				.setLabel(">>>")
 				.setStyle(ButtonStyle.Secondary),
 			new ButtonBuilder()
 				.setCustomId("trash-button-embed")
@@ -113,37 +134,44 @@ export const subCommand: SubCommand = {
 			new ButtonBuilder()
 				.setCustomId("filter-bot")
 				.setEmoji("🤖")
-				.setStyle(is_bot_filtered ? ButtonStyle.Success : ButtonStyle.Danger)
+				.setStyle(
+					is_bot_filtered ? ButtonStyle.Success : ButtonStyle.Danger
+				)
 		);
 
-		const messageEmbed = await client.func.method.interactionSend(interaction, {
-			embeds: [createEmbed()],
-			components: [row],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-		});
+		const messageEmbed = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [createEmbed()],
+				components: [row],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			}
+		);
 
 		const collector = messageEmbed.createMessageComponentCollector({
 			time: 1_60_000
 		});
 
-		collector.on('collect', async (interaction_2) => {
+		collector.on("collect", async (interaction_2) => {
 			if (interaction_2.user.id !== interaction.member?.user.id) {
-				await interaction_2.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
+				await interaction_2.reply({
+					content: lang.help_not_for_you,
+					flags: [1 << 6]
+				});
 				return;
-			};
+			}
 
-			if (interaction_2.customId === 'previousPage') {
-
+			if (interaction_2.customId === "previousPage") {
 				await interaction_2.deferUpdate();
 				currentPage = (currentPage - 1 + pages.length) % pages.length;
-
-			} else if (interaction_2.customId === 'nextPage') {
-
+			} else if (interaction_2.customId === "nextPage") {
 				await interaction_2.deferUpdate();
 				currentPage = (currentPage + 1) % pages.length;
-
-			} else if (interaction_2.customId === 'trash-button-embed') {
-
+			} else if (interaction_2.customId === "trash-button-embed") {
 				if (interaction_2.user.id === interaction_2.guild?.ownerId) {
 					let good = 0;
 					let bad = 0;
@@ -154,60 +182,87 @@ export const subCommand: SubCommand = {
 						embeds: [],
 						files: [],
 						components: []
-					})
-					const to_unrank_members = all_admin_members.filter(x => x.guild.ownerId !== x.user.id);
+					});
+					const to_unrank_members = all_admin_members.filter(
+						(x) => x.guild.ownerId !== x.user.id
+					);
 
 					for (const member of to_unrank_members) {
 						const filtered_roles = Array.from(
 							member.roles.cache
-								.filter(x => !x.permissions.has(PermissionFlagsBits.Administrator))
+								.filter(
+									(x) =>
+										!x.permissions.has(
+											PermissionFlagsBits.Administrator
+										)
+								)
 								.keys()
 						);
 
 						try {
-							await member.roles.set(filtered_roles, "[AdminUsers] clearing admin on the server").catch(() => false);
-							good++
+							await member.roles
+								.set(
+									filtered_roles,
+									"[AdminUsers] clearing admin on the server"
+								)
+								.catch(() => false);
+							good++;
 						} catch (err) {
-							bad++
+							bad++;
 						}
 					}
 
 					const embed = new EmbedBuilder()
-						.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-						.setColor('#007fff')
+						.setFooter(
+							await client.func.displayBotName.footerBuilder(
+								interaction.guildId!
+							)
+						)
+						.setColor("#007fff")
 						.setTimestamp()
 						.setThumbnail(interaction.guild?.iconURL()!)
-						.setDescription(lang.all_admins_unrank_embed_desc
-							.replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
-							.replace("${good}", good.toString())
-							.replace("${bad}", bad.toString())
-						)
+						.setDescription(
+							lang.all_admins_unrank_embed_desc
+								.replace(
+									"${interaction.member?.user.toString()}",
+									interaction.member?.user.toString()!
+								)
+								.replace("${good}", good.toString())
+								.replace("${bad}", bad.toString())
+						);
 
 					await messageEmbed.edit({
 						content: null,
 						embeds: [embed],
-						files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-					})
+						files: [
+							await client.func.displayBotName.footerAttachmentBuilder(
+								interaction
+							)
+						]
+					});
 
-					collector.stop()
+					collector.stop();
 					return;
-
 				} else {
-					await interaction_2.reply({ content: lang.all_admins_unrank_not_owner });
+					await interaction_2.reply({
+						content: lang.all_admins_unrank_not_owner
+					});
 					collector.stop();
 				}
 			} else if (interaction_2.customId === "filter-bot") {
 				interaction_2.deferUpdate();
 				is_bot_filtered = !is_bot_filtered;
-				row.components[3]!.data.style = is_bot_filtered ? ButtonStyle.Success : ButtonStyle.Danger;
+				row.components[3]!.data.style = is_bot_filtered
+					? ButtonStyle.Success
+					: ButtonStyle.Danger;
 			}
 			messageEmbed.edit({ embeds: [createEmbed()], components: [row] });
 		});
 
-		collector.on('end', async () => {
+		collector.on("end", async () => {
 			await messageEmbed.edit({ components: [] });
 		});
 
 		return;
-	},
+	}
 };

@@ -24,12 +24,12 @@ import {
 	Client,
 	Message,
 	EmbedBuilder
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
-import maskLink from '../../../core/functions/maskLink.js';
+import maskLink from "../../../core/functions/maskLink.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -38,20 +38,21 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-
 		// Nombre entre 0 et 10
 		const random = Math.floor(Math.random() * 10);
 
-		const string = interaction instanceof ChatInputCommandInteraction ? interaction.options.getString("the_things") :
-			client.func.method.longString(args!, 0);
+		const string =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getString("the_things")
+				: client.func.method.longString(args!, 0);
 
 		// Fetch user ou soit mêmea
 		const the_things = maskLink(string || "nothing");
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.fun_rate_command_ok
-				.replace('${the_things}', the_things)
-				.replace('${random}', random.toString()),
+				.replace("${the_things}", the_things)
+				.replace("${random}", random.toString()),
 			allowedMentions: {
 				repliedUser: false,
 				roles: [],

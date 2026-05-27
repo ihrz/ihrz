@@ -23,17 +23,21 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
-import { SubCommand } from '../../../../../types/command.js';
+import { LanguageData } from "../../../../../types/languageData.js";
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember("member")
+			var member = interaction.options.getMember("member");
 		} else {
 			var member = client.func.method.member(interaction, args!, 0);
 		}
@@ -41,7 +45,7 @@ export const subCommand: SubCommand = {
 		if (!member) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.ban_dont_found_member
-			})
+			});
 			return;
 		}
 
@@ -50,10 +54,9 @@ export const subCommand: SubCommand = {
 		if (!member_is_connected) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_not_in_vc
-			})
+			});
 			return;
 		}
-
 
 		const embed = new EmbedBuilder()
 			.setTitle(`${lang.var_whereis}: ${member.displayName}`)
@@ -66,13 +69,17 @@ export const subCommand: SubCommand = {
 > ${client.iHorizon_Emojis.Mute} **${lang.util_where_mute}:** ${member.voice.selfMute ? lang.var_yes : lang.var_no}
 > ${client.iHorizon_Emojis.Deaf} **${lang.util_where_deaf}:** ${member.voice.selfDeaf ? lang.var_yes : lang.var_no}`
 			)
-			.setThumbnail(member.user.displayAvatarURL({ extension: "gif", forceStatic: false, size: 4096 }))
-
+			.setThumbnail(
+				member.user.displayAvatarURL({
+					extension: "gif",
+					forceStatic: false,
+					size: 4096
+				})
+			);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed]
 		});
 		return;
-
-	},
+	}
 };

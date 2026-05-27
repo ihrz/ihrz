@@ -19,67 +19,70 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChannelType, Client, Message } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
-import { guildPrefix } from '../../core/functions/prefix.js';
+import { ChannelType, Client, Message } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
+import { guildPrefix } from "../../core/functions/prefix.js";
 export const auto_respond: Record<string, string> = {
-	"feur": "tgl",
-	"quoi": "feur",
-	"salut": "tgl",
-	"tgl": "toi même fdp",
-	"wesh": "wesh canne à pêche",
-	"pd": "parle mieux fils",
-	"tcon": "tu t'es vu toi? mdrr",
-	"aïe": "aïe aïe aïe",
-	"ah": "b",
-	"hein": "deux",
-	"ok": "oklm",
-	"non": "si",
-	"si": "non",
-	"oui": "bah non en fait",
-	"bof": "comme ta daronne",
-	"mdr": "rigole pas trop stp",
-	"lol": "t'as 40 ans ?",
-	"ptdr": "tu t'es pissé dessus ?",
-	"bruh": "bruh toi-même",
-	"nique": "ta race",
-	"zebi": "ta grand-mère la zébrée",
-	"putain": "encore ?",
+	feur: "tgl",
+	quoi: "feur",
+	salut: "tgl",
+	tgl: "toi même fdp",
+	wesh: "wesh canne à pêche",
+	pd: "parle mieux fils",
+	tcon: "tu t'es vu toi? mdrr",
+	aïe: "aïe aïe aïe",
+	ah: "b",
+	hein: "deux",
+	ok: "oklm",
+	non: "si",
+	si: "non",
+	oui: "bah non en fait",
+	bof: "comme ta daronne",
+	mdr: "rigole pas trop stp",
+	lol: "t'as 40 ans ?",
+	ptdr: "tu t'es pissé dessus ?",
+	bruh: "bruh toi-même",
+	nique: "ta race",
+	zebi: "ta grand-mère la zébrée",
+	putain: "encore ?",
 	"jsuis mort": "meurs pas stp",
 	"t'es sérieux": "non j'fais semblant",
-	"tg": "tgl",
+	tg: "tgl",
 	"quoi ?": "feur",
 	"hein ?": "deux",
-	"koé": "feur 2.0",
-	"ouais": "non",
+	koé: "feur 2.0",
+	ouais: "non",
 	"je sais": "ta gueule hermione",
-	"trans": "euh ouais par contre parle mieux stp, on as pas élever les cochons ensemble la conne de ta soeur",
-	"fdp": "bha nan la mienne ce fait pas payer frr",
-	"connard": "retourne chez ta mère fdp",
-	"ntm": "j'nique déjà la tienne connard",
+	trans: "euh ouais par contre parle mieux stp, on as pas élever les cochons ensemble la conne de ta soeur",
+	fdp: "bha nan la mienne ce fait pas payer frr",
+	connard: "retourne chez ta mère fdp",
+	ntm: "j'nique déjà la tienne connard",
 	"baise moi": "allé baisse la culotte",
-	"bstmr": "non",
+	bstmr: "non",
 	"suce moi": "baisse ton pantalon",
-	"viens on baise": "Vien par la petit coquinou je vais te defourailler sauvagement",
-	"Toute façon je prefere mee6": ':monkey:',
+	"viens on baise":
+		"Vien par la petit coquinou je vais te defourailler sauvagement",
+	"Toute façon je prefere mee6": ":monkey:",
 	"un humain c'est plus utile": "Montre moi tes couilles alors",
-	"aya": "ya quoi ?"
+	aya: "ya quoi ?"
 };
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
 		if (
-			!message.guild
-			|| message.author.bot
-			|| message.channel.type === ChannelType.DM
-			|| message.author.id === client.user?.id
-			|| await client.db.get(`${message.guildId}.UTILS.autoFeur`) === false
+			!message.guild ||
+			message.author.bot ||
+			message.channel.type === ChannelType.DM ||
+			message.author.id === client.user?.id ||
+			(await client.db.get(`${message.guildId}.UTILS.autoFeur`)) === false
 		) {
 			return;
 		}
 
-		let guildLang = await client.db.get(`${message.guild?.id}.GUILD.LANG.lang`);
+		let guildLang = await client.db.get(
+			`${message.guild?.id}.GUILD.LANG.lang`
+		);
 
 		if (guildLang === "fr-ME") {
 			const messageContent = message.content.toLowerCase().trim();
@@ -95,7 +98,10 @@ export const event: BotEvent = {
 				}
 
 				// Vérifie si le message se termine par le mot-clé (avec espace ou ponctuation avant)
-				const pattern = new RegExp(`(\\s|^)${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([\\s\\?!.,;]*)$`, 'i');
+				const pattern = new RegExp(
+					`(\\s|^)${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([\\s\\?!.,;]*)$`,
+					"i"
+				);
 				if (pattern.test(messageContent)) {
 					matchedKey = key;
 					break;
@@ -103,19 +109,30 @@ export const event: BotEvent = {
 			}
 
 			if (matchedKey) {
-				if (await client.func.helper.cooldown(message.author.id, "autofeur", 3000)) {
+				if (
+					await client.func.helper.cooldown(
+						message.author.id,
+						"autofeur",
+						3000
+					)
+				) {
 					return;
 				}
 
 				let msg = auto_respond[matchedKey];
 
 				// 1 chance sur 8
-				if (!await client.db.has(`${message.guildId}.UTILS.autoFeur`) && (Math.floor(Math.random() * 8) === 0)) {
+				if (
+					!(await client.db.has(
+						`${message.guildId}.UTILS.autoFeur`
+					)) &&
+					Math.floor(Math.random() * 8) === 0
+				) {
 					msg += `\n-# ${client.iHorizon_Emojis.VC_OpenChat} Jte pète les couilles ? fait \`${(await guildPrefix(client, message.guildId!)).string}autorespond\` pour me faire fermer ma gueule pétasse!`;
 				}
 
 				message.reply({ content: msg });
 			}
 		}
-	},
+	}
 };

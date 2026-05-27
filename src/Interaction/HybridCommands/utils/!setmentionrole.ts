@@ -25,106 +25,151 @@ import {
 	ChatInputCommandInteraction,
 	Message,
 	Role
-} from 'discord.js'
+} from "discord.js";
 
-import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import logger from "../../../core/logger.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var type = interaction.options.getString("action");
 			var argsid = interaction.options.getRole("roles");
 			var nickname = interaction.options.getString("part-of-nickname");
 		} else {
-
 			var type = client.func.method.string(args!, 0);
-			var argsid = client.func.method.role(interaction, args!, 1) as Role | null;
+			var argsid = client.func.method.role(
+				interaction,
+				args!,
+				1
+			) as Role | null;
 			var nickname = client.func.method.longString(args!, 2);
-		};
+		}
 
 		if (type === "on") {
 			if (!argsid) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_not_roles_typed.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+					content: lang.setrankroles_not_roles_typed.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
 				});
 				return;
-			};
+			}
 
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setrankroles_logs_embed_title_enable,
 				description: lang.setrankroles_logs_embed_description_enable
-					.replace(/\${interaction\.user.id}/g, interaction.member.user.id)
+					.replace(
+						/\${interaction\.user.id}/g,
+						interaction.member.user.id
+					)
 					.replace(/\${argsid}/g, argsid.id)
 			});
 
 			try {
-				const already = await client.db.get(`${interaction.guildId}.GUILD.RANK_ROLES.roles`);
+				const already = await client.db.get(
+					`${interaction.guildId}.GUILD.RANK_ROLES.roles`
+				);
 
 				if (already === argsid.id) {
 					await client.func.method.interactionSend(interaction, {
-						content: lang.setrankroles_already_this_in_db.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+						content: lang.setrankroles_already_this_in_db.replace(
+							"${client.iHorizon_Emojis.No}",
+							client.iHorizon_Emojis.No
+						)
 					});
 					return;
-				};
+				}
 
-				let msg = '';
+				let msg = "";
 
 				if (nickname) {
 					msg = lang.setrankroles_command_work_with_nicknames
-						.replace('${argsid}', argsid.id)
-						.replace('${nicknames}', nickname);
-					msg += lang.setrankroles_command_work_with_nicknames_2
+						.replace("${argsid}", argsid.id)
+						.replace("${nicknames}", nickname);
+					msg += lang.setrankroles_command_work_with_nicknames_2;
 
-					await client.db.set(`${interaction.guildId}.GUILD.RANK_ROLES.nicknames`, nickname);
+					await client.db.set(
+						`${interaction.guildId}.GUILD.RANK_ROLES.nicknames`,
+						nickname
+					);
 				} else {
-					msg = lang.setrankroles_command_work.replace('${argsid}', argsid.id)
+					msg = lang.setrankroles_command_work.replace(
+						"${argsid}",
+						argsid.id
+					);
 				}
 
-				await client.db.set(`${interaction.guildId}.GUILD.RANK_ROLES.roles`, argsid.id);
+				await client.db.set(
+					`${interaction.guildId}.GUILD.RANK_ROLES.roles`,
+					argsid.id
+				);
 
 				const e = new EmbedBuilder().setDescription(msg);
 
-				await client.func.method.interactionSend(interaction, { embeds: [e] });
+				await client.func.method.interactionSend(interaction, {
+					embeds: [e]
+				});
 				return;
-
 			} catch (e) {
 				logger.err(e);
 				await client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+					content: lang.setrankroles_command_error.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
 				});
 				return;
 			}
 		} else if (type == "off") {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.setrankroles_logs_embed_title_disable,
-				description: lang.setrankroles_logs_embed_description_disable
-					.replace(/\${interaction\.user.id}/g, interaction.member.user.id)
+				description:
+					lang.setrankroles_logs_embed_description_disable.replace(
+						/\${interaction\.user.id}/g,
+						interaction.member.user.id
+					)
 			});
 
 			try {
-				await client.db.delete(`${interaction.guildId}.GUILD.RANK_ROLES`);
+				await client.db.delete(
+					`${interaction.guildId}.GUILD.RANK_ROLES`
+				);
 
 				await client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_work_disable
-						.replace(/\${interaction\.user.id}/g, interaction.member.user.id)
+					content: lang.setrankroles_command_work_disable.replace(
+						/\${interaction\.user.id}/g,
+						interaction.member.user.id
+					)
 				});
 				return;
 			} catch (e) {
-				logger.err(e)
+				logger.err(e);
 				await client.func.method.interactionSend(interaction, {
-					content: lang.setrankroles_command_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+					content: lang.setrankroles_command_error.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
 				});
 				return;
 			}
 		}
-	},
+	}
 };

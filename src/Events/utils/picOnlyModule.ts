@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Message, PermissionFlagsBits } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
+import { Client, Message, PermissionFlagsBits } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 
 const warnings = new Map<string, number[]>();
 
@@ -30,7 +30,9 @@ const cleanOldWarnings = (userId: string) => {
 	if (!userWarnings) return;
 
 	const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
-	const recentWarnings = userWarnings.filter(timestamp => timestamp > tenMinutesAgo);
+	const recentWarnings = userWarnings.filter(
+		(timestamp) => timestamp > tenMinutesAgo
+	);
 
 	if (recentWarnings.length === 0) {
 		warnings.delete(userId);
@@ -44,30 +46,44 @@ export const event: BotEvent = {
 	run: async (client: Client, message: Message) => {
 		if (message.author.bot) return;
 
-		const picOnlyChannels = await client.db.get(`${message.guildId}.UTILS.picOnly`) as DatabaseStructure.UtilsData["picOnly"];
-		const picOnlyConfig = await client.db.get(`${message.guildId}.UTILS.picOnlyConfig`) as DatabaseStructure.PicOnlyConfig;
+		const picOnlyChannels = (await client.db.get(
+			`${message.guildId}.UTILS.picOnly`
+		)) as DatabaseStructure.UtilsData["picOnly"];
+		const picOnlyConfig = (await client.db.get(
+			`${message.guildId}.UTILS.picOnlyConfig`
+		)) as DatabaseStructure.PicOnlyConfig;
 
 		if (picOnlyChannels?.includes(message.channelId)) {
-			const hasValidMediaAttachment = Array.from(message.attachments.values()).some(attachment => {
+			const hasValidMediaAttachment = Array.from(
+				message.attachments.values()
+			).some((attachment) => {
 				const validMediaTypes = [
-					'image/jpeg',
-					'image/png',
-					'image/gif',
-					'image/webp',
-					'image/bmp',
-					'image/tiff',
-					'video/x-matroska',
-					'video/mp4',
-					'video/webm',
-					'video/quicktime'
+					"image/jpeg",
+					"image/png",
+					"image/gif",
+					"image/webp",
+					"image/bmp",
+					"image/tiff",
+					"video/x-matroska",
+					"video/mp4",
+					"video/webm",
+					"video/quicktime"
 				];
 				const contentType = attachment.contentType;
-				return contentType && validMediaTypes.includes(contentType.toLowerCase());
+				return (
+					contentType &&
+					validMediaTypes.includes(contentType.toLowerCase())
+				);
 			});
 
 			const lang = await client.func.getLanguageData(message.guildId);
 
-			if (!hasValidMediaAttachment && !message.member?.permissions.has(PermissionFlagsBits.ModerateMembers)) {
+			if (
+				!hasValidMediaAttachment &&
+				!message.member?.permissions.has(
+					PermissionFlagsBits.ModerateMembers
+				)
+			) {
 				await message.delete();
 
 				const userId = message.author.id;
@@ -83,35 +99,65 @@ export const event: BotEvent = {
 					warnings.delete(userId);
 
 					try {
-						await message.member?.timeout((picOnlyConfig.muteTime || 10 * 60 * 1000), lang.piconly_module_timeout_reason);
-						await client.func.method.warnMember(
-							message.guild?.members.me!,
-							message.member!,
-							"Automated Punishment - Pic Only",
-							lang
-						).catch(() => { });
+						await message.member?.timeout(
+							picOnlyConfig.muteTime || 10 * 60 * 1000,
+							lang.piconly_module_timeout_reason
+						);
+						await client.func.method
+							.warnMember(
+								message.guild?.members.me!,
+								message.member!,
+								"Automated Punishment - Pic Only",
+								lang
+							)
+							.catch(() => {});
 
-						await message.author.send({
-							content: lang.piconly_module_punish_msg
-								.replace("${message.author}", message.author.toString())
-						}).catch(() => false);
-					} catch {
-					}
+						await message.author
+							.send({
+								content: lang.piconly_module_punish_msg.replace(
+									"${message.author}",
+									message.author.toString()
+								)
+							})
+							.catch(() => false);
+					} catch {}
 				} else {
-					await message.author.send({
-						content: lang.piconly_module_warn_msg
-							.replace("${message.author}", message.author.toString())
-							.replace("${userWarnings.length}", String(userWarnings.length))
-							.replace("${threshold}", String(threshold))
-					}).catch(() => false);
+					await message.author
+						.send({
+							content: lang.piconly_module_warn_msg
+								.replace(
+									"${message.author}",
+									message.author.toString()
+								)
+								.replace(
+									"${userWarnings.length}",
+									String(userWarnings.length)
+								)
+								.replace("${threshold}", String(threshold))
+						})
+						.catch(() => false);
 				}
 			}
 
 			if (picOnlyConfig?.createThread === "yes") {
-				message.startThread({
-					name: lang.utils_piconly_var_thread_name.replace('{name}', String(message.member?.displayName || message.member?.nickname)),
-					reason: "Pic Only"
-				}).then(x => x.edit({ invitable: true, locked: false, archived: false }))
+				message
+					.startThread({
+						name: lang.utils_piconly_var_thread_name.replace(
+							"{name}",
+							String(
+								message.member?.displayName ||
+									message.member?.nickname
+							)
+						),
+						reason: "Pic Only"
+					})
+					.then((x) =>
+						x.edit({
+							invitable: true,
+							locked: false,
+							archived: false
+						})
+					);
 			}
 		}
 	}

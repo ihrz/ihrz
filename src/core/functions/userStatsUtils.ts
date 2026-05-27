@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Guild, User } from 'discord.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
+import { Guild, User } from "discord.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 
 export function calculateMessageTime(
 	msg: DatabaseStructure.StatsMessage,
@@ -32,9 +32,9 @@ export function calculateMessageTime(
 	weeklyMessages: DatabaseStructure.StatsMessage[],
 	monthlyMessages: DatabaseStructure.StatsMessage[]
 ): {
-	dailyMessages: DatabaseStructure.StatsMessage[],
-	weeklyMessages: DatabaseStructure.StatsMessage[],
-	monthlyMessages: DatabaseStructure.StatsMessage[],
+	dailyMessages: DatabaseStructure.StatsMessage[];
+	weeklyMessages: DatabaseStructure.StatsMessage[];
+	monthlyMessages: DatabaseStructure.StatsMessage[];
 } {
 	if (msg.sentTimestamp >= nowTimestamp - dailyTimeout) {
 		dailyMessages.push(msg);
@@ -59,9 +59,9 @@ export function calculateVoiceActivity(
 	weeklyVoiceActivity: number,
 	monthlyVoiceActivity: number
 ): {
-	dailyVoiceActivity: number,
-	weeklyVoiceActivity: number,
-	monthlyVoiceActivity: number,
+	dailyVoiceActivity: number;
+	weeklyVoiceActivity: number;
+	monthlyVoiceActivity: number;
 } {
 	const sessionDuration = voice.endTimestamp - voice.startTimestamp;
 
@@ -81,9 +81,9 @@ export function calculateVoiceActivity(
 export function calculateActiveChannels(
 	messages: DatabaseStructure.StatsMessage[]
 ): {
-	firstActiveChannel: string,
-	secondActiveChannel: string,
-	thirdActiveChannel: string,
+	firstActiveChannel: string;
+	secondActiveChannel: string;
+	thirdActiveChannel: string;
 } {
 	const channelMessageCount: { [channelId: string]: number } = {};
 
@@ -101,16 +101,16 @@ export function calculateActiveChannels(
 	return {
 		firstActiveChannel: sortedChannels[0] ? sortedChannels[0][0] : "N/A",
 		secondActiveChannel: sortedChannels[1] ? sortedChannels[1][0] : "N/A",
-		thirdActiveChannel: sortedChannels[2] ? sortedChannels[2][0] : "N/A",
+		thirdActiveChannel: sortedChannels[2] ? sortedChannels[2][0] : "N/A"
 	};
 }
 
 export function calculateActiveVoiceChannels(
 	voices: DatabaseStructure.StatsVoice[]
 ): {
-	firstActiveVoiceChannel: string,
-	secondActiveVoiceChannel: string,
-	thirdActiveVoiceChannel: string,
+	firstActiveVoiceChannel: string;
+	secondActiveVoiceChannel: string;
+	thirdActiveVoiceChannel: string;
 } {
 	const channelVoiceDuration: { [channelId: string]: number } = {};
 
@@ -127,9 +127,15 @@ export function calculateActiveVoiceChannels(
 		.slice(0, 3);
 
 	return {
-		firstActiveVoiceChannel: sortedVoiceChannels[0] ? sortedVoiceChannels[0][0] : "N/A",
-		secondActiveVoiceChannel: sortedVoiceChannels[1] ? sortedVoiceChannels[1][0] : "N/A",
-		thirdActiveVoiceChannel: sortedVoiceChannels[2] ? sortedVoiceChannels[2][0] : "N/A",
+		firstActiveVoiceChannel: sortedVoiceChannels[0]
+			? sortedVoiceChannels[0][0]
+			: "N/A",
+		secondActiveVoiceChannel: sortedVoiceChannels[1]
+			? sortedVoiceChannels[1][0]
+			: "N/A",
+		thirdActiveVoiceChannel: sortedVoiceChannels[2]
+			? sortedVoiceChannels[2][0]
+			: "N/A"
 	};
 }
 
@@ -158,15 +164,17 @@ export function getChannelMinutesCount(
 	return Math.round(totalDuration / 1000 / 60);
 }
 
-export function getStatsLeaderboard(data: {
-	member: User | undefined,
-	dailyMessages: number,
-	weeklyMessages: number,
-	monthlyMessages: number,
-	dailyVoiceActivity: number,
-	weeklyVoiceActivity: number,
-	monthlyVoiceActivity: number
-}[]): {
+export function getStatsLeaderboard(
+	data: {
+		member: User | undefined;
+		dailyMessages: number;
+		weeklyMessages: number;
+		monthlyMessages: number;
+		dailyVoiceActivity: number;
+		weeklyVoiceActivity: number;
+		monthlyVoiceActivity: number;
+	}[]
+): {
 	member: User | undefined;
 	dailyMessages: number;
 	weeklyMessages: number;
@@ -175,23 +183,26 @@ export function getStatsLeaderboard(data: {
 	weeklyVoiceActivity: number;
 	monthlyVoiceActivity: number;
 }[] {
-	const compare = (a: {
-		member: User | undefined,
-		dailyMessages: number,
-		weeklyMessages: number,
-		monthlyMessages: number,
-		dailyVoiceActivity: number,
-		weeklyVoiceActivity: number,
-		monthlyVoiceActivity: number
-	}, b: {
-		member: User | undefined,
-		dailyMessages: number,
-		weeklyMessages: number,
-		monthlyMessages: number,
-		dailyVoiceActivity: number,
-		weeklyVoiceActivity: number,
-		monthlyVoiceActivity: number
-	}) => {
+	const compare = (
+		a: {
+			member: User | undefined;
+			dailyMessages: number;
+			weeklyMessages: number;
+			monthlyMessages: number;
+			dailyVoiceActivity: number;
+			weeklyVoiceActivity: number;
+			monthlyVoiceActivity: number;
+		},
+		b: {
+			member: User | undefined;
+			dailyMessages: number;
+			weeklyMessages: number;
+			monthlyMessages: number;
+			dailyVoiceActivity: number;
+			weeklyVoiceActivity: number;
+			monthlyVoiceActivity: number;
+		}
+	) => {
 		if (b.dailyMessages !== a.dailyMessages) {
 			return b.dailyMessages - a.dailyMessages;
 		}
@@ -211,7 +222,7 @@ export function getStatsLeaderboard(data: {
 	};
 
 	const sortedData = data
-		.filter(entry => entry.member !== undefined)
+		.filter((entry) => entry.member !== undefined)
 		.sort(compare);
 
 	const top3 = sortedData.slice(0, 3);
@@ -221,32 +232,30 @@ export function getStatsLeaderboard(data: {
 
 export function getTopUsersByMessages(
 	data: {
-		memberId: string,
-		member: User | undefined,
-		messages: number
+		memberId: string;
+		member: User | undefined;
+		messages: number;
 	}[],
 	limit: number = 10
 ): {
-	memberId: string,
-	member: User | undefined,
-	messages: number
+	memberId: string;
+	member: User | undefined;
+	messages: number;
 }[] {
-	return data
-		.sort((a, b) => b.messages - a.messages)
-		.slice(0, limit);
+	return data.sort((a, b) => b.messages - a.messages).slice(0, limit);
 }
 
 export function getTopUsersByVoice(
 	data: {
-		memberId: string,
-		member: User | undefined,
-		voiceDuration: number
+		memberId: string;
+		member: User | undefined;
+		voiceDuration: number;
 	}[],
 	limit: number = 10
 ): {
-	memberId: string,
-	member: User | undefined,
-	voiceDuration: number
+	memberId: string;
+	member: User | undefined;
+	voiceDuration: number;
 }[] {
 	return data
 		.sort((a, b) => b.voiceDuration - a.voiceDuration)

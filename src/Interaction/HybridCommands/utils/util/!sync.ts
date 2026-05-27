@@ -24,23 +24,39 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
-import { SubCommand } from '../../../../../types/command.js';
+import { LanguageData } from "../../../../../types/languageData.js";
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var category = interaction.options.getChannel("category") as CategoryChannel | null;
+			var category = interaction.options.getChannel(
+				"category"
+			) as CategoryChannel | null;
 		} else {
-			var category = await client.func.method.channel(interaction, args!, 0) as CategoryChannel | null;
-		};
+			var category = (await client.func.method.channel(
+				interaction,
+				args!,
+				0
+			)) as CategoryChannel | null;
+		}
 
 		const child_channels = category?.children.cache.values()!;
 
@@ -53,23 +69,35 @@ export const subCommand: SubCommand = {
 			}
 		}
 
-		changes = changes.map(x => `• <#${x}>`).join('\n');
+		changes = changes.map((x) => `• <#${x}>`).join("\n");
 
 		// Create an embed message
 		const embed = new EmbedBuilder()
-			.setColor('#5865F2') // Discord's blurple color
+			.setColor("#5865F2") // Discord's blurple color
 			.setDescription(
 				changes.length > 0
 					? lang.util_sync_embed_description_1
-						.replace("${category?.name}", String(category?.name))
-						.replace("${changes}", changes)
-					: lang.util_sync_embed_description_0)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+							.replace(
+								"${category?.name}",
+								String(category?.name)
+							)
+							.replace("${changes}", changes)
+					: lang.util_sync_embed_description_0
+			)
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setTimestamp();
 
 		client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
-	},
+	}
 };

@@ -19,18 +19,25 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Interaction } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import { Client, Interaction } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "interactionCreate",
 	run: async (client: Client, interaction: Interaction) => {
-		if (!interaction.isContextMenuCommand()
+		if (
+			!interaction.isContextMenuCommand() ||
 			// || !interaction.guild?.channels
-			|| interaction.user.bot) return;
+			interaction.user.bot
+		)
+			return;
 
 		const cmd = client.applicationsCommands.get(interaction.commandName);
-		if (cmd && cmd.thinking) { await interaction.deferReply(); };
-		if (cmd) { cmd.run(client, interaction) };
-	},
+		if (cmd && cmd.thinking) {
+			await interaction.deferReply();
+		}
+		if (cmd) {
+			cmd.run(client, interaction);
+		}
+	}
 };

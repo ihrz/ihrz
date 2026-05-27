@@ -19,52 +19,75 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	GuildMember,
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, GuildMember } from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
-import { DatabaseStructure } from '../../../../../types/database_structure.js';
+import { SubCommand } from "../../../../../types/command.js";
+import { DatabaseStructure } from "../../../../../types/database_structure.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const baseData = (await client.db.get(`${interaction.guildId}.ALLOWLIST`) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
-		const member = interaction.options.getMember('member') as GuildMember;
+		const baseData = ((await client.db.get(
+			`${interaction.guildId}.ALLOWLIST`
+		)) || { enable: false, list: [] }) as DatabaseStructure.AllowListData;
+		const member = interaction.options.getMember("member") as GuildMember;
 
 		if (interaction.user.id !== interaction.guild.ownerId) {
-			await client.func.method.interactionSend(interaction, { content: lang.allowlist_add_not_owner });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.allowlist_add_not_owner
+			});
 			return;
-		};
+		}
 
-		if (interaction.user.id !== interaction.guild.ownerId && baseData?.list?.[interaction.user.id]?.allowed !== true) {
-			await client.func.method.interactionSend(interaction, { content: lang.allowlist_add_not_permited });
+		if (
+			interaction.user.id !== interaction.guild.ownerId &&
+			baseData?.list?.[interaction.user.id]?.allowed !== true
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.allowlist_add_not_permited
+			});
 			return;
-		};
+		}
 
 		if (!member) {
-			await client.func.method.interactionSend(interaction, { content: lang.allowlist_add_member_unreachable });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.allowlist_add_member_unreachable
+			});
 			return;
-		};
+		}
 
 		if (baseData?.list?.[member.user.id]?.allowed == true) {
-			await client.func.method.interactionSend(interaction, { content: lang.allowlist_add_already_in });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.allowlist_add_already_in
+			});
 			return;
-		};
+		}
 
-		await client.db.set(`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`, { allowed: true });
+		await client.db.set(
+			`${interaction.guild.id}.ALLOWLIST.list.${member.user.id}`,
+			{ allowed: true }
+		);
 		await client.func.method.interactionSend(interaction, {
-			content: lang.allowlist_add_command_work
-				.replace('${member.user}', member.user.toString())
+			content: lang.allowlist_add_command_work.replace(
+				"${member.user}",
+				member.user.toString()
+			)
 		});
 		return;
-	},
+	}
 };

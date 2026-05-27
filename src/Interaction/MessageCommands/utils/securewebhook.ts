@@ -19,28 +19,24 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ApplicationCommandOptionType,
-	Client,
-	Message,
-} from 'discord.js';
+import { ApplicationCommandOptionType, Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
-import { apiTable } from '../../../Events/client/ready.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
+import { apiTable } from "../../../Events/client/ready.js";
 
 export const command: Command = {
-	name: 'securewebhook',
-	aliases: ['securehook'],
+	name: "securewebhook",
+	aliases: ["securehook"],
 
-	description: 'Secure webhook',
+	description: "Secure webhook",
 	description_localizations: {
-		"fr": "Sécuriser une webhook à travers un PROXY iHorizon"
+		fr: "Sécuriser une webhook à travers un PROXY iHorizon"
 	},
 
 	thinking: false,
-	category: 'utils',
+	category: "utils",
 	type: "PREFIX_IHORIZON_COMMAND",
 
 	options: [
@@ -49,7 +45,7 @@ export const command: Command = {
 
 			description: "Action to do",
 			description_localizations: {
-				"fr": "Action à faire"
+				fr: "Action à faire"
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -58,74 +54,87 @@ export const command: Command = {
 			choices: [
 				{
 					name: "create",
-					name_localizations: { fr: 'Créer' },
-					value: "create",
+					name_localizations: { fr: "Créer" },
+					value: "create"
 				},
 				{
 					name: "delete",
-					name_localizations: { fr: 'Supprimer' },
-					value: "delete",
+					name_localizations: { fr: "Supprimer" },
+					value: "delete"
 				},
 				{
 					name: "list",
-					name_localizations: { fr: 'Liste' },
-					value: "list",
-				},
+					name_localizations: { fr: "Liste" },
+					value: "list"
+				}
 			],
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "input",
 			description: "Webhook URL or webhook code",
 			description_localizations: {
-				"fr": "URL de la Webhook ou code de la Webhook"
+				fr: "URL de la Webhook ou code de la Webhook"
 			},
 
 			type: ApplicationCommandOptionType.String,
 
 			required: false,
-			permission: null,
+			permission: null
 		}
 	],
 
 	permission: null,
-	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
-
+	run: async (
+		client: Client,
+		message: Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
 		const action = client.func.method.string(options!, 0);
 		const input = client.func.method.string(options!, 1) || "";
 
 		const matches = input.match(
-			/https?:\/\/(?:ptb\.|canary\.)?discord\.com\/api(?:\/v\d{1,2})?\/webhooks\/(\d{17,19})\/([\w-]{68})/i,
+			/https?:\/\/(?:ptb\.|canary\.)?discord\.com\/api(?:\/v\d{1,2})?\/webhooks\/(\d{17,19})\/([\w-]{68})/i
 		);
 
 		if (action == "create") {
 			if (!matches) {
 				await client.func.method.channelSend(message, {
-					content: lang.util_securewebhook_action_create,
-				})
+					content: lang.util_securewebhook_action_create
+				});
 				return;
 			}
 
-			const req = await fetch(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.SecureWebhook), {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					"adminKey": client.config.api.apiToken,
-					"wanna": "create",
-					"url": input,
-					"userId": message.author.id
-				})
-			})
+			const req = await fetch(
+				apiUrlParser.HorizonGateway(
+					apiUrlParser.GatewayMethod.SecureWebhook
+				),
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({
+						adminKey: client.config.api.apiToken,
+						wanna: "create",
+						url: input,
+						userId: message.author.id
+					})
+				}
+			);
 
 			const data = await req.json();
 
 			if (data.status != "OK") {
 				await client.func.method.channelSend(message, {
-					content: lang.util_securewebhook_action_create_error.replace("${data.status}", data.error),
-				})
+					content:
+						lang.util_securewebhook_action_create_error.replace(
+							"${data.status}",
+							data.error
+						)
+				});
 				return;
 			}
 
@@ -133,67 +142,78 @@ export const command: Command = {
 				content: lang.util_securewebhook_action_create_ok
 					.replace("${data.url}", data.url)
 					.replace("${data.use}", String(0))
-			})
-
+			});
 		} else if (action == "delete") {
-			const data = await apiTable.get("WH_SEC") || {};
+			const data = (await apiTable.get("WH_SEC")) || {};
 
 			const datas = Object.values(data) || [];
 
-			const filtered_wh = datas.filter((wh: any) => wh.userId === message.author.id) || []
+			const filtered_wh =
+				datas.filter((wh: any) => wh.userId === message.author.id) ||
+				[];
 
 			// Check if the webhook is owned by the user
 			if (filtered_wh.length == 0) {
 				await client.func.method.channelSend(message, {
-					content: lang.util_securewebhook_action_delete_any,
-				})
+					content: lang.util_securewebhook_action_delete_any
+				});
 				return;
 			}
 
 			if (!filtered_wh.some((wh: any) => wh.code === input)) {
 				await client.func.method.channelSend(message, {
-					content: lang.util_securewebhook_action_delete_not_owner,
-				})
+					content: lang.util_securewebhook_action_delete_not_owner
+				});
 				return;
 			}
 
-
-			const req = await fetch(apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.SecureWebhook), {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					"adminKey": client.config.api.apiToken,
-					"wanna": "delete",
-					"code": input,
-					"userId": message.author.id
-				})
-			});
+			const req = await fetch(
+				apiUrlParser.HorizonGateway(
+					apiUrlParser.GatewayMethod.SecureWebhook
+				),
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({
+						adminKey: client.config.api.apiToken,
+						wanna: "delete",
+						code: input,
+						userId: message.author.id
+					})
+				}
+			);
 
 			if (req.status != 200) {
 				await client.func.method.channelSend(message, {
-					content: lang.util_securewebhook_action_delete_error,
-				})
+					content: lang.util_securewebhook_action_delete_error
+				});
 				return;
 			}
 
-			message.react('✅').catch(() => { client.func.method.interactionSend(message, { content: "✅" }) });
-
+			message.react("✅").catch(() => {
+				client.func.method.interactionSend(message, { content: "✅" });
+			});
 		} else if (action == "list") {
-			const data = await apiTable.get("WH_SEC") || {};
+			const data = (await apiTable.get("WH_SEC")) || {};
 
 			const datas = Object.values(data) || [];
 
-			const filtered_wh = datas.filter((wh: any) => wh.userId === message.author.id);
+			const filtered_wh = datas.filter(
+				(wh: any) => wh.userId === message.author.id
+			);
 			const webhook_base_url = `${client.config.api.HorizonGateway}/api/webhooks/{id}/{token}`;
 			const all_whs = filtered_wh
-				.map((wh: any) => `> [${wh.code}](${webhook_base_url.replace("{id}", wh.code).replace("{token}", wh.token)}) - ${wh.use} use(s)`)
+				.map(
+					(wh: any) =>
+						`> [${wh.code}](${webhook_base_url.replace("{id}", wh.code).replace("{token}", wh.token)}) - ${wh.use} use(s)`
+				)
 				.join("\n");
 
 			await client.func.method.channelSend(message, {
 				content: lang.util_securewebhook_actiom_list_ok + all_whs
-			})
+			});
 		}
-	},
+	}
 };

@@ -19,70 +19,96 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
-
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
-import { metasTable } from '../../../Events/client/ready.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
+import { metasTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		let i: number = 0;
 		let j: number = 0;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var svMsg = interaction.options.getString('save-message')!;
+			var svMsg = interaction.options.getString("save-message")!;
 		} else {
 			var svMsg = client.func.method.string(args!, 0)!;
-		};
+		}
 
-		const state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
-		if ((state && interaction.guild.ownerId !== interaction.member.user.id)
-			|| ((state === undefined || state === null) && interaction.guild.ownerId !== interaction.member.user.id)) {
+		const state = await client.db.get(
+			`${interaction.guildId}.GUILD.BACKUP.onlyOwner`
+		);
+		if (
+			(state &&
+				interaction.guild.ownerId !== interaction.member.user.id) ||
+			((state === undefined || state === null) &&
+				interaction.guild.ownerId !== interaction.member.user.id)
+		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_manage_nique_tes_mort
-			})
+			});
 			return;
 		}
 
-		client.backup.create(interaction.guild, {
-			maxMessagesPerChannel: svMsg === "yes" ? 100 : 0,
-			jsonBeautify: true,
-			saveImages: true
-		}).then(async (backupData) => {
+		client.backup
+			.create(interaction.guild, {
+				maxMessagesPerChannel: svMsg === "yes" ? 100 : 0,
+				jsonBeautify: true,
+				saveImages: true
+			})
+			.then(async (backupData) => {
+				backupData.channels.categories.forEach((category) => {
+					i++;
+					category.children.forEach(() => {
+						j++;
+					});
+				});
 
-			backupData.channels.categories.forEach(category => {
-				i++;
-				category.children.forEach(() => {
-					j++;
+				const ellData = {
+					guildName: backupData.name,
+					categoryCount: i,
+					channelCount: j
+				};
+
+				await metasTable.set(
+					`BACKUPS.${interaction.member?.user.id}.${backupData.id}`,
+					ellData
+				);
+
+				client.func.method.channelSend(interaction, {
+					content: lang.backup_command_work_on_creation
+				});
+
+				await client.func.method.interactionSend(interaction, {
+					content: lang.backup_command_work_info_on_creation.replace(
+						"${backupData.id}",
+						backupData.id
+					)
+				});
+
+				await client.func.ihorizon_logs(interaction, {
+					title: lang.backup_logs_embed_title_on_creation,
+					description:
+						lang.backup_logs_embed_description_on_creation.replace(
+							"${interaction.user.id}",
+							interaction.member?.user.id!
+						)
 				});
 			});
-
-			const ellData = { guildName: backupData.name, categoryCount: i, channelCount: j };
-
-			await metasTable.set(`BACKUPS.${interaction.member?.user.id}.${backupData.id}`, ellData);
-
-			client.func.method.channelSend(interaction, { content: lang.backup_command_work_on_creation });
-
-			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_command_work_info_on_creation
-					.replace("${backupData.id}", backupData.id)
-			});
-
-			await client.func.ihorizon_logs(interaction, {
-				title: lang.backup_logs_embed_title_on_creation,
-				description: lang.backup_logs_embed_description_on_creation
-					.replace('${interaction.user.id}', interaction.member?.user.id!)
-			});
-		});
-	},
+	}
 };

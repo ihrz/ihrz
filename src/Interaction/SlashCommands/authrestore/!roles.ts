@@ -19,50 +19,75 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js";
 import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-} from 'discord.js';
-import { changeRoleAuthRestore, getGuildDataPerSecretCode } from '../../../core/functions/authRestoreHelper.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	changeRoleAuthRestore,
+	getGuildDataPerSecretCode
+} from "../../../core/functions/authRestoreHelper.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
-import { authRestoreTable } from '../../../Events/client/ready.js';
+import { SubCommand } from "../../../../types/command.js";
+import { authRestoreTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const secretCode = interaction.options.getString("key")!;
 		const role = interaction.options.getRole("roles")!;
 
 		const data = await getGuildDataPerSecretCode(secretCode);
 
-		if (!data) return client.func.method.interactionSend(interaction, {
-			content: lang.rc_key_doesnt_exist
-				.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-				.replace("${secretCode}", secretCode),
-			flags: [1 << 6]
+		if (!data)
+			return client.func.method.interactionSend(interaction, {
+				content: lang.rc_key_doesnt_exist
+					.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
+					.replace("${secretCode}", secretCode),
+				flags: [1 << 6]
+			});
+
+		await changeRoleAuthRestore({
+			guildId: interaction.guildId!,
+			apiToken: client.config.api.apiToken,
+			roleId: role.id
 		});
 
-		await changeRoleAuthRestore({ guildId: interaction.guildId!, apiToken: client.config.api.apiToken, roleId: role.id });
-
-		const footer = await client.func.displayBotName.footerBuilder(interaction.guildId!);
+		const footer = await client.func.displayBotName.footerBuilder(
+			interaction.guildId!
+		);
 
 		const mainEmbed = new EmbedBuilder()
 			.setColor(2829617)
 			.setTitle(lang.rc_role_embed_title)
-			.setFields(
-				{ name: lang.rc_role_embed_field1_name, value: role.toString(), inline: true },
-			)
+			.setFields({
+				name: lang.rc_role_embed_field1_name,
+				value: role.toString(),
+				inline: true
+			})
 			.setFooter(footer);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [mainEmbed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
 	}

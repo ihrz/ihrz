@@ -29,60 +29,97 @@ import {
 	ComponentType,
 	Message,
 	GuildMember,
-	BaseGuildTextChannel,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-
+	BaseGuildTextChannel
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 const itemsPerPage = 5;
 
-import { SubCommand } from '../../../../types/command.js';
-import { metasTable } from '../../../Events/client/ready.js';
+import { SubCommand } from "../../../../types/command.js";
+import { metasTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var backupID = interaction.options.getString('backup-id');
+			var backupID = interaction.options.getString("backup-id");
 		} else {
-
 			var backupID = client.func.method.string(args!, 0);
-		};
+		}
 
-		if (backupID && !await metasTable.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
+		if (
+			backupID &&
+			!(await metasTable.get(
+				`BACKUPS.${interaction.member.user.id}.${backupID}`
+			))
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+				content: lang.backup_this_is_not_your_backup.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
 			});
 			return;
-		};
+		}
 
-		const data2 = await metasTable.get(`BACKUPS.${interaction.member.user.id}`) as DatabaseStructure.DbBackupsUserObject;
+		const data2 = (await metasTable.get(
+			`BACKUPS.${interaction.member.user.id}`
+		)) as DatabaseStructure.DbBackupsUserObject;
 		const backups: {
 			name: string;
-			value: string
+			value: string;
 		}[] = [];
 
 		for (const i in data2) {
 			const result = data2[i];
 
-			const v = (lang.backup_string_see_another_v
-				.replace('${result.categoryCount}', result.categoryCount.toString())
-				.replace('${result.channelCount}', result.channelCount.toString()));
+			const v = lang.backup_string_see_another_v
+				.replace(
+					"${result.categoryCount}",
+					result.categoryCount.toString()
+				)
+				.replace(
+					"${result.channelCount}",
+					result.channelCount.toString()
+				);
 
-			if (result) backups.push({ name: `${result.guildName} - (||${i}||)`, value: v });
-		};
+			if (result)
+				backups.push({
+					name: `${result.guildName} - (||${i}||)`,
+					value: v
+				});
+		}
 
 		const totalPages = Math.ceil(backups.length / itemsPerPage);
 		let currentPage = 0;
 
 		const generateEmbed = (page: number) => {
 			const embed = new EmbedBuilder()
-				.setDescription(backups.length > 0 ? lang.backup_all_of_your_backup : lang.backup_backup_doesnt_exist)
-				.setAuthor({ name: interaction.member?.user.username || (interaction.member as GuildMember)?.displayName, iconURL: "attachment://user_icon.png" })
+				.setDescription(
+					backups.length > 0
+						? lang.backup_all_of_your_backup
+						: lang.backup_backup_doesnt_exist
+				)
+				.setAuthor({
+					name:
+						interaction.member?.user.username ||
+						(interaction.member as GuildMember)?.displayName,
+					iconURL: "attachment://user_icon.png"
+				})
 				.setColor("#bf0bb9")
 				.setTimestamp();
 
@@ -91,52 +128,74 @@ export const subCommand: SubCommand = {
 				const end = start + itemsPerPage;
 				const currentBackups = backups.slice(start, end);
 
-				currentBackups.forEach(backup => embed.addFields(backup));
+				currentBackups.forEach((backup) => embed.addFields(backup));
 			}
 
 			embed.setFooter({
-				text: backups.length > 0
-					? lang.prevnames_embed_footer_text
-						.replace("${currentPage + 1}", String(page + 1))
-						.replace("${pages.length}", String(totalPages))
-					: lang.prevnames_embed_footer_text.replace("${currentPage + 1}", "1").replace("${pages.length}", "1"),
+				text:
+					backups.length > 0
+						? lang.prevnames_embed_footer_text
+								.replace("${currentPage + 1}", String(page + 1))
+								.replace("${pages.length}", String(totalPages))
+						: lang.prevnames_embed_footer_text
+								.replace("${currentPage + 1}", "1")
+								.replace("${pages.length}", "1"),
 				iconURL: "attachment://footer_icon.png"
 			});
 			return embed;
 		};
 
 		const generateButtons = (page: number) => {
-			return new ActionRowBuilder<ButtonBuilder>()
-				.addComponents(
-					new ButtonBuilder()
-						.setCustomId('previous')
-						.setLabel('<<<')
-						.setStyle(ButtonStyle.Secondary)
-						.setDisabled(page === 0 || backups.length === 0),
-					new ButtonBuilder()
-						.setCustomId('next')
-						.setLabel('>>>')
-						.setStyle(ButtonStyle.Secondary)
-						.setDisabled(page === totalPages - 1 || backups.length === 0)
-				);
+			return new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setCustomId("previous")
+					.setLabel("<<<")
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(page === 0 || backups.length === 0),
+				new ButtonBuilder()
+					.setCustomId("next")
+					.setLabel(">>>")
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(
+						page === totalPages - 1 || backups.length === 0
+					)
+			);
 		};
 
-		const originalResponse = await client.func.method.interactionSend(interaction, {
-			embeds: [generateEmbed(currentPage)],
-			components: [generateButtons(currentPage)],
-			files: [
-				await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction),
-				{ attachment: (await interaction.client.func.image64.image64((interaction.member as GuildMember).user.displayAvatarURL())) ?? Buffer.alloc(0), name: 'user_icon.png' }
-			]
-		});
+		const originalResponse = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [generateEmbed(currentPage)],
+				components: [generateButtons(currentPage)],
+				files: [
+					await interaction.client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					),
+					{
+						attachment:
+							(await interaction.client.func.image64.image64(
+								(
+									interaction.member as GuildMember
+								).user.displayAvatarURL()
+							)) ?? Buffer.alloc(0),
+						name: "user_icon.png"
+					}
+				]
+			}
+		);
 
 		if (backups.length > 0) {
-			const collector = (interaction.channel as BaseGuildTextChannel).createMessageComponentCollector({ componentType: ComponentType.Button, time: 60_000 });
+			const collector = (
+				interaction.channel as BaseGuildTextChannel
+			).createMessageComponentCollector({
+				componentType: ComponentType.Button,
+				time: 60_000
+			});
 
-			collector.on('collect', async (i) => {
-				if (i.customId === 'previous') {
+			collector.on("collect", async (i) => {
+				if (i.customId === "previous") {
 					currentPage--;
-				} else if (i.customId === 'next') {
+				} else if (i.customId === "next") {
 					currentPage++;
 				}
 
@@ -146,11 +205,11 @@ export const subCommand: SubCommand = {
 				});
 			});
 
-			collector.on('end', () => {
+			collector.on("end", () => {
 				originalResponse.edit({ components: [] });
 			});
 		}
 
 		return;
-	},
+	}
 };

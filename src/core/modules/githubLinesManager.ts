@@ -79,25 +79,34 @@ class GithubLinesManager {
 		});
 
 		lines.forEach((line, idx) => {
-			newLines.push(ignored.includes(idx) ? line : line.substring(minSpaces));
+			newLines.push(
+				ignored.includes(idx) ? line : line.substring(minSpaces)
+			);
 		});
 
 		return newLines.join("\n");
 	}
 
-	async handleMatch(match: RegExpMatchArray, type: string): Promise<LineData | null> {
+	async handleMatch(
+		match: RegExpMatchArray,
+		type: string
+	): Promise<LineData | null> {
 		let lines: string[];
 		let filename = match[3];
 
 		if (type === "GitHub") {
-			const resp = await fetch(`https://raw.githubusercontent.com/${match[1]}/${match[2]}/${filename}`);
+			const resp = await fetch(
+				`https://raw.githubusercontent.com/${match[1]}/${match[2]}/${filename}`
+			);
 			if (!resp.ok) {
 				return null; // TODO: fallback to API
 			}
 			const text = await resp.text();
 			lines = text.split("\n");
 		} else if (type === "GitLab") {
-			const resp = await fetch(`https://gitlab.com/${match[1]}/-/raw/${match[2]}/${filename}`);
+			const resp = await fetch(
+				`https://gitlab.com/${match[1]}/-/raw/${match[2]}/${filename}`
+			);
 			if (!resp.ok) {
 				return null; // TODO: fallback to API
 			}
@@ -108,24 +117,36 @@ class GithubLinesManager {
 			let text: string | null = null;
 
 			if (match[2].length) {
-				const resp = await fetch(`https://gist.githubusercontent.com/${match[1]}/raw/${match[2]}/${dotFilename}`);
+				const resp = await fetch(
+					`https://gist.githubusercontent.com/${match[1]}/raw/${match[2]}/${dotFilename}`
+				);
 				if (!resp.ok) return null;
 				text = await resp.text();
 			} else {
-				const resp = await fetch(`https://api.github.com/gists/${match[1].split("/")[1]}`, {
-					headers: this.authHeaders
-				});
+				const resp = await fetch(
+					`https://api.github.com/gists/${match[1].split("/")[1]}`,
+					{
+						headers: this.authHeaders
+					}
+				);
 				if (!resp.ok) return null;
 
 				const json = (await resp.json()) as JSONObject;
-				if (!("files" in json) || typeof json.files !== "object" || json.files === null) return null;
+				if (
+					!("files" in json) ||
+					typeof json.files !== "object" ||
+					json.files === null
+				)
+					return null;
 
 				const files = json.files as Record<string, any>;
 				text =
 					files[dotFilename]?.content ||
 					files[
 						Object.keys(files).find(
-							(key) => key.toLowerCase().replace(/\W+/g, "-") === filename.toLowerCase()
+							(key) =>
+								key.toLowerCase().replace(/\W+/g, "-") ===
+								filename.toLowerCase()
 						) || ""
 					]?.content;
 
@@ -153,10 +174,14 @@ class GithubLinesManager {
 			let start = Math.max(1, Math.min(lineStart, lineEnd));
 			let end = Math.min(lines.length, Math.max(lineStart, lineEnd));
 			lineLength = end - start + 1;
-			toDisplay = GithubLinesManager.formatIndent(lines.slice(start - 1, end).join("\n")).replace(/``/g, "`\u200b`");
+			toDisplay = GithubLinesManager.formatIndent(
+				lines.slice(start - 1, end).join("\n")
+			).replace(/``/g, "`\u200b`");
 		}
 
-		let extension = (filename.includes(".") ? filename.split(".") : [""]).pop();
+		let extension = (
+			filename.includes(".") ? filename.split(".") : [""]
+		).pop();
 		if (extension) {
 			extension = extension.split("?")[0];
 		}
@@ -187,7 +212,7 @@ class GithubLinesManager {
 		}
 
 		const unfiltered = await Promise.all(returned);
-		const filtered = unfiltered.filter(x => x !== null) as LineData[];
+		const filtered = unfiltered.filter((x) => x !== null) as LineData[];
 
 		const totalLines = filtered.reduce((acc, el) => acc + el.lineLength, 0);
 		return {
@@ -196,22 +221,34 @@ class GithubLinesManager {
 		};
 	}
 
-
 	/**
 	 * This is Discord-level handleMessage(). It calls coreLogic-level handleMessage() and then
 	 * performs necessary formatting and validation.
 	 * @param msg Discord message object
 	 */
-	async handleMessage(msg: Message): Promise<{ botMsg: null | string; toDelete: boolean, lang: LanguageData }> {
-		const { msgList, totalLines } = await this.extractCodeLinks(msg.content);
+	async handleMessage(
+		msg: Message
+	): Promise<{
+		botMsg: null | string;
+		toDelete: boolean;
+		lang: LanguageData;
+	}> {
+		const { msgList, totalLines } = await this.extractCodeLinks(
+			msg.content
+		);
 		const lang = await msg.client.func.getLanguageData(msg.guildId!);
 
 		if (totalLines > 50) {
-			return { botMsg: lang.git_lines_avoiding_spam, toDelete: true, lang };
+			return {
+				botMsg: lang.git_lines_avoiding_spam,
+				toDelete: true,
+				lang
+			};
 		}
 
 		const messages = msgList.map(
-			(el) => `\`\`\`${el.toDisplay.search(/\S/) !== -1 ? el.extension : " "}\n${el.toDisplay}\n\`\`\``
+			(el) =>
+				`\`\`\`${el.toDisplay.search(/\S/) !== -1 ? el.extension : " "}\n${el.toDisplay}\n\`\`\``
 		);
 
 		const botMsg = messages.join("\n") || null;
@@ -227,13 +264,14 @@ class GithubLinesManager {
 		if (botMsg && msg.deletable) {
 			// can always supress embed if deletable
 			// it can take a few ms before the supress can be registered
-			setTimeout(() => msg.suppressEmbeds(true).catch(console.error), 100);
+			setTimeout(
+				() => msg.suppressEmbeds(true).catch(console.error),
+				100
+			);
 		}
 
 		return { botMsg, toDelete: false, lang };
 	}
 }
 
-export {
-	GithubLinesManager
-}
+export { GithubLinesManager };

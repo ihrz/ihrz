@@ -24,26 +24,39 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
+import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.options.getMember("user") as GuildMember || interaction.member;
+			var user =
+				(interaction.options.getMember("user") as GuildMember) ||
+				interaction.member;
 		} else {
-
-			var user = client.func.method.member(interaction, args!, 0) || interaction.member;
-		};
+			var user =
+				client.func.method.member(interaction, args!, 0) ||
+				interaction.member;
+		}
 
 		const a = new EmbedBuilder()
 			.setColor("#FF0000")
@@ -54,21 +67,31 @@ export const subCommand: SubCommand = {
 			noButton: lang.resetallinvites_no_button,
 			yesButton: lang.resetallinvites_yes_button,
 			dangerAction: true
-		})
+		});
 
 		if (response) {
-			await client.db.delete(`${interaction.guildId}.USER.${user.id}.ECONOMY`);
-			await client.func.method.interactionSend(interaction, { content: lang.resetallinvites_succes_on_delete, components: [] });
+			await client.db.delete(
+				`${interaction.guildId}.USER.${user.id}.ECONOMY`
+			);
+			await client.func.method.interactionSend(interaction, {
+				content: lang.resetallinvites_succes_on_delete,
+				components: []
+			});
 
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.reset_ueconomy_logs_embed_title,
 				description: lang.reset_ueconomy_logs_embed_desc
-					.replace("${interaction.member.user.toString()}", interaction.member.user.toString())
+					.replace(
+						"${interaction.member.user.toString()}",
+						interaction.member.user.toString()
+					)
 					.replace("${user.toString()}", user.toString())
 			});
-
 		} else {
-			await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_action_canceled, components: [] });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.setjoinroles_action_canceled,
+				components: []
+			});
 		}
-	},
+	}
 };

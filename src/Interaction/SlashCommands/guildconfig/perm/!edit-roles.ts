@@ -19,19 +19,27 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	ChatInputCommandInteraction,
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../../types/database_structure.js';
-import { SubCommand } from '../../../../../types/command.js';
-import { permissionLevel } from './perm.js';
+import { Client, ChatInputCommandInteraction } from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../../types/database_structure.js";
+import { SubCommand } from "../../../../../types/command.js";
+import { permissionLevel } from "./perm.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction.member.id !== interaction.guild.ownerId) {
 			await client.func.method.interactionSend(interaction, {
@@ -40,26 +48,38 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const perm_level = parseInt(interaction.options.getString("perm_level", true));
+		const perm_level = parseInt(
+			interaction.options.getString("perm_level", true)
+		);
 		const perm_role = interaction.options.getRole("perm_role", true);
 
 		try {
-			const updatedRoles: DatabaseStructure.UtilsRoleData = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {};
+			const updatedRoles: DatabaseStructure.UtilsRoleData =
+				(await client.db.get(`${interaction.guildId}.UTILS.roles`)) ||
+				{};
 
-			updatedRoles[perm_level as DatabaseStructure.PermLevel] = perm_role.id;
+			updatedRoles[perm_level as DatabaseStructure.PermLevel] =
+				perm_role.id;
 
-			await client.db.set(`${interaction.guildId}.UTILS.roles`, updatedRoles);
+			await client.db.set(
+				`${interaction.guildId}.UTILS.roles`,
+				updatedRoles
+			);
 
-			let permName = permissionLevel.find(x => x.value === String(perm_level))?.name;
+			let permName = permissionLevel.find(
+				(x) => x.value === String(perm_level)
+			)?.name;
 			let strRole = perm_role.toString();
 
 			client.func.method.interactionSend(interaction, {
-				content: lang.perm_edit_roles_command_ok.replace("${permName}", String(permName)).replace("${strRole}", strRole)
-			})
+				content: lang.perm_edit_roles_command_ok
+					.replace("${permName}", String(permName))
+					.replace("${strRole}", strRole)
+			});
 		} catch (error) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.perm_roles_error
 			});
 		}
-	},
+	}
 };

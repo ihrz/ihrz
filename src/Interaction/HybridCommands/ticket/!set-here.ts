@@ -27,90 +27,118 @@ import {
 	ComponentType,
 	Message,
 	StringSelectMenuBuilder,
-	StringSelectMenuOptionBuilder,
-} from 'discord.js';
+	StringSelectMenuOptionBuilder
+} from "discord.js";
 
-import { CreateButtonPanel, CreateSelectPanel } from '../../../core/modules/ticketsManager.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import {
+	CreateButtonPanel,
+	CreateSelectPanel
+} from "../../../core/modules/ticketsManager.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var panelName = interaction.options.getString("name");
 			var panelDesc = interaction.options.getString("description");
-			var panelCategory = interaction.options.getChannel("category") as CategoryChannel | null;
+			var panelCategory = interaction.options.getChannel(
+				"category"
+			) as CategoryChannel | null;
 		} else {
 			var panelName = client.func.method.string(args!, 0);
 			var panelDesc = client.func.method.string(args!, 1);
-			var panelCategory = await client.func.method.channel(interaction, args!, 2) as CategoryChannel | null;
+			var panelCategory = (await client.func.method.channel(
+				interaction,
+				args!,
+				2
+			)) as CategoryChannel | null;
 		}
 
-		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await client.func.method.interactionSend(interaction, { content: lang.ticket_disabled_command });
+		if (
+			await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.ticket_disabled_command
+			});
 			return;
-		};
+		}
 
 		const comp = new StringSelectMenuBuilder()
 			.setCustomId("choose_panel_type")
 			.setPlaceholder(lang.sethereticket_command_type_menu_placeholder)
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.sethereticket_command_type_menu_choice_1_label)
+					.setLabel(
+						lang.sethereticket_command_type_menu_choice_1_label
+					)
 					.setValue("button_panel"),
 				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.sethereticket_command_type_menu_choice_2_label)
+					.setLabel(
+						lang.sethereticket_command_type_menu_choice_2_label
+					)
 					.setValue("select_panel")
 			);
 
 		const response = await client.func.method.interactionSend(interaction, {
-			content: lang.sethereticket_command_type_menu_question
-				.replace("${interaction.user.id}", interaction.member.user.id),
+			content: lang.sethereticket_command_type_menu_question.replace(
+				"${interaction.user.id}",
+				interaction.member.user.id
+			),
 			components: [
-				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
+				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+					comp
+				)
 			]
 		});
 
-		response.awaitMessageComponent({
-			componentType: ComponentType.StringSelect,
-			time: 240_000,
-			filter: (i) => i.user.id === interaction.member?.user.id,
-		}).then(async (i) => {
+		response
+			.awaitMessageComponent({
+				componentType: ComponentType.StringSelect,
+				time: 240_000,
+				filter: (i) => i.user.id === interaction.member?.user.id
+			})
+			.then(async (i) => {
+				if (i.values[0] === "button_panel") {
+					await CreateButtonPanel(interaction, {
+						name: panelName,
+						author: interaction.member?.user.id!,
+						description: panelDesc,
+						category: panelCategory?.id
+					});
 
-			if (i.values[0] === 'button_panel') {
-				await CreateButtonPanel(interaction, {
-					name: panelName,
-					author: interaction.member?.user.id!,
-					description: panelDesc,
-					category: panelCategory?.id
-				});
+					await i.deferUpdate();
 
-				await i.deferUpdate();
+					client.func.method.interactionSend(interaction, {
+						components: [],
+						content: lang.sethereticket_command_work
+					});
+				} else if (i.values[0] === "select_panel") {
+					await i.deferUpdate();
 
-				client.func.method.interactionSend(interaction, {
-					components: [],
-					content: lang.sethereticket_command_work
-				});
-
-			} else if (i.values[0] === 'select_panel') {
-
-				await i.deferUpdate();
-
-				await CreateSelectPanel(interaction, {
-					name: panelName,
-					author: interaction.member?.user.id!,
-					description: panelDesc,
-				});
-			};
-		});
+					await CreateSelectPanel(interaction, {
+						name: panelName,
+						author: interaction.member?.user.id!,
+						description: panelDesc
+					});
+				}
+			});
 
 		return;
-	},
+	}
 };

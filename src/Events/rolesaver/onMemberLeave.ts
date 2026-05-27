@@ -19,16 +19,21 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { PermissionsBitField, Client, GuildMember } from 'discord.js';
+import { PermissionsBitField, Client, GuildMember } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
 	run: async (client: Client, member: GuildMember) => {
-
-		if (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`)) {
-			const admin = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.admin`);
+		if (
+			await client.db.get(
+				`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`
+			)
+		) {
+			const admin = await client.db.get(
+				`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.admin`
+			);
 			const rolesArray: string[] = [];
 
 			member.roles.cache.each((role) => {
@@ -36,15 +41,23 @@ export const event: BotEvent = {
 					return;
 				}
 
-				if (role.permissions.has(PermissionsBitField.Flags.Administrator) && admin === 'no') {
+				if (
+					role.permissions.has(
+						PermissionsBitField.Flags.Administrator
+					) &&
+					admin === "no"
+				) {
 					return;
 				}
 
 				rolesArray.push(role.id);
 			});
 
-			await client.db.set(`${member.guild.id}.ROLE_SAVER.${member.user.id}`, rolesArray);
+			await client.db.set(
+				`${member.guild.id}.ROLE_SAVER.${member.user.id}`,
+				rolesArray
+			);
 			return;
 		}
-	},
+	}
 };

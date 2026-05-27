@@ -47,7 +47,7 @@ const Color = {
 	Reset: "\x1b[0m"
 };
 
-export { };
+export {};
 
 declare global {
 	interface String {
@@ -78,7 +78,6 @@ declare global {
 	}
 }
 
-
 function addStringPrototypeGetter(name: string, colorCode: string) {
 	Object.defineProperty(String.prototype, name, {
 		get: function () {
@@ -89,27 +88,27 @@ function addStringPrototypeGetter(name: string, colorCode: string) {
 	});
 }
 
-addStringPrototypeGetter('black', Color.Black);
-addStringPrototypeGetter('red', Color.Red);
-addStringPrototypeGetter('green', Color.Green);
-addStringPrototypeGetter('yellow', Color.Yellow);
-addStringPrototypeGetter('blue', Color.Blue);
-addStringPrototypeGetter('magenta', Color.Magenta);
-addStringPrototypeGetter('cyan', Color.Cyan);
-addStringPrototypeGetter('white', Color.White);
-addStringPrototypeGetter('bgBlack', Color.BGBlack);
-addStringPrototypeGetter('bgRed', Color.BGRed);
-addStringPrototypeGetter('bgGreen', Color.BGGreen);
-addStringPrototypeGetter('bgYellow', Color.BGYellow);
-addStringPrototypeGetter('bgBlue', Color.BGBlue);
-addStringPrototypeGetter('bgMagenta', Color.BGMagenta);
-addStringPrototypeGetter('bgCyan', Color.BGCyan);
-addStringPrototypeGetter('bgWhite', Color.BGWhite);
-addStringPrototypeGetter('dim', Color.Dim);
-addStringPrototypeGetter('italic', Color.Italic);
-addStringPrototypeGetter('underline', Color.Underscore);
-addStringPrototypeGetter('inverse', Color.Reverse);
-addStringPrototypeGetter('hidden', Color.Hidden);
-addStringPrototypeGetter('strikethrough', Color.Strikethrough);
-addStringPrototypeGetter('gray', Color.Gray);
-addStringPrototypeGetter('boldText', Color.Bold);
+addStringPrototypeGetter("black", Color.Black);
+addStringPrototypeGetter("red", Color.Red);
+addStringPrototypeGetter("green", Color.Green);
+addStringPrototypeGetter("yellow", Color.Yellow);
+addStringPrototypeGetter("blue", Color.Blue);
+addStringPrototypeGetter("magenta", Color.Magenta);
+addStringPrototypeGetter("cyan", Color.Cyan);
+addStringPrototypeGetter("white", Color.White);
+addStringPrototypeGetter("bgBlack", Color.BGBlack);
+addStringPrototypeGetter("bgRed", Color.BGRed);
+addStringPrototypeGetter("bgGreen", Color.BGGreen);
+addStringPrototypeGetter("bgYellow", Color.BGYellow);
+addStringPrototypeGetter("bgBlue", Color.BGBlue);
+addStringPrototypeGetter("bgMagenta", Color.BGMagenta);
+addStringPrototypeGetter("bgCyan", Color.BGCyan);
+addStringPrototypeGetter("bgWhite", Color.BGWhite);
+addStringPrototypeGetter("dim", Color.Dim);
+addStringPrototypeGetter("italic", Color.Italic);
+addStringPrototypeGetter("underline", Color.Underscore);
+addStringPrototypeGetter("inverse", Color.Reverse);
+addStringPrototypeGetter("hidden", Color.Hidden);
+addStringPrototypeGetter("strikethrough", Color.Strikethrough);
+addStringPrototypeGetter("gray", Color.Gray);
+addStringPrototypeGetter("boldText", Color.Bold);

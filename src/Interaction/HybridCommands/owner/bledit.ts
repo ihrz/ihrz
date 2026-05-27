@@ -30,30 +30,30 @@ import {
 	GuildMember,
 	ApplicationCommandType,
 	Message
-} from 'discord.js'
+} from "discord.js";
 
-import { format } from '../../../core/functions/date_and_time.js';
+import { format } from "../../../core/functions/date_and_time.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-import { blacklistTable } from '../../../Events/client/ready.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+import { blacklistTable } from "../../../Events/client/ready.js";
 
 export const command: Command = {
-	name: 'bledit',
+	name: "bledit",
 
-	description: 'edit blacklist reason',
+	description: "edit blacklist reason",
 	description_localizations: {
-		"fr": "modifier la raison d'un blacklist"
+		fr: "modifier la raison d'un blacklist"
 	},
 
 	options: [
 		{
-			name: 'user',
+			name: "user",
 			type: ApplicationCommandOptionType.User,
 
-			description: 'The user you want to edit the reason',
+			description: "The user you want to edit the reason",
 			description_localizations: {
-				"fr": "L'utilisateur que vous souhaitez modifier la raison de sont blacklist"
+				fr: "L'utilisateur que vous souhaitez modifier la raison de sont blacklist"
 			},
 
 			required: true,
@@ -66,7 +66,7 @@ export const command: Command = {
 
 			description: "the new reason",
 			description_localizations: {
-				"fr": "la nouvelle raison"
+				fr: "la nouvelle raison"
 			},
 
 			permission: null,
@@ -77,47 +77,90 @@ export const command: Command = {
 	aliases: ["blacklistedit", "editbl"],
 
 	thinking: false,
-	category: 'owner',
+	category: "owner",
 	type: ApplicationCommandType.ChatInput,
 	permission: null,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-		if (await client.func.ownerHelper.isBotOwner(interaction.member?.user.id!)) {
-			run_for_bot_owner(client, interaction, lang, args)
-		} else if (await client.func.ownerHelper.isGuildOwner(interaction.member?.user.id!, interaction.guild!)) {
-			run_for_guild_owner(client, interaction, lang, args)
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			await client.func.ownerHelper.isBotOwner(
+				interaction.member?.user.id!
+			)
+		) {
+			run_for_bot_owner(client, interaction, lang, args);
+		} else if (
+			await client.func.ownerHelper.isGuildOwner(
+				interaction.member?.user.id!,
+				interaction.guild!
+			)
+		) {
+			run_for_guild_owner(client, interaction, lang, args);
 		}
-	},
+	}
 };
 
-export async function run_for_bot_owner(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) {
+export async function run_for_bot_owner(
+	client: Client,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData,
+	args?: string[]
+) {
 	// Guard's Typing
-	if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+	if (
+		!client.user ||
+		!interaction.member ||
+		!interaction.guild ||
+		!interaction.channel
+	)
+		return;
 
 	if (interaction instanceof ChatInputCommandInteraction) {
-		var user = interaction.options.getUser('user', true);
-		var newReason = "iHorizon Project Blacklist - " + interaction.options.getString("new_reason", true);
+		var user = interaction.options.getUser("user", true);
+		var newReason =
+			"iHorizon Project Blacklist - " +
+			interaction.options.getString("new_reason", true);
 	} else {
 		var user = (await client.func.method.user(interaction, args!, 0))!;
-		var newReason = "iHorizon Project Blacklist - " + client.func.method.longString(args!, 1)!;
-	};
+		var newReason =
+			"iHorizon Project Blacklist - " +
+			client.func.method.longString(args!, 1)!;
+	}
 
 	if (!client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
-	};
+	}
 
 	if (client.func.ownerHelper.isBotDev(user.id)) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
-	};
+	}
 
 	const userObj = await blacklistTable.get(user.id);
 
 	await blacklistTable.set(`${user.id}.reason`, newReason);
 
 	if (!userObj) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
 	}
 
@@ -125,43 +168,92 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 		embeds: [
 			new EmbedBuilder()
 				.setColor("#2E2EFE")
-				.setDescription(`<@${user.id}> (${user.username})\n├─ ${userObj.createdAt !== undefined ? format(new Date(userObj.createdAt), 'MMM DD YYYY') : lang.profil_unknown}\n├─ \`${newReason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.owner || lang.profil_unknown}`)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+				.setDescription(
+					`<@${user.id}> (${user.username})\n├─ ${userObj.createdAt !== undefined ? format(new Date(userObj.createdAt), "MMM DD YYYY") : lang.profil_unknown}\n├─ \`${newReason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.owner || lang.profil_unknown}`
+				)
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
 				.setTimestamp()
 		],
-		files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+		files: [
+			await client.func.displayBotName.footerAttachmentBuilder(
+				interaction
+			)
+		]
 	});
 }
 
-export async function run_for_guild_owner(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) {
-
+export async function run_for_guild_owner(
+	client: Client,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData,
+	args?: string[]
+) {
 	// Guard's Typing
-	if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+	if (
+		!client.user ||
+		!interaction.member ||
+		!interaction.guild ||
+		!interaction.channel
+	)
+		return;
 
 	if (interaction instanceof ChatInputCommandInteraction) {
-		var user = interaction.options.getUser('user', true);
-		var newReason = "iHorizon Project Blacklist - " + interaction.options.getString("new_reason", true);
+		var user = interaction.options.getUser("user", true);
+		var newReason =
+			"iHorizon Project Blacklist - " +
+			interaction.options.getString("new_reason", true);
 	} else {
 		var user = (await client.func.method.user(interaction, args!, 0))!;
-		var newReason = "iHorizon Project Blacklist - " + client.func.method.longString(args!, 1)!;
-	};
+		var newReason =
+			"iHorizon Project Blacklist - " +
+			client.func.method.longString(args!, 1)!;
+	}
 
-	if (!client.func.ownerHelper.isGuildOwner(interaction.member.user.id, interaction.guild)) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+	if (
+		!client.func.ownerHelper.isGuildOwner(
+			interaction.member.user.id,
+			interaction.guild
+		)
+	) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
-	};
+	}
 
 	if (client.func.ownerHelper.isBotDev(user.id)) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
-	};
+	}
 
-	const userObj = await client.db.get(`${interaction.guildId}.BLACKLIST.${user.id}`);
+	const userObj = await client.db.get(
+		`${interaction.guildId}.BLACKLIST.${user.id}`
+	);
 
-	await client.db.set(`${interaction.guildId}.BLACKLIST.${user.id}.reason`, newReason);
+	await client.db.set(
+		`${interaction.guildId}.BLACKLIST.${user.id}.reason`,
+		newReason
+	);
 
 	if (!userObj) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
 	}
 
@@ -169,11 +261,20 @@ export async function run_for_guild_owner(client: Client, interaction: ChatInput
 		embeds: [
 			new EmbedBuilder()
 				.setColor("#2E2EFE")
-				.setDescription(`<@${user.id}> (${user.username})\n├─ ${userObj.createdAt !== undefined ? format(new Date(userObj.createdAt), 'MMM DD YYYY') : lang.profil_unknown}\n├─ \`${newReason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.owner || lang.profil_unknown}`)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+				.setDescription(
+					`<@${user.id}> (${user.username})\n├─ ${userObj.createdAt !== undefined ? format(new Date(userObj.createdAt), "MMM DD YYYY") : lang.profil_unknown}\n├─ \`${newReason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.owner || lang.profil_unknown}`
+				)
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
 				.setTimestamp()
 		],
-		files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+		files: [
+			await client.func.displayBotName.footerAttachmentBuilder(
+				interaction
+			)
+		]
 	});
-
 }

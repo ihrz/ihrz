@@ -25,29 +25,45 @@ import {
 	GuildMember,
 	Message,
 	PermissionsBitField,
-	User,
-} from 'discord.js';
+	User
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var userToBan = interaction.options.getUser("user");
 			var banTime = interaction.options.getString("duration");
 			var reason = interaction.options.getString("reason");
 		} else {
-			var userToBan = await client.func.method.user(interaction, args!, 0);
+			var userToBan = await client.func.method.user(
+				interaction,
+				args!,
+				0
+			);
 			var banTime = client.func.method.string(args!, 1);
 			var reason = client.func.method.longString(args!, 2);
-		};
+		}
 
-		if (!banTime || !userToBan) { return; };
+		if (!banTime || !userToBan) {
+			return;
+		}
 
 		let bantimeMS = client.timeCalculator.to_ms(banTime);
 		const max_time = client.timeCalculator.to_ms("1year");
@@ -59,53 +75,94 @@ export const subCommand: SubCommand = {
 		}
 
 		if (!bantimeMS) {
-			await client.func.method.interactionSend(interaction, { content: lang.too_new_account_invalid_time_on_enable });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.too_new_account_invalid_time_on_enable
+			});
 			return;
 		}
 
-		const bantimeString = client.timeCalculator.to_beautiful_string(banTime, lang);
+		const bantimeString = client.timeCalculator.to_beautiful_string(
+			banTime,
+			lang
+		);
 
-		if (!interaction.guild.members.me?.permissions.has(
-			[PermissionsBitField.Flags.BanMembers]
-		)) {
+		if (
+			!interaction.guild.members.me?.permissions.has([
+				PermissionsBitField.Flags.BanMembers
+			])
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.tempban_i_dont_have_permission.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+				content: lang.tempban_i_dont_have_permission.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
 			});
 			return;
-		};
+		}
 
 		// Check if user is in the guild
-		const memberToBan = await interaction.guild.members.fetch(userToBan.id).catch(() => null);
+		const memberToBan = await interaction.guild.members
+			.fetch(userToBan.id)
+			.catch(() => null);
 
 		if (memberToBan) {
 			// User is in the guild, check role hierarchy
-			if (memberToBan.roles.highest.position >= interaction.guild.members.me.roles.highest.position && interaction.guild.ownerId !== interaction.member.user.id) {
+			if (
+				memberToBan.roles.highest.position >=
+					interaction.guild.members.me.roles.highest.position &&
+				interaction.guild.ownerId !== interaction.member.user.id
+			) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.tempban_user_highest_role_or_same
-						.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+						.replace(
+							"${client.iHorizon_Emojis.No}",
+							client.iHorizon_Emojis.No
+						)
 						.replace("${user.toString()}", userToBan.toString())
 				});
 				return;
 			}
 
-			if (memberToBan.permissions.has(PermissionsBitField.Flags.Administrator)) {
+			if (
+				memberToBan.permissions.has(
+					PermissionsBitField.Flags.Administrator
+				)
+			) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.tempban_user_is_admin.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+					content: lang.tempban_user_is_admin.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
 				});
 				return;
 			}
 		}
 
-		if (await client.tempbanManager.isAlreadyBanned(interaction.guild, userToBan) === true) {
-			await client.func.method.interactionSend(interaction, { content: lang.tempban_already_banned });
+		if (
+			(await client.tempbanManager.isAlreadyBanned(
+				interaction.guild,
+				userToBan
+			)) === true
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.tempban_already_banned
+			});
 			return;
-		};
+		}
 
-		const success = await client.tempbanManager.addban(interaction.guild, userToBan, bantimeMS, reason || undefined);
+		const success = await client.tempbanManager.addban(
+			interaction.guild,
+			userToBan,
+			bantimeMS,
+			reason || undefined
+		);
 
 		if (!success) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.tempban_i_dont_have_permission.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+				content: lang.tempban_i_dont_have_permission.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
 			});
 			return;
 		}
@@ -116,7 +173,10 @@ export const subCommand: SubCommand = {
 			.replace("${reason}", reason || lang.var_no_set);
 
 		if (overflow) {
-			content += lang.tempban_max_time_passed.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat)
+			content += lang.tempban_max_time_passed.replace(
+				"${client.iHorizon_Emojis.VC_OpenChat}",
+				client.iHorizon_Emojis.VC_OpenChat
+			);
 		}
 		await client.func.method.interactionSend(interaction, content);
 
@@ -128,5 +188,5 @@ export const subCommand: SubCommand = {
 				.replace("${duration}", bantimeString)
 				.replace("${reason}", reason || lang.var_no_set)
 		});
-	},
+	}
 };

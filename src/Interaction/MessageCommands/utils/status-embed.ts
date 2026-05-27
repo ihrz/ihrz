@@ -24,29 +24,33 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	time,
-} from 'discord.js';
+	time
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-import { metasTable } from '../../../Events/client/ready.js';
-
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+import { metasTable } from "../../../Events/client/ready.js";
 
 export const command: Command = {
-	name: 'status-embed',
+	name: "status-embed",
 	aliases: [],
 
-	description: 'Make a status embed about iHorizon',
+	description: "Make a status embed about iHorizon",
 	description_localizations: {
-		"fr": "Créer un embed par rapport à iHorizon"
+		fr: "Créer un embed par rapport à iHorizon"
 	},
 
 	thinking: false,
-	category: 'owner',
+	category: "owner",
 	type: "PREFIX_IHORIZON_COMMAND",
 
 	permission: null,
-	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
+	run: async (
+		client: Client,
+		message: Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
 		if (await client.func.ownerHelper.isBotOwner(message.author.id)) {
 			const online = client.iHorizon_Emojis.Online;
 			const down = client.iHorizon_Emojis.DND;
@@ -55,8 +59,14 @@ export const command: Command = {
 			const embed = new EmbedBuilder()
 				.setColor("#ff40c4")
 				.setTitle("iHorizon Status Panel")
-				.setDescription("This embed refresh every 1 minutes for showing the latest informations about iHorizon infrastructure")
-				.setFooter(await client.func.displayBotName.footerBuilder(message.guildId))
+				.setDescription(
+					"This embed refresh every 1 minutes for showing the latest informations about iHorizon infrastructure"
+				)
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						message.guildId
+					)
+				)
 				.setFields(
 					{
 						name: "iHorizon (Public Bot)",
@@ -78,23 +88,23 @@ export const command: Command = {
 						value: online,
 						inline: false
 					}
-				)
-				;
-
+				);
 			const channelId = message.channelId;
-			const content = `**Last update:** ${time(new Date(), "R")}`
+			const content = `**Last update:** ${time(new Date(), "R")}`;
 
-			const res = await client.func.method.channelSend(message.channel as BaseGuildTextChannel, {
-				content,
-				embeds: [embed]
-			});
+			const res = await client.func.method.channelSend(
+				message.channel as BaseGuildTextChannel,
+				{
+					content,
+					embeds: [embed]
+				}
+			);
 
 			await metasTable.set(`MISC.statusEmbed.${message.guildId}`, {
 				message_id: res.id,
 				guild_id: res.guildId,
 				channel_id: channelId
 			});
-
 		} else return;
-	},
+	}
 };

@@ -23,18 +23,17 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
+	PermissionFlagsBits
 } from "discord.js";
 
 import { Command } from "../../../../types/command.js";
-
 
 export const command: Command = {
 	name: "ranks",
 
 	description: "Subcommand for ranks category!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie de niveau (message)",
+		fr: "Commande sous-groupé pour la catégorie de niveau (message)"
 	},
 
 	options: [
@@ -44,7 +43,7 @@ export const command: Command = {
 
 			description: "When user earn a ranks's level, give it a role!",
 			description_localizations: {
-				fr: "Lorsque l'utilisateur atteint un niveau de rang, attribuez-lui un rôle !",
+				fr: "Lorsque l'utilisateur atteint un niveau de rang, attribuez-lui un rôle !"
 			},
 
 			aliases: ["rroles"],
@@ -52,15 +51,16 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			thinking: true,
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "config",
 			prefixName: "rconfig",
 
-			description: "Config the message when user earn new xp level message!",
+			description:
+				"Config the message when user earn new xp level message!",
 			description_localizations: {
-				fr: "Configurer le message lorsque l'utilisateur gagne un nouveau message de niveau XP",
+				fr: "Configurer le message lorsque l'utilisateur gagne un nouveau message de niveau XP"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -71,45 +71,51 @@ export const command: Command = {
 
 					description: "What you want to do?",
 					description_localizations: {
-						fr: "Que voulez-vous faire ?",
+						fr: "Que voulez-vous faire ?"
 					},
 
 					required: true,
 					choices: [
 						{
 							name: "Power On the module (send message when user earn xp level)",
-							name_localizations: { fr: 'Activer le module (envoyer un message lorsque l\'utilisateur gagne un niveau XP)' },
-							value: "on",
+							name_localizations: {
+								fr: "Activer le module (envoyer un message lorsque l'utilisateur gagne un niveau XP)"
+							},
+							value: "on"
 						},
 						{
 							name: "Power Off the module (don't send any message but user still earn xp level)",
-							name_localizations: { fr: 'Désactiver le module (ne pas envoyer de message mais l\'utilisateur gagne toujours un niveau XP)' },
-							value: "off",
+							name_localizations: {
+								fr: "Désactiver le module (ne pas envoyer de message mais l'utilisateur gagne toujours un niveau XP)"
+							},
+							value: "off"
 						},
 						{
 							name: "Disable the module (don't send any message and user don't earn xp level)",
-							name_localizations: { fr: 'Désactiver le module (ne pas envoyer de message et l\'utilisateur ne gagne pas de niveau XP)' },
-							value: "disable",
-						},
+							name_localizations: {
+								fr: "Désactiver le module (ne pas envoyer de message et l'utilisateur ne gagne pas de niveau XP)"
+							},
+							value: "disable"
+						}
 					],
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "show",
 			prefixName: "ranks-show",
 
 			name_localizations: {
-				fr: "afficher",
+				fr: "afficher"
 			},
 
 			description: "Get the user's xp level!",
 			description_localizations: {
-				fr: "Obtenez le niveau XP de l'utilisateur",
+				fr: "Obtenez le niveau XP de l'utilisateur"
 			},
 
 			aliases: ["rsee", "look", "level"],
@@ -123,17 +129,17 @@ export const command: Command = {
 					description:
 						"The user you want to lookup, keep blank if you want to show your stats",
 					description_localizations: {
-						fr: "L'utilisateur que vous souhaitez rechercher.",
+						fr: "L'utilisateur que vous souhaitez rechercher."
 					},
 
 					required: false,
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
 			thinking: true,
-			permission: null,
+			permission: null
 		},
 		{
 			name: "ureset",
@@ -141,7 +147,7 @@ export const command: Command = {
 
 			description: "Reset the ranks level of an user",
 			description_localizations: {
-				fr: "Supprimer les données de rang d'un utilisateur",
+				fr: "Supprimer les données de rang d'un utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -152,15 +158,15 @@ export const command: Command = {
 
 					description: "The user you want to reset the ranks data",
 					description_localizations: {
-						fr: "L'utilisateur que vous voulez supprimer du module de rangs.",
+						fr: "L'utilisateur que vous voulez supprimer du module de rangs."
 					},
 
 					required: true,
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "greset",
@@ -168,24 +174,25 @@ export const command: Command = {
 
 			description: "Reset the ranks level of every user in the guild",
 			description_localizations: {
-				fr: "Supprimer les données de rang de tout les utilisateur",
+				fr: "Supprimer les données de rang de tout les utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "channel",
 			prefixName: "ranks-channel",
 
 			name_localizations: {
-				fr: "définir-cannal",
+				fr: "définir-cannal"
 			},
 
-			description: "Set the channel where user earn new xp level message!",
+			description:
+				"Set the channel where user earn new xp level message!",
 			description_localizations: {
-				fr: "Définir le canal sur lequel l'utilisateur gagne un nouveau message de niveau XP",
+				fr: "Définir le canal sur lequel l'utilisateur gagne un nouveau message de niveau XP"
 			},
 
 			aliases: ["rchannel"],
@@ -198,24 +205,28 @@ export const command: Command = {
 
 					description: "What you want to do?",
 					description_localizations: {
-						fr: "Que voulez-vous faire ?",
+						fr: "Que voulez-vous faire ?"
 					},
 
 					required: true,
 					choices: [
 						{
 							name: "Remove the module (send xp message on the user's message channel)",
-							name_localizations: { fr: 'Supprimer le module (envoyer un message XP sur le canal du message de l\'utilisateur)' },
-							value: "off",
+							name_localizations: {
+								fr: "Supprimer le module (envoyer un message XP sur le canal du message de l'utilisateur)"
+							},
+							value: "off"
 						},
 						{
 							name: "Power on the module (send xp message on a specific channel)",
-							name_localizations: { fr: 'Activer le module (envoyer un message XP sur un canal spécifique)' },
-							value: "on",
-						},
+							name_localizations: {
+								fr: "Activer le module (envoyer un message XP sur un canal spécifique)"
+							},
+							value: "on"
+						}
 					],
 
-					permission: null,
+					permission: null
 				},
 				{
 					name: "channel",
@@ -223,37 +234,37 @@ export const command: Command = {
 
 					description: "The specific channel for xp message !",
 					description_localizations: {
-						fr: "Le canal spécifique pour le message XP",
+						fr: "Le canal spécifique pour le message XP"
 					},
 
 					channel_types: [ChannelType.GuildText],
 
 					required: false,
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "leaderboard",
 			prefixName: "ranks-leaderboard",
 
 			name_localizations: {
-				fr: "classement",
+				fr: "classement"
 			},
 
 			description: "Get the xp's leaderboard of the guild!",
 			description_localizations: {
-				fr: "Obtenez le classement XP du serveur",
+				fr: "Obtenez le classement XP du serveur"
 			},
 
 			aliases: ["rankslb"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "ignore-channels",
@@ -261,14 +272,14 @@ export const command: Command = {
 
 			description: "Ignore this channels in the Ranks Module",
 			description_localizations: {
-				fr: "Ignorer des salons afin que le module de Rangs ne l'ai prennent pas en compte",
+				fr: "Ignorer des salons afin que le module de Rangs ne l'ai prennent pas en compte"
 			},
 
 			aliases: ["ignore"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "message",
@@ -276,18 +287,18 @@ export const command: Command = {
 
 			description: "Set a custom message when user earn level",
 			description_localizations: {
-				fr: "Définir un message personalisé quand un membre gagne un niveaus",
+				fr: "Définir un message personalisé quand un membre gagne un niveaus"
 			},
 
 			aliases: ["msg"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.Administrator,
-		},
+			permission: PermissionFlagsBits.Administrator
+		}
 	],
 	thinking: false,
 	category: "ranks",
 	type: ApplicationCommandType.ChatInput,
-	permission: null,
+	permission: null
 };

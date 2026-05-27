@@ -23,14 +23,14 @@ import {
 	Client,
 	AutoModerationRuleTriggerType,
 	ChatInputCommandInteraction
-} from 'discord.js';
+} from "discord.js";
 
 interface Action {
 	type: number;
 	metadata: Record<string, any>;
-};
+}
 
-const RULE_NAME = 'Block Telegram links by iHorizon';
+const RULE_NAME = "Block Telegram links by iHorizon";
 const regexPatterns: RegExp[] = [
 	/(?:https?:\/\/)?t\.me\/[^\s]+/i,
 	/(?:https?:\/\/)?telegram\.me\/[^\s]+/i,
@@ -44,24 +44,37 @@ const regexPatterns: RegExp[] = [
 	/tg:\/\/[^\s]+/i
 ];
 
-import { LanguageData } from '../../../../../types/languageData.js';
+import { LanguageData } from "../../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const turn = interaction.options.getString("action");
-		const logs_channel = interaction.options.getChannel('logs-channel');
+		const logs_channel = interaction.options.getChannel("logs-channel");
 
-		const automodRules = await interaction.guild.autoModerationRules.fetch();
-		const telegramRule = automodRules.find((rule) => rule.name === RULE_NAME
-			&& rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+		const automodRules =
+			await interaction.guild.autoModerationRules.fetch();
+		const telegramRule = automodRules.find(
+			(rule) =>
+				rule.name === RULE_NAME &&
+				rule.triggerType === AutoModerationRuleTriggerType.Keyword
+		);
 
 		const arrayActionsForRule: Action[] = [
 			{
@@ -69,20 +82,19 @@ export const subCommand: SubCommand = {
 				metadata: {
 					customMessage: "This message was prevented by iHorizon"
 				}
-			},
+			}
 		];
 
 		if (logs_channel) {
 			arrayActionsForRule.push({
 				type: 2,
 				metadata: {
-					channel: logs_channel,
+					channel: logs_channel
 				}
 			});
-		};
+		}
 
 		if (turn === "on") {
-
 			if (!telegramRule) {
 				await interaction.guild.autoModerationRules.create({
 					name: RULE_NAME,
@@ -90,7 +102,7 @@ export const subCommand: SubCommand = {
 					eventType: 1,
 					triggerType: 1,
 					triggerMetadata: {
-						regexPatterns: regexPatterns.map(r => r.source)
+						regexPatterns: regexPatterns.map((r) => r.source)
 					},
 					actions: arrayActionsForRule
 				});
@@ -98,16 +110,19 @@ export const subCommand: SubCommand = {
 				await telegramRule.edit({
 					enabled: true,
 					triggerMetadata: {
-						regexPatterns: regexPatterns.map(r => r.source)
+						regexPatterns: regexPatterns.map((r) => r.source)
 					},
 					actions: arrayActionsForRule
 				});
-			};
+			}
 
 			await interaction.editReply({
 				content: lang.automod_block_telegram_command_on
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${logs_channel}', (logs_channel?.toString() || 'None'))
+					.replace("${interaction.user}", interaction.user.toString())
+					.replace(
+						"${logs_channel}",
+						logs_channel?.toString() || "None"
+					)
 			});
 
 			return;
@@ -115,11 +130,13 @@ export const subCommand: SubCommand = {
 			await telegramRule?.setEnabled(false);
 
 			await interaction.editReply({
-				content: lang.automod_block_telegram_command_off
-					.replace('${interaction.user}', interaction.user.toString())
+				content: lang.automod_block_telegram_command_off.replace(
+					"${interaction.user}",
+					interaction.user.toString()
+				)
 			});
 
 			return;
-		};
-	},
+		}
+	}
 };

@@ -19,43 +19,90 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import type { BackupData, LoadOptions } from './types';
-import type { NewsChannel, TextChannel, ForumChannel, VoiceBasedChannel } from 'discord.js';
-import { ChannelType, Emoji, Guild, GuildFeature, Role, VoiceChannel } from 'discord.js';
-import { loadCategory, loadChannel } from './util';
+import type { BackupData, LoadOptions } from "./types";
+import type {
+	NewsChannel,
+	TextChannel,
+	ForumChannel,
+	VoiceBasedChannel
+} from "discord.js";
+import {
+	ChannelType,
+	Emoji,
+	Guild,
+	GuildFeature,
+	Role,
+	VoiceChannel
+} from "discord.js";
+import { loadCategory, loadChannel } from "./util";
 
 /**
  * Restores the guild configuration
  */
-export const loadConfig = (guild: Guild, backupData: BackupData): Promise<Guild[]> => {
+export const loadConfig = (
+	guild: Guild,
+	backupData: BackupData
+): Promise<Guild[]> => {
 	const configPromises: Promise<Guild>[] = [];
 	if (backupData.name) {
 		configPromises.push(guild.setName(backupData.name, "[Backup System]"));
 	}
 	if (backupData.iconBase64) {
-		configPromises.push(guild.setIcon(Buffer.from(backupData.iconBase64, 'base64'), "[Backup System]"));
+		configPromises.push(
+			guild.setIcon(
+				Buffer.from(backupData.iconBase64, "base64"),
+				"[Backup System]"
+			)
+		);
 	} else if (backupData.iconURL) {
-		configPromises.push(guild.setIcon(backupData.iconURL, "[Backup System]"));
+		configPromises.push(
+			guild.setIcon(backupData.iconURL, "[Backup System]")
+		);
 	}
 	if (backupData.splashBase64) {
-		configPromises.push(guild.setSplash(Buffer.from(backupData.splashBase64, 'base64')));
+		configPromises.push(
+			guild.setSplash(Buffer.from(backupData.splashBase64, "base64"))
+		);
 	} else if (backupData.splashURL) {
-		configPromises.push(guild.setSplash(backupData.splashURL, "[Backup System]"));
+		configPromises.push(
+			guild.setSplash(backupData.splashURL, "[Backup System]")
+		);
 	}
 	if (backupData.bannerBase64) {
-		configPromises.push(guild.setBanner(Buffer.from(backupData.bannerBase64, 'base64')));
+		configPromises.push(
+			guild.setBanner(Buffer.from(backupData.bannerBase64, "base64"))
+		);
 	} else if (backupData.bannerURL) {
-		configPromises.push(guild.setBanner(backupData.bannerURL, "[Backup System]"));
+		configPromises.push(
+			guild.setBanner(backupData.bannerURL, "[Backup System]")
+		);
 	}
 	if (backupData.verificationLevel) {
-		configPromises.push(guild.setVerificationLevel(backupData.verificationLevel, "[Backup System]"));
+		configPromises.push(
+			guild.setVerificationLevel(
+				backupData.verificationLevel,
+				"[Backup System]"
+			)
+		);
 	}
 	if (backupData.defaultMessageNotifications) {
-		configPromises.push(guild.setDefaultMessageNotifications(backupData.defaultMessageNotifications, "[Backup System]"));
+		configPromises.push(
+			guild.setDefaultMessageNotifications(
+				backupData.defaultMessageNotifications,
+				"[Backup System]"
+			)
+		);
 	}
-	const changeableExplicitLevel = guild.features.includes(GuildFeature.Community);
+	const changeableExplicitLevel = guild.features.includes(
+		GuildFeature.Community
+	);
 	if (backupData.explicitContentFilter && changeableExplicitLevel) {
-		configPromises.push(guild.setExplicitContentFilter(backupData.explicitContentFilter, "[Backup System]"));
+		configPromises.push(
+			guild.setExplicitContentFilter(
+				backupData.explicitContentFilter,
+				"[Backup System]"
+			)
+		);
 	}
 	return Promise.all(configPromises);
 };
@@ -63,7 +110,10 @@ export const loadConfig = (guild: Guild, backupData: BackupData): Promise<Guild[
 /**
  * Restore the guild roles
  */
-export const loadRoles = (guild: Guild, backupData: BackupData): Promise<Role[]> => {
+export const loadRoles = (
+	guild: Guild,
+	backupData: BackupData
+): Promise<Role[]> => {
 	const rolePromises: Promise<Role>[] = [];
 	backupData.roles.forEach((roleData) => {
 		if (roleData.isEveryone) {
@@ -95,7 +145,11 @@ export const loadRoles = (guild: Guild, backupData: BackupData): Promise<Role[]>
 /**
  * Restore the guild channels
  */
-export const loadChannels = (guild: Guild, backupData: BackupData, options: LoadOptions): Promise<unknown[]> => {
+export const loadChannels = (
+	guild: Guild,
+	backupData: BackupData,
+	options: LoadOptions
+): Promise<unknown[]> => {
 	const loadChannelPromises: Promise<void | unknown>[] = [];
 
 	// Load categories and their child channels
@@ -107,7 +161,14 @@ export const loadChannels = (guild: Guild, backupData: BackupData, options: Load
 					const childPromises: Promise<void | unknown>[] = [];
 
 					categoryData.children.forEach((channelData) => {
-						childPromises.push(loadChannel(channelData, guild, createdCategory, options));
+						childPromises.push(
+							loadChannel(
+								channelData,
+								guild,
+								createdCategory,
+								options
+							)
+						);
 					});
 
 					// Wait for all child channels to be loaded before resolving the promise
@@ -125,7 +186,9 @@ export const loadChannels = (guild: Guild, backupData: BackupData, options: Load
 
 	// Load channels outside of categories
 	backupData.channels.others.forEach((channelData) => {
-		loadChannelPromises.push(loadChannel(channelData, guild, null, options));
+		loadChannelPromises.push(
+			loadChannel(channelData, guild, null, options)
+		);
 	});
 	return Promise.all(loadChannelPromises);
 };
@@ -133,11 +196,25 @@ export const loadChannels = (guild: Guild, backupData: BackupData, options: Load
 /**
  * Restore the afk configuration
  */
-export const loadAFK = (guild: Guild, backupData: BackupData): Promise<Guild[]> => {
+export const loadAFK = (
+	guild: Guild,
+	backupData: BackupData
+): Promise<Guild[]> => {
 	const afkPromises: Promise<Guild>[] = [];
 	if (backupData.afk) {
-		afkPromises.push(guild.setAFKChannel(guild.channels.cache.find((ch) => ch.name === backupData.afk?.name && ch.type === ChannelType.GuildVoice) as VoiceChannel, "[Backup System]"));
-		afkPromises.push(guild.setAFKTimeout(backupData.afk.timeout, "[Backup System]"));
+		afkPromises.push(
+			guild.setAFKChannel(
+				guild.channels.cache.find(
+					(ch) =>
+						ch.name === backupData.afk?.name &&
+						ch.type === ChannelType.GuildVoice
+				) as VoiceChannel,
+				"[Backup System]"
+			)
+		);
+		afkPromises.push(
+			guild.setAFKTimeout(backupData.afk.timeout, "[Backup System]")
+		);
 	}
 	return Promise.all(afkPromises);
 };
@@ -145,21 +222,28 @@ export const loadAFK = (guild: Guild, backupData: BackupData): Promise<Guild[]> 
 /**
  * Restore guild emojis
  */
-export const loadEmojis = (guild: Guild, backupData: BackupData): Promise<Emoji[]> => {
+export const loadEmojis = (
+	guild: Guild,
+	backupData: BackupData
+): Promise<Emoji[]> => {
 	const emojiPromises: Promise<Emoji>[] = [];
 	backupData.emojis.forEach((emoji) => {
 		if (emoji.url) {
-			emojiPromises.push(guild.emojis.create({
-				name: emoji.name,
-				attachment: emoji.url,
-				reason: "[Backup System]"
-			}));
+			emojiPromises.push(
+				guild.emojis.create({
+					name: emoji.name,
+					attachment: emoji.url,
+					reason: "[Backup System]"
+				})
+			);
 		} else if (emoji.base64) {
-			emojiPromises.push(guild.emojis.create({
-				name: emoji.name,
-				attachment: Buffer.from(emoji.base64, 'base64'),
-				reason: "[Backup System]"
-			}));
+			emojiPromises.push(
+				guild.emojis.create({
+					name: emoji.name,
+					attachment: Buffer.from(emoji.base64, "base64"),
+					reason: "[Backup System]"
+				})
+			);
 		}
 	});
 	return Promise.all(emojiPromises);
@@ -168,12 +252,15 @@ export const loadEmojis = (guild: Guild, backupData: BackupData): Promise<Emoji[
 /**
  * Restore guild bans
  */
-export const loadBans = (guild: Guild, backupData: BackupData): Promise<string[]> => {
+export const loadBans = (
+	guild: Guild,
+	backupData: BackupData
+): Promise<string[]> => {
 	const banPromises: Promise<string>[] = [];
 	backupData.bans.forEach((ban) => {
 		banPromises.push(
 			guild.members.ban(ban.id, {
-				reason: ban.reason || undefined,
+				reason: ban.reason || undefined
 			}) as Promise<string>
 		);
 	});
@@ -183,14 +270,26 @@ export const loadBans = (guild: Guild, backupData: BackupData): Promise<string[]
 /**
  * Restore embedChannel configuration
  */
-export const loadEmbedChannel = (guild: Guild, backupData: BackupData): Promise<Guild[]> => {
+export const loadEmbedChannel = (
+	guild: Guild,
+	backupData: BackupData
+): Promise<Guild[]> => {
 	const embedChannelPromises: Promise<Guild>[] = [];
 	if (backupData.widget.channel) {
 		embedChannelPromises.push(
-			guild.setWidgetSettings({
-				enabled: backupData.widget.enabled,
-				channel: guild.channels.cache.find((ch) => ch.name === backupData.widget.channel) as NewsChannel | TextChannel | ForumChannel | VoiceBasedChannel
-			}, "[Backup System]")
+			guild.setWidgetSettings(
+				{
+					enabled: backupData.widget.enabled,
+					channel: guild.channels.cache.find(
+						(ch) => ch.name === backupData.widget.channel
+					) as
+						| NewsChannel
+						| TextChannel
+						| ForumChannel
+						| VoiceBasedChannel
+				},
+				"[Backup System]"
+			)
 		);
 	}
 	return Promise.all(embedChannelPromises);

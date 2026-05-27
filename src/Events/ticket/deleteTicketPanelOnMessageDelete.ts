@@ -19,17 +19,22 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Message } from 'discord.js'
+import { Client, Message } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "messageDelete",
 	run: async (client: Client, message: Message) => {
-		if (!message.guild || !message.author
-			|| message.author.id == client.user?.id) return;
+		if (
+			!message.guild ||
+			!message.author ||
+			message.author.id == client.user?.id
+		)
+			return;
 
-
-		await client.db.delete(`${message.guild?.id}.GUILD.TICKET.${message.id}`);
-	},
+		await client.db.delete(
+			`${message.guild?.id}.GUILD.TICKET.${message.id}`
+		);
+	}
 };

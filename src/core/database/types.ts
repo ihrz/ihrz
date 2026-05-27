@@ -29,14 +29,19 @@ import { Horizon } from "./driver/horizon.ts";
 export enum ErrorKind {
 	MissingValue = "MISSING_VALUE",
 	ParseException = "PARSE_EXCEPTION",
-	InvalidType = "INVALID_TYPE",
+	InvalidType = "INVALID_TYPE"
 }
 
 export type DataLike<T = any> = { id: string; value: T };
 export type Table = Map<string, any>;
 
-export type DB = Sqlite<any> | Json<any> | Memory<any> | Postgres<any> | Horizon;
-export type MultiDB = { og?: Postgres, x: DB, y?: Postgres };
+export type DB =
+	| Sqlite<any>
+	| Json<any>
+	| Memory<any>
+	| Postgres<any>
+	| Horizon;
+export type MultiDB = { og?: Postgres; x: DB; y?: Postgres };
 
 export type PostgresOptions = {
 	table?: string;
@@ -53,7 +58,7 @@ export interface HorizonDatabaseClientOptions {
 
 export interface PacketMessage {
 	id: string;
-	type: 'request' | 'response' | 'error';
+	type: "request" | "response" | "error";
 	operation?: string;
 	table?: string;
 	key?: string;

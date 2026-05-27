@@ -19,72 +19,128 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, EmbedBuilder, PermissionsBitField, ChannelType, Message, ClientUser, SnowflakeUtil, GuildChannel } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
-import { guildPrefix } from '../../core/functions/prefix.js';
+import {
+	Client,
+	EmbedBuilder,
+	PermissionsBitField,
+	ChannelType,
+	Message,
+	ClientUser,
+	SnowflakeUtil,
+	GuildChannel
+} from "discord.js";
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
+import { guildPrefix } from "../../core/functions/prefix.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-
 		if (!message.guild || message.author.bot || !message.channel) return;
 
 		const lang = await client.func.getLanguageData(message.guild.id);
 
-		if (!message.guild || !message.channel || message.channel.type !== ChannelType.GuildText || message.author.bot
-			|| message.author.id === client.user?.id || !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.SendMessages)
-			|| !message.channel.permissionsFor((client.user as ClientUser))?.has(PermissionsBitField.Flags.ManageRoles) || message.content !== `<@${client.user?.id}>`) return;
+		if (
+			!message.guild ||
+			!message.channel ||
+			message.channel.type !== ChannelType.GuildText ||
+			message.author.bot ||
+			message.author.id === client.user?.id ||
+			!message.channel
+				.permissionsFor(client.user as ClientUser)
+				?.has(PermissionsBitField.Flags.SendMessages) ||
+			!message.channel
+				.permissionsFor(client.user as ClientUser)
+				?.has(PermissionsBitField.Flags.ManageRoles) ||
+			message.content !== `<@${client.user?.id}>`
+		)
+			return;
 
-		const dbGet = await client.db.get(`${message.guild.id}.GUILD.RANK_ROLES`) as DatabaseStructure.DbGuildObject['RANK_ROLES'];
+		const dbGet = (await client.db.get(
+			`${message.guild.id}.GUILD.RANK_ROLES`
+		)) as DatabaseStructure.DbGuildObject["RANK_ROLES"];
 		const prefix = (await guildPrefix(client, message.guildId!)).string;
 		var text = lang.ping_bot_show_info_msg
 			.replace("${prefix}", prefix)
 			.replace("${message.author.toString()}", message.author.toString())
-			.replace("${client.iHorizon_Emojis.Slash_Bot_Badge}", client.iHorizon_Emojis.Slash_Bot_Badge)
-			;
-
+			.replace(
+				"${client.iHorizon_Emojis.Slash_Bot_Badge}",
+				client.iHorizon_Emojis.Slash_Bot_Badge
+			);
 		// 1 chance sur 8
-		if ((Math.floor(Math.random() * 8) === 0)) {
-			text += lang.ping_bot_show_info_msg_about_change_prefix.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat)
+		if (Math.floor(Math.random() * 8) === 0) {
+			text += lang.ping_bot_show_info_msg_about_change_prefix.replace(
+				"${client.iHorizon_Emojis.VC_OpenChat}",
+				client.iHorizon_Emojis.VC_OpenChat
+			);
 		}
 
 		const channel = message.channel as GuildChannel;
 		const permissions = channel.permissionsFor(message.member!);
-		const canUseCommands = permissions.has(PermissionsBitField.Flags.UseApplicationCommands);
+		const canUseCommands = permissions.has(
+			PermissionsBitField.Flags.UseApplicationCommands
+		);
 
 		if (!dbGet || !dbGet.roles) {
-			if (!await client.func.helper.cooldown(message.author.id, "ping_bot", 7000) && canUseCommands) {
-				return await client.func.method.interactionSend(message, { content: text });
+			if (
+				!(await client.func.helper.cooldown(
+					message.author.id,
+					"ping_bot",
+					7000
+				)) &&
+				canUseCommands
+			) {
+				return await client.func.method.interactionSend(message, {
+					content: text
+				});
 			}
 			return;
 		}
-		const fetch = message.guild.roles.cache.find((role) => role.id === dbGet.roles);
+		const fetch = message.guild.roles.cache.find(
+			(role) => role.id === dbGet.roles
+		);
 
 		if (fetch) {
 			const target = message.guild.members.cache.get(message.author.id);
 			if (target?.roles.cache.has(fetch.id)) return;
 
 			if (dbGet.nicknames) {
-				const includeUsername = message.author.username.includes(dbGet.nicknames);
-				const includeGlobalname = message.author.globalName ? message.author.globalName.includes(dbGet.nicknames) : false;
+				const includeUsername = message.author.username.includes(
+					dbGet.nicknames
+				);
+				const includeGlobalname = message.author.globalName
+					? message.author.globalName.includes(dbGet.nicknames)
+					: false;
 
 				if (!includeUsername && !includeGlobalname) return;
 			}
 
 			const embed = new EmbedBuilder()
-				.setDescription(lang.event_rank_role
-					.replace("${message.author.id}", message.author.id)
-					.replace("${fetch.id}", fetch.id)
+				.setDescription(
+					lang.event_rank_role
+						.replace("${message.author.id}", message.author.id)
+						.replace("${fetch.id}", fetch.id)
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(message.guildId!))
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						message.guildId!
+					)
+				)
 				.setTimestamp();
 
-			message.member?.roles.add(fetch, "[RankRole] Module").catch(() => { });
-			client.func.method.channelSend(message, {
-				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(message)]
-			}).catch(() => { });
-		};
-	},
+			message.member?.roles
+				.add(fetch, "[RankRole] Module")
+				.catch(() => {});
+			client.func.method
+				.channelSend(message, {
+					embeds: [embed],
+					files: [
+						await client.func.displayBotName.footerAttachmentBuilder(
+							message
+						)
+					]
+				})
+				.catch(() => {});
+		}
+	}
 };

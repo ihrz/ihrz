@@ -23,66 +23,99 @@ import {
 	Client,
 	ChatInputCommandInteraction,
 	GuildMember,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember("member") as GuildMember | null;
+			var member = interaction.options.getMember(
+				"member"
+			) as GuildMember | null;
 			var warnID = interaction.options.getString("warn-id")!;
 		} else {
-
-			var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
+			var member = client.func.method.member(
+				interaction,
+				args!,
+				0
+			) as GuildMember | null;
 			var warnID = client.func.method.longString(args!, 1)!;
-		};
+		}
 
-		const allWarns: DatabaseStructure.WarnsData[] | null = await client.db.get(`${interaction.guildId}.USER.${member?.id}.WARNS`);
+		const allWarns: DatabaseStructure.WarnsData[] | null =
+			await client.db.get(
+				`${interaction.guildId}.USER.${member?.id}.WARNS`
+			);
 
 		if (!allWarns || allWarns.length === 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unwarn_cannot_found
-					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+					.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
 					.replace("${member?.toString()}", member?.toString()!)
-			})
+			});
 			return;
 		}
 
-		if (!allWarns.find(x => x.id === warnID)) {
+		if (!allWarns.find((x) => x.id === warnID)) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.unwarn_cannot_found_id
-					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-					.replace("${member?.toString()}", interaction.member?.toString()!)
-			})
+					.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
+					.replace(
+						"${member?.toString()}",
+						interaction.member?.toString()!
+					)
+			});
 			return;
 		}
 
-		await client.db.set(`${interaction.guildId}.USER.${member?.id}.WARNS`,
-			allWarns.filter(x => x.id !== warnID)
-		)
+		await client.db.set(
+			`${interaction.guildId}.USER.${member?.id}.WARNS`,
+			allWarns.filter((x) => x.id !== warnID)
+		);
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.unwarn_command_ok
-				.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
+				.replace(
+					"${client.iHorizon_Emojis.Yes}",
+					client.iHorizon_Emojis.Yes
+				)
 				.replace("${member?.toString()}", member?.toString()!)
-		})
+		});
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.unwarn_logEmbed_title,
 			description: lang.unwarn_logEmbed_desc
-				.replace("${interaction.member.toString()}", interaction.member.toString())
+				.replace(
+					"${interaction.member.toString()}",
+					interaction.member.toString()
+				)
 				.replace("${member?.toString()}", member?.toString()!)
 		});
-
-	},
+	}
 };

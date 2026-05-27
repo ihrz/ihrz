@@ -19,18 +19,15 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Message } from 'discord.js';
+import { Client, Message } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-
-		if (!message.guild
-			|| message.author.bot
-			|| !message.channel) return;
+		if (!message.guild || message.author.bot || !message.channel) return;
 
 		const messageObject: DatabaseStructure.StatsMessage = {
 			channelId: message.channelId,
@@ -38,7 +35,10 @@ export const event: BotEvent = {
 			sentTimestamp: message.createdTimestamp
 		};
 
-		await client.db.push(`${message.guildId}.STATS.USER.${message.author.id}.messages`, messageObject)
+		await client.db.push(
+			`${message.guildId}.STATS.USER.${message.author.id}.messages`,
+			messageObject
+		);
 		return;
-	},
+	}
 };

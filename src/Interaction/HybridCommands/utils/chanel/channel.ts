@@ -22,38 +22,38 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
-
+import { Command } from "../../../../../types/command.js";
 
 export const command: Command = {
 	name: "channel",
 	name_localizations: {
-		"fr": 'channel'
+		fr: "channel"
 	},
 
 	description: "Channel operating commands",
 	description_localizations: {
-		"fr": "Commandes d'opérations pour salons"
+		fr: "Commandes d'opérations pour salons"
 	},
 
 	options: [
 		{
-			name: 'hide',
-			description: 'Hide the current channel from everyone',
+			name: "hide",
+			description: "Hide the current channel from everyone",
 			description_localizations: {
-				"fr": "Masquer le salon actuel pour everyone"
+				fr: "Masquer le salon actuel pour everyone"
 			},
 
 			options: [
 				{
 					name: "role",
 
-					description: "the role that you want to hide into the channel",
+					description:
+						"the role that you want to hide into the channel",
 					description_localizations: {
-						"fr": "Le rôle que tu veux masquer dans le salon"
+						fr: "Le rôle que tu veux masquer dans le salon"
 					},
 
 					permission: null,
@@ -66,19 +66,20 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageChannels
 		},
 		{
-			name: 'unhide',
-			description: 'Unhide the current channel from everyone',
+			name: "unhide",
+			description: "Unhide the current channel from everyone",
 			description_localizations: {
-				"fr": "Démasquer le salon actuel pour everyone"
+				fr: "Démasquer le salon actuel pour everyone"
 			},
 
 			options: [
 				{
 					name: "role",
 
-					description: "the role that you want to unhide into the channel",
+					description:
+						"the role that you want to unhide into the channel",
 					description_localizations: {
-						"fr": "Le rôle que tu veux démasquer dans le salon"
+						fr: "Le rôle que tu veux démasquer dans le salon"
 					},
 
 					permission: null,
@@ -92,19 +93,20 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageChannels
 		},
 		{
-			name: 'unhideall',
-			description: 'Unhide all channels in the server from everyone',
+			name: "unhideall",
+			description: "Unhide all channels in the server from everyone",
 			description_localizations: {
-				"fr": "Démasquer tous les salons du serveur pour everyone"
+				fr: "Démasquer tous les salons du serveur pour everyone"
 			},
 
 			options: [
 				{
 					name: "role",
 
-					description: "the role that you want to unhide into all guild channels",
+					description:
+						"the role that you want to unhide into all guild channels",
 					description_localizations: {
-						"fr": "Le rôle que tu veux démasquer dans tout les salons du serveur"
+						fr: "Le rôle que tu veux démasquer dans tout les salons du serveur"
 					},
 
 					permission: null,
@@ -118,19 +120,20 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'hideall',
-			description: 'Hide all channels in the server from everyone',
+			name: "hideall",
+			description: "Hide all channels in the server from everyone",
 			description_localizations: {
-				"fr": "Masquer tous les salons du serveur pour everyone"
+				fr: "Masquer tous les salons du serveur pour everyone"
 			},
 
 			options: [
 				{
 					name: "role",
 
-					description: "the role that you want to hide into all guild channels",
+					description:
+						"the role that you want to hide into all guild channels",
 					description_localizations: {
-						"fr": "Le rôle que tu veux masquer dans tout les salons du serveur"
+						fr: "Le rôle que tu veux masquer dans tout les salons du serveur"
 					},
 
 					permission: null,
@@ -142,13 +145,12 @@ export const command: Command = {
 			aliases: ["masquer-tout"],
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.Administrator
-		},
+		}
 	],
 
-	category: 'utils',
+	category: "utils",
 	thinking: true,
 	type: ApplicationCommandType.ChatInput,
-
 
 	permission: PermissionFlagsBits.Administrator
 };

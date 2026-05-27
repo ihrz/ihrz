@@ -23,28 +23,33 @@ import {
 	Client,
 	ApplicationCommandType,
 	Message,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 import { subCommand } from "../../SlashCommands/guildconfig/!leave-message.js";
 
 export const command: Command = {
-	name: 'leavemessage',
+	name: "leavemessage",
 
-	description: 'Set the leave message !',
+	description: "Set the leave message !",
 	description_localizations: {
-		"fr": "Définir le message de départ"
+		fr: "Définir le message de départ"
 	},
 
 	aliases: ["leavemsg", "lmessage", "leaver"],
 
 	thinking: false,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: ApplicationCommandType.ChatInput,
 	permission: PermissionFlagsBits.Administrator,
-	run: async (client: Client, interaction: Message, lang: LanguageData, args?: string[]) => {
-		subCommand.run(client, interaction, lang)
-	},
+	run: async (
+		client: Client,
+		interaction: Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		subCommand.run(client, interaction, lang);
+	}
 };

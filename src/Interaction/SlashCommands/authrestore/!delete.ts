@@ -23,48 +23,78 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	GuildTextBasedChannel
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const result: DatabaseStructure.AuthRestoreSchema | null = await client.db.get(`${interaction.guildId}.GUILD.RESTORECORD`);
+		const result: DatabaseStructure.AuthRestoreSchema | null =
+			await client.db.get(`${interaction.guildId}.GUILD.RESTORECORD`);
 
-		if (!result) return client.func.method.interactionSend(interaction, { content: lang.rc_delete_config_not_found });
+		if (!result)
+			return client.func.method.interactionSend(interaction, {
+				content: lang.rc_delete_config_not_found
+			});
 
-		(interaction.guild.channels.cache.get(result?.channelId!) as GuildTextBasedChannel | undefined)?.messages.fetch(result?.messageId)
-			.then(async msg => {
+		(
+			interaction.guild.channels.cache.get(result?.channelId!) as
+				| GuildTextBasedChannel
+				| undefined
+		)?.messages
+			.fetch(result?.messageId)
+			.then(async (msg) => {
 				if (msg?.author.id !== client.user?.id) {
-					return await client.func.method.interactionSend(interaction, { content: lang.buttonreaction_message_other_user_error });
-				};
+					return await client.func.method.interactionSend(
+						interaction,
+						{
+							content:
+								lang.buttonreaction_message_other_user_error
+						}
+					);
+				}
 
 				msg.edit({
 					components: []
 				});
 
-				await client.db.delete(`${interaction.guildId}.GUILD.RESTORECORD`);
+				await client.db.delete(
+					`${interaction.guildId}.GUILD.RESTORECORD`
+				);
 
 				await client.func.method.interactionSend(interaction, {
-					content: lang.rc_delete_command_ok
-						.replace("${interaction.user.toString()}", interaction.user.toString()),
+					content: lang.rc_delete_command_ok.replace(
+						"${interaction.user.toString()}",
+						interaction.user.toString()
+					),
 					flags: [1 << 6]
 				});
 			})
 			.catch(async (err) => {
-				console.error(err)
-				await client.func.method.interactionSend(interaction, { content: lang.reactionroles_cant_fetched_reaction_remove })
+				console.error(err);
+				await client.func.method.interactionSend(interaction, {
+					content: lang.reactionroles_cant_fetched_reaction_remove
+				});
 				return;
 			});
 		return;
-
-	},
+	}
 };

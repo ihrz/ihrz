@@ -19,47 +19,64 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const response = await promptYesOrNo(interaction, {
 			content: lang.reset_geconomy_are_you_sure,
 			noButton: lang.resetallinvites_no_button,
 			yesButton: lang.resetallinvites_yes_button,
 			dangerAction: true
-		})
+		});
 
 		if (response) {
-			const DbData = await client.db.get(`${interaction.guild?.id}.USER`) as DatabaseStructure.DbGuildUserObject[];
+			const DbData = (await client.db.get(
+				`${interaction.guild?.id}.USER`
+			)) as DatabaseStructure.DbGuildUserObject[];
 
 			for (const entries in DbData) {
-				await client.db.delete(`${interaction.guild?.id}.USER.${entries}.ECONOMY`)
+				await client.db.delete(
+					`${interaction.guild?.id}.USER.${entries}.ECONOMY`
+				);
 			}
-			await client.func.method.interactionSend(interaction, { content: lang.resetallinvites_succes_on_delete, components: [] });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.resetallinvites_succes_on_delete,
+				components: []
+			});
 
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.reset_geconomy_logs_embed_title,
-				description: lang.reset_geconomy_logs_embed_desc
-					.replace("${interaction.member.user.toString()}", interaction.member.user.toString())
+				description: lang.reset_geconomy_logs_embed_desc.replace(
+					"${interaction.member.user.toString()}",
+					interaction.member.user.toString()
+				)
 			});
-
 		} else {
-			await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_action_canceled, components: [] });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.setjoinroles_action_canceled,
+				components: []
+			});
 		}
-	},
+	}
 };

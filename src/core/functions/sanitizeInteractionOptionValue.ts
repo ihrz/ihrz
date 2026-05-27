@@ -20,23 +20,26 @@
 */
 
 const SENSITIVE_OPTION_NAMES = new Set([
-	'password',
-	'pass',
-	'token',
-	'apitoken',
-	'apikey',
-	'secret',
-	'sharedsecret',
-	'credential',
-	'sessionkey',
-	'sessiontoken'
+	"password",
+	"pass",
+	"token",
+	"apitoken",
+	"apikey",
+	"secret",
+	"sharedsecret",
+	"credential",
+	"sessionkey",
+	"sessiontoken"
 ]);
 
-export function sanitizeInteractionOptionValue(optionName: string, optionValue: unknown): string {
-	const normalizedName = optionName.toLowerCase().replace(/[^a-z0-9]/g, '');
+export function sanitizeInteractionOptionValue(
+	optionName: string,
+	optionValue: unknown
+): string {
+	const normalizedName = optionName.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 	if (SENSITIVE_OPTION_NAMES.has(normalizedName)) {
-		return '[REDACTED]';
+		return "[REDACTED]";
 	}
 
 	return String(optionValue);

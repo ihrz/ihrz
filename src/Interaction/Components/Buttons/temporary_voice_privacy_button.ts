@@ -19,18 +19,36 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ActionRowBuilder, ButtonInteraction, ComponentType, EmbedBuilder, GuildMember, StringSelectMenuBuilder } from 'discord.js';
-import { tempTable } from '../../../Events/client/ready.ts';
+import {
+	ActionRowBuilder,
+	ButtonInteraction,
+	ComponentType,
+	EmbedBuilder,
+	GuildMember,
+	StringSelectMenuBuilder
+} from "discord.js";
+import { tempTable } from "../../../Events/client/ready.ts";
 
-export default async function handleButtonInteraction(interaction: ButtonInteraction<"cached">) {
-	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
-	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+export default async function handleButtonInteraction(
+	interaction: ButtonInteraction<"cached">
+) {
+	const result = await interaction.client.db.get(
+		`${interaction.guildId}.VOICE_INTERFACE.interface`
+	);
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
 	const member = interaction.member as GuildMember;
 	const targetedChannel = member.voice.channel;
-	const getChannelOwner = await tempTable.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+	const getChannelOwner = await tempTable.get(
+		`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`
+	);
 
 	if (!result) return await interaction.deferUpdate();
-	if (result.channelId !== interaction.channelId || getChannelOwner !== targetedChannel?.id) {
+	if (
+		result.channelId !== interaction.channelId ||
+		getChannelOwner !== targetedChannel?.id
+	) {
 		return await interaction.deferUpdate();
 	}
 
@@ -40,20 +58,52 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 	}
 
 	const comp = new StringSelectMenuBuilder()
-		.setCustomId('tempmorary_voice_privacy_menu')
+		.setCustomId("tempmorary_voice_privacy_menu")
 		.setPlaceholder(lang.temporary_voice_privacy_menu_placeholder)
 		.addOptions(
-			{ label: lang.temporary_voice_privacy_menu_lock_label, description: lang.temporary_voice_privacy_menu_lock_desc, emoji: interaction.client.iHorizon_Emojis.VC_CloseAccess, value: 'temporary_channel_lock_channel_menu' },
-			{ label: lang.temporary_voice_privacy_menu_unlock_label, description: lang.temporary_voice_privacy_menu_unlock_desc, emoji: interaction.client.iHorizon_Emojis.VC_OpenAccess, value: 'temporary_channel_unlock_channel_menu' },
-			{ label: lang.temporary_voice_privacy_menu_invisible_label, description: lang.temporary_voice_privacy_menu_invisible_desc, emoji: interaction.client.iHorizon_Emojis.VC_Unseeable, value: 'temporary_channel_invisible_channel_menu' },
-			{ label: lang.temporary_voice_privacy_menu_visible_label, description: lang.temporary_voice_privacy_menu_visible_desc, emoji: interaction.client.iHorizon_Emojis.VC_Seeable, value: 'temporary_channel_visible_channel_menu' },
-			{ label: lang.temporary_voice_privacy_menu_closechat_label, description: lang.temporary_voice_privacy_menu_closechat_desc, emoji: interaction.client.iHorizon_Emojis.VC_CloseChat, value: 'temporary_channel_closechat_channel_menu' },
-			{ label: lang.temporary_voice_privacy_menu_openchat_label, description: lang.temporary_voice_privacy_menu_openchat_desc, emoji: interaction.client.iHorizon_Emojis.VC_OpenChat, value: 'temporary_channel_openchat_channel_menu' }
+			{
+				label: lang.temporary_voice_privacy_menu_lock_label,
+				description: lang.temporary_voice_privacy_menu_lock_desc,
+				emoji: interaction.client.iHorizon_Emojis.VC_CloseAccess,
+				value: "temporary_channel_lock_channel_menu"
+			},
+			{
+				label: lang.temporary_voice_privacy_menu_unlock_label,
+				description: lang.temporary_voice_privacy_menu_unlock_desc,
+				emoji: interaction.client.iHorizon_Emojis.VC_OpenAccess,
+				value: "temporary_channel_unlock_channel_menu"
+			},
+			{
+				label: lang.temporary_voice_privacy_menu_invisible_label,
+				description: lang.temporary_voice_privacy_menu_invisible_desc,
+				emoji: interaction.client.iHorizon_Emojis.VC_Unseeable,
+				value: "temporary_channel_invisible_channel_menu"
+			},
+			{
+				label: lang.temporary_voice_privacy_menu_visible_label,
+				description: lang.temporary_voice_privacy_menu_visible_desc,
+				emoji: interaction.client.iHorizon_Emojis.VC_Seeable,
+				value: "temporary_channel_visible_channel_menu"
+			},
+			{
+				label: lang.temporary_voice_privacy_menu_closechat_label,
+				description: lang.temporary_voice_privacy_menu_closechat_desc,
+				emoji: interaction.client.iHorizon_Emojis.VC_CloseChat,
+				value: "temporary_channel_closechat_channel_menu"
+			},
+			{
+				label: lang.temporary_voice_privacy_menu_openchat_label,
+				description: lang.temporary_voice_privacy_menu_openchat_desc,
+				emoji: interaction.client.iHorizon_Emojis.VC_OpenChat,
+				value: "temporary_channel_openchat_channel_menu"
+			}
 		);
 
 	const response = await interaction.reply({
 		flags: [1 << 6],
-		components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)]
+		components: [
+			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
+		]
 	});
 
 	const collector = interaction.channel?.createMessageComponentCollector({
@@ -62,48 +112,108 @@ export default async function handleButtonInteraction(interaction: ButtonInterac
 		time: 200_000
 	});
 
-	collector?.on('collect', async i => {
+	collector?.on("collect", async (i) => {
 		const value = i.values[0];
-		const action = comp.options.find(option => option.data.value === value)?.data.label;
+		const action = comp.options.find(
+			(option) => option.data.value === value
+		)?.data.label;
 
 		if (!action || !i.guild) return;
 
 		const embed = new EmbedBuilder()
-			.setDescription(`## Modifications about your temporary voice channel`)
+			.setDescription(
+				`## Modifications about your temporary voice channel`
+			)
 			.setColor(2829617)
 			.setImage(await client.func.bannerGenerator(interaction.guildId))
-			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await interaction.client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		switch (value) {
-			case 'temporary_channel_lock_channel_menu':
-			case 'temporary_channel_unlock_channel_menu':
+			case "temporary_channel_lock_channel_menu":
+			case "temporary_channel_unlock_channel_menu":
 				embed.setFields({
 					name: `${action}`,
-					value: `${value === 'temporary_channel_lock_channel_menu' ? interaction.client.iHorizon_Emojis.VC_CloseAccess : interaction.client.iHorizon_Emojis.VC_OpenAccess} **Yes**`,
+					value: `${value === "temporary_channel_lock_channel_menu" ? interaction.client.iHorizon_Emojis.VC_CloseAccess : interaction.client.iHorizon_Emojis.VC_OpenAccess} **Yes**`,
 					inline: true
 				});
-				targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id, { Connect: value === 'temporary_channel_lock_channel_menu' ? false : true, Stream: value === 'temporary_channel_lock_channel_menu' ? false : true, Speak: value === 'temporary_channel_lock_channel_menu' ? false : true });
+				targetedChannel?.permissionOverwrites.edit(
+					i.guild?.roles.everyone.id,
+					{
+						Connect:
+							value === "temporary_channel_lock_channel_menu"
+								? false
+								: true,
+						Stream:
+							value === "temporary_channel_lock_channel_menu"
+								? false
+								: true,
+						Speak:
+							value === "temporary_channel_lock_channel_menu"
+								? false
+								: true
+					}
+				);
 				break;
-			case 'temporary_channel_invisible_channel_menu':
-			case 'temporary_channel_visible_channel_menu':
-				embed.setFields({ name: `${action}`, value: `${value === 'temporary_channel_invisible_channel_menu' ? interaction.client.iHorizon_Emojis.VC_Unseeable : interaction.client.iHorizon_Emojis.VC_Seeable} **Yes**`, inline: true });
-				targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id, { ViewChannel: value === 'temporary_channel_invisible_channel_menu' ? false : true });
+			case "temporary_channel_invisible_channel_menu":
+			case "temporary_channel_visible_channel_menu":
+				embed.setFields({
+					name: `${action}`,
+					value: `${value === "temporary_channel_invisible_channel_menu" ? interaction.client.iHorizon_Emojis.VC_Unseeable : interaction.client.iHorizon_Emojis.VC_Seeable} **Yes**`,
+					inline: true
+				});
+				targetedChannel?.permissionOverwrites.edit(
+					i.guild?.roles.everyone.id,
+					{
+						ViewChannel:
+							value === "temporary_channel_invisible_channel_menu"
+								? false
+								: true
+					}
+				);
 				break;
-			case 'temporary_channel_closechat_channel_menu':
-			case 'temporary_channel_openchat_channel_menu':
-				embed.setFields({ name: `${action}`, value: `${value === 'temporary_channel_closechat_channel_menu' ? interaction.client.iHorizon_Emojis.VC_CloseChat : interaction.client.iHorizon_Emojis.VC_OpenChat} **Yes**`, inline: true });
-				targetedChannel?.permissionOverwrites.edit(i.guild?.roles.everyone.id, { SendMessages: value === 'temporary_channel_closechat_channel_menu' ? false : true, AddReactions: value === 'temporary_channel_closechat_channel_menu' ? false : true, UseApplicationCommands: value === 'temporary_channel_closechat_channel_menu' ? false : true });
+			case "temporary_channel_closechat_channel_menu":
+			case "temporary_channel_openchat_channel_menu":
+				embed.setFields({
+					name: `${action}`,
+					value: `${value === "temporary_channel_closechat_channel_menu" ? interaction.client.iHorizon_Emojis.VC_CloseChat : interaction.client.iHorizon_Emojis.VC_OpenChat} **Yes**`,
+					inline: true
+				});
+				targetedChannel?.permissionOverwrites.edit(
+					i.guild?.roles.everyone.id,
+					{
+						SendMessages:
+							value === "temporary_channel_closechat_channel_menu"
+								? false
+								: true,
+						AddReactions:
+							value === "temporary_channel_closechat_channel_menu"
+								? false
+								: true,
+						UseApplicationCommands:
+							value === "temporary_channel_closechat_channel_menu"
+								? false
+								: true
+					}
+				);
 				break;
 		}
 
 		await i.reply({
 			embeds: [embed],
-			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],
+			files: [
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			],
 			flags: [1 << 6]
 		});
 	});
 
-	collector?.on('end', () => {
+	collector?.on("end", () => {
 		response.delete();
 	});
-};
+}

@@ -19,12 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import {
+	BaseGuildTextChannel,
+	Client,
+	EmbedBuilder,
+	Message
+} from "discord.js";
+import { BotEvent } from "../../../types/event.js";
 
 export function getDetailedDiff(oldText: string, newText: string): string {
-	const oldLines = oldText.trim().split('\n');
-	const newLines = newText.trim().split('\n');
+	const oldLines = oldText.trim().split("\n");
+	const newLines = newText.trim().split("\n");
 
 	const diff: string[] = [];
 	const maxLineLength = 30;
@@ -32,8 +37,8 @@ export function getDetailedDiff(oldText: string, newText: string): string {
 	const maxLines = Math.max(oldLines.length, newLines.length);
 
 	for (let i = 0; i < maxLines; i++) {
-		const oldLine = oldLines[i] || '';
-		const newLine = newLines[i] || '';
+		const oldLine = oldLines[i] || "";
+		const newLine = newLines[i] || "";
 
 		let truncatedOldLine = oldLine;
 		let truncatedNewLine = newLine;
@@ -57,7 +62,7 @@ export function getDetailedDiff(oldText: string, newText: string): string {
 			diff.push(`+ ${truncatedNewLine}`);
 		}
 	}
-	return `\`\`\`diff\n${diff.join('\n')}\n\`\`\``;
+	return `\`\`\`diff\n${diff.join("\n")}\n\`\`\``;
 }
 
 function getDifferenceIndex(oldLine: string, newLine: string): number {
@@ -68,7 +73,9 @@ function getDifferenceIndex(oldLine: string, newLine: string): number {
 			break;
 		}
 	}
-	return diffIndex === -1 ? Math.max(oldLine.length, newLine.length) : diffIndex;
+	return diffIndex === -1
+		? Math.max(oldLine.length, newLine.length)
+		: diffIndex;
 }
 
 function getTruncatedLine(line: string, diffIndex: number): string {
@@ -82,15 +89,21 @@ function getTruncatedLine(line: string, diffIndex: number): string {
 export const event: BotEvent = {
 	name: "messageUpdate",
 	run: async (client: Client, oldMessage: Message, newMessage: Message) => {
-
 		const data = await client.func.getLanguageData(oldMessage.guildId);
 
 		if (!oldMessage || !oldMessage.guild) return;
 
-		if (!newMessage.author || newMessage.author.bot
-			|| oldMessage.content === '' || newMessage.content === '') return;
+		if (
+			!newMessage.author ||
+			newMessage.author.bot ||
+			oldMessage.content === "" ||
+			newMessage.content === ""
+		)
+			return;
 
-		const someinfo = await client.db.get(`${oldMessage.guildId}.GUILD.SERVER_LOGS.message`);
+		const someinfo = await client.db.get(
+			`${oldMessage.guildId}.GUILD.SERVER_LOGS.message`
+		);
 
 		if (!someinfo || oldMessage.content === newMessage.content) return;
 
@@ -99,31 +112,52 @@ export const event: BotEvent = {
 
 		const icon = newMessage.author.displayAvatarURL();
 
-		if (oldMessage.partial || newMessage.content === "" || newMessage.content === null || newMessage.content === undefined) {
+		if (
+			oldMessage.partial ||
+			newMessage.content === "" ||
+			newMessage.content === null ||
+			newMessage.content === undefined
+		) {
 			return;
 		}
 
 		const logsEmbed = new EmbedBuilder()
 			.setColor("#010101")
 			.setAuthor({ name: newMessage.author.username, iconURL: icon })
-			.setDescription(data.event_srvLogs_messageUpdate_description
-				.replace("${oldMessage.channelId}", oldMessage.channelId)
-				.replace("(xxx)", `(https://discord.com/channels/${oldMessage.guildId}/${oldMessage.channelId}/${oldMessage.id})`)
+			.setDescription(
+				data.event_srvLogs_messageUpdate_description
+					.replace("${oldMessage.channelId}", oldMessage.channelId)
+					.replace(
+						"(xxx)",
+						`(https://discord.com/channels/${oldMessage.guildId}/${oldMessage.channelId}/${oldMessage.id})`
+					)
 			);
 
-		if (oldMessage.content.length > 160 || newMessage.content.length > 160) {
-			logsEmbed.setFields(
-				{ name: data.var_message, value: getDetailedDiff(oldMessage.content, newMessage.content) },
-			);
+		if (
+			oldMessage.content.length > 160 ||
+			newMessage.content.length > 160
+		) {
+			logsEmbed.setFields({
+				name: data.var_message,
+				value: getDetailedDiff(oldMessage.content, newMessage.content)
+			});
 		} else {
 			logsEmbed.setFields(
-				{ name: data.event_srvLogs_messageUpdate_footer_1, value: oldMessage.content },
-				{ name: data.event_srvLogs_messageUpdate_footer_2, value: newMessage.content }
+				{
+					name: data.event_srvLogs_messageUpdate_footer_1,
+					value: oldMessage.content
+				},
+				{
+					name: data.event_srvLogs_messageUpdate_footer_2,
+					value: newMessage.content
+				}
 			);
 		}
 
 		logsEmbed.setTimestamp();
 
-		await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-	},
+		await (Msgchannel as BaseGuildTextChannel)
+			.send({ embeds: [logsEmbed] })
+			.catch(() => {});
+	}
 };

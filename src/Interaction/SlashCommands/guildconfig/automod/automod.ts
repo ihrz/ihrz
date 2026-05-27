@@ -23,226 +23,72 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
+import { Command } from "../../../../../types/command.js";
 
 export const command: Command = {
 	name: "automod",
 
 	description: "Subcommand for automod category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de protection via l'automod"
+		fr: "Commande sous-groupé pour la catégorie de protection via l'automod"
 	},
 
 	options: [
 		{
-			name: 'block',
+			name: "block",
 
-			description: 'Block/Protect someting/behaviours into this guild!',
+			description: "Block/Protect someting/behaviours into this guild!",
 			description_localizations: {
-				"fr": "Bloquer/Protéger certains comportements/comportements dans ce serveur"
+				fr: "Bloquer/Protéger certains comportements/comportements dans ce serveur"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
 			options: [
 				{
-					name: 'discord_invite_link',
+					name: "discord_invite_link",
 
-					description: 'Allow/Unallow the user to send a server invites into them messages!',
+					description:
+						"Allow/Unallow the user to send a server invites into them messages!",
 					description_localizations: {
-						"fr": "Autoriser/Interdire à l'utilisateur d'envoyer une invitations de serveur dans ses messages"
+						fr: "Autoriser/Interdire à l'utilisateur d'envoyer une invitations de serveur dans ses messages"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
 					options: [
 						{
-							name: 'action',
+							name: "action",
 							type: ApplicationCommandOptionType.String,
 
-							description: 'What you want to do?',
+							description: "What you want to do?",
 							description_localizations: {
-								"fr": "Que veux-tu faire?"
+								fr: "Que veux-tu faire?"
 							},
 
 							required: true,
 							choices: [
 								{
 									name: "Power On",
-									name_localizations: { fr: 'Activer' },
-									value: "on"
-								},
-								{
-									name: 'Power Off',
-									name_localizations: { fr: 'Désactiver' },
-									value: "off"
-								},
-							],
-							permission: null
-						},
-						{
-							name: 'logs-channel',
-
-							description: 'The channel you want logs when user break the rules!',
-							description_localizations: {
-								"fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
-							},
-
-							type: ApplicationCommandOptionType.Channel,
-							channel_types: [ChannelType.GuildText],
-
-							required: false,
-							permission: null
-						}
-					],
-
-					permission: PermissionFlagsBits.Administrator
-				},
-				{
-					name: 'telegram_link',
-
-					description: 'Allow/Unallow the user to send Telegram links into them messages!',
-					description_localizations: {
-						"fr": "Autoriser/Interdire à l'utilisateur d'envoyer des liens Telegram dans ses messages"
-					},
-
-					type: ApplicationCommandOptionType.Subcommand,
-					options: [
-						{
-							name: 'action',
-							type: ApplicationCommandOptionType.String,
-
-							description: 'What you want to do?',
-							description_localizations: {
-								"fr": "Que veux-tu faire?"
-							},
-
-							required: true,
-							choices: [
-								{
-									name: "Power On",
-									name_localizations: { fr: 'Activer' },
-									value: "on"
-								},
-								{
-									name: 'Power Off',
-									name_localizations: { fr: 'Désactiver' },
-									value: "off"
-								},
-							],
-							permission: null
-						},
-						{
-							name: 'logs-channel',
-
-							description: 'The channel you want logs when user break the rules!',
-							description_localizations: {
-								"fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
-							},
-
-							type: ApplicationCommandOptionType.Channel,
-							channel_types: [ChannelType.GuildText],
-
-							required: false,
-							permission: null
-						}
-					],
-
-					permission: PermissionFlagsBits.Administrator
-				},
-				{
-					name: 'link',
-
-					description: 'Allow/Unallow the user to send links into them messages!',
-					description_localizations: {
-						"fr": "Autoriser/Interdire à l'utilisateur d'envoyer des liens dans ses messages"
-					},
-
-					type: ApplicationCommandOptionType.Subcommand,
-					options: [
-						{
-							name: 'action',
-							type: ApplicationCommandOptionType.String,
-
-							description: 'What you want to do?',
-							description_localizations: {
-								"fr": "Que veux-tu faire?"
-							},
-
-							required: true,
-							choices: [
-								{
-									name: "Power On",
-									name_localizations: { fr: 'Activer' },
-									value: "on"
-								},
-								{
-									name: 'Power Off',
-									name_localizations: { fr: 'Désactiver' },
-									value: "off"
-								},
-							],
-							permission: null
-						},
-						{
-							name: 'logs-channel',
-
-							description: 'The channel you want logs when user break the rules!',
-							description_localizations: {
-								"fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
-							},
-
-							type: ApplicationCommandOptionType.Channel,
-							channel_types: [ChannelType.GuildText],
-
-							required: false,
-							permission: null
-						}
-					],
-
-					permission: PermissionFlagsBits.Administrator
-				},
-				{
-					name: 'spam',
-
-					description: 'Block the spam message in this server!',
-					description_localizations: {
-						"fr": "Bloquer le message spam sur ce serveur"
-					},
-
-					type: ApplicationCommandOptionType.Subcommand,
-					options: [
-						{
-							name: 'action',
-							type: ApplicationCommandOptionType.String,
-
-							description: 'What you want to do?',
-							description_localizations: {
-								"fr": "Que veux-tu faire?"
-							},
-
-							required: true,
-							choices: [
-								{
-									name: 'Power On',
-									name_localizations: { fr: 'Activer' },
+									name_localizations: { fr: "Activer" },
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: 'Désactiver' },
+									name_localizations: { fr: "Désactiver" },
 									value: "off"
 								}
 							],
 							permission: null
 						},
 						{
-							name: 'logs-channel',
+							name: "logs-channel",
 
-							description: 'The channel you want logs when user break the rules',
+							description:
+								"The channel you want logs when user break the rules!",
 							description_localizations: {
-								"fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
 							},
 
 							type: ApplicationCommandOptionType.Channel,
@@ -256,57 +102,221 @@ export const command: Command = {
 					permission: PermissionFlagsBits.Administrator
 				},
 				{
-					name: 'mass-mention',
+					name: "telegram_link",
 
-					description: 'Block the spam which have mass-mention in this message!',
+					description:
+						"Allow/Unallow the user to send Telegram links into them messages!",
 					description_localizations: {
-						"fr": "Bloquez les spams mentionnés en masse dans ce message"
+						fr: "Autoriser/Interdire à l'utilisateur d'envoyer des liens Telegram dans ses messages"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
 					options: [
 						{
-							name: 'action',
+							name: "action",
 							type: ApplicationCommandOptionType.String,
 
-							description: 'What you want to do?',
+							description: "What you want to do?",
 							description_localizations: {
-								"fr": "Que voulez-vous faire?"
+								fr: "Que veux-tu faire?"
 							},
 
 							required: true,
 							choices: [
 								{
-									name: 'Power On',
-									name_localizations: { fr: 'Activer' },
+									name: "Power On",
+									name_localizations: { fr: "Activer" },
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: 'Désactiver' },
+									name_localizations: { fr: "Désactiver" },
 									value: "off"
 								}
 							],
 							permission: null
 						},
 						{
-							name: 'max-mention-allowed',
+							name: "logs-channel",
+
+							description:
+								"The channel you want logs when user break the rules!",
+							description_localizations: {
+								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+							},
+
+							type: ApplicationCommandOptionType.Channel,
+							channel_types: [ChannelType.GuildText],
+
+							required: false,
+							permission: null
+						}
+					],
+
+					permission: PermissionFlagsBits.Administrator
+				},
+				{
+					name: "link",
+
+					description:
+						"Allow/Unallow the user to send links into them messages!",
+					description_localizations: {
+						fr: "Autoriser/Interdire à l'utilisateur d'envoyer des liens dans ses messages"
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "action",
+							type: ApplicationCommandOptionType.String,
+
+							description: "What you want to do?",
+							description_localizations: {
+								fr: "Que veux-tu faire?"
+							},
+
+							required: true,
+							choices: [
+								{
+									name: "Power On",
+									name_localizations: { fr: "Activer" },
+									value: "on"
+								},
+								{
+									name: "Power Off",
+									name_localizations: { fr: "Désactiver" },
+									value: "off"
+								}
+							],
+							permission: null
+						},
+						{
+							name: "logs-channel",
+
+							description:
+								"The channel you want logs when user break the rules!",
+							description_localizations: {
+								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+							},
+
+							type: ApplicationCommandOptionType.Channel,
+							channel_types: [ChannelType.GuildText],
+
+							required: false,
+							permission: null
+						}
+					],
+
+					permission: PermissionFlagsBits.Administrator
+				},
+				{
+					name: "spam",
+
+					description: "Block the spam message in this server!",
+					description_localizations: {
+						fr: "Bloquer le message spam sur ce serveur"
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "action",
+							type: ApplicationCommandOptionType.String,
+
+							description: "What you want to do?",
+							description_localizations: {
+								fr: "Que veux-tu faire?"
+							},
+
+							required: true,
+							choices: [
+								{
+									name: "Power On",
+									name_localizations: { fr: "Activer" },
+									value: "on"
+								},
+								{
+									name: "Power Off",
+									name_localizations: { fr: "Désactiver" },
+									value: "off"
+								}
+							],
+							permission: null
+						},
+						{
+							name: "logs-channel",
+
+							description:
+								"The channel you want logs when user break the rules",
+							description_localizations: {
+								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+							},
+
+							type: ApplicationCommandOptionType.Channel,
+							channel_types: [ChannelType.GuildText],
+
+							required: false,
+							permission: null
+						}
+					],
+
+					permission: PermissionFlagsBits.Administrator
+				},
+				{
+					name: "mass-mention",
+
+					description:
+						"Block the spam which have mass-mention in this message!",
+					description_localizations: {
+						fr: "Bloquez les spams mentionnés en masse dans ce message"
+					},
+
+					type: ApplicationCommandOptionType.Subcommand,
+					options: [
+						{
+							name: "action",
+							type: ApplicationCommandOptionType.String,
+
+							description: "What you want to do?",
+							description_localizations: {
+								fr: "Que voulez-vous faire?"
+							},
+
+							required: true,
+							choices: [
+								{
+									name: "Power On",
+									name_localizations: { fr: "Activer" },
+									value: "on"
+								},
+								{
+									name: "Power Off",
+									name_localizations: { fr: "Désactiver" },
+									value: "off"
+								}
+							],
+							permission: null
+						},
+						{
+							name: "max-mention-allowed",
 							type: ApplicationCommandOptionType.Number,
 
-							description: "Max amount of mention allowed in only one message !",
+							description:
+								"Max amount of mention allowed in only one message !",
 							description_localizations: {
-								"fr": "Nombre maximum de mentions autorisées dans un seul message"
+								fr: "Nombre maximum de mentions autorisées dans un seul message"
 							},
 
 							required: false,
 							permission: null
 						},
 						{
-							name: 'logs-channel',
+							name: "logs-channel",
 
-							description: "The channel you want logs when user break the rules",
+							description:
+								"The channel you want logs when user break the rules",
 							description_localizations: {
-								"fr": "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
 							},
 
 							type: ApplicationCommandOptionType.Channel,
@@ -321,10 +331,10 @@ export const command: Command = {
 				}
 			],
 			permission: null
-		},
+		}
 	],
 	thinking: true,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

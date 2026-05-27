@@ -21,46 +21,47 @@
 
 import {
 	ApplicationCommandOptionType,
-	ApplicationCommandType,
-} from 'discord.js';
+	ApplicationCommandType
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
-	name: 'lastfm',
+	name: "lastfm",
 
-	description: 'Connect your Last.fm account and control music scrobbling.',
+	description: "Connect your Last.fm account and control music scrobbling.",
 	description_localizations: {
-		fr: 'Connectez votre compte Last.fm et gérez le scrobbling musical.'
+		fr: "Connectez votre compte Last.fm et gérez le scrobbling musical."
 	},
 
 	options: [
 		{
-			name: 'config',
-			prefixName: 'config',
-			description: 'Enable or disable Last.fm scrobbling for your account.',
+			name: "config",
+			prefixName: "config",
+			description:
+				"Enable or disable Last.fm scrobbling for your account.",
 			description_localizations: {
-				fr: 'Activez ou désactivez le scrobbling Last.fm pour votre compte.'
+				fr: "Activez ou désactivez le scrobbling Last.fm pour votre compte."
 			},
 			ephemeral: true,
 			options: [
 				{
-					name: 'power',
-					description: 'Power On or Power Off the module',
+					name: "power",
+					description: "Power On or Power Off the module",
 					description_localizations: {
-						fr: 'Activer ou désactiver le module'
+						fr: "Activer ou désactiver le module"
 					},
 					type: ApplicationCommandOptionType.String,
 					choices: [
 						{
-							name: 'Power On',
-							name_localizations: { fr: 'Activer' },
-							value: 'on'
+							name: "Power On",
+							name_localizations: { fr: "Activer" },
+							value: "on"
 						},
 						{
-							name: 'Power Off',
-							name_localizations: { fr: 'Désactiver' },
-							value: 'off'
+							name: "Power Off",
+							name_localizations: { fr: "Désactiver" },
+							value: "off"
 						}
 					],
 					required: true,
@@ -71,29 +72,29 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'login',
-			prefixName: 'login',
-			description: 'Login to Last.fm and store your scrobbling session.',
+			name: "login",
+			prefixName: "login",
+			description: "Login to Last.fm and store your scrobbling session.",
 			description_localizations: {
-				fr: 'Connectez-vous à Last.fm et enregistrez votre session de scrobbling.'
+				fr: "Connectez-vous à Last.fm et enregistrez votre session de scrobbling."
 			},
 			ephemeral: true,
 			options: [
 				{
-					name: 'username',
-					description: 'Your Last.fm username or email address',
+					name: "username",
+					description: "Your Last.fm username or email address",
 					description_localizations: {
-						fr: 'Votre nom d’utilisateur ou email Last.fm'
+						fr: "Votre nom d’utilisateur ou email Last.fm"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,
 					permission: null
 				},
 				{
-					name: 'password',
-					description: 'Your Last.fm password',
+					name: "password",
+					description: "Your Last.fm password",
 					description_localizations: {
-						fr: 'Votre mot de passe Last.fm'
+						fr: "Votre mot de passe Last.fm"
 					},
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -105,7 +106,7 @@ export const command: Command = {
 		}
 	],
 	thinking: true,
-	category: 'lastfm',
+	category: "lastfm",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

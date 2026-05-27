@@ -23,41 +23,60 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	GuildMember,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import logger from '../../../core/logger.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import logger from "../../../core/logger.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		try {
-			const voiceChannel = (interaction.member as GuildMember).voice.channel;
-			const player = client.player.getPlayer(interaction.guildId as string);
+			const voiceChannel = (interaction.member as GuildMember).voice
+				.channel;
+			const player = client.player.getPlayer(
+				interaction.guildId as string
+			);
 
 			if (interaction instanceof ChatInputCommandInteraction) {
-				var mode = interaction.options.getString('mode');
+				var mode = interaction.options.getString("mode");
 			} else {
-
 				var mode = client.func.method.string(args!, 0);
-			};
+			}
 
 			if (!player || !player.playing || !voiceChannel) {
-				await client.func.method.interactionSend(interaction, { content: lang.loop_no_queue });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.loop_no_queue
+				});
 				return;
-			};
+			}
 
 			// Check if the member is in the same voice channel as the bot
-			if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
+			if (
+				(interaction.member as GuildMember).voice.channelId !==
+				interaction.guild.members.me?.voice.channelId
+			) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.music_cannot.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
+					content: lang.music_cannot.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
 				});
 				return;
 			}
@@ -65,12 +84,14 @@ export const subCommand: SubCommand = {
 			await player.setRepeatMode(mode as "off" | "track" | "queue");
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.loop_command_work
-					.replace("{mode}", mode === 'track' ? `🔂` : `▶`)
+				content: lang.loop_command_work.replace(
+					"{mode}",
+					mode === "track" ? `🔂` : `▶`
+				)
 			});
 			return;
 		} catch (error) {
 			logger.err(error);
-		};
-	},
+		}
+	}
 };
