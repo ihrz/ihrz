@@ -109,8 +109,7 @@ export const event: BotEvent = {
 					.sort(
 						([levelA], [levelB]) =>
 							parseInt(levelB) - parseInt(levelA)
-					)?.[// Get the highest applicable role
-				0]?.[1];
+					)?.[0]?.[1]; // Get the highest applicable role
 
 				// If a role to assign was found
 				if (roleToAssign) {

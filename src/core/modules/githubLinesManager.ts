@@ -226,9 +226,7 @@ class GithubLinesManager {
 	 * performs necessary formatting and validation.
 	 * @param msg Discord message object
 	 */
-	async handleMessage(
-		msg: Message
-	): Promise<{
+	async handleMessage(msg: Message): Promise<{
 		botMsg: null | string;
 		toDelete: boolean;
 		lang: LanguageData;

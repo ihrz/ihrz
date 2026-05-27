@@ -574,9 +574,7 @@ export class LastFMScrobblerManager {
 		return member?.voice.channelId === voiceChannelId;
 	}
 
-	private async getDecryptedUserSession(
-		userId: string
-	): Promise<
+	private async getDecryptedUserSession(userId: string): Promise<
 		| (DatabaseStructure.LastFMUserSchema & {
 				sessionKey: string;
 				username: string;
