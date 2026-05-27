@@ -15,7 +15,7 @@
 		"check:lc": "bun run check:lines",
 		"check:emoji": "bun run tools/Emoji_Creator.ts",
 		"dev": "echo \"Enjoy dev <3\" && bun run src/core/bot.ts",
-		"format": "prettier --write \"src/**/*.ts\""
+		"format": "prettier --write \"**/*.ts\""
 	},
 	"repository": {
 		"type": "git",

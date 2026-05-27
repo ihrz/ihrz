@@ -22,11 +22,11 @@
 import { iHorizonTimeCalculator } from "../src/core/functions/ms.js";
 
 import { GiveawayManager } from "../src/core/modules/giveawaysManager.js";
-import { Collection, Snowflake } from 'discord.js';
+import { Collection, Snowflake } from "discord.js";
 import { LavalinkManager } from "lavalink-client";
 
 import { AnotherCommand } from "./anotherCommand.js";
-import { BotContent } from './botContent.js'
+import { BotContent } from "./botContent.js";
 import { Category } from "./category.js";
 
 import type { VanityInviteData } from "./vanityUrlData.d.ts";
@@ -55,41 +55,41 @@ import { TempbanManager } from "../src/core/modules/tempbanManager.ts";
 import { Mailer } from "../src/core/Mailer.ts";
 import { LastFMScrobblerManager } from "../src/core/modules/lastFMScrobblerManager.ts";
 
-declare module 'discord.js' {
+declare module "discord.js" {
 	export interface Client {
-		func: typeof Client_Functions,
-		commands: Collection<string, Command>,
-		subCommands: Collection<string, Command>,
-		category: Category[]
-		message_commands: Collection<string, Command>,
-		player: LavalinkManager,
-		invites: Collection<string, Collection<string, number | null>>,
-		vanityInvites: Collection<Snowflake, VanityInviteData | null>,
-		buttons: Collection<string, Function>,
-		selectmenu: Collection<string, Function>,
-		db: DB,
-		db2: Postgres | undefined,
-		applicationsCommands: Collection<string, AnotherCommand>,
-		iHorizon_Emojis: typeof emojis,
-		giveawaysManager: GiveawayManager,
-		content: BotContent[],
-		timeCalculator: iHorizonTimeCalculator,
-		version: typeof ClientVersion,
-		assets: Assets,
-		config: ConfigData,
-		isModuled?: boolean,
-		owners: string[],
-		notifier: StreamNotifier,
-		kdenlive: KdenLive,
-		htmlfiles: Record<string, string>,
-		memberCountManager: MemberCountModule,
-		autoRenewManager: AutoRenew,
-		emojisManager: EmojisManager,
-		infrastructureMonitoring: InfrastructureMonitoring,
-		nightmodeManager: NightModeManager,
-		githubLinesManager: GithubLinesManager,
-		temproleManager: TemproleManager,
-		tempbanManager: TempbanManager,
+		func: typeof Client_Functions;
+		commands: Collection<string, Command>;
+		subCommands: Collection<string, Command>;
+		category: Category[];
+		message_commands: Collection<string, Command>;
+		player: LavalinkManager;
+		invites: Collection<string, Collection<string, number | null>>;
+		vanityInvites: Collection<Snowflake, VanityInviteData | null>;
+		buttons: Collection<string, Function>;
+		selectmenu: Collection<string, Function>;
+		db: DB;
+		db2: Postgres | undefined;
+		applicationsCommands: Collection<string, AnotherCommand>;
+		iHorizon_Emojis: typeof emojis;
+		giveawaysManager: GiveawayManager;
+		content: BotContent[];
+		timeCalculator: iHorizonTimeCalculator;
+		version: typeof ClientVersion;
+		assets: Assets;
+		config: ConfigData;
+		isModuled?: boolean;
+		owners: string[];
+		notifier: StreamNotifier;
+		kdenlive: KdenLive;
+		htmlfiles: Record<string, string>;
+		memberCountManager: MemberCountModule;
+		autoRenewManager: AutoRenew;
+		emojisManager: EmojisManager;
+		infrastructureMonitoring: InfrastructureMonitoring;
+		nightmodeManager: NightModeManager;
+		githubLinesManager: GithubLinesManager;
+		temproleManager: TemproleManager;
+		tempbanManager: TempbanManager;
 		backup: typeof backup;
 		// IN SHARD
 		inShard: (guildId: string) => boolean;

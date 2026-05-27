@@ -102,7 +102,7 @@ export interface ConfigData {
 		 * @example ["{ID ONE}X{ID TWO}"]
 		 * @description in the /fun love command, they will be 100% everytime
 		 */
-		always100: string[]
+		always100: string[];
 	};
 
 	owners: {
@@ -163,8 +163,8 @@ export interface ConfigData {
 			ERROR: string;
 			HOST: string;
 			KISA: string;
-			LOAD: string
-		}
+			LOAD: string;
+		};
 	};
 
 	database?: {
@@ -172,14 +172,14 @@ export interface ConfigData {
 		 * @description use the good driver for your environnement
 		 */
 		method:
-		'json'
-		| 'sqlite'
-		| 'memory'
-		| 'postgresql'
-		| 'horizon'
-		| 'cached_postgres';
+			| "json"
+			| "sqlite"
+			| "memory"
+			| "postgresql"
+			| "horizon"
+			| "cached_postgres";
 
-		mySQL?: MySQL[]
+		mySQL?: MySQL[];
 
 		/**
 		 * @description private technology for iHorizon production
@@ -189,7 +189,6 @@ export interface ConfigData {
 			port: number;
 			login: string;
 			password: string;
-		}
+		};
 	};
-
 }

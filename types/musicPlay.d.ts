@@ -25,24 +25,22 @@ import {
 	Client,
 	Message,
 	MessageContextMenuCommandInteraction,
-	MessageReplyOptions,
-} from 'discord.js';
+	MessageReplyOptions
+} from "discord.js";
 
-import {
-	LavalinkNode,
-	Player,
-	SearchResult,
-	Track,
-} from 'lavalink-client';
+import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
 
-import { LanguageData } from './languageData.js';
+import { LanguageData } from "./languageData.js";
 
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
 	| Message
 	| MessageContextMenuCommandInteraction<CacheType>;
 
-export type PlayResponsePayload = Pick<MessageReplyOptions, "allowedMentions" | "content" | "embeds">;
+export type PlayResponsePayload = Pick<
+	MessageReplyOptions,
+	"allowedMentions" | "content" | "embeds"
+>;
 
 export interface HandleMusicPlayOptions {
 	client: Client;

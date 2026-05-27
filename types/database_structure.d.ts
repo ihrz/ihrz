@@ -25,7 +25,6 @@ import { Platform } from "../src/core/StreamNotifier.js";
 import { APIEmbed } from "discord.js";
 
 export namespace DatabaseStructure {
-
 	export interface DbTableJson {
 		BACKUPS?: DbBackupsObject;
 		EMBED?: DbEmbedObject;
@@ -63,9 +62,12 @@ export namespace DatabaseStructure {
 		};
 	}
 	export interface ProtectionData {
-		[rule: string]: {
-			mode: string;
-		} | string | undefined;
+		[rule: string]:
+			| {
+					mode: string;
+			  }
+			| string
+			| undefined;
 		SANCTION?: string;
 	}
 
@@ -183,19 +185,18 @@ export namespace DatabaseStructure {
 		panel?: {
 			channelId: string;
 			messageId: string;
-		}
+		};
 		disable?: boolean;
-		ALL_CONFESSIONS?:
-		Array<{
+		ALL_CONFESSIONS?: Array<{
 			code: string;
 			userId?: string;
 			timestamp?: number;
 			private?: boolean;
 			threadChannel?: string | null;
 			messageId: string;
-		}>
-		cooldown?: number
-		thread?: 'yes' | 'no';
+		}>;
+		cooldown?: number;
+		thread?: "yes" | "no";
 	}
 
 	export interface MemberCountSchema {
@@ -208,7 +209,7 @@ export namespace DatabaseStructure {
 		roles?: {
 			name?: string;
 			enable?: boolean;
-			event?: 'roles';
+			event?: "roles";
 			channel?: string;
 		};
 		bot?: {
@@ -240,29 +241,29 @@ export namespace DatabaseStructure {
 			enable?: boolean;
 			event?: string;
 			channel?: string;
-		}
+		};
 	}
 
 	export interface StatsMessage {
 		sentTimestamp: number;
 		contentLength: number;
-		channelId: string
+		channelId: string;
 	}
 
 	export interface StatsVoice {
 		startTimestamp: number;
 		endTimestamp: number;
-		channelId: string
+		channelId: string;
 	}
 
 	export interface UserStats {
-		messages?: StatsMessage[]
+		messages?: StatsMessage[];
 		voices?: StatsVoice[];
 	}
 	export interface GuildStats {
 		USER?: {
-			[userId: string]: UserStats
-		}
+			[userId: string]: UserStats;
+		};
 	}
 
 	export interface NotifierUserSchema {
@@ -312,30 +313,38 @@ export namespace DatabaseStructure {
 	export interface EconomySettings {
 		work: {
 			cooldown: number;
-		}
+		};
 
 		rob: {
 			cooldown: number;
-		}
+		};
 
 		daily: {
 			cooldown: number;
 			amount: number;
-		}
+		};
 
 		weekly: {
 			cooldown: number;
 			amount: number;
-		}
+		};
 
 		monthly: {
 			cooldown: number;
 			amount: number;
-		}
+		};
 	}
 
-	export type OwnerSchema = Record<string, { owner: boolean; }>;
-	export type BlacklistSchema = Record<string, { reason: string; createdAt: string; owner: string; blacklisted: boolean; }>;
+	export type OwnerSchema = Record<string, { owner: boolean }>;
+	export type BlacklistSchema = Record<
+		string,
+		{
+			reason: string;
+			createdAt: string;
+			owner: string;
+			blacklisted: boolean;
+		}
+	>;
 
 	export interface CounterSchema {
 		config: "on" | "off";
@@ -375,7 +384,7 @@ export namespace DatabaseStructure {
 		PROTECTION?: ProtectionData;
 		ROLE_SAVER?: RoleSaverData;
 		ALLOWLIST?: AllowListData;
-		NOTIFIER?: NotifierSchema
+		NOTIFIER?: NotifierSchema;
 		SUGGEST?: SuggestSchema;
 		SUGGESTION?: SuggestionData;
 		ECONOMY?: EconomyModel;
@@ -409,7 +418,7 @@ export namespace DatabaseStructure {
 	export interface PicOnlyConfig {
 		threshold?: number;
 		muteTime?: number;
-		createThread?: 'yes' | 'no';
+		createThread?: "yes" | "no";
 	}
 
 	export interface LeashConfig {
@@ -417,7 +426,7 @@ export namespace DatabaseStructure {
 		maxLeashTime?: number;
 	}
 
-	export type LeashData = { dom: string; sub: string; timestamp: number; };
+	export type LeashData = { dom: string; sub: string; timestamp: number };
 
 	export interface NickKickerData {
 		enabled: boolean;
@@ -427,7 +436,7 @@ export namespace DatabaseStructure {
 	type renewChannelStructure = {
 		timestamp: number;
 		maxTime: number;
-	}
+	};
 
 	export type RoleLimitSchema = Record<string, number>;
 
@@ -438,7 +447,7 @@ export namespace DatabaseStructure {
 		derankBot?: boolean;
 		wlBots?: string[];
 		utc: number;
-		last_state: "started" | "ended"
+		last_state: "started" | "ended";
 		changed_roles?: string[];
 	}
 
@@ -471,14 +480,14 @@ export namespace DatabaseStructure {
 		users: string[];
 		roles: string[];
 		level: PermCommandLevel;
-	}
+	};
 
 	export interface UtilsPermsData {
 		[key: string]: PermLevel | PermCommandData;
 	}
 
 	export interface UtilsPermsUserData {
-		[key: string]: PermLevel
+		[key: string]: PermLevel;
 	}
 
 	export interface CommandRateLimit {
@@ -502,7 +511,12 @@ export namespace DatabaseStructure {
 		};
 	}
 
-	export type WarnsData = { timestamp: number; reason: string; authorID: string; id: string; };
+	export type WarnsData = {
+		timestamp: number;
+		reason: string;
+		authorID: string;
+		id: string;
+	};
 
 	export interface JoinBannerOptions {
 		backgroundURL: string;
@@ -545,9 +559,9 @@ export namespace DatabaseStructure {
 
 	export interface DbGuildXpLeveling {
 		message: string;
-		disable?: 'disable' | boolean;
+		disable?: "disable" | boolean;
 		xpchannels?: string;
-		bypassChannels?: string[]
+		bypassChannels?: string[];
 		ranksRoles?: Record<string, string>;
 	}
 
@@ -587,7 +601,7 @@ export namespace DatabaseStructure {
 		onlyOwner?: boolean;
 	}
 
-	export type SupportType = "bio" | "tag"
+	export type SupportType = "bio" | "tag";
 
 	export interface SupportSchema {
 		input?: string | null;
@@ -614,10 +628,10 @@ export namespace DatabaseStructure {
 	}
 
 	export interface PunishSchema {
-		PUNISH_PUB?: PunishPubSchema
+		PUNISH_PUB?: PunishPubSchema;
 	}
 
-	export type ReactMessage = Record<string, string>
+	export type ReactMessage = Record<string, string>;
 
 	export interface LangSchema {
 		lang: string;
@@ -628,18 +642,22 @@ export namespace DatabaseStructure {
 		BOT?: DbGuildBotObject;
 		LANG?: LangSchema;
 		TICKET?: {
-			[key: string]: DbTicketConfigurationObject | string | boolean | undefined;
+			[key: string]:
+				| DbTicketConfigurationObject
+				| string
+				| boolean
+				| undefined;
 			logs?: string;
 			disable?: boolean;
 			category?: string;
 		};
-		GUILD_CONFIG?: GuildConfigSchema
+		GUILD_CONFIG?: GuildConfigSchema;
 		BLOCK_BOT?: boolean;
 		MCOUNT?: MemberCountSchema;
 		PUNISH?: PunishSchema;
 		SERVER_LOGS?: ServerLogs;
 		SUPPORT?: SupportSchema;
-		XP_LEVELING?: DbGuildXpLeveling
+		XP_LEVELING?: DbGuildXpLeveling;
 		AUTOREACT?: DbGuildAutoReact;
 		REACTION_ROLES?: ReactionRolesData;
 		RANK_ROLES?: RanksRoles;
@@ -657,11 +675,16 @@ export namespace DatabaseStructure {
 		SKULLBOARD_DATA: StarboardDataSchema;
 		TEMPROLE: TempRoleSchema;
 		TEMPBAN: TempbanSchema;
-
 	}
 
-	export type TempRoleSchema = Record<string, [{ roleId: string, time: number }]>;
-	export type TempbanSchema = Record<string, { reason: string, time: number }>;
+	export type TempRoleSchema = Record<
+		string,
+		[{ roleId: string; time: number }]
+	>;
+	export type TempbanSchema = Record<
+		string,
+		{ reason: string; time: number }
+	>;
 
 	export interface DbTicketConfigurationObject {
 		author: string;
@@ -673,20 +696,20 @@ export namespace DatabaseStructure {
 	}
 
 	export interface StarboardConfigSchema {
-		enabled: 'yes' | 'no',
-		threshold: number,
-		createThread: boolean,
+		enabled: "yes" | "no";
+		threshold: number;
+		createThread: boolean;
 		channel: string;
 	}
 
 	export interface SkullboardConfigSchema {
-		enabled: 'yes' | 'no',
-		threshold: number,
-		createThread: boolean,
+		enabled: "yes" | "no";
+		threshold: number;
+		createThread: boolean;
 		channel: string;
 	}
 
-	export type StarboardDataSchema = Array<StarboardData>
+	export type StarboardDataSchema = Array<StarboardData>;
 
 	export interface StarboardData {
 		channelId: string;
