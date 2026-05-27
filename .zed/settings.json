@@ -27,7 +27,11 @@
       }
     },
     "YAML": {
-      "format_on_save": "off"
+      "format_on_save": "on"
+    },
+    "JSON": {
+        "format_on_save": "on",
+        "formatter": "language_server"
     }
   }
 }
