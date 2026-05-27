@@ -57,6 +57,8 @@ export async function checkCommandRateLimit(
 	commandPath: string,
 	lang: LanguageData
 ): Promise<boolean> {
+	if (!interaction.guild) return false;
+
 	if (
 		(await client.func.ownerHelper.isBotOwner(
 			interaction.member?.user!.id!
