@@ -14,7 +14,6 @@
 	"editor.cursorSurroundingLinesStyle": "all",
 	"editor.smoothScrolling": true,
 	"yaml.format.enable": false,
-	// Prettier comme formatter par défaut
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"[yaml]": {
 		"editor.defaultFormatter": "redhat.vscode-yaml",
