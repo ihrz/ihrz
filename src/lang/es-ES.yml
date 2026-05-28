@@ -1124,6 +1124,46 @@ util_wakeup_yourself: "¿Hermano, eres tonto o qué? No me digas que estás dorm
 util_wakeup_not_in_vc: "Hermano, el bot no va a crear un pequeño chino llamado ${user.displayName} con la misma foto de perfil y banner para hacerte creer que la persona despertó... Ni siquiera está en el canal de voz jajaja"
 util_wakeup_command_work: "¡Vamos a despertar a ${user.toString()} !"
 
+# /util talk
+util_talk_not_in_vc: "Debes estar en un canal de voz para usar este comando."
+util_talk_audit_reason: "Modo de conversación por voz activado"
+util_talk_logs_title: "Conversación por Voz"
+util_talk_logs_description: "${interaction.member.user.toString()} ha activado el modo conversación en ${voiceChannel.toString()} y silenció a ${mutedCount} miembro(s). ${skippedCount} miembro(s) fueron omitidos."
+util_talk_command_work: "El modo conversación ahora está activado en ${voiceChannel.toString()}. ${mutedCount} miembro(s) fueron silenciados y ${skippedCount} miembro(s) fueron omitidos."
+
+# /util untalk
+util_untalk_nothing_active: "No hay un modo conversación activo en este servidor."
+util_untalk_audit_reason: "Modo de conversación por voz desactivado"
+util_untalk_logs_title: "Desactivar Conversación por Voz"
+util_untalk_logs_description: "${interaction.member.user.toString()} ha desactivado el modo conversación en ${voiceChannel.toString()} y quitó el silencio a ${unmutedCount} miembro(s)."
+util_untalk_command_work: "El modo conversación ha sido desactivado en ${voiceChannel.toString()}. ${unmutedCount} miembro(s) fueron reactivados."
+
+# /util freeze
+util_freeze_logs_title: "Congelar Voz"
+util_freeze_logs_description: "${interaction.member.user.toString()} ha congelado el acceso a ${voiceChannel.toString()}."
+util_freeze_command_work: "El canal de voz ${voiceChannel.toString()} ahora está congelado."
+
+# /util wlvc
+util_wlvc_no_member: "Debes especificar un miembro permitido en el canal de voz congelado."
+util_wlvc_no_freeze: "No hay ningún canal de voz congelado activo en este servidor."
+util_wlvc_logs_title: "Permitir en Voz Congelada"
+util_wlvc_logs_description: "${interaction.member.user.toString()} ha permitido que ${member.toString()} se una al canal de voz congelado."
+util_wlvc_command_work: "${member.toString()} ahora puede unirse al canal de voz congelado."
+
+# /util unwlvc
+util_unwlvc_no_member: "Debes especificar un miembro para eliminarlo de la lista blanca del canal de voz congelado."
+util_unwlvc_no_freeze: "No hay ningún canal de voz congelado activo en este servidor."
+util_unwlvc_not_whitelisted: "${member.toString()} no está permitido en el canal de voz congelado."
+util_unwlvc_logs_title: "Eliminar Permiso de Voz Congelada"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} ha eliminado a ${member.toString()} de la lista blanca del canal de voz congelado."
+util_unwlvc_command_work: "${member.toString()} ya no puede unirse al canal de voz congelado."
+
+# /util unfreeze
+util_unfreeze_no_freeze: "No hay ningún canal de voz congelado activo en este servidor."
+util_unfreeze_logs_title: "Descongelar Voz"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} ha eliminado el congelamiento de voz activo."
+util_unfreeze_command_work: "El canal de voz ya no está congelado."
+
 # /util leash
 util_leash_too_naugthy: "Pequeño travieso, no puedes poner a más de 3 personas en la correa :D"
 util_leah_already_owned: "Pequeño travieso, ya posees estas pequeñas maravillas :smirk:"

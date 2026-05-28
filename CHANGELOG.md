@@ -1,54 +1,51 @@
-# Version Patch 2026.5.1 (1st patch of May 2026)
+# Version Minor 2026.6.1 (1st patch of June 2026)
 
-## Changes between [2026.4.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.4.1) and [2026.5.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.5.1)
+## Changes between [2026.5.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.5.1) and [2026.6.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.6.1)
 
------
+---
 
 ## User-facing changes
 
-***NEW MODULE: LastFM Scrobbler***
-- **Connect your Last.fm account and automatically scrobble the tracks played by iHorizon while you stay in the voice channel.**
+**_New command: `/music trackinfo`_**
 
-***NEW MODULE: Sticky***
-- **Keep an important message always visible in your channels with automatic reposting. Embeds, just text or both, you choose!**
+- **You can now search for a track and instantly display its artwork, link and lyrics in a dedicated embed.**
 
-***NEW MODULE: Honeypot***
-- **Only one command: `/honeypot config`**
-- **Set up a trap channel to catch compromised accounts and automatically clean up recent spam across your server.**
-- **Inspired by [RiskyMH's Honeypot bot](https://github.com/RiskyMH/Honeypot), check it out!**
+**_New command: `/music volume`_**
 
-***The PicOnly module is now called MediaOnly***
-- **The MediaOnly module now supports sending other types of media than only photos, videos can now be sent in channels where the module is enabled.**
+- **You can now change the player volume directly from the music command, with predefined volume levels.**
 
-- *The dropdown menu of the bot's help command has new updated icons for each command category.*
+**_New owner command: `/commandlimit`_**
 
-***New command: `/music clear-queue`***
-- *You can now clear the music queue present in the server where the command is executed.* 
+- **You can now configure per-command rate limits for your guild, including setting, listing and resetting limits.**
 
-***New command: `/automod block telegram_link`***
-- *You can now use Discord's built-in AutoMod to block Telegram links across your server.*
+**_New command: `/derogation`_**
 
-***New command: `/music clear-queue`***
-- *You can now clear the music queue present in the guild where the command is executed.*
+- **You can now create derogation entries through a dedicated utility command.**
 
-- *Fixing the ticket panel module that was broken due to duplicate `optionFields`.*
+- _The music player now starts at 60% volume by default._
 
-- *Schedule module fixes*
+- _The `/music clear-queue` command now also supports the `clearqueue` alias._
 
-- *Fixing ghost temporary voice channel in the Temporary Voice Channel module*
+- _The economy shop now restores previously owned roles when needed._
 
-- *iHorizon's RPC presence has been modified. It will be now displayed as `PLAYING Shards #[CLIENT_SHARD_ID] | [SERVER_COUNT] Servers | www.ihorizon.org`*
+- _The `!balance-add` command now targets the correct argument when selecting a user._
 
-- *Improved translations and wording*
+- _The wake up command has been reduced from 5 minutes to 2 minutes and now handles move failures more safely._
 
-- Modules relying on `HTML2PNG` (e.g. `/love` and `/stats` commands) have been fixed
+- _The Temporary Voice Channel cleanup has been improved to better remove empty owned channels and avoid deleting channels when a member was only moved._
+
+- _The ticket panel has been heavily reworked, including fixes for forms and overall ticket panel behavior._
+
+- _The moderation clear command has been reworked and refined._
+
+- _The top-messages stats command now updates its progress message correctly when there is no data and when the generated image is sent._
+
+- _Regex handling related to the ready status and Discord invite AutoMod detection has been fixed._
 
 ## Internal improvements
 
-- Improved `EmojiManager`
+- Improved giveaway management for sharded environments.
 
-- Centralize `HTML2PNG` rendering in `ShardManager`
+- Exported shared music helpers for reuse in the new track information flow.
 
-- Added `dev` script in `package.json` to launch the bot for development purposes
-
-- Updated dependencies
+- Added translation entries and typings required by the new music, command limit and derogation features.

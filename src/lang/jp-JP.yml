@@ -1124,6 +1124,46 @@ util_wakeup_yourself: "おい、お前バカか？このコマンドを打ちな
 util_wakeup_not_in_vc: "おいおい、ボットが${user.displayName}っていう同じアイコンとバナーの小さい中国人を作るわけじゃないんだぞ…その人はVCにいないよ笑"
 util_wakeup_command_work: "${user.toString()}を起こしに行くぞ！"
 
+# /util talk
+util_talk_not_in_vc: "このコマンドを使用するにはボイスチャンネルに参加している必要があります。"
+util_talk_audit_reason: "ボイストークモードが有効化されました"
+util_talk_logs_title: "ボイストーク"
+util_talk_logs_description: "${interaction.member.user.toString()} が ${voiceChannel.toString()} でトークモードを有効化し、${mutedCount} 人のメンバーをミュートしました。${skippedCount} 人のメンバーはスキップされました。"
+util_talk_command_work: "${voiceChannel.toString()} でトークモードが有効になりました。${mutedCount} 人のメンバーがミュートされ、${skippedCount} 人のメンバーがスキップされました。"
+
+# /util untalk
+util_untalk_nothing_active: "このサーバーには有効なトークモードがありません。"
+util_untalk_audit_reason: "ボイストークモードが無効化されました"
+util_untalk_logs_title: "ボイスアントーク"
+util_untalk_logs_description: "${interaction.member.user.toString()} が ${voiceChannel.toString()} のトークモードを無効化し、${unmutedCount} 人のメンバーのミュートを解除しました。"
+util_untalk_command_work: "${voiceChannel.toString()} のトークモードが無効化されました。${unmutedCount} 人のメンバーのミュートが解除されました。"
+
+# /util freeze
+util_freeze_logs_title: "ボイスフリーズ"
+util_freeze_logs_description: "${interaction.member.user.toString()} が ${voiceChannel.toString()} へのアクセスを凍結しました。"
+util_freeze_command_work: "ボイスチャンネル ${voiceChannel.toString()} は現在凍結されています。"
+
+# /util wlvc
+util_wlvc_no_member: "凍結されたボイスチャンネルに許可するメンバーを指定する必要があります。"
+util_wlvc_no_freeze: "このサーバーには有効な凍結ボイスチャンネルがありません。"
+util_wlvc_logs_title: "ボイスフリーズ許可"
+util_wlvc_logs_description: "${interaction.member.user.toString()} が ${member.toString()} に凍結されたボイスチャンネルへの参加を許可しました。"
+util_wlvc_command_work: "${member.toString()} は凍結されたボイスチャンネルに参加できるようになりました。"
+
+# /util unwlvc
+util_unwlvc_no_member: "凍結されたボイスチャンネルのホワイトリストから削除するメンバーを指定する必要があります。"
+util_unwlvc_no_freeze: "このサーバーには有効な凍結ボイスチャンネルがありません。"
+util_unwlvc_not_whitelisted: "${member.toString()} は凍結されたボイスチャンネルで許可されていません。"
+util_unwlvc_logs_title: "ボイスフリーズ許可削除"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} が ${member.toString()} を凍結されたボイスチャンネルのホワイトリストから削除しました。"
+util_unwlvc_command_work: "${member.toString()} は凍結されたボイスチャンネルに参加できなくなりました。"
+
+# /util unfreeze
+util_unfreeze_no_freeze: "このサーバーには有効な凍結ボイスチャンネルがありません。"
+util_unfreeze_logs_title: "ボイスフリーズ解除"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} が有効なボイスフリーズを解除しました。"
+util_unfreeze_command_work: "ボイスチャンネルはもう凍結されていません。"
+
 # /util leash
 util_leash_too_naugthy: "やんちゃ坊主、3人以上はリードに繋げないよ :D"
 util_leah_already_owned: "やんちゃ坊主、もうその小さな宝物を持ってるじゃないか :smirk:"

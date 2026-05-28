@@ -1124,6 +1124,46 @@ util_wakeup_yourself: "Fratello, sei scemo o cosa? Non dirmi che stai dormendo s
 util_wakeup_not_in_vc: "Fratello, il bot non creerà un piccolo cinese chiamato ${user.displayName} con la stessa foto e banner per farti credere che si sia svegliato... Non è nemmeno nel canale vocale ahaha"
 util_wakeup_command_work: "Cominciamo a svegliare ${user.toString()} !"
 
+# /util talk
+util_talk_not_in_vc: "Devi essere in un canale vocale per usare questo comando."
+util_talk_audit_reason: "Modalità conversazione vocale attivata"
+util_talk_logs_title: "Conversazione Vocale"
+util_talk_logs_description: "${interaction.member.user.toString()} ha attivato la modalità conversazione in ${voiceChannel.toString()} e silenziato ${mutedCount} membro(i). ${skippedCount} membro(i) sono stati ignorati."
+util_talk_command_work: "La modalità conversazione è ora attiva in ${voiceChannel.toString()}. ${mutedCount} membro(i) sono stati silenziati e ${skippedCount} membro(i) sono stati ignorati."
+
+# /util untalk
+util_untalk_nothing_active: "Non c'è alcuna modalità conversazione attiva per questo server."
+util_untalk_audit_reason: "Modalità conversazione vocale disattivata"
+util_untalk_logs_title: "Disattiva Conversazione Vocale"
+util_untalk_logs_description: "${interaction.member.user.toString()} ha disattivato la modalità conversazione in ${voiceChannel.toString()} e riattivato ${unmutedCount} membro(i)."
+util_untalk_command_work: "La modalità conversazione è stata disattivata in ${voiceChannel.toString()}. ${unmutedCount} membro(i) sono stati riattivati."
+
+# /util freeze
+util_freeze_logs_title: "Congelamento Vocale"
+util_freeze_logs_description: "${interaction.member.user.toString()} ha congelato l'accesso a ${voiceChannel.toString()}."
+util_freeze_command_work: "Il canale vocale ${voiceChannel.toString()} è ora congelato."
+
+# /util wlvc
+util_wlvc_no_member: "Devi specificare un membro autorizzato nel canale vocale congelato."
+util_wlvc_no_freeze: "Non esiste alcun canale vocale congelato attivo in questo server."
+util_wlvc_logs_title: "Autorizzazione Congelamento Vocale"
+util_wlvc_logs_description: "${interaction.member.user.toString()} ha autorizzato ${member.toString()} a unirsi al canale vocale congelato."
+util_wlvc_command_work: "${member.toString()} ora può unirsi al canale vocale congelato."
+
+# /util unwlvc
+util_unwlvc_no_member: "Devi specificare un membro da rimuovere dalla whitelist del canale vocale congelato."
+util_unwlvc_no_freeze: "Non esiste alcun canale vocale congelato attivo in questo server."
+util_unwlvc_not_whitelisted: "${member.toString()} non è autorizzato nel canale vocale congelato."
+util_unwlvc_logs_title: "Rimuovi Autorizzazione Congelamento Vocale"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} ha rimosso ${member.toString()} dalla whitelist del canale vocale congelato."
+util_unwlvc_command_work: "${member.toString()} non può più unirsi al canale vocale congelato."
+
+# /util unfreeze
+util_unfreeze_no_freeze: "Non esiste alcun canale vocale congelato attivo in questo server."
+util_unfreeze_logs_title: "Scongelamento Vocale"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} ha rimosso il congelamento vocale attivo."
+util_unfreeze_command_work: "Il canale vocale non è più congelato."
+
 # /util leash
 util_leash_too_naugthy: "Piccolo birichino, non puoi mettere più di 3 persone al guinzaglio :D"
 util_leah_already_owned: "Piccolo birichino, possiedi già queste piccole meraviglie :smirk:"

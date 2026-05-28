@@ -207,7 +207,7 @@ export const event: BotEvent = {
 			automodRules?.exemptRoles
 				.values()
 				.toArray()
-				.some((x) => member?.roles.cache.has(x.id))
+				.some((x) => x && member?.roles.cache.has(x.id))
 		) {
 			return;
 		}

@@ -1125,6 +1125,46 @@ util_wakeup_yourself: "يا أخي؟ أنت مجنون أم ماذا؟ لا تق
 util_wakeup_not_in_vc: "يا أخي، البوت لن يخلق صيني صغير يُسمى ${user.displayName} بنفس الصورة والبنر ليجعلك تصدق أن الشخص استيقظ... الشخص مش في الصوتي أصلاً ههه"
 util_wakeup_command_work: "يبدأ الآن الإيقاظ لـ ${user.toString()} !"
 
+# /util talk
+util_talk_not_in_vc: "يجب أن تكون في قناة صوتية لاستخدام هذا الأمر."
+util_talk_audit_reason: "تم تفعيل وضع التحدث الصوتي"
+util_talk_logs_title: "التحدث الصوتي"
+util_talk_logs_description: "${interaction.member.user.toString()} قام بتفعيل وضع التحدث في ${voiceChannel.toString()} وكتم ${mutedCount} عضو(أعضاء). تم تخطي ${skippedCount} عضو(أعضاء)."
+util_talk_command_work: "تم الآن تفعيل وضع التحدث في ${voiceChannel.toString()}. تم كتم ${mutedCount} عضو(أعضاء) وتخطي ${skippedCount} عضو(أعضاء)."
+
+# /util untalk
+util_untalk_nothing_active: "لا يوجد وضع تحدث نشط لهذا السيرفر."
+util_untalk_audit_reason: "تم تعطيل وضع التحدث الصوتي"
+util_untalk_logs_title: "إلغاء التحدث الصوتي"
+util_untalk_logs_description: "${interaction.member.user.toString()} قام بتعطيل وضع التحدث في ${voiceChannel.toString()} وإلغاء كتم ${unmutedCount} عضو(أعضاء)."
+util_untalk_command_work: "تم تعطيل وضع التحدث في ${voiceChannel.toString()}. تم إلغاء كتم ${unmutedCount} عضو(أعضاء)."
+
+# /util freeze
+util_freeze_logs_title: "تجميد القناة الصوتية"
+util_freeze_logs_description: "${interaction.member.user.toString()} قام بتجميد الوصول إلى ${voiceChannel.toString()}."
+util_freeze_command_work: "القناة الصوتية ${voiceChannel.toString()} مجمدة الآن."
+
+# /util wlvc
+util_wlvc_no_member: "يجب تحديد عضو للسماح له بالدخول إلى القناة الصوتية المجمدة."
+util_wlvc_no_freeze: "لا توجد قناة صوتية مجمدة نشطة في هذا السيرفر."
+util_wlvc_logs_title: "السماح في التجميد الصوتي"
+util_wlvc_logs_description: "${interaction.member.user.toString()} سمح لـ ${member.toString()} بالانضمام إلى القناة الصوتية المجمدة."
+util_wlvc_command_work: "${member.toString()} مسموح له الآن بالانضمام إلى القناة الصوتية المجمدة."
+
+# /util unwlvc
+util_unwlvc_no_member: "يجب تحديد عضو لإزالته من القائمة البيضاء للقناة الصوتية المجمدة."
+util_unwlvc_no_freeze: "لا توجد قناة صوتية مجمدة نشطة في هذا السيرفر."
+util_unwlvc_not_whitelisted: "${member.toString()} غير مسموح له بالدخول إلى القناة الصوتية المجمدة."
+util_unwlvc_logs_title: "إزالة السماح من التجميد الصوتي"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} قام بإزالة ${member.toString()} من القائمة البيضاء للقناة الصوتية المجمدة."
+util_unwlvc_command_work: "${member.toString()} لم يعد بإمكانه الانضمام إلى القناة الصوتية المجمدة."
+
+# /util unfreeze
+util_unfreeze_no_freeze: "لا توجد قناة صوتية مجمدة نشطة في هذا السيرفر."
+util_unfreeze_logs_title: "إلغاء تجميد القناة الصوتية"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} قام بإزالة التجميد الصوتي النشط."
+util_unfreeze_command_work: "لم تعد القناة الصوتية مجمدة."
+
 # /util leash
 util_leash_too_naugthy: "أيها الشقي الصغير، لا يمكنك وضع أكثر من 3 أشخاص في الحبل :D"
 util_leah_already_owned: "أيها الشقي الصغير، أنت تمتلك هؤلاء بالفعل :smirk:"
