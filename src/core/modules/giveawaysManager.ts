@@ -58,8 +58,6 @@ class GiveawayManager {
 
 		this.options = options;
 
-		db.InitFilePath(this.options.storage);
-
 		client.on("interactionCreate", async (interaction) => {
 			if (
 				interaction.isButton() &&

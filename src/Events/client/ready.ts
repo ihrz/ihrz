@@ -65,6 +65,10 @@ export let apiTable: DB = null;
 export let scheduleTable: DB = null;
 // @ts-ignore
 export let metasTable: DB = null;
+// @ts-ignore
+export let giveawaysTable: DB = null;
+// @ts-ignore
+export let backupsTable: DB = null;
 
 export const event: BotEvent = {
 	name: "clientReady",
@@ -79,6 +83,8 @@ export const event: BotEvent = {
 		apiTable = await db.table("api");
 		scheduleTable = await db.table("schedule");
 		metasTable = await db.table("metas");
+		giveawaysTable = await db.table("giveaways");
+		backupsTable = await db.table("backups");
 
 		await client.emojisManager.startSync();
 

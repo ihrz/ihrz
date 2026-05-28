@@ -43,7 +43,9 @@ export const tables = [
 	"schedule",
 	"user_profil",
 	"authrestore",
-	"metas"
+	"metas",
+	"giveaways",
+	"backups"
 ];
 export const readOnlyTables = ["authrestore", "api", "metas"];
 export const databasePath = `${process.cwd()}/src/files/`;

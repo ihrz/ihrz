@@ -28,33 +28,20 @@ import type {
 import type { Guild } from "discord.js";
 import { SnowflakeUtil, IntentsBitField } from "discord.js";
 
-import { sep } from "path";
-
-import { existsSync, mkdirSync, statSync, unlinkSync } from "node:fs";
-import { writeFile, readdir } from "fs/promises";
-
 import * as createMaster from "./create";
 import * as loadMaster from "./load";
 import * as utilMaster from "./util";
-import { backups_folder } from "../../core.ts";
+import { backupsTable } from "../../../Events/client/ready.js";
 
 /**
  * Checks if a backup exists and returns its data
  */
 const getBackupData = async (backupID: string) => {
 	return new Promise<BackupData>(async (resolve, reject) => {
-		const files = await readdir(backups_folder); // Read "backups" directory
-		// Try to get the json file
-		const file = files
-			.filter((f) => f.split(".").pop() === "json")
-			.find((f) => f === `${backupID}.json`);
-		if (file) {
-			// If the file exists
-			const backupData: BackupData = require(
-				`${backups_folder}${sep}${file}`
-			);
-			// Returns backup information
-			resolve(backupData);
+		const backupData = await backupsTable.get(backupID);
+
+		if (backupData) {
+			resolve(backupData as BackupData);
 		} else {
 			// If no backup was found, return an error message
 			reject("function:getBackupData : No backup found");
@@ -69,9 +56,10 @@ export const fetchBackup = (backupID: string) => {
 	return new Promise<BackupInfos>(async (resolve, reject) => {
 		getBackupData(backupID)
 			.then((backupData) => {
-				const size = statSync(
-					`${backups_folder}${sep}${backupID}.json`
-				).size; // Gets the size of the file using fs
+				const size = Buffer.byteLength(
+					JSON.stringify(backupData),
+					"utf-8"
+				);
 				const backupInfos: BackupInfos = {
 					data: backupData,
 					id: backupID,
@@ -308,23 +296,10 @@ export const create = async (
 			}
 		}
 
-		// Save backup to JSON if requested
-		if (!options || options.jsonSave === undefined || options.jsonSave) {
-			try {
-				// Convert Object to JSON
-				const backupJSON = options.jsonBeautify
-					? JSON.stringify(backupData, null, 4)
-					: JSON.stringify(backupData);
-				// Save the backup
-				await writeFile(
-					`${backups_folder}${sep}${backupData.id}.json`,
-					backupJSON,
-					"utf-8"
-				);
-			} catch (saveError) {
-				console.error(`Error while saving backup: ${saveError}`);
-				// Continue and return data anyway
-			}
+		try {
+			await backupsTable.set(backupData.id, backupData);
+		} catch (saveError) {
+			console.error(`Error while saving backup: ${saveError}`);
 		}
 
 		// Return data even if some parts failed
@@ -391,10 +366,14 @@ export const load = async (
  * Removes a backup
  */
 export const remove = async (backupID: string) => {
-	return new Promise<void>((resolve, reject) => {
+	return new Promise<void>(async (resolve, reject) => {
 		try {
-			require(`${backups_folder}${sep}${backupID}.json`);
-			unlinkSync(`${backups_folder}${sep}${backupID}.json`);
+			const exists = await backupsTable.get(backupID);
+			if (!exists) {
+				return reject("Backup not found");
+			}
+
+			await backupsTable.delete(backupID);
 			resolve();
 		} catch (error) {
 			reject("Backup not found");
@@ -406,6 +385,6 @@ export const remove = async (backupID: string) => {
  * Returns the list of all backup
  */
 export const list = async () => {
-	const files = await readdir(backups_folder); // Read "backups" directory
-	return files.map((f) => f.split(".")[0]);
+	const entries = await backupsTable.all();
+	return entries.map((entry) => entry.id);
 };
