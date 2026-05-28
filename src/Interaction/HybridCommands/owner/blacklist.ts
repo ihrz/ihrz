@@ -470,7 +470,7 @@ export async function run_for_guild_owner(
 		return;
 	}
 
-	const blacklistedUsers: DatabaseStructure.BlacklistSchema =
+	const blacklistedUsers: DatabaseStructure.BlacklistSchema | null =
 		await client.db.get(`${interaction.guildId}.BLACKLIST`);
 
 	const blacklistedUsersArray = blacklistedUsers

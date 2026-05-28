@@ -103,12 +103,14 @@ export const subCommand: SubCommand = {
 			removeMessages: true,
 			punishment_type: "mute",
 			punishTime: client.timeCalculator.to_ms("15m")!,
-			BYPASS_CHANNELS: await client.db.get(
-				`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_CHANNELS`
-			),
-			BYPASS_ROLES: await client.db.get(
-				`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`
-			)
+			BYPASS_CHANNELS:
+				(await client.db.get(
+					`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_CHANNELS`
+				)) || [],
+			BYPASS_ROLES:
+				(await client.db.get(
+					`${interaction.guildId}.GUILD.ANTISPAM.BYPASS_ROLES`
+				)) || []
 		};
 
 		const embed = new EmbedBuilder()

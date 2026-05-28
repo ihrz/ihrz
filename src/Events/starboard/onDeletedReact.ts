@@ -52,7 +52,7 @@ export const event: BotEvent = {
 			if (reaction.message.author?.bot) return;
 
 			const guildId = reaction.message.guild.id;
-			const baseData: DatabaseStructure.StarboardConfigSchema =
+			const baseData: DatabaseStructure.StarboardConfigSchema | null =
 				await client.db.get(`${guildId}.GUILD.STARBOARD`);
 
 			// Check if starboard is enabled and configured
