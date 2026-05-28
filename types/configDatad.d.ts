@@ -171,13 +171,7 @@ export interface ConfigData {
 		/**
 		 * @description use the good driver for your environnement
 		 */
-		method:
-			| "json"
-			| "sqlite"
-			| "memory"
-			| "postgresql"
-			| "horizon"
-			| "cached_postgres";
+		method: "json" | "sqlite" | "memory" | "postgresql" | "cached_postgres";
 
 		mySQL?: MySQL[];
 
