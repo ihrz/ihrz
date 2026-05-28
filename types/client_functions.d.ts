@@ -865,7 +865,9 @@ declare namespace Client_Functions {
 		): Promise<boolean>;
 		export function isBotOwner(userId: string): Promise<boolean>;
 		export function isBotDev(userId: string): boolean;
-		export function getGuildOwner(guild: Guild): Promise<Array<string>>;
+		export function getGuildOwner(
+			guild: Guild | null
+		): Promise<Array<string>>;
 		export function getBotOwner(): Promise<Array<string>>;
 		export function getBotDev(): Array<string>;
 		export function removeBotOwner(userId: string): Promise<void>;
