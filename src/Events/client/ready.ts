@@ -44,7 +44,6 @@ import { recoverCustomVoiceChannels } from "../voicedashboard/voiceState.js";
 import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
 import { isNumber } from "../../core/functions/method.js";
 import { DB } from "../../core/database/types.js";
-import { Horizon } from "../../core/database/driver/horizon.js";
 import { AvailableLanguage } from "../../core/functions/getLanguageData.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
 
@@ -70,9 +69,6 @@ export let metasTable: DB = null;
 export const event: BotEvent = {
 	name: "clientReady",
 	run: async (client: Client) => {
-		if (client.config.database?.method.includes("horizon")) {
-			await (client.db as Horizon).waitUntilReady();
-		}
 		let db = client.db2 ? client.db2 : client.db;
 		tempTable = await db.table("temp");
 		blacklistTable = await db.table("blacklist");
