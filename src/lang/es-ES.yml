@@ -1150,6 +1150,14 @@ util_wlvc_logs_title: "Permitir en Voz Congelada"
 util_wlvc_logs_description: "${interaction.member.user.toString()} ha permitido que ${member.toString()} se una al canal de voz congelado."
 util_wlvc_command_work: "${member.toString()} ahora puede unirse al canal de voz congelado."
 
+# /util unwlvc
+util_unwlvc_no_member: "Debes especificar un miembro para eliminarlo de la lista blanca del canal de voz congelado."
+util_unwlvc_no_freeze: "No hay ningún canal de voz congelado activo en este servidor."
+util_unwlvc_not_whitelisted: "${member.toString()} no está permitido en el canal de voz congelado."
+util_unwlvc_logs_title: "Eliminar Permiso de Voz Congelada"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} ha eliminado a ${member.toString()} de la lista blanca del canal de voz congelado."
+util_unwlvc_command_work: "${member.toString()} ya no puede unirse al canal de voz congelado."
+
 # /util unfreeze
 util_unfreeze_no_freeze: "No hay ningún canal de voz congelado activo en este servidor."
 util_unfreeze_logs_title: "Descongelar Voz"

@@ -1151,6 +1151,14 @@ util_wlvc_logs_title: "السماح في التجميد الصوتي"
 util_wlvc_logs_description: "${interaction.member.user.toString()} سمح لـ ${member.toString()} بالانضمام إلى القناة الصوتية المجمدة."
 util_wlvc_command_work: "${member.toString()} مسموح له الآن بالانضمام إلى القناة الصوتية المجمدة."
 
+# /util unwlvc
+util_unwlvc_no_member: "يجب تحديد عضو لإزالته من القائمة البيضاء للقناة الصوتية المجمدة."
+util_unwlvc_no_freeze: "لا توجد قناة صوتية مجمدة نشطة في هذا السيرفر."
+util_unwlvc_not_whitelisted: "${member.toString()} غير مسموح له بالدخول إلى القناة الصوتية المجمدة."
+util_unwlvc_logs_title: "إزالة السماح من التجميد الصوتي"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} قام بإزالة ${member.toString()} من القائمة البيضاء للقناة الصوتية المجمدة."
+util_unwlvc_command_work: "${member.toString()} لم يعد بإمكانه الانضمام إلى القناة الصوتية المجمدة."
+
 # /util unfreeze
 util_unfreeze_no_freeze: "لا توجد قناة صوتية مجمدة نشطة في هذا السيرفر."
 util_unfreeze_logs_title: "إلغاء تجميد القناة الصوتية"

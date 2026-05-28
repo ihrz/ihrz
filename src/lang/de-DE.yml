@@ -1150,6 +1150,14 @@ util_wlvc_logs_title: "Voice Freeze Allow"
 util_wlvc_logs_description: "${interaction.member.user.toString()} hat ${member.toString()} erlaubt, dem eingefrorenen Sprachkanal beizutreten."
 util_wlvc_command_work: "${member.toString()} darf jetzt dem eingefrorenen Sprachkanal beitreten."
 
+# /util unwlvc
+util_unwlvc_no_member: "Du musst ein Mitglied angeben, das aus der Whitelist des eingefrorenen Sprachkanals entfernt werden soll."
+util_unwlvc_no_freeze: "Es gibt keinen aktiven eingefrorenen Sprachkanal auf diesem Server."
+util_unwlvc_not_whitelisted: "${member.toString()} ist im eingefrorenen Sprachkanal nicht erlaubt."
+util_unwlvc_logs_title: "Voice Freeze Erlaubnis Entfernen"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} hat ${member.toString()} aus der Whitelist des eingefrorenen Sprachkanals entfernt."
+util_unwlvc_command_work: "${member.toString()} kann dem eingefrorenen Sprachkanal nicht mehr beitreten."
+
 # /util unfreeze
 util_unfreeze_no_freeze: "Es gibt keinen aktiven eingefrorenen Sprachkanal auf diesem Server."
 util_unfreeze_logs_title: "Voice Unfreeze"

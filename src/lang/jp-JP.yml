@@ -1150,6 +1150,14 @@ util_wlvc_logs_title: "ボイスフリーズ許可"
 util_wlvc_logs_description: "${interaction.member.user.toString()} が ${member.toString()} に凍結されたボイスチャンネルへの参加を許可しました。"
 util_wlvc_command_work: "${member.toString()} は凍結されたボイスチャンネルに参加できるようになりました。"
 
+# /util unwlvc
+util_unwlvc_no_member: "凍結されたボイスチャンネルのホワイトリストから削除するメンバーを指定する必要があります。"
+util_unwlvc_no_freeze: "このサーバーには有効な凍結ボイスチャンネルがありません。"
+util_unwlvc_not_whitelisted: "${member.toString()} は凍結されたボイスチャンネルで許可されていません。"
+util_unwlvc_logs_title: "ボイスフリーズ許可削除"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} が ${member.toString()} を凍結されたボイスチャンネルのホワイトリストから削除しました。"
+util_unwlvc_command_work: "${member.toString()} は凍結されたボイスチャンネルに参加できなくなりました。"
+
 # /util unfreeze
 util_unfreeze_no_freeze: "このサーバーには有効な凍結ボイスチャンネルがありません。"
 util_unfreeze_logs_title: "ボイスフリーズ解除"

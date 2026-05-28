@@ -692,6 +692,33 @@ export const command: Command = {
 			permission: PermissionFlagsBits.MoveMembers
 		},
 		{
+			name: "unwlvc",
+			prefixName: "unwlvc",
+
+			description:
+				"Remove a member from the frozen voice channel whitelist",
+			description_localizations: {
+				fr: "Retirer un membre de la whitelist du salon vocal gelé"
+			},
+
+			options: [
+				{
+					name: "member",
+					description: "The member you want to remove",
+					description_localizations: {
+						fr: "Le membre que vous voulez retirer"
+					},
+					type: ApplicationCommandOptionType.User,
+					required: true,
+					permission: null
+				}
+			],
+
+			aliases: ["removevcwl"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.MoveMembers
+		},
+		{
 			name: "unfreeze",
 			prefixName: "unfreeze",
 

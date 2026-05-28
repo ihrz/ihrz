@@ -43,11 +43,10 @@ import path from "path";
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import logger from "../src/core/logger.js";
-import { formatTypeScriptCode, readVSCodeConfig } from "./formatter.js";
 import { LICENCE_HEADER } from "./LicenceHeader.js";
 import prettier from "prettier";
 
-let header =
+const header =
 	LICENCE_HEADER +
 	`
 
@@ -502,11 +501,6 @@ export async function generateFunctionInterfaces(
 		throw error;
 	}
 }
-
-generateFunctionInterfaces(
-	path.join(process.cwd(), "src", "core", "functions"),
-	"./types/client_functions.d.ts"
-);
 
 generateFunctionInterfaces(
 	path.join(process.cwd(), "src", "core", "functions"),

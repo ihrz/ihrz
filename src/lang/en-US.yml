@@ -1150,6 +1150,14 @@ util_wlvc_logs_title: "Voice Freeze Allow"
 util_wlvc_logs_description: "${interaction.member.user.toString()} has allowed ${member.toString()} to join the frozen voice channel."
 util_wlvc_command_work: "${member.toString()} is now allowed to join the frozen voice channel."
 
+# /util unwlvc
+util_unwlvc_no_member: "You must specify a member to remove from the frozen voice channel whitelist."
+util_unwlvc_no_freeze: "There is no active frozen voice channel in this guild."
+util_unwlvc_not_whitelisted: "${member.toString()} is not allowed in the frozen voice channel."
+util_unwlvc_logs_title: "Voice Freeze Remove Allow"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} has removed ${member.toString()} from the frozen voice channel whitelist."
+util_unwlvc_command_work: "${member.toString()} can no longer join the frozen voice channel."
+
 # /util unfreeze
 util_unfreeze_no_freeze: "There is no active frozen voice channel in this guild."
 util_unfreeze_logs_title: "Voice Unfreeze"

@@ -1150,6 +1150,14 @@ util_wlvc_logs_title: "Разрешение Заморозки Голоса"
 util_wlvc_logs_description: "${interaction.member.user.toString()} разрешил(а) ${member.toString()} войти в замороженный голосовой канал."
 util_wlvc_command_work: "${member.toString()} теперь может войти в замороженный голосовой канал."
 
+# /util unwlvc
+util_unwlvc_no_member: "Вы должны указать участника, которого нужно удалить из белого списка замороженного голосового канала."
+util_unwlvc_no_freeze: "На этом сервере нет активного замороженного голосового канала."
+util_unwlvc_not_whitelisted: "${member.toString()} не имеет доступа к замороженному голосовому каналу."
+util_unwlvc_logs_title: "Удаление Разрешения Заморозки Голоса"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} удалил(а) ${member.toString()} из белого списка замороженного голосового канала."
+util_unwlvc_command_work: "${member.toString()} больше не может присоединяться к замороженному голосовому каналу."
+
 # /util unfreeze
 util_unfreeze_no_freeze: "На этом сервере нет активного замороженного голосового канала."
 util_unfreeze_logs_title: "Разморозка Голоса"

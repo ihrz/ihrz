@@ -873,6 +873,12 @@ export interface LanguageData {
 	util_wlvc_logs_title: string;
 	util_wlvc_logs_description: string;
 	util_wlvc_command_work: string;
+	util_unwlvc_no_member: string;
+	util_unwlvc_no_freeze: string;
+	util_unwlvc_not_whitelisted: string;
+	util_unwlvc_logs_title: string;
+	util_unwlvc_logs_description: string;
+	util_unwlvc_command_work: string;
 	util_unfreeze_no_freeze: string;
 	util_unfreeze_logs_title: string;
 	util_unfreeze_logs_description: string;

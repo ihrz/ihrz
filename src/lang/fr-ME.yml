@@ -1153,6 +1153,14 @@ util_wlvc_logs_title: "Autorisation Gel Vocal"
 util_wlvc_logs_description: "${interaction.member.user.toString()} a autorisé ${member.toString()} à rejoindre le salon vocal gelé."
 util_wlvc_command_work: "${member.toString()} est maintenant autorisé à rejoindre le salon vocal gelé."
 
+# /util unwlvc
+util_unwlvc_no_member: "Vous devez spécifier un membre à retirer de la liste blanche du salon vocal gelé."
+util_unwlvc_no_freeze: "Aucun salon vocal gelé actif dans ce serveur."
+util_unwlvc_not_whitelisted: "${member.toString()} n'est pas autorisé dans le salon vocal gelé."
+util_unwlvc_logs_title: "Retrait Autorisation Gel Vocal"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} a retiré ${member.toString()} de la liste blanche du salon vocal gelé."
+util_unwlvc_command_work: "${member.toString()} ne peut plus rejoindre le salon vocal gelé."
+
 # /util unfreeze
 util_unfreeze_no_freeze: "Aucun salon vocal gelé actif dans ce serveur."
 util_unfreeze_logs_title: "Dégel Vocal"

@@ -46,7 +46,9 @@ const run = async () => {
 		migrated++;
 	}
 
-	console.log(`Migrated ${migrated} giveaways to database table "giveaways".`);
+	console.log(
+		`Migrated ${migrated} giveaways to database table "giveaways".`
+	);
 };
 
 run().catch((error) => {
