@@ -225,7 +225,7 @@ async function applyConfiguredAction(
 			const banResult = await message.guild?.members
 				.ban(message.author.id, {
 					reason: "Honeypot triggered",
-					deleteMessageSeconds: 0
+					deleteMessageSeconds: 60 * 60 // 3600 secondes
 				})
 				.catch(() => null);
 			return banResult ? "ban" : "failed";
