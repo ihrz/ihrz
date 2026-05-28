@@ -62,7 +62,7 @@ if (!fs.existsSync(databasePath)) {
 let isClient: boolean | null = null;
 try {
 	client;
-	let isClient = true;
+	isClient = true;
 } catch {
 	isClient = false;
 }
@@ -126,7 +126,8 @@ export async function initializeDatabase(
 
 			for (const { id, value } of allData) {
 				/** Only needed to cache the guilds record which is in the shard (avoid to much useless storing) */
-				if (client?.inShard(id)) await memoryTable.set(id, value);
+				if (isClient ?? client?.inShard(id))
+					await memoryTable.set(id, value);
 			}
 		} else /* Else, only one postgres. Load all tables in memory */ {
 			for (const table of tables) {
