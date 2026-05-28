@@ -391,106 +391,95 @@ class GiveawayManager {
 
 			if (!fetch) return;
 
-			if (!fetch.ended || fetch.ended === GiveawayEndedStatus.NOT_ENDED) {
-				const guild = await client.guilds
-					.fetch(guildId)
-					.catch(() => undefined);
-				if (!guild) return;
+			const guild = await client.guilds
+				.fetch(guildId)
+				.catch(() => undefined);
+			if (!guild) return;
 
-				const winner = this.selectWinners(
-					{ entries: fetch.entries, winners: fetch.winners },
-					fetch.winnerCount
+			const winner = this.selectWinners(
+				{ entries: fetch.entries, winners: fetch.winners },
+				fetch.winnerCount
+			);
+
+			await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
+			await db.SetWinners(giveawayId, winner || "None");
+
+			const channel = await guild.channels.fetch(channelId).catch(() => {
+				this.delete(giveawayId);
+			});
+
+			const message = (await (channel as GuildTextBasedChannel).messages
+				.fetch(giveawayId)
+				.catch(async () => {
+					await this.delete(giveawayId);
+					return;
+				})) as Message;
+
+			const winners = winner
+				? winner.map((winner: string) => `<@${winner}>`).join(",")
+				: null;
+
+			const Finnish = new ButtonBuilder()
+				.setLabel(lang.event_gw_finnish_button_title)
+				.setURL(
+					"https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif"
+				)
+				.setStyle(ButtonStyle.Link);
+
+			const embeds = new EmbedBuilder()
+				.setColor(this.options.config.embedColorEnd as ColorResolvable)
+				.setTitle(fetch.prize)
+				.setImage(fetch.embedImageURL)
+				.setDescription(
+					lang.event_gw_ended_embed_desc
+						.replace(
+							"${time1}",
+							time(new Date(fetch.expireIn), "R")
+						)
+						.replace(
+							"${time2}",
+							time(new Date(fetch.expireIn), "D")
+						)
+						.replace("${fetch.hostedBy}", fetch.hostedBy)
+						.replace(
+							"${fetch.entries.length}",
+							fetch.entries.length.toString()
+						)
+						.replace(
+							"${winners}",
+							winners || lang.setjoinroles_var_none
+						)
+				)
+				.setTimestamp()
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						message.guildId!
+					)
 				);
 
-				await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
-				await db.SetWinners(giveawayId, winner || "None");
+			await message?.edit({
+				embeds: [embeds],
+				components: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(Finnish)
+				]
+			});
 
-				const channel = await guild.channels
-					.fetch(channelId)
-					.catch(() => {
-						this.delete(giveawayId);
-					});
-
-				const message = (await (
-					channel as GuildTextBasedChannel
-				).messages
-					.fetch(giveawayId)
-					.catch(async () => {
-						await this.delete(giveawayId);
-						return;
-					})) as Message;
-
-				const winners = winner
-					? winner.map((winner: string) => `<@${winner}>`).join(",")
-					: null;
-
-				const Finnish = new ButtonBuilder()
-					.setLabel(lang.event_gw_finnish_button_title)
-					.setURL(
-						"https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif"
-					)
-					.setStyle(ButtonStyle.Link);
-
-				const embeds = new EmbedBuilder()
-					.setColor(
-						this.options.config.embedColorEnd as ColorResolvable
-					)
-					.setTitle(fetch.prize)
-					.setImage(fetch.embedImageURL)
-					.setDescription(
-						lang.event_gw_ended_embed_desc
-							.replace(
-								"${time1}",
-								time(new Date(fetch.expireIn), "R")
-							)
-							.replace(
-								"${time2}",
-								time(new Date(fetch.expireIn), "D")
-							)
-							.replace("${fetch.hostedBy}", fetch.hostedBy)
-							.replace(
-								"${fetch.entries.length}",
-								fetch.entries.length.toString()
-							)
-							.replace(
-								"${winners}",
-								winners || lang.setjoinroles_var_none
-							)
-					)
-					.setTimestamp()
-					.setFooter(
-						await client.func.displayBotName.footerBuilder(
-							message.guildId!
+			if (winners) {
+				await message?.reply({
+					content: lang.event_gw_reroll_win_msg
+						.replace("${winners}", winners.toString())
+						.replace(
+							"${fetch[channelId][messageId].prize}",
+							fetch.prize
 						)
-					);
-
-				await message?.edit({
-					embeds: [embeds],
-					components: [
-						new ActionRowBuilder<ButtonBuilder>().addComponents(
-							Finnish
-						)
-					]
 				});
-
-				if (winners) {
-					await message?.reply({
-						content: lang.event_gw_reroll_win_msg
-							.replace("${winners}", winners.toString())
-							.replace(
-								"${fetch[channelId][messageId].prize}",
-								fetch.prize
-							)
-					});
-					return;
-				} else {
-					await message?.reply({
-						content: lang.event_gw_finnish_cannot_msg
-					});
-					return;
-				}
+				return;
+			} else {
+				await message?.reply({
+					content: lang.event_gw_finnish_cannot_msg
+				});
+				return;
 			}
-			return;
 		} catch (e) {
 			console.error(e);
 		}
