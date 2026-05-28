@@ -63,9 +63,9 @@ export const subCommand: SubCommand = {
 			(await client.db.get(
 				`${interaction.guildId}.GUILD.SKULLBOARD`
 			)) || {
-				channel: null,
+				channel: "",
 				createThread: false,
-				enabled: false,
+				enabled: "no",
 				threshold: 2
 			};
 

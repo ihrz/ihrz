@@ -43,7 +43,7 @@ export const event: BotEvent = {
 			if (reaction.message.author?.bot) return;
 
 			const guildId = reaction.message.guild.id;
-			const baseData: DatabaseStructure.SkullboardConfigSchema =
+			const baseData: DatabaseStructure.SkullboardConfigSchema | null =
 				await client.db.get(`${guildId}.GUILD.SKULLBOARD`);
 
 			// Check if skullboard is enabled and configured

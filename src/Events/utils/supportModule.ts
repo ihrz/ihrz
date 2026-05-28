@@ -39,9 +39,8 @@ export const event: BotEvent = {
 			return;
 		if (!oldPresence || !oldPresence.guild) return;
 
-		const someinfo: DatabaseStructure.SupportSchema = await client.db.get(
-			`${oldPresence.guild.id}.GUILD.SUPPORT`
-		);
+		const someinfo: DatabaseStructure.SupportSchema | null =
+			await client.db.get(`${oldPresence.guild.id}.GUILD.SUPPORT`);
 
 		if (!someinfo || !someinfo.rolesId) {
 			return;

@@ -61,9 +61,9 @@ export const subCommand: SubCommand = {
 
 		let baseData: DatabaseStructure.StarboardConfigSchema =
 			(await client.db.get(`${interaction.guildId}.GUILD.STARBOARD`)) || {
-				channel: null,
+				channel: "",
 				createThread: false,
-				enabled: false,
+				enabled: "no",
 				threshold: 2
 			};
 
