@@ -42,6 +42,22 @@
 
 - _Regex handling related to the ready status and Discord invite AutoMod detection has been fixed._
 
+**_New owner command: `/freeze`_**
+
+- _This command aim to freeze a voice channel, server members who's try to joining the channel will be disconnected._
+
+**_New owner command: `/unfreeze`_**
+
+- _Permit to remove the current freeze status on a voice channel._
+
+**_New owner command: `/talk`_**
+
+- _Make everyone on a specific voice channel muted._
+
+**_New owner command: `/untalk`_**
+
+- _Remove the talk mode from a voice channel already set up._
+
 ## Internal improvements
 
 - Improved giveaway management for sharded environments.
@@ -49,3 +65,7 @@
 - Exported shared music helpers for reuse in the new track information flow.
 
 - Added translation entries and typings required by the new music, command limit and derogation features.
+
+- Fixed the giveaway end command
+
+- Migrating the server backups and giveaways from files to production database
