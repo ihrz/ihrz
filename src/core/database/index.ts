@@ -60,16 +60,17 @@ if (!fs.existsSync(databasePath)) {
 	fs.mkdirSync(databasePath, { recursive: true });
 }
 let isClient: boolean | null = null;
-try {
-	client;
-	isClient = true;
-} catch {
-	isClient = false;
-}
 
 export async function initializeDatabase(
 	database: ConfigData["database"]
 ): Promise<MultiDB> {
+	try {
+		client;
+		isClient = true;
+	} catch {
+		isClient = false;
+	}
+
 	if (!database) throw new Error("invalid database object");
 	if (dbInstance !== null) {
 		return dbInstance;
@@ -94,7 +95,7 @@ export async function initializeDatabase(
 		};
 	} else if (database.method === "cached_postgres") {
 		logger.log(
-			`${isClient ?? client.config.console.emojis.HOST} >> Initializing cached Postgres database setup (${database?.method}) !`
+			`${isClient && client.config.console.emojis.HOST} >> Initializing cached Postgres database setup (${database?.method}) !`
 				.green
 		);
 
@@ -112,7 +113,7 @@ export async function initializeDatabase(
 				table: tables[9] // Chose metas table at default
 			});
 			logger.log(
-				`${isClient ?? client.config.console.emojis.LOAD} >> Initializing bi-separated postgres database.`
+				`${isClient && client.config.console.emojis.LOAD} >> Initializing bi-separated postgres database.`
 			);
 		}
 
@@ -126,7 +127,7 @@ export async function initializeDatabase(
 
 			for (const { id, value } of allData) {
 				/** Only needed to cache the guilds record which is in the shard (avoid to much useless storing) */
-				if (isClient ?? client?.inShard(id))
+				if (isClient && client?.inShard(id))
 					await memoryTable.set(id, value);
 			}
 		} else /* Else, only one postgres. Load all tables in memory */ {
@@ -151,7 +152,7 @@ export async function initializeDatabase(
 	}
 
 	logger.log(
-		`${isClient ?? client.config.console.emojis.HOST} >> Connected to the database (${isClient ?? client.config.database?.method}) !`
+		`${isClient && client.config.console.emojis.HOST} >> Connected to the database (${isClient && client.config.database?.method}) !`
 			.green
 	);
 	return dbInstance;
@@ -188,7 +189,7 @@ const syncToPostgres = async () => {
 						}
 					} else {
 						if (table === "json") {
-							if (client?.inShard(id))
+							if (isClient && client?.inShard(id))
 								await postgresTable.set(id, value);
 						} else {
 							await postgresTable.set(id, value);
@@ -205,7 +206,7 @@ const syncToPostgres = async () => {
 				if (!memoryMap.has(id)) {
 					try {
 						if (table === "json") {
-							if (client.inShard(id))
+							if (isClient && client.inShard(id))
 								await postgresTable.delete(id);
 						} else {
 							await postgresTable.delete(id);
@@ -232,7 +233,7 @@ const syncToPostgres = async () => {
 
 	overwriteLastLine(
 		logger.returnLog(
-			`${client.config.console.emojis.HOST} >> Synchronized memory database to Postgres !`
+			`${isClient && client.config.console.emojis.HOST} >> Synchronized memory database to Postgres !`
 		)
 	);
 };
