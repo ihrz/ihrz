@@ -60,16 +60,17 @@ if (!fs.existsSync(databasePath)) {
 	fs.mkdirSync(databasePath, { recursive: true });
 }
 let isClient: boolean | null = null;
-try {
-	client;
-	isClient = true;
-} catch {
-	isClient = false;
-}
 
 export async function initializeDatabase(
 	database: ConfigData["database"]
 ): Promise<MultiDB> {
+	try {
+		client;
+		isClient = true;
+	} catch {
+		isClient = false;
+	}
+
 	if (!database) throw new Error("invalid database object");
 	if (dbInstance !== null) {
 		return dbInstance;
