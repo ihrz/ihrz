@@ -349,7 +349,7 @@ export class LastFMScrobblerManager {
 	}
 
 	private async getProfileTable() {
-		return profilTable || (await client.db.table("user_profil"));
+		return profilTable;
 	}
 
 	private getEncryptionSecret(): string {
