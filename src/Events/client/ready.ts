@@ -365,41 +365,6 @@ export const event: BotEvent = {
 			);
 		}
 
-		if (
-			client.config.database?.method.includes("horizon") &&
-			client.version.env === "production" &&
-			client.isMainShard()
-		) {
-			setInterval(async () => {
-				try {
-					await metasTable.set("LAST_WRITE", Date.now());
-				} catch {}
-
-				const databaseLatency = await client.func.database_latency();
-				const stats = (client.db as Horizon).getConnectionStats();
-				const channel = process.env.DB_STATS_CHANNEL;
-
-				if (channel) {
-					await client.func.method.channelSend(channel, {
-						embeds: [
-							new EmbedBuilder()
-								.setTimestamp()
-								.setTitle(
-									"Database Metrics - Ping: " +
-										databaseLatency
-								)
-								.setDescription(
-									"```" +
-										JSON.stringify(stats, null, 2) +
-										"```"
-								)
-								.setColor("#010101")
-						]
-					});
-				}
-			}, 45_000);
-		}
-
 		if (client.email.connected && client.isMainShard()) {
 			client.email.send(
 				client.email.ownerMail,
