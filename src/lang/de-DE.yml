@@ -1124,6 +1124,38 @@ util_wakeup_yourself: "Ey, bist du verrückt oder was? Schreibst du im Schlaf au
 util_wakeup_not_in_vc: "Ey Bruder, der Bot wird keinen kleinen Chinesen namens ${user.displayName} mit demselben Profilbild und Banner erstellen, um dich glauben zu lassen, dass die Person aufwacht... Er ist nicht mal im Sprachkanal lol"
 util_wakeup_command_work: "Los geht's mit dem Wecken von ${user.toString()} !"
 
+# /util talk
+util_talk_not_in_vc: "Du musst dich in einem Sprachkanal befinden, um diesen Befehl zu verwenden."
+util_talk_audit_reason: "Sprach-Talkmodus aktiviert"
+util_talk_logs_title: "Voice Talk"
+util_talk_logs_description: "${interaction.member.user.toString()} hat den Talkmodus in ${voiceChannel.toString()} aktiviert und ${mutedCount} Mitglied(er) stummgeschaltet. ${skippedCount} Mitglied(er) wurden übersprungen."
+util_talk_command_work: "Der Talkmodus ist jetzt in ${voiceChannel.toString()} aktiviert. ${mutedCount} Mitglied(er) wurden stummgeschaltet und ${skippedCount} Mitglied(er) wurden übersprungen."
+
+# /util untalk
+util_untalk_nothing_active: "Für diesen Server ist kein aktiver Talkmodus vorhanden."
+util_untalk_audit_reason: "Sprach-Talkmodus deaktiviert"
+util_untalk_logs_title: "Voice Untalk"
+util_untalk_logs_description: "${interaction.member.user.toString()} hat den Talkmodus in ${voiceChannel.toString()} deaktiviert und ${unmutedCount} Mitglied(er) entstummt."
+util_untalk_command_work: "Der Talkmodus wurde in ${voiceChannel.toString()} deaktiviert. ${unmutedCount} Mitglied(er) wurden entstummt."
+
+# /util freeze
+util_freeze_logs_title: "Voice Freeze"
+util_freeze_logs_description: "${interaction.member.user.toString()} hat den Zugriff auf ${voiceChannel.toString()} eingefroren."
+util_freeze_command_work: "Der Sprachkanal ${voiceChannel.toString()} ist jetzt eingefroren."
+
+# /util wlvc
+util_wlvc_no_member: "Du musst ein Mitglied angeben, das dem eingefrorenen Sprachkanal beitreten darf."
+util_wlvc_no_freeze: "Es gibt keinen aktiven eingefrorenen Sprachkanal auf diesem Server."
+util_wlvc_logs_title: "Voice Freeze Allow"
+util_wlvc_logs_description: "${interaction.member.user.toString()} hat ${member.toString()} erlaubt, dem eingefrorenen Sprachkanal beizutreten."
+util_wlvc_command_work: "${member.toString()} darf jetzt dem eingefrorenen Sprachkanal beitreten."
+
+# /util unfreeze
+util_unfreeze_no_freeze: "Es gibt keinen aktiven eingefrorenen Sprachkanal auf diesem Server."
+util_unfreeze_logs_title: "Voice Unfreeze"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} hat die aktive Sprachsperre entfernt."
+util_unfreeze_command_work: "Der Sprachkanal ist nicht mehr eingefroren."
+
 # /util leash
 util_leash_too_naugthy: "Du kleiner Frechdachs, du kannst nicht mehr als 3 Personen an die Leine nehmen :D"
 util_leah_already_owned: "Du kleiner Frechdachs, du besitzt diese kleinen Wunder schon :smirk:"

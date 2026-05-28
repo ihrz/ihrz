@@ -1124,6 +1124,38 @@ util_wakeup_yourself: "Bro, are you dumb or what? Don't tell me you're sleeping 
 util_wakeup_not_in_vc: "Bro, the bot isn't going to create a little Chinese guy named ${user.displayName} with the same profile pic and banner to make you think they woke up... They're not even in the VC lol"
 util_wakeup_command_work: "Let's go wake up ${user.toString()}!"
 
+# /util talk
+util_talk_not_in_vc: "You must be in a voice channel to use this command."
+util_talk_audit_reason: "Voice talk mode enabled"
+util_talk_logs_title: "Voice Talk"
+util_talk_logs_description: "${interaction.member.user.toString()} has enabled talk mode in ${voiceChannel.toString()} and muted ${mutedCount} member(s). ${skippedCount} member(s) were skipped."
+util_talk_command_work: "Talk mode is now enabled in ${voiceChannel.toString()}. ${mutedCount} member(s) were muted and ${skippedCount} member(s) were skipped."
+
+# /util untalk
+util_untalk_nothing_active: "There is no active talk mode for this guild."
+util_untalk_audit_reason: "Voice talk mode disabled"
+util_untalk_logs_title: "Voice Untalk"
+util_untalk_logs_description: "${interaction.member.user.toString()} has disabled talk mode in ${voiceChannel.toString()} and unmuted ${unmutedCount} member(s)."
+util_untalk_command_work: "Talk mode has been disabled in ${voiceChannel.toString()}. ${unmutedCount} member(s) were unmuted."
+
+# /util freeze
+util_freeze_logs_title: "Voice Freeze"
+util_freeze_logs_description: "${interaction.member.user.toString()} has frozen access to ${voiceChannel.toString()}."
+util_freeze_command_work: "The voice channel ${voiceChannel.toString()} is now frozen."
+
+# /util wlvc
+util_wlvc_no_member: "You must specify a member to allow in the frozen voice channel."
+util_wlvc_no_freeze: "There is no active frozen voice channel in this guild."
+util_wlvc_logs_title: "Voice Freeze Allow"
+util_wlvc_logs_description: "${interaction.member.user.toString()} has allowed ${member.toString()} to join the frozen voice channel."
+util_wlvc_command_work: "${member.toString()} is now allowed to join the frozen voice channel."
+
+# /util unfreeze
+util_unfreeze_no_freeze: "There is no active frozen voice channel in this guild."
+util_unfreeze_logs_title: "Voice Unfreeze"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} has removed the active voice freeze."
+util_unfreeze_command_work: "The voice channel is no longer frozen."
+
 # /util leash
 util_leash_too_naugthy: "You little rascal, you can't leash more than 3 people :D"
 util_leah_already_owned: "You little rascal, you already own these little wonders :smirk:"

@@ -1124,6 +1124,38 @@ util_wakeup_yourself: "Братан, ты что, глупый? Неужели �
 util_wakeup_not_in_vc: "Братан, бот не создаст маленького китайца по имени ${user.displayName} с той же аватаркой и баннером, чтобы ты поверил, что он проснулся... Он даже не в голосовом канале, лол"
 util_wakeup_command_work: "Давай разбудим ${user.toString()} !"
 
+# /util talk
+util_talk_not_in_vc: "Вы должны находиться в голосовом канале, чтобы использовать эту команду."
+util_talk_audit_reason: "Режим голосового разговора включён"
+util_talk_logs_title: "Голосовой Разговор"
+util_talk_logs_description: "${interaction.member.user.toString()} включил(а) режим разговора в ${voiceChannel.toString()} и заглушил(а) ${mutedCount} участник(ов). ${skippedCount} участник(ов) были пропущены."
+util_talk_command_work: "Режим разговора теперь включён в ${voiceChannel.toString()}. ${mutedCount} участник(ов) были заглушены, ${skippedCount} участник(ов) были пропущены."
+
+# /util untalk
+util_untalk_nothing_active: "На этом сервере нет активного режима разговора."
+util_untalk_audit_reason: "Режим голосового разговора выключен"
+util_untalk_logs_title: "Отключение Голосового Разговора"
+util_untalk_logs_description: "${interaction.member.user.toString()} выключил(а) режим разговора в ${voiceChannel.toString()} и снял(а) заглушение с ${unmutedCount} участник(ов)."
+util_untalk_command_work: "Режим разговора был выключен в ${voiceChannel.toString()}. С ${unmutedCount} участник(ов) было снято заглушение."
+
+# /util freeze
+util_freeze_logs_title: "Заморозка Голоса"
+util_freeze_logs_description: "${interaction.member.user.toString()} заморозил(а) доступ к ${voiceChannel.toString()}."
+util_freeze_command_work: "Голосовой канал ${voiceChannel.toString()} теперь заморожен."
+
+# /util wlvc
+util_wlvc_no_member: "Вы должны указать участника, которому будет разрешён вход в замороженный голосовой канал."
+util_wlvc_no_freeze: "На этом сервере нет активного замороженного голосового канала."
+util_wlvc_logs_title: "Разрешение Заморозки Голоса"
+util_wlvc_logs_description: "${interaction.member.user.toString()} разрешил(а) ${member.toString()} войти в замороженный голосовой канал."
+util_wlvc_command_work: "${member.toString()} теперь может войти в замороженный голосовой канал."
+
+# /util unfreeze
+util_unfreeze_no_freeze: "На этом сервере нет активного замороженного голосового канала."
+util_unfreeze_logs_title: "Разморозка Голоса"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} снял(а) активную голосовую заморозку."
+util_unfreeze_command_work: "Голосовой канал больше не заморожен."
+
 # /util leash
 util_leash_too_naugthy: "Шалунишка, ты не можешь привязать больше 3 человек :D"
 util_leah_already_owned: "Шалунишка, у тебя уже есть эти маленькие чудеса :smirk:"

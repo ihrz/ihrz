@@ -1124,6 +1124,38 @@ util_wakeup_yourself: "Vous ne pouvez pas vous réveiller vous même !"
 util_wakeup_not_in_vc: "L'utilisateur mentionné n'est pas dans un salon vocal."
 util_wakeup_command_work: "C'est partiiiiit pour le réveil de ${user.toString()} !"
 
+# /util talk
+util_talk_not_in_vc: "Vous devez être dans un salon vocal pour utiliser cette commande."
+util_talk_audit_reason: "Mode discussion vocale activé"
+util_talk_logs_title: "Discussion Vocale"
+util_talk_logs_description: "${interaction.member.user.toString()} a activé le mode discussion dans ${voiceChannel.toString()} et a rendu muet ${mutedCount} membre(s). ${skippedCount} membre(s) ont été ignorés."
+util_talk_command_work: "Le mode discussion est maintenant activé dans ${voiceChannel.toString()}. ${mutedCount} membre(s) ont été rendus muets et ${skippedCount} membre(s) ont été ignorés."
+
+# /util untalk
+util_untalk_nothing_active: "Aucun mode discussion actif pour ce serveur."
+util_untalk_audit_reason: "Mode discussion vocale désactivé"
+util_untalk_logs_title: "Fin de Discussion Vocale"
+util_untalk_logs_description: "${interaction.member.user.toString()} a désactivé le mode discussion dans ${voiceChannel.toString()} et a réactivé ${unmutedCount} membre(s)."
+util_untalk_command_work: "Le mode discussion a été désactivé dans ${voiceChannel.toString()}. ${unmutedCount} membre(s) ont été réactivés."
+
+# /util freeze
+util_freeze_logs_title: "Gel Vocal"
+util_freeze_logs_description: "${interaction.member.user.toString()} a gelé l'accès à ${voiceChannel.toString()}."
+util_freeze_command_work: "Le salon vocal ${voiceChannel.toString()} est maintenant gelé."
+
+# /util wlvc
+util_wlvc_no_member: "Vous devez spécifier un membre autorisé dans le salon vocal gelé."
+util_wlvc_no_freeze: "Aucun salon vocal gelé actif dans ce serveur."
+util_wlvc_logs_title: "Autorisation Gel Vocal"
+util_wlvc_logs_description: "${interaction.member.user.toString()} a autorisé ${member.toString()} à rejoindre le salon vocal gelé."
+util_wlvc_command_work: "${member.toString()} est maintenant autorisé à rejoindre le salon vocal gelé."
+
+# /util unfreeze
+util_unfreeze_no_freeze: "Aucun salon vocal gelé actif dans ce serveur."
+util_unfreeze_logs_title: "Dégel Vocal"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} a retiré le gel vocal actif."
+util_unfreeze_command_work: "Le salon vocal n'est plus gelé."
+
 # /util leash
 util_leash_too_naugthy: "Petit coquin, tu ne peux pas mettre plus de 3 personnes en laisse :D"
 util_leah_already_owned: "Petit coquin, tu possèdes déjà ces petites merveilles :smirk:"

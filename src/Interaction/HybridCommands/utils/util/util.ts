@@ -621,6 +621,90 @@ export const command: Command = {
 			]
 		},
 		{
+			name: "talk",
+			prefixName: "talk",
+
+			description: "Enable talk mode in your current voice channel",
+			description_localizations: {
+				fr: "Activer le mode talk dans votre salon vocal actuel"
+			},
+
+			aliases: ["mutetalk"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: [
+				PermissionFlagsBits.MuteMembers,
+				PermissionFlagsBits.MoveMembers
+			]
+		},
+		{
+			name: "untalk",
+			prefixName: "untalk",
+
+			description: "Disable talk mode and unmute everyone",
+			description_localizations: {
+				fr: "Désactiver le mode talk et démute tout le monde"
+			},
+
+			aliases: ["unmutetalk"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: [
+				PermissionFlagsBits.MuteMembers,
+				PermissionFlagsBits.MoveMembers
+			]
+		},
+		{
+			name: "freeze",
+			prefixName: "freeze",
+
+			description: "Freeze access to your current voice channel",
+			description_localizations: {
+				fr: "Geler l'accès à votre salon vocal actuel"
+			},
+
+			aliases: ["voicefreeze", "vcfreeze"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.MoveMembers
+		},
+		{
+			name: "wlvc",
+			prefixName: "wlvc",
+
+			description: "Allow a member to join the frozen voice channel",
+			description_localizations: {
+				fr: "Autoriser un membre à rejoindre le salon vocal gelé"
+			},
+
+			options: [
+				{
+					name: "member",
+					description: "The member you want to allow",
+					description_localizations: {
+						fr: "Le membre que vous voulez autoriser"
+					},
+					type: ApplicationCommandOptionType.User,
+					required: true,
+					permission: null
+				}
+			],
+
+			aliases: ["allowvc"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.MoveMembers
+		},
+		{
+			name: "unfreeze",
+			prefixName: "unfreeze",
+
+			description: "Remove the active voice freeze",
+			description_localizations: {
+				fr: "Retirer le gel vocal actif"
+			},
+
+			aliases: ["defreeze"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.MoveMembers
+		},
+		{
 			name: "move",
 
 			description: "Move an user from voice-channel.",
