@@ -24,54 +24,80 @@ import {
 	Client,
 	EmbedBuilder,
 	Message
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { SubCommand } from "../../../../types/command.js";
 
-function resolveListLine(lang: LanguageData, config: DatabaseStructure.StickyChannelConfig): string {
+function resolveListLine(
+	lang: LanguageData,
+	config: DatabaseStructure.StickyChannelConfig
+): string {
 	const channel = `<#${config.channelId}>`;
 
 	if (config.content && config.embedId) {
 		return lang.sticky_list_embed_desc_line_text_embed
-			.replace('${channel}', channel)
-			.replace('${embed_id}', config.embedId);
+			.replace("${channel}", channel)
+			.replace("${embed_id}", config.embedId);
 	}
 
 	if (config.embedId) {
 		return lang.sticky_list_embed_desc_line_embed
-			.replace('${channel}', channel)
-			.replace('${embed_id}', config.embedId);
+			.replace("${channel}", channel)
+			.replace("${embed_id}", config.embedId);
 	}
 
-	return lang.sticky_list_embed_desc_line_text
-		.replace('${channel}', channel);
+	return lang.sticky_list_embed_desc_line_text.replace("${channel}", channel);
 }
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData) => {
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData
+	) => {
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const stickyData = await client.db.get(`${interaction.guildId}.STICKY`) as DatabaseStructure.StickySchema | undefined;
+		const stickyData = (await client.db.get(
+			`${interaction.guildId}.STICKY`
+		)) as DatabaseStructure.StickySchema | undefined;
 		const stickyChannels = Object.values(stickyData || {})
-			.filter(config => config?.enabled)
+			.filter((config) => config?.enabled)
 			.sort((a, b) => a.channelId.localeCompare(b.channelId));
 
 		const embed = new EmbedBuilder()
-			.setColor('#11304c')
+			.setColor("#11304c")
 			.setTitle(lang.sticky_list_embed_title)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		if (stickyChannels.length === 0) {
 			embed.setDescription(lang.sticky_list_embed_desc_empty);
 		} else {
-			embed.setDescription(stickyChannels.map(config => resolveListLine(lang, config)).join('\n'));
+			embed.setDescription(
+				stickyChannels
+					.map((config) => resolveListLine(lang, config))
+					.join("\n")
+			);
 		}
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
-	},
+	}
 };

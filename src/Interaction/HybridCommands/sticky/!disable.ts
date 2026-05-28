@@ -25,55 +25,86 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
 import {
 	deleteStickyChannelMessage,
 	getStickyChannelConfig,
 	getStickyChannelPath
-} from '../../../core/modules/stickyMessageManager.js';
+} from "../../../core/modules/stickyMessageManager.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		let channel: BaseGuildTextChannel | null = null;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			channel = interaction.options.getChannel('channel') as BaseGuildTextChannel | null;
+			channel = interaction.options.getChannel(
+				"channel"
+			) as BaseGuildTextChannel | null;
 		} else {
-			channel = await client.func.method.channel(interaction, args!, 0) as BaseGuildTextChannel | null;
+			channel = (await client.func.method.channel(
+				interaction,
+				args!,
+				0
+			)) as BaseGuildTextChannel | null;
 		}
 
 		if (!channel || channel.type !== ChannelType.GuildText) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.sticky_channel_command_error
-					.replace('${interaction.user}', interaction.member.user.toString())
+				content: lang.sticky_channel_command_error.replace(
+					"${interaction.user}",
+					interaction.member.user.toString()
+				)
 			});
 			return;
 		}
 
-		const config = await getStickyChannelConfig(client, interaction.guildId!, channel.id);
+		const config = await getStickyChannelConfig(
+			client,
+			interaction.guildId!,
+			channel.id
+		);
 
 		if (!config) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.sticky_disable_command_not_found
-					.replace('${interaction.user}', interaction.member.user.toString())
-					.replace('${channel}', channel.toString())
+					.replace(
+						"${interaction.user}",
+						interaction.member.user.toString()
+					)
+					.replace("${channel}", channel.toString())
 			});
 			return;
 		}
 
 		await deleteStickyChannelMessage(channel, config.lastMessageId);
-		await client.db.delete(getStickyChannelPath(interaction.guildId!, channel.id));
+		await client.db.delete(
+			getStickyChannelPath(interaction.guildId!, channel.id)
+		);
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.sticky_disable_command_work
-				.replace('${interaction.user}', interaction.member.user.toString())
-				.replace('${channel}', channel.toString())
+				.replace(
+					"${interaction.user}",
+					interaction.member.user.toString()
+				)
+				.replace("${channel}", channel.toString())
 		});
-	},
+	}
 };

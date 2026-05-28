@@ -25,14 +25,19 @@ import {
 	Client,
 	MessageContextMenuCommandInteraction,
 	UserContextMenuCommandInteraction
-} from 'discord.js';
+} from "discord.js";
 
 export interface AnotherCommand {
-	name: string,
-	type: ApplicationCommandType,
-	thinking: boolean,
-	permission: bigint | bigint[] | null,
-	integration_types?: number[],
-	contexts?: number[],
-	run(client: Client, interaction: MessageContextMenuCommandInteraction<CacheType> | UserContextMenuCommandInteraction<CacheType>): Promise<any>
+	name: string;
+	type: ApplicationCommandType;
+	thinking: boolean;
+	permission: bigint | bigint[] | null;
+	integration_types?: number[];
+	contexts?: number[];
+	run(
+		client: Client,
+		interaction:
+			| MessageContextMenuCommandInteraction<CacheType>
+			| UserContextMenuCommandInteraction<CacheType>
+	): Promise<any>;
 }

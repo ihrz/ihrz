@@ -23,21 +23,21 @@ import {
 	BaseGuildTextChannel,
 	Client,
 	MessageCreateOptions,
-	PermissionsBitField,
-} from 'discord.js';
+	PermissionsBitField
+} from "discord.js";
 
-import { DatabaseStructure } from '../../../types/database_structure.js';
-import { metasTable } from '../../Events/client/ready.js';
+import { DatabaseStructure } from "../../../types/database_structure.js";
+import { metasTable } from "../../Events/client/ready.js";
 
-import logger from '../logger.js';
+import logger from "../logger.js";
 
 type StickyEmbedRecord = DatabaseStructure.DbEmbedObject[string];
 
 export type StickyRefreshStatus =
-	| 'sent'
-	| 'missing_config'
-	| 'missing_embed'
-	| 'missing_permissions';
+	| "sent"
+	| "missing_config"
+	| "missing_embed"
+	| "missing_permissions";
 
 export interface StickyRefreshResult {
 	status: StickyRefreshStatus;
@@ -53,7 +53,10 @@ function getStickyQueueKey(guildId: string, channelId: string): string {
 	return `${guildId}.${channelId}`;
 }
 
-export function getStickyChannelPath(guildId: string, channelId: string): string {
+export function getStickyChannelPath(
+	guildId: string,
+	channelId: string
+): string {
 	return `${guildId}.STICKY.${channelId}`;
 }
 
@@ -62,7 +65,9 @@ export async function getStickyChannelConfig(
 	guildId: string,
 	channelId: string
 ): Promise<DatabaseStructure.StickyChannelConfig | null> {
-	const config = await client.db.get(getStickyChannelPath(guildId, channelId)) as DatabaseStructure.StickyChannelConfig | null;
+	const config = (await client.db.get(
+		getStickyChannelPath(guildId, channelId)
+	)) as DatabaseStructure.StickyChannelConfig | null;
 
 	if (!config?.enabled) {
 		return null;
@@ -78,7 +83,9 @@ export async function deleteStickyChannelMessage(
 	if (!lastMessageId) return;
 
 	await channel.messages.delete(lastMessageId).catch((error: unknown) => {
-		logger.warn(`Sticky message delete failed for channel ${channel.id}: ${String(error)}`);
+		logger.warn(
+			`Sticky message delete failed for channel ${channel.id}: ${String(error)}`
+		);
 	});
 }
 
@@ -92,7 +99,9 @@ export async function buildStickyPayload(
 	}
 
 	if (config.embedId) {
-		const embed = await metasTable.get(`EMBED.${config.embedId}`) as StickyEmbedRecord | null;
+		const embed = (await metasTable.get(
+			`EMBED.${config.embedId}`
+		)) as StickyEmbedRecord | null;
 
 		if (!embed?.embedSource) {
 			return null;
@@ -112,19 +121,29 @@ export async function refreshStickyChannel(
 	client: Client,
 	channel: BaseGuildTextChannel
 ): Promise<StickyRefreshResult> {
-	const config = await getStickyChannelConfig(client, channel.guild.id, channel.id);
+	const config = await getStickyChannelConfig(
+		client,
+		channel.guild.id,
+		channel.id
+	);
 
 	if (!config) {
 		return {
-			status: 'missing_config',
+			status: "missing_config",
 			config: null
 		};
 	}
 
-	if (!channel.permissionsFor(client.user!)?.has(PermissionsBitField.Flags.SendMessages)) {
-		logger.warn(`Sticky message send blocked in channel ${channel.id}: missing permission`);
+	if (
+		!channel
+			.permissionsFor(client.user!)
+			?.has(PermissionsBitField.Flags.SendMessages)
+	) {
+		logger.warn(
+			`Sticky message send blocked in channel ${channel.id}: missing permission`
+		);
 		return {
-			status: 'missing_permissions',
+			status: "missing_permissions",
 			config
 		};
 	}
@@ -132,9 +151,11 @@ export async function refreshStickyChannel(
 	const payload = await buildStickyPayload(config);
 
 	if (!payload) {
-		logger.warn(`Sticky message payload missing for channel ${channel.id}: embed source unavailable or payload empty`);
+		logger.warn(
+			`Sticky message payload missing for channel ${channel.id}: embed source unavailable or payload empty`
+		);
 		return {
-			status: 'missing_embed',
+			status: "missing_embed",
 			config
 		};
 	}
@@ -142,21 +163,26 @@ export async function refreshStickyChannel(
 	await deleteStickyChannelMessage(channel, config.lastMessageId);
 
 	const sentMessage = await channel.send(payload).catch((error: unknown) => {
-		logger.warn(`Sticky message send failed for channel ${channel.id}: ${String(error)}`);
+		logger.warn(
+			`Sticky message send failed for channel ${channel.id}: ${String(error)}`
+		);
 		return null;
 	});
 
 	if (!sentMessage) {
 		return {
-			status: 'missing_permissions',
+			status: "missing_permissions",
 			config
 		};
 	}
 
-	await client.db.set(`${getStickyChannelPath(channel.guild.id, channel.id)}.lastMessageId`, sentMessage.id);
+	await client.db.set(
+		`${getStickyChannelPath(channel.guild.id, channel.id)}.lastMessageId`,
+		sentMessage.id
+	);
 
 	return {
-		status: 'sent',
+		status: "sent",
 		config,
 		messageId: sentMessage.id
 	};
@@ -167,16 +193,21 @@ export async function queueStickyChannelRefresh(
 	channel: BaseGuildTextChannel
 ): Promise<StickyRefreshResult> {
 	const queueKey = getStickyQueueKey(channel.guild.id, channel.id);
-	const previousTask = stickyRefreshQueue.get(queueKey) || Promise.resolve({
-		status: 'missing_config',
-		config: null
-	} as StickyRefreshResult);
+	const previousTask =
+		stickyRefreshQueue.get(queueKey) ||
+		Promise.resolve({
+			status: "missing_config",
+			config: null
+		} as StickyRefreshResult);
 
 	const nextTask = previousTask
-		.catch(() => ({
-			status: 'missing_config',
-			config: null
-		} as StickyRefreshResult))
+		.catch(
+			() =>
+				({
+					status: "missing_config",
+					config: null
+				}) as StickyRefreshResult
+		)
 		.then(() => refreshStickyChannel(client, channel));
 
 	stickyRefreshQueue.set(queueKey, nextTask);

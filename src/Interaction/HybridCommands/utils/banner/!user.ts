@@ -25,29 +25,39 @@ import {
 	EmbedBuilder,
 	Message,
 	User
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
-import { axios } from '../../../../core/functions/axios.js';
+import { LanguageData } from "../../../../../types/languageData.js";
+import { axios } from "../../../../core/functions/axios.js";
 
-
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var user: User | undefined = interaction.options.getUser('user') || interaction.user;
+			var user: User | undefined =
+				interaction.options.getUser("user") || interaction.user;
 		} else {
+			var user: User | undefined =
+				(await client.func.method.user(interaction, args!, 0)) ||
+				interaction.author;
+		}
 
-			var user: User | undefined = await client.func.method.user(interaction, args!, 0) || interaction.author;
-		};
-
-		let format = 'png';
+		let format = "png";
 
 		const config = {
 			headers: {
@@ -55,30 +65,50 @@ export const subCommand: SubCommand = {
 			}
 		};
 
-		const user_1 = (await axios.get(`https://discord.com/api/v10/users/${user?.id}`, config))?.data;
+		const user_1 = (
+			await axios.get(
+				`https://discord.com/api/v10/users/${user?.id}`,
+				config
+			)
+		)?.data;
 		const banner = user_1?.banner;
 
 		if (!banner) {
 			client.func.method.interactionSend(interaction, {
 				content: lang.banner_user_no_banner
-			})
+			});
 			return;
 		}
 
-		if (banner !== null && banner?.startsWith('a_')) {
-			format = 'gif'
-		};
+		if (banner !== null && banner?.startsWith("a_")) {
+			format = "gif";
+		}
 
 		const embed = new EmbedBuilder()
-			.setColor('#c4afed')
-			.setTitle(lang.banner_user_embed.replace('${user?.username}', user?.username))
-			.setImage(`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setColor("#c4afed")
+			.setTitle(
+				lang.banner_user_embed.replace(
+					"${user?.username}",
+					user?.username
+				)
+			)
+			.setImage(
+				`https://cdn.discordapp.com/banners/${user_1?.id}/${banner}.${format}?size=1024`
+			)
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
-	},
+	}
 };

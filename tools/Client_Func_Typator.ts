@@ -38,15 +38,18 @@ export interface FileMetadata {
 	functions: FunctionMetadata[];
 }
 
-import ts from 'typescript';
-import path from 'path';
+import ts from "typescript";
+import path from "path";
 
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import logger from '../src/core/logger.js';
-import { formatTypeScriptCode, readVSCodeConfig } from './formatter.js';
-import { LICENCE_HEADER } from './LicenceHeader.js';
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import logger from "../src/core/logger.js";
+import { formatTypeScriptCode, readVSCodeConfig } from "./formatter.js";
+import { LICENCE_HEADER } from "./LicenceHeader.js";
+import prettier from "prettier";
 
-let header = LICENCE_HEADER + `
+let header =
+	LICENCE_HEADER +
+	`
 
 import type { DatabaseStructure } from './database_structure.d.ts';
 import type { LanguageData } from './languageData.d.ts';
@@ -66,14 +69,13 @@ import { Sqlite } from '../src/core/database/driver/sqlite.ts';
 import { Json } from '../src/core/database/driver/json.ts';
 import { Memory } from '../src/core/database/driver/memory.ts';
 import { Postgres } from '../src/core/database/driver/postgres.ts';
-import { Horizon } from '../src/core/database/driver/horizon.ts';
 import { TrackEmbbeded } from '../src/core/functions/music_proximity.ts';
 import { LavalinkNode, LyricsResult, SearchResult, Track } from "lavalink-client";
 import { components } from '../src/core/functions/method.ts';
 import { Player } from 'lavalink-client';
 import { HandleMusicPlayOptions, SearchMusicQueryResult } from './musicPlay';
 import { Html2PngOptions, Html2PngRequestMessage, Html2PngResponseMessage } from '../src/core/functions/html2pngProtocol.ts';
-`
+`;
 export class FunctionAnalyzer {
 	private program: ts.Program;
 	private typeChecker: ts.TypeChecker;
@@ -85,7 +87,7 @@ export class FunctionAnalyzer {
 		const configPath = ts.findConfigFile(
 			this.rootDir,
 			ts.sys.fileExists,
-			'tsconfig.json'
+			"tsconfig.json"
 		);
 
 		if (!configPath) {
@@ -104,28 +106,36 @@ export class FunctionAnalyzer {
 	}
 
 	public analyzeFunctions(): FileMetadata[] {
-		const sourceFiles = this.program.getSourceFiles()
-			.filter(sourceFile => {
+		const sourceFiles = this.program
+			.getSourceFiles()
+			.filter((sourceFile) => {
 				// Normalize paths for cross-platform comparison
 				const normalizedFileName = path.resolve(sourceFile.fileName);
 				const normalizedRootDir = path.resolve(this.rootDir);
 
-				const isNotNodeModules = !sourceFile.fileName.includes('node_modules');
-				const isInRootDir = normalizedFileName.startsWith(normalizedRootDir);
+				const isNotNodeModules =
+					!sourceFile.fileName.includes("node_modules");
+				const isInRootDir =
+					normalizedFileName.startsWith(normalizedRootDir);
 
 				return isNotNodeModules && isInRootDir;
 			});
 
-
-		const results = sourceFiles.map(sourceFile => this.analyzeSourceFile(sourceFile));
+		const results = sourceFiles.map((sourceFile) =>
+			this.analyzeSourceFile(sourceFile)
+		);
 		return results;
 	}
 
-	private isNodeExported(node: ts.FunctionDeclaration | ts.MethodDeclaration): boolean {
+	private isNodeExported(
+		node: ts.FunctionDeclaration | ts.MethodDeclaration
+	): boolean {
 		const modifiers = ts.getModifiers(node);
 		if (!modifiers) return false;
 
-		return modifiers.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword);
+		return modifiers.some(
+			(modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword
+		);
 	}
 
 	private analyzeSourceFile(sourceFile: ts.SourceFile): FileMetadata {
@@ -141,14 +151,17 @@ export class FunctionAnalyzer {
 
 			if (ts.isExportDeclaration(node)) {
 				if (node.exportClause && ts.isNamedExports(node.exportClause)) {
-					node.exportClause.elements.forEach(element => {
-						const symbol = this.typeChecker.getSymbolAtLocation(element.name);
+					node.exportClause.elements.forEach((element) => {
+						const symbol = this.typeChecker.getSymbolAtLocation(
+							element.name
+						);
 						if (symbol) {
 							const declarations = symbol.declarations;
 							if (declarations && declarations.length > 0) {
 								const decl = declarations[0];
 								if (ts.isFunctionDeclaration(decl)) {
-									const functionMetadata = this.analyzeFunctionNode(decl);
+									const functionMetadata =
+										this.analyzeFunctionNode(decl);
 									if (functionMetadata) {
 										functions.push(functionMetadata);
 									}
@@ -173,7 +186,10 @@ export class FunctionAnalyzer {
 		};
 	}
 
-	private collectParameterImports(parameters: ParameterMetadata[], fileName: string): void {
+	private collectParameterImports(
+		parameters: ParameterMetadata[],
+		fileName: string
+	): void {
 		const sourceFile = this.program.getSourceFile(fileName);
 		if (!sourceFile) return;
 
@@ -187,7 +203,9 @@ export class FunctionAnalyzer {
 		}
 	}
 
-	private analyzeFunctionNode(node: ts.FunctionDeclaration | ts.MethodDeclaration): FunctionMetadata | null {
+	private analyzeFunctionNode(
+		node: ts.FunctionDeclaration | ts.MethodDeclaration
+	): FunctionMetadata | null {
 		if (!this.isNodeExported(node)) {
 			return null;
 		}
@@ -200,7 +218,7 @@ export class FunctionAnalyzer {
 		// Extract type parameters (generics)
 		const typeParameters: string[] = [];
 		if (node.typeParameters) {
-			node.typeParameters.forEach(typeParam => {
+			node.typeParameters.forEach((typeParam) => {
 				let paramText = typeParam.name.getText();
 
 				// Handle constraints (e.g., T extends SomeType)
@@ -217,10 +235,10 @@ export class FunctionAnalyzer {
 			});
 		}
 
-		const parameters: ParameterMetadata[] = node.parameters.map(param => {
+		const parameters: ParameterMetadata[] = node.parameters.map((param) => {
 			const paramType = param.type
 				? this.getFullTypeText(param.type)
-				: 'any';
+				: "any";
 
 			return {
 				name: param.name.getText(),
@@ -229,16 +247,15 @@ export class FunctionAnalyzer {
 			};
 		});
 
-		const returnType = node.type
-			? this.getFullTypeText(node.type)
-			: 'any';
+		const returnType = node.type ? this.getFullTypeText(node.type) : "any";
 
 		return {
 			name: node.name.getText(),
 			parameters,
 			returnType,
 			filePath: node.getSourceFile().fileName,
-			typeParameters: typeParameters.length > 0 ? typeParameters : undefined
+			typeParameters:
+				typeParameters.length > 0 ? typeParameters : undefined
 		};
 	}
 
@@ -249,14 +266,18 @@ export class FunctionAnalyzer {
 			type,
 			typeNode,
 			ts.TypeFormatFlags.InTypeAlias |
-			ts.TypeFormatFlags.NoTruncation |
-			ts.TypeFormatFlags.WriteArrayAsGenericType |
-			ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
+				ts.TypeFormatFlags.NoTruncation |
+				ts.TypeFormatFlags.WriteArrayAsGenericType |
+				ts.TypeFormatFlags.UseAliasDefinedOutsideCurrentScope
 		);
 
 		// If the type checker gives us a more accurate representation, use it
 		// Otherwise, fall back to the original text
-		if (typeString && typeString !== 'any' && !typeString.includes('typeof')) {
+		if (
+			typeString &&
+			typeString !== "any" &&
+			!typeString.includes("typeof")
+		) {
 			return typeString;
 		}
 
@@ -265,7 +286,7 @@ export class FunctionAnalyzer {
 
 	public generateInterfaces(): string {
 		const fileMetadata = this.analyzeFunctions();
-		let output = '';
+		let output = "";
 
 		const dirName = path.basename(this.rootDir);
 		const namespaceName = this.formatNamespaceName(dirName);
@@ -274,10 +295,12 @@ export class FunctionAnalyzer {
 
 		// Check if we have any functions to process
 		let totalFunctions = 0;
-		fileMetadata.forEach(file => totalFunctions += file.functions.length);
+		fileMetadata.forEach(
+			(file) => (totalFunctions += file.functions.length)
+		);
 
 		if (totalFunctions === 0) {
-			console.warn('No exported functions found in any files!');
+			console.warn("No exported functions found in any files!");
 		}
 		for (const file of fileMetadata) {
 			if (file.functions.length === 0) continue; // Skip files with no functions
@@ -288,33 +311,42 @@ export class FunctionAnalyzer {
 				this.collectParameterImports(func.parameters, file.fileName);
 
 				// Generate type parameters string
-				const typeParamsStr = func.typeParameters && func.typeParameters.length > 0
-					? `<${func.typeParameters.join(', ')}>`
-					: '';
+				const typeParamsStr =
+					func.typeParameters && func.typeParameters.length > 0
+						? `<${func.typeParameters.join(", ")}>`
+						: "";
 
 				const params = this.generateParameterList(func.parameters);
-				const functionName = this.sanitizeIdentifier(path.parse(file.fileName).name);
+				const functionName = this.sanitizeIdentifier(
+					path.parse(file.fileName).name
+				);
 
 				if (params.length > 80) {
 					output += `  export function ${functionName}${typeParamsStr}(\n`;
 					func.parameters.forEach((param, index) => {
-						output += `    ${param.name}${param.optional ? '?' : ''}: ${param.type}${index < func.parameters.length - 1 ? ',' : ''}\n`;
+						output += `    ${param.name}${param.optional ? "?" : ""}: ${param.type}${index < func.parameters.length - 1 ? "," : ""}\n`;
 					});
 					output += `  ): ${func.returnType};\n`;
 				} else {
 					output += `  export function ${functionName}${typeParamsStr}(${params}): ${func.returnType};\n`;
 				}
 			} else {
-				const moduleNamespace = this.sanitizeIdentifier(path.parse(file.fileName).name);
+				const moduleNamespace = this.sanitizeIdentifier(
+					path.parse(file.fileName).name
+				);
 				output += `  export namespace ${moduleNamespace} {\n`;
 
 				for (const func of file.functions) {
-					this.collectParameterImports(func.parameters, file.fileName);
+					this.collectParameterImports(
+						func.parameters,
+						file.fileName
+					);
 
 					// Generate type parameters string
-					const typeParamsStr = func.typeParameters && func.typeParameters.length > 0
-						? `<${func.typeParameters.join(', ')}>`
-						: '';
+					const typeParamsStr =
+						func.typeParameters && func.typeParameters.length > 0
+							? `<${func.typeParameters.join(", ")}>`
+							: "";
 
 					const params = this.generateParameterList(func.parameters);
 					const functionName = this.sanitizeIdentifier(func.name);
@@ -322,7 +354,7 @@ export class FunctionAnalyzer {
 					if (params.length > 80) {
 						output += `    export function ${functionName}${typeParamsStr}(\n`;
 						func.parameters.forEach((param, index) => {
-							output += `      ${param.name}${param.optional ? '?' : ''}: ${param.type}${index < func.parameters.length - 1 ? ',' : ''}\n`;
+							output += `      ${param.name}${param.optional ? "?" : ""}: ${param.type}${index < func.parameters.length - 1 ? "," : ""}\n`;
 						});
 						output += `    ): ${func.returnType};\n`;
 					} else {
@@ -341,25 +373,65 @@ export class FunctionAnalyzer {
 	}
 
 	private sanitizeIdentifier(name: string): string {
-		let sanitized = name.replace(/[^a-zA-Z0-9_]/g, '_');
+		let sanitized = name.replace(/[^a-zA-Z0-9_]/g, "_");
 
 		if (/^\d/.test(sanitized)) {
-			sanitized = '_' + sanitized;
+			sanitized = "_" + sanitized;
 		}
 
 		const reservedKeywords = new Set([
-			'break', 'case', 'catch', 'class', 'const', 'continue',
-			'debugger', 'default', 'delete', 'do', 'else', 'enum',
-			'export', 'extends', 'false', 'finally', 'for', 'function',
-			'if', 'import', 'in', 'instanceof', 'new', 'null', 'return',
-			'super', 'switch', 'this', 'throw', 'true', 'try', 'typeof',
-			'var', 'void', 'while', 'with', 'implements', 'interface',
-			'let', 'package', 'private', 'protected', 'public', 'static',
-			'yield', 'any', 'boolean', 'symbol'
+			"break",
+			"case",
+			"catch",
+			"class",
+			"const",
+			"continue",
+			"debugger",
+			"default",
+			"delete",
+			"do",
+			"else",
+			"enum",
+			"export",
+			"extends",
+			"false",
+			"finally",
+			"for",
+			"function",
+			"if",
+			"import",
+			"in",
+			"instanceof",
+			"new",
+			"null",
+			"return",
+			"super",
+			"switch",
+			"this",
+			"throw",
+			"true",
+			"try",
+			"typeof",
+			"var",
+			"void",
+			"while",
+			"with",
+			"implements",
+			"interface",
+			"let",
+			"package",
+			"private",
+			"protected",
+			"public",
+			"static",
+			"yield",
+			"any",
+			"boolean",
+			"symbol"
 		]);
 
 		if (reservedKeywords.has(sanitized)) {
-			sanitized = '_' + sanitized;
+			sanitized = "_" + sanitized;
 		}
 
 		return sanitized;
@@ -367,59 +439,76 @@ export class FunctionAnalyzer {
 
 	private generateParameterList(parameters: ParameterMetadata[]): string {
 		return parameters
-			.map(param =>
-				`${param.name}${param.optional ? '?' : ''}: ${param.type}`
+			.map(
+				(param) =>
+					`${param.name}${param.optional ? "?" : ""}: ${param.type}`
 			)
-			.join(', ');
+			.join(", ");
 	}
 
 	private formatNamespaceName(name: string): string {
-		return "Client_" + name
-			.split(/[-_]/)
-			.map(part => part.charAt(0).toUpperCase() + part.slice(1))
-			.join('');
+		return (
+			"Client_" +
+			name
+				.split(/[-_]/)
+				.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+				.join("")
+		);
 	}
 }
 
-export function generateFunctionInterfaces(
+export async function generateFunctionInterfaces(
 	sourceDir: string,
 	outputPath: string
-): void {
+): Promise<void> {
 	try {
 		if (!existsSync(sourceDir)) {
 			throw new Error(`Source directory does not exist: ${sourceDir}`);
 		}
 
 		const analyzer = new FunctionAnalyzer(sourceDir);
-		let interfaces = header;
-		interfaces += "\n";
+		let interfaces = header + "\n";
+		interfaces += analyzer.generateInterfaces();
 
-		const generatedInterfaces = analyzer.generateInterfaces();
-
-		// Try to format the code, but don't fail if formatter is not available
+		// Format avec Prettier
 		try {
-			interfaces += formatTypeScriptCode(generatedInterfaces, readVSCodeConfig(path.join(process.cwd(), ".vscode", "settings.json")));
+			interfaces = await prettier.format(interfaces, {
+				parser: "typescript",
+				endOfLine: "lf",
+				tabWidth: 4,
+				useTabs: true,
+				semi: true,
+				singleQuote: false,
+				trailingComma: "none",
+				bracketSpacing: true,
+				arrowParens: "always"
+			});
 		} catch (formatterError) {
-			console.warn('Formatter failed, using unformatted code:', formatterError);
-			interfaces += generatedInterfaces;
+			console.warn(
+				"Prettier failed, using unformatted code:",
+				formatterError
+			);
 		}
 
-		// Ensure output directory exists
 		const outputDir = path.dirname(outputPath);
 		if (!existsSync(outputDir)) {
 			mkdirSync(outputDir, { recursive: true });
 		}
 
-		writeFileSync(outputPath, interfaces, 'utf-8');
-
+		writeFileSync(outputPath, interfaces, "utf-8");
 		logger.log(`Generated interfaces written to ${outputPath}`);
 	} catch (error) {
-		console.error('Error generating function interfaces:', error);
+		console.error("Error generating function interfaces:", error);
 		throw error;
 	}
 }
 
 generateFunctionInterfaces(
 	path.join(process.cwd(), "src", "core", "functions"),
-	'./types/client_functions.d.ts'
+	"./types/client_functions.d.ts"
+);
+
+generateFunctionInterfaces(
+	path.join(process.cwd(), "src", "core", "functions"),
+	"./types/client_functions.d.ts"
 );

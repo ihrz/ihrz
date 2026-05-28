@@ -22,45 +22,74 @@
 import {
 	Client,
 	ChatInputCommandInteraction,
-	AttachmentBuilder,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
-import { encrypt } from '../../../core/functions/encryptDecryptMethod.js';
+	AttachmentBuilder
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
+import { encrypt } from "../../../core/functions/encryptDecryptMethod.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		if (client.version.env === 'production' || client.version.env === "dev") {
-			await interaction.editReply({ content: lang.guildconfig_config_save_check_dm });
-			const link = apiUrlParser.HorizonGateway(apiUrlParser.GatewayMethod.ServerBackup);
+		if (
+			client.version.env === "production" ||
+			client.version.env === "dev"
+		) {
+			await interaction.editReply({
+				content: lang.guildconfig_config_save_check_dm
+			});
+			const link = apiUrlParser.HorizonGateway(
+				apiUrlParser.GatewayMethod.ServerBackup
+			);
 
-			await interaction.user.send({ content: `${lang.guildconfig_config_save_user_msg_2}${link}/${encrypt(client.config.api.apiToken, interaction.guildId)}/${encrypt(client.config.api.apiToken, Date.now().toString())}` })
-				.catch(() => { })
-				.then(() => { });
+			await interaction.user
+				.send({
+					content: `${lang.guildconfig_config_save_user_msg_2}${link}/${encrypt(client.config.api.apiToken, interaction.guildId)}/${encrypt(client.config.api.apiToken, Date.now().toString())}`
+				})
+				.catch(() => {})
+				.then(() => {});
 		} else {
-
 			const dbGuild = await client.db.get(`${interaction.guildId}`);
 
-			const buffer = Buffer.from(encrypt(client.config.api.apiToken, JSON.stringify(dbGuild)), 'utf-8');
-			const attachment = new AttachmentBuilder(buffer, { name: interaction.guildId + '.json' })
+			const buffer = Buffer.from(
+				encrypt(client.config.api.apiToken, JSON.stringify(dbGuild)),
+				"utf-8"
+			);
+			const attachment = new AttachmentBuilder(buffer, {
+				name: interaction.guildId + ".json"
+			});
 
-			await interaction.editReply({ content: lang.guildconfig_config_save_check_dm });
+			await interaction.editReply({
+				content: lang.guildconfig_config_save_check_dm
+			});
 
-			await interaction.user.send({
-				content: lang.guildconfig_config_save_user_msg
-					.replace("${interaction.guild.name}", interaction.guild.name),
-				files: [attachment]
-			})
-				.catch(() => { })
-				.then(() => { });
+			await interaction.user
+				.send({
+					content: lang.guildconfig_config_save_user_msg.replace(
+						"${interaction.guild.name}",
+						interaction.guild.name
+					),
+					files: [attachment]
+				})
+				.catch(() => {})
+				.then(() => {});
 		}
-		return
-	},
+		return;
+	}
 };

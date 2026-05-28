@@ -24,32 +24,50 @@ import {
 	Client,
 	EmbedBuilder,
 	Message
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
-import { processBatchAsync } from '../../../../core/functions/batchProcessor.js';
+} from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
+import { processBatchAsync } from "../../../../core/functions/batchProcessor.js";
 
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const banned_members = await interaction.guild.bans.fetch()
+		const banned_members = await interaction.guild.bans.fetch();
 
 		const unbanned_members: string[] = [];
 		let cannot_unban = 0;
 
 		if (!banned_members || banned_members.size === 0) {
-			await client.func.method.interactionSend(interaction, { content: lang.action_unban_all_no_banned_members });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.action_unban_all_no_banned_members
+			});
 			return;
 		}
 
 		// Send immediate response
-		const ogInteraction = await client.func.method.interactionSend(interaction, {
-			content: lang.batch_unbanall_process.replace("${banned_members.size}", banned_members.size.toString())
-		});
+		const ogInteraction = await client.func.method.interactionSend(
+			interaction,
+			{
+				content: lang.batch_unbanall_process.replace(
+					"${banned_members.size}",
+					banned_members.size.toString()
+				)
+			}
+		);
 
 		// Process unbans in batches asynchronously
 		processBatchAsync(
@@ -67,7 +85,10 @@ export const subCommand: SubCommand = {
 			{ batchSize: 5, delay: 200 }, // Slower for unban operations
 			async (result) => {
 				// Save unbanned members to database
-				await client.db.set(`${interaction.guildId}.UTILS.unban_members`, unbanned_members);
+				await client.db.set(
+					`${interaction.guildId}.UTILS.unban_members`,
+					unbanned_members
+				);
 
 				// Send final result
 				await client.func.method.interactionSend(interaction, {
@@ -76,20 +97,43 @@ export const subCommand: SubCommand = {
 							.setColor(2829617)
 							.setDescription(
 								lang.action_unban_all_embed_desc
-									.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
-									.replace("${unbanned_members.length}", unbanned_members.length.toString())
-									.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-									.replace('${cannot_unban}', cannot_unban.toString())
+									.replace(
+										"${client.iHorizon_Emojis.Yes}",
+										client.iHorizon_Emojis.Yes
+									)
+									.replace(
+										"${unbanned_members.length}",
+										unbanned_members.length.toString()
+									)
+									.replace(
+										"${client.iHorizon_Emojis.No}",
+										client.iHorizon_Emojis.No
+									)
+									.replace(
+										"${cannot_unban}",
+										cannot_unban.toString()
+									)
 							)
-							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+							.setFooter(
+								await client.func.displayBotName.footerBuilder(
+									interaction.guildId!
+								)
+							)
 							.setTimestamp()
-							.setThumbnail(interaction.guild?.iconURL() || client.user?.avatarURL()!)
+							.setThumbnail(
+								interaction.guild?.iconURL() ||
+									client.user?.avatarURL()!
+							)
 					],
-					files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+					files: [
+						await client.func.displayBotName.footerAttachmentBuilder(
+							interaction
+						)
+					]
 				});
 			}
 		);
 
 		return;
-	},
+	}
 };

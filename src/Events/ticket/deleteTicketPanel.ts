@@ -19,23 +19,23 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, GuildChannel } from 'discord.js'
+import { Client, GuildChannel } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "channelDelete",
 	run: async (client: Client, channel: GuildChannel) => {
-
 		const fetch = await client.db.get(`${channel.guild.id}.TICKET_ALL`);
 
 		for (const user in fetch) {
 			for (const channel_2 in fetch[user]) {
-
 				if (channel.id === channel_2) {
-					await client.db.delete(`${channel.guild.id}.TICKET_ALL.${user}`);
+					await client.db.delete(
+						`${channel.guild.id}.TICKET_ALL.${user}`
+					);
 				}
 			}
-		};
-	},
+		}
+	}
 };

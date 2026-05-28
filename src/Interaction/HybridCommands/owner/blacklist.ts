@@ -31,31 +31,31 @@ import {
 	ApplicationCommandType,
 	Message,
 	User
-} from 'discord.js'
+} from "discord.js";
 
-import { format } from '../../../core/functions/date_and_time.js';
+import { format } from "../../../core/functions/date_and_time.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-import { blacklistTable } from '../../../Events/client/ready.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+import { blacklistTable } from "../../../Events/client/ready.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
 export const command: Command = {
-	name: 'blacklist',
+	name: "blacklist",
 
-	description: 'Add a user to the blacklist!',
+	description: "Add a user to the blacklist!",
 	description_localizations: {
-		"fr": "Ajoutez un utilisateur à la liste noir"
+		fr: "Ajoutez un utilisateur à la liste noir"
 	},
 
 	options: [
 		{
-			name: 'user',
+			name: "user",
 			type: ApplicationCommandOptionType.User,
 
-			description: 'The user you want to blacklist...',
+			description: "The user you want to blacklist...",
 			description_localizations: {
-				"fr": "L'utilisateur que vous voulez blacklist"
+				fr: "L'utilisateur que vous voulez blacklist"
 			},
 
 			required: false,
@@ -63,12 +63,12 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'reason',
+			name: "reason",
 			type: ApplicationCommandOptionType.String,
 
-			description: 'The reason why you want to blacklist this member',
+			description: "The reason why you want to blacklist this member",
 			description_localizations: {
-				"fr": "La raison de pourquoi vous voulez le mettre dans la liste-noire"
+				fr: "La raison de pourquoi vous voulez le mettre dans la liste-noire"
 			},
 
 			required: false,
@@ -80,71 +80,109 @@ export const command: Command = {
 	aliases: ["bl"],
 
 	thinking: false,
-	category: 'owner',
+	category: "owner",
 	type: ApplicationCommandType.ChatInput,
 	permission: null,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-		if (await client.func.ownerHelper.isBotOwner(interaction.member?.user.id!)) {
-			run_for_bot_owner(client, interaction, lang, args)
-		} else if (await client.func.ownerHelper.isGuildOwner(interaction.member?.user.id!, interaction.guild!)) {
-			run_for_guild_owner(client, interaction, lang, args)
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			await client.func.ownerHelper.isBotOwner(
+				interaction.member?.user.id!
+			)
+		) {
+			run_for_bot_owner(client, interaction, lang, args);
+		} else if (
+			await client.func.ownerHelper.isGuildOwner(
+				interaction.member?.user.id!,
+				interaction.guild!
+			)
+		) {
+			run_for_guild_owner(client, interaction, lang, args);
 		}
-
-	},
+	}
 };
 
-
-export async function run_for_bot_owner(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) {
+export async function run_for_bot_owner(
+	client: Client,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData,
+	args?: string[]
+) {
 	// Guard's Typing
-	if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+	if (
+		!client.user ||
+		!interaction.member ||
+		!interaction.guild ||
+		!interaction.channel
+	)
+		return;
 
 	if (!client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
-		await client.func.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.blacklist_not_owner
+		});
 		return;
-	};
+	}
 
 	const blacklistedUsers = await blacklistTable.all();
 
 	if (interaction instanceof ChatInputCommandInteraction) {
-		var targetUser = interaction.options.getUser('user', false);
-		var reason = "iHorizon Project Blacklist - " + (interaction.options.getString('reason') || 'blacklisted!');
+		var targetUser = interaction.options.getUser("user", false);
+		var reason =
+			"iHorizon Project Blacklist - " +
+			(interaction.options.getString("reason") || "blacklisted!");
 	} else {
-		var targetUser = (await client.func.method.user(interaction, args!, 0));
-		var reason = "iHorizon Project Blacklist - " + (client.func.method.longString(args!, 1) || 'blacklisted!');
-	};
+		var targetUser = await client.func.method.user(interaction, args!, 0);
+		var reason =
+			"iHorizon Project Blacklist - " +
+			(client.func.method.longString(args!, 1) || "blacklisted!");
+	}
 
-	const member = targetUser ? interaction.guild.members.cache.get(targetUser?.id) : null;
+	const member = targetUser
+		? interaction.guild.members.cache.get(targetUser?.id)
+		: null;
 
 	if (client.func.ownerHelper.isBotDev(member?.id!)) {
-		await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unowner_cant_unowner_creator
+		});
 		return;
-	};
+	}
 
 	if (!member && !targetUser) {
 		if (!blacklistedUsers.length) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_no_one_blacklist
-					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
+				content: lang.blacklist_no_one_blacklist.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				),
 				flags: [1 << 6]
 			});
 			return;
-		};
+		}
 
 		let currentPage = 0;
 		const usersPerPage = 5;
-		const pages: { title: string; description: string; }[] = [];
+		const pages: { title: string; description: string }[] = [];
 
 		for (let i = 0; i < blacklistedUsers.length; i += usersPerPage) {
 			const pageUsers = blacklistedUsers.slice(i, i + usersPerPage);
-			const pageContent = pageUsers.map(userObj => {
-				return `<@${userObj.id}>\n├─ ${userObj.value.createdAt !== undefined ? format(new Date(userObj.value.createdAt), 'MMM DD YYYY') : lang.profil_unknown}\n├─ \`${userObj.value.reason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.value.owner || lang.profil_unknown}`;
-			}).join('\n');
+			const pageContent = pageUsers
+				.map((userObj) => {
+					return `<@${userObj.id}>\n├─ ${userObj.value.createdAt !== undefined ? format(new Date(userObj.value.createdAt), "MMM DD YYYY") : lang.profil_unknown}\n├─ \`${userObj.value.reason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.value.owner || lang.profil_unknown}`;
+				})
+				.join("\n");
 
 			pages.push({
-				title: lang.blacklist_embed_title
-					.replace('${i / usersPerPage + 1}', (i / usersPerPage + 1).toString()),
-				description: pageContent,
+				title: lang.blacklist_embed_title.replace(
+					"${i / usersPerPage + 1}",
+					(i / usersPerPage + 1).toString()
+				),
+				description: pageContent
 			});
 		}
 
@@ -155,8 +193,11 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 				.setDescription(pages[currentPage]?.description)
 				.setFooter({
 					text: lang.history_embed_footer_text
-						.replace('${currentPage + 1}', (currentPage + 1).toString())
-						.replace('${pages.length}', pages.length.toString()),
+						.replace(
+							"${currentPage + 1}",
+							(currentPage + 1).toString()
+						)
+						.replace("${pages.length}", pages.length.toString()),
 					iconURL: "attachment://footer_icon.png"
 				})
 				.setTimestamp();
@@ -164,39 +205,47 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
-				.setCustomId('previousPage')
-				.setLabel('<<<')
+				.setCustomId("previousPage")
+				.setLabel("<<<")
 				.setStyle(ButtonStyle.Secondary),
 			new ButtonBuilder()
-				.setCustomId('nextPage')
-				.setLabel('>>>')
+				.setCustomId("nextPage")
+				.setLabel(">>>")
 				.setStyle(ButtonStyle.Secondary)
 		);
 
-		const messageEmbed = await client.func.method.interactionSend(interaction, {
-			embeds: [createEmbed()],
-			components: [row],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-		});
+		const messageEmbed = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [createEmbed()],
+				components: [row],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			}
+		);
 
 		const collector = messageEmbed.createMessageComponentCollector({
 			filter: async (i) => {
-				await i.deferUpdate(); return interaction.member?.user.id === i.user.id;
+				await i.deferUpdate();
+				return interaction.member?.user.id === i.user.id;
 			},
 			time: 60_000 * 16 // 16 minutes
 		});
 
-		collector.on('collect', (interaction: { customId: string; }) => {
-			if (interaction.customId === 'previousPage') {
+		collector.on("collect", (interaction: { customId: string }) => {
+			if (interaction.customId === "previousPage") {
 				currentPage = (currentPage - 1 + pages.length) % pages.length;
-			} else if (interaction.customId === 'nextPage') {
+			} else if (interaction.customId === "nextPage") {
 				currentPage = (currentPage + 1) % pages.length;
 			}
 
 			messageEmbed.edit({ embeds: [createEmbed()] });
 		});
 
-		collector.on('end', () => {
+		collector.on("end", () => {
 			row.components.forEach((component) => {
 				if (component instanceof ButtonBuilder) {
 					component.setDisabled(true);
@@ -205,14 +254,16 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 			messageEmbed.edit({ components: [row] });
 		});
 		return;
-	};
+	}
 
 	// Function to broadcast ban across all shards
 	async function broadcastBanAcrossShards(userId: string, reason: string) {
 		// Get total guild count across all shards
 		const results = await client.shard?.broadcastEval(
 			async (c, { userId, reason }) => {
-				const guilds = c.guilds.cache.filter(g => g.memberCount <= 500);
+				const guilds = c.guilds.cache.filter(
+					(g) => g.memberCount <= 500
+				);
 				let successCount = 0;
 				const totalGuilds = guilds.size;
 
@@ -237,10 +288,12 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 					});
 
 					const batchResults = await Promise.all(batchPromises);
-					successCount += batchResults.filter(r => r).length;
+					successCount += batchResults.filter((r) => r).length;
 
 					if (i + batchSize < guildIds.length) {
-						await new Promise(resolve => setTimeout(resolve, delay));
+						await new Promise((resolve) =>
+							setTimeout(resolve, delay)
+						);
 					}
 				}
 
@@ -250,27 +303,33 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 		);
 
 		// Sum up results from all shards
-		const totalSuccess = results?.reduce((acc, curr) => acc + curr.successCount, 0) || 0;
-		const totalGuilds = results?.reduce((acc, curr) => acc + curr.totalGuilds, 0) || 0;
+		const totalSuccess =
+			results?.reduce((acc, curr) => acc + curr.successCount, 0) || 0;
+		const totalGuilds =
+			results?.reduce((acc, curr) => acc + curr.totalGuilds, 0) || 0;
 
 		return { totalSuccess, totalGuilds };
 	}
 
 	if (member) {
 		if (member.user.id === client.user.id) {
-			await client.func.method.interactionSend(interaction, { content: lang.blacklist_bot_lol });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.blacklist_bot_lol
+			});
 			return;
-		};
+		}
 
 		const fetched = await blacklistTable.get(`${member.user.id}`);
 
 		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted
-					.replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)
+				content: lang.blacklist_already_blacklisted.replace(
+					/\${member\.user\.username}/g,
+					member.user.globalName || member.user.username
+				)
 			});
 			return;
-		};
+		}
 
 		await blacklistTable.set(`${member.user.id}`, {
 			blacklisted: true,
@@ -279,17 +338,24 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 			createdAt: new Date().getTime()
 		});
 
-		await member.ban({ reason }).then(async () => {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_command_work
-					.replace(/\${member\.user\.username}/g, String(member?.user.globalName || member?.user.username))
+		await member
+			.ban({ reason })
+			.then(async () => {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.blacklist_command_work.replace(
+						/\${member\.user\.username}/g,
+						String(member?.user.globalName || member?.user.username)
+					)
+				});
+			})
+			.catch(async () => {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.blacklist_blacklisted_but_can_ban_him.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
+				});
 			});
-		}).catch(async () => {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_blacklisted_but_can_ban_him
-					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-			});
-		});
 
 		// Immediate response to user
 		await client.func.method.channelSend(interaction, {
@@ -300,7 +366,8 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 
 		// Asynchronous background processing across all shards
 		setImmediate(async () => {
-			const { totalSuccess, totalGuilds } = await broadcastBanAcrossShards(member.user.id, reason);
+			const { totalSuccess, totalGuilds } =
+				await broadcastBanAcrossShards(member.user.id, reason);
 			let score = `${totalSuccess}/${totalGuilds}`;
 			let username = member?.user.username;
 
@@ -312,20 +379,22 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 					.replace("${totalSuccess}", totalSuccess.toString())
 			});
 		});
-
 	} else if (targetUser) {
-
 		if (targetUser.id === client.user.id) {
-			await client.func.method.interactionSend(interaction, { content: lang.blacklist_bot_lol });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.blacklist_bot_lol
+			});
 			return;
-		};
+		}
 
 		const fetched = await blacklistTable.get(`${targetUser.id}`);
 
 		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted
-					.replace(/\${member\.user\.username}/g, targetUser.globalName || targetUser.username)
+				content: lang.blacklist_already_blacklisted.replace(
+					/\${member\.user\.username}/g,
+					targetUser.globalName || targetUser.username
+				)
 			});
 			return;
 		}
@@ -338,21 +407,29 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 		});
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.blacklist_command_work
-				.replace(/\${member\.user\.username}/g, targetUser.globalName || targetUser.username)
+			content: lang.blacklist_command_work.replace(
+				/\${member\.user\.username}/g,
+				targetUser.globalName || targetUser.username
+			)
 		});
 
 		// Immediate response to user
 		await client.func.method.channelSend(interaction, {
 			content: lang.batch_ban_process
-				.replace("${member.user.username}", targetUser.globalName || targetUser.username)
+				.replace(
+					"${member.user.username}",
+					targetUser.globalName || targetUser.username
+				)
 				.replace("${guilds.length}", "all shards")
 		});
 
 		// Asynchronous background processing across all shards
 		setImmediate(async () => {
-			const { totalSuccess, totalGuilds } = await broadcastBanAcrossShards(targetUser!.id, reason);
-			let username = String(targetUser?.globalName || targetUser?.username);
+			const { totalSuccess, totalGuilds } =
+				await broadcastBanAcrossShards(targetUser!.id, reason);
+			let username = String(
+				targetUser?.globalName || targetUser?.username
+			);
 			let score = `${totalSuccess}/${totalGuilds}`;
 
 			// Final notification
@@ -366,42 +443,70 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 	}
 }
 
-
-export async function run_for_guild_owner(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) {
+export async function run_for_guild_owner(
+	client: Client,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData,
+	args?: string[]
+) {
 	// Guard's Typing
-	if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-	if (!client.func.ownerHelper.isGuildOwner(interaction.member.user.id, interaction.guild)) {
-		await client.func.method.interactionSend(interaction, { content: lang.blacklist_not_owner });
+	if (
+		!client.user ||
+		!interaction.member ||
+		!interaction.guild ||
+		!interaction.channel
+	)
 		return;
-	};
 
-	const blacklistedUsers: DatabaseStructure.BlacklistSchema = await client.db.get(`${interaction.guildId}.BLACKLIST`);
+	if (
+		!client.func.ownerHelper.isGuildOwner(
+			interaction.member.user.id,
+			interaction.guild
+		)
+	) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.blacklist_not_owner
+		});
+		return;
+	}
+
+	const blacklistedUsers: DatabaseStructure.BlacklistSchema =
+		await client.db.get(`${interaction.guildId}.BLACKLIST`);
 
 	const blacklistedUsersArray = blacklistedUsers
 		? Object.entries(blacklistedUsers).map(([id, value]) => ({ id, value }))
 		: [];
 
 	if (interaction instanceof ChatInputCommandInteraction) {
-		var targetUser = interaction.options.getUser('user', false);
-		var reason = "Blacklist - " + (interaction.options.getString('reason') || 'blacklisted!');
+		var targetUser = interaction.options.getUser("user", false);
+		var reason =
+			"Blacklist - " +
+			(interaction.options.getString("reason") || "blacklisted!");
 	} else {
-		var targetUser = (await client.func.method.user(interaction, args!, 0));
-		var reason = "Blacklist - " + (client.func.method.longString(args!, 1) || 'blacklisted!');
-	};
+		var targetUser = await client.func.method.user(interaction, args!, 0);
+		var reason =
+			"Blacklist - " +
+			(client.func.method.longString(args!, 1) || "blacklisted!");
+	}
 
-	const member = targetUser ? interaction.guild.members.cache.get(targetUser?.id) : null;
+	const member = targetUser
+		? interaction.guild.members.cache.get(targetUser?.id)
+		: null;
 
 	if (member?.user.id === interaction.guild.ownerId) {
-		await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unowner_cant_unowner_creator
+		});
 		return;
-	};
+	}
 
 	if (!member && !targetUser) {
 		if (!blacklistedUsersArray.length) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_no_one_blacklist
-					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
+				content: lang.blacklist_no_one_blacklist.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				),
 				flags: [1 << 6]
 			});
 			return;
@@ -409,18 +514,22 @@ export async function run_for_guild_owner(client: Client, interaction: ChatInput
 
 		let currentPage = 0;
 		const usersPerPage = 5;
-		const pages: { title: string; description: string; }[] = [];
+		const pages: { title: string; description: string }[] = [];
 
 		for (let i = 0; i < blacklistedUsersArray.length; i += usersPerPage) {
 			const pageUsers = blacklistedUsersArray.slice(i, i + usersPerPage);
-			const pageContent = pageUsers.map(userObj => {
-				return `<@${userObj.id}>\n├─ ${userObj.value.createdAt !== undefined ? format(new Date(userObj.value.createdAt), 'MMM DD YYYY') : lang.profil_unknown}\n├─ \`${userObj.value.reason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.value.owner || lang.profil_unknown}`;
-			}).join('\n');
+			const pageContent = pageUsers
+				.map((userObj) => {
+					return `<@${userObj.id}>\n├─ ${userObj.value.createdAt !== undefined ? format(new Date(userObj.value.createdAt), "MMM DD YYYY") : lang.profil_unknown}\n├─ \`${userObj.value.reason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.value.owner || lang.profil_unknown}`;
+				})
+				.join("\n");
 
 			pages.push({
-				title: lang.blacklist_embed_title
-					.replace('${i / usersPerPage + 1}', (i / usersPerPage + 1).toString()),
-				description: pageContent,
+				title: lang.blacklist_embed_title.replace(
+					"${i / usersPerPage + 1}",
+					(i / usersPerPage + 1).toString()
+				),
+				description: pageContent
 			});
 		}
 
@@ -431,8 +540,11 @@ export async function run_for_guild_owner(client: Client, interaction: ChatInput
 				.setDescription(pages[currentPage]?.description)
 				.setFooter({
 					text: lang.history_embed_footer_text
-						.replace('${currentPage + 1}', (currentPage + 1).toString())
-						.replace('${pages.length}', pages.length.toString()),
+						.replace(
+							"${currentPage + 1}",
+							(currentPage + 1).toString()
+						)
+						.replace("${pages.length}", pages.length.toString()),
 					iconURL: "attachment://footer_icon.png"
 				})
 				.setTimestamp();
@@ -440,39 +552,47 @@ export async function run_for_guild_owner(client: Client, interaction: ChatInput
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
-				.setCustomId('previousPage')
-				.setLabel('<<<')
+				.setCustomId("previousPage")
+				.setLabel("<<<")
 				.setStyle(ButtonStyle.Secondary),
 			new ButtonBuilder()
-				.setCustomId('nextPage')
-				.setLabel('>>>')
+				.setCustomId("nextPage")
+				.setLabel(">>>")
 				.setStyle(ButtonStyle.Secondary)
 		);
 
-		const messageEmbed = await client.func.method.interactionSend(interaction, {
-			embeds: [createEmbed()],
-			components: [row],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-		});
+		const messageEmbed = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [createEmbed()],
+				components: [row],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			}
+		);
 
 		const collector = messageEmbed.createMessageComponentCollector({
 			filter: async (i) => {
-				await i.deferUpdate(); return interaction.member?.user.id === i.user.id;
+				await i.deferUpdate();
+				return interaction.member?.user.id === i.user.id;
 			},
 			time: 60_000 * 16 // 16 minutes
 		});
 
-		collector.on('collect', (interaction: { customId: string; }) => {
-			if (interaction.customId === 'previousPage') {
+		collector.on("collect", (interaction: { customId: string }) => {
+			if (interaction.customId === "previousPage") {
 				currentPage = (currentPage - 1 + pages.length) % pages.length;
-			} else if (interaction.customId === 'nextPage') {
+			} else if (interaction.customId === "nextPage") {
 				currentPage = (currentPage + 1) % pages.length;
 			}
 
 			messageEmbed.edit({ embeds: [createEmbed()] });
 		});
 
-		collector.on('end', () => {
+		collector.on("end", () => {
 			row.components.forEach((component) => {
 				if (component instanceof ButtonBuilder) {
 					component.setDisabled(true);
@@ -481,70 +601,96 @@ export async function run_for_guild_owner(client: Client, interaction: ChatInput
 			messageEmbed.edit({ components: [row] });
 		});
 		return;
-	};
+	}
 
 	if (member) {
 		if (member.user.id === client.user.id) {
-			await client.func.method.interactionSend(interaction, { content: lang.blacklist_bot_lol });
-			return;
-		};
-
-		const fetched = await client.db.get(`${interaction.guildId}.BLACKLIST.${member.user.id}`);
-
-		if (fetched) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted
-					.replace(/\${member\.user\.username}/g, member.user.globalName || member.user.username)
-			});
-			return;
-		};
-
-		await client.db.set(`${interaction.guildId}.BLACKLIST.${member.user.id}`, {
-			blacklisted: true,
-			reason,
-			owner: interaction.member.user.id,
-			createdAt: new Date().getTime()
-		});
-
-		await member.ban({ reason }).then(async () => {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_command_work
-					.replace(/\${member\.user\.username}/g, String(member?.user.globalName || member?.user.username))
-			});
-		}).catch(async (err) => {
-			console.error(err)
-			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_blacklisted_but_can_ban_him
-					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-			});
-		});
-	} else if (targetUser) {
-
-		if (targetUser.id === client.user.id) {
-			await client.func.method.interactionSend(interaction, { content: lang.blacklist_bot_lol });
-			return;
-		};
-
-		const fetched = await client.db.get(`${interaction.guildId}.BLACKLIST.${targetUser.id}`);
-
-		if (fetched) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.blacklist_already_blacklisted
-					.replace(/\${member\.user\.username}/g, targetUser.globalName || targetUser.username)
+				content: lang.blacklist_bot_lol
 			});
 			return;
 		}
 
-		await client.db.set(`${interaction.guildId}.BLACKLIST.${targetUser.id}`, {
-			blacklisted: true,
-			reason,
-			owner: interaction.member.user.id,
-			createdAt: new Date().getTime()
-		});
+		const fetched = await client.db.get(
+			`${interaction.guildId}.BLACKLIST.${member.user.id}`
+		);
+
+		if (fetched) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.blacklist_already_blacklisted.replace(
+					/\${member\.user\.username}/g,
+					member.user.globalName || member.user.username
+				)
+			});
+			return;
+		}
+
+		await client.db.set(
+			`${interaction.guildId}.BLACKLIST.${member.user.id}`,
+			{
+				blacklisted: true,
+				reason,
+				owner: interaction.member.user.id,
+				createdAt: new Date().getTime()
+			}
+		);
+
+		await member
+			.ban({ reason })
+			.then(async () => {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.blacklist_command_work.replace(
+						/\${member\.user\.username}/g,
+						String(member?.user.globalName || member?.user.username)
+					)
+				});
+			})
+			.catch(async (err) => {
+				console.error(err);
+				await client.func.method.interactionSend(interaction, {
+					content: lang.blacklist_blacklisted_but_can_ban_him.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
+				});
+			});
+	} else if (targetUser) {
+		if (targetUser.id === client.user.id) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.blacklist_bot_lol
+			});
+			return;
+		}
+
+		const fetched = await client.db.get(
+			`${interaction.guildId}.BLACKLIST.${targetUser.id}`
+		);
+
+		if (fetched) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.blacklist_already_blacklisted.replace(
+					/\${member\.user\.username}/g,
+					targetUser.globalName || targetUser.username
+				)
+			});
+			return;
+		}
+
+		await client.db.set(
+			`${interaction.guildId}.BLACKLIST.${targetUser.id}`,
+			{
+				blacklisted: true,
+				reason,
+				owner: interaction.member.user.id,
+				createdAt: new Date().getTime()
+			}
+		);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.blacklist_command_work
-				.replace(/\${member\.user\.username}/g, targetUser.globalName || targetUser.username)
+			content: lang.blacklist_command_work.replace(
+				/\${member\.user\.username}/g,
+				targetUser.globalName || targetUser.username
+			)
 		});
 	}
 }

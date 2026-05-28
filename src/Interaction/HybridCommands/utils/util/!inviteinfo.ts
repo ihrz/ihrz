@@ -29,17 +29,27 @@ import {
 	ButtonStyle,
 	time,
 	ComponentType
-} from 'discord.js'
+} from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
-import { SubCommand } from '../../../../../types/command.js';
-import { isValidDiscordInvite } from '../../../../core/functions/method.js';
+import { LanguageData } from "../../../../../types/languageData.js";
+import { SubCommand } from "../../../../../types/command.js";
+import { isValidDiscordInvite } from "../../../../core/functions/method.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		let invite: string;
 		if (interaction instanceof ChatInputCommandInteraction) {
@@ -66,8 +76,14 @@ export const subCommand: SubCommand = {
 
 		const embed_1 = new EmbedBuilder()
 			.setColor("Aqua")
-			.setDescription(link_data.guild?.description || lang.profil_not_description_set)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setDescription(
+				link_data.guild?.description || lang.profil_not_description_set
+			)
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setTitle(link_data.guild?.name || lang.var_unknown_guild_name)
 			.setFields(
 				{
@@ -87,7 +103,11 @@ export const subCommand: SubCommand = {
 		// Second embed for additional info
 		const embed_2 = new EmbedBuilder()
 			.setColor("Aqua")
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setTitle(link_data.guild?.name || lang.var_unknown_guild_name)
 			.setFields(
 				{
@@ -107,33 +127,56 @@ export const subCommand: SubCommand = {
 				},
 				{
 					name: lang.var_features,
-					value: link_data.guild?.features.length ? link_data.guild.features.join(', ').substring(0, 1020) : lang.var_none
+					value: link_data.guild?.features.length
+						? link_data.guild.features.join(", ").substring(0, 1020)
+						: lang.var_none
 				}
 			);
 
 		const buttons_1: ButtonBuilder[] = [];
 
 		if (link_data.guild?.icon) {
-			buttons_1.push(new ButtonBuilder()
-				.setStyle(ButtonStyle.Link)
-				.setLabel(lang.var_guild_icon)
-				.setURL(link_data.guild?.iconURL({ size: 512, extension: "webp", forceStatic: false })!)
+			buttons_1.push(
+				new ButtonBuilder()
+					.setStyle(ButtonStyle.Link)
+					.setLabel(lang.var_guild_icon)
+					.setURL(
+						link_data.guild?.iconURL({
+							size: 512,
+							extension: "webp",
+							forceStatic: false
+						})!
+					)
 			);
 		}
 
 		if (link_data.guild?.banner) {
-			buttons_1.push(new ButtonBuilder()
-				.setStyle(ButtonStyle.Link)
-				.setLabel(lang.var_guild_banner)
-				.setURL(link_data.guild?.bannerURL({ size: 512, extension: "webp", forceStatic: false })!)
+			buttons_1.push(
+				new ButtonBuilder()
+					.setStyle(ButtonStyle.Link)
+					.setLabel(lang.var_guild_banner)
+					.setURL(
+						link_data.guild?.bannerURL({
+							size: 512,
+							extension: "webp",
+							forceStatic: false
+						})!
+					)
 			);
 		}
 
 		if (link_data.guild?.splash) {
-			buttons_1.push(new ButtonBuilder()
-				.setStyle(ButtonStyle.Link)
-				.setLabel(lang.var_guild_splash)
-				.setURL(link_data.guild?.splashURL({ size: 512, extension: "webp", forceStatic: false })!)
+			buttons_1.push(
+				new ButtonBuilder()
+					.setStyle(ButtonStyle.Link)
+					.setLabel(lang.var_guild_splash)
+					.setURL(
+						link_data.guild?.splashURL({
+							size: 512,
+							extension: "webp",
+							forceStatic: false
+						})!
+					)
 			);
 		}
 
@@ -142,25 +185,38 @@ export const subCommand: SubCommand = {
 
 		// Add link buttons if any exist
 		if (buttons_1.length > 0) {
-			components.push(new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons_1));
+			components.push(
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					...buttons_1
+				)
+			);
 		}
 
 		// Add navigation button
-		components.push(new ActionRowBuilder<ButtonBuilder>().addComponents(
-			new ButtonBuilder()
-				.setStyle(ButtonStyle.Secondary)
-				.setLabel(">>>")
-				.setCustomId("inviteinfo-next-page")
-		));
+		components.push(
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setStyle(ButtonStyle.Secondary)
+					.setLabel(">>>")
+					.setCustomId("inviteinfo-next-page")
+			)
+		);
 
 		let currentPage = 1;
 		const totalPages = 2;
 
-		const ogMessage = await client.func.method.interactionSend(interaction, {
-			embeds: [embed_1],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)],
-			components: components
-		});
+		const ogMessage = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [embed_1],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				],
+				components: components
+			}
+		);
 
 		const collector = ogMessage.createMessageComponentCollector({
 			componentType: ComponentType.Button,
@@ -169,7 +225,10 @@ export const subCommand: SubCommand = {
 
 		collector.on("collect", async (i) => {
 			if (i.user.id !== interaction.member?.user.id) {
-				await i.reply({ content: lang.help_not_for_you, ephemeral: true });
+				await i.reply({
+					content: lang.help_not_for_you,
+					ephemeral: true
+				});
 				return;
 			}
 
@@ -181,15 +240,21 @@ export const subCommand: SubCommand = {
 				const newComponents: ActionRowBuilder<ButtonBuilder>[] = [];
 
 				if (buttons_1.length > 0) {
-					newComponents.push(new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons_1));
+					newComponents.push(
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							...buttons_1
+						)
+					);
 				}
 
-				newComponents.push(new ActionRowBuilder<ButtonBuilder>().addComponents(
-					new ButtonBuilder()
-						.setStyle(ButtonStyle.Secondary)
-						.setLabel(currentPage === 1 ? ">>>" : "<<<")
-						.setCustomId("inviteinfo-next-page")
-				));
+				newComponents.push(
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setStyle(ButtonStyle.Secondary)
+							.setLabel(currentPage === 1 ? ">>>" : "<<<")
+							.setCustomId("inviteinfo-next-page")
+					)
+				);
 
 				await i.update({
 					embeds: [currentPage === 1 ? embed_1 : embed_2],
@@ -203,19 +268,25 @@ export const subCommand: SubCommand = {
 			const disabledComponents: ActionRowBuilder<ButtonBuilder>[] = [];
 
 			if (buttons_1.length > 0) {
-				const disabledLinkButtons = buttons_1.map(btn =>
+				const disabledLinkButtons = buttons_1.map((btn) =>
 					ButtonBuilder.from(btn).setDisabled(true)
 				);
-				disabledComponents.push(new ActionRowBuilder<ButtonBuilder>().addComponents(...disabledLinkButtons));
+				disabledComponents.push(
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						...disabledLinkButtons
+					)
+				);
 			}
 
-			disabledComponents.push(new ActionRowBuilder<ButtonBuilder>().addComponents(
-				new ButtonBuilder()
-					.setStyle(ButtonStyle.Secondary)
-					.setLabel(currentPage === 1 ? ">>>" : "<<<")
-					.setCustomId("inviteinfo-next-page")
-					.setDisabled(true)
-			));
+			disabledComponents.push(
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder()
+						.setStyle(ButtonStyle.Secondary)
+						.setLabel(currentPage === 1 ? ">>>" : "<<<")
+						.setCustomId("inviteinfo-next-page")
+						.setDisabled(true)
+				)
+			);
 
 			try {
 				await ogMessage.edit({ components: disabledComponents });
@@ -223,5 +294,5 @@ export const subCommand: SubCommand = {
 				// Message might have been deleted
 			}
 		});
-	},
+	}
 };

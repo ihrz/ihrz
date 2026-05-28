@@ -32,11 +32,11 @@ export enum GatewayMethod {
 	SecureWebhook = 7,
 	CreateCustomVanity = 8,
 	ImageGeneration = 9
-};
+}
 
 export function assetsFinder(body: Assets, type: string): string {
 	return `https://gitlab.com/ihrz/assets/-/raw/main/${type}/${Math.floor(Math.random() * body[type])}.gif?ref_type=heads`;
-};
+}
 
 export function HorizonGateway(gateway_method: GatewayMethod): string {
 	let data = client.config.api.HorizonGateway;
@@ -45,34 +45,34 @@ export function HorizonGateway(gateway_method: GatewayMethod): string {
 
 	switch (gateway_method) {
 		case 0:
-			data += "/api/ihorizon/v1/oauth2"
+			data += "/api/ihorizon/v1/oauth2";
 			break;
 		case 1:
-			data += "/api/ihorizon/v1/create-oauth2"
+			data += "/api/ihorizon/v1/create-oauth2";
 			break;
 		case 2:
-			data += "/api/ihorizon/v1/forcejoin"
+			data += "/api/ihorizon/v1/forcejoin";
 			break;
 		case 3:
-			data += "/api/ihorizon/v1/securityCodeUpdate"
-			break
+			data += "/api/ihorizon/v1/securityCodeUpdate";
+			break;
 		case 4:
-			data += "/api/ihorizon/v1/role"
+			data += "/api/ihorizon/v1/role";
 			break;
 		case 5:
-			data += "/api/ihorizon/v1/userinfo"
+			data += "/api/ihorizon/v1/userinfo";
 			break;
 		case 6:
-			data += "/api/ihorizon/v1/serverBackup"
+			data += "/api/ihorizon/v1/serverBackup";
 			break;
 		case 7:
-			data += "/api/v1/securewebhook/manage"
+			data += "/api/v1/securewebhook/manage";
 			break;
 		case 8:
-			data += "/api/ihorizon/v1/vanity-creation"
+			data += "/api/ihorizon/v1/vanity-creation";
 			break;
 		case 9:
-			data += "/api/ihorizon/v1/image"
+			data += "/api/ihorizon/v1/image";
 			break;
 	}
 

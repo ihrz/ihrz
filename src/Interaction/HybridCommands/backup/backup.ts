@@ -22,18 +22,17 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "backup",
 
 	description: "Subcommand for backup category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie backup"
+		fr: "Commande sous-groupé pour la catégorie backup"
 	},
 
 	options: [
@@ -42,57 +41,56 @@ export const command: Command = {
 			prefixName: "backup-create",
 
 			name_localizations: {
-				"fr": "créer"
+				fr: "créer"
 			},
 
 			aliases: ["bcreate"],
 
 			description: "Create a backup!",
 			description_localizations: {
-				"fr": "Créer une backup"
+				fr: "Créer une backup"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'save-message',
+					name: "save-message",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'Do you want to save message(s) ?',
+					description: "Do you want to save message(s) ?",
 					description_localizations: {
-						"fr": "Voulez-vous sauvegarder des message(s) ?"
+						fr: "Voulez-vous sauvegarder des message(s) ?"
 					},
 
 					choices: [
 						{
 							name: "Yes",
-							name_localizations: { fr: 'Oui' },
+							name_localizations: { fr: "Oui" },
 							value: "yes"
 						},
 						{
 							name: "No",
-							name_localizations: { fr: 'Non' },
+							name_localizations: { fr: "Non" },
 							value: "no"
 						}
 					],
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "list",
 			name_localizations: {
-				"fr": "listé"
+				fr: "listé"
 			},
 			prefixName: "backup-list",
 
-
 			description: "List your backup(s)!",
 			description_localizations: {
-				"fr": "Listé toute vos backup(s)"
+				fr: "Listé toute vos backup(s)"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -101,31 +99,30 @@ export const command: Command = {
 		{
 			name: "load",
 			name_localizations: {
-				"fr": "chargé"
+				fr: "chargé"
 			},
 			prefixName: "backup-load",
 
-
 			description: "Load your backup to initialize!",
 			description_localizations: {
-				"fr": "Charger une de vos backup(s)"
+				fr: "Charger une de vos backup(s)"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'backup-id',
+					name: "backup-id",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'Whats is the backup id?',
+					description: "Whats is the backup id?",
 					description_localizations: {
-						"fr": "Quelle est l'identifiant de la backup ?"
+						fr: "Quelle est l'identifiant de la backup ?"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: PermissionFlagsBits.Administrator
@@ -136,16 +133,17 @@ export const command: Command = {
 
 			description: "Delete your backup from the list",
 			description_localizations: {
-				"fr": "Supprimer une backup de la liste"
+				fr: "Supprimer une backup de la liste"
 			},
 
 			options: [
 				{
 					name: "backup-id",
 
-					description: "The ID of your backup you want to delete from the list",
+					description:
+						"The ID of your backup you want to delete from the list",
 					description_localizations: {
-						"fr": "L'identifiant de la backup que vous voulez supprimer de la liste"
+						fr: "L'identifiant de la backup que vous voulez supprimer de la liste"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -163,7 +161,7 @@ export const command: Command = {
 
 			description: "Manage the backup system into this guild",
 			description_localizations: {
-				"fr": "Gérer le système de backup sur le serveur"
+				fr: "Gérer le système de backup sur le serveur"
 			},
 
 			permission: null,
@@ -173,21 +171,26 @@ export const command: Command = {
 				{
 					name: "only_guild_owner",
 
-					description: "Make the backup system only working for guild owner",
+					description:
+						"Make the backup system only working for guild owner",
 					description_localizations: {
-						"fr": "Faire fonctionner le système de backup uniquement pour le propriétaire du serveur discord."
+						fr: "Faire fonctionner le système de backup uniquement pour le propriétaire du serveur discord."
 					},
 
 					type: ApplicationCommandOptionType.String,
 					choices: [
 						{
 							name: "Only owner",
-							name_localizations: { fr: 'Seulement le propriétaire' },
+							name_localizations: {
+								fr: "Seulement le propriétaire"
+							},
 							value: "owner"
 						},
 						{
 							name: "All admin(s)",
-							name_localizations: { fr: 'Tous les administrateurs' },
+							name_localizations: {
+								fr: "Tous les administrateurs"
+							},
 							value: "admin"
 						}
 					],
@@ -198,7 +201,7 @@ export const command: Command = {
 			]
 		}
 	],
-	category: 'backup',
+	category: "backup",
 	thinking: true,
 	type: ApplicationCommandType.ChatInput,
 	permission: null

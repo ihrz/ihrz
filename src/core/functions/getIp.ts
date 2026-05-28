@@ -19,33 +19,33 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-const endpoint_v4 = 'https://api.ipify.org';
-const endpoint_v6 = 'https://api6.ipify.org';
+const endpoint_v4 = "https://api.ipify.org";
+const endpoint_v6 = "https://api6.ipify.org";
 
 interface CacheValueTyping {
 	ipv4: string;
 	ipv6: string;
-};
+}
 
 const CacheValue: CacheValueTyping = {
-	ipv4: '',
-	ipv6: ''
-}
+	ipv4: "",
+	ipv6: ""
+};
 
 export default async function getIP(useIPv6?: boolean): Promise<string> {
 	if (!useIPv6) useIPv6 = false;
 	const endpoint = useIPv6 ? endpoint_v6 : endpoint_v4;
 
-	if (useIPv6 && CacheValue.ipv6 !== '') {
+	if (useIPv6 && CacheValue.ipv6 !== "") {
 		return CacheValue.ipv6;
-	} else if (!useIPv6 && CacheValue.ipv4 !== '') {
+	} else if (!useIPv6 && CacheValue.ipv4 !== "") {
 		return CacheValue.ipv4;
 	}
 
-	const response = await fetch(endpoint, { method: 'GET' });
+	const response = await fetch(endpoint, { method: "GET" });
 
 	if (!response.ok) {
-		throw new Error('Failed to fetch IP address');
+		throw new Error("Failed to fetch IP address");
 	}
 
 	const ipAddress = await response.text();
@@ -57,4 +57,4 @@ export default async function getIP(useIPv6?: boolean): Promise<string> {
 	}
 
 	return ipAddress;
-};
+}

@@ -21,17 +21,17 @@
 
 import {
 	ApplicationCommandOptionType,
-	ApplicationCommandType,
-} from 'discord.js';
+	ApplicationCommandType
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
+import { Command } from "../../../../../types/command.js";
 
 export const command: Command = {
 	name: "allowlist",
 
 	description: "Subcommand for protection category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de protection"
+		fr: "Commande sous-groupé pour la catégorie de protection"
 	},
 
 	options: [
@@ -40,24 +40,24 @@ export const command: Command = {
 
 			description: "Adding an user in the allowlist!",
 			description_localizations: {
-				"fr": "Ajouter un utilisateur à la liste blanche"
+				fr: "Ajouter un utilisateur à la liste blanche"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'member',
+					name: "member",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'Whats is the member then?',
+					description: "Whats is the member then?",
 					description_localizations: {
-						"fr": "Quel est le membre alors?"
+						fr: "Quel est le membre alors?"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: null
@@ -67,24 +67,24 @@ export const command: Command = {
 
 			description: "Removing an user in the allowlist!",
 			description_localizations: {
-				"fr": "Supprimer un utilisateur de la liste blanche"
+				fr: "Supprimer un utilisateur de la liste blanche"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'member',
+					name: "member",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'Whats is the member then?',
+					description: "Whats is the member then?",
 					description_localizations: {
-						"fr": "Quel est le membre alors?"
+						fr: "Quel est le membre alors?"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: null
@@ -94,16 +94,16 @@ export const command: Command = {
 
 			description: "List the users in the allowlist!",
 			description_localizations: {
-				"fr": "Lister les utilisateurs dans la liste autorisée"
+				fr: "Lister les utilisateurs dans la liste autorisée"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: null
-		},
+		}
 	],
 	thinking: false,
-	category: 'protection',
+	category: "protection",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

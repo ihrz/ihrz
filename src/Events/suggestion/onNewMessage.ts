@@ -19,68 +19,80 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, EmbedBuilder, Message, SnowflakeUtil } from 'discord.js';
-import { generatePassword } from '../../core/functions/random.js';
+import { Client, EmbedBuilder, Message, SnowflakeUtil } from "discord.js";
+import { generatePassword } from "../../core/functions/random.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-
 		if (!message.guild || message.author.bot || !message.channel) return;
 
 		const data = await client.func.getLanguageData(message.guild.id);
 
 		const baseData = await client.db.get(`${message.guildId}.SUGGEST`);
 
-		if (!baseData
-			|| baseData?.channel !== message.channel.id
-			|| baseData?.disable) return;
+		if (
+			!baseData ||
+			baseData?.channel !== message.channel.id ||
+			baseData?.disable
+		)
+			return;
 
-		const suggestionContent = '```' + message.content + '```';
+		const suggestionContent = "```" + message.content + "```";
 		const suggestCode = generatePassword({ length: 12 });
 
 		const suggestionEmbed = new EmbedBuilder()
-			.setColor('#4000ff')
+			.setColor("#4000ff")
 			.setTitle(`#${suggestCode}`)
 			.setAuthor({
-				name: data.event_suggestion_embed_author
-					.replace('${message.author.username}', message.author.username),
+				name: data.event_suggestion_embed_author.replace(
+					"${message.author.username}",
+					message.author.username
+				),
 				iconURL: message.author.displayAvatarURL()
 			})
 			.setDescription(suggestionContent.toString())
-			.setThumbnail((message.guild?.iconURL() as string))
-			.setFooter(await client.func.displayBotName.footerBuilder(message.guildId!))
+			.setThumbnail(message.guild?.iconURL() as string)
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(message.guildId!)
+			)
 			.setTimestamp();
 
 		message.delete();
 
-		const args = message.content.split(' ');
+		const args = message.content.split(" ");
 		if (args.length < 5) return;
 
 		const msg = await client.func.method.channelSend(message, {
 			content: message.author.toString(),
 			embeds: [suggestionEmbed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(message)],
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					message
+				)
+			]
 		});
 
-		let thread = await msg.startThread({
-			name: `#${suggestCode}`,
-			reason: "[Suggestion] Module"
-		}).then(x => x.edit({ invitable: true, locked: false, archived: false }))
+		let thread = await msg
+			.startThread({
+				name: `#${suggestCode}`,
+				reason: "[Suggestion] Module"
+			})
+			.then((x) =>
+				x.edit({ invitable: true, locked: false, archived: false })
+			);
 
 		await msg.react(client.iHorizon_Emojis.Yes);
 		await msg.react(client.iHorizon_Emojis.No);
 
-		await client.db.set(`${message.guildId}.SUGGESTION.${suggestCode}`,
-			{
-				author: message.author.id,
-				msgId: msg.id,
-				threadId: thread.id
-			}
-		);
+		await client.db.set(`${message.guildId}.SUGGESTION.${suggestCode}`, {
+			author: message.author.id,
+			msgId: msg.id,
+			threadId: thread.id
+		});
 
 		return;
-	},
+	}
 };

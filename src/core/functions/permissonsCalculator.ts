@@ -19,11 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	GuildMember,
-	Message
-} from "discord.js";
+import { ChatInputCommandInteraction, GuildMember, Message } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
 
@@ -31,7 +27,7 @@ export type command = {
 	users: string[];
 	roles: string[];
 	level: DatabaseStructure.PermCommandLevel;
-}
+};
 
 function normalizeCommandPermissionData(
 	cmdPermData?: Partial<command> | null
@@ -55,9 +51,11 @@ export function hasCommandPermissionRequirements(
 		return false;
 	}
 
-	return permissionData.users.length > 0
-		|| permissionData.roles.length > 0
-		|| ((permissionData.level ?? 0) > 0);
+	return (
+		permissionData.users.length > 0 ||
+		permissionData.roles.length > 0 ||
+		(permissionData.level ?? 0) > 0
+	);
 }
 
 export async function checkCommandPermission(
@@ -67,11 +65,16 @@ export async function checkCommandPermission(
 	allowed: boolean;
 	permissionData: command;
 }> {
-	const usr = interaction instanceof ChatInputCommandInteraction ? interaction.user : interaction.author;
+	const usr =
+		interaction instanceof ChatInputCommandInteraction
+			? interaction.user
+			: interaction.author;
 	const db = interaction.client.db;
 
 	// Fetch permission data from database
-	const guildPerm = (await db.get(`${interaction.guildId}.UTILS`)) as DatabaseStructure.UtilsData;
+	const guildPerm = (await db.get(
+		`${interaction.guildId}.UTILS`
+	)) as DatabaseStructure.UtilsData;
 	if (!guildPerm) {
 		return {
 			allowed: false,
@@ -92,7 +95,7 @@ export async function checkCommandPermission(
 	]);
 
 	// If any permission check returns true, allow the command
-	const isAllowed = checkResults.some(result => result);
+	const isAllowed = checkResults.some((result) => result);
 
 	return {
 		allowed: isAllowed,
@@ -100,13 +103,22 @@ export async function checkCommandPermission(
 	};
 }
 
-async function isOnTheOwnerList(guildId: string, memberId: string): Promise<boolean> {
-	return await client.db.get(`${guildId}.OWNER.${memberId}.owner`) === true;
+async function isOnTheOwnerList(
+	guildId: string,
+	memberId: string
+): Promise<boolean> {
+	return (await client.db.get(`${guildId}.OWNER.${memberId}.owner`)) === true;
 }
 
 // Helper function to get command permission data
-function getCmdPermData(command: string, guildPerm: DatabaseStructure.UtilsData): command {
-	let cmdPermData = guildPerm?.PERMS?.[command] as command | DatabaseStructure.PermLevel | undefined;
+function getCmdPermData(
+	command: string,
+	guildPerm: DatabaseStructure.UtilsData
+): command {
+	let cmdPermData = guildPerm?.PERMS?.[command] as
+		| command
+		| DatabaseStructure.PermLevel
+		| undefined;
 
 	// If no direct command permission, check category permission
 	if (!cmdPermData && guildPerm?.PERMS?.[command?.split(" ")[0]]) {
@@ -129,13 +141,19 @@ function getCmdPermData(command: string, guildPerm: DatabaseStructure.UtilsData)
 }
 
 // Check if user is explicitly allowed
-function checkExplicitUserPermission(userId: string, cmdPermData: command): boolean {
+function checkExplicitUserPermission(
+	userId: string,
+	cmdPermData: command
+): boolean {
 	if (cmdPermData.users.includes(userId)) {
 		return true;
 	}
 
 	// Special case: if users are specified but level is 0, check if user is in the list
-	if (cmdPermData.users.length > 0 && (cmdPermData.level === 0 || cmdPermData.level === null)) {
+	if (
+		cmdPermData.users.length > 0 &&
+		(cmdPermData.level === 0 || cmdPermData.level === null)
+	) {
 		return cmdPermData.users.includes(userId);
 	}
 
@@ -156,7 +174,8 @@ function checkRoleHierarchy(
 
 	// Check all permission levels (1-9)
 	for (let permLevel = 1; permLevel <= 9; permLevel++) {
-		const roleId = guildPerm.roles[permLevel as keyof DatabaseStructure.UtilsRoleData];
+		const roleId =
+			guildPerm.roles[permLevel as keyof DatabaseStructure.UtilsRoleData];
 		if (roleId && member.roles.cache.has(roleId)) {
 			highestRolePermLevel = Math.max(highestRolePermLevel, permLevel);
 		}
@@ -175,10 +194,15 @@ function checkExplicitRolePermission(
 	}
 
 	// Check if user has any of the explicitly allowed roles
-	const hasAllowedRole = cmdPermData.roles.some(roleId => member.roles.cache.has(roleId));
+	const hasAllowedRole = cmdPermData.roles.some((roleId) =>
+		member.roles.cache.has(roleId)
+	);
 
 	// Special case: if roles are specified but level is 0, only these roles have access
-	if (cmdPermData.roles.length > 0 && (cmdPermData.level === 0 || cmdPermData.level === null)) {
+	if (
+		cmdPermData.roles.length > 0 &&
+		(cmdPermData.level === 0 || cmdPermData.level === null)
+	) {
 		return hasAllowedRole;
 	}
 
@@ -220,9 +244,15 @@ export async function sendErrorMessage(
 		const hasRoles = permissionData.roles.length > 0;
 		const hasUsers = permissionData.users.length > 0;
 
-		((permissionData.level ?? 0) > 0) ? neededPerm += `\`${permissionData.level}\` \n` : "";
-		(hasRoles) ? neededPerm += `${lang.var_roles}: ${permissionData.roles.map(x => `<@&${x}>`).join(", ")} \n` : "";
-		(hasUsers) ? neededPerm += `${lang.var_member}: ${hasRoles ? " / " : ""}${permissionData.users.map(x => `<@${x}>`).join(", ")} \n` : "";
+		(permissionData.level ?? 0) > 0
+			? (neededPerm += `\`${permissionData.level}\` \n`)
+			: "";
+		hasRoles
+			? (neededPerm += `${lang.var_roles}: ${permissionData.roles.map((x) => `<@&${x}>`).join(", ")} \n`)
+			: "";
+		hasUsers
+			? (neededPerm += `${lang.var_member}: ${hasRoles ? " / " : ""}${permissionData.users.map((x) => `<@${x}>`).join(", ")} \n`)
+			: "";
 	} else {
 		neededPerm = "**\`Discord Permission\`**";
 	}
@@ -440,14 +470,18 @@ export const PERMISSION_MAPPING = {
 export type PermissionMapping = typeof PERMISSION_MAPPING;
 export type PermissionValue = PermissionMapping[keyof PermissionMapping];
 
-export function getPermissionByValue(value: bigint | bigint[]): PermissionValue | PermissionValue[] | null {
+export function getPermissionByValue(
+	value: bigint | bigint[]
+): PermissionValue | PermissionValue[] | null {
 	// If value is an array, we need to handle each permission separately
 	if (Array.isArray(value)) {
 		// For arrays, return an array of permission objects
 		const permissions = value
-			.map(singleValue => {
+			.map((singleValue) => {
 				const key = Object.keys(PERMISSION_MAPPING).find(
-					k => PERMISSION_MAPPING[k as keyof typeof PERMISSION_MAPPING].value === singleValue
+					(k) =>
+						PERMISSION_MAPPING[k as keyof typeof PERMISSION_MAPPING]
+							.value === singleValue
 				) as keyof typeof PERMISSION_MAPPING | undefined;
 				return key ? PERMISSION_MAPPING[key] : null;
 			})
@@ -458,7 +492,9 @@ export function getPermissionByValue(value: bigint | bigint[]): PermissionValue 
 
 	// Original behavior for single bigint
 	const key = Object.keys(PERMISSION_MAPPING).find(
-		k => PERMISSION_MAPPING[k as keyof typeof PERMISSION_MAPPING].value === value
+		(k) =>
+			PERMISSION_MAPPING[k as keyof typeof PERMISSION_MAPPING].value ===
+			value
 	) as keyof typeof PERMISSION_MAPPING | undefined;
 
 	return key ? PERMISSION_MAPPING[key] : null;

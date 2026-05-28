@@ -23,53 +23,80 @@ import {
 	Channel,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var channel = interaction.options.getChannel("channel") as Channel;
-			var time = interaction.options.getString("time")
+			var time = interaction.options.getString("time");
 		} else {
-			var channel = await client.func.method.channel(interaction, args!, 0) as Channel;
+			var channel = (await client.func.method.channel(
+				interaction,
+				args!,
+				0
+			)) as Channel;
 			var time = client.func.method.string(args!, 1);
-		};
+		}
 
 		const parseTime = client.timeCalculator.to_ms(time || "");
 
-		if (parseTime && parseTime < 60_000) { // Ceci est égal à 1 minute
+		if (parseTime && parseTime < 60_000) {
+			// Ceci est égal à 1 minute
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_autorenew_time_too_short
-			})
+			});
 			return;
-		} else if (parseTime && parseTime > 2_629_800_000) { // Ceci est égal à 30 jours 
+		} else if (parseTime && parseTime > 2_629_800_000) {
+			// Ceci est égal à 30 jours
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_autorenew_time_too_long
-			})
+			});
 			return;
 		}
 
 		if (parseTime) {
-			await client.db.set(`${interaction.guildId}.UTILS.renew_channel.${channel.id}`, {
-				timestamp: Date.now(),
-				maxTime: parseTime
-			});
+			await client.db.set(
+				`${interaction.guildId}.UTILS.renew_channel.${channel.id}`,
+				{
+					timestamp: Date.now(),
+					maxTime: parseTime
+				}
+			);
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_autorenew_command_ok
-					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
+					.replace(
+						"${client.iHorizon_Emojis.Yes}",
+						client.iHorizon_Emojis.Yes
+					)
 					.replace("${channel.toString()}", channel.toString())
-					.replace("${time}", client.timeCalculator.to_beautiful_string(parseTime, lang))
-			})
+					.replace(
+						"${time}",
+						client.timeCalculator.to_beautiful_string(
+							parseTime,
+							lang
+						)
+					)
+			});
 		}
-	},
+	}
 };

@@ -21,17 +21,16 @@
 
 import {
 	ApplicationCommandOptionType,
-	ApplicationCommandType,
-} from 'discord.js';
+	ApplicationCommandType
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "stats",
 	description: "Subcommand for stats category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie des statistique des utilisateurs!"
+		fr: "Commande sous-groupé pour la catégorie des statistique des utilisateurs!"
 	},
 
 	options: [
@@ -118,13 +117,14 @@ export const command: Command = {
 				},
 				{
 					name: "limit",
-					description: "Number of users to show (default: 10, max: 25)",
+					description:
+						"Number of users to show (default: 10, max: 25)",
 					description_localizations: {
 						fr: "Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)"
 					},
 					type: ApplicationCommandOptionType.Integer,
 					required: false,
-					permission: null,
+					permission: null
 					// min_value: 5,
 					// max_value: 25
 				}
@@ -173,13 +173,14 @@ export const command: Command = {
 				},
 				{
 					name: "limit",
-					description: "Number of users to show (default: 10, max: 25)",
+					description:
+						"Number of users to show (default: 10, max: 25)",
 					description_localizations: {
 						fr: "Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)"
 					},
 					type: ApplicationCommandOptionType.Integer,
 					required: false,
-					permission: null,
+					permission: null
 					// min_value: 5,
 					// max_value: 25
 				}
@@ -249,7 +250,7 @@ export const command: Command = {
 
 			permission: null,
 			type: ApplicationCommandOptionType.Subcommand
-		},
+		}
 		// {
 		//     name: "reset",
 		//     description: "Reset profil",
@@ -272,7 +273,7 @@ export const command: Command = {
 	],
 
 	thinking: true,
-	category: 'stats',
+	category: "stats",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

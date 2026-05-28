@@ -25,64 +25,85 @@ import {
 	EmbedBuilder,
 	Message,
 	time
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const giveawayData = await client.giveawaysManager.getAllGiveawayData();
-		const filtered = giveawayData.filter((giveaway) => giveaway.giveawayData.guildId === interaction.guildId && !giveaway.giveawayData.ended);
+		const filtered = giveawayData.filter(
+			(giveaway) =>
+				giveaway.giveawayData.guildId === interaction.guildId &&
+				!giveaway.giveawayData.ended
+		);
 
 		const embed = new EmbedBuilder()
 			.setColor("#2986cc")
 			.setTimestamp()
-			.setTitle(lang.gw_getall_embed_title
-				.replace('${interaction.guild?.name}', interaction.guild.name as string)
+			.setTitle(
+				lang.gw_getall_embed_title.replace(
+					"${interaction.guild?.name}",
+					interaction.guild.name as string
+				)
 			)
-			.setAuthor(
-				{
-					name: (interaction.guild.name as string),
-					iconURL: "attachment://guild_icon.png"
-				}
-			)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setAuthor({
+				name: interaction.guild.name as string,
+				iconURL: "attachment://guild_icon.png"
+			})
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
-		filtered.forEach(index => {
+		filtered.forEach((index) => {
 			const Channel = `<#${index.giveawayData.channelId}>`;
 			const MessageURL = `https://discord.com/channels/${interaction.guildId}/${index.giveawayData.channelId}/${index.giveawayId}`;
-			const ExpireIn = `${time(new Date(index.giveawayData.expireIn), 'd')}`;
+			const ExpireIn = `${time(new Date(index.giveawayData.expireIn), "d")}`;
 
-			embed.addFields(
-				{
-					name: `\`${index.giveawayId}\``,
-					value: lang.gw_getall_embed_fields
-						.replace('${MessageURL}', MessageURL)
-						.replace('${ExpireIn}', ExpireIn)
-						.replace('${Channel}', Channel)
-				}
-			);
+			embed.addFields({
+				name: `\`${index.giveawayId}\``,
+				value: lang.gw_getall_embed_fields
+					.replace("${MessageURL}", MessageURL)
+					.replace("${ExpireIn}", ExpireIn)
+					.replace("${Channel}", Channel)
+			});
 		});
 
-		await client.func.method.interactionSend(interaction,
-			{
-				embeds: [embed],
-				files: [
-					{
-						attachment: (await interaction.client.func.image64.image64(interaction.guild.iconURL() || client.user.displayAvatarURL())) ?? Buffer.from([]),
-						name: 'guild_icon.png'
-					}, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)
-				],
-			}
-		);
+		await client.func.method.interactionSend(interaction, {
+			embeds: [embed],
+			files: [
+				{
+					attachment:
+						(await interaction.client.func.image64.image64(
+							interaction.guild.iconURL() ||
+								client.user.displayAvatarURL()
+						)) ?? Buffer.from([]),
+					name: "guild_icon.png"
+				},
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
+		});
 
 		return;
-	},
+	}
 };

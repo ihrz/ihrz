@@ -20,33 +20,46 @@
 */
 
 import {
-	Client, ChatInputCommandInteraction, ApplicationCommandType,
-	Message,
-} from 'discord.js'
+	Client,
+	ChatInputCommandInteraction,
+	ApplicationCommandType,
+	Message
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
 export const command: Command = {
-	name: 'noaimie',
+	name: "noaimie",
 
-	description: 'Get unnecessary information about my contributor noaimie',
+	description: "Get unnecessary information about my contributor noaimie",
 	description_localizations: {
-		"fr": "Obtenir des informations non nécessaires sur ma contributrice"
+		fr: "Obtenir des informations non nécessaires sur ma contributrice"
 	},
 
 	aliases: ["noemie", "noémie"],
 
-	category: 'bot',
+	category: "bot",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		await client.func.method.interactionSend(interaction, { content: "https://www.ihorizon.org/assets/img/noaimie.jpg" });
+		await client.func.method.interactionSend(interaction, {
+			content: "https://www.ihorizon.org/assets/img/noaimie.jpg"
+		});
 		return;
 	},
 	permission: null

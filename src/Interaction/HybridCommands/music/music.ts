@@ -22,60 +22,73 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
-const VOLUMES = ["10", "20", "30", "35", "45", "55", "60", "70", "80", "90", "95", "100"];
+const VOLUMES = [
+	"10",
+	"20",
+	"30",
+	"35",
+	"45",
+	"55",
+	"60",
+	"70",
+	"80",
+	"90",
+	"95",
+	"100"
+];
 
 export const command: Command = {
 	name: "music",
 	name_localizations: {
-		"fr": "musique"
+		fr: "musique"
 	},
 
 	description: "Subcommand for music category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de musique"
+		fr: "Commande sous-groupé pour la catégorie de musique"
 	},
 
 	aliases: ["m"],
 
 	options: [
 		{
-			name: 'loop',
+			name: "loop",
 			name_localizations: {
-				"fr": "boucle"
+				fr: "boucle"
 			},
 
-			description: 'Set loop mode of the guild!',
+			description: "Set loop mode of the guild!",
 			description_localizations: {
-				"fr": "Changer l'état de la boucle sur le serveur"
+				fr: "Changer l'état de la boucle sur le serveur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'mode',
+					name: "mode",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'Loop Type',
+					description: "Loop Type",
 					description_localizations: {
-						"fr": "Status de la boucle"
+						fr: "Status de la boucle"
 					},
 
 					required: true,
 					choices: [
 						{
-							name: 'Off',
-							name_localizations: { fr: 'Désactiver' },
-							value: 'off'
+							name: "Off",
+							name_localizations: { fr: "Désactiver" },
+							value: "off"
 						},
 						{
-							name: 'On',
-							name_localizations: { fr: 'Activer' },
-							value: 'track'
+							name: "On",
+							name_localizations: { fr: "Activer" },
+							value: "track"
 						}
 					],
 
@@ -86,41 +99,42 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'lyrics',
+			name: "lyrics",
 
-			description: 'Find the lyrics of a title!',
+			description: "Find the lyrics of a title!",
 			description_localizations: {
-				"fr": "Trouver les lyrics d'un titre"
+				fr: "Trouver les lyrics d'un titre"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'query',
+					name: "query",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The track title you want',
+					description: "The track title you want",
 					description_localizations: {
-						"fr": "Titre de la musique que vous souhaitez"
+						fr: "Titre de la musique que vous souhaitez"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: null
 		},
 		{
-			name: 'history',
+			name: "history",
 			name_localizations: {
-				"fr": "historique",
+				fr: "historique"
 			},
 
-			description: "See the history of all the music played in this guild!",
+			description:
+				"See the history of all the music played in this guild!",
 			description_localizations: {
-				"fr": "Voir toute les musique joué dans un ordre chronologique sur le serveur"
+				fr: "Voir toute les musique joué dans un ordre chronologique sur le serveur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -128,12 +142,12 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'clear-queue',
+			name: "clear-queue",
 			aliases: ["clearqueue"],
 
-			description: 'Clear the music queue in this guild!',
+			description: "Clear the music queue in this guild!",
 			description_localizations: {
-				"fr": "Vider la file d'attente musicale de ce serveur"
+				fr: "Vider la file d'attente musicale de ce serveur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -141,26 +155,14 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'nowplaying',
+			name: "nowplaying",
 			name_localizations: {
-				"fr": "en-lecture"
+				fr: "en-lecture"
 			},
 
-			description: 'Get the current playing song!',
+			description: "Get the current playing song!",
 			description_localizations: {
-				"fr": "Obtenir la chanson en cours de lecture"
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: null
-		},
-		{
-			name: 'pause',
-
-			description: 'Pause the current playing song!',
-			description_localizations: {
-				"fr": "Mettre en pause la musique actuelle"
+				fr: "Obtenir la chanson en cours de lecture"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -168,11 +170,23 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'play',
+			name: "pause",
 
-			description: 'Play a song!',
+			description: "Pause the current playing song!",
 			description_localizations: {
-				"fr": "Jouer une musique!"
+				fr: "Mettre en pause la musique actuelle"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null
+		},
+		{
+			name: "play",
+
+			description: "Play a song!",
+			description_localizations: {
+				fr: "Jouer une musique!"
 			},
 
 			aliases: ["p"],
@@ -180,18 +194,19 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'title',
+					name: "title",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The track title you want (you can put URL as you want)',
+					description:
+						"The track title you want (you can put URL as you want)",
 					description_localizations: {
-						"fr": "Titre de la musique que vous souhaitez (vous pouvez mettre une URL si vous le voulez)"
+						fr: "Titre de la musique que vous souhaitez (vous pouvez mettre une URL si vous le voulez)"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: null
@@ -201,7 +216,7 @@ export const command: Command = {
 
 			description: "change the volume of the player in the guild",
 			description_localizations: {
-				"fr": "changer le son du player sur le serveur"
+				fr: "changer le son du player sur le serveur"
 			},
 
 			permission: null,
@@ -212,17 +227,17 @@ export const command: Command = {
 
 					description: "the music level",
 					description_localizations: {
-						"fr": "le niveau du son"
+						fr: "le niveau du son"
 					},
 
-					choices: VOLUMES.map(x => {
+					choices: VOLUMES.map((x) => {
 						return {
-							name: x + '%',
+							name: x + "%",
 							name_localizations: {
-								"fr": x + "%"
+								fr: x + "%"
 							},
 							value: x
-						}
+						};
 					}),
 
 					required: true,
@@ -234,12 +249,11 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand
 		},
 		{
-			name: 'trackinfo',
+			name: "trackinfo",
 
-
-			description: 'Search a music into the Internet',
+			description: "Search a music into the Internet",
 			description_localizations: {
-				"fr": "Chercher une musique sur Internet"
+				fr: "Chercher une musique sur Internet"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -247,11 +261,11 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'queue',
+			name: "queue",
 
-			description: 'Get the queue!',
+			description: "Get the queue!",
 			description_localizations: {
-				"fr": "Obtenir la file d'attente des musique sur le serveur!"
+				fr: "Obtenir la file d'attente des musique sur le serveur!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -259,14 +273,14 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'resume',
+			name: "resume",
 			name_localizations: {
-				"fr": "reprendre"
+				fr: "reprendre"
 			},
 
-			description: 'Resume the current playing song!',
+			description: "Resume the current playing song!",
 			description_localizations: {
-				"fr": "Reprendre la chanson en cours de lecture"
+				fr: "Reprendre la chanson en cours de lecture"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -274,26 +288,14 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'shuffle',
+			name: "shuffle",
 			name_localizations: {
-				"fr": "mélanger"
+				fr: "mélanger"
 			},
 
-			description: 'Shuffle the queue!',
+			description: "Shuffle the queue!",
 			description_localizations: {
-				"fr": "Mélangez la file d'attente"
-			},
-
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: null
-		},
-		{
-			name: 'skip',
-
-			description: 'Skip the current playing song!',
-			description_localizations: {
-				"fr": "Passer la chanson en cours de lecture"
+				fr: "Mélangez la file d'attente"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -301,11 +303,23 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'stop',
+			name: "skip",
 
-			description: 'Stop the current playing song!',
+			description: "Skip the current playing song!",
 			description_localizations: {
-				"fr": "Couper la musique"
+				fr: "Passer la chanson en cours de lecture"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null
+		},
+		{
+			name: "stop",
+
+			description: "Stop the current playing song!",
+			description_localizations: {
+				fr: "Couper la musique"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -314,7 +328,7 @@ export const command: Command = {
 		}
 	],
 	thinking: true,
-	category: 'music',
+	category: "music",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

@@ -23,41 +23,69 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
-import { SubCommand } from '../../../../../types/command.js';
-import { DatabaseStructure } from '../../../../../types/database_structure.js';
+import { LanguageData } from "../../../../../types/languageData.js";
+import { SubCommand } from "../../../../../types/command.js";
+import { DatabaseStructure } from "../../../../../types/database_structure.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var channel = interaction.options.getChannel("to", true) as BaseGuildTextChannel;
+			var channel = interaction.options.getChannel(
+				"to",
+				true
+			) as BaseGuildTextChannel;
 		} else {
-			var channel = await client.func.method.channel(interaction, args!, 0) as BaseGuildTextChannel;
-		};
+			var channel = (await client.func.method.channel(
+				interaction,
+				args!,
+				0
+			)) as BaseGuildTextChannel;
+		}
 
-		let baseData: DatabaseStructure.SkullboardConfigSchema = await client.db.get(`${interaction.guildId}.GUILD.SKULLBOARD`) || {
-			channel: null,
-			createThread: false,
-			enabled: false,
-			threshold: 2
-		};
+		let baseData: DatabaseStructure.SkullboardConfigSchema =
+			(await client.db.get(
+				`${interaction.guildId}.GUILD.SKULLBOARD`
+			)) || {
+				channel: null,
+				createThread: false,
+				enabled: false,
+				threshold: 2
+			};
 
 		baseData.channel = channel.id;
-		await client.db.set(`${interaction.guildId}.GUILD.SKULLBOARD`, baseData);
-
+		await client.db.set(
+			`${interaction.guildId}.GUILD.SKULLBOARD`,
+			baseData
+		);
 
 		client.func.method.interactionSend(interaction, {
 			content: lang.skullboard_channel_command_ok
-				.replaceAll("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
+				.replaceAll(
+					"${client.iHorizon_Emojis.Yes}",
+					client.iHorizon_Emojis.Yes
+				)
 				.replaceAll("${channel.toString()}", channel.toString())
-				.replaceAll("${baseData.threshold}", baseData.threshold.toString())
-		})
-	},
+				.replaceAll(
+					"${baseData.threshold}",
+					baseData.threshold.toString()
+				)
+		});
+	}
 };

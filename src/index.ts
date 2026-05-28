@@ -19,19 +19,19 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { execSync } from 'child_process';
+import { execSync } from "child_process";
 
 execSync("git pull", {
 	stdio: [0, 1, 2],
 	cwd: process.cwd()
 });
 
-import './core/functions/colors.js';
+import "./core/functions/colors.js";
 
-import config from './files/config.js';
-import logger from './core/logger.js';
+import config from "./files/config.js";
+import logger from "./core/logger.js";
 
-import { ShardingManager, REST, Routes } from 'discord.js';
+import { ShardingManager, REST, Routes } from "discord.js";
 
 const token = process.env.BOT_TOKEN || config.discord.token;
 const GUILDS_PER_SHARD = 700;
@@ -48,28 +48,37 @@ interface GatewayBotInfo {
 }
 
 async function getOptimalShardCount(): Promise<number> {
-	const rest = new REST({ version: '10' }).setToken(token);
+	const rest = new REST({ version: "10" }).setToken(token);
 
-	const gateway = await rest.get(Routes.gatewayBot()) as GatewayBotInfo;
+	const gateway = (await rest.get(Routes.gatewayBot())) as GatewayBotInfo;
 
 	const discordRecommended = gateway.shards;
 	const remaining = gateway.session_start_limit.remaining;
 	const total = gateway.session_start_limit.total;
 	const concurrency = gateway.session_start_limit.max_concurrency;
 
-	logger.log(`[Gateway] Discord recommends: ${discordRecommended} shards`.cyan);
-	logger.log(`[Gateway] Session starts remaining: ${remaining}/${total}`.cyan);
+	logger.log(
+		`[Gateway] Discord recommends: ${discordRecommended} shards`.cyan
+	);
+	logger.log(
+		`[Gateway] Session starts remaining: ${remaining}/${total}`.cyan
+	);
 	logger.log(`[Gateway] Max concurrency: ${concurrency}`.cyan);
 
 	if (remaining < 10) {
-		logger.warn(`[Gateway] ⚠️ Only ${remaining} IDENTIFY tokens left — resets in ${Math.round(gateway.session_start_limit.reset_after / 1000)}s`.yellow);
+		logger.warn(
+			`[Gateway] ⚠️ Only ${remaining} IDENTIFY tokens left — resets in ${Math.round(gateway.session_start_limit.reset_after / 1000)}s`
+				.yellow
+		);
 	}
 
 	// ENV override takes priority
 	if (process.env.TOTAL_SHARDS) {
 		const parsed = Number(process.env.TOTAL_SHARDS);
 		if (!isNaN(parsed)) {
-			logger.log(`[Gateway] Using TOTAL_SHARDS override: ${parsed}`.yellow);
+			logger.log(
+				`[Gateway] Using TOTAL_SHARDS override: ${parsed}`.yellow
+			);
 			return parsed;
 		}
 	}
@@ -82,7 +91,10 @@ async function getOptimalShardCount(): Promise<number> {
 	const tuned = discordRecommended * shardMultiplier;
 	const final = Math.max(discordRecommended, tuned);
 
-	logger.log(`[Gateway] Tuned shard count: ${final} (Discord: ${discordRecommended} × multiplier: ${shardMultiplier})`.green);
+	logger.log(
+		`[Gateway] Tuned shard count: ${final} (Discord: ${discordRecommended} × multiplier: ${shardMultiplier})`
+			.green
+	);
 	return final;
 }
 
@@ -91,30 +103,38 @@ async function getOptimalShardCount(): Promise<number> {
 const totalShards = await getOptimalShardCount();
 
 logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
-logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
-logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
+logger.legacy(
+	"[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International"
+		.gray
+);
+logger.legacy(
+	"[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0"
+		.gray
+);
 
-const manager = new ShardingManager('./src/core/bot.ts', {
+const manager = new ShardingManager("./src/core/bot.ts", {
 	totalShards,
 	token,
-	respawn: true,
+	respawn: true
 });
 
-manager.on('shardCreate', (shard) => {
+manager.on("shardCreate", (shard) => {
 	const tag = `[Shard #${shard.id}]`.cyan;
 	logger.log(`${config.console.emojis.HOST} >> ${tag} Spawning...`.green);
 
-	shard.on('ready', () => logger.log(`${tag} ✅ Ready`.green));
-	shard.on('disconnect', () => logger.warn(`${tag} ⚠️ Disconnected`.yellow));
-	shard.on('reconnecting', () => logger.log(`${tag} 🔄 Reconnecting...`.blue));
-	shard.on('death', (proc) => logger.err(`${tag} 💀 Died`.red));
-	shard.on('error', (err) => logger.err(`${tag} Error: ${err.message}`.red));
+	shard.on("ready", () => logger.log(`${tag} ✅ Ready`.green));
+	shard.on("disconnect", () => logger.warn(`${tag} ⚠️ Disconnected`.yellow));
+	shard.on("reconnecting", () =>
+		logger.log(`${tag} 🔄 Reconnecting...`.blue)
+	);
+	shard.on("death", (proc) => logger.err(`${tag} 💀 Died`.red));
+	shard.on("error", (err) => logger.err(`${tag} Error: ${err.message}`.red));
 });
 
 await manager.spawn({
 	amount: totalShards,
 	delay: 5500,
-	timeout: 30_000,
+	timeout: 30_000
 });
 
 logger.log(`✅ All ${totalShards} shards spawned`.green);

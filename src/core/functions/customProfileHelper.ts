@@ -22,71 +22,96 @@
 import { Guild } from "discord.js";
 
 // https://discord.com/developers/docs/resources/guild#modify-current-member
-export const GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL = "https://discord.com/api/v10/guilds/{guild.id}/members/@me";
+export const GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL =
+	"https://discord.com/api/v10/guilds/{guild.id}/members/@me";
 
-export async function changeGuildBotName(guild: Guild, nick: string): Promise<boolean> {
-	const res = await fetch(GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace('{guild.id}', guild.id), {
-		method: "PATCH",
-		headers: {
-			"Authorization": `Bot ${client.token}`,
-			"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			nick
-		})
-	});
-
-	if (res.status === 200) return true;
-	return false;
-}
-
-export async function changeGuildBotBanner(guild: Guild, banner: string): Promise<boolean> {
-	const res = await fetch(GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace('{guild.id}', guild.id), {
-		method: "PATCH",
-		headers: {
-			"Authorization": `Bot ${client.token}`,
-			"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			banner
-		})
-	});
+export async function changeGuildBotName(
+	guild: Guild,
+	nick: string
+): Promise<boolean> {
+	const res = await fetch(
+		GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace("{guild.id}", guild.id),
+		{
+			method: "PATCH",
+			headers: {
+				Authorization: `Bot ${client.token}`,
+				"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				nick
+			})
+		}
+	);
 
 	if (res.status === 200) return true;
 	return false;
 }
 
-export async function changeGuildBotAvatar(guild: Guild, avatar: string): Promise<boolean> {
-	const res = await fetch(GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace('{guild.id}', guild.id), {
-		method: "PATCH",
-		headers: {
-			"Authorization": `Bot ${client.token}`,
-			"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			avatar
-		})
-	});
+export async function changeGuildBotBanner(
+	guild: Guild,
+	banner: string
+): Promise<boolean> {
+	const res = await fetch(
+		GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace("{guild.id}", guild.id),
+		{
+			method: "PATCH",
+			headers: {
+				Authorization: `Bot ${client.token}`,
+				"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				banner
+			})
+		}
+	);
 
 	if (res.status === 200) return true;
 	return false;
 }
 
-export async function changeGuildBotBio(guild: Guild, bio: string): Promise<boolean> {
-	const res = await fetch(GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace('{guild.id}', guild.id), {
-		method: "PATCH",
-		headers: {
-			"Authorization": `Bot ${client.token}`,
-			"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify({
-			bio
-		})
-	});
+export async function changeGuildBotAvatar(
+	guild: Guild,
+	avatar: string
+): Promise<boolean> {
+	const res = await fetch(
+		GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace("{guild.id}", guild.id),
+		{
+			method: "PATCH",
+			headers: {
+				Authorization: `Bot ${client.token}`,
+				"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				avatar
+			})
+		}
+	);
+
+	if (res.status === 200) return true;
+	return false;
+}
+
+export async function changeGuildBotBio(
+	guild: Guild,
+	bio: string
+): Promise<boolean> {
+	const res = await fetch(
+		GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace("{guild.id}", guild.id),
+		{
+			method: "PATCH",
+			headers: {
+				Authorization: `Bot ${client.token}`,
+				"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				bio
+			})
+		}
+	);
 
 	if (res.status === 200) return true;
 	return false;

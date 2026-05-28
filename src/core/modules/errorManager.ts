@@ -19,24 +19,28 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { format } from '../functions/date_and_time.js';
-import logger from '../logger.js';
+import { format } from "../functions/date_and_time.js";
+import logger from "../logger.js";
 
-import fs from 'node:fs';
-import { Client } from 'discord.js';
+import fs from "node:fs";
+import { Client } from "discord.js";
 
 export const uncaughtExceptionHandler = (client: Client) => {
-	process.on('uncaughtException', function (err) {
+	process.on("uncaughtException", function (err) {
 		if (!client.config.core.devMode) {
-			logger.err(`${client.config.console.emojis.ERROR} >> Error detected`.red);
-			logger.err(`${client.config.console.emojis.OK} >> Save in the logs`.gray);
+			logger.err(
+				`${client.config.console.emojis.ERROR} >> Error detected`.red
+			);
+			logger.err(
+				`${client.config.console.emojis.OK} >> Save in the logs`.gray
+			);
 
 			const filesPath: string = `${process.cwd()}/src/files/error.log`;
-			const CreateFile = fs.createWriteStream(filesPath, { flags: 'a' });
-			const i = `[${format((new Date()), 'DD/MM/YYYY HH:mm:ss')}]\n${err.stack || err.message}\r\n`;
+			const CreateFile = fs.createWriteStream(filesPath, { flags: "a" });
+			const i = `[${format(new Date(), "DD/MM/YYYY HH:mm:ss")}]\n${err.stack || err.message}\r\n`;
 
 			return CreateFile.write(i);
-		};
+		}
 
 		logger.err(err.stack || err.message);
 	});
@@ -44,14 +48,18 @@ export const uncaughtExceptionHandler = (client: Client) => {
 	process.on("unhandledRejection", function (err) {
 		console.error(err);
 		if (!client.config.core.devMode) {
-			logger.err(`${client.config.console.emojis.ERROR} >> Error detected`.red);
-			logger.err(`${client.config.console.emojis.OK} >> Save in the logs`.gray);
+			logger.err(
+				`${client.config.console.emojis.ERROR} >> Error detected`.red
+			);
+			logger.err(
+				`${client.config.console.emojis.OK} >> Save in the logs`.gray
+			);
 
 			const filesPath: string = `${process.cwd()}/src/files/error.log`;
-			const CreateFile = fs.createWriteStream(filesPath, { flags: 'a' });
-			const i = `[${format((new Date()), 'DD/MM/YYYY HH:mm:ss')}]\n${JSON.stringify(err)}\r\n`;
+			const CreateFile = fs.createWriteStream(filesPath, { flags: "a" });
+			const i = `[${format(new Date(), "DD/MM/YYYY HH:mm:ss")}]\n${JSON.stringify(err)}\r\n`;
 
 			return CreateFile.write(i);
-		};
+		}
 	});
 };

@@ -19,49 +19,73 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, PermissionFlagsBits, GuildMember } from 'discord.js'
-import { BotEvent } from '../../../types/event.js';
-import { getLogs } from './ready.js';
+import {
+	Client,
+	AuditLogEvent,
+	GuildChannel,
+	PermissionFlagsBits,
+	GuildMember
+} from "discord.js";
+import { BotEvent } from "../../../types/event.js";
+import { getLogs } from "./ready.js";
 
 export const event: BotEvent = {
 	name: "channelCreate",
 	run: async (client: Client, channel: GuildChannel) => {
-
-		if (!channel.guild.members.me?.permissions.has([
-			PermissionFlagsBits.Administrator
-		])) return;
+		if (
+			!channel.guild.members.me?.permissions.has([
+				PermissionFlagsBits.Administrator
+			])
+		)
+			return;
 
 		const data = await client.db.get(`${channel.guild.id}.PROTECTION`);
 		if (!data) return;
 
 		if (data.createchannel) {
-
-			const relevantLog = await getLogs({ guild: channel.guild, target: channel.id, actionType: AuditLogEvent.ChannelCreate, type: "PROTECTION" });
+			const relevantLog = await getLogs({
+				guild: channel.guild,
+				target: channel.id,
+				actionType: AuditLogEvent.ChannelCreate,
+				type: "PROTECTION"
+			});
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;
 			let shouldSanction: boolean = false;
 
-			if (data.createchannel.mode === 'allowlist') {
-				const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.createchannel.mode === "allowlist") {
+				const baseData = await client.db.get(
+					`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`
+				);
 
 				if (!baseData) {
-					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						channel.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
 				}
-			} else if (data.createchannel.mode === 'nobody') {
+			} else if (data.createchannel.mode === "nobody") {
 				if (relevantLog.executorId !== channel.guild.ownerId) {
-					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						channel.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
 				}
 			}
-			const isOwner = await client.db.get(`${user?.guild.id}.OWNER.${user?.id}`)
+			const isOwner = await client.db.get(
+				`${user?.guild.id}.OWNER.${user?.id}`
+			);
 
-			!isOwner && shouldSanction && (async () => {
-				await client.func.method.punish(data, user!);
+			!isOwner &&
+				shouldSanction &&
+				(async () => {
+					await client.func.method.punish(data, user!);
 
-				await channel.delete();
-			})()
+					await channel.delete();
+				})();
 		}
-	},
+	}
 };

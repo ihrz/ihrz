@@ -23,26 +23,26 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
-	name: 'voice',
+	name: "voice",
 
 	options: [
 		{
 			name: "interface",
 			name_localizations: {
-				"fr": "gérer"
+				fr: "gérer"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
 
 			description: "Manage voice's interface",
 			description_localizations: {
-				"fr": "Gérer les interfaces de créations de canaux vocaux"
+				fr: "Gérer les interfaces de créations de canaux vocaux"
 			},
 
 			options: [
@@ -52,7 +52,7 @@ export const command: Command = {
 
 					description: "Set the channel for Join4Create!",
 					description_localizations: {
-						"fr": "Définit le salon où le membre se connecte pour créer son propre canal"
+						fr: "Définit le salon où le membre se connecte pour créer son propre canal"
 					},
 
 					options: [
@@ -63,7 +63,7 @@ export const command: Command = {
 
 							description: "The channel you want",
 							description_localizations: {
-								"fr": "Le salon où les gens devront rejoindre pour créer leur propre salon"
+								fr: "Le salon où les gens devront rejoindre pour créer leur propre salon"
 							},
 
 							required: true,
@@ -77,9 +77,10 @@ export const command: Command = {
 					name: "set-text-channel",
 					type: ApplicationCommandOptionType.Subcommand,
 
-					description: "Send an interface to the channel to manage their own voice channel",
+					description:
+						"Send an interface to the channel to manage their own voice channel",
 					description_localizations: {
-						"fr": "Envoyer une interface au canal pour gérer son propre canal vocal"
+						fr: "Envoyer une interface au canal pour gérer son propre canal vocal"
 					},
 
 					options: [
@@ -88,9 +89,10 @@ export const command: Command = {
 							type: ApplicationCommandOptionType.Channel,
 							channel_types: [ChannelType.GuildText],
 
-							description: "The channel you want the dashboard interface are sent",
+							description:
+								"The channel you want the dashboard interface are sent",
 							description_localizations: {
-								"fr": "Le salon où l'interface sera envoyée"
+								fr: "Le salon où l'interface sera envoyée"
 							},
 
 							required: true,
@@ -104,9 +106,10 @@ export const command: Command = {
 					name: "set-staff-role",
 					type: ApplicationCommandOptionType.Subcommand,
 
-					description: "Set an role for bypassing TempChannel's permission",
+					description:
+						"Set an role for bypassing TempChannel's permission",
 					description_localizations: {
-						"fr": "Définir un rôle pour contourner l'autorisation des canaux temporaires"
+						fr: "Définir un rôle pour contourner l'autorisation des canaux temporaires"
 					},
 
 					permission: PermissionFlagsBits.Administrator
@@ -115,9 +118,10 @@ export const command: Command = {
 					name: "set-voice-channel-catgory",
 					type: ApplicationCommandOptionType.Subcommand,
 
-					description: "Set the channel where the voice channel will be created!",
+					description:
+						"Set the channel where the voice channel will be created!",
 					description_localizations: {
-						"fr": "Définit la catégorie où le canal perso va être créé"
+						fr: "Définit la catégorie où le canal perso va être créé"
 					},
 
 					options: [
@@ -128,7 +132,7 @@ export const command: Command = {
 
 							description: "The category you want",
 							description_localizations: {
-								"fr": "La catégorie que vous voulez"
+								fr: "La catégorie que vous voulez"
 							},
 
 							required: true,
@@ -142,9 +146,10 @@ export const command: Command = {
 					name: "set-voice-channel-position",
 					type: ApplicationCommandOptionType.Subcommand,
 
-					description: "Set the voice channel position in the category when it will be created!",
+					description:
+						"Set the voice channel position in the category when it will be created!",
 					description_localizations: {
-						"fr": "Définit la position du salon où le canal perso va être créé dans la catégorie"
+						fr: "Définit la position du salon où le canal perso va être créé dans la catégorie"
 					},
 
 					options: [
@@ -154,7 +159,7 @@ export const command: Command = {
 
 							description: "The position type you want",
 							description_localizations: {
-								"fr": "Quelle position veux-tu pour le salon ?"
+								fr: "Quelle position veux-tu pour le salon ?"
 							},
 
 							choices: [
@@ -181,9 +186,10 @@ export const command: Command = {
 					name: "set-voice-channel-name",
 					type: ApplicationCommandOptionType.Subcommand,
 
-					description: "Set the voice channel name when it will be created!",
+					description:
+						"Set the voice channel name when it will be created!",
 					description_localizations: {
-						"fr": "Définit le nom du salon où le canal va être créé"
+						fr: "Définit le nom du salon où le canal va être créé"
 					},
 
 					options: [
@@ -191,9 +197,10 @@ export const command: Command = {
 							name: "channel_name",
 							type: ApplicationCommandOptionType.String,
 
-							description: "The name you want | Variable: {Username}",
+							description:
+								"The name you want | Variable: {Username}",
 							description_localizations: {
-								"fr": "Le nom que tu veux | Variable: {Username}"
+								fr: "Le nom que tu veux | Variable: {Username}"
 							},
 
 							required: true,
@@ -202,19 +209,18 @@ export const command: Command = {
 					],
 
 					permission: PermissionFlagsBits.Administrator
-				},
+				}
 			],
 			permission: null
-		},
-
+		}
 	],
 
 	description: "Subcommand group for voice's manager",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la gestion de canaux vocaux"
+		fr: "Commande sous-groupé pour la gestion de canaux vocaux"
 	},
 
-	category: 'voicedashboard',
+	category: "voicedashboard",
 	thinking: true,
 	type: ApplicationCommandType.ChatInput,
 

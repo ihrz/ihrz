@@ -22,38 +22,37 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "mod",
 
 	description: "Subcommand for moderation category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de modération"
+		fr: "Commande sous-groupé pour la catégorie de modération"
 	},
 
 	options: [
 		{
-			name: 'ban',
+			name: "ban",
 
-			description: 'Ban a user!',
+			description: "Ban a user!",
 			description_localizations: {
-				"fr": "Bannir un utilisateur"
+				fr: "Bannir un utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'member',
+					name: "member",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'the member you want to ban',
+					description: "the member you want to ban",
 					description_localizations: {
-						"fr": "le membre que vous souhaitez bannir"
+						fr: "le membre que vous souhaitez bannir"
 					},
 
 					required: true,
@@ -61,12 +60,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'reason',
+					name: "reason",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'the reason of the bannisement',
+					description: "the reason of the bannisement",
 					description_localizations: {
-						"fr": "la raison du ban"
+						fr: "la raison du ban"
 					},
 
 					required: false,
@@ -79,38 +78,38 @@ export const command: Command = {
 			permission: PermissionFlagsBits.BanMembers
 		},
 		{
-			name: 'baninfo',
+			name: "baninfo",
 
-			description: 'Check if user is banned and why',
+			description: "Check if user is banned and why",
 			description_localizations: {
-				"fr": "Vérifier si l'utilisateur est bannis du serveur et pourquoi"
+				fr: "Vérifier si l'utilisateur est bannis du serveur et pourquoi"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'user',
+					name: "user",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'the member you want to check',
+					description: "the member you want to check",
 					description_localizations: {
-						"fr": "le membre que vous souhaitez vérifier"
+						fr: "le membre que vous souhaitez vérifier"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: PermissionFlagsBits.BanMembers
 		},
 		{
-			name: 'banlist',
+			name: "banlist",
 
-			description: 'Show a list with all banned member',
+			description: "Show a list with all banned member",
 			description_localizations: {
-				"fr": "Affiche une liste des gens bannis"
+				fr: "Affiche une liste des gens bannis"
 			},
 
 			aliases: ["bans", "listban", "listbans", "banlists"],
@@ -120,22 +119,22 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageGuild
 		},
 		{
-			name: 'clear',
+			name: "clear",
 
-			description: 'Clear a amount of message in the channel !',
+			description: "Clear a amount of message in the channel !",
 			description_localizations: {
-				"fr": "Effacer une quantité de message dans le cannal"
+				fr: "Effacer une quantité de message dans le cannal"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'number',
+					name: "number",
 					type: ApplicationCommandOptionType.Number,
 
-					description: 'The number of message you want to delete !',
+					description: "The number of message you want to delete !",
 					description_localizations: {
-						"fr": "Le nombre de messages que vous souhaitez supprimer"
+						fr: "Le nombre de messages que vous souhaitez supprimer"
 					},
 
 					required: true,
@@ -143,12 +142,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'member',
+					name: "member",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'The member you want to delete the message',
+					description: "The member you want to delete the message",
 					description_localizations: {
-						"fr": "Le membre dont vous souhaitez supprimer les messages"
+						fr: "Le membre dont vous souhaitez supprimer les messages"
 					},
 
 					required: false,
@@ -162,13 +161,13 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageMessages
 		},
 		{
-			name: 'mutelist',
+			name: "mutelist",
 
 			aliases: ["allmute", "allmutes", "alltimeout", "alltimeouts"],
 
-			description: 'Show a list with all muted member',
+			description: "Show a list with all muted member",
 			description_localizations: {
-				"fr": "Affiche une liste des gens mise en sourdine"
+				fr: "Affiche une liste des gens mise en sourdine"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -176,22 +175,22 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ModerateMembers
 		},
 		{
-			name: 'kick',
+			name: "kick",
 
-			description: 'Kick a user!',
+			description: "Kick a user!",
 			description_localizations: {
-				"fr": "Expulser un utilisateur"
+				fr: "Expulser un utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'member',
+					name: "member",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'the member you want to kick',
+					description: "the member you want to kick",
 					description_localizations: {
-						"fr": "le membre que vous voulez expulser"
+						fr: "le membre que vous voulez expulser"
 					},
 
 					required: true,
@@ -199,12 +198,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'reason',
+					name: "reason",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'the reason of the kick',
+					description: "the reason of the kick",
 					description_localizations: {
-						"fr": "la raison du kick"
+						fr: "la raison du kick"
 					},
 
 					required: false,
@@ -216,11 +215,12 @@ export const command: Command = {
 			permission: PermissionFlagsBits.KickMembers
 		},
 		{
-			name: 'lock',
+			name: "lock",
 
-			description: 'Remove ability to speak of all users in this text channel!',
+			description:
+				"Remove ability to speak of all users in this text channel!",
 			description_localizations: {
-				"fr": "Supprimer la possibilité de parler de tous les utilisateurs de ce channel"
+				fr: "Supprimer la possibilité de parler de tous les utilisateurs de ce channel"
 			},
 
 			options: [
@@ -229,7 +229,7 @@ export const command: Command = {
 
 					description: "The role",
 					description_localizations: {
-						"fr": "le rôle"
+						fr: "le rôle"
 					},
 
 					required: false,
@@ -240,14 +240,15 @@ export const command: Command = {
 			],
 
 			permission: PermissionFlagsBits.Administrator,
-			type: ApplicationCommandOptionType.Subcommand,
+			type: ApplicationCommandOptionType.Subcommand
 		},
 		{
-			name: 'lock-all',
+			name: "lock-all",
 
-			description: 'Remove ability to speak of all users in all channels!',
+			description:
+				"Remove ability to speak of all users in all channels!",
 			description_localizations: {
-				"fr": "Supprimer la possibilité de parler de tous les utilisateurs sur tous les channel"
+				fr: "Supprimer la possibilité de parler de tous les utilisateurs sur tous les channel"
 			},
 
 			options: [
@@ -256,7 +257,7 @@ export const command: Command = {
 
 					description: "The role",
 					description_localizations: {
-						"fr": "le rôle"
+						fr: "le rôle"
 					},
 
 					required: false,
@@ -272,11 +273,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'tempmute',
+			name: "tempmute",
 
-			description: 'Temporarily mute a user!',
+			description: "Temporarily mute a user!",
 			description_localizations: {
-				"fr": "Couper temporairement la possibilité d'envoyer des message pour un utilisateur"
+				fr: "Couper temporairement la possibilité d'envoyer des message pour un utilisateur"
 			},
 
 			aliases: ["mute"],
@@ -284,12 +285,12 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'user',
+					name: "user",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'The user you want to unmuted',
+					description: "The user you want to unmuted",
 					description_localizations: {
-						"fr": "L'utilisateur que vous souhaitez dé-mute textuellement"
+						fr: "L'utilisateur que vous souhaitez dé-mute textuellement"
 					},
 
 					required: true,
@@ -297,12 +298,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'time',
+					name: "time",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'the duration of the user\'s tempmute',
+					description: "the duration of the user's tempmute",
 					description_localizations: {
-						"fr": "la durée du tempmute de l'utilisateur"
+						fr: "la durée du tempmute de l'utilisateur"
 					},
 
 					required: true,
@@ -310,12 +311,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'reason',
+					name: "reason",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'the reason why you tempmuted',
+					description: "the reason why you tempmuted",
 					description_localizations: {
-						"fr": "la raison du tempmute"
+						fr: "la raison du tempmute"
 					},
 
 					required: false,
@@ -327,22 +328,22 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ModerateMembers
 		},
 		{
-			name: 'unban',
+			name: "unban",
 
-			description: 'Unban a user!',
+			description: "Unban a user!",
 			description_localizations: {
-				"fr": "Annuler le bannissement d'un utilisateur"
+				fr: "Annuler le bannissement d'un utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'userid',
+					name: "userid",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The id of the user you want to unban !',
+					description: "The id of the user you want to unban !",
 					description_localizations: {
-						"fr": "L'identifiant de l'utilisateur que vous souhaitez débannir"
+						fr: "L'identifiant de l'utilisateur que vous souhaitez débannir"
 					},
 
 					required: true,
@@ -350,12 +351,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'reason',
+					name: "reason",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The reason for unbanning this user.',
+					description: "The reason for unbanning this user.",
 					description_localizations: {
-						"fr": "La raison du bannissement de cet utilisateur"
+						fr: "La raison du bannissement de cet utilisateur"
 					},
 
 					required: false,
@@ -369,11 +370,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.BanMembers
 		},
 		{
-			name: 'unlock',
+			name: "unlock",
 
-			description: 'Give ability to speak of all users in this text!',
+			description: "Give ability to speak of all users in this text!",
 			description_localizations: {
-				"fr": "Donner la possibilité de parler de tous les utilisateurs dans ce texte"
+				fr: "Donner la possibilité de parler de tous les utilisateurs dans ce texte"
 			},
 
 			options: [
@@ -382,7 +383,7 @@ export const command: Command = {
 
 					description: "The role",
 					description_localizations: {
-						"fr": "le rôle"
+						fr: "le rôle"
 					},
 
 					required: false,
@@ -397,11 +398,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'unmute',
+			name: "unmute",
 
-			description: 'Unmute a user!',
+			description: "Unmute a user!",
 			description_localizations: {
-				"fr": "Demute un utilisateur !"
+				fr: "Demute un utilisateur !"
 			},
 
 			aliases: ["untempmute", "untimeout", "demute"],
@@ -409,12 +410,12 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'user',
+					name: "user",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'The user you want to unmuted',
+					description: "The user you want to unmuted",
 					description_localizations: {
-						"fr": "L'utilisateur que vous souhaitez unmuted"
+						fr: "L'utilisateur que vous souhaitez unmuted"
 					},
 
 					required: true,
@@ -430,7 +431,7 @@ export const command: Command = {
 
 			description: "warn a user",
 			description_localizations: {
-				"fr": "avertir un utilisateur"
+				fr: "avertir un utilisateur"
 			},
 
 			options: [
@@ -439,7 +440,7 @@ export const command: Command = {
 
 					description: "The member you want to warn",
 					description_localizations: {
-						"fr": "le membre que vous voulez signaler"
+						fr: "le membre que vous voulez signaler"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -452,7 +453,7 @@ export const command: Command = {
 
 					description: "The reason why you want to warn this member",
 					description_localizations: {
-						"fr": "La raison du warn"
+						fr: "La raison du warn"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -470,7 +471,7 @@ export const command: Command = {
 
 			description: "unwarn a user",
 			description_localizations: {
-				"fr": "supprimer un avertissement d'un utilisateur"
+				fr: "supprimer un avertissement d'un utilisateur"
 			},
 
 			options: [
@@ -479,7 +480,7 @@ export const command: Command = {
 
 					description: "The member you want to unwarn",
 					description_localizations: {
-						"fr": "le membre que vous voulez enlever sont signalement"
+						fr: "le membre que vous voulez enlever sont signalement"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -492,7 +493,7 @@ export const command: Command = {
 
 					description: "The warn id",
 					description_localizations: {
-						"fr": "l'identifiant du warn"
+						fr: "l'identifiant du warn"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -510,7 +511,7 @@ export const command: Command = {
 
 			description: "show all warns of a user",
 			description_localizations: {
-				"fr": "afficher tout les avertissement d'un utilisateur"
+				fr: "afficher tout les avertissement d'un utilisateur"
 			},
 
 			options: [
@@ -519,7 +520,7 @@ export const command: Command = {
 
 					description: "The member you want to lookup",
 					description_localizations: {
-						"fr": "le membre que vous shouaiter vérifier"
+						fr: "le membre que vous shouaiter vérifier"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -529,7 +530,13 @@ export const command: Command = {
 				}
 			],
 
-			aliases: ["warns", "listwarns", "listwarn", "warnslist", "sanctions"],
+			aliases: [
+				"warns",
+				"listwarns",
+				"listwarn",
+				"warnslist",
+				"sanctions"
+			],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
@@ -540,7 +547,7 @@ export const command: Command = {
 
 			description: "clear all warns of a user",
 			description_localizations: {
-				"fr": "effacer tout les avertissement d'un utilisateur"
+				fr: "effacer tout les avertissement d'un utilisateur"
 			},
 
 			options: [
@@ -549,7 +556,7 @@ export const command: Command = {
 
 					description: "The member you want to clear",
 					description_localizations: {
-						"fr": "le membre que vous voulez effacer les avertissements"
+						fr: "le membre que vous voulez effacer les avertissements"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -559,7 +566,12 @@ export const command: Command = {
 				}
 			],
 
-			aliases: ["clearwarns", "clearwarn", "clearsanctions", "clearsanction"],
+			aliases: [
+				"clearwarns",
+				"clearwarn",
+				"clearsanctions",
+				"clearsanction"
+			],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
@@ -570,12 +582,17 @@ export const command: Command = {
 
 			description: "clear all warns of all users across the server",
 			description_localizations: {
-				"fr": "effacer tout les avertissement de tous les utilisateurs du serveur"
+				fr: "effacer tout les avertissement de tous les utilisateurs du serveur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			aliases: ["clearallwarns", "clearallwarn", "clearsanctionsall", "clearsanctionall"],
+			aliases: [
+				"clearallwarns",
+				"clearallwarn",
+				"clearsanctionsall",
+				"clearsanctionall"
+			],
 
 			permission: PermissionFlagsBits.Administrator
 		},
@@ -584,7 +601,7 @@ export const command: Command = {
 
 			description: "Give a role temporary to a server member",
 			description_localizations: {
-				"fr": "Donner un rôle temporairement à un membre de votre serveur discord"
+				fr: "Donner un rôle temporairement à un membre de votre serveur discord"
 			},
 
 			options: [
@@ -593,7 +610,7 @@ export const command: Command = {
 
 					description: "The member you want to add the role",
 					description_localizations: {
-						"fr": "Le membre qui recevras le rôle"
+						fr: "Le membre qui recevras le rôle"
 					},
 
 					permission: null,
@@ -605,7 +622,7 @@ export const command: Command = {
 
 					description: "The role you want to add to the member",
 					description_localizations: {
-						"fr": "Le rôle que recevras le membre"
+						fr: "Le rôle que recevras le membre"
 					},
 
 					permission: null,
@@ -617,7 +634,7 @@ export const command: Command = {
 
 					description: "The time the member will keep the role",
 					description_localizations: {
-						"fr": "Le temps que le membre auras ce rôle"
+						fr: "Le temps que le membre auras ce rôle"
 					},
 
 					permission: null,
@@ -629,13 +646,13 @@ export const command: Command = {
 
 					description: "The reason why you added this role",
 					description_localizations: {
-						"fr": "La raison de l'ajout du rôle"
+						fr: "La raison de l'ajout du rôle"
 					},
 
 					permission: null,
 					type: ApplicationCommandOptionType.String,
 					required: false
-				},
+				}
 			],
 			type: ApplicationCommandOptionType.Subcommand,
 
@@ -646,14 +663,14 @@ export const command: Command = {
 			name: "tempban",
 			description: "Temporarily ban a user from the server",
 			description_localizations: {
-				"fr": "Bannir temporairement un utilisateur du serveur"
+				fr: "Bannir temporairement un utilisateur du serveur"
 			},
 			options: [
 				{
 					name: "user",
 					description: "The user you want to temporarily ban",
 					description_localizations: {
-						"fr": "L'utilisateur que vous voulez bannir temporairement"
+						fr: "L'utilisateur que vous voulez bannir temporairement"
 					},
 					permission: null,
 					type: ApplicationCommandOptionType.User,
@@ -663,7 +680,7 @@ export const command: Command = {
 					name: "duration",
 					description: "The duration of the ban (e.g., 1h, 3d, 1w)",
 					description_localizations: {
-						"fr": "La durée du bannissement (ex: 1h, 3j, 1s)"
+						fr: "La durée du bannissement (ex: 1h, 3j, 1s)"
 					},
 					permission: null,
 					type: ApplicationCommandOptionType.String,
@@ -673,12 +690,12 @@ export const command: Command = {
 					name: "reason",
 					description: "The reason for the ban",
 					description_localizations: {
-						"fr": "La raison du bannissement"
+						fr: "La raison du bannissement"
 					},
 					permission: null,
 					type: ApplicationCommandOptionType.String,
 					required: false
-				},
+				}
 			],
 			type: ApplicationCommandOptionType.Subcommand,
 			aliases: ["tban", "temporaryban"],
@@ -686,7 +703,7 @@ export const command: Command = {
 		}
 	],
 	thinking: true,
-	category: 'moderation',
+	category: "moderation",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

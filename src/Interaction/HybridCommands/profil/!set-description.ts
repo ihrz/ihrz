@@ -19,31 +19,33 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
-import { profilTable } from '../../../Events/client/ready.js';
+import { SubCommand } from "../../../../types/command.js";
+import { profilTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var desc = interaction.options.getString("description")!;
 			var user = interaction.user;
 		} else {
-
 			var desc = args?.join(" ") || "None";
 			var user = interaction.author;
-		};
+		}
 
 		await profilTable.set(`${user.id}.desc`, desc);
 
-		await client.func.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, flags: [1 << 6] });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.setprofildescriptions_command_work,
+			flags: [1 << 6]
+		});
 		return;
-	},
+	}
 };

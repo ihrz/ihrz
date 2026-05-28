@@ -27,9 +27,11 @@ export class Memory<D = any> {
 	private store = new Map<string, Table>();
 	private mirrors: Memory[] = [];
 
-	constructor(options: {
-		table?: string;
-	} = {}) {
+	constructor(
+		options: {
+			table?: string;
+		} = {}
+	) {
 		options.table ??= "json";
 		this.tableName = options.table;
 	}
@@ -37,7 +39,7 @@ export class Memory<D = any> {
 	private createError(message: string, kind: ErrorKind): Error {
 		const error = new Error(message);
 		error.name = kind;
-		Object.defineProperty(error, 'kind', {
+		Object.defineProperty(error, "kind", {
 			value: kind,
 			writable: false
 		});
@@ -93,7 +95,6 @@ export class Memory<D = any> {
 			.map(([k, v]) => ({ id: k, value: v }));
 	}
 
-
 	private async setRowByKey<T>(
 		table: string,
 		key: string,
@@ -109,7 +110,6 @@ export class Memory<D = any> {
 		return value as T;
 	}
 
-
 	private async deleteAllRows(table: string): Promise<number> {
 		const store = this.getOrCreateTable(table);
 		const size = store.size;
@@ -120,7 +120,6 @@ export class Memory<D = any> {
 		}
 		return size;
 	}
-
 
 	private async deleteRowByKey(table: string, key: string): Promise<number> {
 		const store = this.getOrCreateTable(table);
@@ -428,8 +427,7 @@ export class Memory<D = any> {
 		}
 
 		const newDB = new Memory({
-			table: table,
-
+			table: table
 		});
 		newDB.store = this.store;
 		await newDB.prepare(table);

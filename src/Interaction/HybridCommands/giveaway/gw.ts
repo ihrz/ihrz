@@ -22,22 +22,22 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "gw",
 	description: "Subcommand for giveaway category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de giveaway"
+		fr: "Commande sous-groupé pour la catégorie de giveaway"
 	},
 	options: [
 		{
 			name: "create",
 			name_localizations: {
-				"fr": "créer"
+				fr: "créer"
 			},
 			prefixName: "gw-create",
 
@@ -45,18 +45,18 @@ export const command: Command = {
 
 			description: "Start a giveaway!",
 			description_localizations: {
-				"fr": "Commencer un giveaway"
+				fr: "Commencer un giveaway"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'winner',
+					name: "winner",
 					type: ApplicationCommandOptionType.Number,
 
-					description: 'Number of winner for the giveaways',
+					description: "Number of winner for the giveaways",
 					description_localizations: {
-						"fr": "Nombre de gagnants pour les cadeaux"
+						fr: "Nombre de gagnants pour les cadeaux"
 					},
 
 					required: true,
@@ -64,12 +64,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'time',
+					name: "time",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The time duration of the giveaways',
+					description: "The time duration of the giveaways",
 					description_localizations: {
-						"fr": "La durée des cadeaux"
+						fr: "La durée des cadeaux"
 					},
 
 					required: true,
@@ -81,28 +81,34 @@ export const command: Command = {
 
 					description: "The requirement to enter into the giveaway",
 					description_localizations: {
-						"fr": "Le prérequis pour rentrer dans le giveaways",
+						fr: "Le prérequis pour rentrer dans le giveaways"
 					},
 
 					choices: [
 						{
 							name: "None",
-							name_localizations: { fr: 'Aucun' },
+							name_localizations: { fr: "Aucun" },
 							value: "none"
 						},
 						{
 							name: "Need Specific invitations amount",
-							name_localizations: { fr: 'Besoin d\'un nombre spécifique d\'invitations' },
+							name_localizations: {
+								fr: "Besoin d'un nombre spécifique d'invitations"
+							},
 							value: "invites"
 						},
 						{
 							name: "Need specific messages number",
-							name_localizations: { fr: 'Besoin d\'un nombre spécifique de messages' },
+							name_localizations: {
+								fr: "Besoin d'un nombre spécifique de messages"
+							},
 							value: "messages"
 						},
 						{
 							name: "Need specific roles",
-							name_localizations: { fr: 'Besoin de rôles spécifiques' },
+							name_localizations: {
+								fr: "Besoin de rôles spécifiques"
+							},
 							value: "roles"
 						}
 					],
@@ -113,12 +119,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'prize',
+					name: "prize",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The giveaway\'s prize',
+					description: "The giveaway's prize",
 					description_localizations: {
-						"fr": "Le prix du giveaway"
+						fr: "Le prix du giveaway"
 					},
 
 					required: true,
@@ -126,12 +132,12 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'requirement-value',
+					name: "requirement-value",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The requirement value',
+					description: "The requirement value",
 					description_localizations: {
-						"fr": "La valeur du prérequis pour entrer dans le giveaway"
+						fr: "La valeur du prérequis pour entrer dans le giveaway"
 					},
 
 					required: false,
@@ -139,18 +145,18 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'image',
+					name: "image",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'Image showed on the giveaway\'s embed',
+					description: "Image showed on the giveaway's embed",
 					description_localizations: {
-						"fr": "le lien d'une image qui seras inclu dans l'embed du giveaway"
+						fr: "le lien d'une image qui seras inclu dans l'embed du giveaway"
 					},
 
 					required: false,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: PermissionFlagsBits.ManageMessages
@@ -158,7 +164,7 @@ export const command: Command = {
 		{
 			name: "end",
 			name_localizations: {
-				"fr": "finnir"
+				fr: "finnir"
 			},
 			prefixName: "gw-end",
 
@@ -166,18 +172,19 @@ export const command: Command = {
 
 			description: "Stop a giveaway!",
 			description_localizations: {
-				"fr": "Arrêter un giveaway"
+				fr: "Arrêter un giveaway"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'giveaway-id',
+					name: "giveaway-id",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The giveaway id (is the message id of the embed\'s giveaways)',
+					description:
+						"The giveaway id (is the message id of the embed's giveaways)",
 					description_localizations: {
-						"fr": "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
+						fr: "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
 					},
 
 					required: true,
@@ -191,12 +198,12 @@ export const command: Command = {
 		{
 			name: "reroll",
 			name_localizations: {
-				"fr": "relancer"
+				fr: "relancer"
 			},
 
 			description: "Reroll a giveaway winner(s)!",
 			description_localizations: {
-				"fr": "Relancez un ou plusieurs gagnants"
+				fr: "Relancez un ou plusieurs gagnants"
 			},
 
 			aliases: ["re"],
@@ -204,12 +211,13 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'giveaway-id',
+					name: "giveaway-id",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The giveaway id (is the message id of the embed\'s giveaways)',
+					description:
+						"The giveaway id (is the message id of the embed's giveaways)",
 					description_localizations: {
-						"fr": "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
+						fr: "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
 					},
 
 					required: true,
@@ -223,12 +231,12 @@ export const command: Command = {
 		{
 			name: "list-entries",
 			name_localizations: {
-				"fr": "afficher-les-participant"
+				fr: "afficher-les-participant"
 			},
 
 			description: "List all entries in giveaway!",
 			description_localizations: {
-				"fr": "Répertorier toutes les entrées dans le giveaway"
+				fr: "Répertorier toutes les entrées dans le giveaway"
 			},
 
 			aliases: ["list"],
@@ -236,12 +244,13 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'giveaway-id',
+					name: "giveaway-id",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The giveaway id (is the message id of the embed\'s giveaways)',
+					description:
+						"The giveaway id (is the message id of the embed's giveaways)",
 					description_localizations: {
-						"fr": "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
+						fr: "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
 					},
 
 					required: true,
@@ -253,14 +262,14 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageMessages
 		},
 		{
-			name: 'get-data',
+			name: "get-data",
 			name_localizations: {
-				"fr": "get-data"
+				fr: "get-data"
 			},
 
-			description: 'Get informations about a giveaway (JSON Body)',
+			description: "Get informations about a giveaway (JSON Body)",
 			description_localizations: {
-				"fr": "Obtenir des informations à propos d'un giveaways! (Format JSON)"
+				fr: "Obtenir des informations à propos d'un giveaways! (Format JSON)"
 			},
 
 			aliases: ["get"],
@@ -272,7 +281,7 @@ export const command: Command = {
 
 					description: "Giveaway's ID",
 					description_localizations: {
-						"fr": "L'identifiant du giveaways"
+						fr: "L'identifiant du giveaways"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -285,14 +294,15 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageMessages
 		},
 		{
-			name: 'get-all',
+			name: "get-all",
 			name_localizations: {
-				"fr": "get-all"
+				fr: "get-all"
 			},
 
-			description: 'Get informations about all giveaways in a guild (JSON Body)',
+			description:
+				"Get informations about all giveaways in a guild (JSON Body)",
 			description_localizations: {
-				"fr": "Obtenir des informations à propos de tout les giveaways d'un serveur! (Format JSON)"
+				fr: "Obtenir des informations à propos de tout les giveaways d'un serveur! (Format JSON)"
 			},
 
 			aliases: ["gall"],
@@ -303,7 +313,7 @@ export const command: Command = {
 		}
 	],
 	thinking: true,
-	category: 'giveaway',
+	category: "giveaway",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

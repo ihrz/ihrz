@@ -23,30 +23,46 @@ import {
 	Client,
 	EmbedBuilder,
 	ChatInputCommandInteraction,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { SubCommand } from '../../../../types/command.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
-		};
+		}
 
-		let roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
+		let roleData = (await client.db.get(
+			`${interaction.guildId}.ECONOMY.buyableRoles`
+		)) as DatabaseStructure.EconomyModel["buyableRoles"];
 		if (!roleData) {
 			roleData = {};
 		}
@@ -61,14 +77,24 @@ export const subCommand: SubCommand = {
 		const embed = new EmbedBuilder()
 			.setTitle(lang.economy_role_list_embed_title)
 			.setDescription(lang.economy_role_list_embed_desc)
-			.setFields(client.func.economyHelper.generateRoleFields(roleData, lang))
+			.setFields(
+				client.func.economyHelper.generateRoleFields(roleData, lang)
+			)
 			.setColor("#0097ff")
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
-	},
+	}
 };

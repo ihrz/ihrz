@@ -19,16 +19,23 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, User } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import { Client, User } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "userUpdate",
 	run: async (client: Client, oldUser: User, newUser: User) => {
-		if ((oldUser.username !== newUser.username) || (oldUser.globalName !== newUser.globalName)) {
-			const guilds = client.guilds.cache.filter(guild => guild.members.cache.has(newUser.id)).toJSON();
-			guilds.forEach(async guild => {
-				const guildData = await client.db.get(`${guild.id}.GUILD.RANK_ROLES`);
+		if (
+			oldUser.username !== newUser.username ||
+			oldUser.globalName !== newUser.globalName
+		) {
+			const guilds = client.guilds.cache
+				.filter((guild) => guild.members.cache.has(newUser.id))
+				.toJSON();
+			guilds.forEach(async (guild) => {
+				const guildData = await client.db.get(
+					`${guild.id}.GUILD.RANK_ROLES`
+				);
 				if (guildData?.roles && guildData?.nicknames) {
 					const nicknames = guildData.nicknames;
 					const rankRoles = guildData.roles;
@@ -36,8 +43,11 @@ export const event: BotEvent = {
 					const member = guild.members.cache.get(newUser.id);
 					if (!member) return;
 
-					const includeUsername = newUser.username.includes(nicknames);
-					const includeGlobalname = newUser.globalName ? newUser.globalName.includes(nicknames) : false;
+					const includeUsername =
+						newUser.username.includes(nicknames);
+					const includeGlobalname = newUser.globalName
+						? newUser.globalName.includes(nicknames)
+						: false;
 
 					if (!includeUsername && !includeGlobalname) {
 						if (member.roles.cache.has(rankRoles)) {
@@ -51,5 +61,5 @@ export const event: BotEvent = {
 				} else return;
 			});
 		}
-	},
+	}
 };

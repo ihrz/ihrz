@@ -19,63 +19,81 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ButtonInteraction, ChatInputCommandInteraction, Guild, GuildMember, Interaction, Message, StringSelectMenuInteraction, UserContextMenuCommandInteraction } from "discord.js";
+import {
+	ButtonInteraction,
+	ChatInputCommandInteraction,
+	Guild,
+	GuildMember,
+	Interaction,
+	Message,
+	StringSelectMenuInteraction,
+	UserContextMenuCommandInteraction
+} from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 export async function footerBuilder(guildId: string = ""): Promise<{
 	text: string;
 	iconURL: string;
 }> {
-	let botName = await global.client.db.get(`${guildId}.BOT.botName`) as DatabaseStructure.DbGuildBotObject["botName"];
+	let botName = (await global.client.db.get(
+		`${guildId}.BOT.botName`
+	)) as DatabaseStructure.DbGuildBotObject["botName"];
 
 	if (!botName) {
-		botName = 'iHorizon';
-	};
+		botName = "iHorizon";
+	}
 
 	return {
 		text: botName,
 		iconURL: "attachment://footer_icon.png"
-	}
+	};
 }
 
 export async function footerAttachmentBuilder(
-	entry?: ChatInputCommandInteraction<"cached"> | Message | ButtonInteraction | UserContextMenuCommandInteraction | StringSelectMenuInteraction | Interaction | GuildMember | Guild
+	entry?:
+		| ChatInputCommandInteraction<"cached">
+		| Message
+		| ButtonInteraction
+		| UserContextMenuCommandInteraction
+		| StringSelectMenuInteraction
+		| Interaction
+		| GuildMember
+		| Guild
 ): Promise<{
 	attachment: string | Buffer<ArrayBuffer>;
 	name: string;
 }> {
-
 	const res = await displayBotPP(
-		entry instanceof Guild
-			?
-			entry.id
-			:
-			entry?.guild?.id!
+		entry instanceof Guild ? entry.id : entry?.guild?.id!
 	);
 
 	if (res.type === 1) {
 		return {
 			attachment: res.string,
-			name: 'footer_icon.png'
-		}
+			name: "footer_icon.png"
+		};
 	} else {
-		const buffer = Buffer.from(res.string, 'base64');
+		const buffer = Buffer.from(res.string, "base64");
 
 		return {
 			attachment: buffer,
-			name: 'footer_icon.png'
-		}
+			name: "footer_icon.png"
+		};
 	}
 }
 
-export async function displayBotPP(guildId?: string): Promise<{ type: 1 | 2; string: string; }> {
-	let botPFP = await global.client.db.get(`${guildId}.BOT.botPFP`) as DatabaseStructure.DbGuildBotObject["botPFP"];
+export async function displayBotPP(
+	guildId?: string
+): Promise<{ type: 1 | 2; string: string }> {
+	let botPFP = (await global.client.db.get(
+		`${guildId}.BOT.botPFP`
+	)) as DatabaseStructure.DbGuildBotObject["botPFP"];
 
 	if (!botPFP) {
 		botPFP = global.client.user?.displayAvatarURL({ size: 1024 })!;
 
-		return { type: 1, string: botPFP }
+		return { type: 1, string: botPFP };
 	} else {
-		return { type: 2, string: botPFP }
+		return { type: 2, string: botPFP };
 	}
-};
+}

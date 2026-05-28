@@ -19,37 +19,38 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var action = interaction.options.getString("action");
 		} else {
-
 			var action = client.func.method.string(args!, 0);
 		}
 
 		await client.db.set(`${interaction.guildId}.GUILD.FUN.states`, action);
 
-		const action_type = action === "off" ? lang.var_disabled : lang.var_enabled;
+		const action_type =
+			action === "off" ? lang.var_disabled : lang.var_enabled;
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.fun_disable_command_msg
 				.replace("${action_type}", action_type)
-				.replace("${interaction.member?.user.toString()}", String(interaction.member?.user.toString()))
+				.replace(
+					"${interaction.member?.user.toString()}",
+					String(interaction.member?.user.toString())
+				)
 		});
 		return;
-	},
+	}
 };

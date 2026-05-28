@@ -30,40 +30,52 @@ import {
 	GuildMember,
 	Message,
 	MessageFlags,
-	User,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	User
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var query = interaction.options.getString("title");
 		} else {
 			var query = client.func.method.string(args!, 0);
-		};
+		}
 
 		const voiceChannel = (interaction.member as GuildMember).voice.channel;
 		const player = client.player.getPlayer(interaction.guildId as string);
 
 		if (!player || !player.playing || !voiceChannel) {
-			await client.func.method.interactionSend(interaction, { content: lang.pause_nothing_playing });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.pause_nothing_playing
+			});
 			return;
-		};
+		}
 
 		player.setVolume(parseInt(String(query)));
 		await client.func.method.interactionSend(interaction, {
 			content: lang.music_volume_command_ok
-				.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
+				.replace(
+					"${client.iHorizon_Emojis.Yes}",
+					client.iHorizon_Emojis.Yes
+				)
 				.replace("${Number(query)}", String(query))
-		})
-
-	},
+		});
+	}
 };

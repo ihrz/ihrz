@@ -27,77 +27,107 @@ import {
 	GuildMemberRoleManager,
 	Message,
 	PermissionFlagsBits,
-	PermissionsBitField,
-} from 'discord.js'
+	PermissionsBitField
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { SubCommand } from '../../../../types/command.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var user = interaction.options.getMember("user")! as GuildMember;
 			var role = interaction.options.getRole("role");
 			var author = interaction.member as GuildMember;
 		} else {
-			var user = client.func.method.member(interaction, args!, 0)! as GuildMember;
+			var user = client.func.method.member(
+				interaction,
+				args!,
+				0
+			)! as GuildMember;
 			var role = client.func.method.role(interaction, args!, 1);
 			var author = interaction.member as GuildMember;
-		};
+		}
 
-		const allowed_roles: DatabaseStructure.UtilsData["wlRoles"] = await client.db.get(`${interaction.guildId}.UTILS.wlRoles`) || [];
+		const allowed_roles: DatabaseStructure.UtilsData["wlRoles"] =
+			(await client.db.get(`${interaction.guildId}.UTILS.wlRoles`)) || [];
 
 		if (!allowed_roles?.includes(role?.id!) && allowed_roles!.length > 0) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_addrole_not_wl.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-			})
+				content: lang.utils_addrole_not_wl.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
+			});
 			return;
-		};
+		}
 
 		if (!user) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.ban_dont_found_member
 			});
 			return;
-		};
+		}
 
-		if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
+		if (
+			!interaction.guild.members.me?.permissions.has(
+				PermissionsBitField.Flags.Administrator
+			)
+		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_i_dont_have_permission
 			});
 			return;
-		};
+		}
 
 		if (
-			((interaction.member.roles as GuildMemberRoleManager).highest.position <= user.roles.highest.position && interaction.member.user.id !== user.id)
-			&&
+			(interaction.member.roles as GuildMemberRoleManager).highest
+				.position <= user.roles.highest.position &&
+			interaction.member.user.id !== user.id &&
 			interaction.guild.ownerId !== interaction.member.user.id
 		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_addrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
+				content: lang.utils_addrole_highter_or_egal_roles_msg.replace(
+					"${client.iHorizon_Emojis.Stop}",
+					client.iHorizon_Emojis.Stop
+				)
 			});
-			return;
-		};
-
-		if (role?.permissions.has(PermissionFlagsBits.Administrator) && !user.permissions.has(PermissionFlagsBits.Administrator)) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_addrole_cant_level
-			})
 			return;
 		}
 
-		if (interaction.guild.members.me.roles.highest.position <= role?.position!) {
+		if (
+			role?.permissions.has(PermissionFlagsBits.Administrator) &&
+			!user.permissions.has(PermissionFlagsBits.Administrator)
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.utils_addrole_cant_level
+			});
+			return;
+		}
+
+		if (
+			interaction.guild.members.me.roles.highest.position <=
+			role?.position!
+		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.utils_addrole_try2brain
-			})
+			});
 			return;
 		}
 
@@ -105,13 +135,13 @@ export const subCommand: SubCommand = {
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [
-				new EmbedBuilder()
-					.setDescription(lang.utils_addrole_command_ok
+				new EmbedBuilder().setDescription(
+					lang.utils_addrole_command_ok
 						.replace("${author.toString()}", author.toString())
 						.replace("${role?.toString()}", role?.toString()!)
 						.replace("${user.toString()}", user.toString())
-					)
+				)
 			]
 		});
-	},
+	}
 };

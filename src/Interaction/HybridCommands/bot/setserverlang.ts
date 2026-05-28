@@ -26,86 +26,108 @@ import {
 	ApplicationCommandType,
 	Message,
 	PermissionFlagsBits
-} from 'discord.js'
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { AvailableLanguage } from '../../../core/functions/getLanguageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { AvailableLanguage } from "../../../core/functions/getLanguageData.js";
 
 export const command: Command = {
-	name: 'setlang',
+	name: "setlang",
 	name_localizations: {
-		"fr": "setlangue"
+		fr: "setlangue"
 	},
 
 	aliases: ["setsrvlang", "lang"],
 
-	description: 'Set the server language!',
+	description: "Set the server language!",
 	description_localizations: {
-		"fr": "Choisir la langue du bot discord !"
+		fr: "Choisir la langue du bot discord !"
 	},
 
 	options: [
 		{
-			name: 'language',
+			name: "language",
 			name_localizations: {
-				"fr": "langue"
+				fr: "langue"
 			},
 
 			type: ApplicationCommandOptionType.String,
 
-			description: 'What language you want ?',
+			description: "What language you want ?",
 			description_localizations: {
-				"fr": "Quelle language voulez-vous mettre ?"
+				fr: "Quelle language voulez-vous mettre ?"
 			},
 
 			required: true,
-			choices: Object.values(AvailableLanguage).map(x => {
+			choices: Object.values(AvailableLanguage).map((x) => {
 				return {
 					name: x.name,
 					name_localizations: { fr: x.name },
 					value: x.code
-				}
+				};
 			}),
 
 			permission: null
 		}
 	],
 	thinking: false,
-	category: 'bot',
+	category: "bot",
 	type: ApplicationCommandType.ChatInput,
 	permission: PermissionFlagsBits.Administrator,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var type = interaction.options.getString("language");
 		} else {
-
 			var type = args?.[0] as string | null;
-		};
+		}
 
-		const already = await client.db.get(`${interaction.guildId}.GUILD.LANG`);
+		const already = await client.db.get(
+			`${interaction.guildId}.GUILD.LANG`
+		);
 
 		if (already?.lang === type) {
-			await client.func.method.interactionSend(interaction, { content: lang.setserverlang_already });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.setserverlang_already
+			});
 			return;
 		}
 
-		await client.db.set(`${interaction.guildId}.GUILD.LANG`, { lang: type });
+		await client.db.set(`${interaction.guildId}.GUILD.LANG`, {
+			lang: type
+		});
 		lang = await client.func.getLanguageData(interaction.guildId);
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.setserverlang_logs_embed_title_on_enable,
 			description: lang.setserverlang_logs_embed_description_on_enable
 				.replace(/\${type}/g, type!)
-				.replace(/\${interaction\.user.id}/g, interaction.member.user.id)
+				.replace(
+					/\${interaction\.user.id}/g,
+					interaction.member.user.id
+				)
 		});
 
-		await client.func.method.interactionSend(interaction, { content: lang.setserverlang_command_work_enable.replace(/\${type}/g, type!) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.setserverlang_command_work_enable.replace(
+				/\${type}/g,
+				type!
+			)
+		});
 		return;
-	},
+	}
 };

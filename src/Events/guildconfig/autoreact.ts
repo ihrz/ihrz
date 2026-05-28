@@ -19,18 +19,22 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Message } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import { Client, Message } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
 		if (!message.guild || !message.channel || message.author.bot) return;
 
-		const reactionData = await client.db.get(`${message.guildId}.GUILD.AUTOREACT.${message.channelId}`);
+		const reactionData = await client.db.get(
+			`${message.guildId}.GUILD.AUTOREACT.${message.channelId}`
+		);
 		if (!reactionData) return;
 
-		const reactions = Array.isArray(reactionData) ? reactionData : [reactionData];
+		const reactions = Array.isArray(reactionData)
+			? reactionData
+			: [reactionData];
 
 		for (const reaction of reactions) {
 			try {
@@ -39,5 +43,5 @@ export const event: BotEvent = {
 				continue;
 			}
 		}
-	},
+	}
 };

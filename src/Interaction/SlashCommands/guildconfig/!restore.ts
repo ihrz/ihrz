@@ -19,42 +19,55 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	ChatInputCommandInteraction,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Client, ChatInputCommandInteraction } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
+import { decrypt } from "../../../core/functions/encryptDecryptMethod.js";
 
-import { decrypt } from '../../../core/functions/encryptDecryptMethod.js';
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const backup = interaction.options.getAttachment("backup-to-load");
 
 		if (backup) {
 			try {
 				const response = await fetch(backup.url);
-				const res = JSON.parse(decrypt(client.config.api.apiToken, await response.text()) || "{}");
+				const res = JSON.parse(
+					decrypt(
+						client.config.api.apiToken,
+						await response.text()
+					) || "{}"
+				);
 				if (!res) throw "";
 
 				await client.db.set(`${interaction.guildId}`, res);
 			} catch (error) {
-				await interaction.editReply({ content: lang.guildconfig_config_restore_msg });
+				await interaction.editReply({
+					content: lang.guildconfig_config_restore_msg
+				});
 				return;
 			}
-		};
+		}
 
-		await interaction.editReply({ content: lang.guildconfig_config_restore_msg });
-		return
-	},
+		await interaction.editReply({
+			content: lang.guildconfig_config_restore_msg
+		});
+		return;
+	}
 };

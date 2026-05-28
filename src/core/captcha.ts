@@ -19,28 +19,31 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { randomInt } from 'crypto';
-import html2Png from './functions/html2png.ts';
+import { randomInt } from "crypto";
+import html2Png from "./functions/html2png.ts";
 
 async function captcha(): Promise<{ code: string; image: Buffer }> {
 	const captchaCode = generateRandomCode();
 
 	return {
 		code: captchaCode,
-		image: await html2Png(globalThis.client.htmlfiles["captcha"]
-			.replace("{X}", captchaCode), {
-			omitBackground: true,
-			selectElement: true,
-			elementSelector: ".captcha-container",
-			height: 300,
-			width: 900
-		})
+		image: await html2Png(
+			globalThis.client.htmlfiles["captcha"].replace("{X}", captchaCode),
+			{
+				omitBackground: true,
+				selectElement: true,
+				elementSelector: ".captcha-container",
+				height: 300,
+				width: 900
+			}
+		)
 	};
 }
 
 function generateRandomCode(): string {
-	const characters = 'ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789';
-	let code = '';
+	const characters =
+		"ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789";
+	let code = "";
 	for (let i = 0; i < 7; i++) {
 		const randomIndex = randomInt(0, characters.length);
 		code += characters.charAt(randomIndex);

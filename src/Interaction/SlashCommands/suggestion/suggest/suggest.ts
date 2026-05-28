@@ -22,41 +22,41 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
+import { Command } from "../../../../../types/command.js";
 
 export const command: Command = {
 	name: "suggest",
 
 	description: "Subcommand for suggestion category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de suggestion"
+		fr: "Commande sous-groupé pour la catégorie de suggestion"
 	},
 
 	options: [
 		{
 			name: "reply",
 			name_localizations: {
-				"fr": "répondre"
+				fr: "répondre"
 			},
 			prefixName: "sug-reply",
 
 			description: "Reply to the suggestion (need admin permission)!",
 			description_localizations: {
-				"fr": "Répondre à la suggestion (nécessite l'autorisation de l'administrateur)"
+				fr: "Répondre à la suggestion (nécessite l'autorisation de l'administrateur)"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'id',
+					name: "id",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What the id of the suggestion?',
+					description: "What the id of the suggestion?",
 					description_localizations: {
-						"fr": "Quelle est l'indentifiant de la suggestion ?"
+						fr: "Quelle est l'indentifiant de la suggestion ?"
 					},
 
 					required: true,
@@ -64,18 +64,18 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'message',
+					name: "message",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What message you want reply?',
+					description: "What message you want reply?",
 					description_localizations: {
-						"fr": "Quelle message vous voulez laissez à la suggestion"
+						fr: "Quelle message vous voulez laissez à la suggestion"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			ephemeral: true,
@@ -84,24 +84,24 @@ export const command: Command = {
 		{
 			name: "deny",
 			name_localizations: {
-				"fr": "refusé"
+				fr: "refusé"
 			},
 			prefixName: "sug-deny",
 
 			description: "Deny an suggestion (need admin permission)!",
 			description_localizations: {
-				"fr": "Refuser une suggestion (Requière les permission Admin)"
+				fr: "Refuser une suggestion (Requière les permission Admin)"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'id',
+					name: "id",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What the id of the suggestion?',
+					description: "What the id of the suggestion?",
 					description_localizations: {
-						"fr": "Quelle est l'indentifiant de la suggestion ?"
+						fr: "Quelle est l'indentifiant de la suggestion ?"
 					},
 
 					required: true,
@@ -109,22 +109,22 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'reason',
+					name: "reason",
 					name_localizations: {
-						"fr": "raison"
+						fr: "raison"
 					},
 
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What reason for you denying ?',
+					description: "What reason for you denying ?",
 					description_localizations: {
-						"fr": "Quelle message vous voulez laissez à la suggestion"
+						fr: "Quelle message vous voulez laissez à la suggestion"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			ephemeral: true,
@@ -133,24 +133,24 @@ export const command: Command = {
 		{
 			name: "accept",
 			name_localizations: {
-				"fr": "accepté"
+				fr: "accepté"
 			},
 			prefixName: "sug-accept",
 
 			description: "Accept an suggestion (need admin permission)!",
 			description_localizations: {
-				"fr": "Accepter une suggestion (Requiert permissions Admin)"
+				fr: "Accepter une suggestion (Requiert permissions Admin)"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'id',
+					name: "id",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What the id of the suggestion?',
+					description: "What the id of the suggestion?",
 					description_localizations: {
-						"fr": "Quelle est l'indentifiant de la suggestion ?"
+						fr: "Quelle est l'indentifiant de la suggestion ?"
 					},
 
 					required: true,
@@ -158,22 +158,22 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'reason',
+					name: "reason",
 					name_localizations: {
-						"fr": "raison"
+						fr: "raison"
 					},
 
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What reason for you accepting ?',
+					description: "What reason for you accepting ?",
 					description_localizations: {
-						"fr": "Quelle message vous voulez laissez à la suggestion"
+						fr: "Quelle message vous voulez laissez à la suggestion"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 			ephemeral: true,
 			permission: PermissionFlagsBits.Administrator
@@ -181,37 +181,37 @@ export const command: Command = {
 		{
 			name: "delete",
 			name_localizations: {
-				"fr": "supprimer"
+				fr: "supprimer"
 			},
 			prefixName: "sug-delete",
 
 			description: "Delete an suggestion (need admin permission)!",
 			description_localizations: {
-				"fr": "Supprimer une suggestion (Requiert permissions Admin)"
+				fr: "Supprimer une suggestion (Requiert permissions Admin)"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'id',
+					name: "id",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What the id of the suggestion?',
+					description: "What the id of the suggestion?",
 					description_localizations: {
-						"fr": "Quelle est l'indentifiant de la suggestion ?"
+						fr: "Quelle est l'indentifiant de la suggestion ?"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			ephemeral: true,
 			permission: PermissionFlagsBits.Administrator
-		},
+		}
 	],
-	category: 'suggestion',
+	category: "suggestion",
 	thinking: true,
 	type: ApplicationCommandType.ChatInput,
 

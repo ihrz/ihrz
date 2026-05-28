@@ -23,17 +23,17 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
+import { Command } from "../../../../../types/command.js";
 
 export const command: Command = {
 	name: "setsuggest",
 
 	description: "Subcommand for suggestion category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de suggestion"
+		fr: "Commande sous-groupé pour la catégorie de suggestion"
 	},
 
 	options: [
@@ -41,38 +41,43 @@ export const command: Command = {
 			name: "config",
 			prefixName: "suggest-config",
 
-			description: "Disable the suggestion module (need admin permission)!",
+			description:
+				"Disable the suggestion module (need admin permission)!",
 			description_localizations: {
-				"fr": "Désactivez le module de suggestion (besoin de l'autorisation de l'administrateur)"
+				fr: "Désactivez le module de suggestion (besoin de l'autorisation de l'administrateur)"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'action',
+					name: "action",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What you want to do ?',
+					description: "What you want to do ?",
 					description_localizations: {
-						"fr": "Que veux-tu faire ?"
+						fr: "Que veux-tu faire ?"
 					},
 
 					required: true,
 					choices: [
 						{
-							name: 'Power On the Suggestion Module',
-							name_localizations: { fr: 'Activer le module de suggestion' },
+							name: "Power On the Suggestion Module",
+							name_localizations: {
+								fr: "Activer le module de suggestion"
+							},
 							value: "on"
 						},
 						{
-							name: 'Power Off the Suggestion Module',
-							name_localizations: { fr: 'Désactiver le module de suggestion' },
+							name: "Power Off the Suggestion Module",
+							name_localizations: {
+								fr: "Désactiver le module de suggestion"
+							},
 							value: "off"
-						},
+						}
 					],
 
 					permission: null
-				},
+				}
 			],
 
 			permission: PermissionFlagsBits.Administrator
@@ -81,34 +86,35 @@ export const command: Command = {
 			name: "channel",
 			prefixName: "suggest-channel",
 
-			description: "Set a channel for the Suggestion Module (need admin permission)!",
+			description:
+				"Set a channel for the Suggestion Module (need admin permission)!",
 			description_localizations: {
-				"fr": "Définir un canal pour le module de suggestion (nécessite une autorisation d'administrateur)"
+				fr: "Définir un canal pour le module de suggestion (nécessite une autorisation d'administrateur)"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'channel',
+					name: "channel",
 					type: ApplicationCommandOptionType.Channel,
 					channel_types: [ChannelType.GuildText],
 
-					description: 'What the channel for the suggestion place?',
+					description: "What the channel for the suggestion place?",
 					description_localizations: {
-						"fr": "Quel est le channel pour le lieu de suggestion ?"
+						fr: "Quel est le channel pour le lieu de suggestion ?"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: PermissionFlagsBits.Administrator
-		},
+		}
 	],
 	thinking: false,
-	category: 'suggestion',
+	category: "suggestion",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

@@ -19,13 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Guild } from 'discord.js';
+import { Client, Guild } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "guildDelete",
 	run: async (client: Client, guild: Guild) => {
 		return client.invites.delete(guild.id);
-	},
+	}
 };

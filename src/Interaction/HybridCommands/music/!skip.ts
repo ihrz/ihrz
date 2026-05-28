@@ -25,45 +25,70 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import logger from '../../../core/logger.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import logger from "../../../core/logger.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (!(interaction.member as GuildMember).voice.channel) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.skip_not_in_voice_channel.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
+				content: lang.skip_not_in_voice_channel.replace(
+					"${client.iHorizon_Emojis.Warning_Icon}",
+					client.iHorizon_Emojis.Warning_Icon
+				)
 			});
 			return;
-		};
+		}
 
 		// Check if the member is in the same voice channel as the bot
-		if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
+		if (
+			(interaction.member as GuildMember).voice.channelId !==
+			interaction.guild.members.me?.voice.channelId
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.music_cannot.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
+				content: lang.music_cannot.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
 			});
 			return;
 		}
 
 		try {
-			const voiceChannel = (interaction.member as GuildMember).voice.channel;
-			const player = client.player.getPlayer(interaction.guildId as string);
+			const voiceChannel = (interaction.member as GuildMember).voice
+				.channel;
+			const player = client.player.getPlayer(
+				interaction.guildId as string
+			);
 			const oldName = player?.queue.current?.info.title;
-			const channel = interaction.guild.channels.cache.get(player?.textChannelId as string);
+			const channel = interaction.guild.channels.cache.get(
+				player?.textChannelId as string
+			);
 
 			if (!player || !player.playing || !voiceChannel) {
-				await client.func.method.interactionSend(interaction, { content: lang.skip_nothing_playing });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.skip_nothing_playing
+				});
 				return;
-			};
+			}
 
 			if (player.queue.tracks.length >= 1) {
 				player.skip();
@@ -76,22 +101,31 @@ export const subCommand: SubCommand = {
 					embeds: [
 						new EmbedBuilder()
 							.setColor(2829617)
-							.setDescription(lang.event_mp_playerSkip
-								.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
-								.replace("${track.title}", oldName as string)
+							.setDescription(
+								lang.event_mp_playerSkip
+									.replace(
+										"${client.iHorizon_Emojis.Music_Icon}",
+										client.iHorizon_Emojis.Music_Icon
+									)
+									.replace(
+										"${track.title}",
+										oldName as string
+									)
 							)
 					]
 				});
 			}
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.skip_command_work
-					.replace("{queue}", player.queue.current?.info.title as string),
+				content: lang.skip_command_work.replace(
+					"{queue}",
+					player.queue.current?.info.title as string
+				)
 			});
 
 			return;
 		} catch (error) {
-			logger.err(error)
-		};
-	},
+			logger.err(error);
+		}
+	}
 };

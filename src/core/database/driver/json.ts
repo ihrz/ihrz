@@ -21,7 +21,7 @@
 
 import { get_property, set_property, unset_property } from "../lodash.ts";
 import { DataLike, ErrorKind, Table } from "../types.ts";
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from "node:fs";
 
 export class Json<D = any> {
 	private tableName: string;
@@ -29,10 +29,12 @@ export class Json<D = any> {
 	private store = new Map<string, Table>();
 	private mirrors: Json[] = [];
 
-	constructor(options: {
-		table?: string;
-		filePath?: string;
-	} = {}) {
+	constructor(
+		options: {
+			table?: string;
+			filePath?: string;
+		} = {}
+	) {
 		options.table ??= "json";
 		options.filePath ??= "db.json";
 		this.tableName = options.table;
@@ -41,11 +43,10 @@ export class Json<D = any> {
 		this.loadContentSync();
 	}
 
-
 	private createError(message: string, kind: ErrorKind): Error {
 		const error = new Error(message);
 		error.name = kind;
-		Object.defineProperty(error, 'kind', {
+		Object.defineProperty(error, "kind", {
 			value: kind,
 			writable: false
 		});
@@ -74,7 +75,7 @@ export class Json<D = any> {
 
 	public async loadContent(): Promise<void> {
 		if (existsSync(this.path)) {
-			const contents = Bun.file(this.path).toString()
+			const contents = Bun.file(this.path).toString();
 
 			try {
 				const data = JSON.parse(contents);
@@ -116,10 +117,8 @@ export class Json<D = any> {
 		return newTable;
 	}
 
-
 	private async prepare(table: string): Promise<void> {
 		this.getOrCreateTable(table);
-
 
 		for (const mirror of this.mirrors) {
 			await mirror.prepare(table);
@@ -162,7 +161,6 @@ export class Json<D = any> {
 		store.set(key, value);
 		await this.snapshot();
 
-
 		for (const mirror of this.mirrors) {
 			await mirror.setRowByKey(table, key, value, update);
 		}
@@ -174,7 +172,6 @@ export class Json<D = any> {
 		const size = store.size;
 		store.clear();
 		await this.snapshot();
-
 
 		for (const mirror of this.mirrors) {
 			await mirror.deleteAllRows(table);
@@ -188,14 +185,12 @@ export class Json<D = any> {
 		const deleted = store.delete(key) ? 1 : 0;
 		await this.snapshot();
 
-
 		for (const mirror of this.mirrors) {
 			await mirror.deleteRowByKey(table, key);
 		}
 
 		return deleted;
 	}
-
 
 	private async addSubtract(
 		key: string,

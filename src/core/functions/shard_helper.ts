@@ -31,38 +31,45 @@ export interface GuildData {
 	vanityURLCode?: string | null;
 }
 
-export async function getGuildData(client: Client, guildId: string): Promise<GuildData | null> {
+export async function getGuildData(
+	client: Client,
+	guildId: string
+): Promise<GuildData | null> {
 	if (!client.shard) {
 		// No sharding - use local cache
 		const guild = client.guilds.cache.get(guildId);
-		return guild ? {
-			name: guild.name,
-			memberCount: guild.memberCount,
-			preferredLocale: guild.preferredLocale,
-			iconURL: guild.iconURL(),
-			joinedTimestamp: guild.joinedTimestamp,
-			vanityURLCode: guild.vanityURLCode
-		} : null;
+		return guild
+			? {
+					name: guild.name,
+					memberCount: guild.memberCount,
+					preferredLocale: guild.preferredLocale,
+					iconURL: guild.iconURL(),
+					joinedTimestamp: guild.joinedTimestamp,
+					vanityURLCode: guild.vanityURLCode
+				}
+			: null;
 	}
 
 	// With sharding - broadcast to find the guild
 	const guildResults = await client.shard.broadcastEval(
 		(client, { guildId }) => {
 			const guild = client.guilds.cache.get(guildId);
-			return guild ? {
-				name: guild.name,
-				memberCount: guild.memberCount,
-				preferredLocale: guild.preferredLocale,
-				iconURL: guild.iconURL(),
-				joinedTimestamp: guild.joinedTimestamp,
-				vanityURLCode: guild.vanityURLCode
-			} : null;
+			return guild
+				? {
+						name: guild.name,
+						memberCount: guild.memberCount,
+						preferredLocale: guild.preferredLocale,
+						iconURL: guild.iconURL(),
+						joinedTimestamp: guild.joinedTimestamp,
+						vanityURLCode: guild.vanityURLCode
+					}
+				: null;
 		},
 		{ context: { guildId } }
 	);
 
 	// Find the result that isn't null
-	return guildResults.find(result => result !== null) || null;
+	return guildResults.find((result) => result !== null) || null;
 }
 
 // Alternative: More specific typed version with optional properties
@@ -78,42 +85,49 @@ export interface DetailedGuildData {
 	description?: string | null;
 }
 
-export async function getDetailedGuildData(client: Client, guildId: string): Promise<DetailedGuildData | null> {
+export async function getDetailedGuildData(
+	client: Client,
+	guildId: string
+): Promise<DetailedGuildData | null> {
 	if (!client.shard) {
 		// No sharding - use local cache
 		const guild = client.guilds.cache.get(guildId);
-		return guild ? {
-			name: guild.name,
-			memberCount: guild.memberCount,
-			preferredLocale: guild.preferredLocale,
-			iconURL: guild.iconURL(),
-			joinedTimestamp: guild.joinedTimestamp,
-			vanityURLCode: guild.vanityURLCode,
-			ownerId: guild.ownerId,
-			createdTimestamp: guild.createdTimestamp,
-			description: guild.description
-		} : null;
+		return guild
+			? {
+					name: guild.name,
+					memberCount: guild.memberCount,
+					preferredLocale: guild.preferredLocale,
+					iconURL: guild.iconURL(),
+					joinedTimestamp: guild.joinedTimestamp,
+					vanityURLCode: guild.vanityURLCode,
+					ownerId: guild.ownerId,
+					createdTimestamp: guild.createdTimestamp,
+					description: guild.description
+				}
+			: null;
 	}
 
 	// With sharding - broadcast to find the guild
 	const guildResults = await client.shard.broadcastEval(
 		(client, { guildId }) => {
 			const guild = client.guilds.cache.get(guildId);
-			return guild ? {
-				name: guild.name,
-				memberCount: guild.memberCount,
-				preferredLocale: guild.preferredLocale,
-				iconURL: guild.iconURL(),
-				joinedTimestamp: guild.joinedTimestamp,
-				vanityURLCode: guild.vanityURLCode,
-				ownerId: guild.ownerId,
-				createdTimestamp: guild.createdTimestamp,
-				description: guild.description
-			} : null;
+			return guild
+				? {
+						name: guild.name,
+						memberCount: guild.memberCount,
+						preferredLocale: guild.preferredLocale,
+						iconURL: guild.iconURL(),
+						joinedTimestamp: guild.joinedTimestamp,
+						vanityURLCode: guild.vanityURLCode,
+						ownerId: guild.ownerId,
+						createdTimestamp: guild.createdTimestamp,
+						description: guild.description
+					}
+				: null;
 		},
 		{ context: { guildId } }
 	);
 
 	// Find the result that isn't null
-	return guildResults.find(result => result !== null) || null;
+	return guildResults.find((result) => result !== null) || null;
 }

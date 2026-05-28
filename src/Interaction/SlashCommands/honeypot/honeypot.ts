@@ -21,17 +21,17 @@
 
 import {
 	ApplicationCommandOptionType,
-	ApplicationCommandType,
-} from 'discord.js';
+	ApplicationCommandType
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "honeypot",
 
 	description: "Subcommand for honeypot configuration!",
 	description_localizations: {
-		"fr": "Commande sous-groupée pour la configuration de Honeypot"
+		fr: "Commande sous-groupée pour la configuration de Honeypot"
 	},
 
 	options: [
@@ -40,16 +40,16 @@ export const command: Command = {
 
 			description: "Configure the Honeypot protection panel.",
 			description_localizations: {
-				"fr": "Configurer le panneau de protection Honeypot"
+				fr: "Configurer le panneau de protection Honeypot"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: null
-		},
+		}
 	],
 	thinking: false,
-	category: 'honeypot',
+	category: "honeypot",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

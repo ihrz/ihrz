@@ -23,11 +23,11 @@ export default function isValidImageType(contentType: string | null): boolean {
 	if (!contentType) return false;
 
 	const supportedTypes = [
-		'image/png',
-		'image/jpeg',
-		'image/jpg',
-		'image/gif',
-		'image/webp'
+		"image/png",
+		"image/jpeg",
+		"image/jpg",
+		"image/gif",
+		"image/webp"
 	];
 
 	return supportedTypes.includes(contentType.toLowerCase());

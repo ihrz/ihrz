@@ -19,30 +19,39 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
-		};
+		}
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var type = interaction.options.getString("type")!;
@@ -50,13 +59,24 @@ export const subCommand: SubCommand = {
 		} else {
 			var type = client.func.method.string(args!, 0)!;
 			var money = client.func.method.number(args!, 1)!;
-		};
+		}
 
-		await client.db.set(`${interaction.guildId}.ECONOMY.settings.${type}.amount`, money);
+		await client.db.set(
+			`${interaction.guildId}.ECONOMY.settings.${type}.amount`,
+			money
+		);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.economy_manage_rewards_set_money.replace("${type}", type).replace("${money}", money.toString())
+			content: lang.economy_manage_rewards_set_money
+				.replace("${type}", type)
+				.replace("${money}", money.toString())
 		});
-		await client.func.economyLogs.setMoney(interaction.guild, interaction.member.user.id, money, type, lang);
-	},
+		await client.func.economyLogs.setMoney(
+			interaction.guild,
+			interaction.member.user.id,
+			money,
+			type,
+			lang
+		);
+	}
 };

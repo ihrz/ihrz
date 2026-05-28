@@ -20,34 +20,45 @@
 */
 
 import {
-	Client, ChatInputCommandInteraction, ApplicationCommandType,
-	Message,
-} from 'discord.js'
+	Client,
+	ChatInputCommandInteraction,
+	ApplicationCommandType,
+	Message
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
 export const command: Command = {
-	name: 'andru',
+	name: "andru",
 
-	description: 'Get unnecessary information about my contributor andru',
+	description: "Get unnecessary information about my contributor andru",
 	description_localizations: {
-		"fr": "Obtenir des informations non nécessaires sur mon contributeur Andru!"
+		fr: "Obtenir des informations non nécessaires sur mon contributeur Andru!"
 	},
 
-	category: 'bot',
+	category: "bot",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
 	permission: null,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.andru_message
 		});
 		return;
-	},
+	}
 };

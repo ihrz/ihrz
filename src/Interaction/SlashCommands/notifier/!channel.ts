@@ -22,44 +22,66 @@
 import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
-	Client,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+	Client
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-
-
-		const channel = interaction.options.getChannel("target") as BaseGuildTextChannel;
-		const fetched = await client.db.get(`${interaction.guildId}.NOTIFIER`) as DatabaseStructure.NotifierSchema;
+		const channel = interaction.options.getChannel(
+			"target"
+		) as BaseGuildTextChannel;
+		const fetched = (await client.db.get(
+			`${interaction.guildId}.NOTIFIER`
+		)) as DatabaseStructure.NotifierSchema;
 
 		if (fetched && channel.id === fetched.channelId) {
 			return await client.func.method.interactionSend(interaction, {
-				content: lang.joinghostping_add_already_set
-					.replace("${channel}", channel.toString())
-			})
-		};
+				content: lang.joinghostping_add_already_set.replace(
+					"${channel}",
+					channel.toString()
+				)
+			});
+		}
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.notifier_config_channel_logsEmbed_title,
 			description: lang.notifier_config_channel_logsEmbed_desc
-				.replace('${interaction.user.id}', interaction.member.toString())
-				.replace('${channel}', channel.toString())
+				.replace(
+					"${interaction.user.id}",
+					interaction.member.toString()
+				)
+				.replace("${channel}", channel.toString())
 		});
 
-		await client.db.set(`${interaction.guildId}.NOTIFIER.channelId`, channel.id);
+		await client.db.set(
+			`${interaction.guildId}.NOTIFIER.channelId`,
+			channel.id
+		);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.notifier_config_message_command_ok
-				.replace("${channel.toString()}", channel.toString())
-		})
-	},
+			content: lang.notifier_config_message_command_ok.replace(
+				"${channel.toString()}",
+				channel.toString()
+			)
+		});
+	}
 };

@@ -23,43 +23,64 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	GuildMember,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const voiceChannel = (interaction.member as GuildMember).voice.channel;
 		const player = client.player.getPlayer(interaction.guildId as string);
 
 		if (!player || !player.playing || !voiceChannel) {
-			await client.func.method.interactionSend(interaction, { content: lang.shuffle_no_queue });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.shuffle_no_queue
+			});
 			return;
-		};
+		}
 
 		// Check if the member is in the same voice channel as the bot
-		if ((interaction.member as GuildMember).voice.channelId !== interaction.guild.members.me?.voice.channelId) {
+		if (
+			(interaction.member as GuildMember).voice.channelId !==
+			interaction.guild.members.me?.voice.channelId
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.music_cannot.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
+				content: lang.music_cannot.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
 			});
 			return;
 		}
 
 		if (player.queue.tracks.length < 2) {
-			await client.func.method.interactionSend(interaction, { content: lang.shuffle_no_enought });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.shuffle_no_enought
+			});
 			return;
-		};
+		}
 
 		await player.queue.shuffle();
 
-		await client.func.method.interactionSend(interaction, { content: lang.shuffle_command_work });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.shuffle_command_work
+		});
 		return;
-	},
+	}
 };

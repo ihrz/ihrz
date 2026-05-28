@@ -25,10 +25,10 @@ import {
 	ChatInputCommandInteraction,
 	ApplicationCommandType,
 	Message
-} from 'discord.js'
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
 // Get statistics from all shards
 export const getShardStats = async (client: Client) => {
@@ -36,16 +36,18 @@ export const getShardStats = async (client: Client) => {
 		// No sharding - use local cache with the 3 verification methods
 
 		// Method 1: Filter out problematic guilds before reduce
-		const availableGuilds = client.guilds.cache.filter(guild =>
-			guild.available && // Method 3: Check if guild is available
-			(guild.memberCount || guild.approximateMemberCount) && // Has some member count data
-			!isNaN(guild.memberCount || guild.approximateMemberCount || 0) // Not NaN
+		const availableGuilds = client.guilds.cache.filter(
+			(guild) =>
+				guild.available && // Method 3: Check if guild is available
+				(guild.memberCount || guild.approximateMemberCount) && // Has some member count data
+				!isNaN(guild.memberCount || guild.approximateMemberCount || 0) // Not NaN
 		);
 
 		// Calculate users with the 3 methods applied
 		const users = availableGuilds.reduce((total, guild) => {
 			// Method 2: Use approximateMemberCount as fallback + Method 3: Check available
-			const memberCount = guild.memberCount || guild.approximateMemberCount || 0;
+			const memberCount =
+				guild.memberCount || guild.approximateMemberCount || 0;
 			return total + memberCount;
 		}, 0);
 
@@ -57,23 +59,28 @@ export const getShardStats = async (client: Client) => {
 	}
 
 	// With sharding - broadcast to all shards with improved logic
-	const shardResults = await client.shard.broadcastEval(client => {
+	const shardResults = await client.shard.broadcastEval((client) => {
 		// Method 1: Filter out problematic guilds before reduce
-		const availableGuilds = client.guilds.cache.filter(guild =>
-			guild.available && // Method 3: Check if guild is available
-			(guild.memberCount || guild.approximateMemberCount) && // Has some member count data
-			!isNaN(guild.memberCount || guild.approximateMemberCount || 0) // Not NaN
+		const availableGuilds = client.guilds.cache.filter(
+			(guild) =>
+				guild.available && // Method 3: Check if guild is available
+				(guild.memberCount || guild.approximateMemberCount) && // Has some member count data
+				!isNaN(guild.memberCount || guild.approximateMemberCount || 0) // Not NaN
 		);
 
 		// Calculate users with improved method
 		const users = availableGuilds.reduce((total, guild) => {
 			// Method 2: Use approximateMemberCount as fallback
-			const memberCount = guild.memberCount || guild.approximateMemberCount || 0;
+			const memberCount =
+				guild.memberCount || guild.approximateMemberCount || 0;
 			return total + memberCount;
 		}, 0);
 
 		// Calculate channels from available guilds only
-		const channels = availableGuilds.reduce((acc, guild) => acc + guild.channels.cache.size, 0);
+		const channels = availableGuilds.reduce(
+			(acc, guild) => acc + guild.channels.cache.size,
+			0
+		);
 
 		return {
 			guilds: client.guilds.cache.size, // Keep total guilds count (including unavailable)
@@ -84,33 +91,45 @@ export const getShardStats = async (client: Client) => {
 	});
 
 	// Sum up all results from all shards
-	return shardResults.reduce((total, shard) => {
-		total.guilds += shard.guilds;
-		total.availableGuilds += shard.availableGuilds;
-		total.channels += shard.channels;
-		total.users += shard.users;
-		return total;
-	}, { guilds: 0, availableGuilds: 0, channels: 0, users: 0 });
+	return shardResults.reduce(
+		(total, shard) => {
+			total.guilds += shard.guilds;
+			total.availableGuilds += shard.availableGuilds;
+			total.channels += shard.channels;
+			total.users += shard.users;
+			return total;
+		},
+		{ guilds: 0, availableGuilds: 0, channels: 0, users: 0 }
+	);
 };
 
 export const command: Command = {
-	name: 'botinfo',
+	name: "botinfo",
 
-	description: 'Get information about the bot!',
+	description: "Get information about the bot!",
 	description_localizations: {
-		"fr": "Obtenir les informations supplémentaire par rapport au bot."
+		fr: "Obtenir les informations supplémentaire par rapport au bot."
 	},
 
 	aliases: ["bi"],
 
-	category: 'bot',
+	category: "bot",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, options?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		options?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const stats = await getShardStats(client);
 
@@ -118,19 +137,58 @@ export const command: Command = {
 			.setColor("#f0d020")
 			.setThumbnail("attachment://footer_icon.png")
 			.addFields(
-				{ name: lang.botinfo_embed_fields_myname, value: `\`\`\`${client.user.username}\`\`\``, inline: false },
-				{ name: lang.botinfo_embed_fields_mychannels, value: `\`\`\`py\n${stats.channels}\`\`\``, inline: false },
-				{ name: lang.botinfo_embed_fields_myservers, value: `\`\`\`py\n${stats.guilds}\`\`\``, inline: false },
-				{ name: lang.botinfo_embed_fields_members, value: `\`\`\`py\n${stats.users}\`\`\``, inline: false },
-				{ name: lang.botinfo_embed_fields_libraires, value: `\`\`\`py\ndiscord.js@${client.version.djs}\`\`\``, inline: false },
-				{ name: lang.botinfo_embed_fields_created_at, value: "<t:1600042320:R>", inline: false },
-				{ name: lang.botinfo_embed_fields_created_by, value: "<@171356978310938624>", inline: false }
+				{
+					name: lang.botinfo_embed_fields_myname,
+					value: `\`\`\`${client.user.username}\`\`\``,
+					inline: false
+				},
+				{
+					name: lang.botinfo_embed_fields_mychannels,
+					value: `\`\`\`py\n${stats.channels}\`\`\``,
+					inline: false
+				},
+				{
+					name: lang.botinfo_embed_fields_myservers,
+					value: `\`\`\`py\n${stats.guilds}\`\`\``,
+					inline: false
+				},
+				{
+					name: lang.botinfo_embed_fields_members,
+					value: `\`\`\`py\n${stats.users}\`\`\``,
+					inline: false
+				},
+				{
+					name: lang.botinfo_embed_fields_libraires,
+					value: `\`\`\`py\ndiscord.js@${client.version.djs}\`\`\``,
+					inline: false
+				},
+				{
+					name: lang.botinfo_embed_fields_created_at,
+					value: "<t:1600042320:R>",
+					inline: false
+				},
+				{
+					name: lang.botinfo_embed_fields_created_by,
+					value: "<@171356978310938624>",
+					inline: false
+				}
 			)
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setTimestamp();
 
-		await client.func.method.interactionSend(interaction, { embeds: [clientembed], files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+		await client.func.method.interactionSend(interaction, {
+			embeds: [clientembed],
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
+		});
 		return;
 	},
 	permission: null

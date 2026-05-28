@@ -19,18 +19,14 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import * as fs from 'node:fs';
-import * as path from 'path';
-import * as readline from 'readline';
-import logger from '../src/core/logger.ts';
-import { LICENCE_HEADER } from './LicenceHeader.ts';
+import * as fs from "node:fs";
+import * as path from "path";
+import * as readline from "readline";
+import logger from "../src/core/logger.ts";
+import { LICENCE_HEADER } from "./LicenceHeader.ts";
 
 // Array of paths to search recursively
-const SEARCH_PATHS: string[] = [
-	'./src',
-	'./types',
-	'./tools'
-];
+const SEARCH_PATHS: string[] = ["./src", "./types", "./tools"];
 
 interface FileIssue {
 	filePath: string;
@@ -57,7 +53,10 @@ function getTypeScriptFiles(dirPath: string): string[] {
 		if (stat.isDirectory()) {
 			// Recursively search subdirectories
 			files.push(...getTypeScriptFiles(fullPath));
-		} else if (stat.isFile() && (item.endsWith('.ts') || item.endsWith('.d.ts'))) {
+		} else if (
+			stat.isFile() &&
+			(item.endsWith(".ts") || item.endsWith(".d.ts"))
+		) {
 			files.push(fullPath);
 		}
 	}
@@ -70,9 +69,9 @@ function getTypeScriptFiles(dirPath: string): string[] {
  */
 function getHeadersLineCount(filePath: string): string {
 	try {
-		const content = fs.readFileSync(filePath, 'utf-8');
-		const lines = content.split('\n');
-		return lines.slice(0, LICENCE_HEADER.split('\n').length).join('\n');
+		const content = fs.readFileSync(filePath, "utf-8");
+		const lines = content.split("\n");
+		return lines.slice(0, LICENCE_HEADER.split("\n").length).join("\n");
 	} catch (error) {
 		throw new Error(`Failed to read file: ${error}`);
 	}
@@ -96,27 +95,27 @@ function hasCorrectLicenseHeader(filePath: string): boolean {
  */
 function fixLicenseHeader(filePath: string): void {
 	try {
-		const content = fs.readFileSync(filePath, 'utf-8');
-		const lines = content.split('\n');
+		const content = fs.readFileSync(filePath, "utf-8");
+		const lines = content.split("\n");
 
 		// Remove existing header if present (assuming it's in the first 25 lines)
 		let startIndex = 0;
 		for (let i = 0; i < Math.min(25, lines.length); i++) {
-			if (lines[i].includes('*/') && i > 0) {
+			if (lines[i].includes("*/") && i > 0) {
 				startIndex = i + 1;
 				break;
 			}
 		}
 
 		// Remove empty lines at the beginning after removing header
-		while (startIndex < lines.length && lines[startIndex].trim() === '') {
+		while (startIndex < lines.length && lines[startIndex].trim() === "") {
 			startIndex++;
 		}
 
-		const remainingContent = lines.slice(startIndex).join('\n');
-		const newContent = LICENCE_HEADER + '\n\n' + remainingContent;
+		const remainingContent = lines.slice(startIndex).join("\n");
+		const newContent = LICENCE_HEADER + "\n\n" + remainingContent;
 
-		fs.writeFileSync(filePath, newContent, 'utf-8');
+		fs.writeFileSync(filePath, newContent, "utf-8");
 		logger.legacy(`✓ Fixed: ${filePath}`);
 	} catch (error) {
 		console.error(`✗ Failed to fix ${filePath}: ${error}`);
@@ -144,10 +143,11 @@ function promptUser(question: string): Promise<string> {
  * Main function
  */
 async function main(): Promise<void> {
-	logger.legacy('🔍 Starting license header check...\n');
+	logger.legacy("🔍 Starting license header check...\n");
 
 	// Check for --force argument
-	const forceMode = process.argv.includes('--force') || process.argv.includes('--force=1');
+	const forceMode =
+		process.argv.includes("--force") || process.argv.includes("--force=1");
 
 	const allFiles: string[] = [];
 	const issues: FileIssue[] = [];
@@ -156,11 +156,13 @@ async function main(): Promise<void> {
 	for (const searchPath of SEARCH_PATHS) {
 		const files = getTypeScriptFiles(searchPath);
 		allFiles.push(...files);
-		logger.legacy(`📁 Found ${files.length} TypeScript files in '${searchPath}'`);
+		logger.legacy(
+			`📁 Found ${files.length} TypeScript files in '${searchPath}'`
+		);
 	}
 
 	if (allFiles.length === 0) {
-		logger.legacy('⚠️  No TypeScript files found in specified paths');
+		logger.legacy("⚠️  No TypeScript files found in specified paths");
 		return;
 	}
 
@@ -171,7 +173,7 @@ async function main(): Promise<void> {
 		if (!hasCorrectLicenseHeader(filePath)) {
 			issues.push({
 				filePath,
-				reason: 'Missing or incorrect license header'
+				reason: "Missing or incorrect license header"
 			});
 			logger.legacy(`❌ ${filePath}`);
 		} else {
@@ -180,40 +182,48 @@ async function main(): Promise<void> {
 	}
 
 	logger.legacy(`\n📊 Results:`);
-	logger.legacy(`   ✅ Files with correct header: ${allFiles.length - issues.length}`);
+	logger.legacy(
+		`   ✅ Files with correct header: ${allFiles.length - issues.length}`
+	);
 	logger.legacy(`   ❌ Files with issues: ${issues.length}`);
 
 	if (issues.length === 0) {
-		logger.legacy('\n🎉 All files have the correct license header!');
+		logger.legacy("\n🎉 All files have the correct license header!");
 		return;
 	}
 
-	logger.legacy('\n📝 Files with issues:');
+	logger.legacy("\n📝 Files with issues:");
 	issues.forEach((issue, index) => {
 		logger.legacy(`   ${index + 1}. ${issue.filePath} - ${issue.reason}`);
 	});
 
 	// Ask user if they want to fix the issues
 	if (!forceMode) {
-		logger.legacy('\n🛠️  Would you like to fix these issues automatically?');
-		const answer = await promptUser('Type "y" to fix all issues, "n" to skip, or use --force to skip this prompt: ');
+		logger.legacy(
+			"\n🛠️  Would you like to fix these issues automatically?"
+		);
+		const answer = await promptUser(
+			'Type "y" to fix all issues, "n" to skip, or use --force to skip this prompt: '
+		);
 
-		if (answer.toLowerCase() !== 'y' && answer.toLowerCase() !== 'yes') {
-			logger.legacy('⏭️  Skipping fixes. Use --force to skip this prompt in the future.');
+		if (answer.toLowerCase() !== "y" && answer.toLowerCase() !== "yes") {
+			logger.legacy(
+				"⏭️  Skipping fixes. Use --force to skip this prompt in the future."
+			);
 			return;
 		}
 	} else {
-		logger.legacy('⏭️  Skipping fixes due to --force flag.');
+		logger.legacy("⏭️  Skipping fixes due to --force flag.");
 		return;
 	}
 
 	// Fix all issues
-	logger.legacy('\n🔧 Fixing license headers...');
+	logger.legacy("\n🔧 Fixing license headers...");
 	for (const issue of issues) {
 		fixLicenseHeader(issue.filePath);
 	}
 
-	logger.legacy('\n✨ All fixes completed!');
+	logger.legacy("\n✨ All fixes completed!");
 }
 
-main()
+main();

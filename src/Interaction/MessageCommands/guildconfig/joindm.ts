@@ -23,28 +23,33 @@ import {
 	Client,
 	ApplicationCommandType,
 	Message,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 import { subCommand } from "../../SlashCommands/guildconfig/!join-dm.js";
 
 export const command: Command = {
-	name: 'joindm',
+	name: "joindm",
 
-	description: 'Set the join dm message !',
+	description: "Set the join dm message !",
 	description_localizations: {
-		"fr": "Définir le message d'arrivé envoyer aux membre en MP"
+		fr: "Définir le message d'arrivé envoyer aux membre en MP"
 	},
 
 	aliases: ["joinmp"],
 
 	thinking: false,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: ApplicationCommandType.ChatInput,
 	permission: PermissionFlagsBits.Administrator,
-	run: async (client: Client, interaction: Message, lang: LanguageData, args?: string[]) => {
-		subCommand.run(client, interaction, lang)
-	},
+	run: async (
+		client: Client,
+		interaction: Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		subCommand.run(client, interaction, lang);
+	}
 };

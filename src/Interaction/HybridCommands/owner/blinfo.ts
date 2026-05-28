@@ -30,79 +30,117 @@ import {
 	GuildMember,
 	ApplicationCommandType,
 	Message
-} from 'discord.js'
+} from "discord.js";
 
-import { format } from '../../../core/functions/date_and_time.js';
+import { format } from "../../../core/functions/date_and_time.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-import { blacklistTable } from '../../../Events/client/ready.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+import { blacklistTable } from "../../../Events/client/ready.js";
 
 export const command: Command = {
-	name: 'blinfo',
+	name: "blinfo",
 
-	description: 'Show informations about blacklisted user!',
+	description: "Show informations about blacklisted user!",
 	description_localizations: {
-		"fr": "Afficher des informations sur un utilisateur blacklisté"
+		fr: "Afficher des informations sur un utilisateur blacklisté"
 	},
 
 	options: [
 		{
-			name: 'user',
+			name: "user",
 			type: ApplicationCommandOptionType.User,
 
-			description: 'The user you want to look at...',
+			description: "The user you want to look at...",
 			description_localizations: {
-				"fr": "L'utilisateur que vous voulez obtenir ces informations de bl"
+				fr: "L'utilisateur que vous voulez obtenir ces informations de bl"
 			},
 
 			required: true,
 
 			permission: null
-		},
+		}
 	],
 
 	aliases: ["blacklistinfo", "lookbl", "blook"],
 	permission: null,
 
 	thinking: false,
-	category: 'owner',
+	category: "owner",
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-		if (await client.func.ownerHelper.isBotOwner(interaction.member?.user.id!)) {
-			run_for_bot_owner(client, interaction, lang, args)
-		} else if (await client.func.ownerHelper.isGuildOwner(interaction.member?.user.id!, interaction.guild!)) {
-			run_for_guild_owner(client, interaction, lang, args)
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			await client.func.ownerHelper.isBotOwner(
+				interaction.member?.user.id!
+			)
+		) {
+			run_for_bot_owner(client, interaction, lang, args);
+		} else if (
+			await client.func.ownerHelper.isGuildOwner(
+				interaction.member?.user.id!,
+				interaction.guild!
+			)
+		) {
+			run_for_guild_owner(client, interaction, lang, args);
 		}
-	},
+	}
 };
 
-export async function run_for_bot_owner(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) {
-
+export async function run_for_bot_owner(
+	client: Client,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData,
+	args?: string[]
+) {
 	// Guard's Typing
-	if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+	if (
+		!client.user ||
+		!interaction.member ||
+		!interaction.guild ||
+		!interaction.channel
+	)
+		return;
 
 	if (interaction instanceof ChatInputCommandInteraction) {
-		var user = interaction.options.getUser('user', true);
+		var user = interaction.options.getUser("user", true);
 	} else {
 		var user = (await client.func.method.user(interaction, args!, 0))!;
-	};
+	}
 
 	if (!client.func.ownerHelper.isBotOwner(interaction.member.user.id)) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
-	};
+	}
 
 	if (client.func.ownerHelper.isBotDev(user.id)) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
-	};
+	}
 
 	const userObj = await blacklistTable.get(user.id);
 
 	if (!userObj) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
 	}
 
@@ -110,39 +148,81 @@ export async function run_for_bot_owner(client: Client, interaction: ChatInputCo
 		embeds: [
 			new EmbedBuilder()
 				.setColor("#2E2EFE")
-				.setDescription(`<@${user.id}> (${user.username})\n├─ ${userObj.createdAt !== undefined ? format(new Date(userObj.createdAt), 'MMM DD YYYY') : lang.profil_unknown}\n├─ \`${userObj.reason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.owner || lang.profil_unknown}`)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+				.setDescription(
+					`<@${user.id}> (${user.username})\n├─ ${userObj.createdAt !== undefined ? format(new Date(userObj.createdAt), "MMM DD YYYY") : lang.profil_unknown}\n├─ \`${userObj.reason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.owner || lang.profil_unknown}`
+				)
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
 				.setTimestamp()
 		],
-		files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+		files: [
+			await client.func.displayBotName.footerAttachmentBuilder(
+				interaction
+			)
+		]
 	});
 }
 
-export async function run_for_guild_owner(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) {
-
+export async function run_for_guild_owner(
+	client: Client,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData,
+	args?: string[]
+) {
 	// Guard's Typing
-	if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+	if (
+		!client.user ||
+		!interaction.member ||
+		!interaction.guild ||
+		!interaction.channel
+	)
+		return;
 
 	if (interaction instanceof ChatInputCommandInteraction) {
-		var user = interaction.options.getUser('user', true);
+		var user = interaction.options.getUser("user", true);
 	} else {
 		var user = (await client.func.method.user(interaction, args!, 0))!;
-	};
+	}
 
-	if (!await client.func.ownerHelper.isGuildOwner(interaction.member.user.id, interaction.guild)) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+	if (
+		!(await client.func.ownerHelper.isGuildOwner(
+			interaction.member.user.id,
+			interaction.guild
+		))
+	) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
-	};
+	}
 
 	if (client.func.ownerHelper.isBotDev(user.id)) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
-	};
+	}
 
-	const userObj = await client.db.get(`${interaction.guildId}.BLACKLIST.${user.id}`);
+	const userObj = await client.db.get(
+		`${interaction.guildId}.BLACKLIST.${user.id}`
+	);
 
 	if (!userObj) {
-		await client.func.method.interactionSend(interaction, { content: lang.unblacklist_not_blacklisted.replace("${member.id}", user.id) });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unblacklist_not_blacklisted.replace(
+				"${member.id}",
+				user.id
+			)
+		});
 		return;
 	}
 
@@ -150,10 +230,20 @@ export async function run_for_guild_owner(client: Client, interaction: ChatInput
 		embeds: [
 			new EmbedBuilder()
 				.setColor("#2E2EFE")
-				.setDescription(`<@${user.id}> (${user.username})\n├─ ${userObj.createdAt !== undefined ? format(new Date(userObj.createdAt), 'MMM DD YYYY') : lang.profil_unknown}\n├─ \`${userObj.reason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.owner || lang.profil_unknown}`)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+				.setDescription(
+					`<@${user.id}> (${user.username})\n├─ ${userObj.createdAt !== undefined ? format(new Date(userObj.createdAt), "MMM DD YYYY") : lang.profil_unknown}\n├─ \`${userObj.reason || lang.blacklist_var_no_reason}\`\n├─ By ${userObj.owner || lang.profil_unknown}`
+				)
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
 				.setTimestamp()
 		],
-		files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+		files: [
+			await client.func.displayBotName.footerAttachmentBuilder(
+				interaction
+			)
+		]
 	});
 }

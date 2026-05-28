@@ -19,28 +19,33 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var action = interaction.options.getString("time") as string;
 		} else {
-
-			var action = (client.func.method.string(args!, 0) || "0s") as string
-		};
+			var action = (client.func.method.string(args!, 0) ||
+				"0s") as string;
+		}
 
 		const time = client.timeCalculator.to_ms(action);
 
@@ -49,22 +54,37 @@ export const subCommand: SubCommand = {
 				content: lang.too_new_account_invalid_time_on_enable
 			});
 			return;
-		};
+		}
 
-		await client.db.set(`${interaction.guildId}.GUILD.CONFESSION.cooldown`, time);
+		await client.db.set(
+			`${interaction.guildId}.GUILD.CONFESSION.cooldown`,
+			time
+		);
 		await client.func.method.interactionSend(interaction, {
 			content: lang.confession_coolodwn_command_work
-				.replace('${interaction.user.toString()}', interaction.member.user.toString())
-				.replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time, lang))
+				.replace(
+					"${interaction.user.toString()}",
+					interaction.member.user.toString()
+				)
+				.replace(
+					"${client.timeCalculator.to_beautiful_string(time)}",
+					client.timeCalculator.to_beautiful_string(time, lang)
+				)
 		});
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.confession_cooldown_log_embed_title,
 			description: lang.confession_cooldown_log_embed_desc
-				.replace('${interaction.user}', interaction.member.user.toString())
-				.replace('${client.timeCalculator.to_beautiful_string(time)}', client.timeCalculator.to_beautiful_string(time, lang))
+				.replace(
+					"${interaction.user}",
+					interaction.member.user.toString()
+				)
+				.replace(
+					"${client.timeCalculator.to_beautiful_string(time)}",
+					client.timeCalculator.to_beautiful_string(time, lang)
+				)
 		});
 
 		return;
-	},
+	}
 };

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { GuildMember, Snowflake } from 'discord.js';
+import { GuildMember, Snowflake } from "discord.js";
 
 export namespace AntiSpam {
 	export interface CachedMessage {
@@ -47,7 +47,7 @@ export namespace AntiSpam {
 		Enabled: boolean;
 		Threshold: number;
 		removeMessages: boolean;
-		punishment_type: 'mute' | 'kick' | 'ban';
+		punishment_type: "mute" | "kick" | "ban";
 		punishTime: number;
 	}
 }

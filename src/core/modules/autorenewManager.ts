@@ -23,8 +23,8 @@ import { BaseGuildTextChannel, Client, time } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 type AutorenewData = {
-	guildId: string,
-	data: DatabaseStructure.UtilsData["renew_channel"] | undefined
+	guildId: string;
+	data: DatabaseStructure.UtilsData["renew_channel"] | undefined;
 }[];
 
 class AutoRenew {
@@ -35,11 +35,11 @@ class AutoRenew {
 				try {
 					await this.Refresh(await this.GetAutoRenewData());
 				} catch (error) {
-					console.error('Error in AutoRenew interval:', error);
+					console.error("Error in AutoRenew interval:", error);
 				}
 			}, 30_000);
 		} catch (error) {
-			console.error('Error initializing AutoRenew:', error);
+			console.error("Error initializing AutoRenew:", error);
 		}
 	}
 
@@ -47,12 +47,14 @@ class AutoRenew {
 		try {
 			const all = await client.db.all();
 			return all
-				.filter(v => Number(v.id) && client.inShard(v.id))
-				.map(v => {
+				.filter((v) => Number(v.id) && client.inShard(v.id))
+				.map((v) => {
 					const guildObject = v.value as DatabaseStructure.DbInId;
-					return { guildId: v.id, data: guildObject.UTILS?.renew_channel };
-				})
-				.filter(v => v.data);
+					return {
+						guildId: v.id,
+						data: guildObject.UTILS?.renew_channel
+					};
+				});
 		} catch (error) {
 			return [];
 		}
@@ -64,7 +66,9 @@ class AutoRenew {
 
 			try {
 				const guild = await client.guilds.fetch(guildObject.guildId);
-				const lang = await client.func.getLanguageData(guildObject.guildId);
+				const lang = await client.func.getLanguageData(
+					guildObject.guildId
+				);
 				const all_channels = Object.entries(guildObject.data);
 
 				for (const [channelId, data] of all_channels) {
@@ -73,64 +77,95 @@ class AutoRenew {
 						const currentTime = Date.now();
 						const timeElapsed = currentTime - data.timestamp;
 
-						const isHalfTimeWindow = Math.abs(timeElapsed - halfTime) < 15_000;
+						const isHalfTimeWindow =
+							Math.abs(timeElapsed - halfTime) < 15_000;
 
 						if (timeElapsed >= data.maxTime) {
-							const channel = await guild.channels.fetch(channelId) as BaseGuildTextChannel | null;
+							const channel = (await guild.channels.fetch(
+								channelId
+							)) as BaseGuildTextChannel | null;
 
 							if (!channel) {
-								await client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
+								await client.db.delete(
+									`${guild.id}.UTILS.renew_channel.${channelId}`
+								);
 								continue;
 							}
 
 							const newChannel = await channel.clone({
 								name: channel.name,
 								parent: channel.parent,
-								permissionOverwrites: channel.permissionOverwrites.cache,
+								permissionOverwrites:
+									channel.permissionOverwrites.cache,
 								nsfw: channel.nsfw,
 								reason: `Channel re-create by Auto-Renew`,
 								position: channel.rawPosition
 							});
 
-							if (guild.systemChannel?.id === channel.id) guild.setSystemChannel(newChannel.id);
+							if (guild.systemChannel?.id === channel.id)
+								guild.setSystemChannel(newChannel.id);
 
 							if (newChannel) {
 								await Promise.all([
-									client.db.set(`${guild.id}.UTILS.renew_channel.${newChannel.id}`, {
-										timestamp: currentTime,
-										maxTime: data.maxTime
-									}),
-									client.db.delete(`${guild.id}.UTILS.renew_channel.${channel.id}`),
+									client.db.set(
+										`${guild.id}.UTILS.renew_channel.${newChannel.id}`,
+										{
+											timestamp: currentTime,
+											maxTime: data.maxTime
+										}
+									),
+									client.db.delete(
+										`${guild.id}.UTILS.renew_channel.${channel.id}`
+									),
 									channel.delete(),
-									newChannel.setPosition(channel.rawPosition),
+									newChannel.setPosition(channel.rawPosition)
 								]);
 
-								await newChannel.send({
-									content: lang.event_autorenew_channel_renewed
-								}).catch(() => false);
+								await newChannel
+									.send({
+										content:
+											lang.event_autorenew_channel_renewed
+									})
+									.catch(() => false);
 							}
 						} else if (isHalfTimeWindow) {
-							const channel = await guild.channels.fetch(channelId) as BaseGuildTextChannel | null;
+							const channel = (await guild.channels.fetch(
+								channelId
+							)) as BaseGuildTextChannel | null;
 
 							if (!channel) {
-								await client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
+								await client.db.delete(
+									`${guild.id}.UTILS.renew_channel.${channelId}`
+								);
 								continue;
 							}
 
-							await channel.send({
-								content: lang.event_autorenew_channel_warning
-									.replace("${time}", time(new Date(data.timestamp + data.maxTime), "R"))
-							})
-								.then(x => {
+							await channel
+								.send({
+									content:
+										lang.event_autorenew_channel_warning.replace(
+											"${time}",
+											time(
+												new Date(
+													data.timestamp +
+														data.maxTime
+												),
+												"R"
+											)
+										)
+								})
+								.then((x) => {
 									if (x.pinnable) x.pin();
 								})
 								.catch(() => false);
 						}
 					} catch (error) {
-						await client.db.delete(`${guild.id}.UTILS.renew_channel.${channelId}`);
+						await client.db.delete(
+							`${guild.id}.UTILS.renew_channel.${channelId}`
+						);
 					}
 				}
-			} catch { }
+			} catch {}
 		}
 	}
 }

@@ -31,22 +31,24 @@ import {
 	Guild,
 	PermissionFlagsBits,
 	StringSelectMenuBuilder,
-	TextChannel,
-} from 'discord.js';
+	TextChannel
+} from "discord.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
 const HONEYPOT_EMBED_COLOR = "#D88A3D";
 const HONEYPOT_CREDIT_URL = "https://github.com/RiskyMH/honeypot";
 
-function getDefaultHoneypotConfig(guild: Guild): DatabaseStructure.HoneypotSchema {
+function getDefaultHoneypotConfig(
+	guild: Guild
+): DatabaseStructure.HoneypotSchema {
 	return {
 		enabled: false,
-		action: 'none',
+		action: "none",
 		createdBy: guild.ownerId,
-		lastTriggeredAt: 0,
+		lastTriggeredAt: 0
 	};
 }
 
@@ -58,26 +60,34 @@ async function canManageHoneypot(
 		return true;
 	}
 
-	const allowlist = await client.db.get(`${interaction.guildId}.ALLOWLIST`) as DatabaseStructure.AllowListData | null;
+	const allowlist = (await client.db.get(
+		`${interaction.guildId}.ALLOWLIST`
+	)) as DatabaseStructure.AllowListData | null;
 	return allowlist?.list?.[interaction.user.id]?.allowed === true;
 }
 
-function getLogActionLabel(action: DatabaseStructure.HoneypotSchema["action"], lang: LanguageData): string {
+function getLogActionLabel(
+	action: DatabaseStructure.HoneypotSchema["action"],
+	lang: LanguageData
+): string {
 	switch (action) {
-		case 'ban':
+		case "ban":
 			return lang.honeypot_log_action_ban;
-		case 'kick':
+		case "kick":
 			return lang.honeypot_log_action_kick;
 		default:
 			return lang.honeypot_action_none;
 	}
 }
 
-function ActionInEmbed(action: DatabaseStructure.HoneypotSchema["action"], lang: LanguageData): string {
+function ActionInEmbed(
+	action: DatabaseStructure.HoneypotSchema["action"],
+	lang: LanguageData
+): string {
 	switch (action) {
-		case 'ban':
+		case "ban":
 			return lang.honeypot_config_select_action_ban;
-		case 'kick':
+		case "kick":
 			return lang.honeypot_config_select_action_kick;
 		default:
 			return lang.honeypot_config_select_action_del_messages;
@@ -90,7 +100,12 @@ function buildTrapEmbed(lang: LanguageData): EmbedBuilder {
 		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
 		.setTitle(lang.honeypot_trap_embed_title)
 		.setDescription(lang.honeypot_trap_embed_desc)
-		.setFooter({ text: lang.honeypot_trap_embed_footer.replace("${url}", HONEYPOT_CREDIT_URL) });
+		.setFooter({
+			text: lang.honeypot_trap_embed_footer.replace(
+				"${url}",
+				HONEYPOT_CREDIT_URL
+			)
+		});
 }
 
 async function ensureTrapChannel(
@@ -99,23 +114,27 @@ async function ensureTrapChannel(
 	lang: LanguageData
 ): Promise<TextChannel | null> {
 	if (config.channelId) {
-		const existingChannel = await guild.channels.fetch(config.channelId).catch(() => null);
+		const existingChannel = await guild.channels
+			.fetch(config.channelId)
+			.catch(() => null);
 		if (existingChannel instanceof TextChannel) {
 			return existingChannel;
 		}
 	}
 
-	const createdChannel = await guild.channels.create({
-		name: lang.honeypot_default_channel_name,
-		type: ChannelType.GuildText,
-		reason: "Honeypot automatic setup",
-	}).catch(() => null);
+	const createdChannel = await guild.channels
+		.create({
+			name: lang.honeypot_default_channel_name,
+			type: ChannelType.GuildText,
+			reason: "Honeypot automatic setup"
+		})
+		.catch(() => null);
 
 	if (!(createdChannel instanceof TextChannel)) {
 		return null;
 	}
 
-	await createdChannel.setPosition(0).catch(() => { });
+	await createdChannel.setPosition(0).catch(() => {});
 	config.channelId = createdChannel.id;
 	return createdChannel;
 }
@@ -132,11 +151,15 @@ async function sendTrapEmbed(
 	}
 
 	if (config.messageId) {
-		const previousMessage = await channel.messages.fetch(config.messageId).catch(() => null);
-		await previousMessage?.delete().catch(() => { });
+		const previousMessage = await channel.messages
+			.fetch(config.messageId)
+			.catch(() => null);
+		await previousMessage?.delete().catch(() => {});
 	}
 
-	const sentMessage = await channel.send({ embeds: [buildTrapEmbed(lang)] }).catch(() => null);
+	const sentMessage = await channel
+		.send({ embeds: [buildTrapEmbed(lang)] })
+		.catch(() => null);
 
 	if (!sentMessage) {
 		return null;
@@ -153,155 +176,246 @@ async function buildConfigEmbed(
 	config: DatabaseStructure.HoneypotSchema,
 	lang: LanguageData
 ): Promise<EmbedBuilder> {
-	const messageValue = config.messageId && config.channelId
-		? client.func.getMessageURL(interaction.guildId!, config.channelId, config.messageId)
-		: lang.var_none;
+	const messageValue =
+		config.messageId && config.channelId
+			? client.func.getMessageURL(
+					interaction.guildId!,
+					config.channelId,
+					config.messageId
+				)
+			: lang.var_none;
 
 	return new EmbedBuilder()
 		.setColor(HONEYPOT_EMBED_COLOR)
 		.setTitle(lang.honeypot_config_embed_title)
 		.setDescription(lang.honeypot_config_embed_desc)
 		.setThumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
-		.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+		.setFooter(
+			await client.func.displayBotName.footerBuilder(interaction.guildId!)
+		)
 		.addFields(
-			{ name: lang.honeypot_config_embed_field_status, value: config.enabled ? lang.var_enabled : lang.var_disabled, inline: true },
-			{ name: lang.honeypot_config_embed_field_action, value: ActionInEmbed(config.action, lang), inline: true },
-			{ name: lang.honeypot_config_embed_field_trap_channel, value: config.channelId ? `<#${config.channelId}>` : lang.var_none, inline: true },
-			{ name: lang.honeypot_config_embed_field_logs_channel, value: config.logsChannelId ? `<#${config.logsChannelId}>` : lang.var_none, inline: true },
-			{ name: lang.honeypot_config_embed_field_message, value: messageValue, inline: false },
-			{ name: lang.honeypot_config_embed_field_notes, value: lang.honeypot_config_notes_value, inline: false },
-			{ name: lang.honeypot_config_embed_field_credit, value: lang.honeypot_config_credit_value.replace("${url}", HONEYPOT_CREDIT_URL), inline: false },
+			{
+				name: lang.honeypot_config_embed_field_status,
+				value: config.enabled ? lang.var_enabled : lang.var_disabled,
+				inline: true
+			},
+			{
+				name: lang.honeypot_config_embed_field_action,
+				value: ActionInEmbed(config.action, lang),
+				inline: true
+			},
+			{
+				name: lang.honeypot_config_embed_field_trap_channel,
+				value: config.channelId
+					? `<#${config.channelId}>`
+					: lang.var_none,
+				inline: true
+			},
+			{
+				name: lang.honeypot_config_embed_field_logs_channel,
+				value: config.logsChannelId
+					? `<#${config.logsChannelId}>`
+					: lang.var_none,
+				inline: true
+			},
+			{
+				name: lang.honeypot_config_embed_field_message,
+				value: messageValue,
+				inline: false
+			},
+			{
+				name: lang.honeypot_config_embed_field_notes,
+				value: lang.honeypot_config_notes_value,
+				inline: false
+			},
+			{
+				name: lang.honeypot_config_embed_field_credit,
+				value: lang.honeypot_config_credit_value.replace(
+					"${url}",
+					HONEYPOT_CREDIT_URL
+				),
+				inline: false
+			}
 		);
 }
 
-function buildComponents(lang: LanguageData, config: DatabaseStructure.HoneypotSchema) {
-	const trapChannelRow = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
-		new ChannelSelectMenuBuilder()
-			.setCustomId('honeypot-config-trap-channel')
-			.setPlaceholder(lang.honeypot_config_select_trap_placeholder)
-			.setChannelTypes(ChannelType.GuildText)
-			.setMinValues(1)
-			.setMaxValues(1)
-	);
+function buildComponents(
+	lang: LanguageData,
+	config: DatabaseStructure.HoneypotSchema
+) {
+	const trapChannelRow =
+		new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+			new ChannelSelectMenuBuilder()
+				.setCustomId("honeypot-config-trap-channel")
+				.setPlaceholder(lang.honeypot_config_select_trap_placeholder)
+				.setChannelTypes(ChannelType.GuildText)
+				.setMinValues(1)
+				.setMaxValues(1)
+		);
 
-	const logsChannelRow = new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
-		new ChannelSelectMenuBuilder()
-			.setCustomId('honeypot-config-logs-channel')
-			.setPlaceholder(lang.honeypot_config_select_logs_placeholder)
-			.setChannelTypes(ChannelType.GuildText)
-			.setMinValues(1)
-			.setMaxValues(1)
-	);
+	const logsChannelRow =
+		new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
+			new ChannelSelectMenuBuilder()
+				.setCustomId("honeypot-config-logs-channel")
+				.setPlaceholder(lang.honeypot_config_select_logs_placeholder)
+				.setChannelTypes(ChannelType.GuildText)
+				.setMinValues(1)
+				.setMaxValues(1)
+		);
 
-	const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-		new StringSelectMenuBuilder()
-			.setCustomId('honeypot-config-action')
-			.setPlaceholder(lang.honeypot_config_select_action_placeholder)
-			.addOptions(
-				{
-					label: lang.honeypot_config_select_action_kick,
-					value: 'kick',
-					default: config.action === 'kick'
-				},
-				{
-					label: lang.honeypot_config_select_action_ban,
-					value: 'ban',
-					default: config.action === 'ban'
-				},
-				{
-					label: lang.honeypot_config_select_action_none,
-					value: 'none',
-					default: config.action === 'none'
-				},
-			)
-	);
+	const actionRow =
+		new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+			new StringSelectMenuBuilder()
+				.setCustomId("honeypot-config-action")
+				.setPlaceholder(lang.honeypot_config_select_action_placeholder)
+				.addOptions(
+					{
+						label: lang.honeypot_config_select_action_kick,
+						value: "kick",
+						default: config.action === "kick"
+					},
+					{
+						label: lang.honeypot_config_select_action_ban,
+						value: "ban",
+						default: config.action === "ban"
+					},
+					{
+						label: lang.honeypot_config_select_action_none,
+						value: "none",
+						default: config.action === "none"
+					}
+				)
+		);
 
 	const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
 		new ButtonBuilder()
-			.setCustomId('honeypot-config-send')
+			.setCustomId("honeypot-config-send")
 			.setLabel(lang.honeypot_config_button_send)
 			.setStyle(ButtonStyle.Primary),
 		new ButtonBuilder()
-			.setCustomId('honeypot-config-preview')
+			.setCustomId("honeypot-config-preview")
 			.setLabel(lang.honeypot_config_button_preview)
 			.setStyle(ButtonStyle.Secondary),
 		new ButtonBuilder()
-			.setCustomId('honeypot-config-toggle')
-			.setLabel(config.enabled ? lang.honeypot_config_button_disable : lang.honeypot_config_button_enable)
-			.setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success),
+			.setCustomId("honeypot-config-toggle")
+			.setLabel(
+				config.enabled
+					? lang.honeypot_config_button_disable
+					: lang.honeypot_config_button_enable
+			)
+			.setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
 	);
 
 	return [trapChannelRow, logsChannelRow, actionRow, buttonRow];
 }
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData) => {
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData
+	) => {
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const canManage = await canManageHoneypot(client, interaction);
 		if (!canManage) {
-			await client.func.method.interactionSend(interaction, { content: lang.honeypot_config_not_allowed });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.honeypot_config_not_allowed
+			});
 			return;
 		}
 
-		let config = (await client.db.get(`${interaction.guildId}.GUILD.HONEYPOT`) as DatabaseStructure.HoneypotSchema | null)
-			|| getDefaultHoneypotConfig(interaction.guild);
+		let config =
+			((await client.db.get(
+				`${interaction.guildId}.GUILD.HONEYPOT`
+			)) as DatabaseStructure.HoneypotSchema | null) ||
+			getDefaultHoneypotConfig(interaction.guild);
 
 		const renderPanel = async () => {
 			await response.edit({
-				embeds: [await buildConfigEmbed(client, interaction, config, lang)],
+				embeds: [
+					await buildConfigEmbed(client, interaction, config, lang)
+				],
 				components: buildComponents(lang, config),
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
 			});
 		};
 
 		const response = await client.func.method.interactionSend(interaction, {
 			embeds: [await buildConfigEmbed(client, interaction, config, lang)],
 			components: buildComponents(lang, config),
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 
 		const collector = response.createMessageComponentCollector({
-			time: 240_000,
+			time: 240_000
 		});
 
-		collector.on('collect', async (i) => {
+		collector.on("collect", async (i) => {
 			if (i.user.id !== interaction.user.id) {
-				await i.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
+				await i.reply({
+					content: lang.help_not_for_you,
+					flags: [1 << 6]
+				});
 				return;
 			}
 
 			if (i.isChannelSelectMenu()) {
 				await i.deferUpdate();
 
-				if (i.customId === 'honeypot-config-trap-channel') {
+				if (i.customId === "honeypot-config-trap-channel") {
 					const nextChannelId = i.channels.first()?.id;
 					if (config.channelId !== nextChannelId) {
 						config.messageId = undefined;
 					}
 					config.channelId = nextChannelId;
-				} else if (i.customId === 'honeypot-config-logs-channel') {
+				} else if (i.customId === "honeypot-config-logs-channel") {
 					config.logsChannelId = i.channels.first()?.id;
 				}
 
 				config.createdBy = interaction.user.id;
-				await client.db.set(`${interaction.guildId}.GUILD.HONEYPOT`, config);
+				await client.db.set(
+					`${interaction.guildId}.GUILD.HONEYPOT`,
+					config
+				);
 				await renderPanel();
 				return;
 			}
 
-			if (i.isStringSelectMenu() && i.customId === 'honeypot-config-action') {
+			if (
+				i.isStringSelectMenu() &&
+				i.customId === "honeypot-config-action"
+			) {
 				await i.deferUpdate();
-				config.action = i.values[0] as DatabaseStructure.HoneypotSchema["action"];
+				config.action = i
+					.values[0] as DatabaseStructure.HoneypotSchema["action"];
 				config.createdBy = interaction.user.id;
-				await client.db.set(`${interaction.guildId}.GUILD.HONEYPOT`, config);
+				await client.db.set(
+					`${interaction.guildId}.GUILD.HONEYPOT`,
+					config
+				);
 				await renderPanel();
 				return;
 			}
 
 			if (!i.isButton()) return;
 
-			if (i.customId === 'honeypot-config-preview') {
+			if (i.customId === "honeypot-config-preview") {
 				await i.reply({
 					embeds: [buildTrapEmbed(lang)],
 					flags: [1 << 6]
@@ -309,66 +423,105 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			if (i.customId === 'honeypot-config-send') {
-				const channel = await sendTrapEmbed(interaction.guild, config, lang);
+			if (i.customId === "honeypot-config-send") {
+				const channel = await sendTrapEmbed(
+					interaction.guild,
+					config,
+					lang
+				);
 
 				if (!channel) {
-					await i.reply({ content: lang.honeypot_config_generic_error, flags: [1 << 6] });
+					await i.reply({
+						content: lang.honeypot_config_generic_error,
+						flags: [1 << 6]
+					});
 					return;
 				}
 
 				config.createdBy = interaction.user.id;
-				await client.db.set(`${interaction.guildId}.GUILD.HONEYPOT`, config);
+				await client.db.set(
+					`${interaction.guildId}.GUILD.HONEYPOT`,
+					config
+				);
 				await renderPanel();
 				await i.reply({
-					content: lang.honeypot_config_send_success.replace("${channel}", `<#${channel.id}>`),
+					content: lang.honeypot_config_send_success.replace(
+						"${channel}",
+						`<#${channel.id}>`
+					),
 					flags: [1 << 6]
 				});
 				return;
 			}
 
-			if (i.customId === 'honeypot-config-toggle') {
+			if (i.customId === "honeypot-config-toggle") {
 				if (config.enabled) {
 					config.enabled = false;
 					config.createdBy = interaction.user.id;
-					await client.db.set(`${interaction.guildId}.GUILD.HONEYPOT`, config);
+					await client.db.set(
+						`${interaction.guildId}.GUILD.HONEYPOT`,
+						config
+					);
 					await renderPanel();
-					await i.reply({ content: lang.honeypot_config_disable_success, flags: [1 << 6] });
+					await i.reply({
+						content: lang.honeypot_config_disable_success,
+						flags: [1 << 6]
+					});
 					return;
 				}
 
 				if (!config.logsChannelId) {
-					await i.reply({ content: lang.honeypot_config_missing_logs_channel, flags: [1 << 6] });
+					await i.reply({
+						content: lang.honeypot_config_missing_logs_channel,
+						flags: [1 << 6]
+					});
 					return;
 				}
 
-				const trapChannel = await sendTrapEmbed(interaction.guild, config, lang);
+				const trapChannel = await sendTrapEmbed(
+					interaction.guild,
+					config,
+					lang
+				);
 
 				if (!trapChannel) {
-					await i.reply({ content: lang.honeypot_config_generic_error, flags: [1 << 6] });
+					await i.reply({
+						content: lang.honeypot_config_generic_error,
+						flags: [1 << 6]
+					});
 					return;
 				}
 
 				config.enabled = true;
 				config.createdBy = interaction.user.id;
-				await client.db.set(`${interaction.guildId}.GUILD.HONEYPOT`, config);
+				await client.db.set(
+					`${interaction.guildId}.GUILD.HONEYPOT`,
+					config
+				);
 				await renderPanel();
 				await i.reply({
-					content: lang.honeypot_config_enable_success.replace("${channel}", `<#${trapChannel.id}>`),
+					content: lang.honeypot_config_enable_success.replace(
+						"${channel}",
+						`<#${trapChannel.id}>`
+					),
 					flags: [1 << 6]
 				});
 			}
 		});
 
-		collector.on('end', async () => {
+		collector.on("end", async () => {
 			const disabledRows = buildComponents(lang, config).map((row) => {
-				row.components.forEach((component) => component.setDisabled(true));
+				row.components.forEach((component) =>
+					component.setDisabled(true)
+				);
 				return row;
 			});
 
-			await response.edit({
-				components: disabledRows
-			}).catch(() => { });
+			await response
+				.edit({
+					components: disabledRows
+				})
+				.catch(() => {});
 		});
-	},
+	}
 };

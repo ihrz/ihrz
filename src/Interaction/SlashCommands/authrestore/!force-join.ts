@@ -26,34 +26,51 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
-	EmbedBuilder,
-} from 'discord.js';
-import WebSocket from 'ws';
-import { forceJoinAuthRestore, getGuildDataPerSecretCode } from '../../../core/functions/authRestoreHelper.js';
+	EmbedBuilder
+} from "discord.js";
+import WebSocket from "ws";
+import {
+	forceJoinAuthRestore,
+	getGuildDataPerSecretCode
+} from "../../../core/functions/authRestoreHelper.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const secretCode = interaction.options.getString("key")!;
 		const Data = await getGuildDataPerSecretCode(secretCode);
 
-		if (!Data) return client.func.method.interactionSend(interaction, {
-			content: lang.rc_key_doesnt_exist
-				.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-				.replace("${secretCode}", secretCode),
-			flags: [1 << 6]
-		});
+		if (!Data)
+			return client.func.method.interactionSend(interaction, {
+				content: lang.rc_key_doesnt_exist
+					.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
+					.replace("${secretCode}", secretCode),
+				flags: [1 << 6]
+			});
 
 		const members = Data.data.members || [];
-		const membersAlreadyHere = members.filter(userId => {
-			return interaction.guild.members.cache.has(userId)
+		const membersAlreadyHere = members.filter((userId) => {
+			return interaction.guild.members.cache.has(userId);
 		});
 
 		const embed = new EmbedBuilder()
@@ -61,9 +78,21 @@ export const subCommand: SubCommand = {
 			.setDescription(lang.rc_forceJoin_embed_desc)
 			.setColor(2829617)
 			.setFields(
-				{ name: lang.rc_forceJoin_embed_field1, value: String(members.length), inline: true },
-				{ name: lang.rc_forceJoin_embed_field2, value: String(membersAlreadyHere.length), inline: true },
-				{ name: lang.rc_forceJoin_embed_field3, value: String(members.length - membersAlreadyHere.length), inline: true },
+				{
+					name: lang.rc_forceJoin_embed_field1,
+					value: String(members.length),
+					inline: true
+				},
+				{
+					name: lang.rc_forceJoin_embed_field2,
+					value: String(membersAlreadyHere.length),
+					inline: true
+				},
+				{
+					name: lang.rc_forceJoin_embed_field3,
+					value: String(members.length - membersAlreadyHere.length),
+					inline: true
+				}
 			);
 
 		const response = await client.func.method.interactionSend(interaction, {
@@ -71,28 +100,30 @@ export const subCommand: SubCommand = {
 			ephemeral: false,
 			withResponse: true,
 			components: [
-				new ActionRowBuilder<ButtonBuilder>()
-					.addComponents(
-						new ButtonBuilder()
-							.setCustomId("yes")
-							.setStyle(ButtonStyle.Danger)
-							.setLabel(lang.var_confirm),
-						new ButtonBuilder()
-							.setCustomId("no")
-							.setStyle(ButtonStyle.Success)
-							.setLabel(lang.embed_btn_cancel)
-					)
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder()
+						.setCustomId("yes")
+						.setStyle(ButtonStyle.Danger)
+						.setLabel(lang.var_confirm),
+					new ButtonBuilder()
+						.setCustomId("no")
+						.setStyle(ButtonStyle.Success)
+						.setLabel(lang.embed_btn_cancel)
+				)
 			]
 		});
 
 		const collector = response.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			time: 2_240_00,
+			time: 2_240_00
 		});
 
-		collector.on("collect", async i => {
+		collector.on("collect", async (i) => {
 			if (i.user.id !== interaction.member?.user.id) {
-				await i.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
+				await i.reply({
+					content: lang.help_not_for_you,
+					flags: [1 << 6]
+				});
 				return;
 			}
 
@@ -105,15 +136,27 @@ export const subCommand: SubCommand = {
 
 				const updateEmbed = () => {
 					embed.setFields(
-						{ name: lang.rc_forceJoin_embed_2_field1, value: String(totalMembers - membersAlreadyHere.length), inline: true },
-						{ name: lang.rc_forceJoin_embed_2_field2, value: String(addedCount), inline: true },
+						{
+							name: lang.rc_forceJoin_embed_2_field1,
+							value: String(
+								totalMembers - membersAlreadyHere.length
+							),
+							inline: true
+						},
+						{
+							name: lang.rc_forceJoin_embed_2_field2,
+							value: String(addedCount),
+							inline: true
+						}
 					);
 					interaction.editReply({ embeds: [embed] });
 				};
 
-				const forceJoinMembers = members.filter(userId => {
-					return !interaction.guild.members.cache.has(userId)
-				}).map(x => x);
+				const forceJoinMembers = members
+					.filter((userId) => {
+						return !interaction.guild.members.cache.has(userId);
+					})
+					.map((x) => x);
 
 				const updateInterval = 5;
 				const maxUpdateInterval = 10000;
@@ -124,31 +167,42 @@ export const subCommand: SubCommand = {
 					targetGuildId: interaction.guildId,
 					guildId: Data.id,
 					secretCode
-				}).then(res => {
+				}).then((res) => {
 					const data = res.message.split("%");
 					const ws = new WebSocket(data[0]);
 
-					ws.on('error', console.error);
+					ws.on("error", console.error);
 
-					ws.on('open', function open() {
+					ws.on("open", function open() {
 						ws.send("forceJoin%" + data[1]);
 					});
 
-					ws.on('message', async function message(messageData) {
+					ws.on("message", async function message(messageData) {
 						const messageParts = messageData.toString().split(":");
 						const value = messageParts[1];
 						const value2 = messageParts[2] || "";
 
 						switch (value) {
 							case "size":
-								embed.setDescription(lang.rc_forceJoin_ws_size.replace("${value2}", value2));
+								embed.setDescription(
+									lang.rc_forceJoin_ws_size.replace(
+										"${value2}",
+										value2
+									)
+								);
 								break;
 							case "start":
-								embed.setDescription(lang.rc_forceJoin_ws_start);
+								embed.setDescription(
+									lang.rc_forceJoin_ws_start
+								);
 								break;
 							case "add":
 								addedCount++;
-								if (Date.now() - lastUpdateTime > maxUpdateInterval || addedCount % updateInterval === 0) {
+								if (
+									Date.now() - lastUpdateTime >
+										maxUpdateInterval ||
+									addedCount % updateInterval === 0
+								) {
 									updateEmbed();
 									lastUpdateTime = Date.now();
 								}
@@ -156,15 +210,38 @@ export const subCommand: SubCommand = {
 							case "end":
 								embed.setDescription(lang.rc_forceJoin_ws_end);
 								await interaction.followUp({
-									content: lang.rc_forceJoin_ws_end_renew_msg
-										.replace("${value2}", value2),
+									content:
+										lang.rc_forceJoin_ws_end_renew_msg.replace(
+											"${value2}",
+											value2
+										),
 									flags: [1 << 6]
 								});
 
-								await interaction.user.send(lang.rc_command_ok_dm.replace("${interaction.guild.name}", interaction.guild.name).replace("${res.secretCode}", value2))
-									.catch(() => interaction.followUp({ content: lang.rc_command_dm_failed, flags: [1 << 6] }))
-									.then(() => interaction.followUp({ content: lang.rc_command_dm_ok, flags: [1 << 6] }))
-									;
+								await interaction.user
+									.send(
+										lang.rc_command_ok_dm
+											.replace(
+												"${interaction.guild.name}",
+												interaction.guild.name
+											)
+											.replace(
+												"${res.secretCode}",
+												value2
+											)
+									)
+									.catch(() =>
+										interaction.followUp({
+											content: lang.rc_command_dm_failed,
+											flags: [1 << 6]
+										})
+									)
+									.then(() =>
+										interaction.followUp({
+											content: lang.rc_command_dm_ok,
+											flags: [1 << 6]
+										})
+									);
 								break;
 						}
 						updateEmbed();

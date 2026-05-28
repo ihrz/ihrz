@@ -19,26 +19,31 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-		const state = await client.db.get(`${interaction.guildId}.UTILS.git_lines`);
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		const state = await client.db.get(
+			`${interaction.guildId}.UTILS.git_lines`
+		);
 
 		await client.db.set(`${interaction.guildId}.UTILS.git_lines`, !state);
 
 		const newState = !state;
 		await client.func.method.interactionSend(interaction, {
-			content: newState ? lang.git_lines_work : lang.git_lines_work_disabled,
+			content: newState
+				? lang.git_lines_work
+				: lang.git_lines_work_disabled,
 			allowedMentions: { repliedUser: false }
 		});
 		return;
-	},
+	}
 };

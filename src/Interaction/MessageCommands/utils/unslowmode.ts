@@ -19,33 +19,34 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	Message,
-	PermissionFlagsBits,
-} from 'discord.js';
+import { Client, Message, PermissionFlagsBits } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
 import { subCommand } from "../../HybridCommands/utils/util/!cooldown.js";
 
 export const command: Command = {
-	name: 'unslowmode',
+	name: "unslowmode",
 
 	aliases: ["uncooldown", "delcooldown"],
 
-	description: 'Removed the cooldown on the current channel',
+	description: "Removed the cooldown on the current channel",
 	description_localizations: {
-		"fr": "Supprimer le mode lent du cannal actuel"
+		fr: "Supprimer le mode lent du cannal actuel"
 	},
 
 	thinking: false,
-	category: 'utils',
+	category: "utils",
 	type: "PREFIX_IHORIZON_COMMAND",
 
 	permission: PermissionFlagsBits.ManageChannels,
-	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
-		subCommand.run(client, message, lang, ["0"])
-	},
+	run: async (
+		client: Client,
+		message: Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
+		subCommand.run(client, message, lang, ["0"]);
+	}
 };

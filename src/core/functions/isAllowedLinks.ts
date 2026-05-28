@@ -19,17 +19,32 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import * as url from 'url';
+import * as url from "url";
 
 const allowedDomains: string[] = [
-	'open.spotify.com', 'play.spotify.com', 'spotify.com',
-	'www.spotify.com', 'www.deezer.com', 'deezer.com',
-	'soundcloud.com', 'www.soundcloud.com', 'on.soundcloud.com', 'm.soundcloud.com',
-	'music.apple.com', 'www.music.apple.com',
-	'www.napster.com', 'napster.com', 'us.napster.com',
-	'music.apple.com', 'www.music.apple.com',
-	'www.deezer.com', 'deezer.com', 'deezer.page.link',
-	'cdn.discordapp.com', 'dzr.page.link', "link.deezer.com"
+	"open.spotify.com",
+	"play.spotify.com",
+	"spotify.com",
+	"www.spotify.com",
+	"www.deezer.com",
+	"deezer.com",
+	"soundcloud.com",
+	"www.soundcloud.com",
+	"on.soundcloud.com",
+	"m.soundcloud.com",
+	"music.apple.com",
+	"www.music.apple.com",
+	"www.napster.com",
+	"napster.com",
+	"us.napster.com",
+	"music.apple.com",
+	"www.music.apple.com",
+	"www.deezer.com",
+	"deezer.com",
+	"deezer.page.link",
+	"cdn.discordapp.com",
+	"dzr.page.link",
+	"link.deezer.com"
 ];
 
 export default function isAllowedLinks(link: string): boolean {
@@ -39,6 +54,6 @@ export default function isAllowedLinks(link: string): boolean {
 		if (parsedUrl.hostname !== null) {
 			return allowedDomains.includes(parsedUrl.hostname);
 		}
-	};
+	}
 	return true;
-};
+}

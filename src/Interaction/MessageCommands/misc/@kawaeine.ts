@@ -19,94 +19,127 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { ApplicationCommandOptionType, Message, Client } from "discord.js";
+
+import path from "path";
+
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+
+import { axios } from "../../../core/functions/axios.js";
 import {
-	ApplicationCommandOptionType,
-	Message,
-	Client,
-} from 'discord.js';
-
-import path from 'path';
-
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
-import { axios } from '../../../core/functions/axios.js';
-import { convertToPng, resizeImage, tempDir } from '../../../core/functions/mediaManipulation.js';
-import { unlink } from 'fs/promises';
+	convertToPng,
+	resizeImage,
+	tempDir
+} from "../../../core/functions/mediaManipulation.js";
+import { unlink } from "fs/promises";
 
 export const command: Command = {
-	name: 'kawaeine',
-	aliases: ['meme3'],
-	description: 'kawaeine meme generator',
+	name: "kawaeine",
+	aliases: ["meme3"],
+	description: "kawaeine meme generator",
 	description_localizations: {
-		"fr": "kawaeine meme generator",
+		fr: "kawaeine meme generator"
 	},
 	options: [
 		{
 			name: "image1",
 			description: "the before sucks",
 			description_localizations: {
-				"fr": "le screen qui te fait dire que ça va mal",
+				fr: "le screen qui te fait dire que ça va mal"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
 
 			permission: null
-		},
+		}
 	],
 	thinking: false,
-	category: 'misc',
+	category: "misc",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
 	run: async (
 		client: Client,
 		interaction: Message<true>,
 		lang: LanguageData,
-		options?: string[],
+		options?: string[]
 	) => {
-		if (interaction.guild.preferredLocale !== 'fr') return;
+		if (interaction.guild.preferredLocale !== "fr") return;
 
-		const beforeSucksUrl = client.func.method.string(options!, 0) || interaction.attachments.first()?.url;
+		const beforeSucksUrl =
+			client.func.method.string(options!, 0) ||
+			interaction.attachments.first()?.url;
 
 		if (!beforeSucksUrl) {
 			return interaction.reply({ content: lang.media_gen_error_args });
 		}
 
-		if (await client.func.helper.cooldown(interaction.author.id, "media_manipulation", client.timeCalculator.to_ms("1m30s")!)) {
-			return interaction.reply({ content: lang.media_gen_cooldown })
-		};
+		if (
+			await client.func.helper.cooldown(
+				interaction.author.id,
+				"media_manipulation",
+				client.timeCalculator.to_ms("1m30s")!
+			)
+		) {
+			return interaction.reply({ content: lang.media_gen_cooldown });
+		}
 
 		try {
-			const beforeSucksResponse = await axios.get(beforeSucksUrl, { responseType: 'arraybuffer' });
+			const beforeSucksResponse = await axios.get(beforeSucksUrl, {
+				responseType: "arraybuffer"
+			});
 
-			const beforeSucksResizedPath = path.join(tempDir, `beforeSucksResized-${interaction.id}.png`);
+			const beforeSucksResizedPath = path.join(
+				tempDir,
+				`beforeSucksResized-${interaction.id}.png`
+			);
 
-			await resizeImage(await convertToPng(Buffer.from(beforeSucksResponse.data)), beforeSucksResizedPath, 1920, 1080);
+			await resizeImage(
+				await convertToPng(Buffer.from(beforeSucksResponse.data)),
+				beforeSucksResizedPath,
+				1920,
+				1080
+			);
 
-			const rapRealityPath = path.join(process.cwd(), 'src', 'assets', 'kawaeine');
+			const rapRealityPath = path.join(
+				process.cwd(),
+				"src",
+				"assets",
+				"kawaeine"
+			);
 
-			let data = await client.kdenlive.open(path.join(rapRealityPath, 'meme3.kdenlive'));
+			let data = await client.kdenlive.open(
+				path.join(rapRealityPath, "meme3.kdenlive")
+			);
 
-			data = data.replace("{kawaeine_var}", tempDir)
-				.replaceAll("before.mp4", path.join(rapRealityPath, 'before.mp4'))
-				.replaceAll("after.mp4", path.join(rapRealityPath, 'after.mp4'))
-				.replaceAll("oof.mp3", path.join(rapRealityPath, 'oof.mp3'))
+			data = data
+				.replace("{kawaeine_var}", tempDir)
+				.replaceAll(
+					"before.mp4",
+					path.join(rapRealityPath, "before.mp4")
+				)
+				.replaceAll("after.mp4", path.join(rapRealityPath, "after.mp4"))
+				.replaceAll("oof.mp3", path.join(rapRealityPath, "oof.mp3"))
 				.replaceAll("placeholder.png", beforeSucksResizedPath);
 
 			const outPath = await client.kdenlive.tempSave(data);
 			const exported = await client.kdenlive.export(outPath);
 
 			await interaction.reply({
-				files: [{
-					attachment: exported,
-					name: 'merged_video.mp4'
-				}]
+				files: [
+					{
+						attachment: exported,
+						name: "merged_video.mp4"
+					}
+				]
 			});
 
 			await unlink(exported);
 			await unlink(beforeSucksResizedPath);
 		} catch (error) {
-			interaction.reply({ content: `An error occurred: ${error.message}` });
+			interaction.reply({
+				content: `An error occurred: ${error.message}`
+			});
 		}
 	}
-}
+};

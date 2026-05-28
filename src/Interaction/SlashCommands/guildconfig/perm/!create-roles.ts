@@ -19,21 +19,31 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	ChatInputCommandInteraction,
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../../types/database_structure.js';
-import { SubCommand } from '../../../../../types/command.js';
-import { permissionsRole } from './perm.js';
+import { Client, ChatInputCommandInteraction } from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../../types/database_structure.js";
+import { SubCommand } from "../../../../../types/command.js";
+import { permissionsRole } from "./perm.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-		const existingRoles = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {} as DatabaseStructure.UtilsRoleData;
+		const existingRoles =
+			(await client.db.get(`${interaction.guildId}.UTILS.roles`)) ||
+			({} as DatabaseStructure.UtilsRoleData);
 
 		if (interaction.member.id !== interaction.guild.ownerId) {
 			await client.func.method.interactionSend(interaction, {
@@ -51,24 +61,35 @@ export const subCommand: SubCommand = {
 				const existingRoleId = existingRoles[permLevel];
 
 				if (existingRoleId) {
-					const roleExists = await interaction.guild!.roles.fetch(existingRoleId).catch(() => null);
+					const roleExists = await interaction
+						.guild!.roles.fetch(existingRoleId)
+						.catch(() => null);
 					if (roleExists) {
-						updatedRoles[permLevel as DatabaseStructure.PermLevel] = existingRoleId;
+						updatedRoles[permLevel as DatabaseStructure.PermLevel] =
+							existingRoleId;
 						continue;
 					}
 				}
 
-				const newRole = await interaction.guild!.roles.create({ name: permissionsRole[i] });
-				updatedRoles[permLevel as DatabaseStructure.PermLevel] = newRole.id;
+				const newRole = await interaction.guild!.roles.create({
+					name: permissionsRole[i]
+				});
+				updatedRoles[permLevel as DatabaseStructure.PermLevel] =
+					newRole.id;
 				createdRoles.push(permissionsRole[i]);
 			}
 
-			await client.db.set(`${interaction.guildId}.UTILS.roles`, updatedRoles);
-
+			await client.db.set(
+				`${interaction.guildId}.UTILS.roles`,
+				updatedRoles
+			);
 
 			if (createdRoles.length > 0) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.perm_roles_created_role.replace("${createdRoles.join(', ')}", createdRoles.join(", "))
+					content: lang.perm_roles_created_role.replace(
+						"${createdRoles.join(', ')}",
+						createdRoles.join(", ")
+					)
 				});
 			} else {
 				await client.func.method.interactionSend(interaction, {
@@ -80,5 +101,5 @@ export const subCommand: SubCommand = {
 				content: lang.perm_roles_error
 			});
 		}
-	},
+	}
 };

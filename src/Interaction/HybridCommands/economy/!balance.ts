@@ -25,59 +25,105 @@ import {
 	EmbedBuilder,
 	GuildMember,
 	Message
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { SubCommand } from '../../../../types/command.js';
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
-		};
+		}
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var member: GuildMember = interaction.options.getMember('user') as GuildMember || interaction.member;
+			var member: GuildMember =
+				(interaction.options.getMember("user") as GuildMember) ||
+				interaction.member;
 		} else {
+			var member: GuildMember =
+				client.func.method.member(interaction, args!, 0) ||
+				interaction.member;
+		}
 
-			var member: GuildMember = client.func.method.member(interaction, args!, 0) || interaction.member;
-		};
+		const baseData: DatabaseStructure.EconomyUserSchema =
+			(await client.db.get(
+				`${interaction.guildId}.USER.${member.id}.ECONOMY`
+			)) || { money: 0, bank: 0, ownedRoles: [] };
 
-		const baseData: DatabaseStructure.EconomyUserSchema = await client.db.get(`${interaction.guildId}.USER.${member.id}.ECONOMY`) || { money: 0, bank: 0, ownedRoles: [] };
-
-		const possibleBoost = await client.func.economyHelper.getMemberBoost(interaction.member!);
+		const possibleBoost = await client.func.economyHelper.getMemberBoost(
+			interaction.member!
+		);
 		const totalWallet = (baseData.money || 0) + (baseData.bank || 0);
 
 		const embed = new EmbedBuilder()
-			.setColor('#e3c6ff')
+			.setColor("#e3c6ff")
 			.setTitle(`\`${member.user.username}\`'s Wallet`)
 			.setThumbnail(member.displayAvatarURL())
-			.setDescription(lang.balance_he_have_wallet
-				.replace("${bal}", totalWallet.toString())
-				.replace('${user}', member.toString())
-				.replace("${client.iHorizon_Emojis.Wallet}", client.iHorizon_Emojis.Wallet)
+			.setDescription(
+				lang.balance_he_have_wallet
+					.replace("${bal}", totalWallet.toString())
+					.replace("${user}", member.toString())
+					.replace(
+						"${client.iHorizon_Emojis.Wallet}",
+						client.iHorizon_Emojis.Wallet
+					)
 			)
 			.addFields(
-				{ name: lang.balance_embed_fields1_name, value: `${baseData.bank || 0}${client.iHorizon_Emojis.Coin}`, inline: true },
-				{ name: lang.balance_embed_fields2_name, value: `${baseData.money || 0}${client.iHorizon_Emojis.Coin}`, inline: true },
-				{ name: lang.var_boost, value: `${possibleBoost}x`, inline: true }
+				{
+					name: lang.balance_embed_fields1_name,
+					value: `${baseData.bank || 0}${client.iHorizon_Emojis.Coin}`,
+					inline: true
+				},
+				{
+					name: lang.balance_embed_fields2_name,
+					value: `${baseData.money || 0}${client.iHorizon_Emojis.Coin}`,
+					inline: true
+				},
+				{
+					name: lang.var_boost,
+					value: `${possibleBoost}x`,
+					inline: true
+				}
 			)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-			.setTimestamp()
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
+			.setTimestamp();
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
-	},
+	}
 };

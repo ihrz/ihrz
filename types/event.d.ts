@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, ClientEvents, RestEvents } from 'discord.js';
+import { Client, ClientEvents, RestEvents } from "discord.js";
 
 export interface BotEvent {
 	/**
@@ -27,12 +27,12 @@ export interface BotEvent {
 	 * @type {keyof ClientEvents | keyof RestEvents}
 	 * @memberof BotEvent
 	 */
-	name: keyof ClientEvents | keyof RestEvents,
+	name: keyof ClientEvents | keyof RestEvents;
 
 	/**
 	 * @description The function to run when the event is called.
 	 * @type {(client: Client, ...args: any[]) => Promise<any>}
 	 * @memberof BotEvent
 	 */
-	run(client: Client, ...args: any[]): Promise<any>
+	run(client: Client, ...args: any[]): Promise<any>;
 }

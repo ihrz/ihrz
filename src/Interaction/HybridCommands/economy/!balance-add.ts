@@ -19,38 +19,47 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
-		};
+		}
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var amount = interaction.options.getNumber("amount") as number;
 			var user = interaction.options.getUser("member");
 		} else {
-
 			var amount = client.func.method.number(args!, 0) as number;
 			var user = await client.func.method.user(interaction, args!, 1);
-		};
+		}
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.addmoney_command_work
@@ -58,16 +67,28 @@ export const subCommand: SubCommand = {
 				.replace("${amount.value}", amount.toString())
 		});
 
-		await client.db.add(`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`, amount);
+		await client.db.add(
+			`${interaction.guildId}.USER.${user?.id}.ECONOMY.money`,
+			amount
+		);
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.addmoney_logs_embed_title,
 			description: lang.addmoney_logs_embed_description
-				.replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+				.replace(
+					/\${interaction\.user\.id}/g,
+					interaction.member.user.id
+				)
 				.replace(/\${amount\.value}/g, amount.toString())
 				.replace(/\${user\.user\.id}/g, user?.id!)
 		});
 
-		client.func.economyLogs.addMoney(interaction.guild, interaction.member.user.id, user?.id!, amount, lang);
-	},
+		client.func.economyLogs.addMoney(
+			interaction.guild,
+			interaction.member.user.id,
+			user?.id!,
+			amount,
+			lang
+		);
+	}
 };

@@ -23,50 +23,79 @@ import {
 	Client,
 	ChatInputCommandInteraction,
 	GuildMember,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember("member") as GuildMember | null;
+			var member = interaction.options.getMember(
+				"member"
+			) as GuildMember | null;
 		} else {
+			var member = client.func.method.member(
+				interaction,
+				args!,
+				0
+			) as GuildMember | null;
+		}
 
-			var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
-		};
-
-		const allWarns: DatabaseStructure.WarnsData[] | null = await client.db.get(`${interaction.guildId}.USER.${member?.id}.WARNS`);
+		const allWarns: DatabaseStructure.WarnsData[] | null =
+			await client.db.get(
+				`${interaction.guildId}.USER.${member?.id}.WARNS`
+			);
 
 		if (!allWarns || allWarns.length === 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.warnlist_no_data
-					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+					.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
 					.replace("${member?.toString()}", member?.toString()!)
-			})
+			});
 			return;
 		}
 
 		// delete all warns
-		await client.db.delete(`${interaction.guildId}.USER.${member?.id}.WARNS`);
+		await client.db.delete(
+			`${interaction.guildId}.USER.${member?.id}.WARNS`
+		);
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.clearwarn_command_ok
-				.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
+				.replace(
+					"${client.iHorizon_Emojis.Yes}",
+					client.iHorizon_Emojis.Yes
+				)
 				.replace("${member?.toString()}", member?.toString()!)
 				.replace("${allWarns.length}", allWarns.length.toString())
-				.replace("${interaction.member.toString()}", interaction.member.toString())
+				.replace(
+					"${interaction.member.toString()}",
+					interaction.member.toString()
+				)
 		});
 
 		return;
-	},
+	}
 };

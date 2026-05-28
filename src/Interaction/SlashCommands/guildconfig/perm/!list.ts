@@ -25,24 +25,34 @@ import {
 	EmbedBuilder,
 	ActionRowBuilder,
 	ButtonBuilder,
-	ButtonStyle,
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../../types/database_structure.js';
-import { SubCommand } from '../../../../../types/command.js';
-
+	ButtonStyle
+} from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../../types/database_structure.js";
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-
-
-		const all_members: DatabaseStructure.UtilsPermsUserData = await client.db.get(`${interaction.guildId}.UTILS.USER_PERMS`) || {};
-		const all_roles: DatabaseStructure.UtilsRoleData = await client.db.get(`${interaction.guildId}.UTILS.roles`) || {};
-		const allUsers: { group: number, userId: string }[] = [];
+		const all_members: DatabaseStructure.UtilsPermsUserData =
+			(await client.db.get(`${interaction.guildId}.UTILS.USER_PERMS`)) ||
+			{};
+		const all_roles: DatabaseStructure.UtilsRoleData =
+			(await client.db.get(`${interaction.guildId}.UTILS.roles`)) || {};
+		const allUsers: { group: number; userId: string }[] = [];
 
 		Object.entries(all_roles).forEach(([perm, userId]) => {
 			allUsers.push({ userId, group: parseInt(perm) });
@@ -54,7 +64,10 @@ export const subCommand: SubCommand = {
 
 		const itemsPerPage = 10;
 		let currentPage = 0;
-		const totalPages = Math.max(1, Math.ceil(allUsers.length / itemsPerPage));
+		const totalPages = Math.max(
+			1,
+			Math.ceil(allUsers.length / itemsPerPage)
+		);
 
 		const generateEmbed = (page: number) => {
 			const embed = new EmbedBuilder()
@@ -62,13 +75,18 @@ export const subCommand: SubCommand = {
 				.setColor("#475387");
 
 			const startIndex = page * itemsPerPage;
-			const endIndex = Math.min(startIndex + itemsPerPage, allUsers.length);
+			const endIndex = Math.min(
+				startIndex + itemsPerPage,
+				allUsers.length
+			);
 
 			const groupedUsers: { [key: number]: string[] } = {};
 
 			for (let i = startIndex; i < endIndex; i++) {
 				const { group, userId } = allUsers[i];
-				const user = interaction.guild.roles.cache.get(userId)?.toString() || interaction.guild.members.cache.get(userId)?.toString();
+				const user =
+					interaction.guild.roles.cache.get(userId)?.toString() ||
+					interaction.guild.members.cache.get(userId)?.toString();
 
 				if (!groupedUsers[group]) {
 					groupedUsers[group] = [];
@@ -86,43 +104,42 @@ export const subCommand: SubCommand = {
 			});
 
 			embed.setFooter({
-				text: lang.prevnames_embed_footer_text.replace("${currentPage + 1}", String(page + 1))
+				text: lang.prevnames_embed_footer_text
+					.replace("${currentPage + 1}", String(page + 1))
 					.replace("${pages.length}", String(totalPages))
 			});
 			return embed;
 		};
 
-
 		const generateButtons = (page: number) => {
-			return new ActionRowBuilder<ButtonBuilder>()
-				.addComponents(
-					new ButtonBuilder()
-						.setCustomId('previous')
-						.setLabel('<<<')
-						.setStyle(ButtonStyle.Secondary)
-						.setDisabled(page === 0),
-					new ButtonBuilder()
-						.setCustomId('next')
-						.setLabel('>>>')
-						.setStyle(ButtonStyle.Secondary)
-						.setDisabled(page === totalPages - 1)
-				);
+			return new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setCustomId("previous")
+					.setLabel("<<<")
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(page === 0),
+				new ButtonBuilder()
+					.setCustomId("next")
+					.setLabel(">>>")
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(page === totalPages - 1)
+			);
 		};
 
 		const message = await client.func.method.interactionSend(interaction, {
 			embeds: [generateEmbed(currentPage)],
 			components: [generateButtons(currentPage)],
-			withResponse: true,
+			withResponse: true
 		});
 
 		const collector = message.createMessageComponentCollector({
-			time: 60_000 * 5,
+			time: 60_000 * 5
 		});
 
-		collector.on('collect', async i => {
-			if (i.customId === 'previous') {
+		collector.on("collect", async (i) => {
+			if (i.customId === "previous") {
 				currentPage--;
-			} else if (i.customId === 'next') {
+			} else if (i.customId === "next") {
 				currentPage++;
 			}
 
@@ -132,10 +149,10 @@ export const subCommand: SubCommand = {
 			});
 		});
 
-		collector.on('end', async () => {
+		collector.on("end", async () => {
 			await message.edit({
 				components: []
 			});
 		});
-	},
+	}
 };

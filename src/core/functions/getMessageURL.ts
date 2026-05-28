@@ -19,6 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-export default function getMessageURL(guildId: string, channelId: string, messageId: string): string {
+export default function getMessageURL(
+	guildId: string,
+	channelId: string,
+	messageId: string
+): string {
 	return `https://discord.com/channels/${guildId}/${channelId}/${messageId}`;
 }

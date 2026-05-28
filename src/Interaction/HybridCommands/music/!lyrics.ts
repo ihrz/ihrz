@@ -25,61 +25,89 @@ import {
 	EmbedBuilder,
 	Guild,
 	Message,
-	User,
-} from 'discord.js';
+	User
+} from "discord.js";
 
-import logger from '../../../core/logger.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import logger from "../../../core/logger.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
-import { SearchResult } from 'lavalink-client';
+import { SubCommand } from "../../../../types/command.js";
+import { SearchResult } from "lavalink-client";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var title = interaction.options.getString("query")!;
 		} else {
-
-			var title = (args?.join(" ") || " ") as string
+			var title = (args?.join(" ") || " ") as string;
 		}
 
 		try {
 			const response = await client.func.searchLyrics(title);
 
 			if (!response?.res.text) {
-				await client.func.method.interactionSend(interaction, { content: lang.lyrics_not_found });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.lyrics_not_found
+				});
 				return;
 			}
 
 			const trimmedLyrics = response?.res.text?.substring(0, 1997);
 
 			const embed = new EmbedBuilder()
-				.setTitle(response.track!.info.title || lang.lyrics_embed_title_unknown)
+				.setTitle(
+					response.track!.info.title ||
+						lang.lyrics_embed_title_unknown
+				)
 				.setURL(response.track!.info.uri || "https://www.ihorizon.org")
 				.setTimestamp()
 				.setThumbnail(response.track!.info.artworkUrl || null)
 				.setAuthor({
-					name: response.track!.info.author || lang.lyrics_embed_author_name_unknown,
+					name:
+						response.track!.info.author ||
+						lang.lyrics_embed_author_name_unknown
 				})
-				.setDescription(trimmedLyrics?.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics ?? 'null')
-				.setColor('#cd703a')
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+				.setDescription(
+					trimmedLyrics?.length === 1997
+						? `${trimmedLyrics}...`
+						: (trimmedLyrics ?? "null")
+				)
+				.setColor("#cd703a")
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				);
 
 			await client.func.method.interactionSend(interaction, {
 				embeds: [embed],
-				files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+				files: [
+					await interaction.client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
 			});
 			return;
-
 		} catch (error) {
-			logger.err(error)
-			await client.func.method.interactionSend(interaction, { content: lang.lyrics_not_found });
+			logger.err(error);
+			await client.func.method.interactionSend(interaction, {
+				content: lang.lyrics_not_found
+			});
 			return;
-		};
-	},
+		}
+	}
 };

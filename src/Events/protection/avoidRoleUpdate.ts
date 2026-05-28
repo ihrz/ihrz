@@ -19,57 +19,84 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember, ColorResolvable } from 'discord.js'
+import {
+	Client,
+	AuditLogEvent,
+	Role,
+	PermissionFlagsBits,
+	GuildMember,
+	ColorResolvable
+} from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { getLogs } from './ready.js';
+import { BotEvent } from "../../../types/event.js";
+import { getLogs } from "./ready.js";
 
 export const event: BotEvent = {
 	name: "roleUpdate",
 	run: async (client: Client, oldRole: Role, newRole: Role) => {
-
 		const data = await client.db.get(`${newRole.guild.id}.PROTECTION`);
 		if (!data) return;
 
-		if (!newRole.guild.members.me?.permissions.has([
-			PermissionFlagsBits.Administrator
-		])) return;
+		if (
+			!newRole.guild.members.me?.permissions.has([
+				PermissionFlagsBits.Administrator
+			])
+		)
+			return;
 
 		if (data.updaterole) {
-			const relevantLog = await getLogs({ guild: newRole.guild, target: oldRole.id, actionType: AuditLogEvent.RoleUpdate, type: "PROTECTION" });
+			const relevantLog = await getLogs({
+				guild: newRole.guild,
+				target: oldRole.id,
+				actionType: AuditLogEvent.RoleUpdate,
+				type: "PROTECTION"
+			});
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;
 			let shouldSanction: boolean = false;
 
-			if (data.updaterole.mode === 'allowlist') {
-				const baseData = await client.db.get(`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.updaterole.mode === "allowlist") {
+				const baseData = await client.db.get(
+					`${newRole.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`
+				);
 
 				if (!baseData) {
-					user = newRole.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						newRole.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
-				};
-
-			} else if (data.updaterole.mode === 'nobody') {
+				}
+			} else if (data.updaterole.mode === "nobody") {
 				if (relevantLog.executorId !== newRole.guild.ownerId) {
-					user = newRole.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						newRole.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
-				};
+				}
 			}
-			const isOwner = await client.db.get(`${user?.guild.id}.OWNER.${user?.id}`)
+			const isOwner = await client.db.get(
+				`${user?.guild.id}.OWNER.${user?.id}`
+			);
 
-			!isOwner && shouldSanction && (async () => {
-				await client.func.method.punish(data, user!);
+			!isOwner &&
+				shouldSanction &&
+				(async () => {
+					await client.func.method.punish(data, user!);
 
-				await newRole.edit({
-					...oldRole,
-					colors: {
-						primaryColor: oldRole.colors.primaryColor,
-						secondaryColor: oldRole.colors.secondaryColor as ColorResolvable,
-						tertiaryColor: oldRole.colors.tertiaryColor as ColorResolvable
-					}
-				});
-			})()
+					await newRole.edit({
+						...oldRole,
+						colors: {
+							primaryColor: oldRole.colors.primaryColor,
+							secondaryColor: oldRole.colors
+								.secondaryColor as ColorResolvable,
+							tertiaryColor: oldRole.colors
+								.tertiaryColor as ColorResolvable
+						}
+					});
+				})();
 		}
-	},
+	}
 };

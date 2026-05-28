@@ -27,15 +27,15 @@ import {
 	Message,
 	time,
 	ChatInputCommandInteraction
-} from 'discord.js';
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "tag",
 	description: "Subcommand for the category of tags message",
 	description_localizations: {
-		"fr": "Sous-commande pour la catégorie de message de tags"
+		fr: "Sous-commande pour la catégorie de message de tags"
 	},
 
 	options: [
@@ -160,7 +160,7 @@ export const command: Command = {
 					type: ApplicationCommandOptionType.String,
 					required: false,
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -171,7 +171,7 @@ export const command: Command = {
 
 			description: "Edit a tag",
 			description_localizations: {
-				"fr": "Modifier un tag"
+				fr: "Modifier un tag"
 			},
 
 			options: [
@@ -180,7 +180,7 @@ export const command: Command = {
 
 					description: "The current tag name",
 					description_localizations: {
-						"fr": "Le nom actuel du tag"
+						fr: "Le nom actuel du tag"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -192,7 +192,7 @@ export const command: Command = {
 
 					description: "The new tag name",
 					description_localizations: {
-						"fr": "Le nouveau nom du tag"
+						fr: "Le nouveau nom du tag"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -202,7 +202,7 @@ export const command: Command = {
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
-			permission: null,
+			permission: null
 		},
 		{
 			name: "delete",
@@ -273,8 +273,8 @@ export const command: Command = {
 		}
 	],
 
-	category: 'tags',
+	category: "tags",
 	thinking: false,
 	permission: null,
-	type: ApplicationCommandType.ChatInput,
+	type: ApplicationCommandType.ChatInput
 };

@@ -25,28 +25,33 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { subCommand } from '../../SlashCommands/guildconfig/!prefix.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { subCommand } from "../../SlashCommands/guildconfig/!prefix.js";
 
 export const command: Command = {
-	name: 'prefix',
+	name: "prefix",
 
-	description: 'Change the bot prefix on the guild',
+	description: "Change the bot prefix on the guild",
 	description_localizations: {
-		"fr": "Changer le préfixe du bot sur le serveur"
+		fr: "Changer le préfixe du bot sur le serveur"
 	},
 
 	aliases: ["setprefix", "changeprefix"],
 
-	category: 'bot',
+	category: "bot",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
 	permission: PermissionFlagsBits.Administrator,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-		subCommand.run(client, interaction, lang, args)
-	},
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		subCommand.run(client, interaction, lang, args);
+	}
 };

@@ -19,70 +19,104 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, AuditLogEvent, Role, PermissionFlagsBits, GuildMember, ColorResolvable } from 'discord.js'
+import {
+	Client,
+	AuditLogEvent,
+	Role,
+	PermissionFlagsBits,
+	GuildMember,
+	ColorResolvable
+} from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { getLogs, protectionCache } from './ready.js';
+import { BotEvent } from "../../../types/event.js";
+import { getLogs, protectionCache } from "./ready.js";
 
 export const event: BotEvent = {
 	name: "roleDelete",
 	run: async (client: Client, role: Role) => {
-
 		const data = await client.db.get(`${role.guild.id}.PROTECTION`);
 		if (!data) return;
 
-		if (!role.guild.members.me?.permissions.has([
-			PermissionFlagsBits.Administrator
-		])) return;
+		if (
+			!role.guild.members.me?.permissions.has([
+				PermissionFlagsBits.Administrator
+			])
+		)
+			return;
 
 		if (data.deleterole) {
-			const relevantLog = await getLogs({ guild: role.guild, target: role.id, actionType: AuditLogEvent.RoleDelete, type: 'PROTECTION' });
+			const relevantLog = await getLogs({
+				guild: role.guild,
+				target: role.id,
+				actionType: AuditLogEvent.RoleDelete,
+				type: "PROTECTION"
+			});
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;
 			let shouldSanction: boolean = false;
 
-			if (data.deleterole.mode === 'allowlist') {
-				const baseData = await client.db.get(`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.deleterole.mode === "allowlist") {
+				const baseData = await client.db.get(
+					`${role.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`
+				);
 
 				if (!baseData) {
-					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						role.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
-				};
-
-			} else if (data.deleterole.mode === 'nobody') {
+				}
+			} else if (data.deleterole.mode === "nobody") {
 				if (relevantLog.executorId !== role.guild.ownerId) {
-					user = role.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						role.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
-				};
+				}
 			}
-			const isOwner = await client.db.get(`${user?.guild.id}.OWNER.${user?.id}`)
+			const isOwner = await client.db.get(
+				`${user?.guild.id}.OWNER.${user?.id}`
+			);
 
-			!isOwner && shouldSanction && (async () => {
-				await client.func.method.punish(data, user!);
+			!isOwner &&
+				shouldSanction &&
+				(async () => {
+					await client.func.method.punish(data, user!);
 
-				const newRole = await role.guild.roles.create({
-					...role,
-					reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
-					colors: {
-						primaryColor: role.colors.primaryColor,
-						secondaryColor: role.colors.secondaryColor as ColorResolvable,
-						tertiaryColor: role.colors.tertiaryColor as ColorResolvable
-					}
-				});
+					const newRole = await role.guild.roles.create({
+						...role,
+						reason: `Role re-create by Protect (${relevantLog.executorId} break the rule!)`,
+						colors: {
+							primaryColor: role.colors.primaryColor,
+							secondaryColor: role.colors
+								.secondaryColor as ColorResolvable,
+							tertiaryColor: role.colors
+								.tertiaryColor as ColorResolvable
+						}
+					});
 
-				await newRole.setPosition(role.rawPosition);
+					await newRole.setPosition(role.rawPosition);
 
-				let fetched_data = protectionCache.data.get(role.guild.id)?.roles.find(x => x.id === role.id)?.members || [];
-				if (fetched_data) {
-					for (let entry of fetched_data) {
-						let user = role.guild.members.cache.get(entry);
-						if (user) {
-							user.roles.add(newRole.id, `[Protect] Avoid role-add. Author: ${user.id}`);
+					let fetched_data =
+						protectionCache.data
+							.get(role.guild.id)
+							?.roles.find((x) => x.id === role.id)?.members ||
+						[];
+					if (fetched_data) {
+						for (let entry of fetched_data) {
+							let user = role.guild.members.cache.get(entry);
+							if (user) {
+								user.roles.add(
+									newRole.id,
+									`[Protect] Avoid role-add. Author: ${user.id}`
+								);
+							}
 						}
 					}
-				}
-			})()
+				})();
 		}
-	},
+	}
 };

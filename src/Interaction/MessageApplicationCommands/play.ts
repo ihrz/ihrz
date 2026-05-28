@@ -23,25 +23,30 @@ import {
 	ApplicationCommandType,
 	Client,
 	Message,
-	MessageContextMenuCommandInteraction,
-} from 'discord.js';
+	MessageContextMenuCommandInteraction
+} from "discord.js";
 
-import { AnotherCommand } from '../../../types/anotherCommand.js';
-import { LanguageData } from '../../../types/languageData.js';
-import { handleMusicPlay } from '../../core/functions/musicPlay.js';
+import { AnotherCommand } from "../../../types/anotherCommand.js";
+import { LanguageData } from "../../../types/languageData.js";
+import { handleMusicPlay } from "../../core/functions/musicPlay.js";
 
 export const command: AnotherCommand = {
 	name: "Play it in a voice channel",
 	type: ApplicationCommandType.Message,
 	thinking: true,
 	permission: null,
-	run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
-
-		const lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
+	run: async (
+		client: Client,
+		interaction: MessageContextMenuCommandInteraction
+	) => {
+		const lang = (await client.func.getLanguageData(
+			interaction.guildId
+		)) as LanguageData;
 		const msg = interaction.options.getMessage("message") as Message;
-		const queries = msg.attachments.size >= 1
-			? msg.attachments.map((attachment) => attachment.url)
-			: [msg.content];
+		const queries =
+			msg.attachments.size >= 1
+				? msg.attachments.map((attachment) => attachment.url)
+				: [msg.content];
 
 		await handleMusicPlay({
 			client,
@@ -49,7 +54,7 @@ export const command: AnotherCommand = {
 			interaction,
 			lang,
 			queries,
-			respond: (payload) => interaction.editReply(payload),
+			respond: (payload) => interaction.editReply(payload)
 		});
-	},
-}; 
+	}
+};

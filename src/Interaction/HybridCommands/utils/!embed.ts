@@ -37,20 +37,19 @@ import {
 	ButtonInteraction,
 	ChannelSelectMenuInteraction,
 	Message,
-	TextChannel,
-} from 'discord.js';
+	TextChannel
+} from "discord.js";
 
-import { generatePassword } from '../../../core/functions/random.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { generatePassword } from "../../../core/functions/random.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { SubCommand } from '../../../../types/command.js';
-import { metasTable } from '../../../Events/client/ready.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { SubCommand } from "../../../../types/command.js";
+import { metasTable } from "../../../Events/client/ready.js";
 
 // Types
-type Attachment = { attachment: string; name: string; };
-type FileType = 'footer' | 'image' | 'thumbnail';
+type Attachment = { attachment: string; name: string };
+type FileType = "footer" | "image" | "thumbnail";
 type LanguageDataKeys = keyof LanguageData;
 
 interface EmbedFiles {
@@ -68,10 +67,12 @@ interface DiscordUrlParts {
 function extractDiscordUrlParts(url: string): DiscordUrlParts {
 	try {
 		const urlObj = new URL(url);
-		const pathSegments = urlObj.pathname.split('/').filter(segment => segment !== '');
+		const pathSegments = urlObj.pathname
+			.split("/")
+			.filter((segment) => segment !== "");
 
-		if (pathSegments.length < 4 || pathSegments[0] !== 'channels') {
-			throw new Error('URL Discord non valide');
+		if (pathSegments.length < 4 || pathSegments[0] !== "channels") {
+			throw new Error("URL Discord non valide");
 		}
 
 		return {
@@ -80,7 +81,7 @@ function extractDiscordUrlParts(url: string): DiscordUrlParts {
 			messageId: pathSegments[3]
 		};
 	} catch (err) {
-		throw new Error('URL Discord non valide');
+		throw new Error("URL Discord non valide");
 	}
 }
 
@@ -93,10 +94,13 @@ class EmbedManager {
 	private response: Message;
 	private time_maximum: number = 1_420_000;
 
-	constructor(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData) {
+	constructor(
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData
+	) {
 		this.interaction = interaction;
 		this.lang = lang;
-		this.embed = new EmbedBuilder().setDescription('** **');
+		this.embed = new EmbedBuilder().setDescription("** **");
 		this.files = { footer: null, image: null, thumbnail: null };
 	}
 
@@ -106,11 +110,14 @@ class EmbedManager {
 	}
 
 	private getFilesArray(): Attachment[] {
-		return Object.values(this.files).filter(file => file !== null) as Attachment[];
+		return Object.values(this.files).filter(
+			(file) => file !== null
+		) as Attachment[];
 	}
 
 	private updateMedia(type: FileType, message: Message): void {
-		const { name, attachment } = client.func.embedHelper.getMediaByMessage(message);
+		const { name, attachment } =
+			client.func.embedHelper.getMediaByMessage(message);
 
 		// Clear previous file of this type
 		this.setFile(type, null);
@@ -128,36 +135,40 @@ class EmbedManager {
 
 	private handleUrlMedia(type: FileType, url: string): void {
 		switch (type) {
-			case 'footer':
+			case "footer":
 				this.embed.setFooter({
 					iconURL: url,
 					text: this.embed.data.footer?.text || "Footer"
 				});
 				break;
-			case 'image':
+			case "image":
 				this.embed.setImage(url);
 				break;
-			case 'thumbnail':
+			case "thumbnail":
 				this.embed.setThumbnail(url);
 				break;
 		}
 	}
 
-	private handleFileMedia(type: FileType, name: string, attachment: string): void {
+	private handleFileMedia(
+		type: FileType,
+		name: string,
+		attachment: string
+	): void {
 		const attachmentUrl = "attachment://" + name;
 		this.setFile(type, { attachment, name });
 
 		switch (type) {
-			case 'footer':
+			case "footer":
 				this.embed.setFooter({
 					iconURL: attachmentUrl,
 					text: this.embed.data.footer?.text || "Footer"
 				});
 				break;
-			case 'image':
+			case "image":
 				this.embed.setImage(attachmentUrl);
 				break;
-			case 'thumbnail':
+			case "thumbnail":
 				this.embed.setThumbnail(attachmentUrl);
 				break;
 		}
@@ -166,15 +177,15 @@ class EmbedManager {
 	private clearMedia(type: FileType): void {
 		this.setFile(type, null);
 		switch (type) {
-			case 'footer':
+			case "footer":
 				this.embed.setFooter({
 					text: this.embed.data.footer?.text || "Footer"
 				});
 				break;
-			case 'image':
+			case "image":
 				this.embed.setImage(null);
 				break;
-			case 'thumbnail':
+			case "thumbnail":
 				this.embed.setThumbnail(null);
 				break;
 		}
@@ -191,23 +202,32 @@ class EmbedManager {
 	}
 
 	// Simplified action handlers
-	private async handleCollector(i: StringSelectMenuInteraction<"cached">, replyContent: LanguageDataKeys, onCollect: (message: Message) => void): Promise<void> {
+	private async handleCollector(
+		i: StringSelectMenuInteraction<"cached">,
+		replyContent: LanguageDataKeys,
+		onCollect: (message: Message) => void
+	): Promise<void> {
 		const replyMessage = Array.isArray(this.lang[replyContent])
-			? (this.lang[replyContent] as string[]).join(' ')
+			? (this.lang[replyContent] as string[]).join(" ")
 			: this.lang[replyContent];
 
-		const reply = await i.reply({ content: replyMessage.toString(), flags: [1 << 6] });
+		const reply = await i.reply({
+			content: replyMessage.toString(),
+			flags: [1 << 6]
+		});
 
-		const messageCollector = (this.interaction.channel as BaseGuildTextChannel)?.createMessageCollector({
+		const messageCollector = (
+			this.interaction.channel as BaseGuildTextChannel
+		)?.createMessageCollector({
 			filter: (m) => m.author.id === this.interaction.member?.user.id!,
 			max: 1,
 			time: this.time_maximum
 		});
 
-		messageCollector?.on('collect', async (message) => {
+		messageCollector?.on("collect", async (message) => {
 			onCollect(message);
-			await reply.delete().catch(() => { });
-			await message.delete().catch(() => { });
+			await reply.delete().catch(() => {});
+			await message.delete().catch(() => {});
 		});
 	}
 
@@ -215,10 +235,17 @@ class EmbedManager {
 		const parts = extractDiscordUrlParts(messageUrl);
 
 		if (parts.userIdOrGuildId !== this.interaction.guildId) {
-			throw new Error(this.lang.embed_copy_bad_guild_msg.replace("${interaction.guild?.name}", this.interaction.guild?.name!));
+			throw new Error(
+				this.lang.embed_copy_bad_guild_msg.replace(
+					"${interaction.guild?.name}",
+					this.interaction.guild?.name!
+				)
+			);
 		}
 
-		const channel = this.interaction.guild?.channels.cache.get(parts.channelId) as TextChannel;
+		const channel = this.interaction.guild?.channels.cache.get(
+			parts.channelId
+		) as TextChannel;
 		if (!channel) {
 			throw new Error(this.lang.embed_copy_bad_channel_msg);
 		}
@@ -237,101 +264,146 @@ class EmbedManager {
 	}
 
 	// Action handlers with optimized logic
-	private async chooseAction(i: StringSelectMenuInteraction<"cached">): Promise<void> {
+	private async chooseAction(
+		i: StringSelectMenuInteraction<"cached">
+	): Promise<void> {
 		const actions: Record<string, () => Promise<void>> = {
-			'0': async () => {
-				await this.handleCollector(i, 'embed_choose_0', async (message) => {
-					try {
-						await this.copyEmbed(message.content || 'none');
-					} catch (err) {
-						i.followUp({ content: (err as Error).message, flags: [1 << 6] });
+			"0": async () => {
+				await this.handleCollector(
+					i,
+					"embed_choose_0",
+					async (message) => {
+						try {
+							await this.copyEmbed(message.content || "none");
+						} catch (err) {
+							i.followUp({
+								content: (err as Error).message,
+								flags: [1 << 6]
+							});
+						}
 					}
-				});
+				);
 			},
-			'1': async () => {
-				await this.handleCollector(i, 'embed_choose_1', (message) => {
+			"1": async () => {
+				await this.handleCollector(i, "embed_choose_1", (message) => {
 					this.embed.setTitle(message.content);
 					this.updateResponse();
 				});
 			},
-			'2': async () => {
+			"2": async () => {
 				this.embed.setTitle(null);
 				this.updateResponse();
-				await i.reply({ content: this.lang.embed_choose_2, flags: [1 << 6] });
+				await i.reply({
+					content: this.lang.embed_choose_2,
+					flags: [1 << 6]
+				});
 			},
-			'3': async () => {
-				await this.handleCollector(i, 'embed_choose_3', (message) => {
+			"3": async () => {
+				await this.handleCollector(i, "embed_choose_3", (message) => {
 					this.embed.setDescription(message.content);
 					this.updateResponse();
 				});
 			},
-			'4': async () => {
+			"4": async () => {
 				this.embed.setDescription("** **");
 				this.updateResponse();
-				await i.reply({ content: this.lang.embed_choose_4, flags: [1 << 6] });
+				await i.reply({
+					content: this.lang.embed_choose_4,
+					flags: [1 << 6]
+				});
 			},
-			'5': async () => {
-				await this.handleCollector(i, 'embed_choose_5', (message) => {
+			"5": async () => {
+				await this.handleCollector(i, "embed_choose_5", (message) => {
 					this.embed.setAuthor({ name: message.content });
 					this.updateResponse();
 				});
 			},
-			'6': async () => {
+			"6": async () => {
 				this.embed.setAuthor(null);
 				this.updateResponse();
-				await i.reply({ content: this.lang.embed_choose_6, flags: [1 << 6] });
+				await i.reply({
+					content: this.lang.embed_choose_6,
+					flags: [1 << 6]
+				});
 			},
-			'7': async () => {
-				await this.handleCollector(i, 'embed_choose_7', (message) => {
+			"7": async () => {
+				await this.handleCollector(i, "embed_choose_7", (message) => {
 					this.embed.setFooter({ text: message.content });
 					this.updateResponse();
 				});
 			},
-			'7bis': async () => {
-				await this.handleCollector(i, 'embed_choose_7bis', (message) => {
-					this.updateMedia('footer', message);
-				});
+			"7bis": async () => {
+				await this.handleCollector(
+					i,
+					"embed_choose_7bis",
+					(message) => {
+						this.updateMedia("footer", message);
+					}
+				);
 			},
-			'8': async () => {
+			"8": async () => {
 				this.embed.setFooter(null);
-				this.setFile('footer', null);
+				this.setFile("footer", null);
 				this.updateResponse();
-				await i.reply({ content: this.lang.embed_choose_8, flags: [1 << 6] });
-			},
-			'9': async () => {
-				await this.handleCollector(i, 'embed_choose_9', (message) => {
-					this.updateMedia('thumbnail', message);
+				await i.reply({
+					content: this.lang.embed_choose_8,
+					flags: [1 << 6]
 				});
 			},
-			'10': async () => {
-				await this.handleCollector(i, 'embed_choose_10', (message) => {
-					this.updateMedia('image', message);
+			"9": async () => {
+				await this.handleCollector(i, "embed_choose_9", (message) => {
+					this.updateMedia("thumbnail", message);
 				});
 			},
-			'11': async () => {
-				await this.handleCollector(i, 'embed_choose_11', (message) => {
+			"10": async () => {
+				await this.handleCollector(i, "embed_choose_10", (message) => {
+					this.updateMedia("image", message);
+				});
+			},
+			"11": async () => {
+				await this.handleCollector(i, "embed_choose_11", (message) => {
 					if (client.func.embedHelper.isValidLink(message.content)) {
 						this.embed.setURL(message.content);
 						this.updateResponse();
 					}
 				});
 			},
-			'12': async () => {
-				await this.handleCollector(i, 'embed_choose_12', async (message) => {
-					if (client.func.embedHelper.isValidColor(message.content)) {
-						this.embed.setColor(message.content as ColorResolvable);
-						this.updateResponse();
-					} else {
-						await client.func.method.channelSend(this.interaction, {
-							content: this.lang.embed_choose_12_error.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-						});
+			"12": async () => {
+				await this.handleCollector(
+					i,
+					"embed_choose_12",
+					async (message) => {
+						if (
+							client.func.embedHelper.isValidColor(
+								message.content
+							)
+						) {
+							this.embed.setColor(
+								message.content as ColorResolvable
+							);
+							this.updateResponse();
+						} else {
+							await client.func.method.channelSend(
+								this.interaction,
+								{
+									content:
+										this.lang.embed_choose_12_error.replace(
+											"${client.iHorizon_Emojis.No}",
+											client.iHorizon_Emojis.No
+										)
+								}
+							);
+						}
 					}
-				});
+				);
 			},
-			'13': async () => {
+			"13": async () => {
 				this.embed.setColor(null);
 				this.updateResponse();
-				await i.reply({ content: this.lang.embed_choose_13, flags: [1 << 6] });
+				await i.reply({
+					content: this.lang.embed_choose_13,
+					flags: [1 << 6]
+				});
 			}
 		};
 
@@ -343,9 +415,14 @@ class EmbedManager {
 
 	// Optimized embed operations
 	private async saveEmbed(arg?: string): Promise<string> {
-		const potentialEmbed = await metasTable.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
+		const potentialEmbed = (await metasTable.get(
+			`EMBED.${arg}`
+		)) as DatabaseStructure.DbEmbedObject["EMBED"];
 
-		if (potentialEmbed?.embedOwner !== this.interaction.member?.user.id! || !arg) {
+		if (
+			potentialEmbed?.embedOwner !== this.interaction.member?.user.id! ||
+			!arg
+		) {
 			const password = generatePassword({ length: 16 });
 			await metasTable.set(`EMBED.${password}`, {
 				embedOwner: this.interaction.member?.user.id!,
@@ -361,32 +438,43 @@ class EmbedManager {
 		return arg;
 	}
 
-	private async sendEmbed(confirmation: ButtonInteraction<"cached">): Promise<void> {
-		const channelSelectMenu = new ActionRowBuilder<ChannelSelectMenuBuilder>()
-			.addComponents(
+	private async sendEmbed(
+		confirmation: ButtonInteraction<"cached">
+	): Promise<void> {
+		const channelSelectMenu =
+			new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
 				new ChannelSelectMenuBuilder()
-					.setCustomId('embed-save-channel')
+					.setCustomId("embed-save-channel")
 					.setChannelTypes(ChannelType.GuildText)
 					.setMaxValues(1)
 					.setMinValues(1)
 			);
 
 		await confirmation.update({
-			content: this.lang.embed_send_message.replace('${interaction.user.id}', this.interaction.member?.user.id!),
+			content: this.lang.embed_send_message.replace(
+				"${interaction.user.id}",
+				this.interaction.member?.user.id!
+			),
 			components: [channelSelectMenu],
 			files: this.getFilesArray()
 		});
 
-		const seCollector = (this.interaction.channel as BaseGuildTextChannel)?.createMessageComponentCollector({
-			filter: (m) => m.user.id === this.interaction.member?.user.id! && m.customId === 'embed-save-channel',
+		const seCollector = (
+			this.interaction.channel as BaseGuildTextChannel
+		)?.createMessageComponentCollector({
+			filter: (m) =>
+				m.user.id === this.interaction.member?.user.id! &&
+				m.customId === "embed-save-channel",
 			max: 1,
 			time: this.time_maximum,
 			componentType: ComponentType.ChannelSelect
 		});
 
-		seCollector?.on('collect', async (result) => {
+		seCollector?.on("collect", async (result) => {
 			if (result instanceof ChannelSelectMenuInteraction) {
-				const channel = this.interaction.guild?.channels.cache.get(result.channels.first()?.id!);
+				const channel = this.interaction.guild?.channels.cache.get(
+					result.channels.first()?.id!
+				);
 				if (!channel) return;
 
 				await (channel as BaseGuildTextChannel).send({
@@ -397,8 +485,11 @@ class EmbedManager {
 				seCollector.stop();
 				await this.response.edit({
 					content: this.lang.embed_send_embed_work
-						.replace('${interaction.user.id}', this.interaction.member?.user.id!)
-						.replace('${message.content}', channel.id),
+						.replace(
+							"${interaction.user.id}",
+							this.interaction.member?.user.id!
+						)
+						.replace("${message.content}", channel.id),
 					embeds: [],
 					components: [],
 					files: []
@@ -406,36 +497,47 @@ class EmbedManager {
 			}
 		});
 
-		seCollector?.on('end', async () => {
+		seCollector?.on("end", async () => {
 			await this.response.edit({ components: [] });
 		});
 	}
 
-	private async replaceEmbed(confirmation: ButtonInteraction<"cached">): Promise<void> {
+	private async replaceEmbed(
+		confirmation: ButtonInteraction<"cached">
+	): Promise<void> {
 		await confirmation.update({
 			content: this.lang.embed_replace_question_msg,
 			components: [],
 			files: this.getFilesArray()
 		});
 
-		const response2 = await (this.interaction.channel as BaseGuildTextChannel)?.awaitMessages({
+		const response2 = await (
+			this.interaction.channel as BaseGuildTextChannel
+		)?.awaitMessages({
 			filter: (m) => m.author.id === this.interaction.member?.user.id!,
 			max: 1,
-			time: this.time_maximum,
+			time: this.time_maximum
 		});
 
 		const message = response2.first();
 		if (!message) return;
 
 		try {
-			const parts = extractDiscordUrlParts(message.content || 'none');
-			message.delete().catch(() => { });
+			const parts = extractDiscordUrlParts(message.content || "none");
+			message.delete().catch(() => {});
 
 			if (parts.userIdOrGuildId !== this.interaction.guildId) {
-				throw new Error(this.lang.embed_copy_bad_guild_msg.replace("${interaction.guild?.name}", this.interaction.guild?.name!));
+				throw new Error(
+					this.lang.embed_copy_bad_guild_msg.replace(
+						"${interaction.guild?.name}",
+						this.interaction.guild?.name!
+					)
+				);
 			}
 
-			const channel = this.interaction.guild?.channels.cache.get(parts.channelId) as TextChannel;
+			const channel = this.interaction.guild?.channels.cache.get(
+				parts.channelId
+			) as TextChannel;
 			if (!channel) {
 				throw new Error(this.lang.embed_copy_bad_channel_msg);
 			}
@@ -456,14 +558,17 @@ class EmbedManager {
 
 			await confirmation.editReply({
 				content: this.lang.embed_replace_message
-					.replace('{user}', this.interaction.member?.user.toString()!)
-					.replace('{messageUrl}', message.content!),
+					.replace(
+						"{user}",
+						this.interaction.member?.user.toString()!
+					)
+					.replace("{messageUrl}", message.content!),
 				files: [],
 				embeds: [],
 				components: []
 			});
 		} catch (error) {
-			message?.delete().catch(() => { });
+			message?.delete().catch(() => {});
 			await confirmation.followUp({
 				content: (error as Error).message,
 				flags: [1 << 6]
@@ -482,38 +587,133 @@ class EmbedManager {
 		});
 	}
 
-	private createComponents(): { select: ActionRowBuilder<StringSelectMenuBuilder>, buttons: ActionRowBuilder<ButtonBuilder> } {
-		const select = new ActionRowBuilder<StringSelectMenuBuilder>()
-			.addComponents(
+	private createComponents(): {
+		select: ActionRowBuilder<StringSelectMenuBuilder>;
+		buttons: ActionRowBuilder<ButtonBuilder>;
+	} {
+		const select =
+			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 				new StringSelectMenuBuilder()
-					.setCustomId('embed-select-menu')
-					.setPlaceholder(this.lang.embed_placeholder_string_select_menu_builder)
+					.setCustomId("embed-select-menu")
+					.setPlaceholder(
+						this.lang.embed_placeholder_string_select_menu_builder
+					)
 					.addOptions(
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_copy_embed).setEmoji("📥").setValue('0'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_title).setEmoji("🖊").setValue('1'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_title).setEmoji("💥").setValue('2'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_description).setEmoji("💬").setValue('3'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_description).setEmoji("📝").setValue('4'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_author).setEmoji("🕵️").setValue('5'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_author).setEmoji("✂").setValue('6'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholde_option_change_footer_image).setEmoji("🖼️").setValue('7bis'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_footer).setEmoji("🔻").setValue('7'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_footer).setEmoji("🔺").setValue('8'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_thumbnail).setEmoji("🔳").setValue('9'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_image).setEmoji("🖼️").setValue('10'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_titleurl).setEmoji("🌐").setValue('11'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_edit_color).setEmoji("🎨").setValue('12'),
-						new StringSelectMenuOptionBuilder().setLabel(this.lang.embed_placeholder_option_delete_color).setEmoji("🔵").setValue('13')
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_copy_embed
+							)
+							.setEmoji("📥")
+							.setValue("0"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_edit_title
+							)
+							.setEmoji("🖊")
+							.setValue("1"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_delete_title
+							)
+							.setEmoji("💥")
+							.setValue("2"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang
+									.embed_placeholder_option_edit_description
+							)
+							.setEmoji("💬")
+							.setValue("3"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang
+									.embed_placeholder_option_delete_description
+							)
+							.setEmoji("📝")
+							.setValue("4"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_edit_author
+							)
+							.setEmoji("🕵️")
+							.setValue("5"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_delete_author
+							)
+							.setEmoji("✂")
+							.setValue("6"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang
+									.embed_placeholde_option_change_footer_image
+							)
+							.setEmoji("🖼️")
+							.setValue("7bis"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_edit_footer
+							)
+							.setEmoji("🔻")
+							.setValue("7"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_delete_footer
+							)
+							.setEmoji("🔺")
+							.setValue("8"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang
+									.embed_placeholder_option_edit_thumbnail
+							)
+							.setEmoji("🔳")
+							.setValue("9"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_edit_image
+							)
+							.setEmoji("🖼️")
+							.setValue("10"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_edit_titleurl
+							)
+							.setEmoji("🌐")
+							.setValue("11"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_edit_color
+							)
+							.setEmoji("🎨")
+							.setValue("12"),
+						new StringSelectMenuOptionBuilder()
+							.setLabel(
+								this.lang.embed_placeholder_option_delete_color
+							)
+							.setEmoji("🔵")
+							.setValue("13")
 					)
 			);
 
-		const buttons = new ActionRowBuilder<ButtonBuilder>()
-			.addComponents(
-				new ButtonBuilder().setCustomId('save').setLabel(this.lang.embed_btn_save).setStyle(ButtonStyle.Success),
-				new ButtonBuilder().setCustomId('send').setLabel(this.lang.embed_btn_send).setStyle(ButtonStyle.Primary),
-				new ButtonBuilder().setCustomId('replace').setLabel(this.lang.embed_btn_replace).setStyle(ButtonStyle.Secondary),
-				new ButtonBuilder().setCustomId('cancel').setLabel(this.lang.embed_btn_cancel).setStyle(ButtonStyle.Danger)
-			);
+		const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId("save")
+				.setLabel(this.lang.embed_btn_save)
+				.setStyle(ButtonStyle.Success),
+			new ButtonBuilder()
+				.setCustomId("send")
+				.setLabel(this.lang.embed_btn_send)
+				.setStyle(ButtonStyle.Primary),
+			new ButtonBuilder()
+				.setCustomId("replace")
+				.setLabel(this.lang.embed_btn_replace)
+				.setStyle(ButtonStyle.Secondary),
+			new ButtonBuilder()
+				.setCustomId("cancel")
+				.setLabel(this.lang.embed_btn_cancel)
+				.setStyle(ButtonStyle.Danger)
+		);
 
 		return { select, buttons };
 	}
@@ -521,18 +721,23 @@ class EmbedManager {
 	// Main run method
 	async run(arg?: string): Promise<void> {
 		// Load existing embed if available
-		const potentialEmbed = await metasTable.get(`EMBED.${arg}`) as DatabaseStructure.DbEmbedObject["EMBED"];
+		const potentialEmbed = (await metasTable.get(
+			`EMBED.${arg}`
+		)) as DatabaseStructure.DbEmbedObject["EMBED"];
 		if (potentialEmbed) {
 			this.embed = new EmbedBuilder(potentialEmbed.embedSource);
 		}
 
 		const { select, buttons } = this.createComponents();
 
-		this.response = await client.func.method.interactionSend(this.interaction, {
-			content: this.lang.embed_first_message,
-			embeds: [this.embed],
-			components: [select, buttons],
-		});
+		this.response = await client.func.method.interactionSend(
+			this.interaction,
+			{
+				content: this.lang.embed_first_message,
+				embeds: [this.embed],
+				components: [select, buttons]
+			}
+		);
 
 		// String select collector
 		const selectCollector = this.response.createMessageComponentCollector({
@@ -540,13 +745,19 @@ class EmbedManager {
 			time: this.time_maximum
 		});
 
-		selectCollector.on('collect', async (i: StringSelectMenuInteraction<"cached">) => {
-			if (i.user.id !== this.interaction.member?.user.id!) {
-				await i.reply({ content: this.lang.embed_interaction_not_for_you, flags: [1 << 6] });
-				return;
+		selectCollector.on(
+			"collect",
+			async (i: StringSelectMenuInteraction<"cached">) => {
+				if (i.user.id !== this.interaction.member?.user.id!) {
+					await i.reply({
+						content: this.lang.embed_interaction_not_for_you,
+						flags: [1 << 6]
+					});
+					return;
+				}
+				await this.chooseAction(i);
 			}
-			await this.chooseAction(i);
-		});
+		);
 
 		// Button collector
 		const buttonCollector = this.response.createMessageComponentCollector({
@@ -554,64 +765,90 @@ class EmbedManager {
 			time: this.time_maximum
 		});
 
-		buttonCollector.on('collect', async (confirmation: ButtonInteraction<"cached">) => {
-			if (confirmation.user.id !== this.interaction.member?.user.id!) {
-				await confirmation.reply({ content: this.lang.embed_interaction_not_for_you, flags: [1 << 6] });
-				return;
-			}
+		buttonCollector.on(
+			"collect",
+			async (confirmation: ButtonInteraction<"cached">) => {
+				if (
+					confirmation.user.id !== this.interaction.member?.user.id!
+				) {
+					await confirmation.reply({
+						content: this.lang.embed_interaction_not_for_you,
+						flags: [1 << 6]
+					});
+					return;
+				}
 
-			switch (confirmation.customId) {
-				case "save":
-					const embedId = await this.saveEmbed(arg);
-					await confirmation.update({
-						content: this.lang.embed_save_message
-							.replace('${interaction.user.id}', this.interaction.member?.user.id!)
-							.replace('${await saveEmbed()}', embedId),
-						components: [],
-						embeds: [],
-						files: []
-					});
-					buttonCollector.stop();
-					break;
-				case "cancel":
-					await confirmation.update({
-						content: this.lang.embed_cancel_message.replace('${interaction.user.id}', this.interaction.member?.user.id!),
-						components: [],
-						embeds: [],
-						files: []
-					});
-					buttonCollector.stop();
-					break;
-				case "send":
-					await this.sendEmbed(confirmation);
-					break;
-				case "replace":
-					await this.replaceEmbed(confirmation);
-					break;
+				switch (confirmation.customId) {
+					case "save":
+						const embedId = await this.saveEmbed(arg);
+						await confirmation.update({
+							content: this.lang.embed_save_message
+								.replace(
+									"${interaction.user.id}",
+									this.interaction.member?.user.id!
+								)
+								.replace("${await saveEmbed()}", embedId),
+							components: [],
+							embeds: [],
+							files: []
+						});
+						buttonCollector.stop();
+						break;
+					case "cancel":
+						await confirmation.update({
+							content: this.lang.embed_cancel_message.replace(
+								"${interaction.user.id}",
+								this.interaction.member?.user.id!
+							),
+							components: [],
+							embeds: [],
+							files: []
+						});
+						buttonCollector.stop();
+						break;
+					case "send":
+						await this.sendEmbed(confirmation);
+						break;
+					case "replace":
+						await this.replaceEmbed(confirmation);
+						break;
+				}
 			}
-		});
+		);
 
 		// End collectors
-		selectCollector.on('end', async () => {
-			await this.response.edit({ components: [] }).catch(() => { });
+		selectCollector.on("end", async () => {
+			await this.response.edit({ components: [] }).catch(() => {});
 		});
 
-		buttonCollector.on('end', async () => {
-			await this.response.edit({ components: [] }).catch(() => { });
+		buttonCollector.on("end", async () => {
+			await this.response.edit({ components: [] }).catch(() => {});
 		});
 	}
 }
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const arg = interaction instanceof ChatInputCommandInteraction
-			? interaction.options.getString("id")
-			: client.func.method.string(args!, 0);
+		const arg =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getString("id")
+				: client.func.method.string(args!, 0);
 
 		const embedManager = new EmbedManager(interaction, lang);
 		await embedManager.run(arg || undefined);
-	},
+	}
 };

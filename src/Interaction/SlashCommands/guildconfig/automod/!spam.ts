@@ -23,30 +23,43 @@ import {
 	Client,
 	AutoModerationRuleTriggerType,
 	ChatInputCommandInteraction
-} from 'discord.js';
+} from "discord.js";
 
 interface Action {
 	type: number;
 	metadata: Record<string, any>;
-};
-import { LanguageData } from '../../../../../types/languageData.js';
+}
+import { LanguageData } from "../../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const turn = interaction.options.getString("action");
-		const logs_channel = interaction.options.getChannel('logs-channel');
+		const logs_channel = interaction.options.getChannel("logs-channel");
 
-		const automodRules = await interaction.guild.autoModerationRules.fetch();
+		const automodRules =
+			await interaction.guild.autoModerationRules.fetch();
 
-		const spamRule = automodRules.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Spam);
+		const spamRule = automodRules.find(
+			(rule: { triggerType: AutoModerationRuleTriggerType }) =>
+				rule.triggerType === AutoModerationRuleTriggerType.Spam
+		);
 
 		if (turn === "on") {
 			const arrayActionsForRule: Action[] = [
@@ -55,61 +68,67 @@ export const subCommand: SubCommand = {
 					metadata: {
 						customMessage: "This message was prevented by iHorizon"
 					}
-				},
+				}
 			];
 
 			if (logs_channel) {
 				arrayActionsForRule.push({
 					type: 2,
 					metadata: {
-						channel: logs_channel,
+						channel: logs_channel
 					}
 				});
-			};
+			}
 
 			if (!spamRule) {
 				await interaction.guild.autoModerationRules.create({
-					name: 'Block spam by iHorizon',
+					name: "Block spam by iHorizon",
 					enabled: true,
 					eventType: 1,
 					triggerType: 3,
-					triggerMetadata:
-					{
+					triggerMetadata: {
 						presets: [1, 2, 3]
 					},
 					actions: arrayActionsForRule
 				});
-
 			} else if (spamRule) {
-
 				await spamRule.edit({
-					name: 'Block spam by iHorizon',
+					name: "Block spam by iHorizon",
 					enabled: true,
-					triggerMetadata:
-					{
+					triggerMetadata: {
 						presets: [1, 2, 3]
 					},
 					actions: arrayActionsForRule
 				});
-			};
+			}
 
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "on");
+			await client.db.set(
+				`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`,
+				"on"
+			);
 			await interaction.editReply({
 				content: lang.automod_block_spam_command_on
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${logs_channel}', (logs_channel || 'None') as string)
+					.replace("${interaction.user}", interaction.user.toString())
+					.replace(
+						"${logs_channel}",
+						(logs_channel || "None") as string
+					)
 			});
 			return;
 		} else if (turn === "off") {
-
 			await spamRule?.setEnabled(false);
 
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`, "off");
+			await client.db.set(
+				`${interaction.guildId}.GUILD.GUILD_CONFIG.spam`,
+				"off"
+			);
 			await interaction.editReply({
-				content: lang.automod_block_spam_command_off
-					.replace('${interaction.user}', interaction.user.toString())
+				content: lang.automod_block_spam_command_off.replace(
+					"${interaction.user}",
+					interaction.user.toString()
+				)
 			});
 			return;
-		};
-	},
+		}
+	}
 };

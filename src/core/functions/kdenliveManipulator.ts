@@ -28,15 +28,15 @@ import { readFile, rm, writeFile } from "fs/promises";
 const execAsync = promisify(exec);
 
 class KdenLive {
-	constructor() { }
+	constructor() {}
 
 	async open(projectPath: string): Promise<string> {
-		return readFile(projectPath, 'utf8');
+		return readFile(projectPath, "utf8");
 	}
 
 	async tempSave(projectData: string): Promise<string> {
 		const savedFile = path.join(tempDir, `${Date.now()}.kdenlive`);
-		await writeFile(savedFile, projectData, 'utf8');
+		await writeFile(savedFile, projectData, "utf8");
 		return savedFile;
 	}
 
@@ -53,6 +53,4 @@ class KdenLive {
 	}
 }
 
-export {
-	KdenLive
-};
+export { KdenLive };

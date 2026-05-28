@@ -19,15 +19,15 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Partials, GatewayIntentBits } from 'discord.js';
-import { initializeDatabase } from './database';
+import { Client, Partials, GatewayIntentBits } from "discord.js";
+import { initializeDatabase } from "./database";
 
 import * as ClientVersion from "../version.js";
-import * as core from './core.js';
+import * as core from "./core.js";
 
 import config from "../files/config.js";
-import { setMaxListeners } from 'events';
-setMaxListeners(0)
+import { setMaxListeners } from "events";
+setMaxListeners(0);
 
 global.client = new Client({
 	intents: [
@@ -63,7 +63,7 @@ global.client = new Client({
 		Partials.ThreadMember,
 		Partials.Poll,
 		Partials.PollAnswer,
-		Partials.SoundboardSound,
+		Partials.SoundboardSound
 	],
 	enforceNonce: true
 });
@@ -79,12 +79,12 @@ client.inShard = function (guildId: string): boolean {
 		guildShard = shardId;
 	}
 	return guildShard === shardId;
-}
+};
 client.isMainShard = function (): boolean {
 	return client.shard?.ids[0] === 0;
-}
+};
 
-client.version = ClientVersion
+client.version = ClientVersion;
 client.config = config;
 
 const { x, y } = await initializeDatabase(config.database);

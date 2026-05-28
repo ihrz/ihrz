@@ -25,33 +25,33 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
 export const command: Command = {
-	name: 'say',
+	name: "say",
 
-	description: 'Sent a message throught the bot!',
+	description: "Sent a message throught the bot!",
 	description_localizations: {
-		"fr": "Envoyer un message via le bot!"
+		fr: "Envoyer un message via le bot!"
 	},
 
-	category: 'bot',
+	category: "bot",
 	options: [
 		{
-			name: 'content',
+			name: "content",
 			name_localizations: {
-				"fr": "contenu"
+				fr: "contenu"
 			},
 
 			type: ApplicationCommandOptionType.String,
 
-			description: 'What you want the bot to say!',
+			description: "What you want the bot to say!",
 			description_localizations: {
-				"fr": "Le message que le bot vas dire"
+				fr: "Le message que le bot vas dire"
 			},
 
 			required: true,
@@ -62,23 +62,36 @@ export const command: Command = {
 	type: ApplicationCommandType.ChatInput,
 	thinking: false,
 	permission: PermissionFlagsBits.Administrator,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var toSay = interaction.options.getString('content')!;
+			var toSay = interaction.options.getString("content")!;
 		} else {
-
 			var toSay = args?.join(" ")!;
-		};
+		}
 
-		if (interaction instanceof ChatInputCommandInteraction) await interaction.deferReply() && await interaction.deleteReply();
+		if (interaction instanceof ChatInputCommandInteraction)
+			(await interaction.deferReply()) &&
+				(await interaction.deleteReply());
 		await client.func.method.channelSend(interaction, {
-			content: '> ' + `${toSay}${lang.say_footer_msg.replace('${interaction.user}', interaction.member.user.toString())}`, allowedMentions: { roles: [], users: [], repliedUser: false }
+			content:
+				"> " +
+				`${toSay}${lang.say_footer_msg.replace("${interaction.user}", interaction.member.user.toString())}`,
+			allowedMentions: { roles: [], users: [], repliedUser: false }
 		});
 		return;
-	},
+	}
 };

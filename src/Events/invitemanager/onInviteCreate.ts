@@ -19,25 +19,36 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Guild, Invite, PermissionsBitField } from 'discord.js';
+import { Client, Guild, Invite, PermissionsBitField } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "inviteCreate",
 	run: async (client: Client, invite: Invite) => {
-
-		if (!invite.guild || !(invite.guild as Guild).members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+		if (
+			!invite.guild ||
+			!(invite.guild as Guild).members.me?.permissions.has(
+				PermissionsBitField.Flags.ViewAuditLog
+			)
+		)
+			return;
 		client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);
 
-		const check = await client.db.get(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`);
+		const check = await client.db.get(
+			`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`
+		);
 
 		if (!check) {
-			await client.db.set(`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`,
+			await client.db.set(
+				`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`,
 				{
-					regular: 0, bonus: 0, leaves: 0, invites: 0
+					regular: 0,
+					bonus: 0,
+					leaves: 0,
+					invites: 0
 				}
 			);
-		};
-	},
+		}
+	}
 };

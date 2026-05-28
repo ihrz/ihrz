@@ -32,12 +32,16 @@ import {
 	Message,
 	ButtonInteraction,
 	ColorResolvable,
-	GuildMember,
-} from 'discord.js';
+	GuildMember
+} from "discord.js";
 
-import { GiveawayCreateOptions, GiveawayFetch, GiveawaysManagerOptions } from '../../../types/giveaways.js';
-import getLanguageData from '../functions/getLanguageData.js';
-import db from './giveawaysDatabaseManager.js';
+import {
+	GiveawayCreateOptions,
+	GiveawayFetch,
+	GiveawaysManagerOptions
+} from "../../../types/giveaways.js";
+import getLanguageData from "../functions/getLanguageData.js";
+import db from "./giveawaysDatabaseManager.js";
 
 export enum GiveawayEndedStatus {
 	ENDED = 1,
@@ -54,12 +58,15 @@ class GiveawayManager {
 
 		this.options = options;
 
-		db.InitFilePath(this.options.storage);
-
-		client.on('interactionCreate', async (interaction) => {
-			if (interaction.isButton() && interaction.customId === "confirm-entry-giveaway") {
-				await this.addEntries(interaction as ButtonInteraction<"cached">);
-			};
+		client.on("interactionCreate", async (interaction) => {
+			if (
+				interaction.isButton() &&
+				interaction.customId === "confirm-entry-giveaway"
+			) {
+				await this.addEntries(
+					interaction as ButtonInteraction<"cached">
+				);
+			}
 		});
 	}
 
@@ -71,40 +78,67 @@ class GiveawayManager {
 		}, this.options.config?.forceUpdateEvery);
 	}
 
-	public create(channel: BaseGuildTextChannel, data: GiveawayCreateOptions): Promise<Message> {
+	public create(
+		channel: BaseGuildTextChannel,
+		data: GiveawayCreateOptions
+	): Promise<Message> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const lang = await getLanguageData(channel.guildId)
+				const lang = await getLanguageData(channel.guildId);
 				const confirm = new ButtonBuilder()
-					.setCustomId('confirm-entry-giveaway')
+					.setCustomId("confirm-entry-giveaway")
 					.setEmoji(this.options.config.reaction)
 					.setStyle(ButtonStyle.Primary);
 
-				const end_string = time(new Date(Date.now() + data.duration), 'R');
-				const end_string2 = time(new Date(Date.now() + data.duration), 'D');
+				const end_string = time(
+					new Date(Date.now() + data.duration),
+					"R"
+				);
+				const end_string2 = time(
+					new Date(Date.now() + data.duration),
+					"D"
+				);
 				const winners_amount = data.winnerCount;
 
 				const gw = new EmbedBuilder()
-					.setColor(this.options.config?.embedColor as ColorResolvable)
+					.setColor(
+						this.options.config?.embedColor as ColorResolvable
+					)
 					.setTitle(data.prize)
-					.setDescription(lang.event_gw_embed_desc
-						.replace("${end_string}", end_string)
-						.replace("${end_string2}", end_string2)
-						.replace("${winners_amount}", String(winners_amount))
-						.replace("${data.hostedBy}", String(data.hostedBy))
+					.setDescription(
+						lang.event_gw_embed_desc
+							.replace("${end_string}", end_string)
+							.replace("${end_string2}", end_string2)
+							.replace(
+								"${winners_amount}",
+								String(winners_amount)
+							)
+							.replace("${data.hostedBy}", String(data.hostedBy))
 					)
 					.setTimestamp(new Date(Date.now() + data.duration))
-					.setFooter(await client.func.displayBotName.footerBuilder(channel.guildId))
+					.setFooter(
+						await client.func.displayBotName.footerBuilder(
+							channel.guildId
+						)
+					)
 					.setImage(data.embedImageURL);
 
-				const response = await channel.client.func.method.channelSend(channel, {
-					embeds: [gw],
-					components: [
-						new ActionRowBuilder<ButtonBuilder>()
-							.addComponents(confirm)
-					],
-					files: [await client.func.displayBotName.footerAttachmentBuilder(channel.guild)]
-				});
+				const response = await channel.client.func.method.channelSend(
+					channel,
+					{
+						embeds: [gw],
+						components: [
+							new ActionRowBuilder<ButtonBuilder>().addComponents(
+								confirm
+							)
+						],
+						files: [
+							await client.func.displayBotName.footerAttachmentBuilder(
+								channel.guild
+							)
+						]
+					}
+				);
 
 				const requirement = data.requirement;
 
@@ -123,7 +157,8 @@ class GiveawayManager {
 						isValid: true,
 						embedImageURL: data.embedImageURL,
 						requirement
-					}, response.id
+					},
+					response.id
 				);
 
 				resolve(response);
@@ -131,10 +166,9 @@ class GiveawayManager {
 				reject(error);
 			}
 		});
-	};
+	}
 
 	public async addEntries(interaction: ButtonInteraction<"cached">) {
-
 		const giveawayData = await db.GetGiveawayData(interaction.message.id);
 		const lang = await getLanguageData(interaction.guildId!);
 
@@ -146,63 +180,88 @@ class GiveawayManager {
 				let reqPass: boolean = false;
 				switch (giveawayData?.requirement.type) {
 					case "invites":
-						reqPass = await interaction.client.
-							db.get(`${interaction.guildId}.USER.${interaction.member?.user.id}.INVITES.invites`)
-							>= parseInt(giveawayData.requirement.value!);;
+						reqPass =
+							(await interaction.client.db.get(
+								`${interaction.guildId}.USER.${interaction.member?.user.id}.INVITES.invites`
+							)) >= parseInt(giveawayData.requirement.value!);
 						break;
 					case "messages":
-						reqPass = ((await interaction.client.
-							db.get(`${interaction.guildId}.STATS.USER.${interaction.member?.user.id}.messages`)
-							|| []
-						) as string[]).length >= parseInt(giveawayData.requirement.value!);
+						reqPass =
+							(
+								((await interaction.client.db.get(
+									`${interaction.guildId}.STATS.USER.${interaction.member?.user.id}.messages`
+								)) || []) as string[]
+							).length >=
+							parseInt(giveawayData.requirement.value!);
 						break;
 					case "roles":
-						reqPass = (interaction.member as GuildMember)?.roles.cache.has(giveawayData.requirement.value!)
+						reqPass = (
+							interaction.member as GuildMember
+						)?.roles.cache.has(giveawayData.requirement.value!);
 						break;
-				};
+				}
 				if (!reqPass) {
 					return interaction.reply({
-						content:
-							lang.event_gw_break_req
-								.replace("${giveawayData?.requirement.value}", String(giveawayData?.requirement.value))
-								.replace("${giveawayData?.requirement.type}", String(giveawayData?.requirement.type))
-								.replace("${interaction.client.iHorizon_Emojis.No}", interaction.client.iHorizon_Emojis.No)
-						, flags: [1 << 6]
-					})
+						content: lang.event_gw_break_req
+							.replace(
+								"${giveawayData?.requirement.value}",
+								String(giveawayData?.requirement.value)
+							)
+							.replace(
+								"${giveawayData?.requirement.type}",
+								String(giveawayData?.requirement.type)
+							)
+							.replace(
+								"${interaction.client.iHorizon_Emojis.No}",
+								interaction.client.iHorizon_Emojis.No
+							),
+						flags: [1 << 6]
+					});
 				}
-			};
+			}
 
 			await interaction.deferUpdate();
 			const regexPattern = `${lang.event_gw_entries_words}: \\*\\*\\d+\\*\\*`;
 			const regex = new RegExp(regexPattern);
 
-			const embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
-				.setDescription(interaction.message.embeds[0]?.description!
-					.replace(regex, `${lang.event_gw_entries_words}: **${giveawayData?.entries.length! + 1}**`)
+			const embedsToEdit = EmbedBuilder.from(
+				interaction.message.embeds[0]
+			)
+				.setDescription(
+					interaction.message.embeds[0]?.description!.replace(
+						regex,
+						`${lang.event_gw_entries_words}: **${giveawayData?.entries.length! + 1}**`
+					)
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guild.id));
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guild.id
+					)
+				);
 
 			await interaction.message.edit({ embeds: [embedsToEdit] });
 
 			await db.AddEntries(interaction.message.id, interaction.user.id);
 
 			return;
-		};
-	};
+		}
+	}
 
 	private async removeEntries(interaction: ButtonInteraction<"cached">) {
 		const lang = await getLanguageData(interaction.guildId!);
 
 		await interaction.reply({
-			content: lang.event_gw_confirm_leave_msg.replace("${interaction.user}", interaction.user.toString()),
+			content: lang.event_gw_confirm_leave_msg.replace(
+				"${interaction.user}",
+				interaction.user.toString()
+			),
 			components: [
-				new ActionRowBuilder<ButtonBuilder>()
-					.addComponents(
-						new ButtonBuilder()
-							.setCustomId("giveaway-leave")
-							.setStyle(ButtonStyle.Danger)
-							.setLabel(lang.event_gw_leave_button_placeholder)
-					)
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder()
+						.setCustomId("giveaway-leave")
+						.setStyle(ButtonStyle.Danger)
+						.setLabel(lang.event_gw_leave_button_placeholder)
+				)
 			],
 			flags: [1 << 6]
 		});
@@ -212,29 +271,46 @@ class GiveawayManager {
 			filter: (i) => interaction.user.id === i.user.id
 		});
 
-		collector.on('collect', async (i: ButtonInteraction<"cached">) => {
-			if (i.customId === 'giveaway-leave') {
-
-				const now_members = await db.RemoveEntries(interaction.message.id, interaction.user.id);
+		collector.on("collect", async (i: ButtonInteraction<"cached">) => {
+			if (i.customId === "giveaway-leave") {
+				const now_members = await db.RemoveEntries(
+					interaction.message.id,
+					interaction.user.id
+				);
 				const regexPattern = `${lang.event_gw_entries_words}: \\*\\*\\d+\\*\\*`;
 				const regex = new RegExp(regexPattern);
 
-				const embedsToEdit = EmbedBuilder.from(interaction.message.embeds[0])
-					.setDescription(interaction.message.embeds[0]?.description!
-						.replace(regex, `${lang.event_gw_entries_words}: **${now_members.length}**`)
+				const embedsToEdit = EmbedBuilder.from(
+					interaction.message.embeds[0]
+				)
+					.setDescription(
+						interaction.message.embeds[0]?.description!.replace(
+							regex,
+							`${lang.event_gw_entries_words}: **${now_members.length}**`
+						)
 					)
-					.setFooter(await client.func.displayBotName.footerBuilder(interaction.guild.id));
+					.setFooter(
+						await client.func.displayBotName.footerBuilder(
+							interaction.guild.id
+						)
+					);
 
 				await interaction.message.edit({ embeds: [embedsToEdit] });
-				await interaction.editReply({ components: [], content: lang.event_gw_removeentries_msg.replace("${interaction.user}", interaction.user.toString()) })
+				await interaction.editReply({
+					components: [],
+					content: lang.event_gw_removeentries_msg.replace(
+						"${interaction.user}",
+						interaction.user.toString()
+					)
+				});
 
 				return;
-			};
+			}
 		});
 
 		collector.on("end", async () => {
 			await interaction.deleteReply();
-		})
+		});
 	}
 
 	public isValid(giveawayId: string): Promise<boolean> {
@@ -251,7 +327,7 @@ class GiveawayManager {
 				reject(error);
 			}
 		});
-	};
+	}
 
 	public isEnded(giveawayId: string): Promise<boolean> {
 		return new Promise(async (resolve, reject) => {
@@ -267,7 +343,7 @@ class GiveawayManager {
 				reject(error);
 			}
 		});
-	};
+	}
 
 	end(client: Client, giveawayId: string): Promise<void> {
 		return new Promise(async (resolve, reject) => {
@@ -279,13 +355,16 @@ class GiveawayManager {
 					return;
 				}
 
-				if (giveawayData.isValid && giveawayData.ended === GiveawayEndedStatus.NOT_ENDED) {
+				if (
+					giveawayData.isValid &&
+					giveawayData.ended === GiveawayEndedStatus.NOT_ENDED
+				) {
 					await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
 					this.finish(
 						client,
 						giveawayId,
 						giveawayData.guildId,
-						giveawayData.channelId,
+						giveawayData.channelId
 					);
 					resolve();
 				} else {
@@ -295,9 +374,14 @@ class GiveawayManager {
 				reject(error);
 			}
 		});
-	};
+	}
 
-	public async finish(client: Client, giveawayId: string, guildId: string, channelId: string) {
+	public async finish(
+		client: Client,
+		giveawayId: string,
+		guildId: string,
+		channelId: string
+	) {
 		try {
 			if (!client.inShard(guildId)) return;
 
@@ -308,7 +392,9 @@ class GiveawayManager {
 			if (!fetch) return;
 
 			if (!fetch.ended || fetch.ended === GiveawayEndedStatus.NOT_ENDED) {
-				const guild = await client.guilds.fetch(guildId).catch(() => undefined);
+				const guild = await client.guilds
+					.fetch(guildId)
+					.catch(() => undefined);
 				if (!guild) return;
 
 				const winner = this.selectWinners(
@@ -316,68 +402,109 @@ class GiveawayManager {
 					fetch.winnerCount
 				);
 
-				await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED)
-				await db.SetWinners(giveawayId, winner || 'None')
+				await db.SetEnded(giveawayId, GiveawayEndedStatus.ENDED);
+				await db.SetWinners(giveawayId, winner || "None");
 
-				const channel = await guild.channels.fetch(channelId).catch(() => { this.delete(giveawayId) })
+				const channel = await guild.channels
+					.fetch(channelId)
+					.catch(() => {
+						this.delete(giveawayId);
+					});
 
-				const message = await (channel as GuildTextBasedChannel).messages.fetch(giveawayId).catch(async () => {
-					await this.delete(giveawayId)
-					return;
-				}) as Message;
+				const message = (await (
+					channel as GuildTextBasedChannel
+				).messages
+					.fetch(giveawayId)
+					.catch(async () => {
+						await this.delete(giveawayId);
+						return;
+					})) as Message;
 
-				const winners = winner ? winner.map((winner: string) => `<@${winner}>`).join(",") : null;
+				const winners = winner
+					? winner.map((winner: string) => `<@${winner}>`).join(",")
+					: null;
 
 				const Finnish = new ButtonBuilder()
 					.setLabel(lang.event_gw_finnish_button_title)
-					.setURL('https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif')
+					.setURL(
+						"https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif"
+					)
 					.setStyle(ButtonStyle.Link);
 
 				const embeds = new EmbedBuilder()
-					.setColor(this.options.config.embedColorEnd as ColorResolvable)
+					.setColor(
+						this.options.config.embedColorEnd as ColorResolvable
+					)
 					.setTitle(fetch.prize)
 					.setImage(fetch.embedImageURL)
-					.setDescription(lang.event_gw_ended_embed_desc
-						.replace("${time1}", time(new Date(fetch.expireIn), 'R'))
-						.replace("${time2}", time(new Date(fetch.expireIn), 'D'))
-						.replace("${fetch.hostedBy}", fetch.hostedBy)
-						.replace("${fetch.entries.length}", fetch.entries.length.toString())
-						.replace("${winners}", winners || lang.setjoinroles_var_none)
+					.setDescription(
+						lang.event_gw_ended_embed_desc
+							.replace(
+								"${time1}",
+								time(new Date(fetch.expireIn), "R")
+							)
+							.replace(
+								"${time2}",
+								time(new Date(fetch.expireIn), "D")
+							)
+							.replace("${fetch.hostedBy}", fetch.hostedBy)
+							.replace(
+								"${fetch.entries.length}",
+								fetch.entries.length.toString()
+							)
+							.replace(
+								"${winners}",
+								winners || lang.setjoinroles_var_none
+							)
 					)
 					.setTimestamp()
-					.setFooter(await client.func.displayBotName.footerBuilder(message.guildId!));
+					.setFooter(
+						await client.func.displayBotName.footerBuilder(
+							message.guildId!
+						)
+					);
 
 				await message?.edit({
-					embeds: [embeds], components: [
-						new ActionRowBuilder<ButtonBuilder>()
-							.addComponents(Finnish)]
+					embeds: [embeds],
+					components: [
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							Finnish
+						)
+					]
 				});
 
 				if (winners) {
 					await message?.reply({
-						content: lang.event_gw_reroll_win_msg.replace("${winners}", winners.toString()).replace("${fetch[channelId][messageId].prize}", fetch.prize)
-					})
+						content: lang.event_gw_reroll_win_msg
+							.replace("${winners}", winners.toString())
+							.replace(
+								"${fetch[channelId][messageId].prize}",
+								fetch.prize
+							)
+					});
 					return;
 				} else {
 					await message?.reply({
 						content: lang.event_gw_finnish_cannot_msg
 					});
 					return;
-				};
-			};
+				}
+			}
 			return;
 		} catch (e) {
-			console.error(e)
+			console.error(e);
 		}
-	};
+	}
 
 	private selectWinners(fetch: GiveawayFetch, number: number): string[] {
 		if (fetch.entries.length === 0) {
 			return [];
-		};
+		}
 
 		const areWinnersInPreviousWinners = (currentWinners: string[]) => {
-			return currentWinners.some(winner => fetch.winners.includes(winner));
+			return currentWinners.some((winner) =>
+				fetch.winners.includes(winner)
+			);
 		};
 
 		let winners: Array<string> = [];
@@ -388,21 +515,23 @@ class GiveawayManager {
 
 			if (winners.length === 0 || areWinnersInPreviousWinners(winners)) {
 				winners = [];
-			};
+			}
 
 			for (let i = 0; i < number; i++) {
 				if (availableMembers.length === 0) {
 					break;
 				}
 
-				const randomIndex = Math.floor(Math.random() * availableMembers.length);
+				const randomIndex = Math.floor(
+					Math.random() * availableMembers.length
+				);
 				const winnerID = availableMembers.splice(randomIndex, 1)[0];
 				winners.push(winnerID);
 			}
 		} while (winners.length === 0);
 
 		return winners.length > 0 ? winners : [];
-	};
+	}
 
 	public reroll(client: Client, giveawayId: string): Promise<void> {
 		return new Promise(async (resolve, reject) => {
@@ -414,61 +543,86 @@ class GiveawayManager {
 
 				const lang = await getLanguageData(guild.id);
 
-				const message = await (channel as BaseGuildTextChannel).messages.fetch(giveawayId).catch(async () => {
-					await this.delete(giveawayId);
-					resolve();
-					return;
-				}) as Message;
+				const message = (await (
+					channel as BaseGuildTextChannel
+				).messages
+					.fetch(giveawayId)
+					.catch(async () => {
+						await this.delete(giveawayId);
+						resolve();
+						return;
+					})) as Message;
 
 				const winner = this.selectWinners(
 					{ entries: fetch.entries, winners: fetch.winners },
 					fetch.winnerCount
 				);
 
-				const winners = winner ? winner.map((winner: string) => `<@${winner}>`) : [];
-				const ended = time(new Date(fetch.expireIn), 'R');
-				const time2 = time(new Date(fetch.expireIn), 'D');
+				const winners = winner
+					? winner.map((winner: string) => `<@${winner}>`)
+					: [];
+				const ended = time(new Date(fetch.expireIn), "R");
+				const time2 = time(new Date(fetch.expireIn), "D");
 				const hostedBy = fetch.hostedBy;
 				const entries = fetch.entries.length.toString();
 
 				const embeds = new EmbedBuilder()
-					.setColor(this.options.config.embedColorEnd as ColorResolvable)
+					.setColor(
+						this.options.config.embedColorEnd as ColorResolvable
+					)
 					.setTitle(fetch.prize)
 					.setImage(fetch.embedImageURL)
-					.setDescription(lang.event_gw_ended_word
-						.replace("${winners}", winners.toString())
-						.replace("${ended}", ended)
-						.replace("${time2}", time2)
-						.replace("${hostedBy}", hostedBy)
-						.replace("${entries}", entries)
+					.setDescription(
+						lang.event_gw_ended_word
+							.replace("${winners}", winners.toString())
+							.replace("${ended}", ended)
+							.replace("${time2}", time2)
+							.replace("${hostedBy}", hostedBy)
+							.replace("${entries}", entries)
 					)
 					.setTimestamp()
-					.setFooter(await client.func.displayBotName.footerBuilder(message.guild?.id!))
+					.setFooter(
+						await client.func.displayBotName.footerBuilder(
+							message.guild?.id!
+						)
+					);
 
 				await message?.edit({
 					embeds: [embeds],
-					files: [await client.func.displayBotName.footerAttachmentBuilder(message.guild!)]
+					files: [
+						await client.func.displayBotName.footerAttachmentBuilder(
+							message.guild!
+						)
+					]
 				});
 
-				if (winner && winner[0] !== 'None') {
+				if (winner && winner[0] !== "None") {
 					await client.func.method.reply(message, {
-						content: lang.event_gw_reroll_win_msg.replace("${winners}", winners.toString()).replace("${fetch[channelId][messageId].prize}", fetch.prize)
-					})
+						content: lang.event_gw_reroll_win_msg
+							.replace("${winners}", winners.toString())
+							.replace(
+								"${fetch[channelId][messageId].prize}",
+								fetch.prize
+							)
+					});
 				} else {
 					await client.func.method.reply(message, {
 						content: lang.event_gw_finnish_cannot_msg
 					});
 				}
 
-				await db.SetWinners(giveawayId, winner || 'None');
+				await db.SetWinners(giveawayId, winner || "None");
 				resolve();
 			} catch (error) {
 				reject(error);
 			}
 		});
-	};
+	}
 
-	public async listEntries(interaction: ChatInputCommandInteraction<"cached"> | Message, giveawayId: string) {
+	public async listEntries(
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		giveawayId: string
+	) {
 		const fetch = (await db.GetGiveawayData(giveawayId))!;
 		const lang = await getLanguageData(fetch.guildId);
 
@@ -477,83 +631,98 @@ class GiveawayManager {
 
 			if (char.length == 0) {
 				if (interaction instanceof ChatInputCommandInteraction) {
-					await interaction.editReply({ content: lang.history_no_entries });
+					await interaction.editReply({
+						content: lang.history_no_entries
+					});
 				} else {
-					await interaction.edit({ content: lang.history_no_entries });
+					await interaction.edit({
+						content: lang.history_no_entries
+					});
 				}
 				return;
-			};
+			}
 
 			let currentPage = 0;
 			const usersPerPage = 10;
-			const pages: { title: string; description: string; }[] = [];
+			const pages: { title: string; description: string }[] = [];
 
 			for (let i = 0; i < char.length; i += usersPerPage) {
 				const pageUsers = char.slice(i, i + usersPerPage);
-				const pageContent = pageUsers.map((userId) => `<@${userId}>`).join('\n');
+				const pageContent = pageUsers
+					.map((userId) => `<@${userId}>`)
+					.join("\n");
 				pages.push({
 					title: `Giveaway's Entries List | Page ${i / usersPerPage + 1}`,
-					description: pageContent,
+					description: pageContent
 				});
-			};
+			}
 
 			const createEmbed = () => {
 				return new EmbedBuilder()
 					.setColor(this.options.config.embedColor as ColorResolvable)
 					.setTitle(pages[currentPage].title)
 					.setDescription(pages[currentPage].description)
-					.setFooter({ text: `${client.user?.username} | Page ${currentPage + 1}/${pages.length}`, iconURL: interaction.client.user?.displayAvatarURL() })
-					.setTimestamp()
+					.setFooter({
+						text: `${client.user?.username} | Page ${currentPage + 1}/${pages.length}`,
+						iconURL: interaction.client.user?.displayAvatarURL()
+					})
+					.setTimestamp();
 			};
 
 			const row = new ActionRowBuilder().addComponents(
 				new ButtonBuilder()
-					.setCustomId('previousPage')
-					.setLabel('<<<')
+					.setCustomId("previousPage")
+					.setLabel("<<<")
 					.setStyle(ButtonStyle.Secondary),
 				new ButtonBuilder()
-					.setCustomId('nextPage')
-					.setLabel('>>>')
-					.setStyle(ButtonStyle.Secondary),
+					.setCustomId("nextPage")
+					.setLabel(">>>")
+					.setStyle(ButtonStyle.Secondary)
 			);
 
 			if (interaction instanceof ChatInputCommandInteraction) {
 				var messageEmbed = await interaction.editReply({
-					embeds: [createEmbed()], components: [(row as ActionRowBuilder<ButtonBuilder>)]
+					embeds: [createEmbed()],
+					components: [row as ActionRowBuilder<ButtonBuilder>]
 				});
 			} else {
-				var messageEmbed = await interaction.reply({
-					embeds: [createEmbed()], components: [(row as ActionRowBuilder<ButtonBuilder>)]
-				}) as Message<true>
+				var messageEmbed = (await interaction.reply({
+					embeds: [createEmbed()],
+					components: [row as ActionRowBuilder<ButtonBuilder>]
+				})) as Message<true>;
 			}
 
 			const collector = messageEmbed.createMessageComponentCollector({
 				filter: (i) => {
 					i.deferUpdate();
 					return interaction.member?.user.id === i.user.id;
-				}, time: 60_000 * 15
+				},
+				time: 60_000 * 15
 			});
 
-			collector.on('collect', (interaction: { customId: string; }) => {
-				if (interaction.customId === 'previousPage') {
-					currentPage = (currentPage - 1 + pages.length) % pages.length;
-				} else if (interaction.customId === 'nextPage') {
+			collector.on("collect", (interaction: { customId: string }) => {
+				if (interaction.customId === "previousPage") {
+					currentPage =
+						(currentPage - 1 + pages.length) % pages.length;
+				} else if (interaction.customId === "nextPage") {
 					currentPage = (currentPage + 1) % pages.length;
 				}
 
 				messageEmbed.edit({ embeds: [createEmbed()] });
 			});
 
-			collector.on('end', () => {
+			collector.on("end", () => {
 				row.components.forEach((component) => {
 					if (component instanceof ButtonBuilder) {
 						component.setDisabled(true);
 					}
 				});
-				messageEmbed.edit({ components: [(row as ActionRowBuilder<ButtonBuilder>)] });
+				messageEmbed.edit({
+					components: [row as ActionRowBuilder<ButtonBuilder>]
+				});
 			});
-		};
-	};
+		}
+	}
 
 	private async refresh(client: Client) {
 		const drop_all_db = await db.GetAllGiveawaysData();
@@ -569,7 +738,10 @@ class GiveawayManager {
 
 			await db.AvoidDoubleEntries(drop_all_db[giveawayId].giveawayId);
 
-			if (now >= gwExp && giveawayData.ended === GiveawayEndedStatus.NOT_ENDED) {
+			if (
+				now >= gwExp &&
+				giveawayData.ended === GiveawayEndedStatus.NOT_ENDED
+			) {
 				this.finish(
 					client,
 					drop_all_db[giveawayId].giveawayId,
@@ -598,7 +770,7 @@ class GiveawayManager {
 				reject(error);
 			}
 		});
-	};
+	}
 
 	public async getAllGiveawayData() {
 		return await db.GetAllGiveawaysData();
@@ -617,7 +789,6 @@ class GiveawayManager {
 				reject(error);
 			}
 		});
-	};
-
+	}
 }
 export { GiveawayManager };

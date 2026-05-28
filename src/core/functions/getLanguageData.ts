@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { LanguageData } from '../../../types/languageData.js';
+import { LanguageData } from "../../../types/languageData.js";
 
 interface LangsData {
 	[lang: string]: LanguageData;
@@ -27,75 +27,78 @@ interface LangsData {
 
 const LangsData: LangsData = {};
 
-export const AvailableLanguage: { code: string; name: string, flag: string; }[] = [
-	{
-		name: "Arab Egyptian",
-		code: "ar-EG",
-		flag: "🇪🇬"
-	},
-	{
-		name: "Deutsch",
-		code: "de-DE",
-		flag: "🇩🇪",
-	},
-	{
-		name: "English",
-		code: "en-US",
-		flag: "🇺🇸🇬🇧"
-	},
+export const AvailableLanguage: { code: string; name: string; flag: string }[] =
+	[
+		{
+			name: "Arab Egyptian",
+			code: "ar-EG",
+			flag: "🇪🇬"
+		},
+		{
+			name: "Deutsch",
+			code: "de-DE",
+			flag: "🇩🇪"
+		},
+		{
+			name: "English",
+			code: "en-US",
+			flag: "🇺🇸🇬🇧"
+		},
 
-	{
-		name: "French",
-		code: "fr-FR",
-		flag: "🇫🇷"
-	},
-	{
-		name: "Italian",
-		code: "it-IT",
-		flag: "🇮🇹"
-	},
-	{
-		name: "Japanese",
-		code: "jp-JP",
-		flag: "🇯🇵"
-	},
-	{
-		name: "Portuguese",
-		code: "pt-PT",
-		flag: "🇵🇹"
-	},
-	{
-		name: "Rude French",
-		code: "fr-ME",
-		flag: "💥🇫🇷"
-	},
-	{
-		name: "Russian",
-		code: "ru-RU",
-		flag: "🇷🇺"
-	},
-	{
-		name: "Spanish",
-		code: "es-ES",
-		flag: "🇪🇸"
-	},
-];
+		{
+			name: "French",
+			code: "fr-FR",
+			flag: "🇫🇷"
+		},
+		{
+			name: "Italian",
+			code: "it-IT",
+			flag: "🇮🇹"
+		},
+		{
+			name: "Japanese",
+			code: "jp-JP",
+			flag: "🇯🇵"
+		},
+		{
+			name: "Portuguese",
+			code: "pt-PT",
+			flag: "🇵🇹"
+		},
+		{
+			name: "Rude French",
+			code: "fr-ME",
+			flag: "💥🇫🇷"
+		},
+		{
+			name: "Russian",
+			code: "ru-RU",
+			flag: "🇷🇺"
+		},
+		{
+			name: "Spanish",
+			code: "es-ES",
+			flag: "🇪🇸"
+		}
+	];
 
-export default async function getLanguageData(arg: string | undefined | null): Promise<LanguageData> {
-
-	let lang = await client.db.get(`${arg}.GUILD.LANG.lang`) as string;
+export default async function getLanguageData(
+	arg: string | undefined | null
+): Promise<LanguageData> {
+	let lang = (await client.db.get(`${arg}.GUILD.LANG.lang`)) as string;
 
 	if (!lang) {
-		lang = 'en-US';
-	};
+		lang = "en-US";
+	}
 
 	let dat = LangsData[lang];
 
 	if (!dat) {
-
-		dat = await import(process.cwd() + "/src/lang/" + lang + ".yml") as LanguageData;
+		dat = (await import(
+			process.cwd() + "/src/lang/" + lang + ".yml"
+		)) as LanguageData;
 		LangsData[lang] = dat;
-	};
+	}
 
 	return dat;
-};
+}
