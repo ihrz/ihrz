@@ -27,7 +27,6 @@ import path from "path";
 import fs from "node:fs";
 
 import { Postgres } from "./driver/postgres.js";
-import { Horizon } from "./driver/horizon.js";
 import { Memory } from "./driver/memory.js";
 import { Sqlite } from "./driver/sqlite.js";
 import { Json } from "./driver/json.js";
@@ -83,18 +82,6 @@ export async function initializeDatabase(
 				connectionString: `postgres://${database.mySQL?.[0].user}:${encodeURIComponent(database.mySQL?.[0].password!)}@${database.mySQL?.[0].host}:${database.mySQL?.[0].port}/${database.mySQL?.[0].database}`,
 				table: tables[0]
 			})
-		};
-	} else if (database.method === "horizon") {
-		dbInstance = {
-			x: new Horizon(
-				`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`,
-				{
-					login: database?.horizon_db?.login!,
-					password: database?.horizon_db?.password!,
-					enableVerboses: process.env.DEV === "true" ? true : false,
-					tables
-				}
-			)
 		};
 	} else if (database.method === "cached_postgres") {
 		logger.log(
