@@ -470,6 +470,7 @@ export namespace DatabaseStructure {
 		git_lines?: boolean;
 		NIGHT_MODE: NightMode;
 		DEROGATION: Derogation;
+		antiExe?: "on" | "off";
 	}
 
 	export type PermLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
