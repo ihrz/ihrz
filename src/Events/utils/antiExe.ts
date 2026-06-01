@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChannelType, Client, Message } from "discord.js";
+import { ChannelType, Client, Message, PermissionFlagsBits } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
@@ -58,7 +58,11 @@ export const event: BotEvent = {
 			!message.guild ||
 			message.author.bot ||
 			message.channel.type === ChannelType.DM ||
-			message.author.id === client.user?.id
+			message.author.id === client.user?.id ||
+			message.member?.permissions.has(
+				PermissionFlagsBits.Administrator |
+					PermissionFlagsBits.ModerateMembers
+			)
 		) {
 			return;
 		}
