@@ -23,7 +23,6 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	GuildMember,
 	Message,
 	User
 } from "discord.js";
@@ -47,17 +46,9 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember(
-				"user"
-			) as GuildMember | null;
-		} else {
-			var member = client.func.method.member(
-				interaction,
-				args!,
-				0
-			) as GuildMember | null;
-		}
+		const member = interaction instanceof ChatInputCommandInteraction ? interaction.options.getUser(
+			"user"
+		) : await client.func.method.user(interaction, args!, 0);
 
 		const mentionedUser = member || (interaction.member.user as User);
 
