@@ -43,7 +43,27 @@ interface CustomEnabledGuild {
 
 function isCustomCommand(command: string): boolean {
 	const normalized = command.trim().toLowerCase();
-	return normalized === "/custom" || normalized.startsWith("/custom ");
+	return (
+		normalized === "/custom" ||
+		normalized.startsWith("/custom ") ||
+		normalized.startsWith("/name ") ||
+		normalized.startsWith("/avatar ") ||
+		normalized.startsWith("/banner ") ||
+		normalized.startsWith("/bio ") ||
+		normalized.startsWith("/botname ") ||
+		normalized.startsWith("/botavatar ") ||
+		normalized.startsWith("/botbanner ") ||
+		normalized.startsWith("/botbio ") ||
+		normalized.startsWith("/setname ") ||
+		normalized.startsWith("/setbotname ") ||
+		normalized.startsWith("/setpic ") ||
+		normalized.startsWith("/setavatar ") ||
+		normalized.startsWith("/setpp ") ||
+		normalized.startsWith("/setbotbanner ") ||
+		normalized.startsWith("/setbanner ") ||
+		normalized.startsWith("/setbotbio ") ||
+		normalized.startsWith("/setbio ")
+	);
 }
 
 async function main() {
