@@ -72,11 +72,11 @@
 
 # Bug fixes
 
-**__Avatar command__**
+****Avatar command****
 
-- _Now, users where are not in the guild will show avatar, not fallback to the author of the command.__
+- \_Now, users who are not in the guild where the command the executed will properly show their avatar, there will be no more fallbacks to the avatar's of the command author.\_\_
 
-**__Clear command__**
+****Clear command****
 
 - _Clear command got fixed_
 
