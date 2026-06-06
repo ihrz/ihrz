@@ -100,10 +100,15 @@ async function main() {
 	}
 
 	logger.log(`Spawning ${totalShards} shards for reset script.`);
+	const workerShards = [...perShard.keys()].sort((a, b) => a - b);
+	logger.debug(`Worker shards to spawn: ${workerShards.join(", ")}`);
+
 	const manager = new ShardingManager("./tools/ResetCustomProfilesShardWorker.ts", {
 		totalShards,
 		token,
-		respawn: false
+		respawn: false,
+		shardList: workerShards,
+		shardArgs: [shouldApply ? "--apply" : "--dry-run"]
 	});
 
 	manager.on("shardCreate", (shard) => {
@@ -114,18 +119,22 @@ async function main() {
 		shard.on("error", (error) => logger.err(`Reset worker shard #${shard.id} error: ${error.message}`));
 	});
 
+	const workersWithGuilds = workerShards.map((shardId) => ({
+		shardId,
+		guilds: perShard.get(shardId) || []
+	}));
+
 	const shards = await manager.spawn({
-		amount: totalShards,
+		amount: workerShards.length,
 		delay: 5500,
 		timeout: 30_000
 	});
 
 	logger.debug(`Spawned ${shards.size} reset worker shards.`);
-
-	for (const shard of shards.values()) {
-		const shardGuilds = perShard.get(shard.id) || [];
-		logger.debug(`Sending ${shardGuilds.length} guilds to shard ${shard.id}`);
-		shard.send({ guilds: shardGuilds, shouldApply });
+	for (const worker of workersWithGuilds) {
+		logger.debug(
+			`Shard ${worker.shardId} assigned ${(perShard.get(worker.shardId) || []).length} guilds.`
+		);
 	}
 }
 
