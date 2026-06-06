@@ -104,7 +104,13 @@ logger.debug(
 	`Default avatar base64 loaded: ${defaultAvatarBase64 ? "yes" : "no"}`
 );
 
-const defaultBannerUrl =
+let res = await fetch("https://discord.com/api/v10/oauth2/applications/@me", {
+	headers: {
+		Authorization: `Bot ${process.env.BOT_TOKEN || client.config.discord.token}`
+	}
+});
+const data = await res.json();
+const defaultBannerUrl = `https://cdn.discordapp.com/banners/${client.user?.id}/${data?.["bot"]["banner"]}?size=1024` ||
 	client.user?.bannerURL({
 		extension: "png",
 		size: 4096
@@ -119,7 +125,7 @@ logger.debug(
 	`Default banner base64 loaded: ${defaultBannerBase64 ? "yes" : "no"}`
 );
 
-const defaultBio = client.user?.username || "iHorizon";
+const defaultBio = data?.["description"] || "iHorizon";
 const defaultName = client.user?.displayName || client.user?.username || "iHorizon";
 logger.debug(`Default name: ${defaultName}`);
 logger.debug(`Default bio: ${defaultBio}`);
