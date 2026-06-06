@@ -40,6 +40,8 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import { getPermissionByValue } from "../../core/functions/permissonsCalculator.js";
 import { blacklistTable, tempTable } from "../client/ready.js";
 import { sanitizeInteractionOptionValue } from "../../core/functions/sanitizeInteractionOptionValue.js";
+import logger from "../../core/logger.js";
+import { Expressions } from "../../core/functions/randomExpression.js";
 
 const timeout: number = 1000;
 
@@ -123,6 +125,25 @@ async function handleCommandExecution(
 	lang: LanguageData,
 	thinking: boolean
 ) {
+	if (
+		client.version.env === "production" &&
+		interaction.commandName === "custom" &&
+		![...interaction.entitlements.values()].some(
+			(entitlement) => entitlement.skuId === "1512856902919258384"
+		)
+	) {
+		return await client.func.method.interactionSend(interaction, {
+			content: `${client.iHorizon_Emojis.Boost_Gem} https://discord.com/discovery/applications/945202900907470899/store`,
+			embeds: [
+				new EmbedBuilder()
+					.setThumbnail(Expressions.Pleading)
+					.setColor("Red")
+					.setTitle(lang.custom_sdk_only_title)
+					.setDescription(lang.custom_sdk_only_description)
+			]
+		});
+	}
+
 	const options = interaction.options as CommandInteractionOptionResolver;
 	const group = options.getSubcommandGroup(false);
 	const subCommand = options.getSubcommand(false);
@@ -476,7 +497,7 @@ export const event: BotEvent = {
 				command.thinking
 			);
 		} catch (error) {
-			console.error(error);
+			logger.err(error);
 			await handleCommandError(client, interaction, command, error);
 		}
 	}

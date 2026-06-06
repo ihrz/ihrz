@@ -626,6 +626,9 @@ custom_desc_reset: "サーバー上のボットの説明をリセットするこ
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **サーバー上のボットの説明を変更することにしました。埋め込みのフッターが変更され、サーバー上のボットの説明も同様です。**\n${client.iHorizon_Emojis.Crown} 新しい値: `${desc}`"
 custom_banner_reset: "サーバー上のボットのバナーをリセットすることにしました。"
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **サーバー上のボットのバナーを変更することにしました。**\n${client.iHorizon_Emojis.Crown} 新しい値: `${x}`"
+custom_sdk_only: "このコマンドは、本番環境では `Custom iHorizon Profile` サブスクリプションを持つサーバーでのみ利用できます。"
+custom_sdk_only_title: "Custom iHorizon Profile で iHorizon を支援"
+custom_sdk_only_description: "私たちのボットは 2022 年から無料かつオープンソースです。ボットの運用、開発、ホスティングを続けるために収益が必要です。運用コストはサーバー、boosts、ドメイン、ライセンスを含めて年間およそ 500 EUR です。\n\n`/custom` コマンドを使うと、アバター、名前、バナー、自己紹介を変更して、あなたのサーバー上で iHorizon のアイデンティティを変えることができます。これを使うと、iHorizon の視覚的なアイデンティティはあなたのサーバーから消えます。\n\nそのため、月額 2.99 USD の Discord 内サブスクリプションを用意しました。\n\nこのサブスクリプションを購入すると、このコマンドを使えるようになります。OWN-IHRZ のようなカスタム bot だと思ってください。ただし、安定していて、クリーンで、しっかり動作します。"
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
