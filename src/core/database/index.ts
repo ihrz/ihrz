@@ -66,6 +66,7 @@ export async function initializeDatabase(
 ): Promise<MultiDB> {
 	try {
 		client;
+		client.inShard("0");
 		isClient = true;
 	} catch {
 		isClient = false;
