@@ -19,19 +19,50 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client } from "discord.js";
+import { REST, Routes, ShardingManager } from "discord.js";
 import { readFile } from "fs/promises";
 import path from "path";
 import config from "../src/files/config.js";
-import { initializeDatabase } from "../src/core/database/index.js";
 import logger from "../src/core/logger.js";
-import * as customProfileHelper from "../src/core/functions/customProfileHelper.js";
+
+const token = process.env.BOT_TOKEN || config.discord.token;
+const GUILDS_PER_SHARD = 700;
+
+interface GatewayBotInfo {
+	url: string;
+	shards: number;
+	session_start_limit: {
+		total: number;
+		remaining: number;
+		reset_after: number;
+		max_concurrency: number;
+	};
+}
 
 interface CustomEnabledGuild {
 	guildId: string;
 	guildName: string;
 	lastUsedAt: number;
 	uses: number;
+}
+
+function getShardId(guildId: string, totalShards: number): number {
+	return Number((BigInt(guildId) >> 22n) % BigInt(totalShards));
+}
+
+async function getOptimalShardCount(): Promise<number> {
+	const rest = new REST({ version: "10" }).setToken(token);
+	const gateway = (await rest.get(Routes.gatewayBot())) as GatewayBotInfo;
+
+	const discordRecommended = gateway.shards;
+	const shardMultiplier = Math.ceil(1000 / GUILDS_PER_SHARD);
+	const final = Math.max(discordRecommended, discordRecommended * shardMultiplier);
+
+	logger.debug(`Gateway recommended shards: ${discordRecommended}`);
+	logger.debug(`Gateway max concurrency: ${gateway.session_start_limit.max_concurrency}`);
+	logger.debug(`Computed total shards for reset script: ${final}`);
+
+	return final;
 }
 
 async function main() {
@@ -55,140 +86,50 @@ async function main() {
 		throw new Error("custom-enabled-guilds.json is empty");
 	}
 
-	logger.debug("Creating Discord client with no intents.");
-	global.client = new Client({ intents: [] });
-	client.config = config;
-
-	logger.debug("Initializing database.");
-	const { x, y, og } = await initializeDatabase(config.database);
-	client.db = og || x;
-	if (y) client.db2 = y;
-
-	logger.log(`Connecting bot for ${guilds.length} guilds...`);
-	await client.login(config.discord.token);
-	await new Promise<void>((resolve) => {
-		if (client.isReady()) return resolve();
-		client.once("ready", () => resolve());
-	});
-	logger.debug(`Bot logged in as ${client.user?.tag}`);
-
-	const defaultAvatarUrl = client.user?.avatarURL({
-		extension: "png",
-		size: 4096
-	});
-	logger.debug(`Default avatar URL: ${defaultAvatarUrl || "null"}`);
-	const defaultAvatarBase64 = defaultAvatarUrl
-		? Buffer.from(await (await fetch(defaultAvatarUrl)).arrayBuffer()).toString(
-			"base64"
-		)
-		: null;
-	logger.debug(
-		`Default avatar base64 loaded: ${defaultAvatarBase64 ? "yes" : "no"}`
-	);
-
-	const defaultBannerUrl =
-		client.user?.bannerURL({
-			extension: "png",
-			size: 4096
-		}) || null;
-	logger.debug(`Default banner URL: ${defaultBannerUrl || "null"}`);
-	const defaultBannerBase64 = defaultBannerUrl
-		? Buffer.from(await (await fetch(defaultBannerUrl)).arrayBuffer()).toString(
-			"base64"
-		)
-		: null;
-	logger.debug(
-		`Default banner base64 loaded: ${defaultBannerBase64 ? "yes" : "no"}`
-	);
-
-	const defaultBio = client.user?.username || "iHorizon";
-	const defaultName =
-		client.user?.displayName || client.user?.username || "iHorizon";
-	logger.debug(`Default name: ${defaultName}`);
-	logger.debug(`Default bio: ${defaultBio}`);
+	const totalShards = await getOptimalShardCount();
+	const perShard = new Map<number, CustomEnabledGuild[]>();
 
 	for (const entry of guilds) {
-		logger.debug(
-			`Processing guild ${entry.guildId} (${entry.guildName}) with ${entry.uses} custom uses.`
-		);
+		const shardId = getShardId(entry.guildId, totalShards);
+		logger.debug(`Guild ${entry.guildId} mapped to shard ${shardId}`);
 
-		const guild = await client.guilds.fetch(entry.guildId).catch((error) => {
-			logger.debug(`Failed to fetch guild ${entry.guildId}: ${String(error)}`);
-			return null;
-		});
-		if (!guild) {
-			logger.warn(`Guild ${entry.guildId} not found, skipping.`);
-			continue;
+		if (!perShard.has(shardId)) {
+			perShard.set(shardId, []);
 		}
-		logger.debug(`Fetched guild ${guild.id} (${guild.name})`);
-
-		if (!shouldApply) {
-			logger.log(
-				`[DRY-RUN] Would clear custom profile for ${entry.guildId} (${entry.guildName})`
-			);
-			logger.debug(`[DRY-RUN] Would delete DB key ${entry.guildId}.BOT.botName`);
-			logger.debug(`[DRY-RUN] Would delete DB key ${entry.guildId}.BOT.botPFP`);
-			logger.debug(`[DRY-RUN] Would reset name to: ${defaultName}`);
-			logger.debug(
-				`[DRY-RUN] Would reset avatar: ${defaultAvatarBase64 ? "yes" : "no"}`
-			);
-			logger.debug(
-				`[DRY-RUN] Would reset banner: ${defaultBannerBase64 ? "yes" : "no"}`
-			);
-			logger.debug(`[DRY-RUN] Would reset bio to: ${defaultBio}`);
-			continue;
-		}
-
-		logger.debug(`Deleting DB key ${entry.guildId}.BOT.botName`);
-		await client.db.delete(`${entry.guildId}.BOT.botName`);
-		logger.debug(`Deleting DB key ${entry.guildId}.BOT.botPFP`);
-		await client.db.delete(`${entry.guildId}.BOT.botPFP`);
-
-		logger.debug(`Resetting guild bot name for ${entry.guildId}`);
-		const nameReset = await customProfileHelper.changeGuildBotName(
-			guild,
-			defaultName
-		);
-		logger.debug(`Guild ${entry.guildId} name reset result: ${nameReset}`);
-
-		if (defaultAvatarBase64) {
-			logger.debug(`Resetting guild bot avatar for ${entry.guildId}`);
-			const avatarReset = await customProfileHelper.changeGuildBotAvatar(
-				guild,
-				`data:image/png;base64,${defaultAvatarBase64}`
-			);
-			logger.debug(`Guild ${entry.guildId} avatar reset result: ${avatarReset}`);
-		} else {
-			logger.warn(`No default avatar found for guild ${entry.guildId}`);
-		}
-
-		if (defaultBannerBase64) {
-			logger.debug(`Resetting guild bot banner for ${entry.guildId}`);
-			const bannerReset = await customProfileHelper.changeGuildBotBanner(
-				guild,
-				`data:image/png;base64,${defaultBannerBase64}`
-			);
-			logger.debug(`Guild ${entry.guildId} banner reset result: ${bannerReset}`);
-		} else {
-			logger.warn(`No default banner found for guild ${entry.guildId}`);
-		}
-
-		logger.debug(`Resetting guild bot bio for ${entry.guildId}`);
-		const bioReset = await customProfileHelper.changeGuildBotBio(
-			guild,
-			defaultBio
-		);
-		logger.debug(`Guild ${entry.guildId} bio reset result: ${bioReset}`);
-
-		logger.log(`Custom profile cleared for ${entry.guildId} (${entry.guildName})`);
+		perShard.get(shardId)!.push(entry);
 	}
 
-	logger.debug("Destroying Discord client.");
-	await client.destroy();
-	logger.log(`ResetCustomProfiles finished in ${mode} mode.`);
+	logger.log(`Spawning ${totalShards} shards for reset script.`);
+	const manager = new ShardingManager("./tools/ResetCustomProfilesShardWorker.ts", {
+		totalShards,
+		token,
+		respawn: false
+	});
+
+	manager.on("shardCreate", (shard) => {
+		logger.log(`Reset worker shard #${shard.id} spawning...`);
+		shard.on("ready", () => logger.log(`Reset worker shard #${shard.id} ready`));
+		shard.on("disconnect", () => logger.warn(`Reset worker shard #${shard.id} disconnected`));
+		shard.on("death", () => logger.warn(`Reset worker shard #${shard.id} died`));
+		shard.on("error", (error) => logger.err(`Reset worker shard #${shard.id} error: ${error.message}`));
+	});
+
+	const shards = await manager.spawn({
+		amount: totalShards,
+		delay: 5500,
+		timeout: 30_000
+	});
+
+	logger.debug(`Spawned ${shards.size} reset worker shards.`);
+
+	for (const shard of shards.values()) {
+		const shardGuilds = perShard.get(shard.id) || [];
+		logger.debug(`Sending ${shardGuilds.length} guilds to shard ${shard.id}`);
+		shard.send({ guilds: shardGuilds, shouldApply });
+	}
 }
 
 main().catch((error) => {
-	console.error(error);
+	logger.err(error);
 	process.exit(1);
 });
