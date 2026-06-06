@@ -69,3 +69,13 @@
 - Fixed the giveaway end command
 
 - Migrating the server backups and giveaways from files to production database
+
+# Bug fixes
+
+**__Avatar command__**
+
+- _Now, users where are not in the guild will show avatar, not fallback to the author of the command.__
+
+**__Clear command__**
+
+- _Clear command got fixed_
