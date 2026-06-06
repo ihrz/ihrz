@@ -33,6 +33,16 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
+export async function afterSent(
+	sent: Message,
+	interaction: ChatInputCommandInteraction<"cached"> | Message
+): Promise<void> {
+	if (sent.deletable) await sent.delete().catch(() => null);
+	if (interaction instanceof Message && interaction.deletable) {
+		await interaction.delete().catch(() => null);
+	}
+}
+
 export async function clearMessage(
 	body:
 		| Collection<Snowflake, Message>
@@ -41,33 +51,45 @@ export async function clearMessage(
 	interaction: ChatInputCommandInteraction<"cached"> | Message,
 	lang: LanguageData
 ): Promise<void> {
-	(interaction.channel as BaseGuildTextChannel)
-		.bulkDelete(body, true)
-		.then(async (messages) => {
-			client.func.method
-				.channelSend(interaction, {
-					content: lang.clear_confirmation_message.replace(
-						"${messages.size}",
-						messages.size.toString()
-					)
-				})
-				.then((x) => setTimeout(() => x.deletable ?? x.delete(), 5000));
+	try {
+		let filteredBody = body;
+		if (body instanceof Collection) {
+			const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
+			filteredBody = body.filter((m) => m.createdTimestamp > twoWeeksAgo);
+		}
 
-			await client.func.ihorizon_logs(interaction, {
-				title: lang.clear_logs_embed_title,
-				description: lang.clear_logs_embed_description
-					.replace(
-						"${interaction.user.id}",
-						interaction.member?.user.id!
-					)
-					.replace("${messages.size}", messages.size.toString())
-					.replace(
-						"${interaction.channel.id}",
-						interaction.channel?.id!
-					)
-			});
+		const messages = await (
+			interaction.channel as BaseGuildTextChannel
+		).bulkDelete(filteredBody, true);
+
+		const sent = await client.func.method.channelSend(interaction, {
+			content: lang.clear_confirmation_message.replace(
+				"${messages.size}",
+				messages.size.toString()
+			)
 		});
-	return;
+
+		setTimeout(() => afterSent(sent, interaction), 5000);
+
+		await client.func.ihorizon_logs(interaction, {
+			title: lang.clear_logs_embed_title,
+			description: lang.clear_logs_embed_description
+				.replace(
+					"${interaction.user.id}",
+					String(interaction.member?.user.id)
+				)
+				.replace("${messages.size}", messages.size.toString())
+				.replace(
+					"${interaction.channel.id}",
+					String(interaction.channel?.id)
+				)
+		});
+	} catch (error) {
+		console.error("[clear] bulkDelete failed:", error);
+		await client.func.method.interactionSend(interaction, {
+			content: `${error?.message}`
+		});
+	}
 }
 
 export const subCommand: SubCommand = {
@@ -86,13 +108,15 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var amount = interaction.options.getNumber("number")! + 1;
-			var member = interaction.options.getMember("member");
-		} else {
-			var amount = client.func.method.number(args!, 0) + 1;
-			var member = client.func.method.member(interaction, args!, 1);
-		}
+		const amount =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getNumber("number", true) + 1
+				: client.func.method.number(args!, 0) + 1;
+
+		const member =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getMember("member")
+				: client.func.method.member(interaction, args!, 1);
 
 		const channel = interaction.channel as BaseGuildTextChannel;
 
