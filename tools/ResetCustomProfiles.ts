@@ -189,6 +189,6 @@ async function main() {
 }
 
 main().catch((error) => {
-	logger.err(error);
+	console.error(error);
 	process.exit(1);
 });
