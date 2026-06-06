@@ -43,27 +43,13 @@ const inputPath = path.join(
 );
 const shouldApply = process.argv.includes("--apply");
 const mode = shouldApply ? "apply" : "dry-run";
-const shardId = Number(process.env.SHARD_ID ?? 0);
-const totalShards = Number(process.env.TOTAL_SHARDS ?? 1);
-const raw = await readFile(inputPath, "utf-8");
-const guilds = (JSON.parse(raw) as CustomEnabledGuild[]).filter((entry) => {
-	try {
-		return Number((BigInt(entry.guildId) >> 22n) % BigInt(totalShards)) === shardId;
-	} catch {
-		return false;
-	}
-});
-
-logger.log(
-	`Shard worker #${process.env.SHARD_ID ?? "X"} started in ${mode} mode with ${guilds.length} guilds.`
-);
 
 global.client = new Client({ intents: [] });
 client.config = config;
 client.version = ClientVersion;
 client.inShard = function (guildId: string): boolean {
-	const shardId = client.shard?.ids?.[0] ?? Number(process.env.SHARD_ID ?? 0);
-	const totalShards = client.options.shardCount ?? Number(process.env.TOTAL_SHARDS ?? 1);
+	const shardId = client.shard?.ids?.[0] ?? 0;
+	const totalShards = client.options.shardCount ?? 1;
 	let guildShard: number | null = null;
 
 	try {
@@ -75,7 +61,7 @@ client.inShard = function (guildId: string): boolean {
 	return guildShard === shardId;
 };
 client.isMainShard = function (): boolean {
-	return (client.shard?.ids?.[0] ?? Number(process.env.SHARD_ID ?? 0)) === 0;
+	return client.shard?.ids[0] === 0;
 };
 
 const { x, y } = await initializeDatabase(config.database);
@@ -85,9 +71,23 @@ if (y) client.db2 = y;
 await client.login(client.config.discord.token);
 await new Promise<void>((resolve) => {
 	if (client.isReady()) return resolve();
-	client.once("ready", () => resolve());
+	client.once("clientReady", () => resolve());
 });
 
+const shardId = client.shard?.ids?.[0] ?? 0;
+const totalShards = client.options.shardCount ?? 1;
+const raw = await readFile(inputPath, "utf-8");
+const guilds = (JSON.parse(raw) as CustomEnabledGuild[]).filter((entry) => {
+	try {
+		return Number((BigInt(entry.guildId) >> 22n) % BigInt(totalShards)) === shardId;
+	} catch {
+		return false;
+	}
+});
+
+logger.log(
+	`Shard worker #${shardId} started in ${mode} mode with ${guilds.length} guilds.`
+);
 logger.debug(`Shard worker logged in as ${client.user?.tag}`);
 
 const defaultAvatarUrl = client.user?.avatarURL({
@@ -126,7 +126,7 @@ logger.debug(`Default bio: ${defaultBio}`);
 
 for (const entry of guilds) {
 	logger.debug(
-		`Processing guild ${entry.guildId} (${entry.guildName}) with ${entry.uses} custom uses on shard ${process.env.SHARD_ID ?? "X"}.`
+		`Processing guild ${entry.guildId} (${entry.guildName}) with ${entry.uses} custom uses on shard ${shardId}.`
 	);
 
 	const guild = await client.guilds.fetch(entry.guildId).catch((error) => {
@@ -202,5 +202,5 @@ for (const entry of guilds) {
 
 logger.debug("Destroying shard worker client.");
 await client.destroy();
-logger.log(`Shard worker #${process.env.SHARD_ID ?? "X"} finished in ${mode} mode.`);
+logger.log(`Shard worker #${shardId} finished in ${mode} mode.`);
 process.exit(0);

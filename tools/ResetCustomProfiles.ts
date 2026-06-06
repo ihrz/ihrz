@@ -115,7 +115,9 @@ async function main() {
 		logger.log(`Reset worker shard #${shard.id} spawning...`);
 		shard.on("ready", () => logger.log(`Reset worker shard #${shard.id} ready`));
 		shard.on("disconnect", () => logger.warn(`Reset worker shard #${shard.id} disconnected`));
-		shard.on("death", () => logger.warn(`Reset worker shard #${shard.id} died`));
+		shard.on("death", () => {
+			logger.log(`Reset worker shard #${shard.id} exited`);
+		});
 		shard.on("error", (error) => logger.err(`Reset worker shard #${shard.id} error: ${error.message}`));
 	});
 
