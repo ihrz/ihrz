@@ -79,3 +79,7 @@
 **__Clear command__**
 
 - _Clear command got fixed_
+
+# New features
+
+- Anti-Binary, avoid user to sending binaries into your discord server (zip, exe, apk, msi, etc)
