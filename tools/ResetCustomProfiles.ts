@@ -60,8 +60,8 @@ async function main() {
 	client.config = config;
 
 	logger.debug("Initializing database.");
-	const { x, y } = await initializeDatabase(config.database);
-	client.db = x;
+	const { x, y, og } = await initializeDatabase(config.database);
+	client.db = og || x;
 	if (y) client.db2 = y;
 
 	logger.log(`Connecting bot for ${guilds.length} guilds...`);
