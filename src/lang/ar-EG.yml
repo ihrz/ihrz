@@ -626,6 +626,9 @@ custom_desc_reset: "لقد قررت إعادة تعيين وصف البوت عل
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير وصف البوت على الخادم. تم الآن تعديل تذييلات الرسائل المضمنة، بالإضافة إلى وصف البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${desc}`"
 custom_banner_reset: "لقد قررت إعادة تعيين لافتة البوت على الخادم."
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير لافتة البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${x}`"
+custom_sdk_only: "هذا الأمر متاح في بيئة الإنتاج فقط للخوادم التي لديها اشتراك `Custom iHorizon Profile`."
+custom_sdk_only_title: "ادعم iHorizon عبر Custom iHorizon Profile"
+custom_sdk_only_description: "البوت الخاص بنا مجاني ومفتوح المصدر منذ 2022. نحن بحاجة إلى دخل لمواصلة تشغيل البوت وتطويره واستضافته. تكاليف التشغيل لدينا تقارب 500 يورو سنوياً بين الخوادم والـ boosts والنطاقات والتراخيص.\n\nأمر `/custom` يتيح لك تغيير هوية iHorizon داخل خادمك عبر تعديل الصورة الرمزية والاسم والبنر والنبذة. عند استخدامه، تختفي الهوية البصرية لـ iHorizon من خادمك.\n\nلذلك أضفنا اشتراكاً مدمجاً في Discord بسعر 2.99 دولار أمريكي شهرياً.\n\nعند شراء هذا الاشتراك، ستتمكن من استخدام هذا الأمر. اعتبره بوتاً مخصصاً بأسلوب OWN-IHRZ، لكن بشكل مستقر ونظيف وعملي بالكامل."
 
 # أوامر المرح
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap

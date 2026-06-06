@@ -626,6 +626,9 @@ custom_desc_reset: "You have decided to reset the bot's description on the serve
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's description on the server. Embed footers are now modified, as well as the bot's description on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${desc}`"
 custom_banner_reset: "You have decided to reset the bot's banner on the server."
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's banner on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${x}`"
+custom_sdk_only: "This command is only available on production for servers with the `Custom iHorizon Profile` subscription."
+custom_sdk_only_title: "Support iHorizon with Custom iHorizon Profile"
+custom_sdk_only_description: "Our bot has been free and open source since 2022. We need revenue to keep running, developing, and hosting the bot. Our operating costs are around 500 EUR per year for servers, boosts, domains, and licenses.\n\nThe `/custom` command lets you change iHorizon’s identity on your server by editing the avatar, name, banner, and bio. By using it, iHorizon’s visual identity disappears from your server.\n\nWe therefore added a Discord-integrated subscription priced at 2.99 USD per month.\n\nBy purchasing this subscription, you will be able to use this command. Think of it as a custom bot, an OWN-IHRZ-like setup, but stable, clean, and fully functional."
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap

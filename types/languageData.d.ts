@@ -537,6 +537,9 @@ export interface LanguageData {
 	custom_desc_set: string;
 	custom_banner_reset: string;
 	custom_banner_set: string;
+	custom_sdk_only: string;
+	custom_sdk_only_title: string;
+	custom_sdk_only_description: string;
 	fun_var_down_api: string;
 	fun_var_good_sentence: string;
 	cats_embed_title: string;
