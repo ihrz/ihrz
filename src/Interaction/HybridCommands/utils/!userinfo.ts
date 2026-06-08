@@ -241,6 +241,8 @@ export const subCommand: SubCommand = {
 			return badges.values().toArray().join("");
 		}
 
+		var banner: string | null = null;
+
 		function getSelfBadges(flags: number): string {
 			const badgeValues = Object.values(botBadges);
 			return badgeValues
@@ -282,7 +284,7 @@ export const subCommand: SubCommand = {
 				)
 			).data;
 
-			const banner = user_1.banner;
+			banner = user_1.banner;
 
 			if (banner !== null && banner?.substring(0, 2) === "a_") {
 				format = "gif";
@@ -354,11 +356,11 @@ export const subCommand: SubCommand = {
 								"http"
 							)
 								? `[${lang.userinfo_var_notfound}](${createOauth2LinkWithoutGuild(
-										{
-											clientId: client.user?.id,
-											scope: "identify"
-										}
-									)})`
+									{
+										clientId: client.user?.id,
+										scope: "identify"
+									}
+								)})`
 								: lang.userinfo_var_notfound),
 						inline: true
 					},
@@ -435,6 +437,16 @@ export const subCommand: SubCommand = {
 						}
 					);
 					var input = result.data.premium_type;
+				}
+
+				if (!input) {
+					if (member.avatar?.includes("a_")) {
+						input = 1;
+					} else if (banner) {
+						input = 2;
+					} else {
+						input = 3;
+					}
 				}
 
 				switch (input) {
