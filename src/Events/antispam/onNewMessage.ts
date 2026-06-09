@@ -46,6 +46,22 @@ export const cache: AntiSpam.AntiSpamCache = {
 };
 
 const timeouts = new Map<string, ReturnType<typeof setTimeout>>();
+const ANTISPAM_MESSAGE_TTL = 1000 * 60 * 60 * 8;
+
+function purgeOldGuildMessages(guildId: string, now = Date.now()): void {
+	const guildMessages = cache.messages.get(guildId);
+	if (!guildMessages) return;
+
+	for (const cachedMessage of guildMessages) {
+		if (now - cachedMessage.sentTimestamp > ANTISPAM_MESSAGE_TTL) {
+			guildMessages.delete(cachedMessage);
+		}
+	}
+
+	if (guildMessages.size === 0) {
+		cache.messages.delete(guildId);
+	}
+}
 
 async function waitForFinish(guildId: string): Promise<void> {
 	return new Promise((resolve) => {
@@ -193,7 +209,7 @@ async function clearSpamMessages(
 									}
 								});
 							});
-						} catch {}
+						} catch { }
 					}
 				}
 				return true;
@@ -203,7 +219,7 @@ async function clearSpamMessages(
 				delay: 100 // 100ms delay between batches
 			}
 		);
-	} catch {}
+	} catch { }
 }
 
 async function PunishUsers(
@@ -226,7 +242,7 @@ async function PunishUsers(
 							PermissionFlagsBits.ModerateMembers
 						) &&
 						member.guild.members.me.roles.highest.position >
-							member.roles.highest.position &&
+						member.roles.highest.position &&
 						member.id !== member.guild.ownerId;
 
 					if (userCanBeMuted) {
@@ -238,7 +254,7 @@ async function PunishUsers(
 								"Antispam Punishment",
 								lang
 							)
-							.catch(() => {});
+							.catch(() => { });
 					}
 					break;
 				case "ban":
@@ -247,14 +263,14 @@ async function PunishUsers(
 							PermissionFlagsBits.BanMembers
 						) &&
 						member.guild.members.me.roles.highest.position >
-							member.roles.highest.position &&
+						member.roles.highest.position &&
 						member.id !== member.guild.ownerId &&
 						member.bannable;
 
 					if (userCanBeBanned) {
 						await member
 							.ban({ reason: "Spamming!" })
-							.catch(() => {});
+							.catch(() => { });
 					}
 					break;
 				case "kick":
@@ -263,12 +279,12 @@ async function PunishUsers(
 							PermissionFlagsBits.KickMembers
 						) &&
 						member.guild.members.me.roles.highest.position >
-							member.roles.highest.position &&
+						member.roles.highest.position &&
 						member.id !== member.guild.ownerId &&
 						member.kickable;
 
 					if (userCanBeKicked) {
-						await member.kick("Spamming!").catch(() => {});
+						await member.kick("Spamming!").catch(() => { });
 					}
 					break;
 			}
@@ -365,6 +381,7 @@ export const event: BotEvent = {
 
 		// Load cache message
 		const guildCacheMessages = cache.messages.get(message.guild.id)!;
+		purgeOldGuildMessages(message.guild.id, currentMessage.sentTimestamp);
 		const previousMessages = Array.from(guildCacheMessages);
 
 		// Add current message in cache

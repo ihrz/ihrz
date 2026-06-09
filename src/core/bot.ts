@@ -19,7 +19,12 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Partials, GatewayIntentBits } from "discord.js";
+import {
+	Client,
+	Partials,
+	GatewayIntentBits,
+	Options
+} from "discord.js";
 import { initializeDatabase } from "./database";
 
 import * as ClientVersion from "../version.js";
@@ -29,7 +34,36 @@ import config from "../files/config.js";
 import { setMaxListeners } from "events";
 setMaxListeners(0);
 
+const DISCORD_MESSAGE_SWEEP_LIFETIME_SECONDS = 60 * 60 * 8;
+const DISCORD_MESSAGE_SWEEP_INTERVAL_SECONDS = 60 * 15;
+
 global.client = new Client({
+	makeCache: Options.cacheWithLimits({
+		MessageManager: 100,
+		PresenceManager: 50
+	}),
+	sweepers: {
+		messages: {
+			interval: DISCORD_MESSAGE_SWEEP_INTERVAL_SECONDS,
+			lifetime: DISCORD_MESSAGE_SWEEP_LIFETIME_SECONDS
+		},
+		users: {
+			interval: 60 * 30,
+			filter: () => (user) => !user.bot
+		},
+		guildMembers: {
+			interval: 60 * 30,
+			filter: () => (member) => !member.user.bot
+		},
+		presences: {
+			interval: 60 * 15,
+			filter: () => () => true
+		},
+		threads: {
+			interval: 60 * 30,
+			lifetime: 60 * 60
+		}
+	},
 	intents: [
 		GatewayIntentBits.AutoModerationConfiguration,
 		GatewayIntentBits.AutoModerationExecution,
