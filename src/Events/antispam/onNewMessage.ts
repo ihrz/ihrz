@@ -50,16 +50,50 @@ const ANTISPAM_MESSAGE_TTL = 1000 * 60 * 60 * 8;
 
 function purgeOldGuildMessages(guildId: string, now = Date.now()): void {
 	const guildMessages = cache.messages.get(guildId);
-	if (!guildMessages) return;
+	const guildMemberFlags = cache.membersFlags.get(guildId);
+	const guildRaidInfo = cache.raidInfo.get(guildId);
 
-	for (const cachedMessage of guildMessages) {
-		if (now - cachedMessage.sentTimestamp > ANTISPAM_MESSAGE_TTL) {
-			guildMessages.delete(cachedMessage);
+	if (guildMessages) {
+		for (const cachedMessage of guildMessages) {
+			if (now - cachedMessage.sentTimestamp > ANTISPAM_MESSAGE_TTL) {
+				guildMessages.delete(cachedMessage);
+			}
+		}
+
+		if (guildMessages.size === 0) {
+			cache.messages.delete(guildId);
 		}
 	}
 
-	if (guildMessages.size === 0) {
-		cache.messages.delete(guildId);
+	const activeAuthors = new Set(
+		(guildMessages ? Array.from(guildMessages) : []).map(
+			(cachedMessage) => cachedMessage.authorID
+		)
+	);
+
+	if (guildMemberFlags) {
+		for (const userId of guildMemberFlags.keys()) {
+			if (!activeAuthors.has(userId)) {
+				guildMemberFlags.delete(userId);
+			}
+		}
+
+		if (guildMemberFlags.size === 0) {
+			cache.membersFlags.delete(guildId);
+		}
+	}
+
+	if (guildRaidInfo) {
+		for (const key of guildRaidInfo.keys()) {
+			const userId = key.split(".")[0];
+			if (!activeAuthors.has(userId)) {
+				guildRaidInfo.delete(key);
+			}
+		}
+
+		if (guildRaidInfo.size === 0) {
+			cache.raidInfo.delete(guildId);
+		}
 	}
 }
 
