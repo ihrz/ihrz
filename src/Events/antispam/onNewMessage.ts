@@ -218,7 +218,7 @@ async function clearSpamMessages(
 									}
 								});
 							});
-						} catch {}
+						} catch { }
 					}
 				}
 				return true;
@@ -228,7 +228,7 @@ async function clearSpamMessages(
 				delay: 100
 			}
 		);
-	} catch {}
+	} catch { }
 }
 
 async function PunishUsers(
@@ -251,7 +251,7 @@ async function PunishUsers(
 							PermissionFlagsBits.ModerateMembers
 						) &&
 						member.guild.members.me.roles.highest.position >
-							member.roles.highest.position &&
+						member.roles.highest.position &&
 						member.id !== member.guild.ownerId;
 
 					if (userCanBeMuted) {
@@ -263,7 +263,7 @@ async function PunishUsers(
 								"Antispam Punishment",
 								lang
 							)
-							.catch(() => {});
+							.catch(() => { });
 					}
 					break;
 				case "ban":
@@ -272,14 +272,14 @@ async function PunishUsers(
 							PermissionFlagsBits.BanMembers
 						) &&
 						member.guild.members.me.roles.highest.position >
-							member.roles.highest.position &&
+						member.roles.highest.position &&
 						member.id !== member.guild.ownerId &&
 						member.bannable;
 
 					if (userCanBeBanned) {
 						await member
 							.ban({ reason: "Spamming!" })
-							.catch(() => {});
+							.catch(() => { });
 					}
 					break;
 				case "kick":
@@ -288,12 +288,12 @@ async function PunishUsers(
 							PermissionFlagsBits.KickMembers
 						) &&
 						member.guild.members.me.roles.highest.position >
-							member.roles.highest.position &&
+						member.roles.highest.position &&
 						member.id !== member.guild.ownerId &&
 						member.kickable;
 
 					if (userCanBeKicked) {
-						await member.kick("Spamming!").catch(() => {});
+						await member.kick("Spamming!").catch(() => { });
 					}
 					break;
 			}
@@ -392,7 +392,11 @@ export const event: BotEvent = {
 		const now = Date.now();
 		purgeOldGuildMessages(message.guild.id, now);
 
-		const guildCacheMessages = cache.messages.get(message.guild.id)!;
+		let guildCacheMessages = cache.messages.get(message.guild.id);
+		if (!guildCacheMessages) {
+			guildCacheMessages = new Set();
+			cache.messages.set(message.guild.id, guildCacheMessages);
+		}
 		const previousMessages = Array.from(guildCacheMessages);
 
 		// Add current message in cache
