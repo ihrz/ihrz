@@ -35,6 +35,8 @@ export const event: BotEvent = {
 		oldMember: GuildMember,
 		newMember: GuildMember
 	) => {
+		if (oldMember.premiumSince === newMember.premiumSince) return;
+
 		const data = await client.func.getLanguageData(newMember.guild.id);
 
 		if (!newMember.guild.roles.premiumSubscriberRole) return;
@@ -70,7 +72,7 @@ export const event: BotEvent = {
 
 			(Msgchannel as BaseGuildTextChannel)
 				.send({ embeds: [embed] })
-				.catch(() => {});
+				.catch(() => { });
 			return;
 		}
 		if (oldMember.premiumSince && !newMember.premiumSince) {
@@ -85,7 +87,7 @@ export const event: BotEvent = {
 
 			(Msgchannel as BaseGuildTextChannel)
 				.send({ embeds: [embed] })
-				.catch(() => {});
+				.catch(() => { });
 			return;
 		}
 	}
