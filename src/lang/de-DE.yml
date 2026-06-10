@@ -2432,7 +2432,7 @@ tempvoice_staff_desc_embed: "## TempVoice-Personalrolle\nRollen hier können jet
 
 # /confession channel
 confession_channel_command_work: "Das Bekenntnispanel wurde an ${channel?.toString()} gesendet"
-confession_channel_panel_embed_desc: "# **Anonyme Geständnisse**\n\nKlicken Sie auf die Schaltfläche unten, um das Bekenntnisformular zu öffnen. Sie können schreiben, was Sie gestehen müssen. Wenn Sie möchten, können Sie wählen, Ihr Geständnis privat zu machen.\n\n## **Ein Geständnis machen**\n\n*Hinweis: Um Ihr Geständnis privat zu machen, schreiben Sie die entsprechende Option in das Formular.*"
+confession_channel_panel_embed_desc: "# **Anonyme Geständnisse**\n\nKlicken Sie auf die Schaltfläche unten, um das Bekenntnisformular zu öffnen. Sie können schreiben, was Sie gestehen müssen. Wenn Sie möchten, können Sie wählen, Ihr Geständnis privat zu machen.\nBeachten Sie, dass Geständnisse möglicherweise nicht anonym bleiben — Serverbesitzer oder jeder mit Zugriff auf Geständnisprotokolle kann Benutzer identifizieren, wenn das Logging aktiviert ist.\n\n## **Ein Geständnis machen**\n\n*Hinweis: Um Ihr Geständnis privat zu machen, schreiben Sie die entsprechende Option in das Formular.*"
 confession_channel_log_embed_title: "SetChannel Bekenntnismodul"
 confession_channel_log_embed_desc: "${interaction.user} hat den Kanal auf ${channel} gesetzt"
 

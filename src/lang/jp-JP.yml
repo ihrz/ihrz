@@ -2432,7 +2432,7 @@ tempvoice_staff_desc_embed: "## TempVoiceスタッフロール\nここにある�
 
 # /confession channel
 confession_channel_command_work: "告白パネルが${channel?.toString()}に送信されました"
-confession_channel_panel_embed_desc: "# **匿名の告白**\n\n下のボタンをクリックして告白フォームを開いてください。告白したい内容を書くことができます。希望する場合は、告白を非公開にすることも選択できます。\n\n## **告白をする**\n\n*注: 告白を非公開にするには、フォームに対応するオプションを記入してください。*"
+confession_channel_panel_embed_desc: "# **匿名の告白**\n\n下のボタンをクリックして告白フォームを開いてください。告白したい内容を書くことができます。希望する場合は、告白を非公開にすることも選択できます。\n告白は匿名のままでない場合があることに注意してください — ログへのアクセス権を持つサーバーオーナーやその他のユーザーが、ログが有効になっている場合にユーザーを特定できる可能性があります。\n\n## **告白をする**\n\n*注: 告白を非公開にするには、フォームに対応するオプションを記入してください。*"
 confession_channel_log_embed_title: "SetChannel 告白モジュール"
 confession_channel_log_embed_desc: "${interaction.user}がチャンネルを${channel}に設定しました"
 

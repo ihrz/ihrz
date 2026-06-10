@@ -2432,7 +2432,7 @@ tempvoice_staff_desc_embed: "## Função da Equipa TempVoice\nOs cargos aqui ago
 
 # /confession channel
 confession_channel_command_work: "O painel de confissões foi enviado para ${channel?.toString()}"
-confession_channel_panel_embed_desc: "# **Confissões Anônimas**\n\nClique no botão abaixo para abrir o formulário de confissão. Você pode escrever o que precisa confessar. Se desejar, pode optar por tornar sua confissão privada.\n\n## **Faça uma Confissão**\n\n*Nota: Para tornar sua confissão privada, escreva a opção correspondente no formulário.*"
+confession_channel_panel_embed_desc: "# **Confissões Anônimas**\n\nClique no botão abaixo para abrir o formulário de confissão. Você pode escrever o que precisa confessar. Se desejar, pode optar por tornar sua confissão privada.\nTenha em mente que as confissões podem não permanecer anônimas — os proprietários do servidor ou qualquer pessoa com acesso aos registos de confissões podem identificar os utilizadores se o registo estiver ativado.\n\n## **Faça uma Confissão**\n\n*Nota: Para tornar sua confissão privada, escreva a opção correspondente no formulário.*"
 confession_channel_log_embed_title: "Configurar Canal do Módulo de Confissão"
 confession_channel_log_embed_desc: "${interaction.user} configurou o canal para ${channel}"
 
