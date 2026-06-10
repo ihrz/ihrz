@@ -50,50 +50,16 @@ const ANTISPAM_MESSAGE_TTL = 1000 * 60 * 60 * 8;
 
 function purgeOldGuildMessages(guildId: string, now = Date.now()): void {
 	const guildMessages = cache.messages.get(guildId);
-	const guildMemberFlags = cache.membersFlags.get(guildId);
-	const guildRaidInfo = cache.raidInfo.get(guildId);
+	if (!guildMessages) return;
 
-	if (guildMessages) {
-		for (const cachedMessage of guildMessages) {
-			if (now - cachedMessage.sentTimestamp > ANTISPAM_MESSAGE_TTL) {
-				guildMessages.delete(cachedMessage);
-			}
-		}
-
-		if (guildMessages.size === 0) {
-			cache.messages.delete(guildId);
+	for (const cachedMessage of guildMessages) {
+		if (now - cachedMessage.sentTimestamp > ANTISPAM_MESSAGE_TTL) {
+			guildMessages.delete(cachedMessage);
 		}
 	}
 
-	const activeAuthors = new Set(
-		(guildMessages ? Array.from(guildMessages) : []).map(
-			(cachedMessage) => cachedMessage.authorID
-		)
-	);
-
-	if (guildMemberFlags) {
-		for (const userId of guildMemberFlags.keys()) {
-			if (!activeAuthors.has(userId)) {
-				guildMemberFlags.delete(userId);
-			}
-		}
-
-		if (guildMemberFlags.size === 0) {
-			cache.membersFlags.delete(guildId);
-		}
-	}
-
-	if (guildRaidInfo) {
-		for (const key of guildRaidInfo.keys()) {
-			const userId = key.split(".")[0];
-			if (!activeAuthors.has(userId)) {
-				guildRaidInfo.delete(key);
-			}
-		}
-
-		if (guildRaidInfo.size === 0) {
-			cache.raidInfo.delete(guildId);
-		}
+	if (guildMessages.size === 0) {
+		cache.messages.delete(guildId);
 	}
 }
 
@@ -243,7 +209,7 @@ async function clearSpamMessages(
 									}
 								});
 							});
-						} catch { }
+						} catch {}
 					}
 				}
 				return true;
@@ -253,7 +219,7 @@ async function clearSpamMessages(
 				delay: 100 // 100ms delay between batches
 			}
 		);
-	} catch { }
+	} catch {}
 }
 
 async function PunishUsers(
@@ -276,7 +242,7 @@ async function PunishUsers(
 							PermissionFlagsBits.ModerateMembers
 						) &&
 						member.guild.members.me.roles.highest.position >
-						member.roles.highest.position &&
+							member.roles.highest.position &&
 						member.id !== member.guild.ownerId;
 
 					if (userCanBeMuted) {
@@ -288,7 +254,7 @@ async function PunishUsers(
 								"Antispam Punishment",
 								lang
 							)
-							.catch(() => { });
+							.catch(() => {});
 					}
 					break;
 				case "ban":
@@ -297,14 +263,14 @@ async function PunishUsers(
 							PermissionFlagsBits.BanMembers
 						) &&
 						member.guild.members.me.roles.highest.position >
-						member.roles.highest.position &&
+							member.roles.highest.position &&
 						member.id !== member.guild.ownerId &&
 						member.bannable;
 
 					if (userCanBeBanned) {
 						await member
 							.ban({ reason: "Spamming!" })
-							.catch(() => { });
+							.catch(() => {});
 					}
 					break;
 				case "kick":
@@ -313,12 +279,12 @@ async function PunishUsers(
 							PermissionFlagsBits.KickMembers
 						) &&
 						member.guild.members.me.roles.highest.position >
-						member.roles.highest.position &&
+							member.roles.highest.position &&
 						member.id !== member.guild.ownerId &&
 						member.kickable;
 
 					if (userCanBeKicked) {
-						await member.kick("Spamming!").catch(() => { });
+						await member.kick("Spamming!").catch(() => {});
 					}
 					break;
 			}
