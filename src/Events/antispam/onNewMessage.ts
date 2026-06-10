@@ -159,17 +159,26 @@ async function sendWarningMessage(
 
 async function clearSpamMessages(
 	message: Message,
-	messages: Set<AntiSpam.CachedMessage>
+	messages: Set<AntiSpam.CachedMessage>,
+	membersToPunish: Set<GuildMember>
 ): Promise<void> {
 	try {
 		const CHUNK_SIZE = 15;
+
+		const punishedIds = new Set(
+			[...membersToPunish].filter((m) => m != null).map((m) => m.id)
+		);
+
 		const messagesByChannel: Collection<
 			Snowflake,
 			Collection<string, Snowflake>
 		> = new Collection();
 
 		messages.forEach((cachedMessage) => {
-			if (cachedMessage.isSpam) {
+			if (
+				cachedMessage.isSpam ||
+				punishedIds.has(cachedMessage.authorID)
+			) {
 				const channelMessages =
 					messagesByChannel.get(cachedMessage.channelID) ||
 					new Collection<string, Snowflake>();
@@ -215,8 +224,8 @@ async function clearSpamMessages(
 				return true;
 			},
 			{
-				batchSize: 3, // Process 3 channels at a time
-				delay: 100 // 100ms delay between batches
+				batchSize: 3,
+				delay: 100
 			}
 		);
 	} catch {}
@@ -292,8 +301,8 @@ async function PunishUsers(
 			return true;
 		},
 		{
-			batchSize: 5, // Process 5 members at a time
-			delay: 200 // 200ms delay between batches to respect rate limits
+			batchSize: 5,
+			delay: 200
 		}
 	);
 }
@@ -380,8 +389,10 @@ export const event: BotEvent = {
 		}
 
 		// Load cache message
+		const now = Date.now();
+		purgeOldGuildMessages(message.guild.id, now);
+
 		const guildCacheMessages = cache.messages.get(message.guild.id)!;
-		purgeOldGuildMessages(message.guild.id, currentMessage.sentTimestamp);
 		const previousMessages = Array.from(guildCacheMessages);
 
 		// Add current message in cache
@@ -393,7 +404,8 @@ export const event: BotEvent = {
 
 		const lastMessage = previousMessages
 			.filter((x) => x.authorID === message.author.id)
-			.slice(-1)[0];
+			.sort((a, b) => b.sentTimestamp - a.sentTimestamp)[0];
+
 		const elapsedTime = lastMessage
 			? currentMessage.sentTimestamp - lastMessage.sentTimestamp
 			: options.maxInterval - 100;
@@ -440,9 +452,6 @@ export const event: BotEvent = {
 					`${message.author.id}.timeout`,
 					currentTime + 5000
 				);
-			}
-
-			if (timeout < currentTime) {
 				await waitForFinish(message.guildId!);
 				await PunishUsers(
 					message.guild.id,
@@ -452,7 +461,8 @@ export const event: BotEvent = {
 				);
 				await clearSpamMessages(
 					message,
-					cache.messages.get(message.guild.id)!
+					cache.messages.get(message.guild.id)!,
+					membersToPunish!
 				);
 				await sendWarningMessage(
 					lang,
