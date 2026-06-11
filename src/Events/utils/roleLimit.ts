@@ -45,6 +45,8 @@ export const event: BotEvent = {
 		oldMember: GuildMember,
 		newMember: GuildMember
 	) => {
+		if (oldMember.roles.cache.equals(newMember.roles.cache)) return;
+
 		try {
 			// Get the latest audit log entry for this member role update
 			const relevantLog = await getLogs({
