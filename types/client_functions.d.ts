@@ -80,10 +80,21 @@ import { Sqlite } from "../src/core/database/driver/sqlite.ts";
 import { Json } from "../src/core/database/driver/json.ts";
 import { Memory } from "../src/core/database/driver/memory.ts";
 import { Postgres } from "../src/core/database/driver/postgres.ts";
-import { Horizon } from "../src/core/database/driver/horizon.ts";
 import { TrackEmbbeded } from "../src/core/functions/music_proximity.ts";
-import { LyricsResult, SearchResult, Track } from "lavalink-client";
+import {
+	LavalinkNode,
+	LyricsResult,
+	SearchResult,
+	Track
+} from "lavalink-client";
 import { components } from "../src/core/functions/method.ts";
+import { Player } from "lavalink-client";
+import { HandleMusicPlayOptions, SearchMusicQueryResult } from "./musicPlay";
+import {
+	Html2PngOptions,
+	Html2PngRequestMessage,
+	Html2PngResponseMessage
+} from "../src/core/functions/html2pngProtocol.ts";
 
 declare namespace Client_Functions {
 	// From date_and_time.ts
@@ -397,14 +408,14 @@ declare namespace Client_Functions {
 		): boolean;
 	}
 
+	// From sanitizeInteractionOptionValue.ts
+	export function sanitizeInteractionOptionValue(
+		optionName: string,
+		optionValue: unknown
+	): string;
+
 	// From wait.ts
 	export function wait(milliseconds: number): Promise<void>;
-
-	// From apiUrlParser.ts
-	export namespace apiUrlParser {
-		export function assetsFinder(body: Assets, type: string): string;
-		export function HorizonGateway(gateway_method: GatewayMethod): string;
-	}
 
 	// From html2png.ts
 	export function html2png(

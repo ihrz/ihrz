@@ -28,7 +28,8 @@ import {
 	GuildFeature,
 	User,
 	BaseGuildTextChannel,
-	Vanity
+	Vanity,
+	PresenceStatusData
 } from "discord.js";
 import { PfpsManager_Init } from "../../core/modules/pfpsManager.js";
 import { format } from "../../core/functions/date_and_time.js";
@@ -179,16 +180,30 @@ export const event: BotEvent = {
 		}
 
 		async function quotesPresence() {
-			return;
-			// client.user?.setPresence({
-			// 	activities: [
-			// 		{
-			// 			name: `Shards #${client.shard?.ids[0]} | ${(await getShardStats(client)).guilds.toString()} Servers | www.ihorizon.org`,
-			// 			type: ActivityType.Playing
-			// 		}
-			// 	],
-			// 	shardId: client.shard?.ids[0]
-			// });
+			let e = await client.db.get(`BOT.PRESENCE`);
+
+			if (e) {
+				client.user?.setPresence({
+					status: e.status as PresenceStatusData,
+					activities: [
+						{
+							type: e.type || ActivityType.Custom,
+							name:
+								e.name || "Custom this Presence with /presence",
+							url: `https://www.twitch.tv/${e.twitch_username}`
+						}
+					]
+				});
+			} else {
+				client.user?.setPresence({
+					activities: [
+						{
+							name: "Custom this Presence with /presence",
+							type: ActivityType.Custom
+						}
+					]
+				});
+			}
 		}
 
 		async function refreshSchedule() {
