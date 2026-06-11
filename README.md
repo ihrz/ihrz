@@ -25,6 +25,8 @@
 
 ---
 
+<div align="left">
+
 ## ✨ Key Features
 
 ### 🛡️ **Moderation & Security**

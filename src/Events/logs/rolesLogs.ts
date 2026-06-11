@@ -42,6 +42,8 @@ export const event: BotEvent = {
 		oldMember: GuildMember,
 		newMember: GuildMember
 	) => {
+		if (oldMember.roles.cache.equals(newMember.roles.cache)) return;
+
 		const data = await client.func.getLanguageData(newMember.guild.id);
 
 		if (

@@ -19,14 +19,48 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client } from "discord.js";
-import { Logger } from "./logger";
-import { getOS as GET_OS } from "../src/core/getOS.ts";
+import os from "node:os";
 
-declare global {
-	var client: Client;
-	var logger: Logger;
-	var getOS: typeof GET_OS;
+export interface OS {
+	emojis: string;
+	name: string;
 }
 
-export {};
+export function getOS(): OS | null {
+	const emojis = client.iHorizon_Emojis;
+
+	switch (process.platform) {
+		case "linux":
+			return {
+				emojis: emojis.Tux,
+				name: "Linux"
+			};
+
+		case "darwin":
+			return {
+				emojis: emojis.Finder,
+				name: "macOS"
+			};
+
+		case "win32": {
+			const release = os.release();
+
+			if (release.startsWith("10.0.")) {
+				const build = Number(release.split(".")[2]);
+
+				return {
+					emojis: build >= 22000 ? emojis.Win11 : emojis.Win10,
+					name: build >= 22000 ? "Windows 11" : "Windows 10"
+				};
+			}
+
+			return {
+				emojis: client.iHorizon_Emojis.Win10,
+				name: "Windows"
+			};
+		}
+
+		default:
+			return null;
+	}
+}

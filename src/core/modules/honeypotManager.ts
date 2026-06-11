@@ -24,8 +24,10 @@ import {
 	BaseGuildTextChannel,
 	ChannelType,
 	Client,
+	Collection,
 	EmbedBuilder,
 	Message,
+	Snowflake,
 	TextChannel
 } from "discord.js";
 
@@ -143,18 +145,20 @@ async function deleteRecentMessages(message: Message): Promise<number> {
 	let deletedCount = 0;
 
 	for (const channel of channels) {
-		let before: string | undefined;
+		for (let before: string | undefined = undefined; ; ) {
+			const fetchedMessages: Collection<Snowflake, Message> | null =
+				await channel.messages
+					.fetch({ limit: 100, before })
+					.catch(() => null);
 
-		while (true) {
-			const fetchedMessages = await channel.messages
-				.fetch({ limit: 100, before })
-				.catch(() => null);
-			if (!fetchedMessages || fetchedMessages.size === 0) {
+			if (!fetchedMessages || fetchedMessages.size === 0) break;
+
+			const oldestMessage: Message | undefined = fetchedMessages.last();
+			if (!oldestMessage || oldestMessage.createdTimestamp < cutoff)
 				break;
-			}
 
 			const targetMessages = fetchedMessages.filter(
-				(entry) =>
+				(entry: Message) =>
 					entry.author.id === message.author.id &&
 					entry.createdTimestamp >= cutoff
 			);
@@ -163,12 +167,7 @@ async function deleteRecentMessages(message: Message): Promise<number> {
 				const deleted = await channel
 					.bulkDelete([...targetMessages.keys()], true)
 					.catch(() => null);
-				deletedCount += deleted?.size || 0;
-			}
-
-			const oldestMessage = fetchedMessages.last();
-			if (!oldestMessage || oldestMessage.createdTimestamp < cutoff) {
-				break;
+				deletedCount += deleted?.size ?? 0;
 			}
 
 			before = oldestMessage.id;

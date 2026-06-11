@@ -59,16 +59,12 @@ export async function convertToPng(buffer: Buffer): Promise<Buffer> {
 }
 
 export async function adjustImageQuality(imagePath: string): Promise<void> {
-	let stats = fs.statSync(imagePath);
-	let quality = 100;
-
-	while (stats.size > MAX_IMAGE_SIZE && quality > 10) {
-		quality -= 10;
+	for (let quality = 90; quality >= 10; quality -= 10) {
+		const stats = fs.statSync(imagePath);
+		if (stats.size <= MAX_IMAGE_SIZE) break;
 
 		const image = await Jimp.read(imagePath);
 		await image.quality(quality).writeAsync(imagePath);
-
-		stats = fs.statSync(imagePath);
 	}
 }
 

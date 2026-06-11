@@ -124,14 +124,24 @@ class DiscordSlashLogParser {
 			let nextLineIndex = i + 1;
 
 			// If next line doesn't start with [ and isn't empty, it's likely a continuation
-			while (
-				nextLineIndex < lines.length &&
-				!lines[nextLineIndex].startsWith("[") &&
-				lines[nextLineIndex].trim().length > 0
-			) {
-				fullLine += " " + lines[nextLineIndex].trim();
-				nextLineIndex++;
-			}
+			const continuation = lines
+				.slice(nextLineIndex)
+				.findIndex(
+					(line) => line.startsWith("[") || line.trim().length === 0
+				);
+
+			const endIndex =
+				continuation === -1
+					? lines.length
+					: nextLineIndex + continuation;
+
+			fullLine +=
+				" " +
+				lines
+					.slice(nextLineIndex, endIndex)
+					.map((l) => l.trim())
+					.join(" ");
+			nextLineIndex = endIndex;
 
 			// Adjust index to avoid reprocessing already combined lines
 			i = nextLineIndex - 1;

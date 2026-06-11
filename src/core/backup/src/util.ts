@@ -172,71 +172,60 @@ export async function fetchChannelMessages(
 	channel: TextChannel | NewsChannel | ThreadChannel,
 	options: CreateOptions
 ): Promise<MessageData[]> {
-	let messages: MessageData[] = [];
-	const typedChannel = channel;
-	const messageCount: number = isNaN(options?.maxMessagesPerChannel!)
+	const messages: MessageData[] = [];
+	const messageCount = isNaN(options?.maxMessagesPerChannel!)
 		? 10
-		: options.maxMessagesPerChannel!; // Fixed: Added non-null assertion
-	const fetchOptions: FetchMessagesOptions = { limit: 100 };
-	let lastMessageId: Snowflake | undefined; // Fixed: Initialize as undefined
-	let fetchComplete: boolean = false;
-	while (!fetchComplete) {
-		if (lastMessageId) {
-			// Fixed: Now properly checks if it's defined
-			fetchOptions.before = lastMessageId;
-		}
-		const fetched = await typedChannel.messages.fetch(fetchOptions);
-		if (fetched.size === 0) {
-			break;
-		}
+		: options.maxMessagesPerChannel!;
+	let lastMessageId: Snowflake | undefined;
+
+	for (;;) {
+		const fetched = await channel.messages.fetch({
+			limit: 100,
+			...(lastMessageId && { before: lastMessageId })
+		});
+
+		if (fetched.size === 0 || messages.length >= messageCount) break;
+
 		lastMessageId = fetched.last()?.id;
-		await Promise.all(
-			fetched.map(async (msg) => {
-				if (!msg.author || messages.length >= messageCount) {
-					fetchComplete = true;
-					return;
-				}
-				const files = await Promise.all(
-					msg.attachments.map(async (a) => {
-						let attach = a.url;
-						if (
-							a.url &&
-							[
-								"png",
-								"jpg",
-								"jpeg",
-								"jpe",
-								"jif",
-								"jfif",
-								"jfi"
-							].includes(a.url)
-						) {
-							if (options.saveImages) {
-								// Fixed: Properly handle ArrayBuffer to Buffer conversion
-								const arrayBuffer = await fetch(a.url).then(
-									(res) => res.arrayBuffer()
-								);
-								attach =
-									Buffer.from(arrayBuffer).toString("base64");
-							}
-						}
-						return {
-							name: a.name,
-							attachment: attach
-						};
-					})
-				);
-				messages.push({
-					username: msg.author.username,
-					avatar: msg.author.displayAvatarURL(),
-					content: msg.cleanContent,
-					embeds: msg.embeds.map((x) => x.toJSON()) || [],
-					files,
-					pinned: msg.pinned,
-					sentAt: msg.createdAt.toISOString()
-				});
-			})
-		);
+
+		for (const msg of fetched.values()) {
+			if (!msg.author || messages.length >= messageCount) break;
+
+			const files = await Promise.all(
+				msg.attachments.map(async (a) => {
+					let attach = a.url;
+					if (
+						a.url &&
+						[
+							"png",
+							"jpg",
+							"jpeg",
+							"jpe",
+							"jif",
+							"jfif",
+							"jfi"
+						].includes(a.url) &&
+						options.saveImages
+					) {
+						const arrayBuffer = await fetch(a.url).then((res) =>
+							res.arrayBuffer()
+						);
+						attach = Buffer.from(arrayBuffer).toString("base64");
+					}
+					return { name: a.name, attachment: attach };
+				})
+			);
+
+			messages.push({
+				username: msg.author.username,
+				avatar: msg.author.displayAvatarURL(),
+				content: msg.cleanContent,
+				embeds: msg.embeds.map((x) => x.toJSON()) || [],
+				files,
+				pinned: msg.pinned,
+				sentAt: msg.createdAt.toISOString()
+			});
+		}
 	}
 
 	return messages;
@@ -514,11 +503,11 @@ export async function loadChannel(
 			channelTypeStr === "GUILD_VOICE"
 		) {
 			// Downgrade bitrate
-			let bitrate = (channelData as VoiceChannelData).bitrate;
-			const bitrates = Object.values(MaxBitratePerTier);
-			while (bitrate > MaxBitratePerTier[guild.premiumTier]) {
-				bitrate = bitrates[guild.premiumTier];
-			}
+			const bitrate = Math.min(
+				(channelData as VoiceChannelData).bitrate,
+				MaxBitratePerTier[guild.premiumTier]
+			);
+
 			createOptions.bitrate = bitrate;
 			createOptions.userLimit = (
 				channelData as VoiceChannelData

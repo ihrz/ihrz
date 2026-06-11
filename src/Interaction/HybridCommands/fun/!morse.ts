@@ -59,12 +59,7 @@ export const subCommand: SubCommand = {
 				?.toUpperCase() as string;
 		}
 
-		while (text.includes("Ä") || text.includes("Ö") || text.includes("Ü")) {
-			text = text
-				.replace("Ä", "AE")
-				.replace("Ö", "OE")
-				.replace("Ü", "UE");
-		}
+		text = text.replace(/Ä/g, "AE").replace(/Ö/g, "OE").replace(/Ü/g, "UE");
 
 		if (text.startsWith(".") || text.startsWith("-")) {
 			const textArray = text.split(" ");
