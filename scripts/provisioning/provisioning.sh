@@ -170,15 +170,39 @@ fi
 		sudo apt install -y melt
 	fi
 
-	# Step 2 : Cloning the GitLab Repository (production branch for more stability, we don't want users to have a maybe-broken bot right from the start because they cloned the dev branch which is meant for development and testing). If the directory already exists, we will pull the latest changes instead of cloning again.
+	# Asking the user which Git branch should be cloned
+	echo "What branch do you want to clone? :"
+	select git_branch in "production" "dev" "ownihrz"; do
+		case $git_branch in
+			"production")
+				echo "You selected the production branch"
+				git_branch="production"
+				break
+				;;
+			"dev")
+				echo "You selected the dev branch"
+				git_branch="dev"
+				break
+				;;
+			"ownihrz")
+				echo "You selected the ownihrz branch"
+				git_branch="ownihrz"
+				break
+				;;
+			*)
+				echo "Invalid choice. Try again!"
+				;;
+		esac	
+	done
 
+	# Cloning the GitLab repo with the chosen branch
 	echo "Cloning the iHorizon GitLab repository..."
 	if [ -d "ihrz" ]; then
     	echo "iHorizon Bot git directory already exists, pulling latest changes instead..."
     	cd ihrz
-    	git pull origin production
+    	git pull origin "$git_branch"
 	else
-		git clone -b production https://gitlab.com/ihrz/ihrz.git
+		git clone -b "$git_branch" https://gitlab.com/ihrz/ihrz.git
 		cd ihrz
 	fi		
 
