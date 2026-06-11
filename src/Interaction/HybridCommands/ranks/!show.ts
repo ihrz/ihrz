@@ -26,90 +26,130 @@ import {
 	ColorResolvable,
 	EmbedBuilder,
 	GuildMember,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.options.getMember("user") as GuildMember || interaction.member;
+			var user =
+				(interaction.options.getMember("user") as GuildMember) ||
+				interaction.member;
 		} else {
-
-			var user = client.func.method.member(interaction, args!, 0) || interaction.member;
-		};
+			var user =
+				client.func.method.member(interaction, args!, 0) ||
+				interaction.member;
+		}
 
 		// USER PFP COLOR
-		const userAvatar = user.displayAvatarURL({ extension: "png", size: 4096 });
-		const { color1, color2 } = await client.func.image_dominant_color(userAvatar);
+		const userAvatar = user.displayAvatarURL({
+			extension: "png",
+			size: 4096
+		});
+		const { color1, color2 } =
+			await client.func.image_dominant_color(userAvatar);
 
-		const baseData = await client.db.get(`${interaction.guildId}.USER.${user.id}.XP_LEVELING`);
+		const baseData = await client.db.get(
+			`${interaction.guildId}.USER.${user.id}.XP_LEVELING`
+		);
 		const level = baseData?.level || 0;
 		const currentxp = baseData?.xp || 0;
 
 		const xpNeeded = level * 500 + 500;
 		const expNeededForLevelUp = xpNeeded - currentxp;
 
-		let htmlContent = client.htmlfiles['ranksCard'];
+		let htmlContent = client.htmlfiles["ranksCard"];
 
 		htmlContent = htmlContent
-			.replace('AVATAR_URL', userAvatar)
-			.replace('USERNAME', user.user.globalName || user.displayName)
-			.replace('LEVEL', level)
-			.replace('PROGRESS_PERCENT', String((currentxp / xpNeeded) * 100))
-			.replace('CURRENT_XP', currentxp)
-			.replace('XP_NEEDED', String(xpNeeded))
-			.replace('XP_REMAINING', String(expNeededForLevelUp))
-			.replace('TOTAL_XP', currentxp)
-			.replace('{level}', lang.var_level)
-			.replace('{xp_total}', lang.level_xp_total)
-			.replace('{needed_xp}', lang.level_xp_needed_for_new_level)
-			.replaceAll('[color1]', color1)
-			.replaceAll('[color2]', color2)
-			;
+			.replace("AVATAR_URL", userAvatar)
+			.replace("USERNAME", user.user.globalName || user.displayName)
+			.replace("LEVEL", level)
+			.replace("PROGRESS_PERCENT", String((currentxp / xpNeeded) * 100))
+			.replace("CURRENT_XP", currentxp)
+			.replace("XP_NEEDED", String(xpNeeded))
+			.replace("XP_REMAINING", String(expNeededForLevelUp))
+			.replace("TOTAL_XP", currentxp)
+			.replace("{level}", lang.var_level)
+			.replace("{xp_total}", lang.level_xp_total)
+			.replace("{needed_xp}", lang.level_xp_needed_for_new_level)
+			.replaceAll("[color1]", color1)
+			.replaceAll("[color2]", color2);
 
 		const image = await client.func.html2png(htmlContent, {
-			elementSelector: '.card',
+			elementSelector: ".card",
 			omitBackground: true,
-			selectElement: true,
+			selectElement: true
 		});
 
-		const attachment = new AttachmentBuilder(image, { name: 'image.png' });
+		const attachment = new AttachmentBuilder(image, { name: "image.png" });
 
 		const nivEmbed = new EmbedBuilder()
-			.setTitle(lang.level_embed_title
-				.replace('${user.username}', String(user.user.globalName || user.displayName))
+			.setTitle(
+				lang.level_embed_title.replace(
+					"${user.username}",
+					String(user.user.globalName || user.displayName)
+				)
 			)
 			.setColor(color1 as ColorResolvable)
 			.addFields(
 				{
-					name: lang.level_embed_fields1_name, value: lang.level_embed_fields2_value
-						.replace('${level}', level), inline: true
+					name: lang.level_embed_fields1_name,
+					value: lang.level_embed_fields2_value.replace(
+						"${level}",
+						level
+					),
+					inline: true
 				},
 				{
-					name: lang.level_embed_fields2_name, value: lang.level_embed_fields1_value
-						.replace('${currentxp}', currentxp)
-						.replace('${xpNeeded}', xpNeeded.toString()), inline: true
+					name: lang.level_embed_fields2_name,
+					value: lang.level_embed_fields1_value
+						.replace("${currentxp}", currentxp)
+						.replace("${xpNeeded}", xpNeeded.toString()),
+					inline: true
 				}
 			)
 			.setImage("attachment://image.png")
-			.setDescription(lang.level_embed_description.replace('${expNeededForLevelUp}', expNeededForLevelUp.toString())
+			.setDescription(
+				lang.level_embed_description.replace(
+					"${expNeededForLevelUp}",
+					expNeededForLevelUp.toString()
+				)
 			)
 			.setTimestamp()
 			.setThumbnail(userAvatar)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [nivEmbed],
 			allowedMentions: { repliedUser: false },
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction), attachment]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				),
+				attachment
+			]
 		});
 		return;
-	},
+	}
 };

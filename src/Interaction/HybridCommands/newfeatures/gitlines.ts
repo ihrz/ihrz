@@ -22,17 +22,17 @@
 import {
 	ApplicationCommandType,
 	PermissionFlagsBits,
-	ApplicationCommandOptionType,
-} from 'discord.js';
+	ApplicationCommandOptionType
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
-	name: 'git',
+	name: "git",
 
-	description: '⭐️ (VERY UHQ) Git Lines',
+	description: "⭐️ (VERY UHQ) Git Lines",
 	description_localizations: {
-		"fr": "⭐️ (VRAIMENT UHQ) Git Lines"
+		fr: "⭐️ (VRAIMENT UHQ) Git Lines"
 	},
 
 	options: [
@@ -45,12 +45,12 @@ export const command: Command = {
 			},
 
 			permission: PermissionFlagsBits.Administrator,
-			type: ApplicationCommandOptionType.Subcommand,
+			type: ApplicationCommandOptionType.Subcommand
 		}
 	],
 
 	thinking: false,
-	category: 'newfeatures',
+	category: "newfeatures",
 	permission: PermissionFlagsBits.Administrator,
 	type: ApplicationCommandType.ChatInput
 };

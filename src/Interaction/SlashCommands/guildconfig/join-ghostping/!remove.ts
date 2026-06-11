@@ -23,39 +23,58 @@ import {
 	Client,
 	ChatInputCommandInteraction,
 	GuildChannel,
-	EmbedBuilder,
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../../types/database_structure.js';
+	EmbedBuilder
+} from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../../types/database_structure.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
+		const channel = interaction.options.getChannel(
+			"channel"
+		) as GuildChannel;
+		const allData: DatabaseStructure.GhostPingData["channels"] =
+			(await client.db.get(
+				`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`
+			)) || [];
 
-
-		const channel = interaction.options.getChannel('channel') as GuildChannel;
-		const allData: DatabaseStructure.GhostPingData['channels'] = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) || [];
-
-		const all_channels = new Set(allData?.filter(x => interaction.guild?.channels.cache.get(x)));
+		const all_channels = new Set(
+			allData?.filter((x) => interaction.guild?.channels.cache.get(x))
+		);
 
 		if (!all_channels?.has(channel.id)) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.joinghostping_remove_isnt_set
-					.replace('${channel}', channel.toString())
+				content: lang.joinghostping_remove_isnt_set.replace(
+					"${channel}",
+					channel.toString()
+				)
 			});
 			return;
-		};
+		}
 
 		all_channels.delete(channel.id);
 
-		await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`, Array.from(all_channels));
+		await client.db.set(
+			`${interaction.guildId}.GUILD.GUILD_CONFIG.GHOST_PING.channels`,
+			Array.from(all_channels)
+		);
 
 		const embed = new EmbedBuilder()
 			.setTitle(lang.joinghostping_add_ok_embed_title)
@@ -63,19 +82,24 @@ export const subCommand: SubCommand = {
 			.setDescription(lang.joinghostping_remove_ok_embed_desc)
 			.addFields({
 				name: lang.joinghostping_add_ok_embed_fields_name,
-				value: all_channels.size > 0
-					? Array.from(all_channels).map(x => `<#${x}>`).join('\n')
-					: lang.var_no_set
+				value:
+					all_channels.size > 0
+						? Array.from(all_channels)
+								.map((x) => `<#${x}>`)
+								.join("\n")
+						: lang.var_no_set
 			});
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.joinghostping_add_logs_embed_title,
 			description: lang.joinghostping_remove_logs_embed_desc
-				.replace('${interaction.user}', interaction.user.toString())
-				.replace('${channel}', channel.toString())
+				.replace("${interaction.user}", interaction.user.toString())
+				.replace("${channel}", channel.toString())
 		});
 
-		await client.func.method.interactionSend(interaction, { embeds: [embed] });
+		await client.func.method.interactionSend(interaction, {
+			embeds: [embed]
+		});
 		return;
-	},
+	}
 };

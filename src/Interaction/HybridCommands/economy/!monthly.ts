@@ -24,47 +24,94 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	User,
-} from 'discord.js';
+	User
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.monthly.cooldown`) || 2592000000);
-		const amount = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.monthly.amount`) || 5000) * await client.func.economyHelper.getMemberBoost(interaction.member);
+		const timeout =
+			(await client.db.get(
+				`${interaction.guildId}.ECONOMY.settings.monthly.cooldown`
+			)) || 2592000000;
+		const amount =
+			((await client.db.get(
+				`${interaction.guildId}.ECONOMY.settings.monthly.amount`
+			)) || 5000) *
+			(await client.func.economyHelper.getMemberBoost(
+				interaction.member
+			));
 
-		const monthly = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`);
+		const monthly = await client.db.get(
+			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`
+		);
 
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
-		};
+		}
 
 		if (monthly !== null && timeout - (Date.now() - monthly) > 0) {
-			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - monthly), lang);
+			const time = client.timeCalculator.to_beautiful_string(
+				timeout - (Date.now() - monthly),
+				lang
+			);
 
-			await client.func.method.interactionSend(interaction, { content: lang.monthly_cooldown_error.replace(/\${time}/g, time) });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.monthly_cooldown_error.replace(/\${time}/g, time)
+			});
 			return;
 		} else {
-			let embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#a4cb80")
-				.setAuthor({ name: lang.monthly_embed_title, iconURL: (interaction.member.user as User).displayAvatarURL() })
+			const embed = new EmbedBuilder()
+				.setAuthor({
+					name: lang.monthly_embed_title,
+					iconURL: (
+						interaction.member.user as User
+					).displayAvatarURL()
+				})
+				.setColor(
+					(await client.db.get(
+						`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`
+					)) || "#a4cb80"
+				)
 				.setDescription(lang.monthly_embed_description)
-				.addFields({ name: lang.monthly_embed_fields, value: `${amount}${client.iHorizon_Emojis.Coin}` });
-			await client.func.method.interactionSend(interaction, { embeds: [embed] });
+				.addFields({
+					name: lang.monthly_embed_fields,
+					value: `${amount}${client.iHorizon_Emojis.Coin}`
+				});
+			await client.func.method.interactionSend(interaction, {
+				embeds: [embed]
+			});
 			await client.func.method.addCoins(interaction.member, amount);
-			await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`, Date.now());
+			await client.db.set(
+				`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.monthly`,
+				Date.now()
+			);
 			return;
-		};
-	},
+		}
+	}
 };

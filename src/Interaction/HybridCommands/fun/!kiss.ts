@@ -24,49 +24,68 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	User,
-} from 'discord.js';
+	User
+} from "discord.js";
 
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { axios } from '../../../core/functions/axios.js';
+import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { axios } from "../../../core/functions/axios.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
-		if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-			await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
+			"off"
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.fun_category_disable
+			});
 			return;
-		};
+		}
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var kiss = interaction.options.getUser("user") as User;
 			var user = interaction.user;
 		} else {
-
-			var kiss = await client.func.method.user(interaction, args!, 0) || interaction.author;
+			var kiss =
+				(await client.func.method.user(interaction, args!, 0)) ||
+				interaction.author;
 			var user = interaction.author;
 		}
 
 		const url = apiUrlParser.assetsFinder(client.assets, "kiss");
 
-		axios.get(url)
+		axios
+			.get(url)
 			.then(async () => {
-				let embed = new EmbedBuilder()
-					.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ff0884")
-					.setDescription(lang.kiss_embed_description
-						.replace(/\${kiss\.id}/g, kiss.id)
-						.replace(/\${interaction\.user\.id}/g, user.id)
+				const embed = new EmbedBuilder()
+					.setColor(
+						(await client.db.get(
+							`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`
+						)) || "#ff0884"
+					)
+					.setDescription(
+						lang.kiss_embed_description
+							.replace(/\${kiss\.id}/g, kiss.id)
+							.replace(/\${interaction\.user\.id}/g, user.id)
 					)
 					.setImage(url)
-					.setTimestamp()
-				await client.func.method.interactionSend(interaction, { embeds: [embed] });
+					.setTimestamp();
+				await client.func.method.interactionSend(interaction, {
+					embeds: [embed]
+				});
 				return;
-			}).catch(async (err) => {
-				await client.func.method.interactionSend(interaction, { content: lang.fun_var_down_api });
+			})
+			.catch(async (err) => {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.fun_var_down_api
+				});
 			});
-	},
+	}
 };

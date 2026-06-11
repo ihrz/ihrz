@@ -19,54 +19,63 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import html2Png from './functions/html2png.ts';
+import html2Png from "./functions/html2png.ts";
 
 async function love(user1: string, user2: string): Promise<Buffer> {
-	return await html2Png(globalThis.client.htmlfiles["love"]
-		.replace("{Y}", "https://gitlab.com/ihrz/ihrz/-/raw/production/src/assets/heart.png")
-		.replace("{X}", user1)
-		.replace("{Z}", user2), {
-		omitBackground: true,
-		selectElement: true,
-		elementSelector: ".love-container",
-		width: 1600,
-		height: 600,
-		scaleSize: 1
-	})
+	return await html2Png(
+		globalThis.client.htmlfiles["love"]
+			.replace(
+				"{Y}",
+				"https://gitlab.com/ihrz/ihrz/-/raw/production/src/assets/heart.png"
+			)
+			.replace("{X}", user1)
+			.replace("{Z}", user2),
+		{
+			omitBackground: true,
+			selectElement: true,
+			elementSelector: ".love-container",
+			width: 1600,
+			height: 600,
+			scaleSize: 1
+		}
+	);
 }
 
 async function catsay(img: string, text: string): Promise<Buffer> {
-	return await html2Png(globalThis.client.htmlfiles["catsay"]
-		.replace("{X}", img)
-		.replace("{Z}", text), {
-		omitBackground: true,
-		selectElement: true,
-		elementSelector: ".meme-container",
-	});
+	return await html2Png(
+		globalThis.client.htmlfiles["catsay"]
+			.replace("{X}", img)
+			.replace("{Z}", text),
+		{
+			omitBackground: true,
+			selectElement: true,
+			elementSelector: ".meme-container"
+		}
+	);
 }
 
 async function captions(img: string, text: string): Promise<Buffer> {
-	return await html2Png(globalThis.client.htmlfiles["captions"]
-		.replace("{X}", img)
-		.replace("{Z}", text), {
-		omitBackground: true,
-		selectElement: true,
-		elementSelector: ".meme-container",
-	});
+	return await html2Png(
+		globalThis.client.htmlfiles["captions"]
+			.replace("{X}", img)
+			.replace("{Z}", text),
+		{
+			omitBackground: true,
+			selectElement: true,
+			elementSelector: ".meme-container"
+		}
+	);
 }
 
 async function bubbles(img: string): Promise<Buffer> {
-	return await html2Png(globalThis.client.htmlfiles["bubbles"]
-		.replace("{X}", img), {
-		omitBackground: true,
-		selectElement: true,
-		elementSelector: ".meme-container",
-	});
+	return await html2Png(
+		globalThis.client.htmlfiles["bubbles"].replace("{X}", img),
+		{
+			omitBackground: true,
+			selectElement: true,
+			elementSelector: ".meme-container"
+		}
+	);
 }
 
-export {
-	love,
-	catsay,
-	captions,
-	bubbles
-};
+export { love, catsay, captions, bubbles };

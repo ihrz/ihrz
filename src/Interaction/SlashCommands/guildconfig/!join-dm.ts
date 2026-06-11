@@ -21,128 +21,172 @@
 
 import {
 	ActionRowBuilder,
+	BaseGuildTextChannel,
 	ButtonBuilder,
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
 	EmbedBuilder,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.member.user.id ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		let joinDm = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`) as string | undefined;
-		let guildLocal = await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`) || "fr-FR";
+		let joinDm = (await client.db.get(
+			`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`
+		)) as string | undefined;
+		const guildLocal =
+			(await client.db.get(`${interaction.guild.id}.GUILD.LANG.lang`)) ||
+			"fr-FR";
 
 		joinDm = joinDm?.substring(0, 1010);
 
 		let help_embed = new EmbedBuilder()
-			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`) || "#bf0bb9")
+			.setColor(
+				(await client.db.get(
+					`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.ihrz-logs`
+				)) || "#bf0bb9"
+			)
 			.setTitle(lang.setjoindm_help_embed_title)
 			.setDescription(lang.setjoindm_help_embed_desc)
-			.setFields(
-				{
-					name: lang.setjoinmessage_help_embed_fields_custom_name,
-					value: joinDm ? `\`\`\`${client.func.method.generateCustomMessagePreview(joinDm, {
-						user: interaction.user,
-						guild: interaction.guild,
-						guildLocal: guildLocal,
-					})}\`\`\`\n` : lang.setjoinmessage_help_embed_fields_custom_name_empy
-				}
-			);
+			.setFields({
+				name: lang.setjoinmessage_help_embed_fields_custom_name,
+				value: joinDm
+					? `\`\`\`${client.func.method.generateCustomMessagePreview(
+							joinDm,
+							{
+								user: interaction.member.user,
+								guild: interaction.guild,
+								guildLocal: guildLocal
+							}
+						)}\`\`\`\n`
+					: lang.setjoinmessage_help_embed_fields_custom_name_empy
+			});
 
-		const buttons = new ActionRowBuilder<ButtonBuilder>()
-			.addComponents(
-				new ButtonBuilder()
-					.setCustomId("joinMessage-set-message")
-					.setLabel(lang.setjoindm_buttom_set_name)
-					.setStyle(ButtonStyle.Primary),
-				new ButtonBuilder()
-					.setCustomId("joinMessage-default-message")
-					.setLabel(lang.setjoindm_buttom_delete_name)
-					.setStyle(ButtonStyle.Danger),
-			);
+		const buttons = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId("joinMessage-set-message")
+				.setLabel(lang.setjoindm_buttom_set_name)
+				.setStyle(ButtonStyle.Primary),
+			new ButtonBuilder()
+				.setCustomId("joinMessage-default-message")
+				.setLabel(lang.setjoindm_buttom_delete_name)
+				.setStyle(ButtonStyle.Danger)
+		);
 
-		const originalResponse = await interaction.editReply({
-			embeds: [help_embed],
-			components: [buttons]
-		});
+		const originalResponse = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [help_embed],
+				components: [buttons]
+			}
+		);
 
 		const collector = originalResponse.createMessageComponentCollector({
 			componentType: ComponentType.Button,
-			filter: (u) => u.user.id === interaction.user.id,
+			filter: (u) => u.user.id === interaction.member?.user.id,
 			time: 80_000
 		});
 
-		collector.on('collect', async collectInteraction => {
+		collector.on("collect", async (collectInteraction) => {
 			if (collectInteraction.customId === "joinMessage-set-message") {
 				await collectInteraction.reply({
 					content: lang.setjoindm_awaiting_response,
 					flags: [1 << 6]
 				});
 
-				const questionReply = interaction.channel?.createMessageCollector({
-					filter: (m) => m.author.id === interaction.user.id,
+				const questionReply = (
+					interaction.channel as BaseGuildTextChannel
+				)?.createMessageCollector({
+					filter: (m) => m.author.id === interaction.member?.user.id,
 					max: 1,
 					time: 120_000
 				});
 
-				questionReply?.on('collect', async collected => {
+				questionReply?.on("collect", async (collected) => {
 					const response = collected.content.substring(0, 1010);
 
 					await client.func.ihorizon_logs(interaction, {
 						title: lang.setjoindm_logs_embed_title_on_enable,
-						description: lang.setjoindm_logs_embed_description_on_enable
-							.replace(/\${interaction\.user\.id}/g, interaction.user.id)
+						description:
+							lang.setjoindm_logs_embed_description_on_enable.replace(
+								/\${interaction\.user\.id}/g,
+								interaction.member?.user.id!
+							)
 					});
 
-					await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`, response);
+					await client.db.set(
+						`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`,
+						response
+					);
 
-					await interaction.editReply({
+					await client.func.method.interactionSend(interaction, {
 						embeds: [],
-						content: lang.setjoindm_confirmation_message_on_enable
-							.replace(/\${dm_msg}/g, response),
+						content:
+							lang.setjoindm_confirmation_message_on_enable.replace(
+								/\${dm_msg}/g,
+								response
+							),
 						components: []
 					});
 
 					collected.delete();
 					questionReply.stop();
 				});
-			} else if (collectInteraction.customId === "joinMessage-default-message") {
+			} else if (
+				collectInteraction.customId === "joinMessage-default-message"
+			) {
 				await collectInteraction.deferUpdate();
 				await client.func.ihorizon_logs(interaction, {
 					title: lang.setjoindm_logs_embed_title_on_disable,
-					description: lang.setjoindm_logs_embed_description_on_disable
-						.replace(/\${interaction\.user\.id}/g, interaction.user.id)
+					description:
+						lang.setjoindm_logs_embed_description_on_disable.replace(
+							/\${interaction\.user\.id}/g,
+							interaction.member?.user.id!
+						)
 				});
 
-				const already_off = await client.db.get(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
+				const already_off = await client.db.get(
+					`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`
+				);
 
 				if (!already_off) {
-					await interaction.editReply({
+					await client.func.method.interactionSend(interaction, {
 						content: lang.setjoindm_already_disable,
 						embeds: [],
 						components: []
 					});
 				} else {
-					await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`);
-					await interaction.editReply({
+					await client.db.delete(
+						`${interaction.guildId}.GUILD.GUILD_CONFIG.joindm`
+					);
+					await client.func.method.interactionSend(interaction, {
 						content: lang.setjoindm_confirmation_message_on_disable,
 						embeds: [],
 						components: []
 					});
-				};
+				}
 			}
 		});
-	},
+	}
 };

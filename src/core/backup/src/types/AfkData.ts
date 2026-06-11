@@ -20,6 +20,6 @@
 */
 
 export interface AfkData {
-    name: string;
-    timeout: number;
+	name: string;
+	timeout: number;
 }

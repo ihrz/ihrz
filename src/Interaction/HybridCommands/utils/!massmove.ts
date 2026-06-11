@@ -27,30 +27,54 @@ import {
 	BaseGuildVoiceChannel,
 	VoiceChannel,
 	Message
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const allChannel = Array.from(interaction.guild.channels.cache.values()!)
-			.filter(x => x.type === (ChannelType.GuildVoice || ChannelType.GuildStageVoice)) || [];
+		const allChannel =
+			Array.from(interaction.guild.channels.cache.values()!).filter(
+				(x) =>
+					x.type ===
+					(ChannelType.GuildVoice || ChannelType.GuildStageVoice)
+			) || [];
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var fromChannel = interaction.options.getChannel('from') as BaseGuildVoiceChannel | null;
-			var toChannel = interaction.options.getChannel('channel')! as BaseGuildVoiceChannel | null;
+			var fromChannel = interaction.options.getChannel(
+				"from"
+			) as BaseGuildVoiceChannel | null;
+			var toChannel = interaction.options.getChannel(
+				"channel"
+			)! as BaseGuildVoiceChannel | null;
 		} else {
-			var fromChannel = await client.func.method.voiceChannel(interaction, args!, 0);
-			var toChannel = await client.func.method.voiceChannel(interaction, args!, 1);
-		};
+			var fromChannel = await client.func.method.voiceChannel(
+				interaction,
+				args!,
+				0
+			);
+			var toChannel = await client.func.method.voiceChannel(
+				interaction,
+				args!,
+				1
+			);
+		}
 
 		if (toChannel === null) return;
 
@@ -62,9 +86,11 @@ export const subCommand: SubCommand = {
 		});
 
 		if (fromChannel) {
-			for (const member of (fromChannel as BaseGuildVoiceChannel).members.values()) {
+			for (const member of (
+				fromChannel as BaseGuildVoiceChannel
+			).members.values()) {
 				try {
-					await member.voice.setChannel((toChannel as VoiceChannel));
+					await member.voice.setChannel(toChannel as VoiceChannel);
 					movedCount++;
 				} catch (error) {
 					errorCount++;
@@ -72,9 +98,13 @@ export const subCommand: SubCommand = {
 			}
 		} else if (allChannel) {
 			for (const channel of allChannel) {
-				for (const member of (channel as BaseGuildVoiceChannel).members.values()) {
+				for (const member of (
+					channel as BaseGuildVoiceChannel
+				).members.values()) {
 					try {
-						await member.voice.setChannel((toChannel as VoiceChannel));
+						await member.voice.setChannel(
+							toChannel as VoiceChannel
+						);
 						movedCount++;
 					} catch (error) {
 						errorCount++;
@@ -84,22 +114,42 @@ export const subCommand: SubCommand = {
 		}
 
 		const embed = new EmbedBuilder()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#007fff")
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
+			.setColor(
+				(await client.db.get(
+					`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`
+				)) || "#007fff"
+			)
 			.setTimestamp()
 			.setThumbnail(interaction.guild.iconURL())
-			.setDescription(lang.massmove_results
-				.replace('${interaction.user}', interaction.member.user.toString())
-				.replace('${movedCount}', movedCount.toString())
-				.replace('${errorCount}', errorCount.toString())
-				.replace('${fromChannel}', fromChannel?.toString() || allChannel.map(x => x.toString()).join(","))
-				.replace('${toChannel}', toChannel.toString())
+			.setDescription(
+				lang.massmove_results
+					.replace(
+						"${interaction.user}",
+						interaction.member.user.toString()
+					)
+					.replace("${movedCount}", movedCount.toString())
+					.replace("${errorCount}", errorCount.toString())
+					.replace(
+						"${fromChannel}",
+						fromChannel?.toString() ||
+							allChannel.map((x) => x.toString()).join(",")
+					)
+					.replace("${toChannel}", toChannel.toString())
 			);
 
 		await client.func.method.interactionSend(interaction, {
 			content: null,
 			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
-	},
+	}
 };

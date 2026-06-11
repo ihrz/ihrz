@@ -37,7 +37,7 @@ export const LICENCE_HEADER = `/*
 		・ No additional restrictions — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 
-・ Mainly developed by ${pkg.author} (https://gitlab.com/${pkg.author})
+・ Mainly developed by ${pkg.author.name} (https://gitlab.com/${pkg.author.name})
 
 ・ Copyright © 2020-${new Date().getFullYear()} iHorizon
 */`;

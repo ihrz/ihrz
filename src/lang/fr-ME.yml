@@ -601,6 +601,10 @@ help_starboard_dsc: "> *Voir les messages les plus étoilés d’un serveur Disc
 help_starboard_fields: "StarBoard"
 help_blogger_dsc: "Suis tes flux RSS favoris et sois notifié lorsqu’un nouvel article est publié via iHorizon"
 help_blogger_fields: "Blogger"
+help_lastfm_dsc: "> *Connecte ton compte Last.fm et scrobble automatiquement les sons joués par iHorizon tant que tu restes dans le vocal.*"
+help_lastfm_fields: "Scrobbler LastFM"
+help_honeypot_fields: "Honeypot"
+help_honeypot_dsc: "> *Configure un salon piège pour choper les comptes compromis et nettoyer automatiquement le spam récent sur ton serveur.*"
 
 # /h
 h_suite: "(Suite)"
@@ -622,6 +626,9 @@ custom_desc_reset: "Vous avez décider de réinitialiser le nom du bot sur le se
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer le nom du bot sur le serveur. Les pied de page des embeds sont maintenant modifier, ainsi que le nom du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${desc}`"
 custom_banner_reset: "Vous avez décider de réinitialiser la bannière du bot sur le serveur."
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **Vous avez décider de changer la bannière du bot sur le serveur.**\n${client.iHorizon_Emojis.Crown} Nouvelle valeur: `${x}`"
+custom_sdk_only: "Cette commande est disponible en production uniquement pour les serveurs ayant l'abonnement `Custom iHorizon Profile`."
+custom_sdk_only_title: "Soutenir iHorizon avec Custom iHorizon Profile"
+custom_sdk_only_description: "Notre bot est gratuit et open source depuis 2022. Nous avons besoin de revenus pour continuer à animer, développer et héberger le bot. Nos coûts de fonctionnement tournent autour de 500 € par an pour les serveurs, boosts, domaines et licences.\n\nLa commande `/custom` permet de changer l'identité d'iHorizon sur votre serveur en modifiant l'avatar, le nom, la bannière et la bio. En l'utilisant, l'identité visuelle d'iHorizon disparaît de votre serveur.\n\nNous avons donc mis en place un abonnement intégré à Discord à 2.99 USD par mois.\n\nEn prenant cet abonnement, vous pourrez utiliser cette commande. Voyez cela comme un bot custom, un OWN-IHRZ like, mais stable, propre et fonctionnel."
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -1063,24 +1070,27 @@ utils_wlroles_embed_title: "Rôles dans la liste blanche"
 utils_wlroles_embed_desc: "Voici tous les rôles autorisés pouvant être attribués avec les commandes `addrole` et `delrole` !"
 utils_wlRoles_logsEmbed_title: "Module des rôles de la liste blanche"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} a modifié les rôles dans la liste blanche (pour les commandes `addrole` et `delrole`)"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} La dérogation ${role} est déjà correctement configurée"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} La dérogation ${role} a été créée. Salons synchronisés: `${updatedChannels}`. Échecs: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} La dérogation ${role} existait déjà, j'ai resynchronisé `${updatedChannels}` salons. Échecs: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} Le message as parfaitement été envoyer à ${targetMember.toString()}"
 utils_dm_cant: "${client.iHorizon_Emojis.No} Je n'ai pas réussi à envoyer de message à ${targetMember.toString()}. Il à peut-être bloquer les message privée, ou il m'a bloqué ce gros fils de pute!"
 
 # /utils pic-only
-utils_pic_only_embed_title: "Salons Images Uniquement"
-utils_pic_only_emnbed_desc: "Salon où seules les photos/images sont autorisées. Tout autre contenu est bloqué par le bot"
+utils_pic_only_embed_title: "Salons Médias Uniquement"
+utils_pic_only_emnbed_desc: "Salon où seules les photos/images/vidéos sont autorisées. Tout autre contenu est bloqué par le bot"
 utils_piconly_embed_fields_3_name: "Durée du Timeout"
 utils_piconly_select1_option1_label: "Changer la durée du timeout"
 utils_piconly_select1_option2_label: "Changer le seuil"
-utils_piconly_modal1_title: "PicOnly - Configuration du Temps"
+utils_piconly_modal1_title: "MediaOnly - Configuration du Temps"
 utils_piconly_modal1_fields1_placeholder: "la durée du mute"
 utils_piconly_modal1_fields1_label: "Durée du Mute"
-utils_piconly_modal2_title: "PicOnly - Configuration du Seuil"
+utils_piconly_modal2_title: "MediaOnly - Configuration du Seuil"
 utils_piconly_modal2_fields1_placeholder: "le seuil avant le mute"
 utils_piconly_modal2_fields1_label: "Seuil"
-utils_piconly_embed_fields2_placeholder: "Créer un fil de discussion sous l'image"
+utils_piconly_embed_fields2_placeholder: "Créer un fil de discussion sous l'image/vidéo"
 utils_piconly_var_thread_name: "Fil de {name}"
 
 # /zip-emojis
@@ -1119,6 +1129,46 @@ util_nick_kicker_enable_desc: "Activer l'expulseur de pseudos"
 util_wakeup_yourself: "mais mon reuf? t con ou t con? tu vas pas quand même me dire que tu dors sur le keyboard en même temps d'écrire cette commande mdr"
 util_wakeup_not_in_vc: "Mais frr, le bot vas pas créer un ptit chinois nommées ${user.displayName} avec la même pp et bannière pour te faire croire que le gars ce réveille... Il est pas en voc ton gars ptdrr"
 util_wakeup_command_work: "C'est partiiiiit pour le réveil de ${user.toString()} ! LET'S GO !!!!"
+
+# /util talk
+util_talk_not_in_vc: "Vous devez être dans un salon vocal pour utiliser cette commande."
+util_talk_audit_reason: "Mode discussion vocale activé"
+util_talk_logs_title: "Discussion Vocale"
+util_talk_logs_description: "${interaction.member.user.toString()} a activé le mode discussion dans ${voiceChannel.toString()} et a rendu muet ${mutedCount} membre(s). ${skippedCount} membre(s) ont été ignorés."
+util_talk_command_work: "Le mode discussion est maintenant activé dans ${voiceChannel.toString()}. ${mutedCount} membre(s) ont été rendus muets et ${skippedCount} membre(s) ont été ignorés."
+
+# /util untalk
+util_untalk_nothing_active: "Aucun mode discussion actif pour ce serveur."
+util_untalk_audit_reason: "Mode discussion vocale désactivé"
+util_untalk_logs_title: "Fin de Discussion Vocale"
+util_untalk_logs_description: "${interaction.member.user.toString()} a désactivé le mode discussion dans ${voiceChannel.toString()} et a réactivé ${unmutedCount} membre(s)."
+util_untalk_command_work: "Le mode discussion a été désactivé dans ${voiceChannel.toString()}. ${unmutedCount} membre(s) ont été réactivés."
+
+# /util freeze
+util_freeze_logs_title: "Gel Vocal"
+util_freeze_logs_description: "${interaction.member.user.toString()} a gelé l'accès à ${voiceChannel.toString()}."
+util_freeze_command_work: "Le salon vocal ${voiceChannel.toString()} est maintenant gelé."
+
+# /util wlvc
+util_wlvc_no_member: "Vous devez spécifier un membre autorisé dans le salon vocal gelé."
+util_wlvc_no_freeze: "Aucun salon vocal gelé actif dans ce serveur."
+util_wlvc_logs_title: "Autorisation Gel Vocal"
+util_wlvc_logs_description: "${interaction.member.user.toString()} a autorisé ${member.toString()} à rejoindre le salon vocal gelé."
+util_wlvc_command_work: "${member.toString()} est maintenant autorisé à rejoindre le salon vocal gelé."
+
+# /util unwlvc
+util_unwlvc_no_member: "Vous devez spécifier un membre à retirer de la liste blanche du salon vocal gelé."
+util_unwlvc_no_freeze: "Aucun salon vocal gelé actif dans ce serveur."
+util_unwlvc_not_whitelisted: "${member.toString()} n'est pas autorisé dans le salon vocal gelé."
+util_unwlvc_logs_title: "Retrait Autorisation Gel Vocal"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} a retiré ${member.toString()} de la liste blanche du salon vocal gelé."
+util_unwlvc_command_work: "${member.toString()} ne peut plus rejoindre le salon vocal gelé."
+
+# /util unfreeze
+util_unfreeze_no_freeze: "Aucun salon vocal gelé actif dans ce serveur."
+util_unfreeze_logs_title: "Dégel Vocal"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} a retiré le gel vocal actif."
+util_unfreeze_command_work: "Le salon vocal n'est plus gelé."
 
 # /util leash
 util_leash_too_naugthy: "Petit coquin, tu ne peux pas mettre plus de 3 personnes en laisse :D"
@@ -1458,6 +1508,10 @@ automod_block_massmention_command_error404: Trou du cul, désactive Block Mass M
 automod_block_link_command_on: "${interaction.user}, vous avez activé la `Règle AutoMod Pub` sur **true**.\nLes utilisateurs ne peuvent plus envoyer de liens dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur!"
 automod_block_link_command_off: "${interaction.user}, vous avez désactivé la `Règle AutoMod Pub` sur **false**.\nLes utilisateurs peuvent maintenant envoyer des liens dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur!"
 
+# /automod block telegram links
+automod_block_telegram_command_on: "${interaction.user}, vous avez activé la `Règle AutoMod Telegram` sur **true**.\nLes utilisateurs ne peuvent plus envoyer des liens liés à Telegram dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur!"
+automod_block_telegram_command_off: "${interaction.user}, vous avez désactivé la `Règle AutoMod Telegram` sur **false**.\nLes utilisateurs peuvent maintenant envoyer des liens liés à Telegram dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur!"
+
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, vous avez activé la `Règle AutoMod Pub` sur **true**.\nLes utilisateurs ne peuvent plus envoyer d'invs de serveur dans leurs messages.\nAutoMod __envoie des journaux__ dans ${logs_channel}.\nAutoMod x iHorizon protège votre serveur!"
 automod_block_pub_command_off: "${interaction.user}, vous avez désactivé la `Règle AutoMod Pub` sur **false**.\nLes utilisateurs peuvent maintenant envoyer des invs de serveur dans leurs messages.\nAutoMod x iHorizon a été désactivé sur votre serveur!"
@@ -1533,6 +1587,16 @@ perm_command_delete_all_one: "Vous devez spécifier une option pour supprimer un
 perm_command_delete_all_one_option: "Vous ne pouvez spécifier qu'une seule option pour supprimer une permission."
 perm_command_delete_all_zero_change: "Le type de permission que vous avez spécifié n'a été utilisé dans aucune commande."
 perm_command_delete_all_command_ok: "\n**${changes.length}** permissions imbriquées de type `${type}` (${value}) ont été supprimées avec succès de la base de données."
+commandlimit_current_value: "${count} use(s) per ${time}"
+commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
+commandlimit_missing_command: "You need to specify a command."
+commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
+commandlimit_reset_success: "The rate limit for `${command}` has been reset."
+commandlimit_reset_missing: "No rate limit is configured for `${command}`."
+commandlimit_list_title: "Configured command rate limits"
+commandlimit_list_item: "- `${command}`: ${limit}"
+commandlimit_list_empty: "No command rate limit is configured in this guild."
+commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
 
 # /perm roles
 perm_roles_created_role: "Les rôles suivants ont été créés : ${createdRoles.join(', ')}"
@@ -1662,6 +1726,17 @@ history_delete_embed_desc: "L’historique de musique a été supprimé avec suc
 lyrics_embed_title_unknown: "Titre inconnu"
 lyrics_embed_author_name_unknown: "Auteur inconnu, c'est un ptn de random"
 lyrics_not_found: "Paroles non trouvées"
+
+# /music clear-queue
+clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | La file d'attente musicale de ce serveur Discord a été vidée."
+
+# /music trackinfo
+music_requested_by: "Solicité par"
+music_visit_here: "Visite ici"
+music_lyrics: "Paroles"
+music_link_here: "Lien ici: [Voir ici]({link})"
+
+music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **volume réglé à** `${Number(query)}`%"
 
 # Giveaway commands
 # /end, /start, /reroll
@@ -2360,7 +2435,7 @@ tempvoice_staff_desc_embed: "## Rôle du staff TempVoice\nLes rôles ici peuvent
 
 # /confession channel
 confession_channel_command_work: "Le panneau de confession a été envoyé à ${channel?.toString()} tu vas pouvoir dire que ta bz ta soeur en secret"
-confession_channel_panel_embed_desc: "# **Confessions Anonymes**\n\nCliquez sur le bouton ci-dessous pour ouvrir le formulaire de confession. Vous pouvez écrire ce que vous avez besoin de confesser. Si vous le souhaitez, vous pouvez choisir de rendre votre confession privée.\n\n## **Faire une Confession**\n\n*Remarque : Pour rendre votre confession privée, écrivez l'option correspondante dans le formulaire.*"
+confession_channel_panel_embed_desc: "# **Confessions Anonymes**\n\nCliquez sur le bouton ci-dessous pour ouvrir le formulaire de confession. Vous pouvez écrire ce que vous avez besoin de confesser. Si vous le souhaitez, vous pouvez choisir de rendre votre confession privée.\nGardez à l’esprit que les confessions peuvent ne pas rester anonymes : les propriétaires du serveur ou toute personne ayant accès aux journaux de confessions peuvent identifier les utilisateurs si ces journaux sont activés.\n\n## **Faire une Confession**\n\n*Remarque : Pour rendre votre confession privée, écrivez l'option correspondante dans le formulaire.*"
 confession_channel_log_embed_title: "Module SetChannel Confession"
 confession_channel_log_embed_desc: "${interaction.user} a défini le salon sur ${channel}"
 
@@ -2511,6 +2586,20 @@ blogger_blog_add_success: "✅ Le flux RSS **${validation.name}** a été ajout�
 blogger_blog_add_invalid_rss: "❌ Le flux RSS fourni est invalide ou inaccessible. Veuillez vérifier l’URL et réessayer."
 blogger_blog_remove_success: "✅ Le flux RSS avec l’ID `${blogId}` a été supprimé."
 blogger_blog_remove_not_found: "❌ Aucun flux RSS trouvé avec cet ID."
+lastfm_module_not_configured: "${client.iHorizon_Emojis.No} | Le module Last.fm n'est pas configuré sur le bot. Ajoute `lastfm.apiKey` et `lastfm.sharedSecret` dans la config, ou définis `LASTFM_API_KEY` et `LASTFM_SHARED_SECRET`."
+lastfm_config_login_required: "${client.iHorizon_Emojis.No} | Tu dois utiliser `/lastfm login` avant d'activer le module."
+lastfm_config_enabled: "${client.iHorizon_Emojis.Yes} | Le scrobbling Last.fm est maintenant activé pour ton compte."
+lastfm_config_disabled: "${client.iHorizon_Emojis.Yes} | Le scrobbling Last.fm est maintenant désactivé pour ton compte."
+lastfm_login_invalid_session: "${client.iHorizon_Emojis.No} | Last.fm n'a pas renvoyé de session valide."
+lastfm_login_success: "${client.iHorizon_Emojis.Yes} | Ton compte Last.fm `${username}` est maintenant connecté et le scrobbling est activé."
+lastfm_embed_title: "Configuration Last.fm de ${userLabel}"
+lastfm_embed_field_status: "Statut"
+lastfm_embed_field_account: "Compte connecté"
+lastfm_embed_field_connected_at: "Connecté le"
+lastfm_api_error_login: "${client.iHorizon_Emojis.No} | Impossible de se connecter à Last.fm : ${error}"
+lastfm_api_error_nowplaying: "${client.iHorizon_Emojis.No} | Impossible d'envoyer le Now Playing à Last.fm : ${error}"
+lastfm_api_error_scrobble: "${client.iHorizon_Emojis.No} | Impossible de scrobbler ce morceau : ${error}"
+lastfm_api_error_unknown: "erreur inconnue"
 
 # Module AuthRestore
 # role, set, delete, get, force-join
@@ -2604,8 +2693,8 @@ event_welcomer_inviter: "let's go un con d'+! C'est {memberMention} ce gars ou m
 event_welcomer_default: "let's go un con d'+! C'est {memberMention} ce gars ou meuf lv jsp. Il as rejoins rejoint le serveur. Nous sommes maintenant {memberCount} dans {guildName}"
 
 # Goodbye Message Events
-event_goodbye_inviter: "Oh fdp pq t partit? C'est {memberUsername} (compte créé le {accountCreationTimestamp}) qui quitte la guilde. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invs), nous sommes maintenant {memberCount} dans {guildName}"
-event_goodbye_default: "Oh fdp pq t partit? C'est {memberUsername} (compte créé le {accountCreationTimestamp}) qui quitte la guilde. Nous sommes maintenant {memberCount} dans {guildName}"
+event_goodbye_inviter: "Oh fdp pq t partit? C'est `{memberUsername}` (compte créé le {accountCreationTimestamp}) qui quitte la guilde. Elle/Il a été invités par **{inviterUsername}** (**{invitesCount}** invs), nous sommes maintenant {memberCount} dans {guildName}"
+event_goodbye_default: "Oh fdp pq t partit? C'est `{memberUsername}` (compte créé le {accountCreationTimestamp}) qui quitte la guilde. Nous sommes maintenant {memberCount} dans {guildName}"
 
 # XP Level Events
 event_xp_level_earn: "**GG**, {memberMention}, bravo sale modo, ta gagné un niveau! On sen branle (Niveau : **{xpLevel}**)"
@@ -2944,3 +3033,93 @@ global_blacklist_msg_to_send: "Tu as été banni car tu es sur la blacklist d’
 global_blacklist_reason: "Sanction du projet OWNIHRZ - Blacklist | Raison : ${data.reason}"
 server_blacklist_msg_to_send: "Tu as été banni car tu es sur la blacklist de ce serveur.\nRaison : `${data2.reason}`"
 server_blacklist_reason: "Blacklist | Raison : ${data2.reason}"
+help_sticky_fields: "Sticky"
+help_sticky_dsc: "> *Gardez un message important toujours visible dans vos salons grâce à une republication automatique.*"
+sticky_channel_command_error: "${client.iHorizon_Emojis.No} | ${interaction.user}, je n'ai pas pu trouver un salon textuel valide."
+sticky_text_command_missing_message: "${client.iHorizon_Emojis.No} | ${interaction.user}, vous devez fournir un message sticky."
+sticky_text_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}, le message sticky texte est maintenant actif dans ${channel}."
+sticky_embed_command_embed_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}, je n'ai pas pu trouver l'embed `${embed_id}`."
+sticky_embed_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}, l'embed sticky `${embed_id}` est maintenant actif dans ${channel}."
+sticky_disable_command_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}, aucun message sticky n'est configuré dans ${channel}."
+sticky_disable_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}, le message sticky a été désactivé dans ${channel}."
+sticky_refresh_command_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}, aucun message sticky n'est configuré dans ${channel}."
+sticky_refresh_command_missing_embed: "${client.iHorizon_Emojis.No} | ${interaction.user}, le message sticky de ${channel} référence un embed qui n'existe plus."
+sticky_refresh_command_missing_permissions: "${client.iHorizon_Emojis.No} | ${interaction.user}, je ne peux pas republier le message sticky dans ${channel}. Vérifiez mes permissions."
+sticky_refresh_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}, le message sticky a été republié dans ${channel}."
+sticky_show_command_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}, aucun message sticky n'est configuré dans ${channel}."
+sticky_show_embed_title: "Configuration du message sticky"
+sticky_show_embed_fields_channel: "Salon"
+sticky_show_embed_fields_type: "Type"
+sticky_show_embed_fields_status: "Statut"
+sticky_show_embed_fields_message: "Message"
+sticky_show_embed_fields_embed: "ID de l'embed"
+sticky_show_embed_fields_last_message: "ID du dernier message sticky"
+sticky_list_embed_title: "Salons sticky"
+sticky_list_embed_desc_empty: "Aucun salon sticky n'est configuré sur ce serveur."
+sticky_list_embed_desc_line_text: "${channel} - Sticky texte"
+sticky_list_embed_desc_line_embed: "${channel} - Sticky embed (`${embed_id}`)"
+sticky_list_embed_desc_line_text_embed: "${channel} - Sticky texte + embed (`${embed_id}`)"
+sticky_var_text: "Texte"
+sticky_var_embed: "Embed"
+sticky_var_text_embed: "Texte + embed"
+sticky_var_enabled: "Activé"
+sticky_var_disabled: "Désactivé"
+sticky_var_none: "Aucun"
+
+# /honeypot config
+honeypot_config_not_allowed: "Faut être administrateur ou dans l'allowlist pour toucher à Honeypot."
+honeypot_config_embed_title: "Configuration de Honeypot"
+honeypot_config_embed_desc: "Configure le salon piège, le salon de logs et l'action automatique utilisée quand quelqu'un commence à envoyer des messages dans le salon *Honeypot*."
+honeypot_config_embed_field_status: "Statut"
+honeypot_config_embed_field_trap_channel: "Salon piège"
+honeypot_config_embed_field_logs_channel: "Salon de logs"
+honeypot_config_embed_field_action: "Action"
+honeypot_config_embed_field_message: "Message envoyé"
+honeypot_config_embed_field_notes: "Notes"
+honeypot_config_embed_field_credit: "Crédits"
+honeypot_config_notes_value: "- **Mets le rôle iHorizon au-dessus de tous les rôles membres.**\n- **Les salons Honeypot créés automatiquement montent tout en haut du serveur.**\n- **Tu peux renommer le salon Honeypot sans casser le système.**"
+honeypot_config_credit_value: "*Inspiré de Honeypot par RiskyMH*\n${url}"
+honeypot_config_select_trap_placeholder: "Choisir le salon piège"
+honeypot_config_select_logs_placeholder: "Choisir le salon de logs"
+honeypot_config_select_action_placeholder: "Choisir l'action à appliquer"
+honeypot_config_button_send: "Envoyer l'embed"
+honeypot_config_button_preview: "Voir la preview"
+honeypot_config_button_enable: "Activer Honeypot"
+honeypot_config_button_disable: "Désactiver Honeypot"
+honeypot_config_send_success: "L'embed Honeypot a été envoyé dans ${channel}."
+honeypot_config_enable_success: "Honeypot est maintenant activé dans ${channel}."
+honeypot_config_disable_success: "Honeypot est maintenant désactivé."
+honeypot_config_missing_logs_channel: "Configure un salon de logs avant d'activer Honeypot."
+honeypot_config_generic_error: "Une erreur a éclaté pendant la mise à jour de Honeypot."
+honeypot_config_select_action_kick: "Expulser les utilisateurs"
+honeypot_config_select_action_ban: "Bannir les utilisateurs"
+honeypot_config_select_action_none: "Ne supprimer que les messages"
+honeypot_config_select_action_del_messages: "Supprimer les messages"
+honeypot_default_channel_name: "🍯・discussion-generale"
+honeypot_action_none: "Suppression des messages uniquement"
+honeypot_action_failed: "Action ratée"
+honeypot_dm_action_kicked: "tu as été expulsé!"
+honeypot_dm_action_banned: "tu as été banni!"
+honeypot_dm_action_none: "tes messages ont été supprimés"
+honeypot_trap_embed_title: "ENVOIE PAS DE MESSAGES DANS CE SALON"
+honeypot_trap_embed_desc: "*Ce salon est utilisé pour choper les bots spam.*\n*Tout message envoyé ici **VA** déclencher la protection automatique du serveur.*"
+honeypot_trap_embed_footer: "Inspiré du Honeypot de RiskyMH, regarde moi ce poulet !\n${url}"
+honeypot_dm_title: "Honeypot déclenché!"
+honeypot_dm_desc: "Un message que vous avez envoyé dans le canal *Honeypot* sur le serveur suivant : **`${guild}`** **déclenché** la protection configurée.\n\n__Action prise contre vous :__ **`${action}`**\n\n*Les messages que vous avez envoyés au cours des 2 dernières heures sont en cours de suppression du serveur. Si vous pensez avoir été hacké, changez votre mot de passe et activez la 2FA sur votre compte Discord. S'il s'agit d'une erreur de votre part, veuillez contacter l'équipe du serveur pour résoudre le problème.*"
+honeypot_log_title: "Déclenchement Honeypot - ${action}"
+honeypot_log_field_author: "Auteur"
+honeypot_log_field_channel: "Salon"
+honeypot_log_field_message: "Message supprimé"
+honeypot_log_field_attachments: "Pièces jointes"
+honeypot_log_field_stickers: "Stickers"
+honeypot_log_field_embeds: "Embeds"
+honeypot_log_field_deleted_messages: "Messages supprimés"
+honeypot_log_field_triggered_messages: "Messages déclencheurs"
+honeypot_log_field_dm_status: "Statut du MP"
+honeypot_log_field_result: "Résultat"
+honeypot_log_dm_open: "Envoyé"
+honeypot_log_dm_closed: "Fermé ou inaccessible"
+honeypot_log_no_content: "Aucun contenu texte"
+honeypot_log_action_ban: "Utilisateur banni"
+honeypot_log_action_kick: "Utilisateur expulsé"
+honeypot_log_action_none: "Aucune action prise"

@@ -19,22 +19,27 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	EmbedBuilder,
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		let text = "";
 
@@ -44,39 +49,52 @@ export const subCommand: SubCommand = {
 			const datas = {
 				enable: false,
 				list: {
-					[`${interaction.guild?.ownerId}`]: { allowed: true },
-				},
+					[`${interaction.guild?.ownerId}`]: { allowed: true }
+				}
 			};
 
 			await client.db.set(`${interaction.guildId}.ALLOWLIST`, datas);
 
 			baseData = datas;
-		};
-
-		for (const i in baseData.list) {
-			text += `<@${i}>\n`
-		};
-
-		for (var i of client.owners) {
-			text += `<@${i}> [👑]\n`
 		}
 
-		if (interaction.user.id !== interaction.guild.ownerId && !text.includes(interaction.user.id)) {
-			await client.func.method.interactionSend(interaction, { content: lang.allowlist_show_not_permited });
+		for (const i in baseData.list) {
+			text += `<@${i}>\n`;
+		}
+
+		for (var i of client.owners) {
+			text += `<@${i}> [👑]\n`;
+		}
+
+		if (
+			interaction.user.id !== interaction.guild.ownerId &&
+			!text.includes(interaction.user.id)
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.allowlist_show_not_permited
+			});
 			return;
-		};
+		}
 
 		const embed = new EmbedBuilder()
 			.setColor("#010101")
 			.setAuthor({ name: lang.allowlist_show_embed_author })
 			.setDescription(`${text}`)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setTimestamp();
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
-	},
+	}
 };

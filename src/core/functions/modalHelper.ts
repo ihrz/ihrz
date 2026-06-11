@@ -28,7 +28,7 @@ import {
 	ModalSubmitInteraction,
 	TextInputBuilder,
 	TextInputStyle
-} from 'discord.js';
+} from "discord.js";
 
 export interface ModalOptionsBuilder {
 	title: string;
@@ -42,11 +42,13 @@ export interface ModalOptionsBuilder {
 		style: TextInputStyle;
 		required: boolean;
 		maxLength?: number;
-		minLength?: number
-	}[]
+		minLength?: number;
+	}[];
 }
 
-export function iHorizonModalBuilder(modalOptions: ModalOptionsBuilder): APIModalInteractionResponseCallbackData {
+export function iHorizonModalBuilder(
+	modalOptions: ModalOptionsBuilder
+): APIModalInteractionResponseCallbackData {
 	const modal = new ModalBuilder()
 		.setCustomId(modalOptions.customId)
 		.setTitle(modalOptions.title.substring(0, 32));
@@ -61,10 +63,12 @@ export function iHorizonModalBuilder(modalOptions: ModalOptionsBuilder): APIModa
 			.setMinLength(content.minLength || 5);
 
 		if (content?.placeHolder) {
-			_.setPlaceholder(content.placeHolder)
+			_.setPlaceholder(content.placeHolder);
 		}
 
-		modal.addComponents(new ActionRowBuilder<TextInputBuilder>().addComponents(_));
+		modal.addComponents(
+			new ActionRowBuilder<TextInputBuilder>().addComponents(_)
+		);
 	});
 
 	return modal.toJSON();
@@ -72,7 +76,10 @@ export function iHorizonModalBuilder(modalOptions: ModalOptionsBuilder): APIModa
 
 const cache: number[] = [];
 
-export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, interaction: Interaction): Promise<ModalSubmitInteraction<"cached"> | undefined> {
+export async function iHorizonModalResolve(
+	modalOptions: ModalOptionsBuilder,
+	interaction: Interaction
+): Promise<ModalSubmitInteraction<"cached"> | undefined> {
 	const { deferUpdate = true } = modalOptions;
 	modalOptions.deferUpdate = deferUpdate;
 
@@ -80,14 +87,18 @@ export async function iHorizonModalResolve(modalOptions: ModalOptionsBuilder, in
 
 	await (interaction as MessageComponentInteraction).showModal(modal);
 
-	const response = await (interaction as MessageComponentInteraction<"cached">).awaitModalSubmit({
-		filter: (i) => i.customId === modalOptions.customId && i.user.id === interaction.user.id,
+	const response = await (
+		interaction as MessageComponentInteraction<"cached">
+	).awaitModalSubmit({
+		filter: (i) =>
+			i.customId === modalOptions.customId &&
+			i.user.id === interaction.user.id,
 		time: 1_240_000
 	});
 
 	if (cache.includes(parseInt(response.id))) {
 		return undefined;
-	};
+	}
 	cache.push(parseInt(response.id));
 	if (deferUpdate) {
 		await response.deferUpdate();

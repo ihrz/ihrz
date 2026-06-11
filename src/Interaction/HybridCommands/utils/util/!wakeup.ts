@@ -27,62 +27,87 @@ import {
 	GuildMember,
 	VoiceBasedChannel,
 	ChannelType
-} from 'discord.js'
+} from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
+import { LanguageData } from "../../../../../types/languageData.js";
 
-import wait from '../../../../core/functions/wait.js';
+import wait from "../../../../core/functions/wait.js";
 
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const user = interaction instanceof ChatInputCommandInteraction
-			? interaction.options.getMember("member")!
-			: client.func.method.member(interaction, args!, 0)!;
+		const user =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getMember("member")!
+				: client.func.method.member(interaction, args!, 0)!;
 
 		const start = Date.now();
 
 		if (user.id === interaction.member.user.id) {
-			await client.func.method.interactionSend(interaction, { content: lang.util_wakeup_yourself });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.util_wakeup_yourself
+			});
 			return;
 		}
 
 		if (user.voice.channelId === null) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.util_wakeup_not_in_vc
-					.replace("${user.displayName}", user.displayName)
+				content: lang.util_wakeup_not_in_vc.replace(
+					"${user.displayName}",
+					user.displayName
+				)
 			});
 			return;
 		}
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.util_wakeup_command_work.replace("${user.toString()}", user.toString())
+			content: lang.util_wakeup_command_work.replace(
+				"${user.toString()}",
+				user.toString()
+			)
 		});
 
 		async function moveUser() {
-			if (!user.voice.channelId) return;
-			// stop the loop if 5 minutes have passed
-			if (Date.now() - start >= 60_000 * 5) return;
+			// stop the loop if 2 minutes have passed
+			if (Date.now() - start >= 60_000 * 2) return;
 
-			const channel = interaction.guild?.channels.cache.filter(
-				(c) => c.type === ChannelType.GuildVoice
-					&& c.permissionsFor(user as GuildMember)?.has(PermissionsBitField.Flags.Connect)
-					&& c.id !== (interaction.member as GuildMember).voice.channelId
-			).random() as VoiceBasedChannel;
+			const channel = interaction.guild?.channels.cache
+				.filter(
+					(c) =>
+						c.type === ChannelType.GuildVoice &&
+						c
+							.permissionsFor(user as GuildMember)
+							?.has(PermissionsBitField.Flags.Connect) &&
+						c.id !==
+							(interaction.member as GuildMember).voice.channelId
+				)
+				.random() as VoiceBasedChannel;
 
 			if (!channel) return;
 
-			await user.voice.setChannel(channel);
+			if (!user.voice.channelId) return;
+
+			await user.voice.setChannel(channel).catch(() => {});
 			await wait(300);
 
 			return moveUser();
-		};
+		}
 
 		await moveUser();
-	},
+	}
 };

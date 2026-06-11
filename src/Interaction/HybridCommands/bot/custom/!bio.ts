@@ -19,51 +19,77 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
+import { LanguageData } from "../../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
+import { metasTable } from "../../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.member.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.member.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var action = interaction.options.getString("action");
-			var desc = interaction.options.getString('bio');
+			var desc = interaction.options.getString("bio");
 		} else {
 			var action = client.func.method.string(args!, 0);
 			var desc = client.func.method.longString(args!, 1);
 		}
 
 		if (action === "reset") {
-			await client.func.method.interactionSend(interaction, { content: lang.custom_desc_reset });
-			await client.func.customProfileHelper.changeGuildBotBio(interaction.guild, client.user.displayName);
+			await client.func.method.interactionSend(interaction, {
+				content: lang.custom_desc_reset
+			});
+			await client.func.customProfileHelper.changeGuildBotBio(
+				interaction.guild,
+				(await metasTable.get("BOT.user.bio")) || client.user.username
+			);
 			return;
 		} else if (desc) {
-			if (desc.length >= 400) return await client.func.method.interactionSend(interaction, { content: lang.guildconfig_setbot_footername_footer_too_long_msg });
+			if (desc.length >= 400)
+				return await client.func.method.interactionSend(interaction, {
+					content:
+						lang.guildconfig_setbot_footername_footer_too_long_msg
+				});
 
-			await client.func.customProfileHelper.changeGuildBotBio(interaction.guild, desc);
+			await client.func.customProfileHelper.changeGuildBotBio(
+				interaction.guild,
+				desc
+			);
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.custom_desc_set
-					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
-					.replace("${client.iHorizon_Emojis.Crown}", client.iHorizon_Emojis.Crown)
+					.replace(
+						"${client.iHorizon_Emojis.Yes}",
+						client.iHorizon_Emojis.Yes
+					)
+					.replace(
+						"${client.iHorizon_Emojis.Crown}",
+						client.iHorizon_Emojis.Crown
+					)
 					.replace("${desc}", desc)
 			});
 			return;
 		} else {
-			await client.func.method.interactionSend(interaction, { content: lang.guildconfig_setbot_footername_not_found });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.guildconfig_setbot_footername_not_found
+			});
 			return;
 		}
-	},
+	}
 };

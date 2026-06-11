@@ -24,64 +24,100 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var user = interaction.options.getMember("member") as GuildMember;
 			var amount = interaction.options.getNumber("amount")!;
 		} else {
-
-			var user = client.func.method.member(interaction, args!, 0) || interaction.member;
+			var user =
+				client.func.method.member(interaction, args!, 0) ||
+				interaction.member;
 			var amount = client.func.method.number(args!, 1);
-		};
+		}
 
 		let a = new EmbedBuilder()
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#FF0000")
 			.setDescription(lang.removeinvites_not_admin_embed_description);
 
-		const check = await client.db.get(`${interaction?.guild?.id}.USER.${user.id}.INVITES`);
+		const check = await client.db.get(
+			`${interaction?.guild?.id}.USER.${user.id}.INVITES`
+		);
 
 		if (check) {
-			await client.db.sub(`${interaction.guildId}.USER.${user.id}.INVITES.invites`, amount!);
-			await client.db.sub(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
+			await client.db.sub(
+				`${interaction.guildId}.USER.${user.id}.INVITES.invites`,
+				amount!
+			);
+			await client.db.sub(
+				`${interaction.guildId}.USER.${user.id}.INVITES.bonus`,
+				amount!
+			);
 		} else {
-
-			await client.db.set(`${interaction?.guild?.id}.USER.${user.id}.INVITES`,
+			await client.db.set(
+				`${interaction?.guild?.id}.USER.${user.id}.INVITES`,
 				{
-					regular: 0, bonus: 0, leaves: 0, invites: 0
+					regular: 0,
+					bonus: 0,
+					leaves: 0,
+					invites: 0
 				}
 			);
-			await client.db.sub(`${interaction.guildId}.USER.${user.id}.INVITES.invites`, amount!);
-			await client.db.sub(`${interaction.guildId}.USER.${user.id}.INVITES.bonus`, amount!);
-		};
+			await client.db.sub(
+				`${interaction.guildId}.USER.${user.id}.INVITES.invites`,
+				amount!
+			);
+			await client.db.sub(
+				`${interaction.guildId}.USER.${user.id}.INVITES.bonus`,
+				amount!
+			);
+		}
 
 		const finalEmbed = new EmbedBuilder()
-			.setDescription(lang.removeinvites_confirmation_embed_description
-				.replace(/\${amount}/g, amount.toString())
-				.replace(/\${user}/g, user.toString()!)
+			.setDescription(
+				lang.removeinvites_confirmation_embed_description
+					.replace(/\${amount}/g, amount.toString())
+					.replace(/\${user}/g, user.toString()!)
 			)
 			.setColor(`#92A8D1`)
-			.setFooter({ text: interaction.guild.name as string, iconURL: interaction.guild.iconURL() as string });
+			.setFooter({
+				text: interaction.guild.name as string,
+				iconURL: interaction.guild.iconURL() as string
+			});
 
-		await client.func.method.interactionSend(interaction, { embeds: [finalEmbed] });
+		await client.func.method.interactionSend(interaction, {
+			embeds: [finalEmbed]
+		});
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.removeinvites_logs_embed_title,
 			description: lang.removeinvites_logs_embed_description
-				.replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+				.replace(
+					/\${interaction\.user\.id}/g,
+					interaction.member.user.id
+				)
 				.replace(/\${amount}/g, amount.toString())
 				.replace(/\${user\.id}/g, user.id)
 		});
-	},
+	}
 };

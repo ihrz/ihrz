@@ -42,41 +42,60 @@ interface AxiosRequestConfig {
 	params?: any;
 	data?: any;
 	timeout?: number;
-	responseType?: 'json' | 'arrayBuffer' | 'arraybuffer';
+	responseType?: "json" | "arrayBuffer" | "arraybuffer";
 }
 
 class AxiosClass {
-	async request<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-		const { url = '', method = 'GET', baseURL = '', headers = {}, params, data, timeout, responseType = 'json' } = config;
+	async request<T = any>(
+		config: AxiosRequestConfig
+	): Promise<AxiosResponse<T>> {
+		const {
+			url = "",
+			method = "GET",
+			baseURL = "",
+			headers = {},
+			params,
+			data,
+			timeout,
+			responseType = "json"
+		} = config;
 		const requestUrl = baseURL ? baseURL + url : url;
 
 		const options: RequestInit = {
 			method,
 			headers: {
-				'Content-Type': 'application/json',
-				...headers,
+				"Content-Type": "application/json",
+				...headers
 			},
-			body: data ? JSON.stringify(data) : undefined,
+			body: data ? JSON.stringify(data) : undefined
 		};
 
-		if (responseType === 'arrayBuffer' || responseType === 'arraybuffer') {
+		if (timeout) {
+			options["signal"] = AbortSignal.timeout(timeout);
+		}
+
+		if (responseType === "arrayBuffer" || responseType === "arraybuffer") {
 			if (!options.headers) options.headers = {};
-			(options.headers as Record<string, string>)['Accept'] = 'application/octet-stream';
+			(options.headers as Record<string, string>)["Accept"] =
+				"application/octet-stream";
 		}
 
 		try {
 			const response = await fetch(requestUrl, options);
-			const contentType = response.headers.get('content-type');
-			const isJSON = contentType && contentType.includes('application/json');
+			const contentType = response.headers.get("content-type");
+			const isJSON =
+				contentType && contentType.includes("application/json");
 
-			if (responseType === 'json' || isJSON) {
-				const responseData = isJSON ? await response.json() : await response.text();
+			if (responseType === "json" || isJSON) {
+				const responseData = isJSON
+					? await response.json()
+					: await response.text();
 
 				return {
 					data: responseData,
 					status: response.status,
 					statusText: response.statusText,
-					headers: response.headers,
+					headers: response.headers
 				};
 			} else {
 				const responseData = await response.arrayBuffer();
@@ -85,7 +104,7 @@ class AxiosClass {
 					data: responseData as unknown as T,
 					status: response.status,
 					statusText: response.statusText,
-					headers: response.headers,
+					headers: response.headers
 				};
 			}
 		} catch (error) {
@@ -93,20 +112,34 @@ class AxiosClass {
 		}
 	}
 
-	async head<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-		return this.request({ ...config, url, method: 'HEAD' });
+	async head<T = any>(
+		url: string,
+		config?: AxiosRequestConfig
+	): Promise<AxiosResponse<T>> {
+		return this.request({ ...config, url, method: "HEAD" });
 	}
 
-	get<T = any>(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-		return this.request({ ...config, url, method: 'GET' });
+	get<T = any>(
+		url: string,
+		config?: AxiosRequestConfig
+	): Promise<AxiosResponse<T>> {
+		return this.request({ ...config, url, method: "GET" });
 	}
 
-	post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-		return this.request({ ...config, url, method: 'POST', data });
+	post<T = any>(
+		url: string,
+		data?: any,
+		config?: AxiosRequestConfig
+	): Promise<AxiosResponse<T>> {
+		return this.request({ ...config, url, method: "POST", data });
 	}
 
-	put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-		return this.request({ ...config, url, method: 'PUT', data });
+	put<T = any>(
+		url: string,
+		data?: any,
+		config?: AxiosRequestConfig
+	): Promise<AxiosResponse<T>> {
+		return this.request({ ...config, url, method: "PUT", data });
 	}
 
 	private handleRequestError<T = any>(error: any): AxiosError<T> {

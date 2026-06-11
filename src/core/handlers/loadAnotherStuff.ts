@@ -19,44 +19,95 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client } from 'discord.js';
+import { Client } from "discord.js";
 
-import { fileURLToPath } from 'url';
-import path from 'path';
-import { readdir } from 'node:fs/promises';
-import { Client_Functions } from '../../../types/client_functions.js';
+import { fileURLToPath } from "url";
+import path from "path";
+import { readdir } from "node:fs/promises";
+import { Client_Functions } from "../../../types/client_functions.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export type FunctionModule = {
-	[K in keyof typeof Client_Functions]: typeof Client_Functions[K]
+	[K in keyof typeof Client_Functions]: (typeof Client_Functions)[K];
 };
 
 export default async (client: Client) => {
-
-	(await readdir(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons')))
-		.filter(file => file.endsWith(".ts"))
-		.forEach(async file => {
-			const buttons = await import(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'Buttons', file));
-			client.buttons.set(file.split('.ts')[0], buttons.default || buttons);
+	(
+		await readdir(
+			path.join(
+				__dirname,
+				"..",
+				"..",
+				"Interaction",
+				"Components",
+				"Buttons"
+			)
+		)
+	)
+		.filter((file) => file.endsWith(".ts"))
+		.forEach(async (file) => {
+			const buttons = await import(
+				path.join(
+					__dirname,
+					"..",
+					"..",
+					"Interaction",
+					"Components",
+					"Buttons",
+					file
+				)
+			);
+			client.buttons.set(
+				file.split(".ts")[0],
+				buttons.default || buttons
+			);
 		});
 
-	const functionsDir = path.join(__dirname, '..', '..', 'core', 'functions');
-	const functionFiles = (await readdir(functionsDir)).filter(file => file.endsWith(".ts"));
+	const functionsDir = path.join(__dirname, "..", "..", "core", "functions");
+	const functionFiles = (await readdir(functionsDir)).filter((file) =>
+		file.endsWith(".ts")
+	);
 
 	for (const file of functionFiles) {
-		const functionName = file.split('.ts')[0] as keyof typeof Client_Functions;
+		const functionName = file.split(
+			".ts"
+		)[0] as keyof typeof Client_Functions;
 		const functionModule = await import(path.join(functionsDir, file));
 		const functionImplementation = functionModule.default || functionModule;
 
 		(client.func as FunctionModule)[functionName] = functionImplementation;
 	}
 
-	(await readdir(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'SelectMenu')))
-		.filter(file => file.endsWith(".ts"))
-		.forEach(async file => {
-			const selectmenu = await import(path.join(__dirname, '..', '..', 'Interaction', 'Components', 'SelectMenu', file));
-			client.selectmenu.set(file.split('.ts')[0], selectmenu.default || selectmenu);
+	(
+		await readdir(
+			path.join(
+				__dirname,
+				"..",
+				"..",
+				"Interaction",
+				"Components",
+				"SelectMenu"
+			)
+		)
+	)
+		.filter((file) => file.endsWith(".ts"))
+		.forEach(async (file) => {
+			const selectmenu = await import(
+				path.join(
+					__dirname,
+					"..",
+					"..",
+					"Interaction",
+					"Components",
+					"SelectMenu",
+					file
+				)
+			);
+			client.selectmenu.set(
+				file.split(".ts")[0],
+				selectmenu.default || selectmenu
+			);
 		});
 };

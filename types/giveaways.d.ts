@@ -57,15 +57,15 @@ export interface GiveawayCreateOptions {
 }
 
 export interface GiveawaysManagerOptions {
-	storage: string,
+	storage: string;
 	config: {
-		botsCanWin: boolean,
-		embedColor: string,
-		embedColorEnd: string,
-		reaction: string,
-		forceUpdateEvery: number,
-		endedGiveawaysLifetime: number,
-	},
+		botsCanWin: boolean;
+		embedColor: string;
+		embedColorEnd: string;
+		reaction: string;
+		forceUpdateEvery: number;
+		endedGiveawaysLifetime: number;
+	};
 }
 
 export interface GiveawayData {

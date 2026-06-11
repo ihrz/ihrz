@@ -19,40 +19,56 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const action = interaction.options.getString("action");
 
-		if (action === 'on') {
-			await client.db.set(`${interaction.guildId}.SECURITY.disable`, false);
+		if (action === "on") {
+			await client.db.set(
+				`${interaction.guildId}.SECURITY.disable`,
+				false
+			);
 			await client.func.method.interactionSend(interaction, {
-				content: lang.security_disable_pw_on
-					.replace('${interaction.user}', interaction.user.toString())
+				content: lang.security_disable_pw_on.replace(
+					"${interaction.user}",
+					interaction.user.toString()
+				)
 			});
 
 			return;
-		} else if (action === 'off') {
-			await client.db.set(`${interaction.guildId}.SECURITY.disable`, true);
+		} else if (action === "off") {
+			await client.db.set(
+				`${interaction.guildId}.SECURITY.disable`,
+				true
+			);
 			await client.func.method.interactionSend(interaction, {
-				content: lang.security_disable_pw_off
-					.replace('${interaction.user}', interaction.user.toString())
+				content: lang.security_disable_pw_off.replace(
+					"${interaction.user}",
+					interaction.user.toString()
+				)
 			});
 
 			return;
-		};
-	},
+		}
+	}
 };

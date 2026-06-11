@@ -19,50 +19,64 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Client } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const action = interaction.options.getString('action');
+		const action = interaction.options.getString("action");
 
 		if (interaction.user.id !== interaction.guild.ownerId) {
 			await interaction.editReply({ content: lang.blockbot_not_owner });
 			return;
-		} else if (action === 'on') {
+		} else if (action === "on") {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.blockbot_logs_enable_title,
-				description: lang.blockbot_logs_enable_description
-					.replace(/\${interaction\.user}/g, interaction.user.toString())
+				description: lang.blockbot_logs_enable_description.replace(
+					/\${interaction\.user}/g,
+					interaction.user.toString()
+				)
 			});
 
 			await client.db.set(`${interaction.guildId}.GUILD.BLOCK_BOT`, true);
 
-			await interaction.editReply({ content: lang.blockbot_command_work_on_enable });
+			await interaction.editReply({
+				content: lang.blockbot_command_work_on_enable
+			});
 			return;
-		} else if (action === 'off') {
+		} else if (action === "off") {
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.blockbot_logs_disable_commmand_work,
-				description: lang.blockbot_logs_disable_description
-					.replace(/\${interaction\.user}/g, interaction.user.toString())
+				description: lang.blockbot_logs_disable_description.replace(
+					/\${interaction\.user}/g,
+					interaction.user.toString()
+				)
 			});
 
 			await client.db.delete(`${interaction.guildId}.GUILD.BLOCK_BOT`);
 
-			await interaction.editReply({ content: lang.blockbot_command_work_on_disable });
+			await interaction.editReply({
+				content: lang.blockbot_command_work_on_disable
+			});
 			return;
-		};
-	},
+		}
+	}
 };

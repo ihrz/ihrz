@@ -19,57 +19,108 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from 'discord.js';
+import { BaseGuildTextChannel, Client, Guild, EmbedBuilder } from "discord.js";
 
 import logger from "../../core/logger.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
+import { BotEvent } from "../../../types/event.js";
+import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
 
 export const event: BotEvent = {
 	name: "guildDelete",
 	run: async (client: Client, guild: Guild) => {
-
 		try {
-			let i: string = '';
+			let i: string = "";
 
 			if (guild.name === undefined) return;
 
 			let owner1 = client.config.owners.users[0];
 			let owner2 = client.config.owners.users[1];
 
-			if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
+			if (guild.vanityURLCode) {
+				i = "discord.gg/" + guild.vanityURLCode;
+			}
 
 			const stats = await getShardStats(client);
 
 			let embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#ff0505")
+				.setColor(
+					(await client.db.get(
+						`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`
+					)) || "#ff0505"
+				)
 				.setTimestamp(guild.joinedTimestamp)
-				.setDescription(`**A guild removed ${client.user?.username!} !**`)
-				.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
-					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
-					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-					{ name: "👤・Member Count", value: `\`${guild.memberCount || guild.members.cache.size || "idk"}\` members`, inline: true },
-					{ name: "🪝・Vanity URL", value: `\`${i || 'None'}\``, inline: true },
-					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
-					{ name: "🥛・New members total", value: `${stats.users} members`, inline: true },
-					{ name: "💠・Shard", value: `#${client.shard?.ids[0]}`, inline: true }
+				.setDescription(
+					`**A guild removed ${client.user?.username!} !**`
+				)
+				.addFields(
+					{
+						name: "🏷️・Server Name",
+						value: `\`${guild.name}\``,
+						inline: true
+					},
+					{
+						name: "🆔・Server ID",
+						value: `\`${guild.id}\``,
+						inline: true
+					},
+					{
+						name: "🌐・Server Region",
+						value: `\`${guild.preferredLocale}\``,
+						inline: true
+					},
+					{
+						name: "👤・Member Count",
+						value: `\`${guild.memberCount || guild.members.cache.size || "idk"}\` members`,
+						inline: true
+					},
+					{
+						name: "🪝・Vanity URL",
+						value: `\`${i || "None"}\``,
+						inline: true
+					},
+					{
+						name: "🍻・New guilds total",
+						value: stats.guilds.toString(),
+						inline: true
+					},
+					{
+						name: "🥛・New members total",
+						value: `${stats.users} members`,
+						inline: true
+					},
+					{
+						name: "💠・Shard",
+						value: `#${client.shard?.ids[0]}`,
+						inline: true
+					}
 				)
 				.setThumbnail(guild.iconURL())
 				.setTimestamp(guild.joinedTimestamp)
-				.setFooter({ text: 'iHorizon ・ Joined at', iconURL: "attachment://footer_icon.png" })
+				.setFooter({
+					text: "iHorizon ・ Joined at",
+					iconURL: "attachment://footer_icon.png"
+				});
 
-			await (client.users.cache.get(owner1))?.send({
+			await client.users.cache.get(owner1)?.send({
 				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						guild
+					)
+				]
 			});
 
-			await (client.users.cache.get(owner2))?.send({
+			await client.users.cache.get(owner2)?.send({
 				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-			})
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						guild
+					)
+				]
+			});
 		} catch (error: any) {
 			logger.err(error);
 		}
-	},
+	}
 };

@@ -19,34 +19,47 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, VoiceState } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
+import { Client, VoiceState } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
 	run: async (client: Client, oldState: VoiceState, newState: VoiceState) => {
-		const baseData = await client.db.get(`${newState.guild.id}.UTILS.LEASH`) as DatabaseStructure.UtilsData["LEASH"];
+		const baseData = (await client.db.get(
+			`${newState.guild.id}.UTILS.LEASH`
+		)) as DatabaseStructure.UtilsData["LEASH"];
 		const currentTime = Date.now();
 
-		const validEntries = baseData?.filter(entry => currentTime - entry.timestamp <= 30 * 60 * 1000) || [];
-		const expiredEntries = baseData?.filter(entry => currentTime - entry.timestamp > 30 * 60 * 1000) || [];
+		const validEntries =
+			baseData?.filter(
+				(entry) => currentTime - entry.timestamp <= 30 * 60 * 1000
+			) || [];
+		const expiredEntries =
+			baseData?.filter(
+				(entry) => currentTime - entry.timestamp > 30 * 60 * 1000
+			) || [];
 
 		if (expiredEntries.length > 0) {
-			await client.db.set(`${newState.guild.id}.UTILS.LEASH`, validEntries);
+			await client.db.set(
+				`${newState.guild.id}.UTILS.LEASH`,
+				validEntries
+			);
 		}
 
-		const matchedPairings = validEntries.filter(x =>
-			x.sub === oldState.member?.id ||
-			x.dom === oldState.member?.id ||
-			x.sub === newState.member?.id ||
-			x.dom === newState.member?.id
+		const matchedPairings = validEntries.filter(
+			(x) =>
+				x.sub === oldState.member?.id ||
+				x.dom === oldState.member?.id ||
+				x.sub === newState.member?.id ||
+				x.dom === newState.member?.id
 		);
 
 		for (const pairing of matchedPairings) {
-			const subMembers = pairing.sub.split(',').map(id =>
-				newState.guild.members.cache.get(id.trim())
-			).filter(member => member !== undefined);
+			const subMembers = pairing.sub
+				.split(",")
+				.map((id) => newState.guild.members.cache.get(id.trim()))
+				.filter((member) => member !== undefined);
 
 			const domMember = newState.guild.members.cache.get(pairing.dom);
 
@@ -62,21 +75,31 @@ export const event: BotEvent = {
 						try {
 							await subMember!.voice.setChannel(targetChannel);
 						} catch (error) {
-							console.error(`Error moving sub ${subMember!.id}:`, error);
+							console.error(
+								`Error moving sub ${subMember!.id}:`,
+								error
+							);
 						}
 					}
 				}
-			}
-			else if (!isDom && domMember.voice.channel && targetChannel !== domMember.voice.channel) {
+			} else if (
+				!isDom &&
+				domMember.voice.channel &&
+				targetChannel !== domMember.voice.channel
+			) {
 				try {
-					const movingMember = subMembers.find(member => member!.id === changingMemberId);
+					const movingMember = subMembers.find(
+						(member) => member!.id === changingMemberId
+					);
 					if (movingMember) {
-						await movingMember.voice.setChannel(domMember.voice.channel);
+						await movingMember.voice.setChannel(
+							domMember.voice.channel
+						);
 					}
 				} catch (error) {
 					console.error("Channel synchronization error:", error);
 				}
 			}
 		}
-	},
+	}
 };

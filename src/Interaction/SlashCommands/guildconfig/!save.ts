@@ -22,35 +22,55 @@
 import {
 	Client,
 	ChatInputCommandInteraction,
-	AttachmentBuilder,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import * as apiUrlParser from '../../../core/functions/apiUrlParser.js';
-import { encrypt } from '../../../core/functions/encryptDecryptMethod.js';
+	AttachmentBuilder
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import * as apiUrlParser from "../../../core/functions/apiUrlParser.js";
+import { encrypt } from "../../../core/functions/encryptDecryptMethod.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const dbGuild = await client.db.get(`${interaction.guildId}`);
 
-		let buffer = Buffer.from(encrypt(client.config.api.apiToken, JSON.stringify(dbGuild)), 'utf-8');
-		let attachment = new AttachmentBuilder(buffer, { name: interaction.guildId + '.json' })
+		let buffer = Buffer.from(
+			encrypt(client.config.api.apiToken, JSON.stringify(dbGuild)),
+			"utf-8"
+		);
+		let attachment = new AttachmentBuilder(buffer, {
+			name: interaction.guildId + ".json"
+		});
 
-		await interaction.editReply({ content: lang.guildconfig_config_save_check_dm });
+		await interaction.editReply({
+			content: lang.guildconfig_config_save_check_dm
+		});
 
-		await interaction.user.send({
-			content: lang.guildconfig_config_save_user_msg
-				.replace("${interaction.guild.name}", interaction.guild.name),
-			files: [attachment]
-		})
-			.catch(() => { })
-			.then(() => { });
-		return
-	},
+		await interaction.user
+			.send({
+				content: lang.guildconfig_config_save_user_msg.replace(
+					"${interaction.guild.name}",
+					interaction.guild.name
+				),
+				files: [attachment]
+			})
+			.catch(() => {})
+			.then(() => {});
+		return;
+	}
 };

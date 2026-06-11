@@ -4,7 +4,7 @@
 		"categoryColor": "#11304c",
 		"options": {
 			"description": "help_backup_dsc",
-			"emoji": "🔁",
+			"emoji": "${client.iHorizon_Emojis.Save_Clip}",
 			"placeholder": "help_backup_fields"
 		}
 	}

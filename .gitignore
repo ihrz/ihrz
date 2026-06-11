@@ -167,3 +167,10 @@ quick-db.json
 todo
 src/files/slash.log.json
 src/files/.bash_history
+try.ts
+.codex
+.oc
+src/files/custom-enabled-guilds.json
+
+# OpenCommit commitlint configuration file
+.opencommit-commitlint

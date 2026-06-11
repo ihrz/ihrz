@@ -19,19 +19,19 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js'
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
-import { captions } from '../../../core/images.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
+import { captions } from "../../../core/images.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var image = interaction.options.getAttachment("image", true);
 			var query = interaction.options.getString("query", true);
@@ -41,8 +41,10 @@ export const subCommand: SubCommand = {
 		}
 
 		if (!client.func.validImageType(image.contentType)) {
-			client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.No })
-			return
+			client.func.method.interactionSend(interaction, {
+				content: client.iHorizon_Emojis.No
+			});
+			return;
 		}
 
 		try {
@@ -57,7 +59,7 @@ export const subCommand: SubCommand = {
 				]
 			});
 		} catch (error) {
-			throw 'Failed to create GIF:' + error
+			throw "Failed to create GIF:" + error;
 		}
-	},
+	}
 };

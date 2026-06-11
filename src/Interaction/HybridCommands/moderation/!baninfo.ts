@@ -25,16 +25,20 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	time,
-} from 'discord.js'
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+	time
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var user = interaction.options.getUser("user")
+			var user = interaction.options.getUser("user");
 		} else {
 			var user = await client.func.method.user(interaction, args!, 0);
 		}
@@ -42,7 +46,7 @@ export const subCommand: SubCommand = {
 		if (!user) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.baninfo_user_not_found
-			})
+			});
 			return;
 		}
 
@@ -56,7 +60,7 @@ export const subCommand: SubCommand = {
 		if (!ban_info) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.baninfo_not_banned
-			})
+			});
 			return;
 		}
 
@@ -65,9 +69,10 @@ export const subCommand: SubCommand = {
 			limit: 100
 		});
 
-		const banLog = auditLogs?.entries.find(log =>
-			log.target?.id === user!.id &&
-			log.action === AuditLogEvent.MemberBanAdd
+		const banLog = auditLogs?.entries.find(
+			(log) =>
+				log.target?.id === user!.id &&
+				log.action === AuditLogEvent.MemberBanAdd
 		);
 
 		const embed = new EmbedBuilder()
@@ -78,11 +83,17 @@ export const subCommand: SubCommand = {
            > 👤 **${lang.var_banned_by}:** ${banLog?.executor?.tag || lang.var_unknown}
            > 📝 **${lang.var_reason}:** ${ban_info.reason || lang.blacklist_var_no_reason}`
 			)
-			.setThumbnail(user.displayAvatarURL({ extension: "gif", forceStatic: false, size: 4096 }));
+			.setThumbnail(
+				user.displayAvatarURL({
+					extension: "gif",
+					forceStatic: false,
+					size: 4096
+				})
+			);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed]
 		});
 		return;
-	},
+	}
 };

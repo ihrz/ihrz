@@ -12,5 +12,11 @@
 	"editor.wrappingIndent": "same",
 	"editor.cursorSurroundingLines": 5,
 	"editor.cursorSurroundingLinesStyle": "all",
-	"editor.smoothScrolling": true
+	"editor.smoothScrolling": true,
+	"yaml.format.enable": false,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[yaml]": {
+		"editor.defaultFormatter": "redhat.vscode-yaml",
+		"editor.formatOnSave": false
+	}
 }

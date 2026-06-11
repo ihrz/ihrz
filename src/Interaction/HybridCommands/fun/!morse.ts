@@ -19,47 +19,54 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		let i: number;
 
 		const alpha = " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
-		const morse = "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(",");
+		const morse =
+			"/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----".split(
+				","
+			);
 
-		if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-			await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
+		if (
+			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
+			"off"
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.fun_category_disable
+			});
 			return;
-		};
+		}
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var text = interaction.options.getString("input")?.toUpperCase() as string;
+			var text = interaction.options
+				.getString("input")
+				?.toUpperCase() as string;
 		} else {
-
-			var text = client.func.method.longString(args!, 0)?.toUpperCase() as string;
+			var text = client.func.method
+				.longString(args!, 0)
+				?.toUpperCase() as string;
 		}
 
-		while (text.includes("Ä") || text.includes("Ö") || text.includes("Ü")) {
-			text = text.replace("Ä", "AE").replace("Ö", "OE").replace("Ü", "UE");
-		};
+		text = text.replace(/Ä/g, "AE").replace(/Ö/g, "OE").replace(/Ü/g, "UE");
 
 		if (text.startsWith(".") || text.startsWith("-")) {
 			const textArray = text.split(" ");
 			const length = textArray.length;
 			for (i = 0; i < length; i++) {
 				textArray[i] = alpha[morse.indexOf(textArray[i])];
-			};
+			}
 
 			text = textArray.join("");
 		} else {
@@ -67,11 +74,14 @@ export const subCommand: SubCommand = {
 			const length = textArray.length;
 			for (i = 0; i < length; i++) {
 				textArray[i] = morse[alpha.indexOf(textArray[i])];
-			};
+			}
 
 			text = textArray.join(" ");
 		}
-		await client.func.method.interactionSend(interaction, { content: '```' + text + '```', allowedMentions: { roles: undefined, users: undefined } });
+		await client.func.method.interactionSend(interaction, {
+			content: "```" + text + "```",
+			allowedMentions: { roles: undefined, users: undefined }
+		});
 		return;
-	},
+	}
 };

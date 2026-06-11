@@ -23,31 +23,40 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { axios } from '../../../core/functions/axios.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { axios } from "../../../core/functions/axios.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
-		if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-			await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
+			"off"
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.fun_category_disable
+			});
 			return;
-		};
-		axios.get('https://api.animality.xyz/all/frog').then(async res => {
+		}
+		axios.get("https://api.animality.xyz/all/frog").then(async (res) => {
 			const emb = new EmbedBuilder()
 				.setImage(res.data.image)
 				.setTitle(lang.frog_embed_title)
 				.setTimestamp();
 
-			await client.func.method.interactionSend(interaction, { embeds: [emb] });
+			await client.func.method.interactionSend(interaction, {
+				embeds: [emb]
+			});
 			return;
 		});
-	},
+	}
 };

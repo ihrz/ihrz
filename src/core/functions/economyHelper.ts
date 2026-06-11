@@ -26,7 +26,7 @@ import { LanguageData } from "../../../types/languageData";
 export async function getMemberBoost(member: GuildMember): Promise<number> {
 	try {
 		const economyConfig = (await member.guild.client.db.get(
-			`${member.guild.id}.ECONOMY`,
+			`${member.guild.id}.ECONOMY`
 		)) as DatabaseStructure.EconomyModel;
 
 		// get the roles that the user has
@@ -48,7 +48,7 @@ export async function getMemberBoost(member: GuildMember): Promise<number> {
 
 export function generateRoleFields(
 	roleData: DatabaseStructure.EconomyModel["buyableRoles"],
-	lang: LanguageData,
+	lang: LanguageData
 ): {
 	name: string;
 	value: string;
@@ -61,6 +61,6 @@ export function generateRoleFields(
 			name: `Role ${index + 1}`,
 			value: `${lang.var_roles}: <@&${roleID}>\n${lang.var_price}: ${roleData.price}\nBoost: x${roleData.boost || 1}`,
 			amount: roleData.price,
-			inline: true,
+			inline: true
 		}));
 }

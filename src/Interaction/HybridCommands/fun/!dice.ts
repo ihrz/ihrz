@@ -24,10 +24,10 @@ import {
 	Client,
 	Message,
 	EmbedBuilder
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -36,12 +36,11 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var number = interaction.options.getNumber("number", false) || 1
+			var number = interaction.options.getNumber("number", false) || 1;
 			var faces = interaction.options.getNumber("faces", false) || 6;
 		} else {
-			var number = client.func.method.number(args!, 0) || 1
+			var number = client.func.method.number(args!, 0) || 1;
 			var faces = client.func.method.number(args!, 1) || 6;
 		}
 
@@ -56,11 +55,13 @@ export const subCommand: SubCommand = {
 			.setTitle(lang.fun_dice_embed_title)
 			.setDescription(
 				`${lang.fun_dice_var_rolled_dices} ${number} × D${faces}\n` +
-				`${lang.fun_dice_var_results} ${results.join(", ")}\n` +
-				`${lang.fun_dice_var_total} ${total}`
+					`${lang.fun_dice_var_results} ${results.join(", ")}\n` +
+					`${lang.fun_dice_var_total} ${total}`
 			)
 			.setColor("Random");
 
-		await client.func.method.interactionSend(interaction, { embeds: [embed] });
+		await client.func.method.interactionSend(interaction, {
+			embeds: [embed]
+		});
 	}
 };

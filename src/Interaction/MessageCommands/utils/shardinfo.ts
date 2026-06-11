@@ -24,28 +24,32 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	time,
-} from 'discord.js';
+	time
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
-	name: 'shardinfo',
+	name: "shardinfo",
 	aliases: [],
 
-	description: '...',
+	description: "...",
 	description_localizations: {
-		"fr": "..."
+		fr: "..."
 	},
 
 	thinking: false,
-	category: 'owner',
+	category: "owner",
 	type: "PREFIX_IHORIZON_COMMAND",
 
 	permission: null,
-	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
+	run: async (
+		client: Client,
+		message: Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
 		if (await client.func.ownerHelper.isBotOwner(message.author.id)) {
 			// Comprehensive guild analysis with all 3 methods
 			const guildStats = {
@@ -57,20 +61,33 @@ export const command: Command = {
 				withNoMemberData: 0,
 				totalMembers: 0,
 				categorizedGuilds: {
-					unavailable: [] as Array<{ name: string, id: string, reason: string }>,
-					noMemberData: [] as Array<{ name: string, id: string, available: boolean }>,
-					usingApproximate: [] as Array<{ name: string, id: string, memberCount: number | null, approximateMemberCount: number | null }>
+					unavailable: [] as Array<{
+						name: string;
+						id: string;
+						reason: string;
+					}>,
+					noMemberData: [] as Array<{
+						name: string;
+						id: string;
+						available: boolean;
+					}>,
+					usingApproximate: [] as Array<{
+						name: string;
+						id: string;
+						memberCount: number | null;
+						approximateMemberCount: number | null;
+					}>
 				}
 			};
 
-			client.guilds.cache.forEach(guild => {
+			client.guilds.cache.forEach((guild) => {
 				// Method 3: Check if guild is available first
 				if (!guild.available) {
 					guildStats.unavailable++;
 					guildStats.categorizedGuilds.unavailable.push({
 						name: guild.name,
 						id: guild.id,
-						reason: 'Guild unavailable'
+						reason: "Guild unavailable"
 					});
 					return; // Skip unavailable guilds
 				}
@@ -79,10 +96,18 @@ export const command: Command = {
 
 				// Method 2: Use approximateMemberCount as fallback
 				let memberCount = 0;
-				if (guild.memberCount && typeof guild.memberCount === 'number' && !isNaN(guild.memberCount)) {
+				if (
+					guild.memberCount &&
+					typeof guild.memberCount === "number" &&
+					!isNaN(guild.memberCount)
+				) {
 					memberCount = guild.memberCount;
 					guildStats.withMemberCount++;
-				} else if (guild.approximateMemberCount && typeof guild.approximateMemberCount === 'number' && !isNaN(guild.approximateMemberCount)) {
+				} else if (
+					guild.approximateMemberCount &&
+					typeof guild.approximateMemberCount === "number" &&
+					!isNaN(guild.approximateMemberCount)
+				) {
 					memberCount = guild.approximateMemberCount;
 					guildStats.withApproximateOnly++;
 					guildStats.categorizedGuilds.usingApproximate.push({
@@ -125,32 +150,38 @@ Total members: ${guildStats.totalMembers.toLocaleString()}`;
 			// Add details for problematic cases
 			if (guildStats.categorizedGuilds.unavailable.length > 0) {
 				msg += `\n\n**Unavailable Guilds (first 3):**`;
-				guildStats.categorizedGuilds.unavailable.slice(0, 3).forEach(guild => {
-					msg += `\n- ${guild.name} (${guild.id})`;
-				});
+				guildStats.categorizedGuilds.unavailable
+					.slice(0, 3)
+					.forEach((guild) => {
+						msg += `\n- ${guild.name} (${guild.id})`;
+					});
 			}
 
 			if (guildStats.categorizedGuilds.usingApproximate.length > 0) {
 				msg += `\n\n**Using Approximate Count (first 3):**`;
-				guildStats.categorizedGuilds.usingApproximate.slice(0, 3).forEach(guild => {
-					msg += `\n- ${guild.name}: exact=${guild.memberCount}, approx=${guild.approximateMemberCount}`;
-				});
+				guildStats.categorizedGuilds.usingApproximate
+					.slice(0, 3)
+					.forEach((guild) => {
+						msg += `\n- ${guild.name}: exact=${guild.memberCount}, approx=${guild.approximateMemberCount}`;
+					});
 			}
 
 			if (guildStats.categorizedGuilds.noMemberData.length > 0) {
 				msg += `\n\n**No Member Data (first 3):**`;
-				guildStats.categorizedGuilds.noMemberData.slice(0, 3).forEach(guild => {
-					msg += `\n- ${guild.name} (available: ${guild.available})`;
-				});
+				guildStats.categorizedGuilds.noMemberData
+					.slice(0, 3)
+					.forEach((guild) => {
+						msg += `\n- ${guild.name} (available: ${guild.available})`;
+					});
 			}
 
 			const embed = new EmbedBuilder()
-				.setTitle('Advanced Shard Information')
+				.setTitle("Advanced Shard Information")
 				.setDescription(msg)
 				.setColor("#010101")
 				.setTimestamp();
 
 			message.reply({ embeds: [embed] });
 		} else return;
-	},
+	}
 };

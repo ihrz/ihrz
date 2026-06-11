@@ -27,18 +27,18 @@ import {
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	ApplicationCommandType,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
 export const command: Command = {
-	name: 'invite',
+	name: "invite",
 
-	description: 'Get the bot invite link!',
+	description: "Get the bot invite link!",
 	description_localizations: {
-		"fr": "Obtenir le lien d'invitations du bot iHorizon"
+		fr: "Obtenir le lien d'invitations du bot iHorizon"
 	},
 
 	aliases: ["inviteme", "oauth"],
@@ -46,31 +46,50 @@ export const command: Command = {
 	integration_types: [0, 1],
 	contexts: [0, 1, 2],
 
-	category: 'bot',
+	category: "bot",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		const button_add_me = new ButtonBuilder()
 			.setStyle(ButtonStyle.Link)
 			.setLabel(lang.invite_embed_title)
-			.setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`);
+			.setURL(
+				`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`
+			);
 
 		let invites = new EmbedBuilder()
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#416fec")
 			.setTitle(lang.invite_embed_title)
 			.setDescription(lang.invite_embed_description)
-			.setURL('https://discord.com/api/oauth2/authorize?client_id=' + client.user?.id + '&permissions=8&scope=bot')
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setURL(
+				"https://discord.com/api/oauth2/authorize?client_id=" +
+					client.user?.id +
+					"&permissions=8&scope=bot"
+			)
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setThumbnail("attachment://footer_icon.png");
 
-		const components = new ActionRowBuilder<ButtonBuilder>().addComponents(button_add_me);
+		const components = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			button_add_me
+		);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [invites],
 			components: [components],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
 	},

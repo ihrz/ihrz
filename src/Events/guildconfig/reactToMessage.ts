@@ -19,34 +19,55 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Message } from 'discord.js';
+import { Client, Message } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		if (!message.guild
-			|| message.author.bot
-			|| !message.channel
-			|| await client.db.get(`${message.guildId}.GUILD.GUILD_CONFIG.hey_reaction`) === false) return;
+		if (
+			!message.guild ||
+			message.author.bot ||
+			!message.channel ||
+			(await client.db.get(
+				`${message.guildId}.GUILD.GUILD_CONFIG.hey_reaction`
+			)) === false
+		)
+			return;
 
 		const recognizeItems: string[] = [
-			'hey', 'salut', 'coucou', 'bonjour', 'salem', 'wesh',
-			'hello', 'bienvenue', 'welcome', 'hi', 'hola'
+			"hey",
+			"salut",
+			"coucou",
+			"bonjour",
+			"salem",
+			"wesh",
+			"hello",
+			"bienvenue",
+			"welcome",
+			"hi",
+			"hola"
 		];
-		const customReacts = await client.db.get(`${message.guildId}.GUILD.REACT_MSG`);
-		const firstWord = message.content.split(' ')[0]?.toLowerCase();
+		const customReacts = await client.db.get(
+			`${message.guildId}.GUILD.REACT_MSG`
+		);
+		const firstWord = message.content.split(" ")[0]?.toLowerCase();
 
 		if (customReacts) {
-			const react = Object.keys(customReacts).find(r => message.content.toLowerCase().includes(r));
+			const react = Object.keys(customReacts).find((r) =>
+				message.content.toLowerCase().includes(r)
+			);
 			if (react) {
-				await message.react(customReacts[react]).catch(() => { });
+				await message.react(customReacts[react]).catch(() => {});
 			}
 		}
 
-		if (firstWord && recognizeItems.some(item => firstWord === (item.toLowerCase()))) {
-			await message.react('👋').catch(() => { });
+		if (
+			firstWord &&
+			recognizeItems.some((item) => firstWord === item.toLowerCase())
+		) {
+			await message.react("👋").catch(() => {});
 		}
-	},
+	}
 };

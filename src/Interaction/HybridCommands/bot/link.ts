@@ -26,44 +26,59 @@ import {
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	ApplicationCommandType,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
 export const command: Command = {
-	name: 'links',
+	name: "links",
 
-	description: 'Show all links about me',
+	description: "Show all links about iHorizon",
 	description_localizations: {
-		"fr": "Afficher tous les liens en rapport avec moi"
+		fr: "Afficher tous les liens en rapport avec iHorizon"
 	},
 
 	aliases: ["link"],
 
-	category: 'bot',
+	category: "bot",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const websitebutton = new ButtonBuilder()
 			.setLabel(lang.links_website)
 			.setStyle(ButtonStyle.Link)
-			.setURL('https://ihorizon.org');
+			.setURL("https://ihorizon.org");
 
 		const gitlabbutton = new ButtonBuilder()
 			.setLabel(lang.links_gitlab)
 			.setStyle(ButtonStyle.Link)
-			.setURL('https://gitlab.com/ihrz/ihrz');
+			.setURL("https://gitlab.com/ihrz/ihrz");
 
-		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(websitebutton, gitlabbutton);
+		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			websitebutton,
+			gitlabbutton
+		);
 
-		await client.func.method.interactionSend(interaction, { content: lang.links_message, components: [row] });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.links_message,
+			components: [row]
+		});
 		return;
 	},
 	permission: null

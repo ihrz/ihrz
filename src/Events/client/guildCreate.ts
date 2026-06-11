@@ -19,13 +19,27 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Collection, EmbedBuilder, PermissionsBitField, Guild, GuildTextBasedChannel, Client, BaseGuildTextChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, TextChannel, ChannelType } from 'discord.js';
+import {
+	Collection,
+	EmbedBuilder,
+	PermissionsBitField,
+	Guild,
+	GuildTextBasedChannel,
+	Client,
+	BaseGuildTextChannel,
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	TextChannel,
+	ChannelType
+} from "discord.js";
 
 import logger from "../../core/logger.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { getShardStats } from '../../Interaction/HybridCommands/bot/botinfo.js';
-import { blacklistTable } from './ready.js';
+import { BotEvent } from "../../../types/event.js";
+import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
+import { blacklistTable } from "./ready.js";
+import { Expressions } from "../../core/functions/randomExpression.js";
 
 export const event: BotEvent = {
 	name: "guildCreate",
@@ -35,15 +49,20 @@ export const event: BotEvent = {
 
 		let highestPositionChannel: TextChannel | null = null;
 
-		guild.channels.cache.forEach(channel => {
+		guild.channels.cache.forEach((channel) => {
 			if (channel.type === ChannelType.GuildText) {
-				if (!highestPositionChannel || channel.position < highestPositionChannel.position) {
+				if (
+					!highestPositionChannel ||
+					channel.position < highestPositionChannel.position
+				) {
 					highestPositionChannel = channel;
 				}
 			}
 		});
 
-		const channel = guild.systemChannelId ? guild.channels.cache.get(guild?.systemChannelId) : highestPositionChannel;
+		const channel = guild.systemChannelId
+			? guild.channels.cache.get(guild?.systemChannelId)
+			: highestPositionChannel;
 
 		// async function antiPoubelle() {
 		//   let embed = new EmbedBuilder()
@@ -68,22 +87,42 @@ export const event: BotEvent = {
 		// };
 
 		async function blacklistLeave() {
-			const channelHr = guild.channels.cache.get((guild.systemChannelId as string))
-				|| guild.channels.cache.random();
+			const channelHr =
+				guild.channels.cache.get(guild.systemChannelId as string) ||
+				guild.channels.cache.random();
 
-			let tqtmonreuf = new EmbedBuilder()
-				.setColor(await client.db.get(`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`) || "#FF0000")
-				.setDescription(`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`)
+			const tqtmonreuf = new EmbedBuilder()
+				.setColor(
+					(await client.db.get(
+						`${guild?.id}.GUILD.GUILD_CONFIG.embed_color.owner`
+					)) || "#FF0000"
+				)
+				.setDescription(
+					`Dear <@${guild.ownerId}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding`
+				)
 				.setTimestamp()
-				.setFooter(await guild.client.func.displayBotName.footerBuilder(guild.id))
+				.setFooter(
+					await guild.client.func.displayBotName.footerBuilder(
+						guild.id
+					)
+				)
+				.setThumbnail(Expressions.Sob);
 
-			const isBL = await blacklistTable.get(`${guild.ownerId}.blacklisted`) || false;
+			const isBL =
+				(await blacklistTable.get(`${guild.ownerId}.blacklisted`)) ||
+				false;
 
 			if (isBL) {
-				await (channelHr as GuildTextBasedChannel).send({
-					embeds: [tqtmonreuf],
-					files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-				}).catch(() => { });
+				await (channelHr as GuildTextBasedChannel)
+					.send({
+						embeds: [tqtmonreuf],
+						files: [
+							await client.func.displayBotName.footerAttachmentBuilder(
+								guild
+							)
+						]
+					})
+					.catch(() => {});
 				await guild.leave();
 				return false;
 			} else {
@@ -97,154 +136,244 @@ export const event: BotEvent = {
 
 			const embed = new EmbedBuilder()
 				.setColor("#2134ff")
-				.setFooter({ text: 'iHorizon', iconURL: "attachment://footer_icon.png" })
+				.setFooter({
+					text: "iHorizon",
+					iconURL: "attachment://footer_icon.png"
+				})
 				.setImage(await client.func.bannerGenerator(guild.id))
-				.setDescription(lang.new_guild_embed_desc.replace('${randomMessage}', welcomeMessage[Math.floor(Math.random() * welcomeMessage.length)]))
+				.setDescription(
+					lang.new_guild_embed_desc.replace(
+						"${randomMessage}",
+						welcomeMessage[
+							Math.floor(Math.random() * welcomeMessage.length)
+						]
+					)
+				)
+				.setThumbnail(Expressions.Wink);
 
-			const buttons1 = new ActionRowBuilder<ButtonBuilder>()
-				.addComponents(
+			const buttons1 =
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Crown)
-						.setLabel('Invite ' + client.user?.username)
+						.setLabel("Invite " + client.user?.username)
 						.setStyle(ButtonStyle.Link)
-						.setURL(`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`),
+						.setURL(
+							`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`
+						),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Sparkles)
-						.setLabel('iHorizon Website')
+						.setLabel("iHorizon Website")
 						.setStyle(ButtonStyle.Link)
-						.setURL('https://www.ihorizon.org'),
+						.setURL("https://www.ihorizon.org"),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Search)
-						.setLabel('iHorizon Search')
+						.setLabel("iHorizon Search")
 						.setStyle(ButtonStyle.Link)
-						.setURL('https://search.ihorizon.org')
-				)
-				;
-			const buttons2 = new ActionRowBuilder<ButtonBuilder>()
-				.addComponents(
+						.setURL("https://search.ihorizon.org")
+				);
+			const buttons2 =
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.GitLab_Logo)
-						.setLabel('iHorizon Repositories')
+						.setLabel("iHorizon Repositories")
 						.setStyle(ButtonStyle.Link)
 						.setURL(`https://gitlab.com/ihrz/ihrz`),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Logo)
-						.setLabel('Support Server')
+						.setLabel("Support Server")
 						.setStyle(ButtonStyle.Link)
-						.setURL('https://discord.gg/ihorizon'),
+						.setURL("https://discord.gg/ihorizon"),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Documentation)
-						.setLabel('iHorizon Documentation')
+						.setLabel("iHorizon Documentation")
 						.setStyle(ButtonStyle.Link)
-						.setURL('https://docs.ihorizon.org')
-				)
-				;
+						.setURL("https://docs.ihorizon.org")
+				);
 			if (!channel) return;
 
-			(channel as TextChannel).send({
-				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(guild)],
-				components: [buttons1, buttons2]
-			}).catch(() => { });
+			(channel as TextChannel)
+				.send({
+					embeds: [embed],
+					files: [
+						await client.func.displayBotName.footerAttachmentBuilder(
+							guild
+						)
+					],
+					components: [buttons1, buttons2]
+				})
+				.catch(() => {});
 		}
 
 		async function getInvites() {
-			if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewAuditLog)) return;
+			if (
+				!guild.members.me?.permissions.has(
+					PermissionsBitField.Flags.ViewAuditLog
+				)
+			)
+				return;
 			try {
 				guild.invites.fetch().then((guildInvites) => {
-					client.invites.set(guild.id, new Collection(guildInvites.map((invite) => [invite.code, invite.uses])));
+					client.invites.set(
+						guild.id,
+						new Collection(
+							guildInvites.map((invite) => [
+								invite.code,
+								invite.uses
+							])
+						)
+					);
 				});
-			} catch (error: any) { logger.err(error) }
+			} catch (error: any) {
+				logger.err(error);
+			}
 		}
 
 		async function ownerLogs() {
-			let i: string = '';
-			if (guild.vanityURLCode) { i = 'discord.gg/' + guild.vanityURLCode; }
+			let i: string = "";
+			if (guild.vanityURLCode) {
+				i = "discord.gg/" + guild.vanityURLCode;
+			}
 
-			let owners = new Set(client.owners)
+			let owners = new Set(client.owners);
 
-
-			async function createInvite(channel: BaseGuildTextChannel): Promise<string> {
+			async function createInvite(
+				channel: BaseGuildTextChannel
+			): Promise<string> {
 				try {
 					const invite = await channel.createInvite({
 						maxAge: 0
 					});
 					const inviteCode = invite.code;
 
-					return 'discord.gg/' + inviteCode;
+					return "discord.gg/" + inviteCode;
 				} catch {
-					return 'None';
+					return "None";
 				}
 			}
 
 			const stats = await getShardStats(client);
 
-			const inviteLink = await createInvite(channel as BaseGuildTextChannel);
-			const owner = await guild.fetchOwner().catch(() => null);
+			const inviteLink = await createInvite(
+				channel as BaseGuildTextChannel
+			);
+			const owner =
+				guild.members.cache.get(guild.ownerId) ||
+				(await guild.fetchOwner().catch(() => null));
 
 			const embed = new EmbedBuilder()
 				.setColor("#00FF00")
 				.setTimestamp(guild.joinedTimestamp)
 				.setDescription(`**A new guild added your bot !**`)
-				.addFields({ name: "🏷️・Server Name", value: `\`${guild.name}\``, inline: true },
-					{ name: "🆔・Server ID", value: `\`${guild.id}\``, inline: true },
-					{ name: "🌐・Server Region", value: `\`${guild.preferredLocale}\``, inline: true },
-					{ name: "👤・Member Count", value: `\`${guild.memberCount}\` members`, inline: true },
-					{ name: "🔗・Invite Link", value: `\`${inviteLink}\``, inline: true },
-					{ name: "👑・Server Owner", value: `(${guild.ownerId}) ${owner?.user.username || "Unknown"}`, inline: true },
-					{ name: "🪝・Vanity URL", value: `\`${i || "None"}\``, inline: true },
-					{ name: "🍻・New guilds total", value: stats.guilds.toString(), inline: true },
-					{ name: "🥛・New members total", value: `${stats.users.toString()} members`, inline: true },
-					{ name: "💠・Shard", value: `#${client.shard?.ids[0]}`, inline: true }
+				.addFields(
+					{
+						name: "🏷️・Server Name",
+						value: `\`${guild.name}\``,
+						inline: true
+					},
+					{
+						name: "🆔・Server ID",
+						value: `\`${guild.id}\``,
+						inline: true
+					},
+					{
+						name: "🌐・Server Region",
+						value: `\`${guild.preferredLocale}\``,
+						inline: true
+					},
+					{
+						name: "👤・Member Count",
+						value: `\`${guild.memberCount}\` members`,
+						inline: true
+					},
+					{
+						name: "🔗・Invite Link",
+						value: `\`${inviteLink}\``,
+						inline: true
+					},
+					{
+						name: "👑・Server Owner",
+						value: `(${guild.ownerId}) ${owner?.user.username || "Unknown"}`,
+						inline: true
+					},
+					{
+						name: "🪝・Vanity URL",
+						value: `\`${i || "None"}\``,
+						inline: true
+					},
+					{
+						name: "🍻・New guilds total",
+						value: stats.guilds.toString(),
+						inline: true
+					},
+					{
+						name: "🥛・New members total",
+						value: `${stats.users.toString()} members`,
+						inline: true
+					},
+					{
+						name: "💠・Shard",
+						value: `#${client.shard?.ids[0]}`,
+						inline: true
+					}
 				)
 				.setThumbnail(guild.iconURL())
-				.setFooter(await client.func.displayBotName.footerBuilder(guild.id));
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(guild.id)
+				);
 
 			for (let owner of owners) {
-				await (client.users.cache.get(owner))?.send({
-					embeds: [embed],
-					files: [await client.func.displayBotName.footerAttachmentBuilder(guild)]
-				}).catch(() => { });
+				await client.users.cache
+					.get(owner)
+					?.send({
+						embeds: [embed],
+						files: [
+							await client.func.displayBotName.footerAttachmentBuilder(
+								guild
+							)
+						]
+					})
+					.catch(() => {});
 			}
-		};
+		}
 
 		async function setLangByRegion() {
 			const guildLocation = guild.preferredLocale;
 
 			switch (guildLocation) {
-				case 'fr':
-					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'fr-FR');
+				case "fr":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "fr-FR");
 					break;
-				case 'en-US':
-				case 'en-GB':
-					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'en-US');
+				case "en-US":
+				case "en-GB":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "en-US");
 					break;
-				case 'es-ES':
-					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'es-ES');
+				case "es-ES":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "es-ES");
 					break;
-				case 'de':
-					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'de-DE');
+				case "de":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "de-DE");
 					break;
-				case 'it':
-					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'it-IT');
+				case "it":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "it-IT");
 					break;
-				case 'ja':
-					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'jp-JP');
+				case "ja":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "jp-JP");
 					break;
-				case 'pt-BR':
-					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'pt-PT');
+				case "pt-BR":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "pt-PT");
 					break;
-				case 'ru':
-					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'ru-RU');
+				case "ru":
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "ru-RU");
 					break;
 				default:
-					await client.db.set(`${guild.id}.GUILD.LANG.lang`, 'en-US');
+					await client.db.set(`${guild.id}.GUILD.LANG.lang`, "en-US");
 					break;
 			}
 		}
 
 		// let c = await antiPoubelle();
 		const d = await blacklistLeave();
-		if (d) await Promise.all([ownerLogs(), messageToServer(), getInvites()]);
-	},
+		if (d)
+			await Promise.all([ownerLogs(), messageToServer(), getInvites()]);
+	}
 };

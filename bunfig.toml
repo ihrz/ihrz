@@ -1,0 +1,13 @@
+[install]
+
+# 1 days
+minimumReleaseAge = 86400
+
+# trusted packages bypass the delay
+minimumReleaseAgeExcludes = ["@types/node", "typescript", "bun-types"]
+
+# blocking lifecycle scripts is very important
+ignoreScripts = true
+
+# lockfile frozen in CI
+frozenLockfile = false

@@ -19,24 +19,32 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, GuildMember } from 'discord.js';
+import { Client, GuildMember } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-
-		if (await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`)) {
-
-			const array: string[] | null = await client.db.get(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+		if (
+			await client.db.get(
+				`${member.guild.id}.GUILD.GUILD_CONFIG.rolesaver.enable`
+			)
+		) {
+			const array: string[] | null = await client.db.get(
+				`${member.guild.id}.ROLE_SAVER.${member.user.id}`
+			);
 
 			if (!array || array.length === 0) return;
 
-			await member.roles.set(array, "[RoleSaver] Give role back").catch(() => false);
+			await member.roles
+				.set(array, "[RoleSaver] Give role back")
+				.catch(() => false);
 
-			await client.db.delete(`${member.guild.id}.ROLE_SAVER.${member.user.id}`);
+			await client.db.delete(
+				`${member.guild.id}.ROLE_SAVER.${member.user.id}`
+			);
 			return;
 		}
-	},
+	}
 };

@@ -24,7 +24,7 @@ import {
 	ChatInputCommandInteraction,
 	Message,
 	GuildMember,
-	PermissionFlagsBits,
+	PermissionFlagsBits
 } from "discord.js";
 
 import { LanguageData } from "../../../../../types/languageData.js";
@@ -35,7 +35,7 @@ export const subCommand: SubCommand = {
 		client: Client,
 		interaction: ChatInputCommandInteraction<"cached"> | Message,
 		lang: LanguageData,
-		args?: string[],
+		args?: string[]
 	) => {
 		// Guard's Typing
 		if (
@@ -55,24 +55,27 @@ export const subCommand: SubCommand = {
 		// Check if member is in the guild
 		if (!interaction.guild.members.cache.get(user.id)) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.vkick_member_not_in_guild,
+				content: lang.vkick_member_not_in_guild
 			});
 		}
 
 		// Get instance of GuildMember
-		const member = interaction.guild.members.cache.get(user.id) as GuildMember;
+		const member = interaction.guild.members.cache.get(
+			user.id
+		) as GuildMember;
 
 		// Check if member is in a voice channel
 		if (member.voice.channelId === null) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.vkick_not_in_vc, // draft
+				content: lang.vkick_not_in_vc // draft
 			});
+			return;
 		}
 
 		// Check if the member is an admin
 		if (member.permissions.has(PermissionFlagsBits.Administrator)) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.vkick_not_admin_kick, // draft
+				content: lang.vkick_not_admin_kick // draft
 			});
 			return;
 		}
@@ -88,17 +91,29 @@ export const subCommand: SubCommand = {
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.vkick_logEmbed_title,
 			description: lang.vkick_logEmbed_desc
-				.replace("${interaction.member.user.toString()}", interaction.member.user.toString())
+				.replace(
+					"${interaction.member.user.toString()}",
+					interaction.member.user.toString()
+				)
 				.replace("${member.toString()}", member.toString())
-				.replace("${voiceChannel?.toString()}", voiceChannel?.toString()!),
+				.replace(
+					"${voiceChannel?.toString()}",
+					voiceChannel?.toString()!
+				)
 		});
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.vkick_command_work
 				.replace("${member.toString()}", member.toString())
-				.replace("${interaction.member.user.toString()}", interaction.member.user.toString())
-				.replace("${voiceChannel?.toString()}", voiceChannel?.toString()!),
+				.replace(
+					"${interaction.member.user.toString()}",
+					interaction.member.user.toString()
+				)
+				.replace(
+					"${voiceChannel?.toString()}",
+					voiceChannel?.toString()!
+				)
 		});
 		return;
-	},
+	}
 };

@@ -19,24 +19,21 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Message } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import { Client, Message } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-
 		if (!message.guild || message.author.bot || !message.channel) return;
 
 		const baseData = await client.db.get(`${message.guildId}.ALLOWLIST`);
 
 		if (!baseData || Object.values(baseData?.list || {}).length === 0) {
-			await client.db.set(`${message.guildId}.ALLOWLIST`,
-				{
-					enable: false,
-					list: { [`${message.guild?.ownerId}`]: { allowed: true } },
-				}
-			);
-		};
-	},
+			await client.db.set(`${message.guildId}.ALLOWLIST`, {
+				enable: false,
+				list: { [`${message.guild?.ownerId}`]: { allowed: true } }
+			});
+		}
+	}
 };

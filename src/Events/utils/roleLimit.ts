@@ -23,17 +23,38 @@
 - Anaïs Saraiva
 */
 
-import { AuditLogEvent, Client, GuildMember, Role, Collection } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
-import { getLogs, handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
+import {
+	AuditLogEvent,
+	Client,
+	GuildMember,
+	Role,
+	Collection
+} from "discord.js";
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
+import {
+	getLogs,
+	handledAuditLogEntrie_logs,
+	handledAuditLogEntries
+} from "../protection/ready.js";
 
 export const event: BotEvent = {
 	name: "guildMemberUpdate",
-	run: async (client: Client, oldMember: GuildMember, newMember: GuildMember) => {
+	run: async (
+		client: Client,
+		oldMember: GuildMember,
+		newMember: GuildMember
+	) => {
+		if (oldMember.roles.cache.equals(newMember.roles.cache)) return;
+
 		try {
 			// Get the latest audit log entry for this member role update
-			const relevantLog = await getLogs({ guild: newMember.guild, target: newMember.id, actionType: AuditLogEvent.MemberRoleUpdate, type: "NONE" });
+			const relevantLog = await getLogs({
+				guild: newMember.guild,
+				target: newMember.id,
+				actionType: AuditLogEvent.MemberRoleUpdate,
+				type: "NONE"
+			});
 
 			// If no relevant audit log was found, exit
 			if (!relevantLog) {
@@ -48,24 +69,34 @@ export const event: BotEvent = {
 			let removedRoleIds: string[] = [];
 
 			for (const change of changes) {
-				if (change.key === '$add') {
-					const roles = change.new as Array<{ id: string; name: string }>;
-					addedRoleIds = roles.map(role => role.id);
-				} else if (change.key === '$remove') {
-					const roles = change.new as Array<{ id: string; name: string }>;
-					removedRoleIds = roles.map(role => role.id);
+				if (change.key === "$add") {
+					const roles = change.new as Array<{
+						id: string;
+						name: string;
+					}>;
+					addedRoleIds = roles.map((role) => role.id);
+				} else if (change.key === "$remove") {
+					const roles = change.new as Array<{
+						id: string;
+						name: string;
+					}>;
+					removedRoleIds = roles.map((role) => role.id);
 				}
 			}
 
 			// Combine both added and removed roles to update
-			const affectedRoleIds = [...new Set([...addedRoleIds, ...removedRoleIds])];
+			const affectedRoleIds = [
+				...new Set([...addedRoleIds, ...removedRoleIds])
+			];
 
 			// If no roles were changed, stop execution
 			if (affectedRoleIds.length === 0) {
 				return;
 			}
 
-			const roleLimits = await client.db.get(`${newMember.guild.id}.GUILD.UTILS.ROLE_LIMIT`) as DatabaseStructure.RoleLimitSchema;
+			const roleLimits = (await client.db.get(
+				`${newMember.guild.id}.GUILD.UTILS.ROLE_LIMIT`
+			)) as DatabaseStructure.RoleLimitSchema;
 
 			// If no limits are configured, stop execution
 			if (!roleLimits) return;
@@ -77,27 +108,36 @@ export const event: BotEvent = {
 				// If this role has no limit configured, skip it
 				if (!limit) return;
 
-				let role = newMember.guild.roles.cache.get(roleId) || await newMember.guild.roles.fetch(roleId).catch(() => null);
+				let role =
+					newMember.guild.roles.cache.get(roleId) ||
+					(await newMember.guild.roles
+						.fetch(roleId)
+						.catch(() => null));
 
 				if (!role) return;
 
 				// Count how many members have this role
 				const membersWithRole = newMember.guild.members.cache.filter(
-					member => member.roles.cache.has(roleId)
+					(member) => member.roles.cache.has(roleId)
 				).size;
 
 				// Extract base role name (remove existing counter if present)
 				let baseRoleName = role.name;
 				const counterRegex = /\s*\[\d+\/\d+\]\s*$/;
 				if (counterRegex.test(baseRoleName)) {
-					baseRoleName = baseRoleName.replace(counterRegex, '').trim();
+					baseRoleName = baseRoleName
+						.replace(counterRegex, "")
+						.trim();
 				}
 
 				// Update role name with counter
 				const newRoleName = `${baseRoleName} [${membersWithRole}/${limit}]`;
 
 				try {
-					await role.setName(newRoleName, "[RoleLimit] - Updating role counter");
+					await role.setName(
+						newRoleName,
+						"[RoleLimit] - Updating role counter"
+					);
 				} catch (error) {
 					console.error(`Failed to update role name: ${error}`);
 				}
@@ -115,14 +155,17 @@ export const event: BotEvent = {
 				if (!limit) continue;
 
 				const membersWithRole = newMember.guild.members.cache.filter(
-					member => member.roles.cache.has(roleId)
+					(member) => member.roles.cache.has(roleId)
 				).size;
 
 				// If the limit is exceeded, remove the role
 				if (membersWithRole > limit) {
-					await newMember.roles.remove(roleId, "[RoleLimit] - The limit of users is reached!");
+					await newMember.roles.remove(
+						roleId,
+						"[RoleLimit] - The limit of users is reached!"
+					);
 				}
 			}
-		} catch { }
-	},
+		} catch {}
+	}
 };

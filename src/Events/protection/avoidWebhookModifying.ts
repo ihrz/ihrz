@@ -19,52 +19,83 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, BaseGuildTextChannel, PermissionFlagsBits, GuildMember } from 'discord.js'
+import {
+	Client,
+	AuditLogEvent,
+	GuildChannel,
+	BaseGuildTextChannel,
+	PermissionFlagsBits,
+	GuildMember
+} from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { getLogs } from './ready.js';
+import { BotEvent } from "../../../types/event.js";
+import { getLogs } from "./ready.js";
 
 export const event: BotEvent = {
 	name: "webhooksUpdate",
 	run: async (client: Client, channel: GuildChannel) => {
-
 		const data = await client.db.get(`${channel.guild.id}.PROTECTION`);
 		if (!data) return;
 
-		if (!channel.guild.members.me?.permissions.has([
-			PermissionFlagsBits.Administrator
-		])) return;
+		if (
+			!channel.guild.members.me?.permissions.has([
+				PermissionFlagsBits.Administrator
+			])
+		)
+			return;
 
 		if (data.webhook) {
-			const relevantLog = await getLogs({ guild: channel.guild, target: channel.id, actionType: AuditLogEvent.WebhookCreate, type: "PROTECTION" });
+			const relevantLog = await getLogs({
+				guild: channel.guild,
+				target: channel.id,
+				actionType: AuditLogEvent.WebhookCreate,
+				type: "PROTECTION"
+			});
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;
 			let shouldSanction: boolean = false;
 
-			if (data.webhook.mode === 'allowlist') {
-				const baseData = await client.db.get(`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.webhook.mode === "allowlist") {
+				const baseData = await client.db.get(
+					`${channel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`
+				);
 
 				if (!baseData) {
-					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						channel.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
-				};
-			} else if (data.webhook.mode === 'nobody') {
+				}
+			} else if (data.webhook.mode === "nobody") {
 				if (relevantLog.executorId !== channel.guild.ownerId) {
-					user = channel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						channel.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
-				};
+				}
 			}
-			const isOwner = await client.db.get(`${user?.guild.id}.OWNER.${user?.id}`)
+			const isOwner = await client.db.get(
+				`${user?.guild.id}.OWNER.${user?.id}`
+			);
 
-			!isOwner && shouldSanction && (async () => {
-				await client.func.method.punish(data, user!);
+			!isOwner &&
+				shouldSanction &&
+				(async () => {
+					await client.func.method.punish(data, user!);
 
-				const webhooks = await (channel as BaseGuildTextChannel).fetchWebhooks();
-				const myWebhooks = webhooks.filter((webhook) => webhook.id === relevantLog?.targetId!);
+					const webhooks = await (
+						channel as BaseGuildTextChannel
+					).fetchWebhooks();
+					const myWebhooks = webhooks.filter(
+						(webhook) => webhook.id === relevantLog?.targetId!
+					);
 
-				for (const [id, webhook] of myWebhooks) await webhook.delete("Protect!");
-			})()
+					for (const [id, webhook] of myWebhooks)
+						await webhook.delete("Protect!");
+				})();
 		}
-	},
+	}
 };

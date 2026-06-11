@@ -601,6 +601,10 @@ help_starboard_dsc: "> *Discordサーバーで最もスターを獲得したメ�
 help_starboard_fields: "スター掲示板"
 help_blogger_dsc: "お気に入りのRSSフィードをフォローし、iHorizonを通じて新しい記事が公開されたときに通知を受け取ります"
 help_blogger_fields: "ブロガー"
+help_lastfm_dsc: "> *Last.fm アカウントを接続し、ボイスチャンネルにいる間 iHorizon が再生する曲を自動で scrobble します。*"
+help_lastfm_fields: "LastFM Scrobbler"
+help_honeypot_fields: "Honeypot"
+help_honeypot_dsc: "> *トラップチャンネルを設定して乗っ取られたアカウントを検出し、サーバー内の最近のスパムを自動で削除します。*"
 
 # /h
 h_suite: "(続き)"
@@ -622,6 +626,9 @@ custom_desc_reset: "サーバー上のボットの説明をリセットするこ
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **サーバー上のボットの説明を変更することにしました。埋め込みのフッターが変更され、サーバー上のボットの説明も同様です。**\n${client.iHorizon_Emojis.Crown} 新しい値: `${desc}`"
 custom_banner_reset: "サーバー上のボットのバナーをリセットすることにしました。"
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **サーバー上のボットのバナーを変更することにしました。**\n${client.iHorizon_Emojis.Crown} 新しい値: `${x}`"
+custom_sdk_only: "このコマンドは、本番環境では `Custom iHorizon Profile` サブスクリプションを持つサーバーでのみ利用できます。"
+custom_sdk_only_title: "Custom iHorizon Profile で iHorizon を支援"
+custom_sdk_only_description: "私たちのボットは 2022 年から無料かつオープンソースです。ボットの運用、開発、ホスティングを続けるために収益が必要です。運用コストはサーバー、boosts、ドメイン、ライセンスを含めて年間およそ 500 EUR です。\n\n`/custom` コマンドを使うと、アバター、名前、バナー、自己紹介を変更して、あなたのサーバー上で iHorizon のアイデンティティを変えることができます。これを使うと、iHorizon の視覚的なアイデンティティはあなたのサーバーから消えます。\n\nそのため、月額 2.99 USD の Discord 内サブスクリプションを用意しました。\n\nこのサブスクリプションを購入すると、このコマンドを使えるようになります。OWN-IHRZ のようなカスタム bot だと思ってください。ただし、安定していて、クリーンで、しっかり動作します。"
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -1060,25 +1067,28 @@ utils_wlroles_embed_title: "ホワイトリストの役職"
 utils_wlroles_embed_desc: "`addrole`、`delrole` コマンドで割り当て可能な許可された役職は次の通りです！"
 utils_wlRoles_logsEmbed_title: "ホワイトリスト役職モジュール"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} はホワイトリスト役職を編集しました（ `addrole`、`delrole` コマンド用）"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} 例外ロール ${role} はすでに正しく設定されています"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} 例外ロール ${role} を作成しました。同期済みチャンネル数: `${updatedChannels}`。失敗: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} 例外ロール ${role} はすでに存在していたため、`${updatedChannels}` 個のチャンネルを再同期しました。失敗: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} メッセージは ${targetMember.toString()} に正常に送信されました。"
 utils_dm_cant: "${client.iHorizon_Emojis.No} ${targetMember.toString()} にメッセージを送信できませんでした。プライベートメッセージをブロックしているか、私をブロックしている可能性があります。"
 
 # /utils pic-only
-utils_pic_only_embed_title: "画像専用チャンネル"
-utils_pic_only_emnbed_desc: "写真・画像のみが許可されているチャンネル。他のコンテンツはボットによってブロックされます"
+utils_pic_only_embed_title: "メディア専用チャンネル"
+utils_pic_only_emnbed_desc: "画像や動画のみ許可されるチャンネルです。その他のコンテンツ（テキストメッセージなど）はボットによってブロックされます"
 utils_piconly_embed_fields_3_name: "タイムアウト時間"
 utils_piconly_select1_option1_label: "タイムアウト時間を変更"
 utils_piconly_select1_option2_label: "しきい値を変更"
-utils_piconly_modal1_title: "画像のみ - 時間設定"
+utils_piconly_modal1_title: "MediaOnly - 時間設定"
 utils_piconly_modal1_fields1_placeholder: "ミュート時間"
 utils_piconly_modal1_fields1_label: "ミュート時間"
-utils_piconly_modal2_title: "画像のみ - しきい値設定"
+utils_piconly_modal2_title: "MediaOnly - しきい値設定"
 utils_piconly_modal2_fields1_placeholder: "ミュート前のしきい値"
 utils_piconly_modal2_fields1_label: "しきい値"
-utils_piconly_embed_fields2_placeholder: "画像の下にスレッドを作成"
-utils_piconly_var_thread_name: "{name}のスレッド"
+utils_piconly_embed_fields2_placeholder: "画像/動画の下にスレッドを作成"
+utils_piconly_var_thread_name: "{name} によるスレッド"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "絵文字を管理する権限がありません。"
@@ -1116,6 +1126,46 @@ util_nick_kicker_enable_desc: "ニックネームキッカーを有効化"
 util_wakeup_yourself: "おい、お前バカか？このコマンドを打ちながら寝てるって言わないよな？笑"
 util_wakeup_not_in_vc: "おいおい、ボットが${user.displayName}っていう同じアイコンとバナーの小さい中国人を作るわけじゃないんだぞ…その人はVCにいないよ笑"
 util_wakeup_command_work: "${user.toString()}を起こしに行くぞ！"
+
+# /util talk
+util_talk_not_in_vc: "このコマンドを使用するにはボイスチャンネルに参加している必要があります。"
+util_talk_audit_reason: "ボイストークモードが有効化されました"
+util_talk_logs_title: "ボイストーク"
+util_talk_logs_description: "${interaction.member.user.toString()} が ${voiceChannel.toString()} でトークモードを有効化し、${mutedCount} 人のメンバーをミュートしました。${skippedCount} 人のメンバーはスキップされました。"
+util_talk_command_work: "${voiceChannel.toString()} でトークモードが有効になりました。${mutedCount} 人のメンバーがミュートされ、${skippedCount} 人のメンバーがスキップされました。"
+
+# /util untalk
+util_untalk_nothing_active: "このサーバーには有効なトークモードがありません。"
+util_untalk_audit_reason: "ボイストークモードが無効化されました"
+util_untalk_logs_title: "ボイスアントーク"
+util_untalk_logs_description: "${interaction.member.user.toString()} が ${voiceChannel.toString()} のトークモードを無効化し、${unmutedCount} 人のメンバーのミュートを解除しました。"
+util_untalk_command_work: "${voiceChannel.toString()} のトークモードが無効化されました。${unmutedCount} 人のメンバーのミュートが解除されました。"
+
+# /util freeze
+util_freeze_logs_title: "ボイスフリーズ"
+util_freeze_logs_description: "${interaction.member.user.toString()} が ${voiceChannel.toString()} へのアクセスを凍結しました。"
+util_freeze_command_work: "ボイスチャンネル ${voiceChannel.toString()} は現在凍結されています。"
+
+# /util wlvc
+util_wlvc_no_member: "凍結されたボイスチャンネルに許可するメンバーを指定する必要があります。"
+util_wlvc_no_freeze: "このサーバーには有効な凍結ボイスチャンネルがありません。"
+util_wlvc_logs_title: "ボイスフリーズ許可"
+util_wlvc_logs_description: "${interaction.member.user.toString()} が ${member.toString()} に凍結されたボイスチャンネルへの参加を許可しました。"
+util_wlvc_command_work: "${member.toString()} は凍結されたボイスチャンネルに参加できるようになりました。"
+
+# /util unwlvc
+util_unwlvc_no_member: "凍結されたボイスチャンネルのホワイトリストから削除するメンバーを指定する必要があります。"
+util_unwlvc_no_freeze: "このサーバーには有効な凍結ボイスチャンネルがありません。"
+util_unwlvc_not_whitelisted: "${member.toString()} は凍結されたボイスチャンネルで許可されていません。"
+util_unwlvc_logs_title: "ボイスフリーズ許可削除"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} が ${member.toString()} を凍結されたボイスチャンネルのホワイトリストから削除しました。"
+util_unwlvc_command_work: "${member.toString()} は凍結されたボイスチャンネルに参加できなくなりました。"
+
+# /util unfreeze
+util_unfreeze_no_freeze: "このサーバーには有効な凍結ボイスチャンネルがありません。"
+util_unfreeze_logs_title: "ボイスフリーズ解除"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} が有効なボイスフリーズを解除しました。"
+util_unfreeze_command_work: "ボイスチャンネルはもう凍結されていません。"
 
 # /util leash
 util_leash_too_naugthy: "やんちゃ坊主、3人以上はリードに繋げないよ :D"
@@ -1455,6 +1505,10 @@ automod_block_massmention_command_error404: AutoMod設定でBlock Mention Spam�
 automod_block_link_command_on: "${interaction.user}、`Pub AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにリンクを送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
 automod_block_link_command_off: "${interaction.user}、`Pub AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにリンクを送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
 
+# /automod block telegram links
+automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
+automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}、`Pub AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにサーバー招待を送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
 automod_block_pub_command_off: "${interaction.user}、`Pub AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにサーバー招待を送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
@@ -1530,6 +1584,16 @@ perm_command_delete_all_one: "権限を削除するには1つのオプション�
 perm_command_delete_all_one_option: "権限を削除するには1つのオプションのみ指定できます。"
 perm_command_delete_all_zero_change: "指定した権限タイプはどのコマンドでも使用されていませんでした。"
 perm_command_delete_all_command_ok: "\nデータベースから**${changes.length}**個のネストされた`${type}`タイプ（${value}）の権限を正常に削除しました。"
+commandlimit_current_value: "${count} use(s) per ${time}"
+commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
+commandlimit_missing_command: "You need to specify a command."
+commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
+commandlimit_reset_success: "The rate limit for `${command}` has been reset."
+commandlimit_reset_missing: "No rate limit is configured for `${command}`."
+commandlimit_list_title: "Configured command rate limits"
+commandlimit_list_item: "- `${command}`: ${limit}"
+commandlimit_list_empty: "No command rate limit is configured in this guild."
+commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
 
 # /perm roles
 perm_roles_created_role: "以下の役割が作成されました：${createdRoles.join('、')}"
@@ -1659,6 +1723,17 @@ history_delete_embed_desc: "音楽の履歴が正常に削除されました。"
 lyrics_embed_title_unknown: "不明なタイトル"
 lyrics_embed_author_name_unknown: "不明な著者"
 lyrics_not_found: "歌詞が見つかりません"
+
+# /music clear-queue
+clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | このDiscordサーバーの音楽キューはクリアされました。"
+
+# /music trackinfo
+music_requested_by: "要求者"
+music_visit_here: "ここをクリック"
+music_lyrics: "歌詞"
+music_link_here: "リンクをクリック: [クリック]({link})"
+
+music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **音量を** `${Number(query)}`% **に設定しました**"
 
 # Giveaway commands
 # /end, /start, /reroll
@@ -2357,7 +2432,7 @@ tempvoice_staff_desc_embed: "## TempVoiceスタッフロール\nここにある�
 
 # /confession channel
 confession_channel_command_work: "告白パネルが${channel?.toString()}に送信されました"
-confession_channel_panel_embed_desc: "# **匿名の告白**\n\n下のボタンをクリックして告白フォームを開いてください。告白したい内容を書くことができます。希望する場合は、告白を非公開にすることも選択できます。\n\n## **告白をする**\n\n*注: 告白を非公開にするには、フォームに対応するオプションを記入してください。*"
+confession_channel_panel_embed_desc: "# **匿名の告白**\n\n下のボタンをクリックして告白フォームを開いてください。告白したい内容を書くことができます。希望する場合は、告白を非公開にすることも選択できます。\n告白は匿名のままでない場合があることに注意してください — ログへのアクセス権を持つサーバーオーナーやその他のユーザーが、ログが有効になっている場合にユーザーを特定できる可能性があります。\n\n## **告白をする**\n\n*注: 告白を非公開にするには、フォームに対応するオプションを記入してください。*"
 confession_channel_log_embed_title: "SetChannel 告白モジュール"
 confession_channel_log_embed_desc: "${interaction.user}がチャンネルを${channel}に設定しました"
 
@@ -2508,6 +2583,20 @@ blogger_blog_add_success: "✅ RSSフィード **${validation.name}** が追加�
 blogger_blog_add_invalid_rss: "❌ 指定されたRSSフィードは無効またはアクセスできません。URLを確認して再試行してください。"
 blogger_blog_remove_success: "✅ ID `${blogId}` のRSSフィードを削除しました。"
 blogger_blog_remove_not_found: "❌ このIDのRSSフィードが見つかりません。"
+lastfm_module_not_configured: "${client.iHorizon_Emojis.No} | Bot 側で Last.fm モジュールが設定されていません。設定に `lastfm.apiKey` と `lastfm.sharedSecret` を追加するか、`LASTFM_API_KEY` と `LASTFM_SHARED_SECRET` を設定してください。"
+lastfm_config_login_required: "${client.iHorizon_Emojis.No} | モジュールを有効にする前に `/lastfm login` を使用する必要があります。"
+lastfm_config_enabled: "${client.iHorizon_Emojis.Yes} | あなたのアカウントで Last.fm の scrobbling が有効になりました。"
+lastfm_config_disabled: "${client.iHorizon_Emojis.Yes} | あなたのアカウントで Last.fm の scrobbling が無効になりました。"
+lastfm_login_invalid_session: "${client.iHorizon_Emojis.No} | Last.fm から有効なセッションが返されませんでした。"
+lastfm_login_success: "${client.iHorizon_Emojis.Yes} | Last.fm アカウント `${username}` が接続され、scrobbling が有効になりました。"
+lastfm_embed_title: "${userLabel} の Last.fm 設定"
+lastfm_embed_field_status: "ステータス"
+lastfm_embed_field_account: "接続済みアカウント"
+lastfm_embed_field_connected_at: "接続日時"
+lastfm_api_error_login: "${client.iHorizon_Emojis.No} | Last.fm への接続に失敗しました: ${error}"
+lastfm_api_error_nowplaying: "${client.iHorizon_Emojis.No} | Last.fm に Now Playing を通知できませんでした: ${error}"
+lastfm_api_error_scrobble: "${client.iHorizon_Emojis.No} | この曲を scrobble できませんでした: ${error}"
+lastfm_api_error_unknown: "不明なエラー"
 
 # AuthRestore モジュール
 # ロール、設定、削除、取得、強制参加
@@ -2601,12 +2690,12 @@ event_welcomer_inviter: "{memberMention}（アカウント作成日：{accountCr
 event_welcomer_default: "{memberMention}（アカウント作成日：{accountCreationTimestamp}）がサーバーに参加しました。現在、{guildName} には{memberCount}人います"
 
 # Goodbye Message Events
-event_goodbye_inviter: "{memberUsername}（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います"
-event_goodbye_default: "{memberUsername}（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。現在、{guildName} には{memberCount}人います"
+event_goodbye_inviter: "`{memberUsername}`（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。**{inviterUsername}** によって招待されました（**{invitesCount}**回の招待）。現在、{guildName} には{memberCount}人います"
+event_goodbye_default: "`{memberUsername}`（アカウント作成日：{accountCreationTimestamp}）がサーバーを退会しました。現在、{guildName} には{memberCount}人います"
 
 # XP Level Events
 event_xp_level_earn: "{memberMention} さん、レベルアップ (+1) おめでとうございます (現在のレベル: **{xpLevel}**)。"
-event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.OpenChat} このメッセージは煩わしいですか？`/ranks config`コマンドでレベリングシステムを無効にすることで、このメッセージを無効にできます"
+event_xp_level_additional_info: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} このメッセージは煩わしいですか？`/ranks config`コマンドでレベリングシステムを無効にすることで、このメッセージを無効にできます"
 
 # Ticket Module Events:
 event_ticket_embed_description: "${user.username}さん、チケットへようこそ！しばらくお待ちください。チケットを閉じる場合は、`/ticket close` を実行してください。"
@@ -2941,3 +3030,93 @@ global_blacklist_msg_to_send: "iHorizon のブラックリストに登録され�
 global_blacklist_reason: "OWNIHRZ プロジェクト処分 - ブラックリスト | 理由: ${data.reason}"
 server_blacklist_msg_to_send: "このサーバーのブラックリストに登録されているため、あなたはBANされました。\n理由: `${data2.reason}`"
 server_blacklist_reason: "ブラックリスト | 理由: ${data2.reason}"
+help_sticky_fields: "Sticky"
+help_sticky_dsc: "> *自動再投稿で重要なメッセージをチャンネル内で常に見える状態に保ちます。*"
+sticky_channel_command_error: "${client.iHorizon_Emojis.No} | ${interaction.user}、有効なテキストチャンネルが見つかりませんでした。"
+sticky_text_command_missing_message: "${client.iHorizon_Emojis.No} | ${interaction.user}、sticky メッセージを指定する必要があります。"
+sticky_text_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}、テキストの sticky メッセージが ${channel} で有効になりました。"
+sticky_embed_command_embed_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}、embed `${embed_id}` が見つかりませんでした。"
+sticky_embed_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}、sticky embed `${embed_id}` が ${channel} で有効になりました。"
+sticky_disable_command_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}、${channel} には sticky メッセージが設定されていません。"
+sticky_disable_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}、${channel} の sticky メッセージを無効にしました。"
+sticky_refresh_command_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}、${channel} には sticky メッセージが設定されていません。"
+sticky_refresh_command_missing_embed: "${client.iHorizon_Emojis.No} | ${interaction.user}、${channel} の sticky メッセージは、もう存在しない embed を参照しています。"
+sticky_refresh_command_missing_permissions: "${client.iHorizon_Emojis.No} | ${interaction.user}、${channel} に sticky メッセージを再投稿できません。権限を確認してください。"
+sticky_refresh_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}、sticky メッセージを ${channel} に再投稿しました。"
+sticky_show_command_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}、${channel} には sticky メッセージが設定されていません。"
+sticky_show_embed_title: "Sticky メッセージ設定"
+sticky_show_embed_fields_channel: "チャンネル"
+sticky_show_embed_fields_type: "種類"
+sticky_show_embed_fields_status: "状態"
+sticky_show_embed_fields_message: "メッセージ"
+sticky_show_embed_fields_embed: "Embed ID"
+sticky_show_embed_fields_last_message: "最後の sticky メッセージ ID"
+sticky_list_embed_title: "Sticky チャンネル"
+sticky_list_embed_desc_empty: "このサーバーには sticky チャンネルが設定されていません。"
+sticky_list_embed_desc_line_text: "${channel} - テキスト sticky"
+sticky_list_embed_desc_line_embed: "${channel} - Embed sticky (`${embed_id}`)"
+sticky_list_embed_desc_line_text_embed: "${channel} - テキスト + embed sticky (`${embed_id}`)"
+sticky_var_text: "テキスト"
+sticky_var_embed: "Embed"
+sticky_var_text_embed: "テキスト + embed"
+sticky_var_enabled: "有効"
+sticky_var_disabled: "無効"
+sticky_var_none: "なし"
+
+# /honeypot config
+honeypot_config_not_allowed: "Honeypot を設定するには、管理者であるか allowlist に入っている必要があります。"
+honeypot_config_embed_title: "Honeypot 設定"
+honeypot_config_embed_desc: "トラップチャンネル、ログチャンネル、そして *Honeypot* チャンネルで誰かがメッセージの送信を開始したときに使う自動アクションを設定します。"
+honeypot_config_embed_field_status: "状態"
+honeypot_config_embed_field_trap_channel: "トラップチャンネル"
+honeypot_config_embed_field_logs_channel: "ログチャンネル"
+honeypot_config_embed_field_action: "アクション"
+honeypot_config_embed_field_message: "送信済みメッセージ"
+honeypot_config_embed_field_notes: "注意"
+honeypot_config_embed_field_credit: "クレジット"
+honeypot_config_notes_value: "- **iHorizon ロールをすべてのメンバーロールより上に配置してください。**\n- **自動作成された Honeypot チャンネルはサーバーの一番上へ移動されます。**\n- **Honeypot チャンネルは名前を変更してもシステムは壊れません。**"
+honeypot_config_credit_value: "*RiskyMH による Honeypot に着想を得ています*\n${url}"
+honeypot_config_select_trap_placeholder: "トラップチャンネルを選択"
+honeypot_config_select_logs_placeholder: "ログチャンネルを選択"
+honeypot_config_select_action_placeholder: "適用するアクションを選択"
+honeypot_config_button_send: "Embed を送信"
+honeypot_config_button_preview: "プレビュー"
+honeypot_config_button_enable: "Honeypot を有効化"
+honeypot_config_button_disable: "Honeypot を無効化"
+honeypot_config_send_success: "Honeypot の embed を ${channel} に送信しました。"
+honeypot_config_enable_success: "Honeypot は ${channel} で有効になりました。"
+honeypot_config_disable_success: "Honeypot は無効になりました。"
+honeypot_config_missing_logs_channel: "Honeypot を有効化する前にログチャンネルを設定する必要があります。"
+honeypot_config_generic_error: "Honeypot の更新中にエラーが発生しました。"
+honeypot_config_select_action_kick: "ユーザーをキックする"
+honeypot_config_select_action_ban: "ユーザーをバンする"
+honeypot_config_select_action_none: "メッセージのみを削除"
+honeypot_config_select_action_del_messages: "メッセージを削除"
+honeypot_default_channel_name: "🍯・general-chat"
+honeypot_action_none: "メッセージのみ削除"
+honeypot_action_failed: "アクション失敗"
+honeypot_dm_action_kicked: "あなたはキックされました！"
+honeypot_dm_action_banned: "あなたはバンされました！"
+honeypot_dm_action_none: "あなたのメッセージは削除されました"
+honeypot_trap_embed_title: "このチャンネルにメッセージを送信しないでください"
+honeypot_trap_embed_desc: "*このチャンネルはスパムボットを捕まえるために使用されます。*\n*ここに送信されたメッセージはサーバーの自動保護を**トリガー**します。*"
+honeypot_trap_embed_footer: "RiskyMH の Honeypot に着想を得ています、チェックしてみてください！\n${url}"
+honeypot_dm_title: "Honeypot 発動!"
+honeypot_dm_desc: "以下のサーバーの *Honeypot* チャンネルであなたが送信したメッセージ: **`${guild}`** **トリガー** しました。\n\n__あなたに対して実行されたアクション:__ **`${action}`**\n\n*過去 2 時間にあなたが送信したメッセージがサーバーから削除されています。ハッキングされたと思われる場合は、パスワードを変更し、Discord アカウントで 2FA を有効にしてください。あなた側の間違いだった場合は、サーバーのスタッフに連絡して問題を解決してください。*"
+honeypot_log_title: "Honeypot 発動 - ${action}"
+honeypot_log_field_author: "送信者"
+honeypot_log_field_channel: "チャンネル"
+honeypot_log_field_message: "削除されたメッセージ"
+honeypot_log_field_attachments: "添付ファイル"
+honeypot_log_field_stickers: "ステッカー"
+honeypot_log_field_embeds: "Embeds"
+honeypot_log_field_deleted_messages: "削除されたメッセージ数"
+honeypot_log_field_triggered_messages: "トリガーされたメッセージ数"
+honeypot_log_field_dm_status: "DM 状態"
+honeypot_log_field_result: "結果"
+honeypot_log_dm_open: "配信済み"
+honeypot_log_dm_closed: "閉じているか到達不可"
+honeypot_log_no_content: "テキスト内容なし"
+honeypot_log_action_ban: "ユーザーをバン"
+honeypot_log_action_kick: "ユーザーをキック"
+honeypot_log_action_none: "アクションなし"

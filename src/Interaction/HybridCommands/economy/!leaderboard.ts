@@ -29,12 +29,12 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	ComponentType,
-	AttachmentBuilder,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { SubCommand } from '../../../../types/command.js';
-import formatNumber from '../../../core/functions/numberBeautifuer.js';
+	AttachmentBuilder
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { SubCommand } from "../../../../types/command.js";
+import formatNumber from "../../../core/functions/numberBeautifuer.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -43,18 +43,36 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
 		}
 
-		const char = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
-		const array: { user: User; totalWealth: number; bank: number; money: number; }[] = [];
+		const char = (await client.db.get(
+			`${interaction.guildId}.USER`
+		)) as DatabaseStructure.DbGuildUserObject;
+		const array: {
+			user: User;
+			totalWealth: number;
+			bank: number;
+			money: number;
+		}[] = [];
 
 		for (const i in char) {
 			const user = interaction.client.users.cache.get(i);
@@ -83,17 +101,44 @@ export const subCommand: SubCommand = {
 		const totalPages = Math.ceil(array.length / itemsPerPage);
 
 		htmlContent = htmlContent
-			.replaceAll("{title}", lang.economy_leaderboard_embed_title.replace('`${interaction.guild.name}`', interaction.guild.name + " "))
-			.replaceAll('{1_username}', array[0]?.user.username || lang.profil_unknown)
-			.replaceAll('{2_username}', array[1]?.user.username || lang.profil_unknown)
-			.replaceAll('{3_username}', array[2]?.user.username || lang.profil_unknown)
-			.replaceAll('{1_wealth}', formatNumber(array[0]?.totalWealth || 0))
-			.replaceAll('{2_wealth}', formatNumber(array[1]?.totalWealth || 0))
-			.replaceAll('{3_wealth}', formatNumber(array[2]?.totalWealth || 0))
-			.replaceAll('{1_avatar}', array[0]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://www.ihorizon.org/assets/img/unknown-user.png")
-			.replaceAll('{2_avatar}', array[1]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://www.ihorizon.org/assets/img/unknown-user.png")
-			.replaceAll('{3_avatar}', array[2]?.user.avatarURL({ extension: 'png', size: 128 }) || "https://www.ihorizon.org/assets/img/unknown-user.png")
-			.replaceAll('{coin_emoji}', client.iHorizon_Emojis.Coin);
+			.replaceAll(
+				"{title}",
+				lang.economy_leaderboard_embed_title.replace(
+					"`${interaction.guild.name}`",
+					interaction.guild.name + " "
+				)
+			)
+			.replaceAll(
+				"{1_username}",
+				array[0]?.user.username || lang.profil_unknown
+			)
+			.replaceAll(
+				"{2_username}",
+				array[1]?.user.username || lang.profil_unknown
+			)
+			.replaceAll(
+				"{3_username}",
+				array[2]?.user.username || lang.profil_unknown
+			)
+			.replaceAll("{1_wealth}", formatNumber(array[0]?.totalWealth || 0))
+			.replaceAll("{2_wealth}", formatNumber(array[1]?.totalWealth || 0))
+			.replaceAll("{3_wealth}", formatNumber(array[2]?.totalWealth || 0))
+			.replaceAll(
+				"{1_avatar}",
+				array[0]?.user.avatarURL({ extension: "png", size: 128 }) ||
+					"https://www.ihorizon.org/assets/img/unknown-user.png"
+			)
+			.replaceAll(
+				"{2_avatar}",
+				array[1]?.user.avatarURL({ extension: "png", size: 128 }) ||
+					"https://www.ihorizon.org/assets/img/unknown-user.png"
+			)
+			.replaceAll(
+				"{3_avatar}",
+				array[2]?.user.avatarURL({ extension: "png", size: 128 }) ||
+					"https://www.ihorizon.org/assets/img/unknown-user.png"
+			)
+			.replaceAll("{coin_emoji}", client.iHorizon_Emojis.Coin);
 
 		const createEmbed = async (page: number) => {
 			const startIndex = page * itemsPerPage;
@@ -101,16 +146,34 @@ export const subCommand: SubCommand = {
 			const pageUsers = array.slice(startIndex, endIndex);
 
 			const embed = new EmbedBuilder()
-				.setTitle(lang.economy_leaderboard_embed_title.replace('${interaction.guild.name}', interaction.guild!.name))
-				.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#e4b7ff")
+				.setTitle(
+					lang.economy_leaderboard_embed_title.replace(
+						"${interaction.guild.name}",
+						interaction.guild!.name
+					)
+				)
+				.setColor(
+					(await client.db.get(
+						`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`
+					)) || "#e4b7ff"
+				)
 				.setImage("attachment://image.png")
 				.setDescription(
-					pageUsers.map((entry, index) => {
-						const globalIndex = startIndex + index;
-						const medal = globalIndex === 0 ? '🥇' : globalIndex === 1 ? '🥈' : globalIndex === 2 ? '🥉' : '💰';
+					pageUsers
+						.map((entry, index) => {
+							const globalIndex = startIndex + index;
+							const medal =
+								globalIndex === 0
+									? "🥇"
+									: globalIndex === 1
+										? "🥈"
+										: globalIndex === 2
+											? "🥉"
+											: "💰";
 
-						return `${medal} **${globalIndex + 1}** ・ ${entry.user?.toString()}\n  ┖ ${client.iHorizon_Emojis.Coin} **${formatNumber(entry.bank)}** (${lang.balance_embed_fields1_name}) + **${formatNumber(entry.money)}** (${lang.balance_embed_fields2_name})`;
-					}).join('\n')
+							return `${medal} **${globalIndex + 1}** ・ ${entry.user?.toString()}\n  ┖ ${client.iHorizon_Emojis.Coin} **${formatNumber(entry.bank)}** (${lang.balance_embed_fields1_name}) + **${formatNumber(entry.money)}** (${lang.balance_embed_fields2_name})`;
+						})
+						.join("\n")
 				)
 				.setFooter({
 					text: lang.prevnames_embed_footer_text
@@ -124,44 +187,45 @@ export const subCommand: SubCommand = {
 		};
 
 		const image = await client.func.html2png(htmlContent, {
-			elementSelector: 'body',
+			elementSelector: "body",
 			omitBackground: true,
 			selectElement: false,
 			width: 1024,
 			height: 512
 		});
 
-		const attachment = new AttachmentBuilder(image, { name: 'image.png' });
+		const attachment = new AttachmentBuilder(image, { name: "image.png" });
 
 		const createButtons = (currentPage: number) => {
-			const row = new ActionRowBuilder<ButtonBuilder>()
-				.addComponents(
-					new ButtonBuilder()
-						.setCustomId('first')
-						.setLabel('<<<')
-						.setStyle(ButtonStyle.Primary)
-						.setDisabled(currentPage === 0),
-					new ButtonBuilder()
-						.setCustomId('previous')
-						.setLabel('<')
-						.setStyle(ButtonStyle.Primary)
-						.setDisabled(currentPage === 0),
-					new ButtonBuilder()
-						.setCustomId('page_info')
-						.setLabel(`${lang.var_page} ${currentPage + 1}/${totalPages}`)
-						.setStyle(ButtonStyle.Secondary)
-						.setDisabled(true),
-					new ButtonBuilder()
-						.setCustomId('next')
-						.setLabel('>')
-						.setStyle(ButtonStyle.Primary)
-						.setDisabled(currentPage === totalPages - 1),
-					new ButtonBuilder()
-						.setCustomId('last')
-						.setLabel('>>>')
-						.setStyle(ButtonStyle.Primary)
-						.setDisabled(currentPage === totalPages - 1)
-				);
+			const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setCustomId("first")
+					.setLabel("<<<")
+					.setStyle(ButtonStyle.Primary)
+					.setDisabled(currentPage === 0),
+				new ButtonBuilder()
+					.setCustomId("previous")
+					.setLabel("<")
+					.setStyle(ButtonStyle.Primary)
+					.setDisabled(currentPage === 0),
+				new ButtonBuilder()
+					.setCustomId("page_info")
+					.setLabel(
+						`${lang.var_page} ${currentPage + 1}/${totalPages}`
+					)
+					.setStyle(ButtonStyle.Secondary)
+					.setDisabled(true),
+				new ButtonBuilder()
+					.setCustomId("next")
+					.setLabel(">")
+					.setStyle(ButtonStyle.Primary)
+					.setDisabled(currentPage === totalPages - 1),
+				new ButtonBuilder()
+					.setCustomId("last")
+					.setLabel(">>>")
+					.setStyle(ButtonStyle.Primary)
+					.setDisabled(currentPage === totalPages - 1)
+			);
 
 			return row;
 		};
@@ -171,7 +235,12 @@ export const subCommand: SubCommand = {
 		const message = await client.func.method.interactionSend(interaction, {
 			embeds: [await createEmbed(currentPage)],
 			components: [createButtons(currentPage)],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction), attachment]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				),
+				attachment
+			]
 		});
 
 		const collector = message.createMessageComponentCollector({
@@ -179,14 +248,22 @@ export const subCommand: SubCommand = {
 			time: 60_000 * 15
 		});
 
-		collector.on('collect', async (buttonInteraction) => {
+		collector.on("collect", async (buttonInteraction) => {
 			if (!buttonInteraction.isButton()) return;
 
 			switch (buttonInteraction.customId) {
-				case 'first': currentPage = 0; break;
-				case 'previous': if (currentPage > 0) currentPage--; break;
-				case 'next': if (currentPage < totalPages - 1) currentPage++; break;
-				case 'last': currentPage = totalPages - 1; break;
+				case "first":
+					currentPage = 0;
+					break;
+				case "previous":
+					if (currentPage > 0) currentPage--;
+					break;
+				case "next":
+					if (currentPage < totalPages - 1) currentPage++;
+					break;
+				case "last":
+					currentPage = totalPages - 1;
+					break;
 			}
 
 			await buttonInteraction.update({
@@ -195,41 +272,42 @@ export const subCommand: SubCommand = {
 			});
 		});
 
-		collector.on('end', async () => {
+		collector.on("end", async () => {
 			await message.edit({
 				components: [
-					new ActionRowBuilder<ButtonBuilder>()
-						.addComponents(
-							new ButtonBuilder()
-								.setCustomId('first')
-								.setLabel('<<<')
-								.setStyle(ButtonStyle.Secondary)
-								.setDisabled(true),
-							new ButtonBuilder()
-								.setCustomId('previous')
-								.setLabel('<')
-								.setStyle(ButtonStyle.Secondary)
-								.setDisabled(true),
-							new ButtonBuilder()
-								.setCustomId('page_info')
-								.setLabel(`${lang.var_page} ${currentPage + 1}/${totalPages}`)
-								.setStyle(ButtonStyle.Primary)
-								.setDisabled(true),
-							new ButtonBuilder()
-								.setCustomId('next')
-								.setLabel('>')
-								.setStyle(ButtonStyle.Secondary)
-								.setDisabled(true),
-							new ButtonBuilder()
-								.setCustomId('last')
-								.setLabel('>>>')
-								.setStyle(ButtonStyle.Secondary)
-								.setDisabled(true)
-						)
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setCustomId("first")
+							.setLabel("<<<")
+							.setStyle(ButtonStyle.Secondary)
+							.setDisabled(true),
+						new ButtonBuilder()
+							.setCustomId("previous")
+							.setLabel("<")
+							.setStyle(ButtonStyle.Secondary)
+							.setDisabled(true),
+						new ButtonBuilder()
+							.setCustomId("page_info")
+							.setLabel(
+								`${lang.var_page} ${currentPage + 1}/${totalPages}`
+							)
+							.setStyle(ButtonStyle.Primary)
+							.setDisabled(true),
+						new ButtonBuilder()
+							.setCustomId("next")
+							.setLabel(">")
+							.setStyle(ButtonStyle.Secondary)
+							.setDisabled(true),
+						new ButtonBuilder()
+							.setCustomId("last")
+							.setLabel(">>>")
+							.setStyle(ButtonStyle.Secondary)
+							.setDisabled(true)
+					)
 				]
 			});
 		});
 
 		return;
-	},
+	}
 };

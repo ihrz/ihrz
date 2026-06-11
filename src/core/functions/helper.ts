@@ -21,14 +21,18 @@
 
 import { tempTable } from "../../Events/client/ready.ts";
 
-export async function cooldown(authorId: string, method: string, ms: number): Promise<boolean> {
+export async function cooldown(
+	authorId: string,
+	method: string,
+	ms: number
+): Promise<boolean> {
 	const tn = Date.now();
 	const fetch = await tempTable.get(`COOLDOWN.${method}.${authorId}`);
 	if (fetch !== null && ms - (tn - fetch) > 0) return true;
 
 	await tempTable.set(`COOLDOWN.${method}.${authorId}`, tn);
 	return false;
-};
+}
 
 export function capitalizeFirstLetter(string: string): string {
 	return string.charAt(0).toUpperCase() + string.slice(1);

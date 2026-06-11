@@ -24,57 +24,99 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	User,
-} from 'discord.js';
+	User
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const timeout = (await client.db.get(`${interaction.guildId}.ECONOMY.settings.work.cooldown`) || 3_600_000);
-		const work = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`);
+		const timeout =
+			(await client.db.get(
+				`${interaction.guildId}.ECONOMY.settings.work.cooldown`
+			)) || 3_600_000;
+		const work = await client.db.get(
+			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`
+		);
 
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
-		};
+		}
 
 		if (work !== null && timeout - (Date.now() - work) > 0) {
-			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - work), lang);
+			const time = client.timeCalculator.to_beautiful_string(
+				timeout - (Date.now() - work),
+				lang
+			);
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_cooldown_error
-					.replace('${time}', time),
+				content: lang.economy_cooldown_error.replace("${time}", time),
 				flags: [1 << 6]
 			});
 			return;
-		};
+		}
 
-		const amount = (Math.floor(Math.random() * 1024) + 1) * await client.func.economyHelper.getMemberBoost(interaction.member);
+		const amount =
+			(Math.floor(Math.random() * 1024) + 1) *
+			(await client.func.economyHelper.getMemberBoost(
+				interaction.member
+			));
 
 		const embed = new EmbedBuilder()
 			.setAuthor({
-				name: lang.work_embed_author
-					.replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username),
+				name: lang.work_embed_author.replace(
+					/\${interaction\.user\.username}/g,
+					(interaction.member.user as User).globalName ||
+						interaction.member.user.username
+				),
 				iconURL: (interaction.member.user as User).displayAvatarURL()
 			})
-			.setDescription(lang.work_embed_description
-				.replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
-				.replace(/\${amount}/g, amount.toString())
+			.setDescription(
+				lang.work_embed_description
+					.replace(
+						/\${interaction\.user\.username}/g,
+						(interaction.member.user as User).globalName ||
+							interaction.member.user.username
+					)
+					.replace(/\${amount}/g, amount.toString())
 			)
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.economy`) || "#f1d488");
 
-		await client.func.method.interactionSend(interaction, { embeds: [embed] });
+		await client.func.method.interactionSend(interaction, {
+			embeds: [embed]
+		});
 
-		await client.db.add(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount);
-		await client.db.set(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`, Date.now());
-	},
+		await client.db.add(
+			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
+			amount
+		);
+		await client.db.set(
+			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`,
+			Date.now()
+		);
+	}
 };

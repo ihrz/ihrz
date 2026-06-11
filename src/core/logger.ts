@@ -20,47 +20,60 @@
 */
 
 import { Logger } from "../../types/logger.js";
-import { log as _ } from 'console';
+import { log as _ } from "console";
 import "./functions/colors.js";
 
 enum LogLevel {
-	LOG = 'LOG',
-	WARN = 'WRN',
-	ERROR = 'ERR',
-	LEGACY = 'LEG',
-	DEBUG = 'DEBUG'
+	LOG = "LOG",
+	WARN = "WRN",
+	ERROR = "ERR",
+	LEGACY = "LEG",
+	DEBUG = "DEBUG"
 }
 
 function getCurrentTime(): string {
 	const now = new Date();
 	const shardId = global.client?.shard?.ids[0] ?? "X";
 
-	const timestamp = now.toLocaleString('en-US', {
-		year: 'numeric',
-		month: '2-digit',
-		day: '2-digit',
-		hour: '2-digit',
-		minute: '2-digit',
-		second: '2-digit',
+	const timestamp = now.toLocaleString("en-US", {
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
 		hour12: false
 	});
 
 	return `SHARD#${shardId} ${timestamp}`;
 }
 
-function formatMessage(level: LogLevel, message: any, ...optionalParams: any[]): string {
+function formatMessage(
+	level: LogLevel,
+	message: any,
+	...optionalParams: any[]
+): string {
 	const timestamp = getCurrentTime();
 	const prefix = `[${timestamp} ${level}]:`;
 
 	const coloredPrefix = applyColorToPrefix(prefix, level);
 
-	const messageStr = typeof message === 'object' ? JSON.stringify(message, null, 2) : String(message);
-	const paramsStr = optionalParams.length > 0
-		? ' ' + optionalParams.map(param =>
-			typeof param === 'object' ? JSON.stringify(param, null, 2) : String(param)
-		).join(' ')
-		: '';
-	return coloredPrefix + ' ' + messageStr + paramsStr;
+	const messageStr =
+		typeof message === "object"
+			? JSON.stringify(message, null, 2)
+			: String(message);
+	const paramsStr =
+		optionalParams.length > 0
+			? " " +
+				optionalParams
+					.map((param) =>
+						typeof param === "object"
+							? JSON.stringify(param, null, 2)
+							: String(param)
+					)
+					.join(" ")
+			: "";
+	return coloredPrefix + " " + messageStr + paramsStr;
 }
 
 function applyColorToPrefix(prefix: string, level: LogLevel): string {
@@ -82,21 +95,33 @@ function applyColorToPrefix(prefix: string, level: LogLevel): string {
 
 const logger: Logger = {
 	log(message: any, ...optionalParams: any[]): void {
-		const formattedMessage = formatMessage(LogLevel.LOG, message, ...optionalParams);
+		const formattedMessage = formatMessage(
+			LogLevel.LOG,
+			message,
+			...optionalParams
+		);
 		_(formattedMessage);
 	},
 
 	warn(message: any, ...optionalParams: any[]): void {
-		const formattedMessage = formatMessage(LogLevel.WARN, message, ...optionalParams);
+		const formattedMessage = formatMessage(
+			LogLevel.WARN,
+			message,
+			...optionalParams
+		);
 		_(formattedMessage);
 	},
 
 	err(message: any, ...optionalParams: any[]): void {
-		const formattedMessage = formatMessage(LogLevel.ERROR, message, ...optionalParams);
+		const formattedMessage = formatMessage(
+			LogLevel.ERROR,
+			message,
+			...optionalParams
+		);
 		_(formattedMessage);
 
-		if (typeof process !== 'undefined' && process.stderr) {
-			process.stderr.write(formattedMessage + '\n');
+		if (typeof process !== "undefined" && process.stderr) {
+			process.stderr.write(formattedMessage + "\n");
 		}
 	},
 
@@ -109,7 +134,7 @@ const logger: Logger = {
 	},
 
 	debug(message: any, ...optionalParams: any[]): void {
-		if (!client.config.core.devMode) return;
+		if (global?.client && !global.client.config.core.devMode) return;
 		if (optionalParams.length > 0) {
 			_(message, ...optionalParams);
 		} else {

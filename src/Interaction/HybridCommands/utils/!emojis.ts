@@ -24,72 +24,105 @@ import {
 	EmbedBuilder,
 	ChatInputCommandInteraction,
 	Message
-} from 'discord.js'
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-
-import { SubCommand } from '../../../../types/command.js';
-import { sleep } from 'bun';
+import { SubCommand } from "../../../../types/command.js";
+import { sleep } from "bun";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var str = (interaction.options.getString('emojis') as string).split(' ');
+			var str = (interaction.options.getString("emojis") as string).split(
+				" "
+			);
 		} else {
-			var str = args!
-		};
+			var str = args!;
+		}
 
 		let cnt: number = 0;
-		let nemj: string = '';
-
+		let nemj: string = "";
 
 		for (const emoji of str) {
 			const match = emoji.match(/:(\w+):(\d+)>/);
 			if (match) {
-				const isAnimated = emoji.startsWith('<a:');
+				const isAnimated = emoji.startsWith("<a:");
 
-				await interaction.guild?.emojis.create({
-					attachment: `https://cdn.discordapp.com/emojis/${match[2]}.${isAnimated ? 'gif' : 'png'}`,
-					name: match[1]
-				}).then((emoji) => {
-					client.func.method.channelSend(interaction, lang.emoji_send_new_emoji
-						.replace('${emoji.name}', emoji.name!)
-						.replace('${emoji}', emoji.toString())
-					);
+				await interaction.guild?.emojis
+					.create({
+						attachment: `https://cdn.discordapp.com/emojis/${match[2]}.${isAnimated ? "gif" : "png"}`,
+						name: match[1]
+					})
+					.then((emoji) => {
+						client.func.method.channelSend(
+							interaction,
+							lang.emoji_send_new_emoji
+								.replace("${emoji.name}", emoji.name!)
+								.replace("${emoji}", emoji.toString())
+						);
 
-					cnt++;
-					nemj += `<${isAnimated ? 'a:' : ':'}${emoji.name}:${emoji.id}>`
-				}).catch(() => {
-					client.func.method.channelSend(interaction, lang.emoji_send_err_emoji
-						.replace('${emoji.name}', emoji)
-					);
-				});
+						cnt++;
+						nemj += `<${isAnimated ? "a:" : ":"}${emoji.name}:${emoji.id}>`;
+					})
+					.catch(() => {
+						client.func.method.channelSend(
+							interaction,
+							lang.emoji_send_err_emoji.replace(
+								"${emoji.name}",
+								emoji
+							)
+						);
+					});
 
 				await sleep(6000);
 			}
 		}
 
-		let embed = new EmbedBuilder()
-			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#bea9de')
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-			.setTimestamp()
-			.setDescription(lang.emoji_embed_desc_work
-				.replace('${cnt}', cnt.toString())
-				.replace('${interaction.guild.name}', interaction.guild?.name!)
-				.replace('${nemj}', nemj)
+		const embed = new EmbedBuilder()
+			.setColor(
+				(await client.db.get(
+					`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`
+				)) || "#bea9de"
 			)
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
+			.setTimestamp()
+			.setDescription(
+				lang.emoji_embed_desc_work
+					.replace("${cnt}", cnt.toString())
+					.replace(
+						"${interaction.guild.name}",
+						interaction.guild?.name!
+					)
+					.replace("${nemj}", nemj)
+			);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
-	},
+	}
 };

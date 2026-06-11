@@ -23,43 +23,63 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const response = await promptYesOrNo(interaction, {
 			content: lang.resetallinvites_warning_msg,
 			noButton: lang.resetallinvites_no_button,
 			yesButton: lang.resetallinvites_yes_button,
 			dangerAction: true
-		})
+		});
 
 		if (response) {
-			const baseData = await client.db.get(`${interaction.guildId}.USER`) as DatabaseStructure.DbGuildUserObject;
+			const baseData = (await client.db.get(
+				`${interaction.guildId}.USER`
+			)) as DatabaseStructure.DbGuildUserObject;
 			for (const user in baseData) {
-				baseData[user].INVITES = {}
+				baseData[user].INVITES = {};
 			}
 			await client.db.set(`${interaction.guildId}.USER`, baseData);
-			await client.func.method.interactionSend(interaction, { content: lang.resetallinvites_succes_on_delete, components: [] });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.resetallinvites_succes_on_delete,
+				components: []
+			});
 
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.resetallinvites_logs_embed_title,
-				description: lang.resetallinvites_logs_embed_desc
-					.replace("${interaction.member.user.toString()}", interaction.member.user.toString())
+				description: lang.resetallinvites_logs_embed_desc.replace(
+					"${interaction.member.user.toString()}",
+					interaction.member.user.toString()
+				)
 			});
 		} else {
-			await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_action_canceled, components: [] });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.setjoinroles_action_canceled,
+				components: []
+			});
 		}
-	},
+	}
 };

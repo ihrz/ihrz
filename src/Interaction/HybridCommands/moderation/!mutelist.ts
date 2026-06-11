@@ -27,25 +27,41 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		let char = Array.from(interaction.guild.members.cache.filter(member => member.isCommunicationDisabled()).values()) || [];
+		let char =
+			Array.from(
+				interaction.guild.members.cache
+					.filter((member) => member.isCommunicationDisabled())
+					.values()
+			) || [];
 
 		if (char.length == 0) {
-			await client.func.method.interactionSend(interaction, { content: lang.prevnames_undetected });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.prevnames_undetected
+			});
 			return;
-		};
+		}
 
 		let currentPage = 0;
 		const usersPerPage = 5;
@@ -55,26 +71,31 @@ export const subCommand: SubCommand = {
 			const endTime = member.communicationDisabledUntil?.getTime()!;
 			const remaining = endTime - now;
 
-			return client.timeCalculator.to_beautiful_string(remaining, lang)
+			return client.timeCalculator.to_beautiful_string(remaining, lang);
 		};
 
 		const generatePages = () => {
-			const pages: { description: string; }[] = [];
+			const pages: { description: string }[] = [];
 
 			if (char.length === 0) {
-				pages.push({ description: lang.prevnames_undetected || 'Aucun membre en timeout.' });
+				pages.push({
+					description:
+						lang.prevnames_undetected || "Aucun membre en timeout."
+				});
 				return pages;
 			}
 
 			for (let i = 0; i < char.length; i += usersPerPage) {
 				const pageUsers = char.slice(i, i + usersPerPage);
-				const pageContent = pageUsers.map((member) => {
-					const timeRemaining = getTimeRemaining(member);
-					return `${member} - \`${timeRemaining}\``;
-				}).join('\n');
+				const pageContent = pageUsers
+					.map((member) => {
+						const timeRemaining = getTimeRemaining(member);
+						return `${member} - \`${timeRemaining}\``;
+					})
+					.join("\n");
 
 				pages.push({
-					description: pageContent,
+					description: pageContent
 				});
 			}
 
@@ -85,37 +106,51 @@ export const subCommand: SubCommand = {
 
 		const createEmbed = async () => {
 			return new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#010101")
+				.setColor(
+					(await client.db.get(
+						`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+					)) || "#010101"
+				)
 				.setDescription(pages[currentPage].description)
 				.setFooter({
 					text: lang.prevnames_embed_footer_text
-						.replace('${currentPage + 1}', (currentPage + 1).toString())
-						.replace('${pages.length}', pages.length.toString()),
+						.replace(
+							"${currentPage + 1}",
+							(currentPage + 1).toString()
+						)
+						.replace("${pages.length}", pages.length.toString()),
 					iconURL: "attachment://footer_icon.png"
 				})
-				.setTimestamp()
+				.setTimestamp();
 		};
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
-				.setCustomId('previousPage')
-				.setLabel('<<<')
+				.setCustomId("previousPage")
+				.setLabel("<<<")
 				.setStyle(ButtonStyle.Secondary),
 			new ButtonBuilder()
-				.setCustomId('nextPage')
-				.setLabel('>>>')
+				.setCustomId("nextPage")
+				.setLabel(">>>")
 				.setStyle(ButtonStyle.Secondary),
 			new ButtonBuilder()
 				.setCustomId("trash-mutelist-embed")
-				.setLabel('🗑️')
+				.setLabel("🗑️")
 				.setStyle(ButtonStyle.Danger)
 		);
 
-		const messageEmbed = await client.func.method.interactionSend(interaction, {
-			embeds: [await createEmbed()],
-			components: [row],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-		});
+		const messageEmbed = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [await createEmbed()],
+				components: [row],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			}
+		);
 
 		const collector = messageEmbed.createMessageComponentCollector({
 			filter: async (i) => {
@@ -125,16 +160,14 @@ export const subCommand: SubCommand = {
 			time: 60_000
 		});
 
-		collector.on('collect', async (interaction_2) => {
-			if (interaction_2.customId === 'previousPage') {
-
+		collector.on("collect", async (interaction_2) => {
+			if (interaction_2.customId === "previousPage") {
 				currentPage = (currentPage - 1 + pages.length) % pages.length;
-
-			} else if (interaction_2.customId === 'nextPage') {
+			} else if (interaction_2.customId === "nextPage") {
 				currentPage = (currentPage + 1) % pages.length;
-			} else if (interaction_2.customId === 'trash-mutelist-embed') {
+			} else if (interaction_2.customId === "trash-mutelist-embed") {
 				for (let member of char) {
-					await member.timeout(null).catch(() => { });
+					await member.timeout(null).catch(() => {});
 				}
 				char = [];
 				pages = generatePages();
@@ -147,9 +180,8 @@ export const subCommand: SubCommand = {
 			});
 		});
 
-		collector.on('end', async () => {
+		collector.on("end", async () => {
 			await messageEmbed.edit({ components: [] });
 		});
-
-	},
+	}
 };

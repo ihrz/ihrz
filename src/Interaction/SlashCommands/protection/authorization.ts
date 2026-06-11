@@ -22,10 +22,10 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const rules = [
 	{
@@ -46,7 +46,7 @@ export const rules = [
 	},
 	{
 		placeholder: "Create Channel",
-		value: "createchannel",
+		value: "createchannel"
 	},
 	{
 		placeholder: "Update Channel",
@@ -54,19 +54,19 @@ export const rules = [
 	},
 	{
 		placeholder: "Delete Channel",
-		value: "deletechannel",
+		value: "deletechannel"
 	},
 	{
 		placeholder: "Create Role",
-		value: "createrole",
+		value: "createrole"
 	},
 	{
 		placeholder: "Delete Role",
-		value: "deleterole",
+		value: "deleterole"
 	},
 	{
 		placeholder: "Update Role",
-		value: "updaterole",
+		value: "updaterole"
 	},
 	{
 		placeholder: "Add/Remove Member Role(s)",
@@ -74,28 +74,28 @@ export const rules = [
 	},
 	{
 		placeholder: "Ban Members",
-		value: "banmembers",
+		value: "banmembers"
 	},
 	{
 		placeholder: "Kick Members",
-		value: "kickmember",
+		value: "kickmember"
 	},
 	{
 		placeholder: "Unban Members",
-		value: "unbanmembers",
+		value: "unbanmembers"
 	},
 	{
 		placeholder: "Add admin role",
 		value: "add_admin_roles"
 	}
-] as const
+] as const;
 
 export const command: Command = {
 	name: "protect",
 
 	description: "Subcommand for protection category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de protection"
+		fr: "Commande sous-groupé pour la catégorie de protection"
 	},
 
 	options: [
@@ -104,54 +104,58 @@ export const command: Command = {
 
 			description: "Choose an actions to Deny/Allow for the user!",
 			description_localizations: {
-				"fr": "Choisissez une action à refuser/autoriser pour l'utilisateur"
+				fr: "Choisissez une action à refuser/autoriser pour l'utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'rule',
+					name: "rule",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'Whats is the rule to configure?',
+					description: "Whats is the rule to configure?",
 					description_localizations: {
-						"fr": "Quelle est la règle à configurer ?"
+						fr: "Quelle est la règle à configurer ?"
 					},
 
 					required: true,
 					choices: Object.entries(rules).map(([key, value]) => ({
 						name: value.placeholder,
 						name_localizations: { fr: value.placeholder },
-						value: value.value,
+						value: value.value
 					})),
 
 					permission: null
 				},
 				{
-					name: 'allow',
+					name: "allow",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The rule are bypassable for who?',
+					description: "The rule are bypassable for who?",
 					description_localizations: {
-						"fr": "Les règles sont contournables pour qui ?"
+						fr: "Les règles sont contournables pour qui ?"
 					},
 
 					required: false,
 					choices: [
 						{
-							name: 'Only the allowlist',
-							name_localizations: { fr: 'Seulement la liste d\'autorisation' },
-							value: 'allowlist'
+							name: "Only the allowlist",
+							name_localizations: {
+								fr: "Seulement la liste d'autorisation"
+							},
+							value: "allowlist"
 						},
 						{
-							name: 'All of member',
-							name_localizations: { fr: 'Tous les membres' },
-							value: 'member'
+							name: "All of member",
+							name_localizations: { fr: "Tous les membres" },
+							value: "member"
 						},
 						{
-							name: 'Nobody (except guild owner)',
-							name_localizations: { fr: 'Personne (sauf le propriétaire du serveur)' },
-							value: 'nobody'
+							name: "Nobody (except guild owner)",
+							name_localizations: {
+								fr: "Personne (sauf le propriétaire du serveur)"
+							},
+							value: "nobody"
 						}
 					],
 
@@ -166,18 +170,18 @@ export const command: Command = {
 
 			description: "Choose the sanction to applied for the flagged user!",
 			description_localizations: {
-				"fr": "Choisissez la sanction à appliquer pour l'utilisateur signalé?"
+				fr: "Choisissez la sanction à appliquer pour l'utilisateur signalé?"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'choose',
+					name: "choose",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'Whats is the sanction then?',
+					description: "Whats is the sanction then?",
 					description_localizations: {
-						"fr": "Quelle est donc la sanction ?"
+						fr: "Quelle est donc la sanction ?"
 					},
 
 					required: true,
@@ -185,47 +189,48 @@ export const command: Command = {
 						{
 							name: "Simply Cancel Actions",
 							name_localizations: {
-								"fr": "Simplemente annuler les actions"
+								fr: "Simplemente annuler les actions"
 							},
 							value: "simply"
 						},
 						{
 							name: "Simply Cancel Actions + Derank",
 							name_localizations: {
-								"fr": "Simplemente annuler les actions + déséléver"
+								fr: "Simplemente annuler les actions + déséléver"
 							},
 							value: "simply+derank"
 						},
 						{
 							name: "Simply Cancel Actions + Ban",
 							name_localizations: {
-								"fr": "Simplemente annuler les actions + bannir"
+								fr: "Simplemente annuler les actions + bannir"
 							},
 							value: "simply+ban"
 						}
 					],
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "show",
 
-			description: "Show the current configuration about protection authorization/rule & allow list!",
+			description:
+				"Show the current configuration about protection authorization/rule & allow list!",
 			description_localizations: {
-				"fr": "Afficher la configuration des autorisations/règles de protection pour la liste d'autorisation"
+				fr: "Afficher la configuration des autorisations/règles de protection pour la liste d'autorisation"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.Administrator,
-		},
+			permission: PermissionFlagsBits.Administrator
+		}
 	],
 	thinking: true,
-	category: 'protection',
+	category: "protection",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

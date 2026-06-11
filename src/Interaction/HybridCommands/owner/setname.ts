@@ -26,29 +26,29 @@ import {
 	Message,
 	GuildMember,
 	PermissionFlagsBits,
-	ChatInputCommandInteraction,
-} from 'discord.js'
+	ChatInputCommandInteraction
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { ownerTable, tempTable } from '../../../Events/client/ready.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { ownerTable, tempTable } from "../../../Events/client/ready.js";
 
 export const command: Command = {
-	name: 'setname',
+	name: "setname",
 
-	description: 'Set the name of the bot !',
+	description: "Set the name of the bot !",
 	description_localizations: {
-		"fr": "Définir le noms du bot"
+		fr: "Définir le noms du bot"
 	},
 
 	options: [
 		{
-			name: 'name',
+			name: "name",
 			type: ApplicationCommandOptionType.String,
 
-			description: 'The name for the bot',
+			description: "The name for the bot",
 			description_localizations: {
-				"fr": "Le noms du bot"
+				fr: "Le noms du bot"
 			},
 
 			required: true,
@@ -57,32 +57,60 @@ export const command: Command = {
 		}
 	],
 	thinking: false,
-	category: 'owner',
+	category: "owner",
 	permission: null,
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var action_2 = interaction.options.getString("name")!;
 		} else {
 			var action_2 = client.func.method.longString(args!, 0)!;
-		};
+		}
 
-		if (await ownerTable.get(`${interaction.member.user.id}.owner`)
-			!== true) {
-			await client.func.method.interactionSend(interaction, { content: lang.owner_not_owner, ephemeral: true });
+		if (
+			(await ownerTable.get(`${interaction.member.user.id}.owner`)) !==
+			true
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.owner_not_owner,
+				ephemeral: true
+			});
 			return;
-		};
+		}
 
-		if (await client.func.helper.cooldown(interaction.member.user.id, "setname", 1_800_000)) {
-			let time = client.timeCalculator.to_beautiful_string(1_800_000 - (Date.now() -
-				await tempTable.get(`COOLDOWN.setname.${interaction.member.user.id}`)), lang);
+		if (
+			await client.func.helper.cooldown(
+				interaction.member.user.id,
+				"setname",
+				1_800_000
+			)
+		) {
+			let time = client.timeCalculator.to_beautiful_string(
+				1_800_000 -
+					(Date.now() -
+						(await tempTable.get(
+							`COOLDOWN.setname.${interaction.member.user.id}`
+						))),
+				lang
+			);
 
-			await interaction.reply({ content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!` });
+			await interaction.reply({
+				content: `Veuillez attendre ${time} avant de ré-éxecuter cette commandes!`
+			});
 			return;
 		}
 
@@ -90,5 +118,5 @@ export const command: Command = {
 
 		await interaction.reply({ content: `✅` });
 		return;
-	},
+	}
 };

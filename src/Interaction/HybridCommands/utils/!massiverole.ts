@@ -26,55 +26,71 @@ import {
 	Role,
 	Guild,
 	Message
-} from 'discord.js'
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { processBatchAsync } from "../../../core/functions/batchProcessor.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var action = interaction.options.getString("action");
 			var role = interaction.options.getRole("role");
 		} else {
-
 			var action = client.func.method.string(args!, 0);
 			var role = client.func.method.role(interaction, args!, 1);
-		};
+		}
 
 		let a: number = 0;
 		let s: number = 0;
 		let e: number = 0;
 
 		if ((interaction.guild as Guild).memberCount >= 10000) {
-			await client.func.method.interactionSend(interaction, { content: lang.massiverole_too_much_member });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.massiverole_too_much_member
+			});
 			return;
-		};
+		}
 
-		const ogInteraction = await client.func.method.interactionSend(interaction, {
-			content: client.iHorizon_Emojis.Discord_Loading
-		});
+		const ogInteraction = await client.func.method.interactionSend(
+			interaction,
+			{
+				content: client.iHorizon_Emojis.Discord_Loading
+			}
+		);
 
-		if (action === 'add') {
-
+		if (action === "add") {
 			try {
 				const members = await interaction.guild.members.fetch();
-				const membersToProcess = Array.from(members.values()).filter(member => !member.roles.cache.has(role?.id!));
+				const membersToProcess = Array.from(members.values()).filter(
+					(member) => !member.roles.cache.has(role?.id!)
+				);
 
 				// Count members that already have the role
 				s = members.size - membersToProcess.length;
 
 				// Send immediate response
 				await ogInteraction.edit({
-					content: lang.batch_massiverole_process.replace("${membersToProcess.length}", membersToProcess.length.toString())
+					content: lang.batch_massiverole_process.replace(
+						"${membersToProcess.length}",
+						membersToProcess.length.toString()
+					)
 				});
 
 				// Process in batches asynchronously
@@ -82,7 +98,10 @@ export const subCommand: SubCommand = {
 					membersToProcess,
 					async (member) => {
 						try {
-							await member.roles.add(role as Role, "[Massrole] Module");
+							await member.roles.add(
+								role as Role,
+								"[Massrole] Module"
+							);
 							a++;
 							return true;
 						} catch {
@@ -94,59 +113,91 @@ export const subCommand: SubCommand = {
 					async (result) => {
 						// Send final result when processing is complete
 						const embed = new EmbedBuilder()
-							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-							.setColor('#007fff')
+							.setFooter(
+								await client.func.displayBotName.footerBuilder(
+									interaction.guildId!
+								)
+							)
+							.setColor("#007fff")
 							.setTimestamp()
 							.setThumbnail(interaction.guild!.iconURL())
-							.setDescription(lang.massiverole_add_command_work
-								.replace('${interaction.user}', interaction.member!.user.toString())
-								.replace('${a}', a.toString())
-								.replace('${s}', s.toString())
-								.replace('${e}', e.toString())
-								.replaceAll('${role}', role?.toString()!)
+							.setDescription(
+								lang.massiverole_add_command_work
+									.replace(
+										"${interaction.user}",
+										interaction.member!.user.toString()
+									)
+									.replace("${a}", a.toString())
+									.replace("${s}", s.toString())
+									.replace("${e}", e.toString())
+									.replaceAll("${role}", role?.toString()!)
 							);
 
 						await ogInteraction.edit({
 							content: null,
 							embeds: [embed],
-							files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+							files: [
+								await interaction.client.func.displayBotName.footerAttachmentBuilder(
+									interaction
+								)
+							]
 						});
 					}
 				);
 				return;
-			} catch (error) { };
+			} catch (error) {}
 
 			const embed = new EmbedBuilder()
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-				.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
+				.setColor(
+					(await client.db.get(
+						`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`
+					)) || "#007fff"
+				)
 				.setTimestamp()
 				.setThumbnail(interaction.guild.iconURL())
-				.setDescription(lang.massiverole_add_command_work
-					.replace('${interaction.user}', interaction.member.user.toString())
-					.replace('${a}', a.toString())
-					.replace('${s}', s.toString())
-					.replace('${e}', e.toString())
-					.replaceAll('${role}', role?.toString()!)
+				.setDescription(
+					lang.massiverole_add_command_work
+						.replace(
+							"${interaction.user}",
+							interaction.member.user.toString()
+						)
+						.replace("${a}", a.toString())
+						.replace("${s}", s.toString())
+						.replace("${e}", e.toString())
+						.replaceAll("${role}", role?.toString()!)
 				);
 
 			await ogInteraction.edit({
 				content: null,
 				embeds: [embed],
-				files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+				files: [
+					await interaction.client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
 			});
 			return;
-		} else if (action === 'sub') {
-
+		} else if (action === "sub") {
 			try {
 				const members = await interaction.guild.members.fetch();
-				const membersToProcess = Array.from(members.values()).filter(member => member.roles.cache.has(role?.id!));
+				const membersToProcess = Array.from(members.values()).filter(
+					(member) => member.roles.cache.has(role?.id!)
+				);
 
 				// Count members that don't have the role
 				s = members.size - membersToProcess.length;
 
 				// Send immediate response
 				await ogInteraction.edit({
-					content: lang.batch_unmassiverole_process.replace("${membersToProcess.length}", membersToProcess.length.toString())
+					content: lang.batch_unmassiverole_process.replace(
+						"${membersToProcess.length}",
+						membersToProcess.length.toString()
+					)
 				});
 
 				// Process in batches asynchronously
@@ -154,7 +205,10 @@ export const subCommand: SubCommand = {
 					membersToProcess,
 					async (member) => {
 						try {
-							await member.roles.remove(role as Role, "[MassiveRole] Command");
+							await member.roles.remove(
+								role as Role,
+								"[MassiveRole] Command"
+							);
 							a++;
 							return true;
 						} catch {
@@ -166,49 +220,77 @@ export const subCommand: SubCommand = {
 					async (result) => {
 						// Send final result when processing is complete
 						const embed = new EmbedBuilder()
-							.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-							.setColor('#007fff')
+							.setFooter(
+								await client.func.displayBotName.footerBuilder(
+									interaction.guildId!
+								)
+							)
+							.setColor("#007fff")
 							.setTimestamp()
 							.setThumbnail(interaction.guild!.iconURL())
-							.setDescription(lang.massiverole_sub_command_work
-								.replace('${interaction.user}', interaction.member!.user.toString())
-								.replace('${a}', a.toString())
-								.replace('${s}', s.toString())
-								.replace('${e}', e.toString())
-								.replaceAll('${role}', role?.toString()!)
+							.setDescription(
+								lang.massiverole_sub_command_work
+									.replace(
+										"${interaction.user}",
+										interaction.member!.user.toString()
+									)
+									.replace("${a}", a.toString())
+									.replace("${s}", s.toString())
+									.replace("${e}", e.toString())
+									.replaceAll("${role}", role?.toString()!)
 							);
 
 						await ogInteraction.edit({
 							content: null,
 							embeds: [embed],
-							files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+							files: [
+								await interaction.client.func.displayBotName.footerAttachmentBuilder(
+									interaction
+								)
+							]
 						});
 					}
 				);
 				return;
-			} catch (error) { };
+			} catch (error) {}
 
 			const embed = new EmbedBuilder()
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-				.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || '#007fff')
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
+				.setColor(
+					(await client.db.get(
+						`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`
+					)) || "#007fff"
+				)
 				.setTimestamp()
 				.setThumbnail(interaction.guild.iconURL())
-				.setDescription(lang.massiverole_sub_command_work
-					.replace('${interaction.user}', interaction.member.user.toString())
-					.replace('${a}', a.toString())
-					.replace('${s}', s.toString())
-					.replace('${e}', e.toString())
-					.replaceAll('${role}', role?.toString()!)
+				.setDescription(
+					lang.massiverole_sub_command_work
+						.replace(
+							"${interaction.user}",
+							interaction.member.user.toString()
+						)
+						.replace("${a}", a.toString())
+						.replace("${s}", s.toString())
+						.replace("${e}", e.toString())
+						.replaceAll("${role}", role?.toString()!)
 				);
 
 			await ogInteraction.edit({
 				content: null,
 				embeds: [embed],
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
 			});
 			return;
-		};
+		}
 
 		return;
-	},
+	}
 };

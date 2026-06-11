@@ -4,7 +4,7 @@
 		"categoryColor": "#2986cc",
 		"options": {
 			"description": "help_giveaway_dsc",
-			"emoji": "🎉",
+			"emoji": "${client.iHorizon_Emojis.Rainbow_Tada}",
 			"placeholder": "help_giveaway_fields"
 		}
 	}

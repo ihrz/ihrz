@@ -25,48 +25,71 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	User,
-} from 'discord.js'
+	User
+} from "discord.js";
 
-import { AxiosResponse, axios } from '../../../core/functions/axios.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { AxiosResponse, axios } from "../../../core/functions/axios.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
-		if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-			await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
+			"off"
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.fun_category_disable
+			});
 			return;
-		};
+		}
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var member1 = interaction.options.getUser('user') as User || interaction.user;
+			var member1 =
+				(interaction.options.getUser("user") as User) ||
+				interaction.user;
 		} else {
+			var member1 =
+				(await client.func.method.user(interaction, args!, 0)) ||
+				interaction.author;
+		}
 
-			var member1 = await client.func.method.user(interaction, args!, 0) || interaction.author;
-		};
-
-		const link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: 'png', size: 1024 }))}`;
+		const link = `https://some-random-api.com/canvas/misc/transgender?avatar=${encodeURIComponent(member1.displayAvatarURL({ extension: "png", size: 1024 }))}`;
 
 		const embed = new EmbedBuilder()
 			.setColor("#010101")
-			.setImage('attachment://transgender.png')
+			.setImage("attachment://transgender.png")
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		let imgs: AttachmentBuilder | undefined;
 
-		const response: AxiosResponse = await axios.get(link, { responseType: 'arrayBuffer' })
-		imgs = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'transgender.png' });
+		const response: AxiosResponse = await axios.get(link, {
+			responseType: "arrayBuffer"
+		});
+		imgs = new AttachmentBuilder(Buffer.from(response.data, "base64"), {
+			name: "transgender.png"
+		});
 		embed.setImage(`attachment://transgender.png`);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [imgs, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				imgs,
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
-	},
+	}
 };

@@ -19,18 +19,31 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, ApplicationCommandType, UserContextMenuCommandInteraction, PermissionFlagsBits, ChatInputCommandInteraction } from 'discord.js';
-import { AnotherCommand } from '../../../types/anotherCommand.js';
+import {
+	Client,
+	ApplicationCommandType,
+	UserContextMenuCommandInteraction,
+	PermissionFlagsBits,
+	ChatInputCommandInteraction
+} from "discord.js";
+import { AnotherCommand } from "../../../types/anotherCommand.js";
 
-import { subCommand } from '../HybridCommands/utils/!userinfo.js';
-import getLanguageData from '../../core/functions/getLanguageData.js';
+import { subCommand } from "../HybridCommands/utils/!userinfo.js";
+import getLanguageData from "../../core/functions/getLanguageData.js";
 
 export const command: AnotherCommand = {
-	name: 'User Lookup',
+	name: "User Lookup",
 	type: ApplicationCommandType.User,
 	thinking: false,
 	permission: PermissionFlagsBits.Administrator,
-	run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
-		subCommand.run(client, interaction as unknown as ChatInputCommandInteraction<"cached">, await getLanguageData(interaction.guildId!));
-	},
+	run: async (
+		client: Client,
+		interaction: UserContextMenuCommandInteraction
+	) => {
+		subCommand.run(
+			client,
+			interaction as unknown as ChatInputCommandInteraction<"cached">,
+			await getLanguageData(interaction.guildId!)
+		);
+	}
 };

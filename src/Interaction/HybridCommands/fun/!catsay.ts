@@ -24,13 +24,13 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { axios } from '../../../core/functions/axios.js';
-import { SubCommand } from '../../../../types/command.js';
-import { catsay } from '../../../core/images.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { axios } from "../../../core/functions/axios.js";
+import { SubCommand } from "../../../../types/command.js";
+import { catsay } from "../../../core/images.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -39,44 +39,66 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
+		const baseImg = (
+			await axios.get(
+				"https://api.thecatapi.com/v1/images/search?mime_types=jpg,png"
+			)
+		).data;
 
-		const baseImg = (await axios.get('https://api.thecatapi.com/v1/images/search?mime_types=jpg,png')).data;
-
-		if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-			await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
+		if (
+			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
+			"off"
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.fun_category_disable
+			});
 			return;
-		};
+		}
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var text = interaction.options.getString('text')?.slice(0, 70);
+			var text = interaction.options.getString("text")?.slice(0, 70);
 		} else {
 			var text = client.func.method.longString(args!, 0)?.slice(0, 70);
 		}
 
 		const embed = new EmbedBuilder()
-			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#010101")
-			.setImage('attachment://catsay.png')
+			.setColor(
+				(await client.db.get(
+					`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`
+				)) || "#010101"
+			)
+			.setImage("attachment://catsay.png")
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		let imgs: AttachmentBuilder | undefined;
 
 		try {
 			let image = await catsay(baseImg[0].url, text || "");
-			imgs = new AttachmentBuilder(image, { name: 'catsay.png' });
+			imgs = new AttachmentBuilder(image, { name: "catsay.png" });
 			embed.setImage(`attachment://catsay.png`);
 
 			if (imgs) {
 				await client.func.method.interactionSend(interaction, {
 					embeds: [embed],
-					files: [imgs, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+					files: [
+						imgs,
+						await interaction.client.func.displayBotName.footerAttachmentBuilder(
+							interaction
+						)
+					]
 				});
-			};
-
+			}
 		} catch {
-			await client.func.method.interactionSend(interaction, { content: lang.fun_var_down_api });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.fun_var_down_api
+			});
 		}
 
 		return;
-	},
-}
+	}
+};

@@ -23,31 +23,49 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { TicketRemind } from '../../../core/modules/ticketsManager.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { TicketRemind } from "../../../core/modules/ticketsManager.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
-
-		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await client.func.method.interactionSend(interaction, { content: lang.ticket_disabled_command });
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
 			return;
-		};
 
-		if (!await client.func.method.isTicketChannel(interaction.channel as BaseGuildTextChannel)) {
-			await client.func.method.interactionSend(interaction, { content: lang.delete_not_in_ticket });
+		if (
+			await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.ticket_disabled_command
+			});
+			return;
+		}
+
+		if (
+			!(await client.func.method.isTicketChannel(
+				interaction.channel as BaseGuildTextChannel
+			))
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.delete_not_in_ticket
+			});
 			return;
 		}
 		await TicketRemind(interaction);
-	},
+	}
 };

@@ -27,34 +27,43 @@ import {
 	Client,
 	ComponentType,
 	EmbedBuilder,
-	Message,
-} from 'discord.js'
-import { LanguageData } from '../../../../../types/languageData.js';
-import { SubCommand } from '../../../../../types/command.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-		const fetchedWebhooks = await interaction.guild?.fetchWebhooks()
-		const webhookArray = fetchedWebhooks?.map(webhook => webhook);
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		const fetchedWebhooks = await interaction.guild?.fetchWebhooks();
+		const webhookArray = fetchedWebhooks?.map((webhook) => webhook);
 
 		if (!webhookArray || webhookArray?.length == 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.util_no_webhooks
-			})
+			});
 			return;
 		}
 
 		let currentPage = 0;
 		const usersPerPage = 5;
-		const pages: { title: string; description: string; }[] = [];
+		const pages: { title: string; description: string }[] = [];
 
 		for (let i = 0; i < webhookArray.length; i += usersPerPage) {
 			const page = webhookArray.slice(i, i + usersPerPage);
-			const description = page.map(webhook => {
-				const maskedToken = webhook.token?.split('').map(() => '◯').join('');
-				return `[${webhook.name}](https://discord.com/api/webhooks/${webhook.id}/${maskedToken}) (${webhook.channel?.toString()})`;
-			}).join("\n");
+			const description = page
+				.map((webhook) => {
+					const maskedToken = webhook.token
+						?.split("")
+						.map(() => "◯")
+						.join("");
+					return `[${webhook.name}](https://discord.com/api/webhooks/${webhook.id}/${maskedToken}) (${webhook.channel?.toString()})`;
+				})
+				.join("\n");
 
 			pages.push({
 				title: lang.util_allwebhooks_embed_title,
@@ -71,8 +80,12 @@ export const subCommand: SubCommand = {
 						.replace("${from}", String(currentPage + 1))
 						.replace("${to}", String(pages.length))
 				})
-				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#72f3f3")
-		}
+				.setColor(
+					(await client.db.get(
+						`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+					)) || "#72f3f3"
+				);
+		};
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
@@ -87,8 +100,7 @@ export const subCommand: SubCommand = {
 				.setCustomId("delete")
 				.setEmoji("🗑️")
 				.setStyle(ButtonStyle.Danger)
-		)
-
+		);
 
 		const message = await client.func.method.interactionSend(interaction, {
 			embeds: [await createEmbed()],
@@ -140,8 +152,10 @@ export const subCommand: SubCommand = {
 				}
 
 				await message.edit({
-					content: lang.util_allwebhooks_deleted
-						.replace("${u}", String(u)),
+					content: lang.util_allwebhooks_deleted.replace(
+						"${u}",
+						String(u)
+					),
 					components: [],
 					embeds: []
 				});
@@ -155,5 +169,5 @@ export const subCommand: SubCommand = {
 		});
 
 		return;
-	},
+	}
 };

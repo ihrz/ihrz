@@ -21,10 +21,28 @@
 
 export type LoggerMessageType = any;
 export interface Logger {
-	log: (message: LoggerMessageType, ...optionalParams: LoggerMessageType[]) => void;
-	legacy: (message: LoggerMessageType, ...optionalParams: LoggerMessageType[]) => void;
-	warn: (message: LoggerMessageType, ...optionalParams: LoggerMessageType[]) => void;
-	err: (message: LoggerMessageType, ...optionalParams: LoggerMessageType[]) => void;
-	debug: (message: LoggerMessageType, ...optionalParams: LoggerMessageType[]) => void;
-	returnLog: (message: LoggerMessageType, ...optionalParams: LoggerMessageType[]) => string;
+	log: (
+		message: LoggerMessageType,
+		...optionalParams: LoggerMessageType[]
+	) => void;
+	legacy: (
+		message: LoggerMessageType,
+		...optionalParams: LoggerMessageType[]
+	) => void;
+	warn: (
+		message: LoggerMessageType,
+		...optionalParams: LoggerMessageType[]
+	) => void;
+	err: (
+		message: LoggerMessageType,
+		...optionalParams: LoggerMessageType[]
+	) => void;
+	debug: (
+		message: LoggerMessageType,
+		...optionalParams: LoggerMessageType[]
+	) => void;
+	returnLog: (
+		message: LoggerMessageType,
+		...optionalParams: LoggerMessageType[]
+	) => string;
 }

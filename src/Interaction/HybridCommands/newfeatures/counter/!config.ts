@@ -19,44 +19,53 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var action = interaction.options.getString('action');
+			var action = interaction.options.getString("action");
 		} else {
-
 			var action = client.func.method.string(args!, 0);
 		}
 
-		if (action === 'on') {
+		if (action === "on") {
 			await client.db.set(`${interaction.guildId}.COUNTER.config`, "on");
 			await client.func.method.interactionSend(interaction, {
-				content: lang.counter_config_command_action_on
-					.replace('${interaction.user}', interaction.member.user.toString())
+				content: lang.counter_config_command_action_on.replace(
+					"${interaction.user}",
+					interaction.member.user.toString()
+				)
 			});
 
 			return;
-		} else if (action === 'off') {
+		} else if (action === "off") {
 			await client.db.set(`${interaction.guildId}.COUNTER.config`, "off");
 			await client.func.method.interactionSend(interaction, {
-				content: lang.counter_config_command_action_off
-					.replace('${interaction.user}', interaction.member.user.toString())
+				content: lang.counter_config_command_action_off.replace(
+					"${interaction.user}",
+					interaction.member.user.toString()
+				)
 			});
 
 			return;
 		}
-	},
+	}
 };

@@ -20,6 +20,6 @@
 */
 
 export interface VanityInviteData {
-	uses: number | null,
-	code: string | null,
+	uses: number | null;
+	code: string | null;
 }

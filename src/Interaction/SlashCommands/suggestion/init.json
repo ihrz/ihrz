@@ -4,7 +4,7 @@
 		"categoryColor": "#990000",
 		"options": {
 			"description": "help_suggestion_dsc",
-			"emoji": "❓",
+			"emoji": "${client.iHorizon_Emojis.Usagi_Confused}",
 			"placeholder": "help_suggestion_fields"
 		}
 	}

@@ -19,21 +19,60 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Partials, GatewayIntentBits } from "discord.js";
-import * as core from './src/core/core.js';
-import config from './src/files/config.js';
-import * as ClientVersion from './src/version.js';
+import { Client, Partials, GatewayIntentBits, Options } from "discord.js";
+import * as core from "./src/core/core.js";
+import config from "./src/files/config.js";
+import * as ClientVersion from "./src/version.js";
 import logger from "./src/core/logger.js";
 import { initializeDatabase } from "./src/core/database/index.js";
 
 logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
-logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
-logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
+logger.legacy(
+	"[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International"
+		.gray
+);
+logger.legacy(
+	"[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0"
+		.gray
+);
 
-import { setMaxListeners } from 'events';
-setMaxListeners(0)
+import { setMaxListeners } from "events";
+import { getOS } from "./getOS.js";
+
+setMaxListeners(0);
+
+const DISCORD_MESSAGE_SWEEP_LIFETIME_SECONDS = 60 * 60 * 8;
+const DISCORD_MESSAGE_SWEEP_INTERVAL_SECONDS = 60 * 15;
+
+global.getOS = getOS;
 
 global.client = new Client({
+	makeCache: Options.cacheWithLimits({
+		MessageManager: 100,
+		PresenceManager: 50
+	}),
+	sweepers: {
+		messages: {
+			interval: DISCORD_MESSAGE_SWEEP_INTERVAL_SECONDS,
+			lifetime: DISCORD_MESSAGE_SWEEP_LIFETIME_SECONDS
+		},
+		users: {
+			interval: 60 * 30,
+			filter: () => (user) => !user.bot
+		},
+		guildMembers: {
+			interval: 60 * 30,
+			filter: () => (member) => !member.user.bot
+		},
+		presences: {
+			interval: 60 * 15,
+			filter: () => () => true
+		},
+		threads: {
+			interval: 60 * 30,
+			lifetime: 60 * 60
+		}
+	},
 	intents: [
 		GatewayIntentBits.AutoModerationConfiguration,
 		GatewayIntentBits.AutoModerationExecution,
@@ -64,14 +103,19 @@ global.client = new Client({
 		Partials.GuildScheduledEvent,
 		Partials.User,
 		Partials.Reaction,
-		Partials.ThreadMember
+		Partials.ThreadMember,
+		Partials.Poll,
+		Partials.PollAnswer,
+		Partials.SoundboardSound
 	],
 	enforceNonce: true
 });
 
-client.inShard = function (guildId: string): boolean { return true; }
+client.inShard = function (guildId: string): boolean {
+	return true;
+};
 
-client.version = ClientVersion
+client.version = ClientVersion;
 client.config = config;
 
 const { x, y } = await initializeDatabase(config.database);

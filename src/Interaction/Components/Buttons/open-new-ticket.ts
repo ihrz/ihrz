@@ -19,13 +19,15 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { CreateTicketChannel } from '../../../core/modules/ticketsManager.js';
-import { ButtonInteraction } from 'discord.js';
+import { CreateTicketChannel } from "../../../core/modules/ticketsManager.js";
+import { ButtonInteraction } from "discord.js";
 
 export default async function (interaction: ButtonInteraction<"cached">) {
-
-	if (!await interaction.client.db.get(
-		`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`
-	)) return;
+	if (
+		!(await interaction.client.db.get(
+			`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`
+		))
+	)
+		return;
 	CreateTicketChannel(interaction);
-};
+}

@@ -24,84 +24,93 @@ import {
 	AutoModerationRuleTriggerType,
 	ChatInputCommandInteraction,
 	TextChannel
-} from 'discord.js';
+} from "discord.js";
 
 interface Action {
 	type: number;
 	metadata: Record<string, any>;
-};
+}
 
-const regexPatterns = [
-	'(discord\\.gg\\/|\\.gg\\/|gg\\/)',
-	'[dD][iI][sS][cC][oO][rR][dD]\\s*\\.\\s*[gG][gG]',
-	'discord:\/\-\/invite\/[a-zA-Z0-9\-\_]+',
-	'(?:https?:\\/\\/)?discordapp\\.com[\\/\\\\]invite[\\/\\\\][^\\s]+'
+const regexPatterns: RegExp[] = [
+	/(discord\.gg\/|\.gg\/|gg\/)/i,
+	/[dD][iI][sS][cC][oO][rR][dD]\s*\.\s*[gG][gG]/i,
+	/discord:\/-\/invite\/[a-zA-Z0-9\-\_]+/i,
+	/^(?:[a-z]+:\/\/)?(www\.)?(discord\.com|discordapp\.com)\/invite\/([\w-]+)$/i
 ];
 
+import { LanguageData } from "../../../../../types/languageData.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
-
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const turn = interaction.options.getString("action");
-		const logs_channel = interaction.options.getChannel('logs-channel');
+		const logs_channel = interaction.options.getChannel("logs-channel");
 
-		const automodRules = await interaction.guild.autoModerationRules.fetch();
-		const KeywordPresetRule = automodRules.find((rule) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+		const automodRules =
+			await interaction.guild.autoModerationRules.fetch();
+		const KeywordPresetRule = automodRules.find(
+			(rule) => rule.triggerType === AutoModerationRuleTriggerType.Keyword
+		);
 
 		if (turn === "on") {
-
 			if (!KeywordPresetRule) {
 				const arrayActionsForRule: Action[] = [
 					{
 						type: 1,
 						metadata: {
-							customMessage: "This message was prevented by iHorizon"
+							customMessage:
+								"This message was prevented by iHorizon"
 						}
-					},
+					}
 				];
 
 				if (logs_channel) {
 					arrayActionsForRule.push({
 						type: 2,
 						metadata: {
-							channel: logs_channel,
+							channel: logs_channel
 						}
 					});
-				};
+				}
 
 				await interaction.guild.autoModerationRules.create({
-					name: 'Block advertissement message by iHorizon',
+					name: "Block advertissement message by iHorizon",
 					enabled: true,
 					eventType: 1,
 					triggerType: 1,
-					triggerMetadata:
-					{
-						regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
+					triggerMetadata: {
+						regexPatterns: regexPatterns.map((r) => r.source)
 					},
 					actions: arrayActionsForRule
 				});
 			} else if (KeywordPresetRule) {
-
 				KeywordPresetRule.edit({
 					enabled: true,
-					triggerMetadata:
-					{
-						regexPatterns: regexPatterns.map(pattern => `/${pattern}/i`)
+					triggerMetadata: {
+						regexPatterns: regexPatterns.map((r) => r.source)
 					},
 					actions: [
 						{
 							type: 1,
 							metadata: {
-								customMessage: "This message was prevented by iHorizon"
+								customMessage:
+									"This message was prevented by iHorizon"
 							}
 						},
 						{
@@ -109,29 +118,39 @@ export const subCommand: SubCommand = {
 							metadata: {
 								channel: logs_channel as TextChannel
 							}
-						},
+						}
 					]
 				});
-			};
+			}
 
-			await client.db.set(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`, true);
+			await client.db.set(
+				`${interaction.guildId}.GUILD.GUILD_CONFIG.media`,
+				true
+			);
 			await interaction.editReply({
 				content: lang.automod_block_pub_command_on
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${logs_channel}', (logs_channel?.toString() || 'None'))
+					.replace("${interaction.user}", interaction.user.toString())
+					.replace(
+						"${logs_channel}",
+						logs_channel?.toString() || "None"
+					)
 			});
 
 			return;
 		} else if (turn === "off") {
 			await KeywordPresetRule?.setEnabled(false);
 
-			await client.db.delete(`${interaction.guildId}.GUILD.GUILD_CONFIG.media`);
+			await client.db.delete(
+				`${interaction.guildId}.GUILD.GUILD_CONFIG.media`
+			);
 			await interaction.editReply({
-				content: lang.automod_block_pub_command_off
-					.replace('${interaction.user}', interaction.user.toString())
+				content: lang.automod_block_pub_command_off.replace(
+					"${interaction.user}",
+					interaction.user.toString()
+				)
 			});
 
 			return;
-		};
-	},
+		}
+	}
 };

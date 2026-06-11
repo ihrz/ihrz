@@ -23,18 +23,17 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "blogger",
 
 	description: "Subcommand category for blogger RSS feeds!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie des flux RSS de blogs"
+		fr: "Commande sous-groupé pour la catégorie des flux RSS de blogs"
 	},
 
 	options: [
@@ -78,7 +77,8 @@ export const command: Command = {
 						{
 							name: "channel",
 
-							description: "The channel where notifications will be sent",
+							description:
+								"The channel where notifications will be sent",
 							description_localizations: {
 								fr: "Le salon où les notifications seront envoyées"
 							},
@@ -172,12 +172,12 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Power On",
-									name_localizations: { fr: 'Activer' },
+									name_localizations: { fr: "Activer" },
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: 'Désactiver' },
+									name_localizations: { fr: "Désactiver" },
 									value: "off"
 								}
 							],
@@ -199,7 +199,7 @@ export const command: Command = {
 		}
 	],
 	thinking: false,
-	category: 'blogger',
+	category: "blogger",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

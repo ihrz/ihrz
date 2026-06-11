@@ -50,78 +50,121 @@ import {
 	TopLevelComponentData,
 	Message,
 	MessageFlags,
-	Collection,
-} from 'discord.js';
+	Collection
+} from "discord.js";
 
-import { isDiscordEmoji, isSingleEmoji } from '../functions/emojiChecker.js';
-import { iHorizonModalResolve } from '../functions/modalHelper.js';
-import logger from '../logger.js';
-import { TicketPanel } from '../../Interaction/HybridCommands/ticket/!panel.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
-import getLanguageData from '../functions/getLanguageData.js';
-import { metasTable } from '../../Events/client/ready.js';
+import { isDiscordEmoji, isSingleEmoji } from "../functions/emojiChecker.js";
+import { iHorizonModalResolve } from "../functions/modalHelper.js";
+import logger from "../logger.js";
+import { TicketPanel } from "../../Interaction/HybridCommands/ticket/!panel.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
+import getLanguageData from "../functions/getLanguageData.js";
+import { metasTable } from "../../Events/client/ready.js";
 
 interface CreatePanelData {
 	name: string | null;
 	description: string | null;
 	author: string;
-	category?: string | undefined
+	category?: string | undefined;
 }
 
-async function CreateButtonPanel(interaction: ChatInputCommandInteraction<"cached"> | Message, data: CreatePanelData) {
-
-	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+async function CreateButtonPanel(
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	data: CreatePanelData
+) {
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
 
 	const panel = new EmbedBuilder()
 		.setTitle(data.name)
-		.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#3b8f41")
-		.setDescription(data.description || lang.sethereticket_description_embed)
-		.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+		.setColor(
+			(await client.db.get(
+				`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+			)) || "#3b8f41"
+		)
+		.setDescription(
+			data.description || lang.sethereticket_description_embed
+		)
+		.setFooter(
+			await interaction.client.func.displayBotName.footerBuilder(
+				interaction.guildId!
+			)
+		);
 
 	const confirm = new ButtonBuilder()
-		.setCustomId('open-new-ticket')
-		.setEmoji('📩')
+		.setCustomId("open-new-ticket")
+		.setEmoji("📩")
 		.setLabel(lang.event_ticket_button_name)
 		.setStyle(ButtonStyle.Secondary);
 
-	interaction.client.func.method.channelSend(interaction, {
-		embeds: [panel],
-		components: [new ActionRowBuilder<ButtonBuilder>().addComponents(confirm)],
-		files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
-	}).then(async (message) => {
-
-		await message.client.db.set(`${message.guildId}.GUILD.TICKET.${message.id}`,
-			{
-				author: data.author,
-				used: true,
-				panelName: data.name,
-				reason: false,
-				channel: message.channel.id,
-				messageID: message.id,
-				categoryId: data.category
-			}
-		);
-	});
+	interaction.client.func.method
+		.channelSend(interaction, {
+			embeds: [panel],
+			components: [
+				new ActionRowBuilder<ButtonBuilder>().addComponents(confirm)
+			],
+			files: [
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
+		})
+		.then(async (message) => {
+			await message.client.db.set(
+				`${message.guildId}.GUILD.TICKET.${message.id}`,
+				{
+					author: data.author,
+					used: true,
+					panelName: data.name,
+					reason: false,
+					channel: message.channel.id,
+					messageID: message.id,
+					categoryId: data.category
+				}
+			);
+		});
 
 	try {
-		let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-		TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+		let TicketLogsChannel = await interaction.client.db.get(
+			`${interaction.guildId}.GUILD.TICKET.logs`
+		);
+		TicketLogsChannel =
+			interaction.guild?.channels.cache.get(TicketLogsChannel);
 		if (!TicketLogsChannel) return;
 
 		const embed = new EmbedBuilder()
-			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
-			.setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
-			.setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc
-				.replace('${data.name}', data.name!)
-				.replace('${interaction}', interaction.channel?.toString()!)
+			.setColor(
+				(await client.db.get(
+					`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+				)) || "#008000"
 			)
-			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
+			.setDescription(
+				lang.event_ticket_logsChannel_onCreation_embed_desc
+					.replace("${data.name}", data.name!)
+					.replace("${interaction}", interaction.channel?.toString()!)
+			)
+			.setFooter(
+				await interaction.client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setTimestamp();
 
-		TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+		TicketLogsChannel.send({
+			embeds: [embed],
+			files: [
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
+		});
 		return;
-	} catch (e) { return };
-};
+	} catch (e) {
+		return;
+	}
+}
 
 export interface CaseList {
 	id: number;
@@ -132,41 +175,56 @@ export interface CaseList {
 	categoryId?: string;
 }
 
-async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cached"> | Message, data: CreatePanelData) {
-	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+async function CreateSelectPanel(
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	data: CreatePanelData
+) {
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
 	const case_list: CaseList[] = [];
 
 	const panel_for_create = new EmbedBuilder()
 		.setColor(2829617)
 		.setDescription(lang.sethereticket_panelforcreate_embed_desc)
-		.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
-
-	const button = new ActionRowBuilder<ButtonBuilder>()
-		.addComponents(
-			new ButtonBuilder()
-				.setCustomId("add_selection")
-				.setLabel(lang.sethereticket_panelforcreate_button_add_label)
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("remove_selection")
-				.setLabel(lang.sethereticket_panelforcreate_button_sub_label)
-				.setStyle(ButtonStyle.Secondary),
-			new ButtonBuilder()
-				.setCustomId("save_selection")
-				.setLabel(lang.sethereticket_panelforcreate_button_save_label)
-				.setStyle(ButtonStyle.Success),
+		.setFooter(
+			await interaction.client.func.displayBotName.footerBuilder(
+				interaction.guildId!
+			)
 		);
+
+	const button = new ActionRowBuilder<ButtonBuilder>().addComponents(
+		new ButtonBuilder()
+			.setCustomId("add_selection")
+			.setLabel(lang.sethereticket_panelforcreate_button_add_label)
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId("remove_selection")
+			.setLabel(lang.sethereticket_panelforcreate_button_sub_label)
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId("save_selection")
+			.setLabel(lang.sethereticket_panelforcreate_button_save_label)
+			.setStyle(ButtonStyle.Success)
+	);
 
 	const comp = new StringSelectMenuBuilder()
 		.setCustomId("ticket-open-selection")
 		.setPlaceholder(data.name!);
 
-	const og_interaction = await client.func.method.interactionSend(interaction, {
-		embeds: [panel_for_create],
-		components: [button],
-		content: null,
-		files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
-	});
+	const og_interaction = await client.func.method.interactionSend(
+		interaction,
+		{
+			embeds: [panel_for_create],
+			components: [button],
+			content: null,
+			files: [
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
+		}
+	);
 
 	const collector = interaction.channel?.createMessageComponentCollector({
 		componentType: ComponentType.Button,
@@ -177,48 +235,62 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 	const collector2wish = og_interaction.createMessageComponentCollector({
 		componentType: ComponentType.StringSelect,
 		filter: async (i) => {
-			await i.deferUpdate(); return interaction.member?.user.id === i.user.id;
+			await i.deferUpdate();
+			return interaction.member?.user.id === i.user.id;
 		},
 		time: 2_240_000
 	});
-	collector2wish?.on('end', () => { });
+	collector2wish?.on("end", () => {});
 
-	collector?.on('collect', async i => {
+	collector?.on("collect", async (i) => {
 		if (i.customId === "remove_selection") {
 			await i.deferUpdate();
 			if (case_list.length > 0) {
 				case_list.pop();
 				comp.options.pop();
 				await og_interaction.edit({
-					components: case_list.length === 0 ? [og_interaction.components[0]] : [og_interaction.components[0], new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)]
+					components:
+						case_list.length === 0
+							? [og_interaction.components[0]]
+							: [
+									og_interaction.components[0],
+									new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+										comp
+									)
+								]
 				});
 			}
-		} else if (i.customId === 'add_selection') {
-			const response = await iHorizonModalResolve({
-				customId: 'selection_modal',
-				title: lang.sethereticket_modal_1_title,
-				deferUpdate: true,
-				fields: [
-					{
-						customId: 'case_name',
-						placeHolder: lang.sethereticket_modal_1_fields_1_placeholder,
-						label: lang.sethereticket_modal_1_fields_1_label,
-						style: TextInputStyle.Short,
-						required: true,
-						maxLength: 150,
-						minLength: 2
-					},
-					{
-						customId: 'case_emoji',
-						placeHolder: lang.sethereticket_modal_1_fields_2_placeholder,
-						label: lang.sethereticket_modal_1_fields_2_label,
-						style: TextInputStyle.Short,
-						required: false,
-						minLength: 1,
-						maxLength: 50
-					}
-				]
-			}, i);
+		} else if (i.customId === "add_selection") {
+			const response = await iHorizonModalResolve(
+				{
+					customId: "selection_modal",
+					title: lang.sethereticket_modal_1_title,
+					deferUpdate: true,
+					fields: [
+						{
+							customId: "case_name",
+							placeHolder:
+								lang.sethereticket_modal_1_fields_1_placeholder,
+							label: lang.sethereticket_modal_1_fields_1_label,
+							style: TextInputStyle.Short,
+							required: true,
+							maxLength: 150,
+							minLength: 2
+						},
+						{
+							customId: "case_emoji",
+							placeHolder:
+								lang.sethereticket_modal_1_fields_2_placeholder,
+							label: lang.sethereticket_modal_1_fields_2_label,
+							style: TextInputStyle.Short,
+							required: false,
+							minLength: 1,
+							maxLength: 50
+						}
+					]
+				},
+				i
+			);
 
 			if (!response) return;
 			const name = response?.fields.getTextInputValue("case_name")!;
@@ -228,7 +300,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 				.setLabel(name)
 				.setValue((comp.options.length + 1).toString());
 
-			if (emoji !== '') {
+			if (emoji !== "") {
 				if (isSingleEmoji(emoji) || isDiscordEmoji(emoji)) {
 					optionBuilder.setEmoji(emoji);
 				}
@@ -239,55 +311,72 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 			case_list.push({
 				id: comp.options.length,
 				name: name,
-				emojis: emoji === '' ? undefined : emoji
+				emojis: emoji === "" ? undefined : emoji
 			});
 
 			await og_interaction.edit({
 				components: [
 					og_interaction.components[0],
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
+					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+						comp
+					)
 				]
 			});
 		} else if (i.customId === "save_selection") {
-			const response = await iHorizonModalResolve({
-				customId: 'embed_saved_modal',
-				title: lang.sethereticket_modal_2_title,
-				deferUpdate: true,
-				fields: [
-					{
-						customId: 'embed_title',
-						placeHolder: lang.sethereticket_modal_2_fields_1_placeholder,
-						label: lang.sethereticket_modal_2_fields_1_title,
-						style: TextInputStyle.Short,
-						required: true,
-						maxLength: 24,
-						minLength: 2
-					},
-					{
-						customId: 'embed_desc',
-						placeHolder: lang.sethereticket_modal_2_fields_2_title,
-						label: lang.sethereticket_modal_2_fields_2_placeholder,
-						style: TextInputStyle.Short,
-						required: false,
-						minLength: 12,
-						maxLength: 500
-					}
-				]
-			}, i);
+			const response = await iHorizonModalResolve(
+				{
+					customId: "embed_saved_modal",
+					title: lang.sethereticket_modal_2_title,
+					deferUpdate: true,
+					fields: [
+						{
+							customId: "embed_title",
+							placeHolder:
+								lang.sethereticket_modal_2_fields_1_placeholder,
+							label: lang.sethereticket_modal_2_fields_1_title,
+							style: TextInputStyle.Short,
+							required: true,
+							maxLength: 24,
+							minLength: 2
+						},
+						{
+							customId: "embed_desc",
+							placeHolder:
+								lang.sethereticket_modal_2_fields_2_title,
+							label: lang.sethereticket_modal_2_fields_2_placeholder,
+							style: TextInputStyle.Short,
+							required: false,
+							minLength: 12,
+							maxLength: 500
+						}
+					]
+				},
+				i
+			);
 
 			if (!response) return;
 
 			const title = response?.fields.getTextInputValue("embed_title")!;
 			let desc = response?.fields.getTextInputValue("embed_desc")!;
 
-			if (desc === '') {
-				desc = lang.sethereticket_description_embed.replace("${user.username}", interaction.member!.user.username);
+			if (desc === "") {
+				desc = lang.sethereticket_description_embed.replace(
+					"${user.username}",
+					interaction.member!.user.username
+				);
 			}
 
-			button.components.forEach(x => {
+			button.components.forEach((x) => {
 				x.setDisabled(true);
-			})
-			await og_interaction.edit({ components: [button, new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)] });
+			});
+			await og_interaction.edit({
+				components: [
+					button,
+					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+						comp
+					)
+				]
+			});
 
 			for (const x in case_list) {
 				const _ = await sendCategorySelection(response!, case_list[x]);
@@ -295,19 +384,33 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 			}
 
 			const reason = await reasonTicket(response!);
-			const panel_message = await interaction.client.func.method.channelSend(og_interaction, {
-				content: undefined,
-				files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],
-				embeds: [
-					new EmbedBuilder()
-						.setColor(2829617)
-						.setDescription(`## ${title}\n${desc}`)
-						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
-				],
-				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(comp)
-				]
-			});
+			const panel_message =
+				await interaction.client.func.method.channelSend(
+					og_interaction,
+					{
+						content: undefined,
+						files: [
+							await interaction.client.func.displayBotName.footerAttachmentBuilder(
+								interaction
+							)
+						],
+						embeds: [
+							new EmbedBuilder()
+								.setColor(2829617)
+								.setDescription(`## ${title}\n${desc}`)
+								.setFooter(
+									await interaction.client.func.displayBotName.footerBuilder(
+										interaction.guildId!
+									)
+								)
+						],
+						components: [
+							new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+								comp
+							)
+						]
+					}
+				);
 
 			await og_interaction.edit({
 				components: [],
@@ -316,52 +419,90 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 				content: lang.sethereticket_command_work
 			});
 
-			await interaction.client.db.set(`${i.guildId}.GUILD.TICKET.${panel_message.id}`, {
-				author: data.author,
-				used: true,
-				reason: reason,
-				selection: case_list,
-				panelName: data.name,
-				channel: panel_message.channel.id,
-				messageID: panel_message.id,
-			});
+			await interaction.client.db.set(
+				`${i.guildId}.GUILD.TICKET.${panel_message.id}`,
+				{
+					author: data.author,
+					used: true,
+					reason: reason,
+					selection: case_list,
+					panelName: data.name,
+					channel: panel_message.channel.id,
+					messageID: panel_message.id
+				}
+			);
 
 			collector?.stop();
 
 			try {
-				let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-				TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+				let TicketLogsChannel = await interaction.client.db.get(
+					`${interaction.guildId}.GUILD.TICKET.logs`
+				);
+				TicketLogsChannel =
+					interaction.guild?.channels.cache.get(TicketLogsChannel);
 				if (!TicketLogsChannel) return;
 
 				const embed = new EmbedBuilder()
-					.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
-					.setTitle(lang.event_ticket_logsChannel_onCreation_embed_title)
-					.setDescription(lang.event_ticket_logsChannel_onCreation_embed_desc.replace('${data.name}', data.name!).replace('${interaction}', `${interaction.channel}`))
-					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+					.setColor(
+						(await client.db.get(
+							`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+						)) || "#008000"
+					)
+					.setTitle(
+						lang.event_ticket_logsChannel_onCreation_embed_title
+					)
+					.setDescription(
+						lang.event_ticket_logsChannel_onCreation_embed_desc
+							.replace("${data.name}", data.name!)
+							.replace("${interaction}", `${interaction.channel}`)
+					)
+					.setFooter(
+						await interaction.client.func.displayBotName.footerBuilder(
+							interaction.guildId!
+						)
+					)
 					.setTimestamp();
 
-				TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+				TicketLogsChannel.send({
+					embeds: [embed],
+					files: [
+						await interaction.client.func.displayBotName.footerAttachmentBuilder(
+							interaction
+						)
+					]
+				});
 				return;
-			} catch (e) { return };
+			} catch (e) {
+				return;
+			}
 		}
 	});
 
-	async function sendCategorySelection(interaction: ModalSubmitInteraction<"cached">, x: CaseList): Promise<string | undefined> {
-		const action_row_category = new ActionRowBuilder<ChannelSelectMenuBuilder>()
-			.addComponents(
+	async function sendCategorySelection(
+		interaction: ModalSubmitInteraction<"cached">,
+		x: CaseList
+	): Promise<string | undefined> {
+		const action_row_category =
+			new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
 				new ChannelSelectMenuBuilder()
 					.setMaxValues(1)
 					.setMinValues(1)
-					.setCustomId('ticket-sethere-category-for-type')
+					.setCustomId("ticket-sethere-category-for-type")
 					.setChannelTypes(ChannelType.GuildCategory)
 			);
 
-		const i_category = await interaction.client.func.method.channelSend(interaction.message!, {
-			content: lang.event_ticket_category_awaiting_response
-				.replace('${x.emojis ?? interaction.client.iHorizon_Emojis.Pointer}', x.emojis ?? interaction.client.iHorizon_Emojis.Pointer)
-				.replace('${x.name}', x.name),
-			components: [action_row_category]
-		});
+		const i_category = await interaction.client.func.method.channelSend(
+			interaction.message!,
+			{
+				content: lang.event_ticket_category_awaiting_response
+					.replace(
+						"${x.emojis ?? interaction.client.iHorizon_Emojis.Pointer}",
+						x.emojis ?? interaction.client.iHorizon_Emojis.Pointer
+					)
+					.replace("${x.name}", x.name),
+				components: [action_row_category]
+			}
+		);
 
 		const response = await i_category?.awaitMessageComponent({
 			componentType: ComponentType.ChannelSelect,
@@ -376,22 +517,34 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 		}
 	}
 
-	async function reasonTicket(interaction: ModalSubmitInteraction<"cached">): Promise<boolean | undefined> {
+	async function reasonTicket(
+		interaction: ModalSubmitInteraction<"cached">
+	): Promise<boolean | undefined> {
 		const action_row_category = new StringSelectMenuBuilder()
-			.setCustomId('ticket-sethere-reason')
+			.setCustomId("ticket-sethere-reason")
 			.addOptions(
 				new StringSelectMenuOptionBuilder()
 					.setLabel(lang.var_yes)
-					.setValue('yes'),
+					.setValue("yes"),
 				new StringSelectMenuOptionBuilder()
 					.setLabel(lang.var_no)
-					.setValue('no')
-			)
+					.setValue("no")
+			);
 
-		const i_category = await interaction.client.func.method.channelSend(interaction.message!, {
-			content: lang.event_ticket_reason_awaiting_response.replace('${interaction.user.toString()}', interaction.user.toString()),
-			components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(action_row_category)]
-		});
+		const i_category = await interaction.client.func.method.channelSend(
+			interaction.message!,
+			{
+				content: lang.event_ticket_reason_awaiting_response.replace(
+					"${interaction.user.toString()}",
+					interaction.user.toString()
+				),
+				components: [
+					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+						action_row_category
+					)
+				]
+			}
+		);
 
 		const response = await i_category?.awaitMessageComponent({
 			componentType: ComponentType.StringSelect,
@@ -402,7 +555,7 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 			response.deferUpdate();
 			i_category?.delete();
 
-			if (response.values[0] === 'yes') {
+			if (response.values[0] === "yes") {
 				return true;
 			} else {
 				return false;
@@ -411,96 +564,148 @@ async function CreateSelectPanel(interaction: ChatInputCommandInteraction<"cache
 	}
 }
 
-async function CreateTicketChannel(interaction: ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">) {
-
+async function CreateTicketChannel(
+	interaction:
+		| ButtonInteraction<"cached">
+		| StringSelectMenuInteraction<"cached">
+) {
 	if (interaction instanceof ButtonInteraction) {
-		const result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
-		let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData | null;
+		const result = await interaction.client.db.get(
+			`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`
+		);
+		let userTickets = (await interaction.client.db.get(
+			`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`
+		)) as DatabaseStructure.TicketUserData | null;
 
-		if (!result || result.channel !== interaction.message.channelId
-			|| result.messageID !== interaction.message.id) return;
+		if (
+			!result ||
+			result.channel !== interaction.message.channelId ||
+			result.messageID !== interaction.message.id
+		)
+			return;
 
 		const channelId = userTickets && Object.values(userTickets)[0]?.channel;
-		const channel = channelId ? interaction.guild?.channels.cache.get(channelId) || await interaction.guild.channels.fetch(channelId).catch(() => null) : null;
+		const channel = channelId
+			? interaction.guild?.channels.cache.get(channelId) ||
+				(await interaction.guild.channels
+					.fetch(channelId)
+					.catch(() => null))
+			: null;
 
 		if (userTickets && !channel) {
-			await interaction.client.db.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+			await interaction.client.db.delete(
+				`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`
+			);
 			userTickets = null;
 		}
 
 		if (userTickets) {
 			await interaction.reply({
 				flags: [1 << 6],
-				content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
-					.replace('${channelId}', channelId!)
+				content: (
+					await getLanguageData(interaction.guildId)
+				).event_ticket_already_opened.replace(
+					"${channelId}",
+					channelId!
+				)
 			});
 			return;
 		} else {
-			await CreateChannel(
-				interaction,
-				result,
-			);
+			await CreateChannel(interaction, result);
 			return;
-		};
+		}
 	} else {
-		const result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`);
-		let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData | null;
+		const result = await interaction.client.db.get(
+			`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`
+		);
+		let userTickets = (await interaction.client.db.get(
+			`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`
+		)) as DatabaseStructure.TicketUserData | null;
 
-		if (!result || result.channel !== interaction.message.channelId
-			|| result.messageID !== interaction.message.id) return;
+		if (
+			!result ||
+			result.channel !== interaction.message.channelId ||
+			result.messageID !== interaction.message.id
+		)
+			return;
 
 		const channelId = userTickets && Object.values(userTickets)[0]?.channel;
-		const channel = channelId ? interaction.guild?.channels.cache.get(channelId) || await interaction.guild.channels.fetch(channelId).catch(() => null) : null;
+		const channel = channelId
+			? interaction.guild?.channels.cache.get(channelId) ||
+				(await interaction.guild.channels
+					.fetch(channelId)
+					.catch(() => null))
+			: null;
 
 		if (userTickets && !channel) {
-			await interaction.client.db.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+			await interaction.client.db.delete(
+				`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`
+			);
 			userTickets = null;
 		}
 
 		if (userTickets) {
 			await interaction.reply({
 				flags: [1 << 6],
-				content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
-					.replace('${channelId}', channelId!)
+				content: (
+					await getLanguageData(interaction.guildId)
+				).event_ticket_already_opened.replace(
+					"${channelId}",
+					channelId!
+				)
 			});
 			return;
 		} else {
-			await CreateChannel(
-				interaction,
-				result,
-			);
+			await CreateChannel(interaction, result);
 			return;
-		};
+		}
 	}
-};
+}
 
-type ModalResultArray = { questonPlaceholder: string | undefined; questionValue: string; }[];
+type ModalResultArray = {
+	questonPlaceholder: string | undefined;
+	questionValue: string;
+}[];
 
-async function CreateTicketChannelV2(interaction: StringSelectMenuInteraction<"cached">) {
-	const panelCode = await interaction.client.db.get(
+async function CreateTicketChannelV2(
+	interaction: StringSelectMenuInteraction<"cached">
+) {
+	const panelCode = (await interaction.client.db.get(
 		`${interaction.guildId}.GUILD.TICKET_PANEL.${interaction.message.id}`
-	) as string | null;
-	const result = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`) as TicketPanel;
-	let userTickets = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`) as DatabaseStructure.TicketUserData | null;
+	)) as string | null;
+	const result = (await interaction.client.db.get(
+		`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`
+	)) as TicketPanel;
+	let userTickets = (await interaction.client.db.get(
+		`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`
+	)) as DatabaseStructure.TicketUserData | null;
 
 	const channelId = userTickets && Object.values(userTickets)[0]?.channel;
-	const channel = channelId ? interaction.guild?.channels.cache.get(channelId) || await interaction.guild.channels.fetch(channelId).catch(() => null) : null;
+	const channel = channelId
+		? interaction.guild?.channels.cache.get(channelId) ||
+			(await interaction.guild.channels
+				.fetch(channelId)
+				.catch(() => null))
+		: null;
 
 	if (userTickets && !channel) {
-		await interaction.client.db.delete(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`);
+		await interaction.client.db.delete(
+			`${interaction.guildId}.TICKET_ALL.${interaction.user.id}`
+		);
 		userTickets = null;
 	}
 
 	if (userTickets) {
 		await interaction.reply({
 			flags: [1 << 6],
-			content: (await getLanguageData(interaction.guildId)).event_ticket_already_opened
-				.replace('${channelId}', channelId!)
+			content: (
+				await getLanguageData(interaction.guildId)
+			).event_ticket_already_opened.replace("${channelId}", channelId!)
 		});
 		return;
 	} else {
 		await CreateChannelV2(interaction, result);
-	};
+	}
 }
 
 interface ResultButton {
@@ -513,33 +718,45 @@ interface ResultButton {
 		emojis: string;
 		categoryId?: string;
 	}[];
-};
+}
 
-async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">, result: ResultButton) {
-	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	let category = await interaction.client.db.get(`${interaction.message.guildId}.GUILD.TICKET.category`);
+async function CreateChannel(
+	interaction:
+		| ButtonInteraction<"cached">
+		| StringSelectMenuInteraction<"cached">,
+	result: ResultButton
+) {
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
+	let category = await interaction.client.db.get(
+		`${interaction.message.guildId}.GUILD.TICKET.category`
+	);
 
-	if (result.categoryId) category = result.categoryId
+	if (result.categoryId) category = result.categoryId;
 
-	let reason = '';
+	let reason = "";
 	let reasonInteraction: ModalSubmitInteraction<"cached">;
 
 	if (result && result?.reason) {
-		const response = await iHorizonModalResolve({
-			customId: 'ticket_reason_modal',
-			title: lang.event_ticket_create_reason_modal_title,
-			deferUpdate: false,
-			fields: [
-				{
-					customId: 'ticket_reason',
-					label: lang.event_ticket_create_reason_modal_fields_1_label,
-					style: TextInputStyle.Short,
-					required: true,
-					maxLength: 350,
-					minLength: 8
-				},
-			]
-		}, interaction);
+		const response = await iHorizonModalResolve(
+			{
+				customId: "ticket_reason_modal",
+				title: lang.event_ticket_create_reason_modal_title,
+				deferUpdate: false,
+				fields: [
+					{
+						customId: "ticket_reason",
+						label: lang.event_ticket_create_reason_modal_fields_1_label,
+						style: TextInputStyle.Short,
+						required: true,
+						maxLength: 350,
+						minLength: 8
+					}
+				]
+			},
+			interaction
+		);
 
 		if (!response) return;
 		try {
@@ -550,27 +767,37 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 		}
 	} else {
 		await interaction.deferReply({ flags: [1 << 6] });
-	};
+	}
 
-	await interaction.guild?.channels.create({
-		name: `ticket-${interaction.user.username}`,
-		type: ChannelType.GuildText,
-		parent: interaction.guild.channels.cache.get(interaction instanceof StringSelectMenuInteraction ? (result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.categoryId ?? category) : category)?.id || null
-	}).then(async (channel) => {
-		if (category) {
-			channel.lockPermissions();
-		};
-
-		await channel.permissionOverwrites.edit(interaction.guild?.roles.everyone as Role,
-			{
-				ViewChannel: false,
-				SendMessages: false,
-				ReadMessageHistory: false
+	await interaction.guild?.channels
+		.create({
+			name: `ticket-${interaction.user.username}`,
+			type: ChannelType.GuildText,
+			parent:
+				interaction.guild.channels.cache.get(
+					interaction instanceof StringSelectMenuInteraction
+						? (result.selection?.find(
+								(item) =>
+									item.id === parseInt(interaction.values[0])
+							)?.categoryId ?? category)
+						: category
+				)?.id || null
+		})
+		.then(async (channel) => {
+			if (category) {
+				channel.lockPermissions();
 			}
-		);
 
-		await channel.permissionOverwrites.edit(interaction.user.id,
-			{
+			await channel.permissionOverwrites.edit(
+				interaction.guild?.roles.everyone as Role,
+				{
+					ViewChannel: false,
+					SendMessages: false,
+					ReadMessageHistory: false
+				}
+			);
+
+			await channel.permissionOverwrites.edit(interaction.user.id, {
 				ViewChannel: true,
 				SendMessages: true,
 				ReadMessageHistory: true,
@@ -578,144 +805,233 @@ async function CreateChannel(interaction: ButtonInteraction<"cached"> | StringSe
 				UseApplicationCommands: true,
 				SendVoiceMessages: true,
 				EmbedLinks: true
-			}
-		);
-
-		if (interaction instanceof ButtonInteraction) {
-			await interaction.editReply({
-				content: lang.event_ticket_whenCreated_msg
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${channel.id}', channel.id)
 			});
-		} else {
-			if (reasonInteraction) {
-				await reasonInteraction.reply({
-					content: lang.event_ticket_whenCreated_msg
-						.replace('${interaction.user}', interaction.user.toString())
-						.replace('${channel.id}', channel.id),
-					flags: [1 << 6]
-				});
-			} else {
+
+			if (interaction instanceof ButtonInteraction) {
 				await interaction.editReply({
 					content: lang.event_ticket_whenCreated_msg
-						.replace('${interaction.user}', interaction.user.toString())
-						.replace('${channel.id}', channel.id)
+						.replace(
+							"${interaction.user}",
+							interaction.user.toString()
+						)
+						.replace("${channel.id}", channel.id)
 				});
+			} else {
+				if (reasonInteraction) {
+					await reasonInteraction.reply({
+						content: lang.event_ticket_whenCreated_msg
+							.replace(
+								"${interaction.user}",
+								interaction.user.toString()
+							)
+							.replace("${channel.id}", channel.id),
+						flags: [1 << 6]
+					});
+				} else {
+					await interaction.editReply({
+						content: lang.event_ticket_whenCreated_msg
+							.replace(
+								"${interaction.user}",
+								interaction.user.toString()
+							)
+							.replace("${channel.id}", channel.id)
+					});
+				}
 			}
-		}
 
-		const embeds: EmbedBuilder[] = []
+			const embeds: EmbedBuilder[] = [];
 
-		if (interaction instanceof StringSelectMenuInteraction) {
-
-			embeds.push(
-				new EmbedBuilder()
-					.setColor(2829617)
-					.setDescription(
-						lang.sethereticket_panel_select_embed_desc
-							.replace('${result.panelName}', result.panelName)
-							.replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
-							.replace('{category}', result.selection?.find(item => item.id === parseInt(interaction.values[0]))?.name!)
-					)
-					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
-			);
-
-			if (result.reason && result.reason) {
+			if (interaction instanceof StringSelectMenuInteraction) {
 				embeds.push(
 					new EmbedBuilder()
 						.setColor(2829617)
-						.setDescription(lang.event_ticket_reason_embed_desc.replace('${reason}', reason))
-						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+						.setDescription(
+							lang.sethereticket_panel_select_embed_desc
+								.replace(
+									"${result.panelName}",
+									result.panelName
+								)
+								.replace(
+									"{msg}",
+									lang.event_ticket_embed_description.replace(
+										"${user.username}",
+										interaction.user.username
+									)
+								)
+								.replace(
+									"{category}",
+									result.selection?.find(
+										(item) =>
+											item.id ===
+											parseInt(interaction.values[0])
+									)?.name!
+								)
+						)
+						.setFooter(
+							await interaction.client.func.displayBotName.footerBuilder(
+								interaction.guildId!
+							)
+						)
+				);
+
+				if (result.reason && result.reason) {
+					embeds.push(
+						new EmbedBuilder()
+							.setColor(2829617)
+							.setDescription(
+								lang.event_ticket_reason_embed_desc.replace(
+									"${reason}",
+									reason
+								)
+							)
+							.setFooter(
+								await interaction.client.func.displayBotName.footerBuilder(
+									interaction.guildId!
+								)
+							)
+					);
+				}
+			} else {
+				embeds.push(
+					new EmbedBuilder()
+						.setColor("#3b8f41")
+						.setDescription(
+							lang.event_ticket_embed_description.replace(
+								"${user.username}",
+								interaction.user.username
+							)
+						)
+						.setFooter(
+							await interaction.client.func.displayBotName.footerBuilder(
+								interaction.guildId!
+							)
+						)
 				);
 			}
-		} else {
-			embeds.push(
-				new EmbedBuilder()
-					.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#3b8f41")
-					.setDescription(lang.event_ticket_embed_description
-						.replace("${user.username}", interaction.user.username)
-					)
-					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
-			)
-		};
 
-		await interaction.client.db.set(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
-			{
-				channel: channel.id,
-				author: interaction.user.id,
-				alive: true
-			}
-		);
+			await interaction.client.db.set(
+				`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
+				{
+					channel: channel.id,
+					author: interaction.user.id,
+					alive: true
+				}
+			);
 
-		const delete_ticket_button = new ButtonBuilder()
-			.setCustomId('t-embed-delete-ticket')
-			.setEmoji('🗑️')
-			.setLabel(lang.ticket_module_button_delete)
-			.setStyle(ButtonStyle.Danger);
+			const delete_ticket_button = new ButtonBuilder()
+				.setCustomId("t-embed-delete-ticket")
+				.setEmoji("🗑️")
+				.setLabel(lang.ticket_module_button_delete)
+				.setStyle(ButtonStyle.Danger);
 
-		const transcript_ticket_button = new ButtonBuilder()
-			.setCustomId('t-embed-transcript-ticket')
-			.setEmoji('📜')
-			.setLabel(lang.ticket_module_button_transcript)
-			.setStyle(ButtonStyle.Primary);
+			const transcript_ticket_button = new ButtonBuilder()
+				.setCustomId("t-embed-transcript-ticket")
+				.setEmoji("📜")
+				.setLabel(lang.ticket_module_button_transcript)
+				.setStyle(ButtonStyle.Primary);
 
-		const selectUsersMenu = new UserSelectMenuBuilder()
-			.setCustomId('t-embed-select-user')
-			.setPlaceholder(`${lang.ticket_module_button_addmember} / ${lang.ticket_module_button_removemember}`)
-			.setMinValues(0)
-			.setMaxValues(10);
-
-		(channel as BaseGuildTextChannel).send({
-			embeds: embeds,
-			content: interaction.user.toString(),
-			components: [
-				new ActionRowBuilder<UserSelectMenuBuilder>()
-					.addComponents(selectUsersMenu)
-				, new ActionRowBuilder<ButtonBuilder>()
-					.addComponents(transcript_ticket_button)
-					.addComponents(delete_ticket_button)
-			],
-			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
-		}).then(async (msg) => {
-			await msg.pin("Ticket Panel").catch(() => { })
-		}).catch((err: any) => {
-			logger.err(err)
-		});
-
-		try {
-			let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-			TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
-			if (!TicketLogsChannel) return;
-
-			const embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
-				.setTitle(lang.event_ticket_logsChannel_onCreationChannel_embed_title)
-				.setDescription(lang.event_ticket_logsChannel_onCreationChannel_embed_desc
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${channel.id}', channel.id)
+			const selectUsersMenu = new UserSelectMenuBuilder()
+				.setCustomId("t-embed-select-user")
+				.setPlaceholder(
+					`${lang.ticket_module_button_addmember} / ${lang.ticket_module_button_removemember}`
 				)
-				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
-				.setTimestamp();
+				.setMinValues(0)
+				.setMaxValues(10);
 
-			TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
-			return;
-		} catch (e) { return };
-	}).catch(() => { });
-};
+			(channel as BaseGuildTextChannel)
+				.send({
+					embeds: embeds,
+					content: interaction.user.toString(),
+					components: [
+						new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
+							selectUsersMenu
+						),
+						new ActionRowBuilder<ButtonBuilder>()
+							.addComponents(transcript_ticket_button)
+							.addComponents(delete_ticket_button)
+					],
+					files: [
+						await interaction.client.func.displayBotName.footerAttachmentBuilder(
+							interaction
+						)
+					]
+				})
+				.then(async (msg) => {
+					await msg.pin("Ticket Panel").catch(() => {});
+				})
+				.catch((err: any) => {
+					logger.err(err);
+				});
 
-async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached">, result: TicketPanel) {
-	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+			try {
+				let TicketLogsChannel = await interaction.client.db.get(
+					`${interaction.guildId}.GUILD.TICKET.logs`
+				);
+				TicketLogsChannel =
+					interaction.guild?.channels.cache.get(TicketLogsChannel);
+				if (!TicketLogsChannel) return;
+
+				const embed = new EmbedBuilder()
+					.setColor(
+						(await client.db.get(
+							`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+						)) || "#008000"
+					)
+					.setTitle(
+						lang.event_ticket_logsChannel_onCreationChannel_embed_title
+					)
+					.setDescription(
+						lang.event_ticket_logsChannel_onCreationChannel_embed_desc
+							.replace(
+								"${interaction.user}",
+								interaction.user.toString()
+							)
+							.replace("${channel.id}", channel.id)
+					)
+					.setFooter(
+						await interaction.client.func.displayBotName.footerBuilder(
+							interaction.guildId!
+						)
+					)
+					.setTimestamp();
+
+				TicketLogsChannel.send({
+					embeds: [embed],
+					files: [
+						await interaction.client.func.displayBotName.footerAttachmentBuilder(
+							interaction
+						)
+					]
+				});
+				return;
+			} catch (e) {
+				return;
+			}
+		})
+		.catch(() => {});
+}
+
+async function CreateChannelV2(
+	interaction: StringSelectMenuInteraction<"cached">,
+	result: TicketPanel
+) {
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
 
 	let values: ModalResultArray = [];
-	let reasonInteraction: ModalSubmitInteraction<"cached">;
+	let reasonInteraction: ModalSubmitInteraction<"cached"> | null = null;
 
 	// get categoryName from the values of the select menu
 	// find the category from the values of the select menu
-	const chosenCategory = result.config.optionFields?.find(item => item.value === interaction.values[0]);
+	const chosenCategory = result.config.optionFields?.find(
+		(item) => item.value === interaction.values[0]
+	);
 
 	const category =
-		result.config.optionFields.find(item => item.value === interaction.values[0])?.categoryId
-		|| result.category;
+		result.config.optionFields.find(
+			(item) => item.value === interaction.values[0]
+		)?.categoryId || result.category;
 
 	if (chosenCategory?.form?.length! >= 1) {
 		const modalFields = chosenCategory?.form!.map((field) => {
@@ -727,15 +1043,18 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 				placeHolder: field.questionPlaceholder?.substring(0, 60),
 				maxLength: 240,
 				minLength: 1
-			}
+			};
 		});
 
-		const modal = await iHorizonModalResolve({
-			customId: 'ticket_reason_modal',
-			title: lang.event_ticket_create_reason_modal_fields_1_label,
-			deferUpdate: false,
-			fields: modalFields!
-		}, interaction);
+		const modal = await iHorizonModalResolve(
+			{
+				customId: "ticket_reason_modal",
+				title: lang.event_ticket_create_reason_modal_fields_1_label,
+				deferUpdate: false,
+				fields: modalFields!
+			},
+			interaction
+		);
 
 		if (!modal) return;
 		reasonInteraction = modal;
@@ -743,9 +1062,11 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 		// get the values from the modal
 		values = modal.fields.fields.map((field) => {
 			return {
-				questonPlaceholder: modalFields!.find((x) => x.customId === field.customId)?.label,
+				questonPlaceholder: modalFields!.find(
+					(x) => x.customId === field.customId
+				)?.label,
 				questionValue: modal.fields.getTextInputValue(field.customId)
-			}
+			};
 		});
 	} else if (result.config.form.length >= 1) {
 		const modalFields = result.config.form.map((field) => {
@@ -757,15 +1078,18 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 				placeHolder: field.questionPlaceholder?.substring(0, 60),
 				maxLength: 240,
 				minLength: 1
-			}
+			};
 		});
 
-		const modal = await iHorizonModalResolve({
-			customId: 'ticket_reason_modal',
-			title: lang.event_ticket_create_reason_modal_fields_1_label,
-			deferUpdate: false,
-			fields: modalFields
-		}, interaction);
+		const modal = await iHorizonModalResolve(
+			{
+				customId: "ticket_reason_modal",
+				title: lang.event_ticket_create_reason_modal_fields_1_label,
+				deferUpdate: false,
+				fields: modalFields
+			},
+			interaction
+		);
 
 		if (!modal) return;
 		reasonInteraction = modal;
@@ -773,33 +1097,41 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 		// get the values from the modal
 		values = modal.fields.fields.map((field) => {
 			return {
-				questonPlaceholder: modalFields.find((x) => x.customId === field.customId)?.label,
+				questonPlaceholder: modalFields.find(
+					(x) => x.customId === field.customId
+				)?.label,
 				questionValue: modal.fields.getTextInputValue(field.customId)
-			}
+			};
 		});
 	}
 
-	await client.func.method.interactionSend(interaction, { content: client.iHorizon_Emojis.Discord_Loading, flags: MessageFlags.Ephemeral });
+	await client.func.method.interactionSend(reasonInteraction || interaction, {
+		content: client.iHorizon_Emojis.Discord_Loading,
+		flags: MessageFlags.Ephemeral
+	});
 
-	await interaction.guild?.channels.create({
-		name: `ticket-${interaction.user.username}`,
-		type: ChannelType.GuildText,
-		parent: interaction.guild.channels.cache.get(category || "")?.id || null
-	}).then(async (channel) => {
-		if (category) {
-			channel.lockPermissions();
-		};
-
-		await channel.permissionOverwrites.edit(interaction.guild?.roles.everyone as Role,
-			{
-				ViewChannel: false,
-				SendMessages: false,
-				ReadMessageHistory: false
+	await interaction.guild?.channels
+		.create({
+			name: `ticket-${interaction.user.username}`,
+			type: ChannelType.GuildText,
+			parent:
+				interaction.guild.channels.cache.get(category || "")?.id || null
+		})
+		.then(async (channel) => {
+			if (category) {
+				channel.lockPermissions();
 			}
-		);
 
-		await channel.permissionOverwrites.edit(interaction.user.id,
-			{
+			await channel.permissionOverwrites.edit(
+				interaction.guild?.roles.everyone as Role,
+				{
+					ViewChannel: false,
+					SendMessages: false,
+					ReadMessageHistory: false
+				}
+			);
+
+			await channel.permissionOverwrites.edit(interaction.user.id, {
 				ViewChannel: true,
 				SendMessages: true,
 				ReadMessageHistory: true,
@@ -807,193 +1139,273 @@ async function CreateChannelV2(interaction: StringSelectMenuInteraction<"cached"
 				UseApplicationCommands: true,
 				SendVoiceMessages: true,
 				EmbedLinks: true
-			}
-		);
-
-		if (reasonInteraction) {
-			await reasonInteraction.reply({
-				content: lang.event_ticket_whenCreated_msg
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${channel.id}', channel.id),
-				flags: [1 << 6]
 			});
-		} else {
-			await interaction.editReply({
-				content: lang.event_ticket_whenCreated_msg
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${channel.id}', channel.id),
-				flags: [1 << 6]
-			});
-		}
 
-		const embeds: EmbedBuilder[] = []
-		const files: any[] = [];
-
-		const og_embed = new EmbedBuilder()
-			.setColor(2829617)
-			.setDescription(
-				lang.sethereticket_panel_select_embed_desc
-					.replace('${result.panelName}', result.placeholder)
-					.replace('{msg}', lang.event_ticket_embed_description.replace("${user.username}", interaction.user.username))
-					.replace('{category}', chosenCategory?.name!)
-			)
-			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
-
-		if (chosenCategory?.panelId) {
-			var embed_from_db = (await metasTable.get(`EMBED.${chosenCategory?.panelId}.embedSource`));
-			// do this hack for replacing category in descriptions, fields ,etc
-			embed_from_db = JSON.parse(client.func.method.generateCustomMessagePreview(
-				JSON.stringify(embed_from_db),
-				{
-					user: interaction.user,
-					guild: interaction.guild,
-					guildLocal: interaction.guildLocale
-				}).replaceAll('{category}', chosenCategory?.name!)
-			) as APIEmbed | null;
-
-			if (embed_from_db) {
-				embeds.push(
-					EmbedBuilder.from(embed_from_db)
-				);
+			if (reasonInteraction) {
+				await reasonInteraction.editReply({
+					content: lang.event_ticket_whenCreated_msg
+						.replace(
+							"${interaction.user}",
+							interaction.user.toString()
+						)
+						.replace("${channel.id}", channel.id),
+					flags: [1 << 6]
+				});
 			} else {
-				files.push(await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction));
-				embeds.push(og_embed);
+				await interaction.editReply({
+					content: lang.event_ticket_whenCreated_msg
+						.replace(
+							"${interaction.user}",
+							interaction.user.toString()
+						)
+						.replace("${channel.id}", channel.id),
+					flags: [1 << 6]
+				});
 			}
-		} else if (result.ticketChannelPanel) {
-			var embed_from_db = (await metasTable.get(`EMBED.${result.ticketChannelPanel}.embedSource`));
-			// do this hack for replacing category in descriptions, fields ,etc
-			embed_from_db = JSON.parse(client.func.method.generateCustomMessagePreview(
-				JSON.stringify(embed_from_db),
-				{
-					user: interaction.user,
-					guild: interaction.guild,
-					guildLocal: interaction.guildLocale
-				}).replaceAll('{category}', chosenCategory?.name!)
-			) as APIEmbed | null;
 
-			if (embed_from_db) {
-				embeds.push(
-					EmbedBuilder.from(embed_from_db)
-				);
-			} else {
-				files.push(await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction));
-				embeds.push(og_embed);
-			}
-		} else {
-			files.push(await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction));
-			embeds.push(og_embed);
-		}
+			const embeds: EmbedBuilder[] = [];
+			const files: any[] = [];
 
-		if (values.length > 0) {
-			let desc = "";
-			for (const x in values) {
-				desc += `## ${values[x].questonPlaceholder}\n\`${values[x].questionValue}\`\n`
-			}
-			embeds.push(
-				new EmbedBuilder()
-					.setColor(2829617)
-					.setDescription(desc)
-					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
-			);
-		}
-
-		await interaction.client.db.set(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
-			{
-				channel: channel.id,
-				author: interaction.user.id,
-				alive: true
-			}
-		);
-
-		let components: (
-			| JSONEncodable<APIMessageTopLevelComponent>
-		)[] = [];
-
-		const selectUsersMenu = new UserSelectMenuBuilder()
-			.setCustomId('t-embed-select-user')
-			.setPlaceholder(`${lang.ticket_module_button_addmember} / ${lang.ticket_module_button_removemember}`)
-			.setMinValues(0)
-			.setMaxValues(10);
-
-		if (result.config.userSelectPanel !== false) {
-			components.push(new ActionRowBuilder<UserSelectMenuBuilder>()
-				.addComponents(selectUsersMenu)
-			)
-		}
-
-		let row = new ActionRowBuilder<ButtonBuilder>();
-
-		if (result.config.deleteButton !== false) {
-			row.addComponents(new ButtonBuilder()
-				.setCustomId('t-embed-delete-ticket')
-				.setEmoji('🗑️')
-				.setLabel(lang.ticket_module_button_delete)
-				.setStyle(ButtonStyle.Danger))
-		}
-
-		if (result.config.transcriptButton !== false) {
-			row.addComponents(new ButtonBuilder()
-				.setCustomId('t-embed-transcript-ticket')
-				.setEmoji('📜')
-				.setLabel(lang.ticket_module_button_transcript)
-				.setStyle(ButtonStyle.Primary))
-		}
-
-		if (row.components.length > 0) components.push(row);
-
-		let content: string = "";
-
-		if (result.config.pingUser) {
-			content = interaction.user.toString();
-		};
-
-		if (chosenCategory?.rolesToPing) {
-			chosenCategory?.rolesToPing.forEach((role) => {
-				content += `<@&${role}> `
-			})
-		};
-		if (result.config.rolesToPing) {
-			result.config.rolesToPing.forEach((role) => {
-				content += `<@&${role}> `
-			})
-		};
-
-		(channel as BaseGuildTextChannel).send({
-			embeds: embeds,
-			content: content === "" ? undefined : content,
-			components,
-			files: files
-		}).then(async (msg) => {
-			await msg.pin("Ticket Panel").catch(() => { })
-		}).catch((err: any) => {
-			logger.err(err)
-		});
-
-		try {
-			let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-			TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
-			if (!TicketLogsChannel) return;
-
-			const embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
-				.setTitle(lang.event_ticket_logsChannel_onCreationChannel_embed_title)
-				.setDescription(lang.event_ticket_logsChannel_onCreationChannel_embed_desc
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${channel.id}', channel.id)
+			const og_embed = new EmbedBuilder()
+				.setColor(2829617)
+				.setDescription(
+					lang.sethereticket_panel_select_embed_desc
+						.replace("${result.panelName}", result.placeholder)
+						.replace(
+							"{msg}",
+							lang.event_ticket_embed_description.replace(
+								"${user.username}",
+								interaction.user.username
+							)
+						)
+						.replace("{category}", chosenCategory?.name!)
 				)
-				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
-				.setTimestamp();
+				.setFooter(
+					await interaction.client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				);
 
-			TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
-			return;
-		} catch (e) { return };
-	}).catch((e) => {
-		console.error(e)
-	});
-};
+			if (chosenCategory?.panelId) {
+				var embed_from_db = await metasTable.get(
+					`EMBED.${chosenCategory?.panelId}.embedSource`
+				);
+				// do this hack for replacing category in descriptions, fields ,etc
+				embed_from_db = JSON.parse(
+					client.func.method
+						.generateCustomMessagePreview(
+							JSON.stringify(embed_from_db),
+							{
+								user: interaction.user,
+								guild: interaction.guild,
+								guildLocal: interaction.guildLocale
+							}
+						)
+						.replaceAll("{category}", chosenCategory?.name!)
+				) as APIEmbed | null;
 
-async function CloseTicket(interaction: ChatInputCommandInteraction<"cached"> | Message) {
-	const data = await interaction.client.func.getLanguageData(interaction.guildId);
+				if (embed_from_db) {
+					embeds.push(EmbedBuilder.from(embed_from_db));
+				} else {
+					files.push(
+						await interaction.client.func.displayBotName.footerAttachmentBuilder(
+							interaction
+						)
+					);
+					embeds.push(og_embed);
+				}
+			} else if (result.ticketChannelPanel) {
+				var embed_from_db = await metasTable.get(
+					`EMBED.${result.ticketChannelPanel}.embedSource`
+				);
+				// do this hack for replacing category in descriptions, fields ,etc
+				embed_from_db = JSON.parse(
+					client.func.method
+						.generateCustomMessagePreview(
+							JSON.stringify(embed_from_db),
+							{
+								user: interaction.user,
+								guild: interaction.guild,
+								guildLocal: interaction.guildLocale
+							}
+						)
+						.replaceAll("{category}", chosenCategory?.name!)
+				) as APIEmbed | null;
+
+				if (embed_from_db) {
+					embeds.push(EmbedBuilder.from(embed_from_db));
+				} else {
+					files.push(
+						await interaction.client.func.displayBotName.footerAttachmentBuilder(
+							interaction
+						)
+					);
+					embeds.push(og_embed);
+				}
+			} else {
+				files.push(
+					await interaction.client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				);
+				embeds.push(og_embed);
+			}
+
+			if (values.length > 0) {
+				let desc = "";
+				for (const x in values) {
+					desc += `## ${values[x].questonPlaceholder}\n\`${values[x].questionValue}\`\n`;
+				}
+				embeds.push(
+					new EmbedBuilder()
+						.setColor(2829617)
+						.setDescription(desc)
+						.setFooter(
+							await interaction.client.func.displayBotName.footerBuilder(
+								interaction.guildId!
+							)
+						)
+				);
+			}
+
+			await interaction.client.db.set(
+				`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${channel.id}`,
+				{
+					channel: channel.id,
+					author: interaction.user.id,
+					alive: true
+				}
+			);
+
+			let components: JSONEncodable<APIMessageTopLevelComponent>[] = [];
+
+			const selectUsersMenu = new UserSelectMenuBuilder()
+				.setCustomId("t-embed-select-user")
+				.setPlaceholder(
+					`${lang.ticket_module_button_addmember} / ${lang.ticket_module_button_removemember}`
+				)
+				.setMinValues(0)
+				.setMaxValues(10);
+
+			if (result.config.userSelectPanel !== false) {
+				components.push(
+					new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
+						selectUsersMenu
+					)
+				);
+			}
+
+			let row = new ActionRowBuilder<ButtonBuilder>();
+
+			if (result.config.deleteButton !== false) {
+				row.addComponents(
+					new ButtonBuilder()
+						.setCustomId("t-embed-delete-ticket")
+						.setEmoji("🗑️")
+						.setLabel(lang.ticket_module_button_delete)
+						.setStyle(ButtonStyle.Danger)
+				);
+			}
+
+			if (result.config.transcriptButton !== false) {
+				row.addComponents(
+					new ButtonBuilder()
+						.setCustomId("t-embed-transcript-ticket")
+						.setEmoji("📜")
+						.setLabel(lang.ticket_module_button_transcript)
+						.setStyle(ButtonStyle.Primary)
+				);
+			}
+
+			if (row.components.length > 0) components.push(row);
+
+			let content: string = "";
+
+			if (result.config.pingUser) {
+				content = interaction.user.toString();
+			}
+
+			if (chosenCategory?.rolesToPing) {
+				chosenCategory?.rolesToPing.forEach((role) => {
+					content += `<@&${role}> `;
+				});
+			}
+			if (result.config.rolesToPing) {
+				result.config.rolesToPing.forEach((role) => {
+					content += `<@&${role}> `;
+				});
+			}
+
+			(channel as BaseGuildTextChannel)
+				.send({
+					embeds: embeds,
+					content: content === "" ? undefined : content,
+					components,
+					files: files
+				})
+				.then(async (msg) => {
+					await msg.pin("Ticket Panel").catch(() => {});
+				})
+				.catch((err: any) => {
+					logger.err(err);
+				});
+
+			try {
+				let TicketLogsChannel = await interaction.client.db.get(
+					`${interaction.guildId}.GUILD.TICKET.logs`
+				);
+				TicketLogsChannel =
+					interaction.guild?.channels.cache.get(TicketLogsChannel);
+				if (!TicketLogsChannel) return;
+
+				const embed = new EmbedBuilder()
+					.setColor(
+						(await client.db.get(
+							`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+						)) || "#008000"
+					)
+					.setTitle(
+						lang.event_ticket_logsChannel_onCreationChannel_embed_title
+					)
+					.setDescription(
+						lang.event_ticket_logsChannel_onCreationChannel_embed_desc
+							.replace(
+								"${interaction.user}",
+								interaction.user.toString()
+							)
+							.replace("${channel.id}", channel.id)
+					)
+					.setFooter(
+						await interaction.client.func.displayBotName.footerBuilder(
+							interaction.guildId!
+						)
+					)
+					.setTimestamp();
+
+				TicketLogsChannel.send({
+					embeds: [embed],
+					files: [
+						await interaction.client.func.displayBotName.footerAttachmentBuilder(
+							interaction
+						)
+					]
+				});
+				return;
+			} catch (e) {
+				return;
+			}
+		})
+		.catch((e) => {
+			console.error(e);
+		});
+}
+
+async function CloseTicket(
+	interaction: ChatInputCommandInteraction<"cached"> | Message
+) {
+	const data = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
 
 	const fetch = await interaction.client.db.get(
 		`${interaction.guildId}.TICKET_ALL`
@@ -1002,54 +1414,102 @@ async function CloseTicket(interaction: ChatInputCommandInteraction<"cached"> | 
 	for (const user in fetch) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
-				const member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
+				const member = interaction.guild?.members.cache.get(
+					fetch[user][channel]?.author
+				);
 
-
-				const attachment = await client.discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
-					limit: -1,
-					filename: `${interaction.guildId}-transcript.html`,
-					footerText: "Exported {number} message{s}",
-					poweredBy: false,
-					hydrate: true
-				});
+				const attachment =
+					await client.discordTranscripts.createTranscript(
+						interaction.channel as TextBasedChannel,
+						{
+							limit: -1,
+							filename: `${interaction.guildId}-transcript.html`,
+							footerText: "Exported {number} message{s}",
+							poweredBy: false,
+							hydrate: true
+						}
+					);
 
 				const embed = new EmbedBuilder()
 					.setDescription(data.close_title_sourcebin)
-					.setColor('#0014a8');
+					.setColor("#0014a8");
 
 				try {
-					(interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member?.user as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-					client.func.method.interactionSend(interaction, { content: data.close_command_work_notify_channel, files: [attachment], embeds: [embed] });
+					(
+						interaction.channel as BaseGuildTextChannel
+					).permissionOverwrites.create(member?.user as User, {
+						ViewChannel: false,
+						SendMessages: false,
+						ReadMessageHistory: false
+					});
+					client.func.method.interactionSend(interaction, {
+						content: data.close_command_work_notify_channel,
+						files: [attachment],
+						embeds: [embed]
+					});
 				} catch {
-					await interaction.client.func.method.channelSend(interaction, data.close_command_error);
+					await interaction.client.func.method.channelSend(
+						interaction,
+						data.close_command_error
+					);
 					return;
-				};
+				}
 
 				try {
-					let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-					TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+					let TicketLogsChannel = await interaction.client.db.get(
+						`${interaction.guildId}.GUILD.TICKET.logs`
+					);
+					TicketLogsChannel =
+						interaction.guild?.channels.cache.get(
+							TicketLogsChannel
+						);
 					if (!TicketLogsChannel) return;
 
 					const embed = new EmbedBuilder()
 						.setColor("#008000")
-						.setTitle(data.event_ticket_logsChannel_onClose_embed_title)
-						.setDescription(data.event_ticket_logsChannel_onClose_embed_desc
-							.replace('${interaction.user}', interaction.member?.user.toString()!)
-							.replace('${interaction.channel.id}', interaction.channel?.id!)
+						.setTitle(
+							data.event_ticket_logsChannel_onClose_embed_title
 						)
-						.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+						.setDescription(
+							data.event_ticket_logsChannel_onClose_embed_desc
+								.replace(
+									"${interaction.user}",
+									interaction.member?.user.toString()!
+								)
+								.replace(
+									"${interaction.channel.id}",
+									interaction.channel?.id!
+								)
+						)
+						.setFooter(
+							await interaction.client.func.displayBotName.footerBuilder(
+								interaction.guildId!
+							)
+						)
 						.setTimestamp();
 
-					TicketLogsChannel.send({ embeds: [embed], files: [attachment, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+					TicketLogsChannel.send({
+						embeds: [embed],
+						files: [
+							attachment,
+							await interaction.client.func.displayBotName.footerAttachmentBuilder(
+								interaction
+							)
+						]
+					});
 					return;
-				} catch (e) { return };
+				} catch (e) {
+					return;
+				}
 			}
 		}
 	}
-};
+}
 
 async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
-	const data = await interaction.client.func.getLanguageData(interaction.guildId);
+	const data = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
 	const interactionChannel = interaction.channel;
 
 	if (interactionChannel?.type !== ChannelType.GuildText) return;
@@ -1060,215 +1520,424 @@ async function TicketTranscript(interaction: ButtonInteraction<"cached">) {
 
 	for (const user in fetch) {
 		for (const channel in fetch[user]) {
-
 			if (channel === interaction.channel?.id) {
-
-				const attachment = await client.discordTranscripts.createTranscript(interactionChannel as TextBasedChannel, {
-					limit: -1,
-					filename: `${interaction.guildId}-transcript.html`,
-					footerText: "Exported {number} message{s}",
-					poweredBy: false,
-					hydrate: true,
-					saveImages: true,
-					favicon: interaction.client.user.displayAvatarURL({ size: 512, extension: "png" })
-				});
+				const attachment =
+					await client.discordTranscripts.createTranscript(
+						interactionChannel as TextBasedChannel,
+						{
+							limit: -1,
+							filename: `${interaction.guildId}-transcript.html`,
+							footerText: "Exported {number} message{s}",
+							poweredBy: false,
+							hydrate: true,
+							saveImages: true,
+							favicon: interaction.client.user.displayAvatarURL({
+								size: 512,
+								extension: "png"
+							})
+						}
+					);
 
 				const embed = new EmbedBuilder()
 					.setDescription(data.close_title_sourcebin)
-					.setColor(await interaction.client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0014a8");
+					.setColor(
+						(await interaction.client.db.get(
+							`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`
+						)) || "#0014a8"
+					);
 
 				if (interaction.deferred) {
-					await interaction.editReply({ content: data.guildconfig_config_save_check_dm });
+					await interaction.editReply({
+						content: data.guildconfig_config_save_check_dm
+					});
 				} else {
-					await interaction.reply({ content: data.guildconfig_config_save_check_dm, flags: [1 << 6] });
-				};
+					await interaction.reply({
+						content: data.guildconfig_config_save_check_dm,
+						flags: [1 << 6]
+					});
+				}
 
-				await interaction.user.send({ embeds: [embed], content: data.transript_command_work, files: [attachment] })
-					.catch(() => interaction.followUp({ content: data.ticket_transcript_failed_to_send, flags: [1 << 6] }))
+				await interaction.user
+					.send({
+						embeds: [embed],
+						content: data.transript_command_work,
+						files: [attachment]
+					})
+					.catch(() =>
+						interaction.followUp({
+							content: data.ticket_transcript_failed_to_send,
+							flags: [1 << 6]
+						})
+					);
 
 				return;
 			}
 		}
 	}
-};
+}
 
-async function TicketRemoveMember(interaction: ChatInputCommandInteraction<"cached"> | Message, member: User) {
-	const data = await interaction.client.func.getLanguageData(interaction.guildId);
+async function TicketRemoveMember(
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	member: User
+) {
+	const data = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
 
 	try {
-		(interaction.channel as BaseGuildTextChannel)?.permissionOverwrites.create(member as User, { ViewChannel: false, SendMessages: false, ReadMessageHistory: false });
-		client.func.method.interactionSend(interaction, { content: data.remove_command_work.replace(/\${member\.tag}/g, member?.username!) });
+		(
+			interaction.channel as BaseGuildTextChannel
+		)?.permissionOverwrites.create(member as User, {
+			ViewChannel: false,
+			SendMessages: false,
+			ReadMessageHistory: false
+		});
+		client.func.method.interactionSend(interaction, {
+			content: data.remove_command_work.replace(
+				/\${member\.tag}/g,
+				member?.username!
+			)
+		});
 
 		try {
-			let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-			TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+			let TicketLogsChannel = await interaction.client.db.get(
+				`${interaction.guildId}.GUILD.TICKET.logs`
+			);
+			TicketLogsChannel =
+				interaction.guild?.channels.cache.get(TicketLogsChannel);
 			if (!TicketLogsChannel) return;
 
 			const embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
-				.setTitle(data.event_ticket_logsChannel_onRemoveMember_embed_title)
-				.setDescription(data.event_ticket_logsChannel_onRemoveMember_embed_desc
-					.replace('${member}', member?.toString()!)
-					.replace('${interaction.user}', interaction.member?.user.toString()!)
-					.replace('${interaction.channel.id}', interaction.channel?.id!)
+				.setColor(
+					(await client.db.get(
+						`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+					)) || "#008000"
 				)
-				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+				.setTitle(
+					data.event_ticket_logsChannel_onRemoveMember_embed_title
+				)
+				.setDescription(
+					data.event_ticket_logsChannel_onRemoveMember_embed_desc
+						.replace("${member}", member?.toString()!)
+						.replace(
+							"${interaction.user}",
+							interaction.member?.user.toString()!
+						)
+						.replace(
+							"${interaction.channel.id}",
+							interaction.channel?.id!
+						)
+				)
+				.setFooter(
+					await interaction.client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
 				.setTimestamp();
 
-			TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+			TicketLogsChannel.send({
+				embeds: [embed],
+				files: [
+					await interaction.client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			});
 			return;
-		} catch (e) { return };
-
+		} catch (e) {
+			return;
+		}
 	} catch {
-		await client.func.method.interactionSend(interaction, { content: data.remove_command_error });
-		return;
-	};
-};
-
-async function TicketAddMember(interaction: ChatInputCommandInteraction<"cached"> | Message, member: User) {
-	const data = await interaction.client.func.getLanguageData(interaction.guildId);
-
-	if (!member) {
-		await client.func.method.interactionSend(interaction, { content: data.add_command_error });
-		return;
-	};
-
-	try {
-		(interaction.channel as BaseGuildTextChannel).permissionOverwrites.create(member, { ViewChannel: true, SendMessages: true, ReadMessageHistory: true });
-		await client.func.method.interactionSend(interaction, { content: data.add_command_work.replace(/\${member\.tag}/g, member.username) });
-
-		try {
-			let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-			TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
-			if (!TicketLogsChannel) return;
-
-			const embed = new EmbedBuilder()
-				.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
-				.setTitle(data.event_ticket_logsChannel_onAddMember_embed_title)
-				.setDescription(data.event_ticket_logsChannel_onAddMember_embed_desc
-					.replace('${member}', member.toString())
-					.replace('${interaction.user}', interaction.member?.user.toString()!)
-					.replace('${interaction.channel.id}', interaction.channel?.id!)
-				)
-				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
-				.setTimestamp();
-
-			TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
-			return;
-		} catch (e) { return };
-
-	} catch (e) {
-		await client.func.method.interactionSend(interaction, { content: data.add_command_error });
+		await client.func.method.interactionSend(interaction, {
+			content: data.remove_command_error
+		});
 		return;
 	}
-};
+}
 
-async function TicketReOpen(interaction: ChatInputCommandInteraction<"cached"> | Message) {
-	const data = await interaction.client.func.getLanguageData(interaction.guildId);
-	const fetch = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL`);
+async function TicketAddMember(
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	member: User
+) {
+	const data = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
+
+	if (!member) {
+		await client.func.method.interactionSend(interaction, {
+			content: data.add_command_error
+		});
+		return;
+	}
+
+	try {
+		(
+			interaction.channel as BaseGuildTextChannel
+		).permissionOverwrites.create(member, {
+			ViewChannel: true,
+			SendMessages: true,
+			ReadMessageHistory: true
+		});
+		await client.func.method.interactionSend(interaction, {
+			content: data.add_command_work.replace(
+				/\${member\.tag}/g,
+				member.username
+			)
+		});
+
+		try {
+			let TicketLogsChannel = await interaction.client.db.get(
+				`${interaction.guildId}.GUILD.TICKET.logs`
+			);
+			TicketLogsChannel =
+				interaction.guild?.channels.cache.get(TicketLogsChannel);
+			if (!TicketLogsChannel) return;
+
+			const embed = new EmbedBuilder()
+				.setColor(
+					(await client.db.get(
+						`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+					)) || "#008000"
+				)
+				.setTitle(data.event_ticket_logsChannel_onAddMember_embed_title)
+				.setDescription(
+					data.event_ticket_logsChannel_onAddMember_embed_desc
+						.replace("${member}", member.toString())
+						.replace(
+							"${interaction.user}",
+							interaction.member?.user.toString()!
+						)
+						.replace(
+							"${interaction.channel.id}",
+							interaction.channel?.id!
+						)
+				)
+				.setFooter(
+					await interaction.client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
+				.setTimestamp();
+
+			TicketLogsChannel.send({
+				embeds: [embed],
+				files: [
+					await interaction.client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			});
+			return;
+		} catch (e) {
+			return;
+		}
+	} catch (e) {
+		await client.func.method.interactionSend(interaction, {
+			content: data.add_command_error
+		});
+		return;
+	}
+}
+
+async function TicketReOpen(
+	interaction: ChatInputCommandInteraction<"cached"> | Message
+) {
+	const data = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
+	const fetch = await interaction.client.db.get(
+		`${interaction.guildId}.TICKET_ALL`
+	);
 
 	for (const user in fetch) {
 		for (const channel in fetch[user]) {
-
 			if (channel === interaction.channel?.id) {
-				const member = interaction.guild?.members.cache.get(fetch[user][channel]?.author);
+				const member = interaction.guild?.members.cache.get(
+					fetch[user][channel]?.author
+				);
 
 				try {
-					(interaction.channel as BaseGuildTextChannel).permissionOverwrites.edit(member?.user.id!, {
-						ViewChannel: true,
-						SendMessages: true,
-						AttachFiles: true,
-						ReadMessageHistory: true,
-					})
+					(
+						interaction.channel as BaseGuildTextChannel
+					).permissionOverwrites
+						.edit(member?.user.id!, {
+							ViewChannel: true,
+							SendMessages: true,
+							AttachFiles: true,
+							ReadMessageHistory: true
+						})
 						.then(() => {
 							client.func.method.interactionSend(interaction, {
-								content: data.open_command_work
-									.replace(/\${interaction\.channel}/g, interaction.channel?.toString()!)
+								content: data.open_command_work.replace(
+									/\${interaction\.channel}/g,
+									interaction.channel?.toString()!
+								)
 							});
 							return;
 						});
 
 					try {
-						let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-						TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+						let TicketLogsChannel = await interaction.client.db.get(
+							`${interaction.guildId}.GUILD.TICKET.logs`
+						);
+						TicketLogsChannel =
+							interaction.guild?.channels.cache.get(
+								TicketLogsChannel
+							);
 						if (!TicketLogsChannel) return;
 
 						const embed = new EmbedBuilder()
-							.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
-							.setTitle(data.event_ticket_logsChannel_onReopen_embed_title)
-							.setDescription(data.event_ticket_logsChannel_onReopen_embed_desc
-								.replace('${interaction.user}', interaction.member?.user.toString()!)
-								.replace('${interaction.channel.id}', interaction.channel.id)
+							.setColor(
+								(await client.db.get(
+									`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+								)) || "#008000"
 							)
-							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+							.setTitle(
+								data.event_ticket_logsChannel_onReopen_embed_title
+							)
+							.setDescription(
+								data.event_ticket_logsChannel_onReopen_embed_desc
+									.replace(
+										"${interaction.user}",
+										interaction.member?.user.toString()!
+									)
+									.replace(
+										"${interaction.channel.id}",
+										interaction.channel.id
+									)
+							)
+							.setFooter(
+								await interaction.client.func.displayBotName.footerBuilder(
+									interaction.guildId!
+								)
+							)
 							.setTimestamp();
 
-						TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+						TicketLogsChannel.send({
+							embeds: [embed],
+							files: [
+								await interaction.client.func.displayBotName.footerAttachmentBuilder(
+									interaction
+								)
+							]
+						});
 						return;
-					} catch (e) { return };
-
+					} catch (e) {
+						return;
+					}
 				} catch (e) {
-					await client.func.method.interactionSend(interaction, { content: data.open_command_error });
+					await client.func.method.interactionSend(interaction, {
+						content: data.open_command_error
+					});
 					return;
-				};
+				}
 			}
 		}
 	}
-};
+}
 
 async function TicketDelete(interaction: Interaction<"cached"> | Message) {
-	const data = await interaction.client.func.getLanguageData(interaction.guildId);
-	const fetch = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL`);
+	const data = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
+	const fetch = await interaction.client.db.get(
+		`${interaction.guildId}.TICKET_ALL`
+	);
 
 	for (const user in fetch) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
-
-				await interaction.client.db.delete(`${interaction.guildId}.TICKET_ALL.${interaction.member?.user.id}`);
+				await interaction.client.db.delete(
+					`${interaction.guildId}.TICKET_ALL.${interaction.member?.user.id}`
+				);
 
 				try {
-					let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-					TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+					let TicketLogsChannel = await interaction.client.db.get(
+						`${interaction.guildId}.GUILD.TICKET.logs`
+					);
+					TicketLogsChannel =
+						interaction.guild?.channels.cache.get(
+							TicketLogsChannel
+						);
 
 					if (TicketLogsChannel) {
-						const attachment = await client.discordTranscripts.createTranscript(interaction.channel as TextBasedChannel, {
-							limit: -1,
-							filename: `${interaction.guildId}-transcript.html`,
-							footerText: "Exported {number} message{s}",
-							poweredBy: false,
-							hydrate: true
-						});
+						const attachment =
+							await client.discordTranscripts.createTranscript(
+								interaction.channel as TextBasedChannel,
+								{
+									limit: -1,
+									filename: `${interaction.guildId}-transcript.html`,
+									footerText: "Exported {number} message{s}",
+									poweredBy: false,
+									hydrate: true
+								}
+							);
 
 						const embed = new EmbedBuilder()
-							.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
-							.setTitle(data.event_ticket_logsChannel_onDelete_embed_title)
-							.setDescription(data.event_ticket_logsChannel_onDelete_embed_desc
-								.replace('${interaction.user}', interaction.member?.user.toString()!)
-								.replace('${interaction.channel.name}', (interaction.channel as BaseGuildTextChannel)?.name)
+							.setColor(
+								(await client.db.get(
+									`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+								)) || "#008000"
 							)
-							.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+							.setTitle(
+								data.event_ticket_logsChannel_onDelete_embed_title
+							)
+							.setDescription(
+								data.event_ticket_logsChannel_onDelete_embed_desc
+									.replace(
+										"${interaction.user}",
+										interaction.member?.user.toString()!
+									)
+									.replace(
+										"${interaction.channel.name}",
+										(
+											interaction.channel as BaseGuildTextChannel
+										)?.name
+									)
+							)
+							.setFooter(
+								await interaction.client.func.displayBotName.footerBuilder(
+									interaction.guildId!
+								)
+							)
 							.setTimestamp();
 						interaction.channel.delete();
 
-						TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction), attachment] });
+						TicketLogsChannel.send({
+							embeds: [embed],
+							files: [
+								await interaction.client.func.displayBotName.footerAttachmentBuilder(
+									interaction
+								),
+								attachment
+							]
+						});
 					} else {
 						await interaction.channel.delete();
 					}
 					return;
-				} catch (e) { return };
+				} catch (e) {
+					return;
+				}
 			}
 		}
 	}
-};
+}
 
-async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached">) {
-	const data = await interaction.client.func.getLanguageData(interaction.guildId);;
-	const owner_ticket = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${interaction.channel?.id}`);
+async function TicketAddMember_2(
+	interaction: UserSelectMenuInteraction<"cached">
+) {
+	const data = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
+	const owner_ticket = await interaction.client.db.get(
+		`${interaction.guildId}.TICKET_ALL.${interaction.user.id}.${interaction.channel?.id}`
+	);
 
 	if (!owner_ticket) {
 		await interaction.deferUpdate();
 		return;
-	};
+	}
 
 	const membersArray: string[] = [];
 	const listmembersArray: string[] = [];
@@ -1278,81 +1947,147 @@ async function TicketAddMember_2(interaction: UserSelectMenuInteraction<"cached"
 	});
 
 	(interaction.channel as BaseGuildTextChannel).permissionOverwrites.cache
-		.filter((i) => i.type === 1).each
-		((i) => { listmembersArray.push(i.id) });
+		.filter((i) => i.type === 1)
+		.each((i) => {
+			listmembersArray.push(i.id);
+		});
 
 	const addedMembers: string[] = [];
 	const removedMembers: string[] = [];
 
 	listmembersArray.forEach(async (overwriteId) => {
-		if (!membersArray.includes(overwriteId) && owner_ticket.author !== overwriteId) {
+		if (
+			!membersArray.includes(overwriteId) &&
+			owner_ticket.author !== overwriteId
+		) {
 			removedMembers.push(overwriteId);
-			await (interaction.channel as BaseGuildTextChannel).permissionOverwrites.delete(overwriteId);
+			await (
+				interaction.channel as BaseGuildTextChannel
+			).permissionOverwrites.delete(overwriteId);
 		}
 	});
 
 	membersArray.forEach(async (memberId) => {
 		if (!listmembersArray.includes(memberId)) {
-			(interaction.channel as BaseGuildTextChannel).permissionOverwrites.edit(memberId,
-				{
-					ViewChannel: true, SendMessages: true, ReadMessageHistory: true, AttachFiles: true
-				}
-			);
+			(
+				interaction.channel as BaseGuildTextChannel
+			).permissionOverwrites.edit(memberId, {
+				ViewChannel: true,
+				SendMessages: true,
+				ReadMessageHistory: true,
+				AttachFiles: true
+			});
 			addedMembers.push(memberId);
-		};
+		}
 	});
 
 	if (addedMembers.length > 0) {
 		interaction.client.func.method.channelSend(interaction, {
 			content: data.event_ticket_add_member
-				.replace('${interaction.user}', interaction.user.toString())
-				.replace("${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}", addedMembers.map((memberId) => `<@${memberId}>`).join(' '))
-				.replace('${interaction.channel}', interaction.channel!.toString())
+				.replace("${interaction.user}", interaction.user.toString())
+				.replace(
+					"${addedMembers.map((memberId) => `<@${memberId}>`).join(' ')}",
+					addedMembers.map((memberId) => `<@${memberId}>`).join(" ")
+				)
+				.replace(
+					"${interaction.channel}",
+					interaction.channel!.toString()
+				)
 		});
-	};
+	}
 
 	if (removedMembers.length > 0) {
 		interaction.client.func.method.channelSend(interaction, {
 			content: data.event_ticket_del_member
-				.replace('${interaction.user}', interaction.user.toString())
-				.replace("${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}", removedMembers.map((memberId) => `<@${memberId}>`).join(' '))
-				.replace('${interaction.channel}', interaction.channel!.toString())
+				.replace("${interaction.user}", interaction.user.toString())
+				.replace(
+					"${removedMembers.map((memberId) => `<@${memberId}>`).join(' ')}",
+					removedMembers.map((memberId) => `<@${memberId}>`).join(" ")
+				)
+				.replace(
+					"${interaction.channel}",
+					interaction.channel!.toString()
+				)
 		});
-	};
+	}
 	await interaction.deferUpdate();
 
 	try {
-		let TicketLogsChannel = await interaction.client.db.get(`${interaction.guildId}.GUILD.TICKET.logs`);
-		TicketLogsChannel = interaction.guild?.channels.cache.get(TicketLogsChannel);
+		let TicketLogsChannel = await interaction.client.db.get(
+			`${interaction.guildId}.GUILD.TICKET.logs`
+		);
+		TicketLogsChannel =
+			interaction.guild?.channels.cache.get(TicketLogsChannel);
 		if (!TicketLogsChannel) return;
 
 		const embed = new EmbedBuilder()
-			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#008000")
-			.setTitle(data.event_ticket_logsChannel_onAddMember2_embed_title)
-			.setDescription(data.event_ticket_logsChannel_onAddMember2_embed_desc
-				.replace('${interaction.user}', interaction.user.toString())
-				.replace("${removedMembers}", removedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None')
-				.replace("${addedMembers}", addedMembers.map((memberId) => `<@${memberId}>`).join(' ') || 'None')
-				.replace('${interaction.channel}', interaction.channel?.toString()!)
-
+			.setColor(
+				(await client.db.get(
+					`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+				)) || "#008000"
 			)
-			.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+			.setTitle(data.event_ticket_logsChannel_onAddMember2_embed_title)
+			.setDescription(
+				data.event_ticket_logsChannel_onAddMember2_embed_desc
+					.replace("${interaction.user}", interaction.user.toString())
+					.replace(
+						"${removedMembers}",
+						removedMembers
+							.map((memberId) => `<@${memberId}>`)
+							.join(" ") || "None"
+					)
+					.replace(
+						"${addedMembers}",
+						addedMembers
+							.map((memberId) => `<@${memberId}>`)
+							.join(" ") || "None"
+					)
+					.replace(
+						"${interaction.channel}",
+						interaction.channel?.toString()!
+					)
+			)
+			.setFooter(
+				await interaction.client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
 			.setTimestamp();
 
-		TicketLogsChannel.send({ embeds: [embed], files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)] });
+		TicketLogsChannel.send({
+			embeds: [embed],
+			files: [
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
+		});
 		return;
-	} catch (e) { return };
-};
+	} catch (e) {
+		return;
+	}
+}
 
-async function TicketRemind(interaction: ChatInputCommandInteraction<"cached"> | Message) {
-	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
-	const owner_ticket = await interaction.client.db.get(`${interaction.guildId}.TICKET_ALL.${interaction.member?.user.id}.${interaction.channel?.id}`);
+async function TicketRemind(
+	interaction: ChatInputCommandInteraction<"cached"> | Message
+) {
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
+	const owner_ticket = await interaction.client.db.get(
+		`${interaction.guildId}.TICKET_ALL.${interaction.member?.user.id}.${interaction.channel?.id}`
+	);
 
-	let ticketOwner = interaction.guild?.members.cache.get(owner_ticket.author) ||
-		await interaction.guild?.members.fetch(owner_ticket.author).catch(() => null);
+	let ticketOwner =
+		interaction.guild?.members.cache.get(owner_ticket.author) ||
+		(await interaction.guild?.members
+			.fetch(owner_ticket.author)
+			.catch(() => null));
 
 	// Fetch messages properly - get the last 100 messages
-	let messages = await interaction.channel?.messages.fetch({ limit: 100 }).catch(() => null);
+	let messages = await interaction.channel?.messages
+		.fetch({ limit: 100 })
+		.catch(() => null);
 
 	if (!messages) return; // Exit if we couldn't fetch messages
 
@@ -1363,50 +2098,67 @@ async function TicketRemind(interaction: ChatInputCommandInteraction<"cached"> |
 		.first();
 
 	let timestamp = lastOwnerMessage?.createdTimestamp;
-	let time = timestamp ? interaction.client.timeCalculator.to_beautiful_string(Date.now() - timestamp, lang) : lang.var_never;
+	let time = timestamp
+		? interaction.client.timeCalculator.to_beautiful_string(
+				Date.now() - timestamp,
+				lang
+			)
+		: lang.var_never;
 
-	let Success = await ticketOwner?.send({
-		content: `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}`,
-		embeds: [
-			new EmbedBuilder()
-				.setTitle(lang.ticket_remind_embed_title)
-				.setDescription(lang.ticket_remind_embed_desc)
-				.setFields({
-					name: lang.ticket_remind_embed_fields_1_name,
-					value: `[${time}](https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${lastOwnerMessage?.id})`
-				})
-				.setColor("Red")
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-		],
-		files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-	}).then(() => true).catch(() => false);
+	let Success = await ticketOwner
+		?.send({
+			content: `https://discord.com/channels/${interaction.guildId}/${interaction.channelId}`,
+			embeds: [
+				new EmbedBuilder()
+					.setTitle(lang.ticket_remind_embed_title)
+					.setDescription(lang.ticket_remind_embed_desc)
+					.setFields({
+						name: lang.ticket_remind_embed_fields_1_name,
+						value: `[${time}](https://discord.com/channels/${interaction.guildId}/${interaction.channelId}/${lastOwnerMessage?.id})`
+					})
+					.setColor("Red")
+					.setFooter(
+						await client.func.displayBotName.footerBuilder(
+							interaction.guildId!
+						)
+					)
+			],
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
+		})
+		.then(() => true)
+		.catch(() => false);
 
 	if (!Success) {
 		client.func.method.interactionSend(interaction, {
-			content: lang.utils_dm_cant.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+			content: lang.utils_dm_cant
+				.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
 				.replace("${targetMember.toString()}", ticketOwner?.toString()!)
-		})
+		});
 	} else {
 		client.func.method.interactionSend(interaction, {
 			content: lang.ticket_remind_command_ok
-		})
+		});
 	}
 }
 
 export {
 	CreateButtonPanel,
-
 	CloseTicket,
 	CreateTicketChannel,
 	CreateTicketChannelV2,
 	CreateSelectPanel,
 	TicketTranscript,
 	TicketDelete,
-
 	TicketRemoveMember,
 	TicketAddMember,
 	TicketReOpen,
-
 	TicketAddMember_2,
 	TicketRemind
 };

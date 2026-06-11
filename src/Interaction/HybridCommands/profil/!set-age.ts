@@ -19,31 +19,33 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
-import { profilTable } from '../../../Events/client/ready.js';
+import { SubCommand } from "../../../../types/command.js";
+import { profilTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var age = interaction.options.getNumber("age")!;
 			var user = interaction.user;
 		} else {
-
 			var age = client.func.method.number(args!, 0);
 			var user = interaction.author;
-		};
+		}
 
 		await profilTable.set(`${user.id}.age`, age);
 
-		await client.func.method.interactionSend(interaction, { content: lang.setprofilage_command_work, flags: [1 << 6] });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.setprofilage_command_work,
+			flags: [1 << 6]
+		});
 		return;
-	},
+	}
 };

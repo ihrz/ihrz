@@ -23,7 +23,7 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	GuildMember,
-	PermissionFlagsBits,
+	PermissionFlagsBits
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
@@ -33,12 +33,12 @@ import { DatabaseStructure } from "../../../../types/database_structure.js";
 export const command: Command = {
 	name: "economy",
 	name_localizations: {
-		fr: "économie",
+		fr: "économie"
 	},
 
 	description: "Subcommand for economy category!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie d'économie",
+		fr: "Commande sous-groupé pour la catégorie d'économie"
 	},
 
 	options: [
@@ -48,7 +48,7 @@ export const command: Command = {
 
 			description: "Add money to a user!",
 			description_localizations: {
-				fr: "Ajoutez de l'argent à un utilisateur",
+				fr: "Ajoutez de l'argent à un utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -59,12 +59,12 @@ export const command: Command = {
 
 					description: "The amount of money you want to add",
 					description_localizations: {
-						fr: "Le montant d'argent que vous souhaitez ajouter",
+						fr: "Le montant d'argent que vous souhaitez ajouter"
 					},
 
 					required: true,
 
-					permission: null,
+					permission: null
 				},
 				{
 					name: "member",
@@ -72,16 +72,16 @@ export const command: Command = {
 
 					description: "The member who you want to add money",
 					description_localizations: {
-						fr: "Le membre à qui vous souhaitez ajouter de l'argent",
+						fr: "Le membre à qui vous souhaitez ajouter de l'argent"
 					},
 
 					required: true,
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "balance-remove",
@@ -89,7 +89,7 @@ export const command: Command = {
 
 			description: "Remove money from a user!",
 			description_localizations: {
-				fr: "Retirer de l'argent à un utilisateur",
+				fr: "Retirer de l'argent à un utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -100,12 +100,12 @@ export const command: Command = {
 
 					description: "amount of $ you want add",
 					description_localizations: {
-						fr: "montant de $ que vous souhaitez ajouter",
+						fr: "montant de $ que vous souhaitez ajouter"
 					},
 
 					required: true,
 
-					permission: null,
+					permission: null
 				},
 				{
 					name: "member",
@@ -113,22 +113,22 @@ export const command: Command = {
 
 					description: "the member you want to add the money",
 					description_localizations: {
-						fr: "le membre auquel vous souhaitez ajouter de l'argent",
+						fr: "le membre auquel vous souhaitez ajouter de l'argent"
 					},
 
 					required: true,
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "balance",
 
 			description: "Get the balance of a user!",
 			description_localizations: {
-				fr: "Obtenir le solde d'un utilisateur",
+				fr: "Obtenir le solde d'un utilisateur"
 			},
 
 			aliases: ["wallet", "coins", "bal"],
@@ -142,16 +142,16 @@ export const command: Command = {
 					description:
 						"Target a user for see their current balance or keep blank for yourself",
 					description_localizations: {
-						fr: "Ciblez un utilisateur pour voir son solde actuel",
+						fr: "Ciblez un utilisateur pour voir son solde actuel"
 					},
 
 					required: false,
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "config",
@@ -159,7 +159,7 @@ export const command: Command = {
 
 			description: "Disable the economy module into your guild",
 			description_localizations: {
-				fr: "Désactiver entièrement le module d'économie sur un serveur",
+				fr: "Désactiver entièrement le module d'économie sur un serveur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -170,7 +170,7 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						fr: "Que voulez-vous faire ?",
+						fr: "Que voulez-vous faire ?"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -178,23 +178,23 @@ export const command: Command = {
 					choices: [
 						{
 							name: "Enable the module",
-							name_localizations: { fr: 'Activer' },
-							value: "on",
+							name_localizations: { fr: "Activer" },
+							value: "on"
 						},
 						{
 							name: "Disable the module",
-							name_localizations: { fr: 'Désactiver' },
-							value: "off",
-						},
+							name_localizations: { fr: "Désactiver" },
+							value: "off"
+						}
 					],
 
 					required: true,
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "leaderboard",
@@ -202,21 +202,21 @@ export const command: Command = {
 
 			description: "Get the users balance's leaderboard of the guild!",
 			description_localizations: {
-				fr: "Obtenez le classement du solde des utilisateurs du serveur",
+				fr: "Obtenez le classement du solde des utilisateurs du serveur"
 			},
 
 			aliases: ["eclb", "eco-lb", "economy-lb"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "deposit",
 
 			description: "Deposit coin in your bank!",
 			description_localizations: {
-				fr: "Déposez des pièces dans votre banque",
+				fr: "Déposez des pièces dans votre banque"
 			},
 
 			aliases: ["dep"],
@@ -227,61 +227,62 @@ export const command: Command = {
 					name: "how-much",
 					type: ApplicationCommandOptionType.String,
 
-					description: "How much coin you want to deposit in your bank?",
+					description:
+						"How much coin you want to deposit in your bank?",
 					description_localizations: {
-						fr: "Combien de pièces vous souhaitez déposer dans votre banque",
+						fr: "Combien de pièces vous souhaitez déposer dans votre banque"
 					},
 
 					required: true,
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "daily",
 
 			description: "Claim a daily reward!",
 			description_localizations: {
-				fr: "Réclamez une récompense quotidienne",
+				fr: "Réclamez une récompense quotidienne"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "monthly",
 
 			description: "Claim a monthly reward!",
 			description_localizations: {
-				fr: "Réclamez une récompense mensuelle",
+				fr: "Réclamez une récompense mensuelle"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "weekly",
 
 			description: "Claim a weekly reward!",
 			description_localizations: {
-				fr: "Réclamez une récompense hebdomadaire",
+				fr: "Réclamez une récompense hebdomadaire"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "pay",
 
 			description: "Pay a user a certain amount!",
 			description_localizations: {
-				fr: "Payer à un utilisateur un certain montant",
+				fr: "Payer à un utilisateur un certain montant"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -290,14 +291,15 @@ export const command: Command = {
 					name: "amount",
 					type: ApplicationCommandOptionType.Number,
 
-					description: "The amount of money you want to donate to them",
+					description:
+						"The amount of money you want to donate to them",
 					description_localizations: {
-						fr: "Le montant d’argent que vous souhaitez lui donner",
+						fr: "Le montant d’argent que vous souhaitez lui donner"
 					},
 
 					required: true,
 
-					permission: null,
+					permission: null
 				},
 				{
 					name: "member",
@@ -305,23 +307,23 @@ export const command: Command = {
 
 					description: "The member you want to donate the money",
 					description_localizations: {
-						fr: "Le membre à qui vous souhaitez donner de l'argent",
+						fr: "Le membre à qui vous souhaitez donner de l'argent"
 					},
 
 					required: true,
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "rob",
 
 			description: "Rob a user!",
 			description_localizations: {
-				fr: "Volé de l'argent d'un utilisateur",
+				fr: "Volé de l'argent d'un utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -332,23 +334,23 @@ export const command: Command = {
 
 					description: "the member you want to rob a money",
 					description_localizations: {
-						fr: "le membre à qui tu veux voler de l'argent",
+						fr: "le membre à qui tu veux voler de l'argent"
 					},
 
 					required: true,
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "withdraw",
 
 			description: "Withdraw coin from your bank!",
 			description_localizations: {
-				fr: "Retirer des pièces de votre banque",
+				fr: "Retirer des pièces de votre banque"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -357,30 +359,31 @@ export const command: Command = {
 					name: "how-much",
 					type: ApplicationCommandOptionType.String,
 
-					description: "How much coin you want to withdraw from your bank?",
+					description:
+						"How much coin you want to withdraw from your bank?",
 					description_localizations: {
-						fr: "Combien de pièces vous souhaitez retirer de votre banque",
+						fr: "Combien de pièces vous souhaitez retirer de votre banque"
 					},
 
 					required: true,
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "work",
 
 			description: "Claim a work reward!",
 			description_localizations: {
-				fr: "Réclamez une récompense de travail",
+				fr: "Réclamez une récompense de travail"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "role",
@@ -388,7 +391,7 @@ export const command: Command = {
 
 			description: "Set a role for a certain amount of money!",
 			description_localizations: {
-				fr: "Définir un rôle pour un certain montant d'argent",
+				fr: "Définir un rôle pour un certain montant d'argent"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -400,7 +403,7 @@ export const command: Command = {
 
 					description: "Add a role for a certain amount of money!",
 					description_localizations: {
-						fr: "Ajouter un rôle pour un certain montant d'argent",
+						fr: "Ajouter un rôle pour un certain montant d'argent"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -411,12 +414,12 @@ export const command: Command = {
 
 							description: "The role you want to add",
 							description_localizations: {
-								fr: "Le rôle que vous souhaitez ajouter",
+								fr: "Le rôle que vous souhaitez ajouter"
 							},
 
 							required: true,
 
-							permission: null,
+							permission: null
 						},
 						{
 							name: "amount",
@@ -424,16 +427,16 @@ export const command: Command = {
 
 							description: "The amount of money you want to add",
 							description_localizations: {
-								fr: "Le montant d'argent que vous souhaitez ajouter",
+								fr: "Le montant d'argent que vous souhaitez ajouter"
 							},
 
 							required: true,
 
-							permission: null,
-						},
+							permission: null
+						}
 					],
 
-					permission: PermissionFlagsBits.ManageGuild,
+					permission: PermissionFlagsBits.ManageGuild
 				},
 				{
 					name: "delete",
@@ -441,7 +444,7 @@ export const command: Command = {
 
 					description: "Delete a role for a certain amount of money!",
 					description_localizations: {
-						fr: "Supprimer un rôle pour un certain montant d'argent",
+						fr: "Supprimer un rôle pour un certain montant d'argent"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -452,16 +455,16 @@ export const command: Command = {
 
 							description: "The role you want to delete",
 							description_localizations: {
-								fr: "Le rôle que vous souhaitez supprimer",
+								fr: "Le rôle que vous souhaitez supprimer"
 							},
 
 							required: true,
 
-							permission: null,
-						},
+							permission: null
+						}
 					],
 
-					permission: PermissionFlagsBits.ManageGuild,
+					permission: PermissionFlagsBits.ManageGuild
 				},
 				{
 					name: "list",
@@ -469,16 +472,16 @@ export const command: Command = {
 
 					description: "List all roles that you can buy!",
 					description_localizations: {
-						fr: "Liste de tous les rôles que vous pouvez acheter",
+						fr: "Liste de tous les rôles que vous pouvez acheter"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
 
-					permission: PermissionFlagsBits.ManageGuild,
-				},
+					permission: PermissionFlagsBits.ManageGuild
+				}
 			],
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "boost-set",
@@ -486,7 +489,7 @@ export const command: Command = {
 
 			description: "Set a money boost for a certain role!",
 			description_localizations: {
-				fr: "Définir un boost d'argent pour un certain rôle",
+				fr: "Définir un boost d'argent pour un certain rôle"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -497,12 +500,12 @@ export const command: Command = {
 
 					description: "The role you want to modify the boost",
 					description_localizations: {
-						fr: "Le rôle que vous souhaitez modifier le boost",
+						fr: "Le rôle que vous souhaitez modifier le boost"
 					},
 
 					required: true,
 
-					permission: null,
+					permission: null
 				},
 				{
 					name: "boost",
@@ -510,44 +513,44 @@ export const command: Command = {
 
 					description: "The boost you want to add",
 					description_localizations: {
-						fr: "Le boost que vous souhaitez ajouter",
+						fr: "Le boost que vous souhaitez ajouter"
 					},
 
 					choices: [
 						{
 							name: "Default",
-							name_localizations: { fr: 'Défaut' },
-							value: "1",
+							name_localizations: { fr: "Défaut" },
+							value: "1"
 						},
 						{
 							name: "x2",
-							name_localizations: { fr: 'x2' },
-							value: "2",
+							name_localizations: { fr: "x2" },
+							value: "2"
 						},
 						{
 							name: "x3",
-							name_localizations: { fr: 'x3' },
-							value: "3",
+							name_localizations: { fr: "x3" },
+							value: "3"
 						},
 						{
 							name: "x4",
-							name_localizations: { fr: 'x4' },
-							value: "4",
+							name_localizations: { fr: "x4" },
+							value: "4"
 						},
 						{
 							name: "x5",
-							name_localizations: { fr: 'x5' },
-							value: "5",
-						},
+							name_localizations: { fr: "x5" },
+							value: "5"
+						}
 					],
 
 					required: true,
 
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: PermissionFlagsBits.ManageGuild,
+			permission: PermissionFlagsBits.ManageGuild
 		},
 		{
 			name: "manage-rewards",
@@ -555,7 +558,7 @@ export const command: Command = {
 			description:
 				"Manage how much money you can get from daily, weekly and monthly!",
 			description_localizations: {
-				fr: "Gérer combien d'argent vous pouvez obtenir quotidiennement, hebdomadairement et mensuellement",
+				fr: "Gérer combien d'argent vous pouvez obtenir quotidiennement, hebdomadairement et mensuellement"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -565,7 +568,7 @@ export const command: Command = {
 					description:
 						"Manage how much money you can get from daily, weekly and monthly!",
 					description_localizations: {
-						fr: "Gérer combien d'argent vous pouvez obtenir quotidiennement, hebdomadairement et mensuellement",
+						fr: "Gérer combien d'argent vous pouvez obtenir quotidiennement, hebdomadairement et mensuellement"
 					},
 					type: ApplicationCommandOptionType.Subcommand,
 					options: [
@@ -574,91 +577,92 @@ export const command: Command = {
 							type: ApplicationCommandOptionType.String,
 							description: "The type of reward you want to set",
 							description_localizations: {
-								fr: "Le type de récompense que vous souhaitez définir",
+								fr: "Le type de récompense que vous souhaitez définir"
 							},
 							choices: [
 								{
 									name: "Daily",
-									name_localizations: { fr: 'Quotidien' },
-									value: "daily",
+									name_localizations: { fr: "Quotidien" },
+									value: "daily"
 								},
 								{
 									name: "Weekly",
-									name_localizations: { fr: 'Hebdomadaire' },
-									value: "weekly",
+									name_localizations: { fr: "Hebdomadaire" },
+									value: "weekly"
 								},
 								{
 									name: "Monthly",
-									name_localizations: { fr: 'Mensuel' },
-									value: "monthly",
-								},
+									name_localizations: { fr: "Mensuel" },
+									value: "monthly"
+								}
 							],
 							required: true,
 
-							permission: null,
+							permission: null
 						},
 						{
 							name: "how-much",
 							type: ApplicationCommandOptionType.Number,
 							description: "How much money you want to set",
 							description_localizations: {
-								fr: "Combien d'argent vous souhaitez définir",
+								fr: "Combien d'argent vous souhaitez définir"
 							},
 							required: true,
 
-							permission: null,
-						},
+							permission: null
+						}
 					],
 
-					permission: PermissionFlagsBits.Administrator,
+					permission: PermissionFlagsBits.Administrator
 				},
 				{
 					name: "set-cooldown",
 					description: "Manage the cooldown of the actions!",
 					description_localizations: {
-						fr: "Gérer le temps de recharge des actions",
+						fr: "Gérer le temps de recharge des actions"
 					},
 					type: ApplicationCommandOptionType.Subcommand,
 					options: [
 						{
 							name: "type",
 							type: ApplicationCommandOptionType.String,
-							description: "Les actions que vous souhaitez définir",
+							description:
+								"Les actions que vous souhaitez définir",
 							description_localizations: {
-								fr: "Les actions que vous souhaitez définir",
+								fr: "Les actions que vous souhaitez définir"
 							},
 							choices: [
 								{
 									name: "Rob",
-									name_localizations: { fr: 'Voler' },
-									value: "rob",
+									name_localizations: { fr: "Voler" },
+									value: "rob"
 								},
 								{
 									name: "Work",
-									name_localizations: { fr: 'Travailler' },
-									value: "work",
-								},
+									name_localizations: { fr: "Travailler" },
+									value: "work"
+								}
 							],
 							required: true,
-							permission: null,
+							permission: null
 						},
 						{
 							name: "time",
 							type: ApplicationCommandOptionType.String,
 							description: "The time you want to set",
 							description_localizations: {
-								fr: "Le temps que vous souhaitez définir",
+								fr: "Le temps que vous souhaitez définir"
 							},
 							required: true,
-							permission: null,
-						},
+							permission: null
+						}
 					],
 
-					permission: PermissionFlagsBits.Administrator,
-				},
+					permission: PermissionFlagsBits.Administrator
+				}
 			],
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "shop",
@@ -666,12 +670,12 @@ export const command: Command = {
 
 			description: "Get the shop of the guild!",
 			description_localizations: {
-				fr: "Obtenez le magasin du serveur",
+				fr: "Obtenez le magasin du serveur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: null,
+			permission: null
 		},
 		{
 			name: "ureset",
@@ -679,7 +683,7 @@ export const command: Command = {
 
 			description: "Reset the balance of an user",
 			description_localizations: {
-				fr: "Supprimer les données économique d'un utilisateur",
+				fr: "Supprimer les données économique d'un utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -690,15 +694,15 @@ export const command: Command = {
 
 					description: "The user you want to reset the economy data",
 					description_localizations: {
-						fr: "L'utilisateur que vous voulez supprimer du module d'économie.",
+						fr: "L'utilisateur que vous voulez supprimer du module d'économie."
 					},
 
 					required: true,
-					permission: null,
-				},
+					permission: null
+				}
 			],
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "greset",
@@ -706,17 +710,16 @@ export const command: Command = {
 
 			description: "Reset the economy balance of every user in the guild",
 			description_localizations: {
-				fr: "Supprimer les données économique de tout les utilisateur",
+				fr: "Supprimer les données économique de tout les utilisateur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.Administrator,
-		},
-
+			permission: PermissionFlagsBits.Administrator
+		}
 	],
 	thinking: false,
 	category: "economy",
 	type: ApplicationCommandType.ChatInput,
-	permission: null,
+	permission: null
 };

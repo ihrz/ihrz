@@ -23,18 +23,17 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "utils",
 
 	description: "SubCommand category for utils command",
 	description_localizations: {
-		"fr": "Commande sous groupé pour la catégorie utilitaire"
+		fr: "Commande sous groupé pour la catégorie utilitaire"
 	},
 
 	options: [
@@ -43,7 +42,7 @@ export const command: Command = {
 
 			description: "Pick the avatar of a user!",
 			description_localizations: {
-				"fr": "Récuperer l'avatar d'un utilisateur"
+				fr: "Récuperer l'avatar d'un utilisateur"
 			},
 
 			aliases: ["pfp", "pp", "pic"],
@@ -51,12 +50,12 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'user',
+					name: "user",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'The user',
+					description: "The user",
 					description_localizations: {
-						"fr": "L'utilisateur"
+						fr: "L'utilisateur"
 					},
 
 					required: false,
@@ -67,11 +66,11 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'vc',
+			name: "vc",
 
-			description: 'Get the voice states of the guild!',
+			description: "Get the voice states of the guild!",
 			description_localizations: {
-				"fr": "Obtenez les états des vocaux du serveur"
+				fr: "Obtenez les états des vocaux du serveur"
 			},
 
 			options: [
@@ -80,18 +79,18 @@ export const command: Command = {
 
 					description: "Show mode (large, brief)",
 					description_localizations: {
-						"fr": "Mode d'affichage (complet, court)"
+						fr: "Mode d'affichage (complet, court)"
 					},
 
 					choices: [
 						{
 							name: "Large",
-							name_localizations: { fr: 'Complet' },
+							name_localizations: { fr: "Complet" },
 							value: "large"
 						},
 						{
 							name: "Short",
-							name_localizations: { fr: 'Court' },
+							name_localizations: { fr: "Court" },
 							value: "short"
 						}
 					],
@@ -106,29 +105,29 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageGuild
 		},
 		{
-			name: 'userinfo',
+			name: "userinfo",
 
-			description: 'Get information about a user!',
+			description: "Get information about a user!",
 			description_localizations: {
-				"fr": "Obtenir des informations sur un utilisateur"
+				fr: "Obtenir des informations sur un utilisateur"
 			},
 
 			aliases: ["ui"],
 
 			options: [
 				{
-					name: 'user',
+					name: "user",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'user you want to lookup',
+					description: "user you want to lookup",
 					description_localizations: {
-						"fr": "utilisateur que vous souhaitez rechercher"
+						fr: "utilisateur que vous souhaitez rechercher"
 					},
 
 					required: false,
 
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -136,11 +135,11 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'snipe',
+			name: "snipe",
 
-			description: 'Get the last message deleted in this channel!',
+			description: "Get the last message deleted in this channel!",
 			description_localizations: {
-				"fr": "Obtenez le dernier message supprimé sur ce cannal"
+				fr: "Obtenez le dernier message supprimé sur ce cannal"
 			},
 
 			aliases: ["s", "snp"],
@@ -150,68 +149,68 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'leash',
+			name: "leash",
 
-			description: 'Leash a member in the guild',
+			description: "Leash a member in the guild",
 			description_localizations: {
-				"fr": "Mettre en laisse un utilisateur sur le serveur"
+				fr: "Mettre en laisse un utilisateur sur le serveur"
 			},
 
 			options: [
 				{
-					name: 'member',
+					name: "member",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'member you want to leash',
+					description: "member you want to leash",
 					description_localizations: {
-						"fr": "utilisateur que vous souhaitez mettre en laisse"
+						fr: "utilisateur que vous souhaitez mettre en laisse"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'unleash',
+			name: "unleash",
 
-			description: 'UnLeash a member in the guild',
+			description: "UnLeash a member in the guild",
 			description_localizations: {
-				"fr": "Enlever la laisse à un utilisateur sur le serveur"
+				fr: "Enlever la laisse à un utilisateur sur le serveur"
 			},
 
 			options: [
 				{
-					name: 'member',
+					name: "member",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'member you want to unleash',
+					description: "member you want to unleash",
 					description_localizations: {
-						"fr": "utilisateur que vous souhaitez supprimer sa laisse"
+						fr: "utilisateur que vous souhaitez supprimer sa laisse"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'dm',
+			name: "dm",
 			name_localizations: {
-				"fr": "mp"
+				fr: "mp"
 			},
 
-			description: 'Send a private message to the user1',
+			description: "Send a private message to the user1",
 			description_localizations: {
-				"fr": "Envoyer un message privée à un utilisateur"
+				fr: "Envoyer un message privée à un utilisateur"
 			},
 
 			options: [
@@ -220,12 +219,20 @@ export const command: Command = {
 
 					description: "is private ?",
 					description_localizations: {
-						"fr": "l'autheur est-t'il anonyme ?"
+						fr: "l'autheur est-t'il anonyme ?"
 					},
 
 					choices: [
-						{ name: "Yes", name_localizations: { fr: 'Oui' }, value: "yes" },
-						{ name: "No", name_localizations: { fr: 'Non' }, value: "no" }
+						{
+							name: "Yes",
+							name_localizations: { fr: "Oui" },
+							value: "yes"
+						},
+						{
+							name: "No",
+							name_localizations: { fr: "Non" },
+							value: "no"
+						}
 					],
 					type: ApplicationCommandOptionType.String,
 					required: true,
@@ -237,7 +244,7 @@ export const command: Command = {
 
 					description: "the member you want",
 					description_localizations: {
-						"fr": "l'autheur que vous voulez"
+						fr: "l'autheur que vous voulez"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -250,14 +257,14 @@ export const command: Command = {
 
 					description: "the private message",
 					description_localizations: {
-						"fr": "le message"
+						fr: "le message"
 					},
 
 					type: ApplicationCommandOptionType.String,
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: PermissionFlagsBits.Administrator,
@@ -265,11 +272,11 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand
 		},
 		{
-			name: 'wlroles',
+			name: "wlroles",
 
-			description: 'Define allowed roles for addrole & delrole command',
+			description: "Define allowed roles for addrole & delrole command",
 			description_localizations: {
-				"fr": "Définir les rôles autorisés pour les commandes addrole et delrole"
+				fr: "Définir les rôles autorisés pour les commandes addrole et delrole"
 			},
 
 			aliases: ["wlrole"],
@@ -279,79 +286,81 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'pic-only',
+			name: "media-only",
 
-			description: 'Define channels for only picture sending (block other content)',
+			description:
+				"Define channels for only pictures/videos sending (block other content)",
 			description_localizations: {
-				"fr": "Définir des canaux pour l'envoi d'images uniquement (bloquer d'autres contenus)"
+				fr: "Définir des canaux pour l'envoi d'images/videos uniquement (bloquer d'autres contenus)"
 			},
 
-			aliases: ["piconly"],
+			aliases: ["piconly", "mediaonly"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'setmentionrole',
+			name: "setmentionrole",
 
-			description: 'Give a specific role to the user who pings me!',
+			description: "Give a specific role to the user who pings me!",
 			description_localizations: {
-				"fr": "Donner un rôle spécifique à l'utilisateur qui me ping"
+				fr: "Donner un rôle spécifique à l'utilisateur qui me ping"
 			},
 
 			aliases: ["setrank", "setranks", "rankset"],
 
 			options: [
 				{
-					name: 'action',
+					name: "action",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What you want to do?',
+					description: "What you want to do?",
 					description_localizations: {
-						"fr": "Que veux-tu faire?"
+						fr: "Que veux-tu faire?"
 					},
 
 					required: true,
 					choices: [
 						{
 							name: "Power Off",
-							name_localizations: { fr: 'Désactiver' },
+							name_localizations: { fr: "Désactiver" },
 							value: "off"
 						},
 						{
-							name: 'Power On',
-							name_localizations: { fr: 'Activer' },
+							name: "Power On",
+							name_localizations: { fr: "Activer" },
 							value: "on"
 						}
 					],
 					permission: null
 				},
 				{
-					name: 'roles',
+					name: "roles",
 					type: ApplicationCommandOptionType.Role,
 
-					description: 'The specific roles to give !',
+					description: "The specific roles to give !",
 					description_localizations: {
-						"fr": "Les rôles spécifiques à donner"
+						fr: "Les rôles spécifiques à donner"
 					},
 
 					required: false,
 					permission: null
 				},
 				{
-					name: 'part-of-nickname',
+					name: "part-of-nickname",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'La partie du surnom que vous souhaitez que la personne ait dans son surnom',
+					description:
+						"La partie du surnom que vous souhaitez que la personne ait dans son surnom",
 					description_localizations: {
-						"fr": "The part of the nickname you want the person to have in their nickname"
+						fr: "The part of the nickname you want the person to have in their nickname"
 					},
 
 					required: false,
 
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -359,11 +368,12 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'renew',
+			name: "renew",
 
-			description: 'Re-created a channels (cloning permission and all configurations). nuke equivalent',
+			description:
+				"Re-created a channels (cloning permission and all configurations). nuke equivalent",
 			description_localizations: {
-				"fr": "Recréation d'un canal (autorisation de clonage et toutes les configurations)"
+				fr: "Recréation d'un canal (autorisation de clonage et toutes les configurations)"
 			},
 
 			aliases: ["r", "rnw"],
@@ -373,29 +383,30 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageChannels
 		},
 		{
-			name: 'prevnames',
+			name: "prevnames",
 
-			description: 'Lookup an Discord User, and see this previous username !',
+			description:
+				"Lookup an Discord User, and see this previous username !",
 			description_localizations: {
-				"fr": "Recherchez un utilisateur Discord et voyez ces noms d'utilisateur précédent"
+				fr: "Recherchez un utilisateur Discord et voyez ces noms d'utilisateur précédent"
 			},
 
 			aliases: ["pvnames", "pvname", "prevname"],
 
 			options: [
 				{
-					name: 'user',
+					name: "user",
 					type: ApplicationCommandOptionType.User,
 
 					description: "L'utilisateur que vous voulez rechercher",
 					description_localizations: {
-						"fr": "user you want to see this previous username"
+						fr: "user you want to see this previous username"
 					},
 
 					required: false,
 
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -403,146 +414,34 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'nickrole',
+			name: "nickrole",
 
-			description: 'Give a roles to all user who have specified char in their username!',
+			description:
+				"Give a roles to all user who have specified char in their username!",
 			description_localizations: {
-				"fr": "Donnez un rôle à tous les utilisateurs qui ont un caractère spécifique dans leur nom d'utilisateur"
+				fr: "Donnez un rôle à tous les utilisateurs qui ont un caractère spécifique dans leur nom d'utilisateur"
 			},
 
 			options: [
 				{
-					name: 'action',
+					name: "action",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'The action you want to do',
+					description: "The action you want to do",
 					description_localizations: {
-						"fr": "L'action que vous souhaitez faire"
-					},
-
-					required: true,
-					choices: [
-						{
-							name: 'Add',
-							name_localizations: { fr: 'Ajouter' },
-							value: 'add'
-						},
-						{
-							name: 'Remove',
-							name_localizations: { fr: 'Supprimer' },
-							value: 'sub'
-						}
-					],
-
-					permission: null
-				},
-				{
-					name: 'nickname',
-					type: ApplicationCommandOptionType.String,
-
-					description: 'The part including in the nickname',
-					description_localizations: {
-						"fr": "La partie incluant dans le pseudo"
-					},
-
-					required: true,
-
-					permission: null
-				},
-				{
-					name: 'role',
-					type: ApplicationCommandOptionType.Role,
-
-					description: 'The role you want to give',
-					description_localizations: {
-						"fr": "Le rôle que vous souhaitez donner"
-					},
-
-					required: true,
-
-					permission: null
-				},
-			],
-
-			type: ApplicationCommandOptionType.Subcommand,
-
-			permission: PermissionFlagsBits.Administrator
-		},
-		{
-			name: 'massmove',
-
-			description: 'Move all members connected in a voice channel to another one',
-			description_localizations: {
-				"fr": "Déplacer tous les membres connectés dans un canal vocal vers un autre"
-			},
-
-			options: [
-				{
-					name: 'channel',
-					type: ApplicationCommandOptionType.Channel,
-
-					channel_types: [ChannelType.GuildVoice],
-
-					description: 'The voice channel to move members to',
-					description_localizations: {
-						"fr": "Le canal vocal où déplacer les membres"
-					},
-
-					required: true,
-
-					permission: null
-				},
-				{
-					name: 'from',
-					type: ApplicationCommandOptionType.Channel,
-
-					channel_types: [ChannelType.GuildVoice],
-
-					description: 'The voice channel to move members from',
-					description_localizations: {
-						"fr": "Le canal vocal d'où déplacer les membres"
-					},
-
-					required: false,
-
-					permission: null
-				},
-			],
-
-			thinking: true,
-			type: ApplicationCommandOptionType.Subcommand,
-			permission: [PermissionFlagsBits.MoveMembers, PermissionFlagsBits.ModerateMembers]
-		},
-		{
-			name: 'massiverole',
-
-			description: 'Add/Remove roles to everyone on the server',
-			description_localizations: {
-				"fr": "Ajouter/Supprimer des rôles pour tout le monde sur le serveur"
-			},
-
-			aliases: ["massrole", "massroles"],
-
-			options: [
-				{
-					name: 'action',
-					type: ApplicationCommandOptionType.String,
-
-					description: 'What you want to do?',
-					description_localizations: {
-						"fr": "Que veux-tu faire?"
+						fr: "L'action que vous souhaitez faire"
 					},
 
 					required: true,
 					choices: [
 						{
 							name: "Add",
-							name_localizations: { fr: 'Ajouter' },
+							name_localizations: { fr: "Ajouter" },
 							value: "add"
 						},
 						{
-							name: 'Remove',
-							name_localizations: { fr: 'Supprimer' },
+							name: "Remove",
+							name_localizations: { fr: "Supprimer" },
 							value: "sub"
 						}
 					],
@@ -550,12 +449,129 @@ export const command: Command = {
 					permission: null
 				},
 				{
-					name: 'role',
+					name: "nickname",
+					type: ApplicationCommandOptionType.String,
+
+					description: "The part including in the nickname",
+					description_localizations: {
+						fr: "La partie incluant dans le pseudo"
+					},
+
+					required: true,
+
+					permission: null
+				},
+				{
+					name: "role",
 					type: ApplicationCommandOptionType.Role,
 
-					description: 'The specified role you want to add',
+					description: "The role you want to give",
 					description_localizations: {
-						"fr": "Le rôle spécifié que vous souhaitez ajouter"
+						fr: "Le rôle que vous souhaitez donner"
+					},
+
+					required: true,
+
+					permission: null
+				}
+			],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: "massmove",
+
+			description:
+				"Move all members connected in a voice channel to another one",
+			description_localizations: {
+				fr: "Déplacer tous les membres connectés dans un canal vocal vers un autre"
+			},
+
+			options: [
+				{
+					name: "channel",
+					type: ApplicationCommandOptionType.Channel,
+
+					channel_types: [ChannelType.GuildVoice],
+
+					description: "The voice channel to move members to",
+					description_localizations: {
+						fr: "Le canal vocal où déplacer les membres"
+					},
+
+					required: true,
+
+					permission: null
+				},
+				{
+					name: "from",
+					type: ApplicationCommandOptionType.Channel,
+
+					channel_types: [ChannelType.GuildVoice],
+
+					description: "The voice channel to move members from",
+					description_localizations: {
+						fr: "Le canal vocal d'où déplacer les membres"
+					},
+
+					required: false,
+
+					permission: null
+				}
+			],
+
+			thinking: true,
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: [
+				PermissionFlagsBits.MoveMembers,
+				PermissionFlagsBits.ModerateMembers
+			]
+		},
+		{
+			name: "massiverole",
+
+			description: "Add/Remove roles to everyone on the server",
+			description_localizations: {
+				fr: "Ajouter/Supprimer des rôles pour tout le monde sur le serveur"
+			},
+
+			aliases: ["massrole", "massroles"],
+
+			options: [
+				{
+					name: "action",
+					type: ApplicationCommandOptionType.String,
+
+					description: "What you want to do?",
+					description_localizations: {
+						fr: "Que veux-tu faire?"
+					},
+
+					required: true,
+					choices: [
+						{
+							name: "Add",
+							name_localizations: { fr: "Ajouter" },
+							value: "add"
+						},
+						{
+							name: "Remove",
+							name_localizations: { fr: "Supprimer" },
+							value: "sub"
+						}
+					],
+
+					permission: null
+				},
+				{
+					name: "role",
+					type: ApplicationCommandOptionType.Role,
+
+					description: "The specified role you want to add",
+					description_localizations: {
+						fr: "Le rôle spécifié que vous souhaitez ajouter"
 					},
 
 					required: true,
@@ -570,11 +586,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'serverinfo',
+			name: "serverinfo",
 
-			description: 'Get information about the server!',
+			description: "Get information about the server!",
 			description_localizations: {
-				"fr": "Obtenir des informations sur le serveur"
+				fr: "Obtenir des informations sur le serveur"
 			},
 
 			aliases: ["si", "gi"],
@@ -584,29 +600,29 @@ export const command: Command = {
 			permission: null
 		},
 		{
-			name: 'emojis',
+			name: "emojis",
 
-			description: 'Add emojis to your server easly',
+			description: "Add emojis to your server easly",
 			description_localizations: {
-				"fr": "Ajoutez facilement des emojis à votre serveur"
+				fr: "Ajoutez facilement des emojis à votre serveur"
 			},
 
 			aliases: ["addemoji", "create", "addemojis", "emoji", "emote"],
 
 			options: [
 				{
-					name: 'emojis',
+					name: "emojis",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What the emoji then?',
+					description: "What the emoji then?",
 					description_localizations: {
-						"fr": "C'est quoi cette emoji alors ?"
+						fr: "C'est quoi cette emoji alors ?"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -614,23 +630,23 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageGuildExpressions
 		},
 		{
-			name: 'embed',
-			description: 'Create a beautiful embed!',
+			name: "embed",
+			description: "Create a beautiful embed!",
 			description_localizations: {
-				"fr": "Créez un magnifique embed",
+				fr: "Créez un magnifique embed"
 			},
 			options: [
 				{
-					name: 'id',
+					name: "id",
 					type: ApplicationCommandOptionType.String,
-					description: 'If you have an embed\'s ID!',
+					description: "If you have an embed's ID!",
 					description_localizations: {
-						"fr": "Si vous disposez d\'un identifiant d\'un embed précèdement enregistrer",
+						fr: "Si vous disposez d\'un identifiant d\'un embed précèdement enregistrer"
 					},
 					required: false,
 
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -638,27 +654,27 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageMessages
 		},
 		{
-			name: 'derank',
+			name: "derank",
 
-			description: 'Remove all roles of an members',
+			description: "Remove all roles of an members",
 			description_localizations: {
-				"fr": "Supprimer tous les rôles d'un membre"
+				fr: "Supprimer tous les rôles d'un membre"
 			},
 
 			options: [
 				{
-					name: 'member',
+					name: "member",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'The user',
+					description: "The user",
 					description_localizations: {
-						"fr": "l'utilisateur"
+						fr: "l'utilisateur"
 					},
 
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -666,11 +682,12 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'admin-users',
+			name: "admin-users",
 
-			description: 'Get the list of all guild member whose have admin permissions',
+			description:
+				"Get the list of all guild member whose have admin permissions",
 			description_localizations: {
-				"fr": "Obtenez la liste de tous les membres de la guilde disposant d'autorisations d'administrateur"
+				fr: "Obtenez la liste de tous les membres de la guilde disposant d'autorisations d'administrateur"
 			},
 
 			aliases: ["alladmin", "allperms", "alladmins", "adminusers"],
@@ -680,11 +697,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'allbots',
+			name: "allbots",
 
-			description: 'Get the list of all bot in the guild',
+			description: "Get the list of all bot in the guild",
 			description_localizations: {
-				"fr": "Obtenez la liste de tous les bot de la guilde"
+				fr: "Obtenez la liste de tous les bot de la guilde"
 			},
 
 			aliases: ["allb", "bots"],
@@ -699,7 +716,7 @@ export const command: Command = {
 
 			description: "Add role to user",
 			description_localizations: {
-				"fr": "Ajouter un rôle à un utilisateur"
+				fr: "Ajouter un rôle à un utilisateur"
 			},
 
 			options: [
@@ -708,7 +725,7 @@ export const command: Command = {
 
 					description: "The user you want to add role",
 					description_localizations: {
-						"fr": "L'utilisateur que vous voulez ajouter le rôle"
+						fr: "L'utilisateur que vous voulez ajouter le rôle"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -722,7 +739,7 @@ export const command: Command = {
 
 					description: "The role you want to add to the user",
 					description_localizations: {
-						"fr": "Le role que vous voulez ajouter a l'utilisateur"
+						fr: "Le role que vous voulez ajouter a l'utilisateur"
 					},
 
 					type: ApplicationCommandOptionType.Role,
@@ -730,7 +747,7 @@ export const command: Command = {
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -742,7 +759,7 @@ export const command: Command = {
 
 			description: "Removew role to user",
 			description_localizations: {
-				"fr": "Enlever un rôle à un utilisateur"
+				fr: "Enlever un rôle à un utilisateur"
 			},
 
 			options: [
@@ -751,7 +768,7 @@ export const command: Command = {
 
 					description: "The user you want to remove role",
 					description_localizations: {
-						"fr": "L'utilisateur que vous voulez enlever le rôle"
+						fr: "L'utilisateur que vous voulez enlever le rôle"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -765,7 +782,7 @@ export const command: Command = {
 
 					description: "The role you want to remove to the user",
 					description_localizations: {
-						"fr": "Le role que vous voulez enlever a l'utilisateur"
+						fr: "Le role que vous voulez enlever a l'utilisateur"
 					},
 
 					type: ApplicationCommandOptionType.Role,
@@ -773,7 +790,7 @@ export const command: Command = {
 					required: true,
 
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -781,11 +798,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageRoles
 		},
 		{
-			name: 'zip-emojis',
+			name: "zip-emojis",
 
-			description: 'Create zip files with all guild emojis in!',
+			description: "Create zip files with all guild emojis in!",
 			description_localizations: {
-				"fr": "Créer un fichier zip contenant absolument tout les émojis du serveur"
+				fr: "Créer un fichier zip contenant absolument tout les émojis du serveur"
 			},
 
 			aliases: ["zipemojis", "zip1"],
@@ -795,10 +812,10 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageGuildExpressions,
 
 			thinking: true
-		},
+		}
 	],
 
-	category: 'utils',
+	category: "utils",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
 	permission: null

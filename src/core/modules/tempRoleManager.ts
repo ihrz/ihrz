@@ -21,7 +21,10 @@
 
 import { Client, GuildMember, Role } from "discord.js";
 
-export type TempRoleSchema = Record<string, Array<{ roleId: string, time: number }>>;
+export type TempRoleSchema = Record<
+	string,
+	Array<{ roleId: string; time: number }>
+>;
 
 export class TemproleManager {
 	private client: Client;
@@ -39,7 +42,12 @@ export class TemproleManager {
 	 * @param time The duration in milliseconds
 	 * @returns true if the operation succeeded, false otherwise
 	 */
-	public async addrole(member: GuildMember, role: Role, time: number, reason?: string): Promise<boolean> {
+	public async addrole(
+		member: GuildMember,
+		role: Role,
+		time: number,
+		reason?: string
+	): Promise<boolean> {
 		try {
 			// Add the role to the member
 			await member.roles.add(role, reason);
@@ -50,7 +58,8 @@ export class TemproleManager {
 
 			// Get current data
 			const dbPath = `${guildId}.GUILD.TEMPROLE`;
-			let tempRoles: TempRoleSchema = await this.client.db.get(dbPath) || {};
+			let tempRoles: TempRoleSchema =
+				(await this.client.db.get(dbPath)) || {};
 
 			// Initialize array for this member if necessary
 			if (!tempRoles[memberId]) {
@@ -78,20 +87,26 @@ export class TemproleManager {
 	 * @param role The role to check
 	 * @returns true if the member already has this temporary role, false otherwise
 	 */
-	public async isAlreadyWithThisRole(member: GuildMember, role: Role): Promise<boolean> {
+	public async isAlreadyWithThisRole(
+		member: GuildMember,
+		role: Role
+	): Promise<boolean> {
 		try {
 			const guildId = member.guild.id;
 			const memberId = member.id;
 			const dbPath = `${guildId}.GUILD.TEMPROLE`;
 
-			const tempRoles: TempRoleSchema = await this.client.db.get(dbPath) || {};
+			const tempRoles: TempRoleSchema =
+				(await this.client.db.get(dbPath)) || {};
 
 			if (!tempRoles[memberId]) {
 				return false;
 			}
 
 			// Check if the role exists in the member's temporary roles list
-			return tempRoles[memberId].some(tempRole => tempRole.roleId === role.id);
+			return tempRoles[memberId].some(
+				(tempRole) => tempRole.roleId === role.id
+			);
 		} catch (error) {
 			return false;
 		}
@@ -103,7 +118,10 @@ export class TemproleManager {
 	 * @param role The role to remove
 	 * @returns true if the operation succeeded, false otherwise
 	 */
-	private async removerole(member: GuildMember, role: Role): Promise<boolean> {
+	private async removerole(
+		member: GuildMember,
+		role: Role
+	): Promise<boolean> {
 		try {
 			// Remove the role from the member
 			await member.roles.remove(role);
@@ -112,12 +130,13 @@ export class TemproleManager {
 			const memberId = member.id;
 			const dbPath = `${guildId}.GUILD.TEMPROLE`;
 
-			let tempRoles: TempRoleSchema = await this.client.db.get(dbPath) || {};
+			let tempRoles: TempRoleSchema =
+				(await this.client.db.get(dbPath)) || {};
 
 			if (tempRoles[memberId]) {
 				// Filter to remove the role from the list
 				tempRoles[memberId] = tempRoles[memberId].filter(
-					tempRole => tempRole.roleId !== role.id
+					(tempRole) => tempRole.roleId !== role.id
 				);
 
 				// Delete the member entry if they have no more temporary roles
@@ -145,12 +164,15 @@ export class TemproleManager {
 			// Loop through all guilds
 			for (const guild of this.client.guilds.cache.values()) {
 				const dbPath = `${guild.id}.GUILD.TEMPROLE`;
-				let tempRoles: TempRoleSchema = await this.client.db.get(dbPath) || {};
+				let tempRoles: TempRoleSchema =
+					(await this.client.db.get(dbPath)) || {};
 				let hasChanges = false;
 
 				// Loop through all members with temporary roles
 				for (const [memberId, roles] of Object.entries(tempRoles)) {
-					const member = await guild.members.fetch(memberId).catch(() => null);
+					const member = await guild.members
+						.fetch(memberId)
+						.catch(() => null);
 
 					if (!member) {
 						// The member is no longer in the server, clean up the entry
@@ -160,15 +182,18 @@ export class TemproleManager {
 					}
 
 					// Filter expired roles
-					const expiredRoles = roles.filter(tempRole => tempRole.time <= currentTime);
-					const remainingRoles = roles.filter(tempRole => tempRole.time > currentTime);
+					const expiredRoles = roles.filter(
+						(tempRole) => tempRole.time <= currentTime
+					);
+					const remainingRoles = roles.filter(
+						(tempRole) => tempRole.time > currentTime
+					);
 
 					// Remove expired roles
 					for (const expiredRole of expiredRoles) {
 						const role = guild.roles.cache.get(expiredRole.roleId);
 						if (role && member.roles.cache.has(role.id)) {
-							await member.roles.remove(role).catch(err => {
-							});
+							await member.roles.remove(role).catch((err) => {});
 						}
 					}
 
@@ -188,7 +213,7 @@ export class TemproleManager {
 				}
 			}
 		} catch (error) {
-			throw new Error(error)
+			throw new Error(error);
 		}
 	}
 

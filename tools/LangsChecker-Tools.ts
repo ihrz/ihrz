@@ -19,17 +19,23 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import logger from '../src/core/logger.js'
-import '../src/core/functions/colors.js';
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import path from 'path';
-import readline from 'readline';
-import { formatTypeScriptCode, readVSCodeConfig } from './formatter.js';
-import { LICENCE_HEADER } from './LicenceHeader.js';
+import logger from "../src/core/logger.js";
+import "../src/core/functions/colors.js";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "path";
+import readline from "readline";
+import { formatTypeScriptCode, readVSCodeConfig } from "./formatter.js";
+import { LICENCE_HEADER } from "./LicenceHeader.js";
 
 logger.legacy("[*] iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz).".gray);
-logger.legacy("[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International".gray);
-logger.legacy("[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0".gray);
+logger.legacy(
+	"[*] Warning: iHorizon Discord bot is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International"
+		.gray
+);
+logger.legacy(
+	"[*] Please respect the terms of this license. Learn more at: https://creativecommons.org/licenses/by-nc-sa/4.0"
+		.gray
+);
 
 interface TypingsFiles {
 	[key: string]: string;
@@ -40,11 +46,11 @@ function parseArgs() {
 	const result: Record<string, string> = {};
 
 	for (let i = 0; i < args.length; i++) {
-		if (args[i].startsWith('--')) {
+		if (args[i].startsWith("--")) {
 			const key = args[i].substring(2); // Remove '--' prefix
 			const value = args[i + 1];
 
-			if (value && !value.startsWith('--')) {
+			if (value && !value.startsWith("--")) {
 				result[key] = value;
 				i++; // Skip next argument since we used it as value
 			}
@@ -61,13 +67,16 @@ function generateTypeScriptType(json: any, name: string = "Root"): string {
 		}
 		const arrayType = generateTypeScriptType(json[0], `${name}Item`);
 		return `${arrayType}[]`;
-	} else if (typeof json === 'object' && json !== null) {
+	} else if (typeof json === "object" && json !== null) {
 		let typeString = `{\n`;
 		// Use Object.prototype.hasOwnProperty.call() instead of json.hasOwnProperty()
 		for (const key in json) {
 			if (Object.prototype.hasOwnProperty.call(json, key)) {
 				const value = json[key];
-				const valueType = generateTypeScriptType(value, capitalizeFirstLetter(key));
+				const valueType = generateTypeScriptType(
+					value,
+					capitalizeFirstLetter(key)
+				);
 				typeString += `  ${key}: ${valueType};\n`;
 			}
 		}
@@ -79,16 +88,16 @@ function generateTypeScriptType(json: any, name: string = "Root"): string {
 
 function getPrimitiveType(value: any): string {
 	switch (typeof value) {
-		case 'string':
-			return 'string';
-		case 'number':
-			return 'number';
-		case 'boolean':
-			return 'boolean';
-		case 'object':
-			return 'null';
+		case "string":
+			return "string";
+		case "number":
+			return "number";
+		case "boolean":
+			return "boolean";
+		case "object":
+			return "null";
 		default:
-			return 'any';
+			return "any";
 	}
 }
 
@@ -97,14 +106,17 @@ export function capitalizeFirstLetter(string: string): string {
 }
 
 function parseType(typeStr: string): any {
-	typeStr = typeStr.replace(/[\n\r]/g, '');
-	typeStr = typeStr.replace(/\s+/g, ' ');
-	if (typeStr.startsWith('{') && typeStr.endsWith('}')) {
+	typeStr = typeStr.replace(/[\n\r]/g, "");
+	typeStr = typeStr.replace(/\s+/g, " ");
+	if (typeStr.startsWith("{") && typeStr.endsWith("}")) {
 		typeStr = typeStr.slice(1, -1).trim();
 		const obj: any = {};
-		const keyValuePairs = typeStr.split(';').map(kvp => kvp.trim()).filter(kvp => kvp);
+		const keyValuePairs = typeStr
+			.split(";")
+			.map((kvp) => kvp.trim())
+			.filter((kvp) => kvp);
 		for (const kvp of keyValuePairs) {
-			const [key, value] = kvp.split(':').map(part => part.trim());
+			const [key, value] = kvp.split(":").map((part) => part.trim());
 			obj[key] = parseType(value);
 		}
 		return obj;
@@ -112,7 +124,11 @@ function parseType(typeStr: string): any {
 	return typeStr;
 }
 
-function compareParsedTypes(parsed1: any, parsed2: any, path: string = ''): string[] {
+function compareParsedTypes(
+	parsed1: any,
+	parsed2: any,
+	path: string = ""
+): string[] {
 	const differences: string[] = [];
 
 	if (typeof parsed1 !== typeof parsed2) {
@@ -120,7 +136,7 @@ function compareParsedTypes(parsed1: any, parsed2: any, path: string = ''): stri
 		return differences;
 	}
 
-	if (typeof parsed1 === 'object' && parsed1 !== null && parsed2 !== null) {
+	if (typeof parsed1 === "object" && parsed1 !== null && parsed2 !== null) {
 		const keys1 = Object.keys(parsed1);
 		const keys2 = Object.keys(parsed2);
 
@@ -129,7 +145,13 @@ function compareParsedTypes(parsed1: any, parsed2: any, path: string = ''): stri
 				differences.push(`Missing key '${key}' at ${path}`);
 				continue;
 			}
-			differences.push(...compareParsedTypes(parsed1[key], parsed2[key], `${path}.${key}`));
+			differences.push(
+				...compareParsedTypes(
+					parsed1[key],
+					parsed2[key],
+					`${path}.${key}`
+				)
+			);
 		}
 
 		for (const key of keys2) {
@@ -159,7 +181,10 @@ function generateMergedTypeString(json: any): string {
 	for (const key in json) {
 		if (Object.prototype.hasOwnProperty.call(json, key)) {
 			const value = json[key];
-			const valueType = typeof value === 'object' && value !== null ? generateMergedTypeString(value) : value;
+			const valueType =
+				typeof value === "object" && value !== null
+					? generateMergedTypeString(value)
+					: value;
 			typeString += `  ${key}: ${valueType};\n`;
 		}
 	}
@@ -181,18 +206,23 @@ function promptUser(): Promise<number> {
 		});
 
 		return new Promise((resolve) => {
-			rl.question('Choose an option:\n1. [EXIT]\n2. Create TypeScript Interface files\n3. Build combined lang.json with all languages\n', (answer) => {
-				rl.close();
-				resolve(parseInt(answer, 10));
-			});
+			rl.question(
+				"Choose an option:\n1. [EXIT]\n2. Create TypeScript Interface files\n3. Build combined lang.json with all languages\n",
+				(answer) => {
+					rl.close();
+					resolve(parseInt(answer, 10));
+				}
+			);
 		});
 	}
 }
 
 async function main() {
-	const outputPath = path.join(process.cwd(), 'types', 'languageData.d.ts');
-	const langsPath = path.join(process.cwd(), 'src', 'lang');
-	const langsContent = readdirSync(langsPath).filter(x => x.endsWith(".yml"));
+	const outputPath = path.join(process.cwd(), "types", "languageData.d.ts");
+	const langsPath = path.join(process.cwd(), "src", "lang");
+	const langsContent = readdirSync(langsPath).filter((x) =>
+		x.endsWith(".yml")
+	);
 
 	logger.legacy(`[-] Starting to check ${langsContent.length} lang files!`);
 
@@ -213,7 +243,7 @@ async function main() {
 	// Check if we have any successfully loaded files
 	const typeValues = Object.entries(TypingFiles);
 	if (typeValues.length === 0) {
-		logger.err('[x] No language files could be loaded successfully.');
+		logger.err("[x] No language files could be loaded successfully.");
 		return;
 	}
 
@@ -224,19 +254,25 @@ async function main() {
 	for (let i = 1; i < typeValues.length; i++) {
 		const [currentFile, currentType] = typeValues[i];
 		const parsedCurrentType = parseType(currentType);
-		const differences = compareParsedTypes(parsedReferenceType, parsedCurrentType, `Root`);
+		const differences = compareParsedTypes(
+			parsedReferenceType,
+			parsedCurrentType,
+			`Root`
+		);
 
 		if (differences.length > 0) {
 			allMatch = false;
-			logger.err(`[x] Mismatch found in file ${currentFile} compared to ${referenceFile}`);
-			differences.forEach(diff => logger.err(diff));
+			logger.err(
+				`[x] Mismatch found in file ${currentFile} compared to ${referenceFile}`
+			);
+			differences.forEach((diff) => logger.err(diff));
 		}
 	}
 
 	if (allMatch) {
-		logger.log('All typings are identical.');
+		logger.log("All typings are identical.");
 	} else {
-		logger.log('Some typings do not match.');
+		logger.log("Some typings do not match.");
 	}
 
 	const userChoice = await promptUser();
@@ -252,17 +288,31 @@ async function main() {
 		let interfaceContent = LICENCE_HEADER + "\n\n";
 
 		interfaceContent += `export interface LanguageData ${mergedType}`;
-		writeFileSync(outputPath, formatTypeScriptCode(interfaceContent, readVSCodeConfig(path.join(process.cwd(), ".vscode", "settings.json"))), 'utf-8');
+		writeFileSync(
+			outputPath,
+			formatTypeScriptCode(
+				interfaceContent,
+				readVSCodeConfig(
+					path.join(process.cwd(), ".vscode", "settings.json")
+				)
+			),
+			"utf-8"
+		);
 		logger.log(`[+] TypeScript definition file created: ${outputPath}`);
 	} else if (userChoice === 3) {
 		// Build combined lang.json with all languages
-		const langJsonPath = path.join(process.cwd(), 'src', 'lang', 'lang.json');
+		const langJsonPath = path.join(
+			process.cwd(),
+			"src",
+			"lang",
+			"lang.json"
+		);
 		const langsData: Record<string, any> = {};
 
 		// Load all language data from YAML files
 		for (const langFile of langsContent) {
 			try {
-				const langCode = langFile.replace('.yml', '');
+				const langCode = langFile.replace(".yml", "");
 				const langData = await import(path.join(langsPath, langFile));
 				// Handle cases where the import might return a module with a default export
 				const actualData = langData.default || langData;
@@ -274,7 +324,11 @@ async function main() {
 		}
 
 		// Write the combined JSON file
-		writeFileSync(langJsonPath, JSON.stringify(langsData, null, 2), 'utf-8');
+		writeFileSync(
+			langJsonPath,
+			JSON.stringify(langsData, null, 2),
+			"utf-8"
+		);
 		logger.log(`[+] Combined language file created: ${langJsonPath}`);
 	}
 }

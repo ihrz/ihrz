@@ -32,49 +32,129 @@ interface LavalinkNodeOptions {
 }
 
 export interface ConfigData {
+	/**
+	 * @description Discord part for the configuration
+	 * @description Check https://docs.ihorizon.org/self-hosting/configuration/
+	 */
 	discord: {
+		/**
+		 * @description The authorization token of your bot token
+		 */
 		token: string;
+		/**
+		 * @description Trick the discord.js gateway websocket device propeties.
+		 * @default false
+		 */
 		phonePresence: boolean;
+		/**
+		 * @description if true, the default bot prefix command will be the mention itself
+		 */
 		messageCommandsMention?: boolean;
+		/**
+		 * @description this settings is only when the 'messageCommandsMention' properties is set to false. This properties is for the default bot prefix.
+		 */
 		defaultMessageCommandsPrefix?: string;
 	};
 
-	lavalink: any
+	/**
+	 * @description Use lavalink for music playback.
+	 * @description Check https://lavalink.dev/
+	 */
+	lavalink: {
+		/**
+		 * @description Check https://tomato6966.github.io/lavalink-client/home/configuration/
+		 */
+		nodes: LavalinkNodeOptions[];
+	};
 
+	/**
+	 * @description core properties
+	 */
 	core: {
+		/**
+		 * @description will show error in the console
+		 */
 		devMode: boolean;
 		/**
 		 * @deprecated
 		 */
 		bash?: boolean;
+		/**
+		 * @description image url for blacklist
+		 */
 		blacklistPictureInEmbed: string;
-		guildLogsChannelID?: string;
-		reportChannelID?: string;
-
-		cluster?: string[];
-
-		shutdownClusterWhenStop?: boolean;
+		/**
+		 * @description channel id where the bot will log new guild/guild leave
+		 */
+		guildLogsChannelID: string;
+		/**
+		 * @description channel id where the will send error (in production)
+		 */
+		reportChannelID: string;
+		/**
+		 * @description channel id where the bot will send music playback error
+		 */
+		lavalinkLogsChannelID?: string;
 	};
 
 	command: {
-		alway100: string[]
+		/**
+		 * @example ["{ID ONE}X{ID TWO}"]
+		 * @description in the /fun love command, they will be 100% everytime
+		 */
+		always100: string[];
 	};
 
 	owners: {
+		/**
+		 * @description owner of the bot. can eval code, blacklist, unblacklist, bypass some permission check
+		 */
 		users: string[];
 	};
 
 	api: {
-		HorizonGateway?: string; // only for the production phase (private source code)
+		/**
+		 * @default "https://gateway.ihorizon.org"
+		 * @description The Horizon's Gateway URL. This thing is only in production phase. btw HorizonGW is private-source.
+		 */
+		HorizonGateway?: string;
+		/**
+		 * @deprecated not used anymore in the codebase
+		 */
 		useHttps?: boolean;
+		/**
+		 * @deprecated not used anymore in the codebase
+		 */
 		domain?: string;
+		/**
+		 * @deprecated not used anymore in the codebase
+		 */
 		port?: string;
+		/**
+		 * @deprecated not used anymore in the codebase
+		 */
 		useProxy?: boolean;
+		/**
+		 * @deprecated not used anymore in the codebase
+		 */
 		proxyUrl?: string;
+
 		apiToken: string;
-		clientSecret?: string;
-		oauth2Link?: string;
+		/**
+		 * @deprecated not used anymore in the codebase
+		 */
 		clientID?: string;
+	};
+
+	lastfm?: {
+		/**
+		 * @description The Last.fm application API key used for scrobbling requests.
+		 */
+		apiKey: string;
+		/**
+		 * @description The Last.fm application shared secret used to sign requests.
+		 */
+		sharedSecret: string;
 	};
 
 	console: {
@@ -83,27 +163,26 @@ export interface ConfigData {
 			ERROR: string;
 			HOST: string;
 			KISA: string;
-			LOAD: string
-		}
+			LOAD: string;
+		};
 	};
 
 	database?: {
-		method:
-		'json'
-		| 'sqlite'
-		| 'memory'
-		| 'postgresql'
-		| 'horizon'
-		| 'cached_postgres';
+		/**
+		 * @description use the good driver for your environnement
+		 */
+		method: "json" | "sqlite" | "memory" | "postgresql" | "cached_postgres";
 
-		mySQL?: MySQL[]
+		mySQL?: MySQL[];
 
+		/**
+		 * @description private technology for iHorizon production
+		 */
 		horizon_db?: {
 			host: string;
 			port: number;
 			login: string;
 			password: string;
-		}
+		};
 	};
-
 }

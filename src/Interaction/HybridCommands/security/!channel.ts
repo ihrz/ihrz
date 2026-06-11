@@ -19,32 +19,41 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const channel = interaction.options.getChannel("id");
 
-		await client.db.set(`${interaction.guildId}.SECURITY.channel`, channel?.id);
+		await client.db.set(
+			`${interaction.guildId}.SECURITY.channel`,
+			channel?.id
+		);
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.security_channel_command_work
-				.replace('${interaction.user}', interaction.user.toString())
-				.replace('${channel}', channel as unknown as string)
+				.replace("${interaction.user}", interaction.user.toString())
+				.replace("${channel}", channel as unknown as string)
 		});
 
 		return;
-	},
+	}
 };

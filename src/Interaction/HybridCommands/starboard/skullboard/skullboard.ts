@@ -23,11 +23,11 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
-import { Command } from '../../../../../types/command.js';
+import { LanguageData } from "../../../../../types/languageData.js";
+import { Command } from "../../../../../types/command.js";
 
 export const command: Command = {
 	name: "skullboard",
@@ -49,7 +49,7 @@ export const command: Command = {
 
 			description: "Enable or disable the module",
 			description_localizations: {
-				"fr": "désactiver ou activer le module"
+				fr: "désactiver ou activer le module"
 			},
 
 			options: [
@@ -58,18 +58,18 @@ export const command: Command = {
 
 					description: "What you want to do ?",
 					description_localizations: {
-						"fr": "que voulez-vous faire?"
+						fr: "que voulez-vous faire?"
 					},
 
 					choices: [
 						{
 							name: "Power On",
-							name_localizations: { fr: 'Activer' },
+							name_localizations: { fr: "Activer" },
 							value: "on"
 						},
 						{
 							name: "Power Off",
-							name_localizations: { fr: 'Désactiver' },
+							name_localizations: { fr: "Désactiver" },
 							value: "off"
 						}
 					],
@@ -78,52 +78,57 @@ export const command: Command = {
 					type: ApplicationCommandOptionType.String,
 
 					permission: null
-				},
+				}
 			],
 
 			permission: [PermissionFlagsBits.Administrator],
 
-			type: ApplicationCommandOptionType.Subcommand,
+			type: ApplicationCommandOptionType.Subcommand
 		},
 		{
 			name: "channel",
 			prefixName: "skullboardchannel",
 
-			description: "Change the channel which are send the most skulled messages",
+			description:
+				"Change the channel which are send the most skulled messages",
 			description_localizations: {
-				"fr": "Changer le salon où sont envoyer les messages avec le plus de crâne."
+				fr: "Changer le salon où sont envoyer les messages avec le plus de crâne."
 			},
 
 			options: [
 				{
 					name: "to",
 
-					description: 'the channel you want',
+					description: "the channel you want",
 					description_localizations: {
-						"fr": "Le salon que vous souhaitez"
+						fr: "Le salon que vous souhaitez"
 					},
 
 					permission: null,
 					required: true,
-					channel_types: [ChannelType.GuildText, ChannelType.GuildAnnouncement],
+					channel_types: [
+						ChannelType.GuildText,
+						ChannelType.GuildAnnouncement
+					],
 
 					type: ApplicationCommandOptionType.Channel
 				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
-			permission: [PermissionFlagsBits.Administrator],
+			permission: [PermissionFlagsBits.Administrator]
 		},
 		{
 			name: "threshold",
 			name_localizations: {
-				"fr": "seuil"
+				fr: "seuil"
 			},
 			prefixName: "skullboardthreshold",
 
-			description: "Set skull threshold needed for being referenced into the channel",
+			description:
+				"Set skull threshold needed for being referenced into the channel",
 			description_localizations: {
-				"fr": "Définissez le seuil de crâne nécessaire pour être référencé dans le canal."
+				fr: "Définissez le seuil de crâne nécessaire pour être référencé dans le canal."
 			},
 
 			options: [
@@ -132,12 +137,12 @@ export const command: Command = {
 
 					description: "the threshold",
 					description_localizations: {
-						"fr": "Le seuil/pallier"
+						fr: "Le seuil/pallier"
 					},
 
 					type: ApplicationCommandOptionType.Number,
 					required: true,
-					permission: null,
+					permission: null
 				}
 			],
 
@@ -148,9 +153,10 @@ export const command: Command = {
 			name: "create-thread",
 			prefixName: "skullboardthread",
 
-			description: "Create a thread bellow the message into the skull channel ?",
+			description:
+				"Create a thread bellow the message into the skull channel ?",
 			description_localizations: {
-				"fr": "Créer un fil de discussion en dessous du message dans le canal ?"
+				fr: "Créer un fil de discussion en dessous du message dans le canal ?"
 			},
 
 			options: [
@@ -159,12 +165,20 @@ export const command: Command = {
 
 					description: "What you want to do?",
 					description_localizations: {
-						"fr": "que voulez-vous faire?"
+						fr: "que voulez-vous faire?"
 					},
 
 					choices: [
-						{ name: "Create thread", name_localizations: { fr: 'Créer un fil' }, value: "yes" },
-						{ name: "Don't create thread", name_localizations: { fr: 'Ne pas créer un fil' }, value: "no" }
+						{
+							name: "Create thread",
+							name_localizations: { fr: "Créer un fil" },
+							value: "yes"
+						},
+						{
+							name: "Don't create thread",
+							name_localizations: { fr: "Ne pas créer un fil" },
+							value: "no"
+						}
 					],
 
 					type: ApplicationCommandOptionType.String,

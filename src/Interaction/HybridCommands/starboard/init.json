@@ -4,7 +4,7 @@
 		"categoryColor": "#258bd9",
 		"options": {
 			"description": "help_starboard_dsc",
-			"emoji": "⭐",
+			"emoji": "${client.iHorizon_Emojis.Starboard}",
 			"placeholder": "help_starboard_fields"
 		}
 	}

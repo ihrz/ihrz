@@ -19,52 +19,86 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, EmbedBuilder, GuildMember, TextChannel } from 'discord.js'
+import { Client, EmbedBuilder, GuildMember, TextChannel } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
 	run: async (client: Client, member: GuildMember) => {
-
-		const fetch = await client.db.get(`${member.guild.id}.TICKET_ALL.${member.user.id}`);
+		const fetch = await client.db.get(
+			`${member.guild.id}.TICKET_ALL.${member.user.id}`
+		);
 
 		for (const channelId in fetch) {
 			const lang = await client.func.getLanguageData(member.guild.id);
-			const channel = member.guild.channels.cache.get(fetch[channelId].channel);
+			const channel = member.guild.channels.cache.get(
+				fetch[channelId].channel
+			);
 
 			try {
-				let TicketLogsChannel = await client.db.get(`${member.guild.id}.GUILD.TICKET.logs`);
-				TicketLogsChannel = member.guild?.channels.cache.get(TicketLogsChannel);
+				let TicketLogsChannel = await client.db.get(
+					`${member.guild.id}.GUILD.TICKET.logs`
+				);
+				TicketLogsChannel =
+					member.guild?.channels.cache.get(TicketLogsChannel);
 				if (!TicketLogsChannel) return;
 
-				const attachment = await client.discordTranscripts.createTranscript(channel as TextChannel, {
-					limit: -1,
-					filename: `${member.guild.id}-transcript.html`,
-					footerText: "Exported {number} message{s}",
-					poweredBy: false,
-					hydrate: true
-				});
+				const attachment =
+					await client.discordTranscripts.createTranscript(
+						channel as TextChannel,
+						{
+							limit: -1,
+							filename: `${member.guild.id}-transcript.html`,
+							footerText: "Exported {number} message{s}",
+							poweredBy: false,
+							hydrate: true
+						}
+					);
 
-				let embed = new EmbedBuilder()
-					.setColor(await client.db.get(`${member.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#008000")
-					.setTitle(lang.event_ticket_logsChannel_onDelete_embed_title)
-					.setDescription(lang.event_ticket_logsChannel_onDelete_embed_desc
-						.replace('${interaction.user}', member.user.toString())
-						.replace('${interaction.channel.name}', channel?.name!)
+				const embed = new EmbedBuilder()
+					.setColor(
+						(await client.db.get(
+							`${member.guild?.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`
+						)) || "#008000"
 					)
-					.setFooter(await client.func.displayBotName.footerBuilder(member.guild.id))
+					.setTitle(
+						lang.event_ticket_logsChannel_onDelete_embed_title
+					)
+					.setDescription(
+						lang.event_ticket_logsChannel_onDelete_embed_desc
+							.replace(
+								"${interaction.user}",
+								member.user.toString()
+							)
+							.replace(
+								"${interaction.channel.name}",
+								channel?.name!
+							)
+					)
+					.setFooter(
+						await client.func.displayBotName.footerBuilder(
+							member.guild.id
+						)
+					)
 					.setTimestamp();
 
 				TicketLogsChannel.send({
 					embeds: [embed],
-					files: [await client.func.displayBotName.footerAttachmentBuilder(member), attachment]
+					files: [
+						await client.func.displayBotName.footerAttachmentBuilder(
+							member
+						),
+						attachment
+					]
 				});
 
-				await channel?.delete().catch(() => { });
-			} catch (e) { };
+				await channel?.delete().catch(() => {});
+			} catch (e) {}
 
-			await client.db.delete(`${member.guild.id}.TICKET_ALL.${member.user.id}`)
-		};
-	},
+			await client.db.delete(
+				`${member.guild.id}.TICKET_ALL.${member.user.id}`
+			);
+		}
+	}
 };

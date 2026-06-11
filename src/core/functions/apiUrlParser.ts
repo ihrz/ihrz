@@ -31,8 +31,9 @@ export enum GatewayMethod {
 	ServerBackup = 6,
 	SecureWebhook = 7,
 	CreateCustomVanity = 8,
-};
+	ImageGeneration = 9
+}
 
 export function assetsFinder(body: Assets, type: string): string {
 	return `https://gitlab.com/ihrz/assets/-/raw/main/${type}/${Math.floor(Math.random() * body[type])}.gif?ref_type=heads`;
-};
+}

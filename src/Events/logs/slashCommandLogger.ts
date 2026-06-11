@@ -19,12 +19,19 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, CommandInteractionOptionResolver, Interaction, ChatInputCommandInteraction, BaseGuildTextChannel } from 'discord.js';
-import { promises as fs } from 'node:fs';
-import path from 'path';
-import { BotEvent } from '../../../types/event.js';
-import { ParsedSavedCommand } from '../../core/converters/slashLog.js';
-import logger from '../../core/logger.js';
+import {
+	Client,
+	CommandInteractionOptionResolver,
+	Interaction,
+	ChatInputCommandInteraction,
+	BaseGuildTextChannel
+} from "discord.js";
+import { promises as fs } from "node:fs";
+import path from "path";
+import { BotEvent } from "../../../types/event.js";
+import { ParsedSavedCommand } from "../../core/converters/slashLog.js";
+import logger from "../../core/logger.js";
+import { sanitizeInteractionOptionValue } from "../../core/functions/sanitizeInteractionOptionValue.js";
 
 /**
  * Safe JSON logger that handles concurrent writes without blocking the event loop
@@ -49,16 +56,16 @@ class SafeJSONLogger {
 		try {
 			await fs.access(this.logPath);
 			// Check if file is valid JSON
-			const content = await fs.readFile(this.logPath, 'utf-8');
-			if (content.trim() === '') {
-				await fs.writeFile(this.logPath, '[]', 'utf-8');
+			const content = await fs.readFile(this.logPath, "utf-8");
+			if (content.trim() === "") {
+				await fs.writeFile(this.logPath, "[]", "utf-8");
 			} else {
 				JSON.parse(content); // Validate JSON
 			}
 		} catch (error) {
 			// File doesn't exist or is invalid, create it
 			await fs.mkdir(path.dirname(this.logPath), { recursive: true });
-			await fs.writeFile(this.logPath, '[]', 'utf-8');
+			await fs.writeFile(this.logPath, "[]", "utf-8");
 		}
 	}
 
@@ -105,7 +112,7 @@ class SafeJSONLogger {
 		try {
 			await this.writeCommandsToFile(commandsToWrite);
 		} catch (error) {
-			console.error('Error writing commands to log file:', error);
+			console.error("Error writing commands to log file:", error);
 			// Re-add commands to queue on error
 			this.writeQueue.unshift(...commandsToWrite);
 		} finally {
@@ -124,16 +131,21 @@ class SafeJSONLogger {
 	 * Write commands to file safely
 	 * @param commands - Commands to write
 	 */
-	private async writeCommandsToFile(commands: ParsedSavedCommand[]): Promise<void> {
+	private async writeCommandsToFile(
+		commands: ParsedSavedCommand[]
+	): Promise<void> {
 		let existingData: ParsedSavedCommand[] = [];
 
 		try {
-			const fileContent = await fs.readFile(this.logPath, 'utf-8');
+			const fileContent = await fs.readFile(this.logPath, "utf-8");
 			if (fileContent.trim()) {
 				existingData = JSON.parse(fileContent);
 			}
 		} catch (error) {
-			console.warn('Could not read existing log file, starting fresh:', error);
+			console.warn(
+				"Could not read existing log file, starting fresh:",
+				error
+			);
 			existingData = [];
 		}
 
@@ -146,38 +158,46 @@ class SafeJSONLogger {
 		}
 
 		// Write atomically
-		const tempPath = this.logPath + '.tmp';
-		await fs.writeFile(tempPath, JSON.stringify(existingData, null, 2), 'utf-8');
+		const tempPath = this.logPath + ".tmp";
+		await fs.writeFile(
+			tempPath,
+			JSON.stringify(existingData, null, 2),
+			"utf-8"
+		);
 		await fs.rename(tempPath, this.logPath);
 	}
 
-	/**
-	 * Force flush all pending commands (useful for graceful shutdown)
-	 */
 	public async forceFlush(): Promise<void> {
 		if (this.writeTimer) {
 			clearTimeout(this.writeTimer);
 			this.writeTimer = null;
 		}
 
-		while (this.writeQueue.length > 0 || this.isWriting) {
+		for (
+			let attempts = 0;
+			attempts < 100 && (this.writeQueue.length > 0 || this.isWriting);
+			attempts++
+		) {
 			await this.flushQueue();
-			// Small delay to prevent busy waiting
-			await new Promise(resolve => setTimeout(resolve, 10));
+			if (this.writeQueue.length > 0 || this.isWriting) {
+				await new Promise((resolve) => setTimeout(resolve, 10));
+			}
 		}
 	}
 }
 
-export const loggerX = new SafeJSONLogger(path.join(process.cwd(), 'src', 'files', 'slash.log.json'));
+export const loggerX = new SafeJSONLogger(
+	path.join(process.cwd(), "src", "files", "slash.log.json")
+);
 
-process.on('SIGINT', async () => {
-	logger.log('Flushing command logs before shutdown...');
+process.on("SIGINT", async () => {
+	logger.log("Flushing command logs before shutdown...");
 	await loggerX.forceFlush();
 	process.exit(0);
 });
 
-process.on('SIGTERM', async () => {
-	logger.log('Flushing command logs before shutdown...');
+process.on("SIGTERM", async () => {
+	logger.log("Flushing command logs before shutdown...");
 	await loggerX.forceFlush();
 	process.exit(0);
 });
@@ -185,22 +205,48 @@ process.on('SIGTERM', async () => {
 export const event: BotEvent = {
 	name: "interactionCreate",
 	run: async (client: Client, interaction: Interaction) => {
+		if (
+			!interaction.isCommand() ||
+			!interaction.guild?.channels ||
+			interaction.user.bot
+		)
+			return;
 
-		if (!interaction.isCommand()
-			|| !interaction.guild?.channels
-			|| interaction.user.bot) return;
+		const optionsList: string[] = (
+			(interaction as ChatInputCommandInteraction)
+				.options as CommandInteractionOptionResolver
+		)["_hoistedOptions"].map(
+			(element) =>
+				`${element.name}:"${sanitizeInteractionOptionValue(element.name, element.value)}"`
+		);
+		let subCmd: string = "";
 
-		const optionsList: string[] = ((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver)["_hoistedOptions"].map(element => `${element.name}:"${element.value}"`)
-		let subCmd: string = '';
-
-		if (((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver)["_subcommand"]) {
-			if (((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver).getSubcommandGroup()) subCmd += ((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver).getSubcommandGroup()! + " ";
-			subCmd += ((interaction as ChatInputCommandInteraction).options as CommandInteractionOptionResolver).getSubcommand()
-		};
+		if (
+			(
+				(interaction as ChatInputCommandInteraction)
+					.options as CommandInteractionOptionResolver
+			)["_subcommand"]
+		) {
+			if (
+				(
+					(interaction as ChatInputCommandInteraction)
+						.options as CommandInteractionOptionResolver
+				).getSubcommandGroup()
+			)
+				subCmd +=
+					(
+						(interaction as ChatInputCommandInteraction)
+							.options as CommandInteractionOptionResolver
+					).getSubcommandGroup()! + " ";
+			subCmd += (
+				(interaction as ChatInputCommandInteraction)
+					.options as CommandInteractionOptionResolver
+			).getSubcommand();
+		}
 
 		const commandLog: ParsedSavedCommand = {
 			channelName: (interaction.channel as BaseGuildTextChannel).name,
-			command: `/${subCmd} ${optionsList?.join(' ')}`.trim(),
+			command: `/${subCmd} ${optionsList?.join(" ")}`.trim(),
 			executorUsername: interaction.user.username,
 			guildName: interaction.guild.name,
 			guildId: interaction.guildId!,
@@ -209,5 +255,5 @@ export const event: BotEvent = {
 		};
 
 		loggerX.addCommand(commandLog);
-	},
+	}
 };

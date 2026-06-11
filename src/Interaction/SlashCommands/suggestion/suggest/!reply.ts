@@ -24,80 +24,124 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
+} from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const id = interaction.options.getString("id");
 		const message = interaction.options.getString("message");
 
 		const baseData = await client.db.get(`${interaction.guildId}.SUGGEST`);
-		const fetchId = await client.db.get(`${interaction.guildId}.SUGGESTION.${id}`);
+		const fetchId = await client.db.get(
+			`${interaction.guildId}.SUGGESTION.${id}`
+		);
 
-		if (!baseData
-			|| baseData?.channel !== interaction.channel?.id
-			|| baseData?.disable === true) {
+		if (
+			!baseData ||
+			baseData?.channel !== interaction.channel?.id ||
+			baseData?.disable === true
+		) {
 			await interaction.editReply({
-				content: lang.suggest_reply_not_good_channel
-					.replace('${baseData?.channel}', baseData?.channel),
+				content: lang.suggest_reply_not_good_channel.replace(
+					"${baseData?.channel}",
+					baseData?.channel
+				),
 				flags: [1 << 6]
 			});
 
 			return;
-		};
+		}
 
 		if (!fetchId) {
-			await interaction.editReply({ content: lang.suggest_replynot_found_db, flags: [1 << 6] });
+			await interaction.editReply({
+				content: lang.suggest_replynot_found_db,
+				flags: [1 << 6]
+			});
 			return;
 		} else if (fetchId.replied) {
-			await interaction.editReply({ content: lang.suggest_reply_already_replied, flags: [1 << 6] });
+			await interaction.editReply({
+				content: lang.suggest_reply_already_replied,
+				flags: [1 << 6]
+			});
 			return;
-		};
+		}
 
 		const channel = interaction.guild.channels.cache.get(baseData?.channel);
 
-		await (channel as BaseGuildTextChannel).messages.fetch(fetchId?.msgId).then(async (msg) => {
+		await (channel as BaseGuildTextChannel).messages
+			.fetch(fetchId?.msgId)
+			.then(async (msg) => {
+				const embed = new EmbedBuilder(msg.embeds[0].data);
 
-			const embed = new EmbedBuilder(msg.embeds[0].data);
+				embed.addFields({
+					name: lang.suggest_reply_embed_fields_to_put.replace(
+						"${interaction.user.username}",
+						interaction.user.globalName as string
+					),
+					value: message as string
+				});
 
-			embed.addFields({
-				name: lang.suggest_reply_embed_fields_to_put
-					.replace('${interaction.user.username}', interaction.user.globalName as string),
-				value: message as string
+				embed.setColor("#8afe46");
+				embed.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				);
+				embed.setTitle(
+					lang.suggest_reply_embed_title_to_put.replace(
+						"${msg.embeds[0].data?.title}",
+						msg.embeds[0].data?.title as string
+					)
+				);
+
+				await msg.edit({ embeds: [embed] });
+				await client.db.set(
+					`${interaction.guildId}.SUGGESTION.${id}.replied`,
+					true
+				);
+
+				await interaction.editReply({
+					content: lang.suggest_reply_command_work
+						.replace(
+							"${interaction.guild.id}",
+							interaction.guildId as string
+						)
+						.replace(
+							"${interaction.channel.id}",
+							interaction.channel?.id as string
+						)
+						.replace("${fetchId?.msgId}", fetchId?.msgId),
+					flags: [1 << 6]
+				});
+
+				msg.thread?.setLocked(true);
+
+				return;
+			})
+			.catch(async () => {
+				await interaction.editReply({
+					content: lang.suggest_reply_command_error,
+					flags: [1 << 6]
+				});
+				return;
 			});
-
-			embed.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#8afe46');
-			embed.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
-			embed.setTitle(lang.suggest_reply_embed_title_to_put
-				.replace('${msg.embeds[0].data?.title}', msg.embeds[0].data?.title as string)
-			);
-
-			await msg.edit({ embeds: [embed] });
-			await client.db.set(`${interaction.guildId}.SUGGESTION.${id}.replied`, true);
-
-			await interaction.editReply({
-				content: lang.suggest_reply_command_work
-					.replace('${interaction.guild.id}', interaction.guildId as string)
-					.replace('${interaction.channel.id}', interaction.channel?.id as string)
-					.replace('${fetchId?.msgId}', fetchId?.msgId),
-				flags: [1 << 6]
-			});
-
-			msg.thread?.setLocked(true);
-
-			return;
-		}).catch(async () => {
-			await interaction.editReply({ content: lang.suggest_reply_command_error, flags: [1 << 6] });
-			return;
-		});
-	},
+	}
 };

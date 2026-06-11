@@ -19,23 +19,30 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client } from 'discord.js';
+import { Client } from "discord.js";
 
-import { fileURLToPath } from 'url';
-import path from 'path';
-import { readdir } from 'node:fs/promises';
+import { fileURLToPath } from "url";
+import path from "path";
+import { readdir } from "node:fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default async (client: Client) => {
-
 	const loadCommands = async (commandType: string) => {
-		const commandPath = path.join(__dirname, '..', '..', 'Interaction', commandType + 'ApplicationCommands');
+		const commandPath = path.join(
+			__dirname,
+			"..",
+			"..",
+			"Interaction",
+			commandType + "ApplicationCommands"
+		);
 
 		const files = await readdir(commandPath);
 
-		for (const file of files.filter((file: string) => file.endsWith('.ts'))) {
+		for (const file of files.filter((file: string) =>
+			file.endsWith(".ts")
+		)) {
 			const { command } = await import(`${commandPath}/${file}`);
 
 			client.applicationsCommands.set(command.name, {
@@ -51,8 +58,8 @@ export default async (client: Client) => {
 	};
 
 	/**  Load MessageApplicationCommands */
-	await loadCommands('Message');
+	await loadCommands("Message");
 
 	/**  Load UserApplicationCommands */
-	await loadCommands('User');
+	await loadCommands("User");
 };

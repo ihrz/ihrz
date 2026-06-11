@@ -25,97 +25,160 @@ import {
 	ChatInputCommandInteraction,
 	ApplicationCommandType,
 	Message
-} from 'discord.js'
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
 export const command: Command = {
-	name: 'unowner',
+	name: "unowner",
 
-	description: 'The member who wants to delete of the owner list (Only Owner of ihorizon)!',
+	description:
+		"The member who wants to delete of the owner list (Only Owner of ihorizon)!",
 	description_localizations: {
-		"fr": "Le membre que vous souhaitez supprimer de la liste des propriétaires (uniquement pour les dev)"
+		fr: "Le membre que vous souhaitez supprimer de la liste des propriétaires (uniquement pour les dev)"
 	},
 
 	options: [
 		{
-			name: 'member',
+			name: "member",
 			type: ApplicationCommandOptionType.User,
 
-			description: 'The member who wants to delete of the owner list',
+			description: "The member who wants to delete of the owner list",
 			description_localizations: {
-				"fr": "Le membre que vous souhaitez supprimer de la liste des propriétaires"
+				fr: "Le membre que vous souhaitez supprimer de la liste des propriétaires"
 			},
 
 			required: true,
 
 			permission: null
-		},
+		}
 	],
 	thinking: false,
-	category: 'owner',
+	category: "owner",
 	type: ApplicationCommandType.ChatInput,
 	permission: null,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-		if (await client.func.ownerHelper.isBotOwner(interaction.member?.user.id!)) {
-			run_for_bot_owner(client, interaction, lang, args)
-		} else {
-			run_for_guild_owner(client, interaction, lang, args)
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			await client.func.ownerHelper.isBotOwner(
+				interaction.member?.user.id!
+			)
+		) {
+			run_for_bot_owner(client, interaction, lang, args);
+		} else if (
+			await client.func.ownerHelper.isGuildOwner(
+				interaction.member?.user.id!,
+				interaction.guild!
+			)
+		) {
+			run_for_guild_owner(client, interaction, lang, args);
 		}
-	},
+	}
 };
 
-
-export async function run_for_bot_owner(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) {
+export async function run_for_bot_owner(
+	client: Client,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData,
+	args?: string[]
+) {
 	// Guard's Typing
-	if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-	if (!(await client.func.ownerHelper.isBotOwner(interaction.member.user.id!))) {
-		await client.func.method.interactionSend(interaction, { content: lang.unowner_not_owner });
+	if (
+		!client.user ||
+		!interaction.member ||
+		!interaction.guild ||
+		!interaction.channel
+	)
 		return;
-	};
+
+	if (
+		!(await client.func.ownerHelper.isBotOwner(interaction.member.user.id!))
+	) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unowner_not_owner
+		});
+		return;
+	}
 
 	if (interaction instanceof ChatInputCommandInteraction) {
-		var member = interaction.options.getUser('member');
+		var member = interaction.options.getUser("member");
 	} else {
 		var member = await client.func.method.user(interaction, args!, 0);
-	};
+	}
 
 	if (client.func.ownerHelper.isBotDev(member?.id!)) {
-		await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unowner_cant_unowner_creator
+		});
 		return;
-	};
+	}
 
 	await client.func.ownerHelper.removeBotOwner(member?.id!);
 
-	await client.func.method.interactionSend(interaction, { content: lang.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
+	await client.func.method.interactionSend(interaction, {
+		content: lang.unowner_command_work.replace(
+			/\${member\.username}/g,
+			member?.username!
+		)
+	});
 	return;
 }
 
-export async function run_for_guild_owner(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) {
+export async function run_for_guild_owner(
+	client: Client,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData,
+	args?: string[]
+) {
 	// Guard's Typing
-	if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-	if (!(await client.func.ownerHelper.isGuildOwner(interaction.member.user.id!, interaction.guild))) {
-		await client.func.method.interactionSend(interaction, { content: lang.unowner_not_owner });
+	if (
+		!client.user ||
+		!interaction.member ||
+		!interaction.guild ||
+		!interaction.channel
+	)
 		return;
-	};
+
+	if (
+		!(await client.func.ownerHelper.isGuildOwner(
+			interaction.member.user.id!,
+			interaction.guild
+		))
+	) {
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unowner_not_owner
+		});
+		return;
+	}
 
 	if (interaction instanceof ChatInputCommandInteraction) {
-		var member = interaction.options.getUser('member');
+		var member = interaction.options.getUser("member");
 	} else {
 		var member = await client.func.method.user(interaction, args!, 0);
-	};
+	}
 
 	if (interaction.guild.ownerId === member?.id) {
-		await client.func.method.interactionSend(interaction, { content: lang.unowner_cant_unowner_creator });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.unowner_cant_unowner_creator
+		});
 		return;
-	};
+	}
 
-	await client.func.ownerHelper.removeGuildOwner(member?.id!, interaction.guild.id);
+	await client.func.ownerHelper.removeGuildOwner(
+		member?.id!,
+		interaction.guild.id
+	);
 
-	await client.func.method.interactionSend(interaction, { content: lang.unowner_command_work.replace(/\${member\.username}/g, member?.username!) });
+	await client.func.method.interactionSend(interaction, {
+		content: lang.unowner_command_work.replace(
+			/\${member\.username}/g,
+			member?.username!
+		)
+	});
 	return;
 }

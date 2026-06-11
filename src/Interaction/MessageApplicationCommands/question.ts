@@ -23,41 +23,55 @@ import {
 	Client,
 	EmbedBuilder,
 	ApplicationCommandType,
-	MessageContextMenuCommandInteraction,
-} from 'discord.js';
-import { AnotherCommand } from '../../../types/anotherCommand.js';
+	MessageContextMenuCommandInteraction
+} from "discord.js";
+import { AnotherCommand } from "../../../types/anotherCommand.js";
 
 export const command: AnotherCommand = {
 	name: "Pose a question!",
 	type: ApplicationCommandType.Message,
 	thinking: false,
 	permission: null,
-	run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
-
+	run: async (
+		client: Client,
+		interaction: MessageContextMenuCommandInteraction
+	) => {
 		const lang = await client.func.getLanguageData(interaction.guildId);
-		const question = interaction.options.getMessage("message")?.content || ".";
+		const question =
+			interaction.options.getMessage("message")?.content || ".";
 
 		const text = question?.split(" ");
 
 		if (!text?.[2]) {
 			await interaction.reply({ content: lang.question_not_full });
 			return;
-		};
+		}
 
 		const reponses = lang.question_s;
 
 		const embed = new EmbedBuilder()
-			.setTitle(lang.question_embed_title
-				.replace(/\${interaction\.user\.username}/g, interaction.targetMessage.author.globalName || interaction.targetMessage.author.tag)
+			.setTitle(
+				lang.question_embed_title.replace(
+					/\${interaction\.user\.username}/g,
+					interaction.targetMessage.author.globalName ||
+						interaction.targetMessage.author.tag
+				)
 			)
 			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#ddd98b")
 			.addFields(
-				{ name: lang.question_fields_input_embed, value: question, inline: true },
-				{ name: lang.question_fields_output_embed, value: reponses[Math.floor((Math.random() * reponses.length))] }
+				{
+					name: lang.question_fields_input_embed,
+					value: question,
+					inline: true
+				},
+				{
+					name: lang.question_fields_output_embed,
+					value: reponses[Math.floor(Math.random() * reponses.length)]
+				}
 			)
 			.setTimestamp();
 
 		await interaction.reply({ embeds: [embed] });
 		return;
-	},
+	}
 };

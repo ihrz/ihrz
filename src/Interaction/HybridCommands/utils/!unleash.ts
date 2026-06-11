@@ -19,23 +19,29 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	ChatInputCommandInteraction,
-	Message
-} from 'discord.js'
+import { Client, ChatInputCommandInteraction, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var user = interaction.options.getMember("member")!;
@@ -43,27 +49,38 @@ export const subCommand: SubCommand = {
 			var user = client.func.method.member(interaction, args!, 0)!;
 		}
 
-		let fetchedData = await client.db.get(`${interaction.guildId}.UTILS.LEASH`) as DatabaseStructure.LeashData[];
+		const fetchedData = ((await client.db.get(
+			`${interaction.guildId}.UTILS.LEASH`
+		)) || []) as DatabaseStructure.LeashData[];
 
-		const pairingToRemove = fetchedData?.find(x =>
-			(x.dom === interaction.member?.user.id && x.sub === user.id)
+		const pairingToRemove = fetchedData?.find(
+			(x) => x.dom === interaction.member?.user.id && x.sub === user.id
 		);
 
 		if (!pairingToRemove) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.util_unleash_not_in_leash.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+				content: lang.util_unleash_not_in_leash.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
 			});
 			return;
 		}
 
-		const updatedData = fetchedData?.filter(x =>
-			!(x.dom === interaction.member?.user.id && x.sub === user.id)
+		const updatedData = fetchedData?.filter(
+			(x) => !(x.dom === interaction.member?.user.id && x.sub === user.id)
 		);
 
-		await client.db.set(`${interaction.guildId}.UTILS.LEASH`, Array.from(new Set(updatedData)));
+		await client.db.set(
+			`${interaction.guildId}.UTILS.LEASH`,
+			Array.from(new Set(updatedData))
+		);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.util_unleash_command_ok.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
+			content: lang.util_unleash_command_ok.replace(
+				"${client.iHorizon_Emojis.Yes}",
+				client.iHorizon_Emojis.Yes
+			)
 		});
-	},
+	}
 };

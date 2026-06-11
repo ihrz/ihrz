@@ -23,31 +23,44 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
-import { SubCommand } from '../../../../../types/command.js';
-import { DatabaseStructure } from '../../../../../types/database_structure.js';
+import { LanguageData } from "../../../../../types/languageData.js";
+import { SubCommand } from "../../../../../types/command.js";
+import { DatabaseStructure } from "../../../../../types/database_structure.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var amount = interaction.options.getNumber("amount", true);
 		} else {
 			var amount = client.func.method.number(args!, 0)!;
-		};
+		}
 
-		let baseData: DatabaseStructure.SkullboardConfigSchema = await client.db.get(`${interaction.guildId}.GUILD.SKULLBOARD`) || {
-			channel: null,
-			createThread: false,
-			enabled: false,
-			threshold: 2
-		};
+		let baseData: DatabaseStructure.SkullboardConfigSchema =
+			(await client.db.get(
+				`${interaction.guildId}.GUILD.SKULLBOARD`
+			)) || {
+				channel: "",
+				createThread: false,
+				enabled: "no",
+				threshold: 2
+			};
 
 		if (amount > 10) {
 			baseData.threshold = 10;
@@ -57,13 +70,18 @@ export const subCommand: SubCommand = {
 			amount = 2;
 		}
 
-		await client.db.set(`${interaction.guildId}.GUILD.SKULLBOARD`, baseData);
-
+		await client.db.set(
+			`${interaction.guildId}.GUILD.SKULLBOARD`,
+			baseData
+		);
 
 		client.func.method.interactionSend(interaction, {
 			content: lang.skullboard_threshold_command_ok
-				.replaceAll("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
+				.replaceAll(
+					"${client.iHorizon_Emojis.Yes}",
+					client.iHorizon_Emojis.Yes
+				)
 				.replaceAll("${amount}", amount.toString())
-		})
-	},
+		});
+	}
 };

@@ -19,16 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client } from 'discord.js';
+import { Client } from "discord.js";
 import { opendir } from "fs/promises";
 import { join as pathJoin } from "node:path";
 import logger from "../logger.js";
 import { Command } from "../../../types/command.js";
 import { EltType } from "../../../types/eltType.js";
 
-import { fileURLToPath } from 'url';
-import path from 'path';
-import { stringifyOption } from '../functions/method.js';
+import { fileURLToPath } from "url";
+import path from "path";
+import { stringifyOption } from "../functions/method.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,23 +41,32 @@ async function buildDirectoryTree(path: string): Promise<(string | object)[]> {
 	const result = [];
 	const dir = await opendir(path);
 	for await (const dirent of dir) {
-		if (!dirent.name.startsWith('!')) {
+		if (!dirent.name.startsWith("!")) {
 			if (dirent.isDirectory()) {
-				result.push({ name: dirent.name, sub: await buildDirectoryTree(pathJoin(path, dirent.name)) });
+				result.push({
+					name: dirent.name,
+					sub: await buildDirectoryTree(pathJoin(path, dirent.name))
+				});
 			} else {
 				result.push(dirent.name);
 			}
 		}
 	}
 	return result;
-};
+}
 
-function buildPaths(basePath: string, directoryTree: (string | object)[]): string[] {
+function buildPaths(
+	basePath: string,
+	directoryTree: (string | object)[]
+): string[] {
 	const paths = [];
 	for (const elt of directoryTree) {
 		switch (typeof elt) {
 			case "object":
-				for (const subElt of buildPaths((elt as EltType).name, (elt as EltType).sub)) {
+				for (const subElt of buildPaths(
+					(elt as EltType).name,
+					(elt as EltType).sub
+				)) {
 					paths.push(pathJoin(basePath, subElt));
 				}
 				break;
@@ -65,46 +74,47 @@ function buildPaths(basePath: string, directoryTree: (string | object)[]): strin
 				paths.push(pathJoin(basePath, elt));
 				break;
 			default:
-				throw new Error('Invalid element type');
+				throw new Error("Invalid element type");
 		}
 	}
 	return paths;
-};
+}
 
-const p = path.join(__dirname, '..', '..', 'Interaction', 'MessageCommands');
+const p = path.join(__dirname, "..", "..", "Interaction", "MessageCommands");
 
 async function loadCommands(client: Client, path: string = p): Promise<void> {
-
 	const directoryTree = await buildDirectoryTree(path);
 	const paths = buildPaths(path, directoryTree);
 
 	let i = 0;
 	for (const path of paths) {
-		if (!path.endsWith('.ts')) continue;
+		if (!path.endsWith(".ts")) continue;
 		i++;
 
-		const { command } = await import(path) as CommandModule; if (!command) continue;
+		const { command } = (await import(path)) as CommandModule;
+		if (!command) continue;
 
-		client.content.push(
-			{
-				cmd: command.name,
-				desc: command.description,
-				desc_localized: command.description_localizations,
-				category: command.category,
-				messageCmd: 1,
-				usage: stringifyOption(command.options || []),
-				aliases: command.aliases
-			}
-		);
+		client.content.push({
+			cmd: command.name,
+			desc: command.description,
+			desc_localized: command.description_localizations,
+			category: command.category,
+			messageCmd: 1,
+			usage: stringifyOption(command.options || []),
+			aliases: command.aliases
+		});
 
-		client.message_commands.set(command.name, command); if (!command?.aliases) continue;
+		client.message_commands.set(command.name, command);
+		if (!command?.aliases) continue;
 
 		for (const aliases of command.aliases) {
 			client.message_commands.set(aliases, command);
 		}
-	};
+	}
 
-	logger.log(`${client.config.console.emojis.OK} >> Loaded ${i} Message commands.`);
-};
+	logger.log(
+		`${client.config.console.emojis.OK} >> Loaded ${i} Message commands.`
+	);
+}
 
 export default loadCommands;

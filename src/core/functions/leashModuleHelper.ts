@@ -25,6 +25,8 @@ export function isInVoiceChannel(member: GuildMember): boolean {
 	return member.voice.channel ? true : false;
 }
 
-export function getDomSubVoiceChannel(member: GuildMember): VoiceBasedChannel | null {
+export function getDomSubVoiceChannel(
+	member: GuildMember
+): VoiceBasedChannel | null {
 	return member.voice.channel;
 }

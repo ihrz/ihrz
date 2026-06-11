@@ -23,19 +23,28 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
+import { LanguageData } from "../../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../../types/command.js';
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		let channel = interaction.channel as BaseGuildTextChannel;
 
@@ -49,25 +58,43 @@ export const subCommand: SubCommand = {
 
 		try {
 			if (!interaction.guild.channels.cache.get(channel.id)) {
-				channel = (await interaction.guild.channels.fetch(channel.id)) as BaseGuildTextChannel;
+				channel = (await interaction.guild.channels.fetch(
+					channel.id
+				)) as BaseGuildTextChannel;
 			}
 
 			if (!channel.manageable) {
-				await client.func.method.interactionSend(interaction, { content: lang.renew_dont_have_permission }); // to change
+				await client.func.method.interactionSend(interaction, {
+					content: lang.renew_dont_have_permission
+				}); // to change
 				return;
 			}
 
-			const everyoneOverwrite = channel.permissionOverwrites.cache.get(role_to_edit);
-			if (everyoneOverwrite && everyoneOverwrite.deny.has('ViewChannel')) {
+			const everyoneOverwrite =
+				channel.permissionOverwrites.cache.get(role_to_edit);
+			if (
+				everyoneOverwrite &&
+				everyoneOverwrite.deny.has("ViewChannel")
+			) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.channel_hide_already_hidden.replace("@everyone", `<@&${role_to_edit}>`)
+					content: lang.channel_hide_already_hidden.replace(
+						"@everyone",
+						`<@&${role_to_edit}>`
+					)
 				});
 				return;
 			}
 
-			if (everyoneOverwrite && everyoneOverwrite.allow.has('ViewChannel') === false && everyoneOverwrite.deny.has('ViewChannel') === true) {
+			if (
+				everyoneOverwrite &&
+				everyoneOverwrite.allow.has("ViewChannel") === false &&
+				everyoneOverwrite.deny.has("ViewChannel") === true
+			) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.channel_hide_already_hidden.replace("@everyone", `<@&${role_to_edit}>`)
+					content: lang.channel_hide_already_hidden.replace(
+						"@everyone",
+						`<@&${role_to_edit}>`
+					)
 				});
 				return;
 			}
@@ -77,12 +104,16 @@ export const subCommand: SubCommand = {
 			});
 
 			await client.func.method.interactionSend(interaction, {
-				content: lang.channel_hide_success.replace("@everyone", `<@&${role_to_edit}>`)
+				content: lang.channel_hide_success.replace(
+					"@everyone",
+					`<@&${role_to_edit}>`
+				)
 			});
-
 		} catch (error) {
-			await client.func.method.interactionSend(interaction, { content: lang.renew_dont_have_permission });
-			return
+			await client.func.method.interactionSend(interaction, {
+				content: lang.renew_dont_have_permission
+			});
+			return;
 		}
-	},
+	}
 };

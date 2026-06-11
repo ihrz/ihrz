@@ -4,7 +4,7 @@
 		"categoryColor": "#e69138",
 		"options": {
 			"description": "help_fun_dsc",
-			"emoji": "🆒",
+			"emoji": "${client.iHorizon_Emojis.Goma_Yoyoyo}",
 			"placeholder": "help_fun_fields"
 		}
 	}

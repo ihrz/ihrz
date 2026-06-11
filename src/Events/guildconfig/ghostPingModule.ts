@@ -19,20 +19,36 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, GuildMember, SnowflakeUtil, PermissionsBitField } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
+import {
+	BaseGuildTextChannel,
+	Client,
+	GuildMember,
+	SnowflakeUtil,
+	PermissionsBitField
+} from "discord.js";
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
-		const all_channels = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`) as DatabaseStructure.GhostPingData['channels'];
+		const all_channels = (await client.db.get(
+			`${member.guild.id}.GUILD.GUILD_CONFIG.GHOST_PING.channels`
+		)) as DatabaseStructure.GhostPingData["channels"];
 
 		if (!all_channels) return;
 
 		for (const i of all_channels) {
-			const channel = member.guild.channels.cache.get(i) as BaseGuildTextChannel;
-			if (!channel || !channel.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) continue;
+			const channel = member.guild.channels.cache.get(
+				i
+			) as BaseGuildTextChannel;
+			if (
+				!channel ||
+				!channel.guild.members.me?.permissions.has(
+					PermissionsBitField.Flags.Administrator
+				)
+			)
+				continue;
 
 			try {
 				const nonce = SnowflakeUtil.generate().toString();
@@ -43,8 +59,7 @@ export const event: BotEvent = {
 				});
 
 				await msg.delete();
-			} catch {
-			}
+			} catch {}
 		}
-	},
+	}
 };

@@ -41,9 +41,9 @@ export function levenshtein(a: string, b: string): number {
 		for (let j = 1; j <= b.length; j++) {
 			const cost = a[i - 1] === b[j - 1] ? 0 : 1;
 			matrix[i][j] = Math.min(
-				matrix[i - 1][j] + 1,        // deletion
-				matrix[i][j - 1] + 1,        // insertion
-				matrix[i - 1][j - 1] + cost  // substitution
+				matrix[i - 1][j] + 1, // deletion
+				matrix[i][j - 1] + 1, // insertion
+				matrix[i - 1][j - 1] + cost // substitution
 			);
 		}
 	}
@@ -70,11 +70,14 @@ export function isSimilar(
 	threshold: number = 0.5,
 	wordThreshold: number = 0.7 // Similarity threshold for each individual word
 ): boolean {
-	const queryWords = query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+	const queryWords = query
+		.toLowerCase()
+		.split(/\s+/)
+		.filter((w) => w.length > 0);
 	const trackWords = `${track?.info.author} ${track?.info.title}`
 		.toLowerCase()
 		.split(/\s+/)
-		.filter(w => w.length > 0);
+		.filter((w) => w.length > 0);
 
 	let totalScore = 0;
 

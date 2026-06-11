@@ -23,44 +23,65 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-		if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-			await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
+			"off"
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.fun_category_disable
+			});
 			return;
-		};
+		}
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var pollMessage = interaction.options.getString("message");
 			var user = interaction.user;
 		} else {
-
 			var pollMessage = client.func.method.longString(args!, 0);
 			var user = interaction.author;
 		}
 
 		const pollEmbed = new EmbedBuilder()
-			.setTitle(lang.poll_embed_title
-				.replace(/\${interaction\.user\.username}/g, user.globalName || user.username)
+			.setTitle(
+				lang.poll_embed_title.replace(
+					"${interaction.user.username}",
+					user.globalName || user.username
+				)
 			)
-			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#ddd98b")
-			.setDescription(pollMessage)
-			.addFields({ name: lang.poll_embed_fields_reaction, value: lang.poll_embed_fields_choice })
-			.setImage("https://cdn.discordapp.com/attachments/610152915063013376/610947097969164310/loading-animation.gif")
-			.setTimestamp()
+			.setColor(
+				(await client.db.get(
+					`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`
+				)) || "#ddd98b"
+			)
+			.setDescription(`**${pollMessage}**`)
+			.addFields({
+				name: lang.poll_embed_fields_reaction,
+				value: lang.poll_embed_fields_choice
+			})
+			.setImage(
+				"https://www.ihorizon.org/assets/img/poll_embed_image.gif"
+			)
+			.setTimestamp();
 
-		const msg = await client.func.method.interactionSend(interaction, { embeds: [pollEmbed] });
+		const msg = await client.func.method.interactionSend(interaction, {
+			embeds: [pollEmbed]
+		});
 
 		await msg.react(client.iHorizon_Emojis.Yes);
 		await msg.react(client.iHorizon_Emojis.No);
 
 		return;
-	},
+	}
 };

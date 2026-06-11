@@ -19,70 +19,114 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, AuditLogEvent, GuildChannel, TextChannel, GuildChannelEditOptions, ChannelType, VoiceChannel, PermissionFlagsBits, GuildMember } from 'discord.js'
+import {
+	Client,
+	AuditLogEvent,
+	GuildChannel,
+	TextChannel,
+	GuildChannelEditOptions,
+	ChannelType,
+	VoiceChannel,
+	PermissionFlagsBits,
+	GuildMember
+} from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { getLogs } from './ready.js';
+import { BotEvent } from "../../../types/event.js";
+import { getLogs } from "./ready.js";
 
 export const event: BotEvent = {
 	name: "channelUpdate",
-	run: async (client: Client, oldChannel: GuildChannel, newChannel: GuildChannel) => {
-
+	run: async (
+		client: Client,
+		oldChannel: GuildChannel,
+		newChannel: GuildChannel
+	) => {
 		const data = await client.db.get(`${newChannel.guild.id}.PROTECTION`);
 		if (!data) return;
 
-		if (!oldChannel.guild.members.me?.permissions.has([
-			PermissionFlagsBits.Administrator
-		])) return;
+		if (
+			!oldChannel.guild.members.me?.permissions.has([
+				PermissionFlagsBits.Administrator
+			])
+		)
+			return;
 
 		if (data.updatechannel) {
-			const relevantLog = await getLogs({ guild: oldChannel.guild, target: newChannel.id, actionType: AuditLogEvent.ChannelUpdate, type: "PROTECTION" });
+			const relevantLog = await getLogs({
+				guild: oldChannel.guild,
+				target: newChannel.id,
+				actionType: AuditLogEvent.ChannelUpdate,
+				type: "PROTECTION"
+			});
 			if (!relevantLog) return;
 
 			let user: GuildMember | undefined;
 			let shouldSanction: boolean = false;
 
-			if (data.updatechannel.mode === 'allowlist') {
-				const baseData = await client.db.get(`${newChannel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`);
+			if (data.updatechannel.mode === "allowlist") {
+				const baseData = await client.db.get(
+					`${newChannel.guild.id}.ALLOWLIST.list.${relevantLog.executorId}`
+				);
 
 				if (!baseData) {
-					user = newChannel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						newChannel.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
-				};
-
-			} else if (data.updatechannel.mode === 'nobody') {
+				}
+			} else if (data.updatechannel.mode === "nobody") {
 				if (relevantLog.executorId !== oldChannel.guild.ownerId) {
-					user = newChannel.guild.members.cache.get(relevantLog?.executorId as string) || undefined;
+					user =
+						newChannel.guild.members.cache.get(
+							relevantLog?.executorId as string
+						) || undefined;
 					shouldSanction = true;
-				};
+				}
 
-				const isOwner = await client.db.get(`${user?.guild.id}.OWNER.${user?.id}`)
+				const isOwner = await client.db.get(
+					`${user?.guild.id}.OWNER.${user?.id}`
+				);
 
-				!isOwner && shouldSanction && (async () => {
-					await client.func.method.punish(data, user!);
+				!isOwner &&
+					shouldSanction &&
+					(async () => {
+						await client.func.method.punish(data, user!);
 
-					const editOptions: GuildChannelEditOptions = {
-						name: oldChannel.name,
-						permissionOverwrites: [...oldChannel.permissionOverwrites.cache.values()],
-						parent: oldChannel.parent,
-						position: oldChannel.position
-					};
+						const editOptions: GuildChannelEditOptions = {
+							name: oldChannel.name,
+							permissionOverwrites: [
+								...oldChannel.permissionOverwrites.cache.values()
+							],
+							parent: oldChannel.parent,
+							position: oldChannel.position
+						};
 
-					if (oldChannel.type === ChannelType.GuildText) {
-						editOptions.topic = (oldChannel as TextChannel).topic;
-						editOptions.nsfw = (oldChannel as TextChannel).nsfw;
-						editOptions.rateLimitPerUser = (oldChannel as TextChannel).rateLimitPerUser;
-					}
+						if (oldChannel.type === ChannelType.GuildText) {
+							editOptions.topic = (
+								oldChannel as TextChannel
+							).topic;
+							editOptions.nsfw = (oldChannel as TextChannel).nsfw;
+							editOptions.rateLimitPerUser = (
+								oldChannel as TextChannel
+							).rateLimitPerUser;
+						}
 
-					if (oldChannel.type === ChannelType.GuildVoice) {
-						editOptions.bitrate = (oldChannel as VoiceChannel).bitrate;
-						editOptions.userLimit = (oldChannel as VoiceChannel).userLimit;
-						editOptions.rtcRegion = (oldChannel as VoiceChannel).rtcRegion;
-					}
+						if (oldChannel.type === ChannelType.GuildVoice) {
+							editOptions.bitrate = (
+								oldChannel as VoiceChannel
+							).bitrate;
+							editOptions.userLimit = (
+								oldChannel as VoiceChannel
+							).userLimit;
+							editOptions.rtcRegion = (
+								oldChannel as VoiceChannel
+							).rtcRegion;
+						}
 
-					await newChannel.edit(editOptions);
-				})()
+						await newChannel.edit(editOptions);
+					})();
 			}
 		}
-	},
+	}
 };

@@ -19,38 +19,44 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { synchronizeCommands } from './commandsSync.js';
+import { synchronizeCommands } from "./commandsSync.js";
 import logger from "./logger.js";
 
-import * as errorManager from './modules/errorManager.js';
+import * as errorManager from "./modules/errorManager.js";
 
-import { VanityInviteData } from '../../types/vanityUrlData.js';
+import { VanityInviteData } from "../../types/vanityUrlData.js";
 
-import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
-import { fileURLToPath } from 'url';
-import path from 'path';
-import fs from 'node:fs';
+import {
+	Client,
+	Collection,
+	Snowflake,
+	DefaultWebSocketManagerOptions
+} from "discord.js";
+import { fileURLToPath } from "url";
+import path from "path";
+import fs from "node:fs";
 
-import { iHorizonTimeCalculator } from './functions/ms.js';
+import { iHorizonTimeCalculator } from "./functions/ms.js";
 import assetsCalc from "./functions/assetsCalc.js";
-import { setMaxListeners } from 'node:events';
-import { Command } from '../../types/command.js';
-import { mkdir, readdir } from 'node:fs/promises';
-import { MemberCountModule } from './modules/memberCountManager.js';
-import { AutoRenew } from './modules/autorenewManager.js';
-import { Client_Functions } from '../../types/client_functions.js';
-import { AnotherCommand } from '../../types/anotherCommand.js';
-import { EmojisManager } from './modules/emojisManager.js';
-import { NightModeManager } from './modules/nightModeManager.js';
-import { DiscordSlashLogParser } from './converters/slashLog.js';
-import { readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { GiveawayManager } from './modules/giveawaysManager.js';
+import { setMaxListeners } from "node:events";
+import { Command } from "../../types/command.js";
+import { mkdir, readdir } from "node:fs/promises";
+import { MemberCountModule } from "./modules/memberCountManager.js";
+import { AutoRenew } from "./modules/autorenewManager.js";
+import { Client_Functions } from "../../types/client_functions.js";
+import { AnotherCommand } from "../../types/anotherCommand.js";
+import { EmojisManager } from "./modules/emojisManager.js";
+import { NightModeManager } from "./modules/nightModeManager.js";
+import { DiscordSlashLogParser } from "./converters/slashLog.js";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
+import { GiveawayManager } from "./modules/giveawaysManager.js";
 import * as discordTranscripts from "discord-html-transcripts";
-import { BloggerNotifier } from './Blogger.js';
-import { TemproleManager } from './modules/tempRoleManager.js';
-import { TempbanManager } from './modules/tempbanManager.js';
-import { Mailer } from './Mailer.js';
-import * as backup from "./backup/src"
+import { BloggerNotifier } from "./Blogger.js";
+import { TemproleManager } from "./modules/tempRoleManager.js";
+import { TempbanManager } from "./modules/tempbanManager.js";
+import { Mailer } from "./Mailer.js";
+import * as backup from "./backup/src";
+import { isNumber } from "./functions/method.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,20 +70,21 @@ if (!fs.existsSync(backups_folder)) {
 }
 
 if (fs.existsSync(old_slash_logs_file)) {
-	let _ = new DiscordSlashLogParser().parse(readFileSync(old_slash_logs_file, "utf-8"));
+	let _ = new DiscordSlashLogParser().parse(
+		readFileSync(old_slash_logs_file, "utf-8")
+	);
 	writeFileSync(slash_logs_file, JSON.stringify(_));
 	rmSync(old_slash_logs_file);
 }
 
 export async function main(client: Client) {
-
-	process.on('SIGINT', async () => {
+	process.on("SIGINT", async () => {
 		await client.destroy();
 		process.exit(0);
 	});
 
 	client.owners = [];
-	client.config.owners.users?.forEach(owner => {
+	client.config.owners.users?.forEach((owner) => {
 		if (!Number.isNaN(Number.parseInt(owner))) client.owners.push(owner);
 	});
 
@@ -105,46 +112,76 @@ export async function main(client: Client) {
 		storage: `${process.cwd()}/src/files/giveaways/`,
 		config: {
 			botsCanWin: false,
-			embedColor: '#9a5af2',
-			embedColorEnd: '#2f3136',
-			reaction: '🎉',
+			embedColor: "#9a5af2",
+			embedColorEnd: "#2f3136",
+			reaction: "🎉",
 			forceUpdateEvery: 3600,
-			endedGiveawaysLifetime: 345_600_000,
-		},
+			endedGiveawaysLifetime: 345_600_000
+		}
 	});
 	client.backup = backup;
 	client.discordTranscripts = discordTranscripts;
 	client.temproleManager = new TemproleManager();
 	client.tempbanManager = new TempbanManager();
 	client.email = new Mailer();
-	client.blogger = new BloggerNotifier();
-	assetsCalc(client);
 
-	const handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-	const handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));
+	process.on("SIGINT", async () => {
+		await client.destroy();
+		process.exit(0);
+	});
+
+	client.config.owners.users?.forEach((owner) => {
+		if (isNumber(owner)) client.owners.push(owner);
+	});
+
+	const handlerPath = path.join(__dirname, "..", "core", "handlers");
+	const handlerFiles = (await readdir(handlerPath)).filter((file) =>
+		file.endsWith(".ts")
+	);
 
 	for (const file of handlerFiles) {
-		const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
-		if (handlerFunction && typeof handlerFunction === 'function') {
+		const { default: handlerFunction } = await import(
+			`${handlerPath}/${file}`
+		);
+		if (handlerFunction && typeof handlerFunction === "function") {
 			await handlerFunction(client);
 		}
 	}
 
-	client.login(client.config.discord.token).then(async () => {
-		const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
+	login();
 
-		if (process.platform === 'win32') {
-			process.title = title;
-		} else {
-			process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
-		};
+	errorManager.uncaughtExceptionHandler(client);
+	assetsCalc(client);
+}
 
-		synchronizeCommands(client).then(() => {
-			logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
-			logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
-			logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
-			logger.log(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`.magenta);
-			logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta);
+function login() {
+	client
+		.login(process.env.BOT_TOKEN || client.config.discord.token)
+		.then(async () => {
+			const title =
+				"iHorizon - " +
+				client.version.ClientVersion +
+				" platform:" +
+				process.platform;
+
+			if (process.platform === "win32") {
+				process.title = title;
+			} else {
+				process.stdout.write("\x1b]2;" + title + "\x1b\x5c");
+			}
+
+			synchronizeCommands(client).then(() => {
+				logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
+				logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
+				logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
+				logger.log(
+					`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`
+						.magenta
+				);
+				logger.log(
+					`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`
+						.magenta
+				);
+			});
 		});
-	});
 }

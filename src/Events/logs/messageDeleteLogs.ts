@@ -19,20 +19,32 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Attachment, AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, Message } from 'discord.js';
-import { AxiosResponse, axios } from '../../core/functions/axios.js';
+import {
+	Attachment,
+	AttachmentBuilder,
+	BaseGuildTextChannel,
+	Client,
+	EmbedBuilder,
+	Message
+} from "discord.js";
+import { AxiosResponse, axios } from "../../core/functions/axios.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "messageDelete",
 	run: async (client: Client, message: Message) => {
-
 		const data = await client.func.getLanguageData(message.guildId);
-		if (!message.guild || !message.author
-			|| message.author.id == client.user?.id) return;
+		if (
+			!message.guild ||
+			!message.author ||
+			message.author.id == client.user?.id
+		)
+			return;
 
-		const someinfo = await client.db.get(`${message.guild.id}.GUILD.SERVER_LOGS.message`);
+		const someinfo = await client.db.get(
+			`${message.guild.id}.GUILD.SERVER_LOGS.message`
+		);
 		if (!someinfo) return;
 
 		const Msgchannel = message.guild.channels.cache.get(someinfo);
@@ -46,9 +58,10 @@ export const event: BotEvent = {
 				name: message.author.username,
 				iconURL: iconURL
 			})
-			.setDescription(data.event_srvLogs_messageDelete_description
-				.replace("${message.channel.id}", message.channel.id)
-				.replace("${message.content}", ' ' + message.content)
+			.setDescription(
+				data.event_srvLogs_messageDelete_description
+					.replace("${message.channel.id}", message.channel.id)
+					.replace("${message.content}", " " + message.content)
 			)
 			.setTimestamp();
 
@@ -61,8 +74,14 @@ export const event: BotEvent = {
 				const files: AttachmentBuilder[] = [];
 
 				async function getFile(file: Attachment) {
-					const response = await axios.get(file['attachment'] as string, { responseType: 'arrayBuffer' });
-					const attachment = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: file?.name });
+					const response = await axios.get(
+						file["attachment"] as string,
+						{ responseType: "arrayBuffer" }
+					);
+					const attachment = new AttachmentBuilder(
+						Buffer.from(response.data, "base64"),
+						{ name: file?.name }
+					);
 					files.push(attachment);
 				}
 
@@ -72,35 +91,62 @@ export const event: BotEvent = {
 
 				await Promise.all(filePromises);
 
-				await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: files }).catch(() => { });
+				await (Msgchannel as BaseGuildTextChannel)
+					.send({ embeds: [logsEmbed], files: files })
+					.catch(() => {});
 				return;
-			} else if (attachment && attachment.contentType.startsWith('image/')) {
+			} else if (
+				attachment &&
+				attachment.contentType.startsWith("image/")
+			) {
 				let snipedImage: AttachmentBuilder;
 
-				await axios.get((attachment['attachment'] as string), { responseType: 'arrayBuffer' }).then((response: AxiosResponse) => {
-					snipedImage = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: 'sniped-image-by-ihorizon.png' });
-					logsEmbed.setImage(`attachment://sniped-image-by-ihorizon.png`);
-				});
+				await axios
+					.get(attachment["attachment"] as string, {
+						responseType: "arrayBuffer"
+					})
+					.then((response: AxiosResponse) => {
+						snipedImage = new AttachmentBuilder(
+							Buffer.from(response.data, "base64"),
+							{ name: "sniped-image-by-ihorizon.png" }
+						);
+						logsEmbed.setImage(
+							`attachment://sniped-image-by-ihorizon.png`
+						);
+					});
 
-				await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: [snipedImage!] }).catch(() => { });
+				await (Msgchannel as BaseGuildTextChannel)
+					.send({ embeds: [logsEmbed], files: [snipedImage!] })
+					.catch(() => {});
 				return;
 			} else if (attachment) {
 				let snipedFiles: AttachmentBuilder;
 
-				await axios.get((attachment['attachment'] as string), { responseType: 'arrayBuffer' }).then((response: AxiosResponse) => {
-					snipedFiles = new AttachmentBuilder(Buffer.from(response.data, 'base64'), { name: attachment?.name });
-				});
+				await axios
+					.get(attachment["attachment"] as string, {
+						responseType: "arrayBuffer"
+					})
+					.then((response: AxiosResponse) => {
+						snipedFiles = new AttachmentBuilder(
+							Buffer.from(response.data, "base64"),
+							{ name: attachment?.name }
+						);
+					});
 
-				await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed], files: [snipedFiles!] }).catch(() => { });
+				await (Msgchannel as BaseGuildTextChannel)
+					.send({ embeds: [logsEmbed], files: [snipedFiles!] })
+					.catch(() => {});
 				return;
 			}
 		} else if (message.embeds) {
 			for (const embed in message.embeds) {
-				saves_emb.push(EmbedBuilder.from(message.embeds[embed]))
+				saves_emb.push(EmbedBuilder.from(message.embeds[embed]));
 			}
 		}
 
-		await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed, ...saves_emb] }).catch(() => { });
+		await (Msgchannel as BaseGuildTextChannel)
+			.send({ embeds: [logsEmbed, ...saves_emb] })
+			.catch(() => {});
 		return;
-	},
+	}
 };

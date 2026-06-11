@@ -19,24 +19,28 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import hidden from '../../core/functions/maskLink.js';
+import hidden from "../../core/functions/maskLink.js";
 
-import { Client, Message } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import { Client, Message } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "messageDelete",
 	run: async (client: Client, message: Message) => {
-
-		if (!message.guild || !message.author
-			|| message.author.id == client.user?.id) return;
+		if (
+			!message.guild ||
+			!message.author ||
+			message.author.id == client.user?.id
+		)
+			return;
 
 		if (message.content.length == 0) return;
 		if (message.content === "") return;
 
 		const message_content = hidden(message.content);
 
-		await client.db.set(`${message.guildId}.GUILD.SNIPE.${message.channel.id}`,
+		await client.db.set(
+			`${message.guildId}.GUILD.SNIPE.${message.channel.id}`,
 			{
 				snipe: message_content,
 				snipeUserInfoTag: `${message.author.username} (${message.author.id})`,
@@ -45,7 +49,8 @@ export const event: BotEvent = {
 			}
 		);
 
-		await client.db.set(`${message.guildId}.GUILD.SNIPE.${message.channel.id}`,
+		await client.db.set(
+			`${message.guildId}.GUILD.SNIPE.${message.channel.id}`,
 			{
 				snipe: message_content,
 				snipeUserInfoTag: `${message.author.username} (${message.author.id})`,
@@ -53,5 +58,5 @@ export const event: BotEvent = {
 				snipeTimestamp: message.createdTimestamp
 			}
 		);
-	},
+	}
 };

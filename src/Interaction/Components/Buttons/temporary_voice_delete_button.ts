@@ -19,30 +19,39 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ButtonInteraction, EmbedBuilder, GuildMember } from 'discord.js';
-import { tempTable } from '../../../Events/client/ready.ts';
+import { ButtonInteraction, EmbedBuilder, GuildMember } from "discord.js";
+import { tempTable } from "../../../Events/client/ready.ts";
 
 export default async function (interaction: ButtonInteraction<"cached">) {
-
-	const result = await interaction.client.db.get(`${interaction.guildId}.VOICE_INTERFACE.interface`);
+	const result = await interaction.client.db.get(
+		`${interaction.guildId}.VOICE_INTERFACE.interface`
+	);
 	const targetedChannel = (interaction.member as GuildMember).voice.channel;
 
-	const lang = await interaction.client.func.getLanguageData(interaction.guildId);
+	const lang = await interaction.client.func.getLanguageData(
+		interaction.guildId
+	);
 	const member = interaction.member as GuildMember;
 
-	const getChannelOwner = await tempTable.get(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+	const getChannelOwner = await tempTable.get(
+		`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`
+	);
 
 	if (!result) return interaction.deferUpdate();
-	if (result.channelId !== interaction.channelId
-		|| getChannelOwner !== targetedChannel?.id) return await interaction.deferUpdate();
+	if (
+		result.channelId !== interaction.channelId ||
+		getChannelOwner !== targetedChannel?.id
+	)
+		return await interaction.deferUpdate();
 
 	if (!member.voice.channel) {
-		await interaction.deferUpdate()
+		await interaction.deferUpdate();
 		return;
 	} else {
-
 		await targetedChannel?.delete();
-		await tempTable.delete(`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`);
+		await tempTable.delete(
+			`CUSTOM_VOICE.${interaction.guildId}.${interaction.user.id}`
+		);
 
 		await interaction.reply({
 			embeds: [
@@ -51,11 +60,21 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 						lang.temporary_voice_delete_button_desc_embed
 					)
 					.setColor(2829617)
-					.setImage(await client.func.bannerGenerator(interaction.guild.id))
-					.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!))
+					.setImage(
+						await client.func.bannerGenerator(interaction.guild.id)
+					)
+					.setFooter(
+						await interaction.client.func.displayBotName.footerBuilder(
+							interaction.guildId!
+						)
+					)
 			],
-			files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],
+			files: [
+				await interaction.client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			],
 			flags: [1 << 6]
 		});
 	}
-};
+}

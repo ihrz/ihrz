@@ -19,17 +19,19 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ConfigData } from '../../types/configDatad.js';
+/*
+WELCOME TO IHORIZON'S CONFIGURATION FILE. ALL VALUES SHOULD BE BETWEEN QUOTATION MARKS, UNLESS THE VALUE DOESN'T INITIALLY HAVE ANY QUOTATION MARK (e.g. phonePresence doesn't have quotation marks in its value)
+*/
+
+import { ConfigData } from "../../types/configDatad.js";
 
 const config: ConfigData = {
-
 	discord: {
-
-		token: "The bot token",
-		// The Discord Bot Token
+		token: "THE BOT TOKEN",
+		// The Discord Bot Token. This can be found in the Discord Developer Portal of your bot
 
 		phonePresence: false,
-		// If the bot have Phone Bot Activity Presence
+		// If the bot should have a Phone Bot Activity Presence, aka having a telephone icon in its profile when online, Do-Not-Disturb, etc.
 
 		messageCommandsMention: true,
 		/* If is in true, the message commands (prefix commands) are trigerable with @Bot-Mention,
@@ -38,14 +40,11 @@ const config: ConfigData = {
 
 		defaultMessageCommandsPrefix: "?"
 		// The message commands prefix if your choose to use prefix instead of bot mention as prefix
-
 	},
 
 	lavalink: {
-
 		nodes: [
 			{
-
 				id: "example_node",
 				// The ID of the Node
 
@@ -60,61 +59,71 @@ const config: ConfigData = {
 
 				secure: false
 			}
-		],
-
+		]
 	},
 
 	core: {
-
 		devMode: true,
-		// true => log's ERROR are been in the console OR false => In the .err_logs folder.
+		// if true => ERRORS will be displayed in the console; if false => these ERRORS will be located in the .err.logs folder.
 
-		blacklistPictureInEmbed: "An png url",
-		// The image of the blacklist's Embed (When blacklisted user attempt to interact with the bot)
+		blacklistPictureInEmbed: "A .png URL",
+		// Optional: The image of the blacklist embed (when a blacklisted user attempts to interact with the bot)
 
+		guildLogsChannelID:
+			"The Discord Channel ID for logs when guildCreate/guildRemove",
+		// The channel where the bot informs of his arrival on a server or when it leaves a server.
+
+		lavalinkLogsChannelID:
+			"The Discord Channel ID for logs when lavalink throws an error",
+		// The channel where the error will be sent when lavalink throws an error.
+
+		reportChannelID:
+			"The Discord Channel ID for logs when bugs are reported"
+		// The channel where the bot informs of a bug reported by a user of the bot.
 	},
 
 	command: {
-
-		alway100: ['171356978310938624x1099042785736282205']
+		always100: ["USER_ID_ONExUSER_ID_TWO"]
 		/*
-		For love command, if you want for specific couple of user, 
-		always show 100% for their love, adding it to the array
+		On the love command, for a specific couple of users, 
+		this setting will always show 100% for their love.
 		Format: {USER_ID_ONE}x{USER_ID_TWO}
 		*/
-
 	},
 
 	owners: {
-
-		users: ["User id", "User id"]
+		users: ["User ID", "User ID"]
 		/*
-		This owners have different permissions than the others in the db,
+		This owners have different permissions than others in the database,
 	    
-		* They can't be unowner by owner who are in the Database.
-		* They can't be blacklisted by owner who are in the Database.
-		* They can't be banned by owner who are in the Database.
+		* They can't be unowner by an owner who is in the Database.
+		* They can't be blacklisted by an owner who is in the Database.
+		* They can't be banned by an owner who is in the Database.
 		*/
-
 	},
 
 	api: {
+		apiToken: "The API token"
+		// Optional. The API token is for secure requests. Please put a strong token. It needs to be private for security reasons.
+	},
 
-		apiToken: "The api token",
-		// The API token for secure requests, please put a strong token, Need to be private for security reason.
+	lastfm: {
+		apiKey: "Last.fm API key",
+		// Optional but required if you want the Last.fm scrobbler module to work.
 
+		sharedSecret: "Last.fm shared secret"
+		// Optional but required if you want the Last.fm scrobbler module to work.
 	},
 
 	console: {
-
 		emojis: {
-
-			OK: "✅", ERROR: "❌", HOST: "💻", KISA: "👩", LOAD: "🔄"
-
+			OK: "✅",
+			ERROR: "❌",
+			HOST: "💻",
+			KISA: "👩",
+			LOAD: "🔄"
 		}
-
-	},
-
+	}
 };
 
 export default config;

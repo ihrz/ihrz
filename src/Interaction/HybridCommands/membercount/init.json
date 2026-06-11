@@ -4,7 +4,7 @@
 		"categoryColor": "#56d91e",
 		"options": {
 			"description": "help_memberc_dsc",
-			"emoji": "👥",
+			"emoji": "${client.iHorizon_Emojis.Stats}",
 			"placeholder": "help_memberc_fields"
 		}
 	}

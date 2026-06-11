@@ -33,20 +33,34 @@ import {
 	Role,
 	PermissionFlagsBits,
 	Message
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		let all_roles: DatabaseStructure.GuildTagsStructure["whitelist_use"] = await client.db.get(`${interaction.guildId}.GUILD.TAGS.whitelist_create`) || [];
+		let all_roles: DatabaseStructure.GuildTagsStructure["whitelist_use"] =
+			(await client.db.get(
+				`${interaction.guildId}.GUILD.TAGS.whitelist_create`
+			)) || [];
 
 		const embed = new EmbedBuilder()
 			.setTitle(lang.tag_wlcreate_embed_title)
@@ -54,33 +68,44 @@ export const subCommand: SubCommand = {
 			.setDescription(lang.tag_wlcreate_embed_desc)
 			.addFields({
 				name: lang.setjoinroles_help_embed_fields_1_name,
-				value: Array.isArray(all_roles) && all_roles.length > 0
-					? all_roles.map(x => `<@&${x}>`).join(', ')
-					: lang.setjoinroles_var_none
+				value:
+					Array.isArray(all_roles) && all_roles.length > 0
+						? all_roles.map((x) => `<@&${x}>`).join(", ")
+						: lang.setjoinroles_var_none
 			});
 
 		const roleSelectMenu = new RoleSelectMenuBuilder()
-			.setCustomId('utils-wlTagCreate-role-selecter')
+			.setCustomId("utils-wlTagCreate-role-selecter")
 			.setMaxValues(25)
 			.setMinValues(0);
 
 		if (all_roles !== undefined && all_roles?.length >= 1) {
-			const roles: string[] = Array.isArray(all_roles) ? all_roles : [all_roles];
+			const roles: string[] = Array.isArray(all_roles)
+				? all_roles
+				: [all_roles];
 			roleSelectMenu.setDefaultRoles(roles);
 		}
 
 		const saveButton = new ButtonBuilder()
-			.setCustomId('utils-wlTagCreate-save-button')
+			.setCustomId("utils-wlTagCreate-save-button")
 			.setStyle(ButtonStyle.Primary)
-			.setEmoji('💾');
+			.setEmoji("💾");
 
-		const comp = new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(roleSelectMenu);
-		const comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
+		const comp =
+			new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
+				roleSelectMenu
+			);
+		const comp_2 = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			saveButton
+		);
 
-		const og_response = await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			components: [comp, comp_2]
-		});
+		const og_response = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [embed],
+				components: [comp, comp_2]
+			}
+		);
 		const tooHighterRoles = new Set<string>();
 
 		let selectedRoles: Role[] = [];
@@ -97,78 +122,114 @@ export const subCommand: SubCommand = {
 			filter: (i) => i.user.id === interaction.member?.user.id
 		});
 
-		collector.on('collect', async (roleInteraction: RoleSelectMenuInteraction) => {
-			selectedRoles = [];
-			all_roles = [];
+		collector.on(
+			"collect",
+			async (roleInteraction: RoleSelectMenuInteraction) => {
+				selectedRoles = [];
+				all_roles = [];
 
-			const too_highter_roles: { id: string, name: string, position: string }[] = [];
+				const too_highter_roles: {
+					id: string;
+					name: string;
+					position: string;
+				}[] = [];
 
-			if (!roleInteraction.guild?.members.me?.permissions.has(PermissionFlagsBits.ManageRoles)) {
-				await roleInteraction.deferUpdate();
-				await client.func.method.interactionSend(interaction, { content: lang.setjoinroles_var_perm_issue, flags: [1 << 6] });
-				return;
-			}
+				if (
+					!roleInteraction.guild?.members.me?.permissions.has(
+						PermissionFlagsBits.ManageRoles
+					)
+				) {
+					await roleInteraction.deferUpdate();
+					await client.func.method.interactionSend(interaction, {
+						content: lang.setjoinroles_var_perm_issue,
+						flags: [1 << 6]
+					});
+					return;
+				}
 
-			for (const role of roleInteraction.roles) {
-				all_roles.push(role[1].id);
+				for (const role of roleInteraction.roles) {
+					all_roles.push(role[1].id);
 
-				selectedRoles.push(role[1] as Role);
+					selectedRoles.push(role[1] as Role);
 
-				if (interaction.guild?.members.me?.roles.highest.position! <= role[1].position) {
-					if (!tooHighterRoles.has(role[1].id)) {
-						too_highter_roles.push({ id: role[1].id, name: role[1].name, position: role[1].position.toString() });
+					if (
+						interaction.guild?.members.me?.roles.highest
+							.position! <= role[1].position
+					) {
+						if (!tooHighterRoles.has(role[1].id)) {
+							too_highter_roles.push({
+								id: role[1].id,
+								name: role[1].name,
+								position: role[1].position.toString()
+							});
+						}
 					}
 				}
+
+				await roleInteraction.deferUpdate();
+				updateEmbed(embed, selectedRoles, lang);
+				await og_response.edit({ embeds: [embed] });
 			}
+		);
 
-			await roleInteraction.deferUpdate();
-			updateEmbed(embed, selectedRoles, lang);
-			await og_response.edit({ embeds: [embed] });
-		});
+		buttonCollector.on(
+			"collect",
+			async (buttonInteraction: ButtonInteraction) => {
+				await buttonInteraction.deferUpdate();
+				if (
+					buttonInteraction.customId ===
+					"utils-wlTagCreate-save-button"
+				) {
+					const newComp_2 =
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							saveButton
+								.setStyle(ButtonStyle.Success)
+								.setEmoji(client.iHorizon_Emojis.Yes)
+								.setDisabled(true)
+						);
 
-		buttonCollector.on('collect', async (buttonInteraction: ButtonInteraction) => {
-			await buttonInteraction.deferUpdate();
-			if (buttonInteraction.customId === 'utils-wlTagCreate-save-button') {
-				const newComp_2 = new ActionRowBuilder<ButtonBuilder>()
-					.addComponents(
-						saveButton
-							.setStyle(ButtonStyle.Success)
-							.setEmoji(client.iHorizon_Emojis.Yes)
-							.setDisabled(true)
+					await og_response.edit({ components: [newComp_2] });
+
+					// await client.func.ihorizon_logs(interaction, {
+					//     title: lang.utils_wlRoles_logsEmbed_title,
+					//     description: lang.utils_wlRoles_logsEmbed_desc
+					//         .replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
+					// });
+
+					await client.db.set(
+						`${interaction.guildId}.GUILD.TAGS.whitelist_create`,
+						all_roles
 					);
-
-				await og_response.edit({ components: [newComp_2] })
-
-				// await client.func.ihorizon_logs(interaction, {
-				//     title: lang.utils_wlRoles_logsEmbed_title,
-				//     description: lang.utils_wlRoles_logsEmbed_desc
-				//         .replace("${interaction.member?.user.toString()}", interaction.member?.user.toString()!)
-				// });
-
-				await client.db.set(`${interaction.guildId}.GUILD.TAGS.whitelist_create`, all_roles);
-				collector.stop();
-				buttonCollector.stop();
+					collector.stop();
+					buttonCollector.stop();
+				}
 			}
-		});
+		);
 
-		collector.on('end', async () => {
-			comp.components.forEach(x => {
-				x.setDisabled(true)
+		collector.on("end", async () => {
+			comp.components.forEach((x) => {
+				x.setDisabled(true);
 			});
 
-			comp_2.components.forEach(x => {
+			comp_2.components.forEach((x) => {
 				x.setDisabled(true);
-			})
+			});
 
 			await og_response.edit({ components: [comp, comp_2] });
 		});
 
-		function updateEmbed(embed: EmbedBuilder, roles: Role[], lang: LanguageData) {
-			const roleValues = roles.map(role => `<@&${role.id}>`).join(', ') || lang.setjoinroles_var_none;
+		function updateEmbed(
+			embed: EmbedBuilder,
+			roles: Role[],
+			lang: LanguageData
+		) {
+			const roleValues =
+				roles.map((role) => `<@&${role.id}>`).join(", ") ||
+				lang.setjoinroles_var_none;
 			embed.setFields({
 				name: lang.setjoinroles_help_embed_fields_1_name,
 				value: roleValues
 			});
-		};
-	},
+		}
+	}
 };

@@ -24,20 +24,20 @@ export default function formatNumber(num: number): string {
 	const absNum = Math.abs(num);
 
 	if (absNum >= 1_000_000_000_000) {
-		return `${isNegative ? '-' : ''}${(absNum / 1_000_000_000_000).toFixed(1)}T`;
+		return `${isNegative ? "-" : ""}${(absNum / 1_000_000_000_000).toFixed(1)}T`;
 	}
 
 	if (absNum >= 1_000_000_000) {
-		return `${isNegative ? '-' : ''}${(absNum / 1_000_000_000).toFixed(1)}B`;
+		return `${isNegative ? "-" : ""}${(absNum / 1_000_000_000).toFixed(1)}B`;
 	}
 
 	if (absNum >= 1_000_000) {
-		return `${isNegative ? '-' : ''}${(absNum / 1_000_000).toFixed(1)}M`;
+		return `${isNegative ? "-" : ""}${(absNum / 1_000_000).toFixed(1)}M`;
 	}
 
 	if (absNum >= 1_000) {
-		return `${isNegative ? '-' : ''}${(absNum / 1_000).toFixed(1)}K`;
+		return `${isNegative ? "-" : ""}${(absNum / 1_000).toFixed(1)}K`;
 	}
 
-	return `${isNegative ? '-' : ''}${absNum.toLocaleString()}`;
+	return `${isNegative ? "-" : ""}${absNum.toLocaleString()}`;
 }

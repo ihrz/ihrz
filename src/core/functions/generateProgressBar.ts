@@ -19,7 +19,11 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-export default function generateProgressBar(emojis: any, currentTimeMs: number, totalTimeMs: number): {
+export default function generateProgressBar(
+	emojis: any,
+	currentTimeMs: number,
+	totalTimeMs: number
+): {
 	bar: string;
 	currentTime: string;
 	totalTime: string;
@@ -50,5 +54,5 @@ function formatTime(seconds: number): string {
 	const minutes = Math.floor(seconds / 60);
 	const remainingSeconds = seconds % 60;
 
-	return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+	return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
 }

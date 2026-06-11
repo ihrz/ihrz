@@ -19,18 +19,33 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, EmbedBuilder, Guild, GuildBasedChannel } from "discord.js";
+import {
+	BaseGuildTextChannel,
+	EmbedBuilder,
+	Guild,
+	GuildBasedChannel
+} from "discord.js";
 import { LanguageData } from "../../../types/languageData";
 
-async function getEconomyChannel(guild: Guild): Promise<GuildBasedChannel | null> {
-	const channelId = await client.db.get(`${guild.id}.GUILD.SERVER_LOGS.economy`);
+async function getEconomyChannel(
+	guild: Guild
+): Promise<GuildBasedChannel | null> {
+	const channelId = await client.db.get(
+		`${guild.id}.GUILD.SERVER_LOGS.economy`
+	);
 	if (!channelId) return null;
 
-	return guild.channels.cache.get(channelId)
-		|| await guild.channels.fetch(channelId).catch(() => null);
+	return (
+		guild.channels.cache.get(channelId) ||
+		(await guild.channels.fetch(channelId).catch(() => null))
+	);
 }
 
-function sendEmbed(channel: BaseGuildTextChannel, title: string, description: string): void {
+function sendEmbed(
+	channel: BaseGuildTextChannel,
+	title: string,
+	description: string
+): void {
 	const embed = new EmbedBuilder()
 		.setColor("#f1c232")
 		.setTitle(title)
@@ -40,7 +55,13 @@ function sendEmbed(channel: BaseGuildTextChannel, title: string, description: st
 	channel.send({ embeds: [embed] });
 }
 
-export async function addMoney(guild: Guild, author: string, target: string, amount: number, lang: LanguageData): Promise<void> {
+export async function addMoney(
+	guild: Guild,
+	author: string,
+	target: string,
+	amount: number,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -55,7 +76,13 @@ export async function addMoney(guild: Guild, author: string, target: string, amo
 	);
 }
 
-export async function removeMoney(guild: Guild, author: string, target: string, amount: number, lang: LanguageData): Promise<void> {
+export async function removeMoney(
+	guild: Guild,
+	author: string,
+	target: string,
+	amount: number,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -70,7 +97,13 @@ export async function removeMoney(guild: Guild, author: string, target: string, 
 	);
 }
 
-export async function boostModifying(guild: Guild, author: string, role: string, amount: number, lang: LanguageData): Promise<void> {
+export async function boostModifying(
+	guild: Guild,
+	author: string,
+	role: string,
+	amount: number,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -84,7 +117,12 @@ export async function boostModifying(guild: Guild, author: string, role: string,
 	);
 }
 
-export async function config(guild: Guild, author: string, target: "on" | "off", lang: LanguageData): Promise<void> {
+export async function config(
+	guild: Guild,
+	author: string,
+	target: "on" | "off",
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -97,7 +135,13 @@ export async function config(guild: Guild, author: string, target: "on" | "off",
 	);
 }
 
-export async function roleAdd(guild: Guild, author: string, role: string, amount: number, lang: LanguageData): Promise<void> {
+export async function roleAdd(
+	guild: Guild,
+	author: string,
+	role: string,
+	amount: number,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -111,7 +155,12 @@ export async function roleAdd(guild: Guild, author: string, role: string, amount
 	);
 }
 
-export async function roleDelete(guild: Guild, author: string, role: string, lang: LanguageData): Promise<void> {
+export async function roleDelete(
+	guild: Guild,
+	author: string,
+	role: string,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -124,7 +173,13 @@ export async function roleDelete(guild: Guild, author: string, role: string, lan
 	);
 }
 
-export async function pay(guild: Guild, author: string, target: string, amount: number, lang: LanguageData): Promise<void> {
+export async function pay(
+	guild: Guild,
+	author: string,
+	target: string,
+	amount: number,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -138,7 +193,13 @@ export async function pay(guild: Guild, author: string, target: string, amount: 
 	);
 }
 
-export async function rob(guild: Guild, author: string, target: string, amount: number, lang: LanguageData): Promise<void> {
+export async function rob(
+	guild: Guild,
+	author: string,
+	target: string,
+	amount: number,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -152,7 +213,13 @@ export async function rob(guild: Guild, author: string, target: string, amount: 
 	);
 }
 
-export async function setCooldown(guild: Guild, author: string, time: string, type: string, lang: LanguageData): Promise<void> {
+export async function setCooldown(
+	guild: Guild,
+	author: string,
+	time: string,
+	type: string,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -166,7 +233,13 @@ export async function setCooldown(guild: Guild, author: string, time: string, ty
 	);
 }
 
-export async function setMoney(guild: Guild, author: string, money: number, type: string, lang: LanguageData): Promise<void> {
+export async function setMoney(
+	guild: Guild,
+	author: string,
+	money: number,
+	type: string,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -180,7 +253,12 @@ export async function setMoney(guild: Guild, author: string, money: number, type
 	);
 }
 
-export async function withdraw(guild: Guild, author: string, money: number, lang: LanguageData): Promise<void> {
+export async function withdraw(
+	guild: Guild,
+	author: string,
+	money: number,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 
@@ -193,7 +271,12 @@ export async function withdraw(guild: Guild, author: string, money: number, lang
 	);
 }
 
-export async function deposit(guild: Guild, author: string, money: number, lang: LanguageData): Promise<void> {
+export async function deposit(
+	guild: Guild,
+	author: string,
+	money: number,
+	lang: LanguageData
+): Promise<void> {
 	const channel = await getEconomyChannel(guild);
 	if (!channel) return;
 

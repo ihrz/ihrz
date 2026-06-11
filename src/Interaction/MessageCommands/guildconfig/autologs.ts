@@ -19,32 +19,32 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	Message,
-	PermissionFlagsBits,
-} from 'discord.js';
+import { Client, Message, PermissionFlagsBits } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
-import { command as cool_command } from "../../HybridCommands/guildconfig/setlogschannel.js"
+import { command as cool_command } from "../../HybridCommands/guildconfig/setlogschannel.js";
 
 export const command: Command = {
+	name: "autologs",
+	aliases: ["presetlogs", "presetlog", "autolog"],
 
-	name: 'autologs',
-	aliases: ['presetlogs', 'presetlog', 'autolog'],
-
-	description: 'Set all the logs channel automaticaly',
+	description: "Set all the logs channel automaticaly",
 	description_localizations: {
-		"fr": "Configurer automatiquement tous les canaux de journaux"
+		fr: "Configurer automatiquement tous les canaux de journaux"
 	},
 
 	thinking: false,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: PermissionFlagsBits.Administrator,
-	run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
-		cool_command.run!(client, interaction, lang, ['auto'])
-	},
+	run: async (
+		client: Client,
+		interaction: Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
+		cool_command.run!(client, interaction, lang, ["auto"]);
+	}
 };

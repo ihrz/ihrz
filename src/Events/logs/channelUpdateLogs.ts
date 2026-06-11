@@ -19,10 +19,21 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { AuditLogEvent, BaseGuildTextChannel, Client, EmbedBuilder, GuildChannel, PermissionFlagsBits } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
-import { LanguageData } from '../../../types/languageData.js';
-import { getLogs, handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
+import {
+	AuditLogEvent,
+	BaseGuildTextChannel,
+	Client,
+	EmbedBuilder,
+	GuildChannel,
+	PermissionFlagsBits
+} from "discord.js";
+import { BotEvent } from "../../../types/event.js";
+import { LanguageData } from "../../../types/languageData.js";
+import {
+	getLogs,
+	handledAuditLogEntrie_logs,
+	handledAuditLogEntries
+} from "../protection/ready.js";
 
 function getDiff(
 	oldChannel: GuildChannel,
@@ -32,7 +43,10 @@ function getDiff(
 	let after = "";
 
 	if (oldChannel.name !== newChannel.name) {
-		after += lang.event_srvLogs_channelUpdate_field_name.replace("${newChannel.name}", newChannel.name);
+		after += lang.event_srvLogs_channelUpdate_field_name.replace(
+			"${newChannel.name}",
+			newChannel.name
+		);
 	}
 
 	const oldPerms = oldChannel.permissionOverwrites.cache;
@@ -44,29 +58,37 @@ function getDiff(
 		if (newPerm) {
 			const target = newPerm.type === 0 ? `<@&${id}>` : `<@${id}>`;
 
-			const removedPerms = oldPerm.allow.toArray().filter(perm => !newPerm.allow.has(perm));
-			removedPerms.forEach(perm => {
+			const removedPerms = oldPerm.allow
+				.toArray()
+				.filter((perm) => !newPerm.allow.has(perm));
+			removedPerms.forEach((perm) => {
 				after += lang.event_srvLogs_channelUpdate_disabled_for
 					.replace("${perm}", perm)
 					.replace("${target}", target);
 			});
 
-			const addedPerms = newPerm.allow.toArray().filter(perm => !oldPerm.allow.has(perm));
-			addedPerms.forEach(perm => {
+			const addedPerms = newPerm.allow
+				.toArray()
+				.filter((perm) => !oldPerm.allow.has(perm));
+			addedPerms.forEach((perm) => {
 				after += lang.event_srvLogs_channelUpdate_enabled_for
 					.replace("${perm}", perm)
 					.replace("${target}", target);
 			});
 
-			const removedDeniedPerms = oldPerm.deny.toArray().filter(perm => !newPerm.deny.has(perm));
-			removedDeniedPerms.forEach(perm => {
+			const removedDeniedPerms = oldPerm.deny
+				.toArray()
+				.filter((perm) => !newPerm.deny.has(perm));
+			removedDeniedPerms.forEach((perm) => {
 				after += lang.event_srvLogs_channelUpdate_allowed_for
 					.replace("${perm}", perm)
 					.replace("${target}", target);
 			});
 
-			const addedDeniedPerms = newPerm.deny.toArray().filter(perm => !oldPerm.deny.has(perm));
-			addedDeniedPerms.forEach(perm => {
+			const addedDeniedPerms = newPerm.deny
+				.toArray()
+				.filter((perm) => !oldPerm.deny.has(perm));
+			addedDeniedPerms.forEach((perm) => {
 				after += lang.event_srvLogs_channelUpdate_unallowed_for
 					.replace("${perm}", perm)
 					.replace("${target}", target);
@@ -77,11 +99,14 @@ function getDiff(
 	newPerms.forEach((newPerm, id) => {
 		if (!oldPerms.has(id)) {
 			const target = newPerm.type === 0 ? `<@&${id}>` : `<@${id}>`;
-			after += lang.event_srvLogs_channelUpdate_perm_added.replace("${target}", target);
-			newPerm.allow.toArray().forEach(perm => {
+			after += lang.event_srvLogs_channelUpdate_perm_added.replace(
+				"${target}",
+				target
+			);
+			newPerm.allow.toArray().forEach((perm) => {
 				after += `-    ✅ ${perm}\n`;
 			});
-			newPerm.deny.toArray().forEach(perm => {
+			newPerm.deny.toArray().forEach((perm) => {
 				after += `-    ❌ ${perm}\n`;
 			});
 		}
@@ -92,25 +117,47 @@ function getDiff(
 
 export const event: BotEvent = {
 	name: "channelUpdate",
-	run: async (client: Client, oldChannel: GuildChannel, newChannel: GuildChannel) => {
-
+	run: async (
+		client: Client,
+		oldChannel: GuildChannel,
+		newChannel: GuildChannel
+	) => {
 		const lang = await client.func.getLanguageData(oldChannel.guildId);
 
 		if (!oldChannel || !oldChannel?.guild) return;
 
-		if (!oldChannel.guild.members.me?.permissions.has([
-			PermissionFlagsBits.Administrator
-		])) return;
+		if (
+			!oldChannel.guild.members.me?.permissions.has([
+				PermissionFlagsBits.Administrator
+			])
+		)
+			return;
 
-		const relevantLog = await getLogs({ guild: newChannel.guild, target: newChannel.id, actionType: AuditLogEvent.ChannelUpdate, type: 'LOGS' })
+		const relevantLog = await getLogs({
+			guild: newChannel.guild,
+			target: newChannel.id,
+			actionType: AuditLogEvent.ChannelUpdate,
+			type: "LOGS"
+		});
+		const relevantLog_2 = await getLogs({
+			guild: newChannel.guild,
+			target: newChannel.id,
+			actionType: AuditLogEvent.ChannelOverwriteUpdate,
+			type: "LOGS"
+		});
 
-		if (oldChannel.position !== newChannel.position) return;
+		// if (oldChannel.position !== newChannel.position) return;
 
-		// check if the author is the bot
-		if (!relevantLog) return;
-		if (relevantLog?.executor?.id === client.user?.id) return;
+		if (!relevantLog && !relevantLog_2) return;
+		if (
+			relevantLog?.executor?.id === client.user?.id &&
+			relevantLog_2?.executor?.id === client.user?.id
+		)
+			return;
 
-		const someinfo = await client.db.get(`${oldChannel.guildId}.GUILD.SERVER_LOGS.channel`);
+		const someinfo = await client.db.get(
+			`${oldChannel.guildId}.GUILD.SERVER_LOGS.channel`
+		);
 		if (!someinfo) return;
 
 		const Msgchannel = oldChannel.guild.channels.cache.get(someinfo);
@@ -129,13 +176,30 @@ export const event: BotEvent = {
 		const icon = relevantLog?.executor?.displayAvatarURL();
 
 		const logsEmbed = new EmbedBuilder()
-			.setColor(await client.db.get(`${oldChannel.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#010101")
-			.setAuthor({ name: relevantLog?.executor?.username || lang.var_unknown, iconURL: icon })
-			.setDescription(lang.event_srvLogs_channelUpdate_embed_desc.replace("${newChannel.toString()}", newChannel.toString()))
-			.addFields({ name: lang.event_srvLogs_messageUpdate_footer_2, value: changes });
+			.setColor(
+				(await client.db.get(
+					`${oldChannel.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`
+				)) || "#010101"
+			)
+			.setAuthor({
+				name: relevantLog?.executor?.username || lang.var_unknown,
+				iconURL: icon
+			})
+			.setDescription(
+				lang.event_srvLogs_channelUpdate_embed_desc.replace(
+					"${newChannel.toString()}",
+					newChannel.toString()
+				)
+			)
+			.addFields({
+				name: lang.event_srvLogs_messageUpdate_footer_2,
+				value: changes
+			});
 
 		logsEmbed.setTimestamp();
 
-		await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-	},
+		await (Msgchannel as BaseGuildTextChannel)
+			.send({ embeds: [logsEmbed] })
+			.catch(() => {});
+	}
 };

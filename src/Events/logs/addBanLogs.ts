@@ -19,44 +19,77 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, EmbedBuilder, PermissionsBitField, AuditLogEvent, GuildBan } from 'discord.js';
+import {
+	BaseGuildTextChannel,
+	Client,
+	EmbedBuilder,
+	PermissionsBitField,
+	AuditLogEvent,
+	GuildBan
+} from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { getLogs, handledAuditLogEntrie_logs, handledAuditLogEntries } from '../protection/ready.js';
+import { BotEvent } from "../../../types/event.js";
+import {
+	getLogs,
+	handledAuditLogEntrie_logs,
+	handledAuditLogEntries
+} from "../protection/ready.js";
 
 export const event: BotEvent = {
 	name: "guildBanAdd",
 	run: async (client: Client, ban: GuildBan) => {
-
 		const data = await client.func.getLanguageData(ban.guild.id);
 
-		if (!ban.guild.members.me || !ban.guild.members.me.permissions.has([
-			PermissionsBitField.Flags.ViewAuditLog,
-			PermissionsBitField.Flags.ManageGuild
-		])) return;
+		if (
+			!ban.guild.members.me ||
+			!ban.guild.members.me.permissions.has([
+				PermissionsBitField.Flags.ViewAuditLog,
+				PermissionsBitField.Flags.ManageGuild
+			])
+		)
+			return;
 
-		const someinfo = await client.db.get(`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`);
+		const someinfo = await client.db.get(
+			`${ban.guild.id}.GUILD.SERVER_LOGS.moderation`
+		);
 		if (!someinfo) return;
 
 		const Msgchannel = ban.guild.channels.cache.get(someinfo);
 		if (!Msgchannel) return;
 
-
-		const relevantLog = await getLogs({ guild: ban.guild, target: ban.user.id, actionType: AuditLogEvent.MemberBanAdd, type: 'LOGS' })
+		const relevantLog = await getLogs({
+			guild: ban.guild,
+			target: ban.user.id,
+			actionType: AuditLogEvent.MemberBanAdd,
+			type: "LOGS"
+		});
 		if (!relevantLog) return;
 
 		const logsEmbed = new EmbedBuilder()
-			.setColor(await client.db.get(`${ban.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#010101")
-			.setDescription(data.event_srvLogs_banAdd_description
-				.replace("${firstEntry.executor.id}", relevantLog?.executor?.id!)
-				.replace("${firstEntry.target.id}", relevantLog?.targetId!)
+			.setColor(
+				(await client.db.get(
+					`${ban.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`
+				)) || "#010101"
+			)
+			.setDescription(
+				data.event_srvLogs_banAdd_description
+					.replace(
+						"${firstEntry.executor.id}",
+						relevantLog?.executor?.id!
+					)
+					.replace("${firstEntry.target.id}", relevantLog?.targetId!)
 			)
 			.addFields({
 				name: data.event_srvLogs_banAdd_fields_name,
-				value: data.event_srvLogs_banAdd_fields_value.replace('{reason}', relevantLog?.reason || data.blacklist_var_no_reason)
+				value: data.event_srvLogs_banAdd_fields_value.replace(
+					"{reason}",
+					relevantLog?.reason || data.blacklist_var_no_reason
+				)
 			})
 			.setTimestamp();
 
-		await (Msgchannel as BaseGuildTextChannel).send({ embeds: [logsEmbed] }).catch(() => { });
-	},
+		await (Msgchannel as BaseGuildTextChannel)
+			.send({ embeds: [logsEmbed] })
+			.catch(() => {});
+	}
 };

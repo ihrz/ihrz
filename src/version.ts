@@ -19,18 +19,22 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync } from "node:fs";
 
-const pkg = JSON.parse(readFileSync(process.cwd() + "/package.json", 'utf-8'));
+const pkg = JSON.parse(readFileSync(process.cwd() + "/package.json", "utf-8"));
 
-type Env = "ownihrz" | "dev" | "production";
+export const env: string = Bun.spawnSync({
+	cmd: ["git", "branch", "--show-current"]
+})
+	.stdout.toString()
+	.trim();
 
-const env: Env = "ownihrz";
-const version = pkg.version;
-const djs = pkg.dependencies['discord.js'];
+export const version = pkg.version;
+export const djs = pkg.dependencies["discord.js"];
+export const git = Bun.spawnSync({
+	cmd: ["git", "rev-parse", "--short", "HEAD"]
+})
+	.stdout.toString()
+	.trim();
 
-const ClientVersion = `${env}@${version} discord.js@${djs}`;
-
-export {
-	env, version, djs, ClientVersion
-};
+export const ClientVersion = `${version} (${env}:${git}) discord.js@${djs}`;

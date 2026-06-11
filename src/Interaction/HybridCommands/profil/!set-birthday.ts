@@ -29,19 +29,25 @@ import {
 	ColorResolvable,
 	ComponentType,
 	EmbedBuilder,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
-import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
-import { profilTable } from '../../../Events/client/ready.js';
+import { SubCommand } from "../../../../types/command.js";
+import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
+import { profilTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-		const birthday = await profilTable.get(`${interaction.member?.user.id}.birthday`) || {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		const birthday = (await profilTable.get(
+			`${interaction.member?.user.id}.birthday`
+		)) || {
 			day: null,
 			month: null,
 			year: null
@@ -67,49 +73,77 @@ export const subCommand: SubCommand = {
 				.setStyle(ButtonStyle.Success)
 				.setLabel(lang.var_confirm)
 				.setEmoji(client.iHorizon_Emojis.Yes)
-				.setCustomId("set_confirm"),
+				.setCustomId("set_confirm")
 		];
 
 		// function to generate random color in hex format
 		function randomColor() {
-			return '#' + Math.floor(Math.random() * 16777215).toString(16);
-		};
+			return "#" + Math.floor(Math.random() * 16777215).toString(16);
+		}
 
 		const introduction = lang.profil_birthday_embed_introduction
-			.replaceAll("${client.iHorizon_Emojis.Sparkles}", client.iHorizon_Emojis.Sparkles)
-			.replace("${client.iHorizon_Emojis.Crown}", client.iHorizon_Emojis.Crown)
-			.replace("${interaction.member?.toString()}", interaction.member?.toString()!);
+			.replaceAll(
+				"${client.iHorizon_Emojis.Sparkles}",
+				client.iHorizon_Emojis.Sparkles
+			)
+			.replace(
+				"${client.iHorizon_Emojis.Crown}",
+				client.iHorizon_Emojis.Crown
+			)
+			.replace(
+				"${interaction.member?.toString()}",
+				interaction.member?.toString()!
+			);
 
 		// function to get the current birthday
 		function getBirthdayString(): string {
 			return lang.profil_birthday_embed_current_birthday
-				.replace("${client.iHorizon_Emojis.Pin}", client.iHorizon_Emojis.Pin)
+				.replace(
+					"${client.iHorizon_Emojis.Pin}",
+					client.iHorizon_Emojis.Pin
+				)
 				.replace("${birthday.month}", birthday.month)
 				.replace("${birthday.day}", birthday.day)
 				.replace("${birthday.year}", birthday.year);
-		};
+		}
 
 		const embed = new EmbedBuilder()
 			.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#0092cc")
 			.setTitle(lang.profil_birthday_embed_title)
-			.setThumbnail((interaction.member?.displayAvatarURL() || interaction.member?.user.displayAvatarURL()) as string)
+			.setThumbnail(
+				(interaction.member?.displayAvatarURL() ||
+					interaction.member?.user.displayAvatarURL()) as string
+			)
 			.setDescription(introduction + getBirthdayString())
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
-		const og_interaction = await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			components: [new ActionRowBuilder<ButtonBuilder>().addComponents(buttons)],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-		});
+		const og_interaction = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [embed],
+				components: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(buttons)
+				],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			}
+		);
 
 		// loop to change the color of the embed every 5 seconds
 		const cool_loop = setInterval(() => {
 			try {
 				if (!og_interaction) return;
 
-				embed.setColor(randomColor() as ColorResolvable)
+				embed.setColor(randomColor() as ColorResolvable);
 				og_interaction.edit({ embeds: [embed] }).catch(() => false);
-			} catch (error) { }
+			} catch (error) {}
 		}, 3500);
 
 		const collector = og_interaction.createMessageComponentCollector({
@@ -117,12 +151,15 @@ export const subCommand: SubCommand = {
 			componentType: ComponentType.Button
 		});
 
-		collector.on('collect', async (buttonInteraction) => {
+		collector.on("collect", async (buttonInteraction) => {
 			// check if the user is the same as the one who initiated the command
 			if (buttonInteraction.user.id !== interaction.member?.user.id) {
-				await buttonInteraction.reply({ content: lang.help_not_for_you, flags: [1 << 6] });
+				await buttonInteraction.reply({
+					content: lang.help_not_for_you,
+					flags: [1 << 6]
+				});
 				return;
-			};
+			}
 
 			// get the wanted value
 			const value = buttonInteraction.customId.split("_")[1];
@@ -139,22 +176,30 @@ export const subCommand: SubCommand = {
 					break;
 				case "confirm":
 					// send a confirmation message
-					await buttonInteraction.reply({ content: lang.ticket_panel_saved_conf, flags: [1 << 6] });
+					await buttonInteraction.reply({
+						content: lang.ticket_panel_saved_conf,
+						flags: [1 << 6]
+					});
 					// stop the collector
 					collector.stop();
 					break;
 			}
 		});
 
-		collector.on('end', async () => {
+		collector.on("end", async () => {
 			// update the embed
-			embed.setDescription(introduction + getBirthdayString())
+			embed.setDescription(introduction + getBirthdayString());
 
 			// disable the buttons
-			buttons.forEach(button => button.setDisabled(true));
+			buttons.forEach((button) => button.setDisabled(true));
 
 			// edit the message
-			await og_interaction.edit({ embeds: [embed], components: [new ActionRowBuilder<ButtonBuilder>().addComponents(buttons)] });
+			await og_interaction.edit({
+				embeds: [embed],
+				components: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(buttons)
+				]
+			});
 
 			// clear the interval
 			clearInterval(cool_loop);
@@ -162,21 +207,24 @@ export const subCommand: SubCommand = {
 
 		async function set_year(buttonInteraction: ButtonInteraction) {
 			// create a modal to get the year
-			const modal = await iHorizonModalResolve({
-				title: lang.profil_birthday_modal1_title,
-				customId: "set_year",
-				deferUpdate: false,
-				fields: [
-					{
-						customId: "year",
-						label: lang.profil_birthday_modal1_fields1_label,
-						style: 1,
-						required: true,
-						maxLength: 4,
-						minLength: 4
-					}
-				]
-			}, buttonInteraction);
+			const modal = await iHorizonModalResolve(
+				{
+					title: lang.profil_birthday_modal1_title,
+					customId: "set_year",
+					deferUpdate: false,
+					fields: [
+						{
+							customId: "year",
+							label: lang.profil_birthday_modal1_fields1_label,
+							style: 1,
+							required: true,
+							maxLength: 4,
+							minLength: 4
+						}
+					]
+				},
+				buttonInteraction
+			);
 
 			if (!modal) return;
 
@@ -184,28 +232,42 @@ export const subCommand: SubCommand = {
 			const year = modal.fields.getTextInputValue("year");
 
 			// check if the year is valid
-			if (Number.isNaN(parseInt(year))
-				|| parseInt(year) > new Date().getFullYear()
-				|| parseInt(year) < 1900) {
-				await modal.reply({ content: lang.profil_birthday_invalid_year, flags: [1 << 6] });
+			if (
+				Number.isNaN(parseInt(year)) ||
+				parseInt(year) > new Date().getFullYear() ||
+				parseInt(year) < 1900
+			) {
+				await modal.reply({
+					content: lang.profil_birthday_invalid_year,
+					flags: [1 << 6]
+				});
 				return;
-			};
+			}
 
 			// check if the year is already set
 			if (birthday.year === year) {
-				await modal.reply({ content: lang.profil_birthday_year_already_set, flags: [1 << 6] });
+				await modal.reply({
+					content: lang.profil_birthday_year_already_set,
+					flags: [1 << 6]
+				});
 				return;
-			};
+			}
 
 			// set the year
-			await profilTable.set(`${buttonInteraction.user.id}.birthday.year`, year);
+			await profilTable.set(
+				`${buttonInteraction.user.id}.birthday.year`,
+				year
+			);
 			birthday.year = year;
 
 			// send a confirmation message
-			await modal.reply({ content: lang.profil_birthday_year_set, flags: [1 << 6] });
+			await modal.reply({
+				content: lang.profil_birthday_year_set,
+				flags: [1 << 6]
+			});
 
 			// update the embed
-			embed.setDescription(introduction + getBirthdayString())
+			embed.setDescription(introduction + getBirthdayString());
 
 			await og_interaction.edit({ embeds: [embed] });
 
@@ -214,21 +276,24 @@ export const subCommand: SubCommand = {
 
 		async function set_month(buttonInteraction: ButtonInteraction) {
 			// create a modal to get the month
-			const modal = await iHorizonModalResolve({
-				title: lang.profil_birthday_modal2_title,
-				customId: "set_month",
-				deferUpdate: false,
-				fields: [
-					{
-						customId: "month",
-						label: lang.profil_birthday_modal2_fields1_label,
-						style: 1,
-						required: true,
-						maxLength: 2,
-						minLength: 2
-					}
-				]
-			}, buttonInteraction);
+			const modal = await iHorizonModalResolve(
+				{
+					title: lang.profil_birthday_modal2_title,
+					customId: "set_month",
+					deferUpdate: false,
+					fields: [
+						{
+							customId: "month",
+							label: lang.profil_birthday_modal2_fields1_label,
+							style: 1,
+							required: true,
+							maxLength: 2,
+							minLength: 2
+						}
+					]
+				},
+				buttonInteraction
+			);
 
 			if (!modal) return;
 
@@ -236,29 +301,42 @@ export const subCommand: SubCommand = {
 			const month = modal.fields.getTextInputValue("month");
 
 			// check if the month is valid
-			if (Number.isNaN(parseInt(month))
-				|| parseInt(month) > 12
-				|| parseInt(month) < 1
+			if (
+				Number.isNaN(parseInt(month)) ||
+				parseInt(month) > 12 ||
+				parseInt(month) < 1
 			) {
-				await modal.reply({ content: lang.profil_birthday_invalid_month, flags: [1 << 6] });
+				await modal.reply({
+					content: lang.profil_birthday_invalid_month,
+					flags: [1 << 6]
+				});
 				return;
-			};
+			}
 
 			// check if the month is already set
 			if (birthday.month === month) {
-				await modal.reply({ content: lang.profil_birthday_month_already_set, flags: [1 << 6] });
+				await modal.reply({
+					content: lang.profil_birthday_month_already_set,
+					flags: [1 << 6]
+				});
 				return;
-			};
+			}
 
 			// set the month
-			await profilTable.set(`${buttonInteraction.user.id}.birthday.month`, month);
+			await profilTable.set(
+				`${buttonInteraction.user.id}.birthday.month`,
+				month
+			);
 			birthday.month = month;
 
 			// send a confirmation message
-			await modal.reply({ content: lang.profil_birthday_month_set, flags: [1 << 6] });
+			await modal.reply({
+				content: lang.profil_birthday_month_set,
+				flags: [1 << 6]
+			});
 
 			// update the embed
-			embed.setDescription(introduction + getBirthdayString())
+			embed.setDescription(introduction + getBirthdayString());
 
 			await og_interaction.edit({ embeds: [embed] });
 
@@ -267,21 +345,24 @@ export const subCommand: SubCommand = {
 
 		async function set_day(buttonInteraction: ButtonInteraction) {
 			// create a modal to get the day
-			const modal = await iHorizonModalResolve({
-				title: lang.profil_birthday_modal3_title,
-				customId: "set_day",
-				deferUpdate: false,
-				fields: [
-					{
-						customId: "day",
-						label: lang.profil_birthday_modal3_fields1_label,
-						style: 1,
-						required: true,
-						maxLength: 2,
-						minLength: 2
-					}
-				]
-			}, buttonInteraction);
+			const modal = await iHorizonModalResolve(
+				{
+					title: lang.profil_birthday_modal3_title,
+					customId: "set_day",
+					deferUpdate: false,
+					fields: [
+						{
+							customId: "day",
+							label: lang.profil_birthday_modal3_fields1_label,
+							style: 1,
+							required: true,
+							maxLength: 2,
+							minLength: 2
+						}
+					]
+				},
+				buttonInteraction
+			);
 
 			if (!modal) return;
 
@@ -289,32 +370,46 @@ export const subCommand: SubCommand = {
 			const day = modal.fields.getTextInputValue("day");
 
 			// check if the day is valid
-			if (Number.isNaN(parseInt(day))
-				|| parseInt(day) > 31
-				|| parseInt(day) < 1) {
-				await modal.reply({ content: lang.profil_birthday_invalid_day, flags: [1 << 6] });
+			if (
+				Number.isNaN(parseInt(day)) ||
+				parseInt(day) > 31 ||
+				parseInt(day) < 1
+			) {
+				await modal.reply({
+					content: lang.profil_birthday_invalid_day,
+					flags: [1 << 6]
+				});
 				return;
-			};
+			}
 
 			// check if the day is already set
 			if (birthday.day === day) {
-				await modal.reply({ content: lang.profil_birthday_day_already_set, flags: [1 << 6] });
+				await modal.reply({
+					content: lang.profil_birthday_day_already_set,
+					flags: [1 << 6]
+				});
 				return;
-			};
+			}
 
 			// set the day
-			await profilTable.set(`${buttonInteraction.user.id}.birthday.day`, day);
+			await profilTable.set(
+				`${buttonInteraction.user.id}.birthday.day`,
+				day
+			);
 			birthday.day = day;
 
 			// send a confirmation message
-			await modal.reply({ content: lang.profil_birthday_day_set, flags: [1 << 6] });
+			await modal.reply({
+				content: lang.profil_birthday_day_set,
+				flags: [1 << 6]
+			});
 
 			// update the embed
-			embed.setDescription(introduction + getBirthdayString())
+			embed.setDescription(introduction + getBirthdayString());
 
 			await og_interaction.edit({ embeds: [embed] });
 
 			return;
-		};
-	},
+		}
+	}
 };

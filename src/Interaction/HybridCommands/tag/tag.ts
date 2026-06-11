@@ -27,32 +27,15 @@ import {
 	Message,
 	time,
 	ChatInputCommandInteraction
-} from 'discord.js';
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-
-export async function generateTagInfoEmbed(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, tag_id: string, tag: DatabaseStructure.TagInfo) {
-	return new EmbedBuilder()
-		.setTitle(`${lang.tag_name} #${tag_id}`)
-		.setThumbnail(interaction?.guild!.iconURL() || interaction.member!.user.avatarURL() || interaction.client.user.displayAvatarURL())
-		.setColor(await client.db.get(`${interaction.guild!.id}.GUILD.GUILD_CONFIG.embed_color.all`) || "#Aqua")
-		.setDescription(
-			`${interaction.client.iHorizon_Emojis.Crown} > **${lang.var_author}:** <@${tag.createBy}>\n` +
-			`${interaction.client.iHorizon_Emojis.Sparkles} > **${lang.tag_embed_created_at}:** ${time(new Date(tag.createTimestamp), "D")}\n` +
-			`${interaction.client.iHorizon_Emojis.Timer} > **${lang.tag_embed_last_update}:** ${time(new Date(tag.lastUseTimestamp), "D")}\n` +
-			`${interaction.client.iHorizon_Emojis.Timer} > **${lang.var_uses}:** ${"**`" + tag.uses + "`**"}\n` +
-			`${interaction.client.iHorizon_Emojis.Boosting24Months_Badge} > **${lang.tag_embed_last_updated_by}:** ${tag.lastUseBy ? '<@' + tag.lastUseBy + '>' : lang.var_no_set}\n` +
-			`${interaction.client.iHorizon_Emojis.Message_Commands} > **${lang.var_message}:** ** ${tag?.content || lang.var_no_set}**`
-		);
-}
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "tag",
 	description: "Subcommand for the category of tags message",
 	description_localizations: {
-		"fr": "Sous-commande pour la catégorie de message de tags"
+		fr: "Sous-commande pour la catégorie de message de tags"
 	},
 
 	options: [
@@ -177,7 +160,7 @@ export const command: Command = {
 					type: ApplicationCommandOptionType.String,
 					required: false,
 					permission: null
-				},
+				}
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -188,7 +171,7 @@ export const command: Command = {
 
 			description: "Edit a tag",
 			description_localizations: {
-				"fr": "Modifier un tag"
+				fr: "Modifier un tag"
 			},
 
 			options: [
@@ -197,7 +180,7 @@ export const command: Command = {
 
 					description: "The current tag name",
 					description_localizations: {
-						"fr": "Le nom actuel du tag"
+						fr: "Le nom actuel du tag"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -209,7 +192,7 @@ export const command: Command = {
 
 					description: "The new tag name",
 					description_localizations: {
-						"fr": "Le nouveau nom du tag"
+						fr: "Le nouveau nom du tag"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -219,7 +202,7 @@ export const command: Command = {
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
-			permission: null,
+			permission: null
 		},
 		{
 			name: "delete",
@@ -290,8 +273,8 @@ export const command: Command = {
 		}
 	],
 
-	category: 'tags',
+	category: "tags",
 	thinking: false,
 	permission: null,
-	type: ApplicationCommandType.ChatInput,
+	type: ApplicationCommandType.ChatInput
 };

@@ -19,30 +19,40 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, EmbedBuilder, ApplicationCommandType, UserContextMenuCommandInteraction } from 'discord.js';
-import { AnotherCommand } from '../../../types/anotherCommand.js';
+import {
+	Client,
+	EmbedBuilder,
+	ApplicationCommandType,
+	UserContextMenuCommandInteraction
+} from "discord.js";
+import { AnotherCommand } from "../../../types/anotherCommand.js";
 
-import logger from '../../core/logger.js';
-import { love } from '../../core/images.js';
+import logger from "../../core/logger.js";
+import { love } from "../../core/images.js";
 
 export const command: AnotherCommand = {
 	name: "Estimate the love",
 	type: ApplicationCommandType.User,
 	thinking: false,
 	permission: null,
-	run: async (client: Client, interaction: UserContextMenuCommandInteraction) => {
+	run: async (
+		client: Client,
+		interaction: UserContextMenuCommandInteraction
+	) => {
 		const lang = await client.func.getLanguageData(interaction.guildId);
 		const user1 = interaction.user;
 		const user2 = interaction.targetUser;
 
 		try {
-			const buffer = await love(user1.displayAvatarURL({ extension: 'png', size: 512 }), user2.displayAvatarURL({ extension: 'png', size: 512 }))
-			const always100: Array<string> = client.config.command.alway100;
+			const buffer = await love(
+				user1.displayAvatarURL({ extension: "png", size: 512 }),
+				user2.displayAvatarURL({ extension: "png", size: 512 })
+			);
+			const always100: Array<string> = client.config.command.always100;
 
-			const found = always100.find(element => {
+			const found = always100.find((element) => {
 				if (
-					element === `${user1?.id}x${user2?.id}`
-					||
+					element === `${user1?.id}x${user2?.id}` ||
 					element === `${user2?.id}x${user1?.id}`
 				) {
 					return true;
@@ -55,27 +65,37 @@ export const command: AnotherCommand = {
 				randomNumber = 100;
 			} else {
 				randomNumber = Math.floor(Math.random() * 101);
-			};
+			}
 
 			var embed = new EmbedBuilder()
 				.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.fun-cmd`) || "#FFC0CB")
 				.setTitle("💕")
 				.setImage(`attachment://love.png`)
-				.setDescription(lang.love_embed_description
-					.replace('${user1.username}', user1.globalName!)
-					.replace('${user2.username}', user2?.globalName!)
-					.replace('${randomNumber}', randomNumber.toString())
+				.setDescription(
+					lang.love_embed_description
+						.replace("${user1.username}", user1.globalName!)
+						.replace("${user2.username}", user2?.globalName!)
+						.replace("${randomNumber}", randomNumber.toString())
 				)
-				.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
+				.setFooter(
+					await client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				)
 				.setTimestamp();
 
 			await interaction.reply({
 				embeds: [embed],
-				files: [{ attachment: buffer, name: 'love.png' }, await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)]
+				files: [
+					{ attachment: buffer, name: "love.png" },
+					await interaction.client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
 			});
 		} catch (error) {
 			logger.err(error);
 			await interaction.reply({ content: lang.love_command_error });
 		}
-	},
+	}
 };

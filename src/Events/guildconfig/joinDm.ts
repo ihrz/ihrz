@@ -19,15 +19,26 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, GuildMember, SnowflakeUtil } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import {
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonStyle,
+	Client,
+	GuildMember,
+	SnowflakeUtil
+} from "discord.js";
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
 		try {
-			let msg_dm = await client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`)
-			let guildLocal = await client.db.get(`${member.guild.id}.GUILD.LANG.lang`) || "fr-FR";
+			let msg_dm = await client.db.get(
+				`${member.guild.id}.GUILD.GUILD_CONFIG.joindm`
+			);
+			const guildLocal =
+				(await client.db.get(`${member.guild.id}.GUILD.LANG.lang`)) ||
+				"fr-FR";
 
 			if (!msg_dm || msg_dm === "off") return;
 
@@ -38,30 +49,31 @@ export const event: BotEvent = {
 			 */
 			const nonce = SnowflakeUtil.generate().toString();
 
-			msg_dm = client.func.method.generateCustomMessagePreview(msg_dm,
-				{
-					user: member.user,
-					guild: member.guild,
-					guildLocal: guildLocal,
-				}
-			);
+			msg_dm = client.func.method.generateCustomMessagePreview(msg_dm, {
+				user: member.user,
+				guild: member.guild,
+				guildLocal: guildLocal
+			});
 
 			const button = new ButtonBuilder()
 				.setDisabled(true)
-				.setCustomId('join-dm-from-server')
+				.setCustomId("join-dm-from-server")
 				.setStyle(ButtonStyle.Secondary)
-				.setLabel('Message from ' + member.guild.id);
+				.setLabel("Message from " + member.guild.id);
 
-			member.send({
-				content: msg_dm,
-				components: [
-					new ActionRowBuilder<ButtonBuilder>().addComponents(button)
-				],
-				enforceNonce: true,
-				nonce: nonce
-			})
-				.catch(() => { })
-				.then(() => { });
-		} catch { };
-	},
+			member
+				.send({
+					content: msg_dm,
+					components: [
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							button
+						)
+					],
+					enforceNonce: true,
+					nonce: nonce
+				})
+				.catch(() => {})
+				.then(() => {});
+		} catch {}
+	}
 };

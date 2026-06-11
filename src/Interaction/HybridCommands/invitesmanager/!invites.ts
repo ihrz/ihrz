@@ -24,27 +24,41 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember("member") as GuildMember || interaction.member;
+			var member =
+				(interaction.options.getMember("member") as GuildMember) ||
+				interaction.member;
 		} else {
+			var member =
+				client.func.method.member(interaction, args!, 0) ||
+				interaction.member;
+		}
 
-			var member = client.func.method.member(interaction, args!, 0) || interaction.member;
-		};
-
-		const baseData = await client.db.get(`${interaction.guildId}.USER.${member.id}.INVITES`);
+		const baseData = await client.db.get(
+			`${interaction.guildId}.USER.${member.id}.INVITES`
+		);
 
 		const inv = baseData?.invites;
 		const leaves = baseData?.leaves;
@@ -65,7 +79,9 @@ export const subCommand: SubCommand = {
 					.replace(/\${inv\s*\|\|\s*0}/g, inv || 0)
 			);
 
-		await client.func.method.interactionSend(interaction, { embeds: [embed] });
+		await client.func.method.interactionSend(interaction, {
+			embeds: [embed]
+		});
 		return;
-	},
+	}
 };

@@ -39,10 +39,17 @@ export class TempbanManager {
 	 * @param reason The reason for the ban
 	 * @returns true if the operation succeeded, false otherwise
 	 */
-	public async addban(guild: Guild, user: User, time: number, reason?: string): Promise<boolean> {
+	public async addban(
+		guild: Guild,
+		user: User,
+		time: number,
+		reason?: string
+	): Promise<boolean> {
 		try {
 			// Ban the user from the guild
-			await guild.members.ban(user, { reason: reason || "No reason provided" });
+			await guild.members.ban(user, {
+				reason: reason || "No reason provided"
+			});
 
 			const guildId = guild.id;
 			const userId = user.id;
@@ -50,7 +57,8 @@ export class TempbanManager {
 
 			// Get current data
 			const dbPath = `${guildId}.GUILD.TEMPBAN`;
-			let tempBans: DatabaseStructure.TempbanSchema = await this.client.db.get(dbPath) || {};
+			let tempBans: DatabaseStructure.TempbanSchema =
+				(await this.client.db.get(dbPath)) || {};
 
 			// Add the new temporary ban
 			tempBans[userId] = {
@@ -79,7 +87,8 @@ export class TempbanManager {
 			const userId = user.id;
 			const dbPath = `${guildId}.GUILD.TEMPBAN`;
 
-			const tempBans: DatabaseStructure.TempbanSchema = await this.client.db.get(dbPath) || {};
+			const tempBans: DatabaseStructure.TempbanSchema =
+				(await this.client.db.get(dbPath)) || {};
 
 			return userId in tempBans;
 		} catch (error) {
@@ -101,7 +110,8 @@ export class TempbanManager {
 			const guildId = guild.id;
 			const dbPath = `${guildId}.GUILD.TEMPBAN`;
 
-			let tempBans: DatabaseStructure.TempbanSchema = await this.client.db.get(dbPath) || {};
+			let tempBans: DatabaseStructure.TempbanSchema =
+				(await this.client.db.get(dbPath)) || {};
 
 			// Remove the ban entry
 			if (tempBans[userId]) {
@@ -125,7 +135,8 @@ export class TempbanManager {
 			// Loop through all guilds
 			for (const guild of this.client.guilds.cache.values()) {
 				const dbPath = `${guild.id}.GUILD.TEMPBAN`;
-				let tempBans: DatabaseStructure.TempbanSchema = await this.client.db.get(dbPath) || {};
+				let tempBans: DatabaseStructure.TempbanSchema =
+					(await this.client.db.get(dbPath)) || {};
 				let hasChanges = false;
 
 				// Loop through all users with temporary bans

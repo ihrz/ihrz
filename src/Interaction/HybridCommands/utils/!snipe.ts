@@ -23,39 +23,59 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const based = await client.db.get(`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`) as DatabaseStructure.SnipeData[""];
+		const based = (await client.db.get(
+			`${interaction.guildId}.GUILD.SNIPE.${interaction.channel.id}`
+		)) as DatabaseStructure.SnipeData[""];
 
 		const message_content = based?.snipe;
 
 		if (!based || !message_content) {
-			await client.func.method.interactionSend(interaction, { content: lang.snipe_no_previous_message_deleted });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.snipe_no_previous_message_deleted
+			});
 			return;
-		};
+		}
 
-		let embed = new EmbedBuilder()
-			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`) || "#474749")
-			.setAuthor({ name: based.snipeUserInfoTag, iconURL: based.snipeUserInfoPp })
+		const embed = new EmbedBuilder()
+			.setColor(
+				(await client.db.get(
+					`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.utils-cmd`
+				)) || "#474749"
+			)
+			.setAuthor({
+				name: based.snipeUserInfoTag,
+				iconURL: based.snipeUserInfoPp
+			})
 			.setDescription(message_content)
 			.setTimestamp(based.snipeTimestamp);
 
-		await client.func.method.interactionSend(interaction, { embeds: [embed] });
+		await client.func.method.interactionSend(interaction, {
+			embeds: [embed]
+		});
 		return;
-	},
+	}
 };

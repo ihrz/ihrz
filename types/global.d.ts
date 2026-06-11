@@ -21,10 +21,12 @@
 
 import { Client } from "discord.js";
 import { Logger } from "./logger";
+import { getOS as GET_OS } from "../src/core/getOS.ts";
 
 declare global {
 	var client: Client;
 	var logger: Logger;
+	var getOS: typeof GET_OS;
 }
 
-export { }
+export {};

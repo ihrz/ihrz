@@ -19,14 +19,18 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, EmbedBuilder, GuildChannel, GuildTextBasedChannel } from 'discord.js'
+import {
+	Client,
+	EmbedBuilder,
+	GuildChannel,
+	GuildTextBasedChannel
+} from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "channelCreate",
 	run: async (client: Client, channel: GuildChannel) => {
-
 		if (channel.name !== "ihorizon-logs") return;
 
 		const data = await client.func.getLanguageData(channel.guild.id);
@@ -34,10 +38,14 @@ export const event: BotEvent = {
 		let setup_embed = new EmbedBuilder()
 			.setColor(await client.db.get(`${channel.guild.id}.GUILD.GUILD_CONFIG.embed_color.audits-logs`) || "#1e1d22")
 			.setTitle(data.event_channel_create_message_embed_title)
-			.setDescription(data.event_channel_create_message_embed_description);
+			.setDescription(
+				data.event_channel_create_message_embed_description
+			);
 
-		await (channel as GuildTextBasedChannel).send({ embeds: [setup_embed] }).catch(() => { });
+		await (channel as GuildTextBasedChannel)
+			.send({ embeds: [setup_embed] })
+			.catch(() => {});
 
 		return;
-	},
+	}
 };

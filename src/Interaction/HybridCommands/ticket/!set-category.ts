@@ -24,50 +24,91 @@ import {
 	EmbedBuilder,
 	CategoryChannel,
 	ChatInputCommandInteraction,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
-import { Channel } from 'discord.js';
+import { SubCommand } from "../../../../types/command.js";
+import { Channel } from "discord.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var category = interaction.options.getChannel("category-name", true) as Channel;
+			var category = interaction.options.getChannel(
+				"category-name",
+				true
+			) as Channel;
 		} else {
-			var category = await client.func.method.channel(interaction, args!, 0) as Channel;
+			var category = (await client.func.method.channel(
+				interaction,
+				args!,
+				0
+			)) as Channel;
 		}
 
-		if (await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)) {
-			await client.func.method.interactionSend(interaction, { content: lang.ticket_disabled_command });
+		if (
+			await client.db.get(`${interaction.guildId}.GUILD.TICKET.disable`)
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.ticket_disabled_command
+			});
 			return;
-		};
+		}
 
 		if (!(category instanceof CategoryChannel)) {
-			await client.func.method.interactionSend(interaction, { content: lang.setticketcategory_not_a_category });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.setticketcategory_not_a_category
+			});
 			return;
-		};
+		}
 
-		await client.db.set(`${interaction.guildId}.GUILD.TICKET.category`, category.id);
+		await client.db.set(
+			`${interaction.guildId}.GUILD.TICKET.category`,
+			category.id
+		);
 
 		const embed = new EmbedBuilder()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-			.setColor(await client.db.get(`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`) || '#00FFFF')
-			.setDescription(lang.setticketcategory_command_work
-				.replace('${category.name}', category.name)
-				.replace('${interaction.user.id}', interaction.member.user.id)
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
+			.setColor(
+				(await client.db.get(
+					`${interaction.guild?.id}.GUILD.GUILD_CONFIG.embed_color.all`
+				)) || "#00FFFF"
+			)
+			.setDescription(
+				lang.setticketcategory_command_work
+					.replace("${category.name}", category.name)
+					.replace(
+						"${interaction.user.id}",
+						interaction.member.user.id
+					)
 			);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
-	},
+	}
 };

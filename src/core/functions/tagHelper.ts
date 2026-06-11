@@ -19,21 +19,35 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Message, EmbedBuilder, time } from "discord.js";
+import {
+	ChatInputCommandInteraction,
+	Message,
+	EmbedBuilder,
+	time
+} from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure";
 import { LanguageData } from "../../../types/languageData";
 
-export default function generateTagInfoEmbed(interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, tag_id: string, tag: DatabaseStructure.TagInfo): EmbedBuilder {
+export default function generateTagInfoEmbed(
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData,
+	tag_id: string,
+	tag: DatabaseStructure.TagInfo
+): EmbedBuilder {
 	return new EmbedBuilder()
 		.setTitle(`${lang.tag_name} #${tag_id}`)
-		.setThumbnail(interaction?.guild!.iconURL() || interaction.member!.user.avatarURL() || interaction.client.user.displayAvatarURL())
+		.setThumbnail(
+			interaction?.guild!.iconURL() ||
+				interaction.member!.user.avatarURL() ||
+				interaction.client.user.displayAvatarURL()
+		)
 		.setColor("Aqua")
 		.setDescription(
 			`${interaction.client.iHorizon_Emojis.Crown} > **${lang.var_author}:** <@${tag.createBy}>\n` +
-			`${interaction.client.iHorizon_Emojis.Sparkles} > **${lang.tag_embed_created_at}:** ${time(new Date(tag.createTimestamp), "D")}\n` +
-			`${interaction.client.iHorizon_Emojis.Timer} > **${lang.tag_embed_last_update}:** ${time(new Date(tag.lastUseTimestamp), "D")}\n` +
-			`${interaction.client.iHorizon_Emojis.Timer} > **${lang.var_uses}:** ${"**`" + tag.uses + "`**"}\n` +
-			`${interaction.client.iHorizon_Emojis.Boosting24Months_Badge} > **${lang.tag_embed_last_updated_by}:** ${tag.lastUseBy ? '<@' + tag.lastUseBy + '>' : lang.var_no_set}\n` +
-			`${interaction.client.iHorizon_Emojis.Message_Commands} > **${lang.var_message}:** ** ${tag?.content || lang.var_no_set}**`
+				`${interaction.client.iHorizon_Emojis.Sparkles} > **${lang.tag_embed_created_at}:** ${time(new Date(tag.createTimestamp), "D")}\n` +
+				`${interaction.client.iHorizon_Emojis.Timer} > **${lang.tag_embed_last_update}:** ${time(new Date(tag.lastUseTimestamp), "D")}\n` +
+				`${interaction.client.iHorizon_Emojis.Timer} > **${lang.var_uses}:** ${"**`" + tag.uses + "`**"}\n` +
+				`${interaction.client.iHorizon_Emojis.Boosting24Months_Badge} > **${lang.tag_embed_last_updated_by}:** ${tag.lastUseBy ? "<@" + tag.lastUseBy + ">" : lang.var_no_set}\n` +
+				`${interaction.client.iHorizon_Emojis.Message_Commands} > **${lang.var_message}:** ** ${tag?.content || lang.var_no_set}**`
 		);
 }
