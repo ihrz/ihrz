@@ -127,33 +127,27 @@ export const subCommand: SubCommand = {
 			let lastMessageId: string | undefined;
 			let scannedMessages = 0;
 
-			while (
-				matchedMessages.length < targetAmount &&
-				scannedMessages < maxScannedMessages
+			const chunks = Math.ceil(maxScannedMessages / 100);
+
+			for (
+				let i = 0;
+				i < chunks && matchedMessages.length < targetAmount;
+				i++
 			) {
-				const remainingToScan = maxScannedMessages - scannedMessages;
 				const fetchedMessages = await channel.messages.fetch({
-					limit: Math.min(100, remainingToScan),
+					limit: 100,
 					before: lastMessageId
 				});
 
-				if (fetchedMessages.size === 0) {
-					break;
-				}
+				if (fetchedMessages.size === 0) break;
 
 				scannedMessages += fetchedMessages.size;
 				lastMessageId = fetchedMessages.last()?.id;
 
-				for (const fetchedMessage of fetchedMessages.values()) {
-					if (fetchedMessage.author.id !== member.id) {
-						continue;
-					}
-
-					matchedMessages.push(fetchedMessage);
-
-					if (matchedMessages.length >= targetAmount) {
-						break;
-					}
+				for (const msg of fetchedMessages.values()) {
+					if (msg.author.id !== member.id) continue;
+					matchedMessages.push(msg);
+					if (matchedMessages.length >= targetAmount) break;
 				}
 			}
 
