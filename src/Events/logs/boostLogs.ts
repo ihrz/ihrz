@@ -35,7 +35,14 @@ export const event: BotEvent = {
 		oldMember: GuildMember,
 		newMember: GuildMember
 	) => {
-		if (oldMember.premiumSince === newMember.premiumSince) return;
+		const oldPremiumSince = oldMember.partial
+			? oldMember.premiumSinceTimestamp ?? null
+			: oldMember.premiumSince?.getTime() ?? null;
+		const newPremiumSince = newMember.partial
+			? newMember.premiumSinceTimestamp ?? null
+			: newMember.premiumSince?.getTime() ?? null;
+
+		if (oldPremiumSince === newPremiumSince) return;
 
 		const data = await client.func.getLanguageData(newMember.guild.id);
 
