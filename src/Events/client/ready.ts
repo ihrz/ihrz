@@ -309,6 +309,7 @@ export const event: BotEvent = {
 			refreshSchedule(),
 			statsRefresher());
 
+		setInterval(quotesPresence, 8000);
 		PfpsManager_Init(client);
 
 		await recoverActiveSessions(client);
